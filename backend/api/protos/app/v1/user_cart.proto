@@ -3,6 +3,7 @@ syntax = "proto3";
 package app.v1;
 
 import "app/v1/recommend.proto";
+import "app/v1/tenant_store.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
@@ -76,26 +77,35 @@ message ListUserCartsRequest {}
 
 // 用户购物车列表响应
 message ListUserCartsResponse {
-  repeated UserCart user_carts = 1 [(gnostic.openapi.v3.property) = {description: "用户购物车列表"}]; // 用户购物车列表
+  repeated UserCartStore user_carts = 1 [(gnostic.openapi.v3.property) = {description: "按店铺分组的用户购物车列表"}]; // 按店铺分组的用户购物车列表
+}
+
+// 用户购物车店铺分组
+message UserCartStore {
+  TenantStore store = 1 [(gnostic.openapi.v3.property) = {description: "店铺信息"}]; // 店铺信息
+
+  repeated UserCart goods = 2 [(gnostic.openapi.v3.property) = {description: "商品列表"}]; // 商品列表
 }
 
 // 用户购物车
 message UserCart {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "用户购物车ID"}]; // 用户购物车ID
 
-  int64 goods_id = 2 [(gnostic.openapi.v3.property) = {description: "商品ID"}]; // 商品ID
+  int64 tenant_store_id = 2 [(gnostic.openapi.v3.property) = {description: "店铺ID"}]; // 店铺ID
 
-  string sku_code = 3 [(gnostic.openapi.v3.property) = {description: "规格编号"}]; // 规格编号
+  int64 goods_id = 3 [(gnostic.openapi.v3.property) = {description: "商品ID"}]; // 商品ID
 
-  string picture = 4 [(gnostic.openapi.v3.property) = {description: "商品图片"}]; // 商品图片
+  string sku_code = 4 [(gnostic.openapi.v3.property) = {description: "规格编号"}]; // 规格编号
 
-  string name = 5 [(gnostic.openapi.v3.property) = {description: "名称"}]; // 名称
+  string picture = 5 [(gnostic.openapi.v3.property) = {description: "商品图片"}]; // 商品图片
 
-  int64 num = 6 [(gnostic.openapi.v3.property) = {description: "数量"}]; // 数量
+  string name = 6 [(gnostic.openapi.v3.property) = {description: "名称"}]; // 名称
 
-  repeated string spec_item = 7 [(gnostic.openapi.v3.property) = {description: "规格描述"}]; // 规格描述
+  int64 num = 7 [(gnostic.openapi.v3.property) = {description: "数量"}]; // 数量
 
-  int64 inventory = 8 [(gnostic.openapi.v3.property) = {description: "库存数量"}]; // 库存数量
+  repeated string spec_item = 8 [(gnostic.openapi.v3.property) = {description: "规格描述"}]; // 规格描述
+
+  int64 inventory = 9 [(gnostic.openapi.v3.property) = {description: "库存数量"}]; // 库存数量
 
   int64 price = 41 [(gnostic.openapi.v3.property) = {description: "价格"}]; // 价格
 
@@ -104,6 +114,7 @@ message UserCart {
   bool is_checked = 51 [(gnostic.openapi.v3.property) = {description: "是否选中"}]; // 是否选中
 
   RecommendContext recommend_context = 52 [(gnostic.openapi.v3.property) = {description: "推荐上下文"}]; // 推荐上下文
+
 }
 
 // 创建购物车请求参数

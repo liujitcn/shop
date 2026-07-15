@@ -386,9 +386,7 @@ async function requestTenantStoreTable(params: PageTenantStoresRequest) {
     requestParams.tenant_id = undefined;
   }
   const data = await defTenantStoreService.PageTenantStores(requestParams);
-  const compatData = data as typeof data & { tenantStores?: typeof data.tenant_stores; list?: typeof data.tenant_stores };
-  const list = compatData.tenant_stores ?? compatData.tenantStores ?? compatData.list ?? [];
-  return { data: { ...data, list } };
+  return { data: { list: data.tenant_stores ?? [], total: data.total } };
 }
 
 /** 刷新租户门店表格。 */

@@ -77,6 +77,7 @@ import type { ColumnProps, ProTableInstance } from "@/components/ProTable/interf
 import ProTable from "@/components/ProTable/index.vue";
 import ProDialog from "@/components/Dialog/ProDialog.vue";
 import { defBaseLogService } from "@/api/admin/base_log";
+import { buildPageRequest } from "@/utils/proTable";
 import { formatJson } from "@/utils/utils";
 import type { BaseLog, PageBaseLogsRequest } from "@/rpc/admin/v1/base_log";
 
@@ -250,20 +251,11 @@ const columns: ColumnProps[] = [
 ];
 
 /**
- * 请求系统日志列表，并由 ProTable 统一处理分页与搜索参数。
+ * 请求系统日志列表，并通过 buildPageRequest 统一处理分页参数。
  */
-async function requestBaseLogTable(params: Partial<PageBaseLogsRequest> & { pageNum?: number; pageSize?: number }) {
-  const data = await defBaseLogService.PageBaseLogs({
-    request_time: params.request_time ?? ["", ""],
-    operation: params.operation ?? "",
-    status_code: params.status_code,
-    page_num: Number(params.page_num ?? params.pageNum ?? 1),
-    page_size: Number(params.page_size ?? params.pageSize ?? 10)
-  });
-  const compatData = data as typeof data & { baseLogs?: typeof data.base_logs; list?: typeof data.base_logs };
-  // ProTable 固定消费 list，优先使用新 snake_case 字段并兼容历史响应。
-  const list = compatData.base_logs ?? compatData.baseLogs ?? compatData.list ?? [];
-  return { data: { list, total: data.total } };
+async function requestBaseLogTable(params: PageBaseLogsRequest) {
+  const data = await defBaseLogService.PageBaseLogs(buildPageRequest(params));
+  return { data: { list: data.base_logs ?? [], total: data.total } };
 }
 
 /**

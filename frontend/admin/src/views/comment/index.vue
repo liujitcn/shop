@@ -95,6 +95,7 @@ import { navigateTo } from "@/utils/router";
 import { useUserStore } from "@/stores/modules/user";
 import {
   buildTenantStoreDisplayMap,
+  buildTenantStoreDisplayMapFromOptions,
   DEFAULT_TENANT_CODE,
   formatTenantStoreDisplay,
   parseTenantStoreTreeValue,
@@ -128,7 +129,7 @@ const tenantStoreDisplayMap = ref(new Map<number, TenantStoreDisplayInfo>());
 
 /** 评论列表搜索参数，兼容租户门店树筛选展示值。 */
 type CommentInfoSearchParams = PageCommentInfosRequest & {
-  /** 租户门店树筛选值。 */
+  /** 默认租户的租户门店树筛选值。 */
   tenant_store_tree_value?: string;
 };
 
@@ -161,20 +162,32 @@ const columns = computed<ColumnProps[]>(() => [
     minWidth: isDefaultTenant.value ? 220 : 150,
     showOverflowTooltip: true,
     render: scope => getTenantStoreText(scope.row as CommentInfo),
-    search: {
-      el: "tree-select",
-      key: "tenant_store_tree_value",
-      order: 1,
-      props: {
-        clearable: true,
-        filterable: true,
-        checkStrictly: true,
-        renderAfterExpand: false,
-        placeholder: isDefaultTenant.value ? "请选择租户/门店" : "请选择门店",
-        style: { width: "100%" }
-      }
-    },
-    enum: requestTenantStoreTreeOptions
+    search: isDefaultTenant.value
+      ? {
+          el: "tree-select",
+          key: "tenant_store_tree_value",
+          order: 1,
+          props: {
+            clearable: true,
+            filterable: true,
+            checkStrictly: true,
+            renderAfterExpand: false,
+            placeholder: "请选择租户/门店",
+            style: { width: "100%" }
+          }
+        }
+      : {
+          el: "select",
+          key: "tenant_store_id",
+          order: 1,
+          props: {
+            clearable: true,
+            filterable: true,
+            placeholder: "请选择门店",
+            style: { width: "100%" }
+          }
+        },
+    enum: isDefaultTenant.value ? requestTenantStoreTreeOptions : requestTenantStoreOptions
   },
   { prop: "goods_picture_snapshot", label: "商品图", width: 90, cellType: "image", imageProps: { width: 48, height: 48 } },
   { prop: "goods_name_snapshot", label: "商品名称", minWidth: 220, search: { el: "input", key: "goods_name" } },
@@ -292,20 +305,19 @@ watch(
 /** 请求评论列表，并由 ProTable 统一维护分页与搜索参数。 */
 async function requestCommentTable(params: Record<string, any>) {
   const searchParams = params as CommentInfoSearchParams;
-  const treeSelection = parseTenantStoreTreeValue(searchParams.tenant_store_tree_value);
+  // 默认租户按树节点解析租户或门店，普通租户直接传下拉选择的门店编号。
+  const tenantStoreSelection = isDefaultTenant.value
+    ? parseTenantStoreTreeValue(searchParams.tenant_store_tree_value)
+    : { tenant_store_id: searchParams.tenant_store_id };
   const { tenant_store_tree_value: _tenantStoreTreeValue, tenant_id: _tenantId, tenant_store_id: _tenantStoreId, ...rawParams } = searchParams;
-  const { pageNum, pageSize, ...requestParams } = buildPageRequest(rawParams);
-  const data = await defCommentInfoService.PageCommentInfos({
-    ...requestParams,
-    tenant_id: treeSelection.tenant_id,
-    tenant_store_id: treeSelection.tenant_store_id,
-    page_num: Number(pageNum),
-    page_size: Number(pageSize)
-  } as PageCommentInfosRequest);
-  const compatData = data as typeof data & { commentInfos?: typeof data.comment_infos; list?: typeof data.comment_infos };
-  // ProTable 固定消费 list，优先使用新 snake_case 字段并兼容历史响应。
-  const list = compatData.comment_infos ?? compatData.commentInfos ?? compatData.list ?? [];
-  return { data: { ...data, list } };
+  const data = await defCommentInfoService.PageCommentInfos(
+    buildPageRequest({
+      ...rawParams,
+      tenant_id: tenantStoreSelection.tenant_id,
+      tenant_store_id: tenantStoreSelection.tenant_store_id
+    }) as PageCommentInfosRequest
+  );
+  return { data: { list: data.comment_infos ?? [], total: data.total } };
 }
 
 /**
@@ -315,6 +327,13 @@ async function requestTenantStoreTreeOptions() {
   const response = await defTenantStoreService.TreeTenantStores({ keyword: "" });
   tenantStoreDisplayMap.value = buildTenantStoreDisplayMap(response.list ?? []);
   return { data: transformTenantStoreTreeOptions(response.list ?? []) };
+}
+
+/** 请求普通租户的门店下拉筛选数据。 */
+async function requestTenantStoreOptions() {
+  const response = await defTenantStoreService.OptionTenantStores({ keyword: "" });
+  tenantStoreDisplayMap.value = buildTenantStoreDisplayMapFromOptions(response.list ?? []);
+  return { data: response.list ?? [] };
 }
 
 /**

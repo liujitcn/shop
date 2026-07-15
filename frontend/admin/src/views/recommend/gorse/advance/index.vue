@@ -521,22 +521,22 @@ function buildPreviewRow(parsedRecord: ParsedImportRecord, index: number): Advan
   const record = parsedRecord.record;
   const failureReasonList = parsedRecord.parseError ? [parsedRecord.parseError] : validatePreviewRecord(record);
   const status: PreviewValidationStatus = failureReasonList.length ? "failed" : "success";
-  const categories = record.Categories ?? record.categories;
-  const labels = record.Labels ?? record.labels;
+  const categories = record.categories;
+  const labels = record.labels;
   return {
     previewKey: `${importDataTypeKey.value}-${index}`,
     sourceLabel: String(index + 1),
     status,
     failureReason: failureReasonList.join("；"),
-    userId: normalizeRecordValue(record.UserId ?? record.user_id),
-    itemId: normalizeRecordValue(record.ItemId ?? record.item_id),
-    isHidden: normalizeRecordValue(record.IsHidden ?? record.is_hidden),
+    userId: normalizeRecordValue(record.user_id),
+    itemId: normalizeRecordValue(record.item_id),
+    isHidden: normalizeRecordValue(record.is_hidden),
     categories: formatPreviewValue(categories),
     labels: formatPreviewValue(labels),
-    value: normalizeRecordValue(record.Value ?? record.value),
-    comment: normalizeRecordValue(record.Comment ?? record.comment),
-    timestamp: normalizeRecordValue(record.Timestamp ?? record.timestamp),
-    feedbackType: normalizeRecordValue(record.FeedbackType ?? record.feedback_type)
+    value: normalizeRecordValue(record.value),
+    comment: normalizeRecordValue(record.comment),
+    timestamp: normalizeRecordValue(record.timestamp),
+    feedbackType: normalizeRecordValue(record.feedback_type)
   };
 }
 

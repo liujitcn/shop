@@ -31,7 +31,7 @@ import { defBaseJobService } from "@/api/admin/base_job";
 import type { BaseJob, BaseJobArgs, BaseJobForm, PageBaseJobsRequest } from "@/rpc/admin/v1/base_job";
 import router from "@/routers";
 import { Status } from "@/rpc/common/v1/enum";
-import { normalizeSelectedIds } from "@/utils/proTable";
+import { buildPageRequest, normalizeSelectedIds } from "@/utils/proTable";
 import { navigateTo } from "@/utils/router";
 
 defineOptions({
@@ -296,15 +296,9 @@ const headerActions: HeaderActionProps[] = [
 /**
  * 请求定时任务列表，并由 ProTable 统一维护分页与搜索参数。
  */
-async function requestBaseJobTable(params: Partial<PageBaseJobsRequest> & { pageNum?: number; pageSize?: number }) {
-  const data = await defBaseJobService.PageBaseJobs({
-    name: params.name ?? "",
-    invoke_target: params.invoke_target ?? "",
-    status: params.status,
-    page_num: Number(params.page_num ?? params.pageNum ?? 1),
-    page_size: Number(params.page_size ?? params.pageSize ?? 10)
-  });
-  return { data: { list: data.base_jobs, total: data.total } };
+async function requestBaseJobTable(params: PageBaseJobsRequest) {
+  const data = await defBaseJobService.PageBaseJobs(buildPageRequest(params));
+  return { data: { list: data.base_jobs ?? [], total: data.total } };
 }
 
 /**

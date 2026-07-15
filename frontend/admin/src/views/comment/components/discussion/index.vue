@@ -174,22 +174,10 @@ const columns: ColumnProps[] = [
 
 /** 请求评论讨论列表，并固定附加当前评论记录。 */
 async function requestDiscussionTable(params: Record<string, any>) {
-  const pageParams: Record<string, any> = {
-    ...params,
-    comment_id: props.commentId
-  };
-  const { pageNum, pageSize, ...requestParams } = buildPageRequest(pageParams);
-  const data = await defCommentInfoService.PageCommentDiscussions({
-    ...requestParams,
-    comment_id: props.commentId,
-    page_num: Number(pageNum),
-    page_size: Number(pageSize)
-  } as PageCommentDiscussionsRequest);
-  const compatData = data as typeof data & {
-    commentDiscussions?: typeof data.comment_discussions;
-    list?: typeof data.comment_discussions;
-  };
-  return { data: { ...data, list: compatData.comment_discussions ?? compatData.commentDiscussions ?? compatData.list ?? [] } };
+  const data = await defCommentInfoService.PageCommentDiscussions(
+    buildPageRequest({ ...params, comment_id: props.commentId }) as PageCommentDiscussionsRequest
+  );
+  return { data: { list: data.comment_discussions ?? [], total: data.total } };
 }
 
 /** 刷新评论讨论表格。 */

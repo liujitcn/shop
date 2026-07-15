@@ -651,7 +651,7 @@ async function requestGoodsCommentTable(params: PageCommentInfosRequest) {
   const data = await defCommentInfoService.PageCommentInfos(
     buildPageRequest({ ...params, goods_id: goodsId.value }) as PageCommentInfosRequest
   );
-  return { data: { ...data, list: data.comment_infos ?? [] } };
+  return { data: { list: data.comment_infos ?? [], total: data.total } };
 }
 
 /** 刷新当前商品评论列表。 */

@@ -343,8 +343,7 @@ export function filterEnum(callValue: any, enumData?: any, fieldNames?: FieldNam
   if (Array.isArray(enumData)) filterData = findItemNested(enumData, callValue, value, children);
   // 判断是否输出的结果为 tag 类型
   if (type == "tag") {
-    // 字典生成类型已迁移为 snake_case，兼容表格枚举仍使用的 tagType。
-    return filterData?.tag_type ?? filterData?.tagType ?? "";
+    return filterData?.tag_type ?? "";
   } else {
     return filterData ? filterData[label] : "--";
   }

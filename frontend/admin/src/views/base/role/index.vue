@@ -94,7 +94,7 @@ import { defBaseMenuService } from "@/api/admin/base_menu";
 import { defBaseTenantService } from "@/api/admin/base_tenant";
 import type { SelectOptionResponse_Option, TreeOptionResponse_Option } from "@/rpc/common/v1/common";
 import { Status } from "@/rpc/common/v1/enum";
-import { normalizeSelectedIds } from "@/utils/proTable";
+import { buildPageRequest, normalizeSelectedIds } from "@/utils/proTable";
 import { useUserStore } from "@/stores/modules/user";
 import { DEFAULT_TENANT_CODE, requestTenantOptions } from "@/utils/tenant";
 
@@ -293,16 +293,12 @@ const headerActions: HeaderActionProps[] = [
 /**
  * 请求角色列表，并由 ProTable 统一维护分页与搜索参数。
  */
-async function requestBaseRoleTable(params: Partial<PageBaseRolesRequest> & { pageNum?: number; pageSize?: number }) {
+async function requestBaseRoleTable(params: PageBaseRolesRequest) {
   const data = await defBaseRoleService.PageBaseRoles({
-    name: params.name ?? "",
-    code: params.code ?? "",
+    ...buildPageRequest(params),
     tenant_id: isDefaultTenant.value ? params.tenant_id : undefined,
-    status: params.status,
-    page_num: Number(params.page_num ?? params.pageNum ?? 1),
-    page_size: Number(params.page_size ?? params.pageSize ?? 10)
   });
-  return { data: { list: data.base_roles, total: data.total } };
+  return { data: { list: data.base_roles ?? [], total: data.total } };
 }
 
 /**

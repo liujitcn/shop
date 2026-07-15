@@ -682,9 +682,7 @@ function buildSubmitPayload(): BaseMenuForm {
 async function loadDialogResources() {
   const [menuData, apiData] = await Promise.all([defBaseMenuService.OptionBaseMenus({}), defBaseApiService.ListBaseApis({})]);
   menuOptions.value = buildMenuOptions(menuData.list ?? []);
-  const compatApiData = apiData as typeof apiData & { baseApis?: typeof apiData.base_apis; list?: typeof apiData.base_apis };
-  // 弹窗 API 选项优先读取 snake_case 集合，兼容旧 camelCase/list。
-  apiList.value = compatApiData.base_apis ?? compatApiData.baseApis ?? compatApiData.list ?? [];
+  apiList.value = apiData.base_apis ?? [];
 }
 
 /** 根据关键字递归过滤菜单树，保留匹配节点及其父级。 */
@@ -722,12 +720,8 @@ async function requestMenuTable(params: Record<string, string>) {
     path: params.path ?? ""
   };
 
-  const compatData = data as typeof data & { baseMenus?: typeof data.base_menus; list?: typeof data.base_menus };
-  // 树表优先读取 snake_case 菜单集合，保留旧字段兜底。
-  const list = compatData.base_menus ?? compatData.baseMenus ?? compatData.list ?? [];
-
   return {
-    data: filterMenuTree(list, keywordMap)
+    data: filterMenuTree(data.base_menus ?? [], keywordMap)
   };
 }
 

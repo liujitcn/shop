@@ -135,7 +135,7 @@ async function loadTimeSeries(name: string) {
       begin: dayjs(beginValue).startOf("day").toISOString(),
       end: dayjs(endValue).endOf("day").toISOString()
     });
-    chartPoints.value = normalizeTimeSeriesPoints(data);
+    chartPoints.value = data.points ?? [];
   } finally {
     chartLoading.value = false;
   }
@@ -212,28 +212,6 @@ function formatCountAxisValue(value: number) {
   // 原始仪表盘超过 999 时用 K 缩写展示数量级。
   if (value > 999) return `${(value / 1000).toFixed(1).replace(/\.0$/, "")}K`;
   return formatDecimalAxisValue(value);
-}
-
-/** 兼容后台代理 points 包装和 Gorse 原生数组两种时间序列返回结构。 */
-function normalizeTimeSeriesPoints(response: unknown): TimeSeriesPoint[] {
-  const responseRecord =
-    typeof response === "object" && response !== null && !Array.isArray(response) ? (response as Record<string, unknown>) : {};
-  const rawPoints = (
-    Array.isArray(response)
-      ? response
-      : Array.isArray(responseRecord.Points ?? responseRecord.points)
-        ? (responseRecord.Points ?? responseRecord.points)
-        : []
-  ) as unknown[];
-  return rawPoints
-    .map(point => {
-      const record =
-        typeof point === "object" && point !== null && !Array.isArray(point) ? (point as Record<string, unknown>) : {};
-      const timestamp = String(record.timestamp ?? record.Timestamp ?? "");
-      const value = Number(record.value ?? record.Value ?? 0);
-      return { name: String(record.name ?? record.Name ?? ""), timestamp, value };
-    })
-    .filter(point => point.timestamp);
 }
 
 /** 构建推荐性能默认时间区间。 */

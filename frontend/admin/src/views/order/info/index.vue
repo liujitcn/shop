@@ -269,6 +269,7 @@ import { formatPrice } from "@/utils/utils";
 import { useUserStore } from "@/stores/modules/user";
 import {
   buildTenantStoreDisplayMap,
+  buildTenantStoreDisplayMapFromOptions,
   DEFAULT_TENANT_CODE,
   formatTenantStoreDisplay,
   parseTenantStoreTreeValue,
@@ -300,7 +301,7 @@ const tenantStoreDisplayMap = ref(new Map<number, TenantStoreDisplayInfo>());
 
 /** 订单列表搜索参数，兼容租户门店树筛选展示值。 */
 type OrderInfoSearchParams = PageOrderInfosRequest & {
-  /** 租户门店树筛选值。 */
+  /** 默认租户的租户门店树筛选值。 */
   tenant_store_tree_value?: string;
 };
 
@@ -695,20 +696,32 @@ const columns = computed<ColumnProps[]>(() => [
     minWidth: isDefaultTenant.value ? 220 : 150,
     showOverflowTooltip: true,
     render: scope => getTenantStoreText(scope.row as OrderInfo),
-    search: {
-      el: "tree-select",
-      key: "tenant_store_tree_value",
-      order: 1,
-      props: {
-        clearable: true,
-        filterable: true,
-        checkStrictly: true,
-        renderAfterExpand: false,
-        placeholder: isDefaultTenant.value ? "请选择租户/门店" : "请选择门店",
-        style: { width: "100%" }
-      }
-    },
-    enum: requestTenantStoreTreeOptions
+    search: isDefaultTenant.value
+      ? {
+          el: "tree-select",
+          key: "tenant_store_tree_value",
+          order: 1,
+          props: {
+            clearable: true,
+            filterable: true,
+            checkStrictly: true,
+            renderAfterExpand: false,
+            placeholder: "请选择租户/门店",
+            style: { width: "100%" }
+          }
+        }
+      : {
+          el: "select",
+          key: "tenant_store_id",
+          order: 1,
+          props: {
+            clearable: true,
+            filterable: true,
+            placeholder: "请选择门店",
+            style: { width: "100%" }
+          }
+        },
+    enum: isDefaultTenant.value ? requestTenantStoreTreeOptions : requestTenantStoreOptions
   },
   {
     prop: "user_id",
@@ -802,6 +815,13 @@ async function requestTenantStoreTreeOptions() {
   return { data: transformTenantStoreTreeOptions(response.list ?? []) };
 }
 
+/** 请求普通租户的门店下拉筛选数据。 */
+async function requestTenantStoreOptions() {
+  const response = await defTenantStoreService.OptionTenantStores({ keyword: "" });
+  tenantStoreDisplayMap.value = buildTenantStoreDisplayMapFromOptions(response.list ?? []);
+  return { data: response.list ?? [] };
+}
+
 /**
  * 读取订单列表租户门店展示文本，默认租户显示租户/门店。
  */
@@ -821,22 +841,22 @@ function handleUserSearch(keyword: string) {
  */
 async function requestOrderTable(params: PageOrderInfosRequest) {
   const searchParams = params as OrderInfoSearchParams;
-  const treeSelection = parseTenantStoreTreeValue(searchParams.tenant_store_tree_value);
+  // 默认租户按树节点解析租户或门店，普通租户直接传下拉选择的门店编号。
+  const tenantStoreSelection = isDefaultTenant.value
+    ? parseTenantStoreTreeValue(searchParams.tenant_store_tree_value)
+    : { tenant_store_id: searchParams.tenant_store_id };
   const { tenant_store_tree_value: _tenantStoreTreeValue, tenant_id: _tenantId, tenant_store_id: _tenantStoreId, ...requestParams } = searchParams;
   const data = await defOrderInfoService.PageOrderInfos(
     buildPageRequest({
       ...requestParams,
-      tenant_id: treeSelection.tenant_id,
-      tenant_store_id: treeSelection.tenant_store_id,
+      tenant_id: tenantStoreSelection.tenant_id,
+      tenant_store_id: tenantStoreSelection.tenant_store_id,
       user_id: Number(params.user_id ?? 0),
       status: props.status || params.status,
       created_at: params.created_at ?? ["", ""]
     })
   );
-  const compatData = data as typeof data & { orderInfos?: typeof data.order_infos; list?: typeof data.order_infos };
-  // ProTable 固定消费 list，优先使用新 snake_case 字段并兼容历史响应。
-  const list = compatData.order_infos ?? compatData.orderInfos ?? compatData.list ?? [];
-  return { data: { ...data, list } };
+  return { data: { list: data.order_infos ?? [], total: data.total } };
 }
 
 /**

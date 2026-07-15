@@ -221,20 +221,10 @@ watch(
  * 请求热门推荐选项分页数据，并附带当前热门推荐 ID。
  */
 async function requestShopHotItemTable(params: Record<string, any>) {
-  const { pageNum, pageSize, ...requestParams } = buildPageRequest({
-    ...params,
-    hot_id: hotId.value
-  } as Record<string, any>);
-  const data = await defShopHotService.PageShopHotItems({
-    ...requestParams,
-    hot_id: hotId.value,
-    page_num: Number(pageNum),
-    page_size: Number(pageSize)
-  } as PageShopHotItemsRequest);
-  const compatData = data as typeof data & { shopHotItems?: typeof data.shop_hot_items; list?: typeof data.shop_hot_items };
-  // ProTable 固定消费 list，优先使用新 snake_case 字段并兼容历史响应。
-  const list = compatData.shop_hot_items ?? compatData.shopHotItems ?? compatData.list ?? [];
-  return { data: { ...data, list } };
+  const data = await defShopHotService.PageShopHotItems(
+    buildPageRequest({ ...params, hot_id: hotId.value }) as PageShopHotItemsRequest
+  );
+  return { data: { list: data.shop_hot_items ?? [], total: data.total } };
 }
 
 /**
@@ -249,11 +239,7 @@ function refreshTable() {
  */
 async function loadGoodsOptions() {
   const listGoodsInfoResponse = await defGoodsInfoService.OptionGoodsInfos({ name: "" });
-  const compatGoodsInfoResponse = listGoodsInfoResponse as typeof listGoodsInfoResponse & {
-    goodsInfos?: typeof listGoodsInfoResponse.goods_infos;
-  };
-  // 商品选项优先读取 snake_case 集合，兼容旧 camelCase 响应。
-  goodsInfoList.value = compatGoodsInfoResponse.goods_infos ?? compatGoodsInfoResponse.goodsInfos ?? [];
+  goodsInfoList.value = listGoodsInfoResponse.goods_infos ?? [];
 }
 
 /**

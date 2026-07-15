@@ -259,13 +259,7 @@ async function requestGoodsCategoryTable(params: Record<string, string>) {
     name: params.name ?? "",
     status: String(params.status ?? "")
   };
-  const compatData = data as typeof data & {
-    goodsCategories?: typeof data.goods_categories;
-    list?: typeof data.goods_categories;
-  };
-  // 树表优先读取 snake_case 分类集合，保留旧字段兜底。
-  const list = compatData.goods_categories ?? compatData.goodsCategories ?? compatData.list ?? [];
-  return { data: filterCategoryTree(list, keywordMap) };
+  return { data: filterCategoryTree(data.goods_categories ?? [], keywordMap) };
 }
 
 /**

@@ -78,7 +78,7 @@ import { defBaseRoleService } from "@/api/admin/base_role";
 import { defBaseTenantService } from "@/api/admin/base_tenant";
 import type { SelectOptionResponse_Option, TreeOptionResponse_Option } from "@/rpc/common/v1/common";
 import { Status } from "@/rpc/common/v1/enum";
-import { normalizeSelectedIds } from "@/utils/proTable";
+import { buildPageRequest, normalizeSelectedIds } from "@/utils/proTable";
 import { PASSWORD_STRENGTH_ERROR_MESSAGE, validatePasswordStrengthValue } from "@/utils/passwordStrength";
 import { PASSWORD_CRYPTO_SCENE, encryptPassword } from "@/utils/passwordCrypto";
 import { DEFAULT_TENANT_CODE, requestTenantOptions } from "@/utils/tenant";
@@ -401,7 +401,7 @@ function changeTreeFilter(value: string) {
 /**
  * 请求用户分页列表，并统一处理分页参数。
  */
-async function requestBaseUserTable(params: Partial<PageBaseUsersRequest> & { pageNum?: number; pageSize?: number }) {
+async function requestBaseUserTable(params: PageBaseUsersRequest) {
   const tenantId = isDefaultTenant.value ? (params.tenant_id ?? initParam.tenant_id) : undefined;
   if (tenantId !== initParam.tenant_id) {
     initParam.tenant_id = tenantId;
@@ -409,17 +409,11 @@ async function requestBaseUserTable(params: Partial<PageBaseUsersRequest> & { pa
     deptFilterValue.value = "";
   }
   const data = await defBaseUserService.PageBaseUsers({
-    user_name: params.user_name ?? "",
-    nick_name: params.nick_name ?? "",
+    ...buildPageRequest(params),
     tenant_id: tenantId,
-    dept_id: initParam.dept_id,
-    phone: params.phone ?? "",
-    gender: params.gender,
-    status: params.status,
-    page_num: Number(params.page_num ?? params.pageNum ?? 1),
-    page_size: Number(params.page_size ?? params.pageSize ?? 10)
+    dept_id: initParam.dept_id
   });
-  return { data: { list: data.base_users, total: data.total } };
+  return { data: { list: data.base_users ?? [], total: data.total } };
 }
 
 /**

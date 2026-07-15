@@ -2,7 +2,7 @@
 import type { InputNumberBoxEvent } from '@/components/input-number-box/input-number-box'
 import { useGuessList } from '@/composables'
 import { defUserCartService } from '@/api/app/user_cart'
-import type { UserCart } from '@/rpc/app/v1/user_cart'
+import type { UserCart, UserCartStore } from '@/rpc/app/v1/user_cart'
 import { useUserStore } from '@/stores'
 import { onShow } from '@dcloudio/uni-app'
 import { computed, ref } from 'vue'
@@ -13,6 +13,7 @@ import {
   navigateToLogin,
   navigateToOrderCreate,
   switchTabToHome,
+  tenantStoreUrl,
 } from '@/utils/navigation'
 
 // 是否适配底部安全区域
@@ -27,7 +28,8 @@ const { safeAreaInsets } = uni.getSystemInfoSync()
 const userStore = useUserStore()
 
 // 获取购物车数据
-const cartList = ref<UserCart[]>([])
+const cartStores = ref<UserCartStore[]>([])
+const cartList = computed(() => cartStores.value.flatMap((store) => store.goods))
 // 优化购物车空列表状态，默认展示列表
 const showCartList = ref(false)
 /** 购物车库存同步结果，用于决定是否刷新列表和提示用户。 */
@@ -38,8 +40,8 @@ type CartSyncResult = {
 }
 
 /** 把购物车列表写回页面状态。 */
-const applyCartList = (list: UserCart[]) => {
-  cartList.value = list
+const applyCartStores = (stores: UserCartStore[]) => {
+  cartStores.value = stores
   showCartList.value = cartList.value.length > 0
 }
 
@@ -110,15 +112,16 @@ const showCartSyncToast = async (result: CartSyncResult) => {
 /** 拉取购物车列表，并在展示前同步失效库存。 */
 const getUserCartData = async () => {
   const res = await defUserCartService.ListUserCarts({})
-  const list = res.user_carts || []
+  const stores = res.user_carts || []
+  const list = stores.flatMap((store) => store.goods)
   const syncResult = await syncCartInventory(list)
   if (syncResult.synced) {
     const latestRes = await defUserCartService.ListUserCarts({})
-    applyCartList(latestRes.user_carts || [])
+    applyCartStores(latestRes.user_carts || [])
     await showCartSyncToast(syncResult)
     return
   }
-  applyCartList(list)
+  applyCartStores(stores)
 }
 
 // 初始化调用: 页面显示触发
@@ -186,6 +189,18 @@ const onChangeSelectedAll = () => {
 const selectedCartList = computed(() => {
   return cartList.value.filter((v) => v.is_checked)
 })
+// 修改门店下全部商品的选中状态。
+const onChangeStoreSelected = async (items: UserCart[]) => {
+  const isChecked = !items.every((item) => item.is_checked)
+  items.forEach((item) => {
+    item.is_checked = isChecked
+  })
+  await Promise.all(
+    items.map((item) =>
+      defUserCartService.SetUserCartStatus({ id: item.id, is_checked: isChecked }),
+    ),
+  )
+}
 // 勾选商品里只要存在超库存或无库存，就不应该继续进入结算页。
 const hasInvalidSelectedCart = computed(() => {
   return selectedCartList.value.some((item) => item.inventory <= 0 || item.num > item.inventory)
@@ -252,49 +267,78 @@ const guessTitle = computed(() => {
         <!--          <text class="desc">满1件, 即可享受包邮服务</text>-->
         <!--        </view>-->
         <!-- 滑动操作分区 -->
-        <uni-swipe-action>
-          <!-- 滑动操作项 -->
-          <uni-swipe-action-item v-for="item in cartList" :key="item.id" class="cart-swipe">
-            <!-- 商品信息 -->
-            <view class="goods">
-              <!-- 选中状态 -->
-              <text
-                @tap="onChangeSelected(item)"
-                class="checkbox"
-                :class="{ checked: item.is_checked }"
-              ></text>
-              <navigator :url="goodsDetailUrl(item.goods_id)" hover-class="none" class="navigator">
-                <image mode="aspectFill" class="picture" :src="formatSrc(item.picture)"></image>
-                <view class="meta">
-                  <view class="name ellipsis">{{ item.name }}</view>
-                  <view class="attrsText ellipsis">{{ item.spec_item.join('/') }}</view>
-                  <view class="price">
-                    <text class="current-price">{{ formatPrice(item.price) }}</text>
-                    <text v-if="item.join_price" class="join-price">{{
-                      formatPrice(item.join_price)
-                    }}</text>
+        <view v-for="group in cartStores" :key="group.store?.id" class="store-group">
+          <view class="store-header">
+            <text
+              class="checkbox"
+              :class="{ checked: group.goods.every((item) => item.is_checked) }"
+              @tap="onChangeStoreSelected(group.goods)"
+            ></text>
+            <navigator
+              v-if="group.store?.id"
+              class="store-link"
+              :url="tenantStoreUrl(group.store.id)"
+              hover-class="none"
+            >
+              <image
+                v-if="group.store.logo"
+                class="store-logo"
+                :src="formatSrc(group.store.logo)"
+                mode="aspectFill"
+              />
+              <text class="store-name">{{ group.store.name || '店铺' }}</text>
+              <text class="store-arrow">&gt;</text>
+            </navigator>
+            <text v-else class="store-name">店铺</text>
+          </view>
+          <uni-swipe-action>
+            <!-- 滑动操作项 -->
+            <uni-swipe-action-item v-for="item in group.goods" :key="item.id" class="cart-swipe">
+              <!-- 商品信息 -->
+              <view class="goods">
+                <!-- 选中状态 -->
+                <text
+                  @tap="onChangeSelected(item)"
+                  class="checkbox"
+                  :class="{ checked: item.is_checked }"
+                ></text>
+                <navigator
+                  :url="goodsDetailUrl(item.goods_id)"
+                  hover-class="none"
+                  class="navigator"
+                >
+                  <image mode="aspectFill" class="picture" :src="formatSrc(item.picture)"></image>
+                  <view class="meta">
+                    <view class="name ellipsis">{{ item.name }}</view>
+                    <view class="attrsText ellipsis">{{ item.spec_item.join('/') }}</view>
+                    <view class="price">
+                      <text class="current-price">{{ formatPrice(item.price) }}</text>
+                      <text v-if="item.join_price" class="join-price">{{
+                        formatPrice(item.join_price)
+                      }}</text>
+                    </view>
                   </view>
+                </navigator>
+                <!-- 商品数量 -->
+                <view class="count">
+                  <input-number-box
+                    v-model="item.num"
+                    :min="1"
+                    :max="item.inventory"
+                    :index="item.id"
+                    @change="onChangeCount"
+                  />
                 </view>
-              </navigator>
-              <!-- 商品数量 -->
-              <view class="count">
-                <input-number-box
-                  v-model="item.num"
-                  :min="1"
-                  :max="item.inventory"
-                  :index="item.id"
-                  @change="onChangeCount"
-                />
               </view>
-            </view>
-            <!-- 右侧删除按钮 -->
-            <template #right>
-              <view class="cart-swipe-right">
-                <button @tap="onDeleteCart(item.id)" class="button delete-button">删除</button>
-              </view>
-            </template>
-          </uni-swipe-action-item>
-        </uni-swipe-action>
+              <!-- 右侧删除按钮 -->
+              <template #right>
+                <view class="cart-swipe-right">
+                  <button @tap="onDeleteCart(item.id)" class="button delete-button">删除</button>
+                </view>
+              </template>
+            </uni-swipe-action-item>
+          </uni-swipe-action>
+        </view>
       </view>
       <!-- 购物车空状态 -->
       <EmptyState
@@ -533,6 +577,47 @@ const guessTitle = computed(() => {
       background-color: #cf4444;
     }
   }
+}
+
+.store-group {
+  margin: 20rpx 0;
+  overflow: hidden;
+  background: #fff;
+  border-radius: 8rpx;
+}
+
+.store-header {
+  display: flex;
+  align-items: center;
+  min-height: 88rpx;
+  padding: 0 20rpx;
+  border-bottom: 1rpx solid #eee;
+}
+
+.store-link {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  min-width: 0;
+}
+
+.store-logo {
+  width: 48rpx;
+  height: 48rpx;
+  margin-left: 20rpx;
+  border-radius: 4rpx;
+}
+
+.store-name {
+  margin-left: 16rpx;
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #333;
+}
+
+.store-arrow {
+  margin-left: 12rpx;
+  color: #999;
 }
 
 // 吸底工具栏

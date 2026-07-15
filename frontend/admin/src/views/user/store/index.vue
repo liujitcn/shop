@@ -195,7 +195,7 @@ const columns: ColumnProps[] = [
  */
 async function requestUserStoreTable(params: PageUserStoresRequest) {
   const data = await defUserStoreService.PageUserStores(buildPageRequest(params));
-  return { data: { ...data, list: data.user_stores ?? [] } };
+  return { data: { list: data.user_stores ?? [], total: data.total } };
 }
 
 /**

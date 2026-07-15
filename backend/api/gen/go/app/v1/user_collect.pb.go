@@ -367,14 +367,16 @@ func (x *UserCollectForm) GetRecommendContext() *RecommendContext {
 // 用户收藏
 type UserCollect struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                 // 用户收藏ID
-	GoodsId       int64                  `protobuf:"varint,2,opt,name=goods_id,json=goodsId,proto3" json:"goods_id,omitempty"`        // 商品ID
-	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                              // 名称
-	Desc          string                 `protobuf:"bytes,4,opt,name=desc,proto3" json:"desc,omitempty"`                              // 描述
-	Picture       string                 `protobuf:"bytes,30,opt,name=picture,proto3" json:"picture,omitempty"`                       // 商品图片
-	SaleNum       int64                  `protobuf:"varint,40,opt,name=sale_num,json=saleNum,proto3" json:"sale_num,omitempty"`       // 销量
-	Price         int64                  `protobuf:"varint,41,opt,name=price,proto3" json:"price,omitempty"`                          // 价格
-	JoinPrice     int64                  `protobuf:"varint,50,opt,name=join_price,json=joinPrice,proto3" json:"join_price,omitempty"` // 加入时价格
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                              // 用户收藏ID
+	TenantStoreId int64                  `protobuf:"varint,2,opt,name=tenant_store_id,json=tenantStoreId,proto3" json:"tenant_store_id,omitempty"` // 店铺ID
+	GoodsId       int64                  `protobuf:"varint,3,opt,name=goods_id,json=goodsId,proto3" json:"goods_id,omitempty"`                     // 商品ID
+	Name          string                 `protobuf:"bytes,4,opt,name=name,proto3" json:"name,omitempty"`                                           // 名称
+	Desc          string                 `protobuf:"bytes,5,opt,name=desc,proto3" json:"desc,omitempty"`                                           // 描述
+	Picture       string                 `protobuf:"bytes,30,opt,name=picture,proto3" json:"picture,omitempty"`                                    // 商品图片
+	SaleNum       int64                  `protobuf:"varint,40,opt,name=sale_num,json=saleNum,proto3" json:"sale_num,omitempty"`                    // 销量
+	Price         int64                  `protobuf:"varint,41,opt,name=price,proto3" json:"price,omitempty"`                                       // 价格
+	JoinPrice     int64                  `protobuf:"varint,50,opt,name=join_price,json=joinPrice,proto3" json:"join_price,omitempty"`              // 加入时价格
+	TenantStore   *TenantStore           `protobuf:"bytes,52,opt,name=tenant_store,json=tenantStore,proto3" json:"tenant_store,omitempty"`         // 店铺信息
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -412,6 +414,13 @@ func (*UserCollect) Descriptor() ([]byte, []int) {
 func (x *UserCollect) GetId() int64 {
 	if x != nil {
 		return x.Id
+	}
+	return 0
+}
+
+func (x *UserCollect) GetTenantStoreId() int64 {
+	if x != nil {
+		return x.TenantStoreId
 	}
 	return 0
 }
@@ -465,11 +474,18 @@ func (x *UserCollect) GetJoinPrice() int64 {
 	return 0
 }
 
+func (x *UserCollect) GetTenantStore() *TenantStore {
+	if x != nil {
+		return x.TenantStore
+	}
+	return nil
+}
+
 var File_app_v1_user_collect_proto protoreflect.FileDescriptor
 
 const file_app_v1_user_collect_proto_rawDesc = "" +
 	"\n" +
-	"\x19app/v1/user_collect.proto\x12\x06app.v1\x1a\x16app/v1/recommend.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"@\n" +
+	"\x19app/v1/user_collect.proto\x12\x06app.v1\x1a\x16app/v1/recommend.proto\x1a\x19app/v1/tenant_store.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"@\n" +
 	"\x13GetIsCollectRequest\x12)\n" +
 	"\bgoods_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\agoodsId\"P\n" +
 	"\x14GetIsCollectResponse\x128\n" +
@@ -486,17 +502,19 @@ const file_app_v1_user_collect_proto_rawDesc = "" +
 	"\x03ids\x18\x01 \x01(\tB\x1a\xbaG\x17\x92\x02\x14用户收藏ID列表R\x03ids\"\x9a\x01\n" +
 	"\x0fUserCollectForm\x12)\n" +
 	"\bgoods_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\agoodsId\x12\\\n" +
-	"\x11recommend_context\x18\x02 \x01(\v2\x18.app.v1.RecommendContextB\x15\xbaG\x12\x92\x02\x0f推荐上下文R\x10recommendContext\"\xd3\x02\n" +
+	"\x11recommend_context\x18\x02 \x01(\v2\x18.app.v1.RecommendContextB\x15\xbaG\x12\x92\x02\x0f推荐上下文R\x10recommendContext\"\xd7\x03\n" +
 	"\vUserCollect\x12$\n" +
-	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e用户收藏IDR\x02id\x12)\n" +
-	"\bgoods_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\agoodsId\x12 \n" +
-	"\x04name\x18\x03 \x01(\tB\f\xbaG\t\x92\x02\x06名称R\x04name\x12 \n" +
-	"\x04desc\x18\x04 \x01(\tB\f\xbaG\t\x92\x02\x06描述R\x04desc\x12,\n" +
+	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e用户收藏IDR\x02id\x126\n" +
+	"\x0ftenant_store_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b店铺IDR\rtenantStoreId\x12)\n" +
+	"\bgoods_id\x18\x03 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\agoodsId\x12 \n" +
+	"\x04name\x18\x04 \x01(\tB\f\xbaG\t\x92\x02\x06名称R\x04name\x12 \n" +
+	"\x04desc\x18\x05 \x01(\tB\f\xbaG\t\x92\x02\x06描述R\x04desc\x12,\n" +
 	"\apicture\x18\x1e \x01(\tB\x12\xbaG\x0f\x92\x02\f商品图片R\apicture\x12'\n" +
 	"\bsale_num\x18( \x01(\x03B\f\xbaG\t\x92\x02\x06销量R\asaleNum\x12\"\n" +
 	"\x05price\x18) \x01(\x03B\f\xbaG\t\x92\x02\x06价格R\x05price\x124\n" +
 	"\n" +
-	"join_price\x182 \x01(\x03B\x15\xbaG\x12\x92\x02\x0f加入时价格R\tjoinPrice2\xf7\x03\n" +
+	"join_price\x182 \x01(\x03B\x15\xbaG\x12\x92\x02\x0f加入时价格R\tjoinPrice\x12J\n" +
+	"\ftenant_store\x184 \x01(\v2\x13.app.v1.TenantStoreB\x12\xbaG\x0f\x92\x02\f店铺信息R\vtenantStore2\xf7\x03\n" +
 	"\x12UserCollectService\x12w\n" +
 	"\x10PageUserCollects\x12\x1f.app.v1.PageUserCollectsRequest\x1a .app.v1.PageUserCollectsResponse\" \x82\xd3\xe4\x93\x02\x1a\x12\x18/api/v1/app/user/collect\x12r\n" +
 	"\fGetIsCollect\x12\x1b.app.v1.GetIsCollectRequest\x1a\x1c.app.v1.GetIsCollectResponse\"'\x82\xd3\xe4\x93\x02!\x12\x1f/api/v1/app/user/collect/status\x12}\n" +
@@ -528,25 +546,27 @@ var file_app_v1_user_collect_proto_goTypes = []any{
 	(*UserCollectForm)(nil),          // 6: app.v1.UserCollectForm
 	(*UserCollect)(nil),              // 7: app.v1.UserCollect
 	(*RecommendContext)(nil),         // 8: app.v1.RecommendContext
-	(*emptypb.Empty)(nil),            // 9: google.protobuf.Empty
+	(*TenantStore)(nil),              // 9: app.v1.TenantStore
+	(*emptypb.Empty)(nil),            // 10: google.protobuf.Empty
 }
 var file_app_v1_user_collect_proto_depIdxs = []int32{
-	7, // 0: app.v1.PageUserCollectsResponse.user_collects:type_name -> app.v1.UserCollect
-	6, // 1: app.v1.CreateUserCollectRequest.user_collect:type_name -> app.v1.UserCollectForm
-	8, // 2: app.v1.UserCollectForm.recommend_context:type_name -> app.v1.RecommendContext
-	2, // 3: app.v1.UserCollectService.PageUserCollects:input_type -> app.v1.PageUserCollectsRequest
-	0, // 4: app.v1.UserCollectService.GetIsCollect:input_type -> app.v1.GetIsCollectRequest
-	4, // 5: app.v1.UserCollectService.CreateUserCollect:input_type -> app.v1.CreateUserCollectRequest
-	5, // 6: app.v1.UserCollectService.DeleteUserCollect:input_type -> app.v1.DeleteUserCollectRequest
-	3, // 7: app.v1.UserCollectService.PageUserCollects:output_type -> app.v1.PageUserCollectsResponse
-	1, // 8: app.v1.UserCollectService.GetIsCollect:output_type -> app.v1.GetIsCollectResponse
-	9, // 9: app.v1.UserCollectService.CreateUserCollect:output_type -> google.protobuf.Empty
-	9, // 10: app.v1.UserCollectService.DeleteUserCollect:output_type -> google.protobuf.Empty
-	7, // [7:11] is the sub-list for method output_type
-	3, // [3:7] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	7,  // 0: app.v1.PageUserCollectsResponse.user_collects:type_name -> app.v1.UserCollect
+	6,  // 1: app.v1.CreateUserCollectRequest.user_collect:type_name -> app.v1.UserCollectForm
+	8,  // 2: app.v1.UserCollectForm.recommend_context:type_name -> app.v1.RecommendContext
+	9,  // 3: app.v1.UserCollect.tenant_store:type_name -> app.v1.TenantStore
+	2,  // 4: app.v1.UserCollectService.PageUserCollects:input_type -> app.v1.PageUserCollectsRequest
+	0,  // 5: app.v1.UserCollectService.GetIsCollect:input_type -> app.v1.GetIsCollectRequest
+	4,  // 6: app.v1.UserCollectService.CreateUserCollect:input_type -> app.v1.CreateUserCollectRequest
+	5,  // 7: app.v1.UserCollectService.DeleteUserCollect:input_type -> app.v1.DeleteUserCollectRequest
+	3,  // 8: app.v1.UserCollectService.PageUserCollects:output_type -> app.v1.PageUserCollectsResponse
+	1,  // 9: app.v1.UserCollectService.GetIsCollect:output_type -> app.v1.GetIsCollectResponse
+	10, // 10: app.v1.UserCollectService.CreateUserCollect:output_type -> google.protobuf.Empty
+	10, // 11: app.v1.UserCollectService.DeleteUserCollect:output_type -> google.protobuf.Empty
+	8,  // [8:12] is the sub-list for method output_type
+	4,  // [4:8] is the sub-list for method input_type
+	4,  // [4:4] is the sub-list for extension type_name
+	4,  // [4:4] is the sub-list for extension extendee
+	0,  // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_app_v1_user_collect_proto_init() }
@@ -555,6 +575,7 @@ func file_app_v1_user_collect_proto_init() {
 		return
 	}
 	file_app_v1_recommend_proto_init()
+	file_app_v1_tenant_store_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

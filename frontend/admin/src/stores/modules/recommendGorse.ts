@@ -29,8 +29,8 @@ export interface GoodsCategoryTreeOption {
 /** Gorse 推荐配置原始对象，按当前固定返回属性读取。 */
 type ConfigRecord = Record<string, unknown>;
 
-/** 配置字段读取路径，数组用于兼容不同 JSON 命名策略。 */
-type ConfigFieldKey = string | string[];
+/** 配置字段读取键。 */
+type ConfigFieldKey = string;
 
 /** 推荐反馈类型中文文案，展示时转换编码，接口请求值仍保持原始编码。 */
 const feedbackTypeLabelMap: Record<string, string> = {
@@ -62,7 +62,7 @@ export const useRecommendGorseStore = defineStore("shop-recommend-gorse", {
     /** 概览页推荐器下拉数据，value 直接作为 ListDashboardItems 接口的推荐器名称。 */
     dashboardRecommenderOptions(state): GorseSelectOption[] {
       const recommend = toRecord(state.config.recommend);
-      const nonPersonalizedRecommenders = readRecordList(recommend, ["non-personalized", "non_personalized"])
+      const nonPersonalizedRecommenders = readRecordList(recommend, "non_personalized")
         .map(item => `non-personalized/${String(item.name ?? "").trim()}`)
         .filter(item => item !== "non-personalized/");
       // 下拉只展示非个性化推荐配置项，latest 固定补在第一项。
@@ -90,7 +90,7 @@ export const useRecommendGorseStore = defineStore("shop-recommend-gorse", {
     /** 用户相似推荐器下拉数据，value 直接作为 GetUserSimilar 接口的 recommender。 */
     userToUserRecommenderOptions(state): GorseSelectOption[] {
       const recommend = toRecord(state.config.recommend);
-      const recommenders = readRecordList(recommend, ["user-to-user", "user_to_user"])
+      const recommenders = readRecordList(recommend, "user_to_user")
         .map(item => String(item.name ?? "").trim())
         .filter(Boolean);
 
@@ -104,7 +104,7 @@ export const useRecommendGorseStore = defineStore("shop-recommend-gorse", {
     /** 商品相似推荐器下拉数据，value 直接作为 GetItemSimilar 接口的 recommender。 */
     itemToItemRecommenderOptions(state): GorseSelectOption[] {
       const recommend = toRecord(state.config.recommend);
-      const recommenders = readRecordList(recommend, ["item-to-item", "item_to_item"])
+      const recommenders = readRecordList(recommend, "item_to_item")
         .map(item => String(item.name ?? "").trim())
         .filter(Boolean);
 
@@ -179,13 +179,7 @@ export function buildScopedGoodsCategoryTree(tree: GoodsCategoryTreeOption[], ca
 /** 从对象中读取固定字段值。 */
 function readValue(source: unknown, key: ConfigFieldKey) {
   const record = toRecord(source);
-  const keys = Array.isArray(key) ? key : [key];
-  for (const currentKey of keys) {
-    const value = record[currentKey];
-    // 当前命名策略下字段不存在时，继续尝试下一个候选字段名。
-    if (value !== null && value !== undefined) return value;
-  }
-  return undefined;
+  return record[key];
 }
 
 /** 格式化推荐反馈类型中文文案。 */
@@ -254,13 +248,13 @@ function buildGorseRecommenderDictValue(recommender: string, scope?: "user_to_us
 
 /** 组装用户推荐页推荐器列表，保持与Gorse dashboard 原始下拉顺序一致。 */
 function buildUserRecommendRecommenders(recommend: ConfigRecord) {
-  const nonPersonalizedRecommenders = readRecordList(recommend, ["non-personalized", "non_personalized"])
+  const nonPersonalizedRecommenders = readRecordList(recommend, "non_personalized")
     .map(item => `non-personalized/${String(item.name ?? "").trim()}`)
     .filter(item => item !== "non-personalized/");
-  const itemToItemRecommenders = readRecordList(recommend, ["item-to-item", "item_to_item"])
+  const itemToItemRecommenders = readRecordList(recommend, "item_to_item")
     .map(item => `item-to-item/${String(item.name ?? "").trim()}`)
     .filter(item => item !== "item-to-item/");
-  const userToUserRecommenders = readRecordList(recommend, ["user-to-user", "user_to_user"])
+  const userToUserRecommenders = readRecordList(recommend, "user_to_user")
     .map(item => `user-to-user/${String(item.name ?? "").trim()}`)
     .filter(item => item !== "user-to-user/");
   const recommenders = ["latest"];

@@ -1,6 +1,7 @@
 import { http } from '@/utils/http'
 import type {
   UserCart,
+  ListUserCartsResponse,
   CreateUserCartRequest,
   SetUserCartSelectionRequest,
   UserCartForm,
@@ -33,15 +34,6 @@ type CountUserCartResponseCompat = Int32Value & {
 /** 购物车数量 HTTP 原始响应，允许 count 或 value 为空。 */
 type CountUserCartHTTPResponse = Partial<CountUserCartResponseCompat>
 
-/** 购物车列表响应兼容结构，同时保留协议字段和旧版 list。 */
-type ListUserCartsResponseCompat = {
-  user_carts: UserCart[]
-  list: UserCart[]
-}
-
-/** 购物车列表 HTTP 原始响应，允许后端只返回部分字段。 */
-type ListUserCartsHTTPResponse = Partial<ListUserCartsResponseCompat>
-
 /** 购物车服务 */
 export class UserCartServiceImpl implements UserCartService {
   /** 查询用户购物车数量 */
@@ -61,23 +53,17 @@ export class UserCartServiceImpl implements UserCartService {
   }
 
   /** 查询购物车列表 */
-  async ListUserCarts(request: Empty): Promise<ListUserCartsResponseCompat> {
-    const response = await http<ListUserCartsHTTPResponse>({
+  ListUserCarts(request: Empty): Promise<ListUserCartsResponse> {
+    return http<ListUserCartsResponse>({
       url: `${USER_CART_URL}`,
       method: 'GET',
       authMode: 'required',
       data: request,
     })
-    const userCarts = response.user_carts ?? response.list ?? []
-    return {
-      ...response,
-      list: userCarts,
-      user_carts: userCarts,
-    }
   }
 
   /** 查询购物车列表（旧生成接口兼容） */
-  ListUserCart(request: Empty): Promise<ListUserCartsResponseCompat> {
+  ListUserCart(request: Empty): Promise<ListUserCartsResponse> {
     return this.ListUserCarts(request)
   }
 

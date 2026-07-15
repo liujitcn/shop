@@ -135,70 +135,6 @@ const reportSummary = computed<SummaryGoodsMonthReportResponse>(() => {
   return report.summary ?? emptySummary();
 });
 
-/** 统一将接口返回的数值字段转成数字。 */
-function normalizeNumber(value: unknown) {
-  if (typeof value === "number") return Number.isFinite(value) ? value : 0;
-  if (typeof value === "string") {
-    const parsedValue = Number(value);
-    return Number.isFinite(parsedValue) ? parsedValue : 0;
-  }
-  return 0;
-}
-
-/** 统一整理商品月报项，兼容蛇形和驼峰字段。 */
-function normalizeReportItem(payload: Partial<GoodsMonthReportItem> | undefined): GoodsMonthReportItem {
-  const source = (payload ?? {}) as Partial<GoodsMonthReportItem> & Record<string, unknown>;
-  return {
-    month: String(source.month ?? ""),
-    view_count: normalizeNumber(source.view_count ?? source["viewCount"]),
-    collect_count: normalizeNumber(source.collect_count ?? source["collectCount"]),
-    cart_count: normalizeNumber(source.cart_count ?? source["cartCount"]),
-    order_count: normalizeNumber(source.order_count ?? source["orderCount"]),
-    pay_count: normalizeNumber(source.pay_count ?? source["payCount"]),
-    pay_goods_num: normalizeNumber(source.pay_goods_num ?? source["payGoodsNum"]),
-    pay_amount: normalizeNumber(source.pay_amount ?? source["payAmount"]),
-    cart_conversion_rate: normalizeNumber(source.cart_conversion_rate ?? source["cartConversionRate"]),
-    order_conversion_rate: normalizeNumber(source.order_conversion_rate ?? source["orderConversionRate"]),
-    pay_conversion_rate: normalizeNumber(source.pay_conversion_rate ?? source["payConversionRate"]),
-    pay_unit_price: normalizeNumber(source.pay_unit_price ?? source["payUnitPrice"])
-  };
-}
-
-/** 统一整理商品月报汇总响应，兼容网关包装结构。 */
-function normalizeSummaryResponse(payload: unknown): SummaryGoodsMonthReportResponse {
-  const source = ((payload as { data?: Partial<SummaryGoodsMonthReportResponse> } | undefined)?.data ??
-    payload ??
-    {}) as Partial<SummaryGoodsMonthReportResponse> & Record<string, unknown>;
-
-  return {
-    view_count: normalizeNumber(source.view_count ?? source["viewCount"]),
-    collect_count: normalizeNumber(source.collect_count ?? source["collectCount"]),
-    cart_count: normalizeNumber(source.cart_count ?? source["cartCount"]),
-    order_count: normalizeNumber(source.order_count ?? source["orderCount"]),
-    pay_count: normalizeNumber(source.pay_count ?? source["payCount"]),
-    pay_goods_num: normalizeNumber(source.pay_goods_num ?? source["payGoodsNum"]),
-    pay_amount: normalizeNumber(source.pay_amount ?? source["payAmount"]),
-    cart_conversion_rate: normalizeNumber(source.cart_conversion_rate ?? source["cartConversionRate"]),
-    order_conversion_rate: normalizeNumber(source.order_conversion_rate ?? source["orderConversionRate"]),
-    pay_conversion_rate: normalizeNumber(source.pay_conversion_rate ?? source["payConversionRate"]),
-    pay_unit_price: normalizeNumber(source.pay_unit_price ?? source["payUnitPrice"])
-  };
-}
-
-/** 统一整理商品月报名细列表响应。 */
-function normalizeListResponse(payload: unknown): GoodsMonthReportItem[] {
-  const source =
-    (payload as
-      | {
-          data?: { goods_month_reports?: Partial<GoodsMonthReportItem>[]; items?: Partial<GoodsMonthReportItem>[] };
-          goods_month_reports?: Partial<GoodsMonthReportItem>[];
-          items?: Partial<GoodsMonthReportItem>[];
-        }
-      | undefined) ?? {};
-  const rawItems = source.data?.goods_month_reports ?? source.goods_month_reports ?? source.data?.items ?? source.items ?? [];
-  return rawItems.map(item => normalizeReportItem(item));
-}
-
 /** 统一将千分比指标格式化成 1 位小数百分比。 */
 function formatRatio(value: number) {
   return `${(value / 10).toFixed(1)}%`;
@@ -364,9 +300,9 @@ async function loadData() {
     ]);
     report.summary = {
       ...emptySummary(),
-      ...normalizeSummaryResponse(summaryData)
+      ...summaryData
     };
-    report.items = normalizeListResponse(listData);
+    report.items = listData.goods_month_reports ?? [];
   } catch (error) {
     report.summary = emptySummary();
     report.items = [];

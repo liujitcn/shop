@@ -7,6 +7,7 @@
 /* eslint-disable */
 import type { Empty } from "../../google/protobuf/empty";
 import type { RecommendContext } from "./recommend";
+import type { TenantStore } from "./tenant_store";
 
 /** 用户购物车数量查询条件 */
 export interface CountUserCartRequest {
@@ -24,14 +25,26 @@ export interface ListUserCartsRequest {
 
 /** 用户购物车列表响应 */
 export interface ListUserCartsResponse {
-  /** 用户购物车列表 */
-  user_carts: UserCart[];
+  /** 按店铺分组的用户购物车列表 */
+  user_carts: UserCartStore[];
+}
+
+/** 用户购物车店铺分组 */
+export interface UserCartStore {
+  /** 店铺信息 */
+  store:
+    | TenantStore
+    | undefined;
+  /** 商品列表 */
+  goods: UserCart[];
 }
 
 /** 用户购物车 */
 export interface UserCart {
   /** 用户购物车ID */
   id: number;
+  /** 店铺ID */
+  tenant_store_id: number;
   /** 商品ID */
   goods_id: number;
   /** 规格编号 */

@@ -88,30 +88,7 @@ const columns: ColumnProps[] = [
 /** 请求 Gorse 推荐任务表格；任务页不做定时刷新，只响应用户手动进入、搜索或刷新。 */
 async function requestTaskTable(params: TaskTableParams = {}) {
   const data = await defRecommendGorseService.ListTasks({});
-  const response = data as unknown as Record<string, unknown>;
-  const rawTasks = Array.isArray(response.Tasks)
-    ? response.Tasks
-    : Array.isArray(response.tasks)
-      ? response.tasks
-      : Array.isArray(response.list)
-        ? response.list
-        : [];
-  const tasks = rawTasks
-    .map(item => {
-      const record = typeof item === "object" && item !== null && !Array.isArray(item) ? (item as Record<string, unknown>) : {};
-      // 兼容当前 json_name 原始字段和旧版小写字段，避免后端未重启或缓存旧接口时页面空白。
-      return {
-        tracer: String(record.Tracer ?? record.tracer ?? ""),
-        name: String(record.Name ?? record.name ?? ""),
-        status: String(record.Status ?? record.status ?? ""),
-        error: String(record.Error ?? record.error ?? ""),
-        count: Number(record.Count ?? record.count ?? 0),
-        total: Number(record.Total ?? record.total ?? 0),
-        start_time: String(record.StartTime ?? record.start_time ?? record.startTime ?? ""),
-        finish_time: String(record.FinishTime ?? record.finish_time ?? record.finishTime ?? "")
-      };
-    })
-    .filter(item => item.name || item.tracer);
+  const tasks = data.tasks ?? [];
 
   const taskNameKeyword = String(params.name ?? "")
     .trim()

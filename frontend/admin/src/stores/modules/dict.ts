@@ -23,12 +23,7 @@ export const useDictStore = defineStore("shop-dict", {
       const dictRes = await defBaseDictService.OptionBaseDicts({});
       const nextDictionary: Record<string, OptionBaseDictsResponse_BaseDictItem[]> = {};
 
-      const compatDictRes = dictRes as typeof dictRes & {
-        baseDicts?: typeof dictRes.base_dicts;
-        list?: typeof dictRes.base_dicts;
-      };
-      // 优先读取 snake_case 字典集合，兼容旧 camelCase/list 响应。
-      const baseDicts = compatDictRes.base_dicts ?? compatDictRes.baseDicts ?? compatDictRes.list ?? [];
+      const baseDicts = dictRes.base_dicts ?? [];
       baseDicts.forEach(dict => {
         if (!dict.code) return;
         nextDictionary[dict.code] = dict.items ?? [];

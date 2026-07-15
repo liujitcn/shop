@@ -46,6 +46,7 @@ import type { ColumnProps, ProTableInstance } from "@/components/ProTable/interf
 import ProTable from "@/components/ProTable/index.vue";
 import ProDialog from "@/components/Dialog/ProDialog.vue";
 import { defBaseJobService } from "@/api/admin/base_job";
+import { buildPageRequest } from "@/utils/proTable";
 import { formatJson } from "@/utils/utils";
 import type { BaseJobLog, PageBaseJobLogsRequest } from "@/rpc/admin/v1/base_job";
 import { BaseJobLogStatus } from "@/rpc/common/v1/enum";
@@ -144,15 +145,9 @@ watch(
 /**
  * 请求定时任务日志列表，并补充当前任务 ID。
  */
-async function requestBaseJobLogTable(params: Partial<PageBaseJobLogsRequest> & { pageNum?: number; pageSize?: number }) {
-  const data = await defBaseJobService.PageBaseJobLogs({
-    job_id: jobId.value,
-    status: params.status,
-    execute_time: params.execute_time ?? ["", ""],
-    page_num: Number(params.page_num ?? params.pageNum ?? 1),
-    page_size: Number(params.page_size ?? params.pageSize ?? 10)
-  });
-  return { data: { list: data.base_job_logs, total: data.total } };
+async function requestBaseJobLogTable(params: PageBaseJobLogsRequest) {
+  const data = await defBaseJobService.PageBaseJobLogs({ ...buildPageRequest(params), job_id: jobId.value });
+  return { data: { list: data.base_job_logs ?? [], total: data.total } };
 }
 
 /**

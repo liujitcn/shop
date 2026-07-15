@@ -4,7 +4,7 @@ import { ref } from 'vue'
 import type { PageUserCollectsRequest, UserCollect } from '@/rpc/app/v1/user_collect'
 import { defUserCollectService } from '@/api/app/user_collect'
 import { formatSrc, formatPrice } from '@/utils'
-import { goodsDetailUrl, switchTabToHome } from '@/utils/navigation'
+import { goodsDetailUrl, switchTabToHome, tenantStoreUrl } from '@/utils/navigation'
 // 分页参数
 const pageParams: PageUserCollectsRequest = {
   page_num: 1,
@@ -70,6 +70,10 @@ const onDeleteCollect = (id: number) => {
 const goIndex = () => {
   void switchTabToHome()
 }
+
+const goStore = (storeID: number) => {
+  void uni.navigateTo({ url: tenantStoreUrl(storeID) })
+}
 </script>
 
 <template>
@@ -84,8 +88,7 @@ const goIndex = () => {
             <navigator :url="goodsDetailUrl(item.goods_id)" hover-class="none" class="navigator">
               <image mode="aspectFill" class="picture" :src="formatSrc(item.picture)"></image>
               <view class="meta">
-                <view class="name ellipsis">{{ item.name }}</view>
-                <view class="desc ellipsis">{{ item.desc }}</view>
+                <view class="name">{{ item.name }}</view>
                 <view class="price">
                   <text class="current-price">{{ formatPrice(item.price) }}</text>
                   <text v-if="item.join_price" class="join-price">{{
@@ -94,6 +97,13 @@ const goIndex = () => {
                 </view>
               </view>
             </navigator>
+            <view
+              v-if="item.tenant_store?.id"
+              class="store-entry ellipsis"
+              @tap.stop="goStore(item.tenant_store.id)"
+            >
+              {{ item.tenant_store.name }}<text class="store-arrow">&gt;</text>
+            </view>
           </view>
           <!-- 右侧删除按钮 -->
           <template #right>
@@ -141,39 +151,62 @@ page {
     position: relative;
 
     .navigator {
-      display: flex;
+      display: block;
+      width: 100%;
+
+      .navigator-wrap {
+        display: flex;
+        width: 100%;
+        align-items: flex-start;
+        min-width: 0;
+      }
     }
 
     .picture {
+      flex-shrink: 0;
       width: 170rpx;
       height: 170rpx;
     }
 
     .meta {
+      box-sizing: border-box;
+      height: 170rpx;
+      min-width: 0;
       flex: 1;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
       margin-left: 20rpx;
+      padding-bottom: 44rpx;
+    }
+
+    .store-entry {
+      position: absolute;
+      z-index: 1;
+      left: 210rpx;
+      right: 20rpx;
+      bottom: 20rpx;
+      line-height: 32rpx;
+      color: #555;
+      font-size: 24rpx;
+    }
+
+    .store-arrow {
+      margin-left: 8rpx;
+      color: #999;
     }
 
     .name {
-      height: 72rpx;
+      display: -webkit-box;
+      overflow: hidden;
+      line-height: 36rpx;
       font-size: 26rpx;
       color: #444;
-    }
-
-    .desc {
-      line-height: 1.8;
-      padding: 0 15rpx;
-      font-size: 24rpx;
-      align-self: flex-start;
-      border-radius: 4rpx;
-      color: #888;
-      background-color: #f7f7f8;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
     }
 
     .price {
+      margin-top: auto;
       display: flex;
       align-items: center;
       gap: 8rpx;

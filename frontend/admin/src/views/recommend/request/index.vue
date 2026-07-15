@@ -87,22 +87,10 @@ const columns: ColumnProps[] = [
  * 请求推荐请求列表，并统一补齐分页与时间范围字段。
  */
 async function requestRecommendRequestTable(params: Record<string, any>) {
-  const { pageNum, pageSize, ...requestParams } = buildPageRequest({
-    ...params,
-    request_at: params.request_at ?? []
-  } as Record<string, any>);
-  const data = await defRecommendRequestService.PageRecommendRequests({
-    ...requestParams,
-    page_num: Number(pageNum),
-    page_size: Number(pageSize)
-  } as PageRecommendRequestsRequest);
-  const compatData = data as typeof data & {
-    recommendRequests?: typeof data.recommend_requests;
-    list?: typeof data.recommend_requests;
-  };
-  // ProTable 固定消费 list，优先使用新 snake_case 字段并兼容历史响应。
-  const list = compatData.recommend_requests ?? compatData.recommendRequests ?? compatData.list ?? [];
-  return { data: { ...data, list } };
+  const data = await defRecommendRequestService.PageRecommendRequests(
+    buildPageRequest({ ...params, request_at: params.request_at ?? [] }) as PageRecommendRequestsRequest
+  );
+  return { data: { list: data.recommend_requests ?? [], total: data.total } };
 }
 
 /**

@@ -2,6 +2,8 @@
 
 `frontend/app` 是商城端应用，基于 `uni-app + Vue 3 + TypeScript + Vite + Pinia + Sass` 开发，当前主要覆盖 H5 与微信小程序，同时保留 App 和多小程序平台脚本。
 
+购物车按租户门店分组展示，支持查看店铺信息并进入店铺首页。
+
 ## 目录职责
 
 ```text

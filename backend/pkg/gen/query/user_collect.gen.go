@@ -29,6 +29,7 @@ func newUserCollect(db *gorm.DB, opts ...gen.DOOption) userCollect {
 	_userCollect.ALL = field.NewAsterisk(tableName)
 	_userCollect.ID = field.NewInt64(tableName, "id")
 	_userCollect.UserID = field.NewInt64(tableName, "user_id")
+	_userCollect.TenantStoreID = field.NewInt64(tableName, "tenant_store_id")
 	_userCollect.GoodsID = field.NewInt64(tableName, "goods_id")
 	_userCollect.Price = field.NewInt64(tableName, "price")
 	_userCollect.Scene = field.NewInt32(tableName, "scene")
@@ -46,16 +47,17 @@ func newUserCollect(db *gorm.DB, opts ...gen.DOOption) userCollect {
 type userCollect struct {
 	userCollectDo userCollectDo
 
-	ALL       field.Asterisk
-	ID        field.Int64 // 用户收藏ID
-	UserID    field.Int64 // 用户ID
-	GoodsID   field.Int64 // 商品ID
-	Price     field.Int64 // 收藏时单价
-	Scene     field.Int32 // 推荐场景：枚举【RecommendScene】
-	RequestID field.Int64 // 推荐请求ID
-	Position  field.Int32 // 推荐位序号
-	CreatedAt field.Time  // 创建时间
-	DeletedAt field.Field // 删除时间
+	ALL           field.Asterisk
+	ID            field.Int64 // 用户收藏ID
+	UserID        field.Int64 // 用户ID
+	TenantStoreID field.Int64 // 店铺ID
+	GoodsID       field.Int64 // 商品ID
+	Price         field.Int64 // 收藏时单价
+	Scene         field.Int32 // 推荐场景：枚举【RecommendScene】
+	RequestID     field.Int64 // 推荐请求ID
+	Position      field.Int32 // 推荐位序号
+	CreatedAt     field.Time  // 创建时间
+	DeletedAt     field.Field // 删除时间
 
 	fieldMap map[string]field.Expr
 }
@@ -74,6 +76,7 @@ func (u *userCollect) updateTableName(table string) *userCollect {
 	u.ALL = field.NewAsterisk(table)
 	u.ID = field.NewInt64(table, "id")
 	u.UserID = field.NewInt64(table, "user_id")
+	u.TenantStoreID = field.NewInt64(table, "tenant_store_id")
 	u.GoodsID = field.NewInt64(table, "goods_id")
 	u.Price = field.NewInt64(table, "price")
 	u.Scene = field.NewInt32(table, "scene")
@@ -107,9 +110,10 @@ func (u *userCollect) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (u *userCollect) fillFieldMap() {
-	u.fieldMap = make(map[string]field.Expr, 9)
+	u.fieldMap = make(map[string]field.Expr, 10)
 	u.fieldMap["id"] = u.ID
 	u.fieldMap["user_id"] = u.UserID
+	u.fieldMap["tenant_store_id"] = u.TenantStoreID
 	u.fieldMap["goods_id"] = u.GoodsID
 	u.fieldMap["price"] = u.Price
 	u.fieldMap["scene"] = u.Scene

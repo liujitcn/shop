@@ -129,7 +129,7 @@ async function loadOverview() {
           begin: "",
           end: ""
         });
-        return { name: metric.key, points: normalizeTimeSeriesPoints(data) };
+        return { name: metric.key, points: data.points ?? [] };
       })
     );
     metricList.forEach(metric => {
@@ -162,28 +162,6 @@ function formatCount(value: number) {
 function formatAxisTime(value: string) {
   if (!value) return "--";
   return dayjs(value).format("MM-DD HH:mm");
-}
-
-/** 兼容后台代理 points 包装和 Gorse 原生数组两种时间序列返回结构。 */
-function normalizeTimeSeriesPoints(response: unknown): TimeSeriesPoint[] {
-  const responseRecord =
-    typeof response === "object" && response !== null && !Array.isArray(response) ? (response as Record<string, unknown>) : {};
-  const rawPoints = (
-    Array.isArray(response)
-      ? response
-      : Array.isArray(responseRecord.Points ?? responseRecord.points)
-        ? (responseRecord.Points ?? responseRecord.points)
-        : []
-  ) as unknown[];
-  return rawPoints
-    .map(point => {
-      const record =
-        typeof point === "object" && point !== null && !Array.isArray(point) ? (point as Record<string, unknown>) : {};
-      const timestamp = String(record.timestamp ?? record.Timestamp ?? "");
-      const value = Number(record.value ?? record.Value ?? 0);
-      return { name: String(record.name ?? record.Name ?? ""), timestamp, value };
-    })
-    .filter(point => point.timestamp);
 }
 
 /** 构建统计卡片迷你折线图坐标。 */

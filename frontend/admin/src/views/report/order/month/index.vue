@@ -155,64 +155,6 @@ const reportSummary = computed<SummaryOrderMonthReportResponse>(() => {
   return report.summary ?? emptySummary();
 });
 
-/** 统一将接口返回的数值字段转成数字。 */
-function normalizeNumber(value: unknown) {
-  if (typeof value === "number") return Number.isFinite(value) ? value : 0;
-  if (typeof value === "string") {
-    const parsedValue = Number(value);
-    return Number.isFinite(parsedValue) ? parsedValue : 0;
-  }
-  return 0;
-}
-
-/** 统一整理月报明细项，兼容蛇形和驼峰字段。 */
-function normalizeReportItem(payload: Partial<OrderMonthReportItem> | undefined): OrderMonthReportItem {
-  const source = (payload ?? {}) as Partial<OrderMonthReportItem> & Record<string, unknown>;
-  return {
-    month: String(source.month ?? ""),
-    paid_order_count: normalizeNumber(source.paid_order_count ?? source["paidOrderCount"]),
-    paid_order_amount: normalizeNumber(source.paid_order_amount ?? source["paidOrderAmount"]),
-    refund_order_count: normalizeNumber(source.refund_order_count ?? source["refundOrderCount"]),
-    refund_order_amount: normalizeNumber(source.refund_order_amount ?? source["refundOrderAmount"]),
-    net_order_amount: normalizeNumber(source.net_order_amount ?? source["netOrderAmount"]),
-    paid_user_count: normalizeNumber(source.paid_user_count ?? source["paidUserCount"]),
-    goods_count: normalizeNumber(source.goods_count ?? source["goodsCount"]),
-    customer_unit_price: normalizeNumber(source.customer_unit_price ?? source["customerUnitPrice"])
-  };
-}
-
-/** 统一整理月报汇总响应，兼容网关包装结构。 */
-function normalizeSummaryResponse(payload: unknown): SummaryOrderMonthReportResponse {
-  const source = ((payload as { data?: Partial<SummaryOrderMonthReportResponse> } | undefined)?.data ??
-    payload ??
-    {}) as Partial<SummaryOrderMonthReportResponse> & Record<string, unknown>;
-
-  return {
-    paid_order_count: normalizeNumber(source.paid_order_count ?? source["paidOrderCount"]),
-    paid_order_amount: normalizeNumber(source.paid_order_amount ?? source["paidOrderAmount"]),
-    refund_order_count: normalizeNumber(source.refund_order_count ?? source["refundOrderCount"]),
-    refund_order_amount: normalizeNumber(source.refund_order_amount ?? source["refundOrderAmount"]),
-    net_order_amount: normalizeNumber(source.net_order_amount ?? source["netOrderAmount"]),
-    paid_user_count: normalizeNumber(source.paid_user_count ?? source["paidUserCount"]),
-    goods_count: normalizeNumber(source.goods_count ?? source["goodsCount"]),
-    customer_unit_price: normalizeNumber(source.customer_unit_price ?? source["customerUnitPrice"])
-  };
-}
-
-/** 统一整理月报明细列表响应。 */
-function normalizeListResponse(payload: unknown): OrderMonthReportItem[] {
-  const source =
-    (payload as
-      | {
-          data?: { order_month_reports?: Partial<OrderMonthReportItem>[]; items?: Partial<OrderMonthReportItem>[] };
-          order_month_reports?: Partial<OrderMonthReportItem>[];
-          items?: Partial<OrderMonthReportItem>[];
-        }
-      | undefined) ?? {};
-  const rawItems = source.data?.order_month_reports ?? source.order_month_reports ?? source.data?.items ?? source.items ?? [];
-  return rawItems.map(item => normalizeReportItem(item));
-}
-
 const metricItems = computed<MetricCardItem[]>(() => [
   {
     key: "paid_order_count",
@@ -385,8 +327,8 @@ async function loadData() {
       defOrderReportService.SummaryOrderMonthReport(request),
       defOrderReportService.ListOrderMonthReports(request)
     ]);
-    const summary = normalizeSummaryResponse(summaryData);
-    const items = normalizeListResponse(listData);
+    const summary = summaryData;
+    const items = listData.order_month_reports ?? [];
     report.summary = {
       ...emptySummary(),
       ...summary,

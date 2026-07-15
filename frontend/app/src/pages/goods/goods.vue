@@ -2,8 +2,10 @@
 import type { SkuPopupInstance } from '@/components/goods-sku-popup/goods-sku-popup'
 import { defGoodsInfoService } from '@/api/app/goods_info.ts'
 import { defRecommendService } from '@/api/app/recommend'
+import { defTenantStoreService } from '@/api/app/tenant_store'
 import type { GoodsInfoResponse } from '@/rpc/app/v1/goods_info'
 import type { RecommendContext } from '@/rpc/app/v1/recommend'
+import type { TenantStore } from '@/rpc/app/v1/tenant_store'
 import { onLoad } from '@dcloudio/uni-app'
 import { SkuMode, useGoodsPurchase, useGuessList } from '@/composables'
 import { useRecommendStore } from '@/stores'
@@ -44,6 +46,9 @@ type SectionTab = {
   anchorId: string
 }
 
+/** 商品详情页使用的门店展示信息。 */
+type TenantStoreDisplay = Pick<TenantStore, 'id' | 'name' | 'logo' | 'intro' | 'notice'>
+
 const sectionTabs: SectionTab[] = [
   { key: 'goods', label: '商品', anchorId: 'goods-section' },
   { key: 'comment', label: '评价', anchorId: 'comment-section' },
@@ -70,6 +75,7 @@ const recommend_context: RecommendContext = {
 
 // 获取商品详情信息
 const goodsInfo = ref<GoodsInfoResponse>()
+const tenantStore = ref<TenantStoreDisplay>()
 const loadErrorMessage = ref('')
 const serviceList = ref<ShopService[]>([])
 const serviceLabelList = computed(() => serviceList.value.map((item) => item.label))
@@ -154,10 +160,28 @@ const loadData = async () => {
       id: goodsId,
     })
     goodsInfo.value = res
+    tenantStore.value = res.tenant_store_id
+      ? {
+          id: res.tenant_store_id,
+          name: res.tenant_store_name || '店铺',
+          logo: res.tenant_store_logo,
+          intro: '',
+          notice: '',
+        }
+      : undefined
+    if (res.tenant_store_id) {
+      try {
+        tenantStore.value = await defTenantStoreService.GetTenantStore({ id: res.tenant_store_id })
+      } catch (error) {
+        // 门店扩展资料加载失败时继续使用商品详情自带的门店基础信息。
+        console.error('门店信息加载失败', error)
+      }
+    }
     void refreshGoodsState(res)
     scheduleMeasureSections()
   } catch (error) {
     goodsInfo.value = undefined
+    tenantStore.value = undefined
     loadErrorMessage.value = '商品详情加载失败'
     console.error(error)
   }
@@ -419,29 +443,16 @@ onBeforeUnmount(() => {
         :desc="goodsInfo!.desc"
       />
 
-      <view v-if="goodsInfo!.tenant_store_id" class="store-entry" @tap="onEnterStore">
-        <view class="store-entry__main">
-          <image
-            v-if="goodsInfo!.tenant_store_logo"
-            class="store-entry__logo"
-            mode="aspectFill"
-            :src="formatSrc(goodsInfo!.tenant_store_logo)"
-          />
-          <view v-else class="store-entry__logo store-entry__logo--text">店</view>
-          <view class="store-entry__body">
-            <view class="store-entry__name-row">
-              <text class="store-entry__name">{{ goodsInfo!.tenant_store_name || '店铺' }}</text>
-              <text class="store-entry__badge">官方店</text>
-            </view>
-            <view class="store-entry__meta">综合评分 4.9 · 在售 128 件 · 48小时发货</view>
-          </view>
-          <view class="store-entry__button">进店</view>
-        </view>
-        <view class="store-entry__service">
-          <text>七天无理由</text>
-          <text>退换无忧</text>
-          <text>正品保障</text>
-        </view>
+      <view v-if="tenantStore" class="store-entry" @tap="onEnterStore">
+        <text class="store-entry__label">店铺</text>
+        <image
+          v-if="tenantStore.logo"
+          class="store-entry__logo"
+          mode="aspectFill"
+          :src="formatSrc(tenantStore.logo)"
+        />
+        <text class="store-entry__name ellipsis">{{ tenantStore.name }}</text>
+        <uni-icons class="store-entry__arrow" type="right" size="18" color="#ccc" />
       </view>
 
       <!-- 操作面板 -->
@@ -688,99 +699,38 @@ page {
 .goods {
   background-color: #fff;
   .store-entry {
-    min-height: 112rpx;
-    margin: 0 20rpx 18rpx;
-    padding: 18rpx 20rpx 16rpx;
-    border-radius: 12rpx;
-    box-sizing: border-box;
-    background-color: #f7fbfa;
-  }
-  .store-entry__main {
     display: flex;
     align-items: center;
+    height: 90rpx;
+    margin-left: 20rpx;
+    padding-right: 30rpx;
+    box-sizing: border-box;
+    border-bottom: 1rpx solid #eaeaea;
+    color: #333;
+    font-size: 26rpx;
+  }
+  .store-entry__label {
+    width: 80rpx;
+    flex-shrink: 0;
+    color: #999;
   }
   .store-entry__logo {
-    width: 72rpx;
-    height: 72rpx;
+    width: 48rpx;
+    height: 48rpx;
     flex-shrink: 0;
-    border-radius: 10rpx;
-    background-color: #e8f6f2;
-  }
-  .store-entry__logo--text {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #27ba9b;
-    font-size: 28rpx;
-    font-weight: 600;
-  }
-  .store-entry__body {
-    min-width: 0;
-    flex: 1;
-    padding: 0 18rpx;
-  }
-  .store-entry__name-row {
-    display: flex;
-    align-items: center;
-    min-width: 0;
+    margin-right: 16rpx;
+    border-radius: 4rpx;
   }
   .store-entry__name {
     min-width: 0;
-    max-width: 300rpx;
+    flex: 1;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    color: #1f2937;
-    font-size: 28rpx;
-    font-weight: 600;
   }
-  .store-entry__badge {
-    height: 32rpx;
-    margin-left: 10rpx;
-    padding: 0 8rpx;
-    border: 1rpx solid #27ba9b;
-    border-radius: 5rpx;
+  .store-entry__arrow {
+    margin-left: 12rpx;
     flex-shrink: 0;
-    color: #0f9f86;
-    font-size: 20rpx;
-    line-height: 32rpx;
-  }
-  .store-entry__meta {
-    margin-top: 8rpx;
-    color: #8a8f99;
-    font-size: 24rpx;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .store-entry__button {
-    min-width: 96rpx;
-    height: 48rpx;
-    padding: 0 18rpx;
-    border-radius: 48rpx;
-    box-sizing: border-box;
-    color: #fff;
-    font-size: 24rpx;
-    line-height: 48rpx;
-    text-align: center;
-    background-color: #27ba9b;
-  }
-  .store-entry__service {
-    display: flex;
-    gap: 12rpx;
-    margin-top: 16rpx;
-    padding-top: 14rpx;
-    border-top: 1rpx solid #edf2f1;
-
-    text {
-      height: 34rpx;
-      padding: 0 10rpx;
-      border-radius: 5rpx;
-      color: #5f6670;
-      font-size: 22rpx;
-      line-height: 34rpx;
-      background-color: #fff;
-    }
   }
   .action {
     padding-left: 20rpx;

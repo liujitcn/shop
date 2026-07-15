@@ -3,6 +3,7 @@ syntax = "proto3";
 package app.v1;
 
 import "app/v1/recommend.proto";
+import "app/v1/tenant_store.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
@@ -90,11 +91,13 @@ message UserCollectForm {
 message UserCollect {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "用户收藏ID"}]; // 用户收藏ID
 
-  int64 goods_id = 2 [(gnostic.openapi.v3.property) = {description: "商品ID"}]; // 商品ID
+  int64 tenant_store_id = 2 [(gnostic.openapi.v3.property) = {description: "店铺ID"}]; // 店铺ID
 
-  string name = 3 [(gnostic.openapi.v3.property) = {description: "名称"}]; // 名称
+  int64 goods_id = 3 [(gnostic.openapi.v3.property) = {description: "商品ID"}]; // 商品ID
 
-  string desc = 4 [(gnostic.openapi.v3.property) = {description: "描述"}]; // 描述
+  string name = 4 [(gnostic.openapi.v3.property) = {description: "名称"}]; // 名称
+
+  string desc = 5 [(gnostic.openapi.v3.property) = {description: "描述"}]; // 描述
 
   string picture = 30 [(gnostic.openapi.v3.property) = {description: "商品图片"}]; // 商品图片
 
@@ -103,4 +106,6 @@ message UserCollect {
   int64 price = 41 [(gnostic.openapi.v3.property) = {description: "价格"}]; // 价格
 
   int64 join_price = 50 [(gnostic.openapi.v3.property) = {description: "加入时价格"}]; // 加入时价格
+
+  TenantStore tenant_store = 52 [(gnostic.openapi.v3.property) = {description: "店铺信息"}]; // 店铺信息
 }

@@ -19,6 +19,8 @@ deps:
 breaking:
   use:
     - FILE
+  except:
+    - RPC_REQUEST_RESPONSE_UNIQUE
 
 lint:
   use:

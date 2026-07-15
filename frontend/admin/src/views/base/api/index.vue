@@ -304,7 +304,7 @@ const columns: ColumnProps[] = [
  */
 async function requestBaseApiTable(params: PageBaseApisRequest) {
   const data = await defBaseApiService.PageBaseApis(buildPageRequest(params));
-  return { data: { ...data, list: data.base_apis ?? [], total: data.total } };
+  return { data: { list: data.base_apis ?? [], total: data.total } };
 }
 
 /**

@@ -280,10 +280,7 @@ async function requestShopBannerTable(params: PageShopBannersRequest) {
   requestParams.type = normalizeBannerEnumFilter(requestParams.type) as PageShopBannersRequest["type"];
   requestParams.status = normalizeBannerEnumFilter(requestParams.status) as PageShopBannersRequest["status"];
   const data = await defShopBannerService.PageShopBanners(requestParams);
-  const compatData = data as typeof data & { shopBanners?: typeof data.shop_banners; list?: typeof data.shop_banners };
-  // ProTable 固定消费 list，优先使用新 snake_case 字段并兼容历史响应。
-  const list = compatData.shop_banners ?? compatData.shopBanners ?? compatData.list ?? [];
-  return { data: { ...data, list } };
+  return { data: { list: data.shop_banners ?? [], total: data.total } };
 }
 
 /**
@@ -302,11 +299,7 @@ async function loadBannerOptions() {
     defGoodsCategoryService.OptionGoodsCategories({})
   ]);
 
-  const compatGoodsInfoResponse = listGoodsInfoResponse as typeof listGoodsInfoResponse & {
-    goodsInfos?: typeof listGoodsInfoResponse.goods_infos;
-  };
-  // 商品选项优先读取 snake_case 集合，兼容旧 camelCase 响应。
-  goodsInfoList.value = compatGoodsInfoResponse.goods_infos ?? compatGoodsInfoResponse.goodsInfos ?? [];
+  goodsInfoList.value = listGoodsInfoResponse.goods_infos ?? [];
   goodsCategoryOptions.value = categoryOption(optionGoodsCategoryResponse.list || []);
 }
 

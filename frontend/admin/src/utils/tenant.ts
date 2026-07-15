@@ -1,6 +1,6 @@
 import type { EnumProps } from "@/components/ProTable/interface";
 import { defBaseTenantService } from "@/api/admin/base_tenant";
-import type { TreeTenantStoresResponse_Option } from "@/rpc/admin/v1/tenant_store";
+import type { OptionTenantStoresResponse_Option, TreeTenantStoresResponse_Option } from "@/rpc/admin/v1/tenant_store";
 
 /** 默认租户编码。 */
 export const DEFAULT_TENANT_CODE = "0000";
@@ -55,6 +55,18 @@ export function buildTenantStoreDisplayMap(options: TreeTenantStoresResponse_Opt
         tenantName,
         storeName: storeOption.label
       });
+    });
+  });
+  return displayMap;
+}
+
+/** 从门店下拉选项构建门店展示映射。 */
+export function buildTenantStoreDisplayMapFromOptions(options: OptionTenantStoresResponse_Option[] = []) {
+  const displayMap = new Map<number, TenantStoreDisplayInfo>();
+  options.forEach(option => {
+    displayMap.set(option.value, {
+      tenantName: "",
+      storeName: option.label
     });
   });
   return displayMap;

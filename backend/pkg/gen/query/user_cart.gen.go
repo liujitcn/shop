@@ -29,6 +29,7 @@ func newUserCart(db *gorm.DB, opts ...gen.DOOption) userCart {
 	_userCart.ALL = field.NewAsterisk(tableName)
 	_userCart.ID = field.NewInt64(tableName, "id")
 	_userCart.UserID = field.NewInt64(tableName, "user_id")
+	_userCart.TenantStoreID = field.NewInt64(tableName, "tenant_store_id")
 	_userCart.GoodsID = field.NewInt64(tableName, "goods_id")
 	_userCart.SKUCode = field.NewString(tableName, "sku_code")
 	_userCart.Num = field.NewInt64(tableName, "num")
@@ -50,20 +51,21 @@ func newUserCart(db *gorm.DB, opts ...gen.DOOption) userCart {
 type userCart struct {
 	userCartDo userCartDo
 
-	ALL       field.Asterisk
-	ID        field.Int64  // 购物车ID
-	UserID    field.Int64  // 用户ID
-	GoodsID   field.Int64  // 商品id
-	SKUCode   field.String // 规格编号
-	Num       field.Int64  // 数量
-	Price     field.Int64  // 加入时单价
-	Scene     field.Int32  // 推荐场景：枚举【RecommendScene】
-	RequestID field.Int64  // 推荐请求ID
-	Position  field.Int32  // 推荐位序号
-	IsChecked field.Bool   // 是否选中
-	CreatedAt field.Time   // 创建时间
-	UpdatedAt field.Time   // 更新时间
-	DeletedAt field.Field  // 删除时间
+	ALL           field.Asterisk
+	ID            field.Int64  // 购物车ID
+	UserID        field.Int64  // 用户ID
+	TenantStoreID field.Int64  // 店铺ID
+	GoodsID       field.Int64  // 商品id
+	SKUCode       field.String // 规格编号
+	Num           field.Int64  // 数量
+	Price         field.Int64  // 加入时单价
+	Scene         field.Int32  // 推荐场景：枚举【RecommendScene】
+	RequestID     field.Int64  // 推荐请求ID
+	Position      field.Int32  // 推荐位序号
+	IsChecked     field.Bool   // 是否选中
+	CreatedAt     field.Time   // 创建时间
+	UpdatedAt     field.Time   // 更新时间
+	DeletedAt     field.Field  // 删除时间
 
 	fieldMap map[string]field.Expr
 }
@@ -82,6 +84,7 @@ func (u *userCart) updateTableName(table string) *userCart {
 	u.ALL = field.NewAsterisk(table)
 	u.ID = field.NewInt64(table, "id")
 	u.UserID = field.NewInt64(table, "user_id")
+	u.TenantStoreID = field.NewInt64(table, "tenant_store_id")
 	u.GoodsID = field.NewInt64(table, "goods_id")
 	u.SKUCode = field.NewString(table, "sku_code")
 	u.Num = field.NewInt64(table, "num")
@@ -117,9 +120,10 @@ func (u *userCart) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (u *userCart) fillFieldMap() {
-	u.fieldMap = make(map[string]field.Expr, 13)
+	u.fieldMap = make(map[string]field.Expr, 14)
 	u.fieldMap["id"] = u.ID
 	u.fieldMap["user_id"] = u.UserID
+	u.fieldMap["tenant_store_id"] = u.TenantStoreID
 	u.fieldMap["goods_id"] = u.GoodsID
 	u.fieldMap["sku_code"] = u.SKUCode
 	u.fieldMap["num"] = u.Num

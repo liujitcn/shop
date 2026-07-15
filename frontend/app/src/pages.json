@@ -91,6 +91,7 @@
     {
       "path": "pages/store/store",
       "style": {
+        "navigationStyle": "custom",
         "navigationBarTitleText": "店铺"
       }
     },

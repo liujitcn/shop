@@ -24,10 +24,11 @@ import (
 type UserCollectCase struct {
 	*biz.BaseCase
 	*data.UserCollectRepository
-	goodsInfoCase *GoodsInfoCase
-	goodsSKUCase  *GoodsSKUCase
-	mapper        *mapper.CopierMapper[appv1.UserCollect, models.UserCollect]
-	goodsMapper   *mapper.CopierMapper[appv1.UserCollect, models.GoodsInfo]
+	goodsInfoCase   *GoodsInfoCase
+	goodsSKUCase    *GoodsSKUCase
+	tenantStoreCase *TenantStoreCase
+	mapper          *mapper.CopierMapper[appv1.UserCollect, models.UserCollect]
+	goodsMapper     *mapper.CopierMapper[appv1.UserCollect, models.GoodsInfo]
 }
 
 // NewUserCollectCase 创建用户收藏业务处理对象
@@ -36,12 +37,14 @@ func NewUserCollectCase(
 	userCollectRepo *data.UserCollectRepository,
 	goodsInfoCase *GoodsInfoCase,
 	goodsSKUCase *GoodsSKUCase,
+	tenantStoreCase *TenantStoreCase,
 ) *UserCollectCase {
 	return &UserCollectCase{
 		BaseCase:              baseCase,
 		UserCollectRepository: userCollectRepo,
 		goodsInfoCase:         goodsInfoCase,
 		goodsSKUCase:          goodsSKUCase,
+		tenantStoreCase:       tenantStoreCase,
 		mapper:                mapper.NewCopierMapper[appv1.UserCollect, models.UserCollect](),
 		goodsMapper:           mapper.NewCopierMapper[appv1.UserCollect, models.GoodsInfo](),
 	}
@@ -64,13 +67,20 @@ func (c *UserCollectCase) PageUserCollects(ctx context.Context, req *appv1.PageU
 		return nil, err
 	}
 
-	goodsIDs := make([]int64, 0)
+	goodsIDs := make([]int64, 0, len(page))
+	storeIDs := make([]int64, 0, len(page))
 	for _, info := range page {
 		goodsIDs = append(goodsIDs, info.GoodsID)
+		storeIDs = append(storeIDs, info.TenantStoreID)
 	}
 
 	var goodsInfoMap map[int64]*models.GoodsInfo
 	goodsInfoMap, err = c.goodsInfoCase.mapByGoodsIDs(ctx, goodsIDs)
+	if err != nil {
+		return nil, err
+	}
+	var tenantStoreMap map[int64]*models.TenantStore
+	tenantStoreMap, err = c.tenantStoreCase.GetTenantStoreMapByIDs(ctx, storeIDs)
 	if err != nil {
 		return nil, err
 	}
@@ -97,6 +107,14 @@ func (c *UserCollectCase) PageUserCollects(ctx context.Context, req *appv1.PageU
 		collect.SaleNum = goodsInfo.InitSaleNum + goodsInfo.RealSaleNum
 		collect.Price = price
 		collect.JoinPrice = item.Price
+		tenantStore := tenantStoreMap[item.TenantStoreID]
+		if tenantStore != nil {
+			collect.TenantStore = &appv1.TenantStore{
+				Id:   tenantStore.ID,
+				Name: tenantStore.Name,
+				Logo: tenantStore.Logo,
+			}
+		}
 		list = append(list, collect)
 	}
 	return &appv1.PageUserCollectsResponse{
@@ -147,12 +165,13 @@ func (c *UserCollectCase) CreateUserCollect(ctx context.Context, userCollect *ap
 		}
 
 		err = c.Create(ctx, &models.UserCollect{
-			UserID:    authInfo.UserId,
-			GoodsID:   userCollect.GetGoodsId(),
-			Price:     price,
-			Scene:     int32(recommendContext.GetScene()),
-			RequestID: recommendContext.GetRequestId(),
-			Position:  recommendContext.GetPosition(),
+			UserID:        authInfo.UserId,
+			TenantStoreID: goodsInfo.TenantStoreID,
+			GoodsID:       userCollect.GetGoodsId(),
+			Price:         price,
+			Scene:         int32(recommendContext.GetScene()),
+			RequestID:     recommendContext.GetRequestId(),
+			Position:      recommendContext.GetPosition(),
 		})
 		if err != nil {
 			return err

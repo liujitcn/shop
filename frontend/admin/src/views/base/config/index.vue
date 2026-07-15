@@ -53,7 +53,7 @@ import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { defBaseConfigService } from "@/api/admin/base_config";
 import type { BaseConfig, BaseConfigForm, PageBaseConfigsRequest } from "@/rpc/admin/v1/base_config";
 import { BaseConfigType, Status } from "@/rpc/common/v1/enum";
-import { normalizeSelectedIds } from "@/utils/proTable";
+import { buildPageRequest, normalizeSelectedIds } from "@/utils/proTable";
 
 defineOptions({
   name: "BaseConfig",
@@ -247,17 +247,9 @@ const headerActions: HeaderActionProps[] = [
 /**
  * 请求系统配置列表，并由 ProTable 统一维护分页与搜索参数。
  */
-async function requestBaseConfigTable(params: Partial<PageBaseConfigsRequest> & { pageNum?: number; pageSize?: number }) {
-  const data = await defBaseConfigService.PageBaseConfigs({
-    site: params.site,
-    name: params.name,
-    type: params.type,
-    key: params.key,
-    status: params.status,
-    page_num: Number(params.page_num ?? params.pageNum ?? 1),
-    page_size: Number(params.page_size ?? params.pageSize ?? 10)
-  });
-  return { data: { list: data.base_configs, total: data.total } };
+async function requestBaseConfigTable(params: PageBaseConfigsRequest) {
+  const data = await defBaseConfigService.PageBaseConfigs(buildPageRequest(params));
+  return { data: { list: data.base_configs ?? [], total: data.total } };
 }
 
 /**

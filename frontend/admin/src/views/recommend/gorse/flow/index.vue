@@ -241,7 +241,7 @@ async function loadConfig() {
 /** 重新读取Gorse 推荐配置并刷新画布。 */
 async function reloadConfig() {
   const data = await defRecommendGorseService.GetConfig({});
-  config.value = normalizeConfigResponse(data);
+  config.value = data;
   renderGraph();
 }
 
@@ -508,7 +508,7 @@ function buildGraphData(sourceConfig: ConfigResponse): LogicFlow.GraphConfigData
   nodes.push(
     createNode("data-source", nodeTypeLabelMap["data-source"], {
       fixedName: true,
-      ...readRecord(recommend, ["data_source", "dataSource"])
+      ...readRecord(recommend, "data_source")
     })
   );
   if (rankerEnabled) nodes.push(createNode("ranker", nodeTypeLabelMap.ranker, { fixedName: true, ...ranker }));
@@ -516,10 +516,10 @@ function buildGraphData(sourceConfig: ConfigResponse): LogicFlow.GraphConfigData
   nodes.push(
     createNode("recommend", nodeTypeLabelMap.recommend, {
       fixedName: true,
-      cache_size: readConfigValue(recommend, ["cache_size", "cacheSize"]),
-      cache_expire: readConfigValue(recommend, ["cache_expire", "cacheExpire"]),
-      active_user_ttl: readConfigValue(recommend, ["active_user_ttl", "activeUserTtl"]),
-      context_size: readConfigValue(recommend, ["context_size", "contextSize"]),
+      cache_size: readConfigValue(recommend, "cache_size"),
+      cache_expire: readConfigValue(recommend, "cache_expire"),
+      active_user_ttl: readConfigValue(recommend, "active_user_ttl"),
+      context_size: readConfigValue(recommend, "context_size"),
       replacement: readRecord(recommend, "replacement")
     })
   );
@@ -537,9 +537,9 @@ function buildGraphData(sourceConfig: ConfigResponse): LogicFlow.GraphConfigData
     edges.push(createEdge("data-source", "collaborative"));
   }
 
-  appendRecommendNodes(nodes, edges, sourceNodeMap, "non-personalized", readRecordList(recommend, "non-personalized"));
-  appendRecommendNodes(nodes, edges, sourceNodeMap, "user-to-user", readRecordList(recommend, "user-to-user"));
-  appendRecommendNodes(nodes, edges, sourceNodeMap, "item-to-item", readRecordList(recommend, "item-to-item"));
+  appendRecommendNodes(nodes, edges, sourceNodeMap, "non-personalized", readRecordList(recommend, "non_personalized"));
+  appendRecommendNodes(nodes, edges, sourceNodeMap, "user-to-user", readRecordList(recommend, "user_to_user"));
+  appendRecommendNodes(nodes, edges, sourceNodeMap, "item-to-item", readRecordList(recommend, "item_to_item"));
   appendRecommendNodes(nodes, edges, sourceNodeMap, "external", readRecordList(recommend, "external"));
 
   const rankerRecommenders = readStringList(ranker.recommenders);
@@ -581,15 +581,15 @@ function appendRecommendNodes(
 function syncGraphToConfig(data: LogicFlow.GraphData) {
   if (!config.value) return;
 
-  const currentConfig = normalizeConfigRecord(config.value);
+  const currentConfig = cloneValue(config.value) as unknown as Record<string, unknown>;
   const currentRecommend = toRecord(currentConfig.recommend);
   const newRecommend: Record<string, unknown> = {
     ...currentRecommend,
     data_source: {},
     collaborative: null,
-    "non-personalized": [],
-    "user-to-user": [],
-    "item-to-item": [],
+    non_personalized: [],
+    user_to_user: [],
+    item_to_item: [],
     external: [],
     ranker: { ...toRecord(currentRecommend.ranker), recommenders: [] },
     fallback: { ...toRecord(currentRecommend.fallback), recommenders: [] }
@@ -603,9 +603,9 @@ function syncGraphToConfig(data: LogicFlow.GraphData) {
       hasCollaborativeNode = true;
       newRecommend.collaborative = properties;
     }
-    if (node.type === "non-personalized") pushRecommendConfig(newRecommend, "non-personalized", properties);
-    if (node.type === "user-to-user") pushRecommendConfig(newRecommend, "user-to-user", properties);
-    if (node.type === "item-to-item") pushRecommendConfig(newRecommend, "item-to-item", properties);
+    if (node.type === "non-personalized") pushRecommendConfig(newRecommend, "non_personalized", properties);
+    if (node.type === "user-to-user") pushRecommendConfig(newRecommend, "user_to_user", properties);
+    if (node.type === "item-to-item") pushRecommendConfig(newRecommend, "item_to_item", properties);
     if (node.type === "external") pushRecommendConfig(newRecommend, "external", properties);
     if (node.type === "recommend") {
       ["cache_size", "cache_expire", "active_user_ttl", "context_size", "replacement"].forEach(key => {
@@ -640,45 +640,6 @@ function syncGraphToConfig(data: LogicFlow.GraphData) {
 function isGraphReady(data: LogicFlow.GraphData) {
   const nodeTypes = new Set(data.nodes.map(node => node.type));
   return nodeTypes.has("data-source") && nodeTypes.has("recommend");
-}
-
-/** 将Gorse 配置响应统一归一为 Proto json_name 字段，避免保存时同一字段出现横线与下划线两份。 */
-function normalizeConfigResponse(sourceConfig: ConfigResponse): ConfigResponse {
-  return normalizeConfigRecord(sourceConfig) as unknown as ConfigResponse;
-}
-
-/** 克隆配置并归一推荐器数组字段名称。 */
-function normalizeConfigRecord(sourceConfig: ConfigResponse) {
-  const currentConfig = cloneValue(sourceConfig) as unknown as Record<string, unknown>;
-  const recommend = toRecord(currentConfig.recommend);
-  normalizeRecommendArrayKey(recommend, "non-personalized", ["non_personalized", "nonPersonalized"]);
-  normalizeRecommendArrayKey(recommend, "item-to-item", ["item_to_item", "itemToItem"]);
-  normalizeRecommendArrayKey(recommend, "user-to-user", ["user_to_user", "userToUser"]);
-  currentConfig.recommend = recommend;
-  return currentConfig;
-}
-
-/** 将接口传输中可能出现的字段别名合并到 proto json_name 字段，并删除别名字段。 */
-function normalizeRecommendArrayKey(record: FlowProperties, jsonName: string, aliasNames: string[]) {
-  const mergedList = readRecordList(record, jsonName);
-  aliasNames.forEach(aliasName => {
-    readRecordList(record, aliasName).forEach(item => mergedList.push(item));
-    delete record[aliasName];
-  });
-  record[jsonName] = uniqueRecommendRecords(mergedList);
-}
-
-/** 按推荐器名称去重，名称缺失时退回使用完整 JSON 内容去重。 */
-function uniqueRecommendRecords(items: FlowProperties[]) {
-  const seenKeys = new Set<string>();
-  const result: FlowProperties[] = [];
-  items.forEach(item => {
-    const key = String(item.name ?? JSON.stringify(item));
-    if (seenKeys.has(key)) return;
-    seenKeys.add(key);
-    result.push(item);
-  });
-  return result;
 }
 
 /** 收集指向 ranker、fallback、recommend 的推荐器连接。 */
@@ -905,24 +866,18 @@ function pushRecommendConfig(recommend: Record<string, unknown>, key: string, pr
   recommend[key] = list;
 }
 
-/** 按多个可能字段名读取配置值，兼容 Gorse 原始 JSON、Proto 字段名与 lowerCamelCase 响应。 */
-function readConfigValue(source: Record<string, unknown>, key: string | string[]) {
-  const keys = Array.isArray(key) ? key : [key];
-  for (const item of keys) {
-    if (Object.prototype.hasOwnProperty.call(source, item)) {
-      return source[item];
-    }
-  }
-  return undefined;
+/** 按固定 snake_case 字段名读取配置值。 */
+function readConfigValue(source: Record<string, unknown>, key: string) {
+  return source[key];
 }
 
 /** 读取对象配置。 */
-function readRecord(source: Record<string, unknown>, key: string | string[]) {
+function readRecord(source: Record<string, unknown>, key: string) {
   return toRecord(readConfigValue(source, key));
 }
 
 /** 读取对象数组配置。 */
-function readRecordList(source: Record<string, unknown>, key: string | string[]) {
+function readRecordList(source: Record<string, unknown>, key: string) {
   const value = readConfigValue(source, key);
   if (Array.isArray(value)) return value.map(record => toRecord(record));
   return [];

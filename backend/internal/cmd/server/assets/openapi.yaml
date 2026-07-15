@@ -10199,8 +10199,8 @@ components:
                 userCarts:
                     type: array
                     items:
-                        $ref: '#/components/schemas/UserCart'
-                    description: 用户购物车列表
+                        $ref: '#/components/schemas/UserCartStore'
+                    description: 按店铺分组的用户购物车列表
             description: 用户购物车列表响应
         ListWorkspacePendingCommentsResponse:
             type: object
@@ -13561,6 +13561,9 @@ components:
                 id:
                     type: string
                     description: 用户购物车ID
+                tenantStoreId:
+                    type: string
+                    description: 店铺ID
                 goodsId:
                     type: string
                     description: 商品ID
@@ -13606,12 +13609,26 @@ components:
                     type: string
                     description: 数量
             description: 用户购物车表单
+        UserCartStore:
+            type: object
+            properties:
+                store:
+                    $ref: '#/components/schemas/TenantStore'
+                goods:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/UserCart'
+                    description: 商品列表
+            description: 用户购物车店铺分组
         UserCollect:
             type: object
             properties:
                 id:
                     type: string
                     description: 用户收藏ID
+                tenantStoreId:
+                    type: string
+                    description: 店铺ID
                 goodsId:
                     type: string
                     description: 商品ID
@@ -13633,6 +13650,8 @@ components:
                 joinPrice:
                     type: string
                     description: 加入时价格
+                tenantStore:
+                    $ref: '#/components/schemas/TenantStore'
             description: 用户收藏
         UserCollectForm:
             type: object

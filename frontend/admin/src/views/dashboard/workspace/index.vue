@@ -450,7 +450,7 @@ const todoItems = computed<WorkspaceTodoItem[]>(() => {
       unit: "个",
       description: "需要尽快补货或调整售卖策略。",
       badge: "库存",
-      path: { path: "/goods/info", query: { status: String(GoodsStatus.PUT_ON), inventoryAlert: "1" } }
+      path: { path: "/goods/info", query: { status: String(GoodsStatus.PUT_ON), inventory_alert: "1" } }
     },
     {
       key: "todo-put-on",
@@ -485,7 +485,7 @@ const riskItems = computed<WorkspaceRiskItem[]>(() => {
       description: "继续曝光会直接影响转化。",
       level: "danger",
       levelLabel: "高风险",
-      path: { path: "/goods/info", query: { status: String(GoodsStatus.PUT_ON), inventoryAlert: "2" } }
+      path: { path: "/goods/info", query: { status: String(GoodsStatus.PUT_ON), inventory_alert: "2" } }
     },
     {
       key: "risk-price",
@@ -495,7 +495,7 @@ const riskItems = computed<WorkspaceRiskItem[]>(() => {
       description: "需要复核售价与折扣价关系。",
       level: "warning",
       levelLabel: "需核对",
-      path: { path: "/goods/info", query: { priceAlert: "1" } }
+      path: { path: "/goods/info", query: { price_alert: "1" } }
     },
     {
       key: "risk-low-score-comment",

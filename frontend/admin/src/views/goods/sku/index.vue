@@ -197,12 +197,7 @@ async function requestGoodsSkuTable(params: PageGoodsSkusRequest) {
     return item;
   });
 
-  return {
-    data: {
-      ...data,
-      list
-    }
-  };
+  return { data: { list, total: data.total } };
 }
 
 /**

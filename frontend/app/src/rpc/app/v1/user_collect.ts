@@ -7,6 +7,7 @@
 /* eslint-disable */
 import type { Empty } from "../../google/protobuf/empty";
 import type { RecommendContext } from "./recommend";
+import type { TenantStore } from "./tenant_store";
 
 /** 用户收藏状态查询条件 */
 export interface GetIsCollectRequest {
@@ -60,6 +61,8 @@ export interface UserCollectForm {
 export interface UserCollect {
   /** 用户收藏ID */
   id: number;
+  /** 店铺ID */
+  tenant_store_id: number;
   /** 商品ID */
   goods_id: number;
   /** 名称 */
@@ -74,6 +77,8 @@ export interface UserCollect {
   price: number;
   /** 加入时价格 */
   join_price: number;
+  /** 店铺信息 */
+  tenant_store: TenantStore | undefined;
 }
 
 /** App用户收藏管理服务 */

@@ -167,7 +167,6 @@ import { defCommentInfoService } from "@/api/admin/comment_info";
 import { defTenantStoreService } from "@/api/admin/tenant_store";
 import type {
   CommentSummary,
-  CommentDiscussion,
   CommentInfo,
   CommentInfoDetail,
   CommentReview,
@@ -187,20 +186,6 @@ defineOptions({
 /** 评论详情页标签名称。 */
 type CommentDetailTabName = "basic" | "media" | "summary" | "review" | "discussion";
 
-/** 评论详情响应兼容结构，用于迁移期兼容通用列表字段。 */
-type CommentInfoDetailCompat = Partial<CommentInfoDetail> & {
-  /** 旧协议商品评论标签字段 */
-  commentTags?: CommentTag[];
-  /** 旧协议商品评论标签字段 */
-  tagList?: CommentTag[];
-  /** 旧协议评论讨论列表字段 */
-  commentDiscussions?: CommentDiscussion[];
-  /** 旧协议评论讨论列表字段 */
-  discussionList?: CommentDiscussion[];
-  /** 旧协议评论审核记录字段 */
-  reviewList?: CommentReview[];
-};
-
 const route = useRoute();
 const tabsStore = useTabsStore();
 const userStore = useUserStore();
@@ -211,7 +196,7 @@ const commentId = ref(0);
 const detailRequestId = ref(0);
 const activeTabName = ref<CommentDetailTabName>("basic");
 const defaultDiscussionStatus = ref<CommentStatus | undefined>();
-const commentDetail = ref<CommentInfoDetailCompat>();
+const commentDetail = ref<CommentInfoDetail>();
 const tenantStoreDisplayMap = ref(new Map<number, TenantStoreDisplayInfo>());
 const workspaceTitle = "评论详情";
 
@@ -240,7 +225,7 @@ const matchedTagList = computed<CommentTag[]>(() => {
   // 评论详情为空时，命中标签为空集合。
   if (!detail?.comment) return [];
   const tagIdList = Array.isArray(detail.comment.tag_id) ? detail.comment.tag_id : [];
-  const tagList = Array.isArray(detail.comment_tags) ? detail.comment_tags : (detail.commentTags ?? detail.tagList ?? []);
+  const tagList = detail.comment_tags ?? [];
   // 后端省略空数组字段时，前端统一按空集合处理，避免详情读取 length 报错。
   if (!tagIdList.length || !tagList.length) return [];
   const tagIdSet = new Set(tagIdList);
@@ -267,7 +252,7 @@ const commentSummaryList = computed<CommentSummary[]>(() => {
 /** 当前评论审核记录列表。 */
 const reviewList = computed<CommentReview[]>(() => {
   const detail = commentDetail.value;
-  const list = detail?.comment_reviews ?? detail?.reviewList;
+  const list = detail?.comment_reviews ?? [];
   // 兼容接口返回空数组字段被省略的场景。
   if (!Array.isArray(list)) return [];
   return list;

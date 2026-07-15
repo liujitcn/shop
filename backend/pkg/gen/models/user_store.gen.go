@@ -15,7 +15,7 @@ const TableNameUserStore = "user_store"
 // UserStore 用户门店信息
 type UserStore struct {
 	ID              int64          `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:用户门店ID" json:"id"` // 用户门店ID
-	UserID          int64          `gorm:"column:user_id;type:bigint;comment:用户ID" json:"user_id"`                       // 用户ID
+	UserID          int64          `gorm:"column:user_id;type:bigint;not null;comment:用户ID" json:"user_id"`              // 用户ID
 	Name            string         `gorm:"column:name;type:varchar(100);comment:门店名称" json:"name"`                       // 门店名称
 	Address         string         `gorm:"column:address;type:json;comment:地址编号" json:"address"`                         // 地址编号
 	Detail          string         `gorm:"column:detail;type:varchar(255);comment:详细地址" json:"detail"`                   // 详细地址

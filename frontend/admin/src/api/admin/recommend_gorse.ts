@@ -9,7 +9,6 @@ import type {
   ListDashboardItemsResponse,
   ExportDataRequest,
   ExportDataResponse,
-  Feedback,
   FeedbackResponse,
   GetConfigRequest,
   GetItemRequest,
@@ -32,7 +31,6 @@ import type {
   RecommendGorseService,
   ResetConfigRequest,
   SaveConfigRequest,
-  Task,
   GetUserRecommendRequest,
   GetItemSimilarRequest,
   GetUserSimilarRequest,
@@ -44,128 +42,6 @@ import type {
 import type { Empty } from "@/rpc/google/protobuf/empty";
 
 const RECOMMEND_GORSE_URL = "/v1/admin/recommend/gorse";
-
-/** 将未知值安全转换成普通对象。 */
-function toRecord(value: unknown) {
-  return typeof value === "object" && value !== null && !Array.isArray(value) ? (value as Record<string, unknown>) : {};
-}
-
-/** 按候选字段名读取对象值，兼容 protojson 与Gorse原始字段命名差异。 */
-function readField(record: Record<string, unknown>, ...fieldNames: string[]) {
-  for (const fieldName of fieldNames) {
-    if (Object.prototype.hasOwnProperty.call(record, fieldName)) {
-      return record[fieldName];
-    }
-  }
-  return undefined;
-}
-
-/** 将未知值安全转换成字符串。 */
-function toStringValue(value: unknown) {
-  return typeof value === "string" ? value : value === null || value === undefined ? "" : String(value);
-}
-
-/** 将未知值安全转换成数字。 */
-function toNumberValue(value: unknown) {
-  return typeof value === "number" ? value : Number(value || 0);
-}
-
-/** 将未知值安全转换成布尔值。 */
-function toBooleanValue(value: unknown) {
-  if (typeof value === "boolean") return value;
-  if (typeof value === "string") return value.toLowerCase() === "true";
-  return Boolean(value);
-}
-
-/** 从接口响应中读取数组字段，兼容“对象包裹数组”与“直接返回数组”两种格式。 */
-function toArrayField(value: unknown, ...fieldNames: string[]) {
-  if (Array.isArray(value)) return value;
-  const record = toRecord(value);
-  for (const fieldName of fieldNames) {
-    const fieldValue = readField(record, fieldName);
-    if (Array.isArray(fieldValue)) return fieldValue;
-  }
-  return [];
-}
-
-/** 将原始商品标签规范化为前端使用结构。 */
-function normalizeItemLabel(value: unknown): Item["labels"] {
-  const record = toRecord(value);
-  return {
-    desc: toStringValue(readField(record, "desc")),
-    discount_price: toNumberValue(readField(record, "discount_price")),
-    inventory: toNumberValue(readField(record, "inventory")),
-    price: toNumberValue(readField(record, "price")),
-    status: toNumberValue(readField(record, "status"))
-  };
-}
-
-/** 将原始商品数据规范化为前端使用结构。 */
-function normalizeItem(value: unknown): Item {
-  const record = toRecord(value);
-  const categories = readField(record, "Categories", "categories");
-  return {
-    item_id: toStringValue(readField(record, "ItemId", "item_id")),
-    is_hidden: toBooleanValue(readField(record, "IsHidden", "is_hidden")),
-    categories: Array.isArray(categories) ? categories.map(item => toStringValue(item)) : [],
-    timestamp: toStringValue(readField(record, "Timestamp", "timestamp")),
-    labels: normalizeItemLabel(readField(record, "Labels", "labels")),
-    comment: toStringValue(readField(record, "Comment", "comment")),
-    score: toNumberValue(readField(record, "Score", "score"))
-  };
-}
-
-/** 将原始用户标签规范化为前端使用结构。 */
-function normalizeUserLabel(value: unknown): UserResponse["labels"] {
-  const record = toRecord(value);
-  return {
-    dept_id: toNumberValue(readField(record, "dept_id")),
-    gender: toNumberValue(readField(record, "gender")),
-    role_id: toNumberValue(readField(record, "role_id")),
-    status: toNumberValue(readField(record, "status"))
-  };
-}
-
-/** 将原始用户数据规范化为前端使用结构。 */
-function normalizeUser(value: unknown): UserResponse {
-  const record = toRecord(value);
-  return {
-    user_id: toStringValue(readField(record, "UserId", "user_id")),
-    labels: normalizeUserLabel(readField(record, "Labels", "labels")),
-    comment: toStringValue(readField(record, "Comment", "comment")),
-    last_active_time: toStringValue(readField(record, "LastActiveTime", "last_active_time")),
-    last_update_time: toStringValue(readField(record, "LastUpdateTime", "last_update_time")),
-    score: toNumberValue(readField(record, "Score", "score"))
-  };
-}
-
-/** 将原始任务数据规范化为前端使用结构。 */
-function normalizeTask(value: unknown): Task {
-  const record = toRecord(value);
-  return {
-    tracer: toStringValue(readField(record, "Tracer", "tracer")),
-    name: toStringValue(readField(record, "Name", "name")),
-    status: toStringValue(readField(record, "Status", "status")),
-    error: toStringValue(readField(record, "Error", "error")),
-    count: toNumberValue(readField(record, "Count", "count")),
-    total: toNumberValue(readField(record, "Total", "total")),
-    start_time: toStringValue(readField(record, "StartTime", "start_time")),
-    finish_time: toStringValue(readField(record, "FinishTime", "finish_time"))
-  };
-}
-
-/** 将原始反馈数据规范化为前端使用结构。 */
-function normalizeFeedback(value: unknown): Feedback {
-  const record = toRecord(value);
-  return {
-    feedback_type: toStringValue(readField(record, "FeedbackType", "feedback_type")),
-    user_id: toStringValue(readField(record, "UserId", "user_id")),
-    item: normalizeItem(readField(record, "Item", "item")),
-    value: toNumberValue(readField(record, "Value", "value")),
-    timestamp: toStringValue(readField(record, "Timestamp", "timestamp")),
-    comment: toStringValue(readField(record, "Comment", "comment"))
-  };
-}
 
 /** Gorse 推荐管理服务。 */
 export class RecommendGorseServiceImpl implements RecommendGorseService {
@@ -191,17 +67,12 @@ export class RecommendGorseServiceImpl implements RecommendGorseService {
   }
 
   /** 查询 Gorse 推荐仪表盘推荐商品。 */
-  async ListDashboardItems(request: ListDashboardItemsRequest): Promise<ListDashboardItemsResponse> {
-    const data = await service<ListDashboardItemsRequest, unknown>({
+  ListDashboardItems(request: ListDashboardItemsRequest): Promise<ListDashboardItemsResponse> {
+    return service<ListDashboardItemsRequest, ListDashboardItemsResponse>({
       url: `${RECOMMEND_GORSE_URL}/dashboard`,
       method: "get",
       params: request
     });
-    const record = toRecord(data);
-    return {
-      items: toArrayField(record, "Items", "items").map(normalizeItem),
-      last_modified: toStringValue(readField(record, "LastModified", "last_modified"))
-    };
   }
 
   /** 查询 Gorse 推荐配置。 */
@@ -250,38 +121,29 @@ export class RecommendGorseServiceImpl implements RecommendGorseService {
   }
 
   /** 查询 Gorse 推荐任务状态。 */
-  async ListTasks(request: ListTasksRequest): Promise<ListTasksResponse> {
-    const data = await service<ListTasksRequest, unknown>({
+  ListTasks(request: ListTasksRequest): Promise<ListTasksResponse> {
+    return service<ListTasksRequest, ListTasksResponse>({
       url: `${RECOMMEND_GORSE_URL}/task`,
       method: "get",
       params: request
     });
-    return {
-      tasks: toArrayField(data, "Tasks", "tasks").map(normalizeTask)
-    };
   }
 
   /** 查询 Gorse 推荐用户列表。 */
-  async PageUsers(request: PageUsersRequest): Promise<PageUsersResponse> {
-    const data = await service<PageUsersRequest, unknown>({
+  PageUsers(request: PageUsersRequest): Promise<PageUsersResponse> {
+    return service<PageUsersRequest, PageUsersResponse>({
       url: `${RECOMMEND_GORSE_URL}/user`,
       method: "get",
       params: request
     });
-    const record = toRecord(data);
-    return {
-      cursor: toStringValue(readField(record, "Cursor", "cursor")),
-      users: toArrayField(record, "Users", "users").map(normalizeUser)
-    };
   }
 
   /** 查询 Gorse 推荐用户。 */
-  async GetUser(request: GetUserRequest): Promise<UserResponse> {
-    const data = await service<GetUserRequest, unknown>({
+  GetUser(request: GetUserRequest): Promise<UserResponse> {
+    return service<GetUserRequest, UserResponse>({
       url: `${RECOMMEND_GORSE_URL}/user/${encodeURIComponent(request.id)}`,
       method: "get"
     });
-    return normalizeUser(data);
   }
 
   /** 删除 Gorse 推荐用户。 */
@@ -293,8 +155,8 @@ export class RecommendGorseServiceImpl implements RecommendGorseService {
   }
 
   /** 查询 Gorse 推荐相似用户。 */
-  async GetUserSimilar(request: GetUserSimilarRequest): Promise<UserSimilarResponse> {
-    const data = await service<GetUserSimilarRequest, unknown>({
+  GetUserSimilar(request: GetUserSimilarRequest): Promise<UserSimilarResponse> {
+    return service<GetUserSimilarRequest, UserSimilarResponse>({
       url: `${RECOMMEND_GORSE_URL}/user/${encodeURIComponent(request.id)}/similar`,
       method: "get",
       params: {
@@ -302,13 +164,11 @@ export class RecommendGorseServiceImpl implements RecommendGorseService {
         category: request.category
       }
     });
-    const list = toArrayField(data, "Users", "users");
-    return { users: list.map(normalizeUser) };
   }
 
   /** 查询 Gorse 推荐用户反馈。 */
-  async GetUserFeedback(request: GetUserFeedbackRequest): Promise<FeedbackResponse> {
-    const data = await service<GetUserFeedbackRequest, unknown>({
+  GetUserFeedback(request: GetUserFeedbackRequest): Promise<FeedbackResponse> {
+    return service<GetUserFeedbackRequest, FeedbackResponse>({
       url: `${RECOMMEND_GORSE_URL}/user/${encodeURIComponent(request.id)}/feedback`,
       method: "get",
       params: {
@@ -317,13 +177,11 @@ export class RecommendGorseServiceImpl implements RecommendGorseService {
         n: request.n
       }
     });
-    const list = toArrayField(data, "Feedback", "feedback");
-    return { feedback: list.map(normalizeFeedback) };
   }
 
   /** 查询 Gorse 推荐用户推荐结果。 */
-  async GetUserRecommend(request: GetUserRecommendRequest): Promise<ItemListResponse> {
-    const data = await service<GetUserRecommendRequest, unknown>({
+  GetUserRecommend(request: GetUserRecommendRequest): Promise<ItemListResponse> {
+    return service<GetUserRecommendRequest, ItemListResponse>({
       url: `${RECOMMEND_GORSE_URL}/user/${encodeURIComponent(request.id)}/recommend`,
       method: "get",
       params: {
@@ -332,31 +190,23 @@ export class RecommendGorseServiceImpl implements RecommendGorseService {
         n: request.n
       }
     });
-    const list = toArrayField(data, "Items", "items");
-    return { items: list.map(normalizeItem) };
   }
 
   /** 查询 Gorse 推荐商品列表。 */
-  async PageItems(request: PageItemsRequest): Promise<PageItemsResponse> {
-    const data = await service<PageItemsRequest, unknown>({
+  PageItems(request: PageItemsRequest): Promise<PageItemsResponse> {
+    return service<PageItemsRequest, PageItemsResponse>({
       url: `${RECOMMEND_GORSE_URL}/item`,
       method: "get",
       params: request
     });
-    const record = toRecord(data);
-    return {
-      cursor: toStringValue(readField(record, "Cursor", "cursor")),
-      items: toArrayField(record, "Items", "items").map(normalizeItem)
-    };
   }
 
   /** 查询 Gorse 推荐商品。 */
-  async GetItem(request: GetItemRequest): Promise<Item> {
-    const data = await service<GetItemRequest, unknown>({
+  GetItem(request: GetItemRequest): Promise<Item> {
+    return service<GetItemRequest, Item>({
       url: `${RECOMMEND_GORSE_URL}/item/${encodeURIComponent(request.id)}`,
       method: "get"
     });
-    return normalizeItem(data);
   }
 
   /** 删除 Gorse 推荐商品。 */
@@ -368,8 +218,8 @@ export class RecommendGorseServiceImpl implements RecommendGorseService {
   }
 
   /** 查询 Gorse 推荐相似商品。 */
-  async GetItemSimilar(request: GetItemSimilarRequest): Promise<ItemListResponse> {
-    const data = await service<GetItemSimilarRequest, unknown>({
+  GetItemSimilar(request: GetItemSimilarRequest): Promise<ItemListResponse> {
+    return service<GetItemSimilarRequest, ItemListResponse>({
       url: `${RECOMMEND_GORSE_URL}/item/${encodeURIComponent(request.id)}/similar`,
       method: "get",
       params: {
@@ -377,8 +227,6 @@ export class RecommendGorseServiceImpl implements RecommendGorseService {
         category: request.category
       }
     });
-    const list = toArrayField(data, "Items", "items");
-    return { items: list.map(normalizeItem) };
   }
 
   /** 导出 Gorse 推荐数据。 */

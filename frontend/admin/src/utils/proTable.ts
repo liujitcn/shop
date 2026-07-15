@@ -19,16 +19,12 @@ type PageRequestParams = Record<string, any> & {
   pageSize?: string | number;
 };
 
-/** 归一化后的分页请求，同时保留 camelCase 字段供迁移中的页面解构使用。 */
+/** 归一化后的分页请求，只保留接口使用的 snake_case 字段。 */
 type NormalizedPageRequest<T extends PageRequestParams> = Omit<T, "pageNum" | "pageSize"> & {
   /** 接口请求当前页码。 */
   page_num: number;
   /** 接口请求每页条数。 */
   page_size: number;
-  /** 兼容迁移中的页面当前页码。 */
-  pageNum: number;
-  /** 兼容迁移中的页面每页条数。 */
-  pageSize: number;
 };
 
 /**
@@ -61,14 +57,11 @@ export async function buildDictEnum(code: string, valueType: DictValueType = "nu
 export function buildPageRequest<T extends PageRequestParams>(params: T): NormalizedPageRequest<T> {
   const pageNum = Number(params.page_num ?? params.pageNum ?? 1);
   const pageSize = Number(params.page_size ?? params.pageSize ?? 10);
-
+  const { pageNum: _legacyPageNum, pageSize: _legacyPageSize, ...requestParams } = params;
   return {
-    ...params,
-    // 新生成类型统一要求 page_num/page_size，旧字段暂时保留给尚未迁移的页面解构。
+    ...requestParams,
     page_num: pageNum,
-    page_size: pageSize,
-    pageNum,
-    pageSize
+    page_size: pageSize
   } as NormalizedPageRequest<T>;
 }
 

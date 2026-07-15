@@ -66,14 +66,14 @@ fmt:
 	@echo "==> Go 代码格式化完成"
 
 # 生成 GORM 代码
-gorm-gen: fmt
+gorm-gen:
 	@echo "==> 生成 GORM 代码"
 	@test -x "$(GEN_BIN)" || (echo "gen not found. Run make cli first." && exit 1)
 	$(GEN_BIN) -base_path=pkg/gen -source='$(GORM_GEN_SOURCE)'
 	@echo "==> GORM 代码生成完成"
 
 # 生成 wire 依赖注入代码
-wire: fmt
+wire:
 	@echo "==> 生成 wire 依赖注入代码"
 	@cd internal/cmd/server && \
 	wire
@@ -104,7 +104,7 @@ ts:
 	@echo "==> TypeScript RPC 代码生成完成"
 
 # 一键生成全部接口产物（Go 代码 + OpenAPI 文档 + TypeScript 代码）
-gen: api openapi ts fmt
+gen: api openapi ts gorm-gen wire fmt
 	@echo "==> 全部接口产物生成完成"
 
 # 启动应用

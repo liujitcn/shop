@@ -27,9 +27,10 @@ import (
 type UserCartCase struct {
 	*biz.BaseCase
 	*data.UserCartRepository
-	goodsInfoCase *GoodsInfoCase
-	goodsSKUCase  *GoodsSKUCase
-	mapper        *mapper.CopierMapper[appv1.UserCart, models.UserCart]
+	goodsInfoCase   *GoodsInfoCase
+	goodsSKUCase    *GoodsSKUCase
+	tenantStoreCase *TenantStoreCase
+	mapper          *mapper.CopierMapper[appv1.UserCart, models.UserCart]
 }
 
 // NewUserCartCase 创建用户购物车业务处理对象
@@ -38,6 +39,7 @@ func NewUserCartCase(
 	userCartRepo *data.UserCartRepository,
 	goodsInfoCase *GoodsInfoCase,
 	goodsSKUCase *GoodsSKUCase,
+	tenantStoreCase *TenantStoreCase,
 ) *UserCartCase {
 	userCartMapper := mapper.NewCopierMapper[appv1.UserCart, models.UserCart]()
 	return &UserCartCase{
@@ -45,6 +47,7 @@ func NewUserCartCase(
 		UserCartRepository: userCartRepo,
 		goodsInfoCase:      goodsInfoCase,
 		goodsSKUCase:       goodsSKUCase,
+		tenantStoreCase:    tenantStoreCase,
 		mapper:             userCartMapper,
 	}
 }
@@ -95,8 +98,18 @@ func (c *UserCartCase) ListUserCarts(ctx context.Context) (*appv1.ListUserCartsR
 	if err != nil {
 		return nil, err
 	}
+	storeIDs := make([]int64, 0, len(all))
+	for _, item := range all {
+		storeIDs = append(storeIDs, item.TenantStoreID)
+	}
+	var tenantStoreMap map[int64]*models.TenantStore
+	tenantStoreMap, err = c.tenantStoreCase.GetTenantStoreMapByIDs(ctx, storeIDs)
+	if err != nil {
+		return nil, err
+	}
 
-	list := make([]*appv1.UserCart, 0)
+	storeMap := make(map[int64]*appv1.UserCartStore, len(tenantStoreMap))
+	stores := make([]*appv1.UserCartStore, 0, len(tenantStoreMap))
 	for _, item := range all {
 		sku, ok1 := goodsSKUMap[item.SKUCode]
 		// 购物车引用的 SKU 已失效时，使用空 SKU 兜底避免列表组装失败。
@@ -133,10 +146,25 @@ func (c *UserCartCase) ListUserCarts(ctx context.Context) (*appv1.ListUserCartsR
 			RequestId: item.RequestID,
 			Position:  item.Position,
 		}
-		list = append(list, cart)
+		store := storeMap[item.TenantStoreID]
+		if store == nil {
+			tenantStore := tenantStoreMap[item.TenantStoreID]
+			store = &appv1.UserCartStore{
+				Store: &appv1.TenantStore{Id: item.TenantStoreID},
+				Goods: make([]*appv1.UserCart, 0),
+			}
+			// 门店资料存在时，补齐购物车分组的展示信息。
+			if tenantStore != nil {
+				store.Store.Name = tenantStore.Name
+				store.Store.Logo = tenantStore.Logo
+			}
+			storeMap[item.TenantStoreID] = store
+			stores = append(stores, store)
+		}
+		store.Goods = append(store.Goods, cart)
 	}
 	return &appv1.ListUserCartsResponse{
-		UserCarts: list,
+		UserCarts: stores,
 	}, nil
 }
 
@@ -168,6 +196,11 @@ func (c *UserCartCase) CreateUserCart(ctx context.Context, userCart *appv1.Creat
 	if err != nil {
 		// 购物车记录不存在时，按新增购物车逻辑处理。
 		if errors.Is(err, gorm.ErrRecordNotFound) {
+			var goodsInfo *models.GoodsInfo
+			goodsInfo, err = c.goodsInfoCase.GoodsInfoRepository.FindByID(ctx, userCart.GetGoodsId())
+			if err != nil {
+				return err
+			}
 			var sku *models.GoodsSKU
 			sku, err = c.goodsSKUCase.findByGoodsIDAndSKUCode(ctx, userCart.GetGoodsId(), userCart.GetSkuCode())
 			if err != nil {
@@ -185,15 +218,16 @@ func (c *UserCartCase) CreateUserCart(ctx context.Context, userCart *appv1.Creat
 			}
 
 			userCartModel := &models.UserCart{
-				UserID:    authInfo.UserId,
-				GoodsID:   userCart.GetGoodsId(),
-				SKUCode:   userCart.GetSkuCode(),
-				Num:       userCart.GetNum(),
-				Price:     price,
-				IsChecked: true,
-				Scene:     int32(recommendContext.GetScene()),
-				RequestID: recommendContext.GetRequestId(),
-				Position:  recommendContext.GetPosition(),
+				UserID:        authInfo.UserId,
+				TenantStoreID: goodsInfo.TenantStoreID,
+				GoodsID:       userCart.GetGoodsId(),
+				SKUCode:       userCart.GetSkuCode(),
+				Num:           userCart.GetNum(),
+				Price:         price,
+				IsChecked:     true,
+				Scene:         int32(recommendContext.GetScene()),
+				RequestID:     recommendContext.GetRequestId(),
+				Position:      recommendContext.GetPosition(),
 			}
 			err = c.UserCartRepository.Create(ctx, userCartModel)
 			if err != nil {

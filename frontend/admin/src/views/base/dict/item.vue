@@ -53,7 +53,7 @@ import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { defBaseDictService } from "@/api/admin/base_dict";
 import type { BaseDictItem, BaseDictItemForm, PageBaseDictItemsRequest } from "@/rpc/admin/v1/base_dict";
 import { Status } from "@/rpc/common/v1/enum";
-import { normalizeSelectedIds } from "@/utils/proTable";
+import { buildPageRequest, normalizeSelectedIds } from "@/utils/proTable";
 
 defineOptions({
   name: "BaseDictItem",
@@ -228,15 +228,9 @@ watch(
 /**
  * 请求字典项分页列表，并补充当前路由上的字典 ID。
  */
-async function requestBaseDictItemTable(params: Partial<PageBaseDictItemsRequest> & { pageNum?: number; pageSize?: number }) {
-  const data = await defBaseDictService.PageBaseDictItems({
-    dict_id: dictId.value,
-    label: params.label ?? "",
-    status: params.status,
-    page_num: Number(params.page_num ?? params.pageNum ?? 1),
-    page_size: Number(params.page_size ?? params.pageSize ?? 10)
-  });
-  return { data: { list: data.base_dict_items, total: data.total } };
+async function requestBaseDictItemTable(params: PageBaseDictItemsRequest) {
+  const data = await defBaseDictService.PageBaseDictItems({ ...buildPageRequest(params), dict_id: dictId.value });
+  return { data: { list: data.base_dict_items ?? [], total: data.total } };
 }
 
 /**

@@ -18,7 +18,7 @@
         :columns="columns"
         :header-actions="headerActions"
         :request-api="requestGoodsTable"
-        :init-param="initParam"
+        :init-param="tableInitParam"
       >
         <template #name="scope">
           <el-link v-if="BUTTONS['goods:info:detail']" type="primary" @click.stop="handleOpenDetail(scope.row)">
@@ -52,6 +52,7 @@ import { buildPageRequest, normalizeSelectedIds } from "@/utils/proTable";
 import { navigateTo } from "@/utils/router";
 import {
   buildTenantStoreDisplayMap,
+  buildTenantStoreDisplayMapFromOptions,
   DEFAULT_TENANT_CODE,
   formatTenantStoreDisplay,
   parseTenantStoreTreeValue,
@@ -71,14 +72,10 @@ type CategoryFilterNode = {
   children?: CategoryFilterNode[];
 };
 
-/** 商品列表搜索参数，兼容 ProTable 展示字段与接口 snake_case 字段。 */
+/** 商品列表搜索参数。 */
 type GoodsInfoSearchParams = PageGoodsInfosRequest & {
-  /** 租户门店树筛选值。 */
+  /** 默认租户的租户门店树筛选值。 */
   tenant_store_tree_value?: string;
-  /** 库存预警展示字段。 */
-  inventoryAlert?: number;
-  /** 价格异常展示字段。 */
-  priceAlert?: number;
 };
 
 const { BUTTONS } = useAuthButtons();
@@ -96,6 +93,11 @@ const initParam = reactive({
   status: undefined as number | undefined,
   inventory_alert: undefined as number | undefined,
   price_alert: undefined as number | undefined
+});
+
+/** 只向表格注入有效的工作台初始筛选值，避免空值覆盖用户当前搜索。 */
+const tableInitParam = computed(() => {
+  return Object.fromEntries(Object.entries(initParam).filter(([, value]) => value !== undefined));
 });
 const categoryFilterValue = ref("");
 
@@ -121,20 +123,32 @@ const columns = computed<ColumnProps[]>(() => [
     minWidth: isDefaultTenant.value ? 220 : 160,
     showOverflowTooltip: true,
     render: scope => getTenantStoreText(scope.row as GoodsInfo),
-    search: {
-      el: "tree-select",
-      key: "tenant_store_tree_value",
-      order: 1,
-      props: {
-        clearable: true,
-        filterable: true,
-        checkStrictly: true,
-        renderAfterExpand: false,
-        placeholder: isDefaultTenant.value ? "请选择租户/门店" : "请选择门店",
-        style: { width: "100%" }
-      }
-    },
-    enum: requestTenantStoreTreeOptions
+    search: isDefaultTenant.value
+      ? {
+          el: "tree-select",
+          key: "tenant_store_tree_value",
+          order: 1,
+          props: {
+            clearable: true,
+            filterable: true,
+            checkStrictly: true,
+            renderAfterExpand: false,
+            placeholder: "请选择租户/门店",
+            style: { width: "100%" }
+          }
+        }
+      : {
+          el: "select",
+          key: "tenant_store_id",
+          order: 1,
+          props: {
+            clearable: true,
+            filterable: true,
+            placeholder: "请选择门店",
+            style: { width: "100%" }
+          }
+        },
+    enum: isDefaultTenant.value ? requestTenantStoreTreeOptions : requestTenantStoreOptions
   },
   {
     prop: "picture",
@@ -153,7 +167,7 @@ const columns = computed<ColumnProps[]>(() => [
   { prop: "desc", label: "商品描述", minWidth: 200 },
   { prop: "inventory", label: "总库存", minWidth: 100, align: "right" },
   {
-    prop: "inventoryAlert",
+    prop: "inventory_alert",
     label: "库存预警",
     minWidth: 120,
     dictCode: "goods_inventory_alert",
@@ -161,7 +175,7 @@ const columns = computed<ColumnProps[]>(() => [
     search: { el: "select" }
   },
   {
-    prop: "priceAlert",
+    prop: "price_alert",
     label: "价格异常",
     minWidth: 120,
     dictCode: "goods_price_alert",
@@ -288,6 +302,13 @@ async function requestTenantStoreTreeOptions() {
   return { data: transformTenantStoreTreeOptions(response.list ?? []) };
 }
 
+/** 请求普通租户的门店下拉筛选数据。 */
+async function requestTenantStoreOptions() {
+  const response = await defTenantStoreService.OptionTenantStores({ keyword: "" });
+  tenantStoreDisplayMap.value = buildTenantStoreDisplayMapFromOptions(response.list ?? []);
+  return { data: response.list ?? [] };
+}
+
 /**
  * 读取商品列表租户门店展示文本，默认租户显示租户/门店。
  */
@@ -312,33 +333,37 @@ function changeTreeFilter(value: string) {
  */
 async function requestGoodsTable(params: PageGoodsInfosRequest) {
   const searchParams = params as GoodsInfoSearchParams;
-  const treeSelection = parseTenantStoreTreeValue(searchParams.tenant_store_tree_value ?? initParam.tenant_store_tree_value);
-  const { tenant_store_tree_value: _tenantStoreTreeValue, tenant_id: _tenantId, tenant_store_id: _tenantStoreId, ...requestParams } = searchParams;
+  // 默认租户按树节点解析租户或门店，普通租户直接传下拉选择的门店编号。
+  const tenantStoreSelection = isDefaultTenant.value
+    ? parseTenantStoreTreeValue(searchParams.tenant_store_tree_value ?? initParam.tenant_store_tree_value)
+    : { tenant_store_id: searchParams.tenant_store_id };
+  const {
+    tenant_store_tree_value: _tenantStoreTreeValue,
+    tenant_id: _tenantId,
+    tenant_store_id: _tenantStoreId,
+    ...requestParams
+  } = searchParams;
   const data = await defGoodsInfoService.PageGoodsInfos(
     buildPageRequest({
       ...requestParams,
-      tenant_id: treeSelection.tenant_id ?? initParam.tenant_id,
-      tenant_store_id: treeSelection.tenant_store_id ?? initParam.tenant_store_id,
+      tenant_id: tenantStoreSelection.tenant_id ?? initParam.tenant_id,
+      tenant_store_id: tenantStoreSelection.tenant_store_id ?? initParam.tenant_store_id,
       category_id: initParam.category_id,
       // 路由状态只作为首屏默认值，用户搜索选择后优先使用搜索表单值。
       status: searchParams.status ?? initParam.status,
-      // ProTable 搜索列保留 camelCase 展示字段，这里统一映射为接口 snake_case 查询条件。
-      inventory_alert: searchParams.inventoryAlert ?? initParam.inventory_alert,
-      price_alert: searchParams.priceAlert ?? initParam.price_alert
+      inventory_alert: searchParams.inventory_alert ?? initParam.inventory_alert,
+      price_alert: searchParams.price_alert ?? initParam.price_alert
     })
   );
-  const compatData = data as typeof data & { goodsInfos?: typeof data.goods_infos; list?: typeof data.goods_infos };
-  // ProTable 固定消费 list，优先使用新 snake_case 字段并兼容历史响应。
-  const list = compatData.goods_infos ?? compatData.goodsInfos ?? compatData.list ?? [];
-  return { data: { ...data, list } };
+  return { data: { list: data.goods_infos ?? [], total: data.total } };
 }
 
 /** 同步工作台跳转携带的商品列表筛选参数。 */
 function syncWorkspaceQuery() {
   const categoryId = Number(route.query.categoryId ?? 0);
   const status = Number(route.query.status ?? 0);
-  const inventoryAlert = Number(route.query.inventoryAlert ?? 0);
-  const priceAlert = Number(route.query.priceAlert ?? 0);
+  const inventoryAlert = Number(route.query.inventory_alert ?? 0);
+  const priceAlert = Number(route.query.price_alert ?? 0);
 
   initParam.category_id = categoryId > 0 ? categoryId : undefined;
   initParam.status = status > 0 ? status : undefined;
@@ -354,9 +379,7 @@ function syncWorkspaceQuery() {
       tenant_store_tree_value: initParam.tenant_store_tree_value,
       status: initParam.status,
       inventory_alert: initParam.inventory_alert,
-      price_alert: initParam.price_alert,
-      inventoryAlert: initParam.inventory_alert,
-      priceAlert: initParam.price_alert
+      price_alert: initParam.price_alert
     });
     Object.assign(proTable.value.searchInitParam, {
       category_id: initParam.category_id,
@@ -365,9 +388,7 @@ function syncWorkspaceQuery() {
       tenant_store_tree_value: initParam.tenant_store_tree_value,
       status: initParam.status,
       inventory_alert: initParam.inventory_alert,
-      price_alert: initParam.price_alert,
-      inventoryAlert: initParam.inventory_alert,
-      priceAlert: initParam.price_alert
+      price_alert: initParam.price_alert
     });
   }
 }

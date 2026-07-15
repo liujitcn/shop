@@ -157,7 +157,7 @@ const headerActions: HeaderActionProps[] = [
  */
 async function requestGoodsPropTable(params: PageGoodsPropsRequest) {
   const data = await defGoodsPropService.PageGoodsProps(buildPageRequest({ ...params, goods_id: goodsId.value }));
-  return { data: { ...data, list: data.goods_props ?? [] } };
+  return { data: { list: data.goods_props ?? [], total: data.total } };
 }
 
 /**

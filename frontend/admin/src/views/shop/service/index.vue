@@ -163,10 +163,7 @@ const headerActions: HeaderActionProps[] = [
  */
 async function requestShopServiceTable(params: PageShopServicesRequest) {
   const data = await defShopServiceService.PageShopServices(buildPageRequest(params));
-  const compatData = data as typeof data & { shopServices?: typeof data.shop_services; list?: typeof data.shop_services };
-  // ProTable 固定消费 list，优先使用新 snake_case 字段并兼容历史响应。
-  const list = compatData.shop_services ?? compatData.shopServices ?? compatData.list ?? [];
-  return { data: { ...data, list } };
+  return { data: { list: data.shop_services ?? [], total: data.total } };
 }
 
 /**

@@ -36,7 +36,7 @@ import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { defBaseTenantService } from "@/api/admin/base_tenant";
 import type { BaseTenant, BaseTenantForm, PageBaseTenantsRequest } from "@/rpc/admin/v1/base_tenant";
 import { Status } from "@/rpc/common/v1/enum";
-import { normalizeSelectedIds } from "@/utils/proTable";
+import { buildPageRequest, normalizeSelectedIds } from "@/utils/proTable";
 
 defineOptions({
   name: "BaseTenant",
@@ -174,15 +174,9 @@ const headerActions: HeaderActionProps[] = [
 /**
  * 请求租户列表，并由 ProTable 统一维护分页与搜索参数。
  */
-async function requestBaseTenantTable(params: Partial<PageBaseTenantsRequest> & { pageNum?: number; pageSize?: number }) {
-  const data = await defBaseTenantService.PageBaseTenants({
-    code: params.code ?? "",
-    name: params.name ?? "",
-    status: params.status,
-    page_num: Number(params.page_num ?? params.pageNum ?? 1),
-    page_size: Number(params.page_size ?? params.pageSize ?? 10)
-  });
-  return { data: { list: data.base_tenants, total: data.total } };
+async function requestBaseTenantTable(params: PageBaseTenantsRequest) {
+  const data = await defBaseTenantService.PageBaseTenants(buildPageRequest(params));
+  return { data: { list: data.base_tenants ?? [], total: data.total } };
 }
 
 /**

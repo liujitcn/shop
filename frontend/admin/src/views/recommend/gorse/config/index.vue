@@ -49,8 +49,8 @@ defineOptions({
 /** 推荐配置原始对象，页面按当前固定返回结构直接读取。 */
 type ConfigRecord = Record<string, unknown>;
 
-/** 配置字段读取路径，数组用于兼容不同 JSON 命名策略。 */
-type ConfigFieldKey = string | string[];
+/** 配置字段读取键。 */
+type ConfigFieldKey = string;
 
 /** 配置字段展示元数据，字段名直接对应当前返回值。 */
 interface ConfigFieldMeta {
@@ -312,19 +312,19 @@ function buildRecommendGroups(recommend: ConfigRecord | undefined): ConfigDispla
     ...buildListGroups(
       "recommend-non-personalized",
       "非个性化推荐器",
-      readRecordList(recommend, ["non-personalized", "non_personalized"]),
+      readRecordList(recommend, "non_personalized"),
       nonPersonalizedFields
     ),
     ...buildListGroups(
       "recommend-item-to-item",
       "物品相似推荐器",
-      readRecordList(recommend, ["item-to-item", "item_to_item"]),
+      readRecordList(recommend, "item_to_item"),
       itemToItemFields
     ),
     ...buildListGroups(
       "recommend-user-to-user",
       "用户相似推荐器",
-      readRecordList(recommend, ["user-to-user", "user_to_user"]),
+      readRecordList(recommend, "user_to_user"),
       userToUserFields
     ),
     ...buildListGroups("recommend-external", "外部推荐器", readRecordList(recommend, "external"), externalFields),
@@ -384,22 +384,13 @@ function buildDisplayField(record: ConfigRecord, meta: ConfigFieldMeta): ConfigD
 /** 从对象中按固定字段名读取值。 */
 function readValue(record: ConfigRecord | undefined, key: ConfigFieldKey) {
   if (!record) return undefined;
-  const keys = Array.isArray(key) ? key : [key];
-  for (const currentKey of keys) {
-    let value: unknown = record;
-    let exists = true;
-    for (const keyPart of currentKey.split(".")) {
-      const currentRecord = toOptionalRecord(value);
-      // 当前命名策略下字段不存在时，继续尝试下一个候选字段名。
-      if (!currentRecord || !(keyPart in currentRecord)) {
-        exists = false;
-        break;
-      }
-      value = currentRecord[keyPart];
-    }
-    if (exists && value !== null && value !== undefined) return value;
+  let value: unknown = record;
+  for (const keyPart of key.split(".")) {
+    const currentRecord = toOptionalRecord(value);
+    if (!currentRecord || !(keyPart in currentRecord)) return undefined;
+    value = currentRecord[keyPart];
   }
-  return undefined;
+  return value;
 }
 
 /** 从对象中按固定字段名读取子对象。 */

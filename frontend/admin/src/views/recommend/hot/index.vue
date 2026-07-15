@@ -176,16 +176,8 @@ const headerActions: HeaderActionProps[] = [
  * 请求热门推荐列表，交给 ProTable 统一处理分页和筛选。
  */
 async function requestShopHotTable(params: Record<string, any>) {
-  const { pageNum, pageSize, ...requestParams } = buildPageRequest(params);
-  const data = await defShopHotService.PageShopHots({
-    ...requestParams,
-    page_num: Number(pageNum),
-    page_size: Number(pageSize)
-  } as PageShopHotsRequest);
-  const compatData = data as typeof data & { shopHots?: typeof data.shop_hots; list?: typeof data.shop_hots };
-  // ProTable 固定消费 list，优先使用新 snake_case 字段并兼容历史响应。
-  const list = compatData.shop_hots ?? compatData.shopHots ?? compatData.list ?? [];
-  return { data: { ...data, list } };
+  const data = await defShopHotService.PageShopHots(buildPageRequest(params) as PageShopHotsRequest);
+  return { data: { list: data.shop_hots ?? [], total: data.total } };
 }
 
 /**

@@ -75,10 +75,7 @@ const columns: ColumnProps[] = [
  */
 async function requestPayBillTable(params: PagePayBillsRequest) {
   const data = await defPayBillService.PagePayBills(buildPageRequest(params));
-  const compatData = data as typeof data & { payBills?: typeof data.pay_bills; list?: typeof data.pay_bills };
-  // ProTable 固定消费 list，优先使用新 snake_case 字段并兼容历史响应。
-  const list = compatData.pay_bills ?? compatData.payBills ?? compatData.list ?? [];
-  return { data: { ...data, list } };
+  return { data: { list: data.pay_bills ?? [], total: data.total } };
 }
 
 /**
