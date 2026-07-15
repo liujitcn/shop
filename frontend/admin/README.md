@@ -40,6 +40,7 @@ frontend/admin
 - `views/report`：商品月报、订单月报。
 - `views/pay`：交易账单。
 - `views/recommend`：推荐请求、热门推荐、Gorse 推荐概览、任务、用户、商品、相似内容、反馈、高级调试、推荐编排、推荐配置。
+- `views/tool`：开发工具页面，当前包含代码生成表配置的列表、新增、编辑和删除。
 - `views/user`：用户相关历史页面。
 - `views/migration/pending`：动态菜单组件无法匹配时的统一降级提示页。
 
@@ -145,6 +146,12 @@ src/rpc
 这些文件由后端目录的 `make ts` 生成。新增或调整接口时，应优先修改后端 `backend/api/protos`，再执行生成命令，不要在 `src/rpc` 中手写等价类型。
 
 业务页面可以按现有模式在 `src/api` 中封装接口调用，也可以直接复用生成的 RPC 客户端，具体以当前页面风格为准。
+
+代码生成表配置页面使用独立接口封装：
+
+- `src/api/admin/code_gen_table.ts`：数据库表选项及表配置 CRUD。
+- `src/api/admin/code_gen_column.ts`：数据库字段元数据查询。
+- `src/views/tool/code-gen/index.vue`：基于 `ProTable + FormDialog + ProForm` 的单页配置入口。
 
 当前管理后台 AI助手会复用：
 

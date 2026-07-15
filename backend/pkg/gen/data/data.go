@@ -32,6 +32,7 @@ func init() {
 		new(models.BaseThirdAccount),
 		new(models.BaseUser),
 		new(models.CasbinRule),
+		new(models.CodeGenTable),
 		new(models.CommentDiscussion),
 		new(models.CommentInfo),
 		new(models.CommentReaction),

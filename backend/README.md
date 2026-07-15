@@ -159,6 +159,15 @@ MCP 工具调用时会按工具名查询 `base_api.tool_name`，再检查 `mcp_e
 
 当前后端会按 `server.mcp.transport: TRANSPORT_IN_PROCESS` 把 Streamable HTTP MCP 处理器挂载到现有 HTTP 服务，并通过 `/mcp/{terminal}` 按服务关键字过滤工具。例如 `server.http.addr = :7001` 时，管理端 MCP 地址为 `http://127.0.0.1:7001/mcp/admin`。
 
+## 代码生成配置
+
+代码生成配置首批能力只包含数据库表配置的列表、新增、编辑和删除。接口按职责拆分为：
+
+- `CodeGenTableService`：数据库表选项、代码生成表配置分页和 CRUD。
+- `CodeGenColumnService`：数据库字段元数据查询。
+
+数据库表与字段选项固定读取当前连接库的 `information_schema`，只用于配置表单，不接受客户端传入 SQL 片段。实际代码生成、字段配置持久化、Proto 检查、预览和生成任务尚未接入本批能力。
+
 ## 静态资源
 
 本地 OSS 根目录默认来自 `configs/oss.yaml` 的 `rootDirectory: ./data`。

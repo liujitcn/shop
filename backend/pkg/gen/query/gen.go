@@ -35,6 +35,7 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		BaseThirdAccount:     newBaseThirdAccount(db, opts...),
 		BaseUser:             newBaseUser(db, opts...),
 		CasbinRule:           newCasbinRule(db, opts...),
+		CodeGenTable:         newCodeGenTable(db, opts...),
 		CommentDiscussion:    newCommentDiscussion(db, opts...),
 		CommentInfo:          newCommentInfo(db, opts...),
 		CommentReaction:      newCommentReaction(db, opts...),
@@ -92,6 +93,7 @@ type Query struct {
 	BaseThirdAccount     baseThirdAccount
 	BaseUser             baseUser
 	CasbinRule           casbinRule
+	CodeGenTable         codeGenTable
 	CommentDiscussion    commentDiscussion
 	CommentInfo          commentInfo
 	CommentReaction      commentReaction
@@ -150,6 +152,7 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		BaseThirdAccount:     q.BaseThirdAccount.clone(db),
 		BaseUser:             q.BaseUser.clone(db),
 		CasbinRule:           q.CasbinRule.clone(db),
+		CodeGenTable:         q.CodeGenTable.clone(db),
 		CommentDiscussion:    q.CommentDiscussion.clone(db),
 		CommentInfo:          q.CommentInfo.clone(db),
 		CommentReaction:      q.CommentReaction.clone(db),
@@ -215,6 +218,7 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		BaseThirdAccount:     q.BaseThirdAccount.replaceDB(db),
 		BaseUser:             q.BaseUser.replaceDB(db),
 		CasbinRule:           q.CasbinRule.replaceDB(db),
+		CodeGenTable:         q.CodeGenTable.replaceDB(db),
 		CommentDiscussion:    q.CommentDiscussion.replaceDB(db),
 		CommentInfo:          q.CommentInfo.replaceDB(db),
 		CommentReaction:      q.CommentReaction.replaceDB(db),
@@ -270,6 +274,7 @@ type queryCtx struct {
 	BaseThirdAccount     *baseThirdAccountDo
 	BaseUser             *baseUserDo
 	CasbinRule           *casbinRuleDo
+	CodeGenTable         *codeGenTableDo
 	CommentDiscussion    *commentDiscussionDo
 	CommentInfo          *commentInfoDo
 	CommentReaction      *commentReactionDo
@@ -325,6 +330,7 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		BaseThirdAccount:     q.BaseThirdAccount.WithContext(ctx),
 		BaseUser:             q.BaseUser.WithContext(ctx),
 		CasbinRule:           q.CasbinRule.WithContext(ctx),
+		CodeGenTable:         q.CodeGenTable.WithContext(ctx),
 		CommentDiscussion:    q.CommentDiscussion.WithContext(ctx),
 		CommentInfo:          q.CommentInfo.WithContext(ctx),
 		CommentReaction:      q.CommentReaction.WithContext(ctx),

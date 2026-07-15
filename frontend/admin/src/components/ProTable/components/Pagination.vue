@@ -46,11 +46,13 @@ const pageSize = computed({
 
 /** 同步当前页码更新，兼容 Element Plus 当前推荐写法。 */
 function handleCurrentPageUpdate(value: number) {
+  if (value === currentPage.value) return;
   currentPage.value = value;
 }
 
 /** 同步分页大小更新，兼容 Element Plus 当前推荐写法。 */
 function handlePageSizeUpdate(value: number) {
+  if (value === pageSize.value) return;
   pageSize.value = value;
 }
 </script>

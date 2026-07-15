@@ -90,6 +90,11 @@ func (*CasbinRule) TableComment() string {
 }
 
 // TableComment 返回表注释。
+func (*CodeGenTable) TableComment() string {
+	return "代码生成对象表"
+}
+
+// TableComment 返回表注释。
 func (*CommentDiscussion) TableComment() string {
 	return "评价讨论信息"
 }

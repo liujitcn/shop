@@ -2075,6 +2075,152 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/code-gen/database/table:
+        get:
+            tags:
+                - CodeGenTableService
+            description: 查询数据库表列表
+            operationId: CodeGenTableService_ListCodeGenDatabaseTables
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListCodeGenDatabaseTablesResponse'
+    /api/v1/admin/code-gen/database/table/{tableName}/column:
+        get:
+            tags:
+                - CodeGenColumnService
+            description: 查询数据库表字段列表
+            operationId: CodeGenColumnService_ListCodeGenDatabaseColumns
+            parameters:
+                - name: tableName
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListCodeGenDatabaseColumnsResponse'
+    /api/v1/admin/code-gen/table:
+        get:
+            tags:
+                - CodeGenTableService
+            description: 分页查询代码生成表配置
+            operationId: CodeGenTableService_PageCodeGenTables
+            parameters:
+                - name: name
+                  in: query
+                  schema:
+                    type: string
+                - name: businessName
+                  in: query
+                  schema:
+                    type: string
+                - name: modulePath
+                  in: query
+                  schema:
+                    type: string
+                - name: pageType
+                  in: query
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageNum
+                  in: query
+                  schema:
+                    type: string
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/PageCodeGenTablesResponse'
+        post:
+            tags:
+                - CodeGenTableService
+            description: 创建代码生成表配置
+            operationId: CodeGenTableService_CreateCodeGenTable
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CodeGenTableForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/code-gen/table/{ids}:
+        delete:
+            tags:
+                - CodeGenTableService
+            description: 删除代码生成表配置
+            operationId: CodeGenTableService_DeleteCodeGenTable
+            parameters:
+                - name: ids
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/code-gen/table/{id}:
+        get:
+            tags:
+                - CodeGenTableService
+            description: 查询代码生成表配置
+            operationId: CodeGenTableService_GetCodeGenTable
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/CodeGenTableForm'
+        put:
+            tags:
+                - CodeGenTableService
+            description: 更新代码生成表配置
+            operationId: CodeGenTableService_UpdateCodeGenTable
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CodeGenTableForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
     /api/v1/admin/comment/info:
         get:
             tags:
@@ -8085,6 +8231,168 @@ components:
                     type: string
                     description: 验证码base64
             description: 验证码响应
+        CodeGenDatabaseColumn:
+            type: object
+            properties:
+                columnName:
+                    type: string
+                    description: 数据库字段名
+                columnComment:
+                    type: string
+                    description: 数据库字段注释
+                dbType:
+                    type: string
+                    description: 数据库字段类型
+                columnType:
+                    type: string
+                    description: 数据库完整字段类型
+                isPrimary:
+                    type: boolean
+                    description: 是否主键
+                isNullable:
+                    type: boolean
+                    description: 是否允许为空
+            description: 数据库字段元数据
+        CodeGenDatabaseTable:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: 数据库表名
+                comment:
+                    type: string
+                    description: 业务表描述
+                disabled:
+                    type: boolean
+                    description: 是否已被选择
+                businessName:
+                    type: string
+                    description: 默认业务名
+                entityName:
+                    type: string
+                    description: 默认实体名
+                modulePath:
+                    type: string
+                    description: 默认模块路径
+                permissionPrefix:
+                    type: string
+                    description: 默认权限前缀
+            description: 数据库表元数据
+        CodeGenLeftTreeConfig:
+            type: object
+            properties:
+                sourceType:
+                    type: string
+                    description: 左树数据源类型
+                sourceValue:
+                    type: string
+                    description: 左树数据源值
+                filterColumn:
+                    type: string
+                    description: 左树筛选当前表字段
+                parentColumn:
+                    type: string
+                    description: 左树父节点字段
+                labelColumn:
+                    type: string
+                    description: 左树显示字段
+                valueColumn:
+                    type: string
+                    description: 左树值字段
+            description: 左树右表页面配置
+        CodeGenTable:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 主键ID
+                name:
+                    type: string
+                    description: 业务表名
+                comment:
+                    type: string
+                    description: 业务表描述
+                businessName:
+                    type: string
+                    description: 业务名
+                entityName:
+                    type: string
+                    description: 实体名
+                modulePath:
+                    type: string
+                    description: 模块路径
+                pageType:
+                    type: string
+                    description: 页面类型
+                status:
+                    type: integer
+                    description: 状态
+                    format: int32
+                remark:
+                    type: string
+                    description: 备注
+                createdAt:
+                    type: string
+                    description: 创建时间
+                updatedAt:
+                    type: string
+                    description: 更新时间
+            description: 代码生成表配置
+        CodeGenTableForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 主键ID
+                name:
+                    type: string
+                    description: 业务表名
+                comment:
+                    type: string
+                    description: 业务表描述
+                businessName:
+                    type: string
+                    description: 业务名
+                entityName:
+                    type: string
+                    description: 实体名
+                modulePath:
+                    type: string
+                    description: 模块路径
+                permissionPrefix:
+                    type: string
+                    description: 权限标识前缀
+                pageType:
+                    type: string
+                    description: 页面类型：normal普通表格 tree树形表格 left_tree左树右表
+                parentColumn:
+                    type: string
+                    description: 树形表格父节点字段
+                treeLabelColumn:
+                    type: string
+                    description: 树节点显示字段
+                leftTreeConfig:
+                    $ref: '#/components/schemas/CodeGenLeftTreeConfig'
+                genBackend:
+                    type: boolean
+                    description: 是否生成后端
+                genFrontend:
+                    type: boolean
+                    description: 是否生成前端
+                genSql:
+                    type: boolean
+                    description: 是否生成建表SQL
+                parentMenuId:
+                    type: string
+                    description: 父级菜单ID
+                status:
+                    type: integer
+                    description: 状态
+                    format: int32
+                remark:
+                    type: string
+                    description: 备注
+            description: 代码生成表配置表单
         CommentDiscussion:
             type: object
             properties:
@@ -10024,6 +10332,24 @@ components:
                         $ref: '#/components/schemas/BaseApi'
                     description: API列表
             description: API列表响应
+        ListCodeGenDatabaseColumnsResponse:
+            type: object
+            properties:
+                columns:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/CodeGenDatabaseColumn'
+                    description: 数据库字段列表
+            description: 数据库表字段列表响应
+        ListCodeGenDatabaseTablesResponse:
+            type: object
+            properties:
+                tables:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/CodeGenDatabaseTable'
+                    description: 数据库表列表
+            description: 数据库表列表响应
         ListCommentReviewsResponse:
             type: object
             properties:
@@ -10960,6 +11286,19 @@ components:
                     description: 总数
                     format: int32
             description: 用户分页响应
+        PageCodeGenTablesResponse:
+            type: object
+            properties:
+                codeGenTables:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/CodeGenTable'
+                    description: 代码生成表配置列表
+                total:
+                    type: integer
+                    description: 总数
+                    format: int32
+            description: 代码生成表配置分页响应
         PageCommentDiscussionResponse:
             type: object
             properties:
@@ -13957,6 +14296,10 @@ tags:
       description: Admin租户管理服务
     - name: BaseUserService
       description: Admin用户管理服务
+    - name: CodeGenColumnService
+      description: Admin代码生成字段服务
+    - name: CodeGenTableService
+      description: Admin代码生成表配置服务
     - name: CommentInfoService
       description: Admin评论管理服务
     - name: CommentService
@@ -13972,9 +14315,9 @@ tags:
     - name: GoodsCategoryService
       description: Admin商品分类服务
     - name: GoodsInfoService
-      description: Admin商品信息服务
-    - name: GoodsInfoService
       description: App商品信息服务
+    - name: GoodsInfoService
+      description: Admin商品信息服务
     - name: GoodsPropService
       description: Admin商品属性服务
     - name: GoodsReportService
@@ -14034,8 +14377,8 @@ tags:
     - name: UserCollectService
       description: App用户收藏管理服务
     - name: UserStoreService
-      description: Admin用户门店管理服务
-    - name: UserStoreService
       description: App用户门店管理服务
+    - name: UserStoreService
+      description: Admin用户门店管理服务
     - name: WorkspaceService
       description: Admin工作台服务
