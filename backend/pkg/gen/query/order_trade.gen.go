@@ -33,7 +33,7 @@ func newOrderTrade(db *gorm.DB, opts ...gen.DOOption) orderTrade {
 	_orderTrade.PayMoney = field.NewInt64(tableName, "pay_money")
 	_orderTrade.TotalMoney = field.NewInt64(tableName, "total_money")
 	_orderTrade.PostFee = field.NewInt64(tableName, "post_fee")
-	_orderTrade.StoreNum = field.NewInt64(tableName, "store_num")
+	_orderTrade.OrderNum = field.NewInt64(tableName, "order_num")
 	_orderTrade.GoodsNum = field.NewInt64(tableName, "goods_num")
 	_orderTrade.PayType = field.NewInt32(tableName, "pay_type")
 	_orderTrade.PayChannel = field.NewInt32(tableName, "pay_channel")
@@ -58,7 +58,7 @@ type orderTrade struct {
 	PayMoney   field.Int64  // 实际支付金额
 	TotalMoney field.Int64  // 总价
 	PostFee    field.Int64  // 优惠金额
-	StoreNum   field.Int64  // 店铺数量
+	OrderNum   field.Int64  // 订单数量
 	GoodsNum   field.Int64  // 商品总数
 	PayType    field.Int32  // 支付方式：枚举【OrderPayType】
 	PayChannel field.Int32  // 支付渠道：枚举【OrderPayChannel】
@@ -88,7 +88,7 @@ func (o *orderTrade) updateTableName(table string) *orderTrade {
 	o.PayMoney = field.NewInt64(table, "pay_money")
 	o.TotalMoney = field.NewInt64(table, "total_money")
 	o.PostFee = field.NewInt64(table, "post_fee")
-	o.StoreNum = field.NewInt64(table, "store_num")
+	o.OrderNum = field.NewInt64(table, "order_num")
 	o.GoodsNum = field.NewInt64(table, "goods_num")
 	o.PayType = field.NewInt32(table, "pay_type")
 	o.PayChannel = field.NewInt32(table, "pay_channel")
@@ -129,7 +129,7 @@ func (o *orderTrade) fillFieldMap() {
 	o.fieldMap["pay_money"] = o.PayMoney
 	o.fieldMap["total_money"] = o.TotalMoney
 	o.fieldMap["post_fee"] = o.PostFee
-	o.fieldMap["store_num"] = o.StoreNum
+	o.fieldMap["order_num"] = o.OrderNum
 	o.fieldMap["goods_num"] = o.GoodsNum
 	o.fieldMap["pay_type"] = o.PayType
 	o.fieldMap["pay_channel"] = o.PayChannel

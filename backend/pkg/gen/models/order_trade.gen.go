@@ -20,7 +20,7 @@ type OrderTrade struct {
 	PayMoney   int64          `gorm:"column:pay_money;type:bigint;comment:实际支付金额" json:"pay_money"`                                                                                                   // 实际支付金额
 	TotalMoney int64          `gorm:"column:total_money;type:bigint;comment:总价" json:"total_money"`                                                                                                   // 总价
 	PostFee    int64          `gorm:"column:post_fee;type:bigint;comment:优惠金额" json:"post_fee"`                                                                                                       // 优惠金额
-	StoreNum   int64          `gorm:"column:store_num;type:bigint;comment:店铺数量" json:"store_num"`                                                                                                     // 店铺数量
+	OrderNum   int64          `gorm:"column:order_num;type:bigint;comment:订单数量" json:"order_num"`                                                                                                     // 订单数量
 	GoodsNum   int64          `gorm:"column:goods_num;type:bigint;comment:商品总数" json:"goods_num"`                                                                                                     // 商品总数
 	PayType    int32          `gorm:"column:pay_type;type:tinyint;comment:支付方式：枚举【OrderPayType】" json:"pay_type"`                                                                                     // 支付方式：枚举【OrderPayType】
 	PayChannel int32          `gorm:"column:pay_channel;type:tinyint;comment:支付渠道：枚举【OrderPayChannel】" json:"pay_channel"`                                                                            // 支付渠道：枚举【OrderPayChannel】
