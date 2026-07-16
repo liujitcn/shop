@@ -323,7 +323,7 @@ function changeTreeFilter(value: string) {
   categoryFilterValue.value = value ?? "";
   initParam.category_id = value ? Number(value) : undefined;
   if (proTable.value) {
-    proTable.value.pageable.pageNum = 1;
+    proTable.value.pageable.page_num = 1;
     proTable.value.search();
   }
 }
@@ -398,7 +398,7 @@ watch(
   () => {
     syncWorkspaceQuery();
     if (proTable.value) {
-      proTable.value.pageable.pageNum = 1;
+      proTable.value.pageable.page_num = 1;
       proTable.value.search();
     }
   },

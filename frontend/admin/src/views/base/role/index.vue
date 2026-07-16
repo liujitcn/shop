@@ -109,14 +109,17 @@ interface CheckedBaseRole {
   name?: string;
 }
 
+/** 角色表单状态，新增时租户必须由默认租户管理员显式选择。 */
+type BaseRoleFormState = Omit<BaseRoleForm, "tenant_id"> & {
+  /** 租户ID。 */
+  tenant_id?: number;
+};
+
 const { BUTTONS } = useAuthButtons();
 const userStore = useUserStore();
 const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 const permTreeRef = ref<InstanceType<typeof ElTree>>();
-
-// 内置角色编码固定，前端提前保护，后端仍会做最终校验。
-const LOCKED_ROLE_CODES = ["super", "tenant"];
 
 const dialog = reactive({
   title: "",
@@ -130,11 +133,11 @@ const statusOptions: ProFormOption[] = [
   { label: "禁用", value: Status.DISABLE }
 ];
 
-const formData = reactive<BaseRoleForm>({
+const formData = reactive<BaseRoleFormState>({
   /** 角色ID */
   id: 0,
   /** 租户ID */
-  tenant_id: 0,
+  tenant_id: undefined,
   /** 角色名称 */
   name: "",
   /** 角色值 */
@@ -173,12 +176,22 @@ const formFields = computed<ProFormField[]>(() => [
     prop: "tenant_id",
     label: "所属租户",
     component: "select",
-    props: { placeholder: "请选择所属租户", filterable: true, disabled: Boolean(formData.id) },
+    props: {
+      placeholder: "请选择所属租户",
+      filterable: true,
+      disabled: Boolean(formData.id),
+      onChange: handleFormTenantChange
+    },
     visible: () => isDefaultTenant.value,
     options: tenantOptions.value
   },
   { prop: "name", label: "角色名称", component: "input", props: { placeholder: "请输入角色名称" } },
-  { prop: "code", label: "角色编码", component: "input", props: { placeholder: "请输入角色编码" } },
+  {
+    prop: "code",
+    label: "角色编码",
+    component: "input",
+    props: { placeholder: "请输入角色编码", disabled: Boolean(formData.id && formData.code === "tenant") }
+  },
   { prop: "data_scope", label: "数据权限", component: "dict", props: { code: "base_role_data_scope" } },
   {
     prop: "menus",
@@ -201,7 +214,7 @@ const formFields = computed<ProFormField[]>(() => [
 
 /** 角色表格列配置。 */
 const columns = computed<ColumnProps[]>(() => [
-  { type: "selection", width: 55 },
+  { type: "selection", width: 55, selectable: row => canManageRole(row as BaseRole) },
   ...(isDefaultTenant.value
     ? ([
         {
@@ -229,7 +242,7 @@ const columns = computed<ColumnProps[]>(() => [
       inactiveValue: Status.DISABLE,
       activeText: "启用",
       inactiveText: "禁用",
-      disabled: scope => isLockedRole(scope.row as BaseRole) || !BUTTONS.value["base:role:status"],
+      disabled: scope => !canManageRole(scope.row as BaseRole) || !BUTTONS.value["base:role:status"],
       beforeChange: scope => handleBeforeSetStatus(scope.row as BaseRole)
     }
   },
@@ -247,7 +260,7 @@ const columns = computed<ColumnProps[]>(() => [
         type: "primary",
         link: true,
         icon: Position,
-        hidden: scope => !canAssignRoleMenus(scope.row as BaseRole) || !BUTTONS.value["base:role:menus"],
+        hidden: scope => !canManageRole(scope.row as BaseRole) || !BUTTONS.value["base:role:menus"],
         onClick: scope => handleOpenAssignPermDialog(scope.row as BaseRole)
       },
       {
@@ -255,7 +268,7 @@ const columns = computed<ColumnProps[]>(() => [
         type: "primary",
         link: true,
         icon: EditPen,
-        hidden: scope => isLockedRole(scope.row as BaseRole) || !BUTTONS.value["base:role:update"],
+        hidden: scope => !canManageRole(scope.row as BaseRole) || !BUTTONS.value["base:role:update"],
         params: scope => ({ roleId: scope.row.id }),
         onClick: (scope, params) => handleOpenDialog((params?.roleId as number | undefined) ?? (scope.row as BaseRole).id)
       },
@@ -264,7 +277,7 @@ const columns = computed<ColumnProps[]>(() => [
         type: "danger",
         link: true,
         icon: Delete,
-        hidden: scope => isLockedRole(scope.row as BaseRole) || !BUTTONS.value["base:role:delete"],
+        hidden: scope => !canManageRole(scope.row as BaseRole) || !BUTTONS.value["base:role:delete"],
         onClick: scope => handleDelete(scope.row as BaseRole)
       }
     ]
@@ -309,24 +322,19 @@ function refreshTable() {
 }
 
 /**
- * 判断角色是否为固定内置角色。
+ * 根据后端保护标记判断当前账号是否允许操作目标角色。
  */
-function isLockedRole(row?: BaseRole) {
-  return Boolean(row?.code && LOCKED_ROLE_CODES.includes(row.code));
+function canManageRole(row?: BaseRole) {
+  return Boolean(row?.code && !row.is_protected);
 }
 
 /**
- * 判断角色是否允许分配菜单权限。
+ * 按目标角色加载可分配的菜单权限树数据。
  */
-function canAssignRoleMenus(row?: BaseRole) {
-  return row?.code !== "super";
-}
-
-/**
- * 加载菜单权限树数据。
- */
-async function loadMenuPermOptions() {
-  const optionBaseMenuRes = await defBaseMenuService.OptionBaseMenus({});
+async function loadMenuPermOptions(roleId?: number) {
+  const optionBaseMenuRes = await defBaseMenuService.OptionBaseMenus({
+    role_id: roleId
+  });
   menuPermOptions.value = optionBaseMenuRes.list ?? [];
 }
 
@@ -336,14 +344,16 @@ async function loadMenuPermOptions() {
 async function handleOpenDialog(roleId?: number) {
   resetForm();
   await loadTenantOptions();
-  await loadMenuPermOptions();
   dialog.title = roleId ? "修改角色" : "新增角色";
   dialog.visible = true;
-  if (!roleId) return;
+  if (!roleId) {
+    await loadMenuPermOptions();
+    return;
+  }
 
-  defBaseRoleService.GetBaseRole({ id: roleId }).then(data => {
-    Object.assign(formData, data);
-  });
+  const data = await defBaseRoleService.GetBaseRole({ id: roleId });
+  Object.assign(formData, data);
+  await loadMenuPermOptions(roleId);
 }
 
 /**
@@ -360,6 +370,14 @@ async function loadTenantOptions() {
   if (!isDefaultTenant.value || tenantOptions.value.length) return;
   const response = await defBaseTenantService.OptionBaseTenants({ keyword: "" });
   tenantOptions.value = response.list ?? [];
+}
+
+/**
+ * 切换角色所属租户时，清空已选菜单并重新加载当前可分配权限。
+ */
+async function handleFormTenantChange() {
+  formData.menus = [];
+  await loadMenuPermOptions();
 }
 
 /**
@@ -396,21 +414,22 @@ function resetForm() {
   formDialogRef.value?.resetFields();
   formDialogRef.value?.clearValidate();
   formData.id = 0;
-  formData.tenant_id = 0;
+  formData.tenant_id = undefined;
   formData.name = "";
   formData.code = "";
   formData.data_scope = 1;
   formData.menus = [];
   formData.status = Status.ENABLE;
   formData.remark = "";
+  menuPermOptions.value = [];
 }
 
 /**
  * 在角色状态切换前先完成确认与接口调用，避免首屏渲染触发误操作。
  */
 async function handleBeforeSetStatus(row: BaseRole) {
-  if (isLockedRole(row)) {
-    ElMessage.warning("内置角色不能修改状态");
+  if (!canManageRole(row)) {
+    ElMessage.warning("当前租户不能修改该内置角色状态");
     return false;
   }
 
@@ -441,8 +460,8 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
     : selected && typeof selected === "object"
       ? [selected as BaseRole]
       : [];
-  if (roleList.some(isLockedRole)) {
-    ElMessage.warning("内置角色不能删除");
+  if (roleList.some(role => !canManageRole(role))) {
+    ElMessage.warning("当前租户不能删除该内置角色");
     return;
   }
 
@@ -482,14 +501,13 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
  */
 async function handleOpenAssignPermDialog(row: BaseRole) {
   if (!row.id) return;
-  if (!canAssignRoleMenus(row)) {
-    ElMessage.warning("超级管理员不能分配权限");
+  if (!canManageRole(row)) {
+    ElMessage.warning("当前租户不能分配该内置角色权限");
     return;
   }
-
-  assignPermDialogVisible.value = true;
   checkedBaseRole.value = { id: row.id, name: row.name };
-  await loadMenuPermOptions();
+  await loadMenuPermOptions(row.id);
+  assignPermDialogVisible.value = true;
   nextTick(() => {
     permTreeRef.value?.setCheckedKeys(row.menus, false);
   });

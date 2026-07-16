@@ -96,7 +96,7 @@ mysql -uroot -p shop_test < sql/shop.sql
 - `super / 112233`
 - `admin / 112233`
 
-管理后台登录页不默认填充租户编码，需要用户手动输入；默认租户编码为 `0000`。`sql/default-data.sql` 维护默认租户、接口、菜单、固定角色、用户和统计表结构升级段；默认角色固定为 `super(1)`、`tenant(2)`、`admin(3)`、`user(4)`、`guest(5)`，其中 `tenant` 是租户管理员内置角色，拥有商品 / 订单分析和报表权限，但不能通过角色管理修改。后端每次启动会将默认租户的 `tenant` 角色菜单同步到所有普通租户，并重建对应 Casbin 权限。`sql/casbin_rule.sql` 维护 `admin`、`tenant`、`user`、`guest` 的租户化接口权限策略，策略动作使用真实 HTTP Method。存量库升级统计租户字段后，需要按历史统计日期重跑 `GoodsStatDay` 和 `OrderStatDay` 任务。
+管理后台登录页不默认填充租户编码，需要用户手动输入；默认租户编码为 `0000`。`sql/default-data.sql` 维护默认租户、接口、菜单、固定角色、用户和统计表结构升级段；默认角色固定为 `super(1)`、`tenant(2)`、`admin(3)`、`user(4)`、`guest(5)`。角色列表展示 `super` 和各租户的 `tenant` 内置角色；`super`、普通租户自己的 `tenant` 及其他租户的 `tenant` 禁止操作，默认租户自己的 `tenant` 权限模板允许编辑、删除、分配权限和启用/禁用。模板软删除后，默认租户可重新创建 `code=tenant` 的角色以恢复原记录，并将菜单重新同步到普通租户副本。默认租户为普通租户的自定义角色分配权限时，以目标租户的 `tenant` 角色作为权限上限。后端每次启动会将默认租户的 `tenant` 角色菜单同步到所有普通租户，并重建对应 Casbin 权限。用户账号创建后禁止通过用户管理修改；绑定 `super` 或 `tenant` 内置角色的管理员账号禁止通过用户管理执行详情读取、编辑、删除、状态切换和重置密码，只能登录后通过个人中心维护自身资料、手机号和密码。用户与角色分页响应统一通过末位字段 `is_protected = 300` 提供管理保护标记，前端不再自行推断；角色和用户批量删除均要求请求中的全部 ID 可见且允许操作。受保护资源操作统一返回 `409 CONFLICT`。`sql/casbin_rule.sql` 维护 `admin`、`tenant`、`user`、`guest` 的租户化接口权限策略，策略动作使用真实 HTTP Method。存量库升级统计租户字段后，需要按历史统计日期重跑 `GoodsStatDay` 和 `OrderStatDay` 任务。
 
 ## 接口与生成
 

@@ -7,20 +7,16 @@ type DictValueType = "number" | "string";
 /** 表格批量操作支持的主键类型。 */
 type SelectedId = string | number;
 
-/** 表格分页入参，兼容 ProTable 旧 camelCase 分页字段与新接口 snake_case 字段。 */
+/** 表格分页入参。 */
 type PageRequestParams = Record<string, any> & {
-  /** 当前页码，优先使用接口 snake_case 字段。 */
+  /** 当前页码。 */
   page_num?: string | number;
-  /** 每页条数，优先使用接口 snake_case 字段。 */
+  /** 每页条数。 */
   page_size?: string | number;
-  /** ProTable 组件内部当前页码字段。 */
-  pageNum?: string | number;
-  /** ProTable 组件内部每页条数字段。 */
-  pageSize?: string | number;
 };
 
-/** 归一化后的分页请求，只保留接口使用的 snake_case 字段。 */
-type NormalizedPageRequest<T extends PageRequestParams> = Omit<T, "pageNum" | "pageSize"> & {
+/** 归一化后的分页请求。 */
+type NormalizedPageRequest<T extends PageRequestParams> = T & {
   /** 接口请求当前页码。 */
   page_num: number;
   /** 接口请求每页条数。 */
@@ -52,14 +48,13 @@ export async function buildDictEnum(code: string, valueType: DictValueType = "nu
 }
 
 /**
- * 统一补齐分页请求参数，避免组件透传时出现字符串页码，并适配接口 snake_case 字段。
+ * 统一补齐分页请求参数，避免组件透传时出现字符串页码。
  */
 export function buildPageRequest<T extends PageRequestParams>(params: T): NormalizedPageRequest<T> {
-  const pageNum = Number(params.page_num ?? params.pageNum ?? 1);
-  const pageSize = Number(params.page_size ?? params.pageSize ?? 10);
-  const { pageNum: _legacyPageNum, pageSize: _legacyPageSize, ...requestParams } = params;
+  const pageNum = Number(params.page_num ?? 1);
+  const pageSize = Number(params.page_size ?? 10);
   return {
-    ...requestParams,
+    ...params,
     page_num: pageNum,
     page_size: pageSize
   } as NormalizedPageRequest<T>;

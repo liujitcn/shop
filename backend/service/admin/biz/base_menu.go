@@ -6,6 +6,7 @@ import (
 	_mapper "github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repository"
+	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
 
 	adminv1 "shop/api/gen/go/admin/v1"
 	commonv1 "shop/api/gen/go/common/v1"
@@ -60,7 +61,7 @@ func (c *BaseMenuCase) TreeBaseMenus(ctx context.Context) (*adminv1.TreeBaseMenu
 	opts := make([]repository.QueryOption, 0, 3)
 	opts = append(opts, repository.Order(query.Sort.Asc()))
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
-	allowedMenuIDs, isSuperRole, err := c.listCurrentRoleMenuIDs(ctx)
+	allowedMenuIDs, isSuperRole, err := c.listAssignableMenuIDs(ctx, 0)
 	if err != nil {
 		return nil, err
 	}
@@ -86,7 +87,7 @@ func (c *BaseMenuCase) OptionBaseMenus(ctx context.Context, req *adminv1.OptionB
 	opts := make([]repository.QueryOption, 0, 3)
 	opts = append(opts, repository.Order(query.Sort.Asc()))
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
-	allowedMenuIDs, isSuperRole, err := c.listCurrentRoleMenuIDs(ctx)
+	allowedMenuIDs, isSuperRole, err := c.listAssignableMenuIDs(ctx, req.GetRoleId())
 	if err != nil {
 		return nil, err
 	}
@@ -166,11 +167,35 @@ func (c *BaseMenuCase) SetBaseMenuStatus(ctx context.Context, req *adminv1.SetBa
 	})
 }
 
-// listCurrentRoleMenuIDs 查询当前登录角色可见菜单 ID 列表。
-func (c *BaseMenuCase) listCurrentRoleMenuIDs(ctx context.Context) ([]int64, bool, error) {
+// listAssignableMenuIDs 根据真实角色归属查询当前操作可分配的菜单 ID 列表。
+func (c *BaseMenuCase) listAssignableMenuIDs(ctx context.Context, targetRoleID int64) ([]int64, bool, error) {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return nil, false, err
+	}
+	var targetRole *models.BaseRole
+	if targetRoleID > 0 {
+		targetRole, err = c.baseRoleRepo.FindByID(ctx, targetRoleID)
+		if err != nil {
+			return nil, false, errorsx.Internal("查询目标角色失败").WithCause(err)
+		}
+	}
+	// 默认租户为普通租户维护角色时，以角色真实所属租户的内置管理员角色作为权限上限。
+	if targetRole != nil && authInfo.TenantCode == databaseGorm.DefaultTenantCode && targetRole.TenantID != authInfo.TenantId {
+		query := c.baseRoleRepo.Query(ctx).BaseRole
+		opts := make([]repository.QueryOption, 0, 2)
+		opts = append(opts, repository.Where(query.TenantID.Eq(targetRole.TenantID)))
+		opts = append(opts, repository.Where(query.Code.Eq(_const.BASE_ROLE_CODE_TENANT)))
+		var tenantBaseRole *models.BaseRole
+		tenantBaseRole, err = c.baseRoleRepo.Find(ctx, opts...)
+		if err != nil {
+			return nil, false, errorsx.Internal("查询租户最大权限失败").WithCause(err)
+		}
+		// 租户内置管理员角色停用时，不能再作为权限上限来源。
+		if tenantBaseRole.Status != _const.STATUS_ENABLE {
+			return nil, false, errorsx.PermissionDenied("租户管理员角色已被禁用")
+		}
+		return _string.ConvertJsonStringToInt64Array(tenantBaseRole.Menus), false, nil
 	}
 	// 超级管理员拥有完整菜单管理权限，不需要按角色菜单裁剪。
 	if authInfo.RoleCode == _const.BASE_ROLE_CODE_SUPER {

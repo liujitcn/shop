@@ -97,6 +97,8 @@ export interface BaseRole {
   created_at: string;
   /** 更新时间 */
   updated_at: string;
+  /** 是否禁止通过角色管理操作 */
+  is_protected: boolean;
 }
 
 /** 角色表单 */

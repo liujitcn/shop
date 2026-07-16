@@ -22,7 +22,11 @@ export interface TreeBaseMenusResponse {
 /** 菜单选项查询条件 */
 export interface OptionBaseMenusRequest {
   /** 父级菜单ID */
-  parent_id?: number | undefined;
+  parent_id?:
+    | number
+    | undefined;
+  /** 目标角色ID */
+  role_id?: number | undefined;
 }
 
 /** 查询菜单请求参数 */

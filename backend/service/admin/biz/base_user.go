@@ -168,14 +168,49 @@ func (c *BaseUserCase) PageBaseUsers(ctx context.Context, req *adminv1.PageBaseU
 		opts = append(opts, repository.Where(query.Phone.Like("%"+req.GetPhone()+"%")))
 	}
 
-	list, total, err := c.Page(ctx, req.GetPageNum(), req.GetPageSize(), opts...)
+	var list []*models.BaseUser
+	var total int64
+	list, total, err = c.Page(ctx, req.GetPageNum(), req.GetPageSize(), opts...)
 	if err != nil {
 		return nil, err
+	}
+	roleIDSet := make(map[int64]struct{}, len(list))
+	roleIDs := make([]int64, 0, len(list))
+	for _, item := range list {
+		if _, exists := roleIDSet[item.RoleID]; exists {
+			continue
+		}
+		roleIDSet[item.RoleID] = struct{}{}
+		roleIDs = append(roleIDs, item.RoleID)
+	}
+	protectedRoleIDs := make(map[int64]struct{}, len(roleIDs))
+	// 包含软删除角色，确保 tenant 模板删除后其历史账号仍保持用户管理保护。
+	if len(roleIDs) > 0 {
+		var roleQueryCtx context.Context
+		roleQueryCtx, err = c.roleProtectionQueryContext(ctx)
+		if err != nil {
+			return nil, err
+		}
+		roleQuery := c.baseRoleCase.Query(roleQueryCtx).BaseRole
+		roleOpts := make([]repository.QueryOption, 0, 2)
+		roleOpts = append(roleOpts, repository.Unscoped())
+		roleOpts = append(roleOpts, repository.Where(roleQuery.ID.In(roleIDs...)))
+		var baseRoles []*models.BaseRole
+		baseRoles, err = c.baseRoleCase.List(roleQueryCtx, roleOpts...)
+		if err != nil {
+			return nil, errorsx.Internal("查询用户角色失败").WithCause(err)
+		}
+		for _, baseRole := range baseRoles {
+			if _const.IsDefaultBaseRole(baseRole.Code) {
+				protectedRoleIDs[baseRole.ID] = struct{}{}
+			}
+		}
 	}
 
 	resList := make([]*adminv1.BaseUser, 0, len(list))
 	for _, item := range list {
 		baseUser := c.mapper.ToDTO(item)
+		_, baseUser.IsProtected = protectedRoleIDs[item.RoleID]
 		resList = append(resList, baseUser)
 	}
 	return &adminv1.PageBaseUsersResponse{BaseUsers: resList, Total: int32(total)}, nil
@@ -184,6 +219,10 @@ func (c *BaseUserCase) PageBaseUsers(ctx context.Context, req *adminv1.PageBaseU
 // GetBaseUser 获取用户
 func (c *BaseUserCase) GetBaseUser(ctx context.Context, id int64) (*adminv1.BaseUserForm, error) {
 	baseUser, err := c.FindByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	err = c.validateUserManagementTarget(ctx, baseUser)
 	if err != nil {
 		return nil, err
 	}
@@ -249,27 +288,24 @@ func (c *BaseUserCase) UpdateBaseUser(ctx context.Context, req *adminv1.BaseUser
 	if err != nil {
 		return errorsx.ResourceNotFound("更新用户失败，用户信息不存在").WithCause(err)
 	}
-	// 超级管理员账号不允许被修改。
-	if oldBaseUser.UserName == _const.BASE_USER_NAME_SUPER {
-		return errorsx.PermissionDenied("更新用户失败，不能操作超级管理员")
+	err = c.validateUserManagementTarget(ctx, oldBaseUser)
+	if err != nil {
+		return err
 	}
-	var oldBaseRole *models.BaseRole
-	oldBaseRole, err = c.baseRoleCase.FindByID(ctx, oldBaseUser.RoleID)
+	// 用户账号作为稳定登录标识，创建后不允许通过编辑接口修改。
+	if req.GetUserName() != oldBaseUser.UserName {
+		return errorsx.ProtectedResourceConflict("更新用户失败，用户账号不能修改", "base_user")
+	}
+	var newBaseRole *models.BaseRole
+	newBaseRole, err = c.baseRoleCase.FindByID(ctx, req.GetRoleId())
 	if err != nil {
 		return errorsx.Internal("校验用户角色失败").WithCause(err)
 	}
-	if !_const.IsDefaultBaseRole(oldBaseRole.Code) {
-		var newBaseRole *models.BaseRole
-		newBaseRole, err = c.baseRoleCase.FindByID(ctx, req.GetRoleId())
-		if err != nil {
-			return errorsx.Internal("校验用户角色失败").WithCause(err)
-		}
-		if _const.IsDefaultBaseRole(newBaseRole.Code) {
-			return errorsx.ProtectedResourceConflict("更新用户失败，不能选择内置角色", "base_user")
-		}
-		if newBaseRole.TenantID != oldBaseUser.TenantID {
-			return errorsx.InvalidArgument("用户角色与所属租户不一致")
-		}
+	if _const.IsDefaultBaseRole(newBaseRole.Code) {
+		return errorsx.ProtectedResourceConflict("更新用户失败，不能选择内置角色", "base_user")
+	}
+	if newBaseRole.TenantID != oldBaseUser.TenantID {
+		return errorsx.InvalidArgument("用户角色与所属租户不一致")
 	}
 	var newBaseDept *models.BaseDept
 	newBaseDept, err = c.baseDeptRepo.FindByID(ctx, req.GetDeptId())
@@ -283,10 +319,7 @@ func (c *BaseUserCase) UpdateBaseUser(ctx context.Context, req *adminv1.BaseUser
 	baseUser := c.formMapper.ToEntity(req)
 	baseUser.Password = oldBaseUser.Password
 	baseUser.TenantID = oldBaseUser.TenantID
-	// 内置角色用户只能改基础资料，角色保持不变。
-	if _const.IsDefaultBaseRole(oldBaseRole.Code) {
-		baseUser.RoleID = oldBaseUser.RoleID
-	}
+	baseUser.UserName = oldBaseUser.UserName
 	err = c.UpdateByID(ctx, baseUser)
 	if err != nil {
 		// 命中用户账号唯一索引冲突时，返回稳定的业务冲突错误。
@@ -307,13 +340,21 @@ func (c *BaseUserCase) DeleteBaseUser(ctx context.Context, id string) error {
 	if err != nil {
 		return err
 	}
-	visibleIDs := make([]int64, 0, len(baseUserList))
+	baseUserMap := make(map[int64]*models.BaseUser, len(baseUserList))
 	for _, baseUser := range baseUserList {
-		visibleIDs = append(visibleIDs, baseUser.ID)
-		// 超级管理员账号不允许被删除。
-		if baseUser.UserName == _const.BASE_USER_NAME_SUPER {
-			return errorsx.PermissionDenied("删除用户失败，不能操作超级管理员")
+		baseUserMap[baseUser.ID] = baseUser
+	}
+	visibleIDs := make([]int64, 0, len(ids))
+	for _, userID := range ids {
+		baseUser, exists := baseUserMap[userID]
+		if !exists {
+			return errorsx.ResourceNotFound("删除用户失败，用户不存在")
 		}
+		err = c.validateUserManagementTarget(ctx, baseUser)
+		if err != nil {
+			return err
+		}
+		visibleIDs = append(visibleIDs, baseUser.ID)
 	}
 	err = c.DeleteByIDs(ctx, visibleIDs)
 	if err != nil {
@@ -330,9 +371,9 @@ func (c *BaseUserCase) SetBaseUserStatus(ctx context.Context, req *adminv1.SetBa
 	if err != nil {
 		return errorsx.ResourceNotFound("设置状态失败，用户信息不存在").WithCause(err)
 	}
-	// 超级管理员账号不允许被停用或启用。
-	if baseUser.UserName == _const.BASE_USER_NAME_SUPER {
-		return errorsx.PermissionDenied("设置状态失败，不能操作超级管理员")
+	err = c.validateUserManagementTarget(ctx, baseUser)
+	if err != nil {
+		return err
 	}
 	baseUser.Status = req.GetStatus()
 	err = c.UpdateByID(ctx, baseUser)
@@ -350,9 +391,9 @@ func (c *BaseUserCase) ResetBaseUserPassword(ctx context.Context, req *adminv1.R
 	if err != nil {
 		return errorsx.ResourceNotFound("重置密码失败，用户信息不存在").WithCause(err)
 	}
-	// 超级管理员账号不允许被重置密码。
-	if baseUser.UserName == _const.BASE_USER_NAME_SUPER {
-		return errorsx.PermissionDenied("重置密码失败，不能操作超级管理员")
+	err = c.validateUserManagementTarget(ctx, baseUser)
+	if err != nil {
+		return err
 	}
 
 	var passwordStr string
@@ -375,4 +416,37 @@ func (c *BaseUserCase) ResetBaseUserPassword(ctx context.Context, req *adminv1.R
 		ID:       req.GetId(),
 		Password: password,
 	})
+}
+
+// roleProtectionQueryContext 构造仅用于内置角色保护判定的全部数据范围查询上下文。
+func (c *BaseUserCase) roleProtectionQueryContext(ctx context.Context) (context.Context, error) {
+	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return nil, err
+	}
+	roleAuthInfo := *authInfo
+	roleAuthInfo.DataScope = databaseGorm.DataScopeAll
+	return authnEngine.ContextWithAuthClaims(ctx, roleAuthInfo.MakeAuthClaims()), nil
+}
+
+// validateUserManagementTarget 校验目标用户是否允许通过用户管理接口操作。
+func (c *BaseUserCase) validateUserManagementTarget(ctx context.Context, baseUser *models.BaseUser) error {
+	queryCtx, err := c.roleProtectionQueryContext(ctx)
+	if err != nil {
+		return err
+	}
+	query := c.baseRoleCase.Query(queryCtx).BaseRole
+	opts := make([]repository.QueryOption, 0, 2)
+	opts = append(opts, repository.Unscoped())
+	opts = append(opts, repository.Where(query.ID.Eq(baseUser.RoleID)))
+	var baseRole *models.BaseRole
+	baseRole, err = c.baseRoleCase.Find(queryCtx, opts...)
+	if err != nil {
+		return errorsx.Internal("校验用户角色失败").WithCause(err)
+	}
+	// super 和 tenant 管理员只能通过个人中心维护自身资料与密码。
+	if _const.IsDefaultBaseRole(baseRole.Code) {
+		return errorsx.ProtectedResourceConflict("操作用户失败，内置管理员账号只能通过个人中心修改", "base_user")
+	}
+	return nil
 }

@@ -6,7 +6,6 @@ import type {
   GetIsCollectResponse,
   PageUserCollectsRequest,
   PageUserCollectsResponse,
-  UserCollect,
   UserCollectForm,
   UserCollectService,
 } from '@/rpc/app/v1/user_collect'
@@ -17,56 +16,34 @@ const USER_COLLECT_URL = '/v1/app/user/collect'
 /** 创建收藏请求兼容结构，支持包裹请求和扁平表单。 */
 type CreateUserCollectRequestCompat = CreateUserCollectRequest | UserCollectForm
 
-/** 收藏状态响应兼容结构，同时保留 is_collected 和旧版 value。 */
-type GetIsCollectResponseCompat = GetIsCollectResponse & {
-  value: boolean
-}
-
-/** 收藏状态 HTTP 原始响应，允许任一状态字段为空。 */
-type GetIsCollectHTTPResponse = Partial<GetIsCollectResponseCompat>
-
-/** 收藏分页响应兼容结构，保留旧版 list 字段。 */
-type PageUserCollectsResponseCompat = PageUserCollectsResponse & {
-  list: UserCollect[]
-}
-
-/** 收藏分页 HTTP 原始响应，兼容旧版 list 字段。 */
-type PageUserCollectsHTTPResponse = Partial<PageUserCollectsResponseCompat>
-
 /** 收藏服务 */
 export class UserCollectServiceImpl implements UserCollectService {
   /** 查询用户收藏列表 */
-  async PageUserCollects(
-    request: PageUserCollectsRequest,
-  ): Promise<PageUserCollectsResponseCompat> {
-    const response = await http<PageUserCollectsHTTPResponse>({
+  async PageUserCollects(request: PageUserCollectsRequest): Promise<PageUserCollectsResponse> {
+    const response = await http<Partial<PageUserCollectsResponse>>({
       url: `${USER_COLLECT_URL}`,
       method: 'GET',
       authMode: 'required',
       data: request,
     })
-    const userCollects = response.user_collects ?? response.list ?? []
     return {
       ...response,
-      list: userCollects,
-      user_collects: userCollects,
+      user_collects: response.user_collects ?? [],
       total: response.total ?? 0,
     }
   }
 
   /** 查询用户是否收藏 */
-  async GetIsCollect(request: GetIsCollectRequest): Promise<GetIsCollectResponseCompat> {
-    const response = await http<GetIsCollectHTTPResponse>({
+  async GetIsCollect(request: GetIsCollectRequest): Promise<GetIsCollectResponse> {
+    const response = await http<Partial<GetIsCollectResponse>>({
       url: `${USER_COLLECT_URL}/status`,
       method: 'GET',
       authMode: 'optional',
       data: request,
     })
-    const isCollected = response.is_collected ?? response.value ?? false
     return {
       ...response,
-      is_collected: isCollected,
-      value: isCollected,
+      is_collected: response.is_collected ?? false,
     }
   }
 

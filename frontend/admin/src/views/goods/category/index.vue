@@ -171,7 +171,6 @@ const columns: ColumnProps[] = [
     label: "操作",
     width: 220,
     fixed: "right",
-    align: "left",
     cellType: "actions",
     actions: [
       {

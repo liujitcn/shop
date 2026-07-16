@@ -220,10 +220,10 @@ func marshalRequestBody(req interface{}) ([]byte, error) {
 		return []byte("{}"), nil
 	}
 
-	// Proto 请求优先使用 protojson，确保 GET 参数也能落成标准 JSON。
+	// Proto 请求优先使用 protojson，并与 HTTP 接口统一使用 Proto 字段名。
 	if message, ok := req.(proto.Message); ok {
 		return protojson.MarshalOptions{
-			UseProtoNames:   false,
+			UseProtoNames:   true,
 			EmitUnpopulated: false,
 		}.Marshal(message)
 	}

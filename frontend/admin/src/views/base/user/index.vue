@@ -2,7 +2,7 @@
 <template>
   <div class="main-box">
     <TreeFilter
-      :key="`dept-filter-${initParam.tenant_id ?? 0}`"
+      :key="`dept-filter-${selectedTenantId ?? 0}`"
       label="name"
       title="部门列表"
       :request-api="requestDeptTreeFilter"
@@ -85,7 +85,9 @@ import { DEFAULT_TENANT_CODE, requestTenantOptions } from "@/utils/tenant";
 import { useUserStore } from "@/stores/modules/user";
 
 /** 用户表单状态，前端保留明文密码并在提交前加密。 */
-interface BaseUserFormState extends Omit<BaseUserForm, "pwd"> {
+interface BaseUserFormState extends Omit<BaseUserForm, "pwd" | "tenant_id"> {
+  /** 租户ID，默认租户新增时必须由管理员显式选择。 */
+  tenant_id?: number;
   /** 密码明文只保留在前端表单中，提交前转换为密码密文。 */
   pwd: string;
 }
@@ -115,9 +117,9 @@ const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 const resetPwdFormDialogRef = ref<InstanceType<typeof FormDialog>>();
 
 const initParam = reactive({
-  tenant_id: undefined as number | undefined,
   dept_id: undefined as number | undefined
 });
+const selectedTenantId = ref<number | undefined>();
 const deptFilterValue = ref("");
 
 const dialog = reactive({
@@ -133,7 +135,7 @@ const formData = reactive<BaseUserFormState>({
   /** 用户ID */
   id: 0,
   /** 租户ID */
-  tenant_id: 0,
+  tenant_id: undefined,
   /** 用户账号 */
   user_name: "",
   /** 用户昵称 */
@@ -212,6 +214,15 @@ const resetPwdFields: ProFormField[] = [
 /** 当前登录账号是否默认租户。 */
 const isDefaultTenant = computed(() => userStore.userInfo.tenant_code === DEFAULT_TENANT_CODE);
 
+/** 当前编辑用户是否绑定 super 或 tenant 内置角色。 */
+const isProtectedUserRole = computed(() => {
+  if (!formData.id || !formData.role_id) return false;
+  return baseRoleOptions.value.some(item => item.value === formData.role_id && item.disabled);
+});
+
+/** 当前是否正在编辑受状态保护的超级管理员。 */
+const isSuperEditUser = computed(() => Boolean(formData.id && formData.user_name === "super"));
+
 /** 用户表单字段配置。 */
 const formFields = computed<ProFormField[]>(() => [
   {
@@ -231,15 +242,15 @@ const formFields = computed<ProFormField[]>(() => [
     prop: "user_name",
     label: "用户账号",
     component: "input",
-    props: { placeholder: "请输入用户账号", readonly: !!formData.id }
+    props: { placeholder: "请输入用户账号", disabled: Boolean(formData.id) }
   },
   { prop: "nick_name", label: "用户昵称", component: "input", props: { placeholder: "请输入用户昵称" } },
   {
     prop: "role_id",
     label: "角色",
     component: "select",
-    options: baseRoleOptions.value.map(item => ({ label: item.label, value: item.value })),
-    props: { placeholder: "请选择" }
+    options: baseRoleOptions.value.map(item => ({ label: item.label, value: item.value, disabled: item.disabled })),
+    props: { placeholder: "请选择", disabled: isProtectedUserRole.value }
   },
   {
     prop: "dept_id",
@@ -270,13 +281,19 @@ const formFields = computed<ProFormField[]>(() => [
     visible: model => !model.id
   },
   { prop: "gender", label: "性别", component: "dict", props: { code: "base_user_gender" } },
-  { prop: "status", label: "状态", component: "radio-group", options: statusOptions },
+  {
+    prop: "status",
+    label: "状态",
+    component: "radio-group",
+    options: statusOptions,
+    props: { disabled: isSuperEditUser.value }
+  },
   { prop: "remark", label: "备注", component: "textarea", props: { placeholder: "请输入备注" } }
 ]);
 
 /** 用户表格列配置。 */
 const columns = computed<ColumnProps[]>(() => [
-  { type: "selection", width: 55 },
+  { type: "selection", width: 55, selectable: row => !isProtectedManagementUser(row as BaseUser) },
   ...(isDefaultTenant.value
     ? ([
         {
@@ -304,7 +321,7 @@ const columns = computed<ColumnProps[]>(() => [
       inactiveValue: Status.DISABLE,
       activeText: "启用",
       inactiveText: "禁用",
-      disabled: () => !BUTTONS.value["base:user:status"],
+      disabled: scope => isProtectedManagementUser(scope.row as BaseUser) || !BUTTONS.value["base:user:status"],
       beforeChange: scope => handleBeforeSetStatus(scope.row as BaseUser)
     }
   },
@@ -323,7 +340,7 @@ const columns = computed<ColumnProps[]>(() => [
         type: "primary",
         link: true,
         icon: RefreshLeft,
-        hidden: () => !BUTTONS.value["base:user:pwd"],
+        hidden: scope => isProtectedManagementUser(scope.row as BaseUser) || !BUTTONS.value["base:user:pwd"],
         onClick: scope => handleResetPassword(scope.row as BaseUser)
       },
       {
@@ -331,7 +348,7 @@ const columns = computed<ColumnProps[]>(() => [
         type: "primary",
         link: true,
         icon: EditPen,
-        hidden: () => !BUTTONS.value["base:user:update"],
+        hidden: scope => isProtectedManagementUser(scope.row as BaseUser) || !BUTTONS.value["base:user:update"],
         params: scope => ({ userId: scope.row.id }),
         onClick: (scope, params) => handleOpenDialog((params?.userId as number | undefined) ?? (scope.row as BaseUser).id)
       },
@@ -340,7 +357,7 @@ const columns = computed<ColumnProps[]>(() => [
         type: "danger",
         link: true,
         icon: Delete,
-        hidden: () => !BUTTONS.value["base:user:delete"],
+        hidden: scope => isProtectedManagementUser(scope.row as BaseUser) || !BUTTONS.value["base:user:delete"],
         onClick: scope => handleDelete(scope.row as BaseUser)
       }
     ]
@@ -381,7 +398,7 @@ function transformDeptFilterNodes(options: TreeOptionResponse_Option[] = []): De
  * 请求部门树筛选数据。
  */
 async function requestDeptTreeFilter() {
-  const response = await defBaseDeptService.OptionBaseDepts({ tenant_id: initParam.tenant_id });
+  const response = await defBaseDeptService.OptionBaseDepts({ tenant_id: selectedTenantId.value });
   return {
     data: transformDeptFilterNodes(response.list ?? [])
   };
@@ -394,7 +411,7 @@ function changeTreeFilter(value: string) {
   deptFilterValue.value = value ?? "";
   initParam.dept_id = value ? Number(value) : undefined;
   if (proTable.value) {
-    proTable.value.pageable.pageNum = 1;
+    proTable.value.pageable.page_num = 1;
   }
 }
 
@@ -402,9 +419,9 @@ function changeTreeFilter(value: string) {
  * 请求用户分页列表，并统一处理分页参数。
  */
 async function requestBaseUserTable(params: PageBaseUsersRequest) {
-  const tenantId = isDefaultTenant.value ? (params.tenant_id ?? initParam.tenant_id) : undefined;
-  if (tenantId !== initParam.tenant_id) {
-    initParam.tenant_id = tenantId;
+  const tenantId = isDefaultTenant.value ? params.tenant_id : undefined;
+  if (tenantId !== selectedTenantId.value) {
+    selectedTenantId.value = tenantId;
     initParam.dept_id = undefined;
     deptFilterValue.value = "";
   }
@@ -427,6 +444,11 @@ function refreshTable() {
  * 在用户状态切换前先完成确认与接口调用，避免首屏渲染触发误操作。
  */
 async function handleBeforeSetStatus(row: BaseUser) {
+  if (isProtectedManagementUser(row)) {
+    ElMessage.warning("内置管理员账号只能通过个人中心修改");
+    return false;
+  }
+
   const nextStatus = row.status === Status.ENABLE ? Status.DISABLE : Status.ENABLE;
   const text = nextStatus === Status.ENABLE ? "启用" : "禁用";
   const user_name = row.nick_name || row.user_name || `ID:${row.id}`;
@@ -504,7 +526,7 @@ function resetForm() {
   formDialogRef.value?.resetFields();
   formDialogRef.value?.clearValidate();
   formData.id = 0;
-  formData.tenant_id = isDefaultTenant.value ? (initParam.tenant_id ?? 0) : 0;
+  formData.tenant_id = undefined;
   formData.user_name = "";
   formData.nick_name = "";
   formData.role_id = undefined;
@@ -515,13 +537,21 @@ function resetForm() {
   formData.avatar = "";
   formData.status = Status.ENABLE;
   formData.remark = "";
+  baseRoleOptions.value = [];
+  basedDeptOptions.value = [];
 }
 
 /**
  * 加载用户表单依赖的角色和部门选项。
  */
 async function loadFormOptions() {
-  const tenantId = formData.tenant_id || initParam.tenant_id;
+  // 默认租户必须先选择目标租户，避免角色和部门选项跨租户混用。
+  if (isDefaultTenant.value && !formData.tenant_id) {
+    baseRoleOptions.value = [];
+    basedDeptOptions.value = [];
+    return;
+  }
+  const tenantId = isDefaultTenant.value ? formData.tenant_id : undefined;
   const [optionBaseRoleResponse, optionBaseDeptResponse] = await Promise.all([
     defBaseRoleService.OptionBaseRoles({ tenant_id: tenantId }),
     defBaseDeptService.OptionBaseDepts({ tenant_id: tenantId })
@@ -607,14 +637,25 @@ function validatePasswordField(_rule: unknown, value: string, callback: (error?:
 }
 
 /**
+ * 根据后端管理保护标记判断用户是否禁止通过用户管理操作。
+ */
+function isProtectedManagementUser(row?: BaseUser) {
+  return Boolean(row?.is_protected);
+}
+
+/**
  * 删除用户，兼容单条删除与批量删除。
  */
 function handleDelete(selected?: number | string | Array<number | string> | BaseUser | BaseUser[]) {
   const userList = Array.isArray(selected)
-    ? selected.filter(item => typeof item === "object")
+    ? (selected.filter(item => typeof item === "object") as BaseUser[])
     : selected && typeof selected === "object"
       ? [selected]
       : [];
+  if (userList.some(isProtectedManagementUser)) {
+    ElMessage.warning("内置管理员账号只能通过个人中心修改");
+    return;
+  }
   const userIds = normalizeSelectedIds(
     userList.length ? userList.map(item => item.id) : (selected as number | string | Array<number | string> | undefined)
   ).join(",");

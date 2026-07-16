@@ -24,7 +24,7 @@ plugins:
     strategy: all
     out: ../internal/cmd/server/assets
     opt:
-      - naming=json # 命名约定。使用"proto"则直接从proto文件传递名称。默认为：json
+      - naming=proto # 命名约定。使用"proto"则直接从proto文件传递名称。默认为：json
       - depth=2 # 循环消息的递归深度，默认为：2
       - default_response=false # 添加默认响应消息。如果为“true”，则自动为使用google.rpc.Status消息的操作添加默认响应。如果您使用envoy或grpc-gateway进行转码，则非常有用，因为它们使用此类型作为默认错误响应。默认为：true。
       - enum_type=string # 枚举类型的序列化的类型。使用"string"则进行基于字符串的序列化。默认为：integer。

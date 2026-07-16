@@ -101,10 +101,10 @@ func marshalResponseBody(reply interface{}) ([]byte, error) {
 		return json.Marshal(nil)
 	}
 
-	// Proto 响应优先使用 protojson，保持字段命名和请求日志一致。
+	// Proto 响应优先使用 protojson，并与 HTTP 接口统一使用 Proto 字段名。
 	if message, ok := reply.(proto.Message); ok {
 		return protojson.MarshalOptions{
-			UseProtoNames:   false,
+			UseProtoNames:   true,
 			EmitUnpopulated: false,
 		}.Marshal(message)
 	}

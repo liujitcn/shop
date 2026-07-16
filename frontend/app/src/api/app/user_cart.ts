@@ -1,6 +1,6 @@
 import { http } from '@/utils/http'
 import type {
-  UserCart,
+  CountUserCartResponse,
   ListUserCartsResponse,
   CreateUserCartRequest,
   SetUserCartSelectionRequest,
@@ -8,7 +8,6 @@ import type {
   UserCartService,
   SetUserCartStatusRequest,
 } from '@/rpc/app/v1/user_cart'
-import type { Int32Value } from '@/rpc/google/protobuf/wrappers'
 import type { Empty } from '@/rpc/google/protobuf/empty'
 
 const USER_CART_URL = '/v1/app/user/cart'
@@ -25,30 +24,19 @@ type UpdateUserCartRequestCompat = Partial<UserCartForm> & {
   user_cart?: UserCartForm
 }
 
-/** 购物车数量响应兼容结构，同时保留 count 和 value。 */
-type CountUserCartResponseCompat = Int32Value & {
-  count: number
-  value: number
-}
-
-/** 购物车数量 HTTP 原始响应，允许 count 或 value 为空。 */
-type CountUserCartHTTPResponse = Partial<CountUserCartResponseCompat>
-
 /** 购物车服务 */
 export class UserCartServiceImpl implements UserCartService {
   /** 查询用户购物车数量 */
-  async CountUserCart(request: Empty): Promise<CountUserCartResponseCompat> {
-    const response = await http<CountUserCartHTTPResponse>({
+  async CountUserCart(request: Empty): Promise<CountUserCartResponse> {
+    const response = await http<Partial<CountUserCartResponse>>({
       url: `${USER_CART_URL}/count`,
       method: 'GET',
       authMode: 'required',
       data: request,
     })
-    const count = response.count ?? response.value ?? 0
     return {
       ...response,
-      count,
-      value: count,
+      count: response.count ?? 0,
     }
   }
 

@@ -352,7 +352,7 @@ watch(
       pay_channel: pay_channel > 0 ? pay_channel : undefined,
       created_at
     });
-    proTable.value.pageable.pageNum = 1;
+    proTable.value.pageable.page_num = 1;
     proTable.value.search();
   },
   { immediate: true }

@@ -1,8 +1,8 @@
 export namespace Table {
   /** 表格分页状态。 */
   export interface Pageable {
-    pageNum: number;
-    pageSize: number;
+    page_num: number;
+    page_size: number;
     total: number;
   }
   /** useTable 维护的表格请求、分页和查询状态。 */

@@ -20,8 +20,8 @@ const globalStore = useGlobalStore();
 
 /** ProTable 分页状态。 */
 interface Pageable {
-  pageNum: number;
-  pageSize: number;
+  page_num: number;
+  page_size: number;
   total: number;
 }
 
@@ -35,12 +35,12 @@ interface PaginationProps {
 const props = defineProps<PaginationProps>();
 
 const currentPage = computed({
-  get: () => props.pageable.pageNum,
+  get: () => props.pageable.page_num,
   set: value => props.handleCurrentChange(value)
 });
 
 const pageSize = computed({
-  get: () => props.pageable.pageSize,
+  get: () => props.pageable.page_size,
   set: value => props.handleSizeChange(value)
 });
 

@@ -146,7 +146,7 @@ export async function ensureAccessToken() {
   }
 }
 
-// 防止并发 401/403 重复弹出认证失效确认框。
+// 防止并发 401 重复弹出认证失效确认框。
 let isHandlingAuthExpired = false;
 
 /** 统一处理认证失效 */
@@ -217,8 +217,8 @@ service.interceptors.response.use(
     const message = data?.message;
     const requestConfig = error.config as RetryableRequestConfig | undefined;
 
-    // 业务请求 401/403 时先尝试刷新并重放一次，只有刷新失败才引导重新登录。
-    if ((status === 401 || status === 403 || code === 401 || code === 403) && !shouldSkipAuthExpiredPrompt(requestConfig)) {
+    // 业务请求仅在 401 时尝试刷新并重放，403 直接展示后端权限错误。
+    if ((status === 401 || code === 401) && !shouldSkipAuthExpiredPrompt(requestConfig)) {
       if (requestConfig && !requestConfig._authRetried && getUserStore().refreshToken) {
         requestConfig._authRetried = true;
         try {

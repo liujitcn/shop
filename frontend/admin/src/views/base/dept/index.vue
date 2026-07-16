@@ -51,6 +51,12 @@ defineOptions({
   inheritAttrs: false
 });
 
+/** 部门表单状态，新增时租户必须由默认租户管理员显式选择。 */
+type BaseDeptFormState = Omit<BaseDeptForm, "tenant_id"> & {
+  /** 租户ID。 */
+  tenant_id?: number;
+};
+
 const { BUTTONS } = useAuthButtons();
 const userStore = useUserStore();
 const proTable = ref<ProTableInstance>();
@@ -69,11 +75,11 @@ const statusOptions: ProFormOption[] = [
   { label: "禁用", value: Status.DISABLE }
 ];
 
-const formData = reactive<BaseDeptForm>({
+const formData = reactive<BaseDeptFormState>({
   /** 部门ID */
   id: 0,
   /** 租户ID */
-  tenant_id: 0,
+  tenant_id: undefined,
   /** 父节点ID */
   parent_id: 0,
   /** 部门名称 */
@@ -176,7 +182,6 @@ const columns = computed<ColumnProps[]>(() => [
     label: "操作",
     width: 220,
     fixed: "right",
-    align: "left",
     cellType: "actions",
     actions: [
       {
@@ -185,8 +190,9 @@ const columns = computed<ColumnProps[]>(() => [
         link: true,
         icon: CirclePlus,
         hidden: () => !BUTTONS.value["base:dept:create"],
-        params: scope => ({ parent_id: scope.row.id }),
-        onClick: (_, params) => handleOpenDialog((params?.parent_id as number | undefined) ?? 0)
+        params: scope => ({ parent_id: scope.row.id, tenantId: scope.row.tenant_id }),
+        onClick: (_, params) =>
+          handleOpenDialog((params?.parent_id as number | undefined) ?? 0, undefined, params?.tenantId as number | undefined)
       },
       {
         label: "编辑",
@@ -284,7 +290,14 @@ function refreshTable() {
  * 加载部门下拉树数据，供弹窗选择上级部门。
  */
 async function loadDeptOptions() {
-  const optionBaseDeptResponse = await defBaseDeptService.OptionBaseDepts({ tenant_id: formData.tenant_id || currentTenantId.value });
+  // 默认租户未选择目标租户时仅保留顶级部门，避免混入其他租户的部门树。
+  if (isDefaultTenant.value && !formData.tenant_id) {
+    deptOptions.value = [{ value: 0, label: "顶级部门", disabled: false, children: [] }];
+    return;
+  }
+  const optionBaseDeptResponse = await defBaseDeptService.OptionBaseDepts({
+    tenant_id: isDefaultTenant.value ? formData.tenant_id : undefined
+  });
   deptOptions.value = [
     {
       value: 0,
@@ -319,18 +332,19 @@ function resetForm() {
   formDialogRef.value?.resetFields();
   formDialogRef.value?.clearValidate();
   formData.id = 0;
-  formData.tenant_id = isDefaultTenant.value ? (currentTenantId.value ?? 0) : 0;
+  formData.tenant_id = undefined;
   formData.parent_id = 0;
   formData.name = "";
   formData.sort = 1;
   formData.status = Status.ENABLE;
   formData.remark = "";
+  deptOptions.value = [];
 }
 
 /**
  * 打开部门弹窗。
  */
-async function handleOpenDialog(parent_id?: number, deptId?: number) {
+async function handleOpenDialog(parent_id?: number, deptId?: number, tenantId?: number) {
   resetForm();
   await loadTenantOptions();
   if (deptId) {
@@ -343,6 +357,8 @@ async function handleOpenDialog(parent_id?: number, deptId?: number) {
     return;
   }
 
+  // 从部门行新增子部门时，继承父部门租户并加载同租户上级部门树。
+  formData.tenant_id = tenantId;
   await loadDeptOptions();
   dialog.title = "新增部门";
   dialog.visible = true;

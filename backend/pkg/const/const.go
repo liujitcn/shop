@@ -13,7 +13,7 @@ const (
 	BASE_ROLE_CODE_GUEST = "guest"
 )
 
-// IsDefaultBaseRole 判断角色是否为不可修改的系统内置角色。
+// IsDefaultBaseRole 判断角色是否为系统内置角色。
 func IsDefaultBaseRole(roleCode string) bool {
 	return roleCode == BASE_ROLE_CODE_SUPER || roleCode == BASE_ROLE_CODE_TENANT
 }

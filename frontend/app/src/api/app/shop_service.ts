@@ -1,38 +1,27 @@
 import { http } from '@/utils/http'
-import type { ShopService, ShopServiceService } from '@/rpc/app/v1/shop_service'
+import type { ListShopServicesResponse, ShopServiceService } from '@/rpc/app/v1/shop_service'
 import type { Empty } from '@/rpc/google/protobuf/empty'
 
 const SHOP_SERVICE_URL = '/v1/app/shop/service'
 
-/** 商城服务列表响应兼容结构，同时保留协议字段和旧版 list。 */
-type ListShopServicesResponseCompat = {
-  shop_services: ShopService[]
-  list: ShopService[]
-}
-
-/** 商城服务列表 HTTP 原始响应，允许后端只返回部分字段。 */
-type ListShopServicesHTTPResponse = Partial<ListShopServicesResponseCompat>
-
 /** 服务列表服务 */
 export class ShopServiceServiceImpl implements ShopServiceService {
   /** 查询服务列表 */
-  async ListShopServices(request: Empty): Promise<ListShopServicesResponseCompat> {
-    const response = await http<ListShopServicesHTTPResponse>({
+  async ListShopServices(request: Empty): Promise<ListShopServicesResponse> {
+    const response = await http<Partial<ListShopServicesResponse>>({
       url: `${SHOP_SERVICE_URL}`,
       method: 'GET',
       authMode: 'none',
       data: request,
     })
-    const shopServices = response.shop_services ?? response.list ?? []
     return {
       ...response,
-      list: shopServices,
-      shop_services: shopServices,
+      shop_services: response.shop_services ?? [],
     }
   }
 
   /** 查询服务列表（旧生成接口兼容） */
-  ListShopService(request: Empty): Promise<ListShopServicesResponseCompat> {
+  ListShopService(request: Empty): Promise<ListShopServicesResponse> {
     return this.ListShopServices(request)
   }
 }

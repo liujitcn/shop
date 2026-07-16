@@ -7,14 +7,12 @@ import type {
   ConfirmOrderInfoResponse,
   CountOrderInfoRequest,
   CountOrderInfoResponse,
-  CountOrderInfoResponse_Count,
   CreateOrderInfoRequest,
   CreateOrderInfoResponse,
   DeleteOrderInfoRequest,
   GetOrderInfoByIdRequest,
   GetOrderInfoIdByOrderNoRequest,
   GetOrderInfoIdByOrderNoResponse,
-  OrderInfo,
   OrderInfoResponse,
   OrderInfoService,
   PageOrderInfoRequest,
@@ -28,36 +26,6 @@ import type { Empty } from '@/rpc/google/protobuf/empty'
 
 const ORDER_INFO_URL = '/v1/app/order/info'
 const ORDER_CONFIRM_URL = '/v1/app/order/confirm'
-
-/** 订单数量汇总响应兼容结构，保留旧版 count 字段。 */
-type CountOrderInfoResponseCompat = CountOrderInfoResponse & {
-  count: CountOrderInfoResponse_Count[]
-}
-
-/** 订单数量汇总 HTTP 原始响应，兼容旧版 count 字段。 */
-type CountOrderInfoHTTPResponse = Partial<CountOrderInfoResponse> & {
-  count?: CountOrderInfoResponse_Count[]
-}
-
-/** 订单分页响应兼容结构，保留旧版 list 字段。 */
-type PageOrderInfoResponseCompat = PageOrderInfoResponse & {
-  list: OrderInfo[]
-}
-
-/** 订单分页 HTTP 原始响应，兼容旧版 list 字段。 */
-type PageOrderInfoHTTPResponse = Partial<PageOrderInfoResponse> & {
-  list?: OrderInfo[]
-}
-
-/** 订单编号查询响应兼容结构，保留旧版 value 字段。 */
-type GetOrderInfoIdByOrderNoResponseCompat = GetOrderInfoIdByOrderNoResponse & {
-  value: number
-}
-
-/** 订单编号查询 HTTP 原始响应，兼容旧版 value 字段。 */
-type GetOrderInfoIdByOrderNoHTTPResponse = Partial<GetOrderInfoIdByOrderNoResponse> & {
-  value?: number
-}
 
 /** 订单服务 */
 export class OrderInfoServiceImpl implements OrderInfoService {
@@ -89,35 +57,29 @@ export class OrderInfoServiceImpl implements OrderInfoService {
     })
   }
   /** 查询订单数量汇总 */
-  async CountOrderInfo(request: CountOrderInfoRequest): Promise<CountOrderInfoResponseCompat> {
-    const response = await http<CountOrderInfoHTTPResponse>({
+  async CountOrderInfo(request: CountOrderInfoRequest): Promise<CountOrderInfoResponse> {
+    const response = await http<Partial<CountOrderInfoResponse>>({
       url: `${ORDER_INFO_URL}/count`,
       method: 'GET',
       authMode: 'required',
       data: request,
     })
-    // 兼容未生成前的旧响应 count，同时向新协议的 counts 字段收敛。
-    const counts = response.counts ?? response.count ?? []
     return {
       ...response,
-      counts,
-      count: counts,
+      counts: response.counts ?? [],
     }
   }
   /** 查询商品分页列表 */
-  async PageOrderInfo(request: PageOrderInfoRequest): Promise<PageOrderInfoResponseCompat> {
-    const response = await http<PageOrderInfoHTTPResponse>({
+  async PageOrderInfo(request: PageOrderInfoRequest): Promise<PageOrderInfoResponse> {
+    const response = await http<Partial<PageOrderInfoResponse>>({
       url: `${ORDER_INFO_URL}`,
       method: 'GET',
       authMode: 'required',
       data: request,
     })
-    // 兼容未生成前的旧响应 list，同时向新协议的 orderInfos 字段收敛。
-    const orderInfos = response.order_infos ?? response.list ?? []
     return {
       ...response,
-      order_infos: orderInfos,
-      list: orderInfos,
+      order_infos: response.order_infos ?? [],
       total: response.total ?? 0,
     }
   }
@@ -125,18 +87,15 @@ export class OrderInfoServiceImpl implements OrderInfoService {
   /** 根据订单编号查询订单id */
   async GetOrderInfoIdByOrderNo(
     request: GetOrderInfoIdByOrderNoRequest,
-  ): Promise<GetOrderInfoIdByOrderNoResponseCompat> {
-    const response = await http<GetOrderInfoIdByOrderNoHTTPResponse>({
+  ): Promise<GetOrderInfoIdByOrderNoResponse> {
+    const response = await http<Partial<GetOrderInfoIdByOrderNoResponse>>({
       url: `${ORDER_INFO_URL}/no/${request.order_no}`,
       method: 'GET',
       authMode: 'required',
     })
-    // 兼容未生成前的旧包装响应 value，同时向新协议的 orderId 字段收敛。
-    const orderId = response.order_id ?? response.value ?? 0
     return {
       ...response,
-      order_id: orderId,
-      value: orderId,
+      order_id: response.order_id ?? 0,
     }
   }
   /** 根据订单id查询订单 */

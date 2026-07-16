@@ -1,5 +1,9 @@
 import { http } from '@/utils/http'
-import type { UserAddress, UserAddressForm, UserAddressService } from '@/rpc/app/v1/user_address'
+import type {
+  ListUserAddressesResponse,
+  UserAddressForm,
+  UserAddressService,
+} from '@/rpc/app/v1/user_address'
 import type { Empty } from '@/rpc/google/protobuf/empty'
 
 const USER_ADDRESS_URL = '/v1/app/user/address'
@@ -16,35 +20,24 @@ type UserAddressFormRequestCompat = Partial<UserAddressForm> & {
   user_address?: UserAddressForm
 }
 
-/** 用户地址列表响应兼容结构，同时保留协议字段和旧版 list。 */
-type ListUserAddressesResponseCompat = {
-  user_addresses: UserAddress[]
-  list: UserAddress[]
-}
-
-/** 用户地址列表 HTTP 原始响应，允许后端只返回部分字段。 */
-type ListUserAddressesHTTPResponse = Partial<ListUserAddressesResponseCompat>
-
 /** 用户地址服务 */
 export class UserAddressServiceImpl implements UserAddressService {
   /** 查询用户地址列表 */
-  async ListUserAddresses(request: Empty): Promise<ListUserAddressesResponseCompat> {
-    const response = await http<ListUserAddressesHTTPResponse>({
+  async ListUserAddresses(request: Empty): Promise<ListUserAddressesResponse> {
+    const response = await http<Partial<ListUserAddressesResponse>>({
       url: `${USER_ADDRESS_URL}`,
       method: 'GET',
       authMode: 'required',
       data: request,
     })
-    const userAddresses = response.user_addresses ?? response.list ?? []
     return {
       ...response,
-      list: userAddresses,
-      user_addresses: userAddresses,
+      user_addresses: response.user_addresses ?? [],
     }
   }
 
   /** 查询用户地址列表（旧生成接口兼容） */
-  ListUserAddress(request: Empty): Promise<ListUserAddressesResponseCompat> {
+  ListUserAddress(request: Empty): Promise<ListUserAddressesResponse> {
     return this.ListUserAddresses(request)
   }
 

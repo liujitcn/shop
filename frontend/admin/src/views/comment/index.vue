@@ -296,7 +296,7 @@ watch(
     if (!proTable.value) return;
 
     // 工作台查询条件变化后回到第一页，避免沿用旧分页导致结果为空。
-    proTable.value.pageable.pageNum = 1;
+    proTable.value.pageable.page_num = 1;
     proTable.value.search();
   },
   { immediate: true }

@@ -52,7 +52,7 @@ watch(
     Object.assign(proTable.value.searchInitParam, {
       status: status > 0 ? status : undefined
     });
-    proTable.value.pageable.pageNum = 1;
+    proTable.value.pageable.page_num = 1;
     proTable.value.search();
   },
   { immediate: true }

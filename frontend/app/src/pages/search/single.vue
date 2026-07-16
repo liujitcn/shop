@@ -7,12 +7,11 @@ import { RecommendScene } from '@/rpc/common/v1/enum'
 import { onLoad } from '@dcloudio/uni-app'
 import { computed, ref } from 'vue'
 
+/** 商品搜索列表补充字段。 */
 type GoodsInfoExtra = GoodsInfo & {
   banner?: string[]
   init_sale_num?: number
   real_sale_num?: number
-  initSaleNum?: number
-  realSaleNum?: number
 }
 
 const query = defineProps<{
@@ -60,18 +59,11 @@ const emptyText = computed(() => {
   return '暂无可购买商品'
 })
 
+/** 计算商品展示销量，优先使用后端返回的拆分销量字段。 */
 const resolveSaleNum = (item: GoodsInfo) => {
   const goods = item as GoodsInfoExtra
-  if (
-    goods.init_sale_num !== undefined ||
-    goods.real_sale_num !== undefined ||
-    goods.initSaleNum !== undefined ||
-    goods.realSaleNum !== undefined
-  ) {
-    return (
-      Number(goods.init_sale_num ?? goods.initSaleNum ?? 0) +
-      Number(goods.real_sale_num ?? goods.realSaleNum ?? 0)
-    )
+  if (goods.init_sale_num !== undefined || goods.real_sale_num !== undefined) {
+    return Number(goods.init_sale_num ?? 0) + Number(goods.real_sale_num ?? 0)
   }
   return item.sale_num || 0
 }

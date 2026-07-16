@@ -148,6 +148,12 @@
       color: var(--el-text-color-primary);
       background: var(--el-fill-color-light);
     }
+
+    // 固定列表头沿用普通表头底色，避免无横向滚动时被 Element Plus 覆盖为白底。
+    .el-table__header th.el-table-fixed-column--left,
+    .el-table__header th.el-table-fixed-column--right {
+      background: var(--el-fill-color-light);
+    }
     .el-table__row {
       height: 45px;
       font-size: 14px;

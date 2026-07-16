@@ -112,6 +112,7 @@ func (x *TreeBaseMenusResponse) GetBaseMenus() []*BaseMenu {
 type OptionBaseMenusRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ParentId      *int64                 `protobuf:"varint,1,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"` // 父级菜单ID
+	RoleId        *int64                 `protobuf:"varint,2,opt,name=role_id,json=roleId,proto3,oneof" json:"role_id,omitempty"`       // 目标角色ID
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -149,6 +150,13 @@ func (*OptionBaseMenusRequest) Descriptor() ([]byte, []int) {
 func (x *OptionBaseMenusRequest) GetParentId() int64 {
 	if x != nil && x.ParentId != nil {
 		return *x.ParentId
+	}
+	return 0
+}
+
+func (x *OptionBaseMenusRequest) GetRoleId() int64 {
+	if x != nil && x.RoleId != nil {
+		return *x.RoleId
 	}
 	return 0
 }
@@ -814,11 +822,14 @@ const file_admin_v1_base_menu_proto_rawDesc = "" +
 	"\x14TreeBaseMenusRequest\"[\n" +
 	"\x15TreeBaseMenusResponse\x12B\n" +
 	"\n" +
-	"base_menus\x18\x01 \x03(\v2\x12.admin.v1.BaseMenuB\x0f\xbaG\f\x92\x02\t菜单树R\tbaseMenus\"^\n" +
+	"base_menus\x18\x01 \x03(\v2\x12.admin.v1.BaseMenuB\x0f\xbaG\f\x92\x02\t菜单树R\tbaseMenus\"\x9e\x01\n" +
 	"\x16OptionBaseMenusRequest\x126\n" +
-	"\tparent_id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e父级菜单IDH\x00R\bparentId\x88\x01\x01B\f\n" +
+	"\tparent_id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e父级菜单IDH\x00R\bparentId\x88\x01\x01\x122\n" +
+	"\arole_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e目标角色IDH\x01R\x06roleId\x88\x01\x01B\f\n" +
 	"\n" +
-	"_parent_id\"4\n" +
+	"_parent_idB\n" +
+	"\n" +
+	"\b_role_id\"4\n" +
 	"\x12GetBaseMenuRequest\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b菜单IDR\x02id\"`\n" +
 	"\x15CreateBaseMenuRequest\x12G\n" +

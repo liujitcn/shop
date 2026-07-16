@@ -250,8 +250,8 @@ const processTableData = computed(() => {
   if (!props.data) return tableData.value;
   if (!props.pagination) return props.data;
   return props.data.slice(
-    (pageable.value.pageNum - 1) * pageable.value.pageSize,
-    pageable.value.pageSize * pageable.value.pageNum
+    (pageable.value.page_num - 1) * pageable.value.page_size,
+    pageable.value.page_size * pageable.value.page_num
   );
 });
 

@@ -103,7 +103,7 @@ watch(
     void nextTick(() => {
       if (!proTable.value) return;
       syncDefaultStatusToSearch();
-      proTable.value.pageable.pageNum = 1;
+      proTable.value.pageable.page_num = 1;
       proTable.value.search();
     });
   }
