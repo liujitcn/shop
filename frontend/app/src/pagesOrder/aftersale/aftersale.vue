@@ -3,9 +3,10 @@ import { computed, ref } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
 import { defOrderService } from '@/api/app/order_info'
 import type { OrderGoods, OrderInfo } from '@/rpc/app/v1/order_info'
-import { OrderStatus } from '@/rpc/common/v1/enum'
+import { OrderInfoStatus, OrderRefundStatus } from '@/rpc/common/v1/enum'
 import { formatPrice, formatSrc } from '@/utils'
 import { orderDetailUrl } from '@/utils/navigation'
+import type { OrderListFilter } from '@/utils/order'
 import RefundOrderPopup from '../components/RefundOrderPopup.vue'
 
 const query = defineProps<{
@@ -17,16 +18,23 @@ const { safeAreaInsets } = uni.getSystemInfoSync()
 /** 售后页标签标识。 */
 type AfterSaleTab = 'apply' | 'record'
 
-/** 售后页标签配置，负责绑定对应订单状态。 */
+/** 售后页标签配置，直接绑定后端分页筛选条件。 */
 type AfterSaleTabItem = {
   key: AfterSaleTab
   title: string
-  status: OrderStatus
+  filter: OrderListFilter
 }
 
 const tabs: AfterSaleTabItem[] = [
-  { key: 'apply', title: '售后申请', status: OrderStatus.PAID },
-  { key: 'record', title: '申请记录', status: OrderStatus.REFUNDING },
+  {
+    key: 'apply',
+    title: '售后申请',
+    filter: {
+      status: OrderInfoStatus.WAIT_SHIPMENT_OIS,
+      refund_status: OrderRefundStatus.NONE_ORS,
+    },
+  },
+  { key: 'record', title: '申请记录', filter: { has_refund: true } },
 ]
 
 const normalizeTab = (tab?: string): AfterSaleTab => {
@@ -46,11 +54,20 @@ const loadingMap = ref<Record<AfterSaleTab, boolean>>({
   apply: false,
   record: false,
 })
+const pageMap = ref<Record<AfterSaleTab, number>>({
+  apply: 1,
+  record: 1,
+})
+const finishedMap = ref<Record<AfterSaleTab, boolean>>({
+  apply: false,
+  record: false,
+})
 const refundPopup = ref<InstanceType<typeof RefundOrderPopup>>()
 
 const activeTabItem = computed(() => tabs.find((item) => item.key === activeTab.value) || tabs[0])
 const activeOrders = computed(() => orderMap.value[activeTab.value])
 const isLoading = computed(() => loadingMap.value[activeTab.value])
+const isFinished = computed(() => finishedMap.value[activeTab.value])
 const emptyInfo = computed(() => {
   if (activeTab.value === 'apply') {
     return {
@@ -78,26 +95,39 @@ const onNavigateBack = () => {
 const onSwitchTab = (tab: AfterSaleTab) => {
   activeTab.value = tab
   if (!loadedMap.value[tab]) {
-    void loadOrders(tab)
+    void loadOrders(tab, true)
   }
 }
 
-/** 加载指定售后标签下的订单列表。 */
-const loadOrders = async (tab: AfterSaleTab = activeTab.value) => {
-  if (loadingMap.value[tab]) {
+/** 加载指定售后标签下的订单分页数据。 */
+const loadOrders = async (tab: AfterSaleTab = activeTab.value, reset = false) => {
+  if (loadingMap.value[tab] || (!reset && finishedMap.value[tab])) {
     return
+  }
+  if (reset) {
+    pageMap.value = { ...pageMap.value, [tab]: 1 }
+    orderMap.value = { ...orderMap.value, [tab]: [] }
+    finishedMap.value = { ...finishedMap.value, [tab]: false }
   }
   loadingMap.value = { ...loadingMap.value, [tab]: true }
   try {
     const res = await defOrderService.PageOrderInfo({
-      page_num: 1,
+      page_num: pageMap.value[tab],
       page_size: 20,
-      status: tabs.find((item) => item.key === tab)?.status || OrderStatus.PAID,
+      ...tabs.find((item) => item.key === tab)!.filter,
     })
-    orderMap.value = { ...orderMap.value, [tab]: res.order_infos || [] }
+    const orders = [...orderMap.value[tab], ...(res.order_infos || [])]
+    orderMap.value = { ...orderMap.value, [tab]: orders }
     loadedMap.value = { ...loadedMap.value, [tab]: true }
+    if (orders.length >= res.total) {
+      finishedMap.value = { ...finishedMap.value, [tab]: true }
+    } else {
+      pageMap.value = { ...pageMap.value, [tab]: pageMap.value[tab] + 1 }
+    }
   } catch (_error) {
-    orderMap.value = { ...orderMap.value, [tab]: [] }
+    if (reset) {
+      orderMap.value = { ...orderMap.value, [tab]: [] }
+    }
   } finally {
     loadingMap.value = { ...loadingMap.value, [tab]: false }
   }
@@ -111,7 +141,13 @@ const getRecordStatus = (order: OrderInfo) => {
   if (activeTab.value === 'apply') {
     return '可申请售后'
   }
-  return order.refund_time ? '已退款' : '退款/售后处理中'
+  const textMap = new Map<OrderRefundStatus, string>([
+    [OrderRefundStatus.PROCESSING_ORS, '退款处理中'],
+    [OrderRefundStatus.PARTIAL_REFUND_ORS, '部分退款'],
+    [OrderRefundStatus.REFUNDED_ORS, '已退款'],
+    [OrderRefundStatus.CLOSED_OR_FAILED_ORS, '已关闭/失败'],
+  ])
+  return textMap.get(order.refund_status) || '退款/售后'
 }
 
 /** 打开退款原因选择弹窗。 */
@@ -129,7 +165,7 @@ const onRefundSuccess = (order_id: number) => {
 }
 
 onShow(() => {
-  void loadOrders(activeTab.value)
+  void loadOrders(activeTab.value, true)
 })
 </script>
 
@@ -153,8 +189,10 @@ onShow(() => {
       </view>
     </view>
 
-    <scroll-view scroll-y class="after-sale-body">
-      <view v-if="isLoading" class="state-card">售后订单加载中...</view>
+    <scroll-view scroll-y class="after-sale-body" @scrolltolower="loadOrders(activeTab)">
+      <view v-if="isLoading && activeOrders.length === 0" class="state-card">
+        售后订单加载中...
+      </view>
       <EmptyState
         v-else-if="activeOrders.length === 0"
         :image="emptyInfo.image"
@@ -195,7 +233,7 @@ onShow(() => {
           <view class="card-actions">
             <navigator
               class="action-button"
-              :url="orderDetailUrl({ id: order.id })"
+              :url="orderDetailUrl({ id: order.id, internal: true })"
               hover-class="none"
             >
               查看订单
@@ -208,6 +246,9 @@ onShow(() => {
               退款/售后
             </view>
           </view>
+        </view>
+        <view v-if="isLoading || isFinished" class="load-more">
+          {{ isLoading ? '正在加载...' : '没有更多数据~' }}
         </view>
       </template>
     </scroll-view>
@@ -329,6 +370,13 @@ page {
   text-align: center;
   color: #888;
   font-size: 26rpx;
+}
+
+.load-more {
+  padding: 12rpx 0 28rpx;
+  text-align: center;
+  color: #999;
+  font-size: 24rpx;
 }
 
 .after-sale-card {

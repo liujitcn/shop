@@ -8,10 +8,12 @@
 import type {
   OrderCancelReason,
   OrderDeliveryTime,
+  OrderInfoStatus,
   OrderPayChannel,
   OrderPayType,
   OrderRefundReason,
-  OrderStatus,
+  OrderRefundStatus,
+  OrderTradeStatus,
 } from "../../common/v1/enum";
 import type { Empty } from "../../google/protobuf/empty";
 import type { RecommendContext } from "./recommend";
@@ -43,10 +45,22 @@ export interface GetOrderInfoByIdRequest {
   id: number;
 }
 
+/** 交易单详情查询条件 */
+export interface GetOrderTradeByIdRequest {
+  /** 交易单ID */
+  trade_id: number;
+}
+
 /** 删除订单条件 */
 export interface DeleteOrderInfoRequest {
   /** 订单ID */
   id: number;
+}
+
+/** 删除交易单条件 */
+export interface DeleteOrderTradeRequest {
+  /** 交易单ID */
+  trade_id: number;
 }
 
 /** 立即购买订单请求参数 */
@@ -123,16 +137,34 @@ export interface CountOrderInfoResponse {
 
 /** 订单数量统计项 */
 export interface CountOrderInfoResponse_Count {
-  /** 订单状态 */
-  status: OrderStatus;
+  /** 订单履约状态 */
+  status: OrderInfoStatus;
   /** 订单数量 */
   num: number;
+  /** 交易支付状态 */
+  trade_status: OrderTradeStatus;
+  /** 订单退款状态 */
+  refund_status: OrderRefundStatus;
 }
 
 /** 订单分页查询条件 */
 export interface PageOrderInfoRequest {
-  /** 订单状态 */
-  status: OrderStatus;
+  /** 订单履约状态 */
+  status?:
+    | OrderInfoStatus
+    | undefined;
+  /** 交易支付状态 */
+  trade_status?:
+    | OrderTradeStatus
+    | undefined;
+  /** 订单退款状态 */
+  refund_status?:
+    | OrderRefundStatus
+    | undefined;
+  /** 是否存在退款 */
+  has_refund?:
+    | boolean
+    | undefined;
   /** 当前页码 */
   page_num: number;
   /** 每一页的行数 */
@@ -207,26 +239,38 @@ export interface CreateOrderInfoRequest {
   pay_type: OrderPayType;
   /** 支付渠道：枚举【OrderPayChannel】 */
   pay_channel: OrderPayChannel;
-  /** 配送时间：枚举【OrderDeliveryTime】 */
-  delivery_time: OrderDeliveryTime;
-  /** 订单备注 */
-  remark: string;
+  /** 门店订单选项 */
+  order_store_options: OrderStoreOption[];
   /** 商品信息 */
   goods: CreateOrderInfoGoods[];
 }
 
 /** 创建订单响应 */
 export interface CreateOrderInfoResponse {
-  /** 订单id */
-  order_id: number;
+  /** 交易单ID */
+  trade_id: number;
+  /** 交易单编号 */
+  trade_no: string;
+  /** 门店订单ID */
+  order_ids: number[];
 }
 
 /** 取消订单请求参数 */
 export interface CancelOrderInfoRequest {
-  /** 订单id */
-  order_id: number;
+  /** 交易单ID */
+  trade_id: number;
   /** 取消原因 */
   reason: OrderCancelReason;
+}
+
+/** 门店订单选项 */
+export interface OrderStoreOption {
+  /** 租户门店ID */
+  tenant_store_id: number;
+  /** 配送时间：枚举【OrderDeliveryTime】 */
+  delivery_time: OrderDeliveryTime;
+  /** 订单备注 */
+  remark: string;
 }
 
 /** 订单退款请求参数 */
@@ -277,12 +321,22 @@ export interface OrderGoodsStore {
     | undefined;
   /** 商品信息 */
   goods: OrderGoods[];
+  /** 门店订单汇总 */
+  summary:
+    | OrderSummary
+    | undefined;
+  /** 配送时间：枚举【OrderDeliveryTime】 */
+  delivery_time: OrderDeliveryTime;
+  /** 订单备注 */
+  remark: string;
 }
 
 /** Order信息 */
 export interface OrderInfo {
   /** 订单id */
   id: number;
+  /** 交易单ID */
+  trade_id: number;
   /** 订单编号 */
   order_no: string;
   /** 实际支付金额 */
@@ -293,20 +347,28 @@ export interface OrderInfo {
   post_fee: number;
   /** 商品总数 */
   goods_num: number;
-  /** 支付方式：枚举【OrderPayType】 */
-  pay_type: OrderPayType;
-  /** 支付渠道：枚举【OrderPayChannel】 */
-  pay_channel: OrderPayChannel;
   /** 配送时间：枚举【OrderDeliveryTime】 */
   delivery_time: OrderDeliveryTime;
-  /** 状态：枚举【OrderStatus】 */
-  status: OrderStatus;
+  /** 订单履约状态：枚举【OrderInfoStatus】 */
+  status: OrderInfoStatus;
+  /** 订单退款状态：枚举【OrderRefundStatus】 */
+  refund_status: OrderRefundStatus;
   /** 订单备注 */
   remark: string;
   /** 创建时间 */
   created_at: string;
   /** 更新时间 */
   updated_at: string;
+  /** 支付方式：枚举【OrderPayType】 */
+  pay_type: OrderPayType;
+  /** 支付渠道：枚举【OrderPayChannel】 */
+  pay_channel: OrderPayChannel;
+  /** 交易单编号 */
+  trade_no: string;
+  /** 交易支付状态：枚举【OrderTradeStatus】 */
+  trade_status: OrderTradeStatus;
+  /** 是否为交易聚合记录 */
+  is_trade: boolean;
   /** 支付时间 */
   payment_time: string;
   /** 取消时间 */
@@ -345,10 +407,14 @@ export interface OrderInfoService {
   GetOrderInfoIdByOrderNo(request: GetOrderInfoIdByOrderNoRequest): Promise<GetOrderInfoIdByOrderNoResponse>;
   /** 根据订单信息id查询订单信息 */
   GetOrderInfoById(request: GetOrderInfoByIdRequest): Promise<OrderInfoResponse>;
+  /** 根据交易单ID查询聚合订单详情 */
+  GetOrderTradeById(request: GetOrderTradeByIdRequest): Promise<OrderInfoResponse>;
   /** 创建订单信息 */
   CreateOrderInfo(request: CreateOrderInfoRequest): Promise<CreateOrderInfoResponse>;
   /** 删除订单信息 */
   DeleteOrderInfo(request: DeleteOrderInfoRequest): Promise<Empty>;
+  /** 删除交易单 */
+  DeleteOrderTrade(request: DeleteOrderTradeRequest): Promise<Empty>;
   /** 取消订单信息 */
   CancelOrderInfo(request: CancelOrderInfoRequest): Promise<Empty>;
   /** 订单信息退款 */

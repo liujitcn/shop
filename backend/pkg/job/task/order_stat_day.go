@@ -2,9 +2,11 @@ package task
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"time"
 
+	appv1 "shop/api/gen/go/app/v1"
 	_const "shop/pkg/const"
 
 	"shop/pkg/gen/data"
@@ -34,6 +36,8 @@ type OrderStatDay struct {
 	tx               data.Transaction
 	orderStatDayRepo *data.OrderStatDayRepository
 	orderInfoRepo    *data.OrderInfoRepository
+	orderTradeRepo   *data.OrderTradeRepository
+	orderRefundRepo  *data.OrderRefundRepository
 	ctx              context.Context
 }
 
@@ -42,11 +46,15 @@ func NewOrderStatDay(
 	tx data.Transaction,
 	orderStatDayRepo *data.OrderStatDayRepository,
 	orderInfoRepo *data.OrderInfoRepository,
+	orderTradeRepo *data.OrderTradeRepository,
+	orderRefundRepo *data.OrderRefundRepository,
 ) *OrderStatDay {
 	return &OrderStatDay{
 		tx:               tx,
 		orderStatDayRepo: orderStatDayRepo,
 		orderInfoRepo:    orderInfoRepo,
+		orderTradeRepo:   orderTradeRepo,
+		orderRefundRepo:  orderRefundRepo,
 		ctx:              context.Background(),
 	}
 }
@@ -84,8 +92,46 @@ func (t *OrderStatDay) Exec(args map[string]string) ([]string, error) {
 		}
 		result.orderCount = len(orderInfoList)
 
+		refundQuery := t.orderRefundRepo.Query(ctx).OrderRefund
+		refundOpts := make([]repository.QueryOption, 0, 3)
+		refundOpts = append(refundOpts, repository.Where(refundQuery.SuccessTime.Gte(startAt)))
+		refundOpts = append(refundOpts, repository.Where(refundQuery.SuccessTime.Lt(endAt)))
+		refundOpts = append(refundOpts, repository.Where(refundQuery.RefundState.Eq(appv1.RefundResource_SUCCESS.String())))
+		var orderRefunds []*models.OrderRefund
+		orderRefunds, err = t.orderRefundRepo.List(ctx, refundOpts...)
+		if err != nil {
+			return err
+		}
+
+		tradeIDSet := make(map[int64]struct{}, len(orderInfoList)+len(orderRefunds))
+		for _, orderInfo := range orderInfoList {
+			tradeIDSet[orderInfo.TradeID] = struct{}{}
+		}
+		for _, orderRefund := range orderRefunds {
+			tradeIDSet[orderRefund.TradeID] = struct{}{}
+		}
+		tradeIDs := make([]int64, 0, len(tradeIDSet))
+		for tradeID := range tradeIDSet {
+			tradeIDs = append(tradeIDs, tradeID)
+		}
+		tradeMap := make(map[int64]*models.OrderTrade, len(tradeIDs))
+		if len(tradeIDs) > 0 {
+			tradeQuery := t.orderTradeRepo.Query(ctx).OrderTrade
+			tradeOpts := make([]repository.QueryOption, 0, 1)
+			tradeOpts = append(tradeOpts, repository.Where(tradeQuery.ID.In(tradeIDs...)))
+			var orderTrades []*models.OrderTrade
+			orderTrades, err = t.orderTradeRepo.List(ctx, tradeOpts...)
+			if err != nil {
+				return err
+			}
+			for _, orderTrade := range orderTrades {
+				tradeMap[orderTrade.ID] = orderTrade
+			}
+		}
+
 		statMap := make(map[orderStatDayKey]*models.OrderStatDay)
 		paidUserMap := make(map[orderStatDayKey]map[int64]struct{})
+		refundedOrderMap := make(map[orderStatDayKey]map[int64]struct{})
 		ensureStat := func(tenantID, tenantStoreID int64, payType, payChannel int32) *models.OrderStatDay {
 			key := orderStatDayKey{tenantID: tenantID, tenantStoreID: tenantStoreID, payType: payType, payChannel: payChannel}
 			item, ok := statMap[key]
@@ -108,13 +154,18 @@ func (t *OrderStatDay) Exec(args map[string]string) ([]string, error) {
 			if item == nil || item.ID <= 0 {
 				continue
 			}
-			stat := ensureStat(item.TenantID, item.TenantStoreID, item.PayType, item.PayChannel)
-			// 已支付口径的订单按主表状态直接累计。
-			if utils.IsPaidOrderStatus(item.Status) {
+			orderTrade := tradeMap[item.TradeID]
+			// 缺少交易单的子订单无法确定支付维度，不写入日统计。
+			if orderTrade == nil {
+				continue
+			}
+			stat := ensureStat(item.TenantID, item.TenantStoreID, orderTrade.PayType, orderTrade.PayChannel)
+			// 支付指标以交易单状态为准，门店履约状态不再反推支付事实。
+			if utils.IsPaidTradeStatus(orderTrade.Status) {
 				stat.PaidOrderCount++
 				stat.PaidOrderAmount += item.PayMoney
 				stat.GoodsCount += int32(item.GoodsNum)
-				key := orderStatDayKey{tenantID: item.TenantID, tenantStoreID: item.TenantStoreID, payType: item.PayType, payChannel: item.PayChannel}
+				key := orderStatDayKey{tenantID: item.TenantID, tenantStoreID: item.TenantStoreID, payType: orderTrade.PayType, payChannel: orderTrade.PayChannel}
 				// 当前租户支付维度首次出现用户集合时，先初始化去重容器。
 				if _, ok := paidUserMap[key]; !ok {
 					paidUserMap[key] = make(map[int64]struct{}, 1)
@@ -122,15 +173,40 @@ func (t *OrderStatDay) Exec(args map[string]string) ([]string, error) {
 				// 支付用户数按租户与支付维度做当天去重。
 				paidUserMap[key][item.UserID] = struct{}{}
 			}
-			// 已退款状态直接按主表金额累计退款指标。
-			if item.Status == _const.ORDER_STATUS_REFUNDING {
-				stat.RefundOrderCount++
-				stat.RefundOrderAmount += item.PayMoney
-			}
-			// 已取消状态直接按主表金额累计取消指标。
-			if item.Status == _const.ORDER_STATUS_CANCELED {
+			// 已取消的门店订单按子订单金额累计取消指标。
+			if item.Status == _const.ORDER_INFO_STATUS_CANCELED {
 				stat.CanceledOrderCount++
 				stat.CanceledOrderAmount += item.TotalMoney
+			}
+		}
+		for _, orderRefund := range orderRefunds {
+			orderTrade := tradeMap[orderRefund.TradeID]
+			// 缺少交易单时无法确定退款的支付维度，不写入日统计。
+			if orderTrade == nil {
+				continue
+			}
+			key := orderStatDayKey{
+				tenantID:      orderRefund.TenantID,
+				tenantStoreID: orderRefund.TenantStoreID,
+				payType:       orderTrade.PayType,
+				payChannel:    orderTrade.PayChannel,
+			}
+			stat := ensureStat(key.tenantID, key.tenantStoreID, key.payType, key.payChannel)
+			var amount struct {
+				Refund int64 `json:"refund"`
+			}
+			err = json.Unmarshal([]byte(orderRefund.Amount), &amount)
+			if err != nil {
+				return err
+			}
+			stat.RefundOrderAmount += amount.Refund
+			if refundedOrderMap[key] == nil {
+				refundedOrderMap[key] = make(map[int64]struct{})
+			}
+			// 同一门店订单当天多次部分退款时，订单数只统计一次。
+			if _, ok := refundedOrderMap[key][orderRefund.OrderID]; !ok {
+				stat.RefundOrderCount++
+				refundedOrderMap[key][orderRefund.OrderID] = struct{}{}
 			}
 		}
 

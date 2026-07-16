@@ -119,6 +119,14 @@ paths:
                         - ANALYTICS_TIME_TYPE_YEAR
                     type: string
                     format: enum
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+                - name: tenant_store_id
+                  in: query
+                  schema:
+                    type: string
             responses:
                 "200":
                     description: OK
@@ -143,6 +151,14 @@ paths:
                         - ANALYTICS_TIME_TYPE_YEAR
                     type: string
                     format: enum
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+                - name: tenant_store_id
+                  in: query
+                  schema:
+                    type: string
             responses:
                 "200":
                     description: OK
@@ -167,6 +183,14 @@ paths:
                         - ANALYTICS_TIME_TYPE_YEAR
                     type: string
                     format: enum
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+                - name: tenant_store_id
+                  in: query
+                  schema:
+                    type: string
             responses:
                 "200":
                     description: OK
@@ -2967,15 +2991,13 @@ paths:
                   in: query
                   schema:
                     enum:
-                        - UNKNOWN_OS
-                        - CREATED
-                        - PAID
-                        - SHIPPED
-                        - WAIT_REVIEW
-                        - COMPLETED
-                        - REFUNDING
-                        - CANCELED
-                        - DELETED
+                        - UNKNOWN_OIS
+                        - NOT_STARTED_OIS
+                        - WAIT_SHIPMENT_OIS
+                        - SHIPPED_OIS
+                        - WAIT_REVIEW_OIS
+                        - COMPLETED_OIS
+                        - CANCELED_OIS
                     type: string
                     format: enum
                 - name: pay_type
@@ -2994,6 +3016,32 @@ paths:
                         - UNKNOWN_OPC
                         - WX_PAY
                         - UNION_PAY
+                    type: string
+                    format: enum
+                - name: trade_status
+                  in: query
+                  schema:
+                    enum:
+                        - UNKNOWN_OTS
+                        - PENDING_PAYMENT_OTS
+                        - PAYING_OTS
+                        - PAID_OTS
+                        - CASH_ON_DELIVERY_OTS
+                        - CLOSED_OTS
+                        - PARTIAL_REFUND_OTS
+                        - FULL_REFUND_OTS
+                    type: string
+                    format: enum
+                - name: refund_status
+                  in: query
+                  schema:
+                    enum:
+                        - UNKNOWN_ORS
+                        - NONE_ORS
+                        - PROCESSING_ORS
+                        - PARTIAL_REFUND_ORS
+                        - REFUNDED_ORS
+                        - CLOSED_OR_FAILED_ORS
                     type: string
                     format: enum
                 - name: created_at
@@ -3806,6 +3854,14 @@ paths:
                   schema:
                     type: integer
                     format: int32
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+                - name: tenant_store_id
+                  in: query
+                  schema:
+                    type: string
             responses:
                 "200":
                     description: OK
@@ -3838,6 +3894,14 @@ paths:
                   schema:
                     type: integer
                     format: int32
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+                - name: tenant_store_id
+                  in: query
+                  schema:
+                    type: string
             responses:
                 "200":
                     description: OK
@@ -3870,6 +3934,14 @@ paths:
                   schema:
                     type: integer
                     format: int32
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+                - name: tenant_store_id
+                  in: query
+                  schema:
+                    type: string
             responses:
                 "200":
                     description: OK
@@ -3902,6 +3974,14 @@ paths:
                   schema:
                     type: integer
                     format: int32
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+                - name: tenant_store_id
+                  in: query
+                  schema:
+                    type: string
             responses:
                 "200":
                     description: OK
@@ -4702,6 +4782,14 @@ paths:
                   in: query
                   schema:
                     type: string
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+                - name: tenant_store_id
+                  in: query
+                  schema:
+                    type: string
             responses:
                 "200":
                     description: OK
@@ -4715,6 +4803,15 @@ paths:
                 - WorkspaceService
             description: 查询工作台顶部指标
             operationId: WorkspaceService_SummaryWorkspaceMetrics
+            parameters:
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+                - name: tenant_store_id
+                  in: query
+                  schema:
+                    type: string
             responses:
                 "200":
                     description: OK
@@ -4728,6 +4825,15 @@ paths:
                 - WorkspaceService
             description: 查询工作台口碑洞察
             operationId: WorkspaceService_SummaryWorkspaceReputation
+            parameters:
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+                - name: tenant_store_id
+                  in: query
+                  schema:
+                    type: string
             responses:
                 "200":
                     description: OK
@@ -4741,6 +4847,15 @@ paths:
                 - WorkspaceService
             description: 查询工作台风险提醒
             operationId: WorkspaceService_SummaryWorkspaceRisk
+            parameters:
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+                - name: tenant_store_id
+                  in: query
+                  schema:
+                    type: string
             responses:
                 "200":
                     description: OK
@@ -4754,6 +4869,15 @@ paths:
                 - WorkspaceService
             description: 查询工作台待处理事项
             operationId: WorkspaceService_SummaryWorkspaceTodo
+            parameters:
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+                - name: tenant_store_id
+                  in: query
+                  schema:
+                    type: string
             responses:
                 "200":
                     description: OK
@@ -5235,17 +5359,45 @@ paths:
                   in: query
                   schema:
                     enum:
-                        - UNKNOWN_OS
-                        - CREATED
-                        - PAID
-                        - SHIPPED
-                        - WAIT_REVIEW
-                        - COMPLETED
-                        - REFUNDING
-                        - CANCELED
-                        - DELETED
+                        - UNKNOWN_OIS
+                        - NOT_STARTED_OIS
+                        - WAIT_SHIPMENT_OIS
+                        - SHIPPED_OIS
+                        - WAIT_REVIEW_OIS
+                        - COMPLETED_OIS
+                        - CANCELED_OIS
                     type: string
                     format: enum
+                - name: trade_status
+                  in: query
+                  schema:
+                    enum:
+                        - UNKNOWN_OTS
+                        - PENDING_PAYMENT_OTS
+                        - PAYING_OTS
+                        - PAID_OTS
+                        - CASH_ON_DELIVERY_OTS
+                        - CLOSED_OTS
+                        - PARTIAL_REFUND_OTS
+                        - FULL_REFUND_OTS
+                    type: string
+                    format: enum
+                - name: refund_status
+                  in: query
+                  schema:
+                    enum:
+                        - UNKNOWN_ORS
+                        - NONE_ORS
+                        - PROCESSING_ORS
+                        - PARTIAL_REFUND_ORS
+                        - REFUNDED_ORS
+                        - CLOSED_OR_FAILED_ORS
+                    type: string
+                    format: enum
+                - name: has_refund
+                  in: query
+                  schema:
+                    type: boolean
                 - name: page_num
                   in: query
                   schema:
@@ -5345,28 +5497,6 @@ paths:
                 "200":
                     description: OK
                     content: {}
-    /api/v1/app/order/info/{order_id}/cancellation:
-        put:
-            tags:
-                - OrderInfoService
-            description: 取消订单信息
-            operationId: OrderInfoService_CancelOrderInfo
-            parameters:
-                - name: order_id
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/CancelOrderInfoRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content: {}
     /api/v1/app/order/info/{order_id}/receipt:
         put:
             tags:
@@ -5411,6 +5541,62 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/app/order/trade/{trade_id}:
+        get:
+            tags:
+                - OrderInfoService
+            description: 根据交易单ID查询聚合订单详情
+            operationId: OrderInfoService_GetOrderTradeById
+            parameters:
+                - name: trade_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/OrderInfoResponse'
+        delete:
+            tags:
+                - OrderInfoService
+            description: 删除交易单
+            operationId: OrderInfoService_DeleteOrderTrade
+            parameters:
+                - name: trade_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/app/order/trade/{trade_id}/cancellation:
+        put:
+            tags:
+                - OrderInfoService
+            description: 取消订单信息
+            operationId: OrderInfoService_CancelOrderInfo
+            parameters:
+                - name: trade_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CancelOrderInfoRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
     /api/v1/app/pay/notify:
         post:
             tags:
@@ -5427,14 +5613,14 @@ paths:
                 "200":
                     description: OK
                     content: {}
-    /api/v1/app/pay/{order_id}/h5:
+    /api/v1/app/pay/{trade_id}/h5:
         post:
             tags:
                 - PayService
             description: H5支付
             operationId: PayService_H5Pay
             parameters:
-                - name: order_id
+                - name: trade_id
                   in: path
                   required: true
                   schema:
@@ -5452,14 +5638,14 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/H5PayResponse'
-    /api/v1/app/pay/{order_id}/jsapi:
+    /api/v1/app/pay/{trade_id}/jsapi:
         post:
             tags:
                 - PayService
             description: 小程序支付
             operationId: PayService_JsapiPay
             parameters:
-                - name: order_id
+                - name: trade_id
                   in: path
                   required: true
                   schema:
@@ -5551,6 +5737,10 @@ paths:
                   schema:
                     type: string
                 - name: request_id
+                  in: query
+                  schema:
+                    type: string
+                - name: trade_id
                   in: query
                   schema:
                     type: string
@@ -8215,9 +8405,9 @@ components:
         CancelOrderInfoRequest:
             type: object
             properties:
-                order_id:
+                trade_id:
                     type: string
-                    description: 订单id
+                    description: 交易单ID
                 reason:
                     enum:
                         - UNKNOWN_OCR
@@ -9202,22 +9392,44 @@ components:
             properties:
                 status:
                     enum:
-                        - UNKNOWN_OS
-                        - CREATED
-                        - PAID
-                        - SHIPPED
-                        - WAIT_REVIEW
-                        - COMPLETED
-                        - REFUNDING
-                        - CANCELED
-                        - DELETED
+                        - UNKNOWN_OIS
+                        - NOT_STARTED_OIS
+                        - WAIT_SHIPMENT_OIS
+                        - SHIPPED_OIS
+                        - WAIT_REVIEW_OIS
+                        - COMPLETED_OIS
+                        - CANCELED_OIS
                     type: string
-                    description: 订单状态
+                    description: 订单履约状态
                     format: enum
                 num:
                     type: integer
                     description: 订单数量
                     format: int32
+                trade_status:
+                    enum:
+                        - UNKNOWN_OTS
+                        - PENDING_PAYMENT_OTS
+                        - PAYING_OTS
+                        - PAID_OTS
+                        - CASH_ON_DELIVERY_OTS
+                        - CLOSED_OTS
+                        - PARTIAL_REFUND_OTS
+                        - FULL_REFUND_OTS
+                    type: string
+                    description: 交易支付状态
+                    format: enum
+                refund_status:
+                    enum:
+                        - UNKNOWN_ORS
+                        - NONE_ORS
+                        - PROCESSING_ORS
+                        - PARTIAL_REFUND_ORS
+                        - REFUNDED_ORS
+                        - CLOSED_OR_FAILED_ORS
+                    type: string
+                    description: 订单退款状态
+                    format: enum
             description: 订单数量统计项
         CountUserCartResponse:
             type: object
@@ -9459,18 +9671,11 @@ components:
                     type: string
                     description: 支付渠道：枚举【OrderPayChannel】
                     format: enum
-                delivery_time:
-                    enum:
-                        - UNKNOWN_ODT
-                        - ALL_TIME
-                        - WEEKDAY
-                        - WEEKEND
-                    type: string
-                    description: 配送时间：枚举【OrderDeliveryTime】
-                    format: enum
-                remark:
-                    type: string
-                    description: 订单备注
+                order_store_options:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/OrderStoreOption'
+                    description: 门店订单选项
                 goods:
                     type: array
                     items:
@@ -9480,9 +9685,17 @@ components:
         CreateOrderInfoResponse:
             type: object
             properties:
-                order_id:
+                trade_id:
                     type: string
-                    description: 订单id
+                    description: 交易单ID
+                trade_no:
+                    type: string
+                    description: 交易单编号
+                order_ids:
+                    type: array
+                    items:
+                        type: string
+                    description: 门店订单ID
             description: 创建订单响应
         CreateUserCartRequest:
             type: object
@@ -10171,9 +10384,9 @@ components:
         H5PayRequest:
             type: object
             properties:
-                order_id:
+                trade_id:
                     type: string
-                    description: 订单id
+                    description: 交易单ID
             description: H5支付请求参数
         H5PayResponse:
             type: object
@@ -10283,9 +10496,9 @@ components:
         JsapiPayRequest:
             type: object
             properties:
-                order_id:
+                trade_id:
                     type: string
-                    description: 订单id
+                    description: 交易单ID
             description: 小程序支付请求参数
         JsapiPayResponse:
             type: object
@@ -10821,6 +11034,20 @@ components:
                     items:
                         $ref: '#/components/schemas/OrderGoods'
                     description: 商品信息
+                summary:
+                    $ref: '#/components/schemas/OrderSummary'
+                delivery_time:
+                    enum:
+                        - UNKNOWN_ODT
+                        - ALL_TIME
+                        - WEEKDAY
+                        - WEEKEND
+                    type: string
+                    description: 配送时间：枚举【OrderDeliveryTime】
+                    format: enum
+                remark:
+                    type: string
+                    description: 订单备注
             description: 订单商品门店分组
         OrderInfo:
             type: object
@@ -10828,6 +11055,9 @@ components:
                 id:
                     type: string
                     description: 订单id
+                trade_id:
+                    type: string
+                    description: 交易单ID
                 tenant_id:
                     type: string
                     description: 租户ID
@@ -10852,6 +11082,47 @@ components:
                 goods_num:
                     type: string
                     description: 商品总数
+                delivery_time:
+                    enum:
+                        - UNKNOWN_ODT
+                        - ALL_TIME
+                        - WEEKDAY
+                        - WEEKEND
+                    type: string
+                    description: 配送时间：枚举【OrderDeliveryTime】
+                    format: enum
+                status:
+                    enum:
+                        - UNKNOWN_OIS
+                        - NOT_STARTED_OIS
+                        - WAIT_SHIPMENT_OIS
+                        - SHIPPED_OIS
+                        - WAIT_REVIEW_OIS
+                        - COMPLETED_OIS
+                        - CANCELED_OIS
+                    type: string
+                    description: 订单履约状态：枚举【OrderInfoStatus】
+                    format: enum
+                refund_status:
+                    enum:
+                        - UNKNOWN_ORS
+                        - NONE_ORS
+                        - PROCESSING_ORS
+                        - PARTIAL_REFUND_ORS
+                        - REFUNDED_ORS
+                        - CLOSED_OR_FAILED_ORS
+                    type: string
+                    description: 订单退款状态：枚举【OrderRefundStatus】
+                    format: enum
+                remark:
+                    type: string
+                    description: 订单备注
+                created_at:
+                    type: string
+                    description: 创建时间
+                updated_at:
+                    type: string
+                    description: 更新时间
                 pay_type:
                     enum:
                         - UNKNOWN_OPT
@@ -10868,38 +11139,22 @@ components:
                     type: string
                     description: 支付渠道：枚举【OrderPayChannel】
                     format: enum
-                delivery_time:
+                trade_no:
+                    type: string
+                    description: 交易单编号
+                trade_status:
                     enum:
-                        - UNKNOWN_ODT
-                        - ALL_TIME
-                        - WEEKDAY
-                        - WEEKEND
+                        - UNKNOWN_OTS
+                        - PENDING_PAYMENT_OTS
+                        - PAYING_OTS
+                        - PAID_OTS
+                        - CASH_ON_DELIVERY_OTS
+                        - CLOSED_OTS
+                        - PARTIAL_REFUND_OTS
+                        - FULL_REFUND_OTS
                     type: string
-                    description: 配送时间：枚举【OrderDeliveryTime】
+                    description: 交易支付状态：枚举【OrderTradeStatus】
                     format: enum
-                status:
-                    enum:
-                        - UNKNOWN_OS
-                        - CREATED
-                        - PAID
-                        - SHIPPED
-                        - WAIT_REVIEW
-                        - COMPLETED
-                        - REFUNDING
-                        - CANCELED
-                        - DELETED
-                    type: string
-                    description: 状态：枚举【OrderStatus】
-                    format: enum
-                remark:
-                    type: string
-                    description: 订单备注
-                created_at:
-                    type: string
-                    description: 创建时间
-                updated_at:
-                    type: string
-                    description: 更新时间
                 nick_name:
                     type: string
                     description: 用户名
@@ -11021,9 +11276,12 @@ components:
         OrderPayment:
             type: object
             properties:
-                order_no:
+                trade_id:
                     type: string
-                    description: 订单编号
+                    description: 交易单ID
+                trade_no:
+                    type: string
+                    description: 交易单编号
                 third_order_no:
                     type: string
                     description: 三方订单编号
@@ -11091,9 +11349,15 @@ components:
         OrderRefund:
             type: object
             properties:
-                order_no:
+                trade_id:
                     type: string
-                    description: 支付订单编号
+                    description: 交易单ID
+                order_id:
+                    type: string
+                    description: 门店订单ID
+                trade_no:
+                    type: string
+                    description: 支付交易单编号
                 third_order_no:
                     type: string
                     description: 三方支付订单编号
@@ -11161,6 +11425,25 @@ components:
                     type: string
                     description: 【用户退款金额】单位：分
             description: 退款金额信息
+        OrderStoreOption:
+            type: object
+            properties:
+                tenant_store_id:
+                    type: string
+                    description: 租户门店ID
+                delivery_time:
+                    enum:
+                        - UNKNOWN_ODT
+                        - ALL_TIME
+                        - WEEKDAY
+                        - WEEKEND
+                    type: string
+                    description: 配送时间：枚举【OrderDeliveryTime】
+                    format: enum
+                remark:
+                    type: string
+                    description: 订单备注
+            description: 门店订单选项
         OrderSummary:
             type: object
             properties:
@@ -12114,6 +12397,9 @@ components:
                 raw_json:
                     type: string
                     description: 原始上下文JSON
+                trade_id:
+                    type: string
+                    description: 关联交易单ID
             description: 推荐请求上下文信息
         RecommendRequestDetailResponse:
             type: object

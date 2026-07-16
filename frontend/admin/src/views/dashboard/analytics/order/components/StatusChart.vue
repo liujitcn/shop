@@ -16,6 +16,10 @@ import { useDictStore } from "@/stores/modules/dict";
 
 const props = defineProps<{
   timeType: AnalyticsTimeType;
+  /** 默认租户选择的租户ID。 */
+  tenantId?: number;
+  /** 当前选择的门店ID。 */
+  tenantStoreId?: number;
 }>();
 
 const dictStore = useDictStore();
@@ -53,28 +57,32 @@ const option = computed<ECOption>(() => ({
   ]
 }));
 
-/** 根据订单状态字典转换图表展示名称。 */
-function resolveOrderStatusName(statusValue: string, dictList: OptionBaseDictsResponse_BaseDictItem[]) {
+/** 根据订单履约状态字典转换图表展示名称。 */
+function resolveOrderInfoStatusName(statusValue: string, dictList: OptionBaseDictsResponse_BaseDictItem[]) {
   const matchedItem = dictList.find(dictItem => dictItem.value === statusValue);
   return matchedItem?.label || `状态${statusValue}`;
 }
 
 /** 加载订单状态分布，并在前端完成状态文案转换。 */
-async function loadData(timeType: AnalyticsTimeType) {
-  const statusDictList = await dictStore.ensureDictionary("order_status");
-  const data = await defOrderAnalyticsService.PieOrderAnalytics({ time_type: timeType });
+async function loadData(timeType: AnalyticsTimeType, tenantId?: number, tenantStoreId?: number) {
+  const statusDictList = await dictStore.ensureDictionary("order_info_status");
+  const data = await defOrderAnalyticsService.PieOrderAnalytics({
+    time_type: timeType,
+    tenant_id: tenantId,
+    tenant_store_id: tenantStoreId
+  });
   // 兼容后端在空 repeated 字段场景下省略 items，避免空数据图表触发运行时异常。
   const items = Array.isArray(data.items) ? data.items : [];
   pieData.items = items.map(item => ({
     ...item,
-    name: resolveOrderStatusName(item.name, statusDictList)
+    name: resolveOrderInfoStatusName(item.name, statusDictList)
   }));
 }
 
 watch(
-  () => props.timeType,
-  value => {
-    loadData(value);
+  () => [props.timeType, props.tenantId, props.tenantStoreId] as const,
+  ([timeType, tenantId, tenantStoreId]) => {
+    loadData(timeType, tenantId, tenantStoreId);
   },
   { immediate: true }
 );

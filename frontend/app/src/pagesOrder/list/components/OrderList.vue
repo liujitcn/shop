@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { OrderStatus } from '@/rpc/common/v1/enum'
+import { OrderInfoStatus, OrderRefundStatus, OrderTradeStatus } from '@/rpc/common/v1/enum'
 import { defOrderService } from '@/api/app/order_info.ts'
 import type { PageOrderInfoRequest, OrderInfo } from '@/rpc/app/v1/order_info'
 import { computed, onMounted, ref } from 'vue'
@@ -16,21 +16,28 @@ import {
   tenantStoreUrl,
 } from '@/utils/navigation'
 import RefundOrderPopup from '../../components/RefundOrderPopup.vue'
+import {
+  canDeleteOrder,
+  canRefundOrder,
+  getOrderDisplayStatus,
+  isPayableTrade,
+} from '@/utils/order'
+import type { OrderListFilter } from '@/utils/order'
 
 // 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync()
 
-// 定义 porps
+// 订单列表由父页面传入后端筛选条件，每个标签独立分页。
 const props = defineProps<{
-  status: OrderStatus
-  statusTitleMap: Map<OrderStatus, string>
+  filter: OrderListFilter
+  title: string
 }>()
 
 // 请求参数
-const queryParams: Required<PageOrderInfoRequest> = {
+const queryParams: PageOrderInfoRequest = {
   page_num: 1,
   page_size: 10,
-  status: props.status,
+  ...props.filter,
 }
 
 // 弹出层组件
@@ -44,7 +51,7 @@ const reason = ref('')
 // 待取消订单
 const orderItem = ref<OrderInfo>()
 // 标题
-const title = ref('')
+const dialogTitle = ref('')
 // tips
 const tips = ref('')
 
@@ -66,8 +73,10 @@ const buildOrderCommentWriteUrl = (order: OrderInfo) => {
   })
 }
 
-const getOrderStatusText = (status: OrderStatus) => {
-  return props.statusTitleMap.get(status) || ''
+const buildOrderDetailUrl = (order: OrderInfo) => {
+  return order.is_trade
+    ? orderDetailUrl({ trade_id: order.trade_id })
+    : orderDetailUrl({ id: order.id, internal: true })
 }
 
 // 获取订单列表
@@ -127,10 +136,10 @@ const openH5PayUrl = (url: string) => {
 }
 
 // 发起订单支付
-const onOrderPay = async (id: number) => {
+const onOrderPay = async (tradeID: number) => {
   // #ifdef MP-WEIXIN
   // 正式环境微信支付
-  const jsapiRes = await defPayService.JsapiPay({ order_id: id })
+  const jsapiRes = await defPayService.JsapiPay({ trade_id: tradeID })
   uni.requestPayment({
     provider: 'wxpay',
     /** 随机字符串，长度为32个字符以下 */
@@ -155,13 +164,13 @@ const onOrderPay = async (id: number) => {
     /** 接口调用成功的回调函数 */
     success: () => {
       // 关闭当前页，再跳转支付结果页
-      void redirectToOrderPayment(id)
+      void redirectToOrderPayment(tradeID)
     },
   })
   // #endif
 
   // #ifdef H5 || APP-PLUS
-  const h5Res = await defPayService.H5Pay({ order_id: id })
+  const h5Res = await defPayService.H5Pay({ trade_id: tradeID })
   openH5PayUrl(h5Res.h5_url)
   // #endif
 }
@@ -178,7 +187,7 @@ const onOrderConfirm = (id: number) => {
         })
         await uni.showToast({ icon: 'success', title: '确认收货成功' })
         // 确认成功，更新为待评价
-        updateStatusById(id, OrderStatus.WAIT_REVIEW)
+        updateStatusById(id, OrderInfoStatus.WAIT_REVIEW_OIS)
       }
     },
   })
@@ -191,7 +200,7 @@ const onOpenPopup = async (order: OrderInfo) => {
     await getDictData()
   }
   orderItem.value = order
-  title.value = '订单取消'
+  dialogTitle.value = '订单取消'
   tips.value = '请选择订单取消的原因：'
   reasonList.value = cancelReasonList.value
   popup.value?.open!()
@@ -200,7 +209,7 @@ const onOpenPopup = async (order: OrderInfo) => {
 // 关闭取消订单弹窗
 const onClosePopup = () => {
   orderItem.value = undefined
-  title.value = ''
+  dialogTitle.value = ''
   tips.value = ''
   reasonList.value = []
   reason.value = ''
@@ -220,14 +229,15 @@ const onConfirmPopup = async () => {
     })
   }
   await defOrderService.CancelOrderInfo({
-    order_id: orderItem.value.id,
+    trade_id: orderItem.value.trade_id,
     reason: Number(reason.value),
   })
   await uni.showToast({
     icon: 'none',
     title: '订单取消成功',
   })
-  updateStatusById(orderItem.value.id, OrderStatus.CANCELED)
+  orderItem.value.trade_status = OrderTradeStatus.CLOSED_OTS
+  orderItem.value.status = OrderInfoStatus.CANCELED_OIS
 
   // 关闭弹窗
   onClosePopup()
@@ -238,27 +248,36 @@ const onOpenRefundPopup = (order: OrderInfo) => {
 }
 
 const onRefundSuccess = (order_id: number) => {
-  updateStatusById(order_id, OrderStatus.REFUNDING)
+  const order = orderInfoList.value.find((item) => item.id === order_id)
+  if (order) {
+    order.refund_status = OrderRefundStatus.PROCESSING_ORS
+  }
 }
 
-// 删除订单
-const onOrderDelete = (id: number) => {
+// 删除交易聚合记录或门店子订单
+const onOrderDelete = (order: OrderInfo) => {
   uni.showModal({
     content: '你确定要删除该订单？',
     confirmColor: '#27BA9B',
     success: async (res) => {
       if (res.confirm) {
-        await defOrderService.DeleteOrderInfo({ id })
+        if (order.is_trade) {
+          await defOrderService.DeleteOrderTrade({ trade_id: order.trade_id })
+        } else {
+          await defOrderService.DeleteOrderInfo({ id: order.id })
+        }
         // 删除成功，界面中删除订单
-        const index = orderInfoList.value.findIndex((v) => v.id === id)
-        orderInfoList.value.splice(index, 1)
+        const index = orderInfoList.value.indexOf(order)
+        if (index >= 0) {
+          orderInfoList.value.splice(index, 1)
+        }
       }
     },
   })
 }
 
 // 更新状态的函数
-const updateStatusById = (id: number, status: OrderStatus): void => {
+const updateStatusById = (id: number, status: OrderInfoStatus): void => {
   const index = orderInfoList.value.findIndex((v) => v.id === id)
   if (index < 0) {
     console.error(`未找到 ID 为 ${id} 的订单`)
@@ -276,23 +295,26 @@ const isEmpty = computed(
   () => isFinish.value && orderInfoList.value.length === 0 && !isLoading.value,
 )
 const emptyText = computed(() => {
-  if (props.status === OrderStatus.UNKNOWN_OS) {
+  if (Object.keys(props.filter).length === 0) {
     return '暂无订单，去首页挑选好货吧'
   }
-  return `暂无${getOrderStatusText(props.status)}订单`
+  return `暂无${props.title}订单`
 })
 
 const emptyImage = computed(() => {
-  if (props.status === OrderStatus.CREATED) {
+  if (props.filter.trade_status === OrderTradeStatus.PENDING_PAYMENT_OTS) {
     return '/static/images/empty_payment.png'
   }
-  if (props.status === OrderStatus.PAID || props.status === OrderStatus.SHIPPED) {
+  if (
+    props.filter.status === OrderInfoStatus.WAIT_SHIPMENT_OIS ||
+    props.filter.status === OrderInfoStatus.SHIPPED_OIS
+  ) {
     return '/static/images/empty_delivery.png'
   }
-  if (props.status === OrderStatus.WAIT_REVIEW) {
+  if (props.filter.status === OrderInfoStatus.WAIT_REVIEW_OIS) {
     return '/static/images/empty_comment.png'
   }
-  if (props.status === OrderStatus.REFUNDING) {
+  if (props.filter.has_refund || props.filter.refund_status) {
     return '/static/images/empty_after_sale.png'
   }
   return '/static/images/empty_order.png'
@@ -329,46 +351,53 @@ const onRefresherRefresh = async () => {
     @refresherrefresh="onRefresherRefresh"
     @scrolltolower="getUserOrderData"
   >
-    <view class="card" v-for="order in orderInfoList" :key="order.id">
+    <view
+      v-for="order in orderInfoList"
+      :key="order.is_trade ? `trade-${order.trade_id}` : `order-${order.id}`"
+      class="card"
+    >
       <!-- 订单信息 -->
       <view class="status">
-        <navigator
-          v-if="order.order_goods_stores[0]?.store?.id"
-          class="store-info"
-          :url="tenantStoreUrl(order.order_goods_stores[0]?.store?.id || 0)"
-          hover-class="none"
-        >
-          <text class="store-name">
-            {{ order.order_goods_stores[0]?.store?.name || '店铺信息' }}
-          </text>
-          <text class="store-arrow">&gt;</text>
-        </navigator>
-        <view v-else class="store-info">
-          <text class="store-name">店铺信息</text>
+        <view class="order-number">
+          {{ order.is_trade ? '交易单' : '订单' }}
+          {{ order.is_trade ? order.trade_no : order.order_no }}
         </view>
         <view class="status-info">
           <text class="date" v-if="order.cancel_time">{{ order.cancel_time }}</text>
-          <!-- 订单状态文字 -->
-          <text>{{ getOrderStatusText(order.status) }}</text>
-          <!-- 已完成/退款售后/已取消状态允许删除，待评价不能删除。 -->
-          <text
-            v-if="
-              order.status === OrderStatus.COMPLETED ||
-              order.status === OrderStatus.REFUNDING ||
-              order.status === OrderStatus.CANCELED
-            "
-            class="icon-delete"
-            @tap="onOrderDelete(order.id)"
-          ></text>
+          <text>{{ getOrderDisplayStatus(order) }}</text>
+          <text v-if="canDeleteOrder(order)" class="icon-delete" @tap="onOrderDelete(order)"></text>
         </view>
       </view>
-      <!-- 商品信息，点击商品跳转到订单详情，不是商品详情 -->
-      <template v-for="group in order.order_goods_stores" :key="group.store?.id">
+
+      <!-- 聚合交易包含多个门店，门店子订单只包含当前门店。 -->
+      <view
+        v-for="group in order.order_goods_stores"
+        :key="`${order.trade_id}-${group.store?.id}`"
+        class="store-group"
+      >
+        <navigator
+          v-if="group.store?.id"
+          class="store-info"
+          :url="tenantStoreUrl(group.store.id)"
+          hover-class="none"
+        >
+          <image
+            v-if="group.store.logo"
+            class="store-logo"
+            :src="formatSrc(group.store.logo)"
+            mode="aspectFill"
+          />
+          <text class="store-name">{{ group.store.name || '门店信息' }}</text>
+          <text class="store-arrow">&gt;</text>
+        </navigator>
+        <view v-else class="store-info">
+          <text class="store-name">门店信息</text>
+        </view>
         <navigator
           v-for="item in group.goods"
-          :key="item.goods_id"
+          :key="`${item.goods_id}-${item.sku_code}`"
           class="goods"
-          :url="orderDetailUrl({ id: order.id, internal: true })"
+          :url="buildOrderDetailUrl(order)"
           hover-class="none"
         >
           <view class="cover">
@@ -379,7 +408,7 @@ const onRefresherRefresh = async () => {
             <view class="type">{{ item.spec_item.join('/') }}</view>
           </view>
         </navigator>
-      </template>
+      </view>
       <!-- 支付信息 -->
       <view class="payment">
         <text class="quantity">共{{ order.goods_num }}件商品</text>
@@ -388,39 +417,32 @@ const onRefresherRefresh = async () => {
       </view>
       <!-- 订单操作按钮 -->
       <view class="action">
-        <view v-if="order.status === OrderStatus.CREATED" class="button" @tap="onOpenPopup(order)">
+        <view v-if="isPayableTrade(order)" class="button" @tap="onOpenPopup(order)">
           取消订单
         </view>
-        <view
-          v-if="order.status === OrderStatus.CREATED"
-          class="button primary"
-          @tap="onOrderPay(order.id)"
+        <view v-if="isPayableTrade(order)" class="button primary" @tap="onOrderPay(order.trade_id)"
           >去支付</view
         >
         <navigator
-          v-if="order.status !== OrderStatus.CREATED"
+          v-if="!order.is_trade"
           class="button secondary"
           :url="orderCreateUrl({ order_id: order.id })"
           hover-class="none"
         >
           再次购买
         </navigator>
-        <view
-          v-if="order.status === OrderStatus.PAID"
-          class="button"
-          @tap="onOpenRefundPopup(order)"
-        >
+        <view v-if="canRefundOrder(order)" class="button" @tap="onOpenRefundPopup(order)">
           申请退款
         </view>
         <view
-          v-if="order.status === OrderStatus.SHIPPED"
+          v-if="!order.is_trade && order.status === OrderInfoStatus.SHIPPED_OIS"
           class="button primary"
           @tap="onOrderConfirm(order.id)"
         >
           确认收货
         </view>
         <navigator
-          v-if="order.status === OrderStatus.WAIT_REVIEW"
+          v-if="!order.is_trade && order.status === OrderInfoStatus.WAIT_REVIEW_OIS"
           class="button primary"
           :url="buildOrderCommentWriteUrl(order)"
           hover-class="none"
@@ -449,7 +471,7 @@ const onRefresherRefresh = async () => {
   <!-- 取消订单弹窗 -->
   <uni-popup ref="popup" type="bottom" background-color="#fff">
     <view class="popup-root">
-      <view class="title">{{ title }}</view>
+      <view class="title">{{ dialogTitle }}</view>
       <view class="description">
         <view class="tips">{{ tips }}</view>
         <view class="cell" v-for="item in reasonList" :key="item.value" @tap="reason = item.value">
@@ -533,6 +555,49 @@ const onRefresherRefresh = async () => {
       padding-left: 10rpx;
       border-left: 1rpx solid #e3e3e3;
     }
+  }
+
+  .order-number {
+    min-width: 0;
+    margin-right: 20rpx;
+    overflow: hidden;
+    color: #666;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .store-group {
+    padding-top: 12rpx;
+    border-top: 1rpx solid #eee;
+  }
+
+  .store-info {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    height: 64rpx;
+    color: #444;
+  }
+
+  .store-logo {
+    flex-shrink: 0;
+    width: 36rpx;
+    height: 36rpx;
+    margin-right: 10rpx;
+    border-radius: 50%;
+  }
+
+  .store-name {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .store-arrow {
+    flex-shrink: 0;
+    margin-left: 8rpx;
+    color: #999;
   }
 
   .goods {
@@ -626,6 +691,7 @@ const onRefresherRefresh = async () => {
 
   .action {
     display: flex;
+    flex-wrap: wrap;
     justify-content: flex-end;
     align-items: center;
     padding-top: 20rpx;

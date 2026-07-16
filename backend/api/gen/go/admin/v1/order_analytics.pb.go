@@ -29,6 +29,8 @@ const (
 type SummaryOrderAnalyticsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	TimeType      v1.AnalyticsTimeType   `protobuf:"varint,1,opt,name=time_type,json=timeType,proto3,enum=common.v1.AnalyticsTimeType" json:"time_type,omitempty"` // 时间类型
+	TenantId      *int64                 `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`                            // 租户ID
+	TenantStoreId *int64                 `protobuf:"varint,3,opt,name=tenant_store_id,json=tenantStoreId,proto3,oneof" json:"tenant_store_id,omitempty"`           // 租户门店ID
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -70,10 +72,26 @@ func (x *SummaryOrderAnalyticsRequest) GetTimeType() v1.AnalyticsTimeType {
 	return v1.AnalyticsTimeType(0)
 }
 
+func (x *SummaryOrderAnalyticsRequest) GetTenantId() int64 {
+	if x != nil && x.TenantId != nil {
+		return *x.TenantId
+	}
+	return 0
+}
+
+func (x *SummaryOrderAnalyticsRequest) GetTenantStoreId() int64 {
+	if x != nil && x.TenantStoreId != nil {
+		return *x.TenantStoreId
+	}
+	return 0
+}
+
 // 订单趋势查询条件
 type TrendOrderAnalyticsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	TimeType      v1.AnalyticsTimeType   `protobuf:"varint,1,opt,name=time_type,json=timeType,proto3,enum=common.v1.AnalyticsTimeType" json:"time_type,omitempty"` // 时间类型
+	TenantId      *int64                 `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`                            // 租户ID
+	TenantStoreId *int64                 `protobuf:"varint,3,opt,name=tenant_store_id,json=tenantStoreId,proto3,oneof" json:"tenant_store_id,omitempty"`           // 租户门店ID
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -115,10 +133,26 @@ func (x *TrendOrderAnalyticsRequest) GetTimeType() v1.AnalyticsTimeType {
 	return v1.AnalyticsTimeType(0)
 }
 
+func (x *TrendOrderAnalyticsRequest) GetTenantId() int64 {
+	if x != nil && x.TenantId != nil {
+		return *x.TenantId
+	}
+	return 0
+}
+
+func (x *TrendOrderAnalyticsRequest) GetTenantStoreId() int64 {
+	if x != nil && x.TenantStoreId != nil {
+		return *x.TenantStoreId
+	}
+	return 0
+}
+
 // 订单状态分布查询条件
 type PieOrderAnalyticsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	TimeType      v1.AnalyticsTimeType   `protobuf:"varint,1,opt,name=time_type,json=timeType,proto3,enum=common.v1.AnalyticsTimeType" json:"time_type,omitempty"` // 时间类型
+	TenantId      *int64                 `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`                            // 租户ID
+	TenantStoreId *int64                 `protobuf:"varint,3,opt,name=tenant_store_id,json=tenantStoreId,proto3,oneof" json:"tenant_store_id,omitempty"`           // 租户门店ID
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -158,6 +192,20 @@ func (x *PieOrderAnalyticsRequest) GetTimeType() v1.AnalyticsTimeType {
 		return x.TimeType
 	}
 	return v1.AnalyticsTimeType(0)
+}
+
+func (x *PieOrderAnalyticsRequest) GetTenantId() int64 {
+	if x != nil && x.TenantId != nil {
+		return *x.TenantId
+	}
+	return 0
+}
+
+func (x *PieOrderAnalyticsRequest) GetTenantStoreId() int64 {
+	if x != nil && x.TenantStoreId != nil {
+		return *x.TenantStoreId
+	}
+	return 0
 }
 
 // 订单分析汇总响应
@@ -249,13 +297,28 @@ var File_admin_v1_order_analytics_proto protoreflect.FileDescriptor
 
 const file_admin_v1_order_analytics_proto_rawDesc = "" +
 	"\n" +
-	"\x1eadmin/v1/order_analytics.proto\x12\badmin.v1\x1a\x19common/v1/analytics.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"m\n" +
+	"\x1eadmin/v1/order_analytics.proto\x12\badmin.v1\x1a\x19common/v1/analytics.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\x84\x02\n" +
 	"\x1cSummaryOrderAnalyticsRequest\x12M\n" +
-	"\ttime_type\x18\x01 \x01(\x0e2\x1c.common.v1.AnalyticsTimeTypeB\x12\xbaG\x0f\x92\x02\f时间类型R\btimeType\"k\n" +
+	"\ttime_type\x18\x01 \x01(\x0e2\x1c.common.v1.AnalyticsTimeTypeB\x12\xbaG\x0f\x92\x02\f时间类型R\btimeType\x120\n" +
+	"\ttenant_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12A\n" +
+	"\x0ftenant_store_id\x18\x03 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDH\x01R\rtenantStoreId\x88\x01\x01B\f\n" +
+	"\n" +
+	"_tenant_idB\x12\n" +
+	"\x10_tenant_store_id\"\x82\x02\n" +
 	"\x1aTrendOrderAnalyticsRequest\x12M\n" +
-	"\ttime_type\x18\x01 \x01(\x0e2\x1c.common.v1.AnalyticsTimeTypeB\x12\xbaG\x0f\x92\x02\f时间类型R\btimeType\"i\n" +
+	"\ttime_type\x18\x01 \x01(\x0e2\x1c.common.v1.AnalyticsTimeTypeB\x12\xbaG\x0f\x92\x02\f时间类型R\btimeType\x120\n" +
+	"\ttenant_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12A\n" +
+	"\x0ftenant_store_id\x18\x03 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDH\x01R\rtenantStoreId\x88\x01\x01B\f\n" +
+	"\n" +
+	"_tenant_idB\x12\n" +
+	"\x10_tenant_store_id\"\x80\x02\n" +
 	"\x18PieOrderAnalyticsRequest\x12M\n" +
-	"\ttime_type\x18\x01 \x01(\x0e2\x1c.common.v1.AnalyticsTimeTypeB\x12\xbaG\x0f\x92\x02\f时间类型R\btimeType\"\x9e\x03\n" +
+	"\ttime_type\x18\x01 \x01(\x0e2\x1c.common.v1.AnalyticsTimeTypeB\x12\xbaG\x0f\x92\x02\f时间类型R\btimeType\x120\n" +
+	"\ttenant_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12A\n" +
+	"\x0ftenant_store_id\x18\x03 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDH\x01R\rtenantStoreId\x88\x01\x01B\f\n" +
+	"\n" +
+	"_tenant_idB\x12\n" +
+	"\x10_tenant_store_id\"\x9e\x03\n" +
 	"\x1dSummaryOrderAnalyticsResponse\x12=\n" +
 	"\x0fnew_order_count\x18\x01 \x01(\x03B\x15\xbaG\x12\x92\x02\x0f新增订单数R\rnewOrderCount\x12N\n" +
 	"\x15new_order_growth_rate\x18\x02 \x01(\x03B\x1b\xbaG\x18\x92\x02\x15新增订单增长率R\x12newOrderGrowthRate\x120\n" +
@@ -314,6 +377,9 @@ func file_admin_v1_order_analytics_proto_init() {
 	if File_admin_v1_order_analytics_proto != nil {
 		return
 	}
+	file_admin_v1_order_analytics_proto_msgTypes[0].OneofWrappers = []any{}
+	file_admin_v1_order_analytics_proto_msgTypes[1].OneofWrappers = []any{}
+	file_admin_v1_order_analytics_proto_msgTypes[2].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

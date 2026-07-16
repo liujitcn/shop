@@ -25,8 +25,10 @@ const OperationOrderInfoServiceConfirmOrderInfo = "/app.v1.OrderInfoService/Conf
 const OperationOrderInfoServiceCountOrderInfo = "/app.v1.OrderInfoService/CountOrderInfo"
 const OperationOrderInfoServiceCreateOrderInfo = "/app.v1.OrderInfoService/CreateOrderInfo"
 const OperationOrderInfoServiceDeleteOrderInfo = "/app.v1.OrderInfoService/DeleteOrderInfo"
+const OperationOrderInfoServiceDeleteOrderTrade = "/app.v1.OrderInfoService/DeleteOrderTrade"
 const OperationOrderInfoServiceGetOrderInfoById = "/app.v1.OrderInfoService/GetOrderInfoById"
 const OperationOrderInfoServiceGetOrderInfoIdByOrderNo = "/app.v1.OrderInfoService/GetOrderInfoIdByOrderNo"
+const OperationOrderInfoServiceGetOrderTradeById = "/app.v1.OrderInfoService/GetOrderTradeById"
 const OperationOrderInfoServicePageOrderInfo = "/app.v1.OrderInfoService/PageOrderInfo"
 const OperationOrderInfoServiceReceiveOrderInfo = "/app.v1.OrderInfoService/ReceiveOrderInfo"
 const OperationOrderInfoServiceRefundOrderInfo = "/app.v1.OrderInfoService/RefundOrderInfo"
@@ -45,10 +47,14 @@ type OrderInfoServiceHTTPServer interface {
 	CreateOrderInfo(context.Context, *CreateOrderInfoRequest) (*CreateOrderInfoResponse, error)
 	// DeleteOrderInfo 删除订单信息
 	DeleteOrderInfo(context.Context, *DeleteOrderInfoRequest) (*emptypb.Empty, error)
+	// DeleteOrderTrade 删除交易单
+	DeleteOrderTrade(context.Context, *DeleteOrderTradeRequest) (*emptypb.Empty, error)
 	// GetOrderInfoById 根据订单信息id查询订单信息
 	GetOrderInfoById(context.Context, *GetOrderInfoByIdRequest) (*OrderInfoResponse, error)
 	// GetOrderInfoIdByOrderNo 根据订单信息编号查询订单信息id
 	GetOrderInfoIdByOrderNo(context.Context, *GetOrderInfoIdByOrderNoRequest) (*GetOrderInfoIdByOrderNoResponse, error)
+	// GetOrderTradeById 根据交易单ID查询聚合订单详情
+	GetOrderTradeById(context.Context, *GetOrderTradeByIdRequest) (*OrderInfoResponse, error)
 	// PageOrderInfo 查询订单信息分页列表
 	PageOrderInfo(context.Context, *PageOrderInfoRequest) (*PageOrderInfoResponse, error)
 	// ReceiveOrderInfo 确认收货
@@ -68,9 +74,11 @@ func RegisterOrderInfoServiceHTTPServer(s *http.Server, srv OrderInfoServiceHTTP
 	r.Handle("GET", "/api/v1/app/order/info", _OrderInfoService_PageOrderInfo0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/app/order/info/no/{order_no}", _OrderInfoService_GetOrderInfoIdByOrderNo0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/app/order/info/{id}", _OrderInfoService_GetOrderInfoById0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/app/order/trade/{trade_id}", _OrderInfoService_GetOrderTradeById0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/app/order/info", _OrderInfoService_CreateOrderInfo0_HTTP_Handler(srv))
 	r.Handle("DELETE", "/api/v1/app/order/info/{id}", _OrderInfoService_DeleteOrderInfo0_HTTP_Handler(srv))
-	r.Handle("PUT", "/api/v1/app/order/info/{order_id}/cancellation", _OrderInfoService_CancelOrderInfo0_HTTP_Handler(srv))
+	r.Handle("DELETE", "/api/v1/app/order/trade/{trade_id}", _OrderInfoService_DeleteOrderTrade0_HTTP_Handler(srv))
+	r.Handle("PUT", "/api/v1/app/order/trade/{trade_id}/cancellation", _OrderInfoService_CancelOrderInfo0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/app/order/info/{order_id}/refund", _OrderInfoService_RefundOrderInfo0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/app/order/info/{order_id}/receipt", _OrderInfoService_ReceiveOrderInfo0_HTTP_Handler(srv))
 }
@@ -214,6 +222,28 @@ func _OrderInfoService_GetOrderInfoById0_HTTP_Handler(srv OrderInfoServiceHTTPSe
 	}
 }
 
+func _OrderInfoService_GetOrderTradeById0_HTTP_Handler(srv OrderInfoServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetOrderTradeByIdRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationOrderInfoServiceGetOrderTradeById)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetOrderTradeById(ctx, req.(*GetOrderTradeByIdRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*OrderInfoResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _OrderInfoService_CreateOrderInfo0_HTTP_Handler(srv OrderInfoServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in CreateOrderInfoRequest
@@ -245,6 +275,28 @@ func _OrderInfoService_DeleteOrderInfo0_HTTP_Handler(srv OrderInfoServiceHTTPSer
 		http.SetOperation(ctx, OperationOrderInfoServiceDeleteOrderInfo)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
 			return srv.DeleteOrderInfo(ctx, req.(*DeleteOrderInfoRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _OrderInfoService_DeleteOrderTrade0_HTTP_Handler(srv OrderInfoServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in DeleteOrderTradeRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationOrderInfoServiceDeleteOrderTrade)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.DeleteOrderTrade(ctx, req.(*DeleteOrderTradeRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -334,10 +386,14 @@ type OrderInfoServiceHTTPClient interface {
 	CreateOrderInfo(ctx context.Context, req *CreateOrderInfoRequest, opts ...http.CallOption) (rsp *CreateOrderInfoResponse, err error)
 	// DeleteOrderInfo 删除订单信息
 	DeleteOrderInfo(ctx context.Context, req *DeleteOrderInfoRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	// DeleteOrderTrade 删除交易单
+	DeleteOrderTrade(ctx context.Context, req *DeleteOrderTradeRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// GetOrderInfoById 根据订单信息id查询订单信息
 	GetOrderInfoById(ctx context.Context, req *GetOrderInfoByIdRequest, opts ...http.CallOption) (rsp *OrderInfoResponse, err error)
 	// GetOrderInfoIdByOrderNo 根据订单信息编号查询订单信息id
 	GetOrderInfoIdByOrderNo(ctx context.Context, req *GetOrderInfoIdByOrderNoRequest, opts ...http.CallOption) (rsp *GetOrderInfoIdByOrderNoResponse, err error)
+	// GetOrderTradeById 根据交易单ID查询聚合订单详情
+	GetOrderTradeById(ctx context.Context, req *GetOrderTradeByIdRequest, opts ...http.CallOption) (rsp *OrderInfoResponse, err error)
 	// PageOrderInfo 查询订单信息分页列表
 	PageOrderInfo(ctx context.Context, req *PageOrderInfoRequest, opts ...http.CallOption) (rsp *PageOrderInfoResponse, err error)
 	// ReceiveOrderInfo 确认收货
@@ -377,7 +433,7 @@ func (c *OrderInfoServiceHTTPClientImpl) BuyNowOrderInfo(ctx context.Context, in
 // CancelOrderInfo 取消订单信息
 func (c *OrderInfoServiceHTTPClientImpl) CancelOrderInfo(ctx context.Context, in *CancelOrderInfoRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
-	pattern := "/api/v1/app/order/info/{order_id}/cancellation"
+	pattern := "/api/v1/app/order/trade/{trade_id}/cancellation"
 	path := http.BuildPath(pattern, in)
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
@@ -462,6 +518,23 @@ func (c *OrderInfoServiceHTTPClientImpl) DeleteOrderInfo(ctx context.Context, in
 	return &out, nil
 }
 
+// DeleteOrderTrade 删除交易单
+func (c *OrderInfoServiceHTTPClientImpl) DeleteOrderTrade(ctx context.Context, in *DeleteOrderTradeRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/api/v1/app/order/trade/{trade_id}"
+	path := http.BuildPath(pattern, in, http.WithQueryParams())
+	opts = append([]http.CallOption{
+		http.Accept("application/protojson"),
+		http.Operation(OperationOrderInfoServiceDeleteOrderTrade),
+		http.PathTemplate(pattern),
+	}, opts...)
+	err := c.cc.Invoke(ctx, "DELETE", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
 // GetOrderInfoById 根据订单信息id查询订单信息
 func (c *OrderInfoServiceHTTPClientImpl) GetOrderInfoById(ctx context.Context, in *GetOrderInfoByIdRequest, opts ...http.CallOption) (*OrderInfoResponse, error) {
 	var out OrderInfoResponse
@@ -487,6 +560,23 @@ func (c *OrderInfoServiceHTTPClientImpl) GetOrderInfoIdByOrderNo(ctx context.Con
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
 		http.Operation(OperationOrderInfoServiceGetOrderInfoIdByOrderNo),
+		http.PathTemplate(pattern),
+	}, opts...)
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// GetOrderTradeById 根据交易单ID查询聚合订单详情
+func (c *OrderInfoServiceHTTPClientImpl) GetOrderTradeById(ctx context.Context, in *GetOrderTradeByIdRequest, opts ...http.CallOption) (*OrderInfoResponse, error) {
+	var out OrderInfoResponse
+	pattern := "/api/v1/app/order/trade/{trade_id}"
+	path := http.BuildPath(pattern, in, http.WithQueryParams())
+	opts = append([]http.CallOption{
+		http.Accept("application/protojson"),
+		http.Operation(OperationOrderInfoServiceGetOrderTradeById),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)

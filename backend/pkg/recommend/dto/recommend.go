@@ -106,6 +106,7 @@ func (r *RecommendContext) MarshalJSON() ([]byte, error) {
 	type recommendContextJSON struct {
 		GoodsID         int64         `json:"goods_id"`
 		OrderID         int64         `json:"order_id"`
+		TradeID         int64         `json:"trade_id"`
 		ContextGoodsIDs []int64       `json:"context_goods_ids,omitempty"`
 		Strategy        string        `json:"strategy,omitempty"`
 		ProviderName    string        `json:"provider_name,omitempty"`
@@ -119,6 +120,7 @@ func (r *RecommendContext) MarshalJSON() ([]byte, error) {
 	return json.Marshal(&recommendContextJSON{
 		GoodsID:         r.GoodsID,
 		OrderID:         r.OrderID,
+		TradeID:         r.TradeID,
 		ContextGoodsIDs: append([]int64(nil), r.ContextGoodsIDs...),
 		Strategy:        FormatRecommendStrategyCode(r.Strategy),
 		ProviderName:    r.ProviderName,
@@ -131,6 +133,7 @@ func (r *RecommendContext) UnmarshalJSON(data []byte) error {
 	type recommendContextJSON struct {
 		GoodsID         int64           `json:"goods_id"`
 		OrderID         int64           `json:"order_id"`
+		TradeID         int64           `json:"trade_id"`
 		ContextGoodsIDs []int64         `json:"context_goods_ids,omitempty"`
 		Strategy        json.RawMessage `json:"strategy,omitempty"`
 		ProviderName    string          `json:"provider_name,omitempty"`
@@ -145,6 +148,7 @@ func (r *RecommendContext) UnmarshalJSON(data []byte) error {
 
 	r.GoodsID = payload.GoodsID
 	r.OrderID = payload.OrderID
+	r.TradeID = payload.TradeID
 	r.ContextGoodsIDs = append([]int64(nil), payload.ContextGoodsIDs...)
 	r.Strategy = ParseRecommendStrategyRaw(payload.Strategy)
 	r.ProviderName = payload.ProviderName

@@ -152,6 +152,7 @@ type RecommendGoodsRequest struct {
 	OrderId       int64                  `protobuf:"varint,2,opt,name=order_id,json=orderId,proto3" json:"order_id,omitempty"`            // 订单ID
 	GoodsId       int64                  `protobuf:"varint,3,opt,name=goods_id,json=goodsId,proto3" json:"goods_id,omitempty"`            // 商品ID
 	RequestId     int64                  `protobuf:"varint,4,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`      // 推荐请求ID
+	TradeId       int64                  `protobuf:"varint,5,opt,name=trade_id,json=tradeId,proto3" json:"trade_id,omitempty"`            // 交易单ID
 	PageNum       int64                  `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`          // 当前页码
 	PageSize      int64                  `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`       // 每页数量
 	unknownFields protoimpl.UnknownFields
@@ -212,6 +213,13 @@ func (x *RecommendGoodsRequest) GetGoodsId() int64 {
 func (x *RecommendGoodsRequest) GetRequestId() int64 {
 	if x != nil {
 		return x.RequestId
+	}
+	return 0
+}
+
+func (x *RecommendGoodsRequest) GetTradeId() int64 {
+	if x != nil {
+		return x.TradeId
 	}
 	return 0
 }
@@ -535,13 +543,14 @@ const file_app_v1_recommend_proto_rawDesc = "" +
 	"\x1eRecommendAnonymousActorRequest\"`\n" +
 	"\x1fRecommendAnonymousActorResponse\x12=\n" +
 	"\fanonymous_id\x18\x01 \x01(\x03B\x1a\xbaG\x17\x92\x02\x14匿名推荐主体IDR\vanonymousId\"$\n" +
-	"\"BindRecommendAnonymousActorRequest\"\xdf\x02\n" +
+	"\"BindRecommendAnonymousActorRequest\"\x8d\x03\n" +
 	"\x15RecommendGoodsRequest\x12C\n" +
 	"\x05scene\x18\x01 \x01(\x0e2\x19.common.v1.RecommendSceneB\x12\xbaG\x0f\x92\x02\f推荐场景R\x05scene\x12)\n" +
 	"\border_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单IDR\aorderId\x12)\n" +
 	"\bgoods_id\x18\x03 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\agoodsId\x123\n" +
 	"\n" +
-	"request_id\x18\x04 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e推荐请求IDR\trequestId\x129\n" +
+	"request_id\x18\x04 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e推荐请求IDR\trequestId\x12,\n" +
+	"\btrade_id\x18\x05 \x01(\x03B\x11\xbaG\x0e\x92\x02\v交易单IDR\atradeId\x129\n" +
 	"\bpage_num\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12;\n" +
 	"\tpage_size\x18f \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\f每页数量R\bpageSize\"\xbf\x01\n" +
 	"\x16RecommendGoodsResponse\x12L\n" +

@@ -15,7 +15,7 @@ export class PayServiceImpl implements PayService {
   /** 小程序支付 */
   JsapiPay(request: JsapiPayRequest): Promise<JsapiPayResponse> {
     return http<JsapiPayResponse>({
-      url: `${PAY_URL}/${request.order_id}/jsapi`,
+      url: `${PAY_URL}/${request.trade_id}/jsapi`,
       method: 'POST',
       authMode: 'required',
       data: request,
@@ -24,7 +24,7 @@ export class PayServiceImpl implements PayService {
   /** H5 支付 */
   H5Pay(request: H5PayRequest): Promise<H5PayResponse> {
     return http<H5PayResponse>({
-      url: `${PAY_URL}/${request.order_id}/h5`,
+      url: `${PAY_URL}/${request.trade_id}/h5`,
       method: 'POST',
       authMode: 'required',
       data: request,

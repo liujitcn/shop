@@ -29,16 +29,18 @@ const (
 // 订单分页查询条件
 type PageOrderInfosRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	TenantId      *int64                 `protobuf:"varint,1,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`                                      // 租户ID
-	TenantStoreId *int64                 `protobuf:"varint,2,opt,name=tenant_store_id,json=tenantStoreId,proto3,oneof" json:"tenant_store_id,omitempty"`                     // 租户门店ID
-	OrderNo       string                 `protobuf:"bytes,3,opt,name=order_no,json=orderNo,proto3" json:"order_no,omitempty"`                                                // 订单编号
-	UserId        int64                  `protobuf:"varint,4,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`                                                  // 用户id
-	Status        *v1.OrderStatus        `protobuf:"varint,5,opt,name=status,proto3,enum=common.v1.OrderStatus,oneof" json:"status,omitempty"`                               // 订单状态
-	PayType       *v1.OrderPayType       `protobuf:"varint,8,opt,name=pay_type,json=payType,proto3,enum=common.v1.OrderPayType,oneof" json:"pay_type,omitempty"`             // 支付方式：枚举【OrderPayType】
-	PayChannel    *v1.OrderPayChannel    `protobuf:"varint,9,opt,name=pay_channel,json=payChannel,proto3,enum=common.v1.OrderPayChannel,oneof" json:"pay_channel,omitempty"` // 支付渠道：枚举【OrderPayChannel】
-	CreatedAt     []string               `protobuf:"bytes,200,rep,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`                                        // 创建时间
-	PageNum       int64                  `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`                                             // 当前页码
-	PageSize      int64                  `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`                                          // 每一页的行数
+	TenantId      *int64                 `protobuf:"varint,1,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`                                               // 租户ID
+	TenantStoreId *int64                 `protobuf:"varint,2,opt,name=tenant_store_id,json=tenantStoreId,proto3,oneof" json:"tenant_store_id,omitempty"`                              // 租户门店ID
+	OrderNo       string                 `protobuf:"bytes,3,opt,name=order_no,json=orderNo,proto3" json:"order_no,omitempty"`                                                         // 订单编号
+	UserId        int64                  `protobuf:"varint,4,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`                                                           // 用户id
+	Status        *v1.OrderInfoStatus    `protobuf:"varint,5,opt,name=status,proto3,enum=common.v1.OrderInfoStatus,oneof" json:"status,omitempty"`                                    // 订单履约状态
+	PayType       *v1.OrderPayType       `protobuf:"varint,8,opt,name=pay_type,json=payType,proto3,enum=common.v1.OrderPayType,oneof" json:"pay_type,omitempty"`                      // 支付方式：枚举【OrderPayType】
+	PayChannel    *v1.OrderPayChannel    `protobuf:"varint,9,opt,name=pay_channel,json=payChannel,proto3,enum=common.v1.OrderPayChannel,oneof" json:"pay_channel,omitempty"`          // 支付渠道：枚举【OrderPayChannel】
+	TradeStatus   *v1.OrderTradeStatus   `protobuf:"varint,10,opt,name=trade_status,json=tradeStatus,proto3,enum=common.v1.OrderTradeStatus,oneof" json:"trade_status,omitempty"`     // 交易支付状态
+	RefundStatus  *v1.OrderRefundStatus  `protobuf:"varint,11,opt,name=refund_status,json=refundStatus,proto3,enum=common.v1.OrderRefundStatus,oneof" json:"refund_status,omitempty"` // 订单退款状态
+	CreatedAt     []string               `protobuf:"bytes,200,rep,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`                                                 // 创建时间
+	PageNum       int64                  `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`                                                      // 当前页码
+	PageSize      int64                  `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`                                                   // 每一页的行数
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -101,11 +103,11 @@ func (x *PageOrderInfosRequest) GetUserId() int64 {
 	return 0
 }
 
-func (x *PageOrderInfosRequest) GetStatus() v1.OrderStatus {
+func (x *PageOrderInfosRequest) GetStatus() v1.OrderInfoStatus {
 	if x != nil && x.Status != nil {
 		return *x.Status
 	}
-	return v1.OrderStatus(0)
+	return v1.OrderInfoStatus(0)
 }
 
 func (x *PageOrderInfosRequest) GetPayType() v1.OrderPayType {
@@ -120,6 +122,20 @@ func (x *PageOrderInfosRequest) GetPayChannel() v1.OrderPayChannel {
 		return *x.PayChannel
 	}
 	return v1.OrderPayChannel(0)
+}
+
+func (x *PageOrderInfosRequest) GetTradeStatus() v1.OrderTradeStatus {
+	if x != nil && x.TradeStatus != nil {
+		return *x.TradeStatus
+	}
+	return v1.OrderTradeStatus(0)
+}
+
+func (x *PageOrderInfosRequest) GetRefundStatus() v1.OrderRefundStatus {
+	if x != nil && x.RefundStatus != nil {
+		return *x.RefundStatus
+	}
+	return v1.OrderRefundStatus(0)
 }
 
 func (x *PageOrderInfosRequest) GetCreatedAt() []string {
@@ -611,9 +627,9 @@ func (x *OrderInfoShipmentForm) GetLogistics() *OrderLogistics {
 type ShipOrderInfoRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	OrderId       int64                  `protobuf:"varint,1,opt,name=order_id,json=orderId,proto3" json:"order_id,omitempty"` // 订单id
-	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                       // 物流公司名
-	No            string                 `protobuf:"bytes,4,opt,name=no,proto3" json:"no,omitempty"`                           // 物流单号
-	Contact       string                 `protobuf:"bytes,5,opt,name=contact,proto3" json:"contact,omitempty"`                 // 联系方式
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`                       // 物流公司名
+	No            string                 `protobuf:"bytes,3,opt,name=no,proto3" json:"no,omitempty"`                           // 物流单号
+	Contact       string                 `protobuf:"bytes,4,opt,name=contact,proto3" json:"contact,omitempty"`                 // 联系方式
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -680,22 +696,26 @@ func (x *ShipOrderInfoRequest) GetContact() string {
 type OrderInfo struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                           // 订单ID
-	TenantId      int64                  `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`                                               // 租户ID
-	TenantStoreId int64                  `protobuf:"varint,3,opt,name=tenant_store_id,json=tenantStoreId,proto3" json:"tenant_store_id,omitempty"`                              // 租户门店ID
-	OrderNo       string                 `protobuf:"bytes,4,opt,name=order_no,json=orderNo,proto3" json:"order_no,omitempty"`                                                   // 订单编号
-	UserId        int64                  `protobuf:"varint,5,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`                                                     // 用户ID
-	PayMoney      int64                  `protobuf:"varint,6,opt,name=pay_money,json=payMoney,proto3" json:"pay_money,omitempty"`                                               // 实际支付金额（单位：分）
-	TotalMoney    int64                  `protobuf:"varint,7,opt,name=total_money,json=totalMoney,proto3" json:"total_money,omitempty"`                                         // 总价（单位：分）
-	PostFee       int64                  `protobuf:"varint,8,opt,name=post_fee,json=postFee,proto3" json:"post_fee,omitempty"`                                                  // 优惠金额（单位：分）
-	GoodsNum      int64                  `protobuf:"varint,9,opt,name=goods_num,json=goodsNum,proto3" json:"goods_num,omitempty"`                                               // 商品总数
-	PayType       v1.OrderPayType        `protobuf:"varint,10,opt,name=pay_type,json=payType,proto3,enum=common.v1.OrderPayType" json:"pay_type,omitempty"`                     // 支付方式：枚举【OrderPayType】
-	PayChannel    v1.OrderPayChannel     `protobuf:"varint,11,opt,name=pay_channel,json=payChannel,proto3,enum=common.v1.OrderPayChannel" json:"pay_channel,omitempty"`         // 支付渠道：枚举【OrderPayChannel】
-	DeliveryTime  v1.OrderDeliveryTime   `protobuf:"varint,12,opt,name=delivery_time,json=deliveryTime,proto3,enum=common.v1.OrderDeliveryTime" json:"delivery_time,omitempty"` // 配送时间：枚举【OrderDeliveryTime】
-	Status        v1.OrderStatus         `protobuf:"varint,13,opt,name=status,proto3,enum=common.v1.OrderStatus" json:"status,omitempty"`                                       // 状态：枚举【OrderStatus】
+	TradeId       int64                  `protobuf:"varint,2,opt,name=trade_id,json=tradeId,proto3" json:"trade_id,omitempty"`                                                  // 交易单ID
+	TenantId      int64                  `protobuf:"varint,3,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`                                               // 租户ID
+	TenantStoreId int64                  `protobuf:"varint,4,opt,name=tenant_store_id,json=tenantStoreId,proto3" json:"tenant_store_id,omitempty"`                              // 租户门店ID
+	OrderNo       string                 `protobuf:"bytes,5,opt,name=order_no,json=orderNo,proto3" json:"order_no,omitempty"`                                                   // 订单编号
+	UserId        int64                  `protobuf:"varint,6,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`                                                     // 用户ID
+	PayMoney      int64                  `protobuf:"varint,7,opt,name=pay_money,json=payMoney,proto3" json:"pay_money,omitempty"`                                               // 实际支付金额（单位：分）
+	TotalMoney    int64                  `protobuf:"varint,8,opt,name=total_money,json=totalMoney,proto3" json:"total_money,omitempty"`                                         // 总价（单位：分）
+	PostFee       int64                  `protobuf:"varint,9,opt,name=post_fee,json=postFee,proto3" json:"post_fee,omitempty"`                                                  // 优惠金额（单位：分）
+	GoodsNum      int64                  `protobuf:"varint,10,opt,name=goods_num,json=goodsNum,proto3" json:"goods_num,omitempty"`                                              // 商品总数
+	DeliveryTime  v1.OrderDeliveryTime   `protobuf:"varint,11,opt,name=delivery_time,json=deliveryTime,proto3,enum=common.v1.OrderDeliveryTime" json:"delivery_time,omitempty"` // 配送时间：枚举【OrderDeliveryTime】
+	Status        v1.OrderInfoStatus     `protobuf:"varint,12,opt,name=status,proto3,enum=common.v1.OrderInfoStatus" json:"status,omitempty"`                                   // 订单履约状态：枚举【OrderInfoStatus】
+	RefundStatus  v1.OrderRefundStatus   `protobuf:"varint,13,opt,name=refund_status,json=refundStatus,proto3,enum=common.v1.OrderRefundStatus" json:"refund_status,omitempty"` // 订单退款状态：枚举【OrderRefundStatus】
 	Remark        string                 `protobuf:"bytes,14,opt,name=remark,proto3" json:"remark,omitempty"`                                                                   // 订单备注
 	CreatedAt     string                 `protobuf:"bytes,15,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`                                            // 创建时间
 	UpdatedAt     string                 `protobuf:"bytes,16,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`                                            // 更新时间
-	NickName      string                 `protobuf:"bytes,52,opt,name=nick_name,json=nickName,proto3" json:"nick_name,omitempty"`                                               // 用户名
+	PayType       v1.OrderPayType        `protobuf:"varint,17,opt,name=pay_type,json=payType,proto3,enum=common.v1.OrderPayType" json:"pay_type,omitempty"`                     // 支付方式：枚举【OrderPayType】
+	PayChannel    v1.OrderPayChannel     `protobuf:"varint,18,opt,name=pay_channel,json=payChannel,proto3,enum=common.v1.OrderPayChannel" json:"pay_channel,omitempty"`         // 支付渠道：枚举【OrderPayChannel】
+	TradeNo       string                 `protobuf:"bytes,19,opt,name=trade_no,json=tradeNo,proto3" json:"trade_no,omitempty"`                                                  // 交易单编号
+	TradeStatus   v1.OrderTradeStatus    `protobuf:"varint,20,opt,name=trade_status,json=tradeStatus,proto3,enum=common.v1.OrderTradeStatus" json:"trade_status,omitempty"`     // 交易支付状态：枚举【OrderTradeStatus】
+	NickName      string                 `protobuf:"bytes,21,opt,name=nick_name,json=nickName,proto3" json:"nick_name,omitempty"`                                               // 用户名
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -733,6 +753,13 @@ func (*OrderInfo) Descriptor() ([]byte, []int) {
 func (x *OrderInfo) GetId() int64 {
 	if x != nil {
 		return x.Id
+	}
+	return 0
+}
+
+func (x *OrderInfo) GetTradeId() int64 {
+	if x != nil {
+		return x.TradeId
 	}
 	return 0
 }
@@ -793,20 +820,6 @@ func (x *OrderInfo) GetGoodsNum() int64 {
 	return 0
 }
 
-func (x *OrderInfo) GetPayType() v1.OrderPayType {
-	if x != nil {
-		return x.PayType
-	}
-	return v1.OrderPayType(0)
-}
-
-func (x *OrderInfo) GetPayChannel() v1.OrderPayChannel {
-	if x != nil {
-		return x.PayChannel
-	}
-	return v1.OrderPayChannel(0)
-}
-
 func (x *OrderInfo) GetDeliveryTime() v1.OrderDeliveryTime {
 	if x != nil {
 		return x.DeliveryTime
@@ -814,11 +827,18 @@ func (x *OrderInfo) GetDeliveryTime() v1.OrderDeliveryTime {
 	return v1.OrderDeliveryTime(0)
 }
 
-func (x *OrderInfo) GetStatus() v1.OrderStatus {
+func (x *OrderInfo) GetStatus() v1.OrderInfoStatus {
 	if x != nil {
 		return x.Status
 	}
-	return v1.OrderStatus(0)
+	return v1.OrderInfoStatus(0)
+}
+
+func (x *OrderInfo) GetRefundStatus() v1.OrderRefundStatus {
+	if x != nil {
+		return x.RefundStatus
+	}
+	return v1.OrderRefundStatus(0)
 }
 
 func (x *OrderInfo) GetRemark() string {
@@ -842,6 +862,34 @@ func (x *OrderInfo) GetUpdatedAt() string {
 	return ""
 }
 
+func (x *OrderInfo) GetPayType() v1.OrderPayType {
+	if x != nil {
+		return x.PayType
+	}
+	return v1.OrderPayType(0)
+}
+
+func (x *OrderInfo) GetPayChannel() v1.OrderPayChannel {
+	if x != nil {
+		return x.PayChannel
+	}
+	return v1.OrderPayChannel(0)
+}
+
+func (x *OrderInfo) GetTradeNo() string {
+	if x != nil {
+		return x.TradeNo
+	}
+	return ""
+}
+
+func (x *OrderInfo) GetTradeStatus() v1.OrderTradeStatus {
+	if x != nil {
+		return x.TradeStatus
+	}
+	return v1.OrderTradeStatus(0)
+}
+
 func (x *OrderInfo) GetNickName() string {
 	if x != nil {
 		return x.NickName
@@ -852,10 +900,10 @@ func (x *OrderInfo) GetNickName() string {
 // 订单地址
 type OrderAddress struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Receiver      string                 `protobuf:"bytes,3,opt,name=receiver,proto3" json:"receiver,omitempty"` // 联系人
-	Contact       string                 `protobuf:"bytes,4,opt,name=contact,proto3" json:"contact,omitempty"`   // 联系方式
-	Address       []string               `protobuf:"bytes,5,rep,name=address,proto3" json:"address,omitempty"`   // 省市区（JSON存储）
-	Detail        string                 `protobuf:"bytes,6,opt,name=detail,proto3" json:"detail,omitempty"`     // 详细地址
+	Receiver      string                 `protobuf:"bytes,1,opt,name=receiver,proto3" json:"receiver,omitempty"` // 联系人
+	Contact       string                 `protobuf:"bytes,2,opt,name=contact,proto3" json:"contact,omitempty"`   // 联系方式
+	Address       []string               `protobuf:"bytes,3,rep,name=address,proto3" json:"address,omitempty"`   // 省市区（JSON存储）
+	Detail        string                 `protobuf:"bytes,4,opt,name=detail,proto3" json:"detail,omitempty"`     // 详细地址
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -921,8 +969,8 @@ func (x *OrderAddress) GetDetail() string {
 // 订单取消记录
 type OrderCancel struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Reason        v1.OrderCancelReason   `protobuf:"varint,3,opt,name=reason,proto3,enum=common.v1.OrderCancelReason" json:"reason,omitempty"` // 取消原因：枚举【OrderCancelReason】
-	CreatedAt     string                 `protobuf:"bytes,4,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`            // 创建时间
+	Reason        v1.OrderCancelReason   `protobuf:"varint,1,opt,name=reason,proto3,enum=common.v1.OrderCancelReason" json:"reason,omitempty"` // 取消原因：枚举【OrderCancelReason】
+	CreatedAt     string                 `protobuf:"bytes,2,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`            // 创建时间
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -974,16 +1022,16 @@ func (x *OrderCancel) GetCreatedAt() string {
 // 订单商品
 type OrderGoods struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	GoodsId       int64                  `protobuf:"varint,3,opt,name=goods_id,json=goodsId,proto3" json:"goods_id,omitempty"`                      // 商品ID
-	SkuCode       string                 `protobuf:"bytes,4,opt,name=sku_code,json=skuCode,proto3" json:"sku_code,omitempty"`                       // 规格编号
-	SpecItem      []string               `protobuf:"bytes,5,rep,name=spec_item,json=specItem,proto3" json:"spec_item,omitempty"`                    // SKU规格组成（需与goods_spec顺序对应，JSON存储）
-	Picture       string                 `protobuf:"bytes,6,opt,name=picture,proto3" json:"picture,omitempty"`                                      // 商品图片
-	Name          string                 `protobuf:"bytes,7,opt,name=name,proto3" json:"name,omitempty"`                                            // 商品名称
-	Num           int64                  `protobuf:"varint,8,opt,name=num,proto3" json:"num,omitempty"`                                             // 数量
-	Price         int64                  `protobuf:"varint,9,opt,name=price,proto3" json:"price,omitempty"`                                         // 当前价格（单位：分）
-	PayPrice      int64                  `protobuf:"varint,10,opt,name=pay_price,json=payPrice,proto3" json:"pay_price,omitempty"`                  // 支付价格（单位：分）
-	TotalPrice    int64                  `protobuf:"varint,11,opt,name=total_price,json=totalPrice,proto3" json:"total_price,omitempty"`            // 当前金额汇总
-	TotalPayPrice int64                  `protobuf:"varint,12,opt,name=total_pay_price,json=totalPayPrice,proto3" json:"total_pay_price,omitempty"` // 支付金额汇总
+	GoodsId       int64                  `protobuf:"varint,1,opt,name=goods_id,json=goodsId,proto3" json:"goods_id,omitempty"`                      // 商品ID
+	SkuCode       string                 `protobuf:"bytes,2,opt,name=sku_code,json=skuCode,proto3" json:"sku_code,omitempty"`                       // 规格编号
+	SpecItem      []string               `protobuf:"bytes,3,rep,name=spec_item,json=specItem,proto3" json:"spec_item,omitempty"`                    // SKU规格组成（需与goods_spec顺序对应，JSON存储）
+	Picture       string                 `protobuf:"bytes,4,opt,name=picture,proto3" json:"picture,omitempty"`                                      // 商品图片
+	Name          string                 `protobuf:"bytes,5,opt,name=name,proto3" json:"name,omitempty"`                                            // 商品名称
+	Num           int64                  `protobuf:"varint,6,opt,name=num,proto3" json:"num,omitempty"`                                             // 数量
+	Price         int64                  `protobuf:"varint,7,opt,name=price,proto3" json:"price,omitempty"`                                         // 当前价格（单位：分）
+	PayPrice      int64                  `protobuf:"varint,8,opt,name=pay_price,json=payPrice,proto3" json:"pay_price,omitempty"`                   // 支付价格（单位：分）
+	TotalPrice    int64                  `protobuf:"varint,9,opt,name=total_price,json=totalPrice,proto3" json:"total_price,omitempty"`             // 当前金额汇总
+	TotalPayPrice int64                  `protobuf:"varint,10,opt,name=total_pay_price,json=totalPayPrice,proto3" json:"total_pay_price,omitempty"` // 支付金额汇总
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1091,11 +1139,11 @@ func (x *OrderGoods) GetTotalPayPrice() int64 {
 // 订单物流
 type OrderLogistics struct {
 	state         protoimpl.MessageState   `protogen:"open.v1"`
-	Name          string                   `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                            // 物流公司名
-	No            string                   `protobuf:"bytes,4,opt,name=no,proto3" json:"no,omitempty"`                                // 物流单号
-	Contact       string                   `protobuf:"bytes,5,opt,name=contact,proto3" json:"contact,omitempty"`                      // 联系方式
-	Detail        []*OrderLogistics_Detail `protobuf:"bytes,6,rep,name=detail,proto3" json:"detail,omitempty"`                        // 物流详情（JSON存储）
-	CreatedAt     string                   `protobuf:"bytes,7,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"` // 创建时间
+	Name          string                   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`                            // 物流公司名
+	No            string                   `protobuf:"bytes,2,opt,name=no,proto3" json:"no,omitempty"`                                // 物流单号
+	Contact       string                   `protobuf:"bytes,3,opt,name=contact,proto3" json:"contact,omitempty"`                      // 联系方式
+	Detail        []*OrderLogistics_Detail `protobuf:"bytes,4,rep,name=detail,proto3" json:"detail,omitempty"`                        // 物流详情（JSON存储）
+	CreatedAt     string                   `protobuf:"bytes,5,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"` // 创建时间
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1168,17 +1216,18 @@ func (x *OrderLogistics) GetCreatedAt() string {
 // 订单支付
 type OrderPayment struct {
 	state          protoimpl.MessageState  `protogen:"open.v1"`
-	OrderNo        string                  `protobuf:"bytes,3,opt,name=order_no,json=orderNo,proto3" json:"order_no,omitempty"`                        // 订单编号
-	ThirdOrderNo   string                  `protobuf:"bytes,4,opt,name=third_order_no,json=thirdOrderNo,proto3" json:"third_order_no,omitempty"`       // 三方订单编号
-	TradeType      string                  `protobuf:"bytes,5,opt,name=trade_type,json=tradeType,proto3" json:"trade_type,omitempty"`                  // 交易类型
-	TradeState     string                  `protobuf:"bytes,6,opt,name=trade_state,json=tradeState,proto3" json:"trade_state,omitempty"`               // 交易状态
-	TradeStateDesc string                  `protobuf:"bytes,7,opt,name=trade_state_desc,json=tradeStateDesc,proto3" json:"trade_state_desc,omitempty"` // 交易状态描述
-	BankType       string                  `protobuf:"bytes,8,opt,name=bank_type,json=bankType,proto3" json:"bank_type,omitempty"`                     // 银行类型
-	SuccessTime    string                  `protobuf:"bytes,9,opt,name=success_time,json=successTime,proto3" json:"success_time,omitempty"`            // 支付完成时间
-	Payer          *OrderPayment_Payer     `protobuf:"bytes,10,opt,name=payer,proto3" json:"payer,omitempty"`                                          // 支付者信息
-	Amount         *OrderPayment_Amount    `protobuf:"bytes,11,opt,name=amount,proto3" json:"amount,omitempty"`                                        // 订单金额
-	SceneInfo      *OrderPayment_SceneInfo `protobuf:"bytes,12,opt,name=scene_info,json=sceneInfo,proto3" json:"scene_info,omitempty"`                 // 场景信息
-	Status         v1.OrderBillStatus      `protobuf:"varint,13,opt,name=status,proto3,enum=common.v1.OrderBillStatus" json:"status,omitempty"`        // 对账状态：枚举【OrderBillStatus】
+	TradeId        int64                   `protobuf:"varint,1,opt,name=trade_id,json=tradeId,proto3" json:"trade_id,omitempty"`                       // 交易单ID
+	TradeNo        string                  `protobuf:"bytes,2,opt,name=trade_no,json=tradeNo,proto3" json:"trade_no,omitempty"`                        // 交易单编号
+	ThirdOrderNo   string                  `protobuf:"bytes,3,opt,name=third_order_no,json=thirdOrderNo,proto3" json:"third_order_no,omitempty"`       // 三方订单编号
+	TradeType      string                  `protobuf:"bytes,4,opt,name=trade_type,json=tradeType,proto3" json:"trade_type,omitempty"`                  // 交易类型
+	TradeState     string                  `protobuf:"bytes,5,opt,name=trade_state,json=tradeState,proto3" json:"trade_state,omitempty"`               // 交易状态
+	TradeStateDesc string                  `protobuf:"bytes,6,opt,name=trade_state_desc,json=tradeStateDesc,proto3" json:"trade_state_desc,omitempty"` // 交易状态描述
+	BankType       string                  `protobuf:"bytes,7,opt,name=bank_type,json=bankType,proto3" json:"bank_type,omitempty"`                     // 银行类型
+	SuccessTime    string                  `protobuf:"bytes,8,opt,name=success_time,json=successTime,proto3" json:"success_time,omitempty"`            // 支付完成时间
+	Payer          *OrderPayment_Payer     `protobuf:"bytes,9,opt,name=payer,proto3" json:"payer,omitempty"`                                           // 支付者信息
+	Amount         *OrderPayment_Amount    `protobuf:"bytes,10,opt,name=amount,proto3" json:"amount,omitempty"`                                        // 订单金额
+	SceneInfo      *OrderPayment_SceneInfo `protobuf:"bytes,11,opt,name=scene_info,json=sceneInfo,proto3" json:"scene_info,omitempty"`                 // 场景信息
+	Status         v1.OrderBillStatus      `protobuf:"varint,12,opt,name=status,proto3,enum=common.v1.OrderBillStatus" json:"status,omitempty"`        // 对账状态：枚举【OrderBillStatus】
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -1213,9 +1262,16 @@ func (*OrderPayment) Descriptor() ([]byte, []int) {
 	return file_admin_v1_order_info_proto_rawDescGZIP(), []int{15}
 }
 
-func (x *OrderPayment) GetOrderNo() string {
+func (x *OrderPayment) GetTradeId() int64 {
 	if x != nil {
-		return x.OrderNo
+		return x.TradeId
+	}
+	return 0
+}
+
+func (x *OrderPayment) GetTradeNo() string {
+	if x != nil {
+		return x.TradeNo
 	}
 	return ""
 }
@@ -1293,19 +1349,21 @@ func (x *OrderPayment) GetStatus() v1.OrderBillStatus {
 // 订单退款
 type OrderRefund struct {
 	state               protoimpl.MessageState `protogen:"open.v1"`
-	OrderNo             string                 `protobuf:"bytes,1,opt,name=order_no,json=orderNo,proto3" json:"order_no,omitempty"`                                       // 支付订单编号
-	ThirdOrderNo        string                 `protobuf:"bytes,2,opt,name=third_order_no,json=thirdOrderNo,proto3" json:"third_order_no,omitempty"`                      // 三方支付订单编号
-	RefundNo            string                 `protobuf:"bytes,3,opt,name=refund_no,json=refundNo,proto3" json:"refund_no,omitempty"`                                    // 退款编号
-	Reason              v1.OrderRefundReason   `protobuf:"varint,4,opt,name=reason,proto3,enum=common.v1.OrderRefundReason" json:"reason,omitempty"`                      // 退款原因：枚举【OrderRefundReason】
-	ThirdRefundNo       string                 `protobuf:"bytes,5,opt,name=third_refund_no,json=thirdRefundNo,proto3" json:"third_refund_no,omitempty"`                   // 三方退款编号
-	Channel             string                 `protobuf:"bytes,6,opt,name=channel,proto3" json:"channel,omitempty"`                                                      // 退款渠道
-	UserReceivedAccount string                 `protobuf:"bytes,7,opt,name=user_received_account,json=userReceivedAccount,proto3" json:"user_received_account,omitempty"` // 退款入账账户
-	CreateTime          string                 `protobuf:"bytes,8,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`                              // 退款创建时间
-	SuccessTime         string                 `protobuf:"bytes,9,opt,name=success_time,json=successTime,proto3" json:"success_time,omitempty"`                           // 退款成功时间
-	RefundState         string                 `protobuf:"bytes,10,opt,name=refund_state,json=refundState,proto3" json:"refund_state,omitempty"`                          // 退款状态
-	FundsAccount        string                 `protobuf:"bytes,11,opt,name=funds_account,json=fundsAccount,proto3" json:"funds_account,omitempty"`                       // 资金账户类型
-	Amount              *OrderRefund_Amount    `protobuf:"bytes,12,opt,name=amount,proto3" json:"amount,omitempty"`                                                       // 金额信息
-	Status              v1.OrderBillStatus     `protobuf:"varint,13,opt,name=status,proto3,enum=common.v1.OrderBillStatus" json:"status,omitempty"`                       // 对账状态：枚举【OrderBillStatus】
+	TradeId             int64                  `protobuf:"varint,1,opt,name=trade_id,json=tradeId,proto3" json:"trade_id,omitempty"`                                      // 交易单ID
+	OrderId             int64                  `protobuf:"varint,2,opt,name=order_id,json=orderId,proto3" json:"order_id,omitempty"`                                      // 门店订单ID
+	TradeNo             string                 `protobuf:"bytes,3,opt,name=trade_no,json=tradeNo,proto3" json:"trade_no,omitempty"`                                       // 支付交易单编号
+	ThirdOrderNo        string                 `protobuf:"bytes,4,opt,name=third_order_no,json=thirdOrderNo,proto3" json:"third_order_no,omitempty"`                      // 三方支付订单编号
+	RefundNo            string                 `protobuf:"bytes,5,opt,name=refund_no,json=refundNo,proto3" json:"refund_no,omitempty"`                                    // 退款编号
+	Reason              v1.OrderRefundReason   `protobuf:"varint,6,opt,name=reason,proto3,enum=common.v1.OrderRefundReason" json:"reason,omitempty"`                      // 退款原因：枚举【OrderRefundReason】
+	ThirdRefundNo       string                 `protobuf:"bytes,7,opt,name=third_refund_no,json=thirdRefundNo,proto3" json:"third_refund_no,omitempty"`                   // 三方退款编号
+	Channel             string                 `protobuf:"bytes,8,opt,name=channel,proto3" json:"channel,omitempty"`                                                      // 退款渠道
+	UserReceivedAccount string                 `protobuf:"bytes,9,opt,name=user_received_account,json=userReceivedAccount,proto3" json:"user_received_account,omitempty"` // 退款入账账户
+	CreateTime          string                 `protobuf:"bytes,10,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`                             // 退款创建时间
+	SuccessTime         string                 `protobuf:"bytes,11,opt,name=success_time,json=successTime,proto3" json:"success_time,omitempty"`                          // 退款成功时间
+	RefundState         string                 `protobuf:"bytes,12,opt,name=refund_state,json=refundState,proto3" json:"refund_state,omitempty"`                          // 退款状态
+	FundsAccount        string                 `protobuf:"bytes,13,opt,name=funds_account,json=fundsAccount,proto3" json:"funds_account,omitempty"`                       // 资金账户类型
+	Amount              *OrderRefund_Amount    `protobuf:"bytes,14,opt,name=amount,proto3" json:"amount,omitempty"`                                                       // 金额信息
+	Status              v1.OrderBillStatus     `protobuf:"varint,15,opt,name=status,proto3,enum=common.v1.OrderBillStatus" json:"status,omitempty"`                       // 对账状态：枚举【OrderBillStatus】
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
 }
@@ -1340,9 +1398,23 @@ func (*OrderRefund) Descriptor() ([]byte, []int) {
 	return file_admin_v1_order_info_proto_rawDescGZIP(), []int{16}
 }
 
-func (x *OrderRefund) GetOrderNo() string {
+func (x *OrderRefund) GetTradeId() int64 {
 	if x != nil {
-		return x.OrderNo
+		return x.TradeId
+	}
+	return 0
+}
+
+func (x *OrderRefund) GetOrderId() int64 {
+	if x != nil {
+		return x.OrderId
+	}
+	return 0
+}
+
+func (x *OrderRefund) GetTradeNo() string {
+	if x != nil {
+		return x.TradeNo
 	}
 	return ""
 }
@@ -1716,16 +1788,19 @@ var File_admin_v1_order_info_proto protoreflect.FileDescriptor
 
 const file_admin_v1_order_info_proto_rawDesc = "" +
 	"\n" +
-	"\x19admin/v1/order_info.proto\x12\badmin.v1\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x85\x06\n" +
+	"\x19admin/v1/order_info.proto\x12\badmin.v1\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xf3\a\n" +
 	"\x15PageOrderInfosRequest\x120\n" +
 	"\ttenant_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12A\n" +
 	"\x0ftenant_store_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDH\x01R\rtenantStoreId\x88\x01\x01\x12-\n" +
 	"\border_no\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f订单编号R\aorderNo\x12'\n" +
-	"\auser_id\x18\x04 \x01(\x03B\x0e\xbaG\v\x92\x02\b用户idR\x06userId\x12G\n" +
-	"\x06status\x18\x05 \x01(\x0e2\x16.common.v1.OrderStatusB\x12\xbaG\x0f\x92\x02\f订单状态H\x02R\x06status\x88\x01\x01\x12f\n" +
+	"\auser_id\x18\x04 \x01(\x03B\x0e\xbaG\v\x92\x02\b用户idR\x06userId\x12Q\n" +
+	"\x06status\x18\x05 \x01(\x0e2\x1a.common.v1.OrderInfoStatusB\x18\xbaG\x15\x92\x02\x12订单履约状态H\x02R\x06status\x88\x01\x01\x12f\n" +
 	"\bpay_type\x18\b \x01(\x0e2\x17.common.v1.OrderPayTypeB-\xbaG*\x92\x02'支付方式：枚举【OrderPayType】H\x03R\apayType\x88\x01\x01\x12r\n" +
 	"\vpay_channel\x18\t \x01(\x0e2\x1a.common.v1.OrderPayChannelB0\xbaG-\x92\x02*支付渠道：枚举【OrderPayChannel】H\x04R\n" +
-	"payChannel\x88\x01\x01\x122\n" +
+	"payChannel\x88\x01\x01\x12]\n" +
+	"\ftrade_status\x18\n" +
+	" \x01(\x0e2\x1b.common.v1.OrderTradeStatusB\x18\xbaG\x15\x92\x02\x12交易支付状态H\x05R\vtradeStatus\x88\x01\x01\x12`\n" +
+	"\rrefund_status\x18\v \x01(\x0e2\x1c.common.v1.OrderRefundStatusB\x18\xbaG\x15\x92\x02\x12订单退款状态H\x06R\frefundStatus\x88\x01\x01\x122\n" +
 	"\n" +
 	"created_at\x18\xc8\x01 \x03(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x129\n" +
 	"\bpage_num\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12A\n" +
@@ -1735,7 +1810,9 @@ const file_admin_v1_order_info_proto_rawDesc = "" +
 	"\x10_tenant_store_idB\t\n" +
 	"\a_statusB\v\n" +
 	"\t_pay_typeB\x0e\n" +
-	"\f_pay_channel\"\x8c\x01\n" +
+	"\f_pay_channelB\x0f\n" +
+	"\r_trade_statusB\x10\n" +
+	"\x0e_refund_status\"\x8c\x01\n" +
 	"\x16PageOrderInfosResponse\x12N\n" +
 	"\vorder_infos\x18\x01 \x03(\v2\x13.admin.v1.OrderInfoB\x18\xbaG\x15\x92\x02\x12订单分页数据R\n" +
 	"orderInfos\x12\"\n" +
@@ -1769,81 +1846,86 @@ const file_admin_v1_order_info_proto_rawDesc = "" +
 	"\tlogistics\x18g \x01(\v2\x18.admin.v1.OrderLogisticsB\x12\xbaG\x0f\x92\x02\f物流信息R\tlogistics\"\xbe\x01\n" +
 	"\x14ShipOrderInfoRequest\x12)\n" +
 	"\border_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单idR\aorderId\x12)\n" +
-	"\x04name\x18\x03 \x01(\tB\x15\xbaG\x12\x92\x02\x0f物流公司名R\x04name\x12\"\n" +
-	"\x02no\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f物流单号R\x02no\x12,\n" +
-	"\acontact\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\f联系方式R\acontact\"\xcb\b\n" +
+	"\x04name\x18\x02 \x01(\tB\x15\xbaG\x12\x92\x02\x0f物流公司名R\x04name\x12\"\n" +
+	"\x02no\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f物流单号R\x02no\x12,\n" +
+	"\acontact\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f联系方式R\acontact\"\xb5\v\n" +
 	"\tOrderInfo\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单idR\x02id\x12+\n" +
-	"\ttenant_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDR\btenantId\x12<\n" +
-	"\x0ftenant_store_id\x18\x03 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDR\rtenantStoreId\x12-\n" +
-	"\border_no\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f订单编号R\aorderNo\x12'\n" +
-	"\auser_id\x18\x05 \x01(\x03B\x0e\xbaG\v\x92\x02\b用户idR\x06userId\x12G\n" +
-	"\tpay_money\x18\x06 \x01(\x03B*\xbaG'\x92\x02$实际支付金额（单位：分）R\bpayMoney\x12?\n" +
-	"\vtotal_money\x18\a \x01(\x03B\x1e\xbaG\x1b\x92\x02\x18总价（单位：分）R\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单idR\x02id\x12,\n" +
+	"\btrade_id\x18\x02 \x01(\x03B\x11\xbaG\x0e\x92\x02\v交易单IDR\atradeId\x12+\n" +
+	"\ttenant_id\x18\x03 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDR\btenantId\x12<\n" +
+	"\x0ftenant_store_id\x18\x04 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDR\rtenantStoreId\x12-\n" +
+	"\border_no\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\f订单编号R\aorderNo\x12'\n" +
+	"\auser_id\x18\x06 \x01(\x03B\x0e\xbaG\v\x92\x02\b用户idR\x06userId\x12G\n" +
+	"\tpay_money\x18\a \x01(\x03B*\xbaG'\x92\x02$实际支付金额（单位：分）R\bpayMoney\x12?\n" +
+	"\vtotal_money\x18\b \x01(\x03B\x1e\xbaG\x1b\x92\x02\x18总价（单位：分）R\n" +
 	"totalMoney\x12?\n" +
-	"\bpost_fee\x18\b \x01(\x03B$\xbaG!\x92\x02\x1e优惠金额（单位：分）R\apostFee\x12/\n" +
-	"\tgoods_num\x18\t \x01(\x03B\x12\xbaG\x0f\x92\x02\f商品总数R\bgoodsNum\x12a\n" +
-	"\bpay_type\x18\n" +
-	" \x01(\x0e2\x17.common.v1.OrderPayTypeB-\xbaG*\x92\x02'支付方式：枚举【OrderPayType】R\apayType\x12m\n" +
-	"\vpay_channel\x18\v \x01(\x0e2\x1a.common.v1.OrderPayChannelB0\xbaG-\x92\x02*支付渠道：枚举【OrderPayChannel】R\n" +
-	"payChannel\x12u\n" +
-	"\rdelivery_time\x18\f \x01(\x0e2\x1c.common.v1.OrderDeliveryTimeB2\xbaG/\x92\x02,配送时间：枚举【OrderDeliveryTime】R\fdeliveryTime\x12V\n" +
-	"\x06status\x18\r \x01(\x0e2\x16.common.v1.OrderStatusB&\xbaG#\x92\x02 状态：枚举【OrderStatus】R\x06status\x12*\n" +
+	"\bpost_fee\x18\t \x01(\x03B$\xbaG!\x92\x02\x1e优惠金额（单位：分）R\apostFee\x12/\n" +
+	"\tgoods_num\x18\n" +
+	" \x01(\x03B\x12\xbaG\x0f\x92\x02\f商品总数R\bgoodsNum\x12u\n" +
+	"\rdelivery_time\x18\v \x01(\x0e2\x1c.common.v1.OrderDeliveryTimeB2\xbaG/\x92\x02,配送时间：枚举【OrderDeliveryTime】R\fdeliveryTime\x12j\n" +
+	"\x06status\x18\f \x01(\x0e2\x1a.common.v1.OrderInfoStatusB6\xbaG3\x92\x020订单履约状态：枚举【OrderInfoStatus】R\x06status\x12{\n" +
+	"\rrefund_status\x18\r \x01(\x0e2\x1c.common.v1.OrderRefundStatusB8\xbaG5\x92\x022订单退款状态：枚举【OrderRefundStatus】R\frefundStatus\x12*\n" +
 	"\x06remark\x18\x0e \x01(\tB\x12\xbaG\x0f\x92\x02\f订单备注R\x06remark\x121\n" +
 	"\n" +
 	"created_at\x18\x0f \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x121\n" +
 	"\n" +
-	"updated_at\x18\x10 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x12,\n" +
-	"\tnick_name\x184 \x01(\tB\x0f\xbaG\f\x92\x02\t用户名R\bnickName\"\xd0\x01\n" +
+	"updated_at\x18\x10 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x12a\n" +
+	"\bpay_type\x18\x11 \x01(\x0e2\x17.common.v1.OrderPayTypeB-\xbaG*\x92\x02'支付方式：枚举【OrderPayType】R\apayType\x12m\n" +
+	"\vpay_channel\x18\x12 \x01(\x0e2\x1a.common.v1.OrderPayChannelB0\xbaG-\x92\x02*支付渠道：枚举【OrderPayChannel】R\n" +
+	"payChannel\x120\n" +
+	"\btrade_no\x18\x13 \x01(\tB\x15\xbaG\x12\x92\x02\x0f交易单编号R\atradeNo\x12w\n" +
+	"\ftrade_status\x18\x14 \x01(\x0e2\x1b.common.v1.OrderTradeStatusB7\xbaG4\x92\x021交易支付状态：枚举【OrderTradeStatus】R\vtradeStatus\x12,\n" +
+	"\tnick_name\x18\x15 \x01(\tB\x0f\xbaG\f\x92\x02\t用户名R\bnickName\"\xd0\x01\n" +
 	"\fOrderAddress\x12+\n" +
-	"\breceiver\x18\x03 \x01(\tB\x0f\xbaG\f\x92\x02\t联系人R\breceiver\x12,\n" +
-	"\acontact\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f联系方式R\acontact\x129\n" +
-	"\aaddress\x18\x05 \x03(\tB\x1f\xbaG\x1c\x92\x02\x19省市区（JSON存储）R\aaddress\x12*\n" +
-	"\x06detail\x18\x06 \x01(\tB\x12\xbaG\x0f\x92\x02\f详细地址R\x06detail\"\xaa\x01\n" +
+	"\breceiver\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t联系人R\breceiver\x12,\n" +
+	"\acontact\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f联系方式R\acontact\x129\n" +
+	"\aaddress\x18\x03 \x03(\tB\x1f\xbaG\x1c\x92\x02\x19省市区（JSON存储）R\aaddress\x12*\n" +
+	"\x06detail\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f详细地址R\x06detail\"\xaa\x01\n" +
 	"\vOrderCancel\x12h\n" +
-	"\x06reason\x18\x03 \x01(\x0e2\x1c.common.v1.OrderCancelReasonB2\xbaG/\x92\x02,取消原因：枚举【OrderCancelReason】R\x06reason\x121\n" +
+	"\x06reason\x18\x01 \x01(\x0e2\x1c.common.v1.OrderCancelReasonB2\xbaG/\x92\x02,取消原因：枚举【OrderCancelReason】R\x06reason\x121\n" +
 	"\n" +
-	"created_at\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\"\xbb\x04\n" +
+	"created_at\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\"\xbb\x04\n" +
 	"\n" +
 	"OrderGoods\x12)\n" +
-	"\bgoods_id\x18\x03 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品idR\agoodsId\x12-\n" +
-	"\bsku_code\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f规格编号R\askuCode\x12a\n" +
-	"\tspec_item\x18\x05 \x03(\tBD\xbaGA\x92\x02>SKU规格组成（需与goods_spec顺序对应，JSON存储）R\bspecItem\x12,\n" +
-	"\apicture\x18\x06 \x01(\tB\x12\xbaG\x0f\x92\x02\f商品图片R\apicture\x12&\n" +
-	"\x04name\x18\a \x01(\tB\x12\xbaG\x0f\x92\x02\f商品名称R\x04name\x12\x1e\n" +
-	"\x03num\x18\b \x01(\x03B\f\xbaG\t\x92\x02\x06数量R\x03num\x12:\n" +
-	"\x05price\x18\t \x01(\x03B$\xbaG!\x92\x02\x1e当前价格（单位：分）R\x05price\x12A\n" +
-	"\tpay_price\x18\n" +
-	" \x01(\x03B$\xbaG!\x92\x02\x1e支付价格（单位：分）R\bpayPrice\x129\n" +
-	"\vtotal_price\x18\v \x01(\x03B\x18\xbaG\x15\x92\x02\x12当前金额汇总R\n" +
+	"\bgoods_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品idR\agoodsId\x12-\n" +
+	"\bsku_code\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f规格编号R\askuCode\x12a\n" +
+	"\tspec_item\x18\x03 \x03(\tBD\xbaGA\x92\x02>SKU规格组成（需与goods_spec顺序对应，JSON存储）R\bspecItem\x12,\n" +
+	"\apicture\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f商品图片R\apicture\x12&\n" +
+	"\x04name\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\f商品名称R\x04name\x12\x1e\n" +
+	"\x03num\x18\x06 \x01(\x03B\f\xbaG\t\x92\x02\x06数量R\x03num\x12:\n" +
+	"\x05price\x18\a \x01(\x03B$\xbaG!\x92\x02\x1e当前价格（单位：分）R\x05price\x12A\n" +
+	"\tpay_price\x18\b \x01(\x03B$\xbaG!\x92\x02\x1e支付价格（单位：分）R\bpayPrice\x129\n" +
+	"\vtotal_price\x18\t \x01(\x03B\x18\xbaG\x15\x92\x02\x12当前金额汇总R\n" +
 	"totalPrice\x12@\n" +
-	"\x0ftotal_pay_price\x18\f \x01(\x03B\x18\xbaG\x15\x92\x02\x12支付金额汇总R\rtotalPayPrice\"\xeb\x02\n" +
+	"\x0ftotal_pay_price\x18\n" +
+	" \x01(\x03B\x18\xbaG\x15\x92\x02\x12支付金额汇总R\rtotalPayPrice\"\xeb\x02\n" +
 	"\x0eOrderLogistics\x12)\n" +
-	"\x04name\x18\x03 \x01(\tB\x15\xbaG\x12\x92\x02\x0f物流公司名R\x04name\x12\"\n" +
-	"\x02no\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f物流单号R\x02no\x12,\n" +
-	"\acontact\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\f联系方式R\acontact\x12[\n" +
-	"\x06detail\x18\x06 \x03(\v2\x1f.admin.v1.OrderLogistics.DetailB\"\xbaG\x1f\x92\x02\x1c物流详情（JSON存储）R\x06detail\x121\n" +
+	"\x04name\x18\x01 \x01(\tB\x15\xbaG\x12\x92\x02\x0f物流公司名R\x04name\x12\"\n" +
+	"\x02no\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f物流单号R\x02no\x12,\n" +
+	"\acontact\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f联系方式R\acontact\x12[\n" +
+	"\x06detail\x18\x04 \x03(\v2\x1f.admin.v1.OrderLogistics.DetailB\"\xbaG\x1f\x92\x02\x1c物流详情（JSON存储）R\x06detail\x121\n" +
 	"\n" +
-	"created_at\x18\a \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x1aL\n" +
+	"created_at\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x1aL\n" +
 	"\x06Detail\x12 \n" +
 	"\x04time\x18\x01 \x01(\tB\f\xbaG\t\x92\x02\x06时间R\x04time\x12 \n" +
-	"\x04text\x18\x02 \x01(\tB\f\xbaG\t\x92\x02\x06动态R\x04text\"\x89\x0e\n" +
-	"\fOrderPayment\x12-\n" +
-	"\border_no\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f订单编号R\aorderNo\x12>\n" +
-	"\x0ethird_order_no\x18\x04 \x01(\tB\x18\xbaG\x15\x92\x02\x12三方订单编号R\fthirdOrderNo\x12\xcd\x01\n" +
+	"\x04text\x18\x02 \x01(\tB\f\xbaG\t\x92\x02\x06动态R\x04text\"\xba\x0e\n" +
+	"\fOrderPayment\x12,\n" +
+	"\btrade_id\x18\x01 \x01(\x03B\x11\xbaG\x0e\x92\x02\v交易单IDR\atradeId\x120\n" +
+	"\btrade_no\x18\x02 \x01(\tB\x15\xbaG\x12\x92\x02\x0f交易单编号R\atradeNo\x12>\n" +
+	"\x0ethird_order_no\x18\x03 \x01(\tB\x18\xbaG\x15\x92\x02\x12三方订单编号R\fthirdOrderNo\x12\xcd\x01\n" +
 	"\n" +
-	"trade_type\x18\x05 \x01(\tB\xad\x01\xbaG\xa9\x01\x92\x02\xa5\x01交易类型（JSAPI：公众号/小程序支付，NATIVE：扫码支付，APP：APP支付，MICROPAY：付款码支付，MWEB：H5支付，FACEPAY：刷脸支付）R\ttradeType\x12\xdd\x01\n" +
-	"\vtrade_state\x18\x06 \x01(\tB\xbb\x01\xbaG\xb7\x01\x92\x02\xb3\x01交易状态（SUCCESS：支付成功，REFUND：转入退款，NOTPAY：未支付，CLOSED：已关闭，REVOKED：已撤销，USERPAYING：支付中，PAYERROR：支付失败）R\n" +
+	"trade_type\x18\x04 \x01(\tB\xad\x01\xbaG\xa9\x01\x92\x02\xa5\x01交易类型（JSAPI：公众号/小程序支付，NATIVE：扫码支付，APP：APP支付，MICROPAY：付款码支付，MWEB：H5支付，FACEPAY：刷脸支付）R\ttradeType\x12\xdd\x01\n" +
+	"\vtrade_state\x18\x05 \x01(\tB\xbb\x01\xbaG\xb7\x01\x92\x02\xb3\x01交易状态（SUCCESS：支付成功，REFUND：转入退款，NOTPAY：未支付，CLOSED：已关闭，REVOKED：已撤销，USERPAYING：支付中，PAYERROR：支付失败）R\n" +
 	"tradeState\x12B\n" +
-	"\x10trade_state_desc\x18\a \x01(\tB\x18\xbaG\x15\x92\x02\x12交易状态描述R\x0etradeStateDesc\x12/\n" +
-	"\tbank_type\x18\b \x01(\tB\x12\xbaG\x0f\x92\x02\f银行类型R\bbankType\x12;\n" +
-	"\fsuccess_time\x18\t \x01(\tB\x18\xbaG\x15\x92\x02\x12支付完成时间R\vsuccessTime\x12Y\n" +
-	"\x05payer\x18\n" +
-	" \x01(\v2\x1c.admin.v1.OrderPayment.PayerB%\xbaG\"\x92\x02\x1f支付者信息（JSON存储）R\x05payer\x12Y\n" +
-	"\x06amount\x18\v \x01(\v2\x1d.admin.v1.OrderPayment.AmountB\"\xbaG\x1f\x92\x02\x1c订单金额（JSON存储）R\x06amount\x12c\n" +
+	"\x10trade_state_desc\x18\x06 \x01(\tB\x18\xbaG\x15\x92\x02\x12交易状态描述R\x0etradeStateDesc\x12/\n" +
+	"\tbank_type\x18\a \x01(\tB\x12\xbaG\x0f\x92\x02\f银行类型R\bbankType\x12;\n" +
+	"\fsuccess_time\x18\b \x01(\tB\x18\xbaG\x15\x92\x02\x12支付完成时间R\vsuccessTime\x12Y\n" +
+	"\x05payer\x18\t \x01(\v2\x1c.admin.v1.OrderPayment.PayerB%\xbaG\"\x92\x02\x1f支付者信息（JSON存储）R\x05payer\x12Y\n" +
+	"\x06amount\x18\n" +
+	" \x01(\v2\x1d.admin.v1.OrderPayment.AmountB\"\xbaG\x1f\x92\x02\x1c订单金额（JSON存储）R\x06amount\x12c\n" +
 	"\n" +
-	"scene_info\x18\f \x01(\v2 .admin.v1.OrderPayment.SceneInfoB\"\xbaG\x1f\x92\x02\x1c场景信息（JSON存储）R\tsceneInfo\x12d\n" +
-	"\x06status\x18\r \x01(\x0e2\x1a.common.v1.OrderBillStatusB0\xbaG-\x92\x02*对账状态：枚举【OrderBillStatus】R\x06status\x1a_\n" +
+	"scene_info\x18\v \x01(\v2 .admin.v1.OrderPayment.SceneInfoB\"\xbaG\x1f\x92\x02\x1c场景信息（JSON存储）R\tsceneInfo\x12d\n" +
+	"\x06status\x18\f \x01(\x0e2\x1a.common.v1.OrderBillStatusB0\xbaG-\x92\x02*对账状态：枚举【OrderBillStatus】R\x06status\x1a_\n" +
 	"\x05Payer\x12V\n" +
 	"\x06openid\x18\x01 \x01(\tB>\xbaG;\x92\x028【用户标识】用户在商户appid下的唯一标识R\x06openid\x1a\xe3\x03\n" +
 	"\x06Amount\x12\xbb\x01\n" +
@@ -1853,23 +1935,25 @@ const file_admin_v1_order_info_proto_rawDesc = "" +
 	"\bcurrency\x18\x03 \x01(\tB<\xbaG9\x92\x026【货币类型】固定返回：CNY，代表人民币R\bcurrency\x12m\n" +
 	"\x0epayer_currency\x18\x04 \x01(\tBF\xbaGC\x92\x02@【用户支付币种】 固定返回：CNY，代表人民币。R\rpayerCurrency\x1a`\n" +
 	"\tSceneInfo\x12S\n" +
-	"\tdevice_id\x18\x01 \x01(\tB6\xbaG3\x92\x020【商户端设备号】门店号/收银设备IDR\bdeviceId\"\x86\f\n" +
-	"\vOrderRefund\x123\n" +
-	"\border_no\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12支付订单编号R\aorderNo\x12D\n" +
-	"\x0ethird_order_no\x18\x02 \x01(\tB\x1e\xbaG\x1b\x92\x02\x18三方支付订单编号R\fthirdOrderNo\x12/\n" +
-	"\trefund_no\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f退款编号R\brefundNo\x12h\n" +
-	"\x06reason\x18\x04 \x01(\x0e2\x1c.common.v1.OrderRefundReasonB2\xbaG/\x92\x02,退款原因：枚举【OrderRefundReason】R\x06reason\x12@\n" +
-	"\x0fthird_refund_no\x18\x05 \x01(\tB\x18\xbaG\x15\x92\x02\x12三方退款编号R\rthirdRefundNo\x12\xb0\x01\n" +
-	"\achannel\x18\x06 \x01(\tB\x95\x01\xbaG\x91\x01\x92\x02\x8d\x01退款渠道（ORIGINAL：原路退款，BALANCE：退余额，OTHER_BALANCE：退其他余额账户，OTHER_BANKCARD：退其他银行卡）R\achannel\x12m\n" +
-	"\x15user_received_account\x18\a \x01(\tB9\xbaG6\x92\x023退款入账账户（格式说明见原始注释）R\x13userReceivedAccount\x129\n" +
-	"\vcreate_time\x18\b \x01(\tB\x18\xbaG\x15\x92\x02\x12退款创建时间R\n" +
+	"\tdevice_id\x18\x01 \x01(\tB6\xbaG3\x92\x020【商户端设备号】门店号/收银设备IDR\bdeviceId\"\xe8\f\n" +
+	"\vOrderRefund\x12,\n" +
+	"\btrade_id\x18\x01 \x01(\x03B\x11\xbaG\x0e\x92\x02\v交易单IDR\atradeId\x12/\n" +
+	"\border_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e门店订单IDR\aorderId\x126\n" +
+	"\btrade_no\x18\x03 \x01(\tB\x1b\xbaG\x18\x92\x02\x15支付交易单编号R\atradeNo\x12D\n" +
+	"\x0ethird_order_no\x18\x04 \x01(\tB\x1e\xbaG\x1b\x92\x02\x18三方支付订单编号R\fthirdOrderNo\x12/\n" +
+	"\trefund_no\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\f退款编号R\brefundNo\x12h\n" +
+	"\x06reason\x18\x06 \x01(\x0e2\x1c.common.v1.OrderRefundReasonB2\xbaG/\x92\x02,退款原因：枚举【OrderRefundReason】R\x06reason\x12@\n" +
+	"\x0fthird_refund_no\x18\a \x01(\tB\x18\xbaG\x15\x92\x02\x12三方退款编号R\rthirdRefundNo\x12\xb0\x01\n" +
+	"\achannel\x18\b \x01(\tB\x95\x01\xbaG\x91\x01\x92\x02\x8d\x01退款渠道（ORIGINAL：原路退款，BALANCE：退余额，OTHER_BALANCE：退其他余额账户，OTHER_BANKCARD：退其他银行卡）R\achannel\x12m\n" +
+	"\x15user_received_account\x18\t \x01(\tB9\xbaG6\x92\x023退款入账账户（格式说明见原始注释）R\x13userReceivedAccount\x129\n" +
+	"\vcreate_time\x18\n" +
+	" \x01(\tB\x18\xbaG\x15\x92\x02\x12退款创建时间R\n" +
 	"createTime\x12;\n" +
-	"\fsuccess_time\x18\t \x01(\tB\x18\xbaG\x15\x92\x02\x12退款成功时间R\vsuccessTime\x12\x8a\x01\n" +
-	"\frefund_state\x18\n" +
-	" \x01(\tBg\xbaGd\x92\x02a退款状态（SUCCESS：成功，CLOSED：关闭，PROCESSING：处理中，ABNORMAL：异常）R\vrefundState\x12\x8d\x01\n" +
-	"\rfunds_account\x18\v \x01(\tBh\xbaGe\x92\x02b资金账户类型（UNSETTLED：未结算，AVAILABLE：可用余额，BASIC：基本账户等）R\ffundsAccount\x12X\n" +
-	"\x06amount\x18\f \x01(\v2\x1c.admin.v1.OrderRefund.AmountB\"\xbaG\x1f\x92\x02\x1c金额信息（JSON存储）R\x06amount\x12d\n" +
-	"\x06status\x18\r \x01(\x0e2\x1a.common.v1.OrderBillStatusB0\xbaG-\x92\x02*对账状态：枚举【OrderBillStatus】R\x06status\x1a\xa7\x02\n" +
+	"\fsuccess_time\x18\v \x01(\tB\x18\xbaG\x15\x92\x02\x12退款成功时间R\vsuccessTime\x12\x8a\x01\n" +
+	"\frefund_state\x18\f \x01(\tBg\xbaGd\x92\x02a退款状态（SUCCESS：成功，CLOSED：关闭，PROCESSING：处理中，ABNORMAL：异常）R\vrefundState\x12\x8d\x01\n" +
+	"\rfunds_account\x18\r \x01(\tBh\xbaGe\x92\x02b资金账户类型（UNSETTLED：未结算，AVAILABLE：可用余额，BASIC：基本账户等）R\ffundsAccount\x12X\n" +
+	"\x06amount\x18\x0e \x01(\v2\x1c.admin.v1.OrderRefund.AmountB\"\xbaG\x1f\x92\x02\x1c金额信息（JSON存储）R\x06amount\x12d\n" +
+	"\x06status\x18\x0f \x01(\x0e2\x1a.common.v1.OrderBillStatusB0\xbaG-\x92\x02*对账状态：枚举【OrderBillStatus】R\x06status\x1a\xa7\x02\n" +
 	"\x06Amount\x12=\n" +
 	"\x05total\x18\x01 \x01(\x03B'\xbaG$\x92\x02!【原订单金额】单位：分R\x05total\x12<\n" +
 	"\x06refund\x18\x02 \x01(\x03B$\xbaG!\x92\x02\x1e【退款金额】单位：分R\x06refund\x12Q\n" +
@@ -1921,63 +2005,69 @@ var file_admin_v1_order_info_proto_goTypes = []any{
 	(*OrderPayment_Amount)(nil),         // 19: admin.v1.OrderPayment.Amount
 	(*OrderPayment_SceneInfo)(nil),      // 20: admin.v1.OrderPayment.SceneInfo
 	(*OrderRefund_Amount)(nil),          // 21: admin.v1.OrderRefund.Amount
-	(v1.OrderStatus)(0),                 // 22: common.v1.OrderStatus
+	(v1.OrderInfoStatus)(0),             // 22: common.v1.OrderInfoStatus
 	(v1.OrderPayType)(0),                // 23: common.v1.OrderPayType
 	(v1.OrderPayChannel)(0),             // 24: common.v1.OrderPayChannel
-	(v1.OrderRefundReason)(0),           // 25: common.v1.OrderRefundReason
-	(v1.OrderDeliveryTime)(0),           // 26: common.v1.OrderDeliveryTime
-	(v1.OrderCancelReason)(0),           // 27: common.v1.OrderCancelReason
-	(v1.OrderBillStatus)(0),             // 28: common.v1.OrderBillStatus
-	(*emptypb.Empty)(nil),               // 29: google.protobuf.Empty
+	(v1.OrderTradeStatus)(0),            // 25: common.v1.OrderTradeStatus
+	(v1.OrderRefundStatus)(0),           // 26: common.v1.OrderRefundStatus
+	(v1.OrderRefundReason)(0),           // 27: common.v1.OrderRefundReason
+	(v1.OrderDeliveryTime)(0),           // 28: common.v1.OrderDeliveryTime
+	(v1.OrderCancelReason)(0),           // 29: common.v1.OrderCancelReason
+	(v1.OrderBillStatus)(0),             // 30: common.v1.OrderBillStatus
+	(*emptypb.Empty)(nil),               // 31: google.protobuf.Empty
 }
 var file_admin_v1_order_info_proto_depIdxs = []int32{
-	22, // 0: admin.v1.PageOrderInfosRequest.status:type_name -> common.v1.OrderStatus
+	22, // 0: admin.v1.PageOrderInfosRequest.status:type_name -> common.v1.OrderInfoStatus
 	23, // 1: admin.v1.PageOrderInfosRequest.pay_type:type_name -> common.v1.OrderPayType
 	24, // 2: admin.v1.PageOrderInfosRequest.pay_channel:type_name -> common.v1.OrderPayChannel
-	10, // 3: admin.v1.PageOrderInfosResponse.order_infos:type_name -> admin.v1.OrderInfo
-	10, // 4: admin.v1.OrderInfoResponse.order:type_name -> admin.v1.OrderInfo
-	11, // 5: admin.v1.OrderInfoResponse.address:type_name -> admin.v1.OrderAddress
-	12, // 6: admin.v1.OrderInfoResponse.cancel:type_name -> admin.v1.OrderCancel
-	13, // 7: admin.v1.OrderInfoResponse.goods:type_name -> admin.v1.OrderGoods
-	14, // 8: admin.v1.OrderInfoResponse.logistics:type_name -> admin.v1.OrderLogistics
-	15, // 9: admin.v1.OrderInfoResponse.payment:type_name -> admin.v1.OrderPayment
-	16, // 10: admin.v1.OrderInfoResponse.refund:type_name -> admin.v1.OrderRefund
-	15, // 11: admin.v1.OrderInfoRefundResponse.payment:type_name -> admin.v1.OrderPayment
-	16, // 12: admin.v1.OrderInfoRefundResponse.refund:type_name -> admin.v1.OrderRefund
-	25, // 13: admin.v1.RefundOrderInfoRequest.reason:type_name -> common.v1.OrderRefundReason
-	11, // 14: admin.v1.OrderInfoShipmentForm.address:type_name -> admin.v1.OrderAddress
-	13, // 15: admin.v1.OrderInfoShipmentForm.goods:type_name -> admin.v1.OrderGoods
-	14, // 16: admin.v1.OrderInfoShipmentForm.logistics:type_name -> admin.v1.OrderLogistics
-	23, // 17: admin.v1.OrderInfo.pay_type:type_name -> common.v1.OrderPayType
-	24, // 18: admin.v1.OrderInfo.pay_channel:type_name -> common.v1.OrderPayChannel
-	26, // 19: admin.v1.OrderInfo.delivery_time:type_name -> common.v1.OrderDeliveryTime
-	22, // 20: admin.v1.OrderInfo.status:type_name -> common.v1.OrderStatus
-	27, // 21: admin.v1.OrderCancel.reason:type_name -> common.v1.OrderCancelReason
-	17, // 22: admin.v1.OrderLogistics.detail:type_name -> admin.v1.OrderLogistics.Detail
-	18, // 23: admin.v1.OrderPayment.payer:type_name -> admin.v1.OrderPayment.Payer
-	19, // 24: admin.v1.OrderPayment.amount:type_name -> admin.v1.OrderPayment.Amount
-	20, // 25: admin.v1.OrderPayment.scene_info:type_name -> admin.v1.OrderPayment.SceneInfo
-	28, // 26: admin.v1.OrderPayment.status:type_name -> common.v1.OrderBillStatus
-	25, // 27: admin.v1.OrderRefund.reason:type_name -> common.v1.OrderRefundReason
-	21, // 28: admin.v1.OrderRefund.amount:type_name -> admin.v1.OrderRefund.Amount
-	28, // 29: admin.v1.OrderRefund.status:type_name -> common.v1.OrderBillStatus
-	0,  // 30: admin.v1.OrderInfoService.PageOrderInfos:input_type -> admin.v1.PageOrderInfosRequest
-	2,  // 31: admin.v1.OrderInfoService.GetOrderInfo:input_type -> admin.v1.GetOrderInfoRequest
-	3,  // 32: admin.v1.OrderInfoService.GetOrderInfoRefund:input_type -> admin.v1.GetOrderInfoRefundRequest
-	7,  // 33: admin.v1.OrderInfoService.RefundOrderInfo:input_type -> admin.v1.RefundOrderInfoRequest
-	4,  // 34: admin.v1.OrderInfoService.GetOrderInfoShipment:input_type -> admin.v1.GetOrderInfoShipmentRequest
-	9,  // 35: admin.v1.OrderInfoService.ShipOrderInfo:input_type -> admin.v1.ShipOrderInfoRequest
-	1,  // 36: admin.v1.OrderInfoService.PageOrderInfos:output_type -> admin.v1.PageOrderInfosResponse
-	5,  // 37: admin.v1.OrderInfoService.GetOrderInfo:output_type -> admin.v1.OrderInfoResponse
-	6,  // 38: admin.v1.OrderInfoService.GetOrderInfoRefund:output_type -> admin.v1.OrderInfoRefundResponse
-	29, // 39: admin.v1.OrderInfoService.RefundOrderInfo:output_type -> google.protobuf.Empty
-	8,  // 40: admin.v1.OrderInfoService.GetOrderInfoShipment:output_type -> admin.v1.OrderInfoShipmentForm
-	29, // 41: admin.v1.OrderInfoService.ShipOrderInfo:output_type -> google.protobuf.Empty
-	36, // [36:42] is the sub-list for method output_type
-	30, // [30:36] is the sub-list for method input_type
-	30, // [30:30] is the sub-list for extension type_name
-	30, // [30:30] is the sub-list for extension extendee
-	0,  // [0:30] is the sub-list for field type_name
+	25, // 3: admin.v1.PageOrderInfosRequest.trade_status:type_name -> common.v1.OrderTradeStatus
+	26, // 4: admin.v1.PageOrderInfosRequest.refund_status:type_name -> common.v1.OrderRefundStatus
+	10, // 5: admin.v1.PageOrderInfosResponse.order_infos:type_name -> admin.v1.OrderInfo
+	10, // 6: admin.v1.OrderInfoResponse.order:type_name -> admin.v1.OrderInfo
+	11, // 7: admin.v1.OrderInfoResponse.address:type_name -> admin.v1.OrderAddress
+	12, // 8: admin.v1.OrderInfoResponse.cancel:type_name -> admin.v1.OrderCancel
+	13, // 9: admin.v1.OrderInfoResponse.goods:type_name -> admin.v1.OrderGoods
+	14, // 10: admin.v1.OrderInfoResponse.logistics:type_name -> admin.v1.OrderLogistics
+	15, // 11: admin.v1.OrderInfoResponse.payment:type_name -> admin.v1.OrderPayment
+	16, // 12: admin.v1.OrderInfoResponse.refund:type_name -> admin.v1.OrderRefund
+	15, // 13: admin.v1.OrderInfoRefundResponse.payment:type_name -> admin.v1.OrderPayment
+	16, // 14: admin.v1.OrderInfoRefundResponse.refund:type_name -> admin.v1.OrderRefund
+	27, // 15: admin.v1.RefundOrderInfoRequest.reason:type_name -> common.v1.OrderRefundReason
+	11, // 16: admin.v1.OrderInfoShipmentForm.address:type_name -> admin.v1.OrderAddress
+	13, // 17: admin.v1.OrderInfoShipmentForm.goods:type_name -> admin.v1.OrderGoods
+	14, // 18: admin.v1.OrderInfoShipmentForm.logistics:type_name -> admin.v1.OrderLogistics
+	28, // 19: admin.v1.OrderInfo.delivery_time:type_name -> common.v1.OrderDeliveryTime
+	22, // 20: admin.v1.OrderInfo.status:type_name -> common.v1.OrderInfoStatus
+	26, // 21: admin.v1.OrderInfo.refund_status:type_name -> common.v1.OrderRefundStatus
+	23, // 22: admin.v1.OrderInfo.pay_type:type_name -> common.v1.OrderPayType
+	24, // 23: admin.v1.OrderInfo.pay_channel:type_name -> common.v1.OrderPayChannel
+	25, // 24: admin.v1.OrderInfo.trade_status:type_name -> common.v1.OrderTradeStatus
+	29, // 25: admin.v1.OrderCancel.reason:type_name -> common.v1.OrderCancelReason
+	17, // 26: admin.v1.OrderLogistics.detail:type_name -> admin.v1.OrderLogistics.Detail
+	18, // 27: admin.v1.OrderPayment.payer:type_name -> admin.v1.OrderPayment.Payer
+	19, // 28: admin.v1.OrderPayment.amount:type_name -> admin.v1.OrderPayment.Amount
+	20, // 29: admin.v1.OrderPayment.scene_info:type_name -> admin.v1.OrderPayment.SceneInfo
+	30, // 30: admin.v1.OrderPayment.status:type_name -> common.v1.OrderBillStatus
+	27, // 31: admin.v1.OrderRefund.reason:type_name -> common.v1.OrderRefundReason
+	21, // 32: admin.v1.OrderRefund.amount:type_name -> admin.v1.OrderRefund.Amount
+	30, // 33: admin.v1.OrderRefund.status:type_name -> common.v1.OrderBillStatus
+	0,  // 34: admin.v1.OrderInfoService.PageOrderInfos:input_type -> admin.v1.PageOrderInfosRequest
+	2,  // 35: admin.v1.OrderInfoService.GetOrderInfo:input_type -> admin.v1.GetOrderInfoRequest
+	3,  // 36: admin.v1.OrderInfoService.GetOrderInfoRefund:input_type -> admin.v1.GetOrderInfoRefundRequest
+	7,  // 37: admin.v1.OrderInfoService.RefundOrderInfo:input_type -> admin.v1.RefundOrderInfoRequest
+	4,  // 38: admin.v1.OrderInfoService.GetOrderInfoShipment:input_type -> admin.v1.GetOrderInfoShipmentRequest
+	9,  // 39: admin.v1.OrderInfoService.ShipOrderInfo:input_type -> admin.v1.ShipOrderInfoRequest
+	1,  // 40: admin.v1.OrderInfoService.PageOrderInfos:output_type -> admin.v1.PageOrderInfosResponse
+	5,  // 41: admin.v1.OrderInfoService.GetOrderInfo:output_type -> admin.v1.OrderInfoResponse
+	6,  // 42: admin.v1.OrderInfoService.GetOrderInfoRefund:output_type -> admin.v1.OrderInfoRefundResponse
+	31, // 43: admin.v1.OrderInfoService.RefundOrderInfo:output_type -> google.protobuf.Empty
+	8,  // 44: admin.v1.OrderInfoService.GetOrderInfoShipment:output_type -> admin.v1.OrderInfoShipmentForm
+	31, // 45: admin.v1.OrderInfoService.ShipOrderInfo:output_type -> google.protobuf.Empty
+	40, // [40:46] is the sub-list for method output_type
+	34, // [34:40] is the sub-list for method input_type
+	34, // [34:34] is the sub-list for extension type_name
+	34, // [34:34] is the sub-list for extension extendee
+	0,  // [0:34] is the sub-list for field type_name
 }
 
 func init() { file_admin_v1_order_info_proto_init() }

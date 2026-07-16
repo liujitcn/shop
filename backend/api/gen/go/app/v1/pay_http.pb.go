@@ -34,8 +34,8 @@ type PayServiceHTTPServer interface {
 
 func RegisterPayServiceHTTPServer(s *http.Server, srv PayServiceHTTPServer) {
 	r := s.Route("/")
-	r.Handle("POST", "/api/v1/app/pay/{order_id}/jsapi", _PayService_JsapiPay0_HTTP_Handler(srv))
-	r.Handle("POST", "/api/v1/app/pay/{order_id}/h5", _PayService_H5Pay0_HTTP_Handler(srv))
+	r.Handle("POST", "/api/v1/app/pay/{trade_id}/jsapi", _PayService_JsapiPay0_HTTP_Handler(srv))
+	r.Handle("POST", "/api/v1/app/pay/{trade_id}/h5", _PayService_H5Pay0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/app/pay/notify", _PayService_PayNotify0_HTTP_Handler(srv))
 }
 
@@ -122,7 +122,7 @@ func NewPayServiceHTTPClient(client *http.Client) PayServiceHTTPClient {
 // H5Pay H5支付
 func (c *PayServiceHTTPClientImpl) H5Pay(ctx context.Context, in *H5PayRequest, opts ...http.CallOption) (*H5PayResponse, error) {
 	var out H5PayResponse
-	pattern := "/api/v1/app/pay/{order_id}/h5"
+	pattern := "/api/v1/app/pay/{trade_id}/h5"
 	path := http.BuildPath(pattern, in)
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
@@ -140,7 +140,7 @@ func (c *PayServiceHTTPClientImpl) H5Pay(ctx context.Context, in *H5PayRequest, 
 // JsapiPay 小程序支付
 func (c *PayServiceHTTPClientImpl) JsapiPay(ctx context.Context, in *JsapiPayRequest, opts ...http.CallOption) (*JsapiPayResponse, error) {
 	var out JsapiPayResponse
-	pattern := "/api/v1/app/pay/{order_id}/jsapi"
+	pattern := "/api/v1/app/pay/{trade_id}/jsapi"
 	path := http.BuildPath(pattern, in)
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),

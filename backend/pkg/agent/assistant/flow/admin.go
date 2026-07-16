@@ -307,7 +307,7 @@ func buildAdminRiskBlock(output map[string]any) map[string]any {
 // openAdminPendingShipmentFlow 打开待发货流程。
 func (r *AdminRunner) openAdminPendingShipmentFlow(ctx context.Context) (*assistant.Response, error) {
 	output, usage, err := r.invokeAdminFlowTool(ctx, adminToolPageOrderInfos, map[string]any{
-		"status":    int(commonv1.OrderStatus_PAID),
+		"status":    int(commonv1.OrderInfoStatus_WAIT_SHIPMENT_OIS),
 		"page_num":  1,
 		"page_size": 5,
 	})
@@ -495,9 +495,9 @@ func (r *AdminRunner) confirmAdminGoodsStatus(ctx context.Context, payload map[s
 // openAdminOrderRefundFlow 打开退款记录流程。
 func (r *AdminRunner) openAdminOrderRefundFlow(ctx context.Context) (*assistant.Response, error) {
 	output, usage, err := r.invokeAdminFlowTool(ctx, adminToolPageOrderInfos, map[string]any{
-		"status":    int(commonv1.OrderStatus_REFUNDING),
-		"page_num":  1,
-		"page_size": 5,
+		"refund_status": int(commonv1.OrderRefundStatus_PROCESSING_ORS),
+		"page_num":      1,
+		"page_size":     5,
 	})
 	tools := appendAiAssistantFlowTool(nil, usage)
 	if err != nil {

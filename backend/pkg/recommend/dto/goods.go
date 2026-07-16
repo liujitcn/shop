@@ -18,6 +18,7 @@ type GoodsRequest struct {
 	Actor           *RecommendActor         // 推荐主体
 	GoodsID         int64                   // 锚点商品编号
 	OrderID         int64                   // 订单编号
+	TradeID         int64                   // 交易单编号
 	RequestID       int64                   // 推荐请求编号
 	ContextGoodsIDs []int64                 // 上下文商品编号列表
 	PageNum         int64                   // 页码
@@ -37,6 +38,7 @@ type GoodsResult struct {
 type RecommendContext struct {
 	GoodsID         int64                      `json:"goods_id"`                    // 当前推荐请求的锚点商品编号
 	OrderID         int64                      `json:"order_id"`                    // 当前推荐请求关联的订单编号
+	TradeID         int64                      `json:"trade_id"`                    // 当前推荐请求关联的交易单编号
 	ContextGoodsIDs []int64                    `json:"context_goods_ids,omitempty"` // 当前推荐计算使用的上下文商品编号列表
 	Strategy        commonv1.RecommendStrategy `json:"strategy,omitempty"`          // 当前命中的推荐策略
 	ProviderName    string                     `json:"provider_name,omitempty"`     // 当前命中的推荐提供方
@@ -44,10 +46,11 @@ type RecommendContext struct {
 }
 
 // NewRecommendRequestContext 创建推荐请求附加上下文。
-func NewRecommendRequestContext(goodsID, orderID int64, contextGoodsIDs []int64, result *GoodsResult) *RecommendContext {
+func NewRecommendRequestContext(goodsID, orderID, tradeID int64, contextGoodsIDs []int64, result *GoodsResult) *RecommendContext {
 	contextRecord := &RecommendContext{
 		GoodsID:         goodsID,
 		OrderID:         orderID,
+		TradeID:         tradeID,
 		ContextGoodsIDs: append([]int64(nil), contextGoodsIDs...),
 		Trace:           make([]*GoodsTrace, 0),
 	}

@@ -604,7 +604,7 @@ function resolveSimpleItemImage(item: AssistantFlowBlock) {
       </view>
 
       <view v-else-if="block.type === 'payment_panel'" class="flow-action-panel">
-        <view class="flow-desc">订单号：{{ block.order_id }}</view>
+        <view class="flow-desc">交易单号：{{ block.trade_id }}</view>
         <button
           class="flow-primary-button is-wide"
           :class="{ 'is-disabled': !isActionEnabled(block.action) }"

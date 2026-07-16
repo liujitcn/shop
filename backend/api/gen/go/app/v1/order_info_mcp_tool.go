@@ -22,8 +22,10 @@ func RegisterOrderInfoServiceMCPTools(mcpServer *mcp.Server, orderInfoServiceSer
 	RegisterOrderInfoServicePageOrderInfoMCPTool(mcpServer, orderInfoServiceServer)
 	RegisterOrderInfoServiceGetOrderInfoIdByOrderNoMCPTool(mcpServer, orderInfoServiceServer)
 	RegisterOrderInfoServiceGetOrderInfoByIdMCPTool(mcpServer, orderInfoServiceServer)
+	RegisterOrderInfoServiceGetOrderTradeByIdMCPTool(mcpServer, orderInfoServiceServer)
 	RegisterOrderInfoServiceCreateOrderInfoMCPTool(mcpServer, orderInfoServiceServer)
 	RegisterOrderInfoServiceDeleteOrderInfoMCPTool(mcpServer, orderInfoServiceServer)
+	RegisterOrderInfoServiceDeleteOrderTradeMCPTool(mcpServer, orderInfoServiceServer)
 	RegisterOrderInfoServiceCancelOrderInfoMCPTool(mcpServer, orderInfoServiceServer)
 	RegisterOrderInfoServiceRefundOrderInfoMCPTool(mcpServer, orderInfoServiceServer)
 	RegisterOrderInfoServiceReceiveOrderInfoMCPTool(mcpServer, orderInfoServiceServer)
@@ -176,6 +178,27 @@ func RegisterOrderInfoServiceGetOrderInfoByIdMCPTool(mcpServer *mcp.Server, orde
 	)
 }
 
+// RegisterOrderInfoServiceGetOrderTradeByIdMCPTool 注册根据交易单ID查询聚合订单详情的 MCP Tool。
+func RegisterOrderInfoServiceGetOrderTradeByIdMCPTool(mcpServer *mcp.Server, orderInfoServiceServer OrderInfoServiceServer) {
+	mcp.AddTool[*GetOrderTradeByIdRequest, *OrderInfoResponse](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "app_v1_order_info_service_get_order_trade_by_id",
+			Description: "根据交易单ID查询聚合订单详情",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *GetOrderTradeByIdRequest) (*mcp.CallToolResult, *OrderInfoResponse, error) {
+			if input == nil {
+				input = &GetOrderTradeByIdRequest{}
+			}
+			reply, err := orderInfoServiceServer.GetOrderTradeById(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
+}
+
 // RegisterOrderInfoServiceCreateOrderInfoMCPTool 注册创建订单信息的 MCP Tool。
 func RegisterOrderInfoServiceCreateOrderInfoMCPTool(mcpServer *mcp.Server, orderInfoServiceServer OrderInfoServiceServer) {
 	mcp.AddTool[*CreateOrderInfoRequest, *CreateOrderInfoResponse](
@@ -210,6 +233,27 @@ func RegisterOrderInfoServiceDeleteOrderInfoMCPTool(mcpServer *mcp.Server, order
 				input = &DeleteOrderInfoRequest{}
 			}
 			reply, err := orderInfoServiceServer.DeleteOrderInfo(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
+}
+
+// RegisterOrderInfoServiceDeleteOrderTradeMCPTool 注册删除交易单的 MCP Tool。
+func RegisterOrderInfoServiceDeleteOrderTradeMCPTool(mcpServer *mcp.Server, orderInfoServiceServer OrderInfoServiceServer) {
+	mcp.AddTool[*DeleteOrderTradeRequest, *emptypb.Empty](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "app_v1_order_info_service_delete_order_trade",
+			Description: "删除交易单",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *DeleteOrderTradeRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
+			if input == nil {
+				input = &DeleteOrderTradeRequest{}
+			}
+			reply, err := orderInfoServiceServer.DeleteOrderTrade(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

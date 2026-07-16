@@ -397,7 +397,7 @@ func (c *CommentCase) PagePendingCommentGoods(ctx context.Context, req *appv1.Pa
 		).
 		Where(
 			orderInfoQuery.UserID.Eq(authInfo.UserId),
-			orderInfoQuery.Status.Eq(_const.ORDER_STATUS_WAIT_REVIEW),
+			orderInfoQuery.Status.Eq(_const.ORDER_INFO_STATUS_WAIT_REVIEW),
 			orderInfoQuery.DeletedAt.IsNull(),
 			orderGoodsQuery.DeletedAt.IsNull(),
 			commentInfoQuery.ID.IsNull(),
@@ -478,7 +478,7 @@ func (c *CommentCase) CreateComment(ctx context.Context, req *appv1.CreateCommen
 		return nil, errorsx.ResourceNotFound("订单不存在").WithCause(err)
 	}
 	// 当前订单不处于待评价状态时，不允许继续创建评价。
-	if orderInfo.Status != _const.ORDER_STATUS_WAIT_REVIEW {
+	if orderInfo.Status != _const.ORDER_INFO_STATUS_WAIT_REVIEW {
 		return nil, errorsx.InvalidArgument("当前订单不可评价")
 	}
 
@@ -531,7 +531,7 @@ func (c *CommentCase) CreateComment(ctx context.Context, req *appv1.CreateCommen
 		// 当前订单下全部商品都已评价时，将订单状态流转到已完成。
 		if orderCompleted {
 			return c.orderInfoCase.updateByIDs(txCtx, authInfo.UserId, []int64{req.GetOrderId()}, &models.OrderInfo{
-				Status: _const.ORDER_STATUS_COMPLETED,
+				Status: _const.ORDER_INFO_STATUS_COMPLETED,
 			})
 		}
 		return nil

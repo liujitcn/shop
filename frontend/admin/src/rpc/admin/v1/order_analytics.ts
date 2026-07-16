@@ -11,18 +11,36 @@ import type { AnalyticsPieResponse, AnalyticsTimeType, AnalyticsTrendResponse } 
 export interface SummaryOrderAnalyticsRequest {
   /** 时间类型 */
   time_type: AnalyticsTimeType;
+  /** 租户ID */
+  tenant_id?:
+    | number
+    | undefined;
+  /** 租户门店ID */
+  tenant_store_id?: number | undefined;
 }
 
 /** 订单趋势查询条件 */
 export interface TrendOrderAnalyticsRequest {
   /** 时间类型 */
   time_type: AnalyticsTimeType;
+  /** 租户ID */
+  tenant_id?:
+    | number
+    | undefined;
+  /** 租户门店ID */
+  tenant_store_id?: number | undefined;
 }
 
 /** 订单状态分布查询条件 */
 export interface PieOrderAnalyticsRequest {
   /** 时间类型 */
   time_type: AnalyticsTimeType;
+  /** 租户ID */
+  tenant_id?:
+    | number
+    | undefined;
+  /** 租户门店ID */
+  tenant_store_id?: number | undefined;
 }
 
 /** 订单分析汇总响应 */

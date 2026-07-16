@@ -240,7 +240,7 @@
 
 <script setup lang="ts">
 import { computed, h, reactive, ref, type VNode, watch } from "vue";
-import { ElButton, ElLink, ElMessage, ElMessageBox, ElPopover } from "element-plus";
+import { ElButton, ElLink, ElMessage, ElPopover } from "element-plus";
 import { RefreshLeft, Van, View } from "@element-plus/icons-vue";
 import { useRoute } from "vue-router";
 import type { ColumnProps, ProTableInstance, RenderScope } from "@/components/ProTable/interface";
@@ -262,7 +262,7 @@ import type {
 } from "@/rpc/admin/v1/order_info";
 import type { SelectOptionResponse_Option } from "@/rpc/common/v1/common";
 import router from "@/routers";
-import { OrderPayType, OrderStatus } from "@/rpc/common/v1/enum";
+import { OrderInfoStatus, OrderRefundStatus, OrderTradeStatus } from "@/rpc/common/v1/enum";
 import { buildPageRequest } from "@/utils/proTable";
 import { navigateTo } from "@/utils/router";
 import { formatPrice } from "@/utils/utils";
@@ -298,6 +298,7 @@ const dataFormRefShipped = ref<ProFormInstance>();
 const dataFormRefRefund = ref<ProFormInstance>();
 const userOptions = ref<SelectOptionResponse_Option[]>([]);
 const tenantStoreDisplayMap = ref(new Map<number, TenantStoreDisplayInfo>());
+const refundOrderPayMoney = ref(0);
 
 /** 订单列表搜索参数，兼容租户门店树筛选展示值。 */
 type OrderInfoSearchParams = PageOrderInfosRequest & {
@@ -312,8 +313,12 @@ const reportInitParam = computed(() => {
   const startDate = String(route.query.startDate ?? "");
   const endDate = String(route.query.endDate ?? "");
   const status = Number(route.query.status ?? 0);
+  const trade_status = Number(route.query.tradeStatus ?? 0);
+  const refund_status = Number(route.query.refundStatus ?? 0);
   const pay_type = Number(route.query.payType ?? 0);
   const pay_channel = Number(route.query.payChannel ?? 0);
+  const tenant_id = Number(route.query.tenantId ?? 0);
+  const tenant_store_id = Number(route.query.tenantStoreId ?? 0);
   const initParam: Record<string, unknown> = {};
   if (startDate && endDate) {
     initParam.created_at = [startDate, endDate];
@@ -321,11 +326,24 @@ const reportInitParam = computed(() => {
   if (status > 0) {
     initParam.status = status;
   }
+  if (trade_status > 0) {
+    initParam.trade_status = trade_status;
+  }
+  if (refund_status > 0) {
+    initParam.refund_status = refund_status;
+  }
   if (pay_type > 0) {
     initParam.pay_type = pay_type;
   }
   if (pay_channel > 0) {
     initParam.pay_channel = pay_channel;
+  }
+  if (isDefaultTenant.value && tenant_store_id > 0) {
+    initParam.tenant_store_tree_value = `store:${tenant_store_id}`;
+  } else if (isDefaultTenant.value && tenant_id > 0) {
+    initParam.tenant_store_tree_value = `tenant:${tenant_id}`;
+  } else if (!isDefaultTenant.value && tenant_store_id > 0) {
+    initParam.tenant_store_id = tenant_store_id;
   }
   return initParam;
 });
@@ -337,19 +355,33 @@ watch(
     const startDate = String(route.query.startDate ?? "");
     const endDate = String(route.query.endDate ?? "");
     const status = Number(route.query.status ?? 0);
+    const trade_status = Number(route.query.tradeStatus ?? 0);
+    const refund_status = Number(route.query.refundStatus ?? 0);
     const pay_type = Number(route.query.payType ?? 0);
     const pay_channel = Number(route.query.payChannel ?? 0);
+    const tenant_id = Number(route.query.tenantId ?? 0);
+    const tenant_store_id = Number(route.query.tenantStoreId ?? 0);
     const created_at = startDate && endDate ? [startDate, endDate] : undefined;
+    const tenant_store_tree_value =
+      tenant_store_id > 0 ? `store:${tenant_store_id}` : tenant_id > 0 ? `tenant:${tenant_id}` : undefined;
     Object.assign(proTable.value.searchParam, {
       status: status > 0 ? status : undefined,
+      trade_status: trade_status > 0 ? trade_status : undefined,
+      refund_status: refund_status > 0 ? refund_status : undefined,
       pay_type: pay_type > 0 ? pay_type : undefined,
       pay_channel: pay_channel > 0 ? pay_channel : undefined,
+      tenant_store_tree_value: isDefaultTenant.value ? tenant_store_tree_value : undefined,
+      tenant_store_id: !isDefaultTenant.value && tenant_store_id > 0 ? tenant_store_id : undefined,
       created_at
     });
     Object.assign(proTable.value.searchInitParam, {
       status: status > 0 ? status : undefined,
+      trade_status: trade_status > 0 ? trade_status : undefined,
+      refund_status: refund_status > 0 ? refund_status : undefined,
       pay_type: pay_type > 0 ? pay_type : undefined,
       pay_channel: pay_channel > 0 ? pay_channel : undefined,
+      tenant_store_tree_value: isDefaultTenant.value ? tenant_store_tree_value : undefined,
+      tenant_store_id: !isDefaultTenant.value && tenant_store_id > 0 ? tenant_store_id : undefined,
       created_at
     });
     proTable.value.pageable.page_num = 1;
@@ -522,7 +554,12 @@ const hasRefundPaymentSection = computed(() => {
   );
 });
 
-const maxRefundMoney = computed(() => Number(((dataRefund.payment?.amount?.payer_total ?? 0) / 100).toFixed(2)));
+const maxRefundMoney = computed(() => {
+  const refundedMoney = dataRefund.refund.reduce((total, item) => {
+    return item.refund_state === "SUCCESS" ? total + (item.amount?.payer_refund ?? 0) : total;
+  }, 0);
+  return Number((Math.max(refundOrderPayMoney.value - refundedMoney, 0) / 100).toFixed(2));
+});
 
 const shippedGoodsColumns: ColumnProps[] = [
   { prop: "name", label: "商品名称", minWidth: 180 },
@@ -642,16 +679,6 @@ function renderOperationCell(scope: RenderScope<OrderInfo>) {
     );
   }
 
-  if (canRefundCod(row) && BUTTONS.value["order:info:refund"]) {
-    actionNodes.push(
-      h(
-        ElButton,
-        { key: `refund-cod-${row.id}`, type: "danger", link: true, icon: RefreshLeft, onClick: () => handleRefund(row) },
-        () => "退款"
-      )
-    );
-  }
-
   if (canOpenRefund(row) && BUTTONS.value["order:info:refund"]) {
     actionNodes.push(
       h(
@@ -661,7 +688,7 @@ function renderOperationCell(scope: RenderScope<OrderInfo>) {
           type: "danger",
           link: true,
           icon: RefreshLeft,
-          onClick: () => handleOpenRefundDialog(row.id, "退款")
+          onClick: () => handleOpenRefundDialog(row, "退款")
         },
         () => "退款"
       )
@@ -677,7 +704,7 @@ function renderOperationCell(scope: RenderScope<OrderInfo>) {
           type: "danger",
           link: true,
           icon: View,
-          onClick: () => handleOpenRefundDialog(row.id, "退款详情")
+          onClick: () => handleOpenRefundDialog(row, "退款详情")
         },
         () => "退款详情"
       )
@@ -758,11 +785,25 @@ const columns = computed<ColumnProps[]>(() => [
   { prop: "pay_type", label: "支付方式", minWidth: 110, dictCode: "order_pay_type", search: { el: "select" } },
   { prop: "pay_channel", label: "支付渠道", minWidth: 110, dictCode: "order_pay_channel", search: { el: "select" } },
   {
-    prop: "status",
-    label: "状态",
+    prop: "trade_status",
+    label: "支付状态",
     minWidth: 110,
-    dictCode: "order_status",
+    dictCode: "order_trade_status",
+    search: { el: "select" }
+  },
+  {
+    prop: "status",
+    label: "履约状态",
+    minWidth: 110,
+    dictCode: "order_info_status",
     search: props.status ? undefined : { el: "select" }
+  },
+  {
+    prop: "refund_status",
+    label: "退款状态",
+    minWidth: 120,
+    dictCode: "order_refund_status",
+    search: { el: "select" }
   },
   {
     prop: "created_at",
@@ -863,32 +904,38 @@ async function requestOrderTable(params: PageOrderInfosRequest) {
  * 判断当前订单是否可发货。
  */
 function canOpenShipped(row: OrderInfo) {
-  return row.status === OrderStatus.PAID;
+  return (
+    row.status === OrderInfoStatus.WAIT_SHIPMENT_OIS &&
+    [OrderTradeStatus.PAID_OTS, OrderTradeStatus.CASH_ON_DELIVERY_OTS, OrderTradeStatus.PARTIAL_REFUND_OTS].includes(
+      row.trade_status
+    )
+  );
 }
 
 /**
  * 判断当前订单是否可查看发货详情。
  */
 function canViewShipped(row: OrderInfo) {
-  // WAIT_REVIEW 表示已收货后待评价，可继续查看发货与物流详情。
-  return row.status === OrderStatus.SHIPPED || row.status === OrderStatus.WAIT_REVIEW;
-}
-
-/**
- * 判断货到付款订单是否可直接退款。
- */
-function canRefundCod(row: OrderInfo) {
-  return row.pay_type === OrderPayType.CASH_ON_DELIVERY && canViewShipped(row);
+  return [OrderInfoStatus.SHIPPED_OIS, OrderInfoStatus.WAIT_REVIEW_OIS, OrderInfoStatus.COMPLETED_OIS].includes(row.status);
 }
 
 /**
  * 判断在线支付订单是否可发起退款。
  */
 function canOpenRefund(row: OrderInfo) {
-  // WAIT_REVIEW 承接旧待收货后状态，允许在线支付订单继续走退款流程。
   return (
-    row.pay_type === OrderPayType.ONLINE_PAY &&
-    (row.status === OrderStatus.SHIPPED || row.status === OrderStatus.WAIT_REVIEW || row.status === OrderStatus.REFUNDING)
+    [
+      OrderInfoStatus.WAIT_SHIPMENT_OIS,
+      OrderInfoStatus.SHIPPED_OIS,
+      OrderInfoStatus.WAIT_REVIEW_OIS,
+      OrderInfoStatus.COMPLETED_OIS
+    ].includes(row.status) &&
+    [OrderTradeStatus.PAID_OTS, OrderTradeStatus.CASH_ON_DELIVERY_OTS, OrderTradeStatus.PARTIAL_REFUND_OTS].includes(
+      row.trade_status
+    ) &&
+    [OrderRefundStatus.NONE_ORS, OrderRefundStatus.PARTIAL_REFUND_ORS, OrderRefundStatus.CLOSED_OR_FAILED_ORS].includes(
+      row.refund_status
+    )
   );
 }
 
@@ -896,7 +943,7 @@ function canOpenRefund(row: OrderInfo) {
  * 判断当前订单是否可查看退款详情。
  */
 function canViewRefund(row: OrderInfo) {
-  return row.status === OrderStatus.REFUNDING;
+  return row.refund_status !== OrderRefundStatus.NONE_ORS && row.refund_status !== OrderRefundStatus.UNKNOWN_ORS;
 }
 
 /**
@@ -970,37 +1017,18 @@ function handleShippedSubmitClick() {
 }
 
 /**
- * 对货到付款订单发起退款。
- */
-function handleRefund(row: OrderInfo) {
-  ElMessageBox.prompt(`请输入退款原因\n订单编号：${row.order_no || `ID:${row.id}`}`, "申请退款", {
-    confirmButtonText: "确定",
-    cancelButtonText: "取消"
-  }).then(
-    () => {
-      defOrderInfoService.RefundOrderInfo({ order_id: row.id, refund_money: 0 }).then(() => {
-        ElMessage.success("订单退款成功");
-        proTable.value?.getTableList();
-      });
-    },
-    () => {
-      ElMessage.info("已取消订单退款");
-    }
-  );
-}
-
-/**
  * 打开退款弹窗并加载退款详情。
  */
-function handleOpenRefundDialog(order_id: number, title: string) {
+function handleOpenRefundDialog(row: OrderInfo, title: string) {
   resetRefundDialog();
   dialogRefund.visible = true;
   dialogRefund.title = title;
   dialogRefund.loading = true;
-  formDataRefund.order_id = order_id;
+  formDataRefund.order_id = row.id;
+  refundOrderPayMoney.value = row.pay_money;
   const requestId = ++dialogRefund.requestId;
   defOrderInfoService
-    .GetOrderInfoRefund({ id: order_id })
+    .GetOrderInfoRefund({ id: row.id })
     .then(data => {
       if (requestId !== dialogRefund.requestId || !dialogRefund.visible) return;
       Object.assign(dataRefund, data);
@@ -1035,6 +1063,7 @@ function resetRefundDialog() {
   formDataRefund.order_id = 0;
   formDataRefund.reason = undefined;
   formDataRefund.refund_money = 0;
+  refundOrderPayMoney.value = 0;
   dataRefund.payment = undefined;
   dataRefund.refund = [];
 }

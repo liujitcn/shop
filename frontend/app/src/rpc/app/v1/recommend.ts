@@ -33,6 +33,8 @@ export interface RecommendGoodsRequest {
   goods_id: number;
   /** 推荐请求ID */
   request_id: number;
+  /** 交易单ID */
+  trade_id: number;
   /** 当前页码 */
   page_num: number;
   /** 每页数量 */

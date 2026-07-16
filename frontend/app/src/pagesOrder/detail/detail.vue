@@ -5,7 +5,12 @@ import type { OrderInfoResponse } from '@/rpc/app/v1/order_info'
 import { onLoad, onReady } from '@dcloudio/uni-app'
 import { computed, ref } from 'vue'
 import PageSkeleton from './components/PageSkeleton.vue'
-import { OrderCancelReason, OrderStatus, RecommendScene } from '@/rpc/common/v1/enum'
+import {
+  OrderCancelReason,
+  OrderDeliveryTime,
+  OrderInfoStatus,
+  RecommendScene,
+} from '@/rpc/common/v1/enum'
 import type { BaseDictForm_DictItem } from '@/rpc/app/v1/base_dict'
 import { defBaseDictService } from '@/api/app/base_dict'
 import { defPayService } from '@/api/app/pay'
@@ -20,6 +25,12 @@ import {
   tenantStoreUrl,
 } from '@/utils/navigation'
 import RefundOrderPopup from '../components/RefundOrderPopup.vue'
+import {
+  canDeleteOrder,
+  canRefundOrder,
+  getOrderDisplayStatus,
+  isPayableTrade,
+} from '@/utils/order'
 // 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync()
 // 猜你喜欢
@@ -31,7 +42,6 @@ const refundPopup = ref<InstanceType<typeof RefundOrderPopup>>()
 const reasonList = ref<BaseDictForm_DictItem[]>([])
 // 取消原因列表
 const cancelReasonList = ref<BaseDictForm_DictItem[]>([])
-const orderStatusMap: Map<number, string> = new Map()
 // 订单取消原因
 const reason = ref('')
 // 标题
@@ -56,7 +66,7 @@ const buildGoodsDetailUrl = (
 const buildOrderCommentWriteUrl = () => {
   const firstGoods = orderData.value?.order?.order_goods_stores?.[0]?.goods?.[0]
   return orderCommentWriteUrl({
-    order_id: order_id.value,
+    order_id: currentOrderID.value,
     goods_id: firstGoods?.goods_id,
     goods_name: firstGoods?.name,
     goods_picture: firstGoods?.picture ? formatSrc(firstGoods.picture) : undefined,
@@ -65,14 +75,14 @@ const buildOrderCommentWriteUrl = () => {
   })
 }
 
-const getOrderStatusText = (status?: OrderStatus) => {
-  if (status === OrderStatus.WAIT_REVIEW) {
-    return '待评价'
-  }
-  if (status === OrderStatus.COMPLETED) {
-    return '已完成'
-  }
-  return status === undefined ? '' : orderStatusMap.get(status)
+const deliveryTimeText = new Map<OrderDeliveryTime, string>([
+  [OrderDeliveryTime.ALL_TIME, '时间不限'],
+  [OrderDeliveryTime.WEEKDAY, '工作日配送'],
+  [OrderDeliveryTime.WEEKEND, '周末配送'],
+])
+
+const getDeliveryTimeText = (deliveryTime: OrderDeliveryTime) => {
+  return deliveryTimeText.get(deliveryTime) || '未指定'
 }
 
 // 复制内容
@@ -82,11 +92,13 @@ const onCopy = (id: string) => {
 }
 // 获取页面参数
 const query = defineProps<{
-  id: string | number
-  internal: boolean
+  id?: string | number
+  trade_id?: string | number
+  internal?: boolean | string
 }>()
 
-const order_id = ref(0)
+const currentOrderID = ref(0)
+const currentTradeID = ref(0)
 
 // 获取页面栈
 const pages = getCurrentPages()
@@ -137,17 +149,25 @@ const getUserOrderById = async () => {
   loadOrderError.value = ''
   orderData.value = undefined
   try {
-    if (!query.internal) {
+    if (query.trade_id) {
+      currentTradeID.value = Number(query.trade_id)
+      orderData.value = await defOrderService.GetOrderTradeById({
+        trade_id: currentTradeID.value,
+      })
+    } else if (String(query.internal) !== 'true') {
       const res = await defOrderService.GetOrderInfoIdByOrderNo({
         order_no: String(query.id),
       })
-      order_id.value = res.order_id
+      currentOrderID.value = res.order_id
+      orderData.value = await defOrderService.GetOrderInfoById({ id: currentOrderID.value })
     } else {
-      order_id.value = Number(query.id)
+      currentOrderID.value = Number(query.id)
+      orderData.value = await defOrderService.GetOrderInfoById({ id: currentOrderID.value })
     }
-    orderData.value = await defOrderService.GetOrderInfoById({
-      id: order_id.value,
-    })
+    currentTradeID.value = orderData.value.order?.trade_id || currentTradeID.value
+    currentOrderID.value = orderData.value.order?.is_trade
+      ? 0
+      : orderData.value.order?.id || currentOrderID.value
   } catch {
     // 接口失败时保持空态，避免骨架屏或旧数据被误认为真实订单详情。
     loadOrderError.value = '订单查询失败'
@@ -156,16 +176,8 @@ const getUserOrderById = async () => {
   }
 }
 const getDictData = async () => {
-  const orderStatusCode = 'order_status'
   const cancelReasonCode = 'order_cancel_reason'
-  // 新协议按字典编码单查，这里并发加载详情页依赖的字典。
-  const [orderStatusDict, cancelReasonDict] = await Promise.all([
-    defBaseDictService.GetBaseDict({ value: orderStatusCode }),
-    defBaseDictService.GetBaseDict({ value: cancelReasonCode }),
-  ])
-  orderStatusDict.items.map((dictItem) => {
-    orderStatusMap.set(Number(dictItem.value), dictItem.label)
-  })
+  const cancelReasonDict = await defBaseDictService.GetBaseDict({ value: cancelReasonCode })
   cancelReasonList.value = cancelReasonDict.items || []
 }
 onLoad(() => {
@@ -190,17 +202,15 @@ const openH5PayUrl = (url: string) => {
 
 // 倒计时结束事件
 const onTimeUp = async () => {
-  // 添加状态检查：只有待支付状态才执行取消
-  if (orderData.value?.order?.status !== OrderStatus.CREATED) return
-  // 订单真实 ID 未就绪时不触发取消，避免按订单号误取消
-  if (!order_id.value) return
+  if (!orderData.value?.order || !isPayableTrade(orderData.value.order)) return
+  if (!currentTradeID.value) return
   // 添加加载状态锁
   if (onTimeUpFlag.value) return
   onTimeUpFlag.value = true
   // 修改订单状态为已取消
   try {
     await defOrderService.CancelOrderInfo({
-      order_id: order_id.value,
+      trade_id: currentTradeID.value,
       reason: OrderCancelReason.UNKNOWN_OCR,
     })
     await getUserOrderById()
@@ -213,7 +223,7 @@ const onTimeUp = async () => {
 const onOrderPay = async () => {
   // #ifdef MP-WEIXIN
   // 正式环境微信支付
-  const jsapiRes = await defPayService.JsapiPay({ order_id: order_id.value })
+  const jsapiRes = await defPayService.JsapiPay({ trade_id: currentTradeID.value })
   uni.requestPayment({
     provider: 'wxpay',
     /** 随机字符串，长度为32个字符以下 */
@@ -238,13 +248,13 @@ const onOrderPay = async () => {
     /** 接口调用成功的回调函数 */
     success: () => {
       // 关闭当前页，再跳转支付结果页
-      void redirectToOrderPayment(order_id.value)
+      void redirectToOrderPayment(currentTradeID.value)
     },
   })
   // #endif
 
   // #ifdef H5 || APP-PLUS
-  const h5Res = await defPayService.H5Pay({ order_id: order_id.value })
+  const h5Res = await defPayService.H5Pay({ trade_id: currentTradeID.value })
   openH5PayUrl(h5Res.h5_url)
   // #endif
 }
@@ -258,14 +268,14 @@ const onOrderConfirm = () => {
     success: async (success) => {
       if (success.confirm) {
         await defOrderService.ReceiveOrderInfo({
-          order_id: order_id.value,
+          order_id: currentOrderID.value,
         })
         await getUserOrderById()
       }
     },
   })
 }
-// 删除订单
+// 删除交易聚合记录或门店子订单
 const onOrderDelete = () => {
   // 二次确认
   uni.showModal({
@@ -273,7 +283,11 @@ const onOrderDelete = () => {
     confirmColor: '#27BA9B',
     success: async (success) => {
       if (success.confirm) {
-        await defOrderService.DeleteOrderInfo({ id: order_id.value })
+        if (orderData.value!.order!.is_trade) {
+          await defOrderService.DeleteOrderTrade({ trade_id: currentTradeID.value })
+        } else {
+          await defOrderService.DeleteOrderInfo({ id: currentOrderID.value })
+        }
         uni.redirectTo({ url: orderListUrl(0) })
       }
     },
@@ -307,7 +321,7 @@ const onConfirmPopup = async () => {
     })
   }
   await defOrderService.CancelOrderInfo({
-    order_id: order_id.value,
+    trade_id: currentTradeID.value,
     reason: Number(reason.value),
   })
   await uni.showToast({
@@ -351,7 +365,7 @@ const onRefundSuccess = async () => {
       <!-- 订单状态 -->
       <view class="overview" :style="{ paddingTop: safeAreaInsets!.top + 20 + 'px' }">
         <!-- 待付款状态:展示倒计时 -->
-        <template v-if="orderData.order!.status === OrderStatus.CREATED">
+        <template v-if="isPayableTrade(orderData.order!)">
           <view class="status icon-clock">等待付款</view>
           <view class="tips">
             <text class="money">应付金额: ¥ {{ formatPrice(orderData.order!.pay_money) }}</text>
@@ -370,18 +384,22 @@ const onRefundSuccess = async () => {
         <!-- 其他订单状态:展示再次购买按钮 -->
         <template v-else>
           <!-- 订单状态文字 -->
-          <view class="status"> {{ getOrderStatusText(orderData.order!.status) }}</view>
+          <view class="status">{{ getOrderDisplayStatus(orderData.order!) }}</view>
           <view class="button-group">
             <navigator
+              v-if="!orderData.order!.is_trade"
               class="button"
-              :url="orderCreateUrl({ order_id: query.id })"
+              :url="orderCreateUrl({ order_id: orderData.order!.id })"
               hover-class="none"
             >
               再次购买
             </navigator>
             <!-- 待收货状态: 展示确认收货按钮 -->
             <view
-              v-if="orderData.order!.status === OrderStatus.SHIPPED"
+              v-if="
+                !orderData.order!.is_trade &&
+                orderData.order!.status === OrderInfoStatus.SHIPPED_OIS
+              "
               class="button"
               @tap="onOrderConfirm"
             >
@@ -462,11 +480,30 @@ const onRefundSuccess = async () => {
             </view>
           </navigator>
         </view>
+        <view class="store-summary">
+          <view class="summary-row">
+            <text>配送时间</text>
+            <text>{{ getDeliveryTimeText(group.delivery_time) }}</text>
+          </view>
+          <view v-if="group.remark" class="summary-row">
+            <text>门店备注</text>
+            <text class="summary-value">{{ group.remark }}</text>
+          </view>
+          <view v-if="group.summary" class="summary-row">
+            <text>门店小计</text>
+            <text>¥{{ formatPrice(group.summary.pay_money) }}</text>
+          </view>
+        </view>
       </view>
       <view class="goods order-summary">
         <!-- 待评价状态:展示按钮 -->
-        <view v-if="orderData.order!.status === OrderStatus.WAIT_REVIEW" class="action">
-          <view class="button primary" @tap="onOpenRefundPopup">申请售后</view>
+        <view
+          v-if="
+            !orderData.order!.is_trade &&
+            orderData.order!.status === OrderInfoStatus.WAIT_REVIEW_OIS
+          "
+          class="action"
+        >
           <navigator :url="buildOrderCommentWriteUrl()" class="button"> 去评价 </navigator>
         </view>
         <!-- 合计 -->
@@ -491,8 +528,17 @@ const onRefundSuccess = async () => {
         <view class="title">订单信息</view>
         <view class="row">
           <view class="item">
-            订单编号: {{ orderData.order!.order_no }}
-            <text class="copy" @tap="onCopy(orderData.order!.order_no)">复制</text>
+            {{ orderData.order!.is_trade ? '交易单编号' : '订单编号' }}:
+            {{ orderData.order!.is_trade ? orderData.order!.trade_no : orderData.order!.order_no }}
+            <text
+              class="copy"
+              @tap="
+                onCopy(
+                  orderData.order!.is_trade ? orderData.order!.trade_no : orderData.order!.order_no,
+                )
+              "
+              >复制</text
+            >
           </view>
           <view class="item">下单时间: {{ orderData.order!.created_at }}</view>
           <view v-if="orderData.order!.payment_time" class="item"
@@ -504,7 +550,9 @@ const onRefundSuccess = async () => {
           <view v-if="orderData.order!.refund_time" class="item"
             >退款时间: {{ orderData.order!.refund_time }}</view
           >
-          <view class="item">订单备注: {{ orderData.order!.remark }}</view>
+          <view v-if="!orderData.order!.is_trade && orderData.order!.remark" class="item">
+            订单备注: {{ orderData.order!.remark }}
+          </view>
         </view>
       </view>
 
@@ -513,58 +561,41 @@ const onRefundSuccess = async () => {
         ref="guessRef"
         title="买过这单的人还会买"
         :scene="RecommendScene.ORDER_DETAIL"
-        :order-id="order_id"
+        :order-id="currentOrderID"
+        :trade-id="orderData.order!.is_trade ? currentTradeID : 0"
       />
 
       <!-- 底部操作栏 -->
       <view class="toolbar-height" :style="{ paddingBottom: safeAreaInsets?.bottom + 'px' }" />
       <view class="toolbar" :style="{ paddingBottom: safeAreaInsets?.bottom + 'px' }">
-        <view
-          v-if="orderData.order!.status === OrderStatus.CREATED"
-          class="button"
-          @tap="onOpenPopup"
-        >
+        <view v-if="isPayableTrade(orderData.order!)" class="button" @tap="onOpenPopup">
           取消订单
         </view>
-        <view
-          v-if="orderData.order!.status === OrderStatus.CREATED"
-          class="button primary"
-          @tap="onOrderPay"
-        >
+        <view v-if="isPayableTrade(orderData.order!)" class="button primary" @tap="onOrderPay">
           去支付
         </view>
         <navigator
-          v-if="orderData.order!.status !== OrderStatus.CREATED"
+          v-if="!orderData.order!.is_trade"
           class="button secondary"
-          :url="orderCreateUrl({ order_id: query.id })"
+          :url="orderCreateUrl({ order_id: orderData.order!.id })"
           hover-class="none"
         >
           再次购买
         </navigator>
-        <view
-          v-if="orderData.order!.status === OrderStatus.PAID"
-          class="button"
-          @tap="onOpenRefundPopup"
-        >
+        <view v-if="canRefundOrder(orderData.order!)" class="button" @tap="onOpenRefundPopup">
           申请退款
         </view>
         <view
-          v-if="orderData.order!.status === OrderStatus.SHIPPED"
+          v-if="
+            !orderData.order!.is_trade && orderData.order!.status === OrderInfoStatus.SHIPPED_OIS
+          "
           class="button primary"
           @tap="onOrderConfirm"
         >
           确认收货
         </view>
         <!-- 已完成/退款售后/已取消状态允许删除，待评价不能删除。 -->
-        <view
-          v-if="
-            orderData.order!.status === OrderStatus.COMPLETED ||
-            orderData.order!.status === OrderStatus.REFUNDING ||
-            orderData.order!.status === OrderStatus.CANCELED
-          "
-          class="button delete"
-          @tap="onOrderDelete"
-        >
+        <view v-if="canDeleteOrder(orderData.order!)" class="button delete" @tap="onOrderDelete">
           删除订单
         </view>
       </view>
@@ -859,6 +890,25 @@ page {
       font-size: 24rpx;
       color: #444;
     }
+  }
+
+  .store-summary {
+    padding: 16rpx 0 20rpx;
+    font-size: 24rpx;
+    color: #666;
+  }
+
+  .summary-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 24rpx;
+    line-height: 44rpx;
+  }
+
+  .summary-value {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    text-align: right;
   }
 
   .action {

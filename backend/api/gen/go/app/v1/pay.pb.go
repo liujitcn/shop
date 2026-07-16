@@ -249,7 +249,7 @@ func (*PayNotifyRequest) Descriptor() ([]byte, []int) {
 // 小程序支付请求参数
 type JsapiPayRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	OrderId       int64                  `protobuf:"varint,1,opt,name=order_id,json=orderId,proto3" json:"order_id,omitempty"` // 订单id
+	TradeId       int64                  `protobuf:"varint,1,opt,name=trade_id,json=tradeId,proto3" json:"trade_id,omitempty"` // 交易单ID
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -284,9 +284,9 @@ func (*JsapiPayRequest) Descriptor() ([]byte, []int) {
 	return file_app_v1_pay_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *JsapiPayRequest) GetOrderId() int64 {
+func (x *JsapiPayRequest) GetTradeId() int64 {
 	if x != nil {
-		return x.OrderId
+		return x.TradeId
 	}
 	return 0
 }
@@ -294,7 +294,7 @@ func (x *JsapiPayRequest) GetOrderId() int64 {
 // H5支付请求参数
 type H5PayRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	OrderId       int64                  `protobuf:"varint,1,opt,name=order_id,json=orderId,proto3" json:"order_id,omitempty"` // 订单id
+	TradeId       int64                  `protobuf:"varint,1,opt,name=trade_id,json=tradeId,proto3" json:"trade_id,omitempty"` // 交易单ID
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -329,9 +329,9 @@ func (*H5PayRequest) Descriptor() ([]byte, []int) {
 	return file_app_v1_pay_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *H5PayRequest) GetOrderId() int64 {
+func (x *H5PayRequest) GetTradeId() int64 {
 	if x != nil {
-		return x.OrderId
+		return x.TradeId
 	}
 	return 0
 }
@@ -941,11 +941,11 @@ var File_app_v1_pay_proto protoreflect.FileDescriptor
 const file_app_v1_pay_proto_rawDesc = "" +
 	"\n" +
 	"\x10app/v1/pay.proto\x12\x06app.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x12\n" +
-	"\x10PayNotifyRequest\"<\n" +
-	"\x0fJsapiPayRequest\x12)\n" +
-	"\border_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单idR\aorderId\"9\n" +
-	"\fH5PayRequest\x12)\n" +
-	"\border_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单idR\aorderId\"\xef\x06\n" +
+	"\x10PayNotifyRequest\"?\n" +
+	"\x0fJsapiPayRequest\x12,\n" +
+	"\btrade_id\x18\x01 \x01(\x03B\x11\xbaG\x0e\x92\x02\v交易单IDR\atradeId\"<\n" +
+	"\fH5PayRequest\x12,\n" +
+	"\btrade_id\x18\x01 \x01(\x03B\x11\xbaG\x0e\x92\x02\v交易单IDR\atradeId\"\xef\x06\n" +
 	"\x10JsapiPayResponse\x12\x96\x01\n" +
 	"\x06app_id\x18\x01 \x01(\tB\x7f\xbaG|\x92\x02y填写下单时传入的appid，且必需与当前实际调起支付的公众号appid一致，否则无法调起支付。R\x05appId\x12\xd0\x01\n" +
 	"\n" +
@@ -1034,8 +1034,8 @@ const file_app_v1_pay_proto_rawDesc = "" +
 	"\bABNORMAL\x10\x042\xba\x02\n" +
 	"\n" +
 	"PayService\x12j\n" +
-	"\bJsapiPay\x12\x17.app.v1.JsapiPayRequest\x1a\x18.app.v1.JsapiPayResponse\"+\x82\xd3\xe4\x93\x02%:\x01*\" /api/v1/app/pay/{order_id}/jsapi\x12^\n" +
-	"\x05H5Pay\x12\x14.app.v1.H5PayRequest\x1a\x15.app.v1.H5PayResponse\"(\x82\xd3\xe4\x93\x02\":\x01*\"\x1d/api/v1/app/pay/{order_id}/h5\x12`\n" +
+	"\bJsapiPay\x12\x17.app.v1.JsapiPayRequest\x1a\x18.app.v1.JsapiPayResponse\"+\x82\xd3\xe4\x93\x02%:\x01*\" /api/v1/app/pay/{trade_id}/jsapi\x12^\n" +
+	"\x05H5Pay\x12\x14.app.v1.H5PayRequest\x1a\x15.app.v1.H5PayResponse\"(\x82\xd3\xe4\x93\x02\":\x01*\"\x1d/api/v1/app/pay/{trade_id}/h5\x12`\n" +
 	"\tPayNotify\x12\x18.app.v1.PayNotifyRequest\x1a\x16.google.protobuf.Empty\"!\x82\xd3\xe4\x93\x02\x1b:\x01*\"\x16/api/v1/app/pay/notifyBm\n" +
 	"\n" +
 	"com.app.v1B\bPayProtoP\x01Z\x1cshop/api/gen/go/app/v1;appv1\xa2\x02\x03AXX\xaa\x02\x06App.V1\xca\x02\x06App\\V1\xe2\x02\x12App\\V1\\GPBMetadata\xea\x02\aApp::V1b\x06proto3"

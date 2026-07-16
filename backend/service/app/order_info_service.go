@@ -113,6 +113,17 @@ func (s *OrderInfoService) GetOrderInfoById(ctx context.Context, req *appv1.GetO
 	return res, nil
 }
 
+// GetOrderTradeById 根据交易单编号查询聚合订单详情。
+func (s *OrderInfoService) GetOrderTradeById(ctx context.Context, req *appv1.GetOrderTradeByIdRequest) (*appv1.OrderInfoResponse, error) {
+	res, err := s.orderInfoCase.GetOrderTradeByID(ctx, req.GetTradeId())
+	if err != nil {
+		log.Error(fmt.Sprintf("GetOrderTradeById %v", err))
+		return nil, errorsx.WrapInternal(err, "查询交易单失败")
+	}
+
+	return res, nil
+}
+
 // CreateOrderInfo 创建订单信息
 func (s *OrderInfoService) CreateOrderInfo(ctx context.Context, req *appv1.CreateOrderInfoRequest) (*appv1.CreateOrderInfoResponse, error) {
 	res, err := s.orderInfoCase.CreateOrderInfo(ctx, req)
@@ -129,6 +140,16 @@ func (s *OrderInfoService) DeleteOrderInfo(ctx context.Context, req *appv1.Delet
 	if err != nil {
 		log.Error(fmt.Sprintf("DeleteOrderInfo %v", err))
 		return nil, errorsx.WrapInternal(err, "删除订单失败")
+	}
+	return new(emptypb.Empty), nil
+}
+
+// DeleteOrderTrade 删除已关闭交易单。
+func (s *OrderInfoService) DeleteOrderTrade(ctx context.Context, req *appv1.DeleteOrderTradeRequest) (*emptypb.Empty, error) {
+	err := s.orderInfoCase.DeleteOrderTrade(ctx, req.GetTradeId())
+	if err != nil {
+		log.Error(fmt.Sprintf("DeleteOrderTrade %v", err))
+		return nil, errorsx.WrapInternal(err, "删除交易单失败")
 	}
 	return new(emptypb.Empty), nil
 }

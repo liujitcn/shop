@@ -50,13 +50,13 @@ function handleFlowAction(action?: AiAssistantAction) {
     <view v-if="!orders.length" class="flow-empty">暂时没有相关订单</view>
     <view
       v-for="order in orders"
-      :key="order.id"
+      :key="`${order.is_trade ? 'trade' : 'order'}-${order.id}`"
       class="flow-order-card"
       :class="{ 'flow-reveal-item': reveal, 'is-disabled': !isActionEnabled(order.action) }"
     >
       <view class="flow-order-head">
         <view class="flow-order-title">
-          <text class="flow-order-label">订单</text>
+          <text class="flow-order-label">{{ order.is_trade ? '交易单' : '门店订单' }}</text>
           <text class="flow-order-no">{{ order.order_no || order.id }}</text>
         </view>
         <text class="flow-order-price">¥{{ formatPrice(Number(order.pay_money || 0)) }}</text>

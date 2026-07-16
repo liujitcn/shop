@@ -12,14 +12,14 @@ service PayService {
   // 小程序支付
   rpc JsapiPay(JsapiPayRequest) returns (JsapiPayResponse) {
     option (google.api.http) = {
-      post: "/api/v1/app/pay/{order_id}/jsapi"
+      post: "/api/v1/app/pay/{trade_id}/jsapi"
       body: "*"
     };
   }
   // H5支付
   rpc H5Pay(H5PayRequest) returns (H5PayResponse) {
     option (google.api.http) = {
-      post: "/api/v1/app/pay/{order_id}/h5"
+      post: "/api/v1/app/pay/{trade_id}/h5"
       body: "*"
     };
   }
@@ -37,12 +37,12 @@ message PayNotifyRequest {}
 
 // 小程序支付请求参数
 message JsapiPayRequest {
-  int64 order_id = 1 [(gnostic.openapi.v3.property) = {description: "订单id"}]; // 订单id
+  int64 trade_id = 1 [(gnostic.openapi.v3.property) = {description: "交易单ID"}]; // 交易单ID
 }
 
 // H5支付请求参数
 message H5PayRequest {
-  int64 order_id = 1 [(gnostic.openapi.v3.property) = {description: "订单id"}]; // 订单id
+  int64 trade_id = 1 [(gnostic.openapi.v3.property) = {description: "交易单ID"}]; // 交易单ID
 }
 
 // 小程序支付响应

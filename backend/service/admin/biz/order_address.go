@@ -31,11 +31,11 @@ func NewOrderAddressCase(baseCase *biz.BaseCase, orderAddressRepo *data.OrderAdd
 	}
 }
 
-// FindFromByOrderID 按订单查询地址
-func (c *OrderAddressCase) FindFromByOrderID(ctx context.Context, orderID int64) (*adminv1.OrderAddress, error) {
+// FindFromByTradeID 按交易单查询收货地址快照。
+func (c *OrderAddressCase) FindFromByTradeID(ctx context.Context, tradeID int64) (*adminv1.OrderAddress, error) {
 	query := c.Query(ctx).OrderAddress
 	opts := make([]repository.QueryOption, 0, 1)
-	opts = append(opts, repository.Where(query.OrderID.Eq(orderID)))
+	opts = append(opts, repository.Where(query.TradeID.Eq(tradeID)))
 	item, err := c.Find(ctx, opts...)
 	if err != nil {
 		// 订单未记录地址信息时返回空对象，保持详情主体信息可展示。

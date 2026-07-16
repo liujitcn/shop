@@ -34,11 +34,11 @@ func NewOrderPaymentCase(baseCase *biz.BaseCase, orderPaymentRepo *data.OrderPay
 	}
 }
 
-// FindFromByOrderID 按订单查询支付信息
-func (c *OrderPaymentCase) FindFromByOrderID(ctx context.Context, orderID int64) (*adminv1.OrderPayment, error) {
+// FindFromByTradeID 按交易单查询支付信息。
+func (c *OrderPaymentCase) FindFromByTradeID(ctx context.Context, tradeID int64) (*adminv1.OrderPayment, error) {
 	query := c.Query(ctx).OrderPayment
 	opts := make([]repository.QueryOption, 0, 1)
-	opts = append(opts, repository.Where(query.OrderID.Eq(orderID)))
+	opts = append(opts, repository.Where(query.TradeID.Eq(tradeID)))
 	item, err := c.Find(ctx, opts...)
 	// 订单支付记录查询失败时，仅对“未找到”场景回退空对象。
 	if err != nil {

@@ -9,10 +9,12 @@ import type {
   OrderBillStatus,
   OrderCancelReason,
   OrderDeliveryTime,
+  OrderInfoStatus,
   OrderPayChannel,
   OrderPayType,
   OrderRefundReason,
-  OrderStatus,
+  OrderRefundStatus,
+  OrderTradeStatus,
 } from "../../common/v1/enum";
 import type { Empty } from "../../google/protobuf/empty";
 
@@ -30,9 +32,9 @@ export interface PageOrderInfosRequest {
   order_no: string;
   /** 用户id */
   user_id: number;
-  /** 订单状态 */
+  /** 订单履约状态 */
   status?:
-    | OrderStatus
+    | OrderInfoStatus
     | undefined;
   /** 支付方式：枚举【OrderPayType】 */
   pay_type?:
@@ -41,6 +43,14 @@ export interface PageOrderInfosRequest {
   /** 支付渠道：枚举【OrderPayChannel】 */
   pay_channel?:
     | OrderPayChannel
+    | undefined;
+  /** 交易支付状态 */
+  trade_status?:
+    | OrderTradeStatus
+    | undefined;
+  /** 订单退款状态 */
+  refund_status?:
+    | OrderRefundStatus
     | undefined;
   /** 创建时间 */
   created_at: string[];
@@ -156,6 +166,8 @@ export interface ShipOrderInfoRequest {
 export interface OrderInfo {
   /** 订单ID */
   id: number;
+  /** 交易单ID */
+  trade_id: number;
   /** 租户ID */
   tenant_id: number;
   /** 租户门店ID */
@@ -172,20 +184,26 @@ export interface OrderInfo {
   post_fee: number;
   /** 商品总数 */
   goods_num: number;
-  /** 支付方式：枚举【OrderPayType】 */
-  pay_type: OrderPayType;
-  /** 支付渠道：枚举【OrderPayChannel】 */
-  pay_channel: OrderPayChannel;
   /** 配送时间：枚举【OrderDeliveryTime】 */
   delivery_time: OrderDeliveryTime;
-  /** 状态：枚举【OrderStatus】 */
-  status: OrderStatus;
+  /** 订单履约状态：枚举【OrderInfoStatus】 */
+  status: OrderInfoStatus;
+  /** 订单退款状态：枚举【OrderRefundStatus】 */
+  refund_status: OrderRefundStatus;
   /** 订单备注 */
   remark: string;
   /** 创建时间 */
   created_at: string;
   /** 更新时间 */
   updated_at: string;
+  /** 支付方式：枚举【OrderPayType】 */
+  pay_type: OrderPayType;
+  /** 支付渠道：枚举【OrderPayChannel】 */
+  pay_channel: OrderPayChannel;
+  /** 交易单编号 */
+  trade_no: string;
+  /** 交易支付状态：枚举【OrderTradeStatus】 */
+  trade_status: OrderTradeStatus;
   /** 用户名 */
   nick_name: string;
 }
@@ -258,8 +276,10 @@ export interface OrderLogistics_Detail {
 
 /** 订单支付 */
 export interface OrderPayment {
-  /** 订单编号 */
-  order_no: string;
+  /** 交易单ID */
+  trade_id: number;
+  /** 交易单编号 */
+  trade_no: string;
   /** 三方订单编号 */
   third_order_no: string;
   /** 交易类型 */
@@ -314,8 +334,12 @@ export interface OrderPayment_SceneInfo {
 
 /** 订单退款 */
 export interface OrderRefund {
-  /** 支付订单编号 */
-  order_no: string;
+  /** 交易单ID */
+  trade_id: number;
+  /** 门店订单ID */
+  order_id: number;
+  /** 支付交易单编号 */
+  trade_no: string;
   /** 三方支付订单编号 */
   third_order_no: string;
   /** 退款编号 */

@@ -271,6 +271,28 @@ func (c *WxPayCase) QueryOrderByOutTradeNo(orderNo string) (*appv1.PaymentResour
 	return paymentResource, nil
 }
 
+// CloseOrderByOutTradeNo 按商户交易单号关闭微信支付订单。
+func (c *WxPayCase) CloseOrderByOutTradeNo(tradeNo string) error {
+	req := jsapi.CloseOrderRequest{
+		OutTradeNo: wxPayCore.String(tradeNo),
+		Mchid:      wxPayCore.String(c.wxPay.GetMchId()),
+	}
+	svc := jsapi.JsapiApiService{Client: c.client}
+	result, err := svc.CloseOrder(c.ctx, req)
+	if err != nil {
+		// 未创建过微信支付单时无需关单，本地交易仍可按未支付流程取消。
+		if apiErr, ok := errors.AsType[*wxPayCore.APIError](err); ok && apiErr.Code == "ORDER_NOT_EXIST" {
+			return nil
+		}
+		log.Error(fmt.Sprintf("关闭支付订单失败[%s]", err.Error()))
+		return err
+	}
+	if result == nil || result.Response == nil || result.Response.StatusCode != nethttp.StatusNoContent {
+		return errorsx.Internal("关闭支付订单失败")
+	}
+	return nil
+}
+
 // Refund 创建退款单。
 func (c *WxPayCase) Refund(req refunddomestic.CreateRequest) (*refunddomestic.Refund, error) {
 	// 拼接公共参数。

@@ -315,6 +315,7 @@ func (c *RecommendRequestCase) toRecommendRequestContext(
 	return &adminv1.RecommendRequestContext{
 		GoodsId:           contextRecord.GoodsID,
 		OrderId:           contextRecord.OrderID,
+		TradeId:           contextRecord.TradeID,
 		ContextGoodsIds:   append([]int64(nil), contextRecord.ContextGoodsIDs...),
 		Strategy:          contextRecord.Strategy,
 		ProviderName:      contextRecord.ProviderName,

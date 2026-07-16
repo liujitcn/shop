@@ -1,46 +1,88 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import OrderList from './components/OrderList.vue'
-import { OrderStatus } from '@/rpc/common/v1/enum.ts'
+import { OrderInfoStatus, OrderTradeStatus } from '@/rpc/common/v1/enum.ts'
 import { useUserStore } from '@/stores'
 import { navigateToLogin } from '@/utils/navigation'
+import type { OrderListFilter } from '@/utils/order'
 import { onLoad } from '@dcloudio/uni-app'
 
 /** 订单列表页顶部状态标签配置。 */
 type OrderTab = {
-  status: OrderStatus
+  key: string
   title: string
+  filter: OrderListFilter
   isRender: boolean
 }
 
 // 获取页面参数
 const query = defineProps<{
   status?: string
+  trade_status?: string
+  refund_status?: string
+  has_refund?: string
 }>()
 const userStore = useUserStore()
 const canRenderOrderList = computed(() => userStore.isAuthenticated())
 
 // tabs 数据
 const orderTabs = ref<OrderTab[]>([
-  { status: OrderStatus.UNKNOWN_OS, title: '全部', isRender: false },
-  { status: OrderStatus.CREATED, title: '待付款', isRender: false },
-  { status: OrderStatus.PAID, title: '待发货', isRender: false },
-  { status: OrderStatus.SHIPPED, title: '待收货', isRender: false },
-  { status: OrderStatus.WAIT_REVIEW, title: '待评价', isRender: false },
-  { status: OrderStatus.COMPLETED, title: '已完成', isRender: false },
-  { status: OrderStatus.CANCELED, title: '已取消', isRender: false },
+  { key: 'all', title: '全部', filter: {}, isRender: false },
+  {
+    key: 'pending-payment',
+    title: '待支付',
+    filter: { trade_status: OrderTradeStatus.PENDING_PAYMENT_OTS },
+    isRender: false,
+  },
+  {
+    key: 'wait-shipment',
+    title: '待发货',
+    filter: { status: OrderInfoStatus.WAIT_SHIPMENT_OIS },
+    isRender: false,
+  },
+  {
+    key: 'shipped',
+    title: '待收货',
+    filter: { status: OrderInfoStatus.SHIPPED_OIS },
+    isRender: false,
+  },
+  {
+    key: 'wait-review',
+    title: '待评价',
+    filter: { status: OrderInfoStatus.WAIT_REVIEW_OIS },
+    isRender: false,
+  },
+  {
+    key: 'completed',
+    title: '已完成',
+    filter: { status: OrderInfoStatus.COMPLETED_OIS },
+    isRender: false,
+  },
+  {
+    key: 'canceled',
+    title: '已取消',
+    filter: { status: OrderInfoStatus.CANCELED_OIS },
+    isRender: false,
+  },
 ])
 const cursorWidth = 100 / orderTabs.value.length
 
-// 订单卡片状态文案优先复用顶部 tab 标题，避免状态文案重复维护。
-const orderStatusTitleMap = new Map<OrderStatus, string>([
-  ...orderTabs.value.map((item) => [item.status, item.title] as [OrderStatus, string]),
-  // 退款/售后状态不作为顶部 tab 展示，但订单卡片仍需要展示对应状态文案。
-  [OrderStatus.REFUNDING, '退款/售后'],
-])
-
 // 高亮下标
-const defaultActiveIndex = orderTabs.value.findIndex((v) => v.status === Number(query.status))
+const routeFilter: OrderListFilter = {
+  status: query.status ? Number(query.status) : undefined,
+  trade_status: query.trade_status ? Number(query.trade_status) : undefined,
+  refund_status: query.refund_status ? Number(query.refund_status) : undefined,
+  has_refund: query.has_refund === undefined ? undefined : query.has_refund === 'true',
+}
+const defaultActiveIndex = orderTabs.value.findIndex((item) => {
+  const filter = item.filter
+  return (
+    filter.status === routeFilter.status &&
+    filter.trade_status === routeFilter.trade_status &&
+    filter.refund_status === routeFilter.refund_status &&
+    filter.has_refund === routeFilter.has_refund
+  )
+})
 const activeIndex = ref(defaultActiveIndex >= 0 ? defaultActiveIndex : 0)
 // 默认渲染容器
 orderTabs.value[activeIndex.value].isRender = true
@@ -91,8 +133,8 @@ const onChangeActiveIndex = (index: number) => {
         <!-- 订单列表 -->
         <OrderList
           v-if="canRenderOrderList && item.isRender"
-          :status="item.status"
-          :status-title-map="orderStatusTitleMap"
+          :filter="item.filter"
+          :title="item.title"
         />
       </swiper-item>
     </swiper>

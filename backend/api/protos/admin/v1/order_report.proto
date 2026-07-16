@@ -54,6 +54,8 @@ message SummaryOrderMonthReportRequest {
     json_name = "payChannel",
     (gnostic.openapi.v3.property) = {description: "支付渠道：枚举【OrderPayChannel】，0 表示全部"}
   ]; // 支付渠道：枚举【OrderPayChannel】，0 表示全部
+  optional int64 tenant_id = 5 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+  optional int64 tenant_store_id = 6 [(gnostic.openapi.v3.property) = {description: "租户门店ID"}]; // 租户门店ID
 }
 
 // 订单月报列表请求参数
@@ -74,6 +76,8 @@ message ListOrderMonthReportsRequest {
     json_name = "payChannel",
     (gnostic.openapi.v3.property) = {description: "支付渠道：枚举【OrderPayChannel】，0 表示全部"}
   ]; // 支付渠道：枚举【OrderPayChannel】，0 表示全部
+  optional int64 tenant_id = 5 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+  optional int64 tenant_store_id = 6 [(gnostic.openapi.v3.property) = {description: "租户门店ID"}]; // 租户门店ID
 }
 
 // 订单月报汇总响应
@@ -172,6 +176,8 @@ message SummaryOrderDayReportRequest {
     json_name = "payChannel",
     (gnostic.openapi.v3.property) = {description: "支付渠道：枚举【OrderPayChannel】，0 表示全部"}
   ]; // 支付渠道：枚举【OrderPayChannel】，0 表示全部
+  optional int64 tenant_id = 5 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+  optional int64 tenant_store_id = 6 [(gnostic.openapi.v3.property) = {description: "租户门店ID"}]; // 租户门店ID
 }
 
 // 订单日报列表请求参数
@@ -192,6 +198,8 @@ message ListOrderDayReportsRequest {
     json_name = "payChannel",
     (gnostic.openapi.v3.property) = {description: "支付渠道：枚举【OrderPayChannel】，0 表示全部"}
   ]; // 支付渠道：枚举【OrderPayChannel】，0 表示全部
+  optional int64 tenant_id = 5 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+  optional int64 tenant_store_id = 6 [(gnostic.openapi.v3.property) = {description: "租户门店ID"}]; // 租户门店ID
 }
 
 // 订单日报汇总响应

@@ -144,7 +144,7 @@ func (t *TradeBill) payment(billDate, billType string) (tradeBillCheckResult, er
 	// 转换map
 	paymentMap := make(map[string]*models.OrderPayment)
 	for _, payment := range paymentList {
-		paymentMap[fmt.Sprintf("%s_%s", payment.OrderNo, payment.ThirdOrderNo)] = payment
+		paymentMap[fmt.Sprintf("%s_%s", payment.TradeNo, payment.ThirdOrderNo)] = payment
 	}
 
 	// 获取对账单内容
@@ -363,7 +363,7 @@ func (t *TradeBill) refund(billDate, billType string) (tradeBillCheckResult, err
 	// 转换map
 	refundMap := make(map[string]*models.OrderRefund)
 	for _, refund := range refundList {
-		refundMap[fmt.Sprintf("%s_%s_%s_%s", refund.OrderNo, refund.ThirdOrderNo, refund.RefundNo, refund.ThirdRefundNo)] = refund
+		refundMap[fmt.Sprintf("%s_%s_%s_%s", refund.TradeNo, refund.ThirdOrderNo, refund.RefundNo, refund.ThirdRefundNo)] = refund
 	}
 
 	// 获取对账单内容

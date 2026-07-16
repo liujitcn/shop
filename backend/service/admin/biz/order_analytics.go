@@ -5,10 +5,12 @@ import (
 	"strconv"
 	"time"
 
-	_const "shop/pkg/const"
+	"github.com/liujitcn/gorm-kit/repository"
 
 	adminv1 "shop/api/gen/go/admin/v1"
 	commonv1 "shop/api/gen/go/common/v1"
+	_const "shop/pkg/const"
+	orderutils "shop/pkg/utils"
 	"shop/service/admin/dto"
 	"shop/service/admin/utils"
 )
@@ -30,22 +32,22 @@ func (c *OrderAnalyticsCase) SummaryOrderAnalytics(ctx context.Context, req *adm
 	startAt, endAt := utils.GetAnalyticsTimeRange(req.GetTimeType())
 	prevStartAt, prevEndAt := utils.GetPreviousAnalyticsTimeRange(req.GetTimeType(), startAt)
 
-	newOrderCount, saleAmount, err := c.countOrderBaseSummary(ctx, startAt, endAt)
+	newOrderCount, saleAmount, err := c.countOrderBaseSummary(ctx, req.GetTenantId(), req.GetTenantStoreId(), startAt, endAt)
 	if err != nil {
 		return nil, err
 	}
 	var prevOrderCount int64
-	prevOrderCount, _, err = c.countOrderBaseSummary(ctx, prevStartAt, prevEndAt)
+	prevOrderCount, _, err = c.countOrderBaseSummary(ctx, req.GetTenantId(), req.GetTenantStoreId(), prevStartAt, prevEndAt)
 	if err != nil {
 		return nil, err
 	}
 	var orderUserCount int64
-	orderUserCount, err = c.countDistinctOrderUsers(ctx, startAt, endAt)
+	orderUserCount, err = c.countDistinctOrderUsers(ctx, req.GetTenantId(), req.GetTenantStoreId(), startAt, endAt)
 	if err != nil {
 		return nil, err
 	}
 	var repurchaseUserCount int64
-	repurchaseUserCount, err = c.countRepurchaseUsers(ctx, startAt, endAt)
+	repurchaseUserCount, err = c.countRepurchaseUsers(ctx, req.GetTenantId(), req.GetTenantStoreId(), startAt, endAt)
 	if err != nil {
 		return nil, err
 	}
@@ -63,7 +65,7 @@ func (c *OrderAnalyticsCase) SummaryOrderAnalytics(ctx context.Context, req *adm
 // TrendOrderAnalytics 查询订单趋势
 func (c *OrderAnalyticsCase) TrendOrderAnalytics(ctx context.Context, req *adminv1.TrendOrderAnalyticsRequest) (*commonv1.AnalyticsTrendResponse, error) {
 	startAt, endAt := utils.GetAnalyticsTimeRange(req.GetTimeType())
-	summary, axis, err := c.queryOrderSummary(ctx, req.GetTimeType(), startAt, endAt)
+	summary, axis, err := c.queryOrderSummary(ctx, req.GetTimeType(), req.GetTenantId(), req.GetTenantStoreId(), startAt, endAt)
 	if err != nil {
 		return nil, err
 	}
@@ -89,7 +91,7 @@ func (c *OrderAnalyticsCase) TrendOrderAnalytics(ctx context.Context, req *admin
 // PieOrderAnalytics 查询订单状态分布
 func (c *OrderAnalyticsCase) PieOrderAnalytics(ctx context.Context, req *adminv1.PieOrderAnalyticsRequest) (*commonv1.AnalyticsPieResponse, error) {
 	startAt, endAt := utils.GetAnalyticsTimeRange(req.GetTimeType())
-	summary, err := c.queryOrderStatusSummary(ctx, startAt, endAt)
+	summary, err := c.queryOrderStatusSummary(ctx, req.GetTenantId(), req.GetTenantStoreId(), startAt, endAt)
 	if err != nil {
 		return nil, err
 	}
@@ -103,78 +105,144 @@ func (c *OrderAnalyticsCase) PieOrderAnalytics(ctx context.Context, req *adminv1
 }
 
 // countDistinctOrderUsers 统计时间范围内下单用户数。
-func (c *OrderAnalyticsCase) countDistinctOrderUsers(ctx context.Context, startAt, endAt time.Time) (int64, error) {
+func (c *OrderAnalyticsCase) countDistinctOrderUsers(ctx context.Context, tenantID, tenantStoreID int64, startAt, endAt time.Time) (int64, error) {
 	query := c.orderInfoCase.Query(ctx).OrderInfo
-	count, err := query.WithContext(ctx).
+	dao := query.WithContext(ctx).
 		Where(
 			query.CreatedAt.Gte(startAt),
 			query.CreatedAt.Lt(endAt),
-		).
+		)
+	// 默认租户可按租户筛选，普通租户仍受数据库租户隔离约束。
+	if tenantID > 0 {
+		dao = dao.Where(query.TenantID.Eq(tenantID))
+	}
+	if tenantStoreID > 0 {
+		dao = dao.Where(query.TenantStoreID.Eq(tenantStoreID))
+	}
+	count, err := dao.
 		Distinct(query.UserID).
 		Count()
 	return count, err
 }
 
 // countRepurchaseUsers 统计时间范围内复购用户数。
-func (c *OrderAnalyticsCase) countRepurchaseUsers(ctx context.Context, startAt, endAt time.Time) (int64, error) {
+func (c *OrderAnalyticsCase) countRepurchaseUsers(ctx context.Context, tenantID, tenantStoreID int64, startAt, endAt time.Time) (int64, error) {
 	query := c.orderInfoCase.Query(ctx).OrderInfo
-	userIDs := make([]int64, 0)
-	err := query.WithContext(ctx).
-		Where(
-			query.CreatedAt.Gte(startAt),
-			query.CreatedAt.Lt(endAt),
-		).
-		Pluck(query.UserID, &userIDs)
+	opts := make([]repository.QueryOption, 0, 4)
+	opts = append(opts, repository.Where(query.CreatedAt.Gte(startAt)))
+	opts = append(opts, repository.Where(query.CreatedAt.Lt(endAt)))
+	if tenantID > 0 {
+		opts = append(opts, repository.Where(query.TenantID.Eq(tenantID)))
+	}
+	if tenantStoreID > 0 {
+		opts = append(opts, repository.Where(query.TenantStoreID.Eq(tenantStoreID)))
+	}
+	orderInfos, err := c.orderInfoCase.List(ctx, opts...)
 	if err != nil {
 		return 0, err
 	}
-	return utils.CountAtLeastOccurrences(userIDs, 2), nil
+	tradeMap, err := c.orderInfoCase.getOrderTradeMap(ctx, orderInfos)
+	if err != nil {
+		return 0, err
+	}
+	userTrades := make(map[int64]map[int64]struct{})
+	for _, orderInfo := range orderInfos {
+		orderTrade := tradeMap[orderInfo.TradeID]
+		// 复购只统计已经形成支付事实的交易，待支付或已关闭交易不参与计算。
+		if orderTrade == nil || !orderutils.IsPaidTradeStatus(orderTrade.Status) {
+			continue
+		}
+		if userTrades[orderInfo.UserID] == nil {
+			userTrades[orderInfo.UserID] = make(map[int64]struct{})
+		}
+		userTrades[orderInfo.UserID][orderInfo.TradeID] = struct{}{}
+	}
+	var count int64
+	for _, tradeSet := range userTrades {
+		if len(tradeSet) >= 2 {
+			count++
+		}
+	}
+	return count, nil
 }
 
 // countOrderBaseSummary 统计时间范围内订单数和销售额。
-func (c *OrderAnalyticsCase) countOrderBaseSummary(ctx context.Context, startAt, endAt time.Time) (int64, int64, error) {
-	type row struct {
-		OrderCount int64 `gorm:"column:order_count"`
-		SaleAmount int64 `gorm:"column:sale_amount"`
-	}
-	var result row
+func (c *OrderAnalyticsCase) countOrderBaseSummary(ctx context.Context, tenantID, tenantStoreID int64, startAt, endAt time.Time) (int64, int64, error) {
 	query := c.orderInfoCase.Query(ctx).OrderInfo
-	err := query.WithContext(ctx).
-		Select(
-			query.ID.Count().As("order_count"),
-			query.PayMoney.Sum().FloorDiv(1).IfNull(0).As("sale_amount"),
-		).
+	tradeQuery := c.orderInfoCase.orderTradeRepo.Query(ctx).OrderTrade
+	dao := query.WithContext(ctx).
 		Where(
 			query.CreatedAt.Gte(startAt),
 			query.CreatedAt.Lt(endAt),
-		).
+		)
+	if tenantID > 0 {
+		dao = dao.Where(query.TenantID.Eq(tenantID))
+	}
+	if tenantStoreID > 0 {
+		dao = dao.Where(query.TenantStoreID.Eq(tenantStoreID))
+	}
+	orderCount, err := dao.Count()
+	if err != nil {
+		return 0, 0, err
+	}
+	var result dto.OrderSummary
+	err = dao.
+		Select(query.PayMoney.Sum().FloorDiv(1).IfNull(0).As("sale_amount")).
+		Join(tradeQuery, query.TradeID.EqCol(tradeQuery.ID)).
+		Where(tradeQuery.Status.In(orderutils.PaidTradeStatuses()...)).
 		Scan(&result)
-	return result.OrderCount, result.SaleAmount, err
+	return orderCount, result.SaleAmount, err
 }
 
 // queryOrderSummary 查询订单趋势汇总。
-func (c *OrderAnalyticsCase) queryOrderSummary(ctx context.Context, timeType commonv1.AnalyticsTimeType, startAt, endAt time.Time) (map[int64]*dto.OrderSummary, []string, error) {
+func (c *OrderAnalyticsCase) queryOrderSummary(ctx context.Context, timeType commonv1.AnalyticsTimeType, tenantID, tenantStoreID int64, startAt, endAt time.Time) (map[int64]*dto.OrderSummary, []string, error) {
 	summaryMap := make(map[int64]*dto.OrderSummary)
-	rows := make([]*dto.OrderSummary, 0)
 	query := c.orderInfoCase.Query(ctx).OrderInfo
 	groupField, axisData := utils.GetAnalyticsGroupFieldByColumn(timeType, startAt, endAt, query.CreatedAt)
-	err := query.WithContext(ctx).
-		Select(
-			groupField.As("key"),
-			query.ID.Count().As("order_count"),
-			query.PayMoney.Sum().FloorDiv(1).IfNull(0).As("sale_amount"),
-		).
+	dao := query.WithContext(ctx).
 		Where(
 			query.CreatedAt.Gte(startAt),
 			query.CreatedAt.Lt(endAt),
+		)
+	if tenantID > 0 {
+		dao = dao.Where(query.TenantID.Eq(tenantID))
+	}
+	if tenantStoreID > 0 {
+		dao = dao.Where(query.TenantStoreID.Eq(tenantStoreID))
+	}
+	countRows := make([]*dto.OrderSummary, 0)
+	err := dao.
+		Select(
+			groupField.As("key"),
+			query.ID.Count().As("order_count"),
 		).
 		Group(utils.AnalyticsGroupAliasField()).
-		Scan(&rows)
+		Scan(&countRows)
 	if err != nil {
 		return nil, nil, err
 	}
-	for _, item := range rows {
+	for _, item := range countRows {
 		summaryMap[item.Key] = item
+	}
+	saleRows := make([]*dto.OrderSummary, 0)
+	tradeQuery := c.orderInfoCase.orderTradeRepo.Query(ctx).OrderTrade
+	err = dao.
+		Select(
+			groupField.As("key"),
+			query.PayMoney.Sum().FloorDiv(1).IfNull(0).As("sale_amount"),
+		).
+		Join(tradeQuery, query.TradeID.EqCol(tradeQuery.ID)).
+		Where(tradeQuery.Status.In(orderutils.PaidTradeStatuses()...)).
+		Group(utils.AnalyticsGroupAliasField()).
+		Scan(&saleRows)
+	if err != nil {
+		return nil, nil, err
+	}
+	for _, item := range saleRows {
+		if summaryMap[item.Key] == nil {
+			summaryMap[item.Key] = &dto.OrderSummary{Key: item.Key}
+		}
+		summaryMap[item.Key].SaleAmount = item.SaleAmount
 	}
 	// 补齐缺失桶位，避免前端图表在空数据时出现断层。
 	for i := range axisData {
@@ -188,17 +256,24 @@ func (c *OrderAnalyticsCase) queryOrderSummary(ctx context.Context, timeType com
 }
 
 // queryOrderStatusSummary 查询指定时间范围内的订单状态分布。
-func (c *OrderAnalyticsCase) queryOrderStatusSummary(ctx context.Context, startAt, endAt time.Time) ([]*dto.OrderStatusSummary, error) {
+func (c *OrderAnalyticsCase) queryOrderStatusSummary(ctx context.Context, tenantID, tenantStoreID int64, startAt, endAt time.Time) ([]*dto.OrderStatusSummary, error) {
 	res := make([]*dto.OrderStatusSummary, 0)
 	query := c.orderInfoCase.Query(ctx).OrderInfo
-	err := query.WithContext(ctx).
-		Select(
-			query.Status,
-			query.ID.Count().As("order_count"),
-		).
+	dao := query.WithContext(ctx).
 		Where(
 			query.CreatedAt.Gte(startAt),
 			query.CreatedAt.Lt(endAt),
+		)
+	if tenantID > 0 {
+		dao = dao.Where(query.TenantID.Eq(tenantID))
+	}
+	if tenantStoreID > 0 {
+		dao = dao.Where(query.TenantStoreID.Eq(tenantStoreID))
+	}
+	err := dao.
+		Select(
+			query.Status,
+			query.ID.Count().As("order_count"),
 		).
 		Group(query.Status).
 		Scan(&res)

@@ -30,11 +30,11 @@ func NewOrderCancelCase(baseCase *biz.BaseCase, orderCancelRepo *data.OrderCance
 	}
 }
 
-// FindFromByOrderID 按订单查询取消信息
-func (c *OrderCancelCase) FindFromByOrderID(ctx context.Context, orderID int64) (*adminv1.OrderCancel, error) {
+// FindFromByTradeID 按交易单查询取消信息。
+func (c *OrderCancelCase) FindFromByTradeID(ctx context.Context, tradeID int64) (*adminv1.OrderCancel, error) {
 	query := c.Query(ctx).OrderCancel
 	opts := make([]repository.QueryOption, 0, 1)
-	opts = append(opts, repository.Where(query.OrderID.Eq(orderID)))
+	opts = append(opts, repository.Where(query.TradeID.Eq(tradeID)))
 	item, err := c.Find(ctx, opts...)
 	// 订单取消记录查询失败时，仅对“未找到”场景回退空对象。
 	if err != nil {

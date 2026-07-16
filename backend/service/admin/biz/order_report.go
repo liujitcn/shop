@@ -52,7 +52,7 @@ func (c *OrderReportCase) SummaryOrderMonthReport(ctx context.Context, req *admi
 	}
 
 	var rows []*dto.OrderMonthReportRow
-	rows, err = c.queryOrderMonthReportRows(ctx, req.GetPayType(), req.GetPayChannel(), startMonth, endMonth.AddDate(0, 1, 0))
+	rows, err = c.queryOrderMonthReportRows(ctx, req.GetPayType(), req.GetPayChannel(), req.GetTenantId(), req.GetTenantStoreId(), startMonth, endMonth.AddDate(0, 1, 0))
 	if err != nil {
 		return nil, err
 	}
@@ -87,7 +87,7 @@ func (c *OrderReportCase) ListOrderMonthReports(ctx context.Context, req *adminv
 	}
 
 	var rows []*dto.OrderMonthReportRow
-	rows, err = c.queryOrderMonthReportRows(ctx, req.GetPayType(), req.GetPayChannel(), startMonth, endMonth.AddDate(0, 1, 0))
+	rows, err = c.queryOrderMonthReportRows(ctx, req.GetPayType(), req.GetPayChannel(), req.GetTenantId(), req.GetTenantStoreId(), startMonth, endMonth.AddDate(0, 1, 0))
 	if err != nil {
 		return nil, err
 	}
@@ -132,7 +132,7 @@ func (c *OrderReportCase) SummaryOrderDayReport(ctx context.Context, req *adminv
 	}
 
 	var rows []*dto.OrderDayReportRow
-	rows, err = c.queryOrderDayReportRows(ctx, req.GetPayType(), req.GetPayChannel(), startDate, endDate.AddDate(0, 0, 1))
+	rows, err = c.queryOrderDayReportRows(ctx, req.GetPayType(), req.GetPayChannel(), req.GetTenantId(), req.GetTenantStoreId(), startDate, endDate.AddDate(0, 0, 1))
 	if err != nil {
 		return nil, err
 	}
@@ -167,7 +167,7 @@ func (c *OrderReportCase) ListOrderDayReports(ctx context.Context, req *adminv1.
 	}
 
 	var rows []*dto.OrderDayReportRow
-	rows, err = c.queryOrderDayReportRows(ctx, req.GetPayType(), req.GetPayChannel(), startDate, endDate.AddDate(0, 0, 1))
+	rows, err = c.queryOrderDayReportRows(ctx, req.GetPayType(), req.GetPayChannel(), req.GetTenantId(), req.GetTenantStoreId(), startDate, endDate.AddDate(0, 0, 1))
 	if err != nil {
 		return nil, err
 	}
@@ -244,7 +244,7 @@ func (c *OrderReportCase) appendDayReportSummary(summary *adminv1.SummaryOrderDa
 }
 
 // queryOrderMonthReportRows 查询月报聚合数据。
-func (c *OrderReportCase) queryOrderMonthReportRows(ctx context.Context, payType, payChannel int32, startAt, endAt time.Time) ([]*dto.OrderMonthReportRow, error) {
+func (c *OrderReportCase) queryOrderMonthReportRows(ctx context.Context, payType, payChannel int32, tenantID, tenantStoreID int64, startAt, endAt time.Time) ([]*dto.OrderMonthReportRow, error) {
 	rows := make([]*dto.OrderMonthReportRow, 0)
 	query := c.Query(ctx).OrderStatDay
 	groupField := utils.MonthReportGroupField(query.StatDate)
@@ -271,6 +271,13 @@ func (c *OrderReportCase) queryOrderMonthReportRows(ctx context.Context, payType
 	if payChannel > 0 {
 		dao = dao.Where(query.PayChannel.Eq(payChannel))
 	}
+	// 默认租户可按租户筛选，普通租户继续受数据库租户隔离约束。
+	if tenantID > 0 {
+		dao = dao.Where(query.TenantID.Eq(tenantID))
+	}
+	if tenantStoreID > 0 {
+		dao = dao.Where(query.TenantStoreID.Eq(tenantStoreID))
+	}
 	err := dao.Group(utils.MonthReportAliasField()).Order(utils.MonthReportAliasField()).Scan(&rows)
 	return rows, err
 }
@@ -284,7 +291,7 @@ func (c *OrderReportCase) toOrderMonthReportItem(row *dto.OrderMonthReportRow) *
 }
 
 // queryOrderDayReportRows 查询日报聚合数据。
-func (c *OrderReportCase) queryOrderDayReportRows(ctx context.Context, payType, payChannel int32, startAt, endAt time.Time) ([]*dto.OrderDayReportRow, error) {
+func (c *OrderReportCase) queryOrderDayReportRows(ctx context.Context, payType, payChannel int32, tenantID, tenantStoreID int64, startAt, endAt time.Time) ([]*dto.OrderDayReportRow, error) {
 	rows := make([]*dto.OrderDayReportRow, 0)
 	query := c.Query(ctx).OrderStatDay
 	groupField := utils.DayReportGroupField(query.StatDate)
@@ -310,6 +317,13 @@ func (c *OrderReportCase) queryOrderDayReportRows(ctx context.Context, payType, 
 	// 传入支付渠道时，按支付渠道缩小日报统计范围。
 	if payChannel > 0 {
 		dao = dao.Where(query.PayChannel.Eq(payChannel))
+	}
+	// 默认租户可按租户筛选，普通租户继续受数据库租户隔离约束。
+	if tenantID > 0 {
+		dao = dao.Where(query.TenantID.Eq(tenantID))
+	}
+	if tenantStoreID > 0 {
+		dao = dao.Where(query.TenantStoreID.Eq(tenantStoreID))
 	}
 	err := dao.Group(utils.DayReportAliasField()).Order(utils.DayReportAliasField()).Scan(&rows)
 	return rows, err

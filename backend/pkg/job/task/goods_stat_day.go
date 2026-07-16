@@ -41,6 +41,7 @@ type GoodsStatDay struct {
 	userCollectRepo    *data.UserCollectRepository
 	userCartRepo       *data.UserCartRepository
 	orderInfoRepo      *data.OrderInfoRepository
+	orderTradeRepo     *data.OrderTradeRepository
 	orderGoodsRepo     *data.OrderGoodsRepository
 	ctx                context.Context
 }
@@ -54,6 +55,7 @@ func NewGoodsStatDay(
 	userCollectRepo *data.UserCollectRepository,
 	userCartRepo *data.UserCartRepository,
 	orderInfoRepo *data.OrderInfoRepository,
+	orderTradeRepo *data.OrderTradeRepository,
 	orderGoodsRepo *data.OrderGoodsRepository,
 ) *GoodsStatDay {
 	return &GoodsStatDay{
@@ -64,6 +66,7 @@ func NewGoodsStatDay(
 		userCollectRepo:    userCollectRepo,
 		userCartRepo:       userCartRepo,
 		orderInfoRepo:      orderInfoRepo,
+		orderTradeRepo:     orderTradeRepo,
 		orderGoodsRepo:     orderGoodsRepo,
 		ctx:                context.Background(),
 	}
@@ -219,6 +222,24 @@ func (t *GoodsStatDay) Exec(args map[string]string) ([]string, error) {
 			return err
 		}
 		result.orderCount = len(orderInfoList)
+		tradeIDs := make([]int64, 0, len(orderInfoList))
+		for _, orderInfo := range orderInfoList {
+			tradeIDs = append(tradeIDs, orderInfo.TradeID)
+		}
+		tradeMap := make(map[int64]*models.OrderTrade, len(tradeIDs))
+		if len(tradeIDs) > 0 {
+			tradeQuery := t.orderTradeRepo.Query(ctx).OrderTrade
+			tradeOpts := make([]repository.QueryOption, 0, 1)
+			tradeOpts = append(tradeOpts, repository.Where(tradeQuery.ID.In(tradeIDs...)))
+			var orderTrades []*models.OrderTrade
+			orderTrades, err = t.orderTradeRepo.List(ctx, tradeOpts...)
+			if err != nil {
+				return err
+			}
+			for _, orderTrade := range orderTrades {
+				tradeMap[orderTrade.ID] = orderTrade
+			}
+		}
 
 		orderIDs := make([]int64, 0, len(orderInfoList))
 		for _, item := range orderInfoList {
@@ -264,8 +285,9 @@ func (t *GoodsStatDay) Exec(args map[string]string) ([]string, error) {
 		}
 
 		for _, orderInfo := range orderInfoList {
-			// 只有支付成功口径的订单才累计支付指标。
-			if !utils.IsPaidOrderStatus(orderInfo.Status) {
+			orderTrade := tradeMap[orderInfo.TradeID]
+			// 商品支付指标以交易单状态为准，不能通过门店履约状态反推。
+			if orderTrade == nil || !utils.IsPaidTradeStatus(orderTrade.Status) {
 				continue
 			}
 			goodsList := orderGoodsByOrderID[orderInfo.ID]

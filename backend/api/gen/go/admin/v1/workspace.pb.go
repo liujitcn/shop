@@ -27,6 +27,8 @@ const (
 // 工作台指标查询条件
 type SummaryWorkspaceMetricsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	TenantId      *int64                 `protobuf:"varint,1,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`                  // 租户ID
+	TenantStoreId *int64                 `protobuf:"varint,2,opt,name=tenant_store_id,json=tenantStoreId,proto3,oneof" json:"tenant_store_id,omitempty"` // 租户门店ID
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -59,6 +61,20 @@ func (x *SummaryWorkspaceMetricsRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use SummaryWorkspaceMetricsRequest.ProtoReflect.Descriptor instead.
 func (*SummaryWorkspaceMetricsRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_workspace_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *SummaryWorkspaceMetricsRequest) GetTenantId() int64 {
+	if x != nil && x.TenantId != nil {
+		return *x.TenantId
+	}
+	return 0
+}
+
+func (x *SummaryWorkspaceMetricsRequest) GetTenantStoreId() int64 {
+	if x != nil && x.TenantStoreId != nil {
+		return *x.TenantStoreId
+	}
+	return 0
 }
 
 // 工作台指标响应
@@ -213,6 +229,8 @@ func (x *SummaryWorkspaceMetricsResponse) GetAverageCommentScore() int64 {
 // 工作台待办查询条件
 type SummaryWorkspaceTodoRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	TenantId      *int64                 `protobuf:"varint,1,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`                  // 租户ID
+	TenantStoreId *int64                 `protobuf:"varint,2,opt,name=tenant_store_id,json=tenantStoreId,proto3,oneof" json:"tenant_store_id,omitempty"` // 租户门店ID
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -245,6 +263,20 @@ func (x *SummaryWorkspaceTodoRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use SummaryWorkspaceTodoRequest.ProtoReflect.Descriptor instead.
 func (*SummaryWorkspaceTodoRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_workspace_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *SummaryWorkspaceTodoRequest) GetTenantId() int64 {
+	if x != nil && x.TenantId != nil {
+		return *x.TenantId
+	}
+	return 0
+}
+
+func (x *SummaryWorkspaceTodoRequest) GetTenantStoreId() int64 {
+	if x != nil && x.TenantStoreId != nil {
+		return *x.TenantStoreId
+	}
+	return 0
 }
 
 // 工作台待办响应
@@ -335,6 +367,8 @@ func (x *SummaryWorkspaceTodoResponse) GetPendingCommentDiscussionCount() int64 
 // 工作台风险提醒查询条件
 type SummaryWorkspaceRiskRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	TenantId      *int64                 `protobuf:"varint,1,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`                  // 租户ID
+	TenantStoreId *int64                 `protobuf:"varint,2,opt,name=tenant_store_id,json=tenantStoreId,proto3,oneof" json:"tenant_store_id,omitempty"` // 租户门店ID
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -367,6 +401,20 @@ func (x *SummaryWorkspaceRiskRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use SummaryWorkspaceRiskRequest.ProtoReflect.Descriptor instead.
 func (*SummaryWorkspaceRiskRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_workspace_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *SummaryWorkspaceRiskRequest) GetTenantId() int64 {
+	if x != nil && x.TenantId != nil {
+		return *x.TenantId
+	}
+	return 0
+}
+
+func (x *SummaryWorkspaceRiskRequest) GetTenantStoreId() int64 {
+	if x != nil && x.TenantStoreId != nil {
+		return *x.TenantStoreId
+	}
+	return 0
 }
 
 // 工作台风险提醒响应
@@ -441,7 +489,9 @@ func (x *SummaryWorkspaceRiskResponse) GetLowScoreCommentCount() int64 {
 // 工作台待审核评价查询条件
 type ListWorkspacePendingCommentsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Limit         int64                  `protobuf:"varint,1,opt,name=limit,proto3" json:"limit,omitempty"` // 返回数量，默认5，最大10
+	Limit         int64                  `protobuf:"varint,1,opt,name=limit,proto3" json:"limit,omitempty"`                                              // 返回数量，默认5，最大10
+	TenantId      *int64                 `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`                  // 租户ID
+	TenantStoreId *int64                 `protobuf:"varint,3,opt,name=tenant_store_id,json=tenantStoreId,proto3,oneof" json:"tenant_store_id,omitempty"` // 租户门店ID
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -479,6 +529,20 @@ func (*ListWorkspacePendingCommentsRequest) Descriptor() ([]byte, []int) {
 func (x *ListWorkspacePendingCommentsRequest) GetLimit() int64 {
 	if x != nil {
 		return x.Limit
+	}
+	return 0
+}
+
+func (x *ListWorkspacePendingCommentsRequest) GetTenantId() int64 {
+	if x != nil && x.TenantId != nil {
+		return *x.TenantId
+	}
+	return 0
+}
+
+func (x *ListWorkspacePendingCommentsRequest) GetTenantStoreId() int64 {
+	if x != nil && x.TenantStoreId != nil {
+		return *x.TenantStoreId
 	}
 	return 0
 }
@@ -624,6 +688,8 @@ func (x *WorkspacePendingComment) GetCreatedAt() string {
 // 工作台口碑洞察查询条件
 type SummaryWorkspaceReputationRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	TenantId      *int64                 `protobuf:"varint,1,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`                  // 租户ID
+	TenantStoreId *int64                 `protobuf:"varint,2,opt,name=tenant_store_id,json=tenantStoreId,proto3,oneof" json:"tenant_store_id,omitempty"` // 租户门店ID
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -656,6 +722,20 @@ func (x *SummaryWorkspaceReputationRequest) ProtoReflect() protoreflect.Message 
 // Deprecated: Use SummaryWorkspaceReputationRequest.ProtoReflect.Descriptor instead.
 func (*SummaryWorkspaceReputationRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_workspace_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *SummaryWorkspaceReputationRequest) GetTenantId() int64 {
+	if x != nil && x.TenantId != nil {
+		return *x.TenantId
+	}
+	return 0
+}
+
+func (x *SummaryWorkspaceReputationRequest) GetTenantStoreId() int64 {
+	if x != nil && x.TenantStoreId != nil {
+		return *x.TenantStoreId
+	}
+	return 0
 }
 
 // 工作台口碑洞察响应
@@ -776,8 +856,13 @@ var File_admin_v1_workspace_proto protoreflect.FileDescriptor
 
 const file_admin_v1_workspace_proto_rawDesc = "" +
 	"\n" +
-	"\x18admin/v1/workspace.proto\x12\badmin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\" \n" +
-	"\x1eSummaryWorkspaceMetricsRequest\"\xaf\t\n" +
+	"\x18admin/v1/workspace.proto\x12\badmin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\xb7\x01\n" +
+	"\x1eSummaryWorkspaceMetricsRequest\x120\n" +
+	"\ttenant_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12A\n" +
+	"\x0ftenant_store_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDH\x01R\rtenantStoreId\x88\x01\x01B\f\n" +
+	"\n" +
+	"_tenant_idB\x12\n" +
+	"\x10_tenant_store_id\"\xaf\t\n" +
 	"\x1fSummaryWorkspaceMetricsResponse\x12A\n" +
 	"\x11today_order_count\x18\x01 \x01(\x03B\x15\xbaG\x12\x92\x02\x0f今日订单数R\x0ftodayOrderCount\x12m\n" +
 	"\x17today_order_growth_rate\x18\x02 \x01(\x03B6\xbaG3\x92\x020今日订单较昨日增长率，百分比整数R\x14todayOrderGrowthRate\x12M\n" +
@@ -793,23 +878,38 @@ const file_admin_v1_workspace_proto_rawDesc = "" +
 	"\x15today_new_goods_count\x18\v \x01(\x03B\x1b\xbaG\x18\x92\x02\x15今日新增商品数R\x12todayNewGoodsCount\x12n\n" +
 	"\x16today_sale_growth_rate\x18\f \x01(\x03B9\xbaG6\x92\x023今日成交额较昨日增长率，百分比整数R\x13todaySaleGrowthRate\x12E\n" +
 	"\x13today_comment_count\x18\r \x01(\x03B\x15\xbaG\x12\x92\x02\x0f今日评价数R\x11todayCommentCount\x12j\n" +
-	"\x15average_comment_score\x18\x0e \x01(\x03B6\xbaG3\x92\x020近7日平均评分，十分位，46表示4.6分R\x13averageCommentScore\"\x1d\n" +
-	"\x1bSummaryWorkspaceTodoRequest\"\xa3\x04\n" +
+	"\x15average_comment_score\x18\x0e \x01(\x03B6\xbaG3\x92\x020近7日平均评分，十分位，46表示4.6分R\x13averageCommentScore\"\xb4\x01\n" +
+	"\x1bSummaryWorkspaceTodoRequest\x120\n" +
+	"\ttenant_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12A\n" +
+	"\x0ftenant_store_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDH\x01R\rtenantStoreId\x88\x01\x01B\f\n" +
+	"\n" +
+	"_tenant_idB\x12\n" +
+	"\x10_tenant_store_id\"\xa3\x04\n" +
 	"\x1cSummaryWorkspaceTodoResponse\x12O\n" +
 	"\x17pending_pay_order_count\x18\x01 \x01(\x03B\x18\xbaG\x15\x92\x02\x12待支付订单数R\x14pendingPayOrderCount\x12W\n" +
 	"\x1bpending_shipped_order_count\x18\x02 \x01(\x03B\x18\xbaG\x15\x92\x02\x12待发货订单数R\x18pendingShippedOrderCount\x12L\n" +
 	"\x17low_inventory_sku_count\x18\x03 \x01(\x03B\x15\xbaG\x12\x92\x02\x0f低库存SKU数R\x14lowInventorySkuCount\x12T\n" +
 	"\x1apending_put_on_goods_count\x18\x04 \x01(\x03B\x18\xbaG\x15\x92\x02\x12待上架商品数R\x16pendingPutOnGoodsCount\x12L\n" +
 	"\x15pending_comment_count\x18\x05 \x01(\x03B\x18\xbaG\x15\x92\x02\x12待审核评论数R\x13pendingCommentCount\x12g\n" +
-	" pending_comment_discussion_count\x18\x06 \x01(\x03B\x1e\xbaG\x1b\x92\x02\x18待审核评论讨论数R\x1dpendingCommentDiscussionCount\"\x1d\n" +
-	"\x1bSummaryWorkspaceRiskRequest\"\x82\x03\n" +
+	" pending_comment_discussion_count\x18\x06 \x01(\x03B\x1e\xbaG\x1b\x92\x02\x18待审核评论讨论数R\x1dpendingCommentDiscussionCount\"\xb4\x01\n" +
+	"\x1bSummaryWorkspaceRiskRequest\x120\n" +
+	"\ttenant_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12A\n" +
+	"\x0ftenant_store_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDH\x01R\rtenantStoreId\x88\x01\x01B\f\n" +
+	"\n" +
+	"_tenant_idB\x12\n" +
+	"\x10_tenant_store_id\"\x82\x03\n" +
 	"\x1cSummaryWorkspaceRiskResponse\x12O\n" +
 	"\x17abnormal_pay_bill_count\x18\x01 \x01(\x03B\x18\xbaG\x15\x92\x02\x12对账单异常数R\x14abnormalPayBillCount\x12c\n" +
 	"\x1fzero_inventory_put_on_sku_count\x18\x02 \x01(\x03B\x1e\xbaG\x1b\x92\x02\x18零库存仍上架SKU数R\x1azeroInventoryPutOnSkuCount\x12W\n" +
 	"\x18abnormal_price_sku_count\x18\x03 \x01(\x03B\x1e\xbaG\x1b\x92\x02\x18价格配置异常SKU数R\x15abnormalPriceSkuCount\x12S\n" +
-	"\x17low_score_comment_count\x18\x04 \x01(\x03B\x1c\xbaG\x19\x92\x02\x16近7日低分评价数R\x14lowScoreCommentCount\"d\n" +
+	"\x17low_score_comment_count\x18\x04 \x01(\x03B\x1c\xbaG\x19\x92\x02\x16近7日低分评价数R\x14lowScoreCommentCount\"\xfb\x01\n" +
 	"#ListWorkspacePendingCommentsRequest\x12=\n" +
-	"\x05limit\x18\x01 \x01(\x03B'\xbaG$\x92\x02!返回数量，默认5，最大10R\x05limit\"\x8b\x01\n" +
+	"\x05limit\x18\x01 \x01(\x03B'\xbaG$\x92\x02!返回数量，默认5，最大10R\x05limit\x120\n" +
+	"\ttenant_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12A\n" +
+	"\x0ftenant_store_id\x18\x03 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDH\x01R\rtenantStoreId\x88\x01\x01B\f\n" +
+	"\n" +
+	"_tenant_idB\x12\n" +
+	"\x10_tenant_store_id\"\x8b\x01\n" +
 	"$ListWorkspacePendingCommentsResponse\x12c\n" +
 	"\x10pending_comments\x18\x01 \x03(\v2!.admin.v1.WorkspacePendingCommentB\x15\xbaG\x12\x92\x02\x0f待审核评价R\x0fpendingComments\"\xde\x02\n" +
 	"\x17WorkspacePendingComment\x12\x1e\n" +
@@ -822,8 +922,13 @@ const file_admin_v1_workspace_proto_rawDesc = "" +
 	"goodsScore\x12,\n" +
 	"\acontent\x18\x06 \x01(\tB\x12\xbaG\x0f\x92\x02\f评论摘要R\acontent\x121\n" +
 	"\n" +
-	"created_at\x18\a \x01(\tB\x12\xbaG\x0f\x92\x02\f评价时间R\tcreatedAt\"#\n" +
-	"!SummaryWorkspaceReputationRequest\"\xa4\x02\n" +
+	"created_at\x18\a \x01(\tB\x12\xbaG\x0f\x92\x02\f评价时间R\tcreatedAt\"\xba\x01\n" +
+	"!SummaryWorkspaceReputationRequest\x120\n" +
+	"\ttenant_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12A\n" +
+	"\x0ftenant_store_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDH\x01R\rtenantStoreId\x88\x01\x01B\f\n" +
+	"\n" +
+	"_tenant_idB\x12\n" +
+	"\x10_tenant_store_id\"\xa4\x02\n" +
 	"\"SummaryWorkspaceReputationResponse\x12j\n" +
 	"\x15average_comment_score\x18\x01 \x01(\x03B6\xbaG3\x92\x020近7日平均评分，十分位，46表示4.6分R\x13averageCommentScore\x12U\n" +
 	"\bhot_tags\x18\x02 \x03(\v2 .admin.v1.WorkspaceReputationTagB\x18\xbaG\x15\x92\x02\x12高频评价标签R\ahotTags\x12;\n" +
@@ -891,6 +996,11 @@ func file_admin_v1_workspace_proto_init() {
 	if File_admin_v1_workspace_proto != nil {
 		return
 	}
+	file_admin_v1_workspace_proto_msgTypes[0].OneofWrappers = []any{}
+	file_admin_v1_workspace_proto_msgTypes[2].OneofWrappers = []any{}
+	file_admin_v1_workspace_proto_msgTypes[4].OneofWrappers = []any{}
+	file_admin_v1_workspace_proto_msgTypes[6].OneofWrappers = []any{}
+	file_admin_v1_workspace_proto_msgTypes[9].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

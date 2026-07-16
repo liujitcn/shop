@@ -79,8 +79,8 @@ func (c *RecommendRequestCase) resolveRecommendRequestID(ctx context.Context, re
 	if requestModel.ContextJSON != "" && json.Unmarshal([]byte(requestModel.ContextJSON), contextRecord) != nil {
 		return id.GenSnowflakeID(), nil
 	}
-	// 锚点商品或订单变化时，当前请求已不属于同一推荐会话。
-	if contextRecord.GoodsID != req.GoodsID || contextRecord.OrderID != req.OrderID {
+	// 锚点商品、门店订单或交易单变化时，当前请求已不属于同一推荐会话。
+	if contextRecord.GoodsID != req.GoodsID || contextRecord.OrderID != req.OrderID || contextRecord.TradeID != req.TradeID {
 		return id.GenSnowflakeID(), nil
 	}
 	return requestID, nil

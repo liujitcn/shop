@@ -1,4 +1,5 @@
 import { RecommendScene } from '@/rpc/common/v1/enum'
+import type { OrderInfoStatus, OrderRefundStatus, OrderTradeStatus } from '@/rpc/common/v1/enum'
 
 /** 路由 query 支持的值类型。 */
 type QueryValue = string | number | boolean | null | undefined
@@ -50,8 +51,17 @@ type OrderCreateQuery = {
 
 /** 订单详情页支持的入参。 */
 type OrderDetailQuery = {
-  id: string | number
+  id?: string | number
+  trade_id?: string | number
   internal?: boolean
+}
+
+/** 订单列表页支持的状态筛选。 */
+export type OrderListQuery = {
+  status?: OrderInfoStatus | string | number
+  trade_status?: OrderTradeStatus | string | number
+  refund_status?: OrderRefundStatus | string | number
+  has_refund?: boolean
 }
 
 /** 订单评价发布页支持的入参。 */
@@ -234,8 +244,11 @@ export const tenantStoreUrl = (query: TenantStoreQuery | string | number) => {
 }
 
 /** 构建订单列表页 URL。 */
-export const orderListUrl = (status: string | number) => {
-  return buildPageUrl(ORDER_LIST_PAGE, { status })
+export const orderListUrl = (query: OrderListQuery | string | number = {}) => {
+  return buildPageUrl(
+    ORDER_LIST_PAGE,
+    typeof query === 'string' || typeof query === 'number' ? { status: query } : query,
+  )
 }
 
 /** 构建订单评价发布页 URL。 */
@@ -322,6 +335,8 @@ export const navigateToOrderCreate = (query: OrderCreateQuery = {}) => {
 }
 
 /** 重定向到支付结果页。 */
-export const redirectToOrderPayment = (id: string | number) => {
-  return uni.redirectTo({ url: `/pagesOrder/payment/payment?id=${encodeURIComponent(String(id))}` })
+export const redirectToOrderPayment = (tradeID: string | number) => {
+  return uni.redirectTo({
+    url: `/pagesOrder/payment/payment?trade_id=${encodeURIComponent(String(tradeID))}`,
+  })
 }

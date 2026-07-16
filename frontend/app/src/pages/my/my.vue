@@ -3,48 +3,78 @@ import { useGuessList } from '@/composables'
 import { useUserStore } from '@/stores'
 import { onShow } from '@dcloudio/uni-app'
 import { defOrderService } from '@/api/app/order_info.ts'
-import { defBaseDictService } from '@/api/app/base_dict'
 import { computed, ref } from 'vue'
-import type { CountOrderInfoResponse_Count } from '@/rpc/app/v1/order_info'
 import { formatSrc } from '@/utils'
 import { navigateToLogin, orderListUrl } from '@/utils/navigation'
-import { OrderStatus, RecommendScene } from '@/rpc/common/v1/enum'
+import {
+  OrderInfoStatus,
+  OrderRefundStatus,
+  OrderTradeStatus,
+  RecommendScene,
+} from '@/rpc/common/v1/enum'
+import type { OrderListFilter } from '@/utils/order'
 // 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync()
 const COMMENT_CENTER_PENDING_PAGE = '/pagesOrder/comment/center?tab=pending'
 const AFTERSALE_RECORD_PAGE = '/pagesOrder/aftersale/aftersale?tab=record'
 const AI_ASSISTANT_PAGE = '/pagesMember/ai-assistant/index'
 
-/** 我的页面订单入口展示项，合并后端统计和本地图标文案。 */
-type OrderCountEntry = CountOrderInfoResponse_Count & {
+/** 我的页面订单入口展示项。 */
+type OrderCountEntry = {
+  key: string
   icon: string
   text: string
+  filter?: OrderListFilter
+  tradeStatuses?: OrderTradeStatus[]
+  status?: OrderInfoStatus
+  refund: boolean
+  url?: string
+  num: number
 }
 
 const orderCount = ref<OrderCountEntry[]>([
-  { status: OrderStatus.CREATED, icon: '/static/images/order_pay_ref.png', text: '待付款', num: 0 },
   {
-    status: OrderStatus.PAID,
+    key: 'pending-payment',
+    icon: '/static/images/order_pay_ref.png',
+    text: '待支付',
+    filter: { trade_status: OrderTradeStatus.PENDING_PAYMENT_OTS },
+    tradeStatuses: [OrderTradeStatus.PENDING_PAYMENT_OTS, OrderTradeStatus.PAYING_OTS],
+    refund: false,
+    num: 0,
+  },
+  {
+    key: 'wait-shipment',
     icon: '/static/images/order_deliver_ref.png',
     text: '待发货',
+    filter: { status: OrderInfoStatus.WAIT_SHIPMENT_OIS },
+    status: OrderInfoStatus.WAIT_SHIPMENT_OIS,
+    refund: false,
     num: 0,
   },
   {
-    status: OrderStatus.SHIPPED,
+    key: 'shipped',
     icon: '/static/images/order_receive_ref.png',
     text: '待收货',
+    filter: { status: OrderInfoStatus.SHIPPED_OIS },
+    status: OrderInfoStatus.SHIPPED_OIS,
+    refund: false,
     num: 0,
   },
   {
-    status: OrderStatus.WAIT_REVIEW,
+    key: 'wait-review',
     icon: '/static/images/order_review_ref.png',
     text: '待评价',
+    status: OrderInfoStatus.WAIT_REVIEW_OIS,
+    refund: false,
+    url: COMMENT_CENTER_PENDING_PAGE,
     num: 0,
   },
   {
-    status: OrderStatus.REFUNDING,
+    key: 'refund',
     icon: '/static/images/order_aftersale_ref.png',
     text: '退款/售后',
+    refund: true,
+    url: AFTERSALE_RECORD_PAGE,
     num: 0,
   },
 ])
@@ -60,35 +90,28 @@ const getOrderData = async () => {
     return
   }
 
-  const numMap = new Map<number, number>()
   const res = await defOrderService.CountOrderInfo({})
   if (!canLoadOrderData()) {
     return
   }
 
-  if (res.counts) {
-    res.counts.map((item) => {
-      numMap.set(item.status, item.num)
-    })
-  }
-
-  const code = 'order_status'
-  const orderStatus = await defBaseDictService.GetBaseDict({
-    value: code,
-  })
-  const textMap = new Map<number, string>()
-  if (orderStatus && orderStatus.items) {
-    orderStatus.items.map((dictItem) => {
-      textMap.set(Number(dictItem.value), dictItem.label)
-    })
-  }
-
-  orderCount.value.map((item) => {
-    item.num = numMap.get(item.status) || 0
-    item.text =
-      item.status === OrderStatus.WAIT_REVIEW || item.status === OrderStatus.REFUNDING
-        ? item.text
-        : textMap.get(item.status) || item.text
+  orderCount.value.forEach((entry) => {
+    entry.num = res.counts.reduce((total, item) => {
+      if (entry.tradeStatuses?.includes(item.trade_status)) {
+        return total + item.num
+      }
+      if (entry.status === item.status) {
+        return total + item.num
+      }
+      if (
+        entry.refund &&
+        item.refund_status !== OrderRefundStatus.UNKNOWN_ORS &&
+        item.refund_status !== OrderRefundStatus.NONE_ORS
+      ) {
+        return total + item.num
+      }
+      return total
+    }, 0)
   })
 }
 
@@ -100,14 +123,8 @@ const guessTitle = computed(() => {
   return '热门好物推荐'
 })
 
-const getOrderEntryUrl = (status: OrderStatus) => {
-  if (status === OrderStatus.WAIT_REVIEW) {
-    return COMMENT_CENTER_PENDING_PAGE
-  }
-  if (status === OrderStatus.REFUNDING) {
-    return AFTERSALE_RECORD_PAGE
-  }
-  return orderListUrl(status)
+const getOrderEntryUrl = (entry: OrderCountEntry) => {
+  return entry.url || orderListUrl(entry.filter || {})
 }
 
 /** 打开移动端 AI 助手静态页，未登录时先进入登录流程。 */
@@ -185,12 +202,9 @@ onShow(() => {
         <template v-if="isLoggedIn">
           <navigator
             v-for="item in orderCount"
-            :key="item.status"
-            :url="getOrderEntryUrl(item.status)"
-            :class="[
-              'navigator',
-              item.status === OrderStatus.REFUNDING ? 'order-aftersale-item' : '',
-            ]"
+            :key="item.key"
+            :url="getOrderEntryUrl(item)"
+            :class="['navigator', item.refund ? 'order-aftersale-item' : '']"
             hover-class="none"
           >
             <view class="order-icon-wrap">
@@ -203,11 +217,8 @@ onShow(() => {
         <template v-else>
           <view
             v-for="item in orderCount"
-            :key="item.status"
-            :class="[
-              'navigator',
-              item.status === OrderStatus.REFUNDING ? 'order-aftersale-item' : '',
-            ]"
+            :key="item.key"
+            :class="['navigator', item.refund ? 'order-aftersale-item' : '']"
             @tap="navigateToLogin"
           >
             <view class="order-icon-wrap">

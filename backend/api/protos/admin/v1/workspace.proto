@@ -44,7 +44,10 @@ service WorkspaceService {
 }
 
 // 工作台指标查询条件
-message SummaryWorkspaceMetricsRequest {}
+message SummaryWorkspaceMetricsRequest {
+  optional int64 tenant_id = 1 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+  optional int64 tenant_store_id = 2 [(gnostic.openapi.v3.property) = {description: "租户门店ID"}]; // 租户门店ID
+}
 
 // 工作台指标响应
 message SummaryWorkspaceMetricsResponse {
@@ -67,7 +70,10 @@ message SummaryWorkspaceMetricsResponse {
 }
 
 // 工作台待办查询条件
-message SummaryWorkspaceTodoRequest {}
+message SummaryWorkspaceTodoRequest {
+  optional int64 tenant_id = 1 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+  optional int64 tenant_store_id = 2 [(gnostic.openapi.v3.property) = {description: "租户门店ID"}]; // 租户门店ID
+}
 
 // 工作台待办响应
 message SummaryWorkspaceTodoResponse {
@@ -82,7 +88,10 @@ message SummaryWorkspaceTodoResponse {
 }
 
 // 工作台风险提醒查询条件
-message SummaryWorkspaceRiskRequest {}
+message SummaryWorkspaceRiskRequest {
+  optional int64 tenant_id = 1 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+  optional int64 tenant_store_id = 2 [(gnostic.openapi.v3.property) = {description: "租户门店ID"}]; // 租户门店ID
+}
 
 // 工作台风险提醒响应
 message SummaryWorkspaceRiskResponse {
@@ -96,6 +105,8 @@ message SummaryWorkspaceRiskResponse {
 // 工作台待审核评价查询条件
 message ListWorkspacePendingCommentsRequest {
   int64 limit = 1 [(gnostic.openapi.v3.property) = {description: "返回数量，默认5，最大10"}]; // 返回数量，默认5，最大10
+  optional int64 tenant_id = 2 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+  optional int64 tenant_store_id = 3 [(gnostic.openapi.v3.property) = {description: "租户门店ID"}]; // 租户门店ID
 }
 
 // 工作台待审核评价响应
@@ -121,7 +132,10 @@ message WorkspacePendingComment {
 }
 
 // 工作台口碑洞察查询条件
-message SummaryWorkspaceReputationRequest {}
+message SummaryWorkspaceReputationRequest {
+  optional int64 tenant_id = 1 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+  optional int64 tenant_store_id = 2 [(gnostic.openapi.v3.property) = {description: "租户门店ID"}]; // 租户门店ID
+}
 
 // 工作台口碑洞察响应
 message SummaryWorkspaceReputationResponse {

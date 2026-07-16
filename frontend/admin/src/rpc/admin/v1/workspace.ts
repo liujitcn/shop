@@ -8,6 +8,12 @@
 
 /** 工作台指标查询条件 */
 export interface SummaryWorkspaceMetricsRequest {
+  /** 租户ID */
+  tenant_id?:
+    | number
+    | undefined;
+  /** 租户门店ID */
+  tenant_store_id?: number | undefined;
 }
 
 /** 工作台指标响应 */
@@ -44,6 +50,12 @@ export interface SummaryWorkspaceMetricsResponse {
 
 /** 工作台待办查询条件 */
 export interface SummaryWorkspaceTodoRequest {
+  /** 租户ID */
+  tenant_id?:
+    | number
+    | undefined;
+  /** 租户门店ID */
+  tenant_store_id?: number | undefined;
 }
 
 /** 工作台待办响应 */
@@ -64,6 +76,12 @@ export interface SummaryWorkspaceTodoResponse {
 
 /** 工作台风险提醒查询条件 */
 export interface SummaryWorkspaceRiskRequest {
+  /** 租户ID */
+  tenant_id?:
+    | number
+    | undefined;
+  /** 租户门店ID */
+  tenant_store_id?: number | undefined;
 }
 
 /** 工作台风险提醒响应 */
@@ -82,6 +100,12 @@ export interface SummaryWorkspaceRiskResponse {
 export interface ListWorkspacePendingCommentsRequest {
   /** 返回数量，默认5，最大10 */
   limit: number;
+  /** 租户ID */
+  tenant_id?:
+    | number
+    | undefined;
+  /** 租户门店ID */
+  tenant_store_id?: number | undefined;
 }
 
 /** 工作台待审核评价响应 */
@@ -110,6 +134,12 @@ export interface WorkspacePendingComment {
 
 /** 工作台口碑洞察查询条件 */
 export interface SummaryWorkspaceReputationRequest {
+  /** 租户ID */
+  tenant_id?:
+    | number
+    | undefined;
+  /** 租户门店ID */
+  tenant_store_id?: number | undefined;
 }
 
 /** 工作台口碑洞察响应 */

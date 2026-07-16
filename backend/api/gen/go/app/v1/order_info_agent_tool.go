@@ -60,6 +60,12 @@ func NewOrderInfoServiceAgentTools(orderInfoServiceServer OrderInfoServiceServer
 		return nil, err
 	}
 	ts = append(ts, getOrderInfoByIdTool)
+	var getOrderTradeByIdTool tool.InvokableTool
+	getOrderTradeByIdTool, err = NewOrderInfoServiceGetOrderTradeByIdAgentTool(orderInfoServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, getOrderTradeByIdTool)
 	var createOrderInfoTool tool.InvokableTool
 	createOrderInfoTool, err = NewOrderInfoServiceCreateOrderInfoAgentTool(orderInfoServiceServer)
 	if err != nil {
@@ -72,6 +78,12 @@ func NewOrderInfoServiceAgentTools(orderInfoServiceServer OrderInfoServiceServer
 		return nil, err
 	}
 	ts = append(ts, deleteOrderInfoTool)
+	var deleteOrderTradeTool tool.InvokableTool
+	deleteOrderTradeTool, err = NewOrderInfoServiceDeleteOrderTradeAgentTool(orderInfoServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, deleteOrderTradeTool)
 	var cancelOrderInfoTool tool.InvokableTool
 	cancelOrderInfoTool, err = NewOrderInfoServiceCancelOrderInfoAgentTool(orderInfoServiceServer)
 	if err != nil {
@@ -191,6 +203,20 @@ func NewOrderInfoServiceGetOrderInfoByIdAgentTool(orderInfoServiceServer OrderIn
 	)
 }
 
+// NewOrderInfoServiceGetOrderTradeByIdAgentTool 创建根据交易单ID查询聚合订单详情的 Agent Tool。
+func NewOrderInfoServiceGetOrderTradeByIdAgentTool(orderInfoServiceServer OrderInfoServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*GetOrderTradeByIdRequest, *OrderInfoResponse](
+		"app_v1_order_info_service_get_order_trade_by_id",
+		"根据交易单ID查询聚合订单详情",
+		func(ctx context.Context, req *GetOrderTradeByIdRequest) (*OrderInfoResponse, error) {
+			if req == nil {
+				req = &GetOrderTradeByIdRequest{}
+			}
+			return orderInfoServiceServer.GetOrderTradeById(ctx, req)
+		},
+	)
+}
+
 // NewOrderInfoServiceCreateOrderInfoAgentTool 创建创建订单信息的 Agent Tool。
 func NewOrderInfoServiceCreateOrderInfoAgentTool(orderInfoServiceServer OrderInfoServiceServer) (tool.InvokableTool, error) {
 	return utils.InferTool[*CreateOrderInfoRequest, *CreateOrderInfoResponse](
@@ -215,6 +241,20 @@ func NewOrderInfoServiceDeleteOrderInfoAgentTool(orderInfoServiceServer OrderInf
 				req = &DeleteOrderInfoRequest{}
 			}
 			return orderInfoServiceServer.DeleteOrderInfo(ctx, req)
+		},
+	)
+}
+
+// NewOrderInfoServiceDeleteOrderTradeAgentTool 创建删除交易单的 Agent Tool。
+func NewOrderInfoServiceDeleteOrderTradeAgentTool(orderInfoServiceServer OrderInfoServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*DeleteOrderTradeRequest, *emptypb.Empty](
+		"app_v1_order_info_service_delete_order_trade",
+		"删除交易单",
+		func(ctx context.Context, req *DeleteOrderTradeRequest) (*emptypb.Empty, error) {
+			if req == nil {
+				req = &DeleteOrderTradeRequest{}
+			}
+			return orderInfoServiceServer.DeleteOrderTrade(ctx, req)
 		},
 	)
 }

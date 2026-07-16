@@ -17,6 +17,20 @@
             end-placeholder="结束月份"
             value-format="YYYY-MM"
           />
+          <el-tree-select
+            v-if="isDefaultTenant"
+            v-model="tenantStoreTreeValue"
+            :data="tenantStoreTreeOptions"
+            clearable
+            filterable
+            check-strictly
+            :render-after-expand="false"
+            placeholder="全部租户/门店"
+            class="report-toolbar__scope"
+          />
+          <el-select v-else v-model="tenantStoreId" clearable filterable placeholder="全部门店" class="report-toolbar__scope">
+            <el-option v-for="item in tenantStoreOptions" :key="item.value" :label="item.label" :value="item.value" />
+          </el-select>
           <el-select v-model="filters.payType" clearable placeholder="支付方式" class="report-toolbar__select">
             <el-option v-for="item in payTypeOptions" :key="String(item.value)" :label="item.label" :value="Number(item.value)" />
           </el-select>
@@ -99,8 +113,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from "vue";
+import { computed, reactive, ref, watch } from "vue";
 import dayjs from "dayjs";
+import { useRoute } from "vue-router";
 import { ElMessage } from "element-plus";
 import { Box, CreditCard, Goods, Money, RefreshLeft, User } from "@element-plus/icons-vue";
 import type { ECElementEvent } from "echarts/core";
@@ -110,9 +125,13 @@ import type { EnumProps } from "@/components/ProTable/interface";
 import MetricCards, { type MetricCardItem } from "@/views/dashboard/analytics/components/MetricCards.vue";
 import PageLayout from "@/views/dashboard/analytics/components/PageLayout.vue";
 import { defOrderReportService } from "@/api/admin/order_report";
+import { defTenantStoreService } from "@/api/admin/tenant_store";
 import type { OrderMonthReportItem, SummaryOrderMonthReportResponse } from "@/rpc/admin/v1/order_report";
+import type { OptionTenantStoresResponse_Option } from "@/rpc/admin/v1/tenant_store";
 import router from "@/routers";
+import { useUserStore } from "@/stores/modules/user";
 import { buildDictEnum } from "@/utils/proTable";
+import { DEFAULT_TENANT_CODE, parseTenantStoreTreeValue, transformTenantStoreTreeOptions } from "@/utils/tenant";
 import { formatPrice } from "@/utils/utils";
 
 defineOptions({
@@ -122,14 +141,43 @@ defineOptions({
 /** 月报内容面板类型。 */
 type ReportPanelType = "trend" | "summary";
 
+const route = useRoute();
+const userStore = useUserStore();
 const loading = ref(false);
 const activePanel = ref<ReportPanelType>("trend");
 const monthRange = ref<[string, string]>(getDefaultMonthRange());
 const payTypeOptions = ref<EnumProps[]>([]);
 const payChannelOptions = ref<EnumProps[]>([]);
+const tenantStoreTreeValue = ref<string>();
+const tenantStoreId = ref<number>();
+const tenantStoreTreeOptions = ref<EnumProps[]>([]);
+const tenantStoreOptions = ref<OptionTenantStoresResponse_Option[]>([]);
 const filters = reactive({
   payType: undefined as number | undefined,
   payChannel: undefined as number | undefined
+});
+
+/** 当前登录账号是否默认租户。 */
+const isDefaultTenant = computed(() => userStore.userInfo.tenant_code === DEFAULT_TENANT_CODE);
+
+/** 当前月报的租户与门店查询范围。 */
+const tenantStoreScope = computed(() => {
+  if (isDefaultTenant.value) {
+    return parseTenantStoreTreeValue(tenantStoreTreeValue.value);
+  }
+  return { tenant_store_id: tenantStoreId.value };
+});
+
+/** 当前筛选范围对应的页面跳转参数。 */
+const tenantStoreRouteQuery = computed<Record<string, string>>(() => {
+  const query: Record<string, string> = {};
+  if (tenantStoreScope.value.tenant_id) {
+    query.tenantId = String(tenantStoreScope.value.tenant_id);
+  }
+  if (tenantStoreScope.value.tenant_store_id) {
+    query.tenantStoreId = String(tenantStoreScope.value.tenant_store_id);
+  }
+  return query;
 });
 
 const emptySummary = (): SummaryOrderMonthReportResponse => ({
@@ -321,7 +369,8 @@ async function loadData() {
       start_month: startMonth,
       end_month: endMonth,
       pay_type: filters.payType ?? 0,
-      pay_channel: filters.payChannel ?? 0
+      pay_channel: filters.payChannel ?? 0,
+      ...tenantStoreScope.value
     };
     const [summaryData, listData] = await Promise.all([
       defOrderReportService.SummaryOrderMonthReport(request),
@@ -358,6 +407,7 @@ function openOrderDetail(month: string) {
   router.push({
     path: "/report/order/day",
     query: {
+      ...tenantStoreRouteQuery.value,
       startDate: dayjs(`${month}-01`).format("YYYY-MM-DD"),
       endDate: dayjs(`${month}-01`).endOf("month").format("YYYY-MM-DD"),
       payType: filters.payType,
@@ -436,13 +486,51 @@ async function loadFilterOptions() {
   payChannelOptions.value = payChannelEnum.data;
 }
 
+/** 加载当前账号可选择的租户门店范围。 */
+async function loadTenantStoreOptions() {
+  if (isDefaultTenant.value) {
+    const response = await defTenantStoreService.TreeTenantStores({ keyword: "" });
+    tenantStoreTreeOptions.value = transformTenantStoreTreeOptions(response.list ?? []);
+    return;
+  }
+  const response = await defTenantStoreService.OptionTenantStores({ keyword: "" });
+  tenantStoreOptions.value = response.list ?? [];
+}
+
+/** 根据路由查询参数同步月报筛选。 */
+function syncRouteQuery() {
+  const startDate = String(route.query.startDate ?? "");
+  const endDate = String(route.query.endDate ?? "");
+  const payType = Number(route.query.payType ?? 0);
+  const payChannel = Number(route.query.payChannel ?? 0);
+  const tenantID = Number(route.query.tenantId ?? 0);
+  const tenantStoreID = Number(route.query.tenantStoreId ?? 0);
+  if (startDate && endDate) {
+    monthRange.value = [dayjs(startDate).format("YYYY-MM"), dayjs(endDate).format("YYYY-MM")];
+  }
+  filters.payType = payType > 0 ? payType : undefined;
+  filters.payChannel = payChannel > 0 ? payChannel : undefined;
+  if (isDefaultTenant.value) {
+    tenantStoreTreeValue.value = tenantStoreID > 0 ? `store:${tenantStoreID}` : tenantID > 0 ? `tenant:${tenantID}` : undefined;
+  } else {
+    tenantStoreId.value = tenantStoreID > 0 ? tenantStoreID : undefined;
+  }
+}
+
+/** 初始化月报筛选选项与报表数据。 */
 async function initializePage() {
-  await loadFilterOptions().catch(() => {
-    payTypeOptions.value = [];
-    payChannelOptions.value = [];
-  });
+  syncRouteQuery();
+  await Promise.allSettled([loadFilterOptions(), loadTenantStoreOptions()]);
   await loadData().catch(() => undefined);
 }
+
+watch(
+  () => route.query,
+  () => {
+    syncRouteQuery();
+    loadData().catch(() => undefined);
+  }
+);
 
 initializePage();
 </script>
@@ -455,11 +543,23 @@ initializePage();
 }
 .report-toolbar {
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
   justify-content: flex-end;
 }
+.report-toolbar__scope {
+  width: 240px;
+}
 .report-toolbar__select {
   width: 150px;
+}
+
+@media (width <= 768px) {
+  .report-toolbar,
+  .report-toolbar__scope,
+  .report-toolbar__select {
+    width: 100%;
+  }
 }
 .report-card {
   padding: 18px;

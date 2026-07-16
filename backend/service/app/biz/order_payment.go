@@ -25,11 +25,11 @@ func NewOrderPaymentCase(baseCase *biz.BaseCase, orderPaymentRepo *data.OrderPay
 	}
 }
 
-// findPaymentTimeByOrderID 查询订单支付时间
-func (c *OrderPaymentCase) findPaymentTimeByOrderID(ctx context.Context, orderID int64) (string, error) {
+// findPaymentTimeByTradeID 查询交易单支付时间。
+func (c *OrderPaymentCase) findPaymentTimeByTradeID(ctx context.Context, tradeID int64) (string, error) {
 	query := c.Query(ctx).OrderPayment
 	opts := make([]repository.QueryOption, 0, 1)
-	opts = append(opts, repository.Where(query.OrderID.Eq(orderID)))
+	opts = append(opts, repository.Where(query.TradeID.Eq(tradeID)))
 	orderPayment, err := c.Find(ctx, opts...)
 	if err != nil {
 		return "", err

@@ -9,6 +9,20 @@
       <template #toolbar>
         <div class="report-toolbar">
           <el-date-picker v-model="monthValue" type="month" placeholder="选择月份" value-format="YYYY-MM" />
+          <el-tree-select
+            v-if="isDefaultTenant"
+            v-model="tenantStoreTreeValue"
+            :data="tenantStoreTreeOptions"
+            clearable
+            filterable
+            check-strictly
+            :render-after-expand="false"
+            placeholder="全部租户/门店"
+            class="report-toolbar__scope"
+          />
+          <el-select v-else v-model="tenantStoreId" clearable filterable placeholder="全部门店" class="report-toolbar__scope">
+            <el-option v-for="item in tenantStoreOptions" :key="item.value" :label="item.label" :value="item.value" />
+          </el-select>
           <el-select v-model="filters.payType" clearable placeholder="支付方式" class="report-toolbar__select">
             <el-option v-for="item in payTypeOptions" :key="String(item.value)" :label="item.label" :value="Number(item.value)" />
           </el-select>
@@ -107,23 +121,55 @@ import type { EnumProps } from "@/components/ProTable/interface";
 import MetricCards, { type MetricCardItem } from "@/views/dashboard/analytics/components/MetricCards.vue";
 import PageLayout from "@/views/dashboard/analytics/components/PageLayout.vue";
 import { defOrderReportService } from "@/api/admin/order_report";
+import { defTenantStoreService } from "@/api/admin/tenant_store";
 import type { OrderDayReportItem, SummaryOrderDayReportResponse } from "@/rpc/admin/v1/order_report";
+import type { OptionTenantStoresResponse_Option } from "@/rpc/admin/v1/tenant_store";
 import router from "@/routers";
+import { useUserStore } from "@/stores/modules/user";
 import { buildDictEnum } from "@/utils/proTable";
+import { DEFAULT_TENANT_CODE, parseTenantStoreTreeValue, transformTenantStoreTreeOptions } from "@/utils/tenant";
 import { formatPrice } from "@/utils/utils";
 
 /** 日报内容面板类型。 */
 type ReportPanelType = "trend" | "summary";
 
 const route = useRoute();
+const userStore = useUserStore();
 const loading = ref(false);
 const activePanel = ref<ReportPanelType>("trend");
 const monthValue = ref(getDefaultMonthValue());
 const payTypeOptions = ref<EnumProps[]>([]);
 const payChannelOptions = ref<EnumProps[]>([]);
+const tenantStoreTreeValue = ref<string>();
+const tenantStoreId = ref<number>();
+const tenantStoreTreeOptions = ref<EnumProps[]>([]);
+const tenantStoreOptions = ref<OptionTenantStoresResponse_Option[]>([]);
 const filters = reactive({
   payType: undefined as number | undefined,
   payChannel: undefined as number | undefined
+});
+
+/** 当前登录账号是否默认租户。 */
+const isDefaultTenant = computed(() => userStore.userInfo.tenant_code === DEFAULT_TENANT_CODE);
+
+/** 当前日报的租户与门店查询范围。 */
+const tenantStoreScope = computed(() => {
+  if (isDefaultTenant.value) {
+    return parseTenantStoreTreeValue(tenantStoreTreeValue.value);
+  }
+  return { tenant_store_id: tenantStoreId.value };
+});
+
+/** 当前筛选范围对应的页面跳转参数。 */
+const tenantStoreRouteQuery = computed<Record<string, string>>(() => {
+  const query: Record<string, string> = {};
+  if (tenantStoreScope.value.tenant_id) {
+    query.tenantId = String(tenantStoreScope.value.tenant_id);
+  }
+  if (tenantStoreScope.value.tenant_store_id) {
+    query.tenantStoreId = String(tenantStoreScope.value.tenant_store_id);
+  }
+  return query;
 });
 
 const emptySummary = (): SummaryOrderDayReportResponse => ({
@@ -312,7 +358,8 @@ async function loadData() {
       start_date: dayjs(`${startMonth}-01`).format("YYYY-MM-DD"),
       end_date: dayjs(`${startMonth}-01`).endOf("month").format("YYYY-MM-DD"),
       pay_type: filters.payType ?? 0,
-      pay_channel: filters.payChannel ?? 0
+      pay_channel: filters.payChannel ?? 0,
+      ...tenantStoreScope.value
     };
     const [summaryData, listData] = await Promise.all([
       defOrderReportService.SummaryOrderDayReport(request),
@@ -349,6 +396,7 @@ function openOrderDetail(day: string) {
   router.push({
     path: "/order/info",
     query: {
+      ...tenantStoreRouteQuery.value,
       startDate: day,
       endDate: day,
       payType: filters.payType,
@@ -427,12 +475,19 @@ function syncRouteQuery() {
   const endDate = String(route.query.endDate ?? "");
   const payType = Number(route.query.payType ?? 0);
   const payChannel = Number(route.query.payChannel ?? 0);
+  const tenantID = Number(route.query.tenantId ?? 0);
+  const tenantStoreID = Number(route.query.tenantStoreId ?? 0);
 
   if (startDate && endDate) {
     monthValue.value = dayjs(startDate).format("YYYY-MM");
   }
   filters.payType = payType > 0 ? payType : undefined;
   filters.payChannel = payChannel > 0 ? payChannel : undefined;
+  if (isDefaultTenant.value) {
+    tenantStoreTreeValue.value = tenantStoreID > 0 ? `store:${tenantStoreID}` : tenantID > 0 ? `tenant:${tenantID}` : undefined;
+  } else {
+    tenantStoreId.value = tenantStoreID > 0 ? tenantStoreID : undefined;
+  }
 }
 
 /** 加载日报筛选字典。 */
@@ -442,13 +497,21 @@ async function loadFilterOptions() {
   payChannelOptions.value = payChannelEnum.data;
 }
 
+/** 加载当前账号可选择的租户门店范围。 */
+async function loadTenantStoreOptions() {
+  if (isDefaultTenant.value) {
+    const response = await defTenantStoreService.TreeTenantStores({ keyword: "" });
+    tenantStoreTreeOptions.value = transformTenantStoreTreeOptions(response.list ?? []);
+    return;
+  }
+  const response = await defTenantStoreService.OptionTenantStores({ keyword: "" });
+  tenantStoreOptions.value = response.list ?? [];
+}
+
 /** 初始化页面：同步路由、加载字典、拉取日报数据。 */
 async function initializePage() {
   syncRouteQuery();
-  await loadFilterOptions().catch(() => {
-    payTypeOptions.value = [];
-    payChannelOptions.value = [];
-  });
+  await Promise.allSettled([loadFilterOptions(), loadTenantStoreOptions()]);
   await loadData().catch(() => undefined);
 }
 
@@ -471,11 +534,23 @@ initializePage();
 }
 .report-toolbar {
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
   justify-content: flex-end;
 }
+.report-toolbar__scope {
+  width: 240px;
+}
 .report-toolbar__select {
   width: 150px;
+}
+
+@media (width <= 768px) {
+  .report-toolbar,
+  .report-toolbar__scope,
+  .report-toolbar__select {
+    width: 100%;
+  }
 }
 .report-card {
   padding: 18px;

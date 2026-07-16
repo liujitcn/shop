@@ -75,19 +75,17 @@ func analyticsTimeTypeLabel(value any) string {
 // orderStatusLabel 将订单状态枚举转换为展示文本。
 func orderStatusLabel(value any) string {
 	switch int64Value(value) {
-	case int64(commonv1.OrderStatus_CREATED):
-		return "待支付"
-	case int64(commonv1.OrderStatus_PAID):
+	case int64(commonv1.OrderInfoStatus_NOT_STARTED_OIS):
+		return "未进入履约"
+	case int64(commonv1.OrderInfoStatus_WAIT_SHIPMENT_OIS):
 		return "待发货"
-	case int64(commonv1.OrderStatus_SHIPPED):
-		return "待收货"
-	case int64(commonv1.OrderStatus_WAIT_REVIEW):
+	case int64(commonv1.OrderInfoStatus_SHIPPED_OIS):
+		return "已发货"
+	case int64(commonv1.OrderInfoStatus_WAIT_REVIEW_OIS):
 		return "待评价"
-	case int64(commonv1.OrderStatus_COMPLETED):
+	case int64(commonv1.OrderInfoStatus_COMPLETED_OIS):
 		return "已完成"
-	case int64(commonv1.OrderStatus_REFUNDING):
-		return "已退款"
-	case int64(commonv1.OrderStatus_CANCELED):
+	case int64(commonv1.OrderInfoStatus_CANCELED_OIS):
 		return "已取消"
 	default:
 		return "未知"

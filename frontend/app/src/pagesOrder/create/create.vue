@@ -13,12 +13,12 @@ import type {
 import type { BaseDictForm_DictItem } from '@/rpc/app/v1/base_dict'
 import type { RecommendContext } from '@/rpc/app/v1/recommend'
 import { onLoad } from '@dcloudio/uni-app'
-import { computed, ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import type { UserAddress } from '@/rpc/app/v1/user_address'
 import { defUserAddressService } from '@/api/app/user_address'
 import { defBaseDictService } from '@/api/app/base_dict'
 import { formatSrc, formatPrice } from '@/utils'
-import { RecommendScene } from '@/rpc/common/v1/enum'
+import { OrderPayChannel, OrderPayType, RecommendScene } from '@/rpc/common/v1/enum'
 import {
   goodsDetailUrl,
   orderDetailUrl,
@@ -33,8 +33,6 @@ const userStore = useUserStore()
 
 // 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync()
-// 订单备注
-const buyerMessage = ref('')
 // 支付方式
 const payTypeList = ref<BaseDictForm_DictItem[]>([])
 // 当前支付方式下标
@@ -58,13 +56,30 @@ const onChangePayChannel: UniHelper.SelectorPickerOnChange = (ev) => {
 
 // 配送时间
 const deliveryList = ref<BaseDictForm_DictItem[]>([])
-// 当前配送时间下标
-const deliveryActiveIndex = ref(0)
-// 当前配送时间
-const activeDelivery = computed(() => deliveryList.value[deliveryActiveIndex.value])
-// 修改配送时间
-const onChangeDelivery: UniHelper.SelectorPickerOnChange = (ev) => {
-  deliveryActiveIndex.value = ev.detail.value
+
+type StoreOptionState = {
+  deliveryIndex: number
+  remark: string
+}
+
+const storeOptionState = reactive<Record<number, StoreOptionState>>({})
+
+/** 初始化每个门店独立的配送时间和备注。 */
+const initializeStoreOptions = () => {
+  orderPre.value?.order_goods_stores.forEach((group) => {
+    const storeID = group.store?.id
+    if (storeID && !storeOptionState[storeID]) {
+      storeOptionState[storeID] = { deliveryIndex: 0, remark: '' }
+    }
+  })
+}
+
+const getStoreDelivery = (storeID?: number) => {
+  return storeID ? deliveryList.value[storeOptionState[storeID]?.deliveryIndex ?? 0] : undefined
+}
+
+const onChangeStoreDelivery = (storeID: number, index: number) => {
+  storeOptionState[storeID].deliveryIndex = index
 }
 
 // 页面参数
@@ -137,7 +152,9 @@ const getDictData = async () => {
     defBaseDictService.GetBaseDict({ value: deliveryTimeCode }),
   ])
   payTypeList.value = payTypeDict.items || []
-  payChannelList.value = payChannelDict.items || []
+  payChannelList.value = (payChannelDict.items || []).filter(
+    (item) => Number(item.value) === OrderPayChannel.WX_PAY,
+  )
   deliveryList.value = deliveryDict.items || []
 }
 
@@ -148,9 +165,11 @@ onLoad(() => {
     return
   }
 
-  Promise.all([getUserAddressData(), getUserOrderPreData(), getDictData()]).catch(() => {
-    uni.showToast({ icon: 'none', title: '订单信息加载失败，请稍后重试' })
-  })
+  Promise.all([getUserAddressData(), getUserOrderPreData(), getDictData()])
+    .then(initializeStoreOptions)
+    .catch(() => {
+      uni.showToast({ icon: 'none', title: '订单信息加载失败，请稍后重试' })
+    })
 })
 
 // 收货地址
@@ -179,14 +198,32 @@ const onOrderSubmit = async () => {
   if (!activePayType.value?.value) {
     return uni.showToast({ icon: 'none', title: '请选择支付方式' })
   }
-  if (Number(activePayType.value?.value) === 1 && !activePayChannel.value.value) {
+  if (
+    Number(activePayType.value.value) === OrderPayType.ONLINE_PAY &&
+    !activePayChannel.value?.value
+  ) {
     return uni.showToast({ icon: 'none', title: '请选择支付渠道' })
   }
-  if (!activeDelivery.value?.value) {
-    return uni.showToast({ icon: 'none', title: '请选择配送时间类型' })
+  const orderGoodsStores = orderPre.value?.order_goods_stores || []
+  if (
+    !orderGoodsStores.length ||
+    orderGoodsStores.some(
+      (group) =>
+        !group.store?.id || !group.goods.length || !getStoreDelivery(group.store.id)?.value,
+    )
+  ) {
+    return uni.showToast({ icon: 'none', title: '请完善门店商品和配送信息' })
   }
-  const requestGoods = orderPre
-    .value!.order_goods_stores.flatMap((store) => store.goods)
+  const orderStoreOptions = orderGoodsStores.map((group) => {
+    const storeID = group.store!.id
+    return {
+      tenant_store_id: storeID,
+      delivery_time: Number(getStoreDelivery(storeID)!.value),
+      remark: storeOptionState[storeID].remark,
+    }
+  })
+  const requestGoods = orderGoodsStores
+    .flatMap((store) => store.goods)
     .map((item) => buildOrderRequestGoods(item))
   // 发送请求
   const res = await defOrderService.CreateOrderInfo({
@@ -197,19 +234,17 @@ const onOrderSubmit = async () => {
     /** 支付方式：枚举【OrderPayType】 */
     pay_type: Number(activePayType.value.value),
     /** 支付渠道：枚举【OrderPayChannel】 */
-    pay_channel: Number(activePayChannel.value.value),
-    /** 配送时间：枚举【OrderDeliveryTime】 */
-    delivery_time: Number(activeDelivery.value.value),
-    /** 订单备注 */
-    remark: buyerMessage.value,
+    pay_channel: Number(activePayChannel.value?.value || 0),
+    /** 每个门店独立的配送时间和备注 */
+    order_store_options: orderStoreOptions,
     /** 商品信息 */
     goods: requestGoods,
   })
-  // 关闭当前页面，跳转到订单详情，传递订单id
-  if (Number(activePayType.value.value) === 2) {
-    redirectToOrderPayment(res.order_id)
+  // 创建成功后所有入口都使用交易单编号进入聚合支付流程。
+  if (Number(activePayType.value.value) === OrderPayType.ONLINE_PAY) {
+    redirectToOrderPayment(res.trade_id)
   } else {
-    uni.redirectTo({ url: orderDetailUrl({ id: res.order_id, internal: true }) })
+    uni.redirectTo({ url: orderDetailUrl({ trade_id: res.trade_id }) })
   }
 }
 
@@ -221,10 +256,18 @@ const onOrderSubmitOk = computed(() => {
   if (!activePayType.value?.value) {
     return true
   }
-  if (!activeDelivery.value?.value) {
+  if (
+    !orderPre.value?.order_goods_stores.length ||
+    orderPre.value.order_goods_stores.some(
+      (group) => !group.store?.id || !getStoreDelivery(group.store.id)?.value,
+    )
+  ) {
     return true
   }
-  if (Number(activePayType.value?.value) === 1 && !activePayChannel.value?.value) {
+  if (
+    Number(activePayType.value?.value) === OrderPayType.ONLINE_PAY &&
+    !activePayChannel.value?.value
+  ) {
     return true
   }
   return false
@@ -301,16 +344,31 @@ const onOrderSubmitOk = computed(() => {
           <view class="count">x{{ item.num }}</view>
         </view>
       </navigator>
+      <view v-if="group.store?.id" class="store-options">
+        <view class="option-row">
+          <text class="option-label">配送时间</text>
+          <picker
+            :range="deliveryList"
+            range-key="label"
+            @change="onChangeStoreDelivery(group.store.id, $event.detail.value)"
+          >
+            <view class="icon-fonts picker">{{ getStoreDelivery(group.store.id)?.label }}</view>
+          </picker>
+        </view>
+        <view class="option-row">
+          <text class="option-label">订单备注</text>
+          <input
+            class="option-input"
+            :cursor-spacing="30"
+            placeholder="给当前门店留言"
+            v-model="storeOptionState[group.store.id].remark"
+          />
+        </view>
+      </view>
     </view>
 
-    <!-- 配送及支付方式 -->
+    <!-- 支付方式 -->
     <view class="related">
-      <view class="item">
-        <text class="text">配送时间</text>
-        <picker :range="deliveryList" range-key="label" @change="onChangeDelivery">
-          <view class="icon-fonts picker">{{ activeDelivery?.label }}</view>
-        </picker>
-      </view>
       <view class="item">
         <text class="text">支付方式</text>
         <picker :range="payTypeList" range-key="label" @change="onChangePayType">
@@ -322,15 +380,6 @@ const onOrderSubmitOk = computed(() => {
         <picker :range="payChannelList" range-key="label" @change="onChangePayChannel">
           <view class="icon-fonts picker">{{ activePayChannel?.label }}</view>
         </picker>
-      </view>
-      <view class="item">
-        <text class="text">订单备注</text>
-        <input
-          class="input"
-          :cursor-spacing="30"
-          placeholder="选题，建议留言前先与商家沟通确认"
-          v-model="buyerMessage"
-        />
       </view>
     </view>
 
@@ -501,6 +550,39 @@ page {
       font-size: 26rpx;
       color: #444;
     }
+  }
+
+  .store-options {
+    border-top: 1rpx solid #eee;
+  }
+
+  .option-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 80rpx;
+    font-size: 26rpx;
+    color: #333;
+  }
+
+  .option-label {
+    flex-shrink: 0;
+    width: 130rpx;
+  }
+
+  .option-input {
+    flex: 1;
+    margin: 20rpx 0;
+    text-align: right;
+    color: #666;
+  }
+
+  .picker {
+    color: #666;
+  }
+
+  .picker::after {
+    content: '\e6c2';
   }
 }
 

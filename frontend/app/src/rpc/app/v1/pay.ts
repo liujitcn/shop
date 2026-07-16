@@ -14,14 +14,14 @@ export interface PayNotifyRequest {
 
 /** 小程序支付请求参数 */
 export interface JsapiPayRequest {
-  /** 订单id */
-  order_id: number;
+  /** 交易单ID */
+  trade_id: number;
 }
 
 /** H5支付请求参数 */
 export interface H5PayRequest {
-  /** 订单id */
-  order_id: number;
+  /** 交易单ID */
+  trade_id: number;
 }
 
 /** 小程序支付响应 */

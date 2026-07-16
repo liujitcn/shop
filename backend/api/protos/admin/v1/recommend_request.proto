@@ -118,6 +118,8 @@ message RecommendRequestContext {
   repeated RecommendRequestTrace trace = 7 [(gnostic.openapi.v3.property) = {description: "推荐请求链路轨迹"}]; // 推荐请求链路轨迹
 
   string raw_json = 8 [(gnostic.openapi.v3.property) = {description: "原始上下文JSON"}]; // 原始上下文JSON
+
+  int64 trade_id = 9 [(gnostic.openapi.v3.property) = {description: "关联交易单ID"}]; // 关联交易单ID
 }
 
 // 推荐请求链路轨迹

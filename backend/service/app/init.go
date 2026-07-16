@@ -28,6 +28,7 @@ var ProviderSet = wire.NewSet(
 	biz.NewGoodsSpecCase,
 	biz.NewGoodsInfoCase,
 	biz.NewTenantStoreCase,
+	biz.NewOrderTradeCase,
 	biz.NewOrderInfoCase,
 	biz.NewOrderAddressCase,
 	biz.NewOrderCancelCase,

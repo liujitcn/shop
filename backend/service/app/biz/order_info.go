@@ -2,8 +2,10 @@ package biz
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"sort"
 	"strconv"
 	"time"
 
@@ -44,6 +46,7 @@ type OrderInfoCase struct {
 	*biz.BaseCase
 	tx data.Transaction
 	*data.OrderInfoRepository
+	orderTradeCase     *OrderTradeCase
 	orderCancelCase    *OrderCancelCase
 	orderGoodsCase     *OrderGoodsCase
 	orderAddressCase   *OrderAddressCase
@@ -67,6 +70,7 @@ func NewOrderInfoCase(
 	baseCase *biz.BaseCase,
 	tx data.Transaction,
 	orderInfoRepo *data.OrderInfoRepository,
+	orderTradeCase *OrderTradeCase,
 	orderCancelCase *OrderCancelCase,
 	orderGoodsCase *OrderGoodsCase,
 	orderAddressCase *OrderAddressCase,
@@ -87,6 +91,7 @@ func NewOrderInfoCase(
 		BaseCase:            baseCase,
 		tx:                  tx,
 		OrderInfoRepository: orderInfoRepo,
+		orderTradeCase:      orderTradeCase,
 		orderCancelCase:     orderCancelCase,
 		orderGoodsCase:      orderGoodsCase,
 		orderAddressCase:    orderAddressCase,
@@ -105,11 +110,14 @@ func NewOrderInfoCase(
 		mapper:              mapper.NewCopierMapper[appv1.OrderInfo, models.OrderInfo](),
 	}
 
-	// 服务启动时恢复全部未支付订单的超时取消任务
-	query := c.Query(context.Background()).OrderInfo
+	// 服务启动时恢复全部未支付交易的超时取消任务。
+	query := c.orderTradeCase.Query(context.Background()).OrderTrade
 	opts := make([]repository.QueryOption, 0, 1)
-	opts = append(opts, repository.Where(query.Status.Eq(_const.ORDER_STATUS_CREATED)))
-	list, err := c.List(context.Background(), opts...)
+	opts = append(opts, repository.Where(query.Status.In(
+		_const.ORDER_TRADE_STATUS_PENDING_PAYMENT,
+		_const.ORDER_TRADE_STATUS_PAYING,
+	)))
+	list, err := c.orderTradeCase.List(context.Background(), opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -123,23 +131,15 @@ func NewOrderInfoCase(
 		if countdown < 0 {
 			// 自动取消订单
 			err = c.cancelOrder(context.Background(), item.UserID, &appv1.CancelOrderInfoRequest{
-				OrderId: item.ID,
+				TradeId: item.ID,
 			})
-			// 自动取消执行失败时，仅记录日志继续恢复其余任务。
+			// 自动取消执行失败且交易仍未支付时，注册短周期重试任务。
 			if err != nil {
 				log.Error(fmt.Sprintf("CancelOrder order %d failed: %v", item.ID, err))
+				c.scheduleTradeCancellation(item.ID, item.UserID, time.Minute)
 			}
 		} else {
-			// 添加自动取消定时任务
-			c.orderSchedulerCase.AddSchedule(item.ID, time.Duration(countdown)*time.Second, func() {
-				err = c.cancelOrder(context.Background(), item.UserID, &appv1.CancelOrderInfoRequest{
-					OrderId: item.ID,
-				})
-				// 定时任务取消失败时，仅记录日志避免影响调度器运行。
-				if err != nil {
-					log.Error(fmt.Sprintf("CancelOrder order %d failed: %v", item.ID, err))
-				}
-			})
+			c.scheduleTradeCancellation(item.ID, item.UserID, time.Duration(countdown)*time.Second)
 		}
 	}
 
@@ -158,25 +158,67 @@ func (c *OrderInfoCase) RefundOrderInfo(ctx context.Context, req *appv1.RefundOr
 		return err
 	}
 
-	// 只有已支付订单才能继续申请退款。
-	if orderInfo.Status != _const.ORDER_STATUS_PAID {
+	// 用户侧退款只允许尚未发货的门店订单发起。
+	if orderInfo.Status != _const.ORDER_INFO_STATUS_WAIT_SHIPMENT {
 		return errorsx.StateConflict(
-			fmt.Sprintf("订单状态错误：【%s】", commonv1.OrderStatus_name[orderInfo.Status]),
+			fmt.Sprintf("订单状态错误：【%s】", commonv1.OrderInfoStatus_name[orderInfo.Status]),
 			"order_info",
-			commonv1.OrderStatus(orderInfo.Status).String(),
-			commonv1.OrderStatus(_const.ORDER_STATUS_PAID).String(),
+			commonv1.OrderInfoStatus(orderInfo.Status).String(),
+			commonv1.OrderInfoStatus(_const.ORDER_INFO_STATUS_WAIT_SHIPMENT).String(),
+		)
+	}
+	if orderInfo.RefundStatus == _const.ORDER_REFUND_STATUS_PROCESSING || orderInfo.RefundStatus == _const.ORDER_REFUND_STATUS_REFUNDED {
+		return errorsx.StateConflict(
+			"当前订单退款状态不允许重复申请",
+			"order_info",
+			commonv1.OrderRefundStatus(orderInfo.RefundStatus).String(),
+			"NONE_ORS|PARTIAL_REFUND_ORS|CLOSED_OR_FAILED_ORS",
+		)
+	}
+	var orderTrade *models.OrderTrade
+	orderTrade, err = c.orderTradeCase.findByUserIDAndID(ctx, authInfo.UserId, orderInfo.TradeID)
+	if err != nil {
+		return err
+	}
+	var refundedMoney int64
+	refundedMoney, err = c.successfulRefundMoney(ctx, orderInfo.ID)
+	if err != nil {
+		return err
+	}
+	refundMoney := orderInfo.PayMoney - refundedMoney
+	if refundMoney <= 0 {
+		return errorsx.StateConflict(
+			"当前门店订单已无可退金额",
+			"order_info",
+			commonv1.OrderRefundStatus(orderInfo.RefundStatus).String(),
+			"NONE_ORS|PARTIAL_REFUND_ORS|CLOSED_OR_FAILED_ORS",
 		)
 	}
 
 	orderRefund := &models.OrderRefund{
+		TradeID:       orderTrade.ID,
 		TenantID:      orderInfo.TenantID,
 		TenantStoreID: orderInfo.TenantStoreID,
 		OrderID:       req.GetOrderId(),
-		RefundNo:      orderInfo.OrderNo, // 退款单号，和订单号使用一个方便查询退款
+		TradeNo:       orderTrade.TradeNo,
+		RefundNo:      strconv.FormatInt(id.GenSnowflakeID(), 10),
 		Reason:        int32(req.GetReason()),
+		CreateTime:    time.Now(),
+		RefundState:   appv1.RefundResource_PROCESSING.String(),
+		Amount: _string.ConvertAnyToJsonString(map[string]int64{
+			"total":        orderTrade.PayMoney,
+			"refund":       refundMoney,
+			"payer_total":  orderTrade.PayMoney,
+			"payer_refund": refundMoney,
+		}),
+		Status: _const.ORDER_BILL_STATUS_NO_CHECK,
 	}
-	// 只有在线支付订单才会走退款单和微信退款流程
-	if commonv1.OrderPayType(orderInfo.PayType) == commonv1.OrderPayType(_const.ORDER_PAY_TYPE_ONLINE_PAY) {
+	err = c.claimOrderRefund(ctx, orderInfo, orderRefund)
+	if err != nil {
+		return err
+	}
+	// 只有在线支付交易才会走微信退款流程。
+	if commonv1.OrderPayType(orderTrade.PayType) == commonv1.OrderPayType(_const.ORDER_PAY_TYPE_ONLINE_PAY) {
 		// 先把退款原因值翻译成字典标签，便于退款记录展示
 		reason := strconv.Itoa(int(orderRefund.Reason))
 		var label string
@@ -186,15 +228,15 @@ func (c *OrderInfoCase) RefundOrderInfo(ctx context.Context, req *appv1.RefundOr
 			reason = label
 		}
 		// 仅微信支付订单需要调用微信退款接口
-		if commonv1.OrderPayChannel(orderInfo.PayChannel) == commonv1.OrderPayChannel(_const.ORDER_PAY_CHANNEL_WX_PAY) {
+		if commonv1.OrderPayChannel(orderTrade.PayChannel) == commonv1.OrderPayChannel(_const.ORDER_PAY_CHANNEL_WX_PAY) {
 			var refund *refunddomestic.Refund
 			refund, err = c.wxPayCase.Refund(refunddomestic.CreateRequest{
-				OutTradeNo:  trans.String(orderInfo.OrderNo),
+				OutTradeNo:  trans.String(orderTrade.TradeNo),
 				OutRefundNo: trans.String(orderRefund.RefundNo),
 				Reason:      trans.String(reason),
 				Amount: &refunddomestic.AmountReq{
-					Total:    trans.Int64(orderInfo.PayMoney),
-					Refund:   trans.Int64(orderInfo.PayMoney),
+					Total:    trans.Int64(orderTrade.PayMoney),
+					Refund:   trans.Int64(refundMoney),
 					Currency: trans.String("CNY"),
 				},
 			})
@@ -202,15 +244,9 @@ func (c *OrderInfoCase) RefundOrderInfo(ctx context.Context, req *appv1.RefundOr
 			if err != nil {
 				// 命中微信 API 错误结构时，再判断是否属于幂等退款场景。
 				if apiErr, ok := errors.AsType[*wxPayCore.APIError](err); ok {
-					// 微信明确返回“订单已全额退款”时，补查退款结果并同步本地状态。
+					// 微信明确返回“订单已全额退款”时，只能用此前真正创建过的退款号恢复状态。
 					if apiErr.Code == "INVALID_REQUEST" && apiErr.Message == "订单已全额退款" {
-						// 调用查询退款接口
-						var refundResource *appv1.RefundResource
-						refundResource, err = c.wxPayCase.QueryByOutRefundNo(orderRefund.RefundNo)
-						if err != nil {
-							return err
-						}
-						err = c.payCase.RefundSuccess(ctx, orderInfo, refundResource)
+						err = c.recoverCompletedOrderRefund(ctx, orderTrade, orderInfo, orderRefund)
 						if err != nil {
 							return err
 						}
@@ -221,10 +257,24 @@ func (c *OrderInfoCase) RefundOrderInfo(ctx context.Context, req *appv1.RefundOr
 							"NONE",
 						)
 					}
+					orderRefund.RefundState = appv1.RefundResource_ABNORMAL.String()
+					stateErr := c.tx.Transaction(ctx, func(ctx context.Context) error {
+						persistErr := c.orderRefundCase.UpdateByID(ctx, orderRefund)
+						if persistErr != nil {
+							return persistErr
+						}
+						return c.OrderInfoRepository.UpdateByID(ctx, &models.OrderInfo{
+							ID:           orderInfo.ID,
+							RefundStatus: _const.ORDER_REFUND_STATUS_CLOSED_OR_FAILED,
+						})
+					})
+					if stateErr != nil {
+						return stateErr
+					}
 				}
 				return err
 			}
-			orderRefund.OrderNo = trans.StringValue(refund.OutTradeNo)
+			orderRefund.TradeNo = trans.StringValue(refund.OutTradeNo)
 			orderRefund.ThirdOrderNo = trans.StringValue(refund.TransactionId)
 			orderRefund.ThirdRefundNo = trans.StringValue(refund.RefundId)
 			orderRefund.Channel = string(*refund.Channel.Ptr())
@@ -236,27 +286,103 @@ func (c *OrderInfoCase) RefundOrderInfo(ctx context.Context, req *appv1.RefundOr
 			orderRefund.Amount = _string.ConvertAnyToJsonString(refund.Amount)
 		}
 	} else {
-		t := time.Now()
-		orderRefund.CreateTime = t
-		orderRefund.SuccessTime = t
-		orderRefund.Amount = "{}"
+		orderRefund.SuccessTime = time.Now()
+		orderRefund.RefundState = appv1.RefundResource_SUCCESS.String()
 	}
-	orderIDs := []int64{req.GetOrderId()}
 	err = c.tx.Transaction(ctx, func(ctx context.Context) error {
-		// 退款成功后保存退款记录
-		err = c.orderRefundCase.Create(ctx, orderRefund)
+		// 更新已预留的退款记录并同步当前门店订单退款进度。
+		err = c.orderRefundCase.UpdateByID(ctx, orderRefund)
 		if err != nil {
 			return err
 		}
-		return c.updateByIDs(ctx, authInfo.UserId, orderIDs, &models.OrderInfo{
-			Status: _const.ORDER_STATUS_REFUNDING,
-		})
+		// 渠道已返回最终结果时直接汇总，否则保留当前门店订单的退款中状态。
+		switch orderRefund.RefundState {
+		case appv1.RefundResource_SUCCESS.String():
+			return c.payCase.refreshRefundStatuses(ctx, orderTrade, orderInfo)
+		case appv1.RefundResource_CLOSED.String(), appv1.RefundResource_ABNORMAL.String():
+			return c.OrderInfoRepository.UpdateByID(ctx, &models.OrderInfo{
+				ID:           orderInfo.ID,
+				RefundStatus: _const.ORDER_REFUND_STATUS_CLOSED_OR_FAILED,
+			})
+		default:
+			return nil
+		}
 	})
 	if err != nil {
 		return err
 	}
 	workspaceevent.Publish(ctx, workspaceevent.ReasonOrderChanged, workspaceevent.AreaTodo, workspaceevent.AreaMetrics)
 	return nil
+}
+
+// recoverCompletedOrderRefund 用此前已创建的退款号恢复微信已全额退款的本地状态。
+func (c *OrderInfoCase) recoverCompletedOrderRefund(ctx context.Context, orderTrade *models.OrderTrade, orderInfo *models.OrderInfo, currentRefund *models.OrderRefund) error {
+	currentRefund.RefundState = appv1.RefundResource_ABNORMAL.String()
+	err := c.orderRefundCase.UpdateByID(ctx, currentRefund)
+	if err != nil {
+		return err
+	}
+	query := c.orderRefundCase.Query(ctx).OrderRefund
+	opts := make([]repository.QueryOption, 0, 1)
+	opts = append(opts, repository.Where(query.OrderID.Eq(orderInfo.ID)))
+	orderRefunds, err := c.orderRefundCase.List(ctx, opts...)
+	if err != nil {
+		return err
+	}
+	var queryErr error
+	for _, orderRefund := range orderRefunds {
+		if orderRefund.ID == currentRefund.ID || orderRefund.RefundNo == "" {
+			continue
+		}
+		var refundResource *appv1.RefundResource
+		refundResource, queryErr = c.wxPayCase.QueryByOutRefundNo(orderRefund.RefundNo)
+		if queryErr != nil || refundResource.GetRefundStatus() != appv1.RefundResource_SUCCESS {
+			continue
+		}
+		return c.payCase.RefundSuccess(ctx, orderTrade, refundResource)
+	}
+	err = c.OrderInfoRepository.UpdateByID(ctx, &models.OrderInfo{
+		ID:           orderInfo.ID,
+		RefundStatus: _const.ORDER_REFUND_STATUS_CLOSED_OR_FAILED,
+	})
+	if err != nil {
+		return err
+	}
+	if queryErr != nil {
+		return errorsx.Internal("恢复微信退款状态失败").WithCause(queryErr)
+	}
+	return errorsx.Internal("恢复微信退款状态失败")
+}
+
+// claimOrderRefund 抢占门店订单退款权并创建待处理退款记录。
+func (c *OrderInfoCase) claimOrderRefund(ctx context.Context, orderInfo *models.OrderInfo, orderRefund *models.OrderRefund) error {
+	return c.tx.Transaction(ctx, func(ctx context.Context) error {
+		query := c.Query(ctx).OrderInfo
+		result, err := query.WithContext(ctx).
+			Where(
+				query.ID.Eq(orderInfo.ID),
+				query.UserID.Eq(orderInfo.UserID),
+				query.Status.Eq(_const.ORDER_INFO_STATUS_WAIT_SHIPMENT),
+				query.RefundStatus.In(
+					_const.ORDER_REFUND_STATUS_NONE,
+					_const.ORDER_REFUND_STATUS_PARTIAL_REFUND,
+					_const.ORDER_REFUND_STATUS_CLOSED_OR_FAILED,
+				),
+			).
+			Update(query.RefundStatus, _const.ORDER_REFUND_STATUS_PROCESSING)
+		if err != nil {
+			return err
+		}
+		if result.RowsAffected == 0 {
+			return errorsx.StateConflict(
+				"当前订单退款状态不允许重复申请",
+				"order_info",
+				commonv1.OrderRefundStatus(orderInfo.RefundStatus).String(),
+				"NONE_ORS|PARTIAL_REFUND_ORS|CLOSED_OR_FAILED_ORS",
+			)
+		}
+		return c.orderRefundCase.Create(ctx, orderRefund)
+	})
 }
 
 // ConfirmOrderInfo 确认订单
@@ -372,21 +498,56 @@ func (c *OrderInfoCase) CountOrderInfo(ctx context.Context) (*appv1.CountOrderIn
 	if err != nil {
 		return nil, err
 	}
+	tradeQuery := c.orderTradeCase.Query(ctx).OrderTrade
+	tradeRows := make([]*appDto.OrderStatusCountRow, 0)
+	err = tradeQuery.WithContext(ctx).
+		Select(tradeQuery.Status, tradeQuery.ID.Count().As("total")).
+		Where(tradeQuery.UserID.Eq(authInfo.UserId), tradeQuery.DeletedAt.IsNull()).
+		Group(tradeQuery.Status).
+		Scan(&tradeRows)
+	if err != nil {
+		return nil, err
+	}
 	query := c.Query(ctx).OrderInfo
-	rows := make([]*appDto.OrderStatusCountRow, 0)
+	orderRows := make([]*appDto.OrderStatusCountRow, 0)
 	err = query.WithContext(ctx).
 		Select(query.Status, query.ID.Count().As("total")).
 		Where(query.UserID.Eq(authInfo.UserId), query.DeletedAt.IsNull()).
 		Group(query.Status).
-		Scan(&rows)
+		Scan(&orderRows)
 	if err != nil {
 		return nil, err
 	}
-	count := make([]*appv1.CountOrderInfoResponse_Count, 0, len(rows))
-	for _, row := range rows {
+	refundRows := make([]*appDto.OrderStatusCountRow, 0)
+	err = query.WithContext(ctx).
+		Select(query.RefundStatus.As("status"), query.ID.Count().As("total")).
+		Where(
+			query.UserID.Eq(authInfo.UserId),
+			query.RefundStatus.Neq(_const.ORDER_REFUND_STATUS_NONE),
+			query.DeletedAt.IsNull(),
+		).
+		Group(query.RefundStatus).
+		Scan(&refundRows)
+	if err != nil {
+		return nil, err
+	}
+	count := make([]*appv1.CountOrderInfoResponse_Count, 0, len(tradeRows)+len(orderRows)+len(refundRows))
+	for _, row := range tradeRows {
 		count = append(count, &appv1.CountOrderInfoResponse_Count{
-			Status: commonv1.OrderStatus(row.Status),
+			TradeStatus: commonv1.OrderTradeStatus(row.Status),
+			Num:         int32(row.Total),
+		})
+	}
+	for _, row := range orderRows {
+		count = append(count, &appv1.CountOrderInfoResponse_Count{
+			Status: commonv1.OrderInfoStatus(row.Status),
 			Num:    int32(row.Total),
+		})
+	}
+	for _, row := range refundRows {
+		count = append(count, &appv1.CountOrderInfoResponse_Count{
+			RefundStatus: commonv1.OrderRefundStatus(row.Status),
+			Num:          int32(row.Total),
 		})
 	}
 	return &appv1.CountOrderInfoResponse{
@@ -400,65 +561,201 @@ func (c *OrderInfoCase) PageOrderInfo(ctx context.Context, req *appv1.PageOrderI
 	if err != nil {
 		return nil, err
 	}
-	query := c.Query(ctx).OrderInfo
-	opts := make([]repository.QueryOption, 0, 4)
-	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
-	opts = append(opts, repository.Where(query.UserID.Eq(authInfo.UserId)))
-	// 指定订单状态时，只返回该状态下的订单记录。
-	if req.GetStatus() != commonv1.OrderStatus(_const.ORDER_STATUS_UNKNOWN) {
-		opts = append(opts, repository.Where(query.Status.Eq(int32(req.GetStatus()))))
-	}
-	var page []*models.OrderInfo
-	var count int64
-	page, count, err = c.Page(ctx, req.GetPageNum(), req.GetPageSize(), opts...)
-	if err != nil {
-		return nil, err
-	}
+	tradeStatus := req.GetTradeStatus()
+	orderStatus := req.GetStatus()
+	refundStatus := req.GetRefundStatus()
+	noStatusFilter := tradeStatus == commonv1.OrderTradeStatus_UNKNOWN_OTS &&
+		orderStatus == commonv1.OrderInfoStatus_UNKNOWN_OIS &&
+		refundStatus == commonv1.OrderRefundStatus_UNKNOWN_ORS && req.HasRefund == nil
+	aggregateTradeStatus := tradeStatus == commonv1.OrderTradeStatus_PENDING_PAYMENT_OTS ||
+		tradeStatus == commonv1.OrderTradeStatus_PAYING_OTS ||
+		tradeStatus == commonv1.OrderTradeStatus_CLOSED_OTS
 
-	orderIDs := make([]int64, 0, len(page))
-	refundOrderIDs := make([]int64, 0)
-	for _, item := range page {
-		orderIDs = append(orderIDs, item.ID)
-		// 售后列表展示“已退款”依赖退款成功时间，分页接口需要批量补齐。
-		if item.Status == _const.ORDER_STATUS_REFUNDING {
-			refundOrderIDs = append(refundOrderIDs, item.ID)
+	var trades []*models.OrderTrade
+	// 待支付、支付中和已关闭按交易聚合展示，取消履约筛选同样映射到已关闭交易。
+	if noStatusFilter || aggregateTradeStatus || orderStatus == commonv1.OrderInfoStatus_CANCELED_OIS {
+		query := c.orderTradeCase.Query(ctx).OrderTrade
+		opts := make([]repository.QueryOption, 0, 2)
+		opts = append(opts, repository.Where(query.UserID.Eq(authInfo.UserId)))
+		if aggregateTradeStatus {
+			// “待支付”标签同时覆盖尚未发起支付和已经获取预支付参数的交易。
+			if tradeStatus == commonv1.OrderTradeStatus_PENDING_PAYMENT_OTS {
+				opts = append(opts, repository.Where(query.Status.In(
+					_const.ORDER_TRADE_STATUS_PENDING_PAYMENT,
+					_const.ORDER_TRADE_STATUS_PAYING,
+				)))
+			} else {
+				opts = append(opts, repository.Where(query.Status.Eq(int32(tradeStatus))))
+			}
+		} else if orderStatus == commonv1.OrderInfoStatus_CANCELED_OIS {
+			opts = append(opts, repository.Where(query.Status.Eq(_const.ORDER_TRADE_STATUS_CLOSED)))
+		} else {
+			opts = append(opts, repository.Where(query.Status.In(
+				_const.ORDER_TRADE_STATUS_PENDING_PAYMENT,
+				_const.ORDER_TRADE_STATUS_PAYING,
+				_const.ORDER_TRADE_STATUS_CLOSED,
+			)))
+		}
+		trades, err = c.orderTradeCase.List(ctx, opts...)
+		if err != nil {
+			return nil, err
 		}
 	}
 
-	var orderGoodsMap map[int64][]*models.OrderGoods
-	orderGoodsMap, err = c.orderGoodsCase.mapByOrderIDs(ctx, orderIDs)
+	childTradeStatus := tradeStatus != commonv1.OrderTradeStatus_UNKNOWN_OTS && !aggregateTradeStatus
+	childTradeIDs := make([]int64, 0)
+	if childTradeStatus {
+		query := c.orderTradeCase.Query(ctx).OrderTrade
+		opts := make([]repository.QueryOption, 0, 2)
+		opts = append(opts, repository.Where(query.UserID.Eq(authInfo.UserId)))
+		opts = append(opts, repository.Where(query.Status.Eq(int32(tradeStatus))))
+		var childTrades []*models.OrderTrade
+		childTrades, err = c.orderTradeCase.List(ctx, opts...)
+		if err != nil {
+			return nil, err
+		}
+		for _, trade := range childTrades {
+			childTradeIDs = append(childTradeIDs, trade.ID)
+		}
+	}
+
+	var orderInfos []*models.OrderInfo
+	queryChildOrders := noStatusFilter || childTradeStatus ||
+		(orderStatus != commonv1.OrderInfoStatus_UNKNOWN_OIS && orderStatus != commonv1.OrderInfoStatus_CANCELED_OIS) ||
+		refundStatus != commonv1.OrderRefundStatus_UNKNOWN_ORS || req.HasRefund != nil
+	// 已支付类交易状态无匹配交易时，不能退化成查询用户的全部门店订单。
+	if childTradeStatus && len(childTradeIDs) == 0 {
+		queryChildOrders = false
+	}
+	if queryChildOrders {
+		query := c.Query(ctx).OrderInfo
+		opts := make([]repository.QueryOption, 0, 4)
+		opts = append(opts, repository.Where(query.UserID.Eq(authInfo.UserId)))
+		if childTradeStatus {
+			opts = append(opts, repository.Where(query.TradeID.In(childTradeIDs...)))
+		}
+		if orderStatus != commonv1.OrderInfoStatus_UNKNOWN_OIS {
+			opts = append(opts, repository.Where(query.Status.Eq(int32(orderStatus))))
+		} else if noStatusFilter {
+			opts = append(opts, repository.Where(query.Status.NotIn(
+				_const.ORDER_INFO_STATUS_NOT_STARTED,
+				_const.ORDER_INFO_STATUS_CANCELED,
+			)))
+		}
+		if refundStatus != commonv1.OrderRefundStatus_UNKNOWN_ORS {
+			opts = append(opts, repository.Where(query.RefundStatus.Eq(int32(refundStatus))))
+		}
+		if req.HasRefund != nil {
+			// 售后记录查询需要覆盖处理中、部分退款、已退款和已关闭/失败。
+			if req.GetHasRefund() {
+				opts = append(opts, repository.Where(query.RefundStatus.Neq(_const.ORDER_REFUND_STATUS_NONE)))
+			} else {
+				opts = append(opts, repository.Where(query.RefundStatus.Eq(_const.ORDER_REFUND_STATUS_NONE)))
+			}
+		}
+		orderInfos, err = c.List(ctx, opts...)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	tradeIDs := make([]int64, 0, len(trades)+len(orderInfos))
+	tradeMap := make(map[int64]*models.OrderTrade, len(trades)+len(orderInfos))
+	for _, trade := range trades {
+		tradeIDs = append(tradeIDs, trade.ID)
+		tradeMap[trade.ID] = trade
+	}
+	for _, orderInfo := range orderInfos {
+		if tradeMap[orderInfo.TradeID] == nil {
+			tradeIDs = append(tradeIDs, orderInfo.TradeID)
+		}
+	}
+	if len(tradeIDs) > 0 {
+		query := c.orderTradeCase.Query(ctx).OrderTrade
+		opts := make([]repository.QueryOption, 0, 1)
+		opts = append(opts, repository.Where(query.ID.In(tradeIDs...)))
+		allTrades, listErr := c.orderTradeCase.List(ctx, opts...)
+		if listErr != nil {
+			return nil, listErr
+		}
+		for _, trade := range allTrades {
+			tradeMap[trade.ID] = trade
+		}
+	}
+
+	allOrderInfos := append([]*models.OrderInfo{}, orderInfos...)
+	if len(trades) > 0 {
+		query := c.Query(ctx).OrderInfo
+		opts := make([]repository.QueryOption, 0, 1)
+		opts = append(opts, repository.Where(query.TradeID.In(tradeIDs...)))
+		tradeOrderInfos, listErr := c.List(ctx, opts...)
+		if listErr != nil {
+			return nil, listErr
+		}
+		allOrderInfos = append(allOrderInfos, tradeOrderInfos...)
+	}
+	orderIDs := make([]int64, 0, len(allOrderInfos))
+	orderInfoMap := make(map[int64]*models.OrderInfo, len(allOrderInfos))
+	for _, orderInfo := range allOrderInfos {
+		orderIDs = append(orderIDs, orderInfo.ID)
+		orderInfoMap[orderInfo.ID] = orderInfo
+	}
+	orderGoodsMap, err := c.orderGoodsCase.mapByOrderIDs(ctx, orderIDs)
 	if err != nil {
 		return nil, err
 	}
-	var orderGoodsStoreMap map[int64][]*appv1.OrderGoodsStore
-	orderGoodsStoreMap, err = c.buildOrderGoodsStoreMap(ctx, orderGoodsMap)
-	if err != nil {
-		return nil, err
-	}
-	var refundTimeMap map[int64]string
-	refundTimeMap, err = c.orderRefundCase.mapRefundTimeByOrderIDs(ctx, refundOrderIDs)
+	orderGoodsStoreMap, err := c.buildOrderGoodsStoreMap(ctx, orderGoodsMap)
 	if err != nil {
 		return nil, err
 	}
 
-	list := make([]*appv1.OrderInfo, 0)
-	for _, item := range page {
-		orderInfo := c.convertToProto(item)
-		// 命中订单商品门店分组时，补齐当前订单的商品列表。
-		if v, ok := orderGoodsStoreMap[orderInfo.Id]; ok {
-			orderInfo.OrderGoodsStores = v
-		}
-		// 已退款订单需要返回退款成功时间，前端据此区分处理中和已退款。
-		if v, ok := refundTimeMap[orderInfo.Id]; ok {
-			orderInfo.RefundTime = v
-		}
-		list = append(list, orderInfo)
+	items := make([]*appDto.OrderPageItem, 0, len(trades)+len(orderInfos))
+	for _, orderInfo := range orderInfos {
+		protoOrder := c.convertToProto(orderInfo)
+		c.applyTradeToProto(protoOrder, tradeMap[orderInfo.TradeID])
+		protoOrder.OrderGoodsStores = orderGoodsStoreMap[orderInfo.ID]
+		applyOrderStoreOptions(protoOrder.OrderGoodsStores, []*models.OrderInfo{orderInfo})
+		items = append(items, &appDto.OrderPageItem{OrderInfo: protoOrder, CreatedAt: orderInfo.CreatedAt})
 	}
-
-	return &appv1.PageOrderInfoResponse{
-		OrderInfos: list,
-		Total:      int32(count),
-	}, nil
+	for _, trade := range trades {
+		tradeOrders := make([]*models.OrderInfo, 0)
+		for _, orderInfo := range orderInfoMap {
+			if orderInfo.TradeID == trade.ID {
+				tradeOrders = append(tradeOrders, orderInfo)
+			}
+		}
+		var protoOrder *appv1.OrderInfo
+		protoOrder, err = c.buildTradeOrderProto(ctx, trade, tradeOrders, orderGoodsMap)
+		if err != nil {
+			return nil, err
+		}
+		items = append(items, &appDto.OrderPageItem{OrderInfo: protoOrder, CreatedAt: trade.CreatedAt})
+	}
+	sort.Slice(items, func(i, j int) bool {
+		return items[i].CreatedAt.After(items[j].CreatedAt)
+	})
+	total := len(items)
+	pageNum := req.GetPageNum()
+	if pageNum <= 0 {
+		pageNum = 1
+	}
+	pageSize := req.GetPageSize()
+	if pageSize <= 0 {
+		pageSize = 10
+	}
+	start := int((pageNum - 1) * pageSize)
+	if start > total {
+		start = total
+	}
+	end := start + int(pageSize)
+	if end > total {
+		end = total
+	}
+	list := make([]*appv1.OrderInfo, 0, end-start)
+	for _, item := range items[start:end] {
+		list = append(list, item.OrderInfo)
+	}
+	return &appv1.PageOrderInfoResponse{OrderInfos: list, Total: int32(total)}, nil
 }
 
 // GetOrderInfoIDByOrderNo 按订单号查询订单编号
@@ -500,11 +797,18 @@ func (c *OrderInfoCase) GetOrderInfoByID(ctx context.Context, id int64) (*appv1.
 		}
 	}
 	orderInfo := c.convertToProto(item)
-	// 只有待支付订单才需要返回支付剩余时间
-	payTimeout := config.ParsePayTimeout()
-	createdAt := item.CreatedAt.Add(payTimeout)
-	nowTime := time.Now()
-	countdown := createdAt.Sub(nowTime).Seconds()
+	var orderTrade *models.OrderTrade
+	orderTrade, err = c.orderTradeCase.findByUserIDAndID(ctx, item.UserID, item.TradeID)
+	if err != nil {
+		return nil, err
+	}
+	c.applyTradeToProto(orderInfo, orderTrade)
+	var countdown float64
+	// 只有未完成支付的交易单才需要返回支付剩余时间。
+	if orderTrade.Status == _const.ORDER_TRADE_STATUS_PENDING_PAYMENT || orderTrade.Status == _const.ORDER_TRADE_STATUS_PAYING {
+		payTimeout := config.ParsePayTimeout()
+		countdown = orderTrade.CreatedAt.Add(payTimeout).Sub(time.Now()).Seconds()
+	}
 
 	// 查询订单商品明细，并同时按商品快照中的门店编号生成展示分组。
 	orderGoodsList, err := c.orderGoodsCase.listByOrderID(ctx, orderInfo.Id)
@@ -519,9 +823,10 @@ func (c *OrderInfoCase) GetOrderInfoByID(ctx context.Context, id int64) (*appv1.
 		return nil, err
 	}
 	orderInfo.OrderGoodsStores = orderGoodsStoreMap[orderInfo.Id]
+	applyOrderStoreOptions(orderInfo.OrderGoodsStores, []*models.OrderInfo{item})
 	// 查询订单收货地址快照
 	var address *appv1.OrderInfoResponse_Address
-	address, err = c.orderAddressCase.findByOrderID(ctx, orderInfo.Id)
+	address, err = c.orderAddressCase.findByTradeID(ctx, orderInfo.TradeId)
 	if err != nil {
 		// 地址信息缺失时返回空地址，保持订单详情主体信息可展示。
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -537,23 +842,25 @@ func (c *OrderInfoCase) GetOrderInfoByID(ctx context.Context, id int64) (*appv1.
 		Countdown: float32(countdown),
 	}
 
-	// 根据订单状态补充额外展示字段
-	switch commonv1.OrderStatus(item.Status) {
-	case commonv1.OrderStatus(_const.ORDER_STATUS_PAID):
-		// 在线支付且已支付的订单需要补充支付完成时间。
-		if commonv1.OrderPayType(item.PayType) == commonv1.OrderPayType(_const.ORDER_PAY_TYPE_ONLINE_PAY) {
-			res.Order.PaymentTime, err = c.orderPaymentCase.findPaymentTimeByOrderID(ctx, orderInfo.Id)
-			if err != nil {
-				// 支付记录缺失时，支付时间保持为空。
-				if errors.Is(err, gorm.ErrRecordNotFound) {
-					res.Order.PaymentTime = ""
-				} else {
-					return nil, err
-				}
+	// 在线支付交易进入已支付或退款状态后，补充支付完成时间。
+	if commonv1.OrderPayType(orderTrade.PayType) == commonv1.OrderPayType(_const.ORDER_PAY_TYPE_ONLINE_PAY) &&
+		(orderTrade.Status == _const.ORDER_TRADE_STATUS_PAID ||
+			orderTrade.Status == _const.ORDER_TRADE_STATUS_PARTIAL_REFUND ||
+			orderTrade.Status == _const.ORDER_TRADE_STATUS_FULL_REFUND) {
+		res.Order.PaymentTime, err = c.orderPaymentCase.findPaymentTimeByTradeID(ctx, orderInfo.TradeId)
+		if err != nil {
+			// 支付记录缺失时，支付时间保持为空。
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				res.Order.PaymentTime = ""
+			} else {
+				return nil, err
 			}
 		}
-	case commonv1.OrderStatus(_const.ORDER_STATUS_SHIPPED), commonv1.OrderStatus(_const.ORDER_STATUS_WAIT_REVIEW), commonv1.OrderStatus(_const.ORDER_STATUS_COMPLETED):
-		// 已发货、待评价、已完成订单返回物流信息。
+	}
+	// 已发货、待评价、已完成订单返回当前门店的物流信息。
+	if item.Status == _const.ORDER_INFO_STATUS_SHIPPED ||
+		item.Status == _const.ORDER_INFO_STATUS_WAIT_REVIEW ||
+		item.Status == _const.ORDER_INFO_STATUS_COMPLETED {
 		var logistics *appv1.OrderInfoResponse_Logistics
 		logistics, err = c.orderLogisticsCase.findByOrderID(ctx, orderInfo.Id)
 		if err != nil {
@@ -565,9 +872,10 @@ func (c *OrderInfoCase) GetOrderInfoByID(ctx context.Context, id int64) (*appv1.
 			}
 		}
 		res.Logistics = logistics
-	case commonv1.OrderStatus(_const.ORDER_STATUS_CANCELED):
-		// 已取消订单返回取消时间，取消记录缺失时保持为空。
-		res.Order.CancelTime, err = c.orderCancelCase.findCancelTimeByOrderID(ctx, orderInfo.Id)
+	}
+	// 交易关闭后返回整笔交易的取消时间。
+	if orderTrade.Status == _const.ORDER_TRADE_STATUS_CLOSED {
+		res.Order.CancelTime, err = c.orderCancelCase.findCancelTimeByTradeID(ctx, orderInfo.TradeId)
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				res.Order.CancelTime = ""
@@ -575,8 +883,9 @@ func (c *OrderInfoCase) GetOrderInfoByID(ctx context.Context, id int64) (*appv1.
 				return nil, err
 			}
 		}
-	case commonv1.OrderStatus(_const.ORDER_STATUS_REFUNDING):
-		// 退款订单返回退款时间，退款记录缺失时保持为空。
+	}
+	// 当前门店订单存在退款时，返回该子订单的退款时间。
+	if item.RefundStatus != _const.ORDER_REFUND_STATUS_NONE {
 		res.Order.RefundTime, err = c.orderRefundCase.findRefundTimeByOrderID(ctx, orderInfo.Id)
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -589,114 +898,243 @@ func (c *OrderInfoCase) GetOrderInfoByID(ctx context.Context, id int64) (*appv1.
 	return &res, nil
 }
 
+// GetOrderTradeByID 根据交易单编号查询聚合订单详情。
+func (c *OrderInfoCase) GetOrderTradeByID(ctx context.Context, tradeID int64) (*appv1.OrderInfoResponse, error) {
+	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return nil, err
+	}
+	var orderTrade *models.OrderTrade
+	orderTrade, err = c.orderTradeCase.findByUserIDAndID(ctx, authInfo.UserId, tradeID)
+	if err != nil {
+		return nil, err
+	}
+
+	query := c.Query(ctx).OrderInfo
+	opts := make([]repository.QueryOption, 0, 2)
+	opts = append(opts, repository.Where(query.TradeID.Eq(tradeID)))
+	opts = append(opts, repository.Where(query.UserID.Eq(authInfo.UserId)))
+	var orderInfos []*models.OrderInfo
+	orderInfos, err = c.List(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+	orderIDs := make([]int64, 0, len(orderInfos))
+	for _, orderInfo := range orderInfos {
+		orderIDs = append(orderIDs, orderInfo.ID)
+	}
+	var orderGoodsMap map[int64][]*models.OrderGoods
+	orderGoodsMap, err = c.orderGoodsCase.mapByOrderIDs(ctx, orderIDs)
+	if err != nil {
+		return nil, err
+	}
+	var orderInfo *appv1.OrderInfo
+	orderInfo, err = c.buildTradeOrderProto(ctx, orderTrade, orderInfos, orderGoodsMap)
+	if err != nil {
+		return nil, err
+	}
+
+	var countdown float64
+	// 只有未完成支付的交易单才需要返回支付剩余时间。
+	if orderTrade.Status == _const.ORDER_TRADE_STATUS_PENDING_PAYMENT || orderTrade.Status == _const.ORDER_TRADE_STATUS_PAYING {
+		payTimeout := config.ParsePayTimeout()
+		countdown = orderTrade.CreatedAt.Add(payTimeout).Sub(time.Now()).Seconds()
+	}
+	var address *appv1.OrderInfoResponse_Address
+	address, err = c.orderAddressCase.findByTradeID(ctx, tradeID)
+	if err != nil {
+		// 地址信息缺失时返回空地址，保持交易详情主体信息可展示。
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			address = &appv1.OrderInfoResponse_Address{}
+		} else {
+			return nil, err
+		}
+	}
+	res := &appv1.OrderInfoResponse{
+		Order:     orderInfo,
+		Address:   address,
+		Countdown: float32(countdown),
+	}
+	// 在线支付交易进入已支付或退款状态后，补充支付完成时间。
+	if commonv1.OrderPayType(orderTrade.PayType) == commonv1.OrderPayType(_const.ORDER_PAY_TYPE_ONLINE_PAY) &&
+		(orderTrade.Status == _const.ORDER_TRADE_STATUS_PAID ||
+			orderTrade.Status == _const.ORDER_TRADE_STATUS_PARTIAL_REFUND ||
+			orderTrade.Status == _const.ORDER_TRADE_STATUS_FULL_REFUND) {
+		res.Order.PaymentTime, err = c.orderPaymentCase.findPaymentTimeByTradeID(ctx, tradeID)
+		if err != nil {
+			// 支付记录缺失时，支付时间保持为空。
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				res.Order.PaymentTime = ""
+			} else {
+				return nil, err
+			}
+		}
+	}
+	// 已关闭交易返回整笔交易的取消时间。
+	if orderTrade.Status == _const.ORDER_TRADE_STATUS_CLOSED {
+		res.Order.CancelTime, err = c.orderCancelCase.findCancelTimeByTradeID(ctx, tradeID)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				res.Order.CancelTime = ""
+			} else {
+				return nil, err
+			}
+		}
+	}
+	return res, nil
+}
+
 // CreateOrderInfo 创建订单并发起支付准备
 func (c *OrderInfoCase) CreateOrderInfo(ctx context.Context, request *appv1.CreateOrderInfoRequest) (*appv1.CreateOrderInfoResponse, error) {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return nil, err
 	}
-	status := _const.ORDER_STATUS_CREATED
-	// 货到付款订单创建后直接进入待发货状态
+	if request.PayType != commonv1.OrderPayType_ONLINE_PAY && request.PayType != commonv1.OrderPayType_CASH_ON_DELIVERY {
+		return nil, errorsx.InvalidArgument("支付方式无效")
+	}
+	payChannel := request.PayChannel
+	// 货到付款不归属线上支付渠道，避免统计时被错误计入微信或银联。
+	if request.PayType == commonv1.OrderPayType_CASH_ON_DELIVERY {
+		payChannel = commonv1.OrderPayChannel_UNKNOWN_OPC
+	} else if payChannel == commonv1.OrderPayChannel_UNKNOWN_OPC {
+		return nil, errorsx.InvalidArgument("支付渠道不能为空")
+	} else if payChannel != commonv1.OrderPayChannel_WX_PAY {
+		return nil, errorsx.InvalidArgument("当前仅支持微信支付")
+	}
+	tradeStatus := _const.ORDER_TRADE_STATUS_PENDING_PAYMENT
+	orderStatus := _const.ORDER_INFO_STATUS_NOT_STARTED
+	// 货到付款交易创建后，门店订单直接进入待发货。
 	if request.PayType == commonv1.OrderPayType(_const.ORDER_PAY_TYPE_CASH_ON_DELIVERY) {
-		status = _const.ORDER_STATUS_PAID
+		tradeStatus = _const.ORDER_TRADE_STATUS_CASH_ON_DELIVERY
+		orderStatus = _const.ORDER_INFO_STATUS_WAIT_SHIPMENT
 	}
 
-	// 先构建订单基础信息，再在事务中统一落库
-	orderInfo := &models.OrderInfo{
-		OrderNo:      strconv.FormatInt(id.GenSnowflakeID(), 10),
-		UserID:       authInfo.UserId,
-		PayType:      int32(request.PayType),
-		PayChannel:   int32(request.PayChannel),
-		DeliveryTime: int32(request.DeliveryTime),
-		Status:       status,
-		Remark:       request.Remark,
+	storeOptions := make(map[int64]*appv1.OrderStoreOption, len(request.GetOrderStoreOptions()))
+	for _, option := range request.GetOrderStoreOptions() {
+		storeOptions[option.GetTenantStoreId()] = option
 	}
-	err = c.tx.Transaction(ctx, func(ctx context.Context) error {
-		member := utils.IsMember(ctx)
-		orderGoodsList := make([]*models.OrderGoods, 0)
-		for _, item := range request.GetGoods() {
-			var orderGoods *models.OrderGoods
-			var goodsInfo *models.GoodsInfo
-			orderGoods, goodsInfo, err = c.orderGoodsCase.convertToModel(ctx, member, item)
-			if err != nil {
-				return err
-			}
-			// 下单商品必须归属明确门店，订单主表按该门店沉淀筛选字段。
-			if goodsInfo.TenantStoreID <= 0 {
-				return errorsx.InvalidArgument("商品未绑定门店，无法下单")
-			}
-			if orderInfo.TenantStoreID == 0 {
-				orderInfo.TenantID = goodsInfo.TenantID
-				orderInfo.TenantStoreID = goodsInfo.TenantStoreID
-			}
-			// 当前订单主表只保存一个门店编号，同一订单不能混合多个门店商品。
-			if orderInfo.TenantStoreID != goodsInfo.TenantStoreID {
-				return errorsx.InvalidArgument("同一订单只能购买同一门店商品")
-			}
-			orderGoodsList = append(orderGoodsList, orderGoods)
+	orderGoodsByStore := make(map[int64][]*models.OrderGoods)
+	storeTenantIDs := make(map[int64]int64)
+	member := utils.IsMember(ctx)
+	for _, item := range request.GetGoods() {
+		var orderGoods *models.OrderGoods
+		var goodsInfo *models.GoodsInfo
+		orderGoods, goodsInfo, err = c.orderGoodsCase.convertToModel(ctx, member, item)
+		if err != nil {
+			return nil, err
+		}
+		if goodsInfo.TenantStoreID <= 0 {
+			return nil, errorsx.InvalidArgument("商品未绑定门店，无法下单")
+		}
+		if storeOptions[goodsInfo.TenantStoreID] == nil {
+			return nil, errorsx.InvalidArgument("门店配送信息不能为空")
+		}
+		if storeOptions[goodsInfo.TenantStoreID].GetDeliveryTime() == commonv1.OrderDeliveryTime_UNKNOWN_ODT {
+			return nil, errorsx.InvalidArgument("门店配送时间不能为空")
+		}
+		orderGoods.TenantStoreID = goodsInfo.TenantStoreID
+		orderGoodsByStore[goodsInfo.TenantStoreID] = append(orderGoodsByStore[goodsInfo.TenantStoreID], orderGoods)
+		storeTenantIDs[goodsInfo.TenantStoreID] = goodsInfo.TenantID
+	}
+	if len(orderGoodsByStore) == 0 {
+		return nil, errorsx.InvalidArgument("订单商品信息不能为空")
+	}
+
+	orderTrade := &models.OrderTrade{
+		TradeNo:    strconv.FormatInt(id.GenSnowflakeID(), 10),
+		UserID:     authInfo.UserId,
+		PayType:    int32(request.PayType),
+		PayChannel: int32(payChannel),
+		Status:     tradeStatus,
+	}
+	orderInfos := make([]*models.OrderInfo, 0, len(orderGoodsByStore))
+	orderGoodsMap := make(map[int64][]*models.OrderGoods, len(orderGoodsByStore))
+	for storeID, orderGoodsList := range orderGoodsByStore {
+		option := storeOptions[storeID]
+		orderInfo := &models.OrderInfo{
+			TenantID:      storeTenantIDs[storeID],
+			TenantStoreID: storeID,
+			OrderNo:       strconv.FormatInt(id.GenSnowflakeID(), 10),
+			UserID:        authInfo.UserId,
+			DeliveryTime:  int32(option.GetDeliveryTime()),
+			Status:        orderStatus,
+			RefundStatus:  _const.ORDER_REFUND_STATUS_NONE,
+			Remark:        option.GetRemark(),
 		}
 		for _, orderGoods := range orderGoodsList {
 			orderInfo.PayMoney += orderGoods.TotalPayPrice
 			orderInfo.TotalMoney += orderGoods.TotalPrice
 			orderInfo.GoodsNum += orderGoods.Num
-			// 创建订单后立即扣减库存并增加销量
-			err = c.goodsInfoCase.addSaleNum(ctx, orderGoods.GoodsID, orderGoods.Num)
-			if err != nil {
-				return err
-			}
-			err = c.goodsSKUCase.addSaleNum(ctx, orderGoods.SKUCode, orderGoods.Num)
-			if err != nil {
-				return err
-			}
-			// 从购物车下单的商品需要在下单成功后移出购物车
-			err = c.userCartCase.deleteByUserIDAndGoodsIDAndSKUCode(ctx, authInfo.UserId, orderGoods.GoodsID, orderGoods.SKUCode)
-			if err != nil {
-				return err
-			}
 		}
-		// 当前版本统一免运费
-		orderInfo.PostFee = 0
-		err = c.OrderInfoRepository.Create(ctx, orderInfo)
+		orderTrade.PayMoney += orderInfo.PayMoney
+		orderTrade.TotalMoney += orderInfo.TotalMoney
+		orderTrade.GoodsNum += orderInfo.GoodsNum
+		orderInfos = append(orderInfos, orderInfo)
+		orderGoodsMap[storeID] = orderGoodsList
+	}
+	orderTrade.OrderNum = int64(len(orderInfos))
+	err = c.tx.Transaction(ctx, func(ctx context.Context) error {
+		err = c.orderTradeCase.Create(ctx, orderTrade)
 		if err != nil {
 			return err
 		}
-
-		// 保存订单商品快照
-		err = c.orderGoodsCase.createByOrder(ctx, orderInfo, orderGoodsList)
+		err = c.orderAddressCase.createByTrade(ctx, authInfo.UserId, orderTrade.ID, request.GetAddressId())
 		if err != nil {
 			return err
 		}
-		// 保存订单地址快照
-		err = c.orderAddressCase.createByOrder(ctx, authInfo.UserId, orderInfo, request.GetAddressId())
-		if err != nil {
-			return err
+		for _, orderInfo := range orderInfos {
+			orderInfo.TradeID = orderTrade.ID
+			err = c.OrderInfoRepository.Create(ctx, orderInfo)
+			if err != nil {
+				return err
+			}
+			orderGoodsList := orderGoodsMap[orderInfo.TenantStoreID]
+			err = c.orderGoodsCase.createByOrder(ctx, orderInfo, orderGoodsList)
+			if err != nil {
+				return err
+			}
+			for _, orderGoods := range orderGoodsList {
+				err = c.goodsInfoCase.addSaleNum(ctx, orderGoods.GoodsID, orderGoods.Num)
+				if err != nil {
+					return err
+				}
+				err = c.goodsSKUCase.addSaleNum(ctx, orderGoods.SKUCode, orderGoods.Num)
+				if err != nil {
+					return err
+				}
+				if request.GetClearCart() {
+					err = c.userCartCase.deleteByUserIDAndGoodsIDAndSKUCode(ctx, authInfo.UserId, orderGoods.GoodsID, orderGoods.SKUCode)
+					if err != nil {
+						return err
+					}
+				}
+			}
 		}
 		return nil
 	})
 	if err != nil {
 		return nil, err
 	}
-	c.dispatchRecommendOrderEvent(request.PayType, authInfo.UserId, request.GetGoods(), orderInfo.CreatedAt)
+	c.dispatchRecommendOrderEvent(request.PayType, authInfo.UserId, request.GetGoods(), orderTrade.CreatedAt)
 	workspaceevent.Publish(ctx, workspaceevent.ReasonOrderChanged, workspaceevent.AreaMetrics, workspaceevent.AreaTodo, workspaceevent.AreaRisk)
-	// 为在线支付订单增加超时自动取消任务
-	if orderInfo.Status == _const.ORDER_STATUS_CREATED {
-		// 延迟时间使用支付超时配置
+	// 为在线支付交易增加超时自动取消任务。
+	if orderTrade.Status == _const.ORDER_TRADE_STATUS_PENDING_PAYMENT {
+		// 延迟时间使用支付超时配置。
 		payTimeout := config.ParsePayTimeout()
-		createdAt := orderInfo.CreatedAt.Add(payTimeout)
+		createdAt := orderTrade.CreatedAt.Add(payTimeout)
 		nowTime := time.Now()
 		countdown := createdAt.Sub(nowTime).Seconds()
-		c.orderSchedulerCase.AddSchedule(orderInfo.ID, time.Duration(countdown)*time.Second, func() {
-			err = c.cancelOrder(context.Background(), orderInfo.UserID, &appv1.CancelOrderInfoRequest{
-				OrderId: orderInfo.ID,
-			})
-			// 定时取消执行失败时，仅记录日志避免影响后续调度。
-			if err != nil {
-				log.Error(fmt.Sprintf("CancelOrder order %d failed: %v", orderInfo.ID, err))
-			}
-		})
+		c.scheduleTradeCancellation(orderTrade.ID, orderTrade.UserID, time.Duration(countdown)*time.Second)
+	}
+	orderIDs := make([]int64, 0, len(orderInfos))
+	for _, orderInfo := range orderInfos {
+		orderIDs = append(orderIDs, orderInfo.ID)
 	}
 	return &appv1.CreateOrderInfoResponse{
-		OrderId: orderInfo.ID,
+		TradeId:  orderTrade.ID,
+		TradeNo:  orderTrade.TradeNo,
+		OrderIds: orderIDs,
 	}, nil
 }
 
@@ -712,19 +1150,62 @@ func (c *OrderInfoCase) DeleteOrderInfo(ctx context.Context, id int64) error {
 	if err != nil {
 		return err
 	}
-	// 只有已完成、退款中或已取消订单允许删除，待评价订单需要先完成评价流程。
-	if !(orderInfo.Status == _const.ORDER_STATUS_COMPLETED || orderInfo.Status == _const.ORDER_STATUS_REFUNDING || orderInfo.Status == _const.ORDER_STATUS_CANCELED) {
+	// 只有已完成、已取消或已退款订单允许用户侧删除。
+	if orderInfo.Status != _const.ORDER_INFO_STATUS_COMPLETED &&
+		orderInfo.Status != _const.ORDER_INFO_STATUS_CANCELED &&
+		orderInfo.RefundStatus != _const.ORDER_REFUND_STATUS_REFUNDED {
 		return errorsx.StateConflict(
-			fmt.Sprintf("订单状态错误：【%s】", commonv1.OrderStatus_name[orderInfo.Status]),
+			fmt.Sprintf("订单状态错误：【%s】", commonv1.OrderInfoStatus_name[orderInfo.Status]),
 			"order_info",
-			commonv1.OrderStatus(orderInfo.Status).String(),
-			"COMPLETED|REFUNDING|CANCELED",
+			commonv1.OrderInfoStatus(orderInfo.Status).String(),
+			"COMPLETED_OIS|CANCELED_OIS|REFUNDED_ORS",
+		)
+	}
+	return c.DeleteByIDs(ctx, []int64{id})
+}
+
+// DeleteOrderTrade 删除已关闭交易及其门店子订单。
+func (c *OrderInfoCase) DeleteOrderTrade(ctx context.Context, tradeID int64) error {
+	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return err
+	}
+
+	var orderTrade *models.OrderTrade
+	orderTrade, err = c.orderTradeCase.findByUserIDAndID(ctx, authInfo.UserId, tradeID)
+	if err != nil {
+		return err
+	}
+	// 只有已关闭交易允许用户侧删除。
+	if orderTrade.Status != _const.ORDER_TRADE_STATUS_CLOSED {
+		return errorsx.StateConflict(
+			fmt.Sprintf("交易状态错误：【%s】", commonv1.OrderTradeStatus_name[orderTrade.Status]),
+			"order_trade",
+			commonv1.OrderTradeStatus(orderTrade.Status).String(),
+			commonv1.OrderTradeStatus(_const.ORDER_TRADE_STATUS_CLOSED).String(),
 		)
 	}
 
-	orderIDs := []int64{id}
-	return c.updateByIDs(ctx, authInfo.UserId, orderIDs, &models.OrderInfo{
-		Status: _const.ORDER_STATUS_DELETED,
+	query := c.Query(ctx).OrderInfo
+	opts := make([]repository.QueryOption, 0, 2)
+	opts = append(opts, repository.Where(query.TradeID.Eq(tradeID)))
+	opts = append(opts, repository.Where(query.UserID.Eq(authInfo.UserId)))
+	var orderInfos []*models.OrderInfo
+	orderInfos, err = c.List(ctx, opts...)
+	if err != nil {
+		return err
+	}
+	orderIDs := make([]int64, 0, len(orderInfos))
+	for _, orderInfo := range orderInfos {
+		orderIDs = append(orderIDs, orderInfo.ID)
+	}
+
+	return c.tx.Transaction(ctx, func(ctx context.Context) error {
+		err = c.DeleteByIDs(ctx, orderIDs)
+		if err != nil {
+			return err
+		}
+		return c.orderTradeCase.DeleteByIDs(ctx, []int64{tradeID})
 	})
 }
 
@@ -738,7 +1219,6 @@ func (c *OrderInfoCase) CancelOrderInfo(ctx context.Context, req *appv1.CancelOr
 	if err != nil {
 		return err
 	}
-	workspaceevent.Publish(ctx, workspaceevent.ReasonOrderChanged, workspaceevent.AreaMetrics, workspaceevent.AreaTodo, workspaceevent.AreaRisk)
 	return nil
 }
 
@@ -755,18 +1235,18 @@ func (c *OrderInfoCase) ReceiveOrderInfo(ctx context.Context, req *appv1.Receive
 		return err
 	}
 	// 只有已发货订单才能确认收货。
-	if orderInfo.Status != _const.ORDER_STATUS_SHIPPED {
+	if orderInfo.Status != _const.ORDER_INFO_STATUS_SHIPPED {
 		return errorsx.StateConflict(
-			fmt.Sprintf("订单状态错误：【%s】", commonv1.OrderStatus_name[orderInfo.Status]),
+			fmt.Sprintf("订单状态错误：【%s】", commonv1.OrderInfoStatus_name[orderInfo.Status]),
 			"order_info",
-			commonv1.OrderStatus(orderInfo.Status).String(),
-			commonv1.OrderStatus(_const.ORDER_STATUS_SHIPPED).String(),
+			commonv1.OrderInfoStatus(orderInfo.Status).String(),
+			commonv1.OrderInfoStatus(_const.ORDER_INFO_STATUS_SHIPPED).String(),
 		)
 	}
 
 	orderIDs := []int64{req.GetOrderId()}
 	err = c.updateByIDs(ctx, authInfo.UserId, orderIDs, &models.OrderInfo{
-		Status: _const.ORDER_STATUS_WAIT_REVIEW,
+		Status: _const.ORDER_INFO_STATUS_WAIT_REVIEW,
 	})
 	if err != nil {
 		return err
@@ -803,6 +1283,56 @@ func (c *OrderInfoCase) convertToProto(item *models.OrderInfo) *appv1.OrderInfo 
 	res.CreatedAt = _time.TimeToTimeString(item.CreatedAt)
 	res.UpdatedAt = _time.TimeToTimeString(item.UpdatedAt)
 	return res
+}
+
+// applyTradeToProto 将交易单字段补充到门店订单响应。
+func (c *OrderInfoCase) applyTradeToProto(orderInfo *appv1.OrderInfo, orderTrade *models.OrderTrade) {
+	orderInfo.TradeId = orderTrade.ID
+	orderInfo.TradeNo = orderTrade.TradeNo
+	orderInfo.PayType = commonv1.OrderPayType(orderTrade.PayType)
+	orderInfo.PayChannel = commonv1.OrderPayChannel(orderTrade.PayChannel)
+	orderInfo.TradeStatus = commonv1.OrderTradeStatus(orderTrade.Status)
+}
+
+// buildTradeOrderProto 将交易单及其门店订单转换为聚合订单响应。
+func (c *OrderInfoCase) buildTradeOrderProto(
+	ctx context.Context,
+	orderTrade *models.OrderTrade,
+	orderInfos []*models.OrderInfo,
+	orderGoodsMap map[int64][]*models.OrderGoods,
+) (*appv1.OrderInfo, error) {
+	tradeGoods := make([]*models.OrderGoods, 0)
+	for _, orderInfo := range orderInfos {
+		tradeGoods = append(tradeGoods, orderGoodsMap[orderInfo.ID]...)
+	}
+	groups, err := c.buildOrderGoodsStoreMap(ctx, map[int64][]*models.OrderGoods{orderTrade.ID: tradeGoods})
+	if err != nil {
+		return nil, err
+	}
+	res := &appv1.OrderInfo{
+		Id:               orderTrade.ID,
+		OrderNo:          orderTrade.TradeNo,
+		TradeId:          orderTrade.ID,
+		TradeNo:          orderTrade.TradeNo,
+		PayMoney:         orderTrade.PayMoney,
+		TotalMoney:       orderTrade.TotalMoney,
+		PostFee:          orderTrade.PostFee,
+		GoodsNum:         orderTrade.GoodsNum,
+		PayType:          commonv1.OrderPayType(orderTrade.PayType),
+		PayChannel:       commonv1.OrderPayChannel(orderTrade.PayChannel),
+		TradeStatus:      commonv1.OrderTradeStatus(orderTrade.Status),
+		IsTrade:          true,
+		Status:           commonv1.OrderInfoStatus_NOT_STARTED_OIS,
+		CreatedAt:        _time.TimeToTimeString(orderTrade.CreatedAt),
+		UpdatedAt:        _time.TimeToTimeString(orderTrade.UpdatedAt),
+		OrderGoodsStores: groups[orderTrade.ID],
+	}
+	// 已关闭交易的聚合履约状态用于兼容统一订单展示模型。
+	if orderTrade.Status == _const.ORDER_TRADE_STATUS_CLOSED {
+		res.Status = commonv1.OrderInfoStatus_CANCELED_OIS
+	}
+	applyOrderStoreOptions(res.OrderGoodsStores, orderInfos)
+	return res, nil
 }
 
 // 汇总下单商品信息并生成确认单
@@ -860,8 +1390,9 @@ func (c *OrderInfoCase) buildOrderGoodsStoreMap(ctx context.Context, orderGoodsM
 			// 门店首次命中时，初始化对应的订单商品分组。
 			if orderStore == nil {
 				orderStore = &appv1.OrderGoodsStore{
-					Store: &appv1.TenantStore{Id: orderGoods.TenantStoreID},
-					Goods: make([]*appv1.OrderGoods, 0),
+					Store:   &appv1.TenantStore{Id: orderGoods.TenantStoreID},
+					Goods:   make([]*appv1.OrderGoods, 0),
+					Summary: &appv1.OrderSummary{},
 				}
 				orderStoreMap[orderGoods.TenantStoreID] = orderStore
 				orderGoodsStores = append(orderGoodsStores, orderStore)
@@ -871,6 +1402,9 @@ func (c *OrderInfoCase) buildOrderGoodsStoreMap(ctx context.Context, orderGoodsM
 				}
 			}
 			orderStore.Goods = append(orderStore.Goods, c.orderGoodsCase.toOrderGoods(orderGoods))
+			orderStore.Summary.PayMoney += orderGoods.TotalPayPrice
+			orderStore.Summary.TotalMoney += orderGoods.TotalPrice
+			orderStore.Summary.GoodsNum += orderGoods.Num
 		}
 		res[orderID] = orderGoodsStores
 	}
@@ -891,6 +1425,22 @@ func (c *OrderInfoCase) buildOrderGoodsStoreMap(ctx context.Context, orderGoodsM
 		}
 	}
 	return res, nil
+}
+
+// applyOrderStoreOptions 将门店子订单的配送时间和备注补充到对应门店分组。
+func applyOrderStoreOptions(orderGoodsStores []*appv1.OrderGoodsStore, orderInfos []*models.OrderInfo) {
+	orderInfoMap := make(map[int64]*models.OrderInfo, len(orderInfos))
+	for _, orderInfo := range orderInfos {
+		orderInfoMap[orderInfo.TenantStoreID] = orderInfo
+	}
+	for _, orderGoodsStore := range orderGoodsStores {
+		orderInfo := orderInfoMap[orderGoodsStore.GetStore().GetId()]
+		if orderInfo == nil {
+			continue
+		}
+		orderGoodsStore.DeliveryTime = commonv1.OrderDeliveryTime(orderInfo.DeliveryTime)
+		orderGoodsStore.Remark = orderInfo.Remark
+	}
 }
 
 // dispatchRecommendOrderEvent 根据已落库订单事实回写推荐下单事件。
@@ -942,47 +1492,138 @@ func (c *OrderInfoCase) dispatchRecommendOrderEvent(payType commonv1.OrderPayTyp
 	}
 }
 
-// cancelOrder 内部执行订单取消并回退库存销量
+// scheduleTradeCancellation 注册交易超时取消任务，并在临时失败时按未支付状态重试。
+func (c *OrderInfoCase) scheduleTradeCancellation(tradeID, userID int64, delay time.Duration) {
+	if delay < 0 {
+		delay = 0
+	}
+	c.orderSchedulerCase.AddSchedule(tradeID, delay, func() {
+		err := c.cancelOrder(context.Background(), userID, &appv1.CancelOrderInfoRequest{TradeId: tradeID})
+		if err == nil {
+			return
+		}
+		log.Error(fmt.Sprintf("CancelOrder trade %d failed: %v", tradeID, err))
+		var orderTrade *models.OrderTrade
+		orderTrade, err = c.orderTradeCase.findByUserIDAndID(context.Background(), userID, tradeID)
+		if err != nil {
+			log.Error(fmt.Sprintf("FindOrderTrade trade %d failed: %v", tradeID, err))
+			return
+		}
+		// 交易仍处于未支付状态时，延迟一分钟重试渠道关单和本地取消。
+		if orderTrade.Status == _const.ORDER_TRADE_STATUS_PENDING_PAYMENT || orderTrade.Status == _const.ORDER_TRADE_STATUS_PAYING {
+			c.scheduleTradeCancellation(tradeID, userID, time.Minute)
+		}
+	})
+}
+
+// successfulRefundMoney 汇总当前门店订单已经成功退款的金额。
+func (c *OrderInfoCase) successfulRefundMoney(ctx context.Context, orderID int64) (int64, error) {
+	query := c.orderRefundCase.Query(ctx).OrderRefund
+	opts := make([]repository.QueryOption, 0, 1)
+	opts = append(opts, repository.Where(query.OrderID.Eq(orderID)))
+	orderRefunds, err := c.orderRefundCase.List(ctx, opts...)
+	if err != nil {
+		return 0, err
+	}
+	var refundMoney int64
+	for _, orderRefund := range orderRefunds {
+		if orderRefund.RefundState != appv1.RefundResource_SUCCESS.String() {
+			continue
+		}
+		var amount struct {
+			Refund int64 `json:"refund"`
+		}
+		err = json.Unmarshal([]byte(orderRefund.Amount), &amount)
+		if err != nil {
+			return 0, err
+		}
+		refundMoney += amount.Refund
+	}
+	return refundMoney, nil
+}
+
+// cancelOrder 内部执行交易取消并回退全部门店订单库存销量。
 func (c *OrderInfoCase) cancelOrder(ctx context.Context, userID int64, req *appv1.CancelOrderInfoRequest) error {
-	orderInfo, err := c.findByUserIDAndID(ctx, userID, req.GetOrderId())
+	orderTrade, err := c.orderTradeCase.findByUserIDAndID(ctx, userID, req.GetTradeId())
 	if err != nil {
 		return err
 	}
-	// 只有待支付订单才能继续取消。
-	if orderInfo.Status != _const.ORDER_STATUS_CREATED {
+	// 只有尚未完成支付的交易才能继续取消。
+	if orderTrade.Status != _const.ORDER_TRADE_STATUS_PENDING_PAYMENT && orderTrade.Status != _const.ORDER_TRADE_STATUS_PAYING {
 		return errorsx.StateConflict(
-			fmt.Sprintf("订单状态错误：【%s】", commonv1.OrderStatus_name[orderInfo.Status]),
-			"order_info",
-			commonv1.OrderStatus(orderInfo.Status).String(),
-			commonv1.OrderStatus(_const.ORDER_STATUS_CREATED).String(),
+			fmt.Sprintf("交易状态错误：【%s】", commonv1.OrderTradeStatus_name[orderTrade.Status]),
+			"order_trade",
+			commonv1.OrderTradeStatus(orderTrade.Status).String(),
+			"PENDING_PAYMENT_OTS|PAYING_OTS",
 		)
 	}
 
-	// 微信在线支付订单在取消前先补查一次真实支付状态，避免回调延迟时误取消已支付订单
-	if commonv1.OrderPayType(orderInfo.PayType) == commonv1.OrderPayType(_const.ORDER_PAY_TYPE_ONLINE_PAY) &&
-		commonv1.OrderPayChannel(orderInfo.PayChannel) == commonv1.OrderPayChannel(_const.ORDER_PAY_CHANNEL_WX_PAY) {
+	// 微信在线支付交易在取消前先补查并关闭支付单，避免回调延迟或并发支付时误取消。
+	if commonv1.OrderPayType(orderTrade.PayType) == commonv1.OrderPayType(_const.ORDER_PAY_TYPE_ONLINE_PAY) &&
+		commonv1.OrderPayChannel(orderTrade.PayChannel) == commonv1.OrderPayChannel(_const.ORDER_PAY_CHANNEL_WX_PAY) {
 		var paymentResource *appv1.PaymentResource
-		paymentResource, err = c.wxPayCase.QueryOrderByOutTradeNo(orderInfo.OrderNo)
+		paymentResource, err = c.wxPayCase.QueryOrderByOutTradeNo(orderTrade.TradeNo)
 		if err != nil {
 			return err
 		}
-		// 微信侧已确认支付成功时，先同步本地状态再拒绝取消。
-		if paymentResource != nil && paymentResource.GetTradeState().String() == "SUCCESS" {
-			// 查询到已支付后，直接复用支付服务中的成功处理逻辑补齐本地状态
-			err = c.payCase.PaySuccess(ctx, orderInfo, paymentResource)
-			if err != nil {
-				return err
+		// 微信侧已确认支付成功或已经进入退款时，拒绝取消交易。
+		if paymentResource.GetTradeState() == appv1.PaymentResource_SUCCESS ||
+			paymentResource.GetTradeState() == appv1.PaymentResource_REFUND {
+			// 支付成功但本地尚未落账时，先同步支付结果。
+			if paymentResource.GetTradeState() == appv1.PaymentResource_SUCCESS {
+				err = c.payCase.PaySuccess(ctx, orderTrade, paymentResource)
+				if err != nil {
+					return err
+				}
 			}
 			return errorsx.StateConflict(
-				"订单已支付，无法取消",
-				"order_info",
-				commonv1.OrderStatus(_const.ORDER_STATUS_PAID).String(),
-				commonv1.OrderStatus(_const.ORDER_STATUS_CREATED).String(),
+				"交易已支付，无法取消",
+				"order_trade",
+				paymentResource.GetTradeState().String(),
+				appv1.PaymentResource_NOTPAY.String(),
 			)
 		}
+		// 尚未关闭的微信支付单必须先关单，关单成功后才允许回退本地库存。
+		if paymentResource.GetTradeState() != appv1.PaymentResource_CLOSED &&
+			paymentResource.GetTradeState() != appv1.PaymentResource_REVOKED {
+			closeErr := c.wxPayCase.CloseOrderByOutTradeNo(orderTrade.TradeNo)
+			if closeErr != nil {
+				// 关单与支付并发时重新查询，若已支付则同步本地状态并拒绝取消。
+				paymentResource, err = c.wxPayCase.QueryOrderByOutTradeNo(orderTrade.TradeNo)
+				if err == nil && paymentResource.GetTradeState() == appv1.PaymentResource_SUCCESS {
+					err = c.payCase.PaySuccess(ctx, orderTrade, paymentResource)
+					if err != nil {
+						return err
+					}
+					return errorsx.StateConflict(
+						"交易已支付，无法取消",
+						"order_trade",
+						appv1.PaymentResource_SUCCESS.String(),
+						appv1.PaymentResource_NOTPAY.String(),
+					)
+				}
+				return closeErr
+			}
+		}
 	}
-	orderIDs := []int64{req.GetOrderId()}
-	return c.tx.Transaction(ctx, func(ctx context.Context) error {
+	query := c.Query(ctx).OrderInfo
+	opts := make([]repository.QueryOption, 0, 2)
+	opts = append(opts, repository.Where(query.TradeID.Eq(orderTrade.ID)))
+	opts = append(opts, repository.Where(query.UserID.Eq(userID)))
+	orderInfos, err := c.List(ctx, opts...)
+	if err != nil {
+		return err
+	}
+	orderIDs := make([]int64, 0, len(orderInfos))
+	for _, orderInfo := range orderInfos {
+		orderIDs = append(orderIDs, orderInfo.ID)
+	}
+	err = c.tx.Transaction(ctx, func(ctx context.Context) error {
+		// 条件更新先抢占交易关闭权，确保支付成功与取消只有一个状态流转能够提交。
+		err = c.markTradeClosed(ctx, orderTrade)
+		if err != nil {
+			return err
+		}
 		query := c.orderGoodsCase.Query(ctx).OrderGoods
 		var orderGoodsList []*models.OrderGoods
 		opts := make([]repository.QueryOption, 0, 1)
@@ -1004,18 +1645,53 @@ func (c *OrderInfoCase) cancelOrder(ctx context.Context, userID int64, req *appv
 		}
 		// 保存订单取消记录，便于订单详情展示取消时间
 		err = c.orderCancelCase.Create(ctx, &models.OrderCancel{
-			TenantID:      orderInfo.TenantID,
-			TenantStoreID: orderInfo.TenantStoreID,
-			OrderID:       req.GetOrderId(),
-			Reason:        int32(req.GetReason()),
+			TradeID: orderTrade.ID,
+			Reason:  int32(req.GetReason()),
 		})
 		if err != nil {
 			return err
 		}
-		return c.updateByIDs(ctx, userID, orderIDs, &models.OrderInfo{
-			Status: _const.ORDER_STATUS_CANCELED,
-		})
+		err = c.updateByIDs(ctx, userID, orderIDs, &models.OrderInfo{Status: _const.ORDER_INFO_STATUS_CANCELED})
+		if err != nil {
+			return err
+		}
+		return nil
 	})
+	if err != nil {
+		return err
+	}
+	c.orderSchedulerCase.DeleteScheduled(orderTrade.ID)
+	workspaceevent.Publish(ctx, workspaceevent.ReasonOrderChanged, workspaceevent.AreaMetrics, workspaceevent.AreaTodo, workspaceevent.AreaRisk)
+	return nil
+}
+
+// markTradeClosed 通过状态条件更新抢占交易取消权。
+func (c *OrderInfoCase) markTradeClosed(ctx context.Context, orderTrade *models.OrderTrade) error {
+	query := c.orderTradeCase.Query(ctx).OrderTrade
+	result, err := query.WithContext(ctx).
+		Where(
+			query.ID.Eq(orderTrade.ID),
+			query.UserID.Eq(orderTrade.UserID),
+			query.Status.In(_const.ORDER_TRADE_STATUS_PENDING_PAYMENT, _const.ORDER_TRADE_STATUS_PAYING),
+		).
+		Update(query.Status, _const.ORDER_TRADE_STATUS_CLOSED)
+	if err != nil {
+		return err
+	}
+	if result.RowsAffected > 0 {
+		return nil
+	}
+	var currentTrade *models.OrderTrade
+	currentTrade, err = c.orderTradeCase.findByUserIDAndID(ctx, orderTrade.UserID, orderTrade.ID)
+	if err != nil {
+		return err
+	}
+	return errorsx.StateConflict(
+		fmt.Sprintf("交易状态错误：【%s】", commonv1.OrderTradeStatus_name[currentTrade.Status]),
+		"order_trade",
+		commonv1.OrderTradeStatus(currentTrade.Status).String(),
+		"PENDING_PAYMENT_OTS|PAYING_OTS",
+	)
 }
 
 // isAdminRoleCode 判断当前登录角色是否属于后台管理角色。

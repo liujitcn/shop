@@ -105,17 +105,37 @@ enum GoodsPriceAlert {
   PRICE_CONFIG_ABNORMAL = 1; // 价格配置异常
 }
 
-// 订单状态
-enum OrderStatus {
-  UNKNOWN_OS = 0;
-  CREATED = 1; // 待付款
-  PAID = 2; // 待发货
-  SHIPPED = 3; // 待收货
-  WAIT_REVIEW = 4; // 待评价
-  COMPLETED = 5; // 已完成
-  REFUNDING = 97; // 已退款
-  CANCELED = 98; // 已取消
-  DELETED = 99; // 已删除
+// 交易支付状态
+enum OrderTradeStatus {
+  UNKNOWN_OTS = 0;
+  PENDING_PAYMENT_OTS = 1; // 待支付
+  PAYING_OTS = 2; // 支付中
+  PAID_OTS = 3; // 已支付
+  CASH_ON_DELIVERY_OTS = 4; // 货到付款
+  CLOSED_OTS = 5; // 已关闭
+  PARTIAL_REFUND_OTS = 6; // 部分退款
+  FULL_REFUND_OTS = 7; // 全额退款
+}
+
+// 订单履约状态
+enum OrderInfoStatus {
+  UNKNOWN_OIS = 0;
+  NOT_STARTED_OIS = 1; // 未进入履约
+  WAIT_SHIPMENT_OIS = 2; // 待发货
+  SHIPPED_OIS = 3; // 已发货
+  WAIT_REVIEW_OIS = 4; // 待评价
+  COMPLETED_OIS = 5; // 已完成
+  CANCELED_OIS = 6; // 已取消
+}
+
+// 订单退款状态
+enum OrderRefundStatus {
+  UNKNOWN_ORS = 0;
+  NONE_ORS = 1; // 无退款
+  PROCESSING_ORS = 2; // 处理中
+  PARTIAL_REFUND_ORS = 3; // 部分退款
+  REFUNDED_ORS = 4; // 已退款
+  CLOSED_OR_FAILED_ORS = 5; // 已关闭/失败
 }
 
 // 订单支付方式

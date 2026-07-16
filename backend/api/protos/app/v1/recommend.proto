@@ -62,6 +62,8 @@ message RecommendGoodsRequest {
 
   int64 request_id = 4 [(gnostic.openapi.v3.property) = {description: "推荐请求ID"}]; // 推荐请求ID
 
+  int64 trade_id = 5 [(gnostic.openapi.v3.property) = {description: "交易单ID"}]; // 交易单ID
+
   int64 page_num = 101 [(gnostic.openapi.v3.property) = {
     description: "当前页码"
     default: {number: 1}

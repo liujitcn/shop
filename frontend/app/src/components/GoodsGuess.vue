@@ -34,11 +34,13 @@ const props = withDefaults(
     title?: string
     scene: RecommendScene
     order_id?: number
+    trade_id?: number
     goods_id?: number
   }>(),
   {
     title: '猜你喜欢',
     order_id: 0,
+    trade_id: 0,
     goods_id: 0,
   },
 )
@@ -47,6 +49,7 @@ const props = withDefaults(
 const pageParams: RecommendGoodsRequest = {
   scene: props.scene,
   order_id: props.order_id,
+  trade_id: props.trade_id,
   goods_id: props.goods_id,
   page_num: 1,
   page_size: 10,
@@ -89,6 +92,7 @@ const getHomeGoodsGuessLikeData = async () => {
   const requestStartIndex = (requestPageNum - 1) * requestPageSize
   pageParams.scene = props.scene
   pageParams.order_id = props.order_id
+  pageParams.trade_id = props.trade_id
   pageParams.goods_id = props.goods_id
   await recommendStore.getAnonymousId()
   const res = await defRecommendService.RecommendGoods(

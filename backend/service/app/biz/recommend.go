@@ -39,6 +39,7 @@ type RecommendCase struct {
 	recommendRequestCase *RecommendRequestCase
 	recommendEventCase   *RecommendEventCase
 	orderGoodsCase       *OrderGoodsCase
+	orderInfoCase        *OrderInfoCase
 	userCartCase         *UserCartCase
 	userCollectCase      *UserCollectCase
 	goodsInfoCase        *GoodsInfoCase
@@ -52,6 +53,7 @@ func NewRecommendCase(
 	recommendRequestCase *RecommendRequestCase,
 	recommendEventCase *RecommendEventCase,
 	orderGoodsCase *OrderGoodsCase,
+	orderInfoCase *OrderInfoCase,
 	userCartCase *UserCartCase,
 	userCollectCase *UserCollectCase,
 	goodsInfoCase *GoodsInfoCase,
@@ -63,6 +65,7 @@ func NewRecommendCase(
 		recommendRequestCase: recommendRequestCase,
 		recommendEventCase:   recommendEventCase,
 		orderGoodsCase:       orderGoodsCase,
+		orderInfoCase:        orderInfoCase,
 		userCartCase:         userCartCase,
 		userCollectCase:      userCollectCase,
 		goodsInfoCase:        goodsInfoCase,
@@ -130,6 +133,7 @@ func (c *RecommendCase) RecommendGoods(ctx context.Context, req *appv1.Recommend
 		Actor:     actor,
 		GoodsID:   req.GetGoodsId(),
 		OrderID:   req.GetOrderId(),
+		TradeID:   req.GetTradeId(),
 		RequestID: requestID,
 		PageNum:   pageNum,
 		PageSize:  pageSize,
@@ -167,6 +171,7 @@ func (c *RecommendCase) RecommendGoods(ctx context.Context, req *appv1.Recommend
 		contextRecord := dto.NewRecommendRequestContext(
 			recommendReq.GoodsID,
 			recommendReq.OrderID,
+			recommendReq.TradeID,
 			recommendReq.ContextGoodsIDs,
 			recommendResult,
 		)
@@ -415,15 +420,42 @@ func (c *RecommendCase) listRecommendContextGoodsIDs(
 			goodsIDs = list
 		}
 	case commonv1.RecommendScene(_const.RECOMMEND_SCENE_ORDER_DETAIL), commonv1.RecommendScene(_const.RECOMMEND_SCENE_ORDER_PAID):
-		// 订单详情与支付成功页优先读取订单商品做上下文。
-		if req.OrderID > 0 {
-			// 当前请求带有订单编号时，优先围绕订单内商品构建上下文。
-			var list []int64
-			list, err = c.orderGoodsCase.listGoodsIDsByOrderID(ctx, req.OrderID)
-			if err != nil {
-				return nil, err
-			}
-			goodsIDs = list
+		// 订单上下文必须归属当前用户，支付成功页按交易聚合全部门店商品。
+		if actor == nil || !actor.IsUser() {
+			break
+		}
+		orderQuery := c.orderInfoCase.Query(ctx).OrderInfo
+		orderOpts := make([]repository.QueryOption, 0, 2)
+		orderOpts = append(orderOpts, repository.Where(orderQuery.UserID.Eq(actor.ActorID)))
+		if req.TradeID > 0 {
+			orderOpts = append(orderOpts, repository.Where(orderQuery.TradeID.Eq(req.TradeID)))
+		} else if req.OrderID > 0 {
+			orderOpts = append(orderOpts, repository.Where(orderQuery.ID.Eq(req.OrderID)))
+		} else {
+			break
+		}
+		var orderInfos []*models.OrderInfo
+		orderInfos, err = c.orderInfoCase.List(ctx, orderOpts...)
+		if err != nil {
+			return nil, err
+		}
+		orderIDs := make([]int64, 0, len(orderInfos))
+		for _, orderInfo := range orderInfos {
+			orderIDs = append(orderIDs, orderInfo.ID)
+		}
+		if len(orderIDs) == 0 {
+			break
+		}
+		goodsQuery := c.orderGoodsCase.Query(ctx).OrderGoods
+		goodsOpts := make([]repository.QueryOption, 0, 1)
+		goodsOpts = append(goodsOpts, repository.Where(goodsQuery.OrderID.In(orderIDs...)))
+		var orderGoodsList []*models.OrderGoods
+		orderGoodsList, err = c.orderGoodsCase.List(ctx, goodsOpts...)
+		if err != nil {
+			return nil, err
+		}
+		for _, orderGoods := range orderGoodsList {
+			goodsIDs = append(goodsIDs, orderGoods.GoodsID)
 		}
 	default:
 		// 业务场景没有稳定上下文时，再回退到最近推荐行为商品。

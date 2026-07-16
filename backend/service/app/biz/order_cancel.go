@@ -25,11 +25,11 @@ func NewOrderCancelCase(baseCase *biz.BaseCase, orderCancelRepo *data.OrderCance
 	}
 }
 
-// findCancelTimeByOrderID 查询订单取消时间
-func (c *OrderCancelCase) findCancelTimeByOrderID(ctx context.Context, orderID int64) (string, error) {
+// findCancelTimeByTradeID 查询交易单取消时间。
+func (c *OrderCancelCase) findCancelTimeByTradeID(ctx context.Context, tradeID int64) (string, error) {
 	query := c.Query(ctx).OrderCancel
 	opts := make([]repository.QueryOption, 0, 1)
-	opts = append(opts, repository.Where(query.OrderID.Eq(orderID)))
+	opts = append(opts, repository.Where(query.TradeID.Eq(tradeID)))
 	orderCancel, err := c.Find(ctx, opts...)
 	if err != nil {
 		return "", err

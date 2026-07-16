@@ -34,10 +34,16 @@
         </template>
 
         <el-descriptions :column="2" border class="detail-descriptions">
-          <el-descriptions-item label="订单编号">
+          <el-descriptions-item label="交易编号">
+            <div class="order-no-field">
+              <span>{{ formData.order.trade_no }}</span>
+              <el-button link type="primary" @click="handleCopyNumber(formData.order.trade_no, '交易编号')">复制</el-button>
+            </div>
+          </el-descriptions-item>
+          <el-descriptions-item label="门店订单编号">
             <div class="order-no-field">
               <span>{{ formData.order.order_no }}</span>
-              <el-button link type="primary" @click="handleCopyOrderNo(formData.order.order_no)">复制</el-button>
+              <el-button link type="primary" @click="handleCopyNumber(formData.order.order_no, '门店订单编号')">复制</el-button>
             </div>
           </el-descriptions-item>
           <el-descriptions-item label="用户">{{ formData.order.nick_name }}</el-descriptions-item>
@@ -52,8 +58,14 @@
           <el-descriptions-item label="配送时间类型">
             <DictLabel v-model="formData.order.delivery_time" code="order_delivery_time" />
           </el-descriptions-item>
-          <el-descriptions-item label="订单状态">
-            <DictLabel v-model="formData.order.status" code="order_status" />
+          <el-descriptions-item label="支付状态">
+            <DictLabel v-model="formData.order.trade_status" code="order_trade_status" />
+          </el-descriptions-item>
+          <el-descriptions-item label="履约状态">
+            <DictLabel v-model="formData.order.status" code="order_info_status" />
+          </el-descriptions-item>
+          <el-descriptions-item label="退款状态">
+            <DictLabel v-model="formData.order.refund_status" code="order_refund_status" />
           </el-descriptions-item>
           <el-descriptions-item label="创建时间">{{ formData.order.created_at }}</el-descriptions-item>
           <el-descriptions-item label="更新时间">{{ formData.order.updated_at }}</el-descriptions-item>
@@ -105,10 +117,10 @@
           <el-descriptions-item label="交易类型">{{ formData.payment?.trade_type }}</el-descriptions-item>
           <el-descriptions-item label="支付状态">{{ formData.payment?.trade_state_desc }}</el-descriptions-item>
           <el-descriptions-item label="支付时间">{{ formData.payment?.success_time }}</el-descriptions-item>
-          <el-descriptions-item label="支付金额">
+          <el-descriptions-item label="交易支付金额">
             {{ formatPrice(formData.payment?.amount?.payer_total) }} 元
           </el-descriptions-item>
-          <el-descriptions-item label="总金额">{{ formatPrice(formData.payment?.amount?.total) }} 元</el-descriptions-item>
+          <el-descriptions-item label="交易总金额">{{ formatPrice(formData.payment?.amount?.total) }} 元</el-descriptions-item>
           <el-descriptions-item label="对帐状态" :span="2">
             <DictLabel :model-value="formData.payment?.status" code="order_bill_status" />
           </el-descriptions-item>
@@ -324,7 +336,7 @@ function syncWorkspaceTitle() {
   document.title = `${workspaceTitle} - ${import.meta.env.VITE_GLOB_APP_TITLE}`;
 }
 
-// 查询
+/** 查询并刷新当前门店订单详情。 */
 function handleQuery(targetOrderId: number = orderId.value) {
   if (!targetOrderId) return;
   const requestId = ++orderDetailRequestId.value;
@@ -346,17 +358,17 @@ function handleQuery(targetOrderId: number = orderId.value) {
 }
 
 /**
- * 复制订单编号，便于客服或运营快速粘贴查询。
+ * 复制交易或门店订单编号，便于客服或运营快速粘贴查询。
  */
-async function handleCopyOrderNo(order_no: string) {
-  if (!order_no) {
-    ElMessage.warning("订单编号为空，无法复制");
+async function handleCopyNumber(value: string, label: string) {
+  if (!value) {
+    ElMessage.warning(`${label}为空，无法复制`);
     return;
   }
 
   try {
-    await navigator.clipboard.writeText(order_no);
-    ElMessage.success("订单编号已复制");
+    await navigator.clipboard.writeText(value);
+    ElMessage.success(`${label}已复制`);
   } catch {
     ElMessage.error("复制失败，请手动复制");
   }

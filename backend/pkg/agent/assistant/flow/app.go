@@ -37,6 +37,7 @@ const (
 	aiAssistantToolCreateOrderInfo    = "app_v1_order_info_service_create_order_info"
 	aiAssistantToolPageOrderInfo      = "app_v1_order_info_service_page_order_info"
 	aiAssistantToolGetOrderInfoByID   = "app_v1_order_info_service_get_order_info_by_id"
+	aiAssistantToolGetOrderTradeByID  = "app_v1_order_info_service_get_order_trade_by_id"
 	aiAssistantToolReceiveOrderInfo   = "app_v1_order_info_service_receive_order_info"
 	aiAssistantToolListShopHots       = "app_v1_shop_hot_service_list_shop_hots"
 	aiAssistantToolListShopHotItems   = "app_v1_shop_hot_service_list_shop_hot_items"
@@ -268,11 +269,11 @@ func (r *Runner) openAiAssistantCheckout(ctx context.Context, payload map[string
 		return r.aiAssistantFlowErrorResponse(aiAssistantFlowShopping, "checkout", tools), nil
 	}
 	orderPayload := map[string]any{
-		"goods":         []map[string]any{selectedGoods},
-		"clear_cart":    boolValue(buyOutput["clear_cart"]),
-		"pay_type":      int(commonv1.OrderPayType_ONLINE_PAY),
-		"pay_channel":   int(commonv1.OrderPayChannel_WX_PAY),
-		"delivery_time": int(commonv1.OrderDeliveryTime_ALL_TIME),
+		"goods":               []map[string]any{selectedGoods},
+		"clear_cart":          boolValue(buyOutput["clear_cart"]),
+		"pay_type":            int(commonv1.OrderPayType_ONLINE_PAY),
+		"pay_channel":         int(commonv1.OrderPayChannel_WX_PAY),
+		"order_store_options": buildAiAssistantOrderStoreOptions(buyOutput),
 	}
 	blocks := buildAiAssistantCheckoutBlocks(buyOutput, addressOutput, orderPayload)
 	return r.aiAssistantFlowResponse(aiAssistantFlowShopping, "checkout", "规格已选好，再确认收货地址。", blocks, tools), nil
@@ -339,30 +340,30 @@ func (r *Runner) confirmAiAssistantOrder(ctx context.Context, payload map[string
 	if err != nil {
 		return r.aiAssistantFlowErrorResponse(aiAssistantFlowShopping, "payment", tools), nil
 	}
-	orderID := int64Value(output["order_id"])
-	block := buildAiAssistantPaymentPanelBlock(orderID)
+	tradeID := int64Value(output["trade_id"])
+	block := buildAiAssistantPaymentPanelBlock(tradeID)
 	return r.aiAssistantFlowResponse(aiAssistantFlowShopping, "payment", "订单已创建，可以继续在聊天里发起支付。", []map[string]any{block}, tools), nil
 }
 
 // startAiAssistantPayment 调用支付工具并返回支付参数。
 func (r *Runner) startAiAssistantPayment(ctx context.Context, payload map[string]any) (*assistant.Response, error) {
-	orderID := int64Value(payload["order_id"])
-	if orderID <= 0 {
-		return nil, errorsx.InvalidArgument("订单参数不合法")
+	tradeID := int64Value(payload["trade_id"])
+	if tradeID <= 0 {
+		return nil, errorsx.InvalidArgument("交易单参数不合法")
 	}
 	platform := stringValue(payload["platform"])
 	toolName := aiAssistantToolJSAPIPay
 	if platform == "h5" || platform == "app" {
 		toolName = aiAssistantToolH5Pay
 	}
-	output, usage, err := r.invokeAiAssistantFlowTool(ctx, toolName, map[string]any{"order_id": orderID})
+	output, usage, err := r.invokeAiAssistantFlowTool(ctx, toolName, map[string]any{"trade_id": tradeID})
 	tools := appendAiAssistantFlowTool(nil, usage)
 	if err != nil {
 		return r.aiAssistantFlowErrorResponse(aiAssistantFlowPendingPayment, "payment", tools), nil
 	}
 	block := map[string]any{
 		"type":     "payment_result",
-		"order_id": orderID,
+		"trade_id": tradeID,
 		"platform": platform,
 		"pay_data": output,
 	}
@@ -372,9 +373,9 @@ func (r *Runner) startAiAssistantPayment(ctx context.Context, payload map[string
 // openAiAssistantPendingPaymentFlow 打开待支付流程。
 func (r *Runner) openAiAssistantPendingPaymentFlow(ctx context.Context) (*assistant.Response, error) {
 	output, usage, err := r.invokeAiAssistantFlowTool(ctx, aiAssistantToolPageOrderInfo, map[string]any{
-		"status":    int(commonv1.OrderStatus_CREATED),
-		"page_num":  1,
-		"page_size": 5,
+		"trade_status": int(commonv1.OrderTradeStatus_PENDING_PAYMENT_OTS),
+		"page_num":     1,
+		"page_size":    5,
 	})
 	tools := appendAiAssistantFlowTool(nil, usage)
 	if err != nil {
@@ -449,10 +450,18 @@ func (r *Runner) openAiAssistantOrderLogisticsFlow(ctx context.Context) (*assist
 // viewAiAssistantOrder 查询订单详情和物流。
 func (r *Runner) viewAiAssistantOrder(ctx context.Context, payload map[string]any) (*assistant.Response, error) {
 	orderID := int64Value(payload["order_id"])
-	if orderID <= 0 {
+	tradeID := int64Value(payload["trade_id"])
+	if orderID <= 0 && tradeID <= 0 {
 		return nil, errorsx.InvalidArgument("订单参数不合法")
 	}
-	output, usage, err := r.invokeAiAssistantFlowTool(ctx, aiAssistantToolGetOrderInfoByID, map[string]any{"id": orderID})
+	toolName := aiAssistantToolGetOrderInfoByID
+	toolPayload := map[string]any{"id": orderID}
+	// 未支付或已关闭记录是交易聚合，必须按交易单查询全部门店商品。
+	if tradeID > 0 {
+		toolName = aiAssistantToolGetOrderTradeByID
+		toolPayload = map[string]any{"trade_id": tradeID}
+	}
+	output, usage, err := r.invokeAiAssistantFlowTool(ctx, toolName, toolPayload)
 	tools := appendAiAssistantFlowTool(nil, usage)
 	if err != nil {
 		return r.aiAssistantFlowErrorResponse(aiAssistantFlowOrderLogistics, "detail", tools), nil
@@ -856,13 +865,28 @@ func buildAiAssistantSelectedGoods(goodsID int64, skuCode string, num int64, rec
 	}
 }
 
-// buildAiAssistantPaymentPanelBlock 构造支付面板卡片。
-func buildAiAssistantPaymentPanelBlock(orderID int64) map[string]any {
+// buildAiAssistantOrderStoreOptions 按后端确认单的门店分组构建默认配送选项。
+func buildAiAssistantOrderStoreOptions(output map[string]any) []map[string]any {
+	orderGoodsStores := sliceMapValue(output["order_goods_stores"])
+	options := make([]map[string]any, 0, len(orderGoodsStores))
+	for _, orderGoodsStore := range orderGoodsStores {
+		store := mapValue(orderGoodsStore["store"])
+		options = append(options, map[string]any{
+			"tenant_store_id": int64Value(store["id"]),
+			"delivery_time":   int(commonv1.OrderDeliveryTime_ALL_TIME),
+			"remark":          "",
+		})
+	}
+	return options
+}
+
+// buildAiAssistantPaymentPanelBlock 构造交易单支付面板卡片。
+func buildAiAssistantPaymentPanelBlock(tradeID int64) map[string]any {
 	return map[string]any{
 		"type":     "payment_panel",
 		"title":    "订单支付",
-		"order_id": orderID,
-		"action":   aiAssistantAction(aiAssistantFlowPendingPayment, "payment", "start_payment", map[string]any{"order_id": orderID}),
+		"trade_id": tradeID,
+		"action":   aiAssistantAction(aiAssistantFlowPendingPayment, "payment", "start_payment", map[string]any{"trade_id": tradeID}),
 	}
 }
 
@@ -876,9 +900,14 @@ func buildAiAssistantOrderListBlock(flow string, title string, output map[string
 		step := "detail"
 		if actionType == "start_payment" {
 			step = "payment"
+			payload = map[string]any{"trade_id": int64Value(item["trade_id"])}
+		} else if boolValue(item["is_trade"]) {
+			payload = map[string]any{"trade_id": int64Value(item["trade_id"])}
 		}
 		items = append(items, map[string]any{
 			"id":                 orderID,
+			"is_trade":           item["is_trade"],
+			"trade_id":           item["trade_id"],
 			"order_no":           item["order_no"],
 			"pay_money":          item["pay_money"],
 			"total_money":        item["total_money"],
@@ -946,7 +975,7 @@ func buildAiAssistantOrderDetailBlock(output map[string]any) map[string]any {
 		"logistics": output["logistics"],
 		"countdown": output["countdown"],
 	}
-	if int64Value(order["status"]) == int64(commonv1.OrderStatus_SHIPPED) {
+	if int64Value(order["status"]) == int64(commonv1.OrderInfoStatus_SHIPPED_OIS) {
 		block["action"] = aiAssistantAction(aiAssistantFlowOrderLogistics, "receipt", "receive_order", map[string]any{"order_id": orderID})
 	}
 	return block

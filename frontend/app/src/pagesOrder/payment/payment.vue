@@ -1,19 +1,24 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { onLoad } from '@dcloudio/uni-app'
+import { onLoad, onUnload } from '@dcloudio/uni-app'
 import { defOrderService } from '@/api/app/order_info'
 import { useGuessList } from '@/composables'
 import type { OrderInfoResponse } from '@/rpc/app/v1/order_info'
-import { OrderPayType, OrderStatus, RecommendScene } from '@/rpc/common/v1/enum'
+import { OrderPayType, OrderTradeStatus, RecommendScene } from '@/rpc/common/v1/enum'
 import { homeTabPage, orderDetailUrl } from '@/utils/navigation'
 
 // 获取页面参数
 const query = defineProps<{
-  id: string
+  trade_id: string
 }>()
 
 const orderData = ref<OrderInfoResponse>()
 const loadError = ref(false)
+const maxPollAttempts = 8
+const pollInterval = 1500
+let pollAttempts = 0
+let pollTimer: ReturnType<typeof setTimeout> | undefined
+let isPollingActive = false
 
 // 根据后端订单状态生成支付结果，避免仅凭前端支付回调展示成功。
 const paymentState = computed(() => {
@@ -36,7 +41,7 @@ const paymentState = computed(() => {
       showRecommendation: false,
     }
   }
-  if (order.status === OrderStatus.CANCELED || order.status === OrderStatus.DELETED) {
+  if (order.trade_status === OrderTradeStatus.CLOSED_OTS) {
     return {
       title: '订单已取消',
       tips: '当前订单已取消，如有疑问请进入订单详情查看',
@@ -45,7 +50,10 @@ const paymentState = computed(() => {
       showRecommendation: false,
     }
   }
-  if (order.pay_type === OrderPayType.CASH_ON_DELIVERY) {
+  if (
+    order.pay_type === OrderPayType.CASH_ON_DELIVERY ||
+    order.trade_status === OrderTradeStatus.CASH_ON_DELIVERY_OTS
+  ) {
     return {
       title: '订单提交成功',
       tips: '订单将按货到付款方式处理，请后续关注发货信息',
@@ -54,7 +62,10 @@ const paymentState = computed(() => {
       showRecommendation: false,
     }
   }
-  if (order.status === OrderStatus.CREATED) {
+  if (
+    order.trade_status === OrderTradeStatus.PENDING_PAYMENT_OTS ||
+    order.trade_status === OrderTradeStatus.PAYING_OTS
+  ) {
     return {
       title: '支付结果确认中',
       tips: '支付结果可能存在短暂延迟，请稍后进入订单详情查看',
@@ -63,20 +74,26 @@ const paymentState = computed(() => {
       showRecommendation: false,
     }
   }
-  const paidStatuses = [
-    OrderStatus.PAID,
-    OrderStatus.SHIPPED,
-    OrderStatus.WAIT_REVIEW,
-    OrderStatus.COMPLETED,
-    OrderStatus.REFUNDING,
+  const paidStatuses: OrderTradeStatus[] = [
+    OrderTradeStatus.PAID_OTS,
+    OrderTradeStatus.PARTIAL_REFUND_OTS,
   ]
-  if (paidStatuses.includes(order.status)) {
+  if (paidStatuses.includes(order.trade_status)) {
     return {
       title: '支付成功',
       tips: '请后续关注发货信息，有问题及时联系',
       tone: 'success',
       success: true,
       showRecommendation: true,
+    }
+  }
+  if (order.trade_status === OrderTradeStatus.FULL_REFUND_OTS) {
+    return {
+      title: '交易已全额退款',
+      tips: '款项已按原支付渠道退回，请进入订单详情查看退款信息',
+      tone: 'unknown',
+      success: false,
+      showRecommendation: false,
     }
   }
   return {
@@ -88,21 +105,58 @@ const paymentState = computed(() => {
   }
 })
 
-// loadPaymentResult 查询订单真实状态并刷新支付结果展示。
+// loadPaymentResult 查询订单真实状态，并返回交易是否已进入终态。
 const loadPaymentResult = async () => {
   loadError.value = false
   try {
-    orderData.value = await defOrderService.GetOrderInfoById({ id: Number(query.id) })
+    orderData.value = await defOrderService.GetOrderTradeById({
+      trade_id: Number(query.trade_id),
+    })
+    const status = orderData.value.order?.trade_status
+    return Boolean(
+      status &&
+        status !== OrderTradeStatus.PENDING_PAYMENT_OTS &&
+        status !== OrderTradeStatus.PAYING_OTS,
+    )
   } catch {
-    loadError.value = true
+    loadError.value = pollAttempts >= maxPollAttempts
+    return false
   }
+}
+
+// stopPaymentPolling 清理支付状态轮询定时器。
+const stopPaymentPolling = () => {
+  if (pollTimer) {
+    clearTimeout(pollTimer)
+    pollTimer = undefined
+  }
+}
+
+// pollPaymentResult 在支付通知延迟窗口内有限次数刷新交易状态。
+const pollPaymentResult = async () => {
+  stopPaymentPolling()
+  pollAttempts += 1
+  const settled = await loadPaymentResult()
+  if (!isPollingActive || settled || pollAttempts >= maxPollAttempts) {
+    return
+  }
+  pollTimer = setTimeout(() => {
+    void pollPaymentResult()
+  }, pollInterval)
 }
 
 // 猜你喜欢
 const { guessRef, onScrollToLower } = useGuessList()
 
 onLoad(() => {
-  void loadPaymentResult()
+  pollAttempts = 0
+  isPollingActive = true
+  void pollPaymentResult()
+})
+
+onUnload(() => {
+  isPollingActive = false
+  stopPaymentPolling()
 })
 </script>
 
@@ -126,7 +180,7 @@ onLoad(() => {
         <navigator
           hover-class="none"
           class="button navigator"
-          :url="orderDetailUrl({ id: query.id, internal: true })"
+          :url="orderDetailUrl({ trade_id: query.trade_id })"
           open-type="redirect"
         >
           查看订单
@@ -140,7 +194,7 @@ onLoad(() => {
       ref="guessRef"
       title="顺手再带两件"
       :scene="RecommendScene.ORDER_PAID"
-      :order-id="Number(query.id)"
+      :trade-id="Number(query.trade_id)"
     />
   </scroll-view>
 </template>

@@ -28,8 +28,10 @@ const (
 	OrderInfoService_PageOrderInfo_FullMethodName           = "/app.v1.OrderInfoService/PageOrderInfo"
 	OrderInfoService_GetOrderInfoIdByOrderNo_FullMethodName = "/app.v1.OrderInfoService/GetOrderInfoIdByOrderNo"
 	OrderInfoService_GetOrderInfoById_FullMethodName        = "/app.v1.OrderInfoService/GetOrderInfoById"
+	OrderInfoService_GetOrderTradeById_FullMethodName       = "/app.v1.OrderInfoService/GetOrderTradeById"
 	OrderInfoService_CreateOrderInfo_FullMethodName         = "/app.v1.OrderInfoService/CreateOrderInfo"
 	OrderInfoService_DeleteOrderInfo_FullMethodName         = "/app.v1.OrderInfoService/DeleteOrderInfo"
+	OrderInfoService_DeleteOrderTrade_FullMethodName        = "/app.v1.OrderInfoService/DeleteOrderTrade"
 	OrderInfoService_CancelOrderInfo_FullMethodName         = "/app.v1.OrderInfoService/CancelOrderInfo"
 	OrderInfoService_RefundOrderInfo_FullMethodName         = "/app.v1.OrderInfoService/RefundOrderInfo"
 	OrderInfoService_ReceiveOrderInfo_FullMethodName        = "/app.v1.OrderInfoService/ReceiveOrderInfo"
@@ -55,10 +57,14 @@ type OrderInfoServiceClient interface {
 	GetOrderInfoIdByOrderNo(ctx context.Context, in *GetOrderInfoIdByOrderNoRequest, opts ...grpc.CallOption) (*GetOrderInfoIdByOrderNoResponse, error)
 	// 根据订单信息id查询订单信息
 	GetOrderInfoById(ctx context.Context, in *GetOrderInfoByIdRequest, opts ...grpc.CallOption) (*OrderInfoResponse, error)
+	// 根据交易单ID查询聚合订单详情
+	GetOrderTradeById(ctx context.Context, in *GetOrderTradeByIdRequest, opts ...grpc.CallOption) (*OrderInfoResponse, error)
 	// 创建订单信息
 	CreateOrderInfo(ctx context.Context, in *CreateOrderInfoRequest, opts ...grpc.CallOption) (*CreateOrderInfoResponse, error)
 	// 删除订单信息
 	DeleteOrderInfo(ctx context.Context, in *DeleteOrderInfoRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 删除交易单
+	DeleteOrderTrade(ctx context.Context, in *DeleteOrderTradeRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 取消订单信息
 	CancelOrderInfo(ctx context.Context, in *CancelOrderInfoRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 订单信息退款
@@ -145,6 +151,16 @@ func (c *orderInfoServiceClient) GetOrderInfoById(ctx context.Context, in *GetOr
 	return out, nil
 }
 
+func (c *orderInfoServiceClient) GetOrderTradeById(ctx context.Context, in *GetOrderTradeByIdRequest, opts ...grpc.CallOption) (*OrderInfoResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(OrderInfoResponse)
+	err := c.cc.Invoke(ctx, OrderInfoService_GetOrderTradeById_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *orderInfoServiceClient) CreateOrderInfo(ctx context.Context, in *CreateOrderInfoRequest, opts ...grpc.CallOption) (*CreateOrderInfoResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(CreateOrderInfoResponse)
@@ -159,6 +175,16 @@ func (c *orderInfoServiceClient) DeleteOrderInfo(ctx context.Context, in *Delete
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, OrderInfoService_DeleteOrderInfo_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *orderInfoServiceClient) DeleteOrderTrade(ctx context.Context, in *DeleteOrderTradeRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, OrderInfoService_DeleteOrderTrade_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -215,10 +241,14 @@ type OrderInfoServiceServer interface {
 	GetOrderInfoIdByOrderNo(context.Context, *GetOrderInfoIdByOrderNoRequest) (*GetOrderInfoIdByOrderNoResponse, error)
 	// 根据订单信息id查询订单信息
 	GetOrderInfoById(context.Context, *GetOrderInfoByIdRequest) (*OrderInfoResponse, error)
+	// 根据交易单ID查询聚合订单详情
+	GetOrderTradeById(context.Context, *GetOrderTradeByIdRequest) (*OrderInfoResponse, error)
 	// 创建订单信息
 	CreateOrderInfo(context.Context, *CreateOrderInfoRequest) (*CreateOrderInfoResponse, error)
 	// 删除订单信息
 	DeleteOrderInfo(context.Context, *DeleteOrderInfoRequest) (*emptypb.Empty, error)
+	// 删除交易单
+	DeleteOrderTrade(context.Context, *DeleteOrderTradeRequest) (*emptypb.Empty, error)
 	// 取消订单信息
 	CancelOrderInfo(context.Context, *CancelOrderInfoRequest) (*emptypb.Empty, error)
 	// 订单信息退款
@@ -256,11 +286,17 @@ func (UnimplementedOrderInfoServiceServer) GetOrderInfoIdByOrderNo(context.Conte
 func (UnimplementedOrderInfoServiceServer) GetOrderInfoById(context.Context, *GetOrderInfoByIdRequest) (*OrderInfoResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetOrderInfoById not implemented")
 }
+func (UnimplementedOrderInfoServiceServer) GetOrderTradeById(context.Context, *GetOrderTradeByIdRequest) (*OrderInfoResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetOrderTradeById not implemented")
+}
 func (UnimplementedOrderInfoServiceServer) CreateOrderInfo(context.Context, *CreateOrderInfoRequest) (*CreateOrderInfoResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreateOrderInfo not implemented")
 }
 func (UnimplementedOrderInfoServiceServer) DeleteOrderInfo(context.Context, *DeleteOrderInfoRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteOrderInfo not implemented")
+}
+func (UnimplementedOrderInfoServiceServer) DeleteOrderTrade(context.Context, *DeleteOrderTradeRequest) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeleteOrderTrade not implemented")
 }
 func (UnimplementedOrderInfoServiceServer) CancelOrderInfo(context.Context, *CancelOrderInfoRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method CancelOrderInfo not implemented")
@@ -418,6 +454,24 @@ func _OrderInfoService_GetOrderInfoById_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _OrderInfoService_GetOrderTradeById_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetOrderTradeByIdRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderInfoServiceServer).GetOrderTradeById(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OrderInfoService_GetOrderTradeById_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderInfoServiceServer).GetOrderTradeById(ctx, req.(*GetOrderTradeByIdRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _OrderInfoService_CreateOrderInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CreateOrderInfoRequest)
 	if err := dec(in); err != nil {
@@ -450,6 +504,24 @@ func _OrderInfoService_DeleteOrderInfo_Handler(srv interface{}, ctx context.Cont
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(OrderInfoServiceServer).DeleteOrderInfo(ctx, req.(*DeleteOrderInfoRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _OrderInfoService_DeleteOrderTrade_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteOrderTradeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderInfoServiceServer).DeleteOrderTrade(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OrderInfoService_DeleteOrderTrade_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderInfoServiceServer).DeleteOrderTrade(ctx, req.(*DeleteOrderTradeRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -544,12 +616,20 @@ var OrderInfoService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _OrderInfoService_GetOrderInfoById_Handler,
 		},
 		{
+			MethodName: "GetOrderTradeById",
+			Handler:    _OrderInfoService_GetOrderTradeById_Handler,
+		},
+		{
 			MethodName: "CreateOrderInfo",
 			Handler:    _OrderInfoService_CreateOrderInfo_Handler,
 		},
 		{
 			MethodName: "DeleteOrderInfo",
 			Handler:    _OrderInfoService_DeleteOrderInfo_Handler,
+		},
+		{
+			MethodName: "DeleteOrderTrade",
+			Handler:    _OrderInfoService_DeleteOrderTrade_Handler,
 		},
 		{
 			MethodName: "CancelOrderInfo",

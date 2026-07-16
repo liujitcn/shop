@@ -97,22 +97,48 @@ const (
 )
 
 const (
-	// ORDER_STATUS_CREATED 表示订单已创建但尚未支付，用户仍可继续支付或取消订单。
-	ORDER_STATUS_CREATED = int32(commonv1.OrderStatus_CREATED)
-	// ORDER_STATUS_PAID 表示订单已完成支付并等待商家发货。
-	ORDER_STATUS_PAID = int32(commonv1.OrderStatus_PAID)
-	// ORDER_STATUS_SHIPPED 表示订单已发货并等待用户确认收货。
-	ORDER_STATUS_SHIPPED = int32(commonv1.OrderStatus_SHIPPED)
-	// ORDER_STATUS_WAIT_REVIEW 表示订单已收货并等待用户评价。
-	ORDER_STATUS_WAIT_REVIEW = int32(commonv1.OrderStatus_WAIT_REVIEW)
-	// ORDER_STATUS_COMPLETED 表示订单已完成，通常不再进入支付、发货或收货流程。
-	ORDER_STATUS_COMPLETED = int32(commonv1.OrderStatus_COMPLETED)
-	// ORDER_STATUS_REFUNDING 表示订单已进入退款相关状态，后续需要结合退款单判断具体进度。
-	ORDER_STATUS_REFUNDING = int32(commonv1.OrderStatus_REFUNDING)
-	// ORDER_STATUS_CANCELED 表示订单已取消，通常不允许继续支付、发货或确认收货。
-	ORDER_STATUS_CANCELED = int32(commonv1.OrderStatus_CANCELED)
-	// ORDER_STATUS_DELETED 表示订单已删除，通常只用于用户侧隐藏或软删除后的展示过滤。
-	ORDER_STATUS_DELETED = int32(commonv1.OrderStatus_DELETED)
+	// ORDER_TRADE_STATUS_PENDING_PAYMENT 表示交易等待用户完成支付。
+	ORDER_TRADE_STATUS_PENDING_PAYMENT = int32(commonv1.OrderTradeStatus_PENDING_PAYMENT_OTS)
+	// ORDER_TRADE_STATUS_PAYING 表示交易已创建预支付单并等待支付结果。
+	ORDER_TRADE_STATUS_PAYING = int32(commonv1.OrderTradeStatus_PAYING_OTS)
+	// ORDER_TRADE_STATUS_PAID 表示交易已经支付成功。
+	ORDER_TRADE_STATUS_PAID = int32(commonv1.OrderTradeStatus_PAID_OTS)
+	// ORDER_TRADE_STATUS_CASH_ON_DELIVERY 表示交易采用货到付款。
+	ORDER_TRADE_STATUS_CASH_ON_DELIVERY = int32(commonv1.OrderTradeStatus_CASH_ON_DELIVERY_OTS)
+	// ORDER_TRADE_STATUS_CLOSED 表示交易已经关闭。
+	ORDER_TRADE_STATUS_CLOSED = int32(commonv1.OrderTradeStatus_CLOSED_OTS)
+	// ORDER_TRADE_STATUS_PARTIAL_REFUND 表示交易仅退回部分金额。
+	ORDER_TRADE_STATUS_PARTIAL_REFUND = int32(commonv1.OrderTradeStatus_PARTIAL_REFUND_OTS)
+	// ORDER_TRADE_STATUS_FULL_REFUND 表示交易实付金额已经全部退回。
+	ORDER_TRADE_STATUS_FULL_REFUND = int32(commonv1.OrderTradeStatus_FULL_REFUND_OTS)
+)
+
+const (
+	// ORDER_INFO_STATUS_NOT_STARTED 表示门店订单尚未进入履约。
+	ORDER_INFO_STATUS_NOT_STARTED = int32(commonv1.OrderInfoStatus_NOT_STARTED_OIS)
+	// ORDER_INFO_STATUS_WAIT_SHIPMENT 表示门店订单等待发货。
+	ORDER_INFO_STATUS_WAIT_SHIPMENT = int32(commonv1.OrderInfoStatus_WAIT_SHIPMENT_OIS)
+	// ORDER_INFO_STATUS_SHIPPED 表示门店订单已经发货。
+	ORDER_INFO_STATUS_SHIPPED = int32(commonv1.OrderInfoStatus_SHIPPED_OIS)
+	// ORDER_INFO_STATUS_WAIT_REVIEW 表示门店订单等待用户评价。
+	ORDER_INFO_STATUS_WAIT_REVIEW = int32(commonv1.OrderInfoStatus_WAIT_REVIEW_OIS)
+	// ORDER_INFO_STATUS_COMPLETED 表示门店订单已经完成。
+	ORDER_INFO_STATUS_COMPLETED = int32(commonv1.OrderInfoStatus_COMPLETED_OIS)
+	// ORDER_INFO_STATUS_CANCELED 表示门店订单已经取消。
+	ORDER_INFO_STATUS_CANCELED = int32(commonv1.OrderInfoStatus_CANCELED_OIS)
+)
+
+const (
+	// ORDER_REFUND_STATUS_NONE 表示门店订单没有退款。
+	ORDER_REFUND_STATUS_NONE = int32(commonv1.OrderRefundStatus_NONE_ORS)
+	// ORDER_REFUND_STATUS_PROCESSING 表示门店订单退款处理中。
+	ORDER_REFUND_STATUS_PROCESSING = int32(commonv1.OrderRefundStatus_PROCESSING_ORS)
+	// ORDER_REFUND_STATUS_PARTIAL_REFUND 表示门店订单仅退回部分金额。
+	ORDER_REFUND_STATUS_PARTIAL_REFUND = int32(commonv1.OrderRefundStatus_PARTIAL_REFUND_ORS)
+	// ORDER_REFUND_STATUS_REFUNDED 表示门店订单已经完成退款。
+	ORDER_REFUND_STATUS_REFUNDED = int32(commonv1.OrderRefundStatus_REFUNDED_ORS)
+	// ORDER_REFUND_STATUS_CLOSED_OR_FAILED 表示门店订单退款已关闭或失败。
+	ORDER_REFUND_STATUS_CLOSED_OR_FAILED = int32(commonv1.OrderRefundStatus_CLOSED_OR_FAILED_ORS)
 )
 
 const (
@@ -375,8 +401,12 @@ const (
 )
 
 const (
-	// ORDER_STATUS_UNKNOWN 表示订单状态未指定，默认值为 0。
-	ORDER_STATUS_UNKNOWN = int32(commonv1.OrderStatus_UNKNOWN_OS)
+	// ORDER_TRADE_STATUS_UNKNOWN 表示交易状态未指定，默认值为 0。
+	ORDER_TRADE_STATUS_UNKNOWN = int32(commonv1.OrderTradeStatus_UNKNOWN_OTS)
+	// ORDER_INFO_STATUS_UNKNOWN 表示订单状态未指定，默认值为 0。
+	ORDER_INFO_STATUS_UNKNOWN = int32(commonv1.OrderInfoStatus_UNKNOWN_OIS)
+	// ORDER_REFUND_STATUS_UNKNOWN 表示订单退款状态未指定，默认值为 0。
+	ORDER_REFUND_STATUS_UNKNOWN = int32(commonv1.OrderRefundStatus_UNKNOWN_ORS)
 	// RECOMMEND_SCENE_UNKNOWN 表示推荐场景未指定，默认值为 0。
 	RECOMMEND_SCENE_UNKNOWN = int32(commonv1.RecommendScene_UNKNOWN_RS)
 	// RECOMMEND_ACTOR_TYPE_UNKNOWN 表示推荐主体类型未指定，默认值为 0。

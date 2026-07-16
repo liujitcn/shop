@@ -2,25 +2,26 @@ package utils
 
 import _const "shop/pkg/const"
 
-// PaidOrderStatuses 返回统计支付成功口径认可的订单状态集合。
-func PaidOrderStatuses() []int32 {
+// PaidTradeStatuses 返回已完成支付口径的交易单状态集合。
+func PaidTradeStatuses() []int32 {
 	return []int32{
-		_const.ORDER_STATUS_PAID,
-		_const.ORDER_STATUS_SHIPPED,
-		_const.ORDER_STATUS_WAIT_REVIEW,
-		_const.ORDER_STATUS_COMPLETED,
-		_const.ORDER_STATUS_REFUNDING,
+		_const.ORDER_TRADE_STATUS_PAID,
+		_const.ORDER_TRADE_STATUS_CASH_ON_DELIVERY,
+		_const.ORDER_TRADE_STATUS_PARTIAL_REFUND,
+		_const.ORDER_TRADE_STATUS_FULL_REFUND,
 	}
 }
 
-// IsPaidOrderStatus 判断订单状态是否属于已支付口径。
-func IsPaidOrderStatus(status int32) bool {
-	// 已付款、已发货、待评价、已完成、已退款都视为支付成功订单。
-	for _, item := range PaidOrderStatuses() {
-		// 命中任一已支付状态时，立即返回 true。
-		if item == status {
-			return true
-		}
+// IsPaidTradeStatus 判断交易单是否已经形成支付事实。
+func IsPaidTradeStatus(status int32) bool {
+	// 已支付、货到付款、部分退款和全额退款都属于已形成支付事实的交易。
+	switch status {
+	case _const.ORDER_TRADE_STATUS_PAID,
+		_const.ORDER_TRADE_STATUS_CASH_ON_DELIVERY,
+		_const.ORDER_TRADE_STATUS_PARTIAL_REFUND,
+		_const.ORDER_TRADE_STATUS_FULL_REFUND:
+		return true
+	default:
+		return false
 	}
-	return false
 }

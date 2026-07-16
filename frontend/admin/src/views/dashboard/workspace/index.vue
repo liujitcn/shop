@@ -2,6 +2,33 @@
   <div v-loading="loading" class="workspace-page">
     <el-card class="workspace-card workspace-card--hero" shadow="never">
       <div class="workspace-hero">
+        <div class="workspace-filter">
+          <span class="workspace-filter__label">数据范围</span>
+          <el-tree-select
+            v-if="isDefaultTenant"
+            v-model="tenantStoreTreeValue"
+            :data="tenantStoreTreeOptions"
+            clearable
+            filterable
+            check-strictly
+            :render-after-expand="false"
+            placeholder="全部租户/门店"
+            class="workspace-filter__control"
+            @change="handleTenantStoreFilterChange"
+          />
+          <el-select
+            v-else
+            v-model="tenantStoreId"
+            clearable
+            filterable
+            placeholder="全部门店"
+            class="workspace-filter__control"
+            @change="handleTenantStoreFilterChange"
+          >
+            <el-option v-for="item in tenantStoreOptions" :key="item.value" :label="item.label" :value="item.value" />
+          </el-select>
+        </div>
+
         <div class="workspace-hero__intro">
           <div class="workspace-user">
             <div class="workspace-avatar">
@@ -148,9 +175,10 @@ defineOptions({
 import { computed, h, onBeforeUnmount, onMounted, reactive, ref, watch } from "vue";
 import { useRouter, type RouteLocationRaw } from "vue-router";
 import { ElButton, ElLink, ElRate } from "element-plus";
-import type { ColumnProps, RenderScope } from "@/components/ProTable/interface";
+import type { ColumnProps, EnumProps, RenderScope } from "@/components/ProTable/interface";
 import ProTable from "@/components/ProTable/index.vue";
 import { defWorkspaceService } from "@/api/admin/workspace";
+import { defTenantStoreService } from "@/api/admin/tenant_store";
 import type {
   SummaryWorkspaceMetricsResponse,
   SummaryWorkspaceReputationResponse,
@@ -159,9 +187,19 @@ import type {
   WorkspacePendingComment
 } from "@/rpc/admin/v1/workspace";
 import { useUserStore } from "@/stores/modules/user";
-import { CommentStatus, GoodsStatus, OrderStatus, PayBillStatus, SseRefreshTarget, SseStream } from "@/rpc/common/v1/enum";
+import {
+  CommentStatus,
+  GoodsStatus,
+  OrderInfoStatus,
+  OrderTradeStatus,
+  PayBillStatus,
+  SseRefreshTarget,
+  SseStream
+} from "@/rpc/common/v1/enum";
+import type { OptionTenantStoresResponse_Option } from "@/rpc/admin/v1/tenant_store";
 import { navigateTo } from "@/utils/router";
 import { formatPrice } from "@/utils/utils";
+import { DEFAULT_TENANT_CODE, parseTenantStoreTreeValue, transformTenantStoreTreeOptions } from "@/utils/tenant";
 import { subscribeSseRefresh, type SseStop } from "@/api/base/sse";
 import defaultAvatar from "@/assets/images/avatar.png";
 
@@ -233,6 +271,10 @@ const userStore = useUserStore();
 const loading = ref(false);
 const avatarSrc = ref(defaultAvatar);
 const pendingComments = ref<WorkspacePendingComment[]>([]);
+const tenantStoreTreeValue = ref<string>();
+const tenantStoreId = ref<number>();
+const tenantStoreTreeOptions = ref<EnumProps[]>([]);
+const tenantStoreOptions = ref<OptionTenantStoresResponse_Option[]>([]);
 const workspaceRefreshTargets: SseRefreshTarget[] = [
   SseRefreshTarget.SSE_REFRESH_TARGET_ADMIN_WORKSPACE_METRICS,
   SseRefreshTarget.SSE_REFRESH_TARGET_ADMIN_WORKSPACE_TODO,
@@ -246,6 +288,29 @@ let queuedRefreshTargets = new Set<SseRefreshTarget>();
 
 // 租户管理员角色编码固定，用于收敛工作台入口和平台账单风险。
 const TENANT_ROLE_CODE = "tenant";
+
+/** 当前登录账号是否默认租户。 */
+const isDefaultTenant = computed(() => userStore.userInfo.tenant_code === DEFAULT_TENANT_CODE);
+
+/** 当前工作台接口的租户与门店查询范围。 */
+const workspaceScope = computed(() => {
+  if (isDefaultTenant.value) {
+    return parseTenantStoreTreeValue(tenantStoreTreeValue.value);
+  }
+  return { tenant_store_id: tenantStoreId.value };
+});
+
+/** 当前筛选范围对应的页面跳转参数。 */
+const workspaceRouteQuery = computed<Record<string, string>>(() => {
+  const query: Record<string, string> = {};
+  if (workspaceScope.value.tenant_id) {
+    query.tenantId = String(workspaceScope.value.tenant_id);
+  }
+  if (workspaceScope.value.tenant_store_id) {
+    query.tenantStoreId = String(workspaceScope.value.tenant_store_id);
+  }
+  return query;
+});
 
 const metrics = reactive<SummaryWorkspaceMetricsResponse>({
   today_order_count: 0,
@@ -354,8 +419,8 @@ const metricCards = computed<WorkspaceMetricCard[]>(() => {
       trendTone: metrics.today_order_growth_rate >= 0 ? "up" : "down",
       subLabel: "客单价",
       subValue: formatPriceLabel(metrics.average_order_amount),
-      analysisPath: "/dashboard/analytics/order",
-      actionPath: "/dashboard/analytics/order"
+      analysisPath: { path: "/dashboard/analytics/order", query: workspaceRouteQuery.value },
+      actionPath: { path: "/dashboard/analytics/order", query: workspaceRouteQuery.value }
     },
     {
       key: "today-sales",
@@ -365,8 +430,8 @@ const metricCards = computed<WorkspaceMetricCard[]>(() => {
       trendTone: metrics.today_sale_growth_rate >= 0 ? "up" : "down",
       subLabel: "支付转化",
       subValue: formatRatioLabel(metrics.pay_conversion_rate),
-      analysisPath: "/dashboard/analytics/order",
-      actionPath: "/dashboard/analytics/order"
+      analysisPath: { path: "/dashboard/analytics/order", query: workspaceRouteQuery.value },
+      actionPath: { path: "/dashboard/analytics/order", query: workspaceRouteQuery.value }
     },
     {
       key: "today-users",
@@ -376,8 +441,10 @@ const metricCards = computed<WorkspaceMetricCard[]>(() => {
       trendTone: "flat",
       subLabel: "新增用户",
       subValue: `${metrics.today_new_user_count} 人`,
-      analysisPath: isTenantAdmin.value ? "/dashboard/analytics/order" : "/dashboard/analytics/user",
-      actionPath: isTenantAdmin.value ? "/order/info" : "/dashboard/analytics/user"
+      analysisPath: isTenantAdmin.value
+        ? { path: "/dashboard/analytics/order", query: workspaceRouteQuery.value }
+        : "/dashboard/analytics/user",
+      actionPath: isTenantAdmin.value ? { path: "/order/info", query: workspaceRouteQuery.value } : "/dashboard/analytics/user"
     },
     {
       key: "today-goods",
@@ -414,7 +481,10 @@ const todoItems = computed<WorkspaceTodoItem[]>(() => {
       unit: "单",
       description: "继续观察支付转化情况。",
       badge: "支付",
-      path: { path: "/order/info", query: { status: String(OrderStatus.CREATED) } }
+      path: {
+        path: "/order/info",
+        query: { ...workspaceRouteQuery.value, tradeStatus: String(OrderTradeStatus.PENDING_PAYMENT_OTS) }
+      }
     },
     {
       key: "todo-shipped",
@@ -423,7 +493,10 @@ const todoItems = computed<WorkspaceTodoItem[]>(() => {
       unit: "单",
       description: "优先处理已支付未发货订单。",
       badge: "履约",
-      path: { path: "/order/info", query: { status: String(OrderStatus.PAID) } }
+      path: {
+        path: "/order/info",
+        query: { ...workspaceRouteQuery.value, status: String(OrderInfoStatus.WAIT_SHIPMENT_OIS) }
+      }
     },
     {
       key: "todo-comment",
@@ -609,32 +682,48 @@ function handleNavigate(path: RouteLocationRaw) {
 
 /** 加载工作台顶部指标。 */
 async function loadWorkspaceMetrics() {
-  const response = await defWorkspaceService.SummaryWorkspaceMetrics({});
+  const response = await defWorkspaceService.SummaryWorkspaceMetrics(workspaceScope.value);
   Object.assign(metrics, response);
 }
 
 /** 加载工作台待处理事项。 */
 async function loadWorkspaceTodo() {
-  const response = await defWorkspaceService.SummaryWorkspaceTodo({});
+  const response = await defWorkspaceService.SummaryWorkspaceTodo(workspaceScope.value);
   Object.assign(todoSummary, response);
 }
 
 /** 加载工作台风险提醒。 */
 async function loadWorkspaceRisk() {
-  const response = await defWorkspaceService.SummaryWorkspaceRisk({});
+  const response = await defWorkspaceService.SummaryWorkspaceRisk(workspaceScope.value);
   Object.assign(riskSummary, response);
 }
 
 /** 加载工作台口碑洞察。 */
 async function loadWorkspaceReputation() {
-  const response = await defWorkspaceService.SummaryWorkspaceReputation({});
+  const response = await defWorkspaceService.SummaryWorkspaceReputation(workspaceScope.value);
   Object.assign(reputationSummary, response);
 }
 
 /** 加载工作台待审核评价。 */
 async function loadWorkspacePendingComments() {
-  const response = await defWorkspaceService.ListWorkspacePendingComments({ limit: 5 });
+  const response = await defWorkspaceService.ListWorkspacePendingComments({ limit: 5, ...workspaceScope.value });
   pendingComments.value = response.pending_comments ?? [];
+}
+
+/** 加载当前账号可选择的租户门店范围。 */
+async function loadTenantStoreOptions() {
+  if (isDefaultTenant.value) {
+    const response = await defTenantStoreService.TreeTenantStores({ keyword: "" });
+    tenantStoreTreeOptions.value = transformTenantStoreTreeOptions(response.list ?? []);
+    return;
+  }
+  const response = await defTenantStoreService.OptionTenantStores({ keyword: "" });
+  tenantStoreOptions.value = response.list ?? [];
+}
+
+/** 租户或门店筛选变化后刷新工作台全部区域。 */
+function handleTenantStoreFilterChange() {
+  void loadWorkspaceData();
 }
 
 /** 加载工作台全部数据。 */
@@ -711,9 +800,15 @@ function queueWorkspaceRefresh(targets: SseRefreshTarget[]) {
   }, 300);
 }
 
-onMounted(() => {
+/** 初始化工作台筛选、实时刷新和业务数据。 */
+async function initializeWorkspace() {
   startWorkspaceSse();
-  void loadWorkspaceData();
+  await loadTenantStoreOptions();
+  await loadWorkspaceData();
+}
+
+onMounted(() => {
+  void initializeWorkspace();
 });
 
 onBeforeUnmount(() => {
@@ -770,6 +865,20 @@ watch(
   display: flex;
   flex-direction: column;
   gap: 18px;
+}
+.workspace-filter {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: flex-end;
+}
+.workspace-filter__label {
+  flex-shrink: 0;
+  font-size: 13px;
+  color: var(--admin-page-text-secondary);
+}
+.workspace-filter__control {
+  width: 260px;
 }
 .workspace-hero__intro {
   display: block;
@@ -1077,6 +1186,13 @@ watch(
 }
 
 @media (width <= 768px) {
+  .workspace-filter {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .workspace-filter__control {
+    width: 100%;
+  }
   .metric-grid {
     grid-template-columns: 1fr;
   }

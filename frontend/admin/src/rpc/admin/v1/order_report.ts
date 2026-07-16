@@ -16,6 +16,12 @@ export interface SummaryOrderMonthReportRequest {
   pay_type: number;
   /** 支付渠道：枚举【OrderPayChannel】，0 表示全部 */
   pay_channel: number;
+  /** 租户ID */
+  tenant_id?:
+    | number
+    | undefined;
+  /** 租户门店ID */
+  tenant_store_id?: number | undefined;
 }
 
 /** 订单月报列表请求参数 */
@@ -28,6 +34,12 @@ export interface ListOrderMonthReportsRequest {
   pay_type: number;
   /** 支付渠道：枚举【OrderPayChannel】，0 表示全部 */
   pay_channel: number;
+  /** 租户ID */
+  tenant_id?:
+    | number
+    | undefined;
+  /** 租户门店ID */
+  tenant_store_id?: number | undefined;
 }
 
 /** 订单月报汇总响应 */
@@ -88,6 +100,12 @@ export interface SummaryOrderDayReportRequest {
   pay_type: number;
   /** 支付渠道：枚举【OrderPayChannel】，0 表示全部 */
   pay_channel: number;
+  /** 租户ID */
+  tenant_id?:
+    | number
+    | undefined;
+  /** 租户门店ID */
+  tenant_store_id?: number | undefined;
 }
 
 /** 订单日报列表请求参数 */
@@ -100,6 +118,12 @@ export interface ListOrderDayReportsRequest {
   pay_type: number;
   /** 支付渠道：枚举【OrderPayChannel】，0 表示全部 */
   pay_channel: number;
+  /** 租户ID */
+  tenant_id?:
+    | number
+    | undefined;
+  /** 租户门店ID */
+  tenant_store_id?: number | undefined;
 }
 
 /** 订单日报汇总响应 */

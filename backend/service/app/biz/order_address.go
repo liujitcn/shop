@@ -42,11 +42,11 @@ func NewOrderAddressCase(baseCase *biz.BaseCase, orderAddressRepo *data.OrderAdd
 	}
 }
 
-// findByOrderID 按订单编号查询订单地址
-func (c *OrderAddressCase) findByOrderID(ctx context.Context, orderID int64) (*appv1.OrderInfoResponse_Address, error) {
+// findByTradeID 按交易单 ID 查询订单地址。
+func (c *OrderAddressCase) findByTradeID(ctx context.Context, tradeID int64) (*appv1.OrderInfoResponse_Address, error) {
 	query := c.Query(ctx).OrderAddress
 	opts := make([]repository.QueryOption, 0, 1)
-	opts = append(opts, repository.Where(query.OrderID.Eq(orderID)))
+	opts = append(opts, repository.Where(query.TradeID.Eq(tradeID)))
 	orderAddress, err := c.Find(ctx, opts...)
 	if err != nil {
 		return nil, err
@@ -54,8 +54,8 @@ func (c *OrderAddressCase) findByOrderID(ctx context.Context, orderID int64) (*a
 	return c.mapper.ToDTO(orderAddress), nil
 }
 
-// createByOrder 按用户地址创建订单地址快照
-func (c *OrderAddressCase) createByOrder(ctx context.Context, userID int64, orderInfo *models.OrderInfo, addressID int64) error {
+// createByTrade 按用户地址创建交易单地址快照。
+func (c *OrderAddressCase) createByTrade(ctx context.Context, userID, tradeID, addressID int64) error {
 	query := c.userAddressRepo.Query(ctx).UserAddress
 	opts := make([]repository.QueryOption, 0, 2)
 	opts = append(opts, repository.Where(query.ID.Eq(addressID)))
@@ -66,12 +66,10 @@ func (c *OrderAddressCase) createByOrder(ctx context.Context, userID int64, orde
 	}
 	// 下单时复制一份地址快照，避免用户后续修改地址影响历史订单展示
 	return c.Create(ctx, &models.OrderAddress{
-		TenantID:      orderInfo.TenantID,
-		TenantStoreID: orderInfo.TenantStoreID,
-		OrderID:       orderInfo.ID,
-		Receiver:      userAddress.Receiver,
-		Contact:       userAddress.Contact,
-		Address:       _string.ConvertStringArrayToString(c.baseAreaCase.getAddressListByCode(ctx, userAddress.Address)),
-		Detail:        userAddress.Detail,
+		TradeID:  tradeID,
+		Receiver: userAddress.Receiver,
+		Contact:  userAddress.Contact,
+		Address:  _string.ConvertStringArrayToString(c.baseAreaCase.getAddressListByCode(ctx, userAddress.Address)),
+		Detail:   userAddress.Detail,
 	})
 }

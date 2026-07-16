@@ -148,25 +148,55 @@ export enum GoodsPriceAlert {
   PRICE_CONFIG_ABNORMAL = 1,
 }
 
-/** 订单状态 */
-export enum OrderStatus {
-  UNKNOWN_OS = 0,
-  /** CREATED - 待付款 */
-  CREATED = 1,
-  /** PAID - 待发货 */
-  PAID = 2,
-  /** SHIPPED - 待收货 */
-  SHIPPED = 3,
-  /** WAIT_REVIEW - 待评价 */
-  WAIT_REVIEW = 4,
-  /** COMPLETED - 已完成 */
-  COMPLETED = 5,
-  /** REFUNDING - 已退款 */
-  REFUNDING = 97,
-  /** CANCELED - 已取消 */
-  CANCELED = 98,
-  /** DELETED - 已删除 */
-  DELETED = 99,
+/** 交易支付状态 */
+export enum OrderTradeStatus {
+  UNKNOWN_OTS = 0,
+  /** PENDING_PAYMENT_OTS - 待支付 */
+  PENDING_PAYMENT_OTS = 1,
+  /** PAYING_OTS - 支付中 */
+  PAYING_OTS = 2,
+  /** PAID_OTS - 已支付 */
+  PAID_OTS = 3,
+  /** CASH_ON_DELIVERY_OTS - 货到付款 */
+  CASH_ON_DELIVERY_OTS = 4,
+  /** CLOSED_OTS - 已关闭 */
+  CLOSED_OTS = 5,
+  /** PARTIAL_REFUND_OTS - 部分退款 */
+  PARTIAL_REFUND_OTS = 6,
+  /** FULL_REFUND_OTS - 全额退款 */
+  FULL_REFUND_OTS = 7,
+}
+
+/** 订单履约状态 */
+export enum OrderInfoStatus {
+  UNKNOWN_OIS = 0,
+  /** NOT_STARTED_OIS - 未进入履约 */
+  NOT_STARTED_OIS = 1,
+  /** WAIT_SHIPMENT_OIS - 待发货 */
+  WAIT_SHIPMENT_OIS = 2,
+  /** SHIPPED_OIS - 已发货 */
+  SHIPPED_OIS = 3,
+  /** WAIT_REVIEW_OIS - 待评价 */
+  WAIT_REVIEW_OIS = 4,
+  /** COMPLETED_OIS - 已完成 */
+  COMPLETED_OIS = 5,
+  /** CANCELED_OIS - 已取消 */
+  CANCELED_OIS = 6,
+}
+
+/** 订单退款状态 */
+export enum OrderRefundStatus {
+  UNKNOWN_ORS = 0,
+  /** NONE_ORS - 无退款 */
+  NONE_ORS = 1,
+  /** PROCESSING_ORS - 处理中 */
+  PROCESSING_ORS = 2,
+  /** PARTIAL_REFUND_ORS - 部分退款 */
+  PARTIAL_REFUND_ORS = 3,
+  /** REFUNDED_ORS - 已退款 */
+  REFUNDED_ORS = 4,
+  /** CLOSED_OR_FAILED_ORS - 已关闭/失败 */
+  CLOSED_OR_FAILED_ORS = 5,
 }
 
 /** 订单支付方式 */

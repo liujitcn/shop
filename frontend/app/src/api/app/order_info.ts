@@ -10,9 +10,11 @@ import type {
   CreateOrderInfoRequest,
   CreateOrderInfoResponse,
   DeleteOrderInfoRequest,
+  DeleteOrderTradeRequest,
   GetOrderInfoByIdRequest,
   GetOrderInfoIdByOrderNoRequest,
   GetOrderInfoIdByOrderNoResponse,
+  GetOrderTradeByIdRequest,
   OrderInfoResponse,
   OrderInfoService,
   PageOrderInfoRequest,
@@ -26,6 +28,7 @@ import type { Empty } from '@/rpc/google/protobuf/empty'
 
 const ORDER_INFO_URL = '/v1/app/order/info'
 const ORDER_CONFIRM_URL = '/v1/app/order/confirm'
+const ORDER_TRADE_URL = '/v1/app/order/trade'
 
 /** 订单服务 */
 export class OrderInfoServiceImpl implements OrderInfoService {
@@ -106,6 +109,14 @@ export class OrderInfoServiceImpl implements OrderInfoService {
       authMode: 'required',
     })
   }
+  /** 根据交易单 ID 查询聚合订单 */
+  GetOrderTradeById(request: GetOrderTradeByIdRequest): Promise<OrderInfoResponse> {
+    return http<OrderInfoResponse>({
+      url: `${ORDER_TRADE_URL}/${request.trade_id}`,
+      method: 'GET',
+      authMode: 'required',
+    })
+  }
   /** 创建订单 */
   CreateOrderInfo(request: CreateOrderInfoRequest): Promise<CreateOrderInfoResponse> {
     return http<CreateOrderInfoResponse>({
@@ -123,10 +134,18 @@ export class OrderInfoServiceImpl implements OrderInfoService {
       authMode: 'required',
     })
   }
+  /** 删除已关闭交易 */
+  DeleteOrderTrade(request: DeleteOrderTradeRequest): Promise<Empty> {
+    return http<Empty>({
+      url: `${ORDER_TRADE_URL}/${request.trade_id}`,
+      method: 'DELETE',
+      authMode: 'required',
+    })
+  }
   /** 取消订单 */
   CancelOrderInfo(request: CancelOrderInfoRequest): Promise<Empty> {
     return http<Empty>({
-      url: `${ORDER_INFO_URL}/${request.order_id}/cancellation`,
+      url: `${ORDER_TRADE_URL}/${request.trade_id}/cancellation`,
       method: 'PUT',
       authMode: 'required',
       data: request,

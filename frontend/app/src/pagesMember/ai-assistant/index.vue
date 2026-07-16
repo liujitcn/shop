@@ -2529,10 +2529,10 @@ function handlePaymentBlocks(list: ChatMessageItem[]) {
 
 function executePaymentBlock(block: AssistantFlowBlock) {
   const payData = block.pay_data || {}
-  const orderID = Number(block.order_id || 0)
+  const tradeID = Number(block.trade_id || 0)
   const platform = String(block.platform || 'jsapi')
-  const paymentKey = `${orderID}:${platform}:${payData.time_stamp || payData.h5_url || ''}`
-  if (!orderID || handledPaymentBlockSet.has(paymentKey)) {
+  const paymentKey = `${tradeID}:${platform}:${payData.time_stamp || payData.h5_url || ''}`
+  if (!tradeID || handledPaymentBlockSet.has(paymentKey)) {
     return
   }
   handledPaymentBlockSet.add(paymentKey)
