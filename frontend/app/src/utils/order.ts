@@ -4,7 +4,7 @@ import { OrderInfoStatus, OrderRefundStatus, OrderTradeStatus } from '@/rpc/comm
 /** 商城端订单列表支持的后端筛选条件。 */
 export type OrderListFilter = Pick<
   PageOrderInfoRequest,
-  'status' | 'trade_status' | 'refund_status' | 'has_refund'
+  'status' | 'trade_status' | 'refund_status' | 'has_refund' | 'refundable'
 >
 
 const tradeStatusText = new Map<OrderTradeStatus, string>([
@@ -61,8 +61,11 @@ export const canRefundOrder = (order: OrderInfo) => {
   return (
     !order.is_trade &&
     order.status === OrderInfoStatus.WAIT_SHIPMENT_OIS &&
-    order.refund_status !== OrderRefundStatus.PROCESSING_ORS &&
-    order.refund_status !== OrderRefundStatus.REFUNDED_ORS
+    [
+      OrderRefundStatus.NONE_ORS,
+      OrderRefundStatus.PARTIAL_REFUND_ORS,
+      OrderRefundStatus.CLOSED_OR_FAILED_ORS,
+    ].includes(order.refund_status)
   )
 }
 

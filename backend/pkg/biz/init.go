@@ -14,6 +14,8 @@ import (
 var ProviderSet = wire.NewSet(
 	NewBaseAPICase,
 	NewCasbinRuleCase,
+	NewOrderInventoryCase,
+	NewOrderRefundResultCase,
 	NewBaseCase,
 	oss.NewOSS,
 	gorm.NewGormClient,

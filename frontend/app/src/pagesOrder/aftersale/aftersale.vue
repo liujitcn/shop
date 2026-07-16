@@ -3,7 +3,7 @@ import { computed, ref } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
 import { defOrderService } from '@/api/app/order_info'
 import type { OrderGoods, OrderInfo } from '@/rpc/app/v1/order_info'
-import { OrderInfoStatus, OrderRefundStatus } from '@/rpc/common/v1/enum'
+import { OrderRefundStatus } from '@/rpc/common/v1/enum'
 import { formatPrice, formatSrc } from '@/utils'
 import { orderDetailUrl } from '@/utils/navigation'
 import type { OrderListFilter } from '@/utils/order'
@@ -30,8 +30,7 @@ const tabs: AfterSaleTabItem[] = [
     key: 'apply',
     title: '售后申请',
     filter: {
-      status: OrderInfoStatus.WAIT_SHIPMENT_OIS,
-      refund_status: OrderRefundStatus.NONE_ORS,
+      refundable: true,
     },
   },
   { key: 'record', title: '申请记录', filter: { has_refund: true } },

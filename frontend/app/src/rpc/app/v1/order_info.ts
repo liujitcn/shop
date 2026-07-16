@@ -165,6 +165,10 @@ export interface PageOrderInfoRequest {
   has_refund?:
     | boolean
     | undefined;
+  /** 是否仅查询可申请退款订单 */
+  refundable?:
+    | boolean
+    | undefined;
   /** 当前页码 */
   page_num: number;
   /** 每一页的行数 */

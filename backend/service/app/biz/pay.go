@@ -2,7 +2,6 @@ package biz
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"strconv"
@@ -37,21 +36,20 @@ import (
 	"github.com/wechatpay-apiv3/wechatpay-go/services/payments/jsapi"
 	"google.golang.org/protobuf/encoding/protojson"
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 )
 
 // PayCase 处理商城端支付业务。
 type PayCase struct {
 	*biz.BaseCase
-	tx                   data.Transaction
-	baseThirdAccountRepo *data.BaseThirdAccountRepository
-	orderTradeRepo       *data.OrderTradeRepository
-	orderInfoRepo        *data.OrderInfoRepository
-	orderGoodsRepo       *data.OrderGoodsRepository
-	orderPaymentRepo     *data.OrderPaymentRepository
-	orderRefundRepo      *data.OrderRefundRepository
-	orderSchedulerCase   *OrderSchedulerCase
-	wxPayCase            *wx.WxPayCase
+	tx                    data.Transaction
+	baseThirdAccountRepo  *data.BaseThirdAccountRepository
+	orderTradeRepo        *data.OrderTradeRepository
+	orderInfoRepo         *data.OrderInfoRepository
+	orderGoodsRepo        *data.OrderGoodsRepository
+	orderPaymentRepo      *data.OrderPaymentRepository
+	orderRefundResultCase *biz.OrderRefundResultCase
+	orderSchedulerCase    *OrderSchedulerCase
+	wxPayCase             *wx.WxPayCase
 }
 
 // NewPayCase 创建支付业务处理对象
@@ -63,21 +61,21 @@ func NewPayCase(
 	orderInfoRepo *data.OrderInfoRepository,
 	orderGoodsRepo *data.OrderGoodsRepository,
 	orderPaymentRepo *data.OrderPaymentRepository,
-	orderRefundRepo *data.OrderRefundRepository,
+	orderRefundResultCase *biz.OrderRefundResultCase,
 	orderSchedulerCase *OrderSchedulerCase,
 	wxPayCase *wx.WxPayCase,
 ) *PayCase {
 	return &PayCase{
-		BaseCase:             baseCase,
-		tx:                   tx,
-		baseThirdAccountRepo: baseThirdAccountRepo,
-		orderTradeRepo:       orderTradeRepo,
-		orderInfoRepo:        orderInfoRepo,
-		orderGoodsRepo:       orderGoodsRepo,
-		orderPaymentRepo:     orderPaymentRepo,
-		orderRefundRepo:      orderRefundRepo,
-		orderSchedulerCase:   orderSchedulerCase,
-		wxPayCase:            wxPayCase,
+		BaseCase:              baseCase,
+		tx:                    tx,
+		baseThirdAccountRepo:  baseThirdAccountRepo,
+		orderTradeRepo:        orderTradeRepo,
+		orderInfoRepo:         orderInfoRepo,
+		orderGoodsRepo:        orderGoodsRepo,
+		orderPaymentRepo:      orderPaymentRepo,
+		orderRefundResultCase: orderRefundResultCase,
+		orderSchedulerCase:    orderSchedulerCase,
+		wxPayCase:             wxPayCase,
 	}
 }
 
@@ -119,7 +117,7 @@ func (c *PayCase) JSAPIPay(ctx context.Context, req *appv1.JsapiPayRequest) (*ap
 			MerchantGoodsId: new(fmt.Sprintf("%s_%s", strconv.FormatInt(item.GoodsID, 10), item.SKUCode)),
 			GoodsName:       &item.Name,
 			Quantity:        &item.Num,
-			UnitPrice:       &item.Price,
+			UnitPrice:       &item.PayPrice,
 		})
 	}
 
@@ -241,7 +239,7 @@ func (c *PayCase) H5Pay(ctx context.Context, req *appv1.H5PayRequest) (*appv1.H5
 			MerchantGoodsId: new(fmt.Sprintf("%s_%s", strconv.FormatInt(item.GoodsID, 10), item.SKUCode)),
 			GoodsName:       &item.Name,
 			Quantity:        &item.Num,
-			UnitPrice:       &item.Price,
+			UnitPrice:       &item.PayPrice,
 		})
 	}
 	payTimeout := config.ParsePayTimeout()
@@ -374,22 +372,11 @@ func (c *PayCase) PaySuccess(ctx context.Context, orderTrade *models.OrderTrade,
 	if orderTrade == nil {
 		return errorsx.Internal("支付成功处理失败，交易不存在")
 	}
-	// 查询支付信息
-	var orderPayment *models.OrderPayment
-	orderPaymentQuery := c.orderPaymentRepo.Query(ctx).OrderPayment
-	opts := make([]repository.QueryOption, 0, 1)
-	opts = append(opts, repository.Where(orderPaymentQuery.TradeID.Eq(orderTrade.ID)))
-	var err error
-	orderPayment, err = c.orderPaymentRepo.Find(ctx, opts...)
-	// 支付记录查询失败时，仅对“记录不存在”做初始化回退。
+	err := validatePaymentSuccess(orderTrade, paymentResource)
 	if err != nil {
-		// 支付记录尚未创建时，初始化空实体供后续写入。
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			orderPayment = &models.OrderPayment{}
-		} else {
-			return err
-		}
+		return err
 	}
+	orderPayment := &models.OrderPayment{}
 	successTime := _time.TimestamppbToTime(paymentResource.GetSuccessTime())
 	// 微信回调未携带成功时间时，回退到当前时间写入本地记录。
 	if successTime == nil {
@@ -411,31 +398,33 @@ func (c *PayCase) PaySuccess(ctx context.Context, orderTrade *models.OrderTrade,
 	var orderGoodsList []*models.OrderGoods
 	var shouldReportOrderPay bool
 	err = c.tx.Transaction(ctx, func(ctx context.Context) error {
-		// 添加支付信息
-		if orderPayment.ID == 0 {
-			err = c.orderPaymentRepo.Create(ctx, orderPayment)
-			if err != nil {
-				return err
-			}
-		} else {
-			err = c.orderPaymentRepo.UpdateByID(ctx, orderPayment)
-			if err != nil {
-				return err
-			}
+		// 只有首次从待支付进入已支付，才视为本次通知真正完成支付落账。
+		shouldReportOrderPay, err = c.markTradePaid(ctx, orderTrade.ID, orderTrade.UserID)
+		if err != nil {
+			return err
 		}
-		// 支付成功，修改订单状态
-		if orderPayment.TradeState == appv1.PaymentResource_TradeState(_const.PAYMENT_RESOURCE_TRADE_STATE_SUCCESS).String() {
-			// 只有首次从待支付进入已支付，才视为本次通知真正完成支付落账。
-			shouldReportOrderPay, err = c.markTradePaid(ctx, orderTrade.ID, orderTrade.UserID)
+		query := c.orderPaymentRepo.Query(ctx).OrderPayment
+		// 重复通知需要复用已有支付记录主键，避免再次插入触发交易单唯一索引冲突。
+		if !shouldReportOrderPay {
+			opts := make([]repository.QueryOption, 0, 1)
+			opts = append(opts, repository.Where(query.TradeID.Eq(orderTrade.ID)))
+			var currentPayment *models.OrderPayment
+			currentPayment, err = c.orderPaymentRepo.Find(ctx, opts...)
 			if err != nil {
 				return err
 			}
-			// 首次支付成功时，读取订单商品快照，确保推荐支付行为完全基于后端事实构建。
-			if shouldReportOrderPay {
-				orderGoodsList, err = c.listGoodsByTradeID(ctx, orderTrade.ID)
-				if err != nil {
-					return err
-				}
+			orderPayment.ID = currentPayment.ID
+		}
+		// 支付状态抢占完成后再保存记录，并保证交易与支付事实处于同一事务。
+		err = query.WithContext(ctx).Save(orderPayment)
+		if err != nil {
+			return err
+		}
+		// 首次支付成功时，读取订单商品快照，确保推荐支付行为完全基于后端事实构建。
+		if shouldReportOrderPay {
+			orderGoodsList, err = c.listGoodsByTradeID(ctx, orderTrade.ID)
+			if err != nil {
+				return err
 			}
 		}
 		return nil
@@ -444,9 +433,7 @@ func (c *PayCase) PaySuccess(ctx context.Context, orderTrade *models.OrderTrade,
 		return err
 	}
 	// 支付成功后无论是否重复通知，都尝试清理超时取消任务，避免历史定时任务继续生效。
-	if orderPayment.TradeState == appv1.PaymentResource_TradeState(_const.PAYMENT_RESOURCE_TRADE_STATE_SUCCESS).String() {
-		c.orderSchedulerCase.DeleteScheduled(orderTrade.ID)
-	}
+	c.orderSchedulerCase.DeleteScheduled(orderTrade.ID)
 	// 只有首次支付成功才回写 ORDER_PAY，避免重复通知产生重复推荐事实。
 	if shouldReportOrderPay {
 		c.dispatchRecommendPayEvent(orderTrade.UserID, orderGoodsList, trans.TimeValue(successTime))
@@ -457,125 +444,26 @@ func (c *PayCase) PaySuccess(ctx context.Context, orderTrade *models.OrderTrade,
 
 // RefundSuccess 处理门店订单退款结果。
 func (c *PayCase) RefundSuccess(ctx context.Context, orderTrade *models.OrderTrade, refundResource *appv1.RefundResource) error {
-	// 未找到本地交易时，无法回写退款结果。
-	if orderTrade == nil {
-		return errorsx.Internal("退款结果处理失败，交易不存在")
-	}
-	var orderRefund *models.OrderRefund
-	query := c.orderRefundRepo.Query(ctx).OrderRefund
-	opts := make([]repository.QueryOption, 0, 2)
-	opts = append(opts, repository.Where(query.TradeID.Eq(orderTrade.ID)))
-	opts = append(opts, repository.Where(query.RefundNo.Eq(refundResource.GetOutRefundNo())))
-	var err error
-	orderRefund, err = c.orderRefundRepo.Find(ctx, opts...)
+	applied, err := c.orderRefundResultCase.Apply(ctx, orderTrade, refundResource)
 	if err != nil {
 		return err
 	}
-	orderQuery := c.orderInfoRepo.Query(ctx).OrderInfo
-	orderOpts := make([]repository.QueryOption, 0, 2)
-	orderOpts = append(orderOpts, repository.Where(orderQuery.ID.Eq(orderRefund.OrderID)))
-	orderOpts = append(orderOpts, repository.Where(orderQuery.TradeID.Eq(orderTrade.ID)))
-	var orderInfo *models.OrderInfo
-	orderInfo, err = c.orderInfoRepo.Find(ctx, orderOpts...)
-	if err != nil {
-		return err
+	if applied {
+		workspaceevent.Publish(ctx, workspaceevent.ReasonOrderChanged, workspaceevent.AreaMetrics, workspaceevent.AreaTodo)
 	}
-	successTime := _time.TimestamppbToTime(refundResource.GetSuccessTime())
-	if successTime == nil {
-		successTime = trans.Time(time.Now())
-	}
-	orderRefund.TradeNo = refundResource.GetOutTradeNo()
-	orderRefund.ThirdOrderNo = refundResource.GetTransactionId()
-	orderRefund.ThirdRefundNo = refundResource.GetRefundId()
-	orderRefund.UserReceivedAccount = refundResource.GetUserReceivedAccount()
-	orderRefund.SuccessTime = trans.TimeValue(successTime)
-	orderRefund.RefundState = refundResource.GetRefundStatus().String()
-	orderRefund.Amount = _string.ConvertAnyToJsonString(refundResource.GetAmount())
-	orderRefund.Status = _const.ORDER_BILL_STATUS_NO_CHECK
-
-	err = c.tx.Transaction(ctx, func(ctx context.Context) error {
-		err = c.orderRefundRepo.UpdateByID(ctx, orderRefund)
-		if err != nil {
-			return err
-		}
-		// 按渠道最终结果更新当前门店订单退款状态。
-		switch refundResource.GetRefundStatus() {
-		case appv1.RefundResource_SUCCESS:
-			return c.refreshRefundStatuses(ctx, orderTrade, orderInfo)
-		case appv1.RefundResource_PROCESSING:
-			return c.orderInfoRepo.UpdateByID(ctx, &models.OrderInfo{
-				ID:           orderInfo.ID,
-				RefundStatus: _const.ORDER_REFUND_STATUS_PROCESSING,
-			})
-		case appv1.RefundResource_CLOSED, appv1.RefundResource_ABNORMAL:
-			return c.orderInfoRepo.UpdateByID(ctx, &models.OrderInfo{
-				ID:           orderInfo.ID,
-				RefundStatus: _const.ORDER_REFUND_STATUS_CLOSED_OR_FAILED,
-			})
-		}
-		return nil
-	})
-	if err != nil {
-		return err
-	}
-	workspaceevent.Publish(ctx, workspaceevent.ReasonOrderChanged, workspaceevent.AreaMetrics, workspaceevent.AreaTodo)
 	return nil
 }
 
-// refreshRefundStatuses 汇总成功退款金额并刷新门店订单和交易状态。
-func (c *PayCase) refreshRefundStatuses(ctx context.Context, orderTrade *models.OrderTrade, orderInfo *models.OrderInfo) error {
-	tradeQuery := c.orderTradeRepo.Query(ctx).OrderTrade
-	lockedTrade, err := tradeQuery.WithContext(ctx).
-		Clauses(clause.Locking{Strength: "UPDATE"}).
-		Where(tradeQuery.ID.Eq(orderTrade.ID)).
-		First()
+// FailPendingRefund 将渠道明确不存在的待处理退款关闭，并释放门店订单退款占用。
+func (c *PayCase) FailPendingRefund(ctx context.Context, orderRefund *models.OrderRefund) error {
+	applied, err := c.orderRefundResultCase.FailPending(ctx, orderRefund)
 	if err != nil {
 		return err
 	}
-	query := c.orderRefundRepo.Query(ctx).OrderRefund
-	opts := make([]repository.QueryOption, 0, 1)
-	opts = append(opts, repository.Where(query.TradeID.Eq(orderTrade.ID)))
-	refunds, err := c.orderRefundRepo.List(ctx, opts...)
-	if err != nil {
-		return err
+	if applied {
+		workspaceevent.Publish(ctx, workspaceevent.ReasonOrderChanged, workspaceevent.AreaMetrics, workspaceevent.AreaTodo)
 	}
-	var tradeRefundMoney int64
-	var orderRefundMoney int64
-	for _, refund := range refunds {
-		if refund.RefundState != appv1.RefundResource_SUCCESS.String() {
-			continue
-		}
-		var amount struct {
-			Refund int64 `json:"refund"`
-		}
-		err = json.Unmarshal([]byte(refund.Amount), &amount)
-		if err != nil {
-			return err
-		}
-		tradeRefundMoney += amount.Refund
-		if refund.OrderID == orderInfo.ID {
-			orderRefundMoney += amount.Refund
-		}
-	}
-	orderRefundStatus := _const.ORDER_REFUND_STATUS_PARTIAL_REFUND
-	if orderRefundMoney >= orderInfo.PayMoney {
-		orderRefundStatus = _const.ORDER_REFUND_STATUS_REFUNDED
-	}
-	err = c.orderInfoRepo.UpdateByID(ctx, &models.OrderInfo{
-		ID:           orderInfo.ID,
-		RefundStatus: orderRefundStatus,
-	})
-	if err != nil {
-		return err
-	}
-	tradeStatus := _const.ORDER_TRADE_STATUS_PARTIAL_REFUND
-	if tradeRefundMoney >= lockedTrade.PayMoney {
-		tradeStatus = _const.ORDER_TRADE_STATUS_FULL_REFUND
-	}
-	return c.orderTradeRepo.UpdateByID(ctx, &models.OrderTrade{
-		ID:     orderTrade.ID,
-		Status: tradeStatus,
-	})
+	return nil
 }
 
 // findTradeByTradeNo 根据交易单编号查询交易单。
@@ -696,6 +584,28 @@ func (c *PayCase) listGoodsByTradeID(ctx context.Context, tradeID int64) ([]*mod
 	goodsOpts := make([]repository.QueryOption, 0, 1)
 	goodsOpts = append(goodsOpts, repository.Where(goodsQuery.OrderID.In(orderIDs...)))
 	return c.orderGoodsRepo.List(ctx, goodsOpts...)
+}
+
+// validatePaymentSuccess 校验渠道支付成功结果与本地交易事实一致。
+func validatePaymentSuccess(orderTrade *models.OrderTrade, paymentResource *appv1.PaymentResource) error {
+	if paymentResource.GetTradeState() != appv1.PaymentResource_SUCCESS {
+		return errorsx.StateConflict(
+			"支付结果不是成功状态",
+			"payment_resource",
+			paymentResource.GetTradeState().String(),
+			appv1.PaymentResource_SUCCESS.String(),
+		)
+	}
+	if paymentResource.GetOutTradeNo() != orderTrade.TradeNo {
+		return errorsx.Internal("支付结果交易单号与本地交易不一致")
+	}
+	if paymentResource.GetAmount() == nil {
+		return errorsx.Internal("支付结果缺少金额信息")
+	}
+	if paymentResource.GetAmount().GetTotal() != orderTrade.PayMoney {
+		return errorsx.Internal("支付结果金额与本地交易不一致")
+	}
+	return nil
 }
 
 // dispatchRecommendPayEvent 根据已支付订单商品快照回写推荐支付事件。

@@ -319,6 +319,10 @@ export interface SaveCommentReactionResponse {
 
 /** 待评价商品分页查询条件 */
 export interface PagePendingCommentGoodsRequest {
+  /** 门店订单ID，可为空 */
+  order_id?:
+    | number
+    | undefined;
   /** 当前页码 */
   page_num: number;
   /** 每页数量 */

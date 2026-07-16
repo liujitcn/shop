@@ -217,6 +217,7 @@ func (c *OrderInfoCase) RefundOrderInfo(ctx context.Context, req *appv1.RefundOr
 	if err != nil {
 		return err
 	}
+	var refundResource *appv1.RefundResource
 	// 只有在线支付交易才会走微信退款流程。
 	if commonv1.OrderPayType(orderTrade.PayType) == commonv1.OrderPayType(_const.ORDER_PAY_TYPE_ONLINE_PAY) {
 		// 先把退款原因值翻译成字典标签，便于退款记录展示
@@ -257,62 +258,49 @@ func (c *OrderInfoCase) RefundOrderInfo(ctx context.Context, req *appv1.RefundOr
 							"NONE",
 						)
 					}
-					orderRefund.RefundState = appv1.RefundResource_ABNORMAL.String()
-					stateErr := c.tx.Transaction(ctx, func(ctx context.Context) error {
-						persistErr := c.orderRefundCase.UpdateByID(ctx, orderRefund)
-						if persistErr != nil {
-							return persistErr
-						}
-						return c.OrderInfoRepository.UpdateByID(ctx, &models.OrderInfo{
-							ID:           orderInfo.ID,
-							RefundStatus: _const.ORDER_REFUND_STATUS_CLOSED_OR_FAILED,
-						})
-					})
-					if stateErr != nil {
-						return stateErr
+				}
+				// 网络、超时和微信系统错误无法判断是否受理，必须保留原退款号交给补偿任务查实。
+				if wx.IsRefundCreateResultUncertain(err) {
+					workspaceevent.Publish(ctx, workspaceevent.ReasonOrderChanged, workspaceevent.AreaTodo, workspaceevent.AreaMetrics)
+					return nil
+				}
+				orderRefund.RefundState = appv1.RefundResource_ABNORMAL.String()
+				stateErr := c.tx.Transaction(ctx, func(ctx context.Context) error {
+					persistErr := c.orderRefundCase.UpdateByID(ctx, orderRefund)
+					if persistErr != nil {
+						return persistErr
 					}
+					return c.OrderInfoRepository.UpdateByID(ctx, &models.OrderInfo{
+						ID:           orderInfo.ID,
+						RefundStatus: _const.ORDER_REFUND_STATUS_CLOSED_OR_FAILED,
+					})
+				})
+				if stateErr != nil {
+					return stateErr
 				}
 				return err
 			}
-			orderRefund.TradeNo = trans.StringValue(refund.OutTradeNo)
-			orderRefund.ThirdOrderNo = trans.StringValue(refund.TransactionId)
-			orderRefund.ThirdRefundNo = trans.StringValue(refund.RefundId)
-			orderRefund.Channel = string(*refund.Channel.Ptr())
-			orderRefund.UserReceivedAccount = trans.StringValue(refund.UserReceivedAccount)
-			orderRefund.CreateTime = trans.TimeValue(refund.CreateTime)
-			orderRefund.SuccessTime = trans.TimeValue(refund.SuccessTime)
-			orderRefund.RefundState = string(*refund.Status.Ptr())
-			orderRefund.FundsAccount = string(*refund.FundsAccount)
-			orderRefund.Amount = _string.ConvertAnyToJsonString(refund.Amount)
+			refundResource = wx.ConvertRefundResource(refund)
 		}
 	} else {
-		orderRefund.SuccessTime = time.Now()
-		orderRefund.RefundState = appv1.RefundResource_SUCCESS.String()
-	}
-	err = c.tx.Transaction(ctx, func(ctx context.Context) error {
-		// 更新已预留的退款记录并同步当前门店订单退款进度。
-		err = c.orderRefundCase.UpdateByID(ctx, orderRefund)
-		if err != nil {
-			return err
+		refundResource = &appv1.RefundResource{
+			OutTradeNo:   orderTrade.TradeNo,
+			OutRefundNo:  orderRefund.RefundNo,
+			RefundStatus: appv1.RefundResource_SUCCESS,
+			Amount: &appv1.RefundResource_Amount{
+				Total:       int32(orderTrade.PayMoney),
+				Refund:      int32(refundMoney),
+				PayerTotal:  int32(orderTrade.PayMoney),
+				PayerRefund: int32(refundMoney),
+			},
 		}
-		// 渠道已返回最终结果时直接汇总，否则保留当前门店订单的退款中状态。
-		switch orderRefund.RefundState {
-		case appv1.RefundResource_SUCCESS.String():
-			return c.payCase.refreshRefundStatuses(ctx, orderTrade, orderInfo)
-		case appv1.RefundResource_CLOSED.String(), appv1.RefundResource_ABNORMAL.String():
-			return c.OrderInfoRepository.UpdateByID(ctx, &models.OrderInfo{
-				ID:           orderInfo.ID,
-				RefundStatus: _const.ORDER_REFUND_STATUS_CLOSED_OR_FAILED,
-			})
-		default:
-			return nil
-		}
-	})
-	if err != nil {
-		return err
 	}
-	workspaceevent.Publish(ctx, workspaceevent.ReasonOrderChanged, workspaceevent.AreaTodo, workspaceevent.AreaMetrics)
-	return nil
+	// 渠道返回体缺少有效状态时结果仍不确定，保留处理中等待补偿查询。
+	if refundResource == nil || refundResource.GetRefundStatus() == appv1.RefundResource_REFUND_STATUS_UNSPECIFIED {
+		workspaceevent.Publish(ctx, workspaceevent.ReasonOrderChanged, workspaceevent.AreaTodo, workspaceevent.AreaMetrics)
+		return nil
+	}
+	return c.payCase.RefundSuccess(ctx, orderTrade, refundResource)
 }
 
 // recoverCompletedOrderRefund 用此前已创建的退款号恢复微信已全额退款的本地状态。
@@ -561,21 +549,26 @@ func (c *OrderInfoCase) PageOrderInfo(ctx context.Context, req *appv1.PageOrderI
 	if err != nil {
 		return nil, err
 	}
+	pageNum, pageSize := repository.PageDefault(int64(req.GetPageNum()), int64(req.GetPageSize()))
+	// 两类记录各取合并目标页之前的候选，保证结果准确且不随用户全部订单量增长。
+	fetchSize := pageNum * pageSize
 	tradeStatus := req.GetTradeStatus()
 	orderStatus := req.GetStatus()
 	refundStatus := req.GetRefundStatus()
+	refundableOnly := req.Refundable != nil && req.GetRefundable()
 	noStatusFilter := tradeStatus == commonv1.OrderTradeStatus_UNKNOWN_OTS &&
 		orderStatus == commonv1.OrderInfoStatus_UNKNOWN_OIS &&
-		refundStatus == commonv1.OrderRefundStatus_UNKNOWN_ORS && req.HasRefund == nil
+		refundStatus == commonv1.OrderRefundStatus_UNKNOWN_ORS && req.HasRefund == nil && !refundableOnly
 	aggregateTradeStatus := tradeStatus == commonv1.OrderTradeStatus_PENDING_PAYMENT_OTS ||
 		tradeStatus == commonv1.OrderTradeStatus_PAYING_OTS ||
 		tradeStatus == commonv1.OrderTradeStatus_CLOSED_OTS
 
 	var trades []*models.OrderTrade
+	var tradeTotal int64
 	// 待支付、支付中和已关闭按交易聚合展示，取消履约筛选同样映射到已关闭交易。
 	if noStatusFilter || aggregateTradeStatus || orderStatus == commonv1.OrderInfoStatus_CANCELED_OIS {
 		query := c.orderTradeCase.Query(ctx).OrderTrade
-		opts := make([]repository.QueryOption, 0, 2)
+		opts := make([]repository.QueryOption, 0, 3)
 		opts = append(opts, repository.Where(query.UserID.Eq(authInfo.UserId)))
 		if aggregateTradeStatus {
 			// “待支付”标签同时覆盖尚未发起支付和已经获取预支付参数的交易。
@@ -596,43 +589,30 @@ func (c *OrderInfoCase) PageOrderInfo(ctx context.Context, req *appv1.PageOrderI
 				_const.ORDER_TRADE_STATUS_CLOSED,
 			)))
 		}
-		trades, err = c.orderTradeCase.List(ctx, opts...)
+		opts = append(opts, repository.Order(query.CreatedAt.Desc(), query.ID.Desc()))
+		trades, tradeTotal, err = c.orderTradeCase.Page(ctx, 1, fetchSize, opts...)
 		if err != nil {
 			return nil, err
 		}
 	}
 
 	childTradeStatus := tradeStatus != commonv1.OrderTradeStatus_UNKNOWN_OTS && !aggregateTradeStatus
-	childTradeIDs := make([]int64, 0)
-	if childTradeStatus {
-		query := c.orderTradeCase.Query(ctx).OrderTrade
-		opts := make([]repository.QueryOption, 0, 2)
-		opts = append(opts, repository.Where(query.UserID.Eq(authInfo.UserId)))
-		opts = append(opts, repository.Where(query.Status.Eq(int32(tradeStatus))))
-		var childTrades []*models.OrderTrade
-		childTrades, err = c.orderTradeCase.List(ctx, opts...)
-		if err != nil {
-			return nil, err
-		}
-		for _, trade := range childTrades {
-			childTradeIDs = append(childTradeIDs, trade.ID)
-		}
-	}
-
 	var orderInfos []*models.OrderInfo
+	var orderTotal int64
 	queryChildOrders := noStatusFilter || childTradeStatus ||
 		(orderStatus != commonv1.OrderInfoStatus_UNKNOWN_OIS && orderStatus != commonv1.OrderInfoStatus_CANCELED_OIS) ||
-		refundStatus != commonv1.OrderRefundStatus_UNKNOWN_ORS || req.HasRefund != nil
-	// 已支付类交易状态无匹配交易时，不能退化成查询用户的全部门店订单。
-	if childTradeStatus && len(childTradeIDs) == 0 {
-		queryChildOrders = false
-	}
+		refundStatus != commonv1.OrderRefundStatus_UNKNOWN_ORS || req.HasRefund != nil || refundableOnly
 	if queryChildOrders {
 		query := c.Query(ctx).OrderInfo
-		opts := make([]repository.QueryOption, 0, 4)
+		opts := make([]repository.QueryOption, 0, 8)
 		opts = append(opts, repository.Where(query.UserID.Eq(authInfo.UserId)))
 		if childTradeStatus {
-			opts = append(opts, repository.Where(query.TradeID.In(childTradeIDs...)))
+			// 交易支付状态属于 order_trade，使用类型化连接直接筛选，避免先加载全部交易编号。
+			tradeQuery := c.orderTradeCase.Query(ctx).OrderTrade
+			opts = append(opts, repository.Join(tradeQuery, query.TradeID.EqCol(tradeQuery.ID)))
+			opts = append(opts, repository.Where(tradeQuery.UserID.Eq(authInfo.UserId)))
+			opts = append(opts, repository.Where(tradeQuery.Status.Eq(int32(tradeStatus))))
+			opts = append(opts, repository.Where(tradeQuery.DeletedAt.IsNull()))
 		}
 		if orderStatus != commonv1.OrderInfoStatus_UNKNOWN_OIS {
 			opts = append(opts, repository.Where(query.Status.Eq(int32(orderStatus))))
@@ -653,7 +633,17 @@ func (c *OrderInfoCase) PageOrderInfo(ctx context.Context, req *appv1.PageOrderI
 				opts = append(opts, repository.Where(query.RefundStatus.Eq(_const.ORDER_REFUND_STATUS_NONE)))
 			}
 		}
-		orderInfos, err = c.List(ctx, opts...)
+		if refundableOnly {
+			// 可申请退款订单必须尚未发货，且当前没有进行中的退款或全额退款。
+			opts = append(opts, repository.Where(query.Status.Eq(_const.ORDER_INFO_STATUS_WAIT_SHIPMENT)))
+			opts = append(opts, repository.Where(query.RefundStatus.In(
+				_const.ORDER_REFUND_STATUS_NONE,
+				_const.ORDER_REFUND_STATUS_PARTIAL_REFUND,
+				_const.ORDER_REFUND_STATUS_CLOSED_OR_FAILED,
+			)))
+		}
+		opts = append(opts, repository.Order(query.CreatedAt.Desc(), query.ID.Desc()))
+		orderInfos, orderTotal, err = c.Page(ctx, 1, fetchSize, opts...)
 		if err != nil {
 			return nil, err
 		}
@@ -674,9 +664,10 @@ func (c *OrderInfoCase) PageOrderInfo(ctx context.Context, req *appv1.PageOrderI
 		query := c.orderTradeCase.Query(ctx).OrderTrade
 		opts := make([]repository.QueryOption, 0, 1)
 		opts = append(opts, repository.Where(query.ID.In(tradeIDs...)))
-		allTrades, listErr := c.orderTradeCase.List(ctx, opts...)
-		if listErr != nil {
-			return nil, listErr
+		var allTrades []*models.OrderTrade
+		allTrades, err = c.orderTradeCase.List(ctx, opts...)
+		if err != nil {
+			return nil, err
 		}
 		for _, trade := range allTrades {
 			tradeMap[trade.ID] = trade
@@ -688,9 +679,10 @@ func (c *OrderInfoCase) PageOrderInfo(ctx context.Context, req *appv1.PageOrderI
 		query := c.Query(ctx).OrderInfo
 		opts := make([]repository.QueryOption, 0, 1)
 		opts = append(opts, repository.Where(query.TradeID.In(tradeIDs...)))
-		tradeOrderInfos, listErr := c.List(ctx, opts...)
-		if listErr != nil {
-			return nil, listErr
+		var tradeOrderInfos []*models.OrderInfo
+		tradeOrderInfos, err = c.List(ctx, opts...)
+		if err != nil {
+			return nil, err
 		}
 		allOrderInfos = append(allOrderInfos, tradeOrderInfos...)
 	}
@@ -731,31 +723,30 @@ func (c *OrderInfoCase) PageOrderInfo(ctx context.Context, req *appv1.PageOrderI
 		}
 		items = append(items, &appDto.OrderPageItem{OrderInfo: protoOrder, CreatedAt: trade.CreatedAt})
 	}
-	sort.Slice(items, func(i, j int) bool {
+	return &appv1.PageOrderInfoResponse{
+		OrderInfos: pageOrderItems(items, pageNum, pageSize),
+		Total:      int32(tradeTotal + orderTotal),
+	}, nil
+}
+
+// pageOrderItems 将交易聚合记录和门店订单按创建时间合并后截取目标页。
+func pageOrderItems(items []*appDto.OrderPageItem, pageNum, pageSize int64) []*appv1.OrderInfo {
+	sort.SliceStable(items, func(i, j int) bool {
+		if items[i].CreatedAt.Equal(items[j].CreatedAt) {
+			return items[i].OrderInfo.GetId() > items[j].OrderInfo.GetId()
+		}
 		return items[i].CreatedAt.After(items[j].CreatedAt)
 	})
-	total := len(items)
-	pageNum := req.GetPageNum()
-	if pageNum <= 0 {
-		pageNum = 1
+	start := (pageNum - 1) * pageSize
+	if start > int64(len(items)) {
+		start = int64(len(items))
 	}
-	pageSize := req.GetPageSize()
-	if pageSize <= 0 {
-		pageSize = 10
-	}
-	start := int((pageNum - 1) * pageSize)
-	if start > total {
-		start = total
-	}
-	end := start + int(pageSize)
-	if end > total {
-		end = total
-	}
+	end := min(start+pageSize, int64(len(items)))
 	list := make([]*appv1.OrderInfo, 0, end-start)
 	for _, item := range items[start:end] {
 		list = append(list, item.OrderInfo)
 	}
-	return &appv1.PageOrderInfoResponse{OrderInfos: list, Total: int32(total)}, nil
+	return list
 }
 
 // GetOrderInfoIDByOrderNo 按订单号查询订单编号
@@ -1564,45 +1555,51 @@ func (c *OrderInfoCase) cancelOrder(ctx context.Context, userID int64, req *appv
 		var paymentResource *appv1.PaymentResource
 		paymentResource, err = c.wxPayCase.QueryOrderByOutTradeNo(orderTrade.TradeNo)
 		if err != nil {
-			return err
-		}
-		// 微信侧已确认支付成功或已经进入退款时，拒绝取消交易。
-		if paymentResource.GetTradeState() == appv1.PaymentResource_SUCCESS ||
-			paymentResource.GetTradeState() == appv1.PaymentResource_REFUND {
-			// 支付成功但本地尚未落账时，先同步支付结果。
-			if paymentResource.GetTradeState() == appv1.PaymentResource_SUCCESS {
-				err = c.payCase.PaySuccess(ctx, orderTrade, paymentResource)
-				if err != nil {
-					return err
-				}
+			// 尚未成功创建微信预支付单时，远端没有可关闭资源，允许继续取消本地交易。
+			if !wx.IsPayOrderNotExist(err) {
+				return err
 			}
-			return errorsx.StateConflict(
-				"交易已支付，无法取消",
-				"order_trade",
-				paymentResource.GetTradeState().String(),
-				appv1.PaymentResource_NOTPAY.String(),
-			)
+			paymentResource = nil
 		}
-		// 尚未关闭的微信支付单必须先关单，关单成功后才允许回退本地库存。
-		if paymentResource.GetTradeState() != appv1.PaymentResource_CLOSED &&
-			paymentResource.GetTradeState() != appv1.PaymentResource_REVOKED {
-			closeErr := c.wxPayCase.CloseOrderByOutTradeNo(orderTrade.TradeNo)
-			if closeErr != nil {
-				// 关单与支付并发时重新查询，若已支付则同步本地状态并拒绝取消。
-				paymentResource, err = c.wxPayCase.QueryOrderByOutTradeNo(orderTrade.TradeNo)
-				if err == nil && paymentResource.GetTradeState() == appv1.PaymentResource_SUCCESS {
+		if paymentResource != nil {
+			// 微信侧已确认支付成功或已经进入退款时，拒绝取消交易。
+			if paymentResource.GetTradeState() == appv1.PaymentResource_SUCCESS ||
+				paymentResource.GetTradeState() == appv1.PaymentResource_REFUND {
+				// 支付成功但本地尚未落账时，先同步支付结果。
+				if paymentResource.GetTradeState() == appv1.PaymentResource_SUCCESS {
 					err = c.payCase.PaySuccess(ctx, orderTrade, paymentResource)
 					if err != nil {
 						return err
 					}
-					return errorsx.StateConflict(
-						"交易已支付，无法取消",
-						"order_trade",
-						appv1.PaymentResource_SUCCESS.String(),
-						appv1.PaymentResource_NOTPAY.String(),
-					)
 				}
-				return closeErr
+				return errorsx.StateConflict(
+					"交易已支付，无法取消",
+					"order_trade",
+					paymentResource.GetTradeState().String(),
+					appv1.PaymentResource_NOTPAY.String(),
+				)
+			}
+			// 尚未关闭的微信支付单必须先关单，关单成功后才允许回退本地库存。
+			if paymentResource.GetTradeState() != appv1.PaymentResource_CLOSED &&
+				paymentResource.GetTradeState() != appv1.PaymentResource_REVOKED {
+				closeErr := c.wxPayCase.CloseOrderByOutTradeNo(orderTrade.TradeNo)
+				if closeErr != nil {
+					// 关单与支付并发时重新查询，若已支付则同步本地状态并拒绝取消。
+					paymentResource, err = c.wxPayCase.QueryOrderByOutTradeNo(orderTrade.TradeNo)
+					if err == nil && paymentResource.GetTradeState() == appv1.PaymentResource_SUCCESS {
+						err = c.payCase.PaySuccess(ctx, orderTrade, paymentResource)
+						if err != nil {
+							return err
+						}
+						return errorsx.StateConflict(
+							"交易已支付，无法取消",
+							"order_trade",
+							appv1.PaymentResource_SUCCESS.String(),
+							appv1.PaymentResource_NOTPAY.String(),
+						)
+					}
+					return closeErr
+				}
 			}
 		}
 	}

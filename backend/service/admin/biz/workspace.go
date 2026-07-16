@@ -9,7 +9,6 @@ import (
 
 	adminv1 "shop/api/gen/go/admin/v1"
 	commonv1 "shop/api/gen/go/common/v1"
-	orderUtils "shop/pkg/utils"
 	"shop/service/admin/utils"
 
 	"github.com/liujitcn/gorm-kit/repository"
@@ -77,26 +76,31 @@ func (c *WorkspaceCase) SummaryWorkspaceMetrics(ctx context.Context, req *adminv
 	prevStartAt := startAt.AddDate(0, 0, -1)
 	prevEndAt := startAt
 
-	todayOrderCount, err := c.countOrderCount(ctx, req.GetTenantId(), req.GetTenantStoreId(), startAt, endAt)
+	useGlobalTradeScope, err := c.orderInfoCase.useGlobalOrderTradeScope(ctx, req.GetTenantId(), req.GetTenantStoreId())
+	if err != nil {
+		return nil, err
+	}
+	var todayOrderCount int64
+	todayOrderCount, err = c.countOrderCount(ctx, req.GetTenantId(), req.GetTenantStoreId(), startAt, endAt, useGlobalTradeScope)
 	if err != nil {
 		return nil, err
 	}
 
 	var prevOrderCount int64
-	prevOrderCount, err = c.countOrderCount(ctx, req.GetTenantId(), req.GetTenantStoreId(), prevStartAt, prevEndAt)
+	prevOrderCount, err = c.countOrderCount(ctx, req.GetTenantId(), req.GetTenantStoreId(), prevStartAt, prevEndAt, useGlobalTradeScope)
 	if err != nil {
 		return nil, err
 	}
 
 	var paidOrderCount int64
 	var todaySaleAmount int64
-	paidOrderCount, todaySaleAmount, err = c.countPaidOrderSummary(ctx, req.GetTenantId(), req.GetTenantStoreId(), startAt, endAt)
+	paidOrderCount, todaySaleAmount, err = c.countPaidOrderSummary(ctx, req.GetTenantId(), req.GetTenantStoreId(), startAt, endAt, useGlobalTradeScope)
 	if err != nil {
 		return nil, err
 	}
 
 	var prevSaleAmount int64
-	_, prevSaleAmount, err = c.countPaidOrderSummary(ctx, req.GetTenantId(), req.GetTenantStoreId(), prevStartAt, prevEndAt)
+	_, prevSaleAmount, err = c.countPaidOrderSummary(ctx, req.GetTenantId(), req.GetTenantStoreId(), prevStartAt, prevEndAt, useGlobalTradeScope)
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +112,7 @@ func (c *WorkspaceCase) SummaryWorkspaceMetrics(ctx context.Context, req *adminv
 	}
 
 	var repurchaseUserCount int64
-	repurchaseUserCount, err = c.countRepurchaseUsers(ctx, req.GetTenantId(), req.GetTenantStoreId(), startAt, endAt)
+	repurchaseUserCount, err = c.countRepurchaseUsers(ctx, req.GetTenantId(), req.GetTenantStoreId(), startAt, endAt, useGlobalTradeScope)
 	if err != nil {
 		return nil, err
 	}
@@ -169,7 +173,12 @@ func (c *WorkspaceCase) SummaryWorkspaceMetrics(ctx context.Context, req *adminv
 
 // SummaryWorkspaceTodo 查询工作台待处理事项。
 func (c *WorkspaceCase) SummaryWorkspaceTodo(ctx context.Context, req *adminv1.SummaryWorkspaceTodoRequest) (*adminv1.SummaryWorkspaceTodoResponse, error) {
-	pendingPayOrderCount, err := c.countPendingPayOrders(ctx, req.GetTenantId(), req.GetTenantStoreId())
+	useGlobalTradeScope, err := c.orderInfoCase.useGlobalOrderTradeScope(ctx, req.GetTenantId(), req.GetTenantStoreId())
+	if err != nil {
+		return nil, err
+	}
+	var pendingPayOrderCount int64
+	pendingPayOrderCount, err = c.countPendingPayOrders(ctx, req.GetTenantId(), req.GetTenantStoreId(), useGlobalTradeScope)
 	if err != nil {
 		return nil, err
 	}
@@ -363,36 +372,17 @@ func (c *WorkspaceCase) countDistinctOrderUsers(ctx context.Context, tenantID, t
 }
 
 // countRepurchaseUsers 统计时间范围内复购用户数。
-func (c *WorkspaceCase) countRepurchaseUsers(ctx context.Context, tenantID, tenantStoreID int64, startAt, endAt time.Time) (int64, error) {
-	query := c.orderInfoCase.Query(ctx).OrderInfo
-	opts := make([]repository.QueryOption, 0, 4)
-	opts = append(opts, repository.Where(query.CreatedAt.Gte(startAt)))
-	opts = append(opts, repository.Where(query.CreatedAt.Lt(endAt)))
-	if tenantID > 0 {
-		opts = append(opts, repository.Where(query.TenantID.Eq(tenantID)))
-	}
-	if tenantStoreID > 0 {
-		opts = append(opts, repository.Where(query.TenantStoreID.Eq(tenantStoreID)))
-	}
-	orderInfos, err := c.orderInfoCase.List(ctx, opts...)
-	if err != nil {
-		return 0, err
-	}
-	tradeMap, err := c.orderInfoCase.getOrderTradeMap(ctx, orderInfos)
+func (c *WorkspaceCase) countRepurchaseUsers(ctx context.Context, tenantID, tenantStoreID int64, startAt, endAt time.Time, useGlobalTradeScope bool) (int64, error) {
+	paidFacts, err := c.orderInfoCase.queryPaidOrderFacts(ctx, 0, 0, tenantID, tenantStoreID, startAt, endAt, useGlobalTradeScope)
 	if err != nil {
 		return 0, err
 	}
 	userTrades := make(map[int64]map[int64]struct{})
-	for _, orderInfo := range orderInfos {
-		orderTrade := tradeMap[orderInfo.TradeID]
-		// 复购只统计已经形成支付事实的交易，待支付或已关闭交易不参与计算。
-		if orderTrade == nil || !orderUtils.IsPaidTradeStatus(orderTrade.Status) {
-			continue
+	for _, fact := range paidFacts {
+		if userTrades[fact.UserID] == nil {
+			userTrades[fact.UserID] = make(map[int64]struct{})
 		}
-		if userTrades[orderInfo.UserID] == nil {
-			userTrades[orderInfo.UserID] = make(map[int64]struct{})
-		}
-		userTrades[orderInfo.UserID][orderInfo.TradeID] = struct{}{}
+		userTrades[fact.UserID][fact.TradeID] = struct{}{}
 	}
 	var count int64
 	for _, tradeSet := range userTrades {
@@ -477,8 +467,18 @@ func (c *WorkspaceCase) countNewGoods(ctx context.Context, tenantID, tenantStore
 	return count, err
 }
 
-// countOrderCount 统计时间范围内订单数。
-func (c *WorkspaceCase) countOrderCount(ctx context.Context, tenantID, tenantStoreID int64, startAt, endAt time.Time) (int64, error) {
+// countOrderCount 按当前订单口径统计时间范围内订单数。
+func (c *WorkspaceCase) countOrderCount(ctx context.Context, tenantID, tenantStoreID int64, startAt, endAt time.Time, useGlobalTradeScope bool) (int64, error) {
+	// 默认租户全局视角直接统计交易单，避免多门店子单重复。
+	if useGlobalTradeScope {
+		query := c.orderInfoCase.orderTradeRepo.Query(ctx).OrderTrade
+		return query.WithContext(ctx).
+			Where(
+				query.CreatedAt.Gte(startAt),
+				query.CreatedAt.Lt(endAt),
+			).
+			Count()
+	}
 	query := c.orderInfoCase.Query(ctx).OrderInfo
 	dao := query.WithContext(ctx).
 		Where(
@@ -495,57 +495,30 @@ func (c *WorkspaceCase) countOrderCount(ctx context.Context, tenantID, tenantSto
 	return count, err
 }
 
-// countPaidOrderSummary 统计时间范围内已支付订单数与成交额。
-func (c *WorkspaceCase) countPaidOrderSummary(ctx context.Context, tenantID, tenantStoreID int64, startAt, endAt time.Time) (int64, int64, error) {
-	type row struct {
-		OrderCount int64 `gorm:"column:order_count"`
-		SaleAmount int64 `gorm:"column:sale_amount"`
+// countPaidOrderSummary 按当前订单口径统计时间范围内已支付订单数与成交额。
+func (c *WorkspaceCase) countPaidOrderSummary(ctx context.Context, tenantID, tenantStoreID int64, startAt, endAt time.Time, useGlobalTradeScope bool) (int64, int64, error) {
+	paidFacts, err := c.orderInfoCase.queryPaidOrderFacts(ctx, 0, 0, tenantID, tenantStoreID, startAt, endAt, useGlobalTradeScope)
+	if err != nil {
+		return 0, 0, err
 	}
-
-	var result row
-	query := c.orderInfoCase.Query(ctx).OrderInfo
-	tradeQuery := c.orderInfoCase.orderTradeRepo.Query(ctx).OrderTrade
-	dao := query.WithContext(ctx).
-		Select(
-			query.ID.Count().As("order_count"),
-			query.PayMoney.Sum().FloorDiv(1).IfNull(0).As("sale_amount"),
-		).
-		Where(
-			query.CreatedAt.Gte(startAt),
-			query.CreatedAt.Lt(endAt),
-		).
-		Join(tradeQuery, query.TradeID.EqCol(tradeQuery.ID)).
-		Where(tradeQuery.Status.In(orderUtils.PaidTradeStatuses()...))
-	if tenantID > 0 {
-		dao = dao.Where(query.TenantID.Eq(tenantID))
+	var saleAmount int64
+	for _, fact := range paidFacts {
+		saleAmount += fact.PayMoney
 	}
-	if tenantStoreID > 0 {
-		dao = dao.Where(query.TenantStoreID.Eq(tenantStoreID))
-	}
-	err := dao.Scan(&result)
-	return result.OrderCount, result.SaleAmount, err
+	return int64(len(paidFacts)), saleAmount, nil
 }
 
 // listPaidOrderIDs 查询时间范围内支付成功口径订单编号。
 func (c *WorkspaceCase) listPaidOrderIDs(ctx context.Context, tenantID, tenantStoreID int64, startAt, endAt time.Time) ([]int64, error) {
-	query := c.orderInfoCase.Query(ctx).OrderInfo
-	tradeQuery := c.orderInfoCase.orderTradeRepo.Query(ctx).OrderTrade
-	orderIDs := make([]int64, 0)
-	dao := query.WithContext(ctx).
-		Where(
-			query.CreatedAt.Gte(startAt),
-			query.CreatedAt.Lt(endAt),
-		).
-		Join(tradeQuery, query.TradeID.EqCol(tradeQuery.ID)).
-		Where(tradeQuery.Status.In(orderUtils.PaidTradeStatuses()...))
-	if tenantID > 0 {
-		dao = dao.Where(query.TenantID.Eq(tenantID))
+	paidFacts, err := c.orderInfoCase.queryPaidOrderFacts(ctx, 0, 0, tenantID, tenantStoreID, startAt, endAt, false)
+	if err != nil {
+		return nil, err
 	}
-	if tenantStoreID > 0 {
-		dao = dao.Where(query.TenantStoreID.Eq(tenantStoreID))
+	orderIDs := make([]int64, 0, len(paidFacts))
+	for _, fact := range paidFacts {
+		orderIDs = append(orderIDs, fact.OrderID)
 	}
-	err := dao.Pluck(query.ID, &orderIDs)
-	return orderIDs, err
+	return orderIDs, nil
 }
 
 // countCommentCount 统计时间范围内评价数。
@@ -596,8 +569,18 @@ func (c *WorkspaceCase) calcAverageCommentScore(ctx context.Context, tenantID, t
 	return total * 10 / int64(len(scores)), nil
 }
 
-// countPendingPayOrders 统计未进入履约的门店订单数量。
-func (c *WorkspaceCase) countPendingPayOrders(ctx context.Context, tenantID, tenantStoreID int64) (int64, error) {
+// countPendingPayOrders 按当前订单口径统计待支付订单数量。
+func (c *WorkspaceCase) countPendingPayOrders(ctx context.Context, tenantID, tenantStoreID int64, useGlobalTradeScope bool) (int64, error) {
+	// 默认租户全局视角按待支付与支付中交易单统计，避免多门店子单重复。
+	if useGlobalTradeScope {
+		query := c.orderInfoCase.orderTradeRepo.Query(ctx).OrderTrade
+		return query.WithContext(ctx).
+			Where(query.Status.In(
+				_const.ORDER_TRADE_STATUS_PENDING_PAYMENT,
+				_const.ORDER_TRADE_STATUS_PAYING,
+			)).
+			Count()
+	}
 	return c.countOrderInfoStatus(ctx, tenantID, tenantStoreID, _const.ORDER_INFO_STATUS_NOT_STARTED)
 }
 

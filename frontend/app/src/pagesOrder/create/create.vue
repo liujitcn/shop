@@ -9,6 +9,7 @@ import type {
   BuyNowOrderInfoResponse,
   RepurchaseOrderInfoResponse,
   CreateOrderInfoGoods,
+  CreateOrderInfoResponse,
 } from '@/rpc/app/v1/order_info'
 import type { BaseDictForm_DictItem } from '@/rpc/app/v1/base_dict'
 import type { RecommendContext } from '@/rpc/app/v1/recommend'
@@ -27,9 +28,11 @@ import {
   redirectToOrderPayment,
   tenantStoreUrl,
 } from '@/utils/navigation'
+import { startOrderPayment } from '@/utils/payment'
 
 const addressStore = useAddressStore()
 const userStore = useUserStore()
+const isSubmitting = ref(false)
 
 // 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync()
@@ -187,6 +190,9 @@ const selectAddress = computed(() => {
 
 // 提交订单
 const onOrderSubmit = async () => {
+  if (isSubmitting.value) {
+    return
+  }
   if (!userStore.ensureAuthenticated()) {
     navigateToLogin()
     return
@@ -225,24 +231,36 @@ const onOrderSubmit = async () => {
   const requestGoods = orderGoodsStores
     .flatMap((store) => store.goods)
     .map((item) => buildOrderRequestGoods(item))
-  // 发送请求
-  const res = await defOrderService.CreateOrderInfo({
-    /** 地址id */
-    address_id: selectAddress.value!.id,
-    /** 是否清空购物车 */
-    clear_cart: orderPre.value?.clear_cart || false,
-    /** 支付方式：枚举【OrderPayType】 */
-    pay_type: Number(activePayType.value.value),
-    /** 支付渠道：枚举【OrderPayChannel】 */
-    pay_channel: Number(activePayChannel.value?.value || 0),
-    /** 每个门店独立的配送时间和备注 */
-    order_store_options: orderStoreOptions,
-    /** 商品信息 */
-    goods: requestGoods,
-  })
-  // 创建成功后所有入口都使用交易单编号进入聚合支付流程。
+  isSubmitting.value = true
+  let res: CreateOrderInfoResponse
+  try {
+    res = await defOrderService.CreateOrderInfo({
+      /** 地址id */
+      address_id: selectAddress.value!.id,
+      /** 是否清空购物车 */
+      clear_cart: orderPre.value?.clear_cart || false,
+      /** 支付方式：枚举【OrderPayType】 */
+      pay_type: Number(activePayType.value.value),
+      /** 支付渠道：枚举【OrderPayChannel】 */
+      pay_channel: Number(activePayChannel.value?.value || 0),
+      /** 每个门店独立的配送时间和备注 */
+      order_store_options: orderStoreOptions,
+      /** 商品信息 */
+      goods: requestGoods,
+    })
+  } catch (error) {
+    // 只有交易尚未创建时才释放提交锁，允许用户修正或重试下单。
+    isSubmitting.value = false
+    throw error
+  }
+  // 在线订单创建成功后立即使用交易单编号调起支付，支付结果页只负责查询真实状态。
   if (Number(activePayType.value.value) === OrderPayType.ONLINE_PAY) {
-    redirectToOrderPayment(res.trade_id)
+    try {
+      await startOrderPayment(res.trade_id)
+    } catch {
+      // 交易已经创建，预支付失败时也进入结果页，避免重复下单。
+      await redirectToOrderPayment(res.trade_id)
+    }
   } else {
     uni.redirectTo({ url: orderDetailUrl({ trade_id: res.trade_id }) })
   }
@@ -250,6 +268,9 @@ const onOrderSubmit = async () => {
 
 // 计算提交按钮是否应置灰
 const onOrderSubmitOk = computed(() => {
+  if (isSubmitting.value) {
+    return true
+  }
   if (!selectAddress.value?.id) {
     return true
   }

@@ -11,7 +11,6 @@ import (
 
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
-	"shop/pkg/utils"
 
 	"github.com/go-kratos/kratos/v3/log"
 	"github.com/liujitcn/gorm-kit/repository"
@@ -36,7 +35,9 @@ type OrderStatDay struct {
 	tx               data.Transaction
 	orderStatDayRepo *data.OrderStatDayRepository
 	orderInfoRepo    *data.OrderInfoRepository
+	orderCancelRepo  *data.OrderCancelRepository
 	orderTradeRepo   *data.OrderTradeRepository
+	orderPaymentRepo *data.OrderPaymentRepository
 	orderRefundRepo  *data.OrderRefundRepository
 	ctx              context.Context
 }
@@ -46,14 +47,18 @@ func NewOrderStatDay(
 	tx data.Transaction,
 	orderStatDayRepo *data.OrderStatDayRepository,
 	orderInfoRepo *data.OrderInfoRepository,
+	orderCancelRepo *data.OrderCancelRepository,
 	orderTradeRepo *data.OrderTradeRepository,
+	orderPaymentRepo *data.OrderPaymentRepository,
 	orderRefundRepo *data.OrderRefundRepository,
 ) *OrderStatDay {
 	return &OrderStatDay{
 		tx:               tx,
 		orderStatDayRepo: orderStatDayRepo,
 		orderInfoRepo:    orderInfoRepo,
+		orderCancelRepo:  orderCancelRepo,
 		orderTradeRepo:   orderTradeRepo,
+		orderPaymentRepo: orderPaymentRepo,
 		orderRefundRepo:  orderRefundRepo,
 		ctx:              context.Background(),
 	}
@@ -81,16 +86,50 @@ func (t *OrderStatDay) Exec(args map[string]string) ([]string, error) {
 			return err
 		}
 
-		orderQuery := t.orderInfoRepo.Query(ctx).OrderInfo
-		opts := make([]repository.QueryOption, 0, 2)
-		opts = append(opts, repository.Where(orderQuery.CreatedAt.Gte(startAt)))
-		opts = append(opts, repository.Where(orderQuery.CreatedAt.Lt(endAt)))
-		var orderInfoList []*models.OrderInfo
-		orderInfoList, err = t.orderInfoRepo.List(ctx, opts...)
+		cancelQuery := t.orderCancelRepo.Query(ctx).OrderCancel
+		cancelOpts := make([]repository.QueryOption, 0, 2)
+		cancelOpts = append(cancelOpts, repository.Where(cancelQuery.CreatedAt.Gte(startAt)))
+		cancelOpts = append(cancelOpts, repository.Where(cancelQuery.CreatedAt.Lt(endAt)))
+		var orderCancels []*models.OrderCancel
+		orderCancels, err = t.orderCancelRepo.List(ctx, cancelOpts...)
 		if err != nil {
 			return err
 		}
-		result.orderCount = len(orderInfoList)
+		cancelTradeIDs := make([]int64, 0, len(orderCancels))
+		for _, orderCancel := range orderCancels {
+			cancelTradeIDs = append(cancelTradeIDs, orderCancel.TradeID)
+		}
+
+		orderQuery := t.orderInfoRepo.Query(ctx).OrderInfo
+		var canceledOrderInfoList []*models.OrderInfo
+		if len(cancelTradeIDs) > 0 {
+			canceledOrderOpts := make([]repository.QueryOption, 0, 2)
+			canceledOrderOpts = append(canceledOrderOpts, repository.Where(orderQuery.TradeID.In(cancelTradeIDs...)))
+			canceledOrderOpts = append(canceledOrderOpts, repository.Where(orderQuery.Status.Eq(_const.ORDER_INFO_STATUS_CANCELED)))
+			canceledOrderInfoList, err = t.orderInfoRepo.List(ctx, canceledOrderOpts...)
+			if err != nil {
+				return err
+			}
+		}
+
+		paidTradeMap, err := listPaidTradesByFactTime(ctx, startAt, endAt, t.orderTradeRepo, t.orderPaymentRepo)
+		if err != nil {
+			return err
+		}
+		paidTradeIDs := make([]int64, 0, len(paidTradeMap))
+		for tradeID := range paidTradeMap {
+			paidTradeIDs = append(paidTradeIDs, tradeID)
+		}
+		var paidOrderInfoList []*models.OrderInfo
+		if len(paidTradeIDs) > 0 {
+			paidOrderOpts := make([]repository.QueryOption, 0, 1)
+			paidOrderOpts = append(paidOrderOpts, repository.Where(orderQuery.TradeID.In(paidTradeIDs...)))
+			paidOrderInfoList, err = t.orderInfoRepo.List(ctx, paidOrderOpts...)
+			if err != nil {
+				return err
+			}
+		}
+		result.orderCount = len(canceledOrderInfoList) + len(paidOrderInfoList)
 
 		refundQuery := t.orderRefundRepo.Query(ctx).OrderRefund
 		refundOpts := make([]repository.QueryOption, 0, 3)
@@ -103,18 +142,24 @@ func (t *OrderStatDay) Exec(args map[string]string) ([]string, error) {
 			return err
 		}
 
-		tradeIDSet := make(map[int64]struct{}, len(orderInfoList)+len(orderRefunds))
-		for _, orderInfo := range orderInfoList {
+		tradeIDSet := make(map[int64]struct{}, len(canceledOrderInfoList)+len(orderRefunds)+len(paidTradeMap))
+		for _, orderInfo := range canceledOrderInfoList {
 			tradeIDSet[orderInfo.TradeID] = struct{}{}
 		}
 		for _, orderRefund := range orderRefunds {
 			tradeIDSet[orderRefund.TradeID] = struct{}{}
+		}
+		for tradeID := range paidTradeMap {
+			tradeIDSet[tradeID] = struct{}{}
 		}
 		tradeIDs := make([]int64, 0, len(tradeIDSet))
 		for tradeID := range tradeIDSet {
 			tradeIDs = append(tradeIDs, tradeID)
 		}
 		tradeMap := make(map[int64]*models.OrderTrade, len(tradeIDs))
+		for tradeID, orderTrade := range paidTradeMap {
+			tradeMap[tradeID] = orderTrade
+		}
 		if len(tradeIDs) > 0 {
 			tradeQuery := t.orderTradeRepo.Query(ctx).OrderTrade
 			tradeOpts := make([]repository.QueryOption, 0, 1)
@@ -149,7 +194,7 @@ func (t *OrderStatDay) Exec(args map[string]string) ([]string, error) {
 			return item
 		}
 
-		for _, item := range orderInfoList {
+		for _, item := range canceledOrderInfoList {
 			// 非法订单不参与统计。
 			if item == nil || item.ID <= 0 {
 				continue
@@ -160,24 +205,23 @@ func (t *OrderStatDay) Exec(args map[string]string) ([]string, error) {
 				continue
 			}
 			stat := ensureStat(item.TenantID, item.TenantStoreID, orderTrade.PayType, orderTrade.PayChannel)
-			// 支付指标以交易单状态为准，门店履约状态不再反推支付事实。
-			if utils.IsPaidTradeStatus(orderTrade.Status) {
-				stat.PaidOrderCount++
-				stat.PaidOrderAmount += item.PayMoney
-				stat.GoodsCount += int32(item.GoodsNum)
-				key := orderStatDayKey{tenantID: item.TenantID, tenantStoreID: item.TenantStoreID, payType: orderTrade.PayType, payChannel: orderTrade.PayChannel}
-				// 当前租户支付维度首次出现用户集合时，先初始化去重容器。
-				if _, ok := paidUserMap[key]; !ok {
-					paidUserMap[key] = make(map[int64]struct{}, 1)
-				}
-				// 支付用户数按租户与支付维度做当天去重。
-				paidUserMap[key][item.UserID] = struct{}{}
+			stat.CanceledOrderCount++
+			stat.CanceledOrderAmount += item.TotalMoney
+		}
+		for _, item := range paidOrderInfoList {
+			orderTrade := paidTradeMap[item.TradeID]
+			if orderTrade == nil {
+				continue
 			}
-			// 已取消的门店订单按子订单金额累计取消指标。
-			if item.Status == _const.ORDER_INFO_STATUS_CANCELED {
-				stat.CanceledOrderCount++
-				stat.CanceledOrderAmount += item.TotalMoney
+			stat := ensureStat(item.TenantID, item.TenantStoreID, orderTrade.PayType, orderTrade.PayChannel)
+			stat.PaidOrderCount++
+			stat.PaidOrderAmount += item.PayMoney
+			stat.GoodsCount += int32(item.GoodsNum)
+			key := orderStatDayKey{tenantID: item.TenantID, tenantStoreID: item.TenantStoreID, payType: orderTrade.PayType, payChannel: orderTrade.PayChannel}
+			if paidUserMap[key] == nil {
+				paidUserMap[key] = make(map[int64]struct{}, 1)
 			}
+			paidUserMap[key][item.UserID] = struct{}{}
 		}
 		for _, orderRefund := range orderRefunds {
 			orderTrade := tradeMap[orderRefund.TradeID]

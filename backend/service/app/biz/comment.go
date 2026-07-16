@@ -403,6 +403,9 @@ func (c *CommentCase) PagePendingCommentGoods(ctx context.Context, req *appv1.Pa
 			commentInfoQuery.ID.IsNull(),
 		).
 		Order(orderInfoQuery.CreatedAt.Desc(), orderGoodsQuery.ID.Desc())
+	if req.GetOrderId() > 0 {
+		dao = dao.Where(orderInfoQuery.ID.Eq(req.GetOrderId()))
+	}
 	var orderGoodsList []*models.OrderGoods
 	var total int64
 	orderGoodsList, total, err = dao.FindByPage(int((pageNum-1)*pageSize), int(pageSize))

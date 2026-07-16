@@ -156,6 +156,12 @@ func (c *WxPayCase) DownloadBill(url string) ([]byte, error) {
 	return svc.DownloadBill(c.ctx, url)
 }
 
+// IsPayOrderNotExist 判断微信支付侧是否尚未创建指定交易的支付单。
+func IsPayOrderNotExist(err error) bool {
+	apiErr, ok := errors.AsType[*wxPayCore.APIError](err)
+	return ok && apiErr.Code == "ORDER_NOT_EXIST"
+}
+
 // QueryOrderByOutTradeNo 根据商户订单号查询支付订单并转换为项目内支付资源结构。
 func (c *WxPayCase) QueryOrderByOutTradeNo(orderNo string) (*appv1.PaymentResource, error) {
 	req := jsapi.QueryOrderByOutTradeNoRequest{
@@ -165,17 +171,9 @@ func (c *WxPayCase) QueryOrderByOutTradeNo(orderNo string) (*appv1.PaymentResour
 	svc := jsapi.JsapiApiService{Client: c.client}
 	resp, result, err := svc.QueryOrderByOutTradeNo(c.ctx, req)
 	if err != nil {
-		// 命中微信 API 错误结构时，优先识别可恢复的业务场景。
-		if apiErr, ok := errors.AsType[*wxPayCore.APIError](err); ok {
-			// 订单在微信侧不存在时，按未支付状态返回，避免上层继续报错。
-			if apiErr.Code == "ORDER_NOT_EXIST" {
-				return &appv1.PaymentResource{
-					OutTradeNo:     trans.StringValue(req.OutTradeNo),
-					Mchid:          c.wxPay.GetMchId(),
-					TradeState:     appv1.PaymentResource_TradeState(_const.PAYMENT_RESOURCE_TRADE_STATE_NOT_PAY),
-					TradeStateDesc: apiErr.Message,
-				}, nil
-			}
+		// 尚未创建支付单时保留微信错误码，供取消交易跳过远端关单。
+		if IsPayOrderNotExist(err) {
+			return nil, err
 		}
 		log.Error(fmt.Sprintf("查询支付失败[%s]", err.Error()))
 		return nil, errorsx.Internal("查询支付失败")
@@ -313,29 +311,20 @@ func (c *WxPayCase) Refund(req refunddomestic.CreateRequest) (*refunddomestic.Re
 	return resp, err
 }
 
-// QueryByOutRefundNo 根据商户退款单号查询退款单并转换为项目内退款资源结构。
-func (c *WxPayCase) QueryByOutRefundNo(refundOrderNo string) (*appv1.RefundResource, error) {
-	req := refunddomestic.QueryByOutRefundNoRequest{
-		OutRefundNo: wxPayCore.String(refundOrderNo),
+// IsRefundCreateResultUncertain 判断退款创建错误是否需要保留原退款号等待补查。
+func IsRefundCreateResultUncertain(err error) bool {
+	if err == nil {
+		return false
 	}
+	apiErr, ok := errors.AsType[*wxPayCore.APIError](err)
+	return !ok || apiErr.Code == "SYSTEM_ERROR"
+}
 
-	svc := refunddomestic.RefundsApiService{Client: c.client}
-	resp, result, err := svc.QueryByOutRefundNo(c.ctx, req)
-	if err != nil {
-		log.Error(fmt.Sprintf("查询退款失败[%s]", err.Error()))
-		return nil, errorsx.Internal("查询退款失败")
-	}
-	// 微信退款查询接口返回非成功状态码时，统一按查询失败处理。
-	if result.Response.StatusCode != nethttp.StatusOK {
-		log.Error(fmt.Sprintf("查询退款失败[%s]", result.Response.Status))
-		return nil, errorsx.Internal("查询退款失败")
-	}
-
-	// 微信退款查询没有返回退款体时，视为查询失败。
+// ConvertRefundResource 将微信退款响应转换为项目内退款资源。
+func ConvertRefundResource(resp *refunddomestic.Refund) *appv1.RefundResource {
 	if resp == nil {
-		return nil, errorsx.Internal("查询退款失败")
+		return nil
 	}
-
 	refundResource := &appv1.RefundResource{
 		TransactionId:       trans.StringValue(resp.TransactionId),
 		OutTradeNo:          trans.StringValue(resp.OutTradeNo),
@@ -372,8 +361,33 @@ func (c *WxPayCase) QueryByOutRefundNo(refundOrderNo string) (*appv1.RefundResou
 	if resp.SuccessTime != nil {
 		refundResource.SuccessTime = timestamppb.New(*resp.SuccessTime)
 	}
+	return refundResource
+}
 
-	return refundResource, nil
+// QueryByOutRefundNo 根据商户退款单号查询退款单并转换为项目内退款资源结构。
+func (c *WxPayCase) QueryByOutRefundNo(refundOrderNo string) (*appv1.RefundResource, error) {
+	req := refunddomestic.QueryByOutRefundNoRequest{
+		OutRefundNo: wxPayCore.String(refundOrderNo),
+	}
+
+	svc := refunddomestic.RefundsApiService{Client: c.client}
+	resp, result, err := svc.QueryByOutRefundNo(c.ctx, req)
+	if err != nil {
+		log.Error(fmt.Sprintf("查询退款失败[%s]", err.Error()))
+		return nil, err
+	}
+	// 微信退款查询接口返回非成功状态码时，统一按查询失败处理。
+	if result.Response.StatusCode != nethttp.StatusOK {
+		log.Error(fmt.Sprintf("查询退款失败[%s]", result.Response.Status))
+		return nil, errorsx.Internal("查询退款失败")
+	}
+
+	// 微信退款查询没有返回退款体时，视为查询失败。
+	if resp == nil {
+		return nil, errorsx.Internal("查询退款失败")
+	}
+
+	return ConvertRefundResource(resp), nil
 }
 
 // Notify 解析微信支付回调通知。

@@ -381,6 +381,8 @@ message SaveCommentReactionResponse {
 
 // 待评价商品分页查询条件
 message PagePendingCommentGoodsRequest {
+  optional int64 order_id = 1 [(gnostic.openapi.v3.property) = {description: "门店订单ID，可为空"}]; // 门店订单ID，可为空
+
   int64 page_num = 101 [(gnostic.openapi.v3.property) = {
     description: "当前页码"
     default: {number: 1}

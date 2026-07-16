@@ -718,39 +718,6 @@ function renderOperationCell(scope: RenderScope<OrderInfo>) {
 /** 订单表格列配置。 */
 const columns = computed<ColumnProps[]>(() => [
   {
-    prop: "tenant_store_id",
-    label: isDefaultTenant.value ? "租户/门店" : "门店",
-    minWidth: isDefaultTenant.value ? 220 : 150,
-    showOverflowTooltip: true,
-    render: scope => getTenantStoreText(scope.row as OrderInfo),
-    search: isDefaultTenant.value
-      ? {
-          el: "tree-select",
-          key: "tenant_store_tree_value",
-          order: 1,
-          props: {
-            clearable: true,
-            filterable: true,
-            checkStrictly: true,
-            renderAfterExpand: false,
-            placeholder: "请选择租户/门店",
-            style: { width: "100%" }
-          }
-        }
-      : {
-          el: "select",
-          key: "tenant_store_id",
-          order: 1,
-          props: {
-            clearable: true,
-            filterable: true,
-            placeholder: "请选择门店",
-            style: { width: "100%" }
-          }
-        },
-    enum: isDefaultTenant.value ? requestTenantStoreTreeOptions : requestTenantStoreOptions
-  },
-  {
     prop: "user_id",
     label: "用户",
     minWidth: 180,
@@ -784,6 +751,39 @@ const columns = computed<ColumnProps[]>(() => [
   },
   { prop: "pay_type", label: "支付方式", minWidth: 110, dictCode: "order_pay_type", search: { el: "select" } },
   { prop: "pay_channel", label: "支付渠道", minWidth: 110, dictCode: "order_pay_channel", search: { el: "select" } },
+  {
+    prop: "tenant_store_id",
+    label: isDefaultTenant.value ? "租户/门店" : "门店",
+    minWidth: isDefaultTenant.value ? 220 : 150,
+    showOverflowTooltip: true,
+    render: scope => getTenantStoreText(scope.row as OrderInfo),
+    search: isDefaultTenant.value
+      ? {
+          el: "tree-select",
+          key: "tenant_store_tree_value",
+          order: 1,
+          props: {
+            clearable: true,
+            filterable: true,
+            checkStrictly: true,
+            renderAfterExpand: false,
+            placeholder: "请选择租户/门店",
+            style: { width: "100%" }
+          }
+        }
+      : {
+          el: "select",
+          key: "tenant_store_id",
+          order: 1,
+          props: {
+            clearable: true,
+            filterable: true,
+            placeholder: "请选择门店",
+            style: { width: "100%" }
+          }
+        },
+    enum: isDefaultTenant.value ? requestTenantStoreTreeOptions : requestTenantStoreOptions
+  },
   {
     prop: "trade_status",
     label: "支付状态",
@@ -908,6 +908,9 @@ function canOpenShipped(row: OrderInfo) {
     row.status === OrderInfoStatus.WAIT_SHIPMENT_OIS &&
     [OrderTradeStatus.PAID_OTS, OrderTradeStatus.CASH_ON_DELIVERY_OTS, OrderTradeStatus.PARTIAL_REFUND_OTS].includes(
       row.trade_status
+    ) &&
+    [OrderRefundStatus.NONE_ORS, OrderRefundStatus.PARTIAL_REFUND_ORS, OrderRefundStatus.CLOSED_OR_FAILED_ORS].includes(
+      row.refund_status
     )
   );
 }
@@ -1080,7 +1083,7 @@ function handleRefundSubmitClick() {
       const submitData = JSON.parse(JSON.stringify(formDataRefund)) as RefundOrderInfoRequest;
       submitData.refund_money = submitData.refund_money * 100;
       defOrderInfoService.RefundOrderInfo(submitData).then(() => {
-        ElMessage.success("订单退款成功");
+        ElMessage.success("退款申请已提交");
         handleCloseRefundDialog();
         proTable.value?.getTableList();
       });

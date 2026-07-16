@@ -90,6 +90,8 @@ const SEARCH_SINGLE_PAGE = '/pages/search/single'
 const ORDER_CREATE_PAGE = '/pagesOrder/create/create'
 /** 订单详情页路径。 */
 const ORDER_DETAIL_PAGE = '/pagesOrder/detail/detail'
+/** 支付结果页路径。 */
+const ORDER_PAYMENT_PAGE = '/pagesOrder/payment/payment'
 /** 订单列表页路径。 */
 const ORDER_LIST_PAGE = '/pagesOrder/list/list'
 /** 订单评价发布页路径。 */
@@ -230,6 +232,22 @@ export const orderDetailUrl = (query: OrderDetailQuery) => {
   return buildPageUrl(ORDER_DETAIL_PAGE, query)
 }
 
+/** 构建支付结果页 URL。 */
+export const orderPaymentUrl = (tradeID: string | number) => {
+  return buildPageUrl(ORDER_PAYMENT_PAGE, { trade_id: tradeID })
+}
+
+/** 为微信 H5 支付地址附加当前商城支付结果页回跳地址。 */
+export const appendOrderPaymentRedirectUrl = (h5PayUrl: string, tradeID: string | number) => {
+  const redirectUrl = new URL(window.location.href)
+  redirectUrl.search = ''
+  redirectUrl.hash = orderPaymentUrl(tradeID)
+
+  const payUrl = new URL(h5PayUrl)
+  payUrl.searchParams.set('redirect_url', redirectUrl.toString())
+  return payUrl.toString()
+}
+
 /** 构建商品评价列表页 URL。 */
 export const goodsCommentListUrl = (query: GoodsCommentListQuery) => {
   return buildPageUrl(GOODS_COMMENT_LIST_PAGE, query)
@@ -337,6 +355,6 @@ export const navigateToOrderCreate = (query: OrderCreateQuery = {}) => {
 /** 重定向到支付结果页。 */
 export const redirectToOrderPayment = (tradeID: string | number) => {
   return uni.redirectTo({
-    url: `/pagesOrder/payment/payment?trade_id=${encodeURIComponent(String(tradeID))}`,
+    url: orderPaymentUrl(tradeID),
   })
 }

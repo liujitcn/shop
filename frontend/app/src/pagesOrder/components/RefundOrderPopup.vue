@@ -57,7 +57,7 @@ const onConfirmRefund = async () => {
     reason: Number(reason.value),
   })
   const order_id = currentOrder.value.id
-  void uni.showToast({ icon: 'none', title: '订单退款成功' })
+  void uni.showToast({ icon: 'none', title: '退款申请已提交' })
   close()
   emit('success', order_id)
 }

@@ -9,7 +9,6 @@ import (
 
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
-	"shop/pkg/utils"
 
 	"github.com/go-kratos/kratos/v3/log"
 	"github.com/liujitcn/gorm-kit/repository"
@@ -42,6 +41,7 @@ type GoodsStatDay struct {
 	userCartRepo       *data.UserCartRepository
 	orderInfoRepo      *data.OrderInfoRepository
 	orderTradeRepo     *data.OrderTradeRepository
+	orderPaymentRepo   *data.OrderPaymentRepository
 	orderGoodsRepo     *data.OrderGoodsRepository
 	ctx                context.Context
 }
@@ -56,6 +56,7 @@ func NewGoodsStatDay(
 	userCartRepo *data.UserCartRepository,
 	orderInfoRepo *data.OrderInfoRepository,
 	orderTradeRepo *data.OrderTradeRepository,
+	orderPaymentRepo *data.OrderPaymentRepository,
 	orderGoodsRepo *data.OrderGoodsRepository,
 ) *GoodsStatDay {
 	return &GoodsStatDay{
@@ -67,6 +68,7 @@ func NewGoodsStatDay(
 		userCartRepo:       userCartRepo,
 		orderInfoRepo:      orderInfoRepo,
 		orderTradeRepo:     orderTradeRepo,
+		orderPaymentRepo:   orderPaymentRepo,
 		orderGoodsRepo:     orderGoodsRepo,
 		ctx:                context.Background(),
 	}
@@ -222,32 +224,41 @@ func (t *GoodsStatDay) Exec(args map[string]string) ([]string, error) {
 			return err
 		}
 		result.orderCount = len(orderInfoList)
-		tradeIDs := make([]int64, 0, len(orderInfoList))
-		for _, orderInfo := range orderInfoList {
-			tradeIDs = append(tradeIDs, orderInfo.TradeID)
+
+		paidTradeMap, err := listPaidTradesByFactTime(ctx, startAt, endAt, t.orderTradeRepo, t.orderPaymentRepo)
+		if err != nil {
+			return err
 		}
-		tradeMap := make(map[int64]*models.OrderTrade, len(tradeIDs))
-		if len(tradeIDs) > 0 {
-			tradeQuery := t.orderTradeRepo.Query(ctx).OrderTrade
-			tradeOpts := make([]repository.QueryOption, 0, 1)
-			tradeOpts = append(tradeOpts, repository.Where(tradeQuery.ID.In(tradeIDs...)))
-			var orderTrades []*models.OrderTrade
-			orderTrades, err = t.orderTradeRepo.List(ctx, tradeOpts...)
+		paidTradeIDs := make([]int64, 0, len(paidTradeMap))
+		for tradeID := range paidTradeMap {
+			paidTradeIDs = append(paidTradeIDs, tradeID)
+		}
+		var paidOrderInfoList []*models.OrderInfo
+		if len(paidTradeIDs) > 0 {
+			paidOrderOpts := make([]repository.QueryOption, 0, 1)
+			paidOrderOpts = append(paidOrderOpts, repository.Where(orderQuery.TradeID.In(paidTradeIDs...)))
+			paidOrderInfoList, err = t.orderInfoRepo.List(ctx, paidOrderOpts...)
 			if err != nil {
 				return err
 			}
-			for _, orderTrade := range orderTrades {
-				tradeMap[orderTrade.ID] = orderTrade
-			}
 		}
 
-		orderIDs := make([]int64, 0, len(orderInfoList))
+		orderIDSet := make(map[int64]struct{}, len(orderInfoList)+len(paidOrderInfoList))
 		for _, item := range orderInfoList {
 			// 非法订单不参与统计。
 			if item.ID <= 0 {
 				continue
 			}
-			orderIDs = append(orderIDs, item.ID)
+			orderIDSet[item.ID] = struct{}{}
+		}
+		for _, item := range paidOrderInfoList {
+			if item.ID > 0 {
+				orderIDSet[item.ID] = struct{}{}
+			}
+		}
+		orderIDs := make([]int64, 0, len(orderIDSet))
+		for orderID := range orderIDSet {
+			orderIDs = append(orderIDs, orderID)
 		}
 
 		orderGoodsByOrderID := make(map[int64][]*models.OrderGoods)
@@ -284,10 +295,9 @@ func (t *GoodsStatDay) Exec(args map[string]string) ([]string, error) {
 			}
 		}
 
-		for _, orderInfo := range orderInfoList {
-			orderTrade := tradeMap[orderInfo.TradeID]
-			// 商品支付指标以交易单状态为准，不能通过门店履约状态反推。
-			if orderTrade == nil || !utils.IsPaidTradeStatus(orderTrade.Status) {
+		for _, orderInfo := range paidOrderInfoList {
+			orderTrade := paidTradeMap[orderInfo.TradeID]
+			if orderTrade == nil {
 				continue
 			}
 			goodsList := orderGoodsByOrderID[orderInfo.ID]

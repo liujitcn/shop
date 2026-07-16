@@ -13,17 +13,15 @@ import {
 } from '@/rpc/common/v1/enum'
 import type { BaseDictForm_DictItem } from '@/rpc/app/v1/base_dict'
 import { defBaseDictService } from '@/api/app/base_dict'
-import { defPayService } from '@/api/app/pay'
 import { formatPrice, formatSrc } from '@/utils'
 import {
   goodsDetailUrl,
   homeTabPage,
-  orderCommentWriteUrl,
   orderCreateUrl,
   orderListUrl,
-  redirectToOrderPayment,
   tenantStoreUrl,
 } from '@/utils/navigation'
+import { startOrderPayment } from '@/utils/payment'
 import RefundOrderPopup from '../components/RefundOrderPopup.vue'
 import {
   canDeleteOrder,
@@ -31,6 +29,7 @@ import {
   getOrderDisplayStatus,
   isPayableTrade,
 } from '@/utils/order'
+import { openPendingOrderComment } from '@/utils/comment'
 // 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync()
 // 猜你喜欢
@@ -60,18 +59,6 @@ const buildGoodsDetailUrl = (
     scene: query.scene,
     request_id: query.request_id,
     index: query.index,
-  })
-}
-
-const buildOrderCommentWriteUrl = () => {
-  const firstGoods = orderData.value?.order?.order_goods_stores?.[0]?.goods?.[0]
-  return orderCommentWriteUrl({
-    order_id: currentOrderID.value,
-    goods_id: firstGoods?.goods_id,
-    goods_name: firstGoods?.name,
-    goods_picture: firstGoods?.picture ? formatSrc(firstGoods.picture) : undefined,
-    sku_code: firstGoods?.sku_code,
-    sku_desc: firstGoods?.spec_item?.join(' / '),
   })
 }
 
@@ -186,20 +173,6 @@ onLoad(() => {
 
 const onTimeUpFlag = ref(false)
 
-// 打开 H5 或 App 支付外链
-const openH5PayUrl = (url: string) => {
-  // H5 端直接跳转到微信支付链接
-  // #ifdef H5
-  window.location.href = url
-  // #endif
-
-  // App 端通过系统能力打开外部支付链接
-  // #ifdef APP-PLUS
-
-  plus.runtime.openURL(url)
-  // #endif
-}
-
 // 倒计时结束事件
 const onTimeUp = async () => {
   if (!orderData.value?.order || !isPayableTrade(orderData.value.order)) return
@@ -219,44 +192,14 @@ const onTimeUp = async () => {
   }
 }
 
-// 发起订单支付
+/** 使用当前交易单编号发起当前平台对应的微信支付。 */
 const onOrderPay = async () => {
-  // #ifdef MP-WEIXIN
-  // 正式环境微信支付
-  const jsapiRes = await defPayService.JsapiPay({ trade_id: currentTradeID.value })
-  uni.requestPayment({
-    provider: 'wxpay',
-    /** 随机字符串，长度为32个字符以下 */
-    nonceStr: jsapiRes.nonce_str,
-    /** 统一下单接口返回的 prepay_id 参数值，提交格式如：prepay_id=*** */
-    package: jsapiRes.package,
-    /** 签名，具体见微信支付文档 */
-    paySign: jsapiRes.pay_sign,
-    /** 时间戳，从 1970 年 1 月 1 日 00:00:00 至今的秒数，即当前的时间 */
-    timeStamp: jsapiRes.time_stamp,
-    /** 接口调用结束的回调函数（调用成功、失败都会执行） */
-    complete: () => {},
-    /** 接口调用失败的回调函数 */
-    fail: () => {},
-    /** 签名算法，应与后台下单时的值一致
-     *
-     * 可选值：
-     * - 'MD5': 仅在 v2 版本接口适用;
-     * - 'HMAC-SHA256': 仅在 v2 版本接口适用;
-     * - 'RSA': 仅在 v3 版本接口适用; */
-    signType: 'RSA',
-    /** 接口调用成功的回调函数 */
-    success: () => {
-      // 关闭当前页，再跳转支付结果页
-      void redirectToOrderPayment(currentTradeID.value)
-    },
-  })
-  // #endif
+  await startOrderPayment(currentTradeID.value)
+}
 
-  // #ifdef H5 || APP-PLUS
-  const h5Res = await defPayService.H5Pay({ trade_id: currentTradeID.value })
-  openH5PayUrl(h5Res.h5_url)
-  // #endif
+/** 查询当前门店订单真正待评价的商品并打开评价页。 */
+const onOrderComment = async () => {
+  await openPendingOrderComment(currentOrderID.value)
 }
 
 // 确认收货
@@ -455,7 +398,7 @@ const onRefundSuccess = async () => {
         <view class="item">
           <navigator
             v-for="item in group.goods"
-            :key="item.goods_id"
+            :key="`${item.goods_id}-${item.sku_code}`"
             class="navigator"
             :url="
               buildGoodsDetailUrl(item.goods_id, {
@@ -504,7 +447,7 @@ const onRefundSuccess = async () => {
           "
           class="action"
         >
-          <navigator :url="buildOrderCommentWriteUrl()" class="button"> 去评价 </navigator>
+          <view class="button" @tap="onOrderComment">去评价</view>
         </view>
         <!-- 合计 -->
         <view class="total">

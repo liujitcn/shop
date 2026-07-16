@@ -7,16 +7,15 @@
 package appv1
 
 import (
-	reflect "reflect"
-	v1 "shop/api/gen/go/common/v1"
-	sync "sync"
-	unsafe "unsafe"
-
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+	reflect "reflect"
+	v1 "shop/api/gen/go/common/v1"
+	sync "sync"
+	unsafe "unsafe"
 )
 
 const (
@@ -1638,8 +1637,9 @@ func (x *SaveCommentReactionResponse) GetDislikeCount() int32 {
 // 待评价商品分页查询条件
 type PagePendingCommentGoodsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	PageNum       int64                  `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`    // 当前页码
-	PageSize      int64                  `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"` // 每页数量
+	OrderId       *int64                 `protobuf:"varint,1,opt,name=order_id,json=orderId,proto3,oneof" json:"order_id,omitempty"` // 门店订单ID，可为空
+	PageNum       int64                  `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`     // 当前页码
+	PageSize      int64                  `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`  // 每页数量
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1672,6 +1672,13 @@ func (x *PagePendingCommentGoodsRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use PagePendingCommentGoodsRequest.ProtoReflect.Descriptor instead.
 func (*PagePendingCommentGoodsRequest) Descriptor() ([]byte, []int) {
 	return file_app_v1_comment_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *PagePendingCommentGoodsRequest) GetOrderId() int64 {
+	if x != nil && x.OrderId != nil {
+		return *x.OrderId
+	}
+	return 0
 }
 
 func (x *PagePendingCommentGoodsRequest) GetPageNum() int64 {
@@ -2214,10 +2221,12 @@ const file_app_v1_comment_proto_rawDesc = "" +
 	"\rreaction_type\x18\x03 \x01(\x0e2\x1e.common.v1.CommentReactionTypeB@\xbaG=\x92\x02:当前用户互动类型：枚举【CommentReactionType】R\freactionType\x12.\n" +
 	"\n" +
 	"like_count\x18\x04 \x01(\x05B\x0f\xbaG\f\x92\x02\t点赞数R\tlikeCount\x124\n" +
-	"\rdislike_count\x18\x05 \x01(\x05B\x0f\xbaG\f\x92\x02\t点踩数R\fdislikeCount\"\x98\x01\n" +
-	"\x1ePagePendingCommentGoodsRequest\x129\n" +
+	"\rdislike_count\x18\x05 \x01(\x05B\x0f\xbaG\f\x92\x02\t点踩数R\fdislikeCount\"\xe7\x01\n" +
+	"\x1ePagePendingCommentGoodsRequest\x12@\n" +
+	"\border_id\x18\x01 \x01(\x03B \xbaG\x1d\x92\x02\x1a门店订单ID，可为空H\x00R\aorderId\x88\x01\x01\x129\n" +
 	"\bpage_num\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12;\n" +
-	"\tpage_size\x18f \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\f每页数量R\bpageSize\"\xcf\x02\n" +
+	"\tpage_size\x18f \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\f每页数量R\bpageSizeB\v\n" +
+	"\t_order_id\"\xcf\x02\n" +
 	"\x1fPagePendingCommentGoodsResponse\x12p\n" +
 	"\x15pending_comment_goods\x18\x01 \x03(\v2\x1f.app.v1.PendingCommentGoodsItemB\x1b\xbaG\x18\x92\x02\x15待评价商品列表R\x13pendingCommentGoods\x12\"\n" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\x12-\n" +
@@ -2371,6 +2380,7 @@ func file_app_v1_comment_proto_init() {
 	if File_app_v1_comment_proto != nil {
 		return
 	}
+	file_app_v1_comment_proto_msgTypes[21].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

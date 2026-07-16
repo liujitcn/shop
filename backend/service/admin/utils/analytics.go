@@ -87,6 +87,24 @@ func GetAnalyticsGroupFieldByColumn(timeType commonv1.AnalyticsTimeType, startAt
 	}
 }
 
+// GetAnalyticsTimeKey 返回指定时间在分析周期中的分组序号。
+func GetAnalyticsTimeKey(timeType commonv1.AnalyticsTimeType, value time.Time) int64 {
+	// 按统计维度将支付事实时间映射到图表桶位。
+	switch timeType {
+	case commonv1.AnalyticsTimeType(_const.ANALYTICS_TIME_TYPE_YEAR):
+		return int64(value.Month())
+	case commonv1.AnalyticsTimeType(_const.ANALYTICS_TIME_TYPE_MONTH):
+		return int64(value.Day())
+	default:
+		weekday := int(value.Weekday())
+		// 周日需要从标准库的 0 映射到周维度的第 7 桶。
+		if weekday == 0 {
+			return 7
+		}
+		return int64(weekday)
+	}
+}
+
 // AnalyticsGroupAliasField 返回趋势查询分组别名字段。
 func AnalyticsGroupAliasField() field.Expr {
 	return field.NewField("", "key")

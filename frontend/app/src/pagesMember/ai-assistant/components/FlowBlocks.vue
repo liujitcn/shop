@@ -419,9 +419,19 @@ function resolveSimpleItemImage(item: AssistantFlowBlock) {
       </view>
 
       <view v-else-if="block.type === 'order_preview'" class="flow-order-preview">
-        <view v-for="goods in block.goods" :key="goods.sku_code" class="flow-line">
-          <text class="flow-line-main">{{ goods.name }}</text>
-          <text class="flow-line-sub">x{{ goods.num }}</text>
+        <view
+          v-for="(group, groupIndex) in block.order_goods_stores || []"
+          :key="group.store?.id || groupIndex"
+          class="flow-order-store"
+        >
+          <view class="flow-order-store-head">
+            <text class="flow-line-main">{{ group.store?.name || '门店商品' }}</text>
+            <text class="flow-line-sub">{{ group.summary?.goods_num || 0 }} 件</text>
+          </view>
+          <view v-for="goods in group.goods || []" :key="goods.sku_code" class="flow-line">
+            <text class="flow-line-main">{{ goods.name }}</text>
+            <text class="flow-line-sub">x{{ goods.num }}</text>
+          </view>
         </view>
         <view class="flow-summary">
           <view class="flow-line">
@@ -1147,6 +1157,25 @@ function resolveSimpleItemImage(item: AssistantFlowBlock) {
   margin-top: 16rpx;
   padding-top: 14rpx;
   border-top: 1rpx solid #edf0f2;
+}
+
+.flow-order-store + .flow-order-store {
+  margin-top: 16rpx;
+  padding-top: 14rpx;
+  border-top: 1rpx solid #edf0f2;
+}
+
+.flow-order-store-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+  min-width: 0;
+  margin-bottom: 10rpx;
+  color: #333;
+  font-size: 24rpx;
+  font-weight: 600;
+  line-height: 34rpx;
 }
 
 .flow-input,

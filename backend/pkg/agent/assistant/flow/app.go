@@ -793,11 +793,11 @@ func buildAiAssistantSkuSelectorBlock(output map[string]any, recommendContext ma
 func buildAiAssistantCheckoutBlocks(orderOutput map[string]any, addressOutput map[string]any, orderPayload map[string]any) []map[string]any {
 	blocks := []map[string]any{
 		{
-			"type":          "order_preview",
-			"title":         "订单预览",
-			"goods":         orderOutput["goods"],
-			"summary":       orderOutput["summary"],
-			"order_payload": orderPayload,
+			"type":               "order_preview",
+			"title":              "订单预览",
+			"order_goods_stores": orderOutput["order_goods_stores"],
+			"summary":            orderOutput["summary"],
+			"order_payload":      orderPayload,
 		},
 	}
 	addressBlock := buildAiAssistantAddressSelectorBlock(addressOutput, orderPayload)

@@ -19,6 +19,7 @@ import type {
 import { AiAssistantMessageStatus, Terminal } from '@/rpc/common/v1/enum'
 import { uploadFile } from '@/utils/file'
 import { formatSrc } from '@/utils/index'
+import { appendOrderPaymentRedirectUrl, redirectToOrderPayment } from '@/utils/navigation'
 import Composer from './components/Composer.vue'
 import FlowBlocks from './components/FlowBlocks.vue'
 import SessionDrawer from './components/SessionDrawer.vue'
@@ -2527,6 +2528,7 @@ function handlePaymentBlocks(list: ChatMessageItem[]) {
   }
 }
 
+/** 执行一次 AI 支付结果块，并通过支付键避免重复调起。 */
 function executePaymentBlock(block: AssistantFlowBlock) {
   const payData = block.pay_data || {}
   const tradeID = Number(block.trade_id || 0)
@@ -2538,7 +2540,7 @@ function executePaymentBlock(block: AssistantFlowBlock) {
   handledPaymentBlockSet.add(paymentKey)
 
   if (platform === 'h5' || platform === 'app') {
-    openFlowH5PayUrl(String(payData.h5_url || ''))
+    openFlowH5PayUrl(String(payData.h5_url || ''), tradeID)
     return
   }
 
@@ -2550,11 +2552,8 @@ function executePaymentBlock(block: AssistantFlowBlock) {
     paySign: String(payData.pay_sign || ''),
     timeStamp: String(payData.time_stamp || ''),
     signType: 'RSA',
-    success: () => {
-      uni.showToast({ icon: 'success', title: '支付完成' })
-    },
-    fail: () => {
-      uni.showToast({ icon: 'none', title: '支付未完成' })
+    complete: () => {
+      void redirectToOrderPayment(tradeID)
     },
   })
   // #endif
@@ -2564,16 +2563,18 @@ function executePaymentBlock(block: AssistantFlowBlock) {
   // #endif
 }
 
-function openFlowH5PayUrl(url: string) {
+/** 打开 AI 返回的 H5 支付链接，并衔接当前交易的支付结果页。 */
+function openFlowH5PayUrl(url: string, tradeID: number) {
   if (!url) {
     uni.showToast({ icon: 'none', title: '支付链接为空' })
     return
   }
   // #ifdef H5
-  window.location.href = url
+  window.location.href = appendOrderPaymentRedirectUrl(url, tradeID)
   // #endif
   // #ifdef APP-PLUS
   plus.runtime.openURL(url)
+  void redirectToOrderPayment(tradeID)
   // #endif
 }
 

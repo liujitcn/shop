@@ -92,6 +92,60 @@ func orderStatusLabel(value any) string {
 	}
 }
 
+// orderTradeStatusLabel 将交易支付状态枚举转换为展示文本。
+func orderTradeStatusLabel(value any) string {
+	switch int64Value(value) {
+	case int64(commonv1.OrderTradeStatus_PENDING_PAYMENT_OTS):
+		return "待支付"
+	case int64(commonv1.OrderTradeStatus_PAYING_OTS):
+		return "支付中"
+	case int64(commonv1.OrderTradeStatus_PAID_OTS):
+		return "已支付"
+	case int64(commonv1.OrderTradeStatus_CASH_ON_DELIVERY_OTS):
+		return "货到付款"
+	case int64(commonv1.OrderTradeStatus_CLOSED_OTS):
+		return "已关闭"
+	case int64(commonv1.OrderTradeStatus_PARTIAL_REFUND_OTS):
+		return "部分退款"
+	case int64(commonv1.OrderTradeStatus_FULL_REFUND_OTS):
+		return "全额退款"
+	default:
+		return "未知"
+	}
+}
+
+// orderRefundStatusLabel 将门店订单退款状态枚举转换为展示文本。
+func orderRefundStatusLabel(value any) string {
+	switch int64Value(value) {
+	case int64(commonv1.OrderRefundStatus_NONE_ORS):
+		return "无退款"
+	case int64(commonv1.OrderRefundStatus_PROCESSING_ORS):
+		return "处理中"
+	case int64(commonv1.OrderRefundStatus_PARTIAL_REFUND_ORS):
+		return "部分退款"
+	case int64(commonv1.OrderRefundStatus_REFUNDED_ORS):
+		return "已退款"
+	case int64(commonv1.OrderRefundStatus_CLOSED_OR_FAILED_ORS):
+		return "已关闭/失败"
+	default:
+		return "未知"
+	}
+}
+
+// canShipAdminOrder 判断订单履约、交易和退款状态是否同时允许发货。
+func canShipAdminOrder(order map[string]any) bool {
+	status := int64Value(order["status"])
+	tradeStatus := int64Value(order["trade_status"])
+	refundStatus := int64Value(order["refund_status"])
+	return status == int64(commonv1.OrderInfoStatus_WAIT_SHIPMENT_OIS) &&
+		(tradeStatus == int64(commonv1.OrderTradeStatus_PAID_OTS) ||
+			tradeStatus == int64(commonv1.OrderTradeStatus_CASH_ON_DELIVERY_OTS) ||
+			tradeStatus == int64(commonv1.OrderTradeStatus_PARTIAL_REFUND_OTS)) &&
+		(refundStatus == int64(commonv1.OrderRefundStatus_NONE_ORS) ||
+			refundStatus == int64(commonv1.OrderRefundStatus_PARTIAL_REFUND_ORS) ||
+			refundStatus == int64(commonv1.OrderRefundStatus_CLOSED_OR_FAILED_ORS))
+}
+
 // commentStatusLabel 将评价审核状态枚举转换为展示文本。
 func commentStatusLabel(value any) string {
 	switch int64Value(value) {

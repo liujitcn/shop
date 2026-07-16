@@ -170,8 +170,10 @@ const emit = defineEmits<{
   "flow-action": [action: AiAssistantAction, label?: string];
 }>();
 
-const listFieldKeys = new Set(["items", "orders", "comments", "goods", "stores", "bills", "tasks", "hot_tags"]);
-const objectFieldKeys = new Set(["order", "refund", "comment", "store", "config", "form"]);
+/** 可按明细列表展示的卡片字段。 */
+const listFieldKeys = new Set(["items", "orders", "comments", "goods", "stores", "bills", "tasks", "hot_tags", "refund"]);
+/** 可按字段分组展示的卡片对象。 */
+const objectFieldKeys = new Set(["order", "payment", "comment", "store", "config", "form"]);
 const ignoredFieldKeys = new Set(["type", "title", "desc", "action", "actions", "disabled"]);
 const shipmentFormStateMap = reactive<Record<string, ShipmentFormState>>({});
 const fieldLabels: Record<string, string> = {
@@ -180,10 +182,30 @@ const fieldLabels: Record<string, string> = {
   unit: "单位",
   status_label: "状态",
   alert_label: "预警",
+  order: "订单信息",
+  payment: "支付信息",
+  refund: "退款明细",
   order_no: "订单号",
+  tenant_store_id: "门店 ID",
   pay_money: "支付金额",
   total_money: "订单金额",
   goods_num: "商品数",
+  trade_status_label: "支付状态",
+  refund_status_label: "退款状态",
+  trade_no: "交易单号",
+  third_order_no: "三方订单号",
+  trade_type: "交易类型",
+  trade_state: "交易状态",
+  trade_state_desc: "交易状态说明",
+  bank_type: "银行类型",
+  success_time: "完成时间",
+  order_id: "订单 ID",
+  refund_no: "退款编号",
+  reason: "退款原因",
+  third_refund_no: "三方退款编号",
+  channel: "退款渠道",
+  create_time: "退款创建时间",
+  refund_state: "退款状态",
   goods_name: "商品",
   user_name: "用户",
   goods_score: "评分",

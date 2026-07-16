@@ -219,6 +219,7 @@ message PageOrderInfoRequest {
   optional .common.v1.OrderTradeStatus trade_status = 2 [(gnostic.openapi.v3.property) = {description: "交易支付状态"}]; // 交易支付状态
   optional .common.v1.OrderRefundStatus refund_status = 3 [(gnostic.openapi.v3.property) = {description: "订单退款状态"}]; // 订单退款状态
   optional bool has_refund = 4 [(gnostic.openapi.v3.property) = {description: "是否存在退款"}]; // 是否存在退款
+  optional bool refundable = 5 [(gnostic.openapi.v3.property) = {description: "是否仅查询可申请退款订单"}]; // 是否仅查询可申请退款订单
 
   int64 page_num = 101 [(gnostic.openapi.v3.property) = {
     description: "当前页码"

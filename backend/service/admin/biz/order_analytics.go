@@ -5,12 +5,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/liujitcn/gorm-kit/repository"
-
 	adminv1 "shop/api/gen/go/admin/v1"
 	commonv1 "shop/api/gen/go/common/v1"
 	_const "shop/pkg/const"
-	orderutils "shop/pkg/utils"
 	"shop/service/admin/dto"
 	"shop/service/admin/utils"
 )
@@ -32,22 +29,29 @@ func (c *OrderAnalyticsCase) SummaryOrderAnalytics(ctx context.Context, req *adm
 	startAt, endAt := utils.GetAnalyticsTimeRange(req.GetTimeType())
 	prevStartAt, prevEndAt := utils.GetPreviousAnalyticsTimeRange(req.GetTimeType(), startAt)
 
-	newOrderCount, saleAmount, err := c.countOrderBaseSummary(ctx, req.GetTenantId(), req.GetTenantStoreId(), startAt, endAt)
+	useGlobalTradeScope, err := c.orderInfoCase.useGlobalOrderTradeScope(ctx, req.GetTenantId(), req.GetTenantStoreId())
+	if err != nil {
+		return nil, err
+	}
+	var newOrderCount int64
+	var paidOrderCount int64
+	var saleAmount int64
+	newOrderCount, paidOrderCount, saleAmount, err = c.countOrderBaseSummary(ctx, req.GetTenantId(), req.GetTenantStoreId(), startAt, endAt, useGlobalTradeScope)
 	if err != nil {
 		return nil, err
 	}
 	var prevOrderCount int64
-	prevOrderCount, _, err = c.countOrderBaseSummary(ctx, req.GetTenantId(), req.GetTenantStoreId(), prevStartAt, prevEndAt)
+	prevOrderCount, _, _, err = c.countOrderBaseSummary(ctx, req.GetTenantId(), req.GetTenantStoreId(), prevStartAt, prevEndAt, useGlobalTradeScope)
 	if err != nil {
 		return nil, err
 	}
 	var orderUserCount int64
-	orderUserCount, err = c.countDistinctOrderUsers(ctx, req.GetTenantId(), req.GetTenantStoreId(), startAt, endAt)
+	orderUserCount, err = c.countDistinctOrderUsers(ctx, req.GetTenantId(), req.GetTenantStoreId(), startAt, endAt, useGlobalTradeScope)
 	if err != nil {
 		return nil, err
 	}
 	var repurchaseUserCount int64
-	repurchaseUserCount, err = c.countRepurchaseUsers(ctx, req.GetTenantId(), req.GetTenantStoreId(), startAt, endAt)
+	repurchaseUserCount, err = c.countRepurchaseUsers(ctx, req.GetTenantId(), req.GetTenantStoreId(), startAt, endAt, useGlobalTradeScope)
 	if err != nil {
 		return nil, err
 	}
@@ -56,7 +60,7 @@ func (c *OrderAnalyticsCase) SummaryOrderAnalytics(ctx context.Context, req *adm
 		NewOrderCount:      newOrderCount,
 		NewOrderGrowthRate: utils.CalcGrowthRate(prevOrderCount, newOrderCount),
 		SaleAmount:         saleAmount,
-		AverageOrderAmount: utils.CalcPerUnit(saleAmount, newOrderCount),
+		AverageOrderAmount: utils.CalcPerUnit(saleAmount, paidOrderCount),
 		OrderUserCount:     orderUserCount,
 		RepurchaseRate:     utils.CalcRatio(repurchaseUserCount, orderUserCount),
 	}, nil
@@ -65,7 +69,13 @@ func (c *OrderAnalyticsCase) SummaryOrderAnalytics(ctx context.Context, req *adm
 // TrendOrderAnalytics 查询订单趋势
 func (c *OrderAnalyticsCase) TrendOrderAnalytics(ctx context.Context, req *adminv1.TrendOrderAnalyticsRequest) (*commonv1.AnalyticsTrendResponse, error) {
 	startAt, endAt := utils.GetAnalyticsTimeRange(req.GetTimeType())
-	summary, axis, err := c.queryOrderSummary(ctx, req.GetTimeType(), req.GetTenantId(), req.GetTenantStoreId(), startAt, endAt)
+	useGlobalTradeScope, err := c.orderInfoCase.useGlobalOrderTradeScope(ctx, req.GetTenantId(), req.GetTenantStoreId())
+	if err != nil {
+		return nil, err
+	}
+	var summary map[int64]*dto.OrderSummary
+	var axis []string
+	summary, axis, err = c.queryOrderSummary(ctx, req.GetTimeType(), req.GetTenantId(), req.GetTenantStoreId(), startAt, endAt, useGlobalTradeScope)
 	if err != nil {
 		return nil, err
 	}
@@ -104,8 +114,19 @@ func (c *OrderAnalyticsCase) PieOrderAnalytics(ctx context.Context, req *adminv1
 	return &commonv1.AnalyticsPieResponse{Items: items}, nil
 }
 
-// countDistinctOrderUsers 统计时间范围内下单用户数。
-func (c *OrderAnalyticsCase) countDistinctOrderUsers(ctx context.Context, tenantID, tenantStoreID int64, startAt, endAt time.Time) (int64, error) {
+// countDistinctOrderUsers 按当前订单口径统计时间范围内下单用户数。
+func (c *OrderAnalyticsCase) countDistinctOrderUsers(ctx context.Context, tenantID, tenantStoreID int64, startAt, endAt time.Time, useGlobalTradeScope bool) (int64, error) {
+	// 默认租户全局视角直接按交易单用户去重，避免依赖多门店子单。
+	if useGlobalTradeScope {
+		query := c.orderInfoCase.orderTradeRepo.Query(ctx).OrderTrade
+		return query.WithContext(ctx).
+			Where(
+				query.CreatedAt.Gte(startAt),
+				query.CreatedAt.Lt(endAt),
+			).
+			Distinct(query.UserID).
+			Count()
+	}
 	query := c.orderInfoCase.Query(ctx).OrderInfo
 	dao := query.WithContext(ctx).
 		Where(
@@ -125,37 +146,18 @@ func (c *OrderAnalyticsCase) countDistinctOrderUsers(ctx context.Context, tenant
 	return count, err
 }
 
-// countRepurchaseUsers 统计时间范围内复购用户数。
-func (c *OrderAnalyticsCase) countRepurchaseUsers(ctx context.Context, tenantID, tenantStoreID int64, startAt, endAt time.Time) (int64, error) {
-	query := c.orderInfoCase.Query(ctx).OrderInfo
-	opts := make([]repository.QueryOption, 0, 4)
-	opts = append(opts, repository.Where(query.CreatedAt.Gte(startAt)))
-	opts = append(opts, repository.Where(query.CreatedAt.Lt(endAt)))
-	if tenantID > 0 {
-		opts = append(opts, repository.Where(query.TenantID.Eq(tenantID)))
-	}
-	if tenantStoreID > 0 {
-		opts = append(opts, repository.Where(query.TenantStoreID.Eq(tenantStoreID)))
-	}
-	orderInfos, err := c.orderInfoCase.List(ctx, opts...)
-	if err != nil {
-		return 0, err
-	}
-	tradeMap, err := c.orderInfoCase.getOrderTradeMap(ctx, orderInfos)
+// countRepurchaseUsers 按当前订单口径统计时间范围内复购用户数。
+func (c *OrderAnalyticsCase) countRepurchaseUsers(ctx context.Context, tenantID, tenantStoreID int64, startAt, endAt time.Time, useGlobalTradeScope bool) (int64, error) {
+	paidFacts, err := c.orderInfoCase.queryPaidOrderFacts(ctx, 0, 0, tenantID, tenantStoreID, startAt, endAt, useGlobalTradeScope)
 	if err != nil {
 		return 0, err
 	}
 	userTrades := make(map[int64]map[int64]struct{})
-	for _, orderInfo := range orderInfos {
-		orderTrade := tradeMap[orderInfo.TradeID]
-		// 复购只统计已经形成支付事实的交易，待支付或已关闭交易不参与计算。
-		if orderTrade == nil || !orderutils.IsPaidTradeStatus(orderTrade.Status) {
-			continue
+	for _, fact := range paidFacts {
+		if userTrades[fact.UserID] == nil {
+			userTrades[fact.UserID] = make(map[int64]struct{})
 		}
-		if userTrades[orderInfo.UserID] == nil {
-			userTrades[orderInfo.UserID] = make(map[int64]struct{})
-		}
-		userTrades[orderInfo.UserID][orderInfo.TradeID] = struct{}{}
+		userTrades[fact.UserID][fact.TradeID] = struct{}{}
 	}
 	var count int64
 	for _, tradeSet := range userTrades {
@@ -166,36 +168,59 @@ func (c *OrderAnalyticsCase) countRepurchaseUsers(ctx context.Context, tenantID,
 	return count, nil
 }
 
-// countOrderBaseSummary 统计时间范围内订单数和销售额。
-func (c *OrderAnalyticsCase) countOrderBaseSummary(ctx context.Context, tenantID, tenantStoreID int64, startAt, endAt time.Time) (int64, int64, error) {
-	query := c.orderInfoCase.Query(ctx).OrderInfo
-	tradeQuery := c.orderInfoCase.orderTradeRepo.Query(ctx).OrderTrade
-	dao := query.WithContext(ctx).
-		Where(
-			query.CreatedAt.Gte(startAt),
-			query.CreatedAt.Lt(endAt),
-		)
-	if tenantID > 0 {
-		dao = dao.Where(query.TenantID.Eq(tenantID))
+// countOrderBaseSummary 按当前订单口径统计时间范围内订单数和销售额。
+func (c *OrderAnalyticsCase) countOrderBaseSummary(ctx context.Context, tenantID, tenantStoreID int64, startAt, endAt time.Time, useGlobalTradeScope bool) (int64, int64, int64, error) {
+	var orderCount int64
+	// 默认租户全局视角直接聚合交易单，避免多门店子单重复增加订单数。
+	if useGlobalTradeScope {
+		query := c.orderInfoCase.orderTradeRepo.Query(ctx).OrderTrade
+		var err error
+		orderCount, err = query.WithContext(ctx).
+			Where(
+				query.CreatedAt.Gte(startAt),
+				query.CreatedAt.Lt(endAt),
+			).
+			Count()
+		if err != nil {
+			return 0, 0, 0, err
+		}
+	} else {
+		query := c.orderInfoCase.Query(ctx).OrderInfo
+		dao := query.WithContext(ctx).
+			Where(
+				query.CreatedAt.Gte(startAt),
+				query.CreatedAt.Lt(endAt),
+			)
+		if tenantID > 0 {
+			dao = dao.Where(query.TenantID.Eq(tenantID))
+		}
+		if tenantStoreID > 0 {
+			dao = dao.Where(query.TenantStoreID.Eq(tenantStoreID))
+		}
+		var err error
+		orderCount, err = dao.Count()
+		if err != nil {
+			return 0, 0, 0, err
+		}
 	}
-	if tenantStoreID > 0 {
-		dao = dao.Where(query.TenantStoreID.Eq(tenantStoreID))
-	}
-	orderCount, err := dao.Count()
+
+	paidFacts, err := c.orderInfoCase.queryPaidOrderFacts(ctx, 0, 0, tenantID, tenantStoreID, startAt, endAt, useGlobalTradeScope)
 	if err != nil {
-		return 0, 0, err
+		return 0, 0, 0, err
 	}
-	var result dto.OrderSummary
-	err = dao.
-		Select(query.PayMoney.Sum().FloorDiv(1).IfNull(0).As("sale_amount")).
-		Join(tradeQuery, query.TradeID.EqCol(tradeQuery.ID)).
-		Where(tradeQuery.Status.In(orderutils.PaidTradeStatuses()...)).
-		Scan(&result)
-	return orderCount, result.SaleAmount, err
+	var saleAmount int64
+	for _, fact := range paidFacts {
+		saleAmount += fact.PayMoney
+	}
+	return orderCount, int64(len(paidFacts)), saleAmount, nil
 }
 
-// queryOrderSummary 查询订单趋势汇总。
-func (c *OrderAnalyticsCase) queryOrderSummary(ctx context.Context, timeType commonv1.AnalyticsTimeType, tenantID, tenantStoreID int64, startAt, endAt time.Time) (map[int64]*dto.OrderSummary, []string, error) {
+// queryOrderSummary 按当前订单口径查询订单趋势汇总。
+func (c *OrderAnalyticsCase) queryOrderSummary(ctx context.Context, timeType commonv1.AnalyticsTimeType, tenantID, tenantStoreID int64, startAt, endAt time.Time, useGlobalTradeScope bool) (map[int64]*dto.OrderSummary, []string, error) {
+	// 默认租户全局视角使用交易单趋势，状态饼图仍由独立的门店订单查询负责。
+	if useGlobalTradeScope {
+		return c.queryGlobalOrderTradeSummary(ctx, timeType, startAt, endAt)
+	}
 	summaryMap := make(map[int64]*dto.OrderSummary)
 	query := c.orderInfoCase.Query(ctx).OrderInfo
 	groupField, axisData := utils.GetAnalyticsGroupFieldByColumn(timeType, startAt, endAt, query.CreatedAt)
@@ -224,26 +249,11 @@ func (c *OrderAnalyticsCase) queryOrderSummary(ctx context.Context, timeType com
 	for _, item := range countRows {
 		summaryMap[item.Key] = item
 	}
-	saleRows := make([]*dto.OrderSummary, 0)
-	tradeQuery := c.orderInfoCase.orderTradeRepo.Query(ctx).OrderTrade
-	err = dao.
-		Select(
-			groupField.As("key"),
-			query.PayMoney.Sum().FloorDiv(1).IfNull(0).As("sale_amount"),
-		).
-		Join(tradeQuery, query.TradeID.EqCol(tradeQuery.ID)).
-		Where(tradeQuery.Status.In(orderutils.PaidTradeStatuses()...)).
-		Group(utils.AnalyticsGroupAliasField()).
-		Scan(&saleRows)
+	paidFacts, err := c.orderInfoCase.queryPaidOrderFacts(ctx, 0, 0, tenantID, tenantStoreID, startAt, endAt, false)
 	if err != nil {
 		return nil, nil, err
 	}
-	for _, item := range saleRows {
-		if summaryMap[item.Key] == nil {
-			summaryMap[item.Key] = &dto.OrderSummary{Key: item.Key}
-		}
-		summaryMap[item.Key].SaleAmount = item.SaleAmount
-	}
+	appendPaidFactSales(summaryMap, timeType, paidFacts)
 	// 补齐缺失桶位，避免前端图表在空数据时出现断层。
 	for i := range axisData {
 		key := int64(i + 1)
@@ -253,6 +263,57 @@ func (c *OrderAnalyticsCase) queryOrderSummary(ctx context.Context, timeType com
 		}
 	}
 	return summaryMap, axisData, nil
+}
+
+// queryGlobalOrderTradeSummary 查询默认租户全局交易单趋势汇总。
+func (c *OrderAnalyticsCase) queryGlobalOrderTradeSummary(ctx context.Context, timeType commonv1.AnalyticsTimeType, startAt, endAt time.Time) (map[int64]*dto.OrderSummary, []string, error) {
+	summaryMap := make(map[int64]*dto.OrderSummary)
+	query := c.orderInfoCase.orderTradeRepo.Query(ctx).OrderTrade
+	groupField, axisData := utils.GetAnalyticsGroupFieldByColumn(timeType, startAt, endAt, query.CreatedAt)
+	dao := query.WithContext(ctx).
+		Where(
+			query.CreatedAt.Gte(startAt),
+			query.CreatedAt.Lt(endAt),
+		)
+	countRows := make([]*dto.OrderSummary, 0)
+	err := dao.
+		Select(
+			groupField.As("key"),
+			query.ID.Count().As("order_count"),
+		).
+		Group(utils.AnalyticsGroupAliasField()).
+		Scan(&countRows)
+	if err != nil {
+		return nil, nil, err
+	}
+	for _, item := range countRows {
+		summaryMap[item.Key] = item
+	}
+	paidFacts, err := c.orderInfoCase.queryPaidOrderFacts(ctx, 0, 0, 0, 0, startAt, endAt, true)
+	if err != nil {
+		return nil, nil, err
+	}
+	appendPaidFactSales(summaryMap, timeType, paidFacts)
+	// 补齐缺失桶位，避免前端图表在空数据时出现断层。
+	for i := range axisData {
+		key := int64(i + 1)
+		// 当前桶位缺少聚合结果时，补一个空对象保证序列完整。
+		if _, ok := summaryMap[key]; !ok {
+			summaryMap[key] = &dto.OrderSummary{Key: key}
+		}
+	}
+	return summaryMap, axisData, nil
+}
+
+// appendPaidFactSales 将支付事实金额写入对应的分析趋势桶位。
+func appendPaidFactSales(summaryMap map[int64]*dto.OrderSummary, timeType commonv1.AnalyticsTimeType, paidFacts []*dto.OrderPaidFact) {
+	for _, fact := range paidFacts {
+		key := utils.GetAnalyticsTimeKey(timeType, fact.PaidAt)
+		if summaryMap[key] == nil {
+			summaryMap[key] = &dto.OrderSummary{Key: key}
+		}
+		summaryMap[key].SaleAmount += fact.PayMoney
+	}
 }
 
 // queryOrderStatusSummary 查询指定时间范围内的订单状态分布。

@@ -13,6 +13,7 @@ import (
 	"time"
 
 	adminv1 "shop/api/gen/go/admin/v1"
+	appv1 "shop/api/gen/go/app/v1"
 	_const "shop/pkg/const"
 	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
@@ -129,9 +130,10 @@ func (t *TradeBill) payment(billDate, billType string) (tradeBillCheckResult, er
 		return result, err
 	}
 	query := t.data.Query(t.ctx).OrderPayment
-	opts := make([]repository.QueryOption, 0, 2)
+	opts := make([]repository.QueryOption, 0, 3)
 	opts = append(opts, repository.Where(query.SuccessTime.Gte(startTime)))
 	opts = append(opts, repository.Where(query.SuccessTime.Lt(endTime)))
+	opts = append(opts, repository.Where(query.TradeState.Eq(appv1.PaymentResource_SUCCESS.String())))
 	paymentList, err = t.orderPaymentRepo.List(
 		t.ctx,
 		opts...,
@@ -144,6 +146,8 @@ func (t *TradeBill) payment(billDate, billType string) (tradeBillCheckResult, er
 	// 转换map
 	paymentMap := make(map[string]*models.OrderPayment)
 	for _, payment := range paymentList {
+		// 本地记录默认视为对账失败，只有渠道账单明确命中且金额状态一致时才改为成功。
+		payment.Status = _const.ORDER_BILL_STATUS_CHECK_FAIL
 		paymentMap[fmt.Sprintf("%s_%s", payment.TradeNo, payment.ThirdOrderNo)] = payment
 	}
 
@@ -213,6 +217,7 @@ func (t *TradeBill) payment(billDate, billType string) (tradeBillCheckResult, er
 			continue
 		}
 	}
+	result.failedCount = int(result.localCount) - result.successCount
 	err = t.tx.Transaction(t.ctx, func(ctx context.Context) error {
 		for _, v := range paymentMap {
 			payBill.TotalCount += 1
@@ -348,9 +353,10 @@ func (t *TradeBill) refund(billDate, billType string) (tradeBillCheckResult, err
 		return result, err
 	}
 	query := t.data.Query(t.ctx).OrderRefund
-	opts := make([]repository.QueryOption, 0, 2)
+	opts := make([]repository.QueryOption, 0, 3)
 	opts = append(opts, repository.Where(query.SuccessTime.Gte(startTime)))
 	opts = append(opts, repository.Where(query.SuccessTime.Lt(endTime)))
+	opts = append(opts, repository.Where(query.RefundState.Eq(appv1.RefundResource_SUCCESS.String())))
 	refundList, err = t.orderRefundRepo.List(
 		t.ctx,
 		opts...,
@@ -363,6 +369,8 @@ func (t *TradeBill) refund(billDate, billType string) (tradeBillCheckResult, err
 	// 转换map
 	refundMap := make(map[string]*models.OrderRefund)
 	for _, refund := range refundList {
+		// 本地记录默认视为对账失败，只有渠道账单明确命中且金额状态一致时才改为成功。
+		refund.Status = _const.ORDER_BILL_STATUS_CHECK_FAIL
 		refundMap[fmt.Sprintf("%s_%s_%s_%s", refund.TradeNo, refund.ThirdOrderNo, refund.RefundNo, refund.ThirdRefundNo)] = refund
 	}
 
@@ -432,6 +440,7 @@ func (t *TradeBill) refund(billDate, billType string) (tradeBillCheckResult, err
 			continue
 		}
 	}
+	result.failedCount = int(result.localCount) - result.successCount
 	err = t.tx.Transaction(t.ctx, func(ctx context.Context) error {
 		for _, v := range refundMap {
 			payBill.TotalCount += 1

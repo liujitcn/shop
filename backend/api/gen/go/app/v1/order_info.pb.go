@@ -7,16 +7,15 @@
 package appv1
 
 import (
-	reflect "reflect"
-	v1 "shop/api/gen/go/common/v1"
-	sync "sync"
-	unsafe "unsafe"
-
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+	reflect "reflect"
+	v1 "shop/api/gen/go/common/v1"
+	sync "sync"
+	unsafe "unsafe"
 )
 
 const (
@@ -788,6 +787,7 @@ type PageOrderInfoRequest struct {
 	TradeStatus   *v1.OrderTradeStatus   `protobuf:"varint,2,opt,name=trade_status,json=tradeStatus,proto3,enum=common.v1.OrderTradeStatus,oneof" json:"trade_status,omitempty"`     // 交易支付状态
 	RefundStatus  *v1.OrderRefundStatus  `protobuf:"varint,3,opt,name=refund_status,json=refundStatus,proto3,enum=common.v1.OrderRefundStatus,oneof" json:"refund_status,omitempty"` // 订单退款状态
 	HasRefund     *bool                  `protobuf:"varint,4,opt,name=has_refund,json=hasRefund,proto3,oneof" json:"has_refund,omitempty"`                                           // 是否存在退款
+	Refundable    *bool                  `protobuf:"varint,5,opt,name=refundable,proto3,oneof" json:"refundable,omitempty"`                                                          // 是否仅查询可申请退款订单
 	PageNum       int64                  `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`                                                     // 当前页码
 	PageSize      int64                  `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`                                                  // 每一页的行数
 	unknownFields protoimpl.UnknownFields
@@ -848,6 +848,13 @@ func (x *PageOrderInfoRequest) GetRefundStatus() v1.OrderRefundStatus {
 func (x *PageOrderInfoRequest) GetHasRefund() bool {
 	if x != nil && x.HasRefund != nil {
 		return *x.HasRefund
+	}
+	return false
+}
+
+func (x *PageOrderInfoRequest) GetRefundable() bool {
+	if x != nil && x.Refundable != nil {
+		return *x.Refundable
 	}
 	return false
 }
@@ -2142,19 +2149,23 @@ const file_app_v1_order_info_proto_rawDesc = "" +
 	"\x06status\x18\x01 \x01(\x0e2\x1a.common.v1.OrderInfoStatusB\x18\xbaG\x15\x92\x02\x12订单履约状态R\x06status\x12$\n" +
 	"\x03num\x18\x02 \x01(\x05B\x12\xbaG\x0f\x92\x02\f订单数量R\x03num\x12X\n" +
 	"\ftrade_status\x18\x03 \x01(\x0e2\x1b.common.v1.OrderTradeStatusB\x18\xbaG\x15\x92\x02\x12交易支付状态R\vtradeStatus\x12[\n" +
-	"\rrefund_status\x18\x04 \x01(\x0e2\x1c.common.v1.OrderRefundStatusB\x18\xbaG\x15\x92\x02\x12订单退款状态R\frefundStatus\"\xa3\x04\n" +
+	"\rrefund_status\x18\x04 \x01(\x0e2\x1c.common.v1.OrderRefundStatusB\x18\xbaG\x15\x92\x02\x12订单退款状态R\frefundStatus\"\x83\x05\n" +
 	"\x14PageOrderInfoRequest\x12Q\n" +
 	"\x06status\x18\x01 \x01(\x0e2\x1a.common.v1.OrderInfoStatusB\x18\xbaG\x15\x92\x02\x12订单履约状态H\x00R\x06status\x88\x01\x01\x12]\n" +
 	"\ftrade_status\x18\x02 \x01(\x0e2\x1b.common.v1.OrderTradeStatusB\x18\xbaG\x15\x92\x02\x12交易支付状态H\x01R\vtradeStatus\x88\x01\x01\x12`\n" +
 	"\rrefund_status\x18\x03 \x01(\x0e2\x1c.common.v1.OrderRefundStatusB\x18\xbaG\x15\x92\x02\x12订单退款状态H\x02R\frefundStatus\x88\x01\x01\x12<\n" +
 	"\n" +
-	"has_refund\x18\x04 \x01(\bB\x18\xbaG\x15\x92\x02\x12是否存在退款H\x03R\thasRefund\x88\x01\x01\x129\n" +
+	"has_refund\x18\x04 \x01(\bB\x18\xbaG\x15\x92\x02\x12是否存在退款H\x03R\thasRefund\x88\x01\x01\x12O\n" +
+	"\n" +
+	"refundable\x18\x05 \x01(\bB*\xbaG'\x92\x02$是否仅查询可申请退款订单H\x04R\n" +
+	"refundable\x88\x01\x01\x129\n" +
 	"\bpage_num\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12A\n" +
 	"\tpage_size\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSizeB\t\n" +
 	"\a_statusB\x0f\n" +
 	"\r_trade_statusB\x10\n" +
 	"\x0e_refund_statusB\r\n" +
-	"\v_has_refund\"\x83\x01\n" +
+	"\v_has_refundB\r\n" +
+	"\v_refundable\"\x83\x01\n" +
 	"\x15PageOrderInfoResponse\x12F\n" +
 	"\vorder_infos\x18\x01 \x03(\v2\x11.app.v1.OrderInfoB\x12\xbaG\x0f\x92\x02\f分页数据R\n" +
 	"orderInfos\x12\"\n" +

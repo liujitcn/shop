@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
 	basev1 "shop/api/gen/go/base/v1"
 	commonv1 "shop/api/gen/go/common/v1"
@@ -195,7 +196,7 @@ func (r *AdminRunner) ExecuteAdminWorkflowAction(ctx context.Context, action ein
 		return r.openAdminPayBillCheckFlow(ctx)
 	// P2: 报表总览
 	case "open_report_overview":
-		return r.openAdminReportOverviewFlow(ctx)
+		return r.openAdminReportOverviewFlow(ctx, payload)
 	default:
 		return nil, errorsx.InvalidArgument("管理端助手动作不支持")
 	}
@@ -325,13 +326,26 @@ func (r *AdminRunner) viewAdminShipmentDetail(ctx context.Context, payload map[s
 	if orderID <= 0 {
 		return nil, errorsx.InvalidArgument("订单参数不合法")
 	}
-	output, usage, err := r.invokeAdminFlowTool(ctx, adminToolGetOrderInfoShipment, map[string]any{"id": orderID})
-	tools := appendAiAssistantFlowTool(nil, usage)
+	shipmentOutput, shipmentUsage, err := r.invokeAdminFlowTool(ctx, adminToolGetOrderInfoShipment, map[string]any{"id": orderID})
+	tools := appendAiAssistantFlowTool(nil, shipmentUsage)
 	if err != nil {
 		return r.adminFlowErrorResponse(adminFlowPendingShipment, "detail", tools), nil
 	}
-	block := buildAdminShipmentFormBlock(output, orderID)
-	return r.adminFlowResponse(adminFlowPendingShipment, "detail", "订单详情已加载，填写物流信息后确认发货。", []map[string]any{block}, tools), nil
+	var orderOutput map[string]any
+	var orderUsage assistant.ToolUsage
+	orderOutput, orderUsage, err = r.invokeAdminFlowTool(ctx, adminToolGetOrderInfo, map[string]any{"id": orderID})
+	tools = appendAiAssistantFlowTool(tools, orderUsage)
+	if err != nil {
+		return r.adminFlowErrorResponse(adminFlowPendingShipment, "detail", tools), nil
+	}
+	canShip := canShipAdminOrder(mapValue(orderOutput["order"]))
+	block := buildAdminShipmentFormBlock(shipmentOutput, orderID, canShip)
+	content := "订单详情已加载，填写物流信息后确认发货。"
+	// 订单状态发生变化时只展示详情，不再下发确认发货动作。
+	if !canShip {
+		content = "订单当前支付或退款状态不允许发货。"
+	}
+	return r.adminFlowResponse(adminFlowPendingShipment, "detail", content, []map[string]any{block}, tools), nil
 }
 
 // confirmAdminShipment 确认发货。
@@ -494,17 +508,36 @@ func (r *AdminRunner) confirmAdminGoodsStatus(ctx context.Context, payload map[s
 
 // openAdminOrderRefundFlow 打开退款记录流程。
 func (r *AdminRunner) openAdminOrderRefundFlow(ctx context.Context) (*assistant.Response, error) {
-	output, usage, err := r.invokeAdminFlowTool(ctx, adminToolPageOrderInfos, map[string]any{
-		"refund_status": int(commonv1.OrderRefundStatus_PROCESSING_ORS),
-		"page_num":      1,
-		"page_size":     5,
-	})
-	tools := appendAiAssistantFlowTool(nil, usage)
-	if err != nil {
-		return r.adminFlowErrorResponse(adminFlowOrderRefund, "list", tools), nil
+	refundStatuses := []commonv1.OrderRefundStatus{
+		commonv1.OrderRefundStatus_PROCESSING_ORS,
+		commonv1.OrderRefundStatus_PARTIAL_REFUND_ORS,
+		commonv1.OrderRefundStatus_REFUNDED_ORS,
+		commonv1.OrderRefundStatus_CLOSED_OR_FAILED_ORS,
 	}
-	block := buildAdminOrderListBlock(adminFlowOrderRefund, "退款订单", output, "view_refund_detail")
-	return r.adminFlowResponse(adminFlowOrderRefund, "list", "这些订单已退款，选择一个查看退款详情。", []map[string]any{block}, tools), nil
+	tools := make([]assistant.ToolUsage, 0, len(refundStatuses))
+	orderInfos := make([]any, 0, len(refundStatuses)*5)
+	var total int64
+	var err error
+	for _, refundStatus := range refundStatuses {
+		var output map[string]any
+		var usage assistant.ToolUsage
+		output, usage, err = r.invokeAdminFlowTool(ctx, adminToolPageOrderInfos, map[string]any{
+			"refund_status": int(refundStatus),
+			"page_num":      1,
+			"page_size":     5,
+		})
+		tools = appendAiAssistantFlowTool(tools, usage)
+		if err != nil {
+			return r.adminFlowErrorResponse(adminFlowOrderRefund, "list", tools), nil
+		}
+		orderInfos = append(orderInfos, sliceAnyValue(output["order_infos"])...)
+		total += int64Value(output["total"])
+	}
+	block := buildAdminOrderListBlock(adminFlowOrderRefund, "退款记录订单", map[string]any{
+		"order_infos": orderInfos,
+		"total":       total,
+	}, "view_refund_detail")
+	return r.adminFlowResponse(adminFlowOrderRefund, "list", "以下订单存在退款记录，选择一个查看订单、支付和退款明细。", []map[string]any{block}, tools), nil
 }
 
 // viewAdminRefundDetail 查看退款详情（纯展示，无操作按钮）。
@@ -513,11 +546,16 @@ func (r *AdminRunner) viewAdminRefundDetail(ctx context.Context, payload map[str
 	if orderID <= 0 {
 		return nil, errorsx.InvalidArgument("订单参数不合法")
 	}
-	orderOutput, orderUsage, orderErr := r.invokeAdminFlowTool(ctx, adminToolGetOrderInfo, map[string]any{"id": orderID})
+	orderOutput, orderUsage, err := r.invokeAdminFlowTool(ctx, adminToolGetOrderInfo, map[string]any{"id": orderID})
 	tools := appendAiAssistantFlowTool(nil, orderUsage)
-	refundOutput, refundUsage, refundErr := r.invokeAdminFlowTool(ctx, adminToolGetOrderInfoRefund, map[string]any{"id": orderID})
+	if err != nil {
+		return r.adminFlowErrorResponse(adminFlowOrderRefund, "detail", tools), nil
+	}
+	var refundOutput map[string]any
+	var refundUsage assistant.ToolUsage
+	refundOutput, refundUsage, err = r.invokeAdminFlowTool(ctx, adminToolGetOrderInfoRefund, map[string]any{"id": orderID})
 	tools = appendAiAssistantFlowTool(tools, refundUsage)
-	if orderErr != nil && refundErr != nil {
+	if err != nil {
 		return r.adminFlowErrorResponse(adminFlowOrderRefund, "detail", tools), nil
 	}
 	block := buildAdminRefundDetailBlock(orderOutput, refundOutput)
@@ -785,13 +823,36 @@ func (r *AdminRunner) openAdminPayBillCheckFlow(ctx context.Context) (*assistant
 // openAdminReportOverviewFlow 打开经营报表总览流程。
 //
 // 扇出式查询：同时调用订单月报、商品月报、用户分析三个工具，任一失败不中断其他调用。
-func (r *AdminRunner) openAdminReportOverviewFlow(ctx context.Context) (*assistant.Response, error) {
+func (r *AdminRunner) openAdminReportOverviewFlow(ctx context.Context, payload map[string]any) (*assistant.Response, error) {
 	tools := make([]assistant.ToolUsage, 0, 3)
 
-	orderOutput, orderUsage, orderErr := r.invokeAdminFlowTool(ctx, adminToolSummaryOrderMonthReport, map[string]any{})
+	reportMonth := stringValue(payload["month"])
+	// 未指定报表月份时默认查询当前月份。
+	if reportMonth == "" {
+		reportMonth = time.Now().Format("2006-01")
+	}
+	startMonth := stringValue(payload["start_month"])
+	// 只指定结束月份时，将其作为单月报表范围。
+	if startMonth == "" {
+		startMonth = stringValue(payload["end_month"])
+	}
+	if startMonth == "" {
+		startMonth = reportMonth
+	}
+	endMonth := stringValue(payload["end_month"])
+	// 只指定开始月份时，将其作为单月报表范围。
+	if endMonth == "" {
+		endMonth = startMonth
+	}
+	monthInput := map[string]any{
+		"start_month": startMonth,
+		"end_month":   endMonth,
+	}
+
+	orderOutput, orderUsage, orderErr := r.invokeAdminFlowTool(ctx, adminToolSummaryOrderMonthReport, monthInput)
 	tools = appendAiAssistantFlowTool(tools, orderUsage)
 
-	goodsOutput, goodsUsage, goodsErr := r.invokeAdminFlowTool(ctx, adminToolSummaryGoodsMonthReport, map[string]any{})
+	goodsOutput, goodsUsage, goodsErr := r.invokeAdminFlowTool(ctx, adminToolSummaryGoodsMonthReport, monthInput)
 	tools = appendAiAssistantFlowTool(tools, goodsUsage)
 
 	userOutput, userUsage, userErr := r.invokeAdminFlowTool(ctx, adminToolSummaryUserAnalytics, map[string]any{
@@ -934,16 +995,23 @@ func buildAdminOrderListBlock(flow string, title string, output map[string]any, 
 	for _, item := range orders {
 		orderID := int64Value(item["id"])
 		payload := map[string]any{"order_id": orderID}
+		action := aiAssistantAction(flow, "detail", actionType, payload)
+		// 待发货入口只向当前确实允许履约的订单下发后续动作。
+		if flow == adminFlowPendingShipment && !canShipAdminOrder(item) {
+			action = nil
+		}
 		items = append(items, map[string]any{
-			"id":           orderID,
-			"order_no":     item["order_no"],
-			"pay_money":    item["pay_money"],
-			"total_money":  item["total_money"],
-			"status":       item["status"],
-			"status_label": orderStatusLabel(item["status"]),
-			"goods_num":    item["goods_num"],
-			"goods":        item["goods"],
-			"action":       aiAssistantAction(flow, "detail", actionType, payload),
+			"id":                  orderID,
+			"tenant_store_id":     item["tenant_store_id"],
+			"order_no":            item["order_no"],
+			"pay_money":           item["pay_money"],
+			"total_money":         item["total_money"],
+			"trade_status_label":  orderTradeStatusLabel(item["trade_status"]),
+			"status_label":        orderStatusLabel(item["status"]),
+			"refund_status_label": orderRefundStatusLabel(item["refund_status"]),
+			"goods_num":           item["goods_num"],
+			"created_at":          item["created_at"],
+			"action":              action,
 		})
 	}
 	return map[string]any{
@@ -954,20 +1022,25 @@ func buildAdminOrderListBlock(flow string, title string, output map[string]any, 
 	}
 }
 
-// buildAdminShipmentFormBlock 构造发货表单卡片。
-func buildAdminShipmentFormBlock(output map[string]any, orderID int64) map[string]any {
+// buildAdminShipmentFormBlock 构造发货表单卡片，仅为状态允许的订单下发确认动作。
+func buildAdminShipmentFormBlock(output map[string]any, orderID int64, canShip bool) map[string]any {
 	order := mapValue(output["order"])
 	if len(order) == 0 {
 		order = output
 	}
-	return map[string]any{
-		"type":  "shipment_form",
-		"title": "确认发货",
-		"order": order,
-		"action": aiAssistantAction(adminFlowPendingShipment, "confirm", "confirm_shipment", map[string]any{
-			"order_id": orderID,
-		}),
+	block := map[string]any{
+		"type":     "shipment_form",
+		"title":    "确认发货",
+		"order":    order,
+		"disabled": !canShip,
 	}
+	// 交易与退款状态均允许履约时，才展示确认发货按钮。
+	if canShip {
+		block["action"] = aiAssistantAction(adminFlowPendingShipment, "confirm", "confirm_shipment", map[string]any{
+			"order_id": orderID,
+		})
+	}
+	return block
 }
 
 // buildAdminCommentListBlock 构造评价审核列表卡片。
@@ -1077,19 +1150,12 @@ func buildAdminGoodsAlertDetailBlock(flow string, output map[string]any) map[str
 
 // buildAdminRefundDetailBlock 构造退款详情卡片（纯展示，无操作按钮）。
 func buildAdminRefundDetailBlock(orderOutput map[string]any, refundOutput map[string]any) map[string]any {
-	order := mapValue(orderOutput["order_info"])
-	if len(order) == 0 {
-		order = orderOutput
-	}
-	refund := mapValue(refundOutput["order_info_refund"])
-	if len(refund) == 0 {
-		refund = refundOutput
-	}
 	return map[string]any{
-		"type":   "refund_detail",
-		"title":  "退款详情",
-		"order":  order,
-		"refund": refund,
+		"type":    "refund_detail",
+		"title":   "退款详情",
+		"order":   mapValue(orderOutput["order"]),
+		"payment": mapValue(refundOutput["payment"]),
+		"refund":  sliceMapValue(refundOutput["refund"]),
 	}
 }
 

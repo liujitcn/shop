@@ -19,15 +19,21 @@ import (
 type OrderReportCase struct {
 	*biz.BaseCase
 	*data.OrderStatDayRepository
-	monthMapper *mapper.CopierMapper[adminv1.OrderMonthReportItem, dto.OrderMonthReportRow]
-	dayMapper   *mapper.CopierMapper[adminv1.OrderDayReportItem, dto.OrderDayReportRow]
+	orderInfoCase *OrderInfoCase
+	monthMapper   *mapper.CopierMapper[adminv1.OrderMonthReportItem, dto.OrderMonthReportRow]
+	dayMapper     *mapper.CopierMapper[adminv1.OrderDayReportItem, dto.OrderDayReportRow]
 }
 
 // NewOrderReportCase 创建订单报表业务
-func NewOrderReportCase(baseCase *biz.BaseCase, orderStatDayRepo *data.OrderStatDayRepository) *OrderReportCase {
+func NewOrderReportCase(
+	baseCase *biz.BaseCase,
+	orderStatDayRepo *data.OrderStatDayRepository,
+	orderInfoCase *OrderInfoCase,
+) *OrderReportCase {
 	return &OrderReportCase{
 		BaseCase:               baseCase,
 		OrderStatDayRepository: orderStatDayRepo,
+		orderInfoCase:          orderInfoCase,
 		monthMapper:            mapper.NewCopierMapper[adminv1.OrderMonthReportItem, dto.OrderMonthReportRow](),
 		dayMapper:              mapper.NewCopierMapper[adminv1.OrderDayReportItem, dto.OrderDayReportRow](),
 	}
@@ -56,6 +62,11 @@ func (c *OrderReportCase) SummaryOrderMonthReport(ctx context.Context, req *admi
 	if err != nil {
 		return nil, err
 	}
+	var paidMetrics *dto.OrderReportPaidMetrics
+	paidMetrics, err = c.queryPaidOrderMetrics(ctx, req.GetPayType(), req.GetPayChannel(), req.GetTenantId(), req.GetTenantStoreId(), startMonth, endMonth.AddDate(0, 1, 0), "2006-01")
+	if err != nil {
+		return nil, err
+	}
 
 	summary := &adminv1.SummaryOrderMonthReportResponse{}
 	for _, row := range rows {
@@ -63,6 +74,8 @@ func (c *OrderReportCase) SummaryOrderMonthReport(ctx context.Context, req *admi
 		c.appendMonthReportSummary(summary, item)
 	}
 
+	summary.PaidOrderCount = paidMetrics.TotalOrderCount
+	summary.PaidUserCount = paidMetrics.TotalUserCount
 	summary.NetOrderAmount = summary.PaidOrderAmount - summary.RefundOrderAmount
 	summary.CustomerUnitPrice = utils.CalcPerUnit(summary.PaidOrderAmount, summary.PaidOrderCount)
 	return summary, nil
@@ -91,6 +104,11 @@ func (c *OrderReportCase) ListOrderMonthReports(ctx context.Context, req *adminv
 	if err != nil {
 		return nil, err
 	}
+	var paidMetrics *dto.OrderReportPaidMetrics
+	paidMetrics, err = c.queryPaidOrderMetrics(ctx, req.GetPayType(), req.GetPayChannel(), req.GetTenantId(), req.GetTenantStoreId(), startMonth, endMonth.AddDate(0, 1, 0), "2006-01")
+	if err != nil {
+		return nil, err
+	}
 
 	rowMap := make(map[string]*dto.OrderMonthReportRow, len(rows))
 	for _, item := range rows {
@@ -105,6 +123,8 @@ func (c *OrderReportCase) ListOrderMonthReports(ctx context.Context, req *adminv
 		if !ok {
 			row = &dto.OrderMonthReportRow{Month: monthKey}
 		}
+		row.PaidOrderCount = paidMetrics.PeriodOrderCounts[monthKey]
+		row.PaidUserCount = paidMetrics.PeriodUserCounts[monthKey]
 		items = append(items, c.toOrderMonthReportItem(row))
 	}
 
@@ -136,6 +156,11 @@ func (c *OrderReportCase) SummaryOrderDayReport(ctx context.Context, req *adminv
 	if err != nil {
 		return nil, err
 	}
+	var paidMetrics *dto.OrderReportPaidMetrics
+	paidMetrics, err = c.queryPaidOrderMetrics(ctx, req.GetPayType(), req.GetPayChannel(), req.GetTenantId(), req.GetTenantStoreId(), startDate, endDate.AddDate(0, 0, 1), "2006-01-02")
+	if err != nil {
+		return nil, err
+	}
 
 	summary := &adminv1.SummaryOrderDayReportResponse{}
 	for _, row := range rows {
@@ -143,6 +168,8 @@ func (c *OrderReportCase) SummaryOrderDayReport(ctx context.Context, req *adminv
 		c.appendDayReportSummary(summary, item)
 	}
 
+	summary.PaidOrderCount = paidMetrics.TotalOrderCount
+	summary.PaidUserCount = paidMetrics.TotalUserCount
 	summary.NetOrderAmount = summary.PaidOrderAmount - summary.RefundOrderAmount
 	summary.CustomerUnitPrice = utils.CalcPerUnit(summary.PaidOrderAmount, summary.PaidOrderCount)
 	return summary, nil
@@ -171,6 +198,11 @@ func (c *OrderReportCase) ListOrderDayReports(ctx context.Context, req *adminv1.
 	if err != nil {
 		return nil, err
 	}
+	var paidMetrics *dto.OrderReportPaidMetrics
+	paidMetrics, err = c.queryPaidOrderMetrics(ctx, req.GetPayType(), req.GetPayChannel(), req.GetTenantId(), req.GetTenantStoreId(), startDate, endDate.AddDate(0, 0, 1), "2006-01-02")
+	if err != nil {
+		return nil, err
+	}
 
 	rowMap := make(map[string]*dto.OrderDayReportRow, len(rows))
 	for _, item := range rows {
@@ -185,6 +217,8 @@ func (c *OrderReportCase) ListOrderDayReports(ctx context.Context, req *adminv1.
 		if !ok {
 			row = &dto.OrderDayReportRow{Day: dayKey}
 		}
+		row.PaidOrderCount = paidMetrics.PeriodOrderCounts[dayKey]
+		row.PaidUserCount = paidMetrics.PeriodUserCounts[dayKey]
 		items = append(items, c.toOrderDayReportItem(row))
 	}
 
@@ -214,7 +248,6 @@ func (c *OrderReportCase) appendMonthReportSummary(summary *adminv1.SummaryOrder
 	summary.PaidOrderAmount += item.PaidOrderAmount
 	summary.RefundOrderCount += item.RefundOrderCount
 	summary.RefundOrderAmount += item.RefundOrderAmount
-	summary.PaidUserCount += item.PaidUserCount
 	summary.GoodsCount += item.GoodsCount
 }
 
@@ -239,8 +272,51 @@ func (c *OrderReportCase) appendDayReportSummary(summary *adminv1.SummaryOrderDa
 	summary.PaidOrderAmount += item.PaidOrderAmount
 	summary.RefundOrderCount += item.RefundOrderCount
 	summary.RefundOrderAmount += item.RefundOrderAmount
-	summary.PaidUserCount += item.PaidUserCount
 	summary.GoodsCount += item.GoodsCount
+}
+
+// queryPaidOrderMetrics 按支付事实时间统计报表订单数和唯一支付用户数。
+func (c *OrderReportCase) queryPaidOrderMetrics(
+	ctx context.Context,
+	payType, payChannel int32,
+	tenantID, tenantStoreID int64,
+	startAt, endAt time.Time,
+	periodLayout string,
+) (*dto.OrderReportPaidMetrics, error) {
+	useGlobalTradeScope, err := c.orderInfoCase.useGlobalOrderTradeScope(ctx, tenantID, tenantStoreID)
+	if err != nil {
+		return nil, err
+	}
+	var paidFacts []*dto.OrderPaidFact
+	paidFacts, err = c.orderInfoCase.queryPaidOrderFacts(ctx, payType, payChannel, tenantID, tenantStoreID, startAt, endAt, useGlobalTradeScope)
+	if err != nil {
+		return nil, err
+	}
+
+	metrics := &dto.OrderReportPaidMetrics{
+		PeriodOrderCounts: make(map[string]int64),
+		PeriodUserCounts:  make(map[string]int64),
+	}
+	periodUsers := make(map[string]map[int64]struct{})
+	totalUsers := make(map[int64]struct{})
+	appendMetric := func(fact *dto.OrderPaidFact, userID int64) {
+		period := fact.PaidAt.Format(periodLayout)
+		metrics.PeriodOrderCounts[period]++
+		metrics.TotalOrderCount++
+		if periodUsers[period] == nil {
+			periodUsers[period] = make(map[int64]struct{})
+		}
+		periodUsers[period][userID] = struct{}{}
+		totalUsers[userID] = struct{}{}
+	}
+	for _, fact := range paidFacts {
+		appendMetric(fact, fact.UserID)
+	}
+	for period, users := range periodUsers {
+		metrics.PeriodUserCounts[period] = int64(len(users))
+	}
+	metrics.TotalUserCount = int64(len(totalUsers))
+	return metrics, nil
 }
 
 // queryOrderMonthReportRows 查询月报聚合数据。

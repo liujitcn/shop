@@ -5119,6 +5119,10 @@ paths:
             description: 查询待评价商品分页列表
             operationId: CommentService_PagePendingCommentGoods
             parameters:
+                - name: order_id
+                  in: query
+                  schema:
+                    type: string
                 - name: page_num
                   in: query
                   schema:
@@ -5395,6 +5399,10 @@ paths:
                     type: string
                     format: enum
                 - name: has_refund
+                  in: query
+                  schema:
+                    type: boolean
+                - name: refundable
                   in: query
                   schema:
                     type: boolean
