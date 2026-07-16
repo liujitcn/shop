@@ -14,13 +14,11 @@ const TableNameOrderCancel = "order_cancel"
 
 // OrderCancel 订单取消信息
 type OrderCancel struct {
-	ID            int64          `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:订单取消ID" json:"id"`                                                        // 订单取消ID
-	TenantID      int64          `gorm:"column:tenant_id;type:bigint;not null;index:idx_order_cancel_tenant_id,priority:1;comment:租户ID" json:"tenant_id"`                     // 租户ID
-	TenantStoreID int64          `gorm:"column:tenant_store_id;type:bigint;not null;index:idx_order_cancel_tenant_store_id,priority:1;comment:租户门店ID" json:"tenant_store_id"` // 租户门店ID
-	OrderID       int64          `gorm:"column:order_id;type:bigint;uniqueIndex:unique_order_cancel,priority:1;comment:订单ID" json:"order_id"`                                 // 订单ID
-	Reason        int32          `gorm:"column:reason;type:tinyint;comment:取消原因：枚举【OrderCancelReason】" json:"reason"`                                                         // 取消原因：枚举【OrderCancelReason】
-	CreatedAt     time.Time      `gorm:"column:created_at;type:datetime;comment:创建时间" json:"created_at"`                                                                      // 创建时间
-	DeletedAt     gorm.DeletedAt `gorm:"column:deleted_at;type:datetime;comment:删除时间" json:"deleted_at"`                                                                      // 删除时间
+	ID        int64          `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:订单取消ID" json:"id"`                                  // 订单取消ID
+	TradeID   int64          `gorm:"column:trade_id;type:bigint;not null;uniqueIndex:unique_order_cancel,priority:1;comment:交易单ID" json:"trade_id"` // 交易单ID
+	Reason    int32          `gorm:"column:reason;type:tinyint;comment:取消原因：枚举【OrderCancelReason】" json:"reason"`                                   // 取消原因：枚举【OrderCancelReason】
+	CreatedAt time.Time      `gorm:"column:created_at;type:datetime;comment:创建时间" json:"created_at"`                                                // 创建时间
+	DeletedAt gorm.DeletedAt `gorm:"column:deleted_at;type:datetime;comment:删除时间" json:"deleted_at"`                                                // 删除时间
 }
 
 // TableName OrderCancel's table name

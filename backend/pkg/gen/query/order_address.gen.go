@@ -28,9 +28,7 @@ func newOrderAddress(db *gorm.DB, opts ...gen.DOOption) orderAddress {
 	tableName := _orderAddress.orderAddressDo.TableName()
 	_orderAddress.ALL = field.NewAsterisk(tableName)
 	_orderAddress.ID = field.NewInt64(tableName, "id")
-	_orderAddress.TenantID = field.NewInt64(tableName, "tenant_id")
-	_orderAddress.TenantStoreID = field.NewInt64(tableName, "tenant_store_id")
-	_orderAddress.OrderID = field.NewInt64(tableName, "order_id")
+	_orderAddress.TradeID = field.NewInt64(tableName, "trade_id")
 	_orderAddress.Receiver = field.NewString(tableName, "receiver")
 	_orderAddress.Contact = field.NewString(tableName, "contact")
 	_orderAddress.Address = field.NewString(tableName, "address")
@@ -46,16 +44,14 @@ func newOrderAddress(db *gorm.DB, opts ...gen.DOOption) orderAddress {
 type orderAddress struct {
 	orderAddressDo orderAddressDo
 
-	ALL           field.Asterisk
-	ID            field.Int64  // 订单地址ID
-	TenantID      field.Int64  // 租户ID
-	TenantStoreID field.Int64  // 租户门店ID
-	OrderID       field.Int64  // 订单ID
-	Receiver      field.String // 联系人
-	Contact       field.String // 联系方式
-	Address       field.String // 省市区
-	Detail        field.String // 详细地址
-	DeletedAt     field.Field  // 删除时间
+	ALL       field.Asterisk
+	ID        field.Int64  // 订单地址ID
+	TradeID   field.Int64  // 交易单ID
+	Receiver  field.String // 联系人
+	Contact   field.String // 联系方式
+	Address   field.String // 省市区
+	Detail    field.String // 详细地址
+	DeletedAt field.Field  // 删除时间
 
 	fieldMap map[string]field.Expr
 }
@@ -73,9 +69,7 @@ func (o orderAddress) As(alias string) *orderAddress {
 func (o *orderAddress) updateTableName(table string) *orderAddress {
 	o.ALL = field.NewAsterisk(table)
 	o.ID = field.NewInt64(table, "id")
-	o.TenantID = field.NewInt64(table, "tenant_id")
-	o.TenantStoreID = field.NewInt64(table, "tenant_store_id")
-	o.OrderID = field.NewInt64(table, "order_id")
+	o.TradeID = field.NewInt64(table, "trade_id")
 	o.Receiver = field.NewString(table, "receiver")
 	o.Contact = field.NewString(table, "contact")
 	o.Address = field.NewString(table, "address")
@@ -109,11 +103,9 @@ func (o *orderAddress) GetFieldByName(fieldName string) (field.OrderExpr, bool) 
 }
 
 func (o *orderAddress) fillFieldMap() {
-	o.fieldMap = make(map[string]field.Expr, 9)
+	o.fieldMap = make(map[string]field.Expr, 7)
 	o.fieldMap["id"] = o.ID
-	o.fieldMap["tenant_id"] = o.TenantID
-	o.fieldMap["tenant_store_id"] = o.TenantStoreID
-	o.fieldMap["order_id"] = o.OrderID
+	o.fieldMap["trade_id"] = o.TradeID
 	o.fieldMap["receiver"] = o.Receiver
 	o.fieldMap["contact"] = o.Contact
 	o.fieldMap["address"] = o.Address

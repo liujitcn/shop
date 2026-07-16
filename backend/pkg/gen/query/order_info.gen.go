@@ -28,6 +28,7 @@ func newOrderInfo(db *gorm.DB, opts ...gen.DOOption) orderInfo {
 	tableName := _orderInfo.orderInfoDo.TableName()
 	_orderInfo.ALL = field.NewAsterisk(tableName)
 	_orderInfo.ID = field.NewInt64(tableName, "id")
+	_orderInfo.TradeID = field.NewInt64(tableName, "trade_id")
 	_orderInfo.TenantID = field.NewInt64(tableName, "tenant_id")
 	_orderInfo.TenantStoreID = field.NewInt64(tableName, "tenant_store_id")
 	_orderInfo.OrderNo = field.NewString(tableName, "order_no")
@@ -36,10 +37,9 @@ func newOrderInfo(db *gorm.DB, opts ...gen.DOOption) orderInfo {
 	_orderInfo.TotalMoney = field.NewInt64(tableName, "total_money")
 	_orderInfo.PostFee = field.NewInt64(tableName, "post_fee")
 	_orderInfo.GoodsNum = field.NewInt64(tableName, "goods_num")
-	_orderInfo.PayType = field.NewInt32(tableName, "pay_type")
-	_orderInfo.PayChannel = field.NewInt32(tableName, "pay_channel")
 	_orderInfo.DeliveryTime = field.NewInt32(tableName, "delivery_time")
 	_orderInfo.Status = field.NewInt32(tableName, "status")
+	_orderInfo.RefundStatus = field.NewInt32(tableName, "refund_status")
 	_orderInfo.Remark = field.NewString(tableName, "remark")
 	_orderInfo.CreatedAt = field.NewTime(tableName, "created_at")
 	_orderInfo.UpdatedAt = field.NewTime(tableName, "updated_at")
@@ -50,24 +50,24 @@ func newOrderInfo(db *gorm.DB, opts ...gen.DOOption) orderInfo {
 	return _orderInfo
 }
 
-// orderInfo 订单信息表
+// orderInfo 门店订单信息表
 type orderInfo struct {
 	orderInfoDo orderInfoDo
 
 	ALL           field.Asterisk
 	ID            field.Int64  // 订单ID
+	TradeID       field.Int64  // 交易单ID
 	TenantID      field.Int64  // 租户ID
 	TenantStoreID field.Int64  // 租户门店ID
 	OrderNo       field.String // 订单编号
-	UserID        field.Int64  // 用户id
+	UserID        field.Int64  // 用户ID
 	PayMoney      field.Int64  // 实际支付金额
 	TotalMoney    field.Int64  // 总价
 	PostFee       field.Int64  // 优惠金额
 	GoodsNum      field.Int64  // 商品总数
-	PayType       field.Int32  // 支付方式：枚举【OrderPayType】
-	PayChannel    field.Int32  // 支付渠道：枚举【OrderPayChannel】
 	DeliveryTime  field.Int32  // 配送时间：枚举【OrderDeliveryTime】
-	Status        field.Int32  // 状态：枚举【OrderStatus】
+	Status        field.Int32  // 订单履约状态：枚举【OrderInfoStatus】
+	RefundStatus  field.Int32  // 退款状态：枚举【OrderRefundStatus】
 	Remark        field.String // 订单备注
 	CreatedAt     field.Time   // 创建时间
 	UpdatedAt     field.Time   // 更新时间
@@ -89,6 +89,7 @@ func (o orderInfo) As(alias string) *orderInfo {
 func (o *orderInfo) updateTableName(table string) *orderInfo {
 	o.ALL = field.NewAsterisk(table)
 	o.ID = field.NewInt64(table, "id")
+	o.TradeID = field.NewInt64(table, "trade_id")
 	o.TenantID = field.NewInt64(table, "tenant_id")
 	o.TenantStoreID = field.NewInt64(table, "tenant_store_id")
 	o.OrderNo = field.NewString(table, "order_no")
@@ -97,10 +98,9 @@ func (o *orderInfo) updateTableName(table string) *orderInfo {
 	o.TotalMoney = field.NewInt64(table, "total_money")
 	o.PostFee = field.NewInt64(table, "post_fee")
 	o.GoodsNum = field.NewInt64(table, "goods_num")
-	o.PayType = field.NewInt32(table, "pay_type")
-	o.PayChannel = field.NewInt32(table, "pay_channel")
 	o.DeliveryTime = field.NewInt32(table, "delivery_time")
 	o.Status = field.NewInt32(table, "status")
+	o.RefundStatus = field.NewInt32(table, "refund_status")
 	o.Remark = field.NewString(table, "remark")
 	o.CreatedAt = field.NewTime(table, "created_at")
 	o.UpdatedAt = field.NewTime(table, "updated_at")
@@ -133,6 +133,7 @@ func (o *orderInfo) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 func (o *orderInfo) fillFieldMap() {
 	o.fieldMap = make(map[string]field.Expr, 17)
 	o.fieldMap["id"] = o.ID
+	o.fieldMap["trade_id"] = o.TradeID
 	o.fieldMap["tenant_id"] = o.TenantID
 	o.fieldMap["tenant_store_id"] = o.TenantStoreID
 	o.fieldMap["order_no"] = o.OrderNo
@@ -141,10 +142,9 @@ func (o *orderInfo) fillFieldMap() {
 	o.fieldMap["total_money"] = o.TotalMoney
 	o.fieldMap["post_fee"] = o.PostFee
 	o.fieldMap["goods_num"] = o.GoodsNum
-	o.fieldMap["pay_type"] = o.PayType
-	o.fieldMap["pay_channel"] = o.PayChannel
 	o.fieldMap["delivery_time"] = o.DeliveryTime
 	o.fieldMap["status"] = o.Status
+	o.fieldMap["refund_status"] = o.RefundStatus
 	o.fieldMap["remark"] = o.Remark
 	o.fieldMap["created_at"] = o.CreatedAt
 	o.fieldMap["updated_at"] = o.UpdatedAt

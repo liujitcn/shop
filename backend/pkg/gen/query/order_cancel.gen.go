@@ -28,9 +28,7 @@ func newOrderCancel(db *gorm.DB, opts ...gen.DOOption) orderCancel {
 	tableName := _orderCancel.orderCancelDo.TableName()
 	_orderCancel.ALL = field.NewAsterisk(tableName)
 	_orderCancel.ID = field.NewInt64(tableName, "id")
-	_orderCancel.TenantID = field.NewInt64(tableName, "tenant_id")
-	_orderCancel.TenantStoreID = field.NewInt64(tableName, "tenant_store_id")
-	_orderCancel.OrderID = field.NewInt64(tableName, "order_id")
+	_orderCancel.TradeID = field.NewInt64(tableName, "trade_id")
 	_orderCancel.Reason = field.NewInt32(tableName, "reason")
 	_orderCancel.CreatedAt = field.NewTime(tableName, "created_at")
 	_orderCancel.DeletedAt = field.NewField(tableName, "deleted_at")
@@ -44,14 +42,12 @@ func newOrderCancel(db *gorm.DB, opts ...gen.DOOption) orderCancel {
 type orderCancel struct {
 	orderCancelDo orderCancelDo
 
-	ALL           field.Asterisk
-	ID            field.Int64 // 订单取消ID
-	TenantID      field.Int64 // 租户ID
-	TenantStoreID field.Int64 // 租户门店ID
-	OrderID       field.Int64 // 订单ID
-	Reason        field.Int32 // 取消原因：枚举【OrderCancelReason】
-	CreatedAt     field.Time  // 创建时间
-	DeletedAt     field.Field // 删除时间
+	ALL       field.Asterisk
+	ID        field.Int64 // 订单取消ID
+	TradeID   field.Int64 // 交易单ID
+	Reason    field.Int32 // 取消原因：枚举【OrderCancelReason】
+	CreatedAt field.Time  // 创建时间
+	DeletedAt field.Field // 删除时间
 
 	fieldMap map[string]field.Expr
 }
@@ -69,9 +65,7 @@ func (o orderCancel) As(alias string) *orderCancel {
 func (o *orderCancel) updateTableName(table string) *orderCancel {
 	o.ALL = field.NewAsterisk(table)
 	o.ID = field.NewInt64(table, "id")
-	o.TenantID = field.NewInt64(table, "tenant_id")
-	o.TenantStoreID = field.NewInt64(table, "tenant_store_id")
-	o.OrderID = field.NewInt64(table, "order_id")
+	o.TradeID = field.NewInt64(table, "trade_id")
 	o.Reason = field.NewInt32(table, "reason")
 	o.CreatedAt = field.NewTime(table, "created_at")
 	o.DeletedAt = field.NewField(table, "deleted_at")
@@ -101,11 +95,9 @@ func (o *orderCancel) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (o *orderCancel) fillFieldMap() {
-	o.fieldMap = make(map[string]field.Expr, 7)
+	o.fieldMap = make(map[string]field.Expr, 5)
 	o.fieldMap["id"] = o.ID
-	o.fieldMap["tenant_id"] = o.TenantID
-	o.fieldMap["tenant_store_id"] = o.TenantStoreID
-	o.fieldMap["order_id"] = o.OrderID
+	o.fieldMap["trade_id"] = o.TradeID
 	o.fieldMap["reason"] = o.Reason
 	o.fieldMap["created_at"] = o.CreatedAt
 	o.fieldMap["deleted_at"] = o.DeletedAt

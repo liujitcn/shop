@@ -171,7 +171,7 @@ func (*OrderGoods) TableComment() string {
 
 // TableComment 返回表注释。
 func (*OrderInfo) TableComment() string {
-	return "订单信息表"
+	return "门店订单信息表"
 }
 
 // TableComment 返回表注释。
@@ -192,6 +192,11 @@ func (*OrderRefund) TableComment() string {
 // TableComment 返回表注释。
 func (*OrderStatDay) TableComment() string {
 	return "订单日统计表"
+}
+
+// TableComment 返回表注释。
+func (*OrderTrade) TableComment() string {
+	return "订单交易单"
 }
 
 // TableComment 返回表注释。

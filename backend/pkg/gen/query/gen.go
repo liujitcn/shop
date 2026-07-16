@@ -56,6 +56,7 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		OrderPayment:         newOrderPayment(db, opts...),
 		OrderRefund:          newOrderRefund(db, opts...),
 		OrderStatDay:         newOrderStatDay(db, opts...),
+		OrderTrade:           newOrderTrade(db, opts...),
 		PayBill:              newPayBill(db, opts...),
 		RecommendEvent:       newRecommendEvent(db, opts...),
 		RecommendRequest:     newRecommendRequest(db, opts...),
@@ -114,6 +115,7 @@ type Query struct {
 	OrderPayment         orderPayment
 	OrderRefund          orderRefund
 	OrderStatDay         orderStatDay
+	OrderTrade           orderTrade
 	PayBill              payBill
 	RecommendEvent       recommendEvent
 	RecommendRequest     recommendRequest
@@ -173,6 +175,7 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		OrderPayment:         q.OrderPayment.clone(db),
 		OrderRefund:          q.OrderRefund.clone(db),
 		OrderStatDay:         q.OrderStatDay.clone(db),
+		OrderTrade:           q.OrderTrade.clone(db),
 		PayBill:              q.PayBill.clone(db),
 		RecommendEvent:       q.RecommendEvent.clone(db),
 		RecommendRequest:     q.RecommendRequest.clone(db),
@@ -239,6 +242,7 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		OrderPayment:         q.OrderPayment.replaceDB(db),
 		OrderRefund:          q.OrderRefund.replaceDB(db),
 		OrderStatDay:         q.OrderStatDay.replaceDB(db),
+		OrderTrade:           q.OrderTrade.replaceDB(db),
 		PayBill:              q.PayBill.replaceDB(db),
 		RecommendEvent:       q.RecommendEvent.replaceDB(db),
 		RecommendRequest:     q.RecommendRequest.replaceDB(db),
@@ -295,6 +299,7 @@ type queryCtx struct {
 	OrderPayment         *orderPaymentDo
 	OrderRefund          *orderRefundDo
 	OrderStatDay         *orderStatDayDo
+	OrderTrade           *orderTradeDo
 	PayBill              *payBillDo
 	RecommendEvent       *recommendEventDo
 	RecommendRequest     *recommendRequestDo
@@ -351,6 +356,7 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		OrderPayment:         q.OrderPayment.WithContext(ctx),
 		OrderRefund:          q.OrderRefund.WithContext(ctx),
 		OrderStatDay:         q.OrderStatDay.WithContext(ctx),
+		OrderTrade:           q.OrderTrade.WithContext(ctx),
 		PayBill:              q.PayBill.WithContext(ctx),
 		RecommendEvent:       q.RecommendEvent.WithContext(ctx),
 		RecommendRequest:     q.RecommendRequest.WithContext(ctx),

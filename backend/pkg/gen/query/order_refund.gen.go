@@ -28,10 +28,11 @@ func newOrderRefund(db *gorm.DB, opts ...gen.DOOption) orderRefund {
 	tableName := _orderRefund.orderRefundDo.TableName()
 	_orderRefund.ALL = field.NewAsterisk(tableName)
 	_orderRefund.ID = field.NewInt64(tableName, "id")
+	_orderRefund.TradeID = field.NewInt64(tableName, "trade_id")
 	_orderRefund.TenantID = field.NewInt64(tableName, "tenant_id")
 	_orderRefund.TenantStoreID = field.NewInt64(tableName, "tenant_store_id")
 	_orderRefund.OrderID = field.NewInt64(tableName, "order_id")
-	_orderRefund.OrderNo = field.NewString(tableName, "order_no")
+	_orderRefund.TradeNo = field.NewString(tableName, "trade_no")
 	_orderRefund.ThirdOrderNo = field.NewString(tableName, "third_order_no")
 	_orderRefund.RefundNo = field.NewString(tableName, "refund_no")
 	_orderRefund.Reason = field.NewInt32(tableName, "reason")
@@ -57,21 +58,22 @@ type orderRefund struct {
 
 	ALL                 field.Asterisk
 	ID                  field.Int64  // 订单退款ID
+	TradeID             field.Int64  // 交易单ID
 	TenantID            field.Int64  // 租户ID
 	TenantStoreID       field.Int64  // 租户门店ID
 	OrderID             field.Int64  // 订单ID
-	OrderNo             field.String // 支付订单编号
+	TradeNo             field.String // 支付交易单编号
 	ThirdOrderNo        field.String // 三方支付订单编号
 	RefundNo            field.String // 退款编号
 	Reason              field.Int32  // 退款原因：枚举【OrderRefundReason】
 	ThirdRefundNo       field.String // 三方退款编号
-	Channel             field.String // 退款渠道ORIGINAL: 原路退款，BALANCE: 退回到余额，OTHER_BALANCE: 原账户异常退到其他余额账户，OTHER_BANKCARD: 原银行卡异常退到其他银行卡(发起异常退款成功后返回)
-	UserReceivedAccount field.String // 退款入账账户1）退回银行卡：{银行名称}{卡类型}{卡尾号}，2）退回支付用户零钱:支付用户零钱，3）退还商户:商户基本账户商户结算银行账户，4）退回支付用户零钱通:支付用户零钱通，5）退回支付用户银行电子账户:支付用户银行电子账户，6）退回支付用户零花钱:支付用户零花钱，7）退回用户经营账户:用户经营账户，8）退回支付用户来华零钱包:支付用户来华零钱包，9）退回企业支付商户:企业支付商户
+	Channel             field.String // 退款渠道
+	UserReceivedAccount field.String // 退款入账账户
 	CreateTime          field.Time   // 退款创建时间
 	SuccessTime         field.Time   // 退款成功时间
-	RefundState         field.String // 退款状态SUCCESS: 退款成功，CLOSED: 退款关闭，PROCESSING: 退款处理中，ABNORMAL: 退款异常，退款到银行发现用户的卡作废或者冻结了，导致原路退款银行卡失败，
-	FundsAccount        field.String // 资金账户，UNSETTLED: 未结算资金，AVAILABLE: 可用余额，UNAVAILABLE: 不可用余额，OPERATION: 运营账户，BASIC: 基本账户（含可用余额和不可用余额），ECNY_BASIC: 数字人民币基本账户
-	Amount              field.String // 支付者信息
+	RefundState         field.String // 退款状态
+	FundsAccount        field.String // 资金账户
+	Amount              field.String // 退款金额信息
 	Status              field.Int32  // 对账状态：枚举【OrderBillStatus】
 	DeletedAt           field.Field  // 删除时间
 
@@ -91,10 +93,11 @@ func (o orderRefund) As(alias string) *orderRefund {
 func (o *orderRefund) updateTableName(table string) *orderRefund {
 	o.ALL = field.NewAsterisk(table)
 	o.ID = field.NewInt64(table, "id")
+	o.TradeID = field.NewInt64(table, "trade_id")
 	o.TenantID = field.NewInt64(table, "tenant_id")
 	o.TenantStoreID = field.NewInt64(table, "tenant_store_id")
 	o.OrderID = field.NewInt64(table, "order_id")
-	o.OrderNo = field.NewString(table, "order_no")
+	o.TradeNo = field.NewString(table, "trade_no")
 	o.ThirdOrderNo = field.NewString(table, "third_order_no")
 	o.RefundNo = field.NewString(table, "refund_no")
 	o.Reason = field.NewInt32(table, "reason")
@@ -134,12 +137,13 @@ func (o *orderRefund) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (o *orderRefund) fillFieldMap() {
-	o.fieldMap = make(map[string]field.Expr, 18)
+	o.fieldMap = make(map[string]field.Expr, 19)
 	o.fieldMap["id"] = o.ID
+	o.fieldMap["trade_id"] = o.TradeID
 	o.fieldMap["tenant_id"] = o.TenantID
 	o.fieldMap["tenant_store_id"] = o.TenantStoreID
 	o.fieldMap["order_id"] = o.OrderID
-	o.fieldMap["order_no"] = o.OrderNo
+	o.fieldMap["trade_no"] = o.TradeNo
 	o.fieldMap["third_order_no"] = o.ThirdOrderNo
 	o.fieldMap["refund_no"] = o.RefundNo
 	o.fieldMap["reason"] = o.Reason

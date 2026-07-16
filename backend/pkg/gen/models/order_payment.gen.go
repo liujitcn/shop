@@ -14,22 +14,20 @@ const TableNameOrderPayment = "order_payment"
 
 // OrderPayment 订单支付信息
 type OrderPayment struct {
-	ID             int64          `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:订单支付ID" json:"id"`                                                                                                                 // 订单支付ID
-	TenantID       int64          `gorm:"column:tenant_id;type:bigint;not null;index:idx_order_payment_tenant_id,priority:1;comment:租户ID" json:"tenant_id"`                                                                             // 租户ID
-	TenantStoreID  int64          `gorm:"column:tenant_store_id;type:bigint;not null;index:idx_order_payment_tenant_store_id,priority:1;comment:租户门店ID" json:"tenant_store_id"`                                                         // 租户门店ID
-	OrderID        int64          `gorm:"column:order_id;type:bigint;uniqueIndex:unique_order_payment_order_id,priority:1;comment:订单ID" json:"order_id"`                                                                                // 订单ID
-	OrderNo        string         `gorm:"column:order_no;type:varchar(20);comment:订单编号" json:"order_no"`                                                                                                                                // 订单编号
-	ThirdOrderNo   string         `gorm:"column:third_order_no;type:varchar(32);comment:三方订单编号" json:"third_order_no"`                                                                                                                  // 三方订单编号
-	TradeType      string         `gorm:"column:trade_type;type:varchar(16);comment:交易类型：JSAPI：公众号支付、小程序支付，NATIVE：Native支付，APP：APP支付，MICROPAY：付款码支付，MWEB：H5支付，FACEPAY：刷脸支付" json:"trade_type"`                                          // 交易类型：JSAPI：公众号支付、小程序支付，NATIVE：Native支付，APP：APP支付，MICROPAY：付款码支付，MWEB：H5支付，FACEPAY：刷脸支付
-	TradeState     string         `gorm:"column:trade_state;type:varchar(32);comment:交易状态 SUCCESS：支付成功，REFUND：转入退款，NOTPAY：未支付，CLOSED：已关闭，REVOKED：已撤销（仅付款码支付会返回），USERPAYING：用户支付中（仅付款码支付会返，PAYERROR：支付失败（仅付款码支付会返回）" json:"trade_state"` // 交易状态 SUCCESS：支付成功，REFUND：转入退款，NOTPAY：未支付，CLOSED：已关闭，REVOKED：已撤销（仅付款码支付会返回），USERPAYING：用户支付中（仅付款码支付会返，PAYERROR：支付失败（仅付款码支付会返回）
-	TradeStateDesc string         `gorm:"column:trade_state_desc;type:varchar(256);comment:交易状态描述" json:"trade_state_desc"`                                                                                                             // 交易状态描述
-	BankType       string         `gorm:"column:bank_type;type:varchar(32);comment:银行类型" json:"bank_type"`                                                                                                                              // 银行类型
-	SuccessTime    time.Time      `gorm:"column:success_time;type:datetime;comment:支付完成时间" json:"success_time"`                                                                                                                         // 支付完成时间
-	Payer          string         `gorm:"column:payer;type:json;comment:支付者信息" json:"payer"`                                                                                                                                            // 支付者信息
-	Amount         string         `gorm:"column:amount;type:json;comment:订单金额" json:"amount"`                                                                                                                                           // 订单金额
-	SceneInfo      string         `gorm:"column:scene_info;type:json;comment:场景信息" json:"scene_info"`                                                                                                                                   // 场景信息
-	Status         int32          `gorm:"column:status;type:tinyint;comment:对账状态：枚举【OrderBillStatus】" json:"status"`                                                                                                                    // 对账状态：枚举【OrderBillStatus】
-	DeletedAt      gorm.DeletedAt `gorm:"column:deleted_at;type:datetime;comment:删除时间" json:"deleted_at"`                                                                                                                               // 删除时间
+	ID             int64          `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:订单支付ID" json:"id"`                                   // 订单支付ID
+	TradeID        int64          `gorm:"column:trade_id;type:bigint;not null;uniqueIndex:unique_order_payment,priority:1;comment:交易单ID" json:"trade_id"` // 交易单ID
+	TradeNo        string         `gorm:"column:trade_no;type:varchar(20);index:idx_order_payment_trade_no,priority:1;comment:交易单编号" json:"trade_no"`     // 交易单编号
+	ThirdOrderNo   string         `gorm:"column:third_order_no;type:varchar(32);comment:三方订单编号" json:"third_order_no"`                                    // 三方订单编号
+	TradeType      string         `gorm:"column:trade_type;type:varchar(16);comment:交易类型" json:"trade_type"`                                              // 交易类型
+	TradeState     string         `gorm:"column:trade_state;type:varchar(32);comment:交易状态" json:"trade_state"`                                            // 交易状态
+	TradeStateDesc string         `gorm:"column:trade_state_desc;type:varchar(256);comment:交易状态描述" json:"trade_state_desc"`                               // 交易状态描述
+	BankType       string         `gorm:"column:bank_type;type:varchar(32);comment:银行类型" json:"bank_type"`                                                // 银行类型
+	SuccessTime    time.Time      `gorm:"column:success_time;type:datetime;comment:支付完成时间" json:"success_time"`                                           // 支付完成时间
+	Payer          string         `gorm:"column:payer;type:json;comment:支付者信息" json:"payer"`                                                              // 支付者信息
+	Amount         string         `gorm:"column:amount;type:json;comment:订单金额" json:"amount"`                                                             // 订单金额
+	SceneInfo      string         `gorm:"column:scene_info;type:json;comment:场景信息" json:"scene_info"`                                                     // 场景信息
+	Status         int32          `gorm:"column:status;type:tinyint;comment:对账状态：枚举【OrderBillStatus】" json:"status"`                                      // 对账状态：枚举【OrderBillStatus】
+	DeletedAt      gorm.DeletedAt `gorm:"column:deleted_at;type:datetime;comment:删除时间" json:"deleted_at"`                                                 // 删除时间
 }
 
 // TableName OrderPayment's table name

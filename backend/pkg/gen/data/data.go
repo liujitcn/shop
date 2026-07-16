@@ -53,6 +53,7 @@ func init() {
 		new(models.OrderPayment),
 		new(models.OrderRefund),
 		new(models.OrderStatDay),
+		new(models.OrderTrade),
 		new(models.PayBill),
 		new(models.RecommendEvent),
 		new(models.RecommendRequest),

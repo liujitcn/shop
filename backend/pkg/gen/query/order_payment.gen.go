@@ -28,10 +28,8 @@ func newOrderPayment(db *gorm.DB, opts ...gen.DOOption) orderPayment {
 	tableName := _orderPayment.orderPaymentDo.TableName()
 	_orderPayment.ALL = field.NewAsterisk(tableName)
 	_orderPayment.ID = field.NewInt64(tableName, "id")
-	_orderPayment.TenantID = field.NewInt64(tableName, "tenant_id")
-	_orderPayment.TenantStoreID = field.NewInt64(tableName, "tenant_store_id")
-	_orderPayment.OrderID = field.NewInt64(tableName, "order_id")
-	_orderPayment.OrderNo = field.NewString(tableName, "order_no")
+	_orderPayment.TradeID = field.NewInt64(tableName, "trade_id")
+	_orderPayment.TradeNo = field.NewString(tableName, "trade_no")
 	_orderPayment.ThirdOrderNo = field.NewString(tableName, "third_order_no")
 	_orderPayment.TradeType = field.NewString(tableName, "trade_type")
 	_orderPayment.TradeState = field.NewString(tableName, "trade_state")
@@ -55,13 +53,11 @@ type orderPayment struct {
 
 	ALL            field.Asterisk
 	ID             field.Int64  // 订单支付ID
-	TenantID       field.Int64  // 租户ID
-	TenantStoreID  field.Int64  // 租户门店ID
-	OrderID        field.Int64  // 订单ID
-	OrderNo        field.String // 订单编号
+	TradeID        field.Int64  // 交易单ID
+	TradeNo        field.String // 交易单编号
 	ThirdOrderNo   field.String // 三方订单编号
-	TradeType      field.String // 交易类型：JSAPI：公众号支付、小程序支付，NATIVE：Native支付，APP：APP支付，MICROPAY：付款码支付，MWEB：H5支付，FACEPAY：刷脸支付
-	TradeState     field.String // 交易状态 SUCCESS：支付成功，REFUND：转入退款，NOTPAY：未支付，CLOSED：已关闭，REVOKED：已撤销（仅付款码支付会返回），USERPAYING：用户支付中（仅付款码支付会返，PAYERROR：支付失败（仅付款码支付会返回）
+	TradeType      field.String // 交易类型
+	TradeState     field.String // 交易状态
 	TradeStateDesc field.String // 交易状态描述
 	BankType       field.String // 银行类型
 	SuccessTime    field.Time   // 支付完成时间
@@ -87,10 +83,8 @@ func (o orderPayment) As(alias string) *orderPayment {
 func (o *orderPayment) updateTableName(table string) *orderPayment {
 	o.ALL = field.NewAsterisk(table)
 	o.ID = field.NewInt64(table, "id")
-	o.TenantID = field.NewInt64(table, "tenant_id")
-	o.TenantStoreID = field.NewInt64(table, "tenant_store_id")
-	o.OrderID = field.NewInt64(table, "order_id")
-	o.OrderNo = field.NewString(table, "order_no")
+	o.TradeID = field.NewInt64(table, "trade_id")
+	o.TradeNo = field.NewString(table, "trade_no")
 	o.ThirdOrderNo = field.NewString(table, "third_order_no")
 	o.TradeType = field.NewString(table, "trade_type")
 	o.TradeState = field.NewString(table, "trade_state")
@@ -130,12 +124,10 @@ func (o *orderPayment) GetFieldByName(fieldName string) (field.OrderExpr, bool) 
 }
 
 func (o *orderPayment) fillFieldMap() {
-	o.fieldMap = make(map[string]field.Expr, 16)
+	o.fieldMap = make(map[string]field.Expr, 14)
 	o.fieldMap["id"] = o.ID
-	o.fieldMap["tenant_id"] = o.TenantID
-	o.fieldMap["tenant_store_id"] = o.TenantStoreID
-	o.fieldMap["order_id"] = o.OrderID
-	o.fieldMap["order_no"] = o.OrderNo
+	o.fieldMap["trade_id"] = o.TradeID
+	o.fieldMap["trade_no"] = o.TradeNo
 	o.fieldMap["third_order_no"] = o.ThirdOrderNo
 	o.fieldMap["trade_type"] = o.TradeType
 	o.fieldMap["trade_state"] = o.TradeState
