@@ -7,16 +7,15 @@
 package appv1
 
 import (
-	reflect "reflect"
-	v1 "shop/api/gen/go/common/v1"
-	sync "sync"
-	unsafe "unsafe"
-
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+	reflect "reflect"
+	v1 "shop/api/gen/go/common/v1"
+	sync "sync"
+	unsafe "unsafe"
 )
 
 const (
@@ -420,12 +419,12 @@ func (x *CreateOrderInfoGoods) GetRecommendContext() *RecommendContext {
 
 // 确认订单响应
 type ConfirmOrderInfoResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Goods         []*OrderGoods          `protobuf:"bytes,1,rep,name=goods,proto3" json:"goods,omitempty"`                           // 商品信息
-	Summary       *OrderSummary          `protobuf:"bytes,2,opt,name=summary,proto3" json:"summary,omitempty"`                       // 汇总信息
-	ClearCart     bool                   `protobuf:"varint,3,opt,name=clear_cart,json=clearCart,proto3" json:"clear_cart,omitempty"` // 是否清空购物车
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	OrderGoodsStores []*OrderGoodsStore     `protobuf:"bytes,1,rep,name=order_goods_stores,json=orderGoodsStores,proto3" json:"order_goods_stores,omitempty"` // 按门店分组的商品信息
+	Summary          *OrderSummary          `protobuf:"bytes,2,opt,name=summary,proto3" json:"summary,omitempty"`                                             // 汇总信息
+	ClearCart        bool                   `protobuf:"varint,3,opt,name=clear_cart,json=clearCart,proto3" json:"clear_cart,omitempty"`                       // 是否清空购物车
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *ConfirmOrderInfoResponse) Reset() {
@@ -458,9 +457,9 @@ func (*ConfirmOrderInfoResponse) Descriptor() ([]byte, []int) {
 	return file_app_v1_order_info_proto_rawDescGZIP(), []int{8}
 }
 
-func (x *ConfirmOrderInfoResponse) GetGoods() []*OrderGoods {
+func (x *ConfirmOrderInfoResponse) GetOrderGoodsStores() []*OrderGoodsStore {
 	if x != nil {
-		return x.Goods
+		return x.OrderGoodsStores
 	}
 	return nil
 }
@@ -481,12 +480,12 @@ func (x *ConfirmOrderInfoResponse) GetClearCart() bool {
 
 // 立即购买订单响应
 type BuyNowOrderInfoResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Goods         []*OrderGoods          `protobuf:"bytes,1,rep,name=goods,proto3" json:"goods,omitempty"`                           // 商品信息
-	Summary       *OrderSummary          `protobuf:"bytes,2,opt,name=summary,proto3" json:"summary,omitempty"`                       // 汇总信息
-	ClearCart     bool                   `protobuf:"varint,3,opt,name=clear_cart,json=clearCart,proto3" json:"clear_cart,omitempty"` // 是否清空购物车
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	OrderGoodsStores []*OrderGoodsStore     `protobuf:"bytes,1,rep,name=order_goods_stores,json=orderGoodsStores,proto3" json:"order_goods_stores,omitempty"` // 按门店分组的商品信息
+	Summary          *OrderSummary          `protobuf:"bytes,2,opt,name=summary,proto3" json:"summary,omitempty"`                                             // 汇总信息
+	ClearCart        bool                   `protobuf:"varint,3,opt,name=clear_cart,json=clearCart,proto3" json:"clear_cart,omitempty"`                       // 是否清空购物车
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *BuyNowOrderInfoResponse) Reset() {
@@ -519,9 +518,9 @@ func (*BuyNowOrderInfoResponse) Descriptor() ([]byte, []int) {
 	return file_app_v1_order_info_proto_rawDescGZIP(), []int{9}
 }
 
-func (x *BuyNowOrderInfoResponse) GetGoods() []*OrderGoods {
+func (x *BuyNowOrderInfoResponse) GetOrderGoodsStores() []*OrderGoodsStore {
 	if x != nil {
-		return x.Goods
+		return x.OrderGoodsStores
 	}
 	return nil
 }
@@ -587,12 +586,12 @@ func (x *RepurchaseOrderInfoRequest) GetOrderId() int64 {
 
 // 再次购买订单响应
 type RepurchaseOrderInfoResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Goods         []*OrderGoods          `protobuf:"bytes,1,rep,name=goods,proto3" json:"goods,omitempty"`                           // 商品信息
-	Summary       *OrderSummary          `protobuf:"bytes,2,opt,name=summary,proto3" json:"summary,omitempty"`                       // 汇总信息
-	ClearCart     bool                   `protobuf:"varint,3,opt,name=clear_cart,json=clearCart,proto3" json:"clear_cart,omitempty"` // 是否清空购物车
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	OrderGoodsStores []*OrderGoodsStore     `protobuf:"bytes,1,rep,name=order_goods_stores,json=orderGoodsStores,proto3" json:"order_goods_stores,omitempty"` // 按门店分组的商品信息
+	Summary          *OrderSummary          `protobuf:"bytes,2,opt,name=summary,proto3" json:"summary,omitempty"`                                             // 汇总信息
+	ClearCart        bool                   `protobuf:"varint,3,opt,name=clear_cart,json=clearCart,proto3" json:"clear_cart,omitempty"`                       // 是否清空购物车
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *RepurchaseOrderInfoResponse) Reset() {
@@ -625,9 +624,9 @@ func (*RepurchaseOrderInfoResponse) Descriptor() ([]byte, []int) {
 	return file_app_v1_order_info_proto_rawDescGZIP(), []int{11}
 }
 
-func (x *RepurchaseOrderInfoResponse) GetGoods() []*OrderGoods {
+func (x *RepurchaseOrderInfoResponse) GetOrderGoodsStores() []*OrderGoodsStore {
 	if x != nil {
-		return x.Goods
+		return x.OrderGoodsStores
 	}
 	return nil
 }
@@ -1288,33 +1287,86 @@ func (x *OrderGoods) GetRecommendContext() *RecommendContext {
 	return nil
 }
 
-// Order信息
-type OrderInfo struct {
+// 订单商品门店分组
+type OrderGoodsStore struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                           // 订单id
-	OrderNo       string                 `protobuf:"bytes,2,opt,name=order_no,json=orderNo,proto3" json:"order_no,omitempty"`                                                   // 订单编号
-	PayMoney      int64                  `protobuf:"varint,4,opt,name=pay_money,json=payMoney,proto3" json:"pay_money,omitempty"`                                               // 实际支付金额
-	TotalMoney    int64                  `protobuf:"varint,5,opt,name=total_money,json=totalMoney,proto3" json:"total_money,omitempty"`                                         // 总价
-	PostFee       int64                  `protobuf:"varint,6,opt,name=post_fee,json=postFee,proto3" json:"post_fee,omitempty"`                                                  // 优惠金额
-	GoodsNum      int64                  `protobuf:"varint,7,opt,name=goods_num,json=goodsNum,proto3" json:"goods_num,omitempty"`                                               // 商品总数
-	PayType       v1.OrderPayType        `protobuf:"varint,8,opt,name=pay_type,json=payType,proto3,enum=common.v1.OrderPayType" json:"pay_type,omitempty"`                      // 支付方式：枚举【OrderPayType】
-	PayChannel    v1.OrderPayChannel     `protobuf:"varint,9,opt,name=pay_channel,json=payChannel,proto3,enum=common.v1.OrderPayChannel" json:"pay_channel,omitempty"`          // 支付渠道：枚举【OrderPayChannel】
-	DeliveryTime  v1.OrderDeliveryTime   `protobuf:"varint,10,opt,name=delivery_time,json=deliveryTime,proto3,enum=common.v1.OrderDeliveryTime" json:"delivery_time,omitempty"` // 配送时间：枚举【OrderDeliveryTime】
-	Status        v1.OrderStatus         `protobuf:"varint,11,opt,name=status,proto3,enum=common.v1.OrderStatus" json:"status,omitempty"`                                       // 状态：枚举【OrderStatus】
-	Remark        string                 `protobuf:"bytes,12,opt,name=remark,proto3" json:"remark,omitempty"`                                                                   // 订单备注
-	CreatedAt     string                 `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`                                           // 创建时间
-	UpdatedAt     string                 `protobuf:"bytes,201,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`                                           // 更新时间
-	PaymentTime   string                 `protobuf:"bytes,301,opt,name=payment_time,json=paymentTime,proto3" json:"payment_time,omitempty"`                                     // 支付时间
-	CancelTime    string                 `protobuf:"bytes,302,opt,name=cancel_time,json=cancelTime,proto3" json:"cancel_time,omitempty"`                                        // 取消时间
-	RefundTime    string                 `protobuf:"bytes,303,opt,name=refund_time,json=refundTime,proto3" json:"refund_time,omitempty"`                                        // 退款时间
-	Goods         []*OrderGoods          `protobuf:"bytes,400,rep,name=goods,proto3" json:"goods,omitempty"`                                                                    // 商品信息
+	Store         *TenantStore           `protobuf:"bytes,1,opt,name=store,proto3" json:"store,omitempty"` // 店铺信息
+	Goods         []*OrderGoods          `protobuf:"bytes,2,rep,name=goods,proto3" json:"goods,omitempty"` // 商品信息
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
+func (x *OrderGoodsStore) Reset() {
+	*x = OrderGoodsStore{}
+	mi := &file_app_v1_order_info_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OrderGoodsStore) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OrderGoodsStore) ProtoMessage() {}
+
+func (x *OrderGoodsStore) ProtoReflect() protoreflect.Message {
+	mi := &file_app_v1_order_info_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use OrderGoodsStore.ProtoReflect.Descriptor instead.
+func (*OrderGoodsStore) Descriptor() ([]byte, []int) {
+	return file_app_v1_order_info_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *OrderGoodsStore) GetStore() *TenantStore {
+	if x != nil {
+		return x.Store
+	}
+	return nil
+}
+
+func (x *OrderGoodsStore) GetGoods() []*OrderGoods {
+	if x != nil {
+		return x.Goods
+	}
+	return nil
+}
+
+// Order信息
+type OrderInfo struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	Id               int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                           // 订单id
+	OrderNo          string                 `protobuf:"bytes,2,opt,name=order_no,json=orderNo,proto3" json:"order_no,omitempty"`                                                   // 订单编号
+	PayMoney         int64                  `protobuf:"varint,4,opt,name=pay_money,json=payMoney,proto3" json:"pay_money,omitempty"`                                               // 实际支付金额
+	TotalMoney       int64                  `protobuf:"varint,5,opt,name=total_money,json=totalMoney,proto3" json:"total_money,omitempty"`                                         // 总价
+	PostFee          int64                  `protobuf:"varint,6,opt,name=post_fee,json=postFee,proto3" json:"post_fee,omitempty"`                                                  // 优惠金额
+	GoodsNum         int64                  `protobuf:"varint,7,opt,name=goods_num,json=goodsNum,proto3" json:"goods_num,omitempty"`                                               // 商品总数
+	PayType          v1.OrderPayType        `protobuf:"varint,8,opt,name=pay_type,json=payType,proto3,enum=common.v1.OrderPayType" json:"pay_type,omitempty"`                      // 支付方式：枚举【OrderPayType】
+	PayChannel       v1.OrderPayChannel     `protobuf:"varint,9,opt,name=pay_channel,json=payChannel,proto3,enum=common.v1.OrderPayChannel" json:"pay_channel,omitempty"`          // 支付渠道：枚举【OrderPayChannel】
+	DeliveryTime     v1.OrderDeliveryTime   `protobuf:"varint,10,opt,name=delivery_time,json=deliveryTime,proto3,enum=common.v1.OrderDeliveryTime" json:"delivery_time,omitempty"` // 配送时间：枚举【OrderDeliveryTime】
+	Status           v1.OrderStatus         `protobuf:"varint,11,opt,name=status,proto3,enum=common.v1.OrderStatus" json:"status,omitempty"`                                       // 状态：枚举【OrderStatus】
+	Remark           string                 `protobuf:"bytes,12,opt,name=remark,proto3" json:"remark,omitempty"`                                                                   // 订单备注
+	CreatedAt        string                 `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`                                           // 创建时间
+	UpdatedAt        string                 `protobuf:"bytes,201,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`                                           // 更新时间
+	PaymentTime      string                 `protobuf:"bytes,301,opt,name=payment_time,json=paymentTime,proto3" json:"payment_time,omitempty"`                                     // 支付时间
+	CancelTime       string                 `protobuf:"bytes,302,opt,name=cancel_time,json=cancelTime,proto3" json:"cancel_time,omitempty"`                                        // 取消时间
+	RefundTime       string                 `protobuf:"bytes,303,opt,name=refund_time,json=refundTime,proto3" json:"refund_time,omitempty"`                                        // 退款时间
+	OrderGoodsStores []*OrderGoodsStore     `protobuf:"bytes,400,rep,name=order_goods_stores,json=orderGoodsStores,proto3" json:"order_goods_stores,omitempty"`                    // 按门店分组的商品信息
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
 func (x *OrderInfo) Reset() {
 	*x = OrderInfo{}
-	mi := &file_app_v1_order_info_proto_msgTypes[22]
+	mi := &file_app_v1_order_info_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1326,7 +1378,7 @@ func (x *OrderInfo) String() string {
 func (*OrderInfo) ProtoMessage() {}
 
 func (x *OrderInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_app_v1_order_info_proto_msgTypes[22]
+	mi := &file_app_v1_order_info_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1339,7 +1391,7 @@ func (x *OrderInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OrderInfo.ProtoReflect.Descriptor instead.
 func (*OrderInfo) Descriptor() ([]byte, []int) {
-	return file_app_v1_order_info_proto_rawDescGZIP(), []int{22}
+	return file_app_v1_order_info_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *OrderInfo) GetId() int64 {
@@ -1454,9 +1506,9 @@ func (x *OrderInfo) GetRefundTime() string {
 	return ""
 }
 
-func (x *OrderInfo) GetGoods() []*OrderGoods {
+func (x *OrderInfo) GetOrderGoodsStores() []*OrderGoodsStore {
 	if x != nil {
-		return x.Goods
+		return x.OrderGoodsStores
 	}
 	return nil
 }
@@ -1474,7 +1526,7 @@ type OrderSummary struct {
 
 func (x *OrderSummary) Reset() {
 	*x = OrderSummary{}
-	mi := &file_app_v1_order_info_proto_msgTypes[23]
+	mi := &file_app_v1_order_info_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1486,7 +1538,7 @@ func (x *OrderSummary) String() string {
 func (*OrderSummary) ProtoMessage() {}
 
 func (x *OrderSummary) ProtoReflect() protoreflect.Message {
-	mi := &file_app_v1_order_info_proto_msgTypes[23]
+	mi := &file_app_v1_order_info_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1499,7 +1551,7 @@ func (x *OrderSummary) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OrderSummary.ProtoReflect.Descriptor instead.
 func (*OrderSummary) Descriptor() ([]byte, []int) {
-	return file_app_v1_order_info_proto_rawDescGZIP(), []int{23}
+	return file_app_v1_order_info_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *OrderSummary) GetPayMoney() int64 {
@@ -1541,7 +1593,7 @@ type CountOrderInfoResponse_Count struct {
 
 func (x *CountOrderInfoResponse_Count) Reset() {
 	*x = CountOrderInfoResponse_Count{}
-	mi := &file_app_v1_order_info_proto_msgTypes[24]
+	mi := &file_app_v1_order_info_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1553,7 +1605,7 @@ func (x *CountOrderInfoResponse_Count) String() string {
 func (*CountOrderInfoResponse_Count) ProtoMessage() {}
 
 func (x *CountOrderInfoResponse_Count) ProtoReflect() protoreflect.Message {
-	mi := &file_app_v1_order_info_proto_msgTypes[24]
+	mi := &file_app_v1_order_info_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1596,7 +1648,7 @@ type OrderInfoResponse_Address struct {
 
 func (x *OrderInfoResponse_Address) Reset() {
 	*x = OrderInfoResponse_Address{}
-	mi := &file_app_v1_order_info_proto_msgTypes[25]
+	mi := &file_app_v1_order_info_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1608,7 +1660,7 @@ func (x *OrderInfoResponse_Address) String() string {
 func (*OrderInfoResponse_Address) ProtoMessage() {}
 
 func (x *OrderInfoResponse_Address) ProtoReflect() protoreflect.Message {
-	mi := &file_app_v1_order_info_proto_msgTypes[25]
+	mi := &file_app_v1_order_info_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1665,7 +1717,7 @@ type OrderInfoResponse_Logistics struct {
 
 func (x *OrderInfoResponse_Logistics) Reset() {
 	*x = OrderInfoResponse_Logistics{}
-	mi := &file_app_v1_order_info_proto_msgTypes[26]
+	mi := &file_app_v1_order_info_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1677,7 +1729,7 @@ func (x *OrderInfoResponse_Logistics) String() string {
 func (*OrderInfoResponse_Logistics) ProtoMessage() {}
 
 func (x *OrderInfoResponse_Logistics) ProtoReflect() protoreflect.Message {
-	mi := &file_app_v1_order_info_proto_msgTypes[26]
+	mi := &file_app_v1_order_info_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1732,7 +1784,7 @@ type OrderInfoResponse_Logistics_Detail struct {
 
 func (x *OrderInfoResponse_Logistics_Detail) Reset() {
 	*x = OrderInfoResponse_Logistics_Detail{}
-	mi := &file_app_v1_order_info_proto_msgTypes[27]
+	mi := &file_app_v1_order_info_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1744,7 +1796,7 @@ func (x *OrderInfoResponse_Logistics_Detail) String() string {
 func (*OrderInfoResponse_Logistics_Detail) ProtoMessage() {}
 
 func (x *OrderInfoResponse_Logistics_Detail) ProtoReflect() protoreflect.Message {
-	mi := &file_app_v1_order_info_proto_msgTypes[27]
+	mi := &file_app_v1_order_info_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1778,7 +1830,7 @@ var File_app_v1_order_info_proto protoreflect.FileDescriptor
 
 const file_app_v1_order_info_proto_rawDesc = "" +
 	"\n" +
-	"\x17app/v1/order_info.proto\x12\x06app.v1\x1a\x16app/v1/recommend.proto\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x19\n" +
+	"\x17app/v1/order_info.proto\x12\x06app.v1\x1a\x16app/v1/recommend.proto\x1a\x19app/v1/tenant_store.proto\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x19\n" +
 	"\x17ConfirmOrderInfoRequest\"\x17\n" +
 	"\x15CountOrderInfoRequest\"O\n" +
 	"\x1eGetOrderInfoIdByOrderNoRequest\x12-\n" +
@@ -1798,21 +1850,21 @@ const file_app_v1_order_info_proto_rawDesc = "" +
 	"\bgoods_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品idR\agoodsId\x12-\n" +
 	"\bsku_code\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f规格编号R\askuCode\x12\x1e\n" +
 	"\x03num\x18\x03 \x01(\x03B\f\xbaG\t\x92\x02\x06数量R\x03num\x12\\\n" +
-	"\x11recommend_context\x18\x04 \x01(\v2\x18.app.v1.RecommendContextB\x15\xbaG\x12\x92\x02\x0f推荐上下文R\x10recommendContext\"\xd8\x01\n" +
-	"\x18ConfirmOrderInfoResponse\x12<\n" +
-	"\x05goods\x18\x01 \x03(\v2\x12.app.v1.OrderGoodsB\x12\xbaG\x0f\x92\x02\f商品信息R\x05goods\x12B\n" +
+	"\x11recommend_context\x18\x04 \x01(\v2\x18.app.v1.RecommendContextB\x15\xbaG\x12\x92\x02\x0f推荐上下文R\x10recommendContext\"\x87\x02\n" +
+	"\x18ConfirmOrderInfoResponse\x12k\n" +
+	"\x12order_goods_stores\x18\x01 \x03(\v2\x17.app.v1.OrderGoodsStoreB$\xbaG!\x92\x02\x1e按门店分组的商品信息R\x10orderGoodsStores\x12B\n" +
 	"\asummary\x18\x02 \x01(\v2\x14.app.v1.OrderSummaryB\x12\xbaG\x0f\x92\x02\f汇总信息R\asummary\x12:\n" +
 	"\n" +
-	"clear_cart\x18\x03 \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否清空购物车R\tclearCart\"\xd7\x01\n" +
-	"\x17BuyNowOrderInfoResponse\x12<\n" +
-	"\x05goods\x18\x01 \x03(\v2\x12.app.v1.OrderGoodsB\x12\xbaG\x0f\x92\x02\f商品信息R\x05goods\x12B\n" +
+	"clear_cart\x18\x03 \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否清空购物车R\tclearCart\"\x86\x02\n" +
+	"\x17BuyNowOrderInfoResponse\x12k\n" +
+	"\x12order_goods_stores\x18\x01 \x03(\v2\x17.app.v1.OrderGoodsStoreB$\xbaG!\x92\x02\x1e按门店分组的商品信息R\x10orderGoodsStores\x12B\n" +
 	"\asummary\x18\x02 \x01(\v2\x14.app.v1.OrderSummaryB\x12\xbaG\x0f\x92\x02\f汇总信息R\asummary\x12:\n" +
 	"\n" +
 	"clear_cart\x18\x03 \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否清空购物车R\tclearCart\"G\n" +
 	"\x1aRepurchaseOrderInfoRequest\x12)\n" +
-	"\border_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单idR\aorderId\"\xdb\x01\n" +
-	"\x1bRepurchaseOrderInfoResponse\x12<\n" +
-	"\x05goods\x18\x01 \x03(\v2\x12.app.v1.OrderGoodsB\x12\xbaG\x0f\x92\x02\f商品信息R\x05goods\x12B\n" +
+	"\border_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单idR\aorderId\"\x8a\x02\n" +
+	"\x1bRepurchaseOrderInfoResponse\x12k\n" +
+	"\x12order_goods_stores\x18\x01 \x03(\v2\x17.app.v1.OrderGoodsStoreB$\xbaG!\x92\x02\x1e按门店分组的商品信息R\x10orderGoodsStores\x12B\n" +
 	"\asummary\x18\x02 \x01(\v2\x14.app.v1.OrderSummaryB\x12\xbaG\x0f\x92\x02\f汇总信息R\asummary\x12:\n" +
 	"\n" +
 	"clear_cart\x18\x03 \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否清空购物车R\tclearCart\"\xd7\x01\n" +
@@ -1882,7 +1934,10 @@ const file_app_v1_order_info_proto_rawDesc = "" +
 	"\vtotal_price\x18* \x01(\x03B\x18\xbaG\x15\x92\x02\x12当前金额汇总R\n" +
 	"totalPrice\x12@\n" +
 	"\x0ftotal_pay_price\x18+ \x01(\x03B\x18\xbaG\x15\x92\x02\x12支付金额汇总R\rtotalPayPrice\x12\\\n" +
-	"\x11recommend_context\x18- \x01(\v2\x18.app.v1.RecommendContextB\x15\xbaG\x12\x92\x02\x0f推荐上下文R\x10recommendContext\"\xb8\b\n" +
+	"\x11recommend_context\x18- \x01(\v2\x18.app.v1.RecommendContextB\x15\xbaG\x12\x92\x02\x0f推荐上下文R\x10recommendContext\"\x8e\x01\n" +
+	"\x0fOrderGoodsStore\x12=\n" +
+	"\x05store\x18\x01 \x01(\v2\x13.app.v1.TenantStoreB\x12\xbaG\x0f\x92\x02\f店铺信息R\x05store\x12<\n" +
+	"\x05goods\x18\x02 \x03(\v2\x12.app.v1.OrderGoodsB\x12\xbaG\x0f\x92\x02\f商品信息R\x05goods\"\xe7\b\n" +
 	"\tOrderInfo\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单idR\x02id\x12-\n" +
 	"\border_no\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f订单编号R\aorderNo\x125\n" +
@@ -1906,8 +1961,8 @@ const file_app_v1_order_info_proto_rawDesc = "" +
 	"\vcancel_time\x18\xae\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f取消时间R\n" +
 	"cancelTime\x124\n" +
 	"\vrefund_time\x18\xaf\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f退款时间R\n" +
-	"refundTime\x12=\n" +
-	"\x05goods\x18\x90\x03 \x03(\v2\x12.app.v1.OrderGoodsB\x12\xbaG\x0f\x92\x02\f商品信息R\x05goods\"\xd4\x01\n" +
+	"refundTime\x12l\n" +
+	"\x12order_goods_stores\x18\x90\x03 \x03(\v2\x17.app.v1.OrderGoodsStoreB$\xbaG!\x92\x02\x1e按门店分组的商品信息R\x10orderGoodsStores\"\xd4\x01\n" +
 	"\fOrderSummary\x125\n" +
 	"\tpay_money\x18\x01 \x01(\x03B\x18\xbaG\x15\x92\x02\x12实际支付金额R\bpayMoney\x12-\n" +
 	"\vtotal_money\x18\x02 \x01(\x03B\f\xbaG\t\x92\x02\x06总价R\n" +
@@ -1942,7 +1997,7 @@ func file_app_v1_order_info_proto_rawDescGZIP() []byte {
 	return file_app_v1_order_info_proto_rawDescData
 }
 
-var file_app_v1_order_info_proto_msgTypes = make([]protoimpl.MessageInfo, 28)
+var file_app_v1_order_info_proto_msgTypes = make([]protoimpl.MessageInfo, 29)
 var file_app_v1_order_info_proto_goTypes = []any{
 	(*ConfirmOrderInfoRequest)(nil),            // 0: app.v1.ConfirmOrderInfoRequest
 	(*CountOrderInfoRequest)(nil),              // 1: app.v1.CountOrderInfoRequest
@@ -1966,79 +2021,83 @@ var file_app_v1_order_info_proto_goTypes = []any{
 	(*RefundOrderInfoRequest)(nil),             // 19: app.v1.RefundOrderInfoRequest
 	(*ReceiveOrderInfoRequest)(nil),            // 20: app.v1.ReceiveOrderInfoRequest
 	(*OrderGoods)(nil),                         // 21: app.v1.OrderGoods
-	(*OrderInfo)(nil),                          // 22: app.v1.OrderInfo
-	(*OrderSummary)(nil),                       // 23: app.v1.OrderSummary
-	(*CountOrderInfoResponse_Count)(nil),       // 24: app.v1.CountOrderInfoResponse.Count
-	(*OrderInfoResponse_Address)(nil),          // 25: app.v1.OrderInfoResponse.Address
-	(*OrderInfoResponse_Logistics)(nil),        // 26: app.v1.OrderInfoResponse.Logistics
-	(*OrderInfoResponse_Logistics_Detail)(nil), // 27: app.v1.OrderInfoResponse.Logistics.Detail
-	(*RecommendContext)(nil),                   // 28: app.v1.RecommendContext
-	(v1.OrderStatus)(0),                        // 29: common.v1.OrderStatus
-	(v1.OrderPayType)(0),                       // 30: common.v1.OrderPayType
-	(v1.OrderPayChannel)(0),                    // 31: common.v1.OrderPayChannel
-	(v1.OrderDeliveryTime)(0),                  // 32: common.v1.OrderDeliveryTime
-	(v1.OrderCancelReason)(0),                  // 33: common.v1.OrderCancelReason
-	(v1.OrderRefundReason)(0),                  // 34: common.v1.OrderRefundReason
-	(*emptypb.Empty)(nil),                      // 35: google.protobuf.Empty
+	(*OrderGoodsStore)(nil),                    // 22: app.v1.OrderGoodsStore
+	(*OrderInfo)(nil),                          // 23: app.v1.OrderInfo
+	(*OrderSummary)(nil),                       // 24: app.v1.OrderSummary
+	(*CountOrderInfoResponse_Count)(nil),       // 25: app.v1.CountOrderInfoResponse.Count
+	(*OrderInfoResponse_Address)(nil),          // 26: app.v1.OrderInfoResponse.Address
+	(*OrderInfoResponse_Logistics)(nil),        // 27: app.v1.OrderInfoResponse.Logistics
+	(*OrderInfoResponse_Logistics_Detail)(nil), // 28: app.v1.OrderInfoResponse.Logistics.Detail
+	(*RecommendContext)(nil),                   // 29: app.v1.RecommendContext
+	(v1.OrderStatus)(0),                        // 30: common.v1.OrderStatus
+	(v1.OrderPayType)(0),                       // 31: common.v1.OrderPayType
+	(v1.OrderPayChannel)(0),                    // 32: common.v1.OrderPayChannel
+	(v1.OrderDeliveryTime)(0),                  // 33: common.v1.OrderDeliveryTime
+	(v1.OrderCancelReason)(0),                  // 34: common.v1.OrderCancelReason
+	(v1.OrderRefundReason)(0),                  // 35: common.v1.OrderRefundReason
+	(*TenantStore)(nil),                        // 36: app.v1.TenantStore
+	(*emptypb.Empty)(nil),                      // 37: google.protobuf.Empty
 }
 var file_app_v1_order_info_proto_depIdxs = []int32{
-	28, // 0: app.v1.BuyNowOrderInfoRequest.recommend_context:type_name -> app.v1.RecommendContext
-	28, // 1: app.v1.CreateOrderInfoGoods.recommend_context:type_name -> app.v1.RecommendContext
-	21, // 2: app.v1.ConfirmOrderInfoResponse.goods:type_name -> app.v1.OrderGoods
-	23, // 3: app.v1.ConfirmOrderInfoResponse.summary:type_name -> app.v1.OrderSummary
-	21, // 4: app.v1.BuyNowOrderInfoResponse.goods:type_name -> app.v1.OrderGoods
-	23, // 5: app.v1.BuyNowOrderInfoResponse.summary:type_name -> app.v1.OrderSummary
-	21, // 6: app.v1.RepurchaseOrderInfoResponse.goods:type_name -> app.v1.OrderGoods
-	23, // 7: app.v1.RepurchaseOrderInfoResponse.summary:type_name -> app.v1.OrderSummary
-	24, // 8: app.v1.CountOrderInfoResponse.counts:type_name -> app.v1.CountOrderInfoResponse.Count
-	29, // 9: app.v1.PageOrderInfoRequest.status:type_name -> common.v1.OrderStatus
-	22, // 10: app.v1.PageOrderInfoResponse.order_infos:type_name -> app.v1.OrderInfo
-	22, // 11: app.v1.OrderInfoResponse.order:type_name -> app.v1.OrderInfo
-	25, // 12: app.v1.OrderInfoResponse.address:type_name -> app.v1.OrderInfoResponse.Address
-	26, // 13: app.v1.OrderInfoResponse.logistics:type_name -> app.v1.OrderInfoResponse.Logistics
-	30, // 14: app.v1.CreateOrderInfoRequest.pay_type:type_name -> common.v1.OrderPayType
-	31, // 15: app.v1.CreateOrderInfoRequest.pay_channel:type_name -> common.v1.OrderPayChannel
-	32, // 16: app.v1.CreateOrderInfoRequest.delivery_time:type_name -> common.v1.OrderDeliveryTime
+	29, // 0: app.v1.BuyNowOrderInfoRequest.recommend_context:type_name -> app.v1.RecommendContext
+	29, // 1: app.v1.CreateOrderInfoGoods.recommend_context:type_name -> app.v1.RecommendContext
+	22, // 2: app.v1.ConfirmOrderInfoResponse.order_goods_stores:type_name -> app.v1.OrderGoodsStore
+	24, // 3: app.v1.ConfirmOrderInfoResponse.summary:type_name -> app.v1.OrderSummary
+	22, // 4: app.v1.BuyNowOrderInfoResponse.order_goods_stores:type_name -> app.v1.OrderGoodsStore
+	24, // 5: app.v1.BuyNowOrderInfoResponse.summary:type_name -> app.v1.OrderSummary
+	22, // 6: app.v1.RepurchaseOrderInfoResponse.order_goods_stores:type_name -> app.v1.OrderGoodsStore
+	24, // 7: app.v1.RepurchaseOrderInfoResponse.summary:type_name -> app.v1.OrderSummary
+	25, // 8: app.v1.CountOrderInfoResponse.counts:type_name -> app.v1.CountOrderInfoResponse.Count
+	30, // 9: app.v1.PageOrderInfoRequest.status:type_name -> common.v1.OrderStatus
+	23, // 10: app.v1.PageOrderInfoResponse.order_infos:type_name -> app.v1.OrderInfo
+	23, // 11: app.v1.OrderInfoResponse.order:type_name -> app.v1.OrderInfo
+	26, // 12: app.v1.OrderInfoResponse.address:type_name -> app.v1.OrderInfoResponse.Address
+	27, // 13: app.v1.OrderInfoResponse.logistics:type_name -> app.v1.OrderInfoResponse.Logistics
+	31, // 14: app.v1.CreateOrderInfoRequest.pay_type:type_name -> common.v1.OrderPayType
+	32, // 15: app.v1.CreateOrderInfoRequest.pay_channel:type_name -> common.v1.OrderPayChannel
+	33, // 16: app.v1.CreateOrderInfoRequest.delivery_time:type_name -> common.v1.OrderDeliveryTime
 	7,  // 17: app.v1.CreateOrderInfoRequest.goods:type_name -> app.v1.CreateOrderInfoGoods
-	33, // 18: app.v1.CancelOrderInfoRequest.reason:type_name -> common.v1.OrderCancelReason
-	34, // 19: app.v1.RefundOrderInfoRequest.reason:type_name -> common.v1.OrderRefundReason
-	28, // 20: app.v1.OrderGoods.recommend_context:type_name -> app.v1.RecommendContext
-	30, // 21: app.v1.OrderInfo.pay_type:type_name -> common.v1.OrderPayType
-	31, // 22: app.v1.OrderInfo.pay_channel:type_name -> common.v1.OrderPayChannel
-	32, // 23: app.v1.OrderInfo.delivery_time:type_name -> common.v1.OrderDeliveryTime
-	29, // 24: app.v1.OrderInfo.status:type_name -> common.v1.OrderStatus
-	21, // 25: app.v1.OrderInfo.goods:type_name -> app.v1.OrderGoods
-	29, // 26: app.v1.CountOrderInfoResponse.Count.status:type_name -> common.v1.OrderStatus
-	27, // 27: app.v1.OrderInfoResponse.Logistics.detail:type_name -> app.v1.OrderInfoResponse.Logistics.Detail
-	0,  // 28: app.v1.OrderInfoService.ConfirmOrderInfo:input_type -> app.v1.ConfirmOrderInfoRequest
-	6,  // 29: app.v1.OrderInfoService.BuyNowOrderInfo:input_type -> app.v1.BuyNowOrderInfoRequest
-	10, // 30: app.v1.OrderInfoService.RepurchaseOrderInfo:input_type -> app.v1.RepurchaseOrderInfoRequest
-	1,  // 31: app.v1.OrderInfoService.CountOrderInfo:input_type -> app.v1.CountOrderInfoRequest
-	13, // 32: app.v1.OrderInfoService.PageOrderInfo:input_type -> app.v1.PageOrderInfoRequest
-	2,  // 33: app.v1.OrderInfoService.GetOrderInfoIdByOrderNo:input_type -> app.v1.GetOrderInfoIdByOrderNoRequest
-	4,  // 34: app.v1.OrderInfoService.GetOrderInfoById:input_type -> app.v1.GetOrderInfoByIdRequest
-	16, // 35: app.v1.OrderInfoService.CreateOrderInfo:input_type -> app.v1.CreateOrderInfoRequest
-	5,  // 36: app.v1.OrderInfoService.DeleteOrderInfo:input_type -> app.v1.DeleteOrderInfoRequest
-	18, // 37: app.v1.OrderInfoService.CancelOrderInfo:input_type -> app.v1.CancelOrderInfoRequest
-	19, // 38: app.v1.OrderInfoService.RefundOrderInfo:input_type -> app.v1.RefundOrderInfoRequest
-	20, // 39: app.v1.OrderInfoService.ReceiveOrderInfo:input_type -> app.v1.ReceiveOrderInfoRequest
-	8,  // 40: app.v1.OrderInfoService.ConfirmOrderInfo:output_type -> app.v1.ConfirmOrderInfoResponse
-	9,  // 41: app.v1.OrderInfoService.BuyNowOrderInfo:output_type -> app.v1.BuyNowOrderInfoResponse
-	11, // 42: app.v1.OrderInfoService.RepurchaseOrderInfo:output_type -> app.v1.RepurchaseOrderInfoResponse
-	12, // 43: app.v1.OrderInfoService.CountOrderInfo:output_type -> app.v1.CountOrderInfoResponse
-	14, // 44: app.v1.OrderInfoService.PageOrderInfo:output_type -> app.v1.PageOrderInfoResponse
-	3,  // 45: app.v1.OrderInfoService.GetOrderInfoIdByOrderNo:output_type -> app.v1.GetOrderInfoIdByOrderNoResponse
-	15, // 46: app.v1.OrderInfoService.GetOrderInfoById:output_type -> app.v1.OrderInfoResponse
-	17, // 47: app.v1.OrderInfoService.CreateOrderInfo:output_type -> app.v1.CreateOrderInfoResponse
-	35, // 48: app.v1.OrderInfoService.DeleteOrderInfo:output_type -> google.protobuf.Empty
-	35, // 49: app.v1.OrderInfoService.CancelOrderInfo:output_type -> google.protobuf.Empty
-	35, // 50: app.v1.OrderInfoService.RefundOrderInfo:output_type -> google.protobuf.Empty
-	35, // 51: app.v1.OrderInfoService.ReceiveOrderInfo:output_type -> google.protobuf.Empty
-	40, // [40:52] is the sub-list for method output_type
-	28, // [28:40] is the sub-list for method input_type
-	28, // [28:28] is the sub-list for extension type_name
-	28, // [28:28] is the sub-list for extension extendee
-	0,  // [0:28] is the sub-list for field type_name
+	34, // 18: app.v1.CancelOrderInfoRequest.reason:type_name -> common.v1.OrderCancelReason
+	35, // 19: app.v1.RefundOrderInfoRequest.reason:type_name -> common.v1.OrderRefundReason
+	29, // 20: app.v1.OrderGoods.recommend_context:type_name -> app.v1.RecommendContext
+	36, // 21: app.v1.OrderGoodsStore.store:type_name -> app.v1.TenantStore
+	21, // 22: app.v1.OrderGoodsStore.goods:type_name -> app.v1.OrderGoods
+	31, // 23: app.v1.OrderInfo.pay_type:type_name -> common.v1.OrderPayType
+	32, // 24: app.v1.OrderInfo.pay_channel:type_name -> common.v1.OrderPayChannel
+	33, // 25: app.v1.OrderInfo.delivery_time:type_name -> common.v1.OrderDeliveryTime
+	30, // 26: app.v1.OrderInfo.status:type_name -> common.v1.OrderStatus
+	22, // 27: app.v1.OrderInfo.order_goods_stores:type_name -> app.v1.OrderGoodsStore
+	30, // 28: app.v1.CountOrderInfoResponse.Count.status:type_name -> common.v1.OrderStatus
+	28, // 29: app.v1.OrderInfoResponse.Logistics.detail:type_name -> app.v1.OrderInfoResponse.Logistics.Detail
+	0,  // 30: app.v1.OrderInfoService.ConfirmOrderInfo:input_type -> app.v1.ConfirmOrderInfoRequest
+	6,  // 31: app.v1.OrderInfoService.BuyNowOrderInfo:input_type -> app.v1.BuyNowOrderInfoRequest
+	10, // 32: app.v1.OrderInfoService.RepurchaseOrderInfo:input_type -> app.v1.RepurchaseOrderInfoRequest
+	1,  // 33: app.v1.OrderInfoService.CountOrderInfo:input_type -> app.v1.CountOrderInfoRequest
+	13, // 34: app.v1.OrderInfoService.PageOrderInfo:input_type -> app.v1.PageOrderInfoRequest
+	2,  // 35: app.v1.OrderInfoService.GetOrderInfoIdByOrderNo:input_type -> app.v1.GetOrderInfoIdByOrderNoRequest
+	4,  // 36: app.v1.OrderInfoService.GetOrderInfoById:input_type -> app.v1.GetOrderInfoByIdRequest
+	16, // 37: app.v1.OrderInfoService.CreateOrderInfo:input_type -> app.v1.CreateOrderInfoRequest
+	5,  // 38: app.v1.OrderInfoService.DeleteOrderInfo:input_type -> app.v1.DeleteOrderInfoRequest
+	18, // 39: app.v1.OrderInfoService.CancelOrderInfo:input_type -> app.v1.CancelOrderInfoRequest
+	19, // 40: app.v1.OrderInfoService.RefundOrderInfo:input_type -> app.v1.RefundOrderInfoRequest
+	20, // 41: app.v1.OrderInfoService.ReceiveOrderInfo:input_type -> app.v1.ReceiveOrderInfoRequest
+	8,  // 42: app.v1.OrderInfoService.ConfirmOrderInfo:output_type -> app.v1.ConfirmOrderInfoResponse
+	9,  // 43: app.v1.OrderInfoService.BuyNowOrderInfo:output_type -> app.v1.BuyNowOrderInfoResponse
+	11, // 44: app.v1.OrderInfoService.RepurchaseOrderInfo:output_type -> app.v1.RepurchaseOrderInfoResponse
+	12, // 45: app.v1.OrderInfoService.CountOrderInfo:output_type -> app.v1.CountOrderInfoResponse
+	14, // 46: app.v1.OrderInfoService.PageOrderInfo:output_type -> app.v1.PageOrderInfoResponse
+	3,  // 47: app.v1.OrderInfoService.GetOrderInfoIdByOrderNo:output_type -> app.v1.GetOrderInfoIdByOrderNoResponse
+	15, // 48: app.v1.OrderInfoService.GetOrderInfoById:output_type -> app.v1.OrderInfoResponse
+	17, // 49: app.v1.OrderInfoService.CreateOrderInfo:output_type -> app.v1.CreateOrderInfoResponse
+	37, // 50: app.v1.OrderInfoService.DeleteOrderInfo:output_type -> google.protobuf.Empty
+	37, // 51: app.v1.OrderInfoService.CancelOrderInfo:output_type -> google.protobuf.Empty
+	37, // 52: app.v1.OrderInfoService.RefundOrderInfo:output_type -> google.protobuf.Empty
+	37, // 53: app.v1.OrderInfoService.ReceiveOrderInfo:output_type -> google.protobuf.Empty
+	42, // [42:54] is the sub-list for method output_type
+	30, // [30:42] is the sub-list for method input_type
+	30, // [30:30] is the sub-list for extension type_name
+	30, // [30:30] is the sub-list for extension extendee
+	0,  // [0:30] is the sub-list for field type_name
 }
 
 func init() { file_app_v1_order_info_proto_init() }
@@ -2047,13 +2106,14 @@ func file_app_v1_order_info_proto_init() {
 		return
 	}
 	file_app_v1_recommend_proto_init()
+	file_app_v1_tenant_store_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_app_v1_order_info_proto_rawDesc), len(file_app_v1_order_info_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   28,
+			NumMessages:   29,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

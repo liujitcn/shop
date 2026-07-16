@@ -61,10 +61,12 @@ function handleFlowAction(action?: AiAssistantAction) {
         </view>
         <text class="flow-order-price">¥{{ formatPrice(Number(order.pay_money || 0)) }}</text>
       </view>
-      <view v-for="goods in order.goods || []" :key="goods.sku_code" class="flow-order-goods">
-        <text class="flow-order-goods-name">{{ goods.name }}</text>
-        <text class="flow-order-goods-num">x{{ goods.num }}</text>
-      </view>
+      <template v-for="group in order.order_goods_stores || []" :key="group.store?.id">
+        <view v-for="goods in group.goods || []" :key="goods.sku_code" class="flow-order-goods">
+          <text class="flow-order-goods-name">{{ goods.name }}</text>
+          <text class="flow-order-goods-num">x{{ goods.num }}</text>
+        </view>
+      </template>
       <button
         class="flow-primary-button is-wide"
         :class="{ 'is-disabled': !isActionEnabled(order.action) }"

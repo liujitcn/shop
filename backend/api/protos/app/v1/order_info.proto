@@ -3,6 +3,7 @@ syntax = "proto3";
 package app.v1;
 
 import "app/v1/recommend.proto";
+import "app/v1/tenant_store.proto";
 import "common/v1/enum.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
@@ -148,7 +149,7 @@ message CreateOrderInfoGoods {
 
 // 确认订单响应
 message ConfirmOrderInfoResponse {
-  repeated OrderGoods goods = 1 [(gnostic.openapi.v3.property) = {description: "商品信息"}]; // 商品信息
+  repeated OrderGoodsStore order_goods_stores = 1 [(gnostic.openapi.v3.property) = {description: "按门店分组的商品信息"}]; // 按门店分组的商品信息
   OrderSummary summary = 2 [(gnostic.openapi.v3.property) = {description: "汇总信息"}]; // 汇总信息
 
   bool clear_cart = 3 [(gnostic.openapi.v3.property) = {description: "是否清空购物车"}]; // 是否清空购物车
@@ -156,7 +157,7 @@ message ConfirmOrderInfoResponse {
 
 // 立即购买订单响应
 message BuyNowOrderInfoResponse {
-  repeated OrderGoods goods = 1 [(gnostic.openapi.v3.property) = {description: "商品信息"}]; // 商品信息
+  repeated OrderGoodsStore order_goods_stores = 1 [(gnostic.openapi.v3.property) = {description: "按门店分组的商品信息"}]; // 按门店分组的商品信息
   OrderSummary summary = 2 [(gnostic.openapi.v3.property) = {description: "汇总信息"}]; // 汇总信息
 
   bool clear_cart = 3 [(gnostic.openapi.v3.property) = {description: "是否清空购物车"}]; // 是否清空购物车
@@ -169,7 +170,7 @@ message RepurchaseOrderInfoRequest {
 
 // 再次购买订单响应
 message RepurchaseOrderInfoResponse {
-  repeated OrderGoods goods = 1 [(gnostic.openapi.v3.property) = {description: "商品信息"}]; // 商品信息
+  repeated OrderGoodsStore order_goods_stores = 1 [(gnostic.openapi.v3.property) = {description: "按门店分组的商品信息"}]; // 按门店分组的商品信息
   OrderSummary summary = 2 [(gnostic.openapi.v3.property) = {description: "汇总信息"}]; // 汇总信息
 
   bool clear_cart = 3 [(gnostic.openapi.v3.property) = {description: "是否清空购物车"}]; // 是否清空购物车
@@ -299,6 +300,14 @@ message OrderGoods {
   int64 total_pay_price = 43 [(gnostic.openapi.v3.property) = {description: "支付金额汇总"}]; // 支付金额汇总
 
   RecommendContext recommend_context = 45 [(gnostic.openapi.v3.property) = {description: "推荐上下文"}]; // 推荐上下文
+
+}
+
+// 订单商品门店分组
+message OrderGoodsStore {
+  TenantStore store = 1 [(gnostic.openapi.v3.property) = {description: "店铺信息"}]; // 店铺信息
+
+  repeated OrderGoods goods = 2 [(gnostic.openapi.v3.property) = {description: "商品信息"}]; // 商品信息
 }
 
 // Order信息
@@ -335,7 +344,7 @@ message OrderInfo {
 
   string refund_time = 303 [(gnostic.openapi.v3.property) = {description: "退款时间"}]; // 退款时间
 
-  repeated OrderGoods goods = 400 [(gnostic.openapi.v3.property) = {description: "商品信息"}]; // 商品信息
+  repeated OrderGoodsStore order_goods_stores = 400 [(gnostic.openapi.v3.property) = {description: "按门店分组的商品信息"}]; // 按门店分组的商品信息
 }
 
 // Order汇总

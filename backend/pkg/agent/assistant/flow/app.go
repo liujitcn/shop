@@ -878,14 +878,14 @@ func buildAiAssistantOrderListBlock(flow string, title string, output map[string
 			step = "payment"
 		}
 		items = append(items, map[string]any{
-			"id":          orderID,
-			"order_no":    item["order_no"],
-			"pay_money":   item["pay_money"],
-			"total_money": item["total_money"],
-			"status":      item["status"],
-			"goods_num":   item["goods_num"],
-			"goods":       item["goods"],
-			"action":      aiAssistantAction(flow, step, actionType, payload),
+			"id":                 orderID,
+			"order_no":           item["order_no"],
+			"pay_money":          item["pay_money"],
+			"total_money":        item["total_money"],
+			"status":             item["status"],
+			"goods_num":          item["goods_num"],
+			"order_goods_stores": item["order_goods_stores"],
+			"action":             aiAssistantAction(flow, step, actionType, payload),
 		})
 	}
 	return map[string]any{
@@ -954,20 +954,24 @@ func buildAiAssistantOrderDetailBlock(output map[string]any) map[string]any {
 
 // buildAiAssistantCartListBlock 构造购物车列表卡片。
 func buildAiAssistantCartListBlock(output map[string]any) map[string]any {
-	carts := sliceMapValue(output["user_carts"])
-	items := make([]map[string]any, 0, len(carts))
-	for _, item := range carts {
-		items = append(items, map[string]any{
-			"id":        item["id"],
-			"goods_id":  item["goods_id"],
-			"name":      item["name"],
-			"picture":   item["picture"],
-			"sku_code":  item["sku_code"],
-			"spec_text": strings.Join(stringListValue(item["spec_item"]), " / "),
-			"num":       item["num"],
-			"price":     item["price"],
-			"checked":   item["is_checked"],
-		})
+	cartStores := sliceMapValue(output["user_cart_stores"])
+	var items []map[string]any
+	for _, cartStore := range cartStores {
+		store := mapValue(cartStore["store"])
+		for _, item := range sliceMapValue(cartStore["goods"]) {
+			items = append(items, map[string]any{
+				"id":        item["id"],
+				"goods_id":  item["goods_id"],
+				"name":      item["name"],
+				"picture":   item["picture"],
+				"sku_code":  item["sku_code"],
+				"spec_text": strings.Join(stringListValue(item["spec_item"]), " / "),
+				"num":       item["num"],
+				"price":     item["price"],
+				"checked":   item["is_checked"],
+				"store":     store,
+			})
+		}
 	}
 	return map[string]any{
 		"type":  "cart_list",

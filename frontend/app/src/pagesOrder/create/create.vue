@@ -25,6 +25,7 @@ import {
   parseRecommendRouteQuery,
   navigateToLogin,
   redirectToOrderPayment,
+  tenantStoreUrl,
 } from '@/utils/navigation'
 
 const addressStore = useAddressStore()
@@ -184,7 +185,9 @@ const onOrderSubmit = async () => {
   if (!activeDelivery.value?.value) {
     return uni.showToast({ icon: 'none', title: '请选择配送时间类型' })
   }
-  const requestGoods = orderPre.value!.goods.map((item) => buildOrderRequestGoods(item))
+  const requestGoods = orderPre
+    .value!.order_goods_stores.flatMap((store) => store.goods)
+    .map((item) => buildOrderRequestGoods(item))
   // 发送请求
   const res = await defOrderService.CreateOrderInfo({
     /** 地址id */
@@ -254,9 +257,27 @@ const onOrderSubmitOk = computed(() => {
     </navigator>
 
     <!-- 商品信息 -->
-    <view class="goods" v-if="orderPre?.goods">
+    <view v-for="group in orderPre?.order_goods_stores" :key="group.store?.id" class="goods">
       <navigator
-        v-for="item in orderPre!.goods"
+        v-if="group.store?.id"
+        class="store-header"
+        :url="tenantStoreUrl(group.store.id)"
+        hover-class="none"
+      >
+        <image
+          v-if="group.store.logo"
+          class="store-logo"
+          :src="formatSrc(group.store.logo)"
+          mode="aspectFill"
+        />
+        <text class="store-name">{{ group.store.name || '店铺' }}</text>
+        <text class="store-arrow">&gt;</text>
+      </navigator>
+      <view v-else class="store-header">
+        <text class="store-name">店铺</text>
+      </view>
+      <navigator
+        v-for="item in group.goods"
         :key="item.sku_code"
         :url="
           goodsDetailUrl({
@@ -384,6 +405,35 @@ page {
   padding: 0 20rpx;
   border-radius: 10rpx;
   background-color: #fff;
+
+  .store-header {
+    display: flex;
+    align-items: center;
+    height: 80rpx;
+  }
+
+  .store-logo {
+    width: 40rpx;
+    height: 40rpx;
+    margin-right: 12rpx;
+    border-radius: 50%;
+  }
+
+  .store-name {
+    flex: 1;
+    overflow: hidden;
+    font-size: 26rpx;
+    font-weight: 500;
+    color: #333;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .store-arrow {
+    margin-left: 12rpx;
+    color: #999;
+    font-size: 28rpx;
+  }
 
   .item {
     display: flex;

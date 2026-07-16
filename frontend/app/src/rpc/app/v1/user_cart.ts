@@ -26,7 +26,7 @@ export interface ListUserCartsRequest {
 /** 用户购物车列表响应 */
 export interface ListUserCartsResponse {
   /** 按店铺分组的用户购物车列表 */
-  user_carts: UserCartStore[];
+  user_cart_stores: UserCartStore[];
 }
 
 /** 用户购物车店铺分组 */

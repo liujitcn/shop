@@ -221,7 +221,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	orderSchedulerCase := biz3.NewOrderSchedulerCase(baseCase)
 	baseThirdAccountRepository := data.NewBaseThirdAccountRepository(dataData)
 	payCase := biz3.NewPayCase(baseCase, transaction, baseThirdAccountRepository, orderInfoRepository, orderGoodsRepository, orderPaymentRepository, orderRefundRepository, orderSchedulerCase, wxPayCase)
-	orderInfoCase, err := biz3.NewOrderInfoCase(baseCase, transaction, orderInfoRepository, orderCancelCase, orderGoodsCase, orderAddressCase, orderLogisticsCase, orderPaymentCase, orderRefundCase, goodsInfoCase, goodsSKUCase, userAddressCase, userCartCase, baseDictItemCase, orderSchedulerCase, payCase, wxPayCase)
+	orderInfoCase, err := biz3.NewOrderInfoCase(baseCase, transaction, orderInfoRepository, orderCancelCase, orderGoodsCase, orderAddressCase, orderLogisticsCase, orderPaymentCase, orderRefundCase, goodsInfoCase, goodsSKUCase, tenantStoreCase, userAddressCase, userCartCase, baseDictItemCase, orderSchedulerCase, payCase, wxPayCase)
 	if err != nil {
 		cleanup4()
 		cleanup3()

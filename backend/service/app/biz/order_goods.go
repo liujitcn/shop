@@ -42,9 +42,9 @@ func NewOrderGoodsCase(baseCase *biz.BaseCase, orderGoodsRepo *data.OrderGoodsRe
 	}
 }
 
-// mapByOrderIDs 按订单编号批量查询商品明细映射
-func (c *OrderGoodsCase) mapByOrderIDs(ctx context.Context, orderIDs []int64) (map[int64][]*appv1.OrderGoods, error) {
-	res := make(map[int64][]*appv1.OrderGoods)
+// mapByOrderIDs 按订单编号批量查询商品明细模型映射。
+func (c *OrderGoodsCase) mapByOrderIDs(ctx context.Context, orderIDs []int64) (map[int64][]*models.OrderGoods, error) {
+	res := make(map[int64][]*models.OrderGoods)
 	// 存在订单编号时，批量查询对应的商品明细映射。
 	if len(orderIDs) > 0 {
 		query := c.Query(ctx).OrderGoods
@@ -58,9 +58,9 @@ func (c *OrderGoodsCase) mapByOrderIDs(ctx context.Context, orderIDs []int64) (m
 			v, ok := res[item.OrderID]
 			// 当前订单首次命中时，先初始化切片容器。
 			if !ok {
-				v = make([]*appv1.OrderGoods, 0)
+				v = make([]*models.OrderGoods, 0)
 			}
-			v = append(v, c.toOrderGoods(item))
+			v = append(v, item)
 
 			res[item.OrderID] = v
 		}
@@ -68,20 +68,12 @@ func (c *OrderGoodsCase) mapByOrderIDs(ctx context.Context, orderIDs []int64) (m
 	return res, nil
 }
 
-// listByOrderID 查询单个订单的商品明细
-func (c *OrderGoodsCase) listByOrderID(ctx context.Context, orderID int64) ([]*appv1.OrderGoods, error) {
+// listByOrderID 查询单个订单的商品明细模型。
+func (c *OrderGoodsCase) listByOrderID(ctx context.Context, orderID int64) ([]*models.OrderGoods, error) {
 	query := c.Query(ctx).OrderGoods
 	opts := make([]repository.QueryOption, 0, 1)
 	opts = append(opts, repository.Where(query.OrderID.Eq(orderID)))
-	all, err := c.List(ctx, opts...)
-	if err != nil {
-		return nil, err
-	}
-	list := make([]*appv1.OrderGoods, 0)
-	for _, item := range all {
-		list = append(list, c.toOrderGoods(item))
-	}
-	return list, nil
+	return c.List(ctx, opts...)
 }
 
 // createByOrder 批量创建订单商品记录

@@ -13,6 +13,7 @@ import {
   orderCreateUrl,
   orderDetailUrl,
   redirectToOrderPayment,
+  tenantStoreUrl,
 } from '@/utils/navigation'
 import RefundOrderPopup from '../../components/RefundOrderPopup.vue'
 
@@ -54,7 +55,7 @@ const getDictData = async () => {
 }
 
 const buildOrderCommentWriteUrl = (order: OrderInfo) => {
-  const firstGoods = order.goods[0]
+  const firstGoods = order.order_goods_stores[0]?.goods[0]
   return orderCommentWriteUrl({
     order_id: order.id,
     goods_id: firstGoods?.goods_id,
@@ -331,36 +332,54 @@ const onRefresherRefresh = async () => {
     <view class="card" v-for="order in orderInfoList" :key="order.id">
       <!-- 订单信息 -->
       <view class="status">
-        <text class="date" v-if="order.cancel_time">{{ order.cancel_time }}</text>
-        <!-- 订单状态文字 -->
-        <text>{{ getOrderStatusText(order.status) }}</text>
-        <!-- 已完成/退款售后/已取消状态允许删除，待评价不能删除。 -->
-        <text
-          v-if="
-            order.status === OrderStatus.COMPLETED ||
-            order.status === OrderStatus.REFUNDING ||
-            order.status === OrderStatus.CANCELED
-          "
-          class="icon-delete"
-          @tap="onOrderDelete(order.id)"
-        ></text>
+        <navigator
+          v-if="order.order_goods_stores[0]?.store?.id"
+          class="store-info"
+          :url="tenantStoreUrl(order.order_goods_stores[0]?.store?.id || 0)"
+          hover-class="none"
+        >
+          <text class="store-name">
+            {{ order.order_goods_stores[0]?.store?.name || '店铺信息' }}
+          </text>
+          <text class="store-arrow">&gt;</text>
+        </navigator>
+        <view v-else class="store-info">
+          <text class="store-name">店铺信息</text>
+        </view>
+        <view class="status-info">
+          <text class="date" v-if="order.cancel_time">{{ order.cancel_time }}</text>
+          <!-- 订单状态文字 -->
+          <text>{{ getOrderStatusText(order.status) }}</text>
+          <!-- 已完成/退款售后/已取消状态允许删除，待评价不能删除。 -->
+          <text
+            v-if="
+              order.status === OrderStatus.COMPLETED ||
+              order.status === OrderStatus.REFUNDING ||
+              order.status === OrderStatus.CANCELED
+            "
+            class="icon-delete"
+            @tap="onOrderDelete(order.id)"
+          ></text>
+        </view>
       </view>
       <!-- 商品信息，点击商品跳转到订单详情，不是商品详情 -->
-      <navigator
-        v-for="item in order.goods"
-        :key="item.goods_id"
-        class="goods"
-        :url="orderDetailUrl({ id: order.id, internal: true })"
-        hover-class="none"
-      >
-        <view class="cover">
-          <image class="image" mode="aspectFit" :src="formatSrc(item.picture)"></image>
-        </view>
-        <view class="meta">
-          <view class="name ellipsis">{{ item.name }}</view>
-          <view class="type">{{ item.spec_item.join('/') }}</view>
-        </view>
-      </navigator>
+      <template v-for="group in order.order_goods_stores" :key="group.store?.id">
+        <navigator
+          v-for="item in group.goods"
+          :key="item.goods_id"
+          class="goods"
+          :url="orderDetailUrl({ id: order.id, internal: true })"
+          hover-class="none"
+        >
+          <view class="cover">
+            <image class="image" mode="aspectFit" :src="formatSrc(item.picture)"></image>
+          </view>
+          <view class="meta">
+            <view class="name ellipsis">{{ item.name }}</view>
+            <view class="type">{{ item.spec_item.join('/') }}</view>
+          </view>
+        </navigator>
+      </template>
       <!-- 支付信息 -->
       <view class="payment">
         <text class="quantity">共{{ order.goods_num }}件商品</text>
@@ -472,9 +491,36 @@ const onRefresherRefresh = async () => {
     color: #999;
     margin-bottom: 15rpx;
 
+    .store-info {
+      display: flex;
+      flex: 1;
+      min-width: 0;
+      align-items: center;
+      margin-right: 20rpx;
+      color: #444;
+    }
+
+    .store-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .store-arrow {
+      flex-shrink: 0;
+      margin-left: 8rpx;
+      color: #999;
+    }
+
+    .status-info {
+      display: flex;
+      flex-shrink: 0;
+      align-items: center;
+    }
+
     .date {
       color: #666;
-      flex: 1;
+      margin-right: 16rpx;
     }
 
     .primary {

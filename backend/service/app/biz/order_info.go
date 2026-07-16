@@ -52,6 +52,7 @@ type OrderInfoCase struct {
 	orderRefundCase    *OrderRefundCase
 	goodsInfoCase      *GoodsInfoCase
 	goodsSKUCase       *GoodsSKUCase
+	tenantStoreCase    *TenantStoreCase
 	userAddressCase    *UserAddressCase
 	userCartCase       *UserCartCase
 	baseDictItemCase   *BaseDictItemCase
@@ -74,6 +75,7 @@ func NewOrderInfoCase(
 	orderRefundCase *OrderRefundCase,
 	goodsInfoCase *GoodsInfoCase,
 	goodsSKUCase *GoodsSKUCase,
+	tenantStoreCase *TenantStoreCase,
 	userAddressCase *UserAddressCase,
 	userCartCase *UserCartCase,
 	baseDictItemCase *BaseDictItemCase,
@@ -93,6 +95,7 @@ func NewOrderInfoCase(
 		orderRefundCase:     orderRefundCase,
 		goodsInfoCase:       goodsInfoCase,
 		goodsSKUCase:        goodsSKUCase,
+		tenantStoreCase:     tenantStoreCase,
 		userAddressCase:     userAddressCase,
 		userCartCase:        userCartCase,
 		baseDictItemCase:    baseDictItemCase,
@@ -311,9 +314,9 @@ func (c *OrderInfoCase) BuyNowOrderInfo(ctx context.Context, req *appv1.BuyNowOr
 		return nil, err
 	}
 	return &appv1.BuyNowOrderInfoResponse{
-		Goods:     res.GetGoods(),
-		Summary:   res.GetSummary(),
-		ClearCart: res.GetClearCart(),
+		OrderGoodsStores: res.GetOrderGoodsStores(),
+		Summary:          res.GetSummary(),
+		ClearCart:        res.GetClearCart(),
 	}, nil
 }
 
@@ -357,9 +360,9 @@ func (c *OrderInfoCase) RepurchaseOrderInfo(ctx context.Context, req *appv1.Repu
 		return nil, err
 	}
 	return &appv1.RepurchaseOrderInfoResponse{
-		Goods:     res.GetGoods(),
-		Summary:   res.GetSummary(),
-		ClearCart: res.GetClearCart(),
+		OrderGoodsStores: res.GetOrderGoodsStores(),
+		Summary:          res.GetSummary(),
+		ClearCart:        res.GetClearCart(),
 	}, nil
 }
 
@@ -422,8 +425,13 @@ func (c *OrderInfoCase) PageOrderInfo(ctx context.Context, req *appv1.PageOrderI
 		}
 	}
 
-	var orderGoodsMap map[int64][]*appv1.OrderGoods
+	var orderGoodsMap map[int64][]*models.OrderGoods
 	orderGoodsMap, err = c.orderGoodsCase.mapByOrderIDs(ctx, orderIDs)
+	if err != nil {
+		return nil, err
+	}
+	var orderGoodsStoreMap map[int64][]*appv1.OrderGoodsStore
+	orderGoodsStoreMap, err = c.buildOrderGoodsStoreMap(ctx, orderGoodsMap)
 	if err != nil {
 		return nil, err
 	}
@@ -436,9 +444,9 @@ func (c *OrderInfoCase) PageOrderInfo(ctx context.Context, req *appv1.PageOrderI
 	list := make([]*appv1.OrderInfo, 0)
 	for _, item := range page {
 		orderInfo := c.convertToProto(item)
-		// 命中订单商品映射时，补齐当前订单的商品列表。
-		if v, ok := orderGoodsMap[orderInfo.Id]; ok {
-			orderInfo.Goods = v
+		// 命中订单商品门店分组时，补齐当前订单的商品列表。
+		if v, ok := orderGoodsStoreMap[orderInfo.Id]; ok {
+			orderInfo.OrderGoodsStores = v
 		}
 		// 已退款订单需要返回退款成功时间，前端据此区分处理中和已退款。
 		if v, ok := refundTimeMap[orderInfo.Id]; ok {
@@ -498,11 +506,19 @@ func (c *OrderInfoCase) GetOrderInfoByID(ctx context.Context, id int64) (*appv1.
 	nowTime := time.Now()
 	countdown := createdAt.Sub(nowTime).Seconds()
 
-	// 查询订单商品明细
-	orderInfo.Goods, err = c.orderGoodsCase.listByOrderID(ctx, orderInfo.Id)
+	// 查询订单商品明细，并同时按商品快照中的门店编号生成展示分组。
+	orderGoodsList, err := c.orderGoodsCase.listByOrderID(ctx, orderInfo.Id)
 	if err != nil {
 		return nil, err
 	}
+	var orderGoodsStoreMap map[int64][]*appv1.OrderGoodsStore
+	orderGoodsStoreMap, err = c.buildOrderGoodsStoreMap(ctx, map[int64][]*models.OrderGoods{
+		orderInfo.Id: orderGoodsList,
+	})
+	if err != nil {
+		return nil, err
+	}
+	orderInfo.OrderGoodsStores = orderGoodsStoreMap[orderInfo.Id]
 	// 查询订单收货地址快照
 	var address *appv1.OrderInfoResponse_Address
 	address, err = c.orderAddressCase.findByOrderID(ctx, orderInfo.Id)
@@ -791,8 +807,7 @@ func (c *OrderInfoCase) convertToProto(item *models.OrderInfo) *appv1.OrderInfo 
 
 // 汇总下单商品信息并生成确认单
 func (c *OrderInfoCase) orderBuy(ctx context.Context, member bool, createOrderGoods []*appv1.CreateOrderInfoGoods) (*appv1.ConfirmOrderInfoResponse, error) {
-	newOrderGoods := make([]*appv1.OrderGoods, 0)
-	tenantStoreID := int64(0)
+	newOrderGoods := make([]*models.OrderGoods, 0, len(createOrderGoods))
 	for _, item := range createOrderGoods {
 		var model *models.OrderGoods
 		var goodsInfo *models.GoodsInfo
@@ -801,32 +816,81 @@ func (c *OrderInfoCase) orderBuy(ctx context.Context, member bool, createOrderGo
 		if err != nil {
 			return nil, err
 		}
-		// 确认单阶段提前拦截跨门店商品，和最终创建订单的主表字段保持一致。
+		// 商品必须归属明确门店，确认单按商品所属门店分组展示。
 		if goodsInfo.TenantStoreID <= 0 {
 			return nil, errorsx.InvalidArgument("商品未绑定门店，无法下单")
 		}
-		if tenantStoreID == 0 {
-			tenantStoreID = goodsInfo.TenantStoreID
-		}
-		if tenantStoreID != goodsInfo.TenantStoreID {
-			return nil, errorsx.InvalidArgument("同一订单只能购买同一门店商品")
-		}
-		newGoods := c.orderGoodsCase.toOrderGoods(model)
-		newOrderGoods = append(newOrderGoods, newGoods)
+		model.TenantStoreID = goodsInfo.TenantStoreID
+		newOrderGoods = append(newOrderGoods, model)
 	}
+	orderGoodsStoreMap, err := c.buildOrderGoodsStoreMap(ctx, map[int64][]*models.OrderGoods{
+		0: newOrderGoods,
+	})
+	if err != nil {
+		return nil, err
+	}
+	orderGoodsStores := orderGoodsStoreMap[0]
 
 	var summary appv1.OrderSummary
-	for _, orderGoods := range newOrderGoods {
-		summary.PayMoney += orderGoods.TotalPayPrice
-		summary.TotalMoney += orderGoods.TotalPrice
-		summary.GoodsNum += orderGoods.Num
+	for _, orderStore := range orderGoodsStores {
+		for _, orderGoods := range orderStore.Goods {
+			summary.PayMoney += orderGoods.TotalPayPrice
+			summary.TotalMoney += orderGoods.TotalPrice
+			summary.GoodsNum += orderGoods.Num
+		}
 	}
 	// 当前版本统一免运费
 	summary.PostFee = 0
 	return &appv1.ConfirmOrderInfoResponse{
-		Goods:   newOrderGoods,
-		Summary: &summary,
+		OrderGoodsStores: orderGoodsStores,
+		Summary:          &summary,
 	}, nil
+}
+
+// buildOrderGoodsStoreMap 按订单和门店构建商品分组映射。
+func (c *OrderInfoCase) buildOrderGoodsStoreMap(ctx context.Context, orderGoodsMap map[int64][]*models.OrderGoods) (map[int64][]*appv1.OrderGoodsStore, error) {
+	res := make(map[int64][]*appv1.OrderGoodsStore, len(orderGoodsMap))
+	storeIDs := make([]int64, 0)
+	storeIDSet := make(map[int64]bool)
+	for orderID, orderGoodsList := range orderGoodsMap {
+		orderStoreMap := make(map[int64]*appv1.OrderGoodsStore)
+		orderGoodsStores := make([]*appv1.OrderGoodsStore, 0)
+		for _, orderGoods := range orderGoodsList {
+			orderStore := orderStoreMap[orderGoods.TenantStoreID]
+			// 门店首次命中时，初始化对应的订单商品分组。
+			if orderStore == nil {
+				orderStore = &appv1.OrderGoodsStore{
+					Store: &appv1.TenantStore{Id: orderGoods.TenantStoreID},
+					Goods: make([]*appv1.OrderGoods, 0),
+				}
+				orderStoreMap[orderGoods.TenantStoreID] = orderStore
+				orderGoodsStores = append(orderGoodsStores, orderStore)
+				if !storeIDSet[orderGoods.TenantStoreID] {
+					storeIDSet[orderGoods.TenantStoreID] = true
+					storeIDs = append(storeIDs, orderGoods.TenantStoreID)
+				}
+			}
+			orderStore.Goods = append(orderStore.Goods, c.orderGoodsCase.toOrderGoods(orderGoods))
+		}
+		res[orderID] = orderGoodsStores
+	}
+
+	// 批量补齐订单响应的门店展示信息，避免按商品逐条查询门店。
+	tenantStoreMap, err := c.tenantStoreCase.GetTenantStoreMapByIDs(ctx, storeIDs)
+	if err != nil {
+		return nil, err
+	}
+	for _, orderGoodsStores := range res {
+		for _, orderStore := range orderGoodsStores {
+			// 门店资料仍存在时，补齐订单商品分组的展示信息。
+			tenantStore := tenantStoreMap[orderStore.Store.Id]
+			if tenantStore != nil {
+				orderStore.Store.Name = tenantStore.Name
+				orderStore.Store.Logo = tenantStore.Logo
+			}
+		}
+	}
+	return res, nil
 }
 
 // dispatchRecommendOrderEvent 根据已落库订单事实回写推荐下单事件。

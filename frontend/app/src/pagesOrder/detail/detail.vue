@@ -17,6 +17,7 @@ import {
   orderCreateUrl,
   orderListUrl,
   redirectToOrderPayment,
+  tenantStoreUrl,
 } from '@/utils/navigation'
 import RefundOrderPopup from '../components/RefundOrderPopup.vue'
 // 获取屏幕边界到安全区域距离
@@ -53,7 +54,7 @@ const buildGoodsDetailUrl = (
 }
 
 const buildOrderCommentWriteUrl = () => {
-  const firstGoods = orderData.value?.order?.goods?.[0]
+  const firstGoods = orderData.value?.order?.order_goods_stores?.[0]?.goods?.[0]
   return orderCommentWriteUrl({
     order_id: order_id.value,
     goods_id: firstGoods?.goods_id,
@@ -410,10 +411,32 @@ const onRefundSuccess = async () => {
       </view>
 
       <!-- 商品信息 -->
-      <view class="goods">
+      <view
+        v-for="group in orderData.order!.order_goods_stores"
+        :key="group.store?.id"
+        class="goods"
+      >
+        <navigator
+          v-if="group.store?.id"
+          class="store-header"
+          :url="tenantStoreUrl(group.store.id)"
+          hover-class="none"
+        >
+          <image
+            v-if="group.store.logo"
+            class="store-logo"
+            :src="formatSrc(group.store.logo)"
+            mode="aspectFill"
+          />
+          <text class="store-name">{{ group.store.name || '店铺' }}</text>
+          <text class="store-arrow">&gt;</text>
+        </navigator>
+        <view v-else class="store-header">
+          <text class="store-name">店铺</text>
+        </view>
         <view class="item">
           <navigator
-            v-for="item in orderData.order!.goods"
+            v-for="item in group.goods"
             :key="item.goods_id"
             class="navigator"
             :url="
@@ -438,11 +461,13 @@ const onRefundSuccess = async () => {
               <view class="quantity">x{{ item.num }}</view>
             </view>
           </navigator>
-          <!-- 待评价状态:展示按钮 -->
-          <view v-if="orderData.order!.status === OrderStatus.WAIT_REVIEW" class="action">
-            <view class="button primary" @tap="onOpenRefundPopup">申请售后</view>
-            <navigator :url="buildOrderCommentWriteUrl()" class="button"> 去评价 </navigator>
-          </view>
+        </view>
+      </view>
+      <view class="goods order-summary">
+        <!-- 待评价状态:展示按钮 -->
+        <view v-if="orderData.order!.status === OrderStatus.WAIT_REVIEW" class="action">
+          <view class="button primary" @tap="onOpenRefundPopup">申请售后</view>
+          <navigator :url="buildOrderCommentWriteUrl()" class="button"> 去评价 </navigator>
         </view>
         <!-- 合计 -->
         <view class="total">
@@ -733,6 +758,35 @@ page {
   border-radius: 10rpx;
   background-color: #fff;
 
+  .store-header {
+    display: flex;
+    align-items: center;
+    height: 80rpx;
+  }
+
+  .store-logo {
+    width: 40rpx;
+    height: 40rpx;
+    margin-right: 12rpx;
+    border-radius: 50%;
+  }
+
+  .store-name {
+    flex: 1;
+    overflow: hidden;
+    font-size: 26rpx;
+    font-weight: 500;
+    color: #333;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .store-arrow {
+    margin-left: 12rpx;
+    color: #999;
+    font-size: 28rpx;
+  }
+
   .item {
     padding: 30rpx 0;
     border-bottom: 1rpx solid #eee;
@@ -805,30 +859,30 @@ page {
       font-size: 24rpx;
       color: #444;
     }
+  }
 
-    .action {
-      display: flex;
-      flex-direction: row-reverse;
-      justify-content: flex-start;
-      padding: 30rpx 0 0;
+  .action {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-start;
+    padding: 30rpx 0 0;
 
-      .button {
-        width: 200rpx;
-        height: 60rpx;
-        text-align: center;
-        justify-content: center;
-        line-height: 60rpx;
-        margin-left: 20rpx;
-        border-radius: 60rpx;
-        border: 1rpx solid #ccc;
-        font-size: 26rpx;
-        color: #444;
-      }
+    .button {
+      width: 200rpx;
+      height: 60rpx;
+      text-align: center;
+      justify-content: center;
+      line-height: 60rpx;
+      margin-left: 20rpx;
+      border-radius: 60rpx;
+      border: 1rpx solid #ccc;
+      font-size: 26rpx;
+      color: #444;
+    }
 
-      .primary {
-        color: #27ba9b;
-        border-color: #27ba9b;
-      }
+    .primary {
+      color: #27ba9b;
+      border-color: #27ba9b;
     }
   }
 

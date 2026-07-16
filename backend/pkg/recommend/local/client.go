@@ -250,12 +250,12 @@ func (r *Recommend) loadGoodsStatSummaryMap(
 	err := query.WithContext(ctx).
 		Select(
 			query.GoodsID,
-			query.ViewCount.Sum().IfNull(0).As("view_count"),
-			query.CollectCount.Sum().IfNull(0).As("collect_count"),
-			query.CartCount.Sum().IfNull(0).As("cart_count"),
-			query.OrderCount.Sum().IfNull(0).As("order_count"),
-			query.PayCount.Sum().IfNull(0).As("pay_count"),
-			query.PayGoodsNum.Sum().IfNull(0).As("pay_goods_num"),
+			query.ViewCount.Sum().FloorDiv(1).IfNull(0).As("view_count"),
+			query.CollectCount.Sum().FloorDiv(1).IfNull(0).As("collect_count"),
+			query.CartCount.Sum().FloorDiv(1).IfNull(0).As("cart_count"),
+			query.OrderCount.Sum().FloorDiv(1).IfNull(0).As("order_count"),
+			query.PayCount.Sum().FloorDiv(1).IfNull(0).As("pay_count"),
+			query.PayGoodsNum.Sum().FloorDiv(1).IfNull(0).As("pay_goods_num"),
 		).
 		Where(
 			query.GoodsID.In(goodsIDs...),

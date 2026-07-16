@@ -109,7 +109,7 @@ func (c *UserCartCase) ListUserCarts(ctx context.Context) (*appv1.ListUserCartsR
 	}
 
 	storeMap := make(map[int64]*appv1.UserCartStore, len(tenantStoreMap))
-	stores := make([]*appv1.UserCartStore, 0, len(tenantStoreMap))
+	userCartStores := make([]*appv1.UserCartStore, 0, len(tenantStoreMap))
 	for _, item := range all {
 		sku, ok1 := goodsSKUMap[item.SKUCode]
 		// 购物车引用的 SKU 已失效时，使用空 SKU 兜底避免列表组装失败。
@@ -159,12 +159,12 @@ func (c *UserCartCase) ListUserCarts(ctx context.Context) (*appv1.ListUserCartsR
 				store.Store.Logo = tenantStore.Logo
 			}
 			storeMap[item.TenantStoreID] = store
-			stores = append(stores, store)
+			userCartStores = append(userCartStores, store)
 		}
 		store.Goods = append(store.Goods, cart)
 	}
 	return &appv1.ListUserCartsResponse{
-		UserCarts: stores,
+		UserCartStores: userCartStores,
 	}, nil
 }
 

@@ -112,12 +112,12 @@ const showCartSyncToast = async (result: CartSyncResult) => {
 /** 拉取购物车列表，并在展示前同步失效库存。 */
 const getUserCartData = async () => {
   const res = await defUserCartService.ListUserCarts({})
-  const stores = res.user_carts || []
+  const stores = res.user_cart_stores || []
   const list = stores.flatMap((store) => store.goods)
   const syncResult = await syncCartInventory(list)
   if (syncResult.synced) {
     const latestRes = await defUserCartService.ListUserCarts({})
-    applyCartStores(latestRes.user_carts || [])
+    applyCartStores(latestRes.user_cart_stores || [])
     await showCartSyncToast(syncResult)
     return
   }
@@ -195,11 +195,15 @@ const onChangeStoreSelected = async (items: UserCart[]) => {
   items.forEach((item) => {
     item.is_checked = isChecked
   })
-  await Promise.all(
-    items.map((item) =>
-      defUserCartService.SetUserCartStatus({ id: item.id, is_checked: isChecked }),
-    ),
-  )
+  try {
+    await Promise.all(
+      items.map((item) =>
+        defUserCartService.SetUserCartStatus({ id: item.id, is_checked: isChecked }),
+      ),
+    )
+  } catch {
+    await getUserCartData()
+  }
 }
 // 勾选商品里只要存在超库存或无库存，就不应该继续进入结算页。
 const hasInvalidSelectedCart = computed(() => {
@@ -409,6 +413,27 @@ const guessTitle = computed(() => {
 .cart-list {
   padding: 0 20rpx;
 
+  .checkbox {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 60rpx;
+    height: 60rpx;
+
+    &::before {
+      content: '\e6cd';
+      font-family: 'erabbit' !important;
+      font-size: 40rpx;
+      color: #444;
+    }
+
+    &.checked::before {
+      content: '\e6cc';
+      color: #27ba9b;
+    }
+  }
+
   // 优惠提示
   .tips {
     display: flex;
@@ -444,24 +469,8 @@ const guessTitle = computed(() => {
       position: absolute;
       top: 0;
       left: 0;
-
-      display: flex;
-      align-items: center;
-      justify-content: center;
       width: 80rpx;
       height: 100%;
-
-      &::before {
-        content: '\e6cd';
-        font-family: 'erabbit' !important;
-        font-size: 40rpx;
-        color: #444;
-      }
-
-      &.checked::before {
-        content: '\e6cc';
-        color: #27ba9b;
-      }
     }
 
     .picture {

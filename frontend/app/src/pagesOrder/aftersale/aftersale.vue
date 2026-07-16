@@ -169,21 +169,23 @@ onShow(() => {
             <view class="status-tag">{{ getRecordStatus(order) }}</view>
           </view>
 
-          <view
-            v-for="goods in order.goods"
-            :key="`${order.id}-${goods.goods_id}-${goods.sku_code}`"
-            class="goods-row"
-          >
-            <image class="goods-cover" :src="formatSrc(goods.picture)" mode="aspectFill" />
-            <view class="goods-main">
-              <view class="goods-name ellipsis-2">{{ goods.name }}</view>
-              <view class="goods-spec ellipsis">{{ getGoodsSpec(goods) }}</view>
-              <view class="goods-price">
-                <text>¥{{ formatPrice(goods.pay_price) }}</text>
-                <text class="goods-num">x{{ goods.num }}</text>
+          <template v-for="group in order.order_goods_stores" :key="group.store?.id">
+            <view
+              v-for="goods in group.goods"
+              :key="`${order.id}-${goods.goods_id}-${goods.sku_code}`"
+              class="goods-row"
+            >
+              <image class="goods-cover" :src="formatSrc(goods.picture)" mode="aspectFill" />
+              <view class="goods-main">
+                <view class="goods-name ellipsis-2">{{ goods.name }}</view>
+                <view class="goods-spec ellipsis">{{ getGoodsSpec(goods) }}</view>
+                <view class="goods-price">
+                  <text>¥{{ formatPrice(goods.pay_price) }}</text>
+                  <text class="goods-num">x{{ goods.num }}</text>
+                </view>
               </view>
             </view>
-          </view>
+          </template>
 
           <view class="order-summary">
             <text>{{ activeTabItem.title }}</text>

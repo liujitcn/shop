@@ -15,6 +15,7 @@ import type {
 } from "../../common/v1/enum";
 import type { Empty } from "../../google/protobuf/empty";
 import type { RecommendContext } from "./recommend";
+import type { TenantStore } from "./tenant_store";
 
 /** 确认订单查询条件 */
 export interface ConfirmOrderInfoRequest {
@@ -74,8 +75,8 @@ export interface CreateOrderInfoGoods {
 
 /** 确认订单响应 */
 export interface ConfirmOrderInfoResponse {
-  /** 商品信息 */
-  goods: OrderGoods[];
+  /** 按门店分组的商品信息 */
+  order_goods_stores: OrderGoodsStore[];
   /** 汇总信息 */
   summary:
     | OrderSummary
@@ -86,8 +87,8 @@ export interface ConfirmOrderInfoResponse {
 
 /** 立即购买订单响应 */
 export interface BuyNowOrderInfoResponse {
-  /** 商品信息 */
-  goods: OrderGoods[];
+  /** 按门店分组的商品信息 */
+  order_goods_stores: OrderGoodsStore[];
   /** 汇总信息 */
   summary:
     | OrderSummary
@@ -104,8 +105,8 @@ export interface RepurchaseOrderInfoRequest {
 
 /** 再次购买订单响应 */
 export interface RepurchaseOrderInfoResponse {
-  /** 商品信息 */
-  goods: OrderGoods[];
+  /** 按门店分组的商品信息 */
+  order_goods_stores: OrderGoodsStore[];
   /** 汇总信息 */
   summary:
     | OrderSummary
@@ -268,6 +269,16 @@ export interface OrderGoods {
   recommend_context: RecommendContext | undefined;
 }
 
+/** 订单商品门店分组 */
+export interface OrderGoodsStore {
+  /** 店铺信息 */
+  store:
+    | TenantStore
+    | undefined;
+  /** 商品信息 */
+  goods: OrderGoods[];
+}
+
 /** Order信息 */
 export interface OrderInfo {
   /** 订单id */
@@ -302,8 +313,8 @@ export interface OrderInfo {
   cancel_time: string;
   /** 退款时间 */
   refund_time: string;
-  /** 商品信息 */
-  goods: OrderGoods[];
+  /** 按门店分组的商品信息 */
+  order_goods_stores: OrderGoodsStore[];
 }
 
 /** Order汇总 */

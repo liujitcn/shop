@@ -8201,11 +8201,11 @@ components:
         BuyNowOrderInfoResponse:
             type: object
             properties:
-                goods:
+                order_goods_stores:
                     type: array
                     items:
-                        $ref: '#/components/schemas/OrderGoods'
-                    description: 商品信息
+                        $ref: '#/components/schemas/OrderGoodsStore'
+                    description: 按门店分组的商品信息
                 summary:
                     $ref: '#/components/schemas/OrderSummary'
                 clear_cart:
@@ -9177,11 +9177,11 @@ components:
         ConfirmOrderInfoResponse:
             type: object
             properties:
-                goods:
+                order_goods_stores:
                     type: array
                     items:
-                        $ref: '#/components/schemas/OrderGoods'
-                    description: 商品信息
+                        $ref: '#/components/schemas/OrderGoodsStore'
+                    description: 按门店分组的商品信息
                 summary:
                     $ref: '#/components/schemas/OrderSummary'
                 clear_cart:
@@ -10532,7 +10532,7 @@ components:
         ListUserCartsResponse:
             type: object
             properties:
-                user_carts:
+                user_cart_stores:
                     type: array
                     items:
                         $ref: '#/components/schemas/UserCartStore'
@@ -10811,6 +10811,17 @@ components:
                     type: string
                     description: 支付金额汇总
             description: 订单商品
+        OrderGoodsStore:
+            type: object
+            properties:
+                store:
+                    $ref: '#/components/schemas/TenantStore'
+                goods:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/OrderGoods'
+                    description: 商品信息
+            description: 订单商品门店分组
         OrderInfo:
             type: object
             properties:
@@ -12415,11 +12426,11 @@ components:
         RepurchaseOrderInfoResponse:
             type: object
             properties:
-                goods:
+                order_goods_stores:
                     type: array
                     items:
-                        $ref: '#/components/schemas/OrderGoods'
-                    description: 商品信息
+                        $ref: '#/components/schemas/OrderGoodsStore'
+                    description: 按门店分组的商品信息
                 summary:
                     $ref: '#/components/schemas/OrderSummary'
                 clear_cart:

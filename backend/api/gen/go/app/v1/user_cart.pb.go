@@ -7,15 +7,14 @@
 package appv1
 
 import (
-	reflect "reflect"
-	sync "sync"
-	unsafe "unsafe"
-
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+	reflect "reflect"
+	sync "sync"
+	unsafe "unsafe"
 )
 
 const (
@@ -146,10 +145,10 @@ func (*ListUserCartsRequest) Descriptor() ([]byte, []int) {
 
 // 用户购物车列表响应
 type ListUserCartsResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserCarts     []*UserCartStore       `protobuf:"bytes,1,rep,name=user_carts,json=userCarts,proto3" json:"user_carts,omitempty"` // 按店铺分组的用户购物车列表
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	UserCartStores []*UserCartStore       `protobuf:"bytes,1,rep,name=user_cart_stores,json=userCartStores,proto3" json:"user_cart_stores,omitempty"` // 按店铺分组的用户购物车列表
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *ListUserCartsResponse) Reset() {
@@ -182,9 +181,9 @@ func (*ListUserCartsResponse) Descriptor() ([]byte, []int) {
 	return file_app_v1_user_cart_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *ListUserCartsResponse) GetUserCarts() []*UserCartStore {
+func (x *ListUserCartsResponse) GetUserCartStores() []*UserCartStore {
 	if x != nil {
-		return x.UserCarts
+		return x.UserCartStores
 	}
 	return nil
 }
@@ -709,10 +708,9 @@ const file_app_v1_user_cart_proto_rawDesc = "" +
 	"\x14CountUserCartRequest\"D\n" +
 	"\x15CountUserCartResponse\x12+\n" +
 	"\x05count\x18\x01 \x01(\x05B\x15\xbaG\x12\x92\x02\x0f购物车数量R\x05count\"\x16\n" +
-	"\x14ListUserCartsRequest\"|\n" +
-	"\x15ListUserCartsResponse\x12c\n" +
-	"\n" +
-	"user_carts\x18\x01 \x03(\v2\x15.app.v1.UserCartStoreB-\xbaG*\x92\x02'按店铺分组的用户购物车列表R\tuserCarts\"\x8a\x01\n" +
+	"\x14ListUserCartsRequest\"\x87\x01\n" +
+	"\x15ListUserCartsResponse\x12n\n" +
+	"\x10user_cart_stores\x18\x01 \x03(\v2\x15.app.v1.UserCartStoreB-\xbaG*\x92\x02'按店铺分组的用户购物车列表R\x0euserCartStores\"\x8a\x01\n" +
 	"\rUserCartStore\x12=\n" +
 	"\x05store\x18\x01 \x01(\v2\x13.app.v1.TenantStoreB\x12\xbaG\x0f\x92\x02\f店铺信息R\x05store\x12:\n" +
 	"\x05goods\x18\x02 \x03(\v2\x10.app.v1.UserCartB\x12\xbaG\x0f\x92\x02\f商品列表R\x05goods\"\x83\x05\n" +
@@ -794,7 +792,7 @@ var file_app_v1_user_cart_proto_goTypes = []any{
 	(*emptypb.Empty)(nil),               // 14: google.protobuf.Empty
 }
 var file_app_v1_user_cart_proto_depIdxs = []int32{
-	4,  // 0: app.v1.ListUserCartsResponse.user_carts:type_name -> app.v1.UserCartStore
+	4,  // 0: app.v1.ListUserCartsResponse.user_cart_stores:type_name -> app.v1.UserCartStore
 	12, // 1: app.v1.UserCartStore.store:type_name -> app.v1.TenantStore
 	5,  // 2: app.v1.UserCartStore.goods:type_name -> app.v1.UserCart
 	13, // 3: app.v1.UserCart.recommend_context:type_name -> app.v1.RecommendContext
