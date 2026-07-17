@@ -21,12 +21,12 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	CodeGenTableService_ListCodeGenDatabaseTables_FullMethodName = "/admin.v1.CodeGenTableService/ListCodeGenDatabaseTables"
-	CodeGenTableService_PageCodeGenTables_FullMethodName         = "/admin.v1.CodeGenTableService/PageCodeGenTables"
-	CodeGenTableService_GetCodeGenTable_FullMethodName           = "/admin.v1.CodeGenTableService/GetCodeGenTable"
-	CodeGenTableService_CreateCodeGenTable_FullMethodName        = "/admin.v1.CodeGenTableService/CreateCodeGenTable"
-	CodeGenTableService_UpdateCodeGenTable_FullMethodName        = "/admin.v1.CodeGenTableService/UpdateCodeGenTable"
-	CodeGenTableService_DeleteCodeGenTable_FullMethodName        = "/admin.v1.CodeGenTableService/DeleteCodeGenTable"
+	CodeGenTableService_ListCodeGenDatabaseTable_FullMethodName = "/admin.v1.CodeGenTableService/ListCodeGenDatabaseTable"
+	CodeGenTableService_PageCodeGenTable_FullMethodName         = "/admin.v1.CodeGenTableService/PageCodeGenTable"
+	CodeGenTableService_GetCodeGenTable_FullMethodName          = "/admin.v1.CodeGenTableService/GetCodeGenTable"
+	CodeGenTableService_CreateCodeGenTable_FullMethodName       = "/admin.v1.CodeGenTableService/CreateCodeGenTable"
+	CodeGenTableService_UpdateCodeGenTable_FullMethodName       = "/admin.v1.CodeGenTableService/UpdateCodeGenTable"
+	CodeGenTableService_DeleteCodeGenTable_FullMethodName       = "/admin.v1.CodeGenTableService/DeleteCodeGenTable"
 )
 
 // CodeGenTableServiceClient is the client API for CodeGenTableService service.
@@ -36,9 +36,9 @@ const (
 // Admin代码生成表配置服务
 type CodeGenTableServiceClient interface {
 	// 查询数据库表列表
-	ListCodeGenDatabaseTables(ctx context.Context, in *ListCodeGenDatabaseTablesRequest, opts ...grpc.CallOption) (*ListCodeGenDatabaseTablesResponse, error)
+	ListCodeGenDatabaseTable(ctx context.Context, in *ListCodeGenDatabaseTableRequest, opts ...grpc.CallOption) (*ListCodeGenDatabaseTableResponse, error)
 	// 分页查询代码生成表配置
-	PageCodeGenTables(ctx context.Context, in *PageCodeGenTablesRequest, opts ...grpc.CallOption) (*PageCodeGenTablesResponse, error)
+	PageCodeGenTable(ctx context.Context, in *PageCodeGenTableRequest, opts ...grpc.CallOption) (*PageCodeGenTableResponse, error)
 	// 查询代码生成表配置
 	GetCodeGenTable(ctx context.Context, in *GetCodeGenTableRequest, opts ...grpc.CallOption) (*CodeGenTableForm, error)
 	// 创建代码生成表配置
@@ -57,20 +57,20 @@ func NewCodeGenTableServiceClient(cc grpc.ClientConnInterface) CodeGenTableServi
 	return &codeGenTableServiceClient{cc}
 }
 
-func (c *codeGenTableServiceClient) ListCodeGenDatabaseTables(ctx context.Context, in *ListCodeGenDatabaseTablesRequest, opts ...grpc.CallOption) (*ListCodeGenDatabaseTablesResponse, error) {
+func (c *codeGenTableServiceClient) ListCodeGenDatabaseTable(ctx context.Context, in *ListCodeGenDatabaseTableRequest, opts ...grpc.CallOption) (*ListCodeGenDatabaseTableResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListCodeGenDatabaseTablesResponse)
-	err := c.cc.Invoke(ctx, CodeGenTableService_ListCodeGenDatabaseTables_FullMethodName, in, out, cOpts...)
+	out := new(ListCodeGenDatabaseTableResponse)
+	err := c.cc.Invoke(ctx, CodeGenTableService_ListCodeGenDatabaseTable_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *codeGenTableServiceClient) PageCodeGenTables(ctx context.Context, in *PageCodeGenTablesRequest, opts ...grpc.CallOption) (*PageCodeGenTablesResponse, error) {
+func (c *codeGenTableServiceClient) PageCodeGenTable(ctx context.Context, in *PageCodeGenTableRequest, opts ...grpc.CallOption) (*PageCodeGenTableResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(PageCodeGenTablesResponse)
-	err := c.cc.Invoke(ctx, CodeGenTableService_PageCodeGenTables_FullMethodName, in, out, cOpts...)
+	out := new(PageCodeGenTableResponse)
+	err := c.cc.Invoke(ctx, CodeGenTableService_PageCodeGenTable_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -124,9 +124,9 @@ func (c *codeGenTableServiceClient) DeleteCodeGenTable(ctx context.Context, in *
 // Admin代码生成表配置服务
 type CodeGenTableServiceServer interface {
 	// 查询数据库表列表
-	ListCodeGenDatabaseTables(context.Context, *ListCodeGenDatabaseTablesRequest) (*ListCodeGenDatabaseTablesResponse, error)
+	ListCodeGenDatabaseTable(context.Context, *ListCodeGenDatabaseTableRequest) (*ListCodeGenDatabaseTableResponse, error)
 	// 分页查询代码生成表配置
-	PageCodeGenTables(context.Context, *PageCodeGenTablesRequest) (*PageCodeGenTablesResponse, error)
+	PageCodeGenTable(context.Context, *PageCodeGenTableRequest) (*PageCodeGenTableResponse, error)
 	// 查询代码生成表配置
 	GetCodeGenTable(context.Context, *GetCodeGenTableRequest) (*CodeGenTableForm, error)
 	// 创建代码生成表配置
@@ -145,11 +145,11 @@ type CodeGenTableServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedCodeGenTableServiceServer struct{}
 
-func (UnimplementedCodeGenTableServiceServer) ListCodeGenDatabaseTables(context.Context, *ListCodeGenDatabaseTablesRequest) (*ListCodeGenDatabaseTablesResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method ListCodeGenDatabaseTables not implemented")
+func (UnimplementedCodeGenTableServiceServer) ListCodeGenDatabaseTable(context.Context, *ListCodeGenDatabaseTableRequest) (*ListCodeGenDatabaseTableResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListCodeGenDatabaseTable not implemented")
 }
-func (UnimplementedCodeGenTableServiceServer) PageCodeGenTables(context.Context, *PageCodeGenTablesRequest) (*PageCodeGenTablesResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method PageCodeGenTables not implemented")
+func (UnimplementedCodeGenTableServiceServer) PageCodeGenTable(context.Context, *PageCodeGenTableRequest) (*PageCodeGenTableResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method PageCodeGenTable not implemented")
 }
 func (UnimplementedCodeGenTableServiceServer) GetCodeGenTable(context.Context, *GetCodeGenTableRequest) (*CodeGenTableForm, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetCodeGenTable not implemented")
@@ -184,38 +184,38 @@ func RegisterCodeGenTableServiceServer(s grpc.ServiceRegistrar, srv CodeGenTable
 	s.RegisterService(&CodeGenTableService_ServiceDesc, srv)
 }
 
-func _CodeGenTableService_ListCodeGenDatabaseTables_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListCodeGenDatabaseTablesRequest)
+func _CodeGenTableService_ListCodeGenDatabaseTable_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListCodeGenDatabaseTableRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(CodeGenTableServiceServer).ListCodeGenDatabaseTables(ctx, in)
+		return srv.(CodeGenTableServiceServer).ListCodeGenDatabaseTable(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: CodeGenTableService_ListCodeGenDatabaseTables_FullMethodName,
+		FullMethod: CodeGenTableService_ListCodeGenDatabaseTable_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CodeGenTableServiceServer).ListCodeGenDatabaseTables(ctx, req.(*ListCodeGenDatabaseTablesRequest))
+		return srv.(CodeGenTableServiceServer).ListCodeGenDatabaseTable(ctx, req.(*ListCodeGenDatabaseTableRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _CodeGenTableService_PageCodeGenTables_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PageCodeGenTablesRequest)
+func _CodeGenTableService_PageCodeGenTable_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PageCodeGenTableRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(CodeGenTableServiceServer).PageCodeGenTables(ctx, in)
+		return srv.(CodeGenTableServiceServer).PageCodeGenTable(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: CodeGenTableService_PageCodeGenTables_FullMethodName,
+		FullMethod: CodeGenTableService_PageCodeGenTable_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CodeGenTableServiceServer).PageCodeGenTables(ctx, req.(*PageCodeGenTablesRequest))
+		return srv.(CodeGenTableServiceServer).PageCodeGenTable(ctx, req.(*PageCodeGenTableRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -300,12 +300,12 @@ var CodeGenTableService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*CodeGenTableServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "ListCodeGenDatabaseTables",
-			Handler:    _CodeGenTableService_ListCodeGenDatabaseTables_Handler,
+			MethodName: "ListCodeGenDatabaseTable",
+			Handler:    _CodeGenTableService_ListCodeGenDatabaseTable_Handler,
 		},
 		{
-			MethodName: "PageCodeGenTables",
-			Handler:    _CodeGenTableService_PageCodeGenTables_Handler,
+			MethodName: "PageCodeGenTable",
+			Handler:    _CodeGenTableService_PageCodeGenTable_Handler,
 		},
 		{
 			MethodName: "GetCodeGenTable",

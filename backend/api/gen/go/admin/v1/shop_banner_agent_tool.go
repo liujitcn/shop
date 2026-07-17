@@ -18,12 +18,12 @@ import (
 func NewShopBannerServiceAgentTools(shopBannerServiceServer ShopBannerServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error
-	var pageShopBannersTool tool.InvokableTool
-	pageShopBannersTool, err = NewShopBannerServicePageShopBannersAgentTool(shopBannerServiceServer)
+	var pageShopBannerTool tool.InvokableTool
+	pageShopBannerTool, err = NewShopBannerServicePageShopBannerAgentTool(shopBannerServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, pageShopBannersTool)
+	ts = append(ts, pageShopBannerTool)
 	var getShopBannerTool tool.InvokableTool
 	getShopBannerTool, err = NewShopBannerServiceGetShopBannerAgentTool(shopBannerServiceServer)
 	if err != nil {
@@ -57,16 +57,16 @@ func NewShopBannerServiceAgentTools(shopBannerServiceServer ShopBannerServiceSer
 	return ts, nil
 }
 
-// NewShopBannerServicePageShopBannersAgentTool 创建查询商城轮播图列表的 Agent Tool。
-func NewShopBannerServicePageShopBannersAgentTool(shopBannerServiceServer ShopBannerServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*PageShopBannersRequest, *PageShopBannersResponse](
-		"admin_v1_shop_banner_service_page_shop_banners",
+// NewShopBannerServicePageShopBannerAgentTool 创建查询商城轮播图列表的 Agent Tool。
+func NewShopBannerServicePageShopBannerAgentTool(shopBannerServiceServer ShopBannerServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PageShopBannerRequest, *PageShopBannerResponse](
+		"admin_v1_shop_banner_service_page_shop_banner",
 		"查询商城轮播图列表",
-		func(ctx context.Context, req *PageShopBannersRequest) (*PageShopBannersResponse, error) {
+		func(ctx context.Context, req *PageShopBannerRequest) (*PageShopBannerResponse, error) {
 			if req == nil {
-				req = &PageShopBannersRequest{}
+				req = &PageShopBannerRequest{}
 			}
-			return shopBannerServiceServer.PageShopBanners(ctx, req)
+			return shopBannerServiceServer.PageShopBanner(ctx, req)
 		},
 	)
 }

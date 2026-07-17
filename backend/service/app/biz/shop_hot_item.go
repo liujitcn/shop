@@ -43,8 +43,8 @@ func NewShopHotItemCase(baseCase *biz.BaseCase, shopHotRepo *data.ShopHotReposit
 	}
 }
 
-// ListShopHotItems 查询热门推荐选项
-func (c *ShopHotItemCase) ListShopHotItems(ctx context.Context, id int64) (*appv1.ListShopHotItemsResponse, error) {
+// ListShopHotItem 查询热门推荐选项
+func (c *ShopHotItemCase) ListShopHotItem(ctx context.Context, id int64) (*appv1.ListShopHotItemResponse, error) {
 	shopHotQuery := c.shopHotRepo.Query(ctx).ShopHot
 	shopHotOpts := make([]repository.QueryOption, 0, 2)
 	shopHotOpts = append(shopHotOpts, repository.Where(shopHotQuery.ID.Eq(id)))
@@ -75,7 +75,7 @@ func (c *ShopHotItemCase) ListShopHotItems(ctx context.Context, id int64) (*appv
 		list = append(list, c.mapper.ToDTO(item))
 	}
 
-	return &appv1.ListShopHotItemsResponse{
+	return &appv1.ListShopHotItemResponse{
 		Id:           shopHot.ID,
 		Title:        shopHot.Title,
 		Banner:       shopHot.Banner,

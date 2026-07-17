@@ -26,31 +26,31 @@ func NewCodeGenColumnService(codeGenColumnCase *biz.CodeGenColumnCase) *CodeGenC
 	return &CodeGenColumnService{codeGenColumnCase: codeGenColumnCase}
 }
 
-// ListCodeGenDatabaseColumns 查询数据库表字段列表。
-func (s *CodeGenColumnService) ListCodeGenDatabaseColumns(ctx context.Context, req *adminv1.ListCodeGenDatabaseColumnsRequest) (*adminv1.ListCodeGenDatabaseColumnsResponse, error) {
-	res, err := s.codeGenColumnCase.ListCodeGenDatabaseColumns(ctx, req.GetTableName())
+// ListCodeGenDatabaseColumn 查询数据库表字段列表。
+func (s *CodeGenColumnService) ListCodeGenDatabaseColumn(ctx context.Context, req *adminv1.ListCodeGenDatabaseColumnRequest) (*adminv1.ListCodeGenDatabaseColumnResponse, error) {
+	res, err := s.codeGenColumnCase.ListCodeGenDatabaseColumn(ctx, req.GetTableName())
 	if err != nil {
-		log.Error(fmt.Sprintf("ListCodeGenDatabaseColumns %v", err))
+		log.Error(fmt.Sprintf("ListCodeGenDatabaseColumn %v", err))
 		return nil, errorsx.WrapInternal(err, "查询数据库表字段列表失败")
 	}
 	return res, nil
 }
 
-// ListCodeGenColumns 查询代码生成字段配置。
-func (s *CodeGenColumnService) ListCodeGenColumns(ctx context.Context, req *adminv1.ListCodeGenColumnsRequest) (*adminv1.ListCodeGenColumnsResponse, error) {
-	res, err := s.codeGenColumnCase.ListCodeGenColumns(ctx, req.GetTableId())
+// ListCodeGenColumn 查询代码生成字段配置。
+func (s *CodeGenColumnService) ListCodeGenColumn(ctx context.Context, req *adminv1.ListCodeGenColumnRequest) (*adminv1.ListCodeGenColumnResponse, error) {
+	res, err := s.codeGenColumnCase.ListCodeGenColumn(ctx, req.GetTableId())
 	if err != nil {
-		log.Error(fmt.Sprintf("ListCodeGenColumns %v", err))
+		log.Error(fmt.Sprintf("ListCodeGenColumn %v", err))
 		return nil, errorsx.WrapInternal(err, "查询代码生成字段配置失败")
 	}
 	return res, nil
 }
 
-// SaveCodeGenColumns 保存代码生成字段配置。
-func (s *CodeGenColumnService) SaveCodeGenColumns(ctx context.Context, req *adminv1.SaveCodeGenColumnsRequest) (*emptypb.Empty, error) {
-	err := s.codeGenColumnCase.SaveCodeGenColumns(ctx, req)
+// SaveCodeGenColumn 保存代码生成字段配置。
+func (s *CodeGenColumnService) SaveCodeGenColumn(ctx context.Context, req *adminv1.SaveCodeGenColumnRequest) (*emptypb.Empty, error) {
+	err := s.codeGenColumnCase.SaveCodeGenColumn(ctx, req)
 	if err != nil {
-		log.Error(fmt.Sprintf("SaveCodeGenColumns %v", err))
+		log.Error(fmt.Sprintf("SaveCodeGenColumn %v", err))
 		return nil, errorsx.WrapInternal(err, "保存代码生成字段配置失败")
 	}
 	return new(emptypb.Empty), nil

@@ -597,7 +597,7 @@ async function ensureSessionsLoaded() {
   loadingSessions.value = true;
   try {
     void loadAiAssistantShortcuts();
-    const response = await defAiAssistantSessionService.ListAiAssistantSessions({ terminal: Terminal.TERMINAL_ADMIN });
+    const response = await defAiAssistantSessionService.ListAiAssistantSession({ terminal: Terminal.TERMINAL_ADMIN });
     sessions.value = normalizeSessionList(response?.sessions);
     const sessionID = await ensureActiveSession();
     if (sessionID) await loadMessages(sessionID);
@@ -613,7 +613,7 @@ async function loadAiAssistantShortcuts() {
   if (loadingShortcuts.value) return;
   loadingShortcuts.value = true;
   try {
-    const response = await defAiAssistantSessionService.ListAiAssistantShortcuts({ terminal: Terminal.TERMINAL_ADMIN });
+    const response = await defAiAssistantSessionService.ListAiAssistantShortcut({ terminal: Terminal.TERMINAL_ADMIN });
     starterShortcuts.value = normalizeStarterShortcuts(response.shortcuts);
   } catch {
     starterShortcuts.value = [];
@@ -629,7 +629,7 @@ async function loadMessages(sessionID: string, options?: { force?: boolean }) {
 
   loadingSessionID.value = sessionID;
   try {
-    const response = await defAiAssistantMessageService.ListAiAssistantMessages({ session_id: sessionID });
+    const response = await defAiAssistantMessageService.ListAiAssistantMessage({ session_id: sessionID });
     if (loadingSessionID.value !== sessionID) return;
     messages.value[sessionID] = normalizeMessageList(response?.messages);
   } catch {

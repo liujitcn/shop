@@ -8,17 +8,17 @@
 import type { GoodsInfo } from "./goods_info";
 
 /** 热门专区列表查询条件 */
-export interface ListShopHotsRequest {
+export interface ListShopHotRequest {
 }
 
 /** 热门专区列表响应 */
-export interface ListShopHotsResponse {
+export interface ListShopHotResponse {
   /** 热门专区列表 */
   shop_hots: ShopHot[];
 }
 
 /** 热门专区项列表查询条件 */
-export interface ListShopHotItemsRequest {
+export interface ListShopHotItemRequest {
   /** 热门专区ID */
   id: number;
 }
@@ -54,7 +54,7 @@ export interface ShopHot {
 }
 
 /** 热门专区项列表响应 */
-export interface ListShopHotItemsResponse {
+export interface ListShopHotItemResponse {
   /** 主键ID */
   id: number;
   /** 标题 */
@@ -76,9 +76,9 @@ export interface ShopHotItem {
 /** App热门推荐服务 */
 export interface ShopHotService {
   /** 查询热门推荐列表 */
-  ListShopHots(request: ListShopHotsRequest): Promise<ListShopHotsResponse>;
+  ListShopHot(request: ListShopHotRequest): Promise<ListShopHotResponse>;
   /** 查询热门推荐选项 */
-  ListShopHotItems(request: ListShopHotItemsRequest): Promise<ListShopHotItemsResponse>;
+  ListShopHotItem(request: ListShopHotItemRequest): Promise<ListShopHotItemResponse>;
   /** 查询热门推荐商品 */
   PageShopHotGoods(request: PageShopHotGoodsRequest): Promise<PageShopHotGoodsResponse>;
 }

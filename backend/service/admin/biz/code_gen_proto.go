@@ -84,8 +84,8 @@ func NewCodeGenProtoCase(
 	}
 }
 
-// ListCodeGenProtos 查询当前生成配置需要的 Proto 接口。
-func (c *CodeGenProtoCase) ListCodeGenProtos(ctx context.Context, tableID int64) (*adminv1.ListCodeGenProtosResponse, error) {
+// ListCodeGenProto 查询当前生成配置需要的 Proto 接口。
+func (c *CodeGenProtoCase) ListCodeGenProto(ctx context.Context, tableID int64) (*adminv1.ListCodeGenProtoResponse, error) {
 	if tableID <= 0 {
 		return nil, errorsx.InvalidArgument("代码生成表配置ID不能为空")
 	}
@@ -112,19 +112,19 @@ func (c *CodeGenProtoCase) ListCodeGenProtos(ctx context.Context, tableID int64)
 	if err != nil {
 		return nil, err
 	}
-	return &adminv1.ListCodeGenProtosResponse{
+	return &adminv1.ListCodeGenProtoResponse{
 		CodeGenProtos: checks,
 	}, nil
 }
 
-// SaveCodeGenProtos 保存代码生成 Proto 接口配置快照。
-func (c *CodeGenProtoCase) SaveCodeGenProtos(ctx context.Context, req *adminv1.SaveCodeGenProtosRequest) error {
+// SaveCodeGenProto 保存代码生成 Proto 接口配置快照。
+func (c *CodeGenProtoCase) SaveCodeGenProto(ctx context.Context, req *adminv1.SaveCodeGenProtoRequest) error {
 	table, err := c.codeGenTableRepo.FindByID(ctx, req.GetTableId())
 	if err != nil {
 		return err
 	}
-	var checks *adminv1.ListCodeGenProtosResponse
-	checks, err = c.ListCodeGenProtos(ctx, req.GetTableId())
+	var checks *adminv1.ListCodeGenProtoResponse
+	checks, err = c.ListCodeGenProto(ctx, req.GetTableId())
 	if err != nil {
 		return err
 	}

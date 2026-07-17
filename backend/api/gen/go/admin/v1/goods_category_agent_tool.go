@@ -18,18 +18,18 @@ import (
 func NewGoodsCategoryServiceAgentTools(goodsCategoryServiceServer GoodsCategoryServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error
-	var treeGoodsCategoriesTool tool.InvokableTool
-	treeGoodsCategoriesTool, err = NewGoodsCategoryServiceTreeGoodsCategoriesAgentTool(goodsCategoryServiceServer)
+	var treeGoodsCategoryTool tool.InvokableTool
+	treeGoodsCategoryTool, err = NewGoodsCategoryServiceTreeGoodsCategoryAgentTool(goodsCategoryServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, treeGoodsCategoriesTool)
-	var optionGoodsCategoriesTool tool.InvokableTool
-	optionGoodsCategoriesTool, err = NewGoodsCategoryServiceOptionGoodsCategoriesAgentTool(goodsCategoryServiceServer)
+	ts = append(ts, treeGoodsCategoryTool)
+	var optionGoodsCategoryTool tool.InvokableTool
+	optionGoodsCategoryTool, err = NewGoodsCategoryServiceOptionGoodsCategoryAgentTool(goodsCategoryServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, optionGoodsCategoriesTool)
+	ts = append(ts, optionGoodsCategoryTool)
 	var getGoodsCategoryTool tool.InvokableTool
 	getGoodsCategoryTool, err = NewGoodsCategoryServiceGetGoodsCategoryAgentTool(goodsCategoryServiceServer)
 	if err != nil {
@@ -63,16 +63,16 @@ func NewGoodsCategoryServiceAgentTools(goodsCategoryServiceServer GoodsCategoryS
 	return ts, nil
 }
 
-// NewGoodsCategoryServiceTreeGoodsCategoriesAgentTool 创建查询商品分类树形列表的 Agent Tool。
-func NewGoodsCategoryServiceTreeGoodsCategoriesAgentTool(goodsCategoryServiceServer GoodsCategoryServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*TreeGoodsCategoriesRequest, any](
-		"admin_v1_goods_category_service_tree_goods_categories",
+// NewGoodsCategoryServiceTreeGoodsCategoryAgentTool 创建查询商品分类树形列表的 Agent Tool。
+func NewGoodsCategoryServiceTreeGoodsCategoryAgentTool(goodsCategoryServiceServer GoodsCategoryServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*TreeGoodsCategoryRequest, any](
+		"admin_v1_goods_category_service_tree_goods_category",
 		"查询商品分类树形列表",
-		func(ctx context.Context, req *TreeGoodsCategoriesRequest) (any, error) {
+		func(ctx context.Context, req *TreeGoodsCategoryRequest) (any, error) {
 			if req == nil {
-				req = &TreeGoodsCategoriesRequest{}
+				req = &TreeGoodsCategoryRequest{}
 			}
-			reply, err := goodsCategoryServiceServer.TreeGoodsCategories(ctx, req)
+			reply, err := goodsCategoryServiceServer.TreeGoodsCategory(ctx, req)
 			if err != nil {
 				return nil, err
 			}
@@ -81,16 +81,16 @@ func NewGoodsCategoryServiceTreeGoodsCategoriesAgentTool(goodsCategoryServiceSer
 	)
 }
 
-// NewGoodsCategoryServiceOptionGoodsCategoriesAgentTool 创建查询商品分类树形选择的 Agent Tool。
-func NewGoodsCategoryServiceOptionGoodsCategoriesAgentTool(goodsCategoryServiceServer GoodsCategoryServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*OptionGoodsCategoriesRequest, any](
-		"admin_v1_goods_category_service_option_goods_categories",
+// NewGoodsCategoryServiceOptionGoodsCategoryAgentTool 创建查询商品分类树形选择的 Agent Tool。
+func NewGoodsCategoryServiceOptionGoodsCategoryAgentTool(goodsCategoryServiceServer GoodsCategoryServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*OptionGoodsCategoryRequest, any](
+		"admin_v1_goods_category_service_option_goods_category",
 		"查询商品分类树形选择",
-		func(ctx context.Context, req *OptionGoodsCategoriesRequest) (any, error) {
+		func(ctx context.Context, req *OptionGoodsCategoryRequest) (any, error) {
 			if req == nil {
-				req = &OptionGoodsCategoriesRequest{}
+				req = &OptionGoodsCategoryRequest{}
 			}
-			reply, err := goodsCategoryServiceServer.OptionGoodsCategories(ctx, req)
+			reply, err := goodsCategoryServiceServer.OptionGoodsCategory(ctx, req)
 			if err != nil {
 				return nil, err
 			}

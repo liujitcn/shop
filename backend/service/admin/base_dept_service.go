@@ -37,22 +37,22 @@ func NewBaseDeptService(
 	}
 }
 
-// TreeBaseDepts 查询部门树形列表
-func (s *BaseDeptService) TreeBaseDepts(ctx context.Context, req *adminv1.TreeBaseDeptsRequest) (*adminv1.TreeBaseDeptsResponse, error) {
-	tree, err := s.baseDeptCase.TreeBaseDepts(ctx, req)
+// TreeBaseDept 查询部门树形列表
+func (s *BaseDeptService) TreeBaseDept(ctx context.Context, req *adminv1.TreeBaseDeptRequest) (*adminv1.TreeBaseDeptResponse, error) {
+	tree, err := s.baseDeptCase.TreeBaseDept(ctx, req)
 	if err != nil {
-		log.Error(fmt.Sprintf("TreeBaseDepts %v", err))
+		log.Error(fmt.Sprintf("TreeBaseDept %v", err))
 		return nil, errorsx.WrapInternal(err, "查询部门树形列表失败")
 	}
 
 	return tree, nil
 }
 
-// OptionBaseDepts 查询部门树形选择
-func (s *BaseDeptService) OptionBaseDepts(ctx context.Context, req *adminv1.OptionBaseDeptsRequest) (*commonv1.TreeOptionResponse, error) {
-	tree, err := s.baseDeptCase.OptionBaseDepts(ctx, req)
+// OptionBaseDept 查询部门树形选择
+func (s *BaseDeptService) OptionBaseDept(ctx context.Context, req *adminv1.OptionBaseDeptRequest) (*commonv1.TreeOptionResponse, error) {
+	tree, err := s.baseDeptCase.OptionBaseDept(ctx, req)
 	if err != nil {
-		log.Error(fmt.Sprintf("OptionBaseDepts %v", err))
+		log.Error(fmt.Sprintf("OptionBaseDept %v", err))
 		return nil, errorsx.WrapInternal(err, "查询部门树形选择失败")
 	}
 	return tree, nil

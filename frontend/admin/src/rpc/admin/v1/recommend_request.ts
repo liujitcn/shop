@@ -14,7 +14,7 @@ import type {
 } from "../../common/v1/enum";
 
 /** 推荐请求分页查询条件 */
-export interface PageRecommendRequestsRequest {
+export interface PageRecommendRequestRequest {
   /** 推荐请求ID */
   request_id?:
     | string
@@ -40,7 +40,7 @@ export interface PageRecommendRequestsRequest {
 }
 
 /** 推荐请求分页响应 */
-export interface PageRecommendRequestsResponse {
+export interface PageRecommendRequestResponse {
   /** 分页数据 */
   recommend_requests: RecommendRequest[];
   /** 总数 */
@@ -152,7 +152,7 @@ export interface RecommendRequestItem {
 }
 
 /** 推荐请求事件查询条件 */
-export interface ListRecommendRequestEventsRequest {
+export interface ListRecommendRequestEventRequest {
   /** 推荐请求记录ID */
   request_record_id: number;
   /** 商品ID */
@@ -162,7 +162,7 @@ export interface ListRecommendRequestEventsRequest {
 }
 
 /** 推荐请求事件响应 */
-export interface ListRecommendRequestEventsResponse {
+export interface ListRecommendRequestEventResponse {
   /** 事件数据 */
   recommend_events: RecommendEvent[];
   /** 总数 */
@@ -196,9 +196,9 @@ export interface RecommendEvent {
 /** Admin推荐请求服务 */
 export interface RecommendRequestService {
   /** 查询推荐请求分页列表 */
-  PageRecommendRequests(request: PageRecommendRequestsRequest): Promise<PageRecommendRequestsResponse>;
+  PageRecommendRequest(request: PageRecommendRequestRequest): Promise<PageRecommendRequestResponse>;
   /** 查询推荐请求详情 */
   GetRecommendRequest(request: GetRecommendRequestRequest): Promise<RecommendRequestDetailResponse>;
   /** 查询推荐请求商品关联事件 */
-  ListRecommendRequestEvents(request: ListRecommendRequestEventsRequest): Promise<ListRecommendRequestEventsResponse>;
+  ListRecommendRequestEvent(request: ListRecommendRequestEventRequest): Promise<ListRecommendRequestEventResponse>;
 }

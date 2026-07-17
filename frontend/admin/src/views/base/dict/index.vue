@@ -34,7 +34,7 @@ import FormDialog from "@/components/Dialog/FormDialog.vue";
 import type { ProFormField, ProFormOption } from "@/components/ProForm/interface";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { defBaseDictService } from "@/api/admin/base_dict";
-import type { BaseDict, BaseDictForm, PageBaseDictsRequest } from "@/rpc/admin/v1/base_dict";
+import type { BaseDict, BaseDictForm, PageBaseDictRequest } from "@/rpc/admin/v1/base_dict";
 import router from "@/routers";
 import { Status } from "@/rpc/common/v1/enum";
 import { buildPageRequest, normalizeSelectedIds } from "@/utils/proTable";
@@ -163,8 +163,8 @@ const headerActions: HeaderActionProps[] = [
 /**
  * 请求字典列表，并由 ProTable 统一管理分页搜索。
  */
-async function requestBaseDictTable(params: PageBaseDictsRequest) {
-  const data = await defBaseDictService.PageBaseDicts(buildPageRequest(params));
+async function requestBaseDictTable(params: PageBaseDictRequest) {
+  const data = await defBaseDictService.PageBaseDict(buildPageRequest(params));
   return { data: { list: data.base_dicts ?? [], total: data.total } };
 }
 

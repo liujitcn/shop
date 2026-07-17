@@ -13,14 +13,14 @@ import "google/protobuf/empty.proto";
 // Admin商品信息服务
 service GoodsInfoService {
   // 查询商品信息下拉选择
-  rpc OptionGoodsInfos(OptionGoodsInfosRequest) returns (OptionGoodsInfosResponse) {
+  rpc OptionGoodsInfo(OptionGoodsInfoRequest) returns (OptionGoodsInfoResponse) {
     option (google.api.http) = {
       get: "/api/v1/admin/goods/info/option"
     };
   }
 
   // 查询商品信息列表
-  rpc PageGoodsInfos(PageGoodsInfosRequest) returns (PageGoodsInfosResponse) {
+  rpc PageGoodsInfo(PageGoodsInfoRequest) returns (PageGoodsInfoResponse) {
     option (google.api.http) = {
       get: "/api/v1/admin/goods/info"
     };
@@ -66,12 +66,12 @@ service GoodsInfoService {
 }
 
 // 商品选项查询条件
-message OptionGoodsInfosRequest {
+message OptionGoodsInfoRequest {
   string name = 1 [(gnostic.openapi.v3.property) = {description: "商品名称"}]; // 商品名称
 }
 
 // 商品选项响应
-message OptionGoodsInfosResponse {
+message OptionGoodsInfoResponse {
   // 商品选项
   message GoodsInfo {
     int64 id = 1 [(gnostic.openapi.v3.property) = {description: "商品ID"}]; // 商品ID
@@ -87,7 +87,7 @@ message OptionGoodsInfosResponse {
 }
 
 // 商品列表查询条件
-message PageGoodsInfosRequest {
+message PageGoodsInfoRequest {
   optional int64 tenant_id = 1 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
 
   optional int64 tenant_store_id = 2 [(gnostic.openapi.v3.property) = {description: "租户门店ID"}]; // 租户门店ID
@@ -114,7 +114,7 @@ message PageGoodsInfosRequest {
 }
 
 // 商品列表响应
-message PageGoodsInfosResponse {
+message PageGoodsInfoResponse {
   repeated GoodsInfo goods_infos = 1 [(gnostic.openapi.v3.property) = {description: "商品列表"}]; // 商品列表
 
   int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数

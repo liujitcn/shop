@@ -75,8 +75,8 @@ func NewOauthCase(
 	}
 }
 
-// ListOauthProviders 查询可用于管理端展示的三方登录方式。
-func (c *OauthCase) ListOauthProviders(ctx context.Context, req *basev1.ListOauthProvidersRequest) (*basev1.ListOauthProvidersResponse, error) {
+// ListOauthProvider 查询可用于管理端展示的三方登录方式。
+func (c *OauthCase) ListOauthProvider(ctx context.Context, req *basev1.ListOauthProviderRequest) (*basev1.ListOauthProviderResponse, error) {
 	providerNames := c.oauthManager.Providers()
 	providers := make([]*basev1.OauthProvider, 0, len(providerNames))
 	for _, providerName := range providerNames {
@@ -84,7 +84,7 @@ func (c *OauthCase) ListOauthProviders(ctx context.Context, req *basev1.ListOaut
 			Provider: string(providerName),
 		})
 	}
-	return &basev1.ListOauthProvidersResponse{Providers: providers}, nil
+	return &basev1.ListOauthProviderResponse{Providers: providers}, nil
 }
 
 // CreateOauthAuthorization 创建三方登录授权地址。
@@ -383,15 +383,15 @@ func oauthLoginTicketLock(ticket string) *sync.Mutex {
 	return &oauthLoginTicketLocks[hash.Sum32()%oauthLoginTicketLockShardCount]
 }
 
-// ListOauthBindings 查询当前用户的三方账号绑定状态。
-func (c *OauthCase) ListOauthBindings(ctx context.Context, req *basev1.ListOauthBindingsRequest) (*basev1.ListOauthBindingsResponse, error) {
+// ListOauthBinding 查询当前用户的三方账号绑定状态。
+func (c *OauthCase) ListOauthBinding(ctx context.Context, req *basev1.ListOauthBindingRequest) (*basev1.ListOauthBindingResponse, error) {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	var providerRes *basev1.ListOauthProvidersResponse
-	providerRes, err = c.ListOauthProviders(ctx, nil)
+	var providerRes *basev1.ListOauthProviderResponse
+	providerRes, err = c.ListOauthProvider(ctx, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -414,7 +414,7 @@ func (c *OauthCase) ListOauthBindings(ctx context.Context, req *basev1.ListOauth
 			Bound:    bound,
 		})
 	}
-	return &basev1.ListOauthBindingsResponse{Bindings: bindings}, nil
+	return &basev1.ListOauthBindingResponse{Bindings: bindings}, nil
 }
 
 // UnbindOauthAccount 解绑当前用户三方账号。

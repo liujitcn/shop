@@ -9,14 +9,14 @@ import "google/protobuf/empty.proto";
 // Admin代码生成Proto接口配置服务
 service CodeGenProtoService {
   // 查询代码生成Proto接口配置
-  rpc ListCodeGenProtos(ListCodeGenProtosRequest) returns (ListCodeGenProtosResponse) {
+  rpc ListCodeGenProto(ListCodeGenProtoRequest) returns (ListCodeGenProtoResponse) {
     option (google.api.http) = {
       get: "/api/v1/admin/code-gen/table/{table_id}/proto"
     };
   }
 
   // 保存代码生成Proto接口配置
-  rpc SaveCodeGenProtos(SaveCodeGenProtosRequest) returns (google.protobuf.Empty) {
+  rpc SaveCodeGenProto(SaveCodeGenProtoRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       put: "/api/v1/admin/code-gen/table/{table_id}/proto"
       body: "*"
@@ -25,17 +25,17 @@ service CodeGenProtoService {
 }
 
 // 代码生成Proto接口配置查询条件
-message ListCodeGenProtosRequest {
+message ListCodeGenProtoRequest {
   int64 table_id = 1 [(gnostic.openapi.v3.property) = {description: "代码生成表配置ID"}]; // 代码生成表配置ID
 }
 
 // 代码生成Proto接口配置查询响应
-message ListCodeGenProtosResponse {
+message ListCodeGenProtoResponse {
   repeated CodeGenProtoCheck code_gen_protos = 1 [(gnostic.openapi.v3.property) = {description: "代码生成Proto接口检查列表"}]; // 代码生成Proto接口检查列表
 }
 
 // 代码生成Proto接口配置保存条件
-message SaveCodeGenProtosRequest {
+message SaveCodeGenProtoRequest {
   int64 table_id = 1 [(gnostic.openapi.v3.property) = {description: "代码生成表配置ID"}]; // 代码生成表配置ID
 
   repeated CodeGenProto code_gen_protos = 2 [(gnostic.openapi.v3.property) = {description: "代码生成Proto接口配置列表"}]; // 代码生成Proto接口配置列表

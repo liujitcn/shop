@@ -29,21 +29,21 @@ func NewAiAssistantService(aiAssistantSessionCase *biz.AiAssistantSessionCase, a
 	}
 }
 
-// ListAiAssistantShortcuts 查询 AI 助手快捷入口列表。
-func (s *AiAssistantService) ListAiAssistantShortcuts(ctx context.Context, req *basev1.ListAiAssistantShortcutsRequest) (*basev1.ListAiAssistantShortcutsResponse, error) {
-	res, err := s.aiAssistantMessageCase.ListAiAssistantShortcuts(ctx, req)
+// ListAiAssistantShortcut 查询 AI 助手快捷入口列表。
+func (s *AiAssistantService) ListAiAssistantShortcut(ctx context.Context, req *basev1.ListAiAssistantShortcutRequest) (*basev1.ListAiAssistantShortcutResponse, error) {
+	res, err := s.aiAssistantMessageCase.ListAiAssistantShortcut(ctx, req)
 	if err != nil {
-		log.Error(fmt.Sprintf("ListAiAssistantShortcuts %v", err))
+		log.Error(fmt.Sprintf("ListAiAssistantShortcut %v", err))
 		return nil, errorsx.WrapInternal(err, "查询AI助手快捷入口失败")
 	}
 	return res, nil
 }
 
-// ListAiAssistantSessions 查询 AI 助手会话列表。
-func (s *AiAssistantService) ListAiAssistantSessions(ctx context.Context, req *basev1.ListAiAssistantSessionsRequest) (*basev1.ListAiAssistantSessionsResponse, error) {
-	res, err := s.aiAssistantSessionCase.ListAiAssistantSessions(ctx, req)
+// ListAiAssistantSession 查询 AI 助手会话列表。
+func (s *AiAssistantService) ListAiAssistantSession(ctx context.Context, req *basev1.ListAiAssistantSessionRequest) (*basev1.ListAiAssistantSessionResponse, error) {
+	res, err := s.aiAssistantSessionCase.ListAiAssistantSession(ctx, req)
 	if err != nil {
-		log.Error(fmt.Sprintf("ListAiAssistantSessions %v", err))
+		log.Error(fmt.Sprintf("ListAiAssistantSession %v", err))
 		return nil, errorsx.WrapInternal(err, "查询AI助手会话失败")
 	}
 	return res, nil
@@ -79,11 +79,11 @@ func (s *AiAssistantService) DeleteAiAssistantSession(ctx context.Context, req *
 	return &basev1.DeleteAiAssistantSessionResponse{}, nil
 }
 
-// ListAiAssistantMessages 查询 AI 助手消息列表。
-func (s *AiAssistantService) ListAiAssistantMessages(ctx context.Context, req *basev1.ListAiAssistantMessagesRequest) (*basev1.ListAiAssistantMessagesResponse, error) {
-	res, err := s.aiAssistantMessageCase.ListAiAssistantMessages(ctx, req)
+// ListAiAssistantMessage 查询 AI 助手消息列表。
+func (s *AiAssistantService) ListAiAssistantMessage(ctx context.Context, req *basev1.ListAiAssistantMessageRequest) (*basev1.ListAiAssistantMessageResponse, error) {
+	res, err := s.aiAssistantMessageCase.ListAiAssistantMessage(ctx, req)
 	if err != nil {
-		log.Error(fmt.Sprintf("ListAiAssistantMessages %v", err))
+		log.Error(fmt.Sprintf("ListAiAssistantMessage %v", err))
 		return nil, errorsx.WrapInternal(err, "查询AI助手消息失败")
 	}
 	return res, nil

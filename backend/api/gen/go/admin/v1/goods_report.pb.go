@@ -94,7 +94,7 @@ func (x *SummaryGoodsMonthReportRequest) GetEndMonth() string {
 }
 
 // 商品月报列表请求参数
-type ListGoodsMonthReportsRequest struct {
+type ListGoodsMonthReportRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	TenantId      *int64                 `protobuf:"varint,1,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`                  // 租户ID
 	TenantStoreId *int64                 `protobuf:"varint,2,opt,name=tenant_store_id,json=tenantStoreId,proto3,oneof" json:"tenant_store_id,omitempty"` // 租户门店ID
@@ -104,20 +104,20 @@ type ListGoodsMonthReportsRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListGoodsMonthReportsRequest) Reset() {
-	*x = ListGoodsMonthReportsRequest{}
+func (x *ListGoodsMonthReportRequest) Reset() {
+	*x = ListGoodsMonthReportRequest{}
 	mi := &file_admin_v1_goods_report_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListGoodsMonthReportsRequest) String() string {
+func (x *ListGoodsMonthReportRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListGoodsMonthReportsRequest) ProtoMessage() {}
+func (*ListGoodsMonthReportRequest) ProtoMessage() {}
 
-func (x *ListGoodsMonthReportsRequest) ProtoReflect() protoreflect.Message {
+func (x *ListGoodsMonthReportRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_goods_report_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -129,33 +129,33 @@ func (x *ListGoodsMonthReportsRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListGoodsMonthReportsRequest.ProtoReflect.Descriptor instead.
-func (*ListGoodsMonthReportsRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListGoodsMonthReportRequest.ProtoReflect.Descriptor instead.
+func (*ListGoodsMonthReportRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_goods_report_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *ListGoodsMonthReportsRequest) GetTenantId() int64 {
+func (x *ListGoodsMonthReportRequest) GetTenantId() int64 {
 	if x != nil && x.TenantId != nil {
 		return *x.TenantId
 	}
 	return 0
 }
 
-func (x *ListGoodsMonthReportsRequest) GetTenantStoreId() int64 {
+func (x *ListGoodsMonthReportRequest) GetTenantStoreId() int64 {
 	if x != nil && x.TenantStoreId != nil {
 		return *x.TenantStoreId
 	}
 	return 0
 }
 
-func (x *ListGoodsMonthReportsRequest) GetStartMonth() string {
+func (x *ListGoodsMonthReportRequest) GetStartMonth() string {
 	if x != nil {
 		return x.StartMonth
 	}
 	return ""
 }
 
-func (x *ListGoodsMonthReportsRequest) GetEndMonth() string {
+func (x *ListGoodsMonthReportRequest) GetEndMonth() string {
 	if x != nil {
 		return x.EndMonth
 	}
@@ -421,27 +421,27 @@ func (x *GoodsMonthReportItem) GetPayUnitPrice() int64 {
 }
 
 // 商品月报列表响应
-type ListGoodsMonthReportsResponse struct {
+type ListGoodsMonthReportResponse struct {
 	state             protoimpl.MessageState  `protogen:"open.v1"`
 	GoodsMonthReports []*GoodsMonthReportItem `protobuf:"bytes,1,rep,name=goods_month_reports,json=goodsMonthReports,proto3" json:"goods_month_reports,omitempty"` // 商品月报明细
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
 
-func (x *ListGoodsMonthReportsResponse) Reset() {
-	*x = ListGoodsMonthReportsResponse{}
+func (x *ListGoodsMonthReportResponse) Reset() {
+	*x = ListGoodsMonthReportResponse{}
 	mi := &file_admin_v1_goods_report_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListGoodsMonthReportsResponse) String() string {
+func (x *ListGoodsMonthReportResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListGoodsMonthReportsResponse) ProtoMessage() {}
+func (*ListGoodsMonthReportResponse) ProtoMessage() {}
 
-func (x *ListGoodsMonthReportsResponse) ProtoReflect() protoreflect.Message {
+func (x *ListGoodsMonthReportResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_goods_report_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -453,12 +453,12 @@ func (x *ListGoodsMonthReportsResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListGoodsMonthReportsResponse.ProtoReflect.Descriptor instead.
-func (*ListGoodsMonthReportsResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListGoodsMonthReportResponse.ProtoReflect.Descriptor instead.
+func (*ListGoodsMonthReportResponse) Descriptor() ([]byte, []int) {
 	return file_admin_v1_goods_report_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *ListGoodsMonthReportsResponse) GetGoodsMonthReports() []*GoodsMonthReportItem {
+func (x *ListGoodsMonthReportResponse) GetGoodsMonthReports() []*GoodsMonthReportItem {
 	if x != nil {
 		return x.GoodsMonthReports
 	}
@@ -519,7 +519,7 @@ func (x *SummaryGoodsDayReportRequest) GetEndDate() string {
 }
 
 // 商品日报列表请求参数
-type ListGoodsDayReportsRequest struct {
+type ListGoodsDayReportRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	StartDate     string                 `protobuf:"bytes,1,opt,name=start_date,json=startDate,proto3" json:"start_date,omitempty"` // 开始日期，格式：YYYY-MM-DD
 	EndDate       string                 `protobuf:"bytes,2,opt,name=end_date,json=endDate,proto3" json:"end_date,omitempty"`       // 结束日期，格式：YYYY-MM-DD
@@ -527,20 +527,20 @@ type ListGoodsDayReportsRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListGoodsDayReportsRequest) Reset() {
-	*x = ListGoodsDayReportsRequest{}
+func (x *ListGoodsDayReportRequest) Reset() {
+	*x = ListGoodsDayReportRequest{}
 	mi := &file_admin_v1_goods_report_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListGoodsDayReportsRequest) String() string {
+func (x *ListGoodsDayReportRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListGoodsDayReportsRequest) ProtoMessage() {}
+func (*ListGoodsDayReportRequest) ProtoMessage() {}
 
-func (x *ListGoodsDayReportsRequest) ProtoReflect() protoreflect.Message {
+func (x *ListGoodsDayReportRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_goods_report_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -552,19 +552,19 @@ func (x *ListGoodsDayReportsRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListGoodsDayReportsRequest.ProtoReflect.Descriptor instead.
-func (*ListGoodsDayReportsRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListGoodsDayReportRequest.ProtoReflect.Descriptor instead.
+func (*ListGoodsDayReportRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_goods_report_proto_rawDescGZIP(), []int{6}
 }
 
-func (x *ListGoodsDayReportsRequest) GetStartDate() string {
+func (x *ListGoodsDayReportRequest) GetStartDate() string {
 	if x != nil {
 		return x.StartDate
 	}
 	return ""
 }
 
-func (x *ListGoodsDayReportsRequest) GetEndDate() string {
+func (x *ListGoodsDayReportRequest) GetEndDate() string {
 	if x != nil {
 		return x.EndDate
 	}
@@ -830,27 +830,27 @@ func (x *GoodsDayReportItem) GetPayUnitPrice() int64 {
 }
 
 // 商品日报列表响应
-type ListGoodsDayReportsResponse struct {
+type ListGoodsDayReportResponse struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	GoodsDayReports []*GoodsDayReportItem  `protobuf:"bytes,1,rep,name=goods_day_reports,json=goodsDayReports,proto3" json:"goods_day_reports,omitempty"` // 商品日报明细
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
 
-func (x *ListGoodsDayReportsResponse) Reset() {
-	*x = ListGoodsDayReportsResponse{}
+func (x *ListGoodsDayReportResponse) Reset() {
+	*x = ListGoodsDayReportResponse{}
 	mi := &file_admin_v1_goods_report_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListGoodsDayReportsResponse) String() string {
+func (x *ListGoodsDayReportResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListGoodsDayReportsResponse) ProtoMessage() {}
+func (*ListGoodsDayReportResponse) ProtoMessage() {}
 
-func (x *ListGoodsDayReportsResponse) ProtoReflect() protoreflect.Message {
+func (x *ListGoodsDayReportResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_goods_report_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -862,12 +862,12 @@ func (x *ListGoodsDayReportsResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListGoodsDayReportsResponse.ProtoReflect.Descriptor instead.
-func (*ListGoodsDayReportsResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListGoodsDayReportResponse.ProtoReflect.Descriptor instead.
+func (*ListGoodsDayReportResponse) Descriptor() ([]byte, []int) {
 	return file_admin_v1_goods_report_proto_rawDescGZIP(), []int{9}
 }
 
-func (x *ListGoodsDayReportsResponse) GetGoodsDayReports() []*GoodsDayReportItem {
+func (x *ListGoodsDayReportResponse) GetGoodsDayReports() []*GoodsDayReportItem {
 	if x != nil {
 		return x.GoodsDayReports
 	}
@@ -887,8 +887,8 @@ const file_admin_v1_goods_report_proto_rawDesc = "" +
 	"\tend_month\x18\x04 \x01(\tB%\xbaG\"\x92\x02\x1f结束月份，格式：YYYY-MMR\bendMonthB\f\n" +
 	"\n" +
 	"_tenant_idB\x12\n" +
-	"\x10_tenant_store_id\"\xc1\x02\n" +
-	"\x1cListGoodsMonthReportsRequest\x120\n" +
+	"\x10_tenant_store_id\"\xc0\x02\n" +
+	"\x1bListGoodsMonthReportRequest\x120\n" +
 	"\ttenant_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12A\n" +
 	"\x0ftenant_store_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDH\x01R\rtenantStoreId\x88\x01\x01\x12F\n" +
 	"\vstart_month\x18\x03 \x01(\tB%\xbaG\"\x92\x02\x1f开始月份，格式：YYYY-MMR\n" +
@@ -931,14 +931,14 @@ const file_admin_v1_goods_report_proto_rawDesc = "" +
 	" \x01(\x03B\x1b\xbaG\x18\x92\x02\x15浏览加购转化率R\x12cartConversionRate\x12O\n" +
 	"\x15order_conversion_rate\x18\v \x01(\x03B\x1b\xbaG\x18\x92\x02\x15加购下单转化率R\x13orderConversionRate\x12K\n" +
 	"\x13pay_conversion_rate\x18\f \x01(\x03B\x1b\xbaG\x18\x92\x02\x15浏览支付转化率R\x11payConversionRate\x12G\n" +
-	"\x0epay_unit_price\x18\r \x01(\x03B!\xbaG\x1e\x92\x02\x1b件均成交价，单位分R\fpayUnitPrice\"\x89\x01\n" +
-	"\x1dListGoodsMonthReportsResponse\x12h\n" +
+	"\x0epay_unit_price\x18\r \x01(\x03B!\xbaG\x1e\x92\x02\x1b件均成交价，单位分R\fpayUnitPrice\"\x88\x01\n" +
+	"\x1cListGoodsMonthReportResponse\x12h\n" +
 	"\x13goods_month_reports\x18\x01 \x03(\v2\x1e.admin.v1.GoodsMonthReportItemB\x18\xbaG\x15\x92\x02\x12商品月报明细R\x11goodsMonthReports\"\xac\x01\n" +
 	"\x1cSummaryGoodsDayReportRequest\x12G\n" +
 	"\n" +
 	"start_date\x18\x01 \x01(\tB(\xbaG%\x92\x02\"开始日期，格式：YYYY-MM-DDR\tstartDate\x12C\n" +
-	"\bend_date\x18\x02 \x01(\tB(\xbaG%\x92\x02\"结束日期，格式：YYYY-MM-DDR\aendDate\"\xaa\x01\n" +
-	"\x1aListGoodsDayReportsRequest\x12G\n" +
+	"\bend_date\x18\x02 \x01(\tB(\xbaG%\x92\x02\"结束日期，格式：YYYY-MM-DDR\aendDate\"\xa9\x01\n" +
+	"\x19ListGoodsDayReportRequest\x12G\n" +
 	"\n" +
 	"start_date\x18\x01 \x01(\tB(\xbaG%\x92\x02\"开始日期，格式：YYYY-MM-DDR\tstartDate\x12C\n" +
 	"\bend_date\x18\x02 \x01(\tB(\xbaG%\x92\x02\"结束日期，格式：YYYY-MM-DDR\aendDate\"\xd1\x05\n" +
@@ -976,14 +976,14 @@ const file_admin_v1_goods_report_proto_rawDesc = "" +
 	" \x01(\x03B\x1b\xbaG\x18\x92\x02\x15浏览加购转化率R\x12cartConversionRate\x12O\n" +
 	"\x15order_conversion_rate\x18\v \x01(\x03B\x1b\xbaG\x18\x92\x02\x15加购下单转化率R\x13orderConversionRate\x12K\n" +
 	"\x13pay_conversion_rate\x18\f \x01(\x03B\x1b\xbaG\x18\x92\x02\x15浏览支付转化率R\x11payConversionRate\x12G\n" +
-	"\x0epay_unit_price\x18\r \x01(\x03B!\xbaG\x1e\x92\x02\x1b件均成交价，单位分R\fpayUnitPrice\"\x81\x01\n" +
-	"\x1bListGoodsDayReportsResponse\x12b\n" +
-	"\x11goods_day_reports\x18\x01 \x03(\v2\x1c.admin.v1.GoodsDayReportItemB\x18\xbaG\x15\x92\x02\x12商品日报明细R\x0fgoodsDayReports2\xf4\x04\n" +
+	"\x0epay_unit_price\x18\r \x01(\x03B!\xbaG\x1e\x92\x02\x1b件均成交价，单位分R\fpayUnitPrice\"\x80\x01\n" +
+	"\x1aListGoodsDayReportResponse\x12b\n" +
+	"\x11goods_day_reports\x18\x01 \x03(\v2\x1c.admin.v1.GoodsDayReportItemB\x18\xbaG\x15\x92\x02\x12商品日报明细R\x0fgoodsDayReports2\xee\x04\n" +
 	"\x12GoodsReportService\x12\xa0\x01\n" +
-	"\x17SummaryGoodsMonthReport\x12(.admin.v1.SummaryGoodsMonthReportRequest\x1a).admin.v1.SummaryGoodsMonthReportResponse\"0\x82\xd3\xe4\x93\x02*\x12(/api/v1/admin/report/goods/month/summary\x12\x92\x01\n" +
-	"\x15ListGoodsMonthReports\x12&.admin.v1.ListGoodsMonthReportsRequest\x1a'.admin.v1.ListGoodsMonthReportsResponse\"(\x82\xd3\xe4\x93\x02\"\x12 /api/v1/admin/report/goods/month\x12\x98\x01\n" +
-	"\x15SummaryGoodsDayReport\x12&.admin.v1.SummaryGoodsDayReportRequest\x1a'.admin.v1.SummaryGoodsDayReportResponse\".\x82\xd3\xe4\x93\x02(\x12&/api/v1/admin/report/goods/day/summary\x12\x8a\x01\n" +
-	"\x13ListGoodsDayReports\x12$.admin.v1.ListGoodsDayReportsRequest\x1a%.admin.v1.ListGoodsDayReportsResponse\"&\x82\xd3\xe4\x93\x02 \x12\x1e/api/v1/admin/report/goods/dayB\x83\x01\n" +
+	"\x17SummaryGoodsMonthReport\x12(.admin.v1.SummaryGoodsMonthReportRequest\x1a).admin.v1.SummaryGoodsMonthReportResponse\"0\x82\xd3\xe4\x93\x02*\x12(/api/v1/admin/report/goods/month/summary\x12\x8f\x01\n" +
+	"\x14ListGoodsMonthReport\x12%.admin.v1.ListGoodsMonthReportRequest\x1a&.admin.v1.ListGoodsMonthReportResponse\"(\x82\xd3\xe4\x93\x02\"\x12 /api/v1/admin/report/goods/month\x12\x98\x01\n" +
+	"\x15SummaryGoodsDayReport\x12&.admin.v1.SummaryGoodsDayReportRequest\x1a'.admin.v1.SummaryGoodsDayReportResponse\".\x82\xd3\xe4\x93\x02(\x12&/api/v1/admin/report/goods/day/summary\x12\x87\x01\n" +
+	"\x12ListGoodsDayReport\x12#.admin.v1.ListGoodsDayReportRequest\x1a$.admin.v1.ListGoodsDayReportResponse\"&\x82\xd3\xe4\x93\x02 \x12\x1e/api/v1/admin/report/goods/dayB\x83\x01\n" +
 	"\fcom.admin.v1B\x10GoodsReportProtoP\x01Z shop/api/gen/go/admin/v1;adminv1\xa2\x02\x03AXX\xaa\x02\bAdmin.V1\xca\x02\bAdmin\\V1\xe2\x02\x14Admin\\V1\\GPBMetadata\xea\x02\tAdmin::V1b\x06proto3"
 
 var (
@@ -1001,27 +1001,27 @@ func file_admin_v1_goods_report_proto_rawDescGZIP() []byte {
 var file_admin_v1_goods_report_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_admin_v1_goods_report_proto_goTypes = []any{
 	(*SummaryGoodsMonthReportRequest)(nil),  // 0: admin.v1.SummaryGoodsMonthReportRequest
-	(*ListGoodsMonthReportsRequest)(nil),    // 1: admin.v1.ListGoodsMonthReportsRequest
+	(*ListGoodsMonthReportRequest)(nil),     // 1: admin.v1.ListGoodsMonthReportRequest
 	(*SummaryGoodsMonthReportResponse)(nil), // 2: admin.v1.SummaryGoodsMonthReportResponse
 	(*GoodsMonthReportItem)(nil),            // 3: admin.v1.GoodsMonthReportItem
-	(*ListGoodsMonthReportsResponse)(nil),   // 4: admin.v1.ListGoodsMonthReportsResponse
+	(*ListGoodsMonthReportResponse)(nil),    // 4: admin.v1.ListGoodsMonthReportResponse
 	(*SummaryGoodsDayReportRequest)(nil),    // 5: admin.v1.SummaryGoodsDayReportRequest
-	(*ListGoodsDayReportsRequest)(nil),      // 6: admin.v1.ListGoodsDayReportsRequest
+	(*ListGoodsDayReportRequest)(nil),       // 6: admin.v1.ListGoodsDayReportRequest
 	(*SummaryGoodsDayReportResponse)(nil),   // 7: admin.v1.SummaryGoodsDayReportResponse
 	(*GoodsDayReportItem)(nil),              // 8: admin.v1.GoodsDayReportItem
-	(*ListGoodsDayReportsResponse)(nil),     // 9: admin.v1.ListGoodsDayReportsResponse
+	(*ListGoodsDayReportResponse)(nil),      // 9: admin.v1.ListGoodsDayReportResponse
 }
 var file_admin_v1_goods_report_proto_depIdxs = []int32{
-	3, // 0: admin.v1.ListGoodsMonthReportsResponse.goods_month_reports:type_name -> admin.v1.GoodsMonthReportItem
-	8, // 1: admin.v1.ListGoodsDayReportsResponse.goods_day_reports:type_name -> admin.v1.GoodsDayReportItem
+	3, // 0: admin.v1.ListGoodsMonthReportResponse.goods_month_reports:type_name -> admin.v1.GoodsMonthReportItem
+	8, // 1: admin.v1.ListGoodsDayReportResponse.goods_day_reports:type_name -> admin.v1.GoodsDayReportItem
 	0, // 2: admin.v1.GoodsReportService.SummaryGoodsMonthReport:input_type -> admin.v1.SummaryGoodsMonthReportRequest
-	1, // 3: admin.v1.GoodsReportService.ListGoodsMonthReports:input_type -> admin.v1.ListGoodsMonthReportsRequest
+	1, // 3: admin.v1.GoodsReportService.ListGoodsMonthReport:input_type -> admin.v1.ListGoodsMonthReportRequest
 	5, // 4: admin.v1.GoodsReportService.SummaryGoodsDayReport:input_type -> admin.v1.SummaryGoodsDayReportRequest
-	6, // 5: admin.v1.GoodsReportService.ListGoodsDayReports:input_type -> admin.v1.ListGoodsDayReportsRequest
+	6, // 5: admin.v1.GoodsReportService.ListGoodsDayReport:input_type -> admin.v1.ListGoodsDayReportRequest
 	2, // 6: admin.v1.GoodsReportService.SummaryGoodsMonthReport:output_type -> admin.v1.SummaryGoodsMonthReportResponse
-	4, // 7: admin.v1.GoodsReportService.ListGoodsMonthReports:output_type -> admin.v1.ListGoodsMonthReportsResponse
+	4, // 7: admin.v1.GoodsReportService.ListGoodsMonthReport:output_type -> admin.v1.ListGoodsMonthReportResponse
 	7, // 8: admin.v1.GoodsReportService.SummaryGoodsDayReport:output_type -> admin.v1.SummaryGoodsDayReportResponse
-	9, // 9: admin.v1.GoodsReportService.ListGoodsDayReports:output_type -> admin.v1.ListGoodsDayReportsResponse
+	9, // 9: admin.v1.GoodsReportService.ListGoodsDayReport:output_type -> admin.v1.ListGoodsDayReportResponse
 	6, // [6:10] is the sub-list for method output_type
 	2, // [2:6] is the sub-list for method input_type
 	2, // [2:2] is the sub-list for extension type_name

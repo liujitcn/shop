@@ -8,17 +8,18 @@ package adminv1
 
 import (
 	context "context"
-	v1 "shop/api/gen/go/common/v1"
 
 	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+
+	v1 "shop/api/gen/go/common/v1"
 )
 
 // RegisterAuthServiceMCPTools 注册Admin用户登录认证服务的 MCP Tool。
 func RegisterAuthServiceMCPTools(mcpServer *mcp.Server, authServiceServer AuthServiceServer) {
 	RegisterAuthServiceGetUserInfoMCPTool(mcpServer, authServiceServer)
-	RegisterAuthServiceTreeUserMenusMCPTool(mcpServer, authServiceServer)
-	RegisterAuthServiceListUserButtonsMCPTool(mcpServer, authServiceServer)
+	RegisterAuthServiceTreeUserMenuMCPTool(mcpServer, authServiceServer)
+	RegisterAuthServiceListUserButtonMCPTool(mcpServer, authServiceServer)
 	RegisterAuthServiceGetUserProfileMCPTool(mcpServer, authServiceServer)
 	RegisterAuthServiceUpdateUserProfileMCPTool(mcpServer, authServiceServer)
 	RegisterAuthServiceSendPhoneCodeMCPTool(mcpServer, authServiceServer)
@@ -47,19 +48,19 @@ func RegisterAuthServiceGetUserInfoMCPTool(mcpServer *mcp.Server, authServiceSer
 	)
 }
 
-// RegisterAuthServiceTreeUserMenusMCPTool 注册查询已经登录的用户菜单树的 MCP Tool。
-func RegisterAuthServiceTreeUserMenusMCPTool(mcpServer *mcp.Server, authServiceServer AuthServiceServer) {
-	mcp.AddTool[*TreeUserMenusRequest, any](
+// RegisterAuthServiceTreeUserMenuMCPTool 注册查询已经登录的用户菜单树的 MCP Tool。
+func RegisterAuthServiceTreeUserMenuMCPTool(mcpServer *mcp.Server, authServiceServer AuthServiceServer) {
+	mcp.AddTool[*TreeUserMenuRequest, any](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "admin_v1_auth_service_tree_user_menus",
+			Name:        "admin_v1_auth_service_tree_user_menu",
 			Description: "查询已经登录的用户菜单树",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *TreeUserMenusRequest) (*mcp.CallToolResult, any, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *TreeUserMenuRequest) (*mcp.CallToolResult, any, error) {
 			if input == nil {
-				input = &TreeUserMenusRequest{}
+				input = &TreeUserMenuRequest{}
 			}
-			reply, err := authServiceServer.TreeUserMenus(ctx, input)
+			reply, err := authServiceServer.TreeUserMenu(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -68,19 +69,19 @@ func RegisterAuthServiceTreeUserMenusMCPTool(mcpServer *mcp.Server, authServiceS
 	)
 }
 
-// RegisterAuthServiceListUserButtonsMCPTool 注册查询已经登录的用户按钮列表的 MCP Tool。
-func RegisterAuthServiceListUserButtonsMCPTool(mcpServer *mcp.Server, authServiceServer AuthServiceServer) {
-	mcp.AddTool[*ListUserButtonsRequest, *v1.StringValues](
+// RegisterAuthServiceListUserButtonMCPTool 注册查询已经登录的用户按钮列表的 MCP Tool。
+func RegisterAuthServiceListUserButtonMCPTool(mcpServer *mcp.Server, authServiceServer AuthServiceServer) {
+	mcp.AddTool[*ListUserButtonRequest, *v1.StringValues](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "admin_v1_auth_service_list_user_buttons",
+			Name:        "admin_v1_auth_service_list_user_button",
 			Description: "查询已经登录的用户按钮列表",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *ListUserButtonsRequest) (*mcp.CallToolResult, *v1.StringValues, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *ListUserButtonRequest) (*mcp.CallToolResult, *v1.StringValues, error) {
 			if input == nil {
-				input = &ListUserButtonsRequest{}
+				input = &ListUserButtonRequest{}
 			}
-			reply, err := authServiceServer.ListUserButtons(ctx, input)
+			reply, err := authServiceServer.ListUserButton(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

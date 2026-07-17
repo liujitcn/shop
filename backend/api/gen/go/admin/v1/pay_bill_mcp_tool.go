@@ -14,22 +14,22 @@ import (
 
 // RegisterPayBillServiceMCPTools 注册Admin支付账单服务的 MCP Tool。
 func RegisterPayBillServiceMCPTools(mcpServer *mcp.Server, payBillServiceServer PayBillServiceServer) {
-	RegisterPayBillServicePagePayBillsMCPTool(mcpServer, payBillServiceServer)
+	RegisterPayBillServicePagePayBillMCPTool(mcpServer, payBillServiceServer)
 }
 
-// RegisterPayBillServicePagePayBillsMCPTool 注册查询支付账单列表的 MCP Tool。
-func RegisterPayBillServicePagePayBillsMCPTool(mcpServer *mcp.Server, payBillServiceServer PayBillServiceServer) {
-	mcp.AddTool[*PagePayBillsRequest, *PagePayBillsResponse](
+// RegisterPayBillServicePagePayBillMCPTool 注册查询支付账单列表的 MCP Tool。
+func RegisterPayBillServicePagePayBillMCPTool(mcpServer *mcp.Server, payBillServiceServer PayBillServiceServer) {
+	mcp.AddTool[*PagePayBillRequest, *PagePayBillResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "admin_v1_pay_bill_service_page_pay_bills",
+			Name:        "admin_v1_pay_bill_service_page_pay_bill",
 			Description: "查询支付账单列表",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PagePayBillsRequest) (*mcp.CallToolResult, *PagePayBillsResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *PagePayBillRequest) (*mcp.CallToolResult, *PagePayBillResponse, error) {
 			if input == nil {
-				input = &PagePayBillsRequest{}
+				input = &PagePayBillRequest{}
 			}
-			reply, err := payBillServiceServer.PagePayBills(ctx, input)
+			reply, err := payBillServiceServer.PagePayBill(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

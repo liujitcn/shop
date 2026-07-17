@@ -253,7 +253,7 @@ function filterCategoryTree(categoryList: GoodsCategory[], keywordMap: { name: s
  * 请求分类树数据，并按搜索条件过滤树形结构。
  */
 async function requestGoodsCategoryTable(params: Record<string, string>) {
-  const data = await defGoodsCategoryService.TreeGoodsCategories({});
+  const data = await defGoodsCategoryService.TreeGoodsCategory({});
   const keywordMap = {
     name: params.name ?? "",
     status: String(params.status ?? "")
@@ -272,7 +272,7 @@ function refreshTable() {
  * 加载分类下拉树数据，供弹窗选择上级分类。
  */
 async function loadCategoryOptions() {
-  const optionGoodsCategoryResponse = await defGoodsCategoryService.OptionGoodsCategories({ parent_id: 0 });
+  const optionGoodsCategoryResponse = await defGoodsCategoryService.OptionGoodsCategory({ parent_id: 0 });
   categoryOptions.value = [
     {
       value: 0,

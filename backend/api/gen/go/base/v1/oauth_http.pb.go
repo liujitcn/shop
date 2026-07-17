@@ -25,8 +25,8 @@ const OperationOauthServiceCreateOauthSession = "/base.v1.OauthService/CreateOau
 const OperationOauthServiceExchangeOauthTicket = "/base.v1.OauthService/ExchangeOauthTicket"
 const OperationOauthServiceHandleOauthBindingCallback = "/base.v1.OauthService/HandleOauthBindingCallback"
 const OperationOauthServiceHandleOauthCallback = "/base.v1.OauthService/HandleOauthCallback"
-const OperationOauthServiceListOauthBindings = "/base.v1.OauthService/ListOauthBindings"
-const OperationOauthServiceListOauthProviders = "/base.v1.OauthService/ListOauthProviders"
+const OperationOauthServiceListOauthBinding = "/base.v1.OauthService/ListOauthBinding"
+const OperationOauthServiceListOauthProvider = "/base.v1.OauthService/ListOauthProvider"
 const OperationOauthServiceUnbindOauthAccount = "/base.v1.OauthService/UnbindOauthAccount"
 
 type OauthServiceHTTPServer interface {
@@ -42,42 +42,42 @@ type OauthServiceHTTPServer interface {
 	HandleOauthBindingCallback(context.Context, *HandleOauthBindingCallbackRequest) (*HandleOauthBindingCallbackResponse, error)
 	// HandleOauthCallback 处理三方登录回调
 	HandleOauthCallback(context.Context, *HandleOauthCallbackRequest) (*HandleOauthCallbackResponse, error)
-	// ListOauthBindings 查询个人中心三方账号绑定列表
-	ListOauthBindings(context.Context, *ListOauthBindingsRequest) (*ListOauthBindingsResponse, error)
-	// ListOauthProviders 查询三方登录方式
-	ListOauthProviders(context.Context, *ListOauthProvidersRequest) (*ListOauthProvidersResponse, error)
+	// ListOauthBinding 查询个人中心三方账号绑定列表
+	ListOauthBinding(context.Context, *ListOauthBindingRequest) (*ListOauthBindingResponse, error)
+	// ListOauthProvider 查询三方登录方式
+	ListOauthProvider(context.Context, *ListOauthProviderRequest) (*ListOauthProviderResponse, error)
 	// UnbindOauthAccount 解绑个人中心三方账号
 	UnbindOauthAccount(context.Context, *UnbindOauthAccountRequest) (*emptypb.Empty, error)
 }
 
 func RegisterOauthServiceHTTPServer(s *http.Server, srv OauthServiceHTTPServer) {
 	r := s.Route("/")
-	r.Handle("GET", "/api/v1/base/oauth/provider", _OauthService_ListOauthProviders0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/base/oauth/provider", _OauthService_ListOauthProvider0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/base/oauth/authorization", _OauthService_CreateOauthAuthorization0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/base/oauth/{provider}/callback", _OauthService_HandleOauthCallback0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/base/oauth/ticket", _OauthService_ExchangeOauthTicket0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/base/oauth/session", _OauthService_CreateOauthSession0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/base/oauth/binding", _OauthService_ListOauthBindings0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/base/oauth/binding", _OauthService_ListOauthBinding0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/base/oauth/binding/authorization", _OauthService_CreateOauthBindingAuthorization0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/base/oauth/{provider}/binding/callback", _OauthService_HandleOauthBindingCallback0_HTTP_Handler(srv))
 	r.Handle("DELETE", "/api/v1/base/oauth/binding/{provider}", _OauthService_UnbindOauthAccount0_HTTP_Handler(srv))
 }
 
-func _OauthService_ListOauthProviders0_HTTP_Handler(srv OauthServiceHTTPServer) func(ctx http.Context) error {
+func _OauthService_ListOauthProvider0_HTTP_Handler(srv OauthServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in ListOauthProvidersRequest
+		var in ListOauthProviderRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationOauthServiceListOauthProviders)
+		http.SetOperation(ctx, OperationOauthServiceListOauthProvider)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.ListOauthProviders(ctx, req.(*ListOauthProvidersRequest))
+			return srv.ListOauthProvider(ctx, req.(*ListOauthProviderRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*ListOauthProvidersResponse)
+		reply := out.(*ListOauthProviderResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -161,21 +161,21 @@ func _OauthService_CreateOauthSession0_HTTP_Handler(srv OauthServiceHTTPServer) 
 	}
 }
 
-func _OauthService_ListOauthBindings0_HTTP_Handler(srv OauthServiceHTTPServer) func(ctx http.Context) error {
+func _OauthService_ListOauthBinding0_HTTP_Handler(srv OauthServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in ListOauthBindingsRequest
+		var in ListOauthBindingRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationOauthServiceListOauthBindings)
+		http.SetOperation(ctx, OperationOauthServiceListOauthBinding)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.ListOauthBindings(ctx, req.(*ListOauthBindingsRequest))
+			return srv.ListOauthBinding(ctx, req.(*ListOauthBindingRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*ListOauthBindingsResponse)
+		reply := out.(*ListOauthBindingResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -256,10 +256,10 @@ type OauthServiceHTTPClient interface {
 	HandleOauthBindingCallback(ctx context.Context, req *HandleOauthBindingCallbackRequest, opts ...http.CallOption) (rsp *HandleOauthBindingCallbackResponse, err error)
 	// HandleOauthCallback 处理三方登录回调
 	HandleOauthCallback(ctx context.Context, req *HandleOauthCallbackRequest, opts ...http.CallOption) (rsp *HandleOauthCallbackResponse, err error)
-	// ListOauthBindings 查询个人中心三方账号绑定列表
-	ListOauthBindings(ctx context.Context, req *ListOauthBindingsRequest, opts ...http.CallOption) (rsp *ListOauthBindingsResponse, err error)
-	// ListOauthProviders 查询三方登录方式
-	ListOauthProviders(ctx context.Context, req *ListOauthProvidersRequest, opts ...http.CallOption) (rsp *ListOauthProvidersResponse, err error)
+	// ListOauthBinding 查询个人中心三方账号绑定列表
+	ListOauthBinding(ctx context.Context, req *ListOauthBindingRequest, opts ...http.CallOption) (rsp *ListOauthBindingResponse, err error)
+	// ListOauthProvider 查询三方登录方式
+	ListOauthProvider(ctx context.Context, req *ListOauthProviderRequest, opts ...http.CallOption) (rsp *ListOauthProviderResponse, err error)
 	// UnbindOauthAccount 解绑个人中心三方账号
 	UnbindOauthAccount(ctx context.Context, req *UnbindOauthAccountRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 }
@@ -378,14 +378,14 @@ func (c *OauthServiceHTTPClientImpl) HandleOauthCallback(ctx context.Context, in
 	return &out, nil
 }
 
-// ListOauthBindings 查询个人中心三方账号绑定列表
-func (c *OauthServiceHTTPClientImpl) ListOauthBindings(ctx context.Context, in *ListOauthBindingsRequest, opts ...http.CallOption) (*ListOauthBindingsResponse, error) {
-	var out ListOauthBindingsResponse
+// ListOauthBinding 查询个人中心三方账号绑定列表
+func (c *OauthServiceHTTPClientImpl) ListOauthBinding(ctx context.Context, in *ListOauthBindingRequest, opts ...http.CallOption) (*ListOauthBindingResponse, error) {
+	var out ListOauthBindingResponse
 	pattern := "/api/v1/base/oauth/binding"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationOauthServiceListOauthBindings),
+		http.Operation(OperationOauthServiceListOauthBinding),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
@@ -395,14 +395,14 @@ func (c *OauthServiceHTTPClientImpl) ListOauthBindings(ctx context.Context, in *
 	return &out, nil
 }
 
-// ListOauthProviders 查询三方登录方式
-func (c *OauthServiceHTTPClientImpl) ListOauthProviders(ctx context.Context, in *ListOauthProvidersRequest, opts ...http.CallOption) (*ListOauthProvidersResponse, error) {
-	var out ListOauthProvidersResponse
+// ListOauthProvider 查询三方登录方式
+func (c *OauthServiceHTTPClientImpl) ListOauthProvider(ctx context.Context, in *ListOauthProviderRequest, opts ...http.CallOption) (*ListOauthProviderResponse, error) {
+	var out ListOauthProviderResponse
 	pattern := "/api/v1/base/oauth/provider"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationOauthServiceListOauthProviders),
+		http.Operation(OperationOauthServiceListOauthProvider),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)

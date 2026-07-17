@@ -10,19 +10,19 @@ import type { Status } from "../../common/v1/enum";
 import type { Empty } from "../../google/protobuf/empty";
 
 /** 部门树查询条件 */
-export interface TreeBaseDeptsRequest {
+export interface TreeBaseDeptRequest {
   /** 租户ID */
   tenant_id?: number | undefined;
 }
 
 /** 部门树响应 */
-export interface TreeBaseDeptsResponse {
+export interface TreeBaseDeptResponse {
   /** 部门树 */
   base_depts: BaseDept[];
 }
 
 /** 部门选项查询条件 */
-export interface OptionBaseDeptsRequest {
+export interface OptionBaseDeptRequest {
   /** 租户ID */
   tenant_id?:
     | number
@@ -112,9 +112,9 @@ export interface BaseDeptForm {
 /** Admin部门服务 */
 export interface BaseDeptService {
   /** 查询部门树形列表 */
-  TreeBaseDepts(request: TreeBaseDeptsRequest): Promise<TreeBaseDeptsResponse>;
+  TreeBaseDept(request: TreeBaseDeptRequest): Promise<TreeBaseDeptResponse>;
   /** 查询部门树形选择 */
-  OptionBaseDepts(request: OptionBaseDeptsRequest): Promise<TreeOptionResponse>;
+  OptionBaseDept(request: OptionBaseDeptRequest): Promise<TreeOptionResponse>;
   /** 查询部门 */
   GetBaseDept(request: GetBaseDeptRequest): Promise<BaseDeptForm>;
   /** 创建部门 */

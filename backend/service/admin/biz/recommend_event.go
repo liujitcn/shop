@@ -34,13 +34,13 @@ func NewRecommendEventCase(
 	}
 }
 
-// ListRecommendRequestEvents 查询推荐请求商品关联事件列表。
-func (c *RecommendEventCase) ListRecommendRequestEvents(
+// ListRecommendRequestEvent 查询推荐请求商品关联事件列表。
+func (c *RecommendEventCase) ListRecommendRequestEvent(
 	ctx context.Context,
 	requestID int64,
 	goodsID int64,
 	position int32,
-) (*adminv1.ListRecommendRequestEventsResponse, error) {
+) (*adminv1.ListRecommendRequestEventResponse, error) {
 	// 请求编号非法时，无法继续查询推荐事件明细。
 	if requestID <= 0 {
 		return nil, errorsx.InvalidArgument("推荐请求编号不能为空")
@@ -66,7 +66,7 @@ func (c *RecommendEventCase) ListRecommendRequestEvents(
 	for _, item := range list {
 		resList = append(resList, c.toRecommendEvent(item))
 	}
-	return &adminv1.ListRecommendRequestEventsResponse{
+	return &adminv1.ListRecommendRequestEventResponse{
 		RecommendEvents: resList,
 		Total:           int32(len(resList)),
 	}, nil

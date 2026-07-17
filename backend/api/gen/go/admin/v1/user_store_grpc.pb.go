@@ -21,7 +21,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	UserStoreService_PageUserStores_FullMethodName = "/admin.v1.UserStoreService/PageUserStores"
+	UserStoreService_PageUserStore_FullMethodName  = "/admin.v1.UserStoreService/PageUserStore"
 	UserStoreService_GetUserStore_FullMethodName   = "/admin.v1.UserStoreService/GetUserStore"
 	UserStoreService_AuditUserStore_FullMethodName = "/admin.v1.UserStoreService/AuditUserStore"
 )
@@ -33,7 +33,7 @@ const (
 // Admin用户门店管理服务
 type UserStoreServiceClient interface {
 	// 查询用户门店列表
-	PageUserStores(ctx context.Context, in *PageUserStoresRequest, opts ...grpc.CallOption) (*PageUserStoresResponse, error)
+	PageUserStore(ctx context.Context, in *PageUserStoreRequest, opts ...grpc.CallOption) (*PageUserStoreResponse, error)
 	// 查询用户门店
 	GetUserStore(ctx context.Context, in *GetUserStoreRequest, opts ...grpc.CallOption) (*UserStore, error)
 	// 门店认证
@@ -48,10 +48,10 @@ func NewUserStoreServiceClient(cc grpc.ClientConnInterface) UserStoreServiceClie
 	return &userStoreServiceClient{cc}
 }
 
-func (c *userStoreServiceClient) PageUserStores(ctx context.Context, in *PageUserStoresRequest, opts ...grpc.CallOption) (*PageUserStoresResponse, error) {
+func (c *userStoreServiceClient) PageUserStore(ctx context.Context, in *PageUserStoreRequest, opts ...grpc.CallOption) (*PageUserStoreResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(PageUserStoresResponse)
-	err := c.cc.Invoke(ctx, UserStoreService_PageUserStores_FullMethodName, in, out, cOpts...)
+	out := new(PageUserStoreResponse)
+	err := c.cc.Invoke(ctx, UserStoreService_PageUserStore_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -85,7 +85,7 @@ func (c *userStoreServiceClient) AuditUserStore(ctx context.Context, in *AuditUs
 // Admin用户门店管理服务
 type UserStoreServiceServer interface {
 	// 查询用户门店列表
-	PageUserStores(context.Context, *PageUserStoresRequest) (*PageUserStoresResponse, error)
+	PageUserStore(context.Context, *PageUserStoreRequest) (*PageUserStoreResponse, error)
 	// 查询用户门店
 	GetUserStore(context.Context, *GetUserStoreRequest) (*UserStore, error)
 	// 门店认证
@@ -100,8 +100,8 @@ type UserStoreServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedUserStoreServiceServer struct{}
 
-func (UnimplementedUserStoreServiceServer) PageUserStores(context.Context, *PageUserStoresRequest) (*PageUserStoresResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method PageUserStores not implemented")
+func (UnimplementedUserStoreServiceServer) PageUserStore(context.Context, *PageUserStoreRequest) (*PageUserStoreResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method PageUserStore not implemented")
 }
 func (UnimplementedUserStoreServiceServer) GetUserStore(context.Context, *GetUserStoreRequest) (*UserStore, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetUserStore not implemented")
@@ -130,20 +130,20 @@ func RegisterUserStoreServiceServer(s grpc.ServiceRegistrar, srv UserStoreServic
 	s.RegisterService(&UserStoreService_ServiceDesc, srv)
 }
 
-func _UserStoreService_PageUserStores_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PageUserStoresRequest)
+func _UserStoreService_PageUserStore_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PageUserStoreRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserStoreServiceServer).PageUserStores(ctx, in)
+		return srv.(UserStoreServiceServer).PageUserStore(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: UserStoreService_PageUserStores_FullMethodName,
+		FullMethod: UserStoreService_PageUserStore_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserStoreServiceServer).PageUserStores(ctx, req.(*PageUserStoresRequest))
+		return srv.(UserStoreServiceServer).PageUserStore(ctx, req.(*PageUserStoreRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -192,8 +192,8 @@ var UserStoreService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*UserStoreServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "PageUserStores",
-			Handler:    _UserStoreService_PageUserStores_Handler,
+			MethodName: "PageUserStore",
+			Handler:    _UserStoreService_PageUserStore_Handler,
 		},
 		{
 			MethodName: "GetUserStore",

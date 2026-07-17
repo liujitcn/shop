@@ -8,7 +8,6 @@ package appv1
 
 import (
 	reflect "reflect"
-	v1 "shop/api/gen/go/common/v1"
 	sync "sync"
 	unsafe "unsafe"
 
@@ -16,6 +15,8 @@ import (
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+
+	v1 "shop/api/gen/go/common/v1"
 )
 
 const (
@@ -26,26 +27,26 @@ const (
 )
 
 // 行政区域树形查询条件
-type TreeBaseAreasRequest struct {
+type TreeBaseAreaRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *TreeBaseAreasRequest) Reset() {
-	*x = TreeBaseAreasRequest{}
+func (x *TreeBaseAreaRequest) Reset() {
+	*x = TreeBaseAreaRequest{}
 	mi := &file_app_v1_base_area_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *TreeBaseAreasRequest) String() string {
+func (x *TreeBaseAreaRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*TreeBaseAreasRequest) ProtoMessage() {}
+func (*TreeBaseAreaRequest) ProtoMessage() {}
 
-func (x *TreeBaseAreasRequest) ProtoReflect() protoreflect.Message {
+func (x *TreeBaseAreaRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_app_v1_base_area_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -57,33 +58,33 @@ func (x *TreeBaseAreasRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use TreeBaseAreasRequest.ProtoReflect.Descriptor instead.
-func (*TreeBaseAreasRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use TreeBaseAreaRequest.ProtoReflect.Descriptor instead.
+func (*TreeBaseAreaRequest) Descriptor() ([]byte, []int) {
 	return file_app_v1_base_area_proto_rawDescGZIP(), []int{0}
 }
 
 // 行政区域树形响应
-type TreeBaseAreasResponse struct {
+type TreeBaseAreaResponse struct {
 	state         protoimpl.MessageState             `protogen:"open.v1"`
 	Areas         []*v1.AppTreeOptionResponse_Option `protobuf:"bytes,1,rep,name=areas,proto3" json:"areas,omitempty"` // 行政区域树形选项
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *TreeBaseAreasResponse) Reset() {
-	*x = TreeBaseAreasResponse{}
+func (x *TreeBaseAreaResponse) Reset() {
+	*x = TreeBaseAreaResponse{}
 	mi := &file_app_v1_base_area_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *TreeBaseAreasResponse) String() string {
+func (x *TreeBaseAreaResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*TreeBaseAreasResponse) ProtoMessage() {}
+func (*TreeBaseAreaResponse) ProtoMessage() {}
 
-func (x *TreeBaseAreasResponse) ProtoReflect() protoreflect.Message {
+func (x *TreeBaseAreaResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_app_v1_base_area_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -95,12 +96,12 @@ func (x *TreeBaseAreasResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use TreeBaseAreasResponse.ProtoReflect.Descriptor instead.
-func (*TreeBaseAreasResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use TreeBaseAreaResponse.ProtoReflect.Descriptor instead.
+func (*TreeBaseAreaResponse) Descriptor() ([]byte, []int) {
 	return file_app_v1_base_area_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *TreeBaseAreasResponse) GetAreas() []*v1.AppTreeOptionResponse_Option {
+func (x *TreeBaseAreaResponse) GetAreas() []*v1.AppTreeOptionResponse_Option {
 	if x != nil {
 		return x.Areas
 	}
@@ -111,12 +112,12 @@ var File_app_v1_base_area_proto protoreflect.FileDescriptor
 
 const file_app_v1_base_area_proto_rawDesc = "" +
 	"\n" +
-	"\x16app/v1/base_area.proto\x12\x06app.v1\x1a\x16common/v1/common.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\x16\n" +
-	"\x14TreeBaseAreasRequest\"v\n" +
-	"\x15TreeBaseAreasResponse\x12]\n" +
-	"\x05areas\x18\x01 \x03(\v2'.common.v1.AppTreeOptionResponse.OptionB\x1e\xbaG\x1b\x92\x02\x18行政区域树形选项R\x05areas2\x83\x01\n" +
-	"\x0fBaseAreaService\x12p\n" +
-	"\rTreeBaseAreas\x12\x1c.app.v1.TreeBaseAreasRequest\x1a\x1d.app.v1.TreeBaseAreasResponse\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/v1/app/base/area/treeBr\n" +
+	"\x16app/v1/base_area.proto\x12\x06app.v1\x1a\x16common/v1/common.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\x15\n" +
+	"\x13TreeBaseAreaRequest\"u\n" +
+	"\x14TreeBaseAreaResponse\x12]\n" +
+	"\x05areas\x18\x01 \x03(\v2'.common.v1.AppTreeOptionResponse.OptionB\x1e\xbaG\x1b\x92\x02\x18行政区域树形选项R\x05areas2\x80\x01\n" +
+	"\x0fBaseAreaService\x12m\n" +
+	"\fTreeBaseArea\x12\x1b.app.v1.TreeBaseAreaRequest\x1a\x1c.app.v1.TreeBaseAreaResponse\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/v1/app/base/area/treeBr\n" +
 	"\n" +
 	"com.app.v1B\rBaseAreaProtoP\x01Z\x1cshop/api/gen/go/app/v1;appv1\xa2\x02\x03AXX\xaa\x02\x06App.V1\xca\x02\x06App\\V1\xe2\x02\x12App\\V1\\GPBMetadata\xea\x02\aApp::V1b\x06proto3"
 
@@ -134,14 +135,14 @@ func file_app_v1_base_area_proto_rawDescGZIP() []byte {
 
 var file_app_v1_base_area_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_app_v1_base_area_proto_goTypes = []any{
-	(*TreeBaseAreasRequest)(nil),            // 0: app.v1.TreeBaseAreasRequest
-	(*TreeBaseAreasResponse)(nil),           // 1: app.v1.TreeBaseAreasResponse
+	(*TreeBaseAreaRequest)(nil),             // 0: app.v1.TreeBaseAreaRequest
+	(*TreeBaseAreaResponse)(nil),            // 1: app.v1.TreeBaseAreaResponse
 	(*v1.AppTreeOptionResponse_Option)(nil), // 2: common.v1.AppTreeOptionResponse.Option
 }
 var file_app_v1_base_area_proto_depIdxs = []int32{
-	2, // 0: app.v1.TreeBaseAreasResponse.areas:type_name -> common.v1.AppTreeOptionResponse.Option
-	0, // 1: app.v1.BaseAreaService.TreeBaseAreas:input_type -> app.v1.TreeBaseAreasRequest
-	1, // 2: app.v1.BaseAreaService.TreeBaseAreas:output_type -> app.v1.TreeBaseAreasResponse
+	2, // 0: app.v1.TreeBaseAreaResponse.areas:type_name -> common.v1.AppTreeOptionResponse.Option
+	0, // 1: app.v1.BaseAreaService.TreeBaseArea:input_type -> app.v1.TreeBaseAreaRequest
+	1, // 2: app.v1.BaseAreaService.TreeBaseArea:output_type -> app.v1.TreeBaseAreaResponse
 	2, // [2:3] is the sub-list for method output_type
 	1, // [1:2] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name

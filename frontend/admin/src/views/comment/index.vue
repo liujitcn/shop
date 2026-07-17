@@ -88,7 +88,7 @@ import ProTable from "@/components/ProTable/index.vue";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { defCommentInfoService } from "@/api/admin/comment_info";
 import { defTenantStoreService } from "@/api/admin/tenant_store";
-import type { CommentInfo, PageCommentInfosRequest } from "@/rpc/admin/v1/comment_info";
+import type { CommentInfo, PageCommentInfoRequest } from "@/rpc/admin/v1/comment_info";
 import { CommentStatus } from "@/rpc/common/v1/enum";
 import { buildPageRequest } from "@/utils/proTable";
 import { navigateTo } from "@/utils/router";
@@ -128,7 +128,7 @@ const router = useRouter();
 const tenantStoreDisplayMap = ref(new Map<number, TenantStoreDisplayInfo>());
 
 /** 评论列表搜索参数，兼容租户门店树筛选展示值。 */
-type CommentInfoSearchParams = PageCommentInfosRequest & {
+type CommentInfoSearchParams = PageCommentInfoRequest & {
   /** 默认租户的租户门店树筛选值。 */
   tenant_store_tree_value?: string;
 };
@@ -310,12 +310,12 @@ async function requestCommentTable(params: Record<string, any>) {
     ? parseTenantStoreTreeValue(searchParams.tenant_store_tree_value)
     : { tenant_store_id: searchParams.tenant_store_id };
   const { tenant_store_tree_value: _tenantStoreTreeValue, tenant_id: _tenantId, tenant_store_id: _tenantStoreId, ...rawParams } = searchParams;
-  const data = await defCommentInfoService.PageCommentInfos(
+  const data = await defCommentInfoService.PageCommentInfo(
     buildPageRequest({
       ...rawParams,
       tenant_id: tenantStoreSelection.tenant_id,
       tenant_store_id: tenantStoreSelection.tenant_store_id
-    }) as PageCommentInfosRequest
+    }) as PageCommentInfoRequest
   );
   return { data: { list: data.comment_infos ?? [], total: data.total } };
 }
@@ -324,14 +324,14 @@ async function requestCommentTable(params: Record<string, any>) {
  * 请求租户门店树筛选数据。
  */
 async function requestTenantStoreTreeOptions() {
-  const response = await defTenantStoreService.TreeTenantStores({ keyword: "" });
+  const response = await defTenantStoreService.TreeTenantStore({ keyword: "" });
   tenantStoreDisplayMap.value = buildTenantStoreDisplayMap(response.list ?? []);
   return { data: transformTenantStoreTreeOptions(response.list ?? []) };
 }
 
 /** 请求普通租户的门店下拉筛选数据。 */
 async function requestTenantStoreOptions() {
-  const response = await defTenantStoreService.OptionTenantStores({ keyword: "" });
+  const response = await defTenantStoreService.OptionTenantStore({ keyword: "" });
   tenantStoreDisplayMap.value = buildTenantStoreDisplayMapFromOptions(response.list ?? []);
   return { data: response.list ?? [] };
 }

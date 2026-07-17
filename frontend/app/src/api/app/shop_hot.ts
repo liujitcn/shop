@@ -1,7 +1,7 @@
 import { http } from '@/utils/http'
 import type {
-  ListShopHotItemsResponse,
-  ListShopHotsResponse,
+  ListShopHotItemResponse,
+  ListShopHotResponse,
   PageShopHotGoodsResponse,
   ShopHotService,
 } from '@/rpc/app/v1/shop_hot'
@@ -25,8 +25,8 @@ type PageShopHotGoodsRequestCompat = {
 /** 热门推荐服务 */
 export class ShopHotServiceImpl implements ShopHotService {
   /** 查询热门推荐列表 */
-  async ListShopHots(request: Empty): Promise<ListShopHotsResponse> {
-    const response = await http<Partial<ListShopHotsResponse>>({
+  async ListShopHot(request: Empty): Promise<ListShopHotResponse> {
+    const response = await http<Partial<ListShopHotResponse>>({
       url: `${SHOP_HOT_URL}`,
       method: 'GET',
       authMode: 'none',
@@ -38,15 +38,10 @@ export class ShopHotServiceImpl implements ShopHotService {
     }
   }
 
-  /** 查询热门推荐列表（旧生成接口兼容） */
-  ListShopHot(request: Empty): Promise<ListShopHotsResponse> {
-    return this.ListShopHots(request)
-  }
-
   /** 查询热门推荐选项 */
-  async ListShopHotItems(request: IDRequestCompat): Promise<ListShopHotItemsResponse> {
+  async ListShopHotItem(request: IDRequestCompat): Promise<ListShopHotItemResponse> {
     const id = request.id ?? request.value ?? 0
-    const response = await http<Partial<ListShopHotItemsResponse>>({
+    const response = await http<Partial<ListShopHotItemResponse>>({
       url: `${SHOP_HOT_URL}/${id}/item`,
       method: 'GET',
       authMode: 'none',
@@ -57,11 +52,6 @@ export class ShopHotServiceImpl implements ShopHotService {
       banner: response.banner ?? '',
       shop_hot_items: response.shop_hot_items ?? [],
     }
-  }
-
-  /** 查询热门推荐选项（旧生成接口兼容） */
-  ListShopHotItem(request: IDRequestCompat): Promise<ListShopHotItemsResponse> {
-    return this.ListShopHotItems(request)
   }
 
   /** 查询热门推荐商品 */

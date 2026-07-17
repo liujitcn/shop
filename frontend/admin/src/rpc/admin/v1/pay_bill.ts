@@ -8,7 +8,7 @@
 import type { PayBillStatus } from "../../common/v1/enum";
 
 /** 支付账单列表查询条件 */
-export interface PagePayBillsRequest {
+export interface PagePayBillRequest {
   /** 账单日期 */
   bill_date: string;
   /** 对账状态：枚举【PayBillStatus】 */
@@ -22,7 +22,7 @@ export interface PagePayBillsRequest {
 }
 
 /** 支付账单列表响应 */
-export interface PagePayBillsResponse {
+export interface PagePayBillResponse {
   /** 支付账单列表 */
   pay_bills: PayBill[];
   /** 总数 */
@@ -58,5 +58,5 @@ export interface PayBill {
 /** Admin支付账单服务 */
 export interface PayBillService {
   /** 查询支付账单列表 */
-  PagePayBills(request: PagePayBillsRequest): Promise<PagePayBillsResponse>;
+  PagePayBill(request: PagePayBillRequest): Promise<PagePayBillResponse>;
 }

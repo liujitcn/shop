@@ -137,8 +137,8 @@ func (c *CommentCase) GoodsCommentOverview(ctx context.Context, req *appv1.Goods
 	}, nil
 }
 
-// GoodsCommentTags 查询商品评价标签列表。
-func (c *CommentCase) GoodsCommentTags(ctx context.Context, req *appv1.GoodsCommentTagsRequest) (*appv1.GoodsCommentTagsResponse, error) {
+// GoodsCommentTag 查询商品评价标签列表。
+func (c *CommentCase) GoodsCommentTag(ctx context.Context, req *appv1.GoodsCommentTagRequest) (*appv1.GoodsCommentTagResponse, error) {
 	// 商品编号非法时，无法继续查询商品评价标签。
 	if req.GetGoodsId() <= 0 {
 		return nil, errorsx.InvalidArgument("商品编号不能为空")
@@ -148,7 +148,7 @@ func (c *CommentCase) GoodsCommentTags(ctx context.Context, req *appv1.GoodsComm
 	if err != nil {
 		return nil, err
 	}
-	return &appv1.GoodsCommentTagsResponse{
+	return &appv1.GoodsCommentTagResponse{
 		CommentTags: commentTags,
 	}, nil
 }

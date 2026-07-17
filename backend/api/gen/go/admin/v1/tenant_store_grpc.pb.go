@@ -21,14 +21,14 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	TenantStoreService_OptionTenantStores_FullMethodName = "/admin.v1.TenantStoreService/OptionTenantStores"
-	TenantStoreService_TreeTenantStores_FullMethodName   = "/admin.v1.TenantStoreService/TreeTenantStores"
-	TenantStoreService_PageTenantStores_FullMethodName   = "/admin.v1.TenantStoreService/PageTenantStores"
-	TenantStoreService_GetTenantStore_FullMethodName     = "/admin.v1.TenantStoreService/GetTenantStore"
-	TenantStoreService_CreateTenantStore_FullMethodName  = "/admin.v1.TenantStoreService/CreateTenantStore"
-	TenantStoreService_UpdateTenantStore_FullMethodName  = "/admin.v1.TenantStoreService/UpdateTenantStore"
-	TenantStoreService_DeleteTenantStore_FullMethodName  = "/admin.v1.TenantStoreService/DeleteTenantStore"
-	TenantStoreService_AuditTenantStore_FullMethodName   = "/admin.v1.TenantStoreService/AuditTenantStore"
+	TenantStoreService_OptionTenantStore_FullMethodName = "/admin.v1.TenantStoreService/OptionTenantStore"
+	TenantStoreService_TreeTenantStore_FullMethodName   = "/admin.v1.TenantStoreService/TreeTenantStore"
+	TenantStoreService_PageTenantStore_FullMethodName   = "/admin.v1.TenantStoreService/PageTenantStore"
+	TenantStoreService_GetTenantStore_FullMethodName    = "/admin.v1.TenantStoreService/GetTenantStore"
+	TenantStoreService_CreateTenantStore_FullMethodName = "/admin.v1.TenantStoreService/CreateTenantStore"
+	TenantStoreService_UpdateTenantStore_FullMethodName = "/admin.v1.TenantStoreService/UpdateTenantStore"
+	TenantStoreService_DeleteTenantStore_FullMethodName = "/admin.v1.TenantStoreService/DeleteTenantStore"
+	TenantStoreService_AuditTenantStore_FullMethodName  = "/admin.v1.TenantStoreService/AuditTenantStore"
 )
 
 // TenantStoreServiceClient is the client API for TenantStoreService service.
@@ -38,11 +38,11 @@ const (
 // Admin租户门店服务
 type TenantStoreServiceClient interface {
 	// 查询租户门店下拉选项
-	OptionTenantStores(ctx context.Context, in *OptionTenantStoresRequest, opts ...grpc.CallOption) (*OptionTenantStoresResponse, error)
+	OptionTenantStore(ctx context.Context, in *OptionTenantStoreRequest, opts ...grpc.CallOption) (*OptionTenantStoreResponse, error)
 	// 查询租户门店树形选项
-	TreeTenantStores(ctx context.Context, in *TreeTenantStoresRequest, opts ...grpc.CallOption) (*TreeTenantStoresResponse, error)
+	TreeTenantStore(ctx context.Context, in *TreeTenantStoreRequest, opts ...grpc.CallOption) (*TreeTenantStoreResponse, error)
 	// 查询租户门店列表
-	PageTenantStores(ctx context.Context, in *PageTenantStoresRequest, opts ...grpc.CallOption) (*PageTenantStoresResponse, error)
+	PageTenantStore(ctx context.Context, in *PageTenantStoreRequest, opts ...grpc.CallOption) (*PageTenantStoreResponse, error)
 	// 查询租户门店
 	GetTenantStore(ctx context.Context, in *GetTenantStoreRequest, opts ...grpc.CallOption) (*TenantStoreForm, error)
 	// 创建租户门店
@@ -63,30 +63,30 @@ func NewTenantStoreServiceClient(cc grpc.ClientConnInterface) TenantStoreService
 	return &tenantStoreServiceClient{cc}
 }
 
-func (c *tenantStoreServiceClient) OptionTenantStores(ctx context.Context, in *OptionTenantStoresRequest, opts ...grpc.CallOption) (*OptionTenantStoresResponse, error) {
+func (c *tenantStoreServiceClient) OptionTenantStore(ctx context.Context, in *OptionTenantStoreRequest, opts ...grpc.CallOption) (*OptionTenantStoreResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(OptionTenantStoresResponse)
-	err := c.cc.Invoke(ctx, TenantStoreService_OptionTenantStores_FullMethodName, in, out, cOpts...)
+	out := new(OptionTenantStoreResponse)
+	err := c.cc.Invoke(ctx, TenantStoreService_OptionTenantStore_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *tenantStoreServiceClient) TreeTenantStores(ctx context.Context, in *TreeTenantStoresRequest, opts ...grpc.CallOption) (*TreeTenantStoresResponse, error) {
+func (c *tenantStoreServiceClient) TreeTenantStore(ctx context.Context, in *TreeTenantStoreRequest, opts ...grpc.CallOption) (*TreeTenantStoreResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(TreeTenantStoresResponse)
-	err := c.cc.Invoke(ctx, TenantStoreService_TreeTenantStores_FullMethodName, in, out, cOpts...)
+	out := new(TreeTenantStoreResponse)
+	err := c.cc.Invoke(ctx, TenantStoreService_TreeTenantStore_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *tenantStoreServiceClient) PageTenantStores(ctx context.Context, in *PageTenantStoresRequest, opts ...grpc.CallOption) (*PageTenantStoresResponse, error) {
+func (c *tenantStoreServiceClient) PageTenantStore(ctx context.Context, in *PageTenantStoreRequest, opts ...grpc.CallOption) (*PageTenantStoreResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(PageTenantStoresResponse)
-	err := c.cc.Invoke(ctx, TenantStoreService_PageTenantStores_FullMethodName, in, out, cOpts...)
+	out := new(PageTenantStoreResponse)
+	err := c.cc.Invoke(ctx, TenantStoreService_PageTenantStore_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -150,11 +150,11 @@ func (c *tenantStoreServiceClient) AuditTenantStore(ctx context.Context, in *Aud
 // Admin租户门店服务
 type TenantStoreServiceServer interface {
 	// 查询租户门店下拉选项
-	OptionTenantStores(context.Context, *OptionTenantStoresRequest) (*OptionTenantStoresResponse, error)
+	OptionTenantStore(context.Context, *OptionTenantStoreRequest) (*OptionTenantStoreResponse, error)
 	// 查询租户门店树形选项
-	TreeTenantStores(context.Context, *TreeTenantStoresRequest) (*TreeTenantStoresResponse, error)
+	TreeTenantStore(context.Context, *TreeTenantStoreRequest) (*TreeTenantStoreResponse, error)
 	// 查询租户门店列表
-	PageTenantStores(context.Context, *PageTenantStoresRequest) (*PageTenantStoresResponse, error)
+	PageTenantStore(context.Context, *PageTenantStoreRequest) (*PageTenantStoreResponse, error)
 	// 查询租户门店
 	GetTenantStore(context.Context, *GetTenantStoreRequest) (*TenantStoreForm, error)
 	// 创建租户门店
@@ -175,14 +175,14 @@ type TenantStoreServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedTenantStoreServiceServer struct{}
 
-func (UnimplementedTenantStoreServiceServer) OptionTenantStores(context.Context, *OptionTenantStoresRequest) (*OptionTenantStoresResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method OptionTenantStores not implemented")
+func (UnimplementedTenantStoreServiceServer) OptionTenantStore(context.Context, *OptionTenantStoreRequest) (*OptionTenantStoreResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method OptionTenantStore not implemented")
 }
-func (UnimplementedTenantStoreServiceServer) TreeTenantStores(context.Context, *TreeTenantStoresRequest) (*TreeTenantStoresResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method TreeTenantStores not implemented")
+func (UnimplementedTenantStoreServiceServer) TreeTenantStore(context.Context, *TreeTenantStoreRequest) (*TreeTenantStoreResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method TreeTenantStore not implemented")
 }
-func (UnimplementedTenantStoreServiceServer) PageTenantStores(context.Context, *PageTenantStoresRequest) (*PageTenantStoresResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method PageTenantStores not implemented")
+func (UnimplementedTenantStoreServiceServer) PageTenantStore(context.Context, *PageTenantStoreRequest) (*PageTenantStoreResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method PageTenantStore not implemented")
 }
 func (UnimplementedTenantStoreServiceServer) GetTenantStore(context.Context, *GetTenantStoreRequest) (*TenantStoreForm, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetTenantStore not implemented")
@@ -220,56 +220,56 @@ func RegisterTenantStoreServiceServer(s grpc.ServiceRegistrar, srv TenantStoreSe
 	s.RegisterService(&TenantStoreService_ServiceDesc, srv)
 }
 
-func _TenantStoreService_OptionTenantStores_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(OptionTenantStoresRequest)
+func _TenantStoreService_OptionTenantStore_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OptionTenantStoreRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TenantStoreServiceServer).OptionTenantStores(ctx, in)
+		return srv.(TenantStoreServiceServer).OptionTenantStore(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: TenantStoreService_OptionTenantStores_FullMethodName,
+		FullMethod: TenantStoreService_OptionTenantStore_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TenantStoreServiceServer).OptionTenantStores(ctx, req.(*OptionTenantStoresRequest))
+		return srv.(TenantStoreServiceServer).OptionTenantStore(ctx, req.(*OptionTenantStoreRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TenantStoreService_TreeTenantStores_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(TreeTenantStoresRequest)
+func _TenantStoreService_TreeTenantStore_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TreeTenantStoreRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TenantStoreServiceServer).TreeTenantStores(ctx, in)
+		return srv.(TenantStoreServiceServer).TreeTenantStore(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: TenantStoreService_TreeTenantStores_FullMethodName,
+		FullMethod: TenantStoreService_TreeTenantStore_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TenantStoreServiceServer).TreeTenantStores(ctx, req.(*TreeTenantStoresRequest))
+		return srv.(TenantStoreServiceServer).TreeTenantStore(ctx, req.(*TreeTenantStoreRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TenantStoreService_PageTenantStores_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PageTenantStoresRequest)
+func _TenantStoreService_PageTenantStore_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PageTenantStoreRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TenantStoreServiceServer).PageTenantStores(ctx, in)
+		return srv.(TenantStoreServiceServer).PageTenantStore(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: TenantStoreService_PageTenantStores_FullMethodName,
+		FullMethod: TenantStoreService_PageTenantStore_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TenantStoreServiceServer).PageTenantStores(ctx, req.(*PageTenantStoresRequest))
+		return srv.(TenantStoreServiceServer).PageTenantStore(ctx, req.(*PageTenantStoreRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -372,16 +372,16 @@ var TenantStoreService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*TenantStoreServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "OptionTenantStores",
-			Handler:    _TenantStoreService_OptionTenantStores_Handler,
+			MethodName: "OptionTenantStore",
+			Handler:    _TenantStoreService_OptionTenantStore_Handler,
 		},
 		{
-			MethodName: "TreeTenantStores",
-			Handler:    _TenantStoreService_TreeTenantStores_Handler,
+			MethodName: "TreeTenantStore",
+			Handler:    _TenantStoreService_TreeTenantStore_Handler,
 		},
 		{
-			MethodName: "PageTenantStores",
-			Handler:    _TenantStoreService_PageTenantStores_Handler,
+			MethodName: "PageTenantStore",
+			Handler:    _TenantStoreService_PageTenantStore_Handler,
 		},
 		{
 			MethodName: "GetTenantStore",

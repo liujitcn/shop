@@ -1,5 +1,5 @@
 import type { EnumProps } from "@/components/ProTable/interface";
-import type { OptionBaseDictsResponse_BaseDictItem } from "@/rpc/admin/v1/base_dict";
+import type { OptionBaseDictResponse_BaseDictItem } from "@/rpc/admin/v1/base_dict";
 import { useDictStoreHook } from "@/stores/modules/dict";
 
 /** 字典值输出给表格枚举时的目标类型。 */
@@ -26,7 +26,7 @@ type NormalizedPageRequest<T extends PageRequestParams> = T & {
 /**
  * 按配置将字典值转换为表格枚举可识别的类型。
  */
-function transformDictValue(dictItem: OptionBaseDictsResponse_BaseDictItem, valueType: DictValueType) {
+function transformDictValue(dictItem: OptionBaseDictResponse_BaseDictItem, valueType: DictValueType) {
   if (valueType === "number") return Number(dictItem.value);
   return dictItem.value;
 }

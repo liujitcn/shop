@@ -5,10 +5,10 @@ import {
   type CreateCodeGenTableRequest,
   type DeleteCodeGenTableRequest,
   type GetCodeGenTableRequest,
-  type ListCodeGenDatabaseTablesRequest,
-  type ListCodeGenDatabaseTablesResponse,
-  type PageCodeGenTablesRequest,
-  type PageCodeGenTablesResponse,
+  type ListCodeGenDatabaseTableRequest,
+  type ListCodeGenDatabaseTableResponse,
+  type PageCodeGenTableRequest,
+  type PageCodeGenTableResponse,
   type UpdateCodeGenTableRequest
 } from "@/rpc/admin/v1/code_gen_table";
 import type { Empty } from "@/rpc/google/protobuf/empty";
@@ -19,8 +19,8 @@ const CODE_GEN_DATABASE_TABLE_URL = "/v1/admin/code-gen/database/table";
 /** Admin代码生成表配置服务。 */
 export class CodeGenTableServiceImpl implements CodeGenTableService {
   /** 查询数据库表列表。 */
-  ListCodeGenDatabaseTables(request: ListCodeGenDatabaseTablesRequest): Promise<ListCodeGenDatabaseTablesResponse> {
-    return service<ListCodeGenDatabaseTablesRequest, ListCodeGenDatabaseTablesResponse>({
+  ListCodeGenDatabaseTable(request: ListCodeGenDatabaseTableRequest): Promise<ListCodeGenDatabaseTableResponse> {
+    return service<ListCodeGenDatabaseTableRequest, ListCodeGenDatabaseTableResponse>({
       url: CODE_GEN_DATABASE_TABLE_URL,
       method: "get",
       params: request
@@ -28,8 +28,8 @@ export class CodeGenTableServiceImpl implements CodeGenTableService {
   }
 
   /** 查询代码生成表配置分页列表。 */
-  PageCodeGenTables(request: PageCodeGenTablesRequest): Promise<PageCodeGenTablesResponse> {
-    return service<PageCodeGenTablesRequest, PageCodeGenTablesResponse>({
+  PageCodeGenTable(request: PageCodeGenTableRequest): Promise<PageCodeGenTableResponse> {
+    return service<PageCodeGenTableRequest, PageCodeGenTableResponse>({
       url: CODE_GEN_TABLE_URL,
       method: "get",
       params: request

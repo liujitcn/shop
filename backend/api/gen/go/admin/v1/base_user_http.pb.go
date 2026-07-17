@@ -8,10 +8,11 @@ package adminv1
 
 import (
 	context "context"
-	v1 "shop/api/gen/go/common/v1"
 
 	http "github.com/go-kratos/kratos/v3/transport/http"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+
+	v1 "shop/api/gen/go/common/v1"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -23,8 +24,8 @@ const _ = http.SupportPackageIsVersion3
 const OperationBaseUserServiceCreateBaseUser = "/admin.v1.BaseUserService/CreateBaseUser"
 const OperationBaseUserServiceDeleteBaseUser = "/admin.v1.BaseUserService/DeleteBaseUser"
 const OperationBaseUserServiceGetBaseUser = "/admin.v1.BaseUserService/GetBaseUser"
-const OperationBaseUserServiceOptionBaseUsers = "/admin.v1.BaseUserService/OptionBaseUsers"
-const OperationBaseUserServicePageBaseUsers = "/admin.v1.BaseUserService/PageBaseUsers"
+const OperationBaseUserServiceOptionBaseUser = "/admin.v1.BaseUserService/OptionBaseUser"
+const OperationBaseUserServicePageBaseUser = "/admin.v1.BaseUserService/PageBaseUser"
 const OperationBaseUserServiceResetBaseUserPassword = "/admin.v1.BaseUserService/ResetBaseUserPassword"
 const OperationBaseUserServiceSetBaseUserStatus = "/admin.v1.BaseUserService/SetBaseUserStatus"
 const OperationBaseUserServiceUpdateBaseUser = "/admin.v1.BaseUserService/UpdateBaseUser"
@@ -36,10 +37,10 @@ type BaseUserServiceHTTPServer interface {
 	DeleteBaseUser(context.Context, *DeleteBaseUserRequest) (*emptypb.Empty, error)
 	// GetBaseUser 查询用户
 	GetBaseUser(context.Context, *GetBaseUserRequest) (*BaseUserForm, error)
-	// OptionBaseUsers 查询用户下拉选择
-	OptionBaseUsers(context.Context, *OptionBaseUsersRequest) (*v1.SelectOptionResponse, error)
-	// PageBaseUsers 查询用户分页列表
-	PageBaseUsers(context.Context, *PageBaseUsersRequest) (*PageBaseUsersResponse, error)
+	// OptionBaseUser 查询用户下拉选择
+	OptionBaseUser(context.Context, *OptionBaseUserRequest) (*v1.SelectOptionResponse, error)
+	// PageBaseUser 查询用户分页列表
+	PageBaseUser(context.Context, *PageBaseUserRequest) (*PageBaseUserResponse, error)
 	// ResetBaseUserPassword 重置密码
 	ResetBaseUserPassword(context.Context, *ResetBaseUserPasswordRequest) (*emptypb.Empty, error)
 	// SetBaseUserStatus 设置状态
@@ -50,8 +51,8 @@ type BaseUserServiceHTTPServer interface {
 
 func RegisterBaseUserServiceHTTPServer(s *http.Server, srv BaseUserServiceHTTPServer) {
 	r := s.Route("/")
-	r.Handle("GET", "/api/v1/admin/base/user/option", _BaseUserService_OptionBaseUsers0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/admin/base/user", _BaseUserService_PageBaseUsers0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/base/user/option", _BaseUserService_OptionBaseUser0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/base/user", _BaseUserService_PageBaseUser0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/base/user/{id}", _BaseUserService_GetBaseUser0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/admin/base/user", _BaseUserService_CreateBaseUser0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/base/user/{base_user.id}", _BaseUserService_UpdateBaseUser0_HTTP_Handler(srv))
@@ -60,15 +61,15 @@ func RegisterBaseUserServiceHTTPServer(s *http.Server, srv BaseUserServiceHTTPSe
 	r.Handle("PUT", "/api/v1/admin/base/user/{id}/password", _BaseUserService_ResetBaseUserPassword0_HTTP_Handler(srv))
 }
 
-func _BaseUserService_OptionBaseUsers0_HTTP_Handler(srv BaseUserServiceHTTPServer) func(ctx http.Context) error {
+func _BaseUserService_OptionBaseUser0_HTTP_Handler(srv BaseUserServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in OptionBaseUsersRequest
+		var in OptionBaseUserRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationBaseUserServiceOptionBaseUsers)
+		http.SetOperation(ctx, OperationBaseUserServiceOptionBaseUser)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.OptionBaseUsers(ctx, req.(*OptionBaseUsersRequest))
+			return srv.OptionBaseUser(ctx, req.(*OptionBaseUserRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -79,21 +80,21 @@ func _BaseUserService_OptionBaseUsers0_HTTP_Handler(srv BaseUserServiceHTTPServe
 	}
 }
 
-func _BaseUserService_PageBaseUsers0_HTTP_Handler(srv BaseUserServiceHTTPServer) func(ctx http.Context) error {
+func _BaseUserService_PageBaseUser0_HTTP_Handler(srv BaseUserServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in PageBaseUsersRequest
+		var in PageBaseUserRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationBaseUserServicePageBaseUsers)
+		http.SetOperation(ctx, OperationBaseUserServicePageBaseUser)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.PageBaseUsers(ctx, req.(*PageBaseUsersRequest))
+			return srv.PageBaseUser(ctx, req.(*PageBaseUserRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*PageBaseUsersResponse)
+		reply := out.(*PageBaseUserResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -240,10 +241,10 @@ type BaseUserServiceHTTPClient interface {
 	DeleteBaseUser(ctx context.Context, req *DeleteBaseUserRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// GetBaseUser 查询用户
 	GetBaseUser(ctx context.Context, req *GetBaseUserRequest, opts ...http.CallOption) (rsp *BaseUserForm, err error)
-	// OptionBaseUsers 查询用户下拉选择
-	OptionBaseUsers(ctx context.Context, req *OptionBaseUsersRequest, opts ...http.CallOption) (rsp *v1.SelectOptionResponse, err error)
-	// PageBaseUsers 查询用户分页列表
-	PageBaseUsers(ctx context.Context, req *PageBaseUsersRequest, opts ...http.CallOption) (rsp *PageBaseUsersResponse, err error)
+	// OptionBaseUser 查询用户下拉选择
+	OptionBaseUser(ctx context.Context, req *OptionBaseUserRequest, opts ...http.CallOption) (rsp *v1.SelectOptionResponse, err error)
+	// PageBaseUser 查询用户分页列表
+	PageBaseUser(ctx context.Context, req *PageBaseUserRequest, opts ...http.CallOption) (rsp *PageBaseUserResponse, err error)
 	// ResetBaseUserPassword 重置密码
 	ResetBaseUserPassword(ctx context.Context, req *ResetBaseUserPasswordRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// SetBaseUserStatus 设置状态
@@ -312,14 +313,14 @@ func (c *BaseUserServiceHTTPClientImpl) GetBaseUser(ctx context.Context, in *Get
 	return &out, nil
 }
 
-// OptionBaseUsers 查询用户下拉选择
-func (c *BaseUserServiceHTTPClientImpl) OptionBaseUsers(ctx context.Context, in *OptionBaseUsersRequest, opts ...http.CallOption) (*v1.SelectOptionResponse, error) {
+// OptionBaseUser 查询用户下拉选择
+func (c *BaseUserServiceHTTPClientImpl) OptionBaseUser(ctx context.Context, in *OptionBaseUserRequest, opts ...http.CallOption) (*v1.SelectOptionResponse, error) {
 	var out v1.SelectOptionResponse
 	pattern := "/api/v1/admin/base/user/option"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationBaseUserServiceOptionBaseUsers),
+		http.Operation(OperationBaseUserServiceOptionBaseUser),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
@@ -329,14 +330,14 @@ func (c *BaseUserServiceHTTPClientImpl) OptionBaseUsers(ctx context.Context, in 
 	return &out, nil
 }
 
-// PageBaseUsers 查询用户分页列表
-func (c *BaseUserServiceHTTPClientImpl) PageBaseUsers(ctx context.Context, in *PageBaseUsersRequest, opts ...http.CallOption) (*PageBaseUsersResponse, error) {
-	var out PageBaseUsersResponse
+// PageBaseUser 查询用户分页列表
+func (c *BaseUserServiceHTTPClientImpl) PageBaseUser(ctx context.Context, in *PageBaseUserRequest, opts ...http.CallOption) (*PageBaseUserResponse, error) {
+	var out PageBaseUserResponse
 	pattern := "/api/v1/admin/base/user"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationBaseUserServicePageBaseUsers),
+		http.Operation(OperationBaseUserServicePageBaseUser),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)

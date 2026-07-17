@@ -15,7 +15,7 @@ import (
 
 // RegisterShopServiceServiceMCPTools 注册Admin商城服务的 MCP Tool。
 func RegisterShopServiceServiceMCPTools(mcpServer *mcp.Server, shopServiceServiceServer ShopServiceServiceServer) {
-	RegisterShopServiceServicePageShopServicesMCPTool(mcpServer, shopServiceServiceServer)
+	RegisterShopServiceServicePageShopServiceMCPTool(mcpServer, shopServiceServiceServer)
 	RegisterShopServiceServiceGetShopServiceMCPTool(mcpServer, shopServiceServiceServer)
 	RegisterShopServiceServiceCreateShopServiceMCPTool(mcpServer, shopServiceServiceServer)
 	RegisterShopServiceServiceUpdateShopServiceMCPTool(mcpServer, shopServiceServiceServer)
@@ -23,19 +23,19 @@ func RegisterShopServiceServiceMCPTools(mcpServer *mcp.Server, shopServiceServic
 	RegisterShopServiceServiceSetShopServiceStatusMCPTool(mcpServer, shopServiceServiceServer)
 }
 
-// RegisterShopServiceServicePageShopServicesMCPTool 注册查询商城服务列表的 MCP Tool。
-func RegisterShopServiceServicePageShopServicesMCPTool(mcpServer *mcp.Server, shopServiceServiceServer ShopServiceServiceServer) {
-	mcp.AddTool[*PageShopServicesRequest, *PageShopServicesResponse](
+// RegisterShopServiceServicePageShopServiceMCPTool 注册查询商城服务列表的 MCP Tool。
+func RegisterShopServiceServicePageShopServiceMCPTool(mcpServer *mcp.Server, shopServiceServiceServer ShopServiceServiceServer) {
+	mcp.AddTool[*PageShopServiceRequest, *PageShopServiceResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "admin_v1_shop_service_service_page_shop_services",
+			Name:        "admin_v1_shop_service_service_page_shop_service",
 			Description: "查询商城服务列表",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageShopServicesRequest) (*mcp.CallToolResult, *PageShopServicesResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *PageShopServiceRequest) (*mcp.CallToolResult, *PageShopServiceResponse, error) {
 			if input == nil {
-				input = &PageShopServicesRequest{}
+				input = &PageShopServiceRequest{}
 			}
-			reply, err := shopServiceServiceServer.PageShopServices(ctx, input)
+			reply, err := shopServiceServiceServer.PageShopService(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

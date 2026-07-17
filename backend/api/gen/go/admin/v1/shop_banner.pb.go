@@ -8,7 +8,6 @@ package adminv1
 
 import (
 	reflect "reflect"
-	v1 "shop/api/gen/go/common/v1"
 	sync "sync"
 	unsafe "unsafe"
 
@@ -17,6 +16,8 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+
+	v1 "shop/api/gen/go/common/v1"
 )
 
 const (
@@ -27,7 +28,7 @@ const (
 )
 
 // 轮播图列表查询条件
-type PageShopBannersRequest struct {
+type PageShopBannerRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Site          *v1.ShopBannerSite     `protobuf:"varint,1,opt,name=site,proto3,enum=common.v1.ShopBannerSite,oneof" json:"site,omitempty"` // 位置：枚举【ShopBannerSite】
 	Type          *v1.ShopBannerType     `protobuf:"varint,2,opt,name=type,proto3,enum=common.v1.ShopBannerType,oneof" json:"type,omitempty"` // 跳转类型：枚举【ShopBannerType】
@@ -38,20 +39,20 @@ type PageShopBannersRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *PageShopBannersRequest) Reset() {
-	*x = PageShopBannersRequest{}
+func (x *PageShopBannerRequest) Reset() {
+	*x = PageShopBannerRequest{}
 	mi := &file_admin_v1_shop_banner_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PageShopBannersRequest) String() string {
+func (x *PageShopBannerRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PageShopBannersRequest) ProtoMessage() {}
+func (*PageShopBannerRequest) ProtoMessage() {}
 
-func (x *PageShopBannersRequest) ProtoReflect() protoreflect.Message {
+func (x *PageShopBannerRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_shop_banner_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -63,40 +64,40 @@ func (x *PageShopBannersRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PageShopBannersRequest.ProtoReflect.Descriptor instead.
-func (*PageShopBannersRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use PageShopBannerRequest.ProtoReflect.Descriptor instead.
+func (*PageShopBannerRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_shop_banner_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *PageShopBannersRequest) GetSite() v1.ShopBannerSite {
+func (x *PageShopBannerRequest) GetSite() v1.ShopBannerSite {
 	if x != nil && x.Site != nil {
 		return *x.Site
 	}
 	return v1.ShopBannerSite(0)
 }
 
-func (x *PageShopBannersRequest) GetType() v1.ShopBannerType {
+func (x *PageShopBannerRequest) GetType() v1.ShopBannerType {
 	if x != nil && x.Type != nil {
 		return *x.Type
 	}
 	return v1.ShopBannerType(0)
 }
 
-func (x *PageShopBannersRequest) GetStatus() v1.Status {
+func (x *PageShopBannerRequest) GetStatus() v1.Status {
 	if x != nil && x.Status != nil {
 		return *x.Status
 	}
 	return v1.Status(0)
 }
 
-func (x *PageShopBannersRequest) GetPageNum() int64 {
+func (x *PageShopBannerRequest) GetPageNum() int64 {
 	if x != nil {
 		return x.PageNum
 	}
 	return 0
 }
 
-func (x *PageShopBannersRequest) GetPageSize() int64 {
+func (x *PageShopBannerRequest) GetPageSize() int64 {
 	if x != nil {
 		return x.PageSize
 	}
@@ -104,7 +105,7 @@ func (x *PageShopBannersRequest) GetPageSize() int64 {
 }
 
 // 轮播图列表响应
-type PageShopBannersResponse struct {
+type PageShopBannerResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ShopBanners   []*ShopBanner          `protobuf:"bytes,1,rep,name=shop_banners,json=shopBanners,proto3" json:"shop_banners,omitempty"` // 轮播图列表
 	Total         int32                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`                               // 总数
@@ -112,20 +113,20 @@ type PageShopBannersResponse struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *PageShopBannersResponse) Reset() {
-	*x = PageShopBannersResponse{}
+func (x *PageShopBannerResponse) Reset() {
+	*x = PageShopBannerResponse{}
 	mi := &file_admin_v1_shop_banner_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PageShopBannersResponse) String() string {
+func (x *PageShopBannerResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PageShopBannersResponse) ProtoMessage() {}
+func (*PageShopBannerResponse) ProtoMessage() {}
 
-func (x *PageShopBannersResponse) ProtoReflect() protoreflect.Message {
+func (x *PageShopBannerResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_shop_banner_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -137,19 +138,19 @@ func (x *PageShopBannersResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PageShopBannersResponse.ProtoReflect.Descriptor instead.
-func (*PageShopBannersResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use PageShopBannerResponse.ProtoReflect.Descriptor instead.
+func (*PageShopBannerResponse) Descriptor() ([]byte, []int) {
 	return file_admin_v1_shop_banner_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *PageShopBannersResponse) GetShopBanners() []*ShopBanner {
+func (x *PageShopBannerResponse) GetShopBanners() []*ShopBanner {
 	if x != nil {
 		return x.ShopBanners
 	}
 	return nil
 }
 
-func (x *PageShopBannersResponse) GetTotal() int32 {
+func (x *PageShopBannerResponse) GetTotal() int32 {
 	if x != nil {
 		return x.Total
 	}
@@ -603,8 +604,8 @@ var File_admin_v1_shop_banner_proto protoreflect.FileDescriptor
 
 const file_admin_v1_shop_banner_proto_rawDesc = "" +
 	"\n" +
-	"\x1aadmin/v1/shop_banner.proto\x12\badmin.v1\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xb5\x03\n" +
-	"\x16PageShopBannersRequest\x12]\n" +
+	"\x1aadmin/v1/shop_banner.proto\x12\badmin.v1\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xb4\x03\n" +
+	"\x15PageShopBannerRequest\x12]\n" +
 	"\x04site\x18\x01 \x01(\x0e2\x19.common.v1.ShopBannerSiteB)\xbaG&\x92\x02#位置：枚举【ShopBannerSite】H\x00R\x04site\x88\x01\x01\x12c\n" +
 	"\x04type\x18\x02 \x01(\x0e2\x19.common.v1.ShopBannerTypeB/\xbaG,\x92\x02)跳转类型：枚举【ShopBannerType】H\x01R\x04type\x88\x01\x01\x12<\n" +
 	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态H\x02R\x06status\x88\x01\x01\x129\n" +
@@ -612,8 +613,8 @@ const file_admin_v1_shop_banner_proto_rawDesc = "" +
 	"\tpage_size\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSizeB\a\n" +
 	"\x05_siteB\a\n" +
 	"\x05_typeB\t\n" +
-	"\a_status\"\x8d\x01\n" +
-	"\x17PageShopBannersResponse\x12N\n" +
+	"\a_status\"\x8c\x01\n" +
+	"\x16PageShopBannerResponse\x12N\n" +
 	"\fshop_banners\x18\x01 \x03(\v2\x14.admin.v1.ShopBannerB\x15\xbaG\x12\x92\x02\x0f轮播图列表R\vshopBanners\x12\"\n" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"6\n" +
 	"\x14GetShopBannerRequest\x12\x1e\n" +
@@ -653,9 +654,9 @@ const file_admin_v1_shop_banner_proto_rawDesc = "" +
 	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB!\xbaG\x1e\x92\x02\x1b状态：枚举【Status】H\x02R\x06status\x88\x01\x01B\a\n" +
 	"\x05_siteB\a\n" +
 	"\x05_typeB\t\n" +
-	"\a_status2\x85\x06\n" +
-	"\x11ShopBannerService\x12y\n" +
-	"\x0fPageShopBanners\x12 .admin.v1.PageShopBannersRequest\x1a!.admin.v1.PageShopBannersResponse\"!\x82\xd3\xe4\x93\x02\x1b\x12\x19/api/v1/admin/shop/banner\x12q\n" +
+	"\a_status2\x82\x06\n" +
+	"\x11ShopBannerService\x12v\n" +
+	"\x0ePageShopBanner\x12\x1f.admin.v1.PageShopBannerRequest\x1a .admin.v1.PageShopBannerResponse\"!\x82\xd3\xe4\x93\x02\x1b\x12\x19/api/v1/admin/shop/banner\x12q\n" +
 	"\rGetShopBanner\x12\x1e.admin.v1.GetShopBannerRequest\x1a\x18.admin.v1.ShopBannerForm\"&\x82\xd3\xe4\x93\x02 \x12\x1e/api/v1/admin/shop/banner/{id}\x12}\n" +
 	"\x10CreateShopBanner\x12!.admin.v1.CreateShopBannerRequest\x1a\x16.google.protobuf.Empty\".\x82\xd3\xe4\x93\x02(:\vshop_banner\"\x19/api/v1/admin/shop/banner\x12\x82\x01\n" +
 	"\x10UpdateShopBanner\x12!.admin.v1.UpdateShopBannerRequest\x1a\x16.google.protobuf.Empty\"3\x82\xd3\xe4\x93\x02-:\vshop_banner\x1a\x1e/api/v1/admin/shop/banner/{id}\x12v\n" +
@@ -677,8 +678,8 @@ func file_admin_v1_shop_banner_proto_rawDescGZIP() []byte {
 
 var file_admin_v1_shop_banner_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_admin_v1_shop_banner_proto_goTypes = []any{
-	(*PageShopBannersRequest)(nil),     // 0: admin.v1.PageShopBannersRequest
-	(*PageShopBannersResponse)(nil),    // 1: admin.v1.PageShopBannersResponse
+	(*PageShopBannerRequest)(nil),      // 0: admin.v1.PageShopBannerRequest
+	(*PageShopBannerResponse)(nil),     // 1: admin.v1.PageShopBannerResponse
 	(*GetShopBannerRequest)(nil),       // 2: admin.v1.GetShopBannerRequest
 	(*CreateShopBannerRequest)(nil),    // 3: admin.v1.CreateShopBannerRequest
 	(*UpdateShopBannerRequest)(nil),    // 4: admin.v1.UpdateShopBannerRequest
@@ -692,10 +693,10 @@ var file_admin_v1_shop_banner_proto_goTypes = []any{
 	(*emptypb.Empty)(nil),              // 12: google.protobuf.Empty
 }
 var file_admin_v1_shop_banner_proto_depIdxs = []int32{
-	9,  // 0: admin.v1.PageShopBannersRequest.site:type_name -> common.v1.ShopBannerSite
-	10, // 1: admin.v1.PageShopBannersRequest.type:type_name -> common.v1.ShopBannerType
-	11, // 2: admin.v1.PageShopBannersRequest.status:type_name -> common.v1.Status
-	7,  // 3: admin.v1.PageShopBannersResponse.shop_banners:type_name -> admin.v1.ShopBanner
+	9,  // 0: admin.v1.PageShopBannerRequest.site:type_name -> common.v1.ShopBannerSite
+	10, // 1: admin.v1.PageShopBannerRequest.type:type_name -> common.v1.ShopBannerType
+	11, // 2: admin.v1.PageShopBannerRequest.status:type_name -> common.v1.Status
+	7,  // 3: admin.v1.PageShopBannerResponse.shop_banners:type_name -> admin.v1.ShopBanner
 	8,  // 4: admin.v1.CreateShopBannerRequest.shop_banner:type_name -> admin.v1.ShopBannerForm
 	8,  // 5: admin.v1.UpdateShopBannerRequest.shop_banner:type_name -> admin.v1.ShopBannerForm
 	11, // 6: admin.v1.SetShopBannerStatusRequest.status:type_name -> common.v1.Status
@@ -705,13 +706,13 @@ var file_admin_v1_shop_banner_proto_depIdxs = []int32{
 	9,  // 10: admin.v1.ShopBannerForm.site:type_name -> common.v1.ShopBannerSite
 	10, // 11: admin.v1.ShopBannerForm.type:type_name -> common.v1.ShopBannerType
 	11, // 12: admin.v1.ShopBannerForm.status:type_name -> common.v1.Status
-	0,  // 13: admin.v1.ShopBannerService.PageShopBanners:input_type -> admin.v1.PageShopBannersRequest
+	0,  // 13: admin.v1.ShopBannerService.PageShopBanner:input_type -> admin.v1.PageShopBannerRequest
 	2,  // 14: admin.v1.ShopBannerService.GetShopBanner:input_type -> admin.v1.GetShopBannerRequest
 	3,  // 15: admin.v1.ShopBannerService.CreateShopBanner:input_type -> admin.v1.CreateShopBannerRequest
 	4,  // 16: admin.v1.ShopBannerService.UpdateShopBanner:input_type -> admin.v1.UpdateShopBannerRequest
 	5,  // 17: admin.v1.ShopBannerService.DeleteShopBanner:input_type -> admin.v1.DeleteShopBannerRequest
 	6,  // 18: admin.v1.ShopBannerService.SetShopBannerStatus:input_type -> admin.v1.SetShopBannerStatusRequest
-	1,  // 19: admin.v1.ShopBannerService.PageShopBanners:output_type -> admin.v1.PageShopBannersResponse
+	1,  // 19: admin.v1.ShopBannerService.PageShopBanner:output_type -> admin.v1.PageShopBannerResponse
 	8,  // 20: admin.v1.ShopBannerService.GetShopBanner:output_type -> admin.v1.ShopBannerForm
 	12, // 21: admin.v1.ShopBannerService.CreateShopBanner:output_type -> google.protobuf.Empty
 	12, // 22: admin.v1.ShopBannerService.UpdateShopBanner:output_type -> google.protobuf.Empty

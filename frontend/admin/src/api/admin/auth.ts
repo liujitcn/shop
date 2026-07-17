@@ -1,9 +1,9 @@
 import service from "@/utils/request";
 import {
   type AuthService,
-  type ListUserButtonsRequest,
+  type ListUserButtonRequest,
   type GetUserInfoRequest,
-  type TreeUserMenusRequest,
+  type TreeUserMenuRequest,
   type GetUserProfileRequest,
   type SendPhoneCodeRequest,
   type TreeRouteResponse,
@@ -32,8 +32,8 @@ export class AuthServiceImpl implements AuthService {
   }
 
   /** 获取已经登录的用户菜单 */
-  TreeUserMenus(request: TreeUserMenusRequest): Promise<TreeRouteResponse> {
-    return service<TreeUserMenusRequest, TreeRouteResponse>({
+  TreeUserMenu(request: TreeUserMenuRequest): Promise<TreeRouteResponse> {
+    return service<TreeUserMenuRequest, TreeRouteResponse>({
       url: `${AUTH_URL}/menu/tree`,
       method: "get",
       params: request
@@ -41,8 +41,8 @@ export class AuthServiceImpl implements AuthService {
   }
 
   /** 获取已经登录的用户按钮权限 */
-  ListUserButtons(request: ListUserButtonsRequest): Promise<StringValues> {
-    return service<ListUserButtonsRequest, StringValues>({
+  ListUserButton(request: ListUserButtonRequest): Promise<StringValues> {
+    return service<ListUserButtonRequest, StringValues>({
       url: `${AUTH_URL}/buttons`,
       method: "get",
       params: request

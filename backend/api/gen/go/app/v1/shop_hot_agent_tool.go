@@ -17,18 +17,18 @@ import (
 func NewShopHotServiceAgentTools(shopHotServiceServer ShopHotServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error
-	var listShopHotsTool tool.InvokableTool
-	listShopHotsTool, err = NewShopHotServiceListShopHotsAgentTool(shopHotServiceServer)
+	var listShopHotTool tool.InvokableTool
+	listShopHotTool, err = NewShopHotServiceListShopHotAgentTool(shopHotServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, listShopHotsTool)
-	var listShopHotItemsTool tool.InvokableTool
-	listShopHotItemsTool, err = NewShopHotServiceListShopHotItemsAgentTool(shopHotServiceServer)
+	ts = append(ts, listShopHotTool)
+	var listShopHotItemTool tool.InvokableTool
+	listShopHotItemTool, err = NewShopHotServiceListShopHotItemAgentTool(shopHotServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, listShopHotItemsTool)
+	ts = append(ts, listShopHotItemTool)
 	var pageShopHotGoodsTool tool.InvokableTool
 	pageShopHotGoodsTool, err = NewShopHotServicePageShopHotGoodsAgentTool(shopHotServiceServer)
 	if err != nil {
@@ -38,30 +38,30 @@ func NewShopHotServiceAgentTools(shopHotServiceServer ShopHotServiceServer) ([]t
 	return ts, nil
 }
 
-// NewShopHotServiceListShopHotsAgentTool 创建查询热门推荐列表的 Agent Tool。
-func NewShopHotServiceListShopHotsAgentTool(shopHotServiceServer ShopHotServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*ListShopHotsRequest, *ListShopHotsResponse](
-		"app_v1_shop_hot_service_list_shop_hots",
+// NewShopHotServiceListShopHotAgentTool 创建查询热门推荐列表的 Agent Tool。
+func NewShopHotServiceListShopHotAgentTool(shopHotServiceServer ShopHotServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*ListShopHotRequest, *ListShopHotResponse](
+		"app_v1_shop_hot_service_list_shop_hot",
 		"查询热门推荐列表",
-		func(ctx context.Context, req *ListShopHotsRequest) (*ListShopHotsResponse, error) {
+		func(ctx context.Context, req *ListShopHotRequest) (*ListShopHotResponse, error) {
 			if req == nil {
-				req = &ListShopHotsRequest{}
+				req = &ListShopHotRequest{}
 			}
-			return shopHotServiceServer.ListShopHots(ctx, req)
+			return shopHotServiceServer.ListShopHot(ctx, req)
 		},
 	)
 }
 
-// NewShopHotServiceListShopHotItemsAgentTool 创建查询热门推荐选项的 Agent Tool。
-func NewShopHotServiceListShopHotItemsAgentTool(shopHotServiceServer ShopHotServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*ListShopHotItemsRequest, *ListShopHotItemsResponse](
-		"app_v1_shop_hot_service_list_shop_hot_items",
+// NewShopHotServiceListShopHotItemAgentTool 创建查询热门推荐选项的 Agent Tool。
+func NewShopHotServiceListShopHotItemAgentTool(shopHotServiceServer ShopHotServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*ListShopHotItemRequest, *ListShopHotItemResponse](
+		"app_v1_shop_hot_service_list_shop_hot_item",
 		"查询热门推荐选项",
-		func(ctx context.Context, req *ListShopHotItemsRequest) (*ListShopHotItemsResponse, error) {
+		func(ctx context.Context, req *ListShopHotItemRequest) (*ListShopHotItemResponse, error) {
 			if req == nil {
-				req = &ListShopHotItemsRequest{}
+				req = &ListShopHotItemRequest{}
 			}
-			return shopHotServiceServer.ListShopHotItems(ctx, req)
+			return shopHotServiceServer.ListShopHotItem(ctx, req)
 		},
 	)
 }

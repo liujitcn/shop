@@ -30,8 +30,8 @@ func NewShopServiceCase(baseCase *biz.BaseCase, shopServiceRepo *data.ShopServic
 	}
 }
 
-// ListShopServices 查询商城服务列表
-func (c *ShopServiceCase) ListShopServices(ctx context.Context) (*appv1.ListShopServicesResponse, error) {
+// ListShopService 查询商城服务列表
+func (c *ShopServiceCase) ListShopService(ctx context.Context) (*appv1.ListShopServiceResponse, error) {
 	query := c.Query(ctx).ShopService
 	opts := make([]repository.QueryOption, 0, 3)
 	opts = append(opts, repository.Order(query.Sort.Asc()))
@@ -47,7 +47,7 @@ func (c *ShopServiceCase) ListShopServices(ctx context.Context) (*appv1.ListShop
 		list = append(list, c.mapper.ToDTO(item))
 	}
 
-	return &appv1.ListShopServicesResponse{
+	return &appv1.ListShopServiceResponse{
 		ShopServices: list,
 	}, nil
 }

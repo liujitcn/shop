@@ -19,7 +19,7 @@ import ProTable from "@/components/ProTable/index.vue";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { defPayBillService } from "@/api/admin/pay_bill";
 import { defFileService } from "@/api/base/file";
-import type { PayBill, PagePayBillsRequest } from "@/rpc/admin/v1/pay_bill";
+import type { PayBill, PagePayBillRequest } from "@/rpc/admin/v1/pay_bill";
 import { buildPageRequest } from "@/utils/proTable";
 
 defineOptions({
@@ -31,7 +31,7 @@ const { BUTTONS } = useAuthButtons();
 const route = useRoute();
 const proTable = ref<ProTableInstance>();
 
-const initParam = computed<PagePayBillsRequest>(() => {
+const initParam = computed<PagePayBillRequest>(() => {
   const status = Number(route.query.status ?? 0);
   return {
     bill_date: "",
@@ -73,8 +73,8 @@ const columns: ColumnProps[] = [
 /**
  * 请求支付对账单列表，统一交给 ProTable 处理分页。
  */
-async function requestPayBillTable(params: PagePayBillsRequest) {
-  const data = await defPayBillService.PagePayBills(buildPageRequest(params));
+async function requestPayBillTable(params: PagePayBillRequest) {
+  const data = await defPayBillService.PagePayBill(buildPageRequest(params));
   return { data: { list: data.pay_bills ?? [], total: data.total } };
 }
 

@@ -22,8 +22,8 @@ const _ = http.SupportPackageIsVersion3
 const OperationGoodsInfoServiceCreateGoodsInfo = "/admin.v1.GoodsInfoService/CreateGoodsInfo"
 const OperationGoodsInfoServiceDeleteGoodsInfo = "/admin.v1.GoodsInfoService/DeleteGoodsInfo"
 const OperationGoodsInfoServiceGetGoodsInfo = "/admin.v1.GoodsInfoService/GetGoodsInfo"
-const OperationGoodsInfoServiceOptionGoodsInfos = "/admin.v1.GoodsInfoService/OptionGoodsInfos"
-const OperationGoodsInfoServicePageGoodsInfos = "/admin.v1.GoodsInfoService/PageGoodsInfos"
+const OperationGoodsInfoServiceOptionGoodsInfo = "/admin.v1.GoodsInfoService/OptionGoodsInfo"
+const OperationGoodsInfoServicePageGoodsInfo = "/admin.v1.GoodsInfoService/PageGoodsInfo"
 const OperationGoodsInfoServiceSetGoodsInfoStatus = "/admin.v1.GoodsInfoService/SetGoodsInfoStatus"
 const OperationGoodsInfoServiceUpdateGoodsInfo = "/admin.v1.GoodsInfoService/UpdateGoodsInfo"
 
@@ -34,10 +34,10 @@ type GoodsInfoServiceHTTPServer interface {
 	DeleteGoodsInfo(context.Context, *DeleteGoodsInfoRequest) (*emptypb.Empty, error)
 	// GetGoodsInfo 查询商品信息
 	GetGoodsInfo(context.Context, *GetGoodsInfoRequest) (*GoodsInfoForm, error)
-	// OptionGoodsInfos 查询商品信息下拉选择
-	OptionGoodsInfos(context.Context, *OptionGoodsInfosRequest) (*OptionGoodsInfosResponse, error)
-	// PageGoodsInfos 查询商品信息列表
-	PageGoodsInfos(context.Context, *PageGoodsInfosRequest) (*PageGoodsInfosResponse, error)
+	// OptionGoodsInfo 查询商品信息下拉选择
+	OptionGoodsInfo(context.Context, *OptionGoodsInfoRequest) (*OptionGoodsInfoResponse, error)
+	// PageGoodsInfo 查询商品信息列表
+	PageGoodsInfo(context.Context, *PageGoodsInfoRequest) (*PageGoodsInfoResponse, error)
 	// SetGoodsInfoStatus 设置状态
 	SetGoodsInfoStatus(context.Context, *SetGoodsInfoStatusRequest) (*emptypb.Empty, error)
 	// UpdateGoodsInfo 更新商品信息
@@ -46,8 +46,8 @@ type GoodsInfoServiceHTTPServer interface {
 
 func RegisterGoodsInfoServiceHTTPServer(s *http.Server, srv GoodsInfoServiceHTTPServer) {
 	r := s.Route("/")
-	r.Handle("GET", "/api/v1/admin/goods/info/option", _GoodsInfoService_OptionGoodsInfos0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/admin/goods/info", _GoodsInfoService_PageGoodsInfos0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/goods/info/option", _GoodsInfoService_OptionGoodsInfo0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/goods/info", _GoodsInfoService_PageGoodsInfo0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/goods/info/{id}", _GoodsInfoService_GetGoodsInfo0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/admin/goods/info", _GoodsInfoService_CreateGoodsInfo0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/goods/info/{id}", _GoodsInfoService_UpdateGoodsInfo0_HTTP_Handler(srv))
@@ -55,40 +55,40 @@ func RegisterGoodsInfoServiceHTTPServer(s *http.Server, srv GoodsInfoServiceHTTP
 	r.Handle("PUT", "/api/v1/admin/goods/info/{id}/status", _GoodsInfoService_SetGoodsInfoStatus0_HTTP_Handler(srv))
 }
 
-func _GoodsInfoService_OptionGoodsInfos0_HTTP_Handler(srv GoodsInfoServiceHTTPServer) func(ctx http.Context) error {
+func _GoodsInfoService_OptionGoodsInfo0_HTTP_Handler(srv GoodsInfoServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in OptionGoodsInfosRequest
+		var in OptionGoodsInfoRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationGoodsInfoServiceOptionGoodsInfos)
+		http.SetOperation(ctx, OperationGoodsInfoServiceOptionGoodsInfo)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.OptionGoodsInfos(ctx, req.(*OptionGoodsInfosRequest))
+			return srv.OptionGoodsInfo(ctx, req.(*OptionGoodsInfoRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*OptionGoodsInfosResponse)
+		reply := out.(*OptionGoodsInfoResponse)
 		return ctx.Result(200, reply)
 	}
 }
 
-func _GoodsInfoService_PageGoodsInfos0_HTTP_Handler(srv GoodsInfoServiceHTTPServer) func(ctx http.Context) error {
+func _GoodsInfoService_PageGoodsInfo0_HTTP_Handler(srv GoodsInfoServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in PageGoodsInfosRequest
+		var in PageGoodsInfoRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationGoodsInfoServicePageGoodsInfos)
+		http.SetOperation(ctx, OperationGoodsInfoServicePageGoodsInfo)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.PageGoodsInfos(ctx, req.(*PageGoodsInfosRequest))
+			return srv.PageGoodsInfo(ctx, req.(*PageGoodsInfoRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*PageGoodsInfosResponse)
+		reply := out.(*PageGoodsInfoResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -213,10 +213,10 @@ type GoodsInfoServiceHTTPClient interface {
 	DeleteGoodsInfo(ctx context.Context, req *DeleteGoodsInfoRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// GetGoodsInfo 查询商品信息
 	GetGoodsInfo(ctx context.Context, req *GetGoodsInfoRequest, opts ...http.CallOption) (rsp *GoodsInfoForm, err error)
-	// OptionGoodsInfos 查询商品信息下拉选择
-	OptionGoodsInfos(ctx context.Context, req *OptionGoodsInfosRequest, opts ...http.CallOption) (rsp *OptionGoodsInfosResponse, err error)
-	// PageGoodsInfos 查询商品信息列表
-	PageGoodsInfos(ctx context.Context, req *PageGoodsInfosRequest, opts ...http.CallOption) (rsp *PageGoodsInfosResponse, err error)
+	// OptionGoodsInfo 查询商品信息下拉选择
+	OptionGoodsInfo(ctx context.Context, req *OptionGoodsInfoRequest, opts ...http.CallOption) (rsp *OptionGoodsInfoResponse, err error)
+	// PageGoodsInfo 查询商品信息列表
+	PageGoodsInfo(ctx context.Context, req *PageGoodsInfoRequest, opts ...http.CallOption) (rsp *PageGoodsInfoResponse, err error)
 	// SetGoodsInfoStatus 设置状态
 	SetGoodsInfoStatus(ctx context.Context, req *SetGoodsInfoStatusRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// UpdateGoodsInfo 更新商品信息
@@ -283,14 +283,14 @@ func (c *GoodsInfoServiceHTTPClientImpl) GetGoodsInfo(ctx context.Context, in *G
 	return &out, nil
 }
 
-// OptionGoodsInfos 查询商品信息下拉选择
-func (c *GoodsInfoServiceHTTPClientImpl) OptionGoodsInfos(ctx context.Context, in *OptionGoodsInfosRequest, opts ...http.CallOption) (*OptionGoodsInfosResponse, error) {
-	var out OptionGoodsInfosResponse
+// OptionGoodsInfo 查询商品信息下拉选择
+func (c *GoodsInfoServiceHTTPClientImpl) OptionGoodsInfo(ctx context.Context, in *OptionGoodsInfoRequest, opts ...http.CallOption) (*OptionGoodsInfoResponse, error) {
+	var out OptionGoodsInfoResponse
 	pattern := "/api/v1/admin/goods/info/option"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationGoodsInfoServiceOptionGoodsInfos),
+		http.Operation(OperationGoodsInfoServiceOptionGoodsInfo),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
@@ -300,14 +300,14 @@ func (c *GoodsInfoServiceHTTPClientImpl) OptionGoodsInfos(ctx context.Context, i
 	return &out, nil
 }
 
-// PageGoodsInfos 查询商品信息列表
-func (c *GoodsInfoServiceHTTPClientImpl) PageGoodsInfos(ctx context.Context, in *PageGoodsInfosRequest, opts ...http.CallOption) (*PageGoodsInfosResponse, error) {
-	var out PageGoodsInfosResponse
+// PageGoodsInfo 查询商品信息列表
+func (c *GoodsInfoServiceHTTPClientImpl) PageGoodsInfo(ctx context.Context, in *PageGoodsInfoRequest, opts ...http.CallOption) (*PageGoodsInfoResponse, error) {
+	var out PageGoodsInfoResponse
 	pattern := "/api/v1/admin/goods/info"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationGoodsInfoServicePageGoodsInfos),
+		http.Operation(OperationGoodsInfoServicePageGoodsInfo),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)

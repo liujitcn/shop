@@ -50,8 +50,8 @@ func NewBaseRoleCase(
 	}
 }
 
-// OptionBaseRoles 查询角色选项
-func (c *BaseRoleCase) OptionBaseRoles(ctx context.Context, req *adminv1.OptionBaseRolesRequest) (*commonv1.SelectOptionResponse, error) {
+// OptionBaseRole 查询角色选项
+func (c *BaseRoleCase) OptionBaseRole(ctx context.Context, req *adminv1.OptionBaseRoleRequest) (*commonv1.SelectOptionResponse, error) {
 	query := c.Query(ctx).BaseRole
 	opts := make([]repository.QueryOption, 0, 3)
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
@@ -79,8 +79,8 @@ func (c *BaseRoleCase) OptionBaseRoles(ctx context.Context, req *adminv1.OptionB
 	return &commonv1.SelectOptionResponse{List: options}, nil
 }
 
-// PageBaseRoles 分页查询角色
-func (c *BaseRoleCase) PageBaseRoles(ctx context.Context, req *adminv1.PageBaseRolesRequest) (*adminv1.PageBaseRolesResponse, error) {
+// PageBaseRole 分页查询角色
+func (c *BaseRoleCase) PageBaseRole(ctx context.Context, req *adminv1.PageBaseRoleRequest) (*adminv1.PageBaseRoleResponse, error) {
 	query := c.Query(ctx).BaseRole
 	opts := make([]repository.QueryOption, 0, 6)
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
@@ -115,7 +115,7 @@ func (c *BaseRoleCase) PageBaseRoles(ctx context.Context, req *adminv1.PageBaseR
 		baseRole.IsProtected = isBaseRoleProtected(authInfo, item)
 		resList = append(resList, baseRole)
 	}
-	return &adminv1.PageBaseRolesResponse{BaseRoles: resList, Total: int32(total)}, nil
+	return &adminv1.PageBaseRoleResponse{BaseRoles: resList, Total: int32(total)}, nil
 }
 
 // GetBaseRole 获取角色

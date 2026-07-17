@@ -170,7 +170,7 @@ const loadCommentData = async (reset: boolean) => {
         page_size: pageSize,
       }),
       reset
-        ? defCommentService.GoodsCommentTags({
+        ? defCommentService.GoodsCommentTag({
             goods_id: goodsId,
             limit: COMMENT_TAG_LIMIT,
           })

@@ -15,24 +15,24 @@ import (
 
 // RegisterGoodsSkuServiceMCPTools 注册Admin商品SKU服务的 MCP Tool。
 func RegisterGoodsSkuServiceMCPTools(mcpServer *mcp.Server, goodsSkuServiceServer GoodsSkuServiceServer) {
-	RegisterGoodsSkuServicePageGoodsSkusMCPTool(mcpServer, goodsSkuServiceServer)
+	RegisterGoodsSkuServicePageGoodsSkuMCPTool(mcpServer, goodsSkuServiceServer)
 	RegisterGoodsSkuServiceGetGoodsSkuMCPTool(mcpServer, goodsSkuServiceServer)
 	RegisterGoodsSkuServiceUpdateGoodsSkuMCPTool(mcpServer, goodsSkuServiceServer)
 }
 
-// RegisterGoodsSkuServicePageGoodsSkusMCPTool 注册查询商品SKU列表的 MCP Tool。
-func RegisterGoodsSkuServicePageGoodsSkusMCPTool(mcpServer *mcp.Server, goodsSkuServiceServer GoodsSkuServiceServer) {
-	mcp.AddTool[*PageGoodsSkusRequest, *PageGoodsSkusResponse](
+// RegisterGoodsSkuServicePageGoodsSkuMCPTool 注册查询商品SKU列表的 MCP Tool。
+func RegisterGoodsSkuServicePageGoodsSkuMCPTool(mcpServer *mcp.Server, goodsSkuServiceServer GoodsSkuServiceServer) {
+	mcp.AddTool[*PageGoodsSkuRequest, *PageGoodsSkuResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "admin_v1_goods_sku_service_page_goods_skus",
+			Name:        "admin_v1_goods_sku_service_page_goods_sku",
 			Description: "查询商品SKU列表",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageGoodsSkusRequest) (*mcp.CallToolResult, *PageGoodsSkusResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *PageGoodsSkuRequest) (*mcp.CallToolResult, *PageGoodsSkuResponse, error) {
 			if input == nil {
-				input = &PageGoodsSkusRequest{}
+				input = &PageGoodsSkuRequest{}
 			}
-			reply, err := goodsSkuServiceServer.PageGoodsSkus(ctx, input)
+			reply, err := goodsSkuServiceServer.PageGoodsSku(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

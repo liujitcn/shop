@@ -15,7 +15,7 @@ import (
 
 // RegisterShopBannerServiceMCPTools 注册Admin商城轮播图服务的 MCP Tool。
 func RegisterShopBannerServiceMCPTools(mcpServer *mcp.Server, shopBannerServiceServer ShopBannerServiceServer) {
-	RegisterShopBannerServicePageShopBannersMCPTool(mcpServer, shopBannerServiceServer)
+	RegisterShopBannerServicePageShopBannerMCPTool(mcpServer, shopBannerServiceServer)
 	RegisterShopBannerServiceGetShopBannerMCPTool(mcpServer, shopBannerServiceServer)
 	RegisterShopBannerServiceCreateShopBannerMCPTool(mcpServer, shopBannerServiceServer)
 	RegisterShopBannerServiceUpdateShopBannerMCPTool(mcpServer, shopBannerServiceServer)
@@ -23,19 +23,19 @@ func RegisterShopBannerServiceMCPTools(mcpServer *mcp.Server, shopBannerServiceS
 	RegisterShopBannerServiceSetShopBannerStatusMCPTool(mcpServer, shopBannerServiceServer)
 }
 
-// RegisterShopBannerServicePageShopBannersMCPTool 注册查询商城轮播图列表的 MCP Tool。
-func RegisterShopBannerServicePageShopBannersMCPTool(mcpServer *mcp.Server, shopBannerServiceServer ShopBannerServiceServer) {
-	mcp.AddTool[*PageShopBannersRequest, *PageShopBannersResponse](
+// RegisterShopBannerServicePageShopBannerMCPTool 注册查询商城轮播图列表的 MCP Tool。
+func RegisterShopBannerServicePageShopBannerMCPTool(mcpServer *mcp.Server, shopBannerServiceServer ShopBannerServiceServer) {
+	mcp.AddTool[*PageShopBannerRequest, *PageShopBannerResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "admin_v1_shop_banner_service_page_shop_banners",
+			Name:        "admin_v1_shop_banner_service_page_shop_banner",
 			Description: "查询商城轮播图列表",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageShopBannersRequest) (*mcp.CallToolResult, *PageShopBannersResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *PageShopBannerRequest) (*mcp.CallToolResult, *PageShopBannerResponse, error) {
 			if input == nil {
-				input = &PageShopBannersRequest{}
+				input = &PageShopBannerRequest{}
 			}
-			reply, err := shopBannerServiceServer.PageShopBanners(ctx, input)
+			reply, err := shopBannerServiceServer.PageShopBanner(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

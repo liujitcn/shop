@@ -4,10 +4,10 @@ import type {
   SummaryOrderDayReportResponse,
   SummaryOrderMonthReportRequest,
   SummaryOrderMonthReportResponse,
-  ListOrderDayReportsRequest,
-  ListOrderDayReportsResponse,
-  ListOrderMonthReportsRequest,
-  ListOrderMonthReportsResponse
+  ListOrderDayReportRequest,
+  ListOrderDayReportResponse,
+  ListOrderMonthReportRequest,
+  ListOrderMonthReportResponse
 } from "@/rpc/admin/v1/order_report";
 
 const ORDER_REPORT_URL = "/v1/admin/report/order";
@@ -24,8 +24,8 @@ export class OrderReportServiceImpl {
   }
 
   /** 查询订单月报名细 */
-  ListOrderMonthReports(request: ListOrderMonthReportsRequest): Promise<ListOrderMonthReportsResponse> {
-    return service<ListOrderMonthReportsRequest, ListOrderMonthReportsResponse>({
+  ListOrderMonthReport(request: ListOrderMonthReportRequest): Promise<ListOrderMonthReportResponse> {
+    return service<ListOrderMonthReportRequest, ListOrderMonthReportResponse>({
       url: `${ORDER_REPORT_URL}/month`,
       method: "get",
       params: request
@@ -42,8 +42,8 @@ export class OrderReportServiceImpl {
   }
 
   /** 查询订单日报明细 */
-  ListOrderDayReports(request: ListOrderDayReportsRequest): Promise<ListOrderDayReportsResponse> {
-    return service<ListOrderDayReportsRequest, ListOrderDayReportsResponse>({
+  ListOrderDayReport(request: ListOrderDayReportRequest): Promise<ListOrderDayReportResponse> {
+    return service<ListOrderDayReportRequest, ListOrderDayReportResponse>({
       url: `${ORDER_REPORT_URL}/day`,
       method: "get",
       params: request

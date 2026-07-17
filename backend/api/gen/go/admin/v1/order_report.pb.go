@@ -110,7 +110,7 @@ func (x *SummaryOrderMonthReportRequest) GetPayChannel() int32 {
 }
 
 // 订单月报列表请求参数
-type ListOrderMonthReportsRequest struct {
+type ListOrderMonthReportRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	TenantId      *int64                 `protobuf:"varint,1,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`                  // 租户ID
 	TenantStoreId *int64                 `protobuf:"varint,2,opt,name=tenant_store_id,json=tenantStoreId,proto3,oneof" json:"tenant_store_id,omitempty"` // 租户门店ID
@@ -122,20 +122,20 @@ type ListOrderMonthReportsRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListOrderMonthReportsRequest) Reset() {
-	*x = ListOrderMonthReportsRequest{}
+func (x *ListOrderMonthReportRequest) Reset() {
+	*x = ListOrderMonthReportRequest{}
 	mi := &file_admin_v1_order_report_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListOrderMonthReportsRequest) String() string {
+func (x *ListOrderMonthReportRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListOrderMonthReportsRequest) ProtoMessage() {}
+func (*ListOrderMonthReportRequest) ProtoMessage() {}
 
-func (x *ListOrderMonthReportsRequest) ProtoReflect() protoreflect.Message {
+func (x *ListOrderMonthReportRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_order_report_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -147,47 +147,47 @@ func (x *ListOrderMonthReportsRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListOrderMonthReportsRequest.ProtoReflect.Descriptor instead.
-func (*ListOrderMonthReportsRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListOrderMonthReportRequest.ProtoReflect.Descriptor instead.
+func (*ListOrderMonthReportRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_order_report_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *ListOrderMonthReportsRequest) GetTenantId() int64 {
+func (x *ListOrderMonthReportRequest) GetTenantId() int64 {
 	if x != nil && x.TenantId != nil {
 		return *x.TenantId
 	}
 	return 0
 }
 
-func (x *ListOrderMonthReportsRequest) GetTenantStoreId() int64 {
+func (x *ListOrderMonthReportRequest) GetTenantStoreId() int64 {
 	if x != nil && x.TenantStoreId != nil {
 		return *x.TenantStoreId
 	}
 	return 0
 }
 
-func (x *ListOrderMonthReportsRequest) GetStartMonth() string {
+func (x *ListOrderMonthReportRequest) GetStartMonth() string {
 	if x != nil {
 		return x.StartMonth
 	}
 	return ""
 }
 
-func (x *ListOrderMonthReportsRequest) GetEndMonth() string {
+func (x *ListOrderMonthReportRequest) GetEndMonth() string {
 	if x != nil {
 		return x.EndMonth
 	}
 	return ""
 }
 
-func (x *ListOrderMonthReportsRequest) GetPayType() int32 {
+func (x *ListOrderMonthReportRequest) GetPayType() int32 {
 	if x != nil {
 		return x.PayType
 	}
 	return 0
 }
 
-func (x *ListOrderMonthReportsRequest) GetPayChannel() int32 {
+func (x *ListOrderMonthReportRequest) GetPayChannel() int32 {
 	if x != nil {
 		return x.PayChannel
 	}
@@ -405,27 +405,27 @@ func (x *OrderMonthReportItem) GetCustomerUnitPrice() int64 {
 }
 
 // 订单月报列表响应
-type ListOrderMonthReportsResponse struct {
+type ListOrderMonthReportResponse struct {
 	state             protoimpl.MessageState  `protogen:"open.v1"`
 	OrderMonthReports []*OrderMonthReportItem `protobuf:"bytes,1,rep,name=order_month_reports,json=orderMonthReports,proto3" json:"order_month_reports,omitempty"` // 月报明细
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
 
-func (x *ListOrderMonthReportsResponse) Reset() {
-	*x = ListOrderMonthReportsResponse{}
+func (x *ListOrderMonthReportResponse) Reset() {
+	*x = ListOrderMonthReportResponse{}
 	mi := &file_admin_v1_order_report_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListOrderMonthReportsResponse) String() string {
+func (x *ListOrderMonthReportResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListOrderMonthReportsResponse) ProtoMessage() {}
+func (*ListOrderMonthReportResponse) ProtoMessage() {}
 
-func (x *ListOrderMonthReportsResponse) ProtoReflect() protoreflect.Message {
+func (x *ListOrderMonthReportResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_order_report_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -437,12 +437,12 @@ func (x *ListOrderMonthReportsResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListOrderMonthReportsResponse.ProtoReflect.Descriptor instead.
-func (*ListOrderMonthReportsResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListOrderMonthReportResponse.ProtoReflect.Descriptor instead.
+func (*ListOrderMonthReportResponse) Descriptor() ([]byte, []int) {
 	return file_admin_v1_order_report_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *ListOrderMonthReportsResponse) GetOrderMonthReports() []*OrderMonthReportItem {
+func (x *ListOrderMonthReportResponse) GetOrderMonthReports() []*OrderMonthReportItem {
 	if x != nil {
 		return x.OrderMonthReports
 	}
@@ -535,7 +535,7 @@ func (x *SummaryOrderDayReportRequest) GetPayChannel() int32 {
 }
 
 // 订单日报列表请求参数
-type ListOrderDayReportsRequest struct {
+type ListOrderDayReportRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	TenantId      *int64                 `protobuf:"varint,1,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`                  // 租户ID
 	TenantStoreId *int64                 `protobuf:"varint,2,opt,name=tenant_store_id,json=tenantStoreId,proto3,oneof" json:"tenant_store_id,omitempty"` // 租户门店ID
@@ -547,20 +547,20 @@ type ListOrderDayReportsRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListOrderDayReportsRequest) Reset() {
-	*x = ListOrderDayReportsRequest{}
+func (x *ListOrderDayReportRequest) Reset() {
+	*x = ListOrderDayReportRequest{}
 	mi := &file_admin_v1_order_report_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListOrderDayReportsRequest) String() string {
+func (x *ListOrderDayReportRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListOrderDayReportsRequest) ProtoMessage() {}
+func (*ListOrderDayReportRequest) ProtoMessage() {}
 
-func (x *ListOrderDayReportsRequest) ProtoReflect() protoreflect.Message {
+func (x *ListOrderDayReportRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_order_report_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -572,47 +572,47 @@ func (x *ListOrderDayReportsRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListOrderDayReportsRequest.ProtoReflect.Descriptor instead.
-func (*ListOrderDayReportsRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListOrderDayReportRequest.ProtoReflect.Descriptor instead.
+func (*ListOrderDayReportRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_order_report_proto_rawDescGZIP(), []int{6}
 }
 
-func (x *ListOrderDayReportsRequest) GetTenantId() int64 {
+func (x *ListOrderDayReportRequest) GetTenantId() int64 {
 	if x != nil && x.TenantId != nil {
 		return *x.TenantId
 	}
 	return 0
 }
 
-func (x *ListOrderDayReportsRequest) GetTenantStoreId() int64 {
+func (x *ListOrderDayReportRequest) GetTenantStoreId() int64 {
 	if x != nil && x.TenantStoreId != nil {
 		return *x.TenantStoreId
 	}
 	return 0
 }
 
-func (x *ListOrderDayReportsRequest) GetStartDate() string {
+func (x *ListOrderDayReportRequest) GetStartDate() string {
 	if x != nil {
 		return x.StartDate
 	}
 	return ""
 }
 
-func (x *ListOrderDayReportsRequest) GetEndDate() string {
+func (x *ListOrderDayReportRequest) GetEndDate() string {
 	if x != nil {
 		return x.EndDate
 	}
 	return ""
 }
 
-func (x *ListOrderDayReportsRequest) GetPayType() int32 {
+func (x *ListOrderDayReportRequest) GetPayType() int32 {
 	if x != nil {
 		return x.PayType
 	}
 	return 0
 }
 
-func (x *ListOrderDayReportsRequest) GetPayChannel() int32 {
+func (x *ListOrderDayReportRequest) GetPayChannel() int32 {
 	if x != nil {
 		return x.PayChannel
 	}
@@ -830,27 +830,27 @@ func (x *OrderDayReportItem) GetCustomerUnitPrice() int64 {
 }
 
 // 订单日报列表响应
-type ListOrderDayReportsResponse struct {
+type ListOrderDayReportResponse struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	OrderDayReports []*OrderDayReportItem  `protobuf:"bytes,1,rep,name=order_day_reports,json=orderDayReports,proto3" json:"order_day_reports,omitempty"` // 日报明细
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
 
-func (x *ListOrderDayReportsResponse) Reset() {
-	*x = ListOrderDayReportsResponse{}
+func (x *ListOrderDayReportResponse) Reset() {
+	*x = ListOrderDayReportResponse{}
 	mi := &file_admin_v1_order_report_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListOrderDayReportsResponse) String() string {
+func (x *ListOrderDayReportResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListOrderDayReportsResponse) ProtoMessage() {}
+func (*ListOrderDayReportResponse) ProtoMessage() {}
 
-func (x *ListOrderDayReportsResponse) ProtoReflect() protoreflect.Message {
+func (x *ListOrderDayReportResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_order_report_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -862,12 +862,12 @@ func (x *ListOrderDayReportsResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListOrderDayReportsResponse.ProtoReflect.Descriptor instead.
-func (*ListOrderDayReportsResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListOrderDayReportResponse.ProtoReflect.Descriptor instead.
+func (*ListOrderDayReportResponse) Descriptor() ([]byte, []int) {
 	return file_admin_v1_order_report_proto_rawDescGZIP(), []int{9}
 }
 
-func (x *ListOrderDayReportsResponse) GetOrderDayReports() []*OrderDayReportItem {
+func (x *ListOrderDayReportResponse) GetOrderDayReports() []*OrderDayReportItem {
 	if x != nil {
 		return x.OrderDayReports
 	}
@@ -890,8 +890,8 @@ const file_admin_v1_order_report_proto_rawDesc = "" +
 	"payChannelB\f\n" +
 	"\n" +
 	"_tenant_idB\x12\n" +
-	"\x10_tenant_store_id\"\x80\x04\n" +
-	"\x1cListOrderMonthReportsRequest\x120\n" +
+	"\x10_tenant_store_id\"\xff\x03\n" +
+	"\x1bListOrderMonthReportRequest\x120\n" +
 	"\ttenant_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12A\n" +
 	"\x0ftenant_store_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDH\x01R\rtenantStoreId\x88\x01\x01\x12F\n" +
 	"\vstart_month\x18\x03 \x01(\tB%\xbaG\"\x92\x02\x1f开始月份，格式：YYYY-MMR\n" +
@@ -923,8 +923,8 @@ const file_admin_v1_order_report_proto_rawDesc = "" +
 	"\x0fpaid_user_count\x18\a \x01(\x03B\x15\xbaG\x12\x92\x02\x0f支付用户数R\rpaidUserCount\x123\n" +
 	"\vgoods_count\x18\b \x01(\x03B\x12\xbaG\x0f\x92\x02\f商品件数R\n" +
 	"goodsCount\x12K\n" +
-	"\x13customer_unit_price\x18\t \x01(\x03B\x1b\xbaG\x18\x92\x02\x15客单价，单位分R\x11customerUnitPrice\"\x83\x01\n" +
-	"\x1dListOrderMonthReportsResponse\x12b\n" +
+	"\x13customer_unit_price\x18\t \x01(\x03B\x1b\xbaG\x18\x92\x02\x15客单价，单位分R\x11customerUnitPrice\"\x82\x01\n" +
+	"\x1cListOrderMonthReportResponse\x12b\n" +
 	"\x13order_month_reports\x18\x01 \x03(\v2\x1e.admin.v1.OrderMonthReportItemB\x12\xbaG\x0f\x92\x02\f月报明细R\x11orderMonthReports\"\x82\x04\n" +
 	"\x1cSummaryOrderDayReportRequest\x120\n" +
 	"\ttenant_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12A\n" +
@@ -937,8 +937,8 @@ const file_admin_v1_order_report_proto_rawDesc = "" +
 	"payChannelB\f\n" +
 	"\n" +
 	"_tenant_idB\x12\n" +
-	"\x10_tenant_store_id\"\x80\x04\n" +
-	"\x1aListOrderDayReportsRequest\x120\n" +
+	"\x10_tenant_store_id\"\xff\x03\n" +
+	"\x19ListOrderDayReportRequest\x120\n" +
 	"\ttenant_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12A\n" +
 	"\x0ftenant_store_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDH\x01R\rtenantStoreId\x88\x01\x01\x12G\n" +
 	"\n" +
@@ -970,14 +970,14 @@ const file_admin_v1_order_report_proto_rawDesc = "" +
 	"\x0fpaid_user_count\x18\a \x01(\x03B\x15\xbaG\x12\x92\x02\x0f支付用户数R\rpaidUserCount\x123\n" +
 	"\vgoods_count\x18\b \x01(\x03B\x12\xbaG\x0f\x92\x02\f商品件数R\n" +
 	"goodsCount\x12K\n" +
-	"\x13customer_unit_price\x18\t \x01(\x03B\x1b\xbaG\x18\x92\x02\x15客单价，单位分R\x11customerUnitPrice\"{\n" +
-	"\x1bListOrderDayReportsResponse\x12\\\n" +
-	"\x11order_day_reports\x18\x01 \x03(\v2\x1c.admin.v1.OrderDayReportItemB\x12\xbaG\x0f\x92\x02\f日报明细R\x0forderDayReports2\xf4\x04\n" +
+	"\x13customer_unit_price\x18\t \x01(\x03B\x1b\xbaG\x18\x92\x02\x15客单价，单位分R\x11customerUnitPrice\"z\n" +
+	"\x1aListOrderDayReportResponse\x12\\\n" +
+	"\x11order_day_reports\x18\x01 \x03(\v2\x1c.admin.v1.OrderDayReportItemB\x12\xbaG\x0f\x92\x02\f日报明细R\x0forderDayReports2\xee\x04\n" +
 	"\x12OrderReportService\x12\xa0\x01\n" +
-	"\x17SummaryOrderMonthReport\x12(.admin.v1.SummaryOrderMonthReportRequest\x1a).admin.v1.SummaryOrderMonthReportResponse\"0\x82\xd3\xe4\x93\x02*\x12(/api/v1/admin/report/order/month/summary\x12\x92\x01\n" +
-	"\x15ListOrderMonthReports\x12&.admin.v1.ListOrderMonthReportsRequest\x1a'.admin.v1.ListOrderMonthReportsResponse\"(\x82\xd3\xe4\x93\x02\"\x12 /api/v1/admin/report/order/month\x12\x98\x01\n" +
-	"\x15SummaryOrderDayReport\x12&.admin.v1.SummaryOrderDayReportRequest\x1a'.admin.v1.SummaryOrderDayReportResponse\".\x82\xd3\xe4\x93\x02(\x12&/api/v1/admin/report/order/day/summary\x12\x8a\x01\n" +
-	"\x13ListOrderDayReports\x12$.admin.v1.ListOrderDayReportsRequest\x1a%.admin.v1.ListOrderDayReportsResponse\"&\x82\xd3\xe4\x93\x02 \x12\x1e/api/v1/admin/report/order/dayB\x83\x01\n" +
+	"\x17SummaryOrderMonthReport\x12(.admin.v1.SummaryOrderMonthReportRequest\x1a).admin.v1.SummaryOrderMonthReportResponse\"0\x82\xd3\xe4\x93\x02*\x12(/api/v1/admin/report/order/month/summary\x12\x8f\x01\n" +
+	"\x14ListOrderMonthReport\x12%.admin.v1.ListOrderMonthReportRequest\x1a&.admin.v1.ListOrderMonthReportResponse\"(\x82\xd3\xe4\x93\x02\"\x12 /api/v1/admin/report/order/month\x12\x98\x01\n" +
+	"\x15SummaryOrderDayReport\x12&.admin.v1.SummaryOrderDayReportRequest\x1a'.admin.v1.SummaryOrderDayReportResponse\".\x82\xd3\xe4\x93\x02(\x12&/api/v1/admin/report/order/day/summary\x12\x87\x01\n" +
+	"\x12ListOrderDayReport\x12#.admin.v1.ListOrderDayReportRequest\x1a$.admin.v1.ListOrderDayReportResponse\"&\x82\xd3\xe4\x93\x02 \x12\x1e/api/v1/admin/report/order/dayB\x83\x01\n" +
 	"\fcom.admin.v1B\x10OrderReportProtoP\x01Z shop/api/gen/go/admin/v1;adminv1\xa2\x02\x03AXX\xaa\x02\bAdmin.V1\xca\x02\bAdmin\\V1\xe2\x02\x14Admin\\V1\\GPBMetadata\xea\x02\tAdmin::V1b\x06proto3"
 
 var (
@@ -995,27 +995,27 @@ func file_admin_v1_order_report_proto_rawDescGZIP() []byte {
 var file_admin_v1_order_report_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_admin_v1_order_report_proto_goTypes = []any{
 	(*SummaryOrderMonthReportRequest)(nil),  // 0: admin.v1.SummaryOrderMonthReportRequest
-	(*ListOrderMonthReportsRequest)(nil),    // 1: admin.v1.ListOrderMonthReportsRequest
+	(*ListOrderMonthReportRequest)(nil),     // 1: admin.v1.ListOrderMonthReportRequest
 	(*SummaryOrderMonthReportResponse)(nil), // 2: admin.v1.SummaryOrderMonthReportResponse
 	(*OrderMonthReportItem)(nil),            // 3: admin.v1.OrderMonthReportItem
-	(*ListOrderMonthReportsResponse)(nil),   // 4: admin.v1.ListOrderMonthReportsResponse
+	(*ListOrderMonthReportResponse)(nil),    // 4: admin.v1.ListOrderMonthReportResponse
 	(*SummaryOrderDayReportRequest)(nil),    // 5: admin.v1.SummaryOrderDayReportRequest
-	(*ListOrderDayReportsRequest)(nil),      // 6: admin.v1.ListOrderDayReportsRequest
+	(*ListOrderDayReportRequest)(nil),       // 6: admin.v1.ListOrderDayReportRequest
 	(*SummaryOrderDayReportResponse)(nil),   // 7: admin.v1.SummaryOrderDayReportResponse
 	(*OrderDayReportItem)(nil),              // 8: admin.v1.OrderDayReportItem
-	(*ListOrderDayReportsResponse)(nil),     // 9: admin.v1.ListOrderDayReportsResponse
+	(*ListOrderDayReportResponse)(nil),      // 9: admin.v1.ListOrderDayReportResponse
 }
 var file_admin_v1_order_report_proto_depIdxs = []int32{
-	3, // 0: admin.v1.ListOrderMonthReportsResponse.order_month_reports:type_name -> admin.v1.OrderMonthReportItem
-	8, // 1: admin.v1.ListOrderDayReportsResponse.order_day_reports:type_name -> admin.v1.OrderDayReportItem
+	3, // 0: admin.v1.ListOrderMonthReportResponse.order_month_reports:type_name -> admin.v1.OrderMonthReportItem
+	8, // 1: admin.v1.ListOrderDayReportResponse.order_day_reports:type_name -> admin.v1.OrderDayReportItem
 	0, // 2: admin.v1.OrderReportService.SummaryOrderMonthReport:input_type -> admin.v1.SummaryOrderMonthReportRequest
-	1, // 3: admin.v1.OrderReportService.ListOrderMonthReports:input_type -> admin.v1.ListOrderMonthReportsRequest
+	1, // 3: admin.v1.OrderReportService.ListOrderMonthReport:input_type -> admin.v1.ListOrderMonthReportRequest
 	5, // 4: admin.v1.OrderReportService.SummaryOrderDayReport:input_type -> admin.v1.SummaryOrderDayReportRequest
-	6, // 5: admin.v1.OrderReportService.ListOrderDayReports:input_type -> admin.v1.ListOrderDayReportsRequest
+	6, // 5: admin.v1.OrderReportService.ListOrderDayReport:input_type -> admin.v1.ListOrderDayReportRequest
 	2, // 6: admin.v1.OrderReportService.SummaryOrderMonthReport:output_type -> admin.v1.SummaryOrderMonthReportResponse
-	4, // 7: admin.v1.OrderReportService.ListOrderMonthReports:output_type -> admin.v1.ListOrderMonthReportsResponse
+	4, // 7: admin.v1.OrderReportService.ListOrderMonthReport:output_type -> admin.v1.ListOrderMonthReportResponse
 	7, // 8: admin.v1.OrderReportService.SummaryOrderDayReport:output_type -> admin.v1.SummaryOrderDayReportResponse
-	9, // 9: admin.v1.OrderReportService.ListOrderDayReports:output_type -> admin.v1.ListOrderDayReportsResponse
+	9, // 9: admin.v1.OrderReportService.ListOrderDayReport:output_type -> admin.v1.ListOrderDayReportResponse
 	6, // [6:10] is the sub-list for method output_type
 	2, // [2:6] is the sub-list for method input_type
 	2, // [2:2] is the sub-list for extension type_name

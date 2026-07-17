@@ -15,8 +15,8 @@ import (
 
 // RegisterGoodsInfoServiceMCPTools 注册Admin商品信息服务的 MCP Tool。
 func RegisterGoodsInfoServiceMCPTools(mcpServer *mcp.Server, goodsInfoServiceServer GoodsInfoServiceServer) {
-	RegisterGoodsInfoServiceOptionGoodsInfosMCPTool(mcpServer, goodsInfoServiceServer)
-	RegisterGoodsInfoServicePageGoodsInfosMCPTool(mcpServer, goodsInfoServiceServer)
+	RegisterGoodsInfoServiceOptionGoodsInfoMCPTool(mcpServer, goodsInfoServiceServer)
+	RegisterGoodsInfoServicePageGoodsInfoMCPTool(mcpServer, goodsInfoServiceServer)
 	RegisterGoodsInfoServiceGetGoodsInfoMCPTool(mcpServer, goodsInfoServiceServer)
 	RegisterGoodsInfoServiceCreateGoodsInfoMCPTool(mcpServer, goodsInfoServiceServer)
 	RegisterGoodsInfoServiceUpdateGoodsInfoMCPTool(mcpServer, goodsInfoServiceServer)
@@ -24,19 +24,19 @@ func RegisterGoodsInfoServiceMCPTools(mcpServer *mcp.Server, goodsInfoServiceSer
 	RegisterGoodsInfoServiceSetGoodsInfoStatusMCPTool(mcpServer, goodsInfoServiceServer)
 }
 
-// RegisterGoodsInfoServiceOptionGoodsInfosMCPTool 注册查询商品信息下拉选择的 MCP Tool。
-func RegisterGoodsInfoServiceOptionGoodsInfosMCPTool(mcpServer *mcp.Server, goodsInfoServiceServer GoodsInfoServiceServer) {
-	mcp.AddTool[*OptionGoodsInfosRequest, *OptionGoodsInfosResponse](
+// RegisterGoodsInfoServiceOptionGoodsInfoMCPTool 注册查询商品信息下拉选择的 MCP Tool。
+func RegisterGoodsInfoServiceOptionGoodsInfoMCPTool(mcpServer *mcp.Server, goodsInfoServiceServer GoodsInfoServiceServer) {
+	mcp.AddTool[*OptionGoodsInfoRequest, *OptionGoodsInfoResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "admin_v1_goods_info_service_option_goods_infos",
+			Name:        "admin_v1_goods_info_service_option_goods_info",
 			Description: "查询商品信息下拉选择",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *OptionGoodsInfosRequest) (*mcp.CallToolResult, *OptionGoodsInfosResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *OptionGoodsInfoRequest) (*mcp.CallToolResult, *OptionGoodsInfoResponse, error) {
 			if input == nil {
-				input = &OptionGoodsInfosRequest{}
+				input = &OptionGoodsInfoRequest{}
 			}
-			reply, err := goodsInfoServiceServer.OptionGoodsInfos(ctx, input)
+			reply, err := goodsInfoServiceServer.OptionGoodsInfo(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -45,19 +45,19 @@ func RegisterGoodsInfoServiceOptionGoodsInfosMCPTool(mcpServer *mcp.Server, good
 	)
 }
 
-// RegisterGoodsInfoServicePageGoodsInfosMCPTool 注册查询商品信息列表的 MCP Tool。
-func RegisterGoodsInfoServicePageGoodsInfosMCPTool(mcpServer *mcp.Server, goodsInfoServiceServer GoodsInfoServiceServer) {
-	mcp.AddTool[*PageGoodsInfosRequest, *PageGoodsInfosResponse](
+// RegisterGoodsInfoServicePageGoodsInfoMCPTool 注册查询商品信息列表的 MCP Tool。
+func RegisterGoodsInfoServicePageGoodsInfoMCPTool(mcpServer *mcp.Server, goodsInfoServiceServer GoodsInfoServiceServer) {
+	mcp.AddTool[*PageGoodsInfoRequest, *PageGoodsInfoResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "admin_v1_goods_info_service_page_goods_infos",
+			Name:        "admin_v1_goods_info_service_page_goods_info",
 			Description: "查询商品信息列表",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageGoodsInfosRequest) (*mcp.CallToolResult, *PageGoodsInfosResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *PageGoodsInfoRequest) (*mcp.CallToolResult, *PageGoodsInfoResponse, error) {
 			if input == nil {
-				input = &PageGoodsInfosRequest{}
+				input = &PageGoodsInfoRequest{}
 			}
-			reply, err := goodsInfoServiceServer.PageGoodsInfos(ctx, input)
+			reply, err := goodsInfoServiceServer.PageGoodsInfo(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

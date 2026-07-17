@@ -13,11 +13,11 @@ export interface GetUserInfoRequest {
 }
 
 /** 登录用户菜单树查询参数 */
-export interface TreeUserMenusRequest {
+export interface TreeUserMenuRequest {
 }
 
 /** 登录用户按钮列表查询参数 */
-export interface ListUserButtonsRequest {
+export interface ListUserButtonRequest {
 }
 
 /** 获取个人中心用户信息请求参数 */
@@ -189,9 +189,9 @@ export interface AuthService {
   /** 获取已经登录的用户的数据 */
   GetUserInfo(request: GetUserInfoRequest): Promise<UserInfoForm>;
   /** 查询已经登录的用户菜单树 */
-  TreeUserMenus(request: TreeUserMenusRequest): Promise<TreeRouteResponse>;
+  TreeUserMenu(request: TreeUserMenuRequest): Promise<TreeRouteResponse>;
   /** 查询已经登录的用户按钮列表 */
-  ListUserButtons(request: ListUserButtonsRequest): Promise<StringValues>;
+  ListUserButton(request: ListUserButtonRequest): Promise<StringValues>;
   /** 获取个人中心用户信息 */
   GetUserProfile(request: GetUserProfileRequest): Promise<UserProfileForm>;
   /** 修改个人中心用户信息 */

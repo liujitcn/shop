@@ -9,7 +9,7 @@ import type { Status } from "../../common/v1/enum";
 import type { Empty } from "../../google/protobuf/empty";
 
 /** 商城服务列表查询条件 */
-export interface PageShopServicesRequest {
+export interface PageShopServiceRequest {
   /** 标签 */
   label: string;
   /** 状态 */
@@ -23,7 +23,7 @@ export interface PageShopServicesRequest {
 }
 
 /** 商城服务列表响应 */
-export interface PageShopServicesResponse {
+export interface PageShopServiceResponse {
   /** 商城服务列表 */
   shop_services: ShopService[];
   /** 总数 */
@@ -99,7 +99,7 @@ export interface ShopServiceForm {
 /** Admin商城服务 */
 export interface ShopServiceService {
   /** 查询商城服务列表 */
-  PageShopServices(request: PageShopServicesRequest): Promise<PageShopServicesResponse>;
+  PageShopService(request: PageShopServiceRequest): Promise<PageShopServiceResponse>;
   /** 查询商城服务 */
   GetShopService(request: GetShopServiceRequest): Promise<ShopServiceForm>;
   /** 创建商城服务 */

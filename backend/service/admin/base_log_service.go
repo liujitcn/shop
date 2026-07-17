@@ -35,11 +35,11 @@ func NewBaseLogService(
 	}
 }
 
-// PageBaseLogs 查询日志分页列表
-func (s *BaseLogService) PageBaseLogs(ctx context.Context, req *adminv1.PageBaseLogsRequest) (*adminv1.PageBaseLogsResponse, error) {
-	page, err := s.baseLogCase.PageBaseLogs(ctx, req)
+// PageBaseLog 查询日志分页列表
+func (s *BaseLogService) PageBaseLog(ctx context.Context, req *adminv1.PageBaseLogRequest) (*adminv1.PageBaseLogResponse, error) {
+	page, err := s.baseLogCase.PageBaseLog(ctx, req)
 	if err != nil {
-		log.Error(fmt.Sprintf("PageBaseLogs %v", err))
+		log.Error(fmt.Sprintf("PageBaseLog %v", err))
 		return nil, errorsx.WrapInternal(err, "查询日志分页列表失败")
 	}
 

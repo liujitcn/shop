@@ -68,7 +68,7 @@ function handleNodeClick(data: { [key: string]: any }) {
 }
 
 onBeforeMount(() => {
-  defBaseDeptService.OptionBaseDepts({}).then(response => {
+  defBaseDeptService.OptionBaseDept({}).then(response => {
     baseDeptList.value = response.list;
   });
 });

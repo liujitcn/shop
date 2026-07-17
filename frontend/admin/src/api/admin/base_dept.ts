@@ -5,10 +5,10 @@ import {
   type CreateBaseDeptRequest,
   type DeleteBaseDeptRequest,
   type GetBaseDeptRequest,
-  type OptionBaseDeptsRequest,
+  type OptionBaseDeptRequest,
   type SetBaseDeptStatusRequest,
-  type TreeBaseDeptsRequest,
-  type TreeBaseDeptsResponse,
+  type TreeBaseDeptRequest,
+  type TreeBaseDeptResponse,
   type UpdateBaseDeptRequest
 } from "@/rpc/admin/v1/base_dept";
 import { type Empty } from "@/rpc/google/protobuf/empty";
@@ -19,8 +19,8 @@ const BASE_DEPT_URL = "/v1/admin/base/dept";
 /** Admin部门服务 */
 export class BaseDeptServiceImpl implements BaseDeptService {
   /** 查询部门树形列表 */
-  TreeBaseDepts(request: TreeBaseDeptsRequest): Promise<TreeBaseDeptsResponse> {
-    return service<TreeBaseDeptsRequest, TreeBaseDeptsResponse>({
+  TreeBaseDept(request: TreeBaseDeptRequest): Promise<TreeBaseDeptResponse> {
+    return service<TreeBaseDeptRequest, TreeBaseDeptResponse>({
       url: `${BASE_DEPT_URL}/tree`,
       method: "get",
       params: request
@@ -28,8 +28,8 @@ export class BaseDeptServiceImpl implements BaseDeptService {
   }
 
   /** 查询部门树形选择 */
-  OptionBaseDepts(request: OptionBaseDeptsRequest): Promise<TreeOptionResponse> {
-    return service<OptionBaseDeptsRequest, TreeOptionResponse>({
+  OptionBaseDept(request: OptionBaseDeptRequest): Promise<TreeOptionResponse> {
+    return service<OptionBaseDeptRequest, TreeOptionResponse>({
       url: `${BASE_DEPT_URL}/option`,
       method: "get",
       params: request

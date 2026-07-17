@@ -25,27 +25,27 @@ const (
 )
 
 // 商品规格列表查询条件
-type ListGoodsSpecsRequest struct {
+type ListGoodsSpecRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	GoodsId       int64                  `protobuf:"varint,1,opt,name=goods_id,json=goodsId,proto3" json:"goods_id,omitempty"` // 商品id
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListGoodsSpecsRequest) Reset() {
-	*x = ListGoodsSpecsRequest{}
+func (x *ListGoodsSpecRequest) Reset() {
+	*x = ListGoodsSpecRequest{}
 	mi := &file_admin_v1_goods_spec_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListGoodsSpecsRequest) String() string {
+func (x *ListGoodsSpecRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListGoodsSpecsRequest) ProtoMessage() {}
+func (*ListGoodsSpecRequest) ProtoMessage() {}
 
-func (x *ListGoodsSpecsRequest) ProtoReflect() protoreflect.Message {
+func (x *ListGoodsSpecRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_goods_spec_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -57,12 +57,12 @@ func (x *ListGoodsSpecsRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListGoodsSpecsRequest.ProtoReflect.Descriptor instead.
-func (*ListGoodsSpecsRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListGoodsSpecRequest.ProtoReflect.Descriptor instead.
+func (*ListGoodsSpecRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_goods_spec_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *ListGoodsSpecsRequest) GetGoodsId() int64 {
+func (x *ListGoodsSpecRequest) GetGoodsId() int64 {
 	if x != nil {
 		return x.GoodsId
 	}
@@ -70,27 +70,27 @@ func (x *ListGoodsSpecsRequest) GetGoodsId() int64 {
 }
 
 // 商品规格列表响应
-type ListGoodsSpecsResponse struct {
+type ListGoodsSpecResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	GoodsSpecs    []*GoodsSpec           `protobuf:"bytes,1,rep,name=goods_specs,json=goodsSpecs,proto3" json:"goods_specs,omitempty"` // 商品规格列表
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListGoodsSpecsResponse) Reset() {
-	*x = ListGoodsSpecsResponse{}
+func (x *ListGoodsSpecResponse) Reset() {
+	*x = ListGoodsSpecResponse{}
 	mi := &file_admin_v1_goods_spec_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListGoodsSpecsResponse) String() string {
+func (x *ListGoodsSpecResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListGoodsSpecsResponse) ProtoMessage() {}
+func (*ListGoodsSpecResponse) ProtoMessage() {}
 
-func (x *ListGoodsSpecsResponse) ProtoReflect() protoreflect.Message {
+func (x *ListGoodsSpecResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_goods_spec_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -102,12 +102,12 @@ func (x *ListGoodsSpecsResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListGoodsSpecsResponse.ProtoReflect.Descriptor instead.
-func (*ListGoodsSpecsResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListGoodsSpecResponse.ProtoReflect.Descriptor instead.
+func (*ListGoodsSpecResponse) Descriptor() ([]byte, []int) {
 	return file_admin_v1_goods_spec_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *ListGoodsSpecsResponse) GetGoodsSpecs() []*GoodsSpec {
+func (x *ListGoodsSpecResponse) GetGoodsSpecs() []*GoodsSpec {
 	if x != nil {
 		return x.GoodsSpecs
 	}
@@ -195,10 +195,10 @@ var File_admin_v1_goods_spec_proto protoreflect.FileDescriptor
 
 const file_admin_v1_goods_spec_proto_rawDesc = "" +
 	"\n" +
-	"\x19admin/v1/goods_spec.proto\x12\badmin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"B\n" +
-	"\x15ListGoodsSpecsRequest\x12)\n" +
-	"\bgoods_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品idR\agoodsId\"h\n" +
-	"\x16ListGoodsSpecsResponse\x12N\n" +
+	"\x19admin/v1/goods_spec.proto\x12\badmin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"A\n" +
+	"\x14ListGoodsSpecRequest\x12)\n" +
+	"\bgoods_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品idR\agoodsId\"g\n" +
+	"\x15ListGoodsSpecResponse\x12N\n" +
 	"\vgoods_specs\x18\x01 \x03(\v2\x13.admin.v1.GoodsSpecB\x18\xbaG\x15\x92\x02\x12商品规格列表R\n" +
 	"goodsSpecs\"\xda\x01\n" +
 	"\tGoodsSpec\x12$\n" +
@@ -206,9 +206,9 @@ const file_admin_v1_goods_spec_proto_rawDesc = "" +
 	"\bgoods_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品idR\agoodsId\x12,\n" +
 	"\x04name\x18\x03 \x01(\tB\x18\xbaG\x15\x92\x02\x12商品规格名称R\x04name\x12,\n" +
 	"\x04item\x18\x04 \x03(\tB\x18\xbaG\x15\x92\x02\x12商品规格内容R\x04item\x12 \n" +
-	"\x04sort\x18\x05 \x01(\x05B\f\xbaG\t\x92\x02\x06排序R\x04sort2\x89\x01\n" +
-	"\x10GoodsSpecService\x12u\n" +
-	"\x0eListGoodsSpecs\x12\x1f.admin.v1.ListGoodsSpecsRequest\x1a .admin.v1.ListGoodsSpecsResponse\" \x82\xd3\xe4\x93\x02\x1a\x12\x18/api/v1/admin/goods/specB\x81\x01\n" +
+	"\x04sort\x18\x05 \x01(\x05B\f\xbaG\t\x92\x02\x06排序R\x04sort2\x86\x01\n" +
+	"\x10GoodsSpecService\x12r\n" +
+	"\rListGoodsSpec\x12\x1e.admin.v1.ListGoodsSpecRequest\x1a\x1f.admin.v1.ListGoodsSpecResponse\" \x82\xd3\xe4\x93\x02\x1a\x12\x18/api/v1/admin/goods/specB\x81\x01\n" +
 	"\fcom.admin.v1B\x0eGoodsSpecProtoP\x01Z shop/api/gen/go/admin/v1;adminv1\xa2\x02\x03AXX\xaa\x02\bAdmin.V1\xca\x02\bAdmin\\V1\xe2\x02\x14Admin\\V1\\GPBMetadata\xea\x02\tAdmin::V1b\x06proto3"
 
 var (
@@ -225,14 +225,14 @@ func file_admin_v1_goods_spec_proto_rawDescGZIP() []byte {
 
 var file_admin_v1_goods_spec_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_admin_v1_goods_spec_proto_goTypes = []any{
-	(*ListGoodsSpecsRequest)(nil),  // 0: admin.v1.ListGoodsSpecsRequest
-	(*ListGoodsSpecsResponse)(nil), // 1: admin.v1.ListGoodsSpecsResponse
-	(*GoodsSpec)(nil),              // 2: admin.v1.GoodsSpec
+	(*ListGoodsSpecRequest)(nil),  // 0: admin.v1.ListGoodsSpecRequest
+	(*ListGoodsSpecResponse)(nil), // 1: admin.v1.ListGoodsSpecResponse
+	(*GoodsSpec)(nil),             // 2: admin.v1.GoodsSpec
 }
 var file_admin_v1_goods_spec_proto_depIdxs = []int32{
-	2, // 0: admin.v1.ListGoodsSpecsResponse.goods_specs:type_name -> admin.v1.GoodsSpec
-	0, // 1: admin.v1.GoodsSpecService.ListGoodsSpecs:input_type -> admin.v1.ListGoodsSpecsRequest
-	1, // 2: admin.v1.GoodsSpecService.ListGoodsSpecs:output_type -> admin.v1.ListGoodsSpecsResponse
+	2, // 0: admin.v1.ListGoodsSpecResponse.goods_specs:type_name -> admin.v1.GoodsSpec
+	0, // 1: admin.v1.GoodsSpecService.ListGoodsSpec:input_type -> admin.v1.ListGoodsSpecRequest
+	1, // 2: admin.v1.GoodsSpecService.ListGoodsSpec:output_type -> admin.v1.ListGoodsSpecResponse
 	2, // [2:3] is the sub-list for method output_type
 	1, // [1:2] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name

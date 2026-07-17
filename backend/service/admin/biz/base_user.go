@@ -57,8 +57,8 @@ func NewBaseUserCase(
 	}
 }
 
-// OptionBaseUsers 查询用户选项
-func (c *BaseUserCase) OptionBaseUsers(ctx context.Context, req *adminv1.OptionBaseUsersRequest) (*commonv1.SelectOptionResponse, error) {
+// OptionBaseUser 查询用户选项
+func (c *BaseUserCase) OptionBaseUser(ctx context.Context, req *adminv1.OptionBaseUserRequest) (*commonv1.SelectOptionResponse, error) {
 	keyword := req.GetKeyword()
 	// 未传关键字时，直接返回空选项集。
 	if keyword == "" {
@@ -110,8 +110,8 @@ func (c *BaseUserCase) OptionBaseUsers(ctx context.Context, req *adminv1.OptionB
 	return &commonv1.SelectOptionResponse{List: options}, nil
 }
 
-// PageBaseUsers 分页查询用户
-func (c *BaseUserCase) PageBaseUsers(ctx context.Context, req *adminv1.PageBaseUsersRequest) (*adminv1.PageBaseUsersResponse, error) {
+// PageBaseUser 分页查询用户
+func (c *BaseUserCase) PageBaseUser(ctx context.Context, req *adminv1.PageBaseUserRequest) (*adminv1.PageBaseUserResponse, error) {
 	query := c.Query(ctx).BaseUser
 	opts := make([]repository.QueryOption, 0, 7)
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
@@ -127,7 +127,7 @@ func (c *BaseUserCase) PageBaseUsers(ctx context.Context, req *adminv1.PageBaseU
 			return nil, err
 		}
 		if req.GetTenantId() > 0 && dept.TenantID != req.GetTenantId() {
-			return &adminv1.PageBaseUsersResponse{BaseUsers: []*adminv1.BaseUser{}, Total: 0}, nil
+			return &adminv1.PageBaseUserResponse{BaseUsers: []*adminv1.BaseUser{}, Total: 0}, nil
 		}
 
 		deptQuery := c.baseDeptRepo.Query(ctx).BaseDept
@@ -213,7 +213,7 @@ func (c *BaseUserCase) PageBaseUsers(ctx context.Context, req *adminv1.PageBaseU
 		_, baseUser.IsProtected = protectedRoleIDs[item.RoleID]
 		resList = append(resList, baseUser)
 	}
-	return &adminv1.PageBaseUsersResponse{BaseUsers: resList, Total: int32(total)}, nil
+	return &adminv1.PageBaseUserResponse{BaseUsers: resList, Total: int32(total)}, nil
 }
 
 // GetBaseUser 获取用户

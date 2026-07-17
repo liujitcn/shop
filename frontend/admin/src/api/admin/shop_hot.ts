@@ -6,10 +6,10 @@ import {
   type DeleteShopHotRequest,
   type GetShopHotItemRequest,
   type GetShopHotRequest,
-  type PageShopHotItemsRequest,
-  type PageShopHotItemsResponse,
-  type PageShopHotsRequest,
-  type PageShopHotsResponse,
+  type PageShopHotItemRequest,
+  type PageShopHotItemResponse,
+  type PageShopHotRequest,
+  type PageShopHotResponse,
   type SetShopHotItemStatusRequest,
   type SetShopHotStatusRequest,
   type ShopHotForm,
@@ -27,8 +27,8 @@ const SHOP_HOT_ITEM_URL = "/v1/admin/shop/hot-item";
 /** 商城热门推荐服务 */
 export class ShopHotServiceImpl implements ShopHotService {
   /** 查询商城热门推荐列表 */
-  PageShopHots(request: PageShopHotsRequest): Promise<PageShopHotsResponse> {
-    return service<PageShopHotsRequest, PageShopHotsResponse>({
+  PageShopHot(request: PageShopHotRequest): Promise<PageShopHotResponse> {
+    return service<PageShopHotRequest, PageShopHotResponse>({
       url: `${SHOP_HOT_URL}`,
       method: "get",
       params: request
@@ -73,8 +73,8 @@ export class ShopHotServiceImpl implements ShopHotService {
     });
   }
   /** 查询商城热门推荐属性列表 */
-  PageShopHotItems(request: PageShopHotItemsRequest): Promise<PageShopHotItemsResponse> {
-    return service<PageShopHotItemsRequest, PageShopHotItemsResponse>({
+  PageShopHotItem(request: PageShopHotItemRequest): Promise<PageShopHotItemResponse> {
+    return service<PageShopHotItemRequest, PageShopHotItemResponse>({
       url: `${SHOP_HOT_ITEM_URL}`,
       method: "get",
       params: request

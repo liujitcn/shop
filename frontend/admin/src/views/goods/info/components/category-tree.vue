@@ -68,7 +68,7 @@ function handleNodeClick(data: { [key: string]: any }) {
 }
 
 onBeforeMount(() => {
-  defGoodsCategoryService.OptionGoodsCategories({}).then(response => {
+  defGoodsCategoryService.OptionGoodsCategory({}).then(response => {
     goodsCategoryList.value = response.list;
   });
 });

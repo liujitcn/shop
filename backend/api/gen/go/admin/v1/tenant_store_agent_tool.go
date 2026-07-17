@@ -18,24 +18,24 @@ import (
 func NewTenantStoreServiceAgentTools(tenantStoreServiceServer TenantStoreServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error
-	var optionTenantStoresTool tool.InvokableTool
-	optionTenantStoresTool, err = NewTenantStoreServiceOptionTenantStoresAgentTool(tenantStoreServiceServer)
+	var optionTenantStoreTool tool.InvokableTool
+	optionTenantStoreTool, err = NewTenantStoreServiceOptionTenantStoreAgentTool(tenantStoreServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, optionTenantStoresTool)
-	var treeTenantStoresTool tool.InvokableTool
-	treeTenantStoresTool, err = NewTenantStoreServiceTreeTenantStoresAgentTool(tenantStoreServiceServer)
+	ts = append(ts, optionTenantStoreTool)
+	var treeTenantStoreTool tool.InvokableTool
+	treeTenantStoreTool, err = NewTenantStoreServiceTreeTenantStoreAgentTool(tenantStoreServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, treeTenantStoresTool)
-	var pageTenantStoresTool tool.InvokableTool
-	pageTenantStoresTool, err = NewTenantStoreServicePageTenantStoresAgentTool(tenantStoreServiceServer)
+	ts = append(ts, treeTenantStoreTool)
+	var pageTenantStoreTool tool.InvokableTool
+	pageTenantStoreTool, err = NewTenantStoreServicePageTenantStoreAgentTool(tenantStoreServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, pageTenantStoresTool)
+	ts = append(ts, pageTenantStoreTool)
 	var getTenantStoreTool tool.InvokableTool
 	getTenantStoreTool, err = NewTenantStoreServiceGetTenantStoreAgentTool(tenantStoreServiceServer)
 	if err != nil {
@@ -69,30 +69,30 @@ func NewTenantStoreServiceAgentTools(tenantStoreServiceServer TenantStoreService
 	return ts, nil
 }
 
-// NewTenantStoreServiceOptionTenantStoresAgentTool 创建查询租户门店下拉选项的 Agent Tool。
-func NewTenantStoreServiceOptionTenantStoresAgentTool(tenantStoreServiceServer TenantStoreServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*OptionTenantStoresRequest, *OptionTenantStoresResponse](
-		"admin_v1_tenant_store_service_option_tenant_stores",
+// NewTenantStoreServiceOptionTenantStoreAgentTool 创建查询租户门店下拉选项的 Agent Tool。
+func NewTenantStoreServiceOptionTenantStoreAgentTool(tenantStoreServiceServer TenantStoreServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*OptionTenantStoreRequest, *OptionTenantStoreResponse](
+		"admin_v1_tenant_store_service_option_tenant_store",
 		"查询租户门店下拉选项",
-		func(ctx context.Context, req *OptionTenantStoresRequest) (*OptionTenantStoresResponse, error) {
+		func(ctx context.Context, req *OptionTenantStoreRequest) (*OptionTenantStoreResponse, error) {
 			if req == nil {
-				req = &OptionTenantStoresRequest{}
+				req = &OptionTenantStoreRequest{}
 			}
-			return tenantStoreServiceServer.OptionTenantStores(ctx, req)
+			return tenantStoreServiceServer.OptionTenantStore(ctx, req)
 		},
 	)
 }
 
-// NewTenantStoreServiceTreeTenantStoresAgentTool 创建查询租户门店树形选项的 Agent Tool。
-func NewTenantStoreServiceTreeTenantStoresAgentTool(tenantStoreServiceServer TenantStoreServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*TreeTenantStoresRequest, any](
-		"admin_v1_tenant_store_service_tree_tenant_stores",
+// NewTenantStoreServiceTreeTenantStoreAgentTool 创建查询租户门店树形选项的 Agent Tool。
+func NewTenantStoreServiceTreeTenantStoreAgentTool(tenantStoreServiceServer TenantStoreServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*TreeTenantStoreRequest, any](
+		"admin_v1_tenant_store_service_tree_tenant_store",
 		"查询租户门店树形选项",
-		func(ctx context.Context, req *TreeTenantStoresRequest) (any, error) {
+		func(ctx context.Context, req *TreeTenantStoreRequest) (any, error) {
 			if req == nil {
-				req = &TreeTenantStoresRequest{}
+				req = &TreeTenantStoreRequest{}
 			}
-			reply, err := tenantStoreServiceServer.TreeTenantStores(ctx, req)
+			reply, err := tenantStoreServiceServer.TreeTenantStore(ctx, req)
 			if err != nil {
 				return nil, err
 			}
@@ -101,16 +101,16 @@ func NewTenantStoreServiceTreeTenantStoresAgentTool(tenantStoreServiceServer Ten
 	)
 }
 
-// NewTenantStoreServicePageTenantStoresAgentTool 创建查询租户门店列表的 Agent Tool。
-func NewTenantStoreServicePageTenantStoresAgentTool(tenantStoreServiceServer TenantStoreServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*PageTenantStoresRequest, *PageTenantStoresResponse](
-		"admin_v1_tenant_store_service_page_tenant_stores",
+// NewTenantStoreServicePageTenantStoreAgentTool 创建查询租户门店列表的 Agent Tool。
+func NewTenantStoreServicePageTenantStoreAgentTool(tenantStoreServiceServer TenantStoreServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PageTenantStoreRequest, *PageTenantStoreResponse](
+		"admin_v1_tenant_store_service_page_tenant_store",
 		"查询租户门店列表",
-		func(ctx context.Context, req *PageTenantStoresRequest) (*PageTenantStoresResponse, error) {
+		func(ctx context.Context, req *PageTenantStoreRequest) (*PageTenantStoreResponse, error) {
 			if req == nil {
-				req = &PageTenantStoresRequest{}
+				req = &PageTenantStoreRequest{}
 			}
-			return tenantStoreServiceServer.PageTenantStores(ctx, req)
+			return tenantStoreServiceServer.PageTenantStore(ctx, req)
 		},
 	)
 }

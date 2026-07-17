@@ -8,12 +8,13 @@ package adminv1
 
 import (
 	context "context"
-	v1 "shop/api/gen/go/common/v1"
 
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+
+	v1 "shop/api/gen/go/common/v1"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -22,8 +23,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	BaseRoleService_OptionBaseRoles_FullMethodName   = "/admin.v1.BaseRoleService/OptionBaseRoles"
-	BaseRoleService_PageBaseRoles_FullMethodName     = "/admin.v1.BaseRoleService/PageBaseRoles"
+	BaseRoleService_OptionBaseRole_FullMethodName    = "/admin.v1.BaseRoleService/OptionBaseRole"
+	BaseRoleService_PageBaseRole_FullMethodName      = "/admin.v1.BaseRoleService/PageBaseRole"
 	BaseRoleService_GetBaseRole_FullMethodName       = "/admin.v1.BaseRoleService/GetBaseRole"
 	BaseRoleService_CreateBaseRole_FullMethodName    = "/admin.v1.BaseRoleService/CreateBaseRole"
 	BaseRoleService_UpdateBaseRole_FullMethodName    = "/admin.v1.BaseRoleService/UpdateBaseRole"
@@ -39,9 +40,9 @@ const (
 // Admin角色管理服务
 type BaseRoleServiceClient interface {
 	// 查询角色下拉选择
-	OptionBaseRoles(ctx context.Context, in *OptionBaseRolesRequest, opts ...grpc.CallOption) (*v1.SelectOptionResponse, error)
+	OptionBaseRole(ctx context.Context, in *OptionBaseRoleRequest, opts ...grpc.CallOption) (*v1.SelectOptionResponse, error)
 	// 查询角色分页列表
-	PageBaseRoles(ctx context.Context, in *PageBaseRolesRequest, opts ...grpc.CallOption) (*PageBaseRolesResponse, error)
+	PageBaseRole(ctx context.Context, in *PageBaseRoleRequest, opts ...grpc.CallOption) (*PageBaseRoleResponse, error)
 	// 查询角色
 	GetBaseRole(ctx context.Context, in *GetBaseRoleRequest, opts ...grpc.CallOption) (*BaseRoleForm, error)
 	// 创建角色
@@ -64,20 +65,20 @@ func NewBaseRoleServiceClient(cc grpc.ClientConnInterface) BaseRoleServiceClient
 	return &baseRoleServiceClient{cc}
 }
 
-func (c *baseRoleServiceClient) OptionBaseRoles(ctx context.Context, in *OptionBaseRolesRequest, opts ...grpc.CallOption) (*v1.SelectOptionResponse, error) {
+func (c *baseRoleServiceClient) OptionBaseRole(ctx context.Context, in *OptionBaseRoleRequest, opts ...grpc.CallOption) (*v1.SelectOptionResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(v1.SelectOptionResponse)
-	err := c.cc.Invoke(ctx, BaseRoleService_OptionBaseRoles_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, BaseRoleService_OptionBaseRole_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *baseRoleServiceClient) PageBaseRoles(ctx context.Context, in *PageBaseRolesRequest, opts ...grpc.CallOption) (*PageBaseRolesResponse, error) {
+func (c *baseRoleServiceClient) PageBaseRole(ctx context.Context, in *PageBaseRoleRequest, opts ...grpc.CallOption) (*PageBaseRoleResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(PageBaseRolesResponse)
-	err := c.cc.Invoke(ctx, BaseRoleService_PageBaseRoles_FullMethodName, in, out, cOpts...)
+	out := new(PageBaseRoleResponse)
+	err := c.cc.Invoke(ctx, BaseRoleService_PageBaseRole_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -151,9 +152,9 @@ func (c *baseRoleServiceClient) SetBaseRoleMenu(ctx context.Context, in *SetBase
 // Admin角色管理服务
 type BaseRoleServiceServer interface {
 	// 查询角色下拉选择
-	OptionBaseRoles(context.Context, *OptionBaseRolesRequest) (*v1.SelectOptionResponse, error)
+	OptionBaseRole(context.Context, *OptionBaseRoleRequest) (*v1.SelectOptionResponse, error)
 	// 查询角色分页列表
-	PageBaseRoles(context.Context, *PageBaseRolesRequest) (*PageBaseRolesResponse, error)
+	PageBaseRole(context.Context, *PageBaseRoleRequest) (*PageBaseRoleResponse, error)
 	// 查询角色
 	GetBaseRole(context.Context, *GetBaseRoleRequest) (*BaseRoleForm, error)
 	// 创建角色
@@ -176,11 +177,11 @@ type BaseRoleServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedBaseRoleServiceServer struct{}
 
-func (UnimplementedBaseRoleServiceServer) OptionBaseRoles(context.Context, *OptionBaseRolesRequest) (*v1.SelectOptionResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method OptionBaseRoles not implemented")
+func (UnimplementedBaseRoleServiceServer) OptionBaseRole(context.Context, *OptionBaseRoleRequest) (*v1.SelectOptionResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method OptionBaseRole not implemented")
 }
-func (UnimplementedBaseRoleServiceServer) PageBaseRoles(context.Context, *PageBaseRolesRequest) (*PageBaseRolesResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method PageBaseRoles not implemented")
+func (UnimplementedBaseRoleServiceServer) PageBaseRole(context.Context, *PageBaseRoleRequest) (*PageBaseRoleResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method PageBaseRole not implemented")
 }
 func (UnimplementedBaseRoleServiceServer) GetBaseRole(context.Context, *GetBaseRoleRequest) (*BaseRoleForm, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetBaseRole not implemented")
@@ -221,38 +222,38 @@ func RegisterBaseRoleServiceServer(s grpc.ServiceRegistrar, srv BaseRoleServiceS
 	s.RegisterService(&BaseRoleService_ServiceDesc, srv)
 }
 
-func _BaseRoleService_OptionBaseRoles_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(OptionBaseRolesRequest)
+func _BaseRoleService_OptionBaseRole_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OptionBaseRoleRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BaseRoleServiceServer).OptionBaseRoles(ctx, in)
+		return srv.(BaseRoleServiceServer).OptionBaseRole(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: BaseRoleService_OptionBaseRoles_FullMethodName,
+		FullMethod: BaseRoleService_OptionBaseRole_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BaseRoleServiceServer).OptionBaseRoles(ctx, req.(*OptionBaseRolesRequest))
+		return srv.(BaseRoleServiceServer).OptionBaseRole(ctx, req.(*OptionBaseRoleRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _BaseRoleService_PageBaseRoles_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PageBaseRolesRequest)
+func _BaseRoleService_PageBaseRole_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PageBaseRoleRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BaseRoleServiceServer).PageBaseRoles(ctx, in)
+		return srv.(BaseRoleServiceServer).PageBaseRole(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: BaseRoleService_PageBaseRoles_FullMethodName,
+		FullMethod: BaseRoleService_PageBaseRole_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BaseRoleServiceServer).PageBaseRoles(ctx, req.(*PageBaseRolesRequest))
+		return srv.(BaseRoleServiceServer).PageBaseRole(ctx, req.(*PageBaseRoleRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -373,12 +374,12 @@ var BaseRoleService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*BaseRoleServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "OptionBaseRoles",
-			Handler:    _BaseRoleService_OptionBaseRoles_Handler,
+			MethodName: "OptionBaseRole",
+			Handler:    _BaseRoleService_OptionBaseRole_Handler,
 		},
 		{
-			MethodName: "PageBaseRoles",
-			Handler:    _BaseRoleService_PageBaseRoles_Handler,
+			MethodName: "PageBaseRole",
+			Handler:    _BaseRoleService_PageBaseRole_Handler,
 		},
 		{
 			MethodName: "GetBaseRole",

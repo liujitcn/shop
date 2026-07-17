@@ -8,7 +8,6 @@ package adminv1
 
 import (
 	reflect "reflect"
-	v1 "shop/api/gen/go/common/v1"
 	sync "sync"
 	unsafe "unsafe"
 
@@ -17,6 +16,8 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+
+	v1 "shop/api/gen/go/common/v1"
 )
 
 const (
@@ -27,27 +28,27 @@ const (
 )
 
 // 部门树查询条件
-type TreeBaseDeptsRequest struct {
+type TreeBaseDeptRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	TenantId      *int64                 `protobuf:"varint,1,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"` // 租户ID
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *TreeBaseDeptsRequest) Reset() {
-	*x = TreeBaseDeptsRequest{}
+func (x *TreeBaseDeptRequest) Reset() {
+	*x = TreeBaseDeptRequest{}
 	mi := &file_admin_v1_base_dept_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *TreeBaseDeptsRequest) String() string {
+func (x *TreeBaseDeptRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*TreeBaseDeptsRequest) ProtoMessage() {}
+func (*TreeBaseDeptRequest) ProtoMessage() {}
 
-func (x *TreeBaseDeptsRequest) ProtoReflect() protoreflect.Message {
+func (x *TreeBaseDeptRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_base_dept_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -59,12 +60,12 @@ func (x *TreeBaseDeptsRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use TreeBaseDeptsRequest.ProtoReflect.Descriptor instead.
-func (*TreeBaseDeptsRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use TreeBaseDeptRequest.ProtoReflect.Descriptor instead.
+func (*TreeBaseDeptRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_base_dept_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *TreeBaseDeptsRequest) GetTenantId() int64 {
+func (x *TreeBaseDeptRequest) GetTenantId() int64 {
 	if x != nil && x.TenantId != nil {
 		return *x.TenantId
 	}
@@ -72,27 +73,27 @@ func (x *TreeBaseDeptsRequest) GetTenantId() int64 {
 }
 
 // 部门树响应
-type TreeBaseDeptsResponse struct {
+type TreeBaseDeptResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	BaseDepts     []*BaseDept            `protobuf:"bytes,1,rep,name=base_depts,json=baseDepts,proto3" json:"base_depts,omitempty"` // 部门树
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *TreeBaseDeptsResponse) Reset() {
-	*x = TreeBaseDeptsResponse{}
+func (x *TreeBaseDeptResponse) Reset() {
+	*x = TreeBaseDeptResponse{}
 	mi := &file_admin_v1_base_dept_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *TreeBaseDeptsResponse) String() string {
+func (x *TreeBaseDeptResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*TreeBaseDeptsResponse) ProtoMessage() {}
+func (*TreeBaseDeptResponse) ProtoMessage() {}
 
-func (x *TreeBaseDeptsResponse) ProtoReflect() protoreflect.Message {
+func (x *TreeBaseDeptResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_base_dept_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -104,12 +105,12 @@ func (x *TreeBaseDeptsResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use TreeBaseDeptsResponse.ProtoReflect.Descriptor instead.
-func (*TreeBaseDeptsResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use TreeBaseDeptResponse.ProtoReflect.Descriptor instead.
+func (*TreeBaseDeptResponse) Descriptor() ([]byte, []int) {
 	return file_admin_v1_base_dept_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *TreeBaseDeptsResponse) GetBaseDepts() []*BaseDept {
+func (x *TreeBaseDeptResponse) GetBaseDepts() []*BaseDept {
 	if x != nil {
 		return x.BaseDepts
 	}
@@ -117,7 +118,7 @@ func (x *TreeBaseDeptsResponse) GetBaseDepts() []*BaseDept {
 }
 
 // 部门选项查询条件
-type OptionBaseDeptsRequest struct {
+type OptionBaseDeptRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	TenantId      *int64                 `protobuf:"varint,1,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"` // 租户ID
 	ParentId      *int64                 `protobuf:"varint,2,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"` // 父级部门ID
@@ -125,20 +126,20 @@ type OptionBaseDeptsRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *OptionBaseDeptsRequest) Reset() {
-	*x = OptionBaseDeptsRequest{}
+func (x *OptionBaseDeptRequest) Reset() {
+	*x = OptionBaseDeptRequest{}
 	mi := &file_admin_v1_base_dept_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *OptionBaseDeptsRequest) String() string {
+func (x *OptionBaseDeptRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*OptionBaseDeptsRequest) ProtoMessage() {}
+func (*OptionBaseDeptRequest) ProtoMessage() {}
 
-func (x *OptionBaseDeptsRequest) ProtoReflect() protoreflect.Message {
+func (x *OptionBaseDeptRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_base_dept_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -150,19 +151,19 @@ func (x *OptionBaseDeptsRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use OptionBaseDeptsRequest.ProtoReflect.Descriptor instead.
-func (*OptionBaseDeptsRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use OptionBaseDeptRequest.ProtoReflect.Descriptor instead.
+func (*OptionBaseDeptRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_base_dept_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *OptionBaseDeptsRequest) GetTenantId() int64 {
+func (x *OptionBaseDeptRequest) GetTenantId() int64 {
 	if x != nil && x.TenantId != nil {
 		return *x.TenantId
 	}
 	return 0
 }
 
-func (x *OptionBaseDeptsRequest) GetParentId() int64 {
+func (x *OptionBaseDeptRequest) GetParentId() int64 {
 	if x != nil && x.ParentId != nil {
 		return *x.ParentId
 	}
@@ -616,15 +617,15 @@ var File_admin_v1_base_dept_proto protoreflect.FileDescriptor
 
 const file_admin_v1_base_dept_proto_rawDesc = "" +
 	"\n" +
-	"\x18admin/v1/base_dept.proto\x12\badmin.v1\x1a\x16common/v1/common.proto\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"V\n" +
-	"\x14TreeBaseDeptsRequest\x120\n" +
+	"\x18admin/v1/base_dept.proto\x12\badmin.v1\x1a\x16common/v1/common.proto\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"U\n" +
+	"\x13TreeBaseDeptRequest\x120\n" +
 	"\ttenant_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01B\f\n" +
 	"\n" +
-	"_tenant_id\"[\n" +
-	"\x15TreeBaseDeptsResponse\x12B\n" +
+	"_tenant_id\"Z\n" +
+	"\x14TreeBaseDeptResponse\x12B\n" +
 	"\n" +
-	"base_depts\x18\x01 \x03(\v2\x12.admin.v1.BaseDeptB\x0f\xbaG\f\x92\x02\t部门树R\tbaseDepts\"\x9e\x01\n" +
-	"\x16OptionBaseDeptsRequest\x120\n" +
+	"base_depts\x18\x01 \x03(\v2\x12.admin.v1.BaseDeptB\x0f\xbaG\f\x92\x02\t部门树R\tbaseDepts\"\x9d\x01\n" +
+	"\x15OptionBaseDeptRequest\x120\n" +
 	"\ttenant_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x126\n" +
 	"\tparent_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e父级部门IDH\x01R\bparentId\x88\x01\x01B\f\n" +
 	"\n" +
@@ -665,10 +666,10 @@ const file_admin_v1_base_dept_proto_rawDesc = "" +
 	"\x06remark\x18e \x01(\tB\f\xbaG\t\x92\x02\x06备注R\x06remarkB\f\n" +
 	"\n" +
 	"_parent_idB\t\n" +
-	"\a_status2\xe0\x06\n" +
-	"\x0fBaseDeptService\x12v\n" +
-	"\rTreeBaseDepts\x12\x1e.admin.v1.TreeBaseDeptsRequest\x1a\x1f.admin.v1.TreeBaseDeptsResponse\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/api/v1/admin/base/dept/tree\x12z\n" +
-	"\x0fOptionBaseDepts\x12 .admin.v1.OptionBaseDeptsRequest\x1a\x1d.common.v1.TreeOptionResponse\"&\x82\xd3\xe4\x93\x02 \x12\x1e/api/v1/admin/base/dept/option\x12i\n" +
+	"\a_status2\xdb\x06\n" +
+	"\x0fBaseDeptService\x12s\n" +
+	"\fTreeBaseDept\x12\x1d.admin.v1.TreeBaseDeptRequest\x1a\x1e.admin.v1.TreeBaseDeptResponse\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/api/v1/admin/base/dept/tree\x12x\n" +
+	"\x0eOptionBaseDept\x12\x1f.admin.v1.OptionBaseDeptRequest\x1a\x1d.common.v1.TreeOptionResponse\"&\x82\xd3\xe4\x93\x02 \x12\x1e/api/v1/admin/base/dept/option\x12i\n" +
 	"\vGetBaseDept\x12\x1c.admin.v1.GetBaseDeptRequest\x1a\x16.admin.v1.BaseDeptForm\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/api/v1/admin/base/dept/{id}\x12u\n" +
 	"\x0eCreateBaseDept\x12\x1f.admin.v1.CreateBaseDeptRequest\x1a\x16.google.protobuf.Empty\"*\x82\xd3\xe4\x93\x02$:\tbase_dept\"\x17/api/v1/admin/base/dept\x12\x84\x01\n" +
 	"\x0eUpdateBaseDept\x12\x1f.admin.v1.UpdateBaseDeptRequest\x1a\x16.google.protobuf.Empty\"9\x82\xd3\xe4\x93\x023:\tbase_dept\x1a&/api/v1/admin/base/dept/{base_dept.id}\x12o\n" +
@@ -690,9 +691,9 @@ func file_admin_v1_base_dept_proto_rawDescGZIP() []byte {
 
 var file_admin_v1_base_dept_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_admin_v1_base_dept_proto_goTypes = []any{
-	(*TreeBaseDeptsRequest)(nil),     // 0: admin.v1.TreeBaseDeptsRequest
-	(*TreeBaseDeptsResponse)(nil),    // 1: admin.v1.TreeBaseDeptsResponse
-	(*OptionBaseDeptsRequest)(nil),   // 2: admin.v1.OptionBaseDeptsRequest
+	(*TreeBaseDeptRequest)(nil),      // 0: admin.v1.TreeBaseDeptRequest
+	(*TreeBaseDeptResponse)(nil),     // 1: admin.v1.TreeBaseDeptResponse
+	(*OptionBaseDeptRequest)(nil),    // 2: admin.v1.OptionBaseDeptRequest
 	(*GetBaseDeptRequest)(nil),       // 3: admin.v1.GetBaseDeptRequest
 	(*CreateBaseDeptRequest)(nil),    // 4: admin.v1.CreateBaseDeptRequest
 	(*UpdateBaseDeptRequest)(nil),    // 5: admin.v1.UpdateBaseDeptRequest
@@ -705,21 +706,21 @@ var file_admin_v1_base_dept_proto_goTypes = []any{
 	(*emptypb.Empty)(nil),            // 12: google.protobuf.Empty
 }
 var file_admin_v1_base_dept_proto_depIdxs = []int32{
-	8,  // 0: admin.v1.TreeBaseDeptsResponse.base_depts:type_name -> admin.v1.BaseDept
+	8,  // 0: admin.v1.TreeBaseDeptResponse.base_depts:type_name -> admin.v1.BaseDept
 	9,  // 1: admin.v1.CreateBaseDeptRequest.base_dept:type_name -> admin.v1.BaseDeptForm
 	9,  // 2: admin.v1.UpdateBaseDeptRequest.base_dept:type_name -> admin.v1.BaseDeptForm
 	10, // 3: admin.v1.BaseDept.status:type_name -> common.v1.Status
 	8,  // 4: admin.v1.BaseDept.children:type_name -> admin.v1.BaseDept
 	10, // 5: admin.v1.BaseDeptForm.status:type_name -> common.v1.Status
-	0,  // 6: admin.v1.BaseDeptService.TreeBaseDepts:input_type -> admin.v1.TreeBaseDeptsRequest
-	2,  // 7: admin.v1.BaseDeptService.OptionBaseDepts:input_type -> admin.v1.OptionBaseDeptsRequest
+	0,  // 6: admin.v1.BaseDeptService.TreeBaseDept:input_type -> admin.v1.TreeBaseDeptRequest
+	2,  // 7: admin.v1.BaseDeptService.OptionBaseDept:input_type -> admin.v1.OptionBaseDeptRequest
 	3,  // 8: admin.v1.BaseDeptService.GetBaseDept:input_type -> admin.v1.GetBaseDeptRequest
 	4,  // 9: admin.v1.BaseDeptService.CreateBaseDept:input_type -> admin.v1.CreateBaseDeptRequest
 	5,  // 10: admin.v1.BaseDeptService.UpdateBaseDept:input_type -> admin.v1.UpdateBaseDeptRequest
 	6,  // 11: admin.v1.BaseDeptService.DeleteBaseDept:input_type -> admin.v1.DeleteBaseDeptRequest
 	7,  // 12: admin.v1.BaseDeptService.SetBaseDeptStatus:input_type -> admin.v1.SetBaseDeptStatusRequest
-	1,  // 13: admin.v1.BaseDeptService.TreeBaseDepts:output_type -> admin.v1.TreeBaseDeptsResponse
-	11, // 14: admin.v1.BaseDeptService.OptionBaseDepts:output_type -> common.v1.TreeOptionResponse
+	1,  // 13: admin.v1.BaseDeptService.TreeBaseDept:output_type -> admin.v1.TreeBaseDeptResponse
+	11, // 14: admin.v1.BaseDeptService.OptionBaseDept:output_type -> common.v1.TreeOptionResponse
 	9,  // 15: admin.v1.BaseDeptService.GetBaseDept:output_type -> admin.v1.BaseDeptForm
 	12, // 16: admin.v1.BaseDeptService.CreateBaseDept:output_type -> google.protobuf.Empty
 	12, // 17: admin.v1.BaseDeptService.UpdateBaseDept:output_type -> google.protobuf.Empty

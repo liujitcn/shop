@@ -20,7 +20,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	PayBillService_PagePayBills_FullMethodName = "/admin.v1.PayBillService/PagePayBills"
+	PayBillService_PagePayBill_FullMethodName = "/admin.v1.PayBillService/PagePayBill"
 )
 
 // PayBillServiceClient is the client API for PayBillService service.
@@ -30,7 +30,7 @@ const (
 // Admin支付账单服务
 type PayBillServiceClient interface {
 	// 查询支付账单列表
-	PagePayBills(ctx context.Context, in *PagePayBillsRequest, opts ...grpc.CallOption) (*PagePayBillsResponse, error)
+	PagePayBill(ctx context.Context, in *PagePayBillRequest, opts ...grpc.CallOption) (*PagePayBillResponse, error)
 }
 
 type payBillServiceClient struct {
@@ -41,10 +41,10 @@ func NewPayBillServiceClient(cc grpc.ClientConnInterface) PayBillServiceClient {
 	return &payBillServiceClient{cc}
 }
 
-func (c *payBillServiceClient) PagePayBills(ctx context.Context, in *PagePayBillsRequest, opts ...grpc.CallOption) (*PagePayBillsResponse, error) {
+func (c *payBillServiceClient) PagePayBill(ctx context.Context, in *PagePayBillRequest, opts ...grpc.CallOption) (*PagePayBillResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(PagePayBillsResponse)
-	err := c.cc.Invoke(ctx, PayBillService_PagePayBills_FullMethodName, in, out, cOpts...)
+	out := new(PagePayBillResponse)
+	err := c.cc.Invoke(ctx, PayBillService_PagePayBill_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +58,7 @@ func (c *payBillServiceClient) PagePayBills(ctx context.Context, in *PagePayBill
 // Admin支付账单服务
 type PayBillServiceServer interface {
 	// 查询支付账单列表
-	PagePayBills(context.Context, *PagePayBillsRequest) (*PagePayBillsResponse, error)
+	PagePayBill(context.Context, *PagePayBillRequest) (*PagePayBillResponse, error)
 	mustEmbedUnimplementedPayBillServiceServer()
 }
 
@@ -69,8 +69,8 @@ type PayBillServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedPayBillServiceServer struct{}
 
-func (UnimplementedPayBillServiceServer) PagePayBills(context.Context, *PagePayBillsRequest) (*PagePayBillsResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method PagePayBills not implemented")
+func (UnimplementedPayBillServiceServer) PagePayBill(context.Context, *PagePayBillRequest) (*PagePayBillResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method PagePayBill not implemented")
 }
 func (UnimplementedPayBillServiceServer) mustEmbedUnimplementedPayBillServiceServer() {}
 func (UnimplementedPayBillServiceServer) testEmbeddedByValue()                        {}
@@ -93,20 +93,20 @@ func RegisterPayBillServiceServer(s grpc.ServiceRegistrar, srv PayBillServiceSer
 	s.RegisterService(&PayBillService_ServiceDesc, srv)
 }
 
-func _PayBillService_PagePayBills_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PagePayBillsRequest)
+func _PayBillService_PagePayBill_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PagePayBillRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PayBillServiceServer).PagePayBills(ctx, in)
+		return srv.(PayBillServiceServer).PagePayBill(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: PayBillService_PagePayBills_FullMethodName,
+		FullMethod: PayBillService_PagePayBill_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PayBillServiceServer).PagePayBills(ctx, req.(*PagePayBillsRequest))
+		return srv.(PayBillServiceServer).PagePayBill(ctx, req.(*PagePayBillRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -119,8 +119,8 @@ var PayBillService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*PayBillServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "PagePayBills",
-			Handler:    _PayBillService_PagePayBills_Handler,
+			MethodName: "PagePayBill",
+			Handler:    _PayBillService_PagePayBill_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

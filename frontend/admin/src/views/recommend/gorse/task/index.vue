@@ -87,7 +87,7 @@ const columns: ColumnProps[] = [
 
 /** 请求 Gorse 推荐任务表格；任务页不做定时刷新，只响应用户手动进入、搜索或刷新。 */
 async function requestTaskTable(params: TaskTableParams = {}) {
-  const data = await defRecommendGorseService.ListTasks({});
+  const data = await defRecommendGorseService.ListTask({});
   const tasks = data.tasks ?? [];
 
   const taskNameKeyword = String(params.name ?? "")

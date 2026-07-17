@@ -17,7 +17,7 @@ func newAdminFlowAgentTools(services *ServerServices) ([]einoTool.Invokable, err
 	}
 
 	// 订单信息服务（排除 refund_order_info，注册 5 个工具）
-	if err = builder.appendTool(adminv1.NewOrderInfoServicePageOrderInfosAgentTool(services.adminOrder)); err != nil {
+	if err = builder.appendTool(adminv1.NewOrderInfoServicePageOrderInfoAgentTool(services.adminOrder)); err != nil {
 		return nil, err
 	}
 	if err = builder.appendTool(adminv1.NewOrderInfoServiceGetOrderInfoAgentTool(services.adminOrder)); err != nil {

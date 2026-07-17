@@ -8,12 +8,13 @@ package adminv1
 
 import (
 	context "context"
-	v1 "shop/api/gen/go/common/v1"
 
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+
+	v1 "shop/api/gen/go/common/v1"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -23,8 +24,8 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	AuthService_GetUserInfo_FullMethodName        = "/admin.v1.AuthService/GetUserInfo"
-	AuthService_TreeUserMenus_FullMethodName      = "/admin.v1.AuthService/TreeUserMenus"
-	AuthService_ListUserButtons_FullMethodName    = "/admin.v1.AuthService/ListUserButtons"
+	AuthService_TreeUserMenu_FullMethodName       = "/admin.v1.AuthService/TreeUserMenu"
+	AuthService_ListUserButton_FullMethodName     = "/admin.v1.AuthService/ListUserButton"
 	AuthService_GetUserProfile_FullMethodName     = "/admin.v1.AuthService/GetUserProfile"
 	AuthService_UpdateUserProfile_FullMethodName  = "/admin.v1.AuthService/UpdateUserProfile"
 	AuthService_SendPhoneCode_FullMethodName      = "/admin.v1.AuthService/SendPhoneCode"
@@ -41,9 +42,9 @@ type AuthServiceClient interface {
 	// 获取已经登录的用户的数据
 	GetUserInfo(ctx context.Context, in *GetUserInfoRequest, opts ...grpc.CallOption) (*UserInfoForm, error)
 	// 查询已经登录的用户菜单树
-	TreeUserMenus(ctx context.Context, in *TreeUserMenusRequest, opts ...grpc.CallOption) (*TreeRouteResponse, error)
+	TreeUserMenu(ctx context.Context, in *TreeUserMenuRequest, opts ...grpc.CallOption) (*TreeRouteResponse, error)
 	// 查询已经登录的用户按钮列表
-	ListUserButtons(ctx context.Context, in *ListUserButtonsRequest, opts ...grpc.CallOption) (*v1.StringValues, error)
+	ListUserButton(ctx context.Context, in *ListUserButtonRequest, opts ...grpc.CallOption) (*v1.StringValues, error)
 	// 获取个人中心用户信息
 	GetUserProfile(ctx context.Context, in *GetUserProfileRequest, opts ...grpc.CallOption) (*UserProfileForm, error)
 	// 修改个人中心用户信息
@@ -74,20 +75,20 @@ func (c *authServiceClient) GetUserInfo(ctx context.Context, in *GetUserInfoRequ
 	return out, nil
 }
 
-func (c *authServiceClient) TreeUserMenus(ctx context.Context, in *TreeUserMenusRequest, opts ...grpc.CallOption) (*TreeRouteResponse, error) {
+func (c *authServiceClient) TreeUserMenu(ctx context.Context, in *TreeUserMenuRequest, opts ...grpc.CallOption) (*TreeRouteResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(TreeRouteResponse)
-	err := c.cc.Invoke(ctx, AuthService_TreeUserMenus_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, AuthService_TreeUserMenu_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *authServiceClient) ListUserButtons(ctx context.Context, in *ListUserButtonsRequest, opts ...grpc.CallOption) (*v1.StringValues, error) {
+func (c *authServiceClient) ListUserButton(ctx context.Context, in *ListUserButtonRequest, opts ...grpc.CallOption) (*v1.StringValues, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(v1.StringValues)
-	err := c.cc.Invoke(ctx, AuthService_ListUserButtons_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, AuthService_ListUserButton_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -153,9 +154,9 @@ type AuthServiceServer interface {
 	// 获取已经登录的用户的数据
 	GetUserInfo(context.Context, *GetUserInfoRequest) (*UserInfoForm, error)
 	// 查询已经登录的用户菜单树
-	TreeUserMenus(context.Context, *TreeUserMenusRequest) (*TreeRouteResponse, error)
+	TreeUserMenu(context.Context, *TreeUserMenuRequest) (*TreeRouteResponse, error)
 	// 查询已经登录的用户按钮列表
-	ListUserButtons(context.Context, *ListUserButtonsRequest) (*v1.StringValues, error)
+	ListUserButton(context.Context, *ListUserButtonRequest) (*v1.StringValues, error)
 	// 获取个人中心用户信息
 	GetUserProfile(context.Context, *GetUserProfileRequest) (*UserProfileForm, error)
 	// 修改个人中心用户信息
@@ -179,11 +180,11 @@ type UnimplementedAuthServiceServer struct{}
 func (UnimplementedAuthServiceServer) GetUserInfo(context.Context, *GetUserInfoRequest) (*UserInfoForm, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetUserInfo not implemented")
 }
-func (UnimplementedAuthServiceServer) TreeUserMenus(context.Context, *TreeUserMenusRequest) (*TreeRouteResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method TreeUserMenus not implemented")
+func (UnimplementedAuthServiceServer) TreeUserMenu(context.Context, *TreeUserMenuRequest) (*TreeRouteResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method TreeUserMenu not implemented")
 }
-func (UnimplementedAuthServiceServer) ListUserButtons(context.Context, *ListUserButtonsRequest) (*v1.StringValues, error) {
-	return nil, status.Error(codes.Unimplemented, "method ListUserButtons not implemented")
+func (UnimplementedAuthServiceServer) ListUserButton(context.Context, *ListUserButtonRequest) (*v1.StringValues, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListUserButton not implemented")
 }
 func (UnimplementedAuthServiceServer) GetUserProfile(context.Context, *GetUserProfileRequest) (*UserProfileForm, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetUserProfile not implemented")
@@ -239,38 +240,38 @@ func _AuthService_GetUserInfo_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AuthService_TreeUserMenus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(TreeUserMenusRequest)
+func _AuthService_TreeUserMenu_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TreeUserMenuRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AuthServiceServer).TreeUserMenus(ctx, in)
+		return srv.(AuthServiceServer).TreeUserMenu(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: AuthService_TreeUserMenus_FullMethodName,
+		FullMethod: AuthService_TreeUserMenu_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthServiceServer).TreeUserMenus(ctx, req.(*TreeUserMenusRequest))
+		return srv.(AuthServiceServer).TreeUserMenu(ctx, req.(*TreeUserMenuRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AuthService_ListUserButtons_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListUserButtonsRequest)
+func _AuthService_ListUserButton_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListUserButtonRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AuthServiceServer).ListUserButtons(ctx, in)
+		return srv.(AuthServiceServer).ListUserButton(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: AuthService_ListUserButtons_FullMethodName,
+		FullMethod: AuthService_ListUserButton_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthServiceServer).ListUserButtons(ctx, req.(*ListUserButtonsRequest))
+		return srv.(AuthServiceServer).ListUserButton(ctx, req.(*ListUserButtonRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -377,12 +378,12 @@ var AuthService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _AuthService_GetUserInfo_Handler,
 		},
 		{
-			MethodName: "TreeUserMenus",
-			Handler:    _AuthService_TreeUserMenus_Handler,
+			MethodName: "TreeUserMenu",
+			Handler:    _AuthService_TreeUserMenu_Handler,
 		},
 		{
-			MethodName: "ListUserButtons",
-			Handler:    _AuthService_ListUserButtons_Handler,
+			MethodName: "ListUserButton",
+			Handler:    _AuthService_ListUserButton_Handler,
 		},
 		{
 			MethodName: "GetUserProfile",

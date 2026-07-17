@@ -15,24 +15,24 @@ import (
 
 // RegisterCodeGenColumnServiceMCPTools 注册Admin代码生成字段服务的 MCP Tool。
 func RegisterCodeGenColumnServiceMCPTools(mcpServer *mcp.Server, codeGenColumnServiceServer CodeGenColumnServiceServer) {
-	RegisterCodeGenColumnServiceListCodeGenDatabaseColumnsMCPTool(mcpServer, codeGenColumnServiceServer)
-	RegisterCodeGenColumnServiceListCodeGenColumnsMCPTool(mcpServer, codeGenColumnServiceServer)
-	RegisterCodeGenColumnServiceSaveCodeGenColumnsMCPTool(mcpServer, codeGenColumnServiceServer)
+	RegisterCodeGenColumnServiceListCodeGenDatabaseColumnMCPTool(mcpServer, codeGenColumnServiceServer)
+	RegisterCodeGenColumnServiceListCodeGenColumnMCPTool(mcpServer, codeGenColumnServiceServer)
+	RegisterCodeGenColumnServiceSaveCodeGenColumnMCPTool(mcpServer, codeGenColumnServiceServer)
 }
 
-// RegisterCodeGenColumnServiceListCodeGenDatabaseColumnsMCPTool 注册查询数据库表字段列表的 MCP Tool。
-func RegisterCodeGenColumnServiceListCodeGenDatabaseColumnsMCPTool(mcpServer *mcp.Server, codeGenColumnServiceServer CodeGenColumnServiceServer) {
-	mcp.AddTool[*ListCodeGenDatabaseColumnsRequest, *ListCodeGenDatabaseColumnsResponse](
+// RegisterCodeGenColumnServiceListCodeGenDatabaseColumnMCPTool 注册查询数据库表字段列表的 MCP Tool。
+func RegisterCodeGenColumnServiceListCodeGenDatabaseColumnMCPTool(mcpServer *mcp.Server, codeGenColumnServiceServer CodeGenColumnServiceServer) {
+	mcp.AddTool[*ListCodeGenDatabaseColumnRequest, *ListCodeGenDatabaseColumnResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "admin_v1_code_gen_column_service_list_code_gen_database_columns",
+			Name:        "admin_v1_code_gen_column_service_list_code_gen_database_column",
 			Description: "查询数据库表字段列表",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *ListCodeGenDatabaseColumnsRequest) (*mcp.CallToolResult, *ListCodeGenDatabaseColumnsResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *ListCodeGenDatabaseColumnRequest) (*mcp.CallToolResult, *ListCodeGenDatabaseColumnResponse, error) {
 			if input == nil {
-				input = &ListCodeGenDatabaseColumnsRequest{}
+				input = &ListCodeGenDatabaseColumnRequest{}
 			}
-			reply, err := codeGenColumnServiceServer.ListCodeGenDatabaseColumns(ctx, input)
+			reply, err := codeGenColumnServiceServer.ListCodeGenDatabaseColumn(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -41,19 +41,19 @@ func RegisterCodeGenColumnServiceListCodeGenDatabaseColumnsMCPTool(mcpServer *mc
 	)
 }
 
-// RegisterCodeGenColumnServiceListCodeGenColumnsMCPTool 注册查询代码生成字段配置的 MCP Tool。
-func RegisterCodeGenColumnServiceListCodeGenColumnsMCPTool(mcpServer *mcp.Server, codeGenColumnServiceServer CodeGenColumnServiceServer) {
-	mcp.AddTool[*ListCodeGenColumnsRequest, *ListCodeGenColumnsResponse](
+// RegisterCodeGenColumnServiceListCodeGenColumnMCPTool 注册查询代码生成字段配置的 MCP Tool。
+func RegisterCodeGenColumnServiceListCodeGenColumnMCPTool(mcpServer *mcp.Server, codeGenColumnServiceServer CodeGenColumnServiceServer) {
+	mcp.AddTool[*ListCodeGenColumnRequest, *ListCodeGenColumnResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "admin_v1_code_gen_column_service_list_code_gen_columns",
+			Name:        "admin_v1_code_gen_column_service_list_code_gen_column",
 			Description: "查询代码生成字段配置",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *ListCodeGenColumnsRequest) (*mcp.CallToolResult, *ListCodeGenColumnsResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *ListCodeGenColumnRequest) (*mcp.CallToolResult, *ListCodeGenColumnResponse, error) {
 			if input == nil {
-				input = &ListCodeGenColumnsRequest{}
+				input = &ListCodeGenColumnRequest{}
 			}
-			reply, err := codeGenColumnServiceServer.ListCodeGenColumns(ctx, input)
+			reply, err := codeGenColumnServiceServer.ListCodeGenColumn(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -62,19 +62,19 @@ func RegisterCodeGenColumnServiceListCodeGenColumnsMCPTool(mcpServer *mcp.Server
 	)
 }
 
-// RegisterCodeGenColumnServiceSaveCodeGenColumnsMCPTool 注册保存代码生成字段配置的 MCP Tool。
-func RegisterCodeGenColumnServiceSaveCodeGenColumnsMCPTool(mcpServer *mcp.Server, codeGenColumnServiceServer CodeGenColumnServiceServer) {
-	mcp.AddTool[*SaveCodeGenColumnsRequest, *emptypb.Empty](
+// RegisterCodeGenColumnServiceSaveCodeGenColumnMCPTool 注册保存代码生成字段配置的 MCP Tool。
+func RegisterCodeGenColumnServiceSaveCodeGenColumnMCPTool(mcpServer *mcp.Server, codeGenColumnServiceServer CodeGenColumnServiceServer) {
+	mcp.AddTool[*SaveCodeGenColumnRequest, *emptypb.Empty](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "admin_v1_code_gen_column_service_save_code_gen_columns",
+			Name:        "admin_v1_code_gen_column_service_save_code_gen_column",
 			Description: "保存代码生成字段配置",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *SaveCodeGenColumnsRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *SaveCodeGenColumnRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
 			if input == nil {
-				input = &SaveCodeGenColumnsRequest{}
+				input = &SaveCodeGenColumnRequest{}
 			}
-			reply, err := codeGenColumnServiceServer.SaveCodeGenColumns(ctx, input)
+			reply, err := codeGenColumnServiceServer.SaveCodeGenColumn(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

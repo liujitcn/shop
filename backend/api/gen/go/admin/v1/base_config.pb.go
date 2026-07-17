@@ -8,7 +8,6 @@ package adminv1
 
 import (
 	reflect "reflect"
-	v1 "shop/api/gen/go/common/v1"
 	sync "sync"
 	unsafe "unsafe"
 
@@ -17,6 +16,8 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+
+	v1 "shop/api/gen/go/common/v1"
 )
 
 const (
@@ -64,7 +65,7 @@ func (*RefreshBaseConfigCacheRequest) Descriptor() ([]byte, []int) {
 }
 
 // 系统配置分页查询条件
-type PageBaseConfigsRequest struct {
+type PageBaseConfigRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Site          *v1.BaseConfigSite     `protobuf:"varint,2,opt,name=site,proto3,enum=common.v1.BaseConfigSite,oneof" json:"site,omitempty"` // 位置：枚举【BaseConfigSite】
 	Name          *string                `protobuf:"bytes,3,opt,name=name,proto3,oneof" json:"name,omitempty"`                                // 配置名称
@@ -77,20 +78,20 @@ type PageBaseConfigsRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *PageBaseConfigsRequest) Reset() {
-	*x = PageBaseConfigsRequest{}
+func (x *PageBaseConfigRequest) Reset() {
+	*x = PageBaseConfigRequest{}
 	mi := &file_admin_v1_base_config_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PageBaseConfigsRequest) String() string {
+func (x *PageBaseConfigRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PageBaseConfigsRequest) ProtoMessage() {}
+func (*PageBaseConfigRequest) ProtoMessage() {}
 
-func (x *PageBaseConfigsRequest) ProtoReflect() protoreflect.Message {
+func (x *PageBaseConfigRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_base_config_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -102,54 +103,54 @@ func (x *PageBaseConfigsRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PageBaseConfigsRequest.ProtoReflect.Descriptor instead.
-func (*PageBaseConfigsRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use PageBaseConfigRequest.ProtoReflect.Descriptor instead.
+func (*PageBaseConfigRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_base_config_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *PageBaseConfigsRequest) GetSite() v1.BaseConfigSite {
+func (x *PageBaseConfigRequest) GetSite() v1.BaseConfigSite {
 	if x != nil && x.Site != nil {
 		return *x.Site
 	}
 	return v1.BaseConfigSite(0)
 }
 
-func (x *PageBaseConfigsRequest) GetName() string {
+func (x *PageBaseConfigRequest) GetName() string {
 	if x != nil && x.Name != nil {
 		return *x.Name
 	}
 	return ""
 }
 
-func (x *PageBaseConfigsRequest) GetType() v1.BaseConfigType {
+func (x *PageBaseConfigRequest) GetType() v1.BaseConfigType {
 	if x != nil && x.Type != nil {
 		return *x.Type
 	}
 	return v1.BaseConfigType(0)
 }
 
-func (x *PageBaseConfigsRequest) GetKey() string {
+func (x *PageBaseConfigRequest) GetKey() string {
 	if x != nil && x.Key != nil {
 		return *x.Key
 	}
 	return ""
 }
 
-func (x *PageBaseConfigsRequest) GetStatus() v1.Status {
+func (x *PageBaseConfigRequest) GetStatus() v1.Status {
 	if x != nil && x.Status != nil {
 		return *x.Status
 	}
 	return v1.Status(0)
 }
 
-func (x *PageBaseConfigsRequest) GetPageNum() int64 {
+func (x *PageBaseConfigRequest) GetPageNum() int64 {
 	if x != nil {
 		return x.PageNum
 	}
 	return 0
 }
 
-func (x *PageBaseConfigsRequest) GetPageSize() int64 {
+func (x *PageBaseConfigRequest) GetPageSize() int64 {
 	if x != nil {
 		return x.PageSize
 	}
@@ -157,7 +158,7 @@ func (x *PageBaseConfigsRequest) GetPageSize() int64 {
 }
 
 // 系统配置分页响应
-type PageBaseConfigsResponse struct {
+type PageBaseConfigResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	BaseConfigs   []*BaseConfig          `protobuf:"bytes,1,rep,name=base_configs,json=baseConfigs,proto3" json:"base_configs,omitempty"` // 分页数据
 	Total         int32                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`                               // 总数
@@ -165,20 +166,20 @@ type PageBaseConfigsResponse struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *PageBaseConfigsResponse) Reset() {
-	*x = PageBaseConfigsResponse{}
+func (x *PageBaseConfigResponse) Reset() {
+	*x = PageBaseConfigResponse{}
 	mi := &file_admin_v1_base_config_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PageBaseConfigsResponse) String() string {
+func (x *PageBaseConfigResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PageBaseConfigsResponse) ProtoMessage() {}
+func (*PageBaseConfigResponse) ProtoMessage() {}
 
-func (x *PageBaseConfigsResponse) ProtoReflect() protoreflect.Message {
+func (x *PageBaseConfigResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_base_config_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -190,19 +191,19 @@ func (x *PageBaseConfigsResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PageBaseConfigsResponse.ProtoReflect.Descriptor instead.
-func (*PageBaseConfigsResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use PageBaseConfigResponse.ProtoReflect.Descriptor instead.
+func (*PageBaseConfigResponse) Descriptor() ([]byte, []int) {
 	return file_admin_v1_base_config_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *PageBaseConfigsResponse) GetBaseConfigs() []*BaseConfig {
+func (x *PageBaseConfigResponse) GetBaseConfigs() []*BaseConfig {
 	if x != nil {
 		return x.BaseConfigs
 	}
 	return nil
 }
 
-func (x *PageBaseConfigsResponse) GetTotal() int32 {
+func (x *PageBaseConfigResponse) GetTotal() int32 {
 	if x != nil {
 		return x.Total
 	}
@@ -649,8 +650,8 @@ var File_admin_v1_base_config_proto protoreflect.FileDescriptor
 const file_admin_v1_base_config_proto_rawDesc = "" +
 	"\n" +
 	"\x1aadmin/v1/base_config.proto\x12\badmin.v1\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x1f\n" +
-	"\x1dRefreshBaseConfigCacheRequest\"\xb0\x04\n" +
-	"\x16PageBaseConfigsRequest\x12]\n" +
+	"\x1dRefreshBaseConfigCacheRequest\"\xaf\x04\n" +
+	"\x15PageBaseConfigRequest\x12]\n" +
 	"\x04site\x18\x02 \x01(\x0e2\x19.common.v1.BaseConfigSiteB)\xbaG&\x92\x02#位置：枚举【BaseConfigSite】H\x00R\x04site\x88\x01\x01\x12+\n" +
 	"\x04name\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f配置名称H\x01R\x04name\x88\x01\x01\x12c\n" +
 	"\x04type\x18\x04 \x01(\x0e2\x19.common.v1.BaseConfigTypeB/\xbaG,\x92\x02)配置类型：枚举【BaseConfigType】H\x02R\x04type\x88\x01\x01\x12&\n" +
@@ -662,8 +663,8 @@ const file_admin_v1_base_config_proto_rawDesc = "" +
 	"\x05_nameB\a\n" +
 	"\x05_typeB\x06\n" +
 	"\x04_keyB\t\n" +
-	"\a_status\"\x8a\x01\n" +
-	"\x17PageBaseConfigsResponse\x12K\n" +
+	"\a_status\"\x89\x01\n" +
+	"\x16PageBaseConfigResponse\x12K\n" +
 	"\fbase_configs\x18\x01 \x03(\v2\x14.admin.v1.BaseConfigB\x12\xbaG\x0f\x92\x02\f分页数据R\vbaseConfigs\x12\"\n" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"6\n" +
 	"\x14GetBaseConfigRequest\x12\x1e\n" +
@@ -702,10 +703,10 @@ const file_admin_v1_base_config_proto_rawDesc = "" +
 	"\x06status\x183 \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态H\x02R\x06status\x88\x01\x01B\a\n" +
 	"\x05_siteB\a\n" +
 	"\x05_typeB\t\n" +
-	"\a_status2\x98\a\n" +
+	"\a_status2\x95\a\n" +
 	"\x11BaseConfigService\x12\x85\x01\n" +
-	"\x16RefreshBaseConfigCache\x12'.admin.v1.RefreshBaseConfigCacheRequest\x1a\x16.google.protobuf.Empty\"*\x82\xd3\xe4\x93\x02$:\x01*\x1a\x1f/api/v1/admin/base/config/cache\x12y\n" +
-	"\x0fPageBaseConfigs\x12 .admin.v1.PageBaseConfigsRequest\x1a!.admin.v1.PageBaseConfigsResponse\"!\x82\xd3\xe4\x93\x02\x1b\x12\x19/api/v1/admin/base/config\x12q\n" +
+	"\x16RefreshBaseConfigCache\x12'.admin.v1.RefreshBaseConfigCacheRequest\x1a\x16.google.protobuf.Empty\"*\x82\xd3\xe4\x93\x02$:\x01*\x1a\x1f/api/v1/admin/base/config/cache\x12v\n" +
+	"\x0ePageBaseConfig\x12\x1f.admin.v1.PageBaseConfigRequest\x1a .admin.v1.PageBaseConfigResponse\"!\x82\xd3\xe4\x93\x02\x1b\x12\x19/api/v1/admin/base/config\x12q\n" +
 	"\rGetBaseConfig\x12\x1e.admin.v1.GetBaseConfigRequest\x1a\x18.admin.v1.BaseConfigForm\"&\x82\xd3\xe4\x93\x02 \x12\x1e/api/v1/admin/base/config/{id}\x12}\n" +
 	"\x10CreateBaseConfig\x12!.admin.v1.CreateBaseConfigRequest\x1a\x16.google.protobuf.Empty\".\x82\xd3\xe4\x93\x02(:\vbase_config\"\x19/api/v1/admin/base/config\x12\x8e\x01\n" +
 	"\x10UpdateBaseConfig\x12!.admin.v1.UpdateBaseConfigRequest\x1a\x16.google.protobuf.Empty\"?\x82\xd3\xe4\x93\x029:\vbase_config\x1a*/api/v1/admin/base/config/{base_config.id}\x12u\n" +
@@ -728,8 +729,8 @@ func file_admin_v1_base_config_proto_rawDescGZIP() []byte {
 var file_admin_v1_base_config_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_admin_v1_base_config_proto_goTypes = []any{
 	(*RefreshBaseConfigCacheRequest)(nil), // 0: admin.v1.RefreshBaseConfigCacheRequest
-	(*PageBaseConfigsRequest)(nil),        // 1: admin.v1.PageBaseConfigsRequest
-	(*PageBaseConfigsResponse)(nil),       // 2: admin.v1.PageBaseConfigsResponse
+	(*PageBaseConfigRequest)(nil),         // 1: admin.v1.PageBaseConfigRequest
+	(*PageBaseConfigResponse)(nil),        // 2: admin.v1.PageBaseConfigResponse
 	(*GetBaseConfigRequest)(nil),          // 3: admin.v1.GetBaseConfigRequest
 	(*CreateBaseConfigRequest)(nil),       // 4: admin.v1.CreateBaseConfigRequest
 	(*UpdateBaseConfigRequest)(nil),       // 5: admin.v1.UpdateBaseConfigRequest
@@ -743,10 +744,10 @@ var file_admin_v1_base_config_proto_goTypes = []any{
 	(*emptypb.Empty)(nil),                 // 13: google.protobuf.Empty
 }
 var file_admin_v1_base_config_proto_depIdxs = []int32{
-	10, // 0: admin.v1.PageBaseConfigsRequest.site:type_name -> common.v1.BaseConfigSite
-	11, // 1: admin.v1.PageBaseConfigsRequest.type:type_name -> common.v1.BaseConfigType
-	12, // 2: admin.v1.PageBaseConfigsRequest.status:type_name -> common.v1.Status
-	8,  // 3: admin.v1.PageBaseConfigsResponse.base_configs:type_name -> admin.v1.BaseConfig
+	10, // 0: admin.v1.PageBaseConfigRequest.site:type_name -> common.v1.BaseConfigSite
+	11, // 1: admin.v1.PageBaseConfigRequest.type:type_name -> common.v1.BaseConfigType
+	12, // 2: admin.v1.PageBaseConfigRequest.status:type_name -> common.v1.Status
+	8,  // 3: admin.v1.PageBaseConfigResponse.base_configs:type_name -> admin.v1.BaseConfig
 	9,  // 4: admin.v1.CreateBaseConfigRequest.base_config:type_name -> admin.v1.BaseConfigForm
 	9,  // 5: admin.v1.UpdateBaseConfigRequest.base_config:type_name -> admin.v1.BaseConfigForm
 	10, // 6: admin.v1.BaseConfig.site:type_name -> common.v1.BaseConfigSite
@@ -756,14 +757,14 @@ var file_admin_v1_base_config_proto_depIdxs = []int32{
 	11, // 10: admin.v1.BaseConfigForm.type:type_name -> common.v1.BaseConfigType
 	12, // 11: admin.v1.BaseConfigForm.status:type_name -> common.v1.Status
 	0,  // 12: admin.v1.BaseConfigService.RefreshBaseConfigCache:input_type -> admin.v1.RefreshBaseConfigCacheRequest
-	1,  // 13: admin.v1.BaseConfigService.PageBaseConfigs:input_type -> admin.v1.PageBaseConfigsRequest
+	1,  // 13: admin.v1.BaseConfigService.PageBaseConfig:input_type -> admin.v1.PageBaseConfigRequest
 	3,  // 14: admin.v1.BaseConfigService.GetBaseConfig:input_type -> admin.v1.GetBaseConfigRequest
 	4,  // 15: admin.v1.BaseConfigService.CreateBaseConfig:input_type -> admin.v1.CreateBaseConfigRequest
 	5,  // 16: admin.v1.BaseConfigService.UpdateBaseConfig:input_type -> admin.v1.UpdateBaseConfigRequest
 	6,  // 17: admin.v1.BaseConfigService.DeleteBaseConfig:input_type -> admin.v1.DeleteBaseConfigRequest
 	7,  // 18: admin.v1.BaseConfigService.SetBaseConfigStatus:input_type -> admin.v1.SetBaseConfigStatusRequest
 	13, // 19: admin.v1.BaseConfigService.RefreshBaseConfigCache:output_type -> google.protobuf.Empty
-	2,  // 20: admin.v1.BaseConfigService.PageBaseConfigs:output_type -> admin.v1.PageBaseConfigsResponse
+	2,  // 20: admin.v1.BaseConfigService.PageBaseConfig:output_type -> admin.v1.PageBaseConfigResponse
 	9,  // 21: admin.v1.BaseConfigService.GetBaseConfig:output_type -> admin.v1.BaseConfigForm
 	13, // 22: admin.v1.BaseConfigService.CreateBaseConfig:output_type -> google.protobuf.Empty
 	13, // 23: admin.v1.BaseConfigService.UpdateBaseConfig:output_type -> google.protobuf.Empty

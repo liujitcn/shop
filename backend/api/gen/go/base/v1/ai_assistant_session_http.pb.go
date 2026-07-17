@@ -21,9 +21,9 @@ const _ = http.SupportPackageIsVersion3
 const OperationAiAssistantServiceCreateAiAssistantSession = "/base.v1.AiAssistantService/CreateAiAssistantSession"
 const OperationAiAssistantServiceCreateAiAssistantSessionBranch = "/base.v1.AiAssistantService/CreateAiAssistantSessionBranch"
 const OperationAiAssistantServiceDeleteAiAssistantSession = "/base.v1.AiAssistantService/DeleteAiAssistantSession"
-const OperationAiAssistantServiceListAiAssistantMessages = "/base.v1.AiAssistantService/ListAiAssistantMessages"
-const OperationAiAssistantServiceListAiAssistantSessions = "/base.v1.AiAssistantService/ListAiAssistantSessions"
-const OperationAiAssistantServiceListAiAssistantShortcuts = "/base.v1.AiAssistantService/ListAiAssistantShortcuts"
+const OperationAiAssistantServiceListAiAssistantMessage = "/base.v1.AiAssistantService/ListAiAssistantMessage"
+const OperationAiAssistantServiceListAiAssistantSession = "/base.v1.AiAssistantService/ListAiAssistantSession"
+const OperationAiAssistantServiceListAiAssistantShortcut = "/base.v1.AiAssistantService/ListAiAssistantShortcut"
 const OperationAiAssistantServiceUpdateAiAssistantSession = "/base.v1.AiAssistantService/UpdateAiAssistantSession"
 
 type AiAssistantServiceHTTPServer interface {
@@ -33,61 +33,61 @@ type AiAssistantServiceHTTPServer interface {
 	CreateAiAssistantSessionBranch(context.Context, *CreateAiAssistantSessionBranchRequest) (*CreateAiAssistantSessionBranchResponse, error)
 	// DeleteAiAssistantSession 删除 AI 助手会话
 	DeleteAiAssistantSession(context.Context, *DeleteAiAssistantSessionRequest) (*DeleteAiAssistantSessionResponse, error)
-	// ListAiAssistantMessages 查询 AI 助手消息列表
-	ListAiAssistantMessages(context.Context, *ListAiAssistantMessagesRequest) (*ListAiAssistantMessagesResponse, error)
-	// ListAiAssistantSessions 查询 AI 助手会话列表
-	ListAiAssistantSessions(context.Context, *ListAiAssistantSessionsRequest) (*ListAiAssistantSessionsResponse, error)
-	// ListAiAssistantShortcuts 查询 AI 助手快捷入口列表
-	ListAiAssistantShortcuts(context.Context, *ListAiAssistantShortcutsRequest) (*ListAiAssistantShortcutsResponse, error)
+	// ListAiAssistantMessage 查询 AI 助手消息列表
+	ListAiAssistantMessage(context.Context, *ListAiAssistantMessageRequest) (*ListAiAssistantMessageResponse, error)
+	// ListAiAssistantSession 查询 AI 助手会话列表
+	ListAiAssistantSession(context.Context, *ListAiAssistantSessionRequest) (*ListAiAssistantSessionResponse, error)
+	// ListAiAssistantShortcut 查询 AI 助手快捷入口列表
+	ListAiAssistantShortcut(context.Context, *ListAiAssistantShortcutRequest) (*ListAiAssistantShortcutResponse, error)
 	// UpdateAiAssistantSession 更新 AI 助手会话
 	UpdateAiAssistantSession(context.Context, *UpdateAiAssistantSessionRequest) (*UpdateAiAssistantSessionResponse, error)
 }
 
 func RegisterAiAssistantServiceHTTPServer(s *http.Server, srv AiAssistantServiceHTTPServer) {
 	r := s.Route("/")
-	r.Handle("GET", "/api/v1/base/ai/assistant/shortcut", _AiAssistantService_ListAiAssistantShortcuts0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/base/ai/assistant/session", _AiAssistantService_ListAiAssistantSessions0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/base/ai/assistant/shortcut", _AiAssistantService_ListAiAssistantShortcut0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/base/ai/assistant/session", _AiAssistantService_ListAiAssistantSession0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/base/ai/assistant/session", _AiAssistantService_CreateAiAssistantSession0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/base/ai/assistant/session/{id}", _AiAssistantService_UpdateAiAssistantSession0_HTTP_Handler(srv))
 	r.Handle("DELETE", "/api/v1/base/ai/assistant/session/{id}", _AiAssistantService_DeleteAiAssistantSession0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/base/ai/assistant/session/{session_id}/message", _AiAssistantService_ListAiAssistantMessages0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/base/ai/assistant/session/{session_id}/message", _AiAssistantService_ListAiAssistantMessage0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/base/ai/assistant/session/{source_session_id}/branch", _AiAssistantService_CreateAiAssistantSessionBranch0_HTTP_Handler(srv))
 }
 
-func _AiAssistantService_ListAiAssistantShortcuts0_HTTP_Handler(srv AiAssistantServiceHTTPServer) func(ctx http.Context) error {
+func _AiAssistantService_ListAiAssistantShortcut0_HTTP_Handler(srv AiAssistantServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in ListAiAssistantShortcutsRequest
+		var in ListAiAssistantShortcutRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationAiAssistantServiceListAiAssistantShortcuts)
+		http.SetOperation(ctx, OperationAiAssistantServiceListAiAssistantShortcut)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.ListAiAssistantShortcuts(ctx, req.(*ListAiAssistantShortcutsRequest))
+			return srv.ListAiAssistantShortcut(ctx, req.(*ListAiAssistantShortcutRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*ListAiAssistantShortcutsResponse)
+		reply := out.(*ListAiAssistantShortcutResponse)
 		return ctx.Result(200, reply)
 	}
 }
 
-func _AiAssistantService_ListAiAssistantSessions0_HTTP_Handler(srv AiAssistantServiceHTTPServer) func(ctx http.Context) error {
+func _AiAssistantService_ListAiAssistantSession0_HTTP_Handler(srv AiAssistantServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in ListAiAssistantSessionsRequest
+		var in ListAiAssistantSessionRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationAiAssistantServiceListAiAssistantSessions)
+		http.SetOperation(ctx, OperationAiAssistantServiceListAiAssistantSession)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.ListAiAssistantSessions(ctx, req.(*ListAiAssistantSessionsRequest))
+			return srv.ListAiAssistantSession(ctx, req.(*ListAiAssistantSessionRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*ListAiAssistantSessionsResponse)
+		reply := out.(*ListAiAssistantSessionResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -155,24 +155,24 @@ func _AiAssistantService_DeleteAiAssistantSession0_HTTP_Handler(srv AiAssistantS
 	}
 }
 
-func _AiAssistantService_ListAiAssistantMessages0_HTTP_Handler(srv AiAssistantServiceHTTPServer) func(ctx http.Context) error {
+func _AiAssistantService_ListAiAssistantMessage0_HTTP_Handler(srv AiAssistantServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in ListAiAssistantMessagesRequest
+		var in ListAiAssistantMessageRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
 		if err := ctx.BindVars(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationAiAssistantServiceListAiAssistantMessages)
+		http.SetOperation(ctx, OperationAiAssistantServiceListAiAssistantMessage)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.ListAiAssistantMessages(ctx, req.(*ListAiAssistantMessagesRequest))
+			return srv.ListAiAssistantMessage(ctx, req.(*ListAiAssistantMessageRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*ListAiAssistantMessagesResponse)
+		reply := out.(*ListAiAssistantMessageResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -206,12 +206,12 @@ type AiAssistantServiceHTTPClient interface {
 	CreateAiAssistantSessionBranch(ctx context.Context, req *CreateAiAssistantSessionBranchRequest, opts ...http.CallOption) (rsp *CreateAiAssistantSessionBranchResponse, err error)
 	// DeleteAiAssistantSession 删除 AI 助手会话
 	DeleteAiAssistantSession(ctx context.Context, req *DeleteAiAssistantSessionRequest, opts ...http.CallOption) (rsp *DeleteAiAssistantSessionResponse, err error)
-	// ListAiAssistantMessages 查询 AI 助手消息列表
-	ListAiAssistantMessages(ctx context.Context, req *ListAiAssistantMessagesRequest, opts ...http.CallOption) (rsp *ListAiAssistantMessagesResponse, err error)
-	// ListAiAssistantSessions 查询 AI 助手会话列表
-	ListAiAssistantSessions(ctx context.Context, req *ListAiAssistantSessionsRequest, opts ...http.CallOption) (rsp *ListAiAssistantSessionsResponse, err error)
-	// ListAiAssistantShortcuts 查询 AI 助手快捷入口列表
-	ListAiAssistantShortcuts(ctx context.Context, req *ListAiAssistantShortcutsRequest, opts ...http.CallOption) (rsp *ListAiAssistantShortcutsResponse, err error)
+	// ListAiAssistantMessage 查询 AI 助手消息列表
+	ListAiAssistantMessage(ctx context.Context, req *ListAiAssistantMessageRequest, opts ...http.CallOption) (rsp *ListAiAssistantMessageResponse, err error)
+	// ListAiAssistantSession 查询 AI 助手会话列表
+	ListAiAssistantSession(ctx context.Context, req *ListAiAssistantSessionRequest, opts ...http.CallOption) (rsp *ListAiAssistantSessionResponse, err error)
+	// ListAiAssistantShortcut 查询 AI 助手快捷入口列表
+	ListAiAssistantShortcut(ctx context.Context, req *ListAiAssistantShortcutRequest, opts ...http.CallOption) (rsp *ListAiAssistantShortcutResponse, err error)
 	// UpdateAiAssistantSession 更新 AI 助手会话
 	UpdateAiAssistantSession(ctx context.Context, req *UpdateAiAssistantSessionRequest, opts ...http.CallOption) (rsp *UpdateAiAssistantSessionResponse, err error)
 }
@@ -277,14 +277,14 @@ func (c *AiAssistantServiceHTTPClientImpl) DeleteAiAssistantSession(ctx context.
 	return &out, nil
 }
 
-// ListAiAssistantMessages 查询 AI 助手消息列表
-func (c *AiAssistantServiceHTTPClientImpl) ListAiAssistantMessages(ctx context.Context, in *ListAiAssistantMessagesRequest, opts ...http.CallOption) (*ListAiAssistantMessagesResponse, error) {
-	var out ListAiAssistantMessagesResponse
+// ListAiAssistantMessage 查询 AI 助手消息列表
+func (c *AiAssistantServiceHTTPClientImpl) ListAiAssistantMessage(ctx context.Context, in *ListAiAssistantMessageRequest, opts ...http.CallOption) (*ListAiAssistantMessageResponse, error) {
+	var out ListAiAssistantMessageResponse
 	pattern := "/api/v1/base/ai/assistant/session/{session_id}/message"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationAiAssistantServiceListAiAssistantMessages),
+		http.Operation(OperationAiAssistantServiceListAiAssistantMessage),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
@@ -294,14 +294,14 @@ func (c *AiAssistantServiceHTTPClientImpl) ListAiAssistantMessages(ctx context.C
 	return &out, nil
 }
 
-// ListAiAssistantSessions 查询 AI 助手会话列表
-func (c *AiAssistantServiceHTTPClientImpl) ListAiAssistantSessions(ctx context.Context, in *ListAiAssistantSessionsRequest, opts ...http.CallOption) (*ListAiAssistantSessionsResponse, error) {
-	var out ListAiAssistantSessionsResponse
+// ListAiAssistantSession 查询 AI 助手会话列表
+func (c *AiAssistantServiceHTTPClientImpl) ListAiAssistantSession(ctx context.Context, in *ListAiAssistantSessionRequest, opts ...http.CallOption) (*ListAiAssistantSessionResponse, error) {
+	var out ListAiAssistantSessionResponse
 	pattern := "/api/v1/base/ai/assistant/session"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationAiAssistantServiceListAiAssistantSessions),
+		http.Operation(OperationAiAssistantServiceListAiAssistantSession),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
@@ -311,14 +311,14 @@ func (c *AiAssistantServiceHTTPClientImpl) ListAiAssistantSessions(ctx context.C
 	return &out, nil
 }
 
-// ListAiAssistantShortcuts 查询 AI 助手快捷入口列表
-func (c *AiAssistantServiceHTTPClientImpl) ListAiAssistantShortcuts(ctx context.Context, in *ListAiAssistantShortcutsRequest, opts ...http.CallOption) (*ListAiAssistantShortcutsResponse, error) {
-	var out ListAiAssistantShortcutsResponse
+// ListAiAssistantShortcut 查询 AI 助手快捷入口列表
+func (c *AiAssistantServiceHTTPClientImpl) ListAiAssistantShortcut(ctx context.Context, in *ListAiAssistantShortcutRequest, opts ...http.CallOption) (*ListAiAssistantShortcutResponse, error) {
+	var out ListAiAssistantShortcutResponse
 	pattern := "/api/v1/base/ai/assistant/shortcut"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationAiAssistantServiceListAiAssistantShortcuts),
+		http.Operation(OperationAiAssistantServiceListAiAssistantShortcut),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)

@@ -14,28 +14,28 @@ import (
 
 // RegisterAiAssistantServiceMCPTools 注册Base AI 助手会话服务的 MCP Tool。
 func RegisterAiAssistantServiceMCPTools(mcpServer *mcp.Server, aiAssistantServiceServer AiAssistantServiceServer) {
-	RegisterAiAssistantServiceListAiAssistantShortcutsMCPTool(mcpServer, aiAssistantServiceServer)
-	RegisterAiAssistantServiceListAiAssistantSessionsMCPTool(mcpServer, aiAssistantServiceServer)
+	RegisterAiAssistantServiceListAiAssistantShortcutMCPTool(mcpServer, aiAssistantServiceServer)
+	RegisterAiAssistantServiceListAiAssistantSessionMCPTool(mcpServer, aiAssistantServiceServer)
 	RegisterAiAssistantServiceCreateAiAssistantSessionMCPTool(mcpServer, aiAssistantServiceServer)
 	RegisterAiAssistantServiceUpdateAiAssistantSessionMCPTool(mcpServer, aiAssistantServiceServer)
 	RegisterAiAssistantServiceDeleteAiAssistantSessionMCPTool(mcpServer, aiAssistantServiceServer)
-	RegisterAiAssistantServiceListAiAssistantMessagesMCPTool(mcpServer, aiAssistantServiceServer)
+	RegisterAiAssistantServiceListAiAssistantMessageMCPTool(mcpServer, aiAssistantServiceServer)
 	RegisterAiAssistantServiceCreateAiAssistantSessionBranchMCPTool(mcpServer, aiAssistantServiceServer)
 }
 
-// RegisterAiAssistantServiceListAiAssistantShortcutsMCPTool 注册查询 AI 助手快捷入口列表的 MCP Tool。
-func RegisterAiAssistantServiceListAiAssistantShortcutsMCPTool(mcpServer *mcp.Server, aiAssistantServiceServer AiAssistantServiceServer) {
-	mcp.AddTool[*ListAiAssistantShortcutsRequest, *ListAiAssistantShortcutsResponse](
+// RegisterAiAssistantServiceListAiAssistantShortcutMCPTool 注册查询 AI 助手快捷入口列表的 MCP Tool。
+func RegisterAiAssistantServiceListAiAssistantShortcutMCPTool(mcpServer *mcp.Server, aiAssistantServiceServer AiAssistantServiceServer) {
+	mcp.AddTool[*ListAiAssistantShortcutRequest, *ListAiAssistantShortcutResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "base_v1_ai_assistant_service_list_ai_assistant_shortcuts",
+			Name:        "base_v1_ai_assistant_service_list_ai_assistant_shortcut",
 			Description: "查询 AI 助手快捷入口列表",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *ListAiAssistantShortcutsRequest) (*mcp.CallToolResult, *ListAiAssistantShortcutsResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *ListAiAssistantShortcutRequest) (*mcp.CallToolResult, *ListAiAssistantShortcutResponse, error) {
 			if input == nil {
-				input = &ListAiAssistantShortcutsRequest{}
+				input = &ListAiAssistantShortcutRequest{}
 			}
-			reply, err := aiAssistantServiceServer.ListAiAssistantShortcuts(ctx, input)
+			reply, err := aiAssistantServiceServer.ListAiAssistantShortcut(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -44,19 +44,19 @@ func RegisterAiAssistantServiceListAiAssistantShortcutsMCPTool(mcpServer *mcp.Se
 	)
 }
 
-// RegisterAiAssistantServiceListAiAssistantSessionsMCPTool 注册查询 AI 助手会话列表的 MCP Tool。
-func RegisterAiAssistantServiceListAiAssistantSessionsMCPTool(mcpServer *mcp.Server, aiAssistantServiceServer AiAssistantServiceServer) {
-	mcp.AddTool[*ListAiAssistantSessionsRequest, *ListAiAssistantSessionsResponse](
+// RegisterAiAssistantServiceListAiAssistantSessionMCPTool 注册查询 AI 助手会话列表的 MCP Tool。
+func RegisterAiAssistantServiceListAiAssistantSessionMCPTool(mcpServer *mcp.Server, aiAssistantServiceServer AiAssistantServiceServer) {
+	mcp.AddTool[*ListAiAssistantSessionRequest, *ListAiAssistantSessionResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "base_v1_ai_assistant_service_list_ai_assistant_sessions",
+			Name:        "base_v1_ai_assistant_service_list_ai_assistant_session",
 			Description: "查询 AI 助手会话列表",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *ListAiAssistantSessionsRequest) (*mcp.CallToolResult, *ListAiAssistantSessionsResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *ListAiAssistantSessionRequest) (*mcp.CallToolResult, *ListAiAssistantSessionResponse, error) {
 			if input == nil {
-				input = &ListAiAssistantSessionsRequest{}
+				input = &ListAiAssistantSessionRequest{}
 			}
-			reply, err := aiAssistantServiceServer.ListAiAssistantSessions(ctx, input)
+			reply, err := aiAssistantServiceServer.ListAiAssistantSession(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -128,19 +128,19 @@ func RegisterAiAssistantServiceDeleteAiAssistantSessionMCPTool(mcpServer *mcp.Se
 	)
 }
 
-// RegisterAiAssistantServiceListAiAssistantMessagesMCPTool 注册查询 AI 助手消息列表的 MCP Tool。
-func RegisterAiAssistantServiceListAiAssistantMessagesMCPTool(mcpServer *mcp.Server, aiAssistantServiceServer AiAssistantServiceServer) {
-	mcp.AddTool[*ListAiAssistantMessagesRequest, *ListAiAssistantMessagesResponse](
+// RegisterAiAssistantServiceListAiAssistantMessageMCPTool 注册查询 AI 助手消息列表的 MCP Tool。
+func RegisterAiAssistantServiceListAiAssistantMessageMCPTool(mcpServer *mcp.Server, aiAssistantServiceServer AiAssistantServiceServer) {
+	mcp.AddTool[*ListAiAssistantMessageRequest, *ListAiAssistantMessageResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "base_v1_ai_assistant_service_list_ai_assistant_messages",
+			Name:        "base_v1_ai_assistant_service_list_ai_assistant_message",
 			Description: "查询 AI 助手消息列表",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *ListAiAssistantMessagesRequest) (*mcp.CallToolResult, *ListAiAssistantMessagesResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *ListAiAssistantMessageRequest) (*mcp.CallToolResult, *ListAiAssistantMessageResponse, error) {
 			if input == nil {
-				input = &ListAiAssistantMessagesRequest{}
+				input = &ListAiAssistantMessageRequest{}
 			}
-			reply, err := aiAssistantServiceServer.ListAiAssistantMessages(ctx, input)
+			reply, err := aiAssistantServiceServer.ListAiAssistantMessage(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

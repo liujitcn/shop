@@ -487,7 +487,7 @@ func (x *SummaryWorkspaceRiskResponse) GetLowScoreCommentCount() int64 {
 }
 
 // 工作台待审核评价查询条件
-type ListWorkspacePendingCommentsRequest struct {
+type ListWorkspacePendingCommentRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	TenantId      *int64                 `protobuf:"varint,1,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`                  // 租户ID
 	TenantStoreId *int64                 `protobuf:"varint,2,opt,name=tenant_store_id,json=tenantStoreId,proto3,oneof" json:"tenant_store_id,omitempty"` // 租户门店ID
@@ -496,20 +496,20 @@ type ListWorkspacePendingCommentsRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListWorkspacePendingCommentsRequest) Reset() {
-	*x = ListWorkspacePendingCommentsRequest{}
+func (x *ListWorkspacePendingCommentRequest) Reset() {
+	*x = ListWorkspacePendingCommentRequest{}
 	mi := &file_admin_v1_workspace_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListWorkspacePendingCommentsRequest) String() string {
+func (x *ListWorkspacePendingCommentRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListWorkspacePendingCommentsRequest) ProtoMessage() {}
+func (*ListWorkspacePendingCommentRequest) ProtoMessage() {}
 
-func (x *ListWorkspacePendingCommentsRequest) ProtoReflect() protoreflect.Message {
+func (x *ListWorkspacePendingCommentRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_workspace_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -521,26 +521,26 @@ func (x *ListWorkspacePendingCommentsRequest) ProtoReflect() protoreflect.Messag
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListWorkspacePendingCommentsRequest.ProtoReflect.Descriptor instead.
-func (*ListWorkspacePendingCommentsRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListWorkspacePendingCommentRequest.ProtoReflect.Descriptor instead.
+func (*ListWorkspacePendingCommentRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_workspace_proto_rawDescGZIP(), []int{6}
 }
 
-func (x *ListWorkspacePendingCommentsRequest) GetTenantId() int64 {
+func (x *ListWorkspacePendingCommentRequest) GetTenantId() int64 {
 	if x != nil && x.TenantId != nil {
 		return *x.TenantId
 	}
 	return 0
 }
 
-func (x *ListWorkspacePendingCommentsRequest) GetTenantStoreId() int64 {
+func (x *ListWorkspacePendingCommentRequest) GetTenantStoreId() int64 {
 	if x != nil && x.TenantStoreId != nil {
 		return *x.TenantStoreId
 	}
 	return 0
 }
 
-func (x *ListWorkspacePendingCommentsRequest) GetLimit() int64 {
+func (x *ListWorkspacePendingCommentRequest) GetLimit() int64 {
 	if x != nil {
 		return x.Limit
 	}
@@ -548,27 +548,27 @@ func (x *ListWorkspacePendingCommentsRequest) GetLimit() int64 {
 }
 
 // 工作台待审核评价响应
-type ListWorkspacePendingCommentsResponse struct {
+type ListWorkspacePendingCommentResponse struct {
 	state           protoimpl.MessageState     `protogen:"open.v1"`
 	PendingComments []*WorkspacePendingComment `protobuf:"bytes,1,rep,name=pending_comments,json=pendingComments,proto3" json:"pending_comments,omitempty"` // 待审核评价
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
 
-func (x *ListWorkspacePendingCommentsResponse) Reset() {
-	*x = ListWorkspacePendingCommentsResponse{}
+func (x *ListWorkspacePendingCommentResponse) Reset() {
+	*x = ListWorkspacePendingCommentResponse{}
 	mi := &file_admin_v1_workspace_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListWorkspacePendingCommentsResponse) String() string {
+func (x *ListWorkspacePendingCommentResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListWorkspacePendingCommentsResponse) ProtoMessage() {}
+func (*ListWorkspacePendingCommentResponse) ProtoMessage() {}
 
-func (x *ListWorkspacePendingCommentsResponse) ProtoReflect() protoreflect.Message {
+func (x *ListWorkspacePendingCommentResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_workspace_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -580,12 +580,12 @@ func (x *ListWorkspacePendingCommentsResponse) ProtoReflect() protoreflect.Messa
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListWorkspacePendingCommentsResponse.ProtoReflect.Descriptor instead.
-func (*ListWorkspacePendingCommentsResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListWorkspacePendingCommentResponse.ProtoReflect.Descriptor instead.
+func (*ListWorkspacePendingCommentResponse) Descriptor() ([]byte, []int) {
 	return file_admin_v1_workspace_proto_rawDescGZIP(), []int{7}
 }
 
-func (x *ListWorkspacePendingCommentsResponse) GetPendingComments() []*WorkspacePendingComment {
+func (x *ListWorkspacePendingCommentResponse) GetPendingComments() []*WorkspacePendingComment {
 	if x != nil {
 		return x.PendingComments
 	}
@@ -902,15 +902,15 @@ const file_admin_v1_workspace_proto_rawDesc = "" +
 	"\x17abnormal_pay_bill_count\x18\x01 \x01(\x03B\x18\xbaG\x15\x92\x02\x12对账单异常数R\x14abnormalPayBillCount\x12c\n" +
 	"\x1fzero_inventory_put_on_sku_count\x18\x02 \x01(\x03B\x1e\xbaG\x1b\x92\x02\x18零库存仍上架SKU数R\x1azeroInventoryPutOnSkuCount\x12W\n" +
 	"\x18abnormal_price_sku_count\x18\x03 \x01(\x03B\x1e\xbaG\x1b\x92\x02\x18价格配置异常SKU数R\x15abnormalPriceSkuCount\x12S\n" +
-	"\x17low_score_comment_count\x18\x04 \x01(\x03B\x1c\xbaG\x19\x92\x02\x16近7日低分评价数R\x14lowScoreCommentCount\"\xfb\x01\n" +
-	"#ListWorkspacePendingCommentsRequest\x120\n" +
+	"\x17low_score_comment_count\x18\x04 \x01(\x03B\x1c\xbaG\x19\x92\x02\x16近7日低分评价数R\x14lowScoreCommentCount\"\xfa\x01\n" +
+	"\"ListWorkspacePendingCommentRequest\x120\n" +
 	"\ttenant_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12A\n" +
 	"\x0ftenant_store_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDH\x01R\rtenantStoreId\x88\x01\x01\x12=\n" +
 	"\x05limit\x18\x03 \x01(\x03B'\xbaG$\x92\x02!返回数量，默认5，最大10R\x05limitB\f\n" +
 	"\n" +
 	"_tenant_idB\x12\n" +
-	"\x10_tenant_store_id\"\x8b\x01\n" +
-	"$ListWorkspacePendingCommentsResponse\x12c\n" +
+	"\x10_tenant_store_id\"\x8a\x01\n" +
+	"#ListWorkspacePendingCommentResponse\x12c\n" +
 	"\x10pending_comments\x18\x01 \x03(\v2!.admin.v1.WorkspacePendingCommentB\x15\xbaG\x12\x92\x02\x0f待审核评价R\x0fpendingComments\"\xde\x02\n" +
 	"\x17WorkspacePendingComment\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b评论IDR\x02id\x12)\n" +
@@ -935,13 +935,13 @@ const file_admin_v1_workspace_proto_rawDesc = "" +
 	"\x0fcomment_summary\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f评价摘要R\x0ecommentSummary\"y\n" +
 	"\x16WorkspaceReputationTag\x12&\n" +
 	"\x04name\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f标签名称R\x04name\x127\n" +
-	"\rmention_count\x18\x02 \x01(\x03B\x12\xbaG\x0f\x92\x02\f提及次数R\fmentionCount2\xbf\x06\n" +
+	"\rmention_count\x18\x02 \x01(\x03B\x12\xbaG\x0f\x92\x02\f提及次数R\fmentionCount2\xbc\x06\n" +
 	"\x10WorkspaceService\x12\x9f\x01\n" +
 	"\x17SummaryWorkspaceMetrics\x12(.admin.v1.SummaryWorkspaceMetricsRequest\x1a).admin.v1.SummaryWorkspaceMetricsResponse\"/\x82\xd3\xe4\x93\x02)\x12'/api/v1/admin/workspace/metrics/summary\x12\x93\x01\n" +
 	"\x14SummaryWorkspaceTodo\x12%.admin.v1.SummaryWorkspaceTodoRequest\x1a&.admin.v1.SummaryWorkspaceTodoResponse\",\x82\xd3\xe4\x93\x02&\x12$/api/v1/admin/workspace/todo/summary\x12\x93\x01\n" +
 	"\x14SummaryWorkspaceRisk\x12%.admin.v1.SummaryWorkspaceRiskRequest\x1a&.admin.v1.SummaryWorkspaceRiskResponse\",\x82\xd3\xe4\x93\x02&\x12$/api/v1/admin/workspace/risk/summary\x12\xab\x01\n" +
-	"\x1aSummaryWorkspaceReputation\x12+.admin.v1.SummaryWorkspaceReputationRequest\x1a,.admin.v1.SummaryWorkspaceReputationResponse\"2\x82\xd3\xe4\x93\x02,\x12*/api/v1/admin/workspace/reputation/summary\x12\xae\x01\n" +
-	"\x1cListWorkspacePendingComments\x12-.admin.v1.ListWorkspacePendingCommentsRequest\x1a..admin.v1.ListWorkspacePendingCommentsResponse\"/\x82\xd3\xe4\x93\x02)\x12'/api/v1/admin/workspace/comment/pendingB\x81\x01\n" +
+	"\x1aSummaryWorkspaceReputation\x12+.admin.v1.SummaryWorkspaceReputationRequest\x1a,.admin.v1.SummaryWorkspaceReputationResponse\"2\x82\xd3\xe4\x93\x02,\x12*/api/v1/admin/workspace/reputation/summary\x12\xab\x01\n" +
+	"\x1bListWorkspacePendingComment\x12,.admin.v1.ListWorkspacePendingCommentRequest\x1a-.admin.v1.ListWorkspacePendingCommentResponse\"/\x82\xd3\xe4\x93\x02)\x12'/api/v1/admin/workspace/comment/pendingB\x81\x01\n" +
 	"\fcom.admin.v1B\x0eWorkspaceProtoP\x01Z shop/api/gen/go/admin/v1;adminv1\xa2\x02\x03AXX\xaa\x02\bAdmin.V1\xca\x02\bAdmin\\V1\xe2\x02\x14Admin\\V1\\GPBMetadata\xea\x02\tAdmin::V1b\x06proto3"
 
 var (
@@ -958,32 +958,32 @@ func file_admin_v1_workspace_proto_rawDescGZIP() []byte {
 
 var file_admin_v1_workspace_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_admin_v1_workspace_proto_goTypes = []any{
-	(*SummaryWorkspaceMetricsRequest)(nil),       // 0: admin.v1.SummaryWorkspaceMetricsRequest
-	(*SummaryWorkspaceMetricsResponse)(nil),      // 1: admin.v1.SummaryWorkspaceMetricsResponse
-	(*SummaryWorkspaceTodoRequest)(nil),          // 2: admin.v1.SummaryWorkspaceTodoRequest
-	(*SummaryWorkspaceTodoResponse)(nil),         // 3: admin.v1.SummaryWorkspaceTodoResponse
-	(*SummaryWorkspaceRiskRequest)(nil),          // 4: admin.v1.SummaryWorkspaceRiskRequest
-	(*SummaryWorkspaceRiskResponse)(nil),         // 5: admin.v1.SummaryWorkspaceRiskResponse
-	(*ListWorkspacePendingCommentsRequest)(nil),  // 6: admin.v1.ListWorkspacePendingCommentsRequest
-	(*ListWorkspacePendingCommentsResponse)(nil), // 7: admin.v1.ListWorkspacePendingCommentsResponse
-	(*WorkspacePendingComment)(nil),              // 8: admin.v1.WorkspacePendingComment
-	(*SummaryWorkspaceReputationRequest)(nil),    // 9: admin.v1.SummaryWorkspaceReputationRequest
-	(*SummaryWorkspaceReputationResponse)(nil),   // 10: admin.v1.SummaryWorkspaceReputationResponse
-	(*WorkspaceReputationTag)(nil),               // 11: admin.v1.WorkspaceReputationTag
+	(*SummaryWorkspaceMetricsRequest)(nil),      // 0: admin.v1.SummaryWorkspaceMetricsRequest
+	(*SummaryWorkspaceMetricsResponse)(nil),     // 1: admin.v1.SummaryWorkspaceMetricsResponse
+	(*SummaryWorkspaceTodoRequest)(nil),         // 2: admin.v1.SummaryWorkspaceTodoRequest
+	(*SummaryWorkspaceTodoResponse)(nil),        // 3: admin.v1.SummaryWorkspaceTodoResponse
+	(*SummaryWorkspaceRiskRequest)(nil),         // 4: admin.v1.SummaryWorkspaceRiskRequest
+	(*SummaryWorkspaceRiskResponse)(nil),        // 5: admin.v1.SummaryWorkspaceRiskResponse
+	(*ListWorkspacePendingCommentRequest)(nil),  // 6: admin.v1.ListWorkspacePendingCommentRequest
+	(*ListWorkspacePendingCommentResponse)(nil), // 7: admin.v1.ListWorkspacePendingCommentResponse
+	(*WorkspacePendingComment)(nil),             // 8: admin.v1.WorkspacePendingComment
+	(*SummaryWorkspaceReputationRequest)(nil),   // 9: admin.v1.SummaryWorkspaceReputationRequest
+	(*SummaryWorkspaceReputationResponse)(nil),  // 10: admin.v1.SummaryWorkspaceReputationResponse
+	(*WorkspaceReputationTag)(nil),              // 11: admin.v1.WorkspaceReputationTag
 }
 var file_admin_v1_workspace_proto_depIdxs = []int32{
-	8,  // 0: admin.v1.ListWorkspacePendingCommentsResponse.pending_comments:type_name -> admin.v1.WorkspacePendingComment
+	8,  // 0: admin.v1.ListWorkspacePendingCommentResponse.pending_comments:type_name -> admin.v1.WorkspacePendingComment
 	11, // 1: admin.v1.SummaryWorkspaceReputationResponse.hot_tags:type_name -> admin.v1.WorkspaceReputationTag
 	0,  // 2: admin.v1.WorkspaceService.SummaryWorkspaceMetrics:input_type -> admin.v1.SummaryWorkspaceMetricsRequest
 	2,  // 3: admin.v1.WorkspaceService.SummaryWorkspaceTodo:input_type -> admin.v1.SummaryWorkspaceTodoRequest
 	4,  // 4: admin.v1.WorkspaceService.SummaryWorkspaceRisk:input_type -> admin.v1.SummaryWorkspaceRiskRequest
 	9,  // 5: admin.v1.WorkspaceService.SummaryWorkspaceReputation:input_type -> admin.v1.SummaryWorkspaceReputationRequest
-	6,  // 6: admin.v1.WorkspaceService.ListWorkspacePendingComments:input_type -> admin.v1.ListWorkspacePendingCommentsRequest
+	6,  // 6: admin.v1.WorkspaceService.ListWorkspacePendingComment:input_type -> admin.v1.ListWorkspacePendingCommentRequest
 	1,  // 7: admin.v1.WorkspaceService.SummaryWorkspaceMetrics:output_type -> admin.v1.SummaryWorkspaceMetricsResponse
 	3,  // 8: admin.v1.WorkspaceService.SummaryWorkspaceTodo:output_type -> admin.v1.SummaryWorkspaceTodoResponse
 	5,  // 9: admin.v1.WorkspaceService.SummaryWorkspaceRisk:output_type -> admin.v1.SummaryWorkspaceRiskResponse
 	10, // 10: admin.v1.WorkspaceService.SummaryWorkspaceReputation:output_type -> admin.v1.SummaryWorkspaceReputationResponse
-	7,  // 11: admin.v1.WorkspaceService.ListWorkspacePendingComments:output_type -> admin.v1.ListWorkspacePendingCommentsResponse
+	7,  // 11: admin.v1.WorkspaceService.ListWorkspacePendingComment:output_type -> admin.v1.ListWorkspacePendingCommentResponse
 	7,  // [7:12] is the sub-list for method output_type
 	2,  // [2:7] is the sub-list for method input_type
 	2,  // [2:2] is the sub-list for extension type_name

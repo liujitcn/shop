@@ -21,39 +21,39 @@ const _ = http.SupportPackageIsVersion3
 
 const OperationUserStoreServiceAuditUserStore = "/admin.v1.UserStoreService/AuditUserStore"
 const OperationUserStoreServiceGetUserStore = "/admin.v1.UserStoreService/GetUserStore"
-const OperationUserStoreServicePageUserStores = "/admin.v1.UserStoreService/PageUserStores"
+const OperationUserStoreServicePageUserStore = "/admin.v1.UserStoreService/PageUserStore"
 
 type UserStoreServiceHTTPServer interface {
 	// AuditUserStore 门店认证
 	AuditUserStore(context.Context, *AuditUserStoreRequest) (*emptypb.Empty, error)
 	// GetUserStore 查询用户门店
 	GetUserStore(context.Context, *GetUserStoreRequest) (*UserStore, error)
-	// PageUserStores 查询用户门店列表
-	PageUserStores(context.Context, *PageUserStoresRequest) (*PageUserStoresResponse, error)
+	// PageUserStore 查询用户门店列表
+	PageUserStore(context.Context, *PageUserStoreRequest) (*PageUserStoreResponse, error)
 }
 
 func RegisterUserStoreServiceHTTPServer(s *http.Server, srv UserStoreServiceHTTPServer) {
 	r := s.Route("/")
-	r.Handle("GET", "/api/v1/admin/user/store", _UserStoreService_PageUserStores0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/user/store", _UserStoreService_PageUserStore0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/user/store/{id}", _UserStoreService_GetUserStore0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/user/store/{id}/audit", _UserStoreService_AuditUserStore0_HTTP_Handler(srv))
 }
 
-func _UserStoreService_PageUserStores0_HTTP_Handler(srv UserStoreServiceHTTPServer) func(ctx http.Context) error {
+func _UserStoreService_PageUserStore0_HTTP_Handler(srv UserStoreServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in PageUserStoresRequest
+		var in PageUserStoreRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationUserStoreServicePageUserStores)
+		http.SetOperation(ctx, OperationUserStoreServicePageUserStore)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.PageUserStores(ctx, req.(*PageUserStoresRequest))
+			return srv.PageUserStore(ctx, req.(*PageUserStoreRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*PageUserStoresResponse)
+		reply := out.(*PageUserStoreResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -107,8 +107,8 @@ type UserStoreServiceHTTPClient interface {
 	AuditUserStore(ctx context.Context, req *AuditUserStoreRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// GetUserStore 查询用户门店
 	GetUserStore(ctx context.Context, req *GetUserStoreRequest, opts ...http.CallOption) (rsp *UserStore, err error)
-	// PageUserStores 查询用户门店列表
-	PageUserStores(ctx context.Context, req *PageUserStoresRequest, opts ...http.CallOption) (rsp *PageUserStoresResponse, err error)
+	// PageUserStore 查询用户门店列表
+	PageUserStore(ctx context.Context, req *PageUserStoreRequest, opts ...http.CallOption) (rsp *PageUserStoreResponse, err error)
 }
 
 type UserStoreServiceHTTPClientImpl struct {
@@ -154,14 +154,14 @@ func (c *UserStoreServiceHTTPClientImpl) GetUserStore(ctx context.Context, in *G
 	return &out, nil
 }
 
-// PageUserStores 查询用户门店列表
-func (c *UserStoreServiceHTTPClientImpl) PageUserStores(ctx context.Context, in *PageUserStoresRequest, opts ...http.CallOption) (*PageUserStoresResponse, error) {
-	var out PageUserStoresResponse
+// PageUserStore 查询用户门店列表
+func (c *UserStoreServiceHTTPClientImpl) PageUserStore(ctx context.Context, in *PageUserStoreRequest, opts ...http.CallOption) (*PageUserStoreResponse, error) {
+	var out PageUserStoreResponse
 	pattern := "/api/v1/admin/user/store"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationUserStoreServicePageUserStores),
+		http.Operation(OperationUserStoreServicePageUserStore),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)

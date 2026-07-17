@@ -19,7 +19,7 @@ const settingStore = useSettingStore()
 // 获取轮播图数据
 const bannerList = ref<ShopBanner[]>([])
 const getHomeBannerData = async () => {
-  const res = await defShopBannerService.ListShopBanners({
+  const res = await defShopBannerService.ListShopBanner({
     site: ShopBannerSite.INDEX,
   })
   bannerList.value = res.shop_banners || []
@@ -28,7 +28,7 @@ const getHomeBannerData = async () => {
 // 获取前台分类数据
 const categoryList = ref<GoodsCategory[]>([])
 const getHomeCategoryData = async () => {
-  const res = await defGoodsCategoryService.ListGoodsCategories({
+  const res = await defGoodsCategoryService.ListGoodsCategory({
     parent_id: 0,
   })
   categoryList.value = res.goods_categories || []
@@ -37,7 +37,7 @@ const getHomeCategoryData = async () => {
 // 获取热门推荐数据
 const hotList = ref<ShopHot[]>([])
 const getHomeHotData = async () => {
-  const res = await defShopHotService.ListShopHots({})
+  const res = await defShopHotService.ListShopHot({})
   hotList.value = res.shop_hots || []
 }
 

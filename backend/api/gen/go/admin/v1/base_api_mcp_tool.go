@@ -15,8 +15,8 @@ import (
 
 // RegisterBaseApiServiceMCPTools 注册AdminAPI服务的 MCP Tool。
 func RegisterBaseApiServiceMCPTools(mcpServer *mcp.Server, baseApiServiceServer BaseApiServiceServer) {
-	RegisterBaseApiServicePageBaseApisMCPTool(mcpServer, baseApiServiceServer)
-	RegisterBaseApiServiceListBaseApisMCPTool(mcpServer, baseApiServiceServer)
+	RegisterBaseApiServicePageBaseApiMCPTool(mcpServer, baseApiServiceServer)
+	RegisterBaseApiServiceListBaseApiMCPTool(mcpServer, baseApiServiceServer)
 	RegisterBaseApiServiceGetBaseApiMCPTool(mcpServer, baseApiServiceServer)
 	RegisterBaseApiServiceGetBaseApiDocMCPTool(mcpServer, baseApiServiceServer)
 	RegisterBaseApiServiceSetBaseApiMcpEnabledMCPTool(mcpServer, baseApiServiceServer)
@@ -24,19 +24,19 @@ func RegisterBaseApiServiceMCPTools(mcpServer *mcp.Server, baseApiServiceServer 
 	RegisterBaseApiServiceUpdateBaseApiMCPTool(mcpServer, baseApiServiceServer)
 }
 
-// RegisterBaseApiServicePageBaseApisMCPTool 注册分页查询API列表的 MCP Tool。
-func RegisterBaseApiServicePageBaseApisMCPTool(mcpServer *mcp.Server, baseApiServiceServer BaseApiServiceServer) {
-	mcp.AddTool[*PageBaseApisRequest, *PageBaseApisResponse](
+// RegisterBaseApiServicePageBaseApiMCPTool 注册分页查询API列表的 MCP Tool。
+func RegisterBaseApiServicePageBaseApiMCPTool(mcpServer *mcp.Server, baseApiServiceServer BaseApiServiceServer) {
+	mcp.AddTool[*PageBaseApiRequest, *PageBaseApiResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "admin_v1_base_api_service_page_base_apis",
+			Name:        "admin_v1_base_api_service_page_base_api",
 			Description: "分页查询API列表",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBaseApisRequest) (*mcp.CallToolResult, *PageBaseApisResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBaseApiRequest) (*mcp.CallToolResult, *PageBaseApiResponse, error) {
 			if input == nil {
-				input = &PageBaseApisRequest{}
+				input = &PageBaseApiRequest{}
 			}
-			reply, err := baseApiServiceServer.PageBaseApis(ctx, input)
+			reply, err := baseApiServiceServer.PageBaseApi(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -45,19 +45,19 @@ func RegisterBaseApiServicePageBaseApisMCPTool(mcpServer *mcp.Server, baseApiSer
 	)
 }
 
-// RegisterBaseApiServiceListBaseApisMCPTool 注册查询菜单分配API选项列表的 MCP Tool。
-func RegisterBaseApiServiceListBaseApisMCPTool(mcpServer *mcp.Server, baseApiServiceServer BaseApiServiceServer) {
-	mcp.AddTool[*ListBaseApisRequest, *ListBaseApisResponse](
+// RegisterBaseApiServiceListBaseApiMCPTool 注册查询菜单分配API选项列表的 MCP Tool。
+func RegisterBaseApiServiceListBaseApiMCPTool(mcpServer *mcp.Server, baseApiServiceServer BaseApiServiceServer) {
+	mcp.AddTool[*ListBaseApiRequest, *ListBaseApiResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "admin_v1_base_api_service_list_base_apis",
+			Name:        "admin_v1_base_api_service_list_base_api",
 			Description: "查询菜单分配API选项列表",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *ListBaseApisRequest) (*mcp.CallToolResult, *ListBaseApisResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *ListBaseApiRequest) (*mcp.CallToolResult, *ListBaseApiResponse, error) {
 			if input == nil {
-				input = &ListBaseApisRequest{}
+				input = &ListBaseApiRequest{}
 			}
-			reply, err := baseApiServiceServer.ListBaseApis(ctx, input)
+			reply, err := baseApiServiceServer.ListBaseApi(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

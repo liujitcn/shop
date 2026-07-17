@@ -45,8 +45,8 @@ func NewRecommendRequestCase(
 	}
 }
 
-// PageRecommendRequests 分页查询推荐请求。
-func (c *RecommendRequestCase) PageRecommendRequests(ctx context.Context, req *adminv1.PageRecommendRequestsRequest) (*adminv1.PageRecommendRequestsResponse, error) {
+// PageRecommendRequest 分页查询推荐请求。
+func (c *RecommendRequestCase) PageRecommendRequest(ctx context.Context, req *adminv1.PageRecommendRequestRequest) (*adminv1.PageRecommendRequestResponse, error) {
 	query := c.RecommendRequestRepository.Query(ctx).RecommendRequest
 	opts := make([]repository.QueryOption, 0, 8)
 	opts = append(opts, repository.Order(query.RequestAt.Desc()))
@@ -107,7 +107,7 @@ func (c *RecommendRequestCase) PageRecommendRequests(ctx context.Context, req *a
 	for _, item := range list {
 		resList = append(resList, c.toRecommendRequest(item, actorNameMap[item.ActorID]))
 	}
-	return &adminv1.PageRecommendRequestsResponse{
+	return &adminv1.PageRecommendRequestResponse{
 		RecommendRequests: resList,
 		Total:             int32(total),
 	}, nil
@@ -144,13 +144,13 @@ func (c *RecommendRequestCase) GetRecommendRequest(ctx context.Context, id int64
 	}, nil
 }
 
-// ListRecommendRequestEvents 查询推荐请求商品关联事件列表。
-func (c *RecommendRequestCase) ListRecommendRequestEvents(
+// ListRecommendRequestEvent 查询推荐请求商品关联事件列表。
+func (c *RecommendRequestCase) ListRecommendRequestEvent(
 	ctx context.Context,
 	requestRecordID int64,
 	goodsID int64,
 	position int32,
-) (*adminv1.ListRecommendRequestEventsResponse, error) {
+) (*adminv1.ListRecommendRequestEventResponse, error) {
 	// 请求记录编号非法时，无法定位推荐请求事件范围。
 	if requestRecordID <= 0 {
 		return nil, errorsx.InvalidArgument("推荐请求记录编号不能为空")
@@ -165,7 +165,7 @@ func (c *RecommendRequestCase) ListRecommendRequestEvents(
 		return nil, err
 	}
 
-	return c.recommendEventCase.ListRecommendRequestEvents(ctx, requestModel.RequestID, goodsID, position)
+	return c.recommendEventCase.ListRecommendRequestEvent(ctx, requestModel.RequestID, goodsID, position)
 }
 
 // getRecommendActorNameMap 构建推荐主体名称映射。

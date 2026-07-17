@@ -8,7 +8,7 @@ import "google/api/annotations.proto";
 // Admin日志服务
 service BaseLogService {
   // 查询日志分页列表
-  rpc PageBaseLogs(PageBaseLogsRequest) returns (PageBaseLogsResponse) {
+  rpc PageBaseLog(PageBaseLogRequest) returns (PageBaseLogResponse) {
     option (google.api.http) = {
       get: "/api/v1/admin/base/log"
     };
@@ -23,7 +23,7 @@ service BaseLogService {
 }
 
 // 日志分页查询条件
-message PageBaseLogsRequest {
+message PageBaseLogRequest {
   repeated string request_time = 3 [(gnostic.openapi.v3.property) = {description: "请求时间"}]; // 请求时间
 
   string operation = 5 [(gnostic.openapi.v3.property) = {description: "操作方法"}]; // 操作方法
@@ -42,7 +42,7 @@ message PageBaseLogsRequest {
 }
 
 // 日志分页响应
-message PageBaseLogsResponse {
+message PageBaseLogResponse {
   repeated BaseLog base_logs = 1 [(gnostic.openapi.v3.property) = {description: "分页数据"}]; // 分页数据
 
   int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数

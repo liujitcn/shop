@@ -22,8 +22,8 @@ const _ = http.SupportPackageIsVersion3
 const OperationCodeGenTableServiceCreateCodeGenTable = "/admin.v1.CodeGenTableService/CreateCodeGenTable"
 const OperationCodeGenTableServiceDeleteCodeGenTable = "/admin.v1.CodeGenTableService/DeleteCodeGenTable"
 const OperationCodeGenTableServiceGetCodeGenTable = "/admin.v1.CodeGenTableService/GetCodeGenTable"
-const OperationCodeGenTableServiceListCodeGenDatabaseTables = "/admin.v1.CodeGenTableService/ListCodeGenDatabaseTables"
-const OperationCodeGenTableServicePageCodeGenTables = "/admin.v1.CodeGenTableService/PageCodeGenTables"
+const OperationCodeGenTableServiceListCodeGenDatabaseTable = "/admin.v1.CodeGenTableService/ListCodeGenDatabaseTable"
+const OperationCodeGenTableServicePageCodeGenTable = "/admin.v1.CodeGenTableService/PageCodeGenTable"
 const OperationCodeGenTableServiceUpdateCodeGenTable = "/admin.v1.CodeGenTableService/UpdateCodeGenTable"
 
 type CodeGenTableServiceHTTPServer interface {
@@ -33,58 +33,58 @@ type CodeGenTableServiceHTTPServer interface {
 	DeleteCodeGenTable(context.Context, *DeleteCodeGenTableRequest) (*emptypb.Empty, error)
 	// GetCodeGenTable 查询代码生成表配置
 	GetCodeGenTable(context.Context, *GetCodeGenTableRequest) (*CodeGenTableForm, error)
-	// ListCodeGenDatabaseTables 查询数据库表列表
-	ListCodeGenDatabaseTables(context.Context, *ListCodeGenDatabaseTablesRequest) (*ListCodeGenDatabaseTablesResponse, error)
-	// PageCodeGenTables 分页查询代码生成表配置
-	PageCodeGenTables(context.Context, *PageCodeGenTablesRequest) (*PageCodeGenTablesResponse, error)
+	// ListCodeGenDatabaseTable 查询数据库表列表
+	ListCodeGenDatabaseTable(context.Context, *ListCodeGenDatabaseTableRequest) (*ListCodeGenDatabaseTableResponse, error)
+	// PageCodeGenTable 分页查询代码生成表配置
+	PageCodeGenTable(context.Context, *PageCodeGenTableRequest) (*PageCodeGenTableResponse, error)
 	// UpdateCodeGenTable 更新代码生成表配置
 	UpdateCodeGenTable(context.Context, *UpdateCodeGenTableRequest) (*emptypb.Empty, error)
 }
 
 func RegisterCodeGenTableServiceHTTPServer(s *http.Server, srv CodeGenTableServiceHTTPServer) {
 	r := s.Route("/")
-	r.Handle("GET", "/api/v1/admin/code-gen/database/table", _CodeGenTableService_ListCodeGenDatabaseTables0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/admin/code-gen/table", _CodeGenTableService_PageCodeGenTables0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/code-gen/database/table", _CodeGenTableService_ListCodeGenDatabaseTable0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/code-gen/table", _CodeGenTableService_PageCodeGenTable0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/code-gen/table/{id}", _CodeGenTableService_GetCodeGenTable0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/admin/code-gen/table", _CodeGenTableService_CreateCodeGenTable0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/code-gen/table/{id}", _CodeGenTableService_UpdateCodeGenTable0_HTTP_Handler(srv))
 	r.Handle("DELETE", "/api/v1/admin/code-gen/table/{ids}", _CodeGenTableService_DeleteCodeGenTable0_HTTP_Handler(srv))
 }
 
-func _CodeGenTableService_ListCodeGenDatabaseTables0_HTTP_Handler(srv CodeGenTableServiceHTTPServer) func(ctx http.Context) error {
+func _CodeGenTableService_ListCodeGenDatabaseTable0_HTTP_Handler(srv CodeGenTableServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in ListCodeGenDatabaseTablesRequest
+		var in ListCodeGenDatabaseTableRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationCodeGenTableServiceListCodeGenDatabaseTables)
+		http.SetOperation(ctx, OperationCodeGenTableServiceListCodeGenDatabaseTable)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.ListCodeGenDatabaseTables(ctx, req.(*ListCodeGenDatabaseTablesRequest))
+			return srv.ListCodeGenDatabaseTable(ctx, req.(*ListCodeGenDatabaseTableRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*ListCodeGenDatabaseTablesResponse)
+		reply := out.(*ListCodeGenDatabaseTableResponse)
 		return ctx.Result(200, reply)
 	}
 }
 
-func _CodeGenTableService_PageCodeGenTables0_HTTP_Handler(srv CodeGenTableServiceHTTPServer) func(ctx http.Context) error {
+func _CodeGenTableService_PageCodeGenTable0_HTTP_Handler(srv CodeGenTableServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in PageCodeGenTablesRequest
+		var in PageCodeGenTableRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationCodeGenTableServicePageCodeGenTables)
+		http.SetOperation(ctx, OperationCodeGenTableServicePageCodeGenTable)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.PageCodeGenTables(ctx, req.(*PageCodeGenTablesRequest))
+			return srv.PageCodeGenTable(ctx, req.(*PageCodeGenTableRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*PageCodeGenTablesResponse)
+		reply := out.(*PageCodeGenTableResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -187,10 +187,10 @@ type CodeGenTableServiceHTTPClient interface {
 	DeleteCodeGenTable(ctx context.Context, req *DeleteCodeGenTableRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// GetCodeGenTable 查询代码生成表配置
 	GetCodeGenTable(ctx context.Context, req *GetCodeGenTableRequest, opts ...http.CallOption) (rsp *CodeGenTableForm, err error)
-	// ListCodeGenDatabaseTables 查询数据库表列表
-	ListCodeGenDatabaseTables(ctx context.Context, req *ListCodeGenDatabaseTablesRequest, opts ...http.CallOption) (rsp *ListCodeGenDatabaseTablesResponse, err error)
-	// PageCodeGenTables 分页查询代码生成表配置
-	PageCodeGenTables(ctx context.Context, req *PageCodeGenTablesRequest, opts ...http.CallOption) (rsp *PageCodeGenTablesResponse, err error)
+	// ListCodeGenDatabaseTable 查询数据库表列表
+	ListCodeGenDatabaseTable(ctx context.Context, req *ListCodeGenDatabaseTableRequest, opts ...http.CallOption) (rsp *ListCodeGenDatabaseTableResponse, err error)
+	// PageCodeGenTable 分页查询代码生成表配置
+	PageCodeGenTable(ctx context.Context, req *PageCodeGenTableRequest, opts ...http.CallOption) (rsp *PageCodeGenTableResponse, err error)
 	// UpdateCodeGenTable 更新代码生成表配置
 	UpdateCodeGenTable(ctx context.Context, req *UpdateCodeGenTableRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 }
@@ -255,14 +255,14 @@ func (c *CodeGenTableServiceHTTPClientImpl) GetCodeGenTable(ctx context.Context,
 	return &out, nil
 }
 
-// ListCodeGenDatabaseTables 查询数据库表列表
-func (c *CodeGenTableServiceHTTPClientImpl) ListCodeGenDatabaseTables(ctx context.Context, in *ListCodeGenDatabaseTablesRequest, opts ...http.CallOption) (*ListCodeGenDatabaseTablesResponse, error) {
-	var out ListCodeGenDatabaseTablesResponse
+// ListCodeGenDatabaseTable 查询数据库表列表
+func (c *CodeGenTableServiceHTTPClientImpl) ListCodeGenDatabaseTable(ctx context.Context, in *ListCodeGenDatabaseTableRequest, opts ...http.CallOption) (*ListCodeGenDatabaseTableResponse, error) {
+	var out ListCodeGenDatabaseTableResponse
 	pattern := "/api/v1/admin/code-gen/database/table"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationCodeGenTableServiceListCodeGenDatabaseTables),
+		http.Operation(OperationCodeGenTableServiceListCodeGenDatabaseTable),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
@@ -272,14 +272,14 @@ func (c *CodeGenTableServiceHTTPClientImpl) ListCodeGenDatabaseTables(ctx contex
 	return &out, nil
 }
 
-// PageCodeGenTables 分页查询代码生成表配置
-func (c *CodeGenTableServiceHTTPClientImpl) PageCodeGenTables(ctx context.Context, in *PageCodeGenTablesRequest, opts ...http.CallOption) (*PageCodeGenTablesResponse, error) {
-	var out PageCodeGenTablesResponse
+// PageCodeGenTable 分页查询代码生成表配置
+func (c *CodeGenTableServiceHTTPClientImpl) PageCodeGenTable(ctx context.Context, in *PageCodeGenTableRequest, opts ...http.CallOption) (*PageCodeGenTableResponse, error) {
+	var out PageCodeGenTableResponse
 	pattern := "/api/v1/admin/code-gen/table"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationCodeGenTableServicePageCodeGenTables),
+		http.Operation(OperationCodeGenTableServicePageCodeGenTable),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)

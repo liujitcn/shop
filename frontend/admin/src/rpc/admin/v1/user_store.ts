@@ -9,7 +9,7 @@ import type { UserStoreStatus } from "../../common/v1/enum";
 import type { Empty } from "../../google/protobuf/empty";
 
 /** 用户门店列表查询条件 */
-export interface PageUserStoresRequest {
+export interface PageUserStoreRequest {
   /** 门店名称 */
   name: string;
   /** 状态 */
@@ -23,7 +23,7 @@ export interface PageUserStoresRequest {
 }
 
 /** 用户门店列表响应 */
-export interface PageUserStoresResponse {
+export interface PageUserStoreResponse {
   /** 用户门店列表 */
   user_stores: UserStore[];
   /** 总数 */
@@ -73,7 +73,7 @@ export interface UserStore {
 /** Admin用户门店管理服务 */
 export interface UserStoreService {
   /** 查询用户门店列表 */
-  PageUserStores(request: PageUserStoresRequest): Promise<PageUserStoresResponse>;
+  PageUserStore(request: PageUserStoreRequest): Promise<PageUserStoreResponse>;
   /** 查询用户门店 */
   GetUserStore(request: GetUserStoreRequest): Promise<UserStore>;
   /** 门店认证 */

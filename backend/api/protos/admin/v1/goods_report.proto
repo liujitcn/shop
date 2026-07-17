@@ -15,7 +15,7 @@ service GoodsReportService {
   }
 
   // 查询商品月报名细
-  rpc ListGoodsMonthReports(ListGoodsMonthReportsRequest) returns (ListGoodsMonthReportsResponse) {
+  rpc ListGoodsMonthReport(ListGoodsMonthReportRequest) returns (ListGoodsMonthReportResponse) {
     option (google.api.http) = {
       get: "/api/v1/admin/report/goods/month"
     };
@@ -29,7 +29,7 @@ service GoodsReportService {
   }
 
   // 查询商品日报明细
-  rpc ListGoodsDayReports(ListGoodsDayReportsRequest) returns (ListGoodsDayReportsResponse) {
+  rpc ListGoodsDayReport(ListGoodsDayReportRequest) returns (ListGoodsDayReportResponse) {
     option (google.api.http) = {
       get: "/api/v1/admin/report/goods/day"
     };
@@ -49,7 +49,7 @@ message SummaryGoodsMonthReportRequest {
 }
 
 // 商品月报列表请求参数
-message ListGoodsMonthReportsRequest {
+message ListGoodsMonthReportRequest {
   optional int64 tenant_id = 1 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
   optional int64 tenant_store_id = 2 [(gnostic.openapi.v3.property) = {description: "租户门店ID"}]; // 租户门店ID
   string start_month = 3 [
@@ -136,7 +136,7 @@ message GoodsMonthReportItem {
 }
 
 // 商品月报列表响应
-message ListGoodsMonthReportsResponse {
+message ListGoodsMonthReportResponse {
   repeated GoodsMonthReportItem goods_month_reports = 1 [(gnostic.openapi.v3.property) = {description: "商品月报明细"}]; // 商品月报明细
 }
 
@@ -151,7 +151,7 @@ message SummaryGoodsDayReportRequest {
 }
 
 // 商品日报列表请求参数
-message ListGoodsDayReportsRequest {
+message ListGoodsDayReportRequest {
   string start_date = 1 [
     (gnostic.openapi.v3.property) = {description: "开始日期，格式：YYYY-MM-DD"}
   ]; // 开始日期，格式：YYYY-MM-DD
@@ -236,6 +236,6 @@ message GoodsDayReportItem {
 }
 
 // 商品日报列表响应
-message ListGoodsDayReportsResponse {
+message ListGoodsDayReportResponse {
   repeated GoodsDayReportItem goods_day_reports = 1 [(gnostic.openapi.v3.property) = {description: "商品日报明细"}]; // 商品日报明细
 }

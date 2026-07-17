@@ -37,11 +37,11 @@ func (s *GoodsReportService) SummaryGoodsMonthReport(ctx context.Context, req *a
 	return res, nil
 }
 
-// ListGoodsMonthReports 查询商品月报名细。
-func (s *GoodsReportService) ListGoodsMonthReports(ctx context.Context, req *adminv1.ListGoodsMonthReportsRequest) (*adminv1.ListGoodsMonthReportsResponse, error) {
-	res, err := s.goodsReportCase.ListGoodsMonthReports(ctx, req)
+// ListGoodsMonthReport 查询商品月报名细。
+func (s *GoodsReportService) ListGoodsMonthReport(ctx context.Context, req *adminv1.ListGoodsMonthReportRequest) (*adminv1.ListGoodsMonthReportResponse, error) {
+	res, err := s.goodsReportCase.ListGoodsMonthReport(ctx, req)
 	if err != nil {
-		log.Error(fmt.Sprintf("ListGoodsMonthReports %v", err))
+		log.Error(fmt.Sprintf("ListGoodsMonthReport %v", err))
 		return nil, errorsx.WrapInternal(err, "查询商品月报名细失败")
 	}
 	return res, nil
@@ -57,11 +57,11 @@ func (s *GoodsReportService) SummaryGoodsDayReport(ctx context.Context, req *adm
 	return res, nil
 }
 
-// ListGoodsDayReports 查询商品日报明细。
-func (s *GoodsReportService) ListGoodsDayReports(ctx context.Context, req *adminv1.ListGoodsDayReportsRequest) (*adminv1.ListGoodsDayReportsResponse, error) {
-	res, err := s.goodsReportCase.ListGoodsDayReports(ctx, req)
+// ListGoodsDayReport 查询商品日报明细。
+func (s *GoodsReportService) ListGoodsDayReport(ctx context.Context, req *adminv1.ListGoodsDayReportRequest) (*adminv1.ListGoodsDayReportResponse, error) {
+	res, err := s.goodsReportCase.ListGoodsDayReport(ctx, req)
 	if err != nil {
-		log.Error(fmt.Sprintf("ListGoodsDayReports %v", err))
+		log.Error(fmt.Sprintf("ListGoodsDayReport %v", err))
 		return nil, errorsx.WrapInternal(err, "查询商品日报明细失败")
 	}
 	return res, nil

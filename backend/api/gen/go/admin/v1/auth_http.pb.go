@@ -8,10 +8,11 @@ package adminv1
 
 import (
 	context "context"
-	v1 "shop/api/gen/go/common/v1"
 
 	http "github.com/go-kratos/kratos/v3/transport/http"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+
+	v1 "shop/api/gen/go/common/v1"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -22,9 +23,9 @@ const _ = http.SupportPackageIsVersion3
 
 const OperationAuthServiceGetUserInfo = "/admin.v1.AuthService/GetUserInfo"
 const OperationAuthServiceGetUserProfile = "/admin.v1.AuthService/GetUserProfile"
-const OperationAuthServiceListUserButtons = "/admin.v1.AuthService/ListUserButtons"
+const OperationAuthServiceListUserButton = "/admin.v1.AuthService/ListUserButton"
 const OperationAuthServiceSendPhoneCode = "/admin.v1.AuthService/SendPhoneCode"
-const OperationAuthServiceTreeUserMenus = "/admin.v1.AuthService/TreeUserMenus"
+const OperationAuthServiceTreeUserMenu = "/admin.v1.AuthService/TreeUserMenu"
 const OperationAuthServiceUpdateUserPassword = "/admin.v1.AuthService/UpdateUserPassword"
 const OperationAuthServiceUpdateUserPhone = "/admin.v1.AuthService/UpdateUserPhone"
 const OperationAuthServiceUpdateUserProfile = "/admin.v1.AuthService/UpdateUserProfile"
@@ -34,12 +35,12 @@ type AuthServiceHTTPServer interface {
 	GetUserInfo(context.Context, *GetUserInfoRequest) (*UserInfoForm, error)
 	// GetUserProfile 获取个人中心用户信息
 	GetUserProfile(context.Context, *GetUserProfileRequest) (*UserProfileForm, error)
-	// ListUserButtons 查询已经登录的用户按钮列表
-	ListUserButtons(context.Context, *ListUserButtonsRequest) (*v1.StringValues, error)
+	// ListUserButton 查询已经登录的用户按钮列表
+	ListUserButton(context.Context, *ListUserButtonRequest) (*v1.StringValues, error)
 	// SendPhoneCode 发送手机号验证码
 	SendPhoneCode(context.Context, *SendPhoneCodeRequest) (*emptypb.Empty, error)
-	// TreeUserMenus 查询已经登录的用户菜单树
-	TreeUserMenus(context.Context, *TreeUserMenusRequest) (*TreeRouteResponse, error)
+	// TreeUserMenu 查询已经登录的用户菜单树
+	TreeUserMenu(context.Context, *TreeUserMenuRequest) (*TreeRouteResponse, error)
 	// UpdateUserPassword 修改个人中心密码
 	UpdateUserPassword(context.Context, *UpdateUserPasswordRequest) (*emptypb.Empty, error)
 	// UpdateUserPhone 修改个人中心手机号
@@ -51,8 +52,8 @@ type AuthServiceHTTPServer interface {
 func RegisterAuthServiceHTTPServer(s *http.Server, srv AuthServiceHTTPServer) {
 	r := s.Route("/")
 	r.Handle("GET", "/api/v1/admin/auth/user", _AuthService_GetUserInfo0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/admin/auth/menu/tree", _AuthService_TreeUserMenus0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/admin/auth/buttons", _AuthService_ListUserButtons0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/auth/menu/tree", _AuthService_TreeUserMenu0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/auth/buttons", _AuthService_ListUserButton0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/auth/profile", _AuthService_GetUserProfile0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/auth/profile", _AuthService_UpdateUserProfile0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/admin/auth/phone/code", _AuthService_SendPhoneCode0_HTTP_Handler(srv))
@@ -79,15 +80,15 @@ func _AuthService_GetUserInfo0_HTTP_Handler(srv AuthServiceHTTPServer) func(ctx 
 	}
 }
 
-func _AuthService_TreeUserMenus0_HTTP_Handler(srv AuthServiceHTTPServer) func(ctx http.Context) error {
+func _AuthService_TreeUserMenu0_HTTP_Handler(srv AuthServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in TreeUserMenusRequest
+		var in TreeUserMenuRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationAuthServiceTreeUserMenus)
+		http.SetOperation(ctx, OperationAuthServiceTreeUserMenu)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.TreeUserMenus(ctx, req.(*TreeUserMenusRequest))
+			return srv.TreeUserMenu(ctx, req.(*TreeUserMenuRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -98,15 +99,15 @@ func _AuthService_TreeUserMenus0_HTTP_Handler(srv AuthServiceHTTPServer) func(ct
 	}
 }
 
-func _AuthService_ListUserButtons0_HTTP_Handler(srv AuthServiceHTTPServer) func(ctx http.Context) error {
+func _AuthService_ListUserButton0_HTTP_Handler(srv AuthServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in ListUserButtonsRequest
+		var in ListUserButtonRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationAuthServiceListUserButtons)
+		http.SetOperation(ctx, OperationAuthServiceListUserButton)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.ListUserButtons(ctx, req.(*ListUserButtonsRequest))
+			return srv.ListUserButton(ctx, req.(*ListUserButtonRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -226,12 +227,12 @@ type AuthServiceHTTPClient interface {
 	GetUserInfo(ctx context.Context, req *GetUserInfoRequest, opts ...http.CallOption) (rsp *UserInfoForm, err error)
 	// GetUserProfile 获取个人中心用户信息
 	GetUserProfile(ctx context.Context, req *GetUserProfileRequest, opts ...http.CallOption) (rsp *UserProfileForm, err error)
-	// ListUserButtons 查询已经登录的用户按钮列表
-	ListUserButtons(ctx context.Context, req *ListUserButtonsRequest, opts ...http.CallOption) (rsp *v1.StringValues, err error)
+	// ListUserButton 查询已经登录的用户按钮列表
+	ListUserButton(ctx context.Context, req *ListUserButtonRequest, opts ...http.CallOption) (rsp *v1.StringValues, err error)
 	// SendPhoneCode 发送手机号验证码
 	SendPhoneCode(ctx context.Context, req *SendPhoneCodeRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
-	// TreeUserMenus 查询已经登录的用户菜单树
-	TreeUserMenus(ctx context.Context, req *TreeUserMenusRequest, opts ...http.CallOption) (rsp *TreeRouteResponse, err error)
+	// TreeUserMenu 查询已经登录的用户菜单树
+	TreeUserMenu(ctx context.Context, req *TreeUserMenuRequest, opts ...http.CallOption) (rsp *TreeRouteResponse, err error)
 	// UpdateUserPassword 修改个人中心密码
 	UpdateUserPassword(ctx context.Context, req *UpdateUserPasswordRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// UpdateUserPhone 修改个人中心手机号
@@ -282,14 +283,14 @@ func (c *AuthServiceHTTPClientImpl) GetUserProfile(ctx context.Context, in *GetU
 	return &out, nil
 }
 
-// ListUserButtons 查询已经登录的用户按钮列表
-func (c *AuthServiceHTTPClientImpl) ListUserButtons(ctx context.Context, in *ListUserButtonsRequest, opts ...http.CallOption) (*v1.StringValues, error) {
+// ListUserButton 查询已经登录的用户按钮列表
+func (c *AuthServiceHTTPClientImpl) ListUserButton(ctx context.Context, in *ListUserButtonRequest, opts ...http.CallOption) (*v1.StringValues, error) {
 	var out v1.StringValues
 	pattern := "/api/v1/admin/auth/buttons"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationAuthServiceListUserButtons),
+		http.Operation(OperationAuthServiceListUserButton),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
@@ -317,14 +318,14 @@ func (c *AuthServiceHTTPClientImpl) SendPhoneCode(ctx context.Context, in *SendP
 	return &out, nil
 }
 
-// TreeUserMenus 查询已经登录的用户菜单树
-func (c *AuthServiceHTTPClientImpl) TreeUserMenus(ctx context.Context, in *TreeUserMenusRequest, opts ...http.CallOption) (*TreeRouteResponse, error) {
+// TreeUserMenu 查询已经登录的用户菜单树
+func (c *AuthServiceHTTPClientImpl) TreeUserMenu(ctx context.Context, in *TreeUserMenuRequest, opts ...http.CallOption) (*TreeRouteResponse, error) {
 	var out TreeRouteResponse
 	pattern := "/api/v1/admin/auth/menu/tree"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationAuthServiceTreeUserMenus),
+		http.Operation(OperationAuthServiceTreeUserMenu),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)

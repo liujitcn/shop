@@ -35,8 +35,8 @@ func NewBaseDictCase(baseCase *biz.BaseCase, baseDictRepo *data.BaseDictReposito
 	}
 }
 
-// OptionBaseDicts 查询字典下拉选择
-func (c *BaseDictCase) OptionBaseDicts(ctx context.Context) (*adminv1.OptionBaseDictsResponse, error) {
+// OptionBaseDict 查询字典下拉选择
+func (c *BaseDictCase) OptionBaseDict(ctx context.Context) (*adminv1.OptionBaseDictResponse, error) {
 	query := c.Query(ctx).BaseDict
 	opts := make([]repository.QueryOption, 0, 1)
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
@@ -60,9 +60,9 @@ func (c *BaseDictCase) OptionBaseDicts(ctx context.Context) (*adminv1.OptionBase
 		dictItemMap[item.DictID] = append(dictItemMap[item.DictID], item)
 	}
 
-	resList := make([]*adminv1.OptionBaseDictsResponse_BaseDict, 0, len(baseDictList))
+	resList := make([]*adminv1.OptionBaseDictResponse_BaseDict, 0, len(baseDictList))
 	for _, dict := range baseDictList {
-		items := make([]*adminv1.OptionBaseDictsResponse_BaseDictItem, 0)
+		items := make([]*adminv1.OptionBaseDictResponse_BaseDictItem, 0)
 		dictItems, ok := dictItemMap[dict.ID]
 		// 当前字典存在子项时，按排序字段稳定输出字典项。
 		if ok {
@@ -70,24 +70,24 @@ func (c *BaseDictCase) OptionBaseDicts(ctx context.Context) (*adminv1.OptionBase
 				return dictItems[i].Sort < dictItems[j].Sort
 			})
 			for _, dictItem := range dictItems {
-				items = append(items, &adminv1.OptionBaseDictsResponse_BaseDictItem{
+				items = append(items, &adminv1.OptionBaseDictResponse_BaseDictItem{
 					Value:   dictItem.Value,
 					Label:   dictItem.Label,
 					TagType: dictItem.TagType,
 				})
 			}
 		}
-		resList = append(resList, &adminv1.OptionBaseDictsResponse_BaseDict{
+		resList = append(resList, &adminv1.OptionBaseDictResponse_BaseDict{
 			Code:  dict.Code,
 			Name:  dict.Name,
 			Items: items,
 		})
 	}
-	return &adminv1.OptionBaseDictsResponse{BaseDicts: resList}, nil
+	return &adminv1.OptionBaseDictResponse{BaseDicts: resList}, nil
 }
 
-// PageBaseDicts 分页查询字典
-func (c *BaseDictCase) PageBaseDicts(ctx context.Context, req *adminv1.PageBaseDictsRequest) (*adminv1.PageBaseDictsResponse, error) {
+// PageBaseDict 分页查询字典
+func (c *BaseDictCase) PageBaseDict(ctx context.Context, req *adminv1.PageBaseDictRequest) (*adminv1.PageBaseDictResponse, error) {
 	query := c.Query(ctx).BaseDict
 	opts := make([]repository.QueryOption, 0, 4)
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
@@ -113,7 +113,7 @@ func (c *BaseDictCase) PageBaseDicts(ctx context.Context, req *adminv1.PageBaseD
 		baseDict := c.mapper.ToDTO(item)
 		resList = append(resList, baseDict)
 	}
-	return &adminv1.PageBaseDictsResponse{BaseDicts: resList, Total: int32(total)}, nil
+	return &adminv1.PageBaseDictResponse{BaseDicts: resList, Total: int32(total)}, nil
 }
 
 // GetBaseDict 获取字典

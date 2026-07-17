@@ -18,12 +18,12 @@ import (
 func NewUserCollectServiceAgentTools(userCollectServiceServer UserCollectServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error
-	var pageUserCollectsTool tool.InvokableTool
-	pageUserCollectsTool, err = NewUserCollectServicePageUserCollectsAgentTool(userCollectServiceServer)
+	var pageUserCollectTool tool.InvokableTool
+	pageUserCollectTool, err = NewUserCollectServicePageUserCollectAgentTool(userCollectServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, pageUserCollectsTool)
+	ts = append(ts, pageUserCollectTool)
 	var getIsCollectTool tool.InvokableTool
 	getIsCollectTool, err = NewUserCollectServiceGetIsCollectAgentTool(userCollectServiceServer)
 	if err != nil {
@@ -45,16 +45,16 @@ func NewUserCollectServiceAgentTools(userCollectServiceServer UserCollectService
 	return ts, nil
 }
 
-// NewUserCollectServicePageUserCollectsAgentTool 创建查询用户收藏列表的 Agent Tool。
-func NewUserCollectServicePageUserCollectsAgentTool(userCollectServiceServer UserCollectServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*PageUserCollectsRequest, *PageUserCollectsResponse](
-		"app_v1_user_collect_service_page_user_collects",
+// NewUserCollectServicePageUserCollectAgentTool 创建查询用户收藏列表的 Agent Tool。
+func NewUserCollectServicePageUserCollectAgentTool(userCollectServiceServer UserCollectServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PageUserCollectRequest, *PageUserCollectResponse](
+		"app_v1_user_collect_service_page_user_collect",
 		"查询用户收藏列表",
-		func(ctx context.Context, req *PageUserCollectsRequest) (*PageUserCollectsResponse, error) {
+		func(ctx context.Context, req *PageUserCollectRequest) (*PageUserCollectResponse, error) {
 			if req == nil {
-				req = &PageUserCollectsRequest{}
+				req = &PageUserCollectRequest{}
 			}
-			return userCollectServiceServer.PageUserCollects(ctx, req)
+			return userCollectServiceServer.PageUserCollect(ctx, req)
 		},
 	)
 }

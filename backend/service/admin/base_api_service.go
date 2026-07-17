@@ -36,11 +36,11 @@ func NewBaseApiService(
 	}
 }
 
-// PageBaseApis 分页查询API列表
-func (s *BaseApiService) PageBaseApis(ctx context.Context, req *adminv1.PageBaseApisRequest) (*adminv1.PageBaseApisResponse, error) {
+// PageBaseApi 分页查询API列表
+func (s *BaseApiService) PageBaseApi(ctx context.Context, req *adminv1.PageBaseApiRequest) (*adminv1.PageBaseApiResponse, error) {
 	list, err := s.baseAPICase.PageBaseAPIs(ctx, req)
 	if err != nil {
-		log.Error(fmt.Sprintf("PageBaseApis %v", err))
+		log.Error(fmt.Sprintf("PageBaseApi %v", err))
 		return nil, errorsx.WrapInternal(err, "分页查询API列表失败")
 	}
 
@@ -102,11 +102,11 @@ func (s *BaseApiService) UpdateBaseApi(ctx context.Context, req *adminv1.UpdateB
 	return &emptypb.Empty{}, nil
 }
 
-// ListBaseApis 查询菜单分配API选项列表
-func (s *BaseApiService) ListBaseApis(ctx context.Context, req *adminv1.ListBaseApisRequest) (*adminv1.ListBaseApisResponse, error) {
+// ListBaseApi 查询菜单分配API选项列表
+func (s *BaseApiService) ListBaseApi(ctx context.Context, req *adminv1.ListBaseApiRequest) (*adminv1.ListBaseApiResponse, error) {
 	list, err := s.baseAPICase.ListBaseAPIs(ctx, req)
 	if err != nil {
-		log.Error(fmt.Sprintf("ListBaseApis %v", err))
+		log.Error(fmt.Sprintf("ListBaseApi %v", err))
 		return nil, errorsx.WrapInternal(err, "查询API选项列表失败")
 	}
 

@@ -18,18 +18,18 @@ import (
 func NewBaseApiServiceAgentTools(baseApiServiceServer BaseApiServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error
-	var pageBaseApisTool tool.InvokableTool
-	pageBaseApisTool, err = NewBaseApiServicePageBaseApisAgentTool(baseApiServiceServer)
+	var pageBaseApiTool tool.InvokableTool
+	pageBaseApiTool, err = NewBaseApiServicePageBaseApiAgentTool(baseApiServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, pageBaseApisTool)
-	var listBaseApisTool tool.InvokableTool
-	listBaseApisTool, err = NewBaseApiServiceListBaseApisAgentTool(baseApiServiceServer)
+	ts = append(ts, pageBaseApiTool)
+	var listBaseApiTool tool.InvokableTool
+	listBaseApiTool, err = NewBaseApiServiceListBaseApiAgentTool(baseApiServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, listBaseApisTool)
+	ts = append(ts, listBaseApiTool)
 	var getBaseApiTool tool.InvokableTool
 	getBaseApiTool, err = NewBaseApiServiceGetBaseApiAgentTool(baseApiServiceServer)
 	if err != nil {
@@ -63,30 +63,30 @@ func NewBaseApiServiceAgentTools(baseApiServiceServer BaseApiServiceServer) ([]t
 	return ts, nil
 }
 
-// NewBaseApiServicePageBaseApisAgentTool 创建分页查询API列表的 Agent Tool。
-func NewBaseApiServicePageBaseApisAgentTool(baseApiServiceServer BaseApiServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*PageBaseApisRequest, *PageBaseApisResponse](
-		"admin_v1_base_api_service_page_base_apis",
+// NewBaseApiServicePageBaseApiAgentTool 创建分页查询API列表的 Agent Tool。
+func NewBaseApiServicePageBaseApiAgentTool(baseApiServiceServer BaseApiServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PageBaseApiRequest, *PageBaseApiResponse](
+		"admin_v1_base_api_service_page_base_api",
 		"分页查询API列表",
-		func(ctx context.Context, req *PageBaseApisRequest) (*PageBaseApisResponse, error) {
+		func(ctx context.Context, req *PageBaseApiRequest) (*PageBaseApiResponse, error) {
 			if req == nil {
-				req = &PageBaseApisRequest{}
+				req = &PageBaseApiRequest{}
 			}
-			return baseApiServiceServer.PageBaseApis(ctx, req)
+			return baseApiServiceServer.PageBaseApi(ctx, req)
 		},
 	)
 }
 
-// NewBaseApiServiceListBaseApisAgentTool 创建查询菜单分配API选项列表的 Agent Tool。
-func NewBaseApiServiceListBaseApisAgentTool(baseApiServiceServer BaseApiServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*ListBaseApisRequest, *ListBaseApisResponse](
-		"admin_v1_base_api_service_list_base_apis",
+// NewBaseApiServiceListBaseApiAgentTool 创建查询菜单分配API选项列表的 Agent Tool。
+func NewBaseApiServiceListBaseApiAgentTool(baseApiServiceServer BaseApiServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*ListBaseApiRequest, *ListBaseApiResponse](
+		"admin_v1_base_api_service_list_base_api",
 		"查询菜单分配API选项列表",
-		func(ctx context.Context, req *ListBaseApisRequest) (*ListBaseApisResponse, error) {
+		func(ctx context.Context, req *ListBaseApiRequest) (*ListBaseApiResponse, error) {
 			if req == nil {
-				req = &ListBaseApisRequest{}
+				req = &ListBaseApiRequest{}
 			}
-			return baseApiServiceServer.ListBaseApis(ctx, req)
+			return baseApiServiceServer.ListBaseApi(ctx, req)
 		},
 	)
 }

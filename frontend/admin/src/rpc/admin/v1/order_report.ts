@@ -27,7 +27,7 @@ export interface SummaryOrderMonthReportRequest {
 }
 
 /** 订单月报列表请求参数 */
-export interface ListOrderMonthReportsRequest {
+export interface ListOrderMonthReportRequest {
   /** 租户ID */
   tenant_id?:
     | number
@@ -89,7 +89,7 @@ export interface OrderMonthReportItem {
 }
 
 /** 订单月报列表响应 */
-export interface ListOrderMonthReportsResponse {
+export interface ListOrderMonthReportResponse {
   /** 月报明细 */
   order_month_reports: OrderMonthReportItem[];
 }
@@ -115,7 +115,7 @@ export interface SummaryOrderDayReportRequest {
 }
 
 /** 订单日报列表请求参数 */
-export interface ListOrderDayReportsRequest {
+export interface ListOrderDayReportRequest {
   /** 租户ID */
   tenant_id?:
     | number
@@ -177,7 +177,7 @@ export interface OrderDayReportItem {
 }
 
 /** 订单日报列表响应 */
-export interface ListOrderDayReportsResponse {
+export interface ListOrderDayReportResponse {
   /** 日报明细 */
   order_day_reports: OrderDayReportItem[];
 }
@@ -187,9 +187,9 @@ export interface OrderReportService {
   /** 查询订单月报汇总 */
   SummaryOrderMonthReport(request: SummaryOrderMonthReportRequest): Promise<SummaryOrderMonthReportResponse>;
   /** 查询订单月报明细 */
-  ListOrderMonthReports(request: ListOrderMonthReportsRequest): Promise<ListOrderMonthReportsResponse>;
+  ListOrderMonthReport(request: ListOrderMonthReportRequest): Promise<ListOrderMonthReportResponse>;
   /** 查询订单日报汇总 */
   SummaryOrderDayReport(request: SummaryOrderDayReportRequest): Promise<SummaryOrderDayReportResponse>;
   /** 查询订单日报明细 */
-  ListOrderDayReports(request: ListOrderDayReportsRequest): Promise<ListOrderDayReportsResponse>;
+  ListOrderDayReport(request: ListOrderDayReportRequest): Promise<ListOrderDayReportResponse>;
 }

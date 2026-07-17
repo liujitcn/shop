@@ -31,11 +31,11 @@ const OperationRecommendGorseServiceGetUserFeedback = "/admin.v1.RecommendGorseS
 const OperationRecommendGorseServiceGetUserRecommend = "/admin.v1.RecommendGorseService/GetUserRecommend"
 const OperationRecommendGorseServiceGetUserSimilar = "/admin.v1.RecommendGorseService/GetUserSimilar"
 const OperationRecommendGorseServiceImportData = "/admin.v1.RecommendGorseService/ImportData"
-const OperationRecommendGorseServiceListDashboardItems = "/admin.v1.RecommendGorseService/ListDashboardItems"
-const OperationRecommendGorseServiceListTasks = "/admin.v1.RecommendGorseService/ListTasks"
-const OperationRecommendGorseServiceOptionCategories = "/admin.v1.RecommendGorseService/OptionCategories"
-const OperationRecommendGorseServicePageItems = "/admin.v1.RecommendGorseService/PageItems"
-const OperationRecommendGorseServicePageUsers = "/admin.v1.RecommendGorseService/PageUsers"
+const OperationRecommendGorseServiceListDashboardItem = "/admin.v1.RecommendGorseService/ListDashboardItem"
+const OperationRecommendGorseServiceListTask = "/admin.v1.RecommendGorseService/ListTask"
+const OperationRecommendGorseServiceOptionCategory = "/admin.v1.RecommendGorseService/OptionCategory"
+const OperationRecommendGorseServicePageItem = "/admin.v1.RecommendGorseService/PageItem"
+const OperationRecommendGorseServicePageUser = "/admin.v1.RecommendGorseService/PageUser"
 const OperationRecommendGorseServicePreviewExternal = "/admin.v1.RecommendGorseService/PreviewExternal"
 const OperationRecommendGorseServicePreviewRankerPrompt = "/admin.v1.RecommendGorseService/PreviewRankerPrompt"
 const OperationRecommendGorseServiceResetConfig = "/admin.v1.RecommendGorseService/ResetConfig"
@@ -66,16 +66,16 @@ type RecommendGorseServiceHTTPServer interface {
 	GetUserSimilar(context.Context, *GetUserSimilarRequest) (*UserSimilarResponse, error)
 	// ImportData 导入 Gorse 推荐数据
 	ImportData(context.Context, *ImportDataRequest) (*ImportDataResponse, error)
-	// ListDashboardItems 查询 Gorse 推荐仪表盘推荐商品
-	ListDashboardItems(context.Context, *ListDashboardItemsRequest) (*ListDashboardItemsResponse, error)
-	// ListTasks 查询 Gorse 推荐任务状态
-	ListTasks(context.Context, *ListTasksRequest) (*ListTasksResponse, error)
-	// OptionCategories 查询 Gorse 推荐分类
-	OptionCategories(context.Context, *OptionCategoriesRequest) (*OptionCategoriesResponse, error)
-	// PageItems 查询 Gorse 推荐商品列表
-	PageItems(context.Context, *PageItemsRequest) (*PageItemsResponse, error)
-	// PageUsers 查询 Gorse 推荐用户列表
-	PageUsers(context.Context, *PageUsersRequest) (*PageUsersResponse, error)
+	// ListDashboardItem 查询 Gorse 推荐仪表盘推荐商品
+	ListDashboardItem(context.Context, *ListDashboardItemRequest) (*ListDashboardItemResponse, error)
+	// ListTask 查询 Gorse 推荐任务状态
+	ListTask(context.Context, *ListTaskRequest) (*ListTaskResponse, error)
+	// OptionCategory 查询 Gorse 推荐分类
+	OptionCategory(context.Context, *OptionCategoryRequest) (*OptionCategoryResponse, error)
+	// PageItem 查询 Gorse 推荐商品列表
+	PageItem(context.Context, *PageItemRequest) (*PageItemResponse, error)
+	// PageUser 查询 Gorse 推荐用户列表
+	PageUser(context.Context, *PageUserRequest) (*PageUserResponse, error)
 	// PreviewExternal 预览 Gorse 推荐外部推荐脚本
 	PreviewExternal(context.Context, *PreviewExternalRequest) (*PreviewExternalResponse, error)
 	// PreviewRankerPrompt 预览 Gorse 推荐排序提示词
@@ -89,16 +89,16 @@ type RecommendGorseServiceHTTPServer interface {
 func RegisterRecommendGorseServiceHTTPServer(s *http.Server, srv RecommendGorseServiceHTTPServer) {
 	r := s.Route("/")
 	r.Handle("GET", "/api/v1/admin/recommend/gorse/timeseries/{name}", _RecommendGorseService_GetTimeSeries0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/admin/recommend/gorse/category/option", _RecommendGorseService_OptionCategories0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/admin/recommend/gorse/dashboard", _RecommendGorseService_ListDashboardItems0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/admin/recommend/gorse/task", _RecommendGorseService_ListTasks0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/admin/recommend/gorse/user", _RecommendGorseService_PageUsers0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/recommend/gorse/category/option", _RecommendGorseService_OptionCategory0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/recommend/gorse/dashboard", _RecommendGorseService_ListDashboardItem0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/recommend/gorse/task", _RecommendGorseService_ListTask0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/recommend/gorse/user", _RecommendGorseService_PageUser0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/recommend/gorse/user/{id}", _RecommendGorseService_GetUser0_HTTP_Handler(srv))
 	r.Handle("DELETE", "/api/v1/admin/recommend/gorse/user/{id}", _RecommendGorseService_DeleteUser0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/recommend/gorse/user/{id}/similar", _RecommendGorseService_GetUserSimilar0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/recommend/gorse/user/{id}/feedback", _RecommendGorseService_GetUserFeedback0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/recommend/gorse/user/{id}/recommend", _RecommendGorseService_GetUserRecommend0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/admin/recommend/gorse/item", _RecommendGorseService_PageItems0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/recommend/gorse/item", _RecommendGorseService_PageItem0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/recommend/gorse/item/{id}", _RecommendGorseService_GetItem0_HTTP_Handler(srv))
 	r.Handle("DELETE", "/api/v1/admin/recommend/gorse/item/{id}", _RecommendGorseService_DeleteItem0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/recommend/gorse/item/{id}/similar", _RecommendGorseService_GetItemSimilar0_HTTP_Handler(srv))
@@ -133,78 +133,78 @@ func _RecommendGorseService_GetTimeSeries0_HTTP_Handler(srv RecommendGorseServic
 	}
 }
 
-func _RecommendGorseService_OptionCategories0_HTTP_Handler(srv RecommendGorseServiceHTTPServer) func(ctx http.Context) error {
+func _RecommendGorseService_OptionCategory0_HTTP_Handler(srv RecommendGorseServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in OptionCategoriesRequest
+		var in OptionCategoryRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationRecommendGorseServiceOptionCategories)
+		http.SetOperation(ctx, OperationRecommendGorseServiceOptionCategory)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.OptionCategories(ctx, req.(*OptionCategoriesRequest))
+			return srv.OptionCategory(ctx, req.(*OptionCategoryRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*OptionCategoriesResponse)
+		reply := out.(*OptionCategoryResponse)
 		return ctx.Result(200, reply)
 	}
 }
 
-func _RecommendGorseService_ListDashboardItems0_HTTP_Handler(srv RecommendGorseServiceHTTPServer) func(ctx http.Context) error {
+func _RecommendGorseService_ListDashboardItem0_HTTP_Handler(srv RecommendGorseServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in ListDashboardItemsRequest
+		var in ListDashboardItemRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationRecommendGorseServiceListDashboardItems)
+		http.SetOperation(ctx, OperationRecommendGorseServiceListDashboardItem)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.ListDashboardItems(ctx, req.(*ListDashboardItemsRequest))
+			return srv.ListDashboardItem(ctx, req.(*ListDashboardItemRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*ListDashboardItemsResponse)
+		reply := out.(*ListDashboardItemResponse)
 		return ctx.Result(200, reply)
 	}
 }
 
-func _RecommendGorseService_ListTasks0_HTTP_Handler(srv RecommendGorseServiceHTTPServer) func(ctx http.Context) error {
+func _RecommendGorseService_ListTask0_HTTP_Handler(srv RecommendGorseServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in ListTasksRequest
+		var in ListTaskRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationRecommendGorseServiceListTasks)
+		http.SetOperation(ctx, OperationRecommendGorseServiceListTask)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.ListTasks(ctx, req.(*ListTasksRequest))
+			return srv.ListTask(ctx, req.(*ListTaskRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*ListTasksResponse)
+		reply := out.(*ListTaskResponse)
 		return ctx.Result(200, reply)
 	}
 }
 
-func _RecommendGorseService_PageUsers0_HTTP_Handler(srv RecommendGorseServiceHTTPServer) func(ctx http.Context) error {
+func _RecommendGorseService_PageUser0_HTTP_Handler(srv RecommendGorseServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in PageUsersRequest
+		var in PageUserRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationRecommendGorseServicePageUsers)
+		http.SetOperation(ctx, OperationRecommendGorseServicePageUser)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.PageUsers(ctx, req.(*PageUsersRequest))
+			return srv.PageUser(ctx, req.(*PageUserRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*PageUsersResponse)
+		reply := out.(*PageUserResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -319,21 +319,21 @@ func _RecommendGorseService_GetUserRecommend0_HTTP_Handler(srv RecommendGorseSer
 	}
 }
 
-func _RecommendGorseService_PageItems0_HTTP_Handler(srv RecommendGorseServiceHTTPServer) func(ctx http.Context) error {
+func _RecommendGorseService_PageItem0_HTTP_Handler(srv RecommendGorseServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in PageItemsRequest
+		var in PageItemRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationRecommendGorseServicePageItems)
+		http.SetOperation(ctx, OperationRecommendGorseServicePageItem)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.PageItems(ctx, req.(*PageItemsRequest))
+			return srv.PageItem(ctx, req.(*PageItemRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*PageItemsResponse)
+		reply := out.(*PageItemResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -565,16 +565,16 @@ type RecommendGorseServiceHTTPClient interface {
 	GetUserSimilar(ctx context.Context, req *GetUserSimilarRequest, opts ...http.CallOption) (rsp *UserSimilarResponse, err error)
 	// ImportData 导入 Gorse 推荐数据
 	ImportData(ctx context.Context, req *ImportDataRequest, opts ...http.CallOption) (rsp *ImportDataResponse, err error)
-	// ListDashboardItems 查询 Gorse 推荐仪表盘推荐商品
-	ListDashboardItems(ctx context.Context, req *ListDashboardItemsRequest, opts ...http.CallOption) (rsp *ListDashboardItemsResponse, err error)
-	// ListTasks 查询 Gorse 推荐任务状态
-	ListTasks(ctx context.Context, req *ListTasksRequest, opts ...http.CallOption) (rsp *ListTasksResponse, err error)
-	// OptionCategories 查询 Gorse 推荐分类
-	OptionCategories(ctx context.Context, req *OptionCategoriesRequest, opts ...http.CallOption) (rsp *OptionCategoriesResponse, err error)
-	// PageItems 查询 Gorse 推荐商品列表
-	PageItems(ctx context.Context, req *PageItemsRequest, opts ...http.CallOption) (rsp *PageItemsResponse, err error)
-	// PageUsers 查询 Gorse 推荐用户列表
-	PageUsers(ctx context.Context, req *PageUsersRequest, opts ...http.CallOption) (rsp *PageUsersResponse, err error)
+	// ListDashboardItem 查询 Gorse 推荐仪表盘推荐商品
+	ListDashboardItem(ctx context.Context, req *ListDashboardItemRequest, opts ...http.CallOption) (rsp *ListDashboardItemResponse, err error)
+	// ListTask 查询 Gorse 推荐任务状态
+	ListTask(ctx context.Context, req *ListTaskRequest, opts ...http.CallOption) (rsp *ListTaskResponse, err error)
+	// OptionCategory 查询 Gorse 推荐分类
+	OptionCategory(ctx context.Context, req *OptionCategoryRequest, opts ...http.CallOption) (rsp *OptionCategoryResponse, err error)
+	// PageItem 查询 Gorse 推荐商品列表
+	PageItem(ctx context.Context, req *PageItemRequest, opts ...http.CallOption) (rsp *PageItemResponse, err error)
+	// PageUser 查询 Gorse 推荐用户列表
+	PageUser(ctx context.Context, req *PageUserRequest, opts ...http.CallOption) (rsp *PageUserResponse, err error)
 	// PreviewExternal 预览 Gorse 推荐外部推荐脚本
 	PreviewExternal(ctx context.Context, req *PreviewExternalRequest, opts ...http.CallOption) (rsp *PreviewExternalResponse, err error)
 	// PreviewRankerPrompt 预览 Gorse 推荐排序提示词
@@ -798,14 +798,14 @@ func (c *RecommendGorseServiceHTTPClientImpl) ImportData(ctx context.Context, in
 	return &out, nil
 }
 
-// ListDashboardItems 查询 Gorse 推荐仪表盘推荐商品
-func (c *RecommendGorseServiceHTTPClientImpl) ListDashboardItems(ctx context.Context, in *ListDashboardItemsRequest, opts ...http.CallOption) (*ListDashboardItemsResponse, error) {
-	var out ListDashboardItemsResponse
+// ListDashboardItem 查询 Gorse 推荐仪表盘推荐商品
+func (c *RecommendGorseServiceHTTPClientImpl) ListDashboardItem(ctx context.Context, in *ListDashboardItemRequest, opts ...http.CallOption) (*ListDashboardItemResponse, error) {
+	var out ListDashboardItemResponse
 	pattern := "/api/v1/admin/recommend/gorse/dashboard"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationRecommendGorseServiceListDashboardItems),
+		http.Operation(OperationRecommendGorseServiceListDashboardItem),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
@@ -815,14 +815,14 @@ func (c *RecommendGorseServiceHTTPClientImpl) ListDashboardItems(ctx context.Con
 	return &out, nil
 }
 
-// ListTasks 查询 Gorse 推荐任务状态
-func (c *RecommendGorseServiceHTTPClientImpl) ListTasks(ctx context.Context, in *ListTasksRequest, opts ...http.CallOption) (*ListTasksResponse, error) {
-	var out ListTasksResponse
+// ListTask 查询 Gorse 推荐任务状态
+func (c *RecommendGorseServiceHTTPClientImpl) ListTask(ctx context.Context, in *ListTaskRequest, opts ...http.CallOption) (*ListTaskResponse, error) {
+	var out ListTaskResponse
 	pattern := "/api/v1/admin/recommend/gorse/task"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationRecommendGorseServiceListTasks),
+		http.Operation(OperationRecommendGorseServiceListTask),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
@@ -832,14 +832,14 @@ func (c *RecommendGorseServiceHTTPClientImpl) ListTasks(ctx context.Context, in 
 	return &out, nil
 }
 
-// OptionCategories 查询 Gorse 推荐分类
-func (c *RecommendGorseServiceHTTPClientImpl) OptionCategories(ctx context.Context, in *OptionCategoriesRequest, opts ...http.CallOption) (*OptionCategoriesResponse, error) {
-	var out OptionCategoriesResponse
+// OptionCategory 查询 Gorse 推荐分类
+func (c *RecommendGorseServiceHTTPClientImpl) OptionCategory(ctx context.Context, in *OptionCategoryRequest, opts ...http.CallOption) (*OptionCategoryResponse, error) {
+	var out OptionCategoryResponse
 	pattern := "/api/v1/admin/recommend/gorse/category/option"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationRecommendGorseServiceOptionCategories),
+		http.Operation(OperationRecommendGorseServiceOptionCategory),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
@@ -849,14 +849,14 @@ func (c *RecommendGorseServiceHTTPClientImpl) OptionCategories(ctx context.Conte
 	return &out, nil
 }
 
-// PageItems 查询 Gorse 推荐商品列表
-func (c *RecommendGorseServiceHTTPClientImpl) PageItems(ctx context.Context, in *PageItemsRequest, opts ...http.CallOption) (*PageItemsResponse, error) {
-	var out PageItemsResponse
+// PageItem 查询 Gorse 推荐商品列表
+func (c *RecommendGorseServiceHTTPClientImpl) PageItem(ctx context.Context, in *PageItemRequest, opts ...http.CallOption) (*PageItemResponse, error) {
+	var out PageItemResponse
 	pattern := "/api/v1/admin/recommend/gorse/item"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationRecommendGorseServicePageItems),
+		http.Operation(OperationRecommendGorseServicePageItem),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
@@ -866,14 +866,14 @@ func (c *RecommendGorseServiceHTTPClientImpl) PageItems(ctx context.Context, in 
 	return &out, nil
 }
 
-// PageUsers 查询 Gorse 推荐用户列表
-func (c *RecommendGorseServiceHTTPClientImpl) PageUsers(ctx context.Context, in *PageUsersRequest, opts ...http.CallOption) (*PageUsersResponse, error) {
-	var out PageUsersResponse
+// PageUser 查询 Gorse 推荐用户列表
+func (c *RecommendGorseServiceHTTPClientImpl) PageUser(ctx context.Context, in *PageUserRequest, opts ...http.CallOption) (*PageUserResponse, error) {
+	var out PageUserResponse
 	pattern := "/api/v1/admin/recommend/gorse/user"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationRecommendGorseServicePageUsers),
+		http.Operation(OperationRecommendGorseServicePageUser),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)

@@ -5,10 +5,10 @@ import {
   type GetGoodsCategoryRequest,
   type GoodsCategoryForm,
   type GoodsCategoryService,
-  type OptionGoodsCategoriesRequest,
+  type OptionGoodsCategoryRequest,
   type SetGoodsCategoryStatusRequest,
-  type TreeGoodsCategoriesRequest,
-  type TreeGoodsCategoriesResponse,
+  type TreeGoodsCategoryRequest,
+  type TreeGoodsCategoryResponse,
   type UpdateGoodsCategoryRequest
 } from "@/rpc/admin/v1/goods_category";
 import { type Empty } from "@/rpc/google/protobuf/empty";
@@ -19,16 +19,16 @@ const GOODS_CATEGORY_URL = "/v1/admin/goods/category";
 /** Admin分类服务 */
 export class GoodsCategoryServiceImpl implements GoodsCategoryService {
   /** 查询分类树形列表 */
-  TreeGoodsCategories(request: TreeGoodsCategoriesRequest): Promise<TreeGoodsCategoriesResponse> {
-    return service<TreeGoodsCategoriesRequest, TreeGoodsCategoriesResponse>({
+  TreeGoodsCategory(request: TreeGoodsCategoryRequest): Promise<TreeGoodsCategoryResponse> {
+    return service<TreeGoodsCategoryRequest, TreeGoodsCategoryResponse>({
       url: `${GOODS_CATEGORY_URL}/tree`,
       method: "get",
       params: request
     });
   }
   /** 查询分类树形选择 */
-  OptionGoodsCategories(request: OptionGoodsCategoriesRequest): Promise<TreeOptionResponse> {
-    return service<OptionGoodsCategoriesRequest, TreeOptionResponse>({
+  OptionGoodsCategory(request: OptionGoodsCategoryRequest): Promise<TreeOptionResponse> {
+    return service<OptionGoodsCategoryRequest, TreeOptionResponse>({
       url: `${GOODS_CATEGORY_URL}/option`,
       method: "get",
       params: request

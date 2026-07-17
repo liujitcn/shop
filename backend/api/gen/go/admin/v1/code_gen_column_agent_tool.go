@@ -18,65 +18,65 @@ import (
 func NewCodeGenColumnServiceAgentTools(codeGenColumnServiceServer CodeGenColumnServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error
-	var listCodeGenDatabaseColumnsTool tool.InvokableTool
-	listCodeGenDatabaseColumnsTool, err = NewCodeGenColumnServiceListCodeGenDatabaseColumnsAgentTool(codeGenColumnServiceServer)
+	var listCodeGenDatabaseColumnTool tool.InvokableTool
+	listCodeGenDatabaseColumnTool, err = NewCodeGenColumnServiceListCodeGenDatabaseColumnAgentTool(codeGenColumnServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, listCodeGenDatabaseColumnsTool)
-	var listCodeGenColumnsTool tool.InvokableTool
-	listCodeGenColumnsTool, err = NewCodeGenColumnServiceListCodeGenColumnsAgentTool(codeGenColumnServiceServer)
+	ts = append(ts, listCodeGenDatabaseColumnTool)
+	var listCodeGenColumnTool tool.InvokableTool
+	listCodeGenColumnTool, err = NewCodeGenColumnServiceListCodeGenColumnAgentTool(codeGenColumnServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, listCodeGenColumnsTool)
-	var saveCodeGenColumnsTool tool.InvokableTool
-	saveCodeGenColumnsTool, err = NewCodeGenColumnServiceSaveCodeGenColumnsAgentTool(codeGenColumnServiceServer)
+	ts = append(ts, listCodeGenColumnTool)
+	var saveCodeGenColumnTool tool.InvokableTool
+	saveCodeGenColumnTool, err = NewCodeGenColumnServiceSaveCodeGenColumnAgentTool(codeGenColumnServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, saveCodeGenColumnsTool)
+	ts = append(ts, saveCodeGenColumnTool)
 	return ts, nil
 }
 
-// NewCodeGenColumnServiceListCodeGenDatabaseColumnsAgentTool 创建查询数据库表字段列表的 Agent Tool。
-func NewCodeGenColumnServiceListCodeGenDatabaseColumnsAgentTool(codeGenColumnServiceServer CodeGenColumnServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*ListCodeGenDatabaseColumnsRequest, *ListCodeGenDatabaseColumnsResponse](
-		"admin_v1_code_gen_column_service_list_code_gen_database_columns",
+// NewCodeGenColumnServiceListCodeGenDatabaseColumnAgentTool 创建查询数据库表字段列表的 Agent Tool。
+func NewCodeGenColumnServiceListCodeGenDatabaseColumnAgentTool(codeGenColumnServiceServer CodeGenColumnServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*ListCodeGenDatabaseColumnRequest, *ListCodeGenDatabaseColumnResponse](
+		"admin_v1_code_gen_column_service_list_code_gen_database_column",
 		"查询数据库表字段列表",
-		func(ctx context.Context, req *ListCodeGenDatabaseColumnsRequest) (*ListCodeGenDatabaseColumnsResponse, error) {
+		func(ctx context.Context, req *ListCodeGenDatabaseColumnRequest) (*ListCodeGenDatabaseColumnResponse, error) {
 			if req == nil {
-				req = &ListCodeGenDatabaseColumnsRequest{}
+				req = &ListCodeGenDatabaseColumnRequest{}
 			}
-			return codeGenColumnServiceServer.ListCodeGenDatabaseColumns(ctx, req)
+			return codeGenColumnServiceServer.ListCodeGenDatabaseColumn(ctx, req)
 		},
 	)
 }
 
-// NewCodeGenColumnServiceListCodeGenColumnsAgentTool 创建查询代码生成字段配置的 Agent Tool。
-func NewCodeGenColumnServiceListCodeGenColumnsAgentTool(codeGenColumnServiceServer CodeGenColumnServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*ListCodeGenColumnsRequest, *ListCodeGenColumnsResponse](
-		"admin_v1_code_gen_column_service_list_code_gen_columns",
+// NewCodeGenColumnServiceListCodeGenColumnAgentTool 创建查询代码生成字段配置的 Agent Tool。
+func NewCodeGenColumnServiceListCodeGenColumnAgentTool(codeGenColumnServiceServer CodeGenColumnServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*ListCodeGenColumnRequest, *ListCodeGenColumnResponse](
+		"admin_v1_code_gen_column_service_list_code_gen_column",
 		"查询代码生成字段配置",
-		func(ctx context.Context, req *ListCodeGenColumnsRequest) (*ListCodeGenColumnsResponse, error) {
+		func(ctx context.Context, req *ListCodeGenColumnRequest) (*ListCodeGenColumnResponse, error) {
 			if req == nil {
-				req = &ListCodeGenColumnsRequest{}
+				req = &ListCodeGenColumnRequest{}
 			}
-			return codeGenColumnServiceServer.ListCodeGenColumns(ctx, req)
+			return codeGenColumnServiceServer.ListCodeGenColumn(ctx, req)
 		},
 	)
 }
 
-// NewCodeGenColumnServiceSaveCodeGenColumnsAgentTool 创建保存代码生成字段配置的 Agent Tool。
-func NewCodeGenColumnServiceSaveCodeGenColumnsAgentTool(codeGenColumnServiceServer CodeGenColumnServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*SaveCodeGenColumnsRequest, *emptypb.Empty](
-		"admin_v1_code_gen_column_service_save_code_gen_columns",
+// NewCodeGenColumnServiceSaveCodeGenColumnAgentTool 创建保存代码生成字段配置的 Agent Tool。
+func NewCodeGenColumnServiceSaveCodeGenColumnAgentTool(codeGenColumnServiceServer CodeGenColumnServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*SaveCodeGenColumnRequest, *emptypb.Empty](
+		"admin_v1_code_gen_column_service_save_code_gen_column",
 		"保存代码生成字段配置",
-		func(ctx context.Context, req *SaveCodeGenColumnsRequest) (*emptypb.Empty, error) {
+		func(ctx context.Context, req *SaveCodeGenColumnRequest) (*emptypb.Empty, error) {
 			if req == nil {
-				req = &SaveCodeGenColumnsRequest{}
+				req = &SaveCodeGenColumnRequest{}
 			}
-			return codeGenColumnServiceServer.SaveCodeGenColumns(ctx, req)
+			return codeGenColumnServiceServer.SaveCodeGenColumn(ctx, req)
 		},
 	)
 }

@@ -7,8 +7,8 @@ import {
   type OrderInfoResponse,
   type OrderInfoService,
   type OrderInfoShipmentForm,
-  type PageOrderInfosRequest,
-  type PageOrderInfosResponse,
+  type PageOrderInfoRequest,
+  type PageOrderInfoResponse,
   type RefundOrderInfoRequest,
   type ShipOrderInfoRequest
 } from "@/rpc/admin/v1/order_info";
@@ -19,8 +19,8 @@ const ORDER_URL = "/v1/admin/order/info";
 /** 订单服务 */
 export class OrderInfoServiceImpl implements OrderInfoService {
   /** 查询订单分页列表 */
-  PageOrderInfos(request: PageOrderInfosRequest): Promise<PageOrderInfosResponse> {
-    return service<PageOrderInfosRequest, PageOrderInfosResponse>({
+  PageOrderInfo(request: PageOrderInfoRequest): Promise<PageOrderInfoResponse> {
+    return service<PageOrderInfoRequest, PageOrderInfoResponse>({
       url: `${ORDER_URL}`,
       method: "get",
       params: request

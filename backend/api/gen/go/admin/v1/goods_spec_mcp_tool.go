@@ -14,22 +14,22 @@ import (
 
 // RegisterGoodsSpecServiceMCPTools 注册Admin商品规格服务的 MCP Tool。
 func RegisterGoodsSpecServiceMCPTools(mcpServer *mcp.Server, goodsSpecServiceServer GoodsSpecServiceServer) {
-	RegisterGoodsSpecServiceListGoodsSpecsMCPTool(mcpServer, goodsSpecServiceServer)
+	RegisterGoodsSpecServiceListGoodsSpecMCPTool(mcpServer, goodsSpecServiceServer)
 }
 
-// RegisterGoodsSpecServiceListGoodsSpecsMCPTool 注册查询商品规格列表的 MCP Tool。
-func RegisterGoodsSpecServiceListGoodsSpecsMCPTool(mcpServer *mcp.Server, goodsSpecServiceServer GoodsSpecServiceServer) {
-	mcp.AddTool[*ListGoodsSpecsRequest, *ListGoodsSpecsResponse](
+// RegisterGoodsSpecServiceListGoodsSpecMCPTool 注册查询商品规格列表的 MCP Tool。
+func RegisterGoodsSpecServiceListGoodsSpecMCPTool(mcpServer *mcp.Server, goodsSpecServiceServer GoodsSpecServiceServer) {
+	mcp.AddTool[*ListGoodsSpecRequest, *ListGoodsSpecResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "admin_v1_goods_spec_service_list_goods_specs",
+			Name:        "admin_v1_goods_spec_service_list_goods_spec",
 			Description: "查询商品规格列表",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *ListGoodsSpecsRequest) (*mcp.CallToolResult, *ListGoodsSpecsResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *ListGoodsSpecRequest) (*mcp.CallToolResult, *ListGoodsSpecResponse, error) {
 			if input == nil {
-				input = &ListGoodsSpecsRequest{}
+				input = &ListGoodsSpecRequest{}
 			}
-			reply, err := goodsSpecServiceServer.ListGoodsSpecs(ctx, input)
+			reply, err := goodsSpecServiceServer.ListGoodsSpec(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

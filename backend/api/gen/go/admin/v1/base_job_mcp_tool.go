@@ -15,7 +15,7 @@ import (
 
 // RegisterBaseJobServiceMCPTools 注册Admin定时任务服务的 MCP Tool。
 func RegisterBaseJobServiceMCPTools(mcpServer *mcp.Server, baseJobServiceServer BaseJobServiceServer) {
-	RegisterBaseJobServicePageBaseJobsMCPTool(mcpServer, baseJobServiceServer)
+	RegisterBaseJobServicePageBaseJobMCPTool(mcpServer, baseJobServiceServer)
 	RegisterBaseJobServiceGetBaseJobMCPTool(mcpServer, baseJobServiceServer)
 	RegisterBaseJobServiceCreateBaseJobMCPTool(mcpServer, baseJobServiceServer)
 	RegisterBaseJobServiceUpdateBaseJobMCPTool(mcpServer, baseJobServiceServer)
@@ -24,23 +24,23 @@ func RegisterBaseJobServiceMCPTools(mcpServer *mcp.Server, baseJobServiceServer 
 	RegisterBaseJobServiceStartBaseJobMCPTool(mcpServer, baseJobServiceServer)
 	RegisterBaseJobServiceStopBaseJobMCPTool(mcpServer, baseJobServiceServer)
 	RegisterBaseJobServiceExecuteBaseJobMCPTool(mcpServer, baseJobServiceServer)
-	RegisterBaseJobServicePageBaseJobLogsMCPTool(mcpServer, baseJobServiceServer)
+	RegisterBaseJobServicePageBaseJobLogMCPTool(mcpServer, baseJobServiceServer)
 	RegisterBaseJobServiceGetBaseJobLogMCPTool(mcpServer, baseJobServiceServer)
 }
 
-// RegisterBaseJobServicePageBaseJobsMCPTool 注册查询定时任务分页列表的 MCP Tool。
-func RegisterBaseJobServicePageBaseJobsMCPTool(mcpServer *mcp.Server, baseJobServiceServer BaseJobServiceServer) {
-	mcp.AddTool[*PageBaseJobsRequest, *PageBaseJobsResponse](
+// RegisterBaseJobServicePageBaseJobMCPTool 注册查询定时任务分页列表的 MCP Tool。
+func RegisterBaseJobServicePageBaseJobMCPTool(mcpServer *mcp.Server, baseJobServiceServer BaseJobServiceServer) {
+	mcp.AddTool[*PageBaseJobRequest, *PageBaseJobResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "admin_v1_base_job_service_page_base_jobs",
+			Name:        "admin_v1_base_job_service_page_base_job",
 			Description: "查询定时任务分页列表",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBaseJobsRequest) (*mcp.CallToolResult, *PageBaseJobsResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBaseJobRequest) (*mcp.CallToolResult, *PageBaseJobResponse, error) {
 			if input == nil {
-				input = &PageBaseJobsRequest{}
+				input = &PageBaseJobRequest{}
 			}
-			reply, err := baseJobServiceServer.PageBaseJobs(ctx, input)
+			reply, err := baseJobServiceServer.PageBaseJob(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -217,19 +217,19 @@ func RegisterBaseJobServiceExecuteBaseJobMCPTool(mcpServer *mcp.Server, baseJobS
 	)
 }
 
-// RegisterBaseJobServicePageBaseJobLogsMCPTool 注册查询定时任务日志分页列表的 MCP Tool。
-func RegisterBaseJobServicePageBaseJobLogsMCPTool(mcpServer *mcp.Server, baseJobServiceServer BaseJobServiceServer) {
-	mcp.AddTool[*PageBaseJobLogsRequest, *PageBaseJobLogsResponse](
+// RegisterBaseJobServicePageBaseJobLogMCPTool 注册查询定时任务日志分页列表的 MCP Tool。
+func RegisterBaseJobServicePageBaseJobLogMCPTool(mcpServer *mcp.Server, baseJobServiceServer BaseJobServiceServer) {
+	mcp.AddTool[*PageBaseJobLogRequest, *PageBaseJobLogResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "admin_v1_base_job_service_page_base_job_logs",
+			Name:        "admin_v1_base_job_service_page_base_job_log",
 			Description: "查询定时任务日志分页列表",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBaseJobLogsRequest) (*mcp.CallToolResult, *PageBaseJobLogsResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBaseJobLogRequest) (*mcp.CallToolResult, *PageBaseJobLogResponse, error) {
 			if input == nil {
-				input = &PageBaseJobLogsRequest{}
+				input = &PageBaseJobLogRequest{}
 			}
-			reply, err := baseJobServiceServer.PageBaseJobLogs(ctx, input)
+			reply, err := baseJobServiceServer.PageBaseJobLog(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

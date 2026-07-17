@@ -59,14 +59,14 @@ func (c *RecommendGorseCase) GetTimeSeries(ctx context.Context, name, begin, end
 	return response, nil
 }
 
-// OptionCategories 查询 Gorse 推荐分类列表。
-func (c *RecommendGorseCase) OptionCategories(ctx context.Context) (*adminv1.OptionCategoriesResponse, error) {
+// OptionCategory 查询 Gorse 推荐分类列表。
+func (c *RecommendGorseCase) OptionCategory(ctx context.Context) (*adminv1.OptionCategoryResponse, error) {
 	data, err := c.dashboard.Categories(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	response := new(adminv1.OptionCategoriesResponse)
+	response := new(adminv1.OptionCategoryResponse)
 	err = (protojson.UnmarshalOptions{DiscardUnknown: true}).Unmarshal([]byte(`{"categories":`+string(data)+`}`), response)
 	if err != nil {
 		return nil, err
@@ -74,19 +74,19 @@ func (c *RecommendGorseCase) OptionCategories(ctx context.Context) (*adminv1.Opt
 	return response, nil
 }
 
-// ListDashboardItems 查询 Gorse 推荐仪表盘推荐商品。
-func (c *RecommendGorseCase) ListDashboardItems(
+// ListDashboardItem 查询 Gorse 推荐仪表盘推荐商品。
+func (c *RecommendGorseCase) ListDashboardItem(
 	ctx context.Context,
 	recommender string,
 	category string,
 	end int32,
-) (*adminv1.ListDashboardItemsResponse, error) {
+) (*adminv1.ListDashboardItemResponse, error) {
 	data, err := c.dashboard.DashboardItems(ctx, recommender, category, end)
 	if err != nil {
 		return nil, err
 	}
 
-	response := new(adminv1.ListDashboardItemsResponse)
+	response := new(adminv1.ListDashboardItemResponse)
 	// Gorse 仪表盘推荐商品接口原始返回数组，字段结构通过 json_name 与 Proto 商品结构保持一致。
 	if string(data) == "null" {
 		return response, nil
@@ -102,14 +102,14 @@ func (c *RecommendGorseCase) ListDashboardItems(
 	return response, nil
 }
 
-// ListTasks 查询 Gorse 推荐任务状态。
-func (c *RecommendGorseCase) ListTasks(ctx context.Context) (*adminv1.ListTasksResponse, error) {
+// ListTask 查询 Gorse 推荐任务状态。
+func (c *RecommendGorseCase) ListTask(ctx context.Context) (*adminv1.ListTaskResponse, error) {
 	data, err := c.dashboard.Tasks(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	response := new(adminv1.ListTasksResponse)
+	response := new(adminv1.ListTaskResponse)
 	// Gorse 任务状态接口原始返回数组，任务字段通过 json_name 直接对齐 Tracer、Name 等原始字段。
 	if string(data) == "null" {
 		return response, nil
@@ -125,14 +125,14 @@ func (c *RecommendGorseCase) ListTasks(ctx context.Context) (*adminv1.ListTasksR
 	return response, nil
 }
 
-// PageUsers 查询 Gorse 推荐用户列表。
-func (c *RecommendGorseCase) PageUsers(ctx context.Context, cursor string, n int32) (*adminv1.PageUsersResponse, error) {
+// PageUser 查询 Gorse 推荐用户列表。
+func (c *RecommendGorseCase) PageUser(ctx context.Context, cursor string, n int32) (*adminv1.PageUserResponse, error) {
 	data, err := c.dashboard.Users(ctx, cursor, n)
 	if err != nil {
 		return nil, err
 	}
 
-	response := new(adminv1.PageUsersResponse)
+	response := new(adminv1.PageUserResponse)
 	err = (protojson.UnmarshalOptions{DiscardUnknown: true}).Unmarshal(data, response)
 	if err != nil {
 		return nil, err
@@ -270,14 +270,14 @@ func (c *RecommendGorseCase) GetUserRecommend(
 	return response, nil
 }
 
-// PageItems 查询 Gorse 推荐商品列表。
-func (c *RecommendGorseCase) PageItems(ctx context.Context, cursor string, n int32) (*adminv1.PageItemsResponse, error) {
+// PageItem 查询 Gorse 推荐商品列表。
+func (c *RecommendGorseCase) PageItem(ctx context.Context, cursor string, n int32) (*adminv1.PageItemResponse, error) {
 	data, err := c.dashboard.Items(ctx, cursor, n)
 	if err != nil {
 		return nil, err
 	}
 
-	response := new(adminv1.PageItemsResponse)
+	response := new(adminv1.PageItemResponse)
 	err = (protojson.UnmarshalOptions{DiscardUnknown: true}).Unmarshal(data, response)
 	if err != nil {
 		return nil, err

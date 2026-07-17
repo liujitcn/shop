@@ -8,8 +8,8 @@ import type {
   DeleteCommentRequest,
   GoodsCommentOverviewRequest,
   GoodsCommentOverviewResponse,
-  GoodsCommentTagsRequest,
-  GoodsCommentTagsResponse,
+  GoodsCommentTagRequest,
+  GoodsCommentTagResponse,
   PageCommentDiscussionRequest,
   PageCommentDiscussionResponse,
   PageGoodsCommentRequest,
@@ -49,8 +49,8 @@ export class CommentServiceImpl implements CommentService {
   }
 
   /** 查询商品评价标签列表 */
-  async GoodsCommentTags(request: GoodsCommentTagsRequest): Promise<GoodsCommentTagsResponse> {
-    const response = await http<Partial<GoodsCommentTagsResponse>>({
+  async GoodsCommentTag(request: GoodsCommentTagRequest): Promise<GoodsCommentTagResponse> {
+    const response = await http<Partial<GoodsCommentTagResponse>>({
       url: `${COMMENT_GOODS_URL}/${request.goods_id}/tags`,
       method: 'GET',
       authMode: 'optional',

@@ -18,18 +18,18 @@ import (
 func NewBaseDeptServiceAgentTools(baseDeptServiceServer BaseDeptServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error
-	var treeBaseDeptsTool tool.InvokableTool
-	treeBaseDeptsTool, err = NewBaseDeptServiceTreeBaseDeptsAgentTool(baseDeptServiceServer)
+	var treeBaseDeptTool tool.InvokableTool
+	treeBaseDeptTool, err = NewBaseDeptServiceTreeBaseDeptAgentTool(baseDeptServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, treeBaseDeptsTool)
-	var optionBaseDeptsTool tool.InvokableTool
-	optionBaseDeptsTool, err = NewBaseDeptServiceOptionBaseDeptsAgentTool(baseDeptServiceServer)
+	ts = append(ts, treeBaseDeptTool)
+	var optionBaseDeptTool tool.InvokableTool
+	optionBaseDeptTool, err = NewBaseDeptServiceOptionBaseDeptAgentTool(baseDeptServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, optionBaseDeptsTool)
+	ts = append(ts, optionBaseDeptTool)
 	var getBaseDeptTool tool.InvokableTool
 	getBaseDeptTool, err = NewBaseDeptServiceGetBaseDeptAgentTool(baseDeptServiceServer)
 	if err != nil {
@@ -63,16 +63,16 @@ func NewBaseDeptServiceAgentTools(baseDeptServiceServer BaseDeptServiceServer) (
 	return ts, nil
 }
 
-// NewBaseDeptServiceTreeBaseDeptsAgentTool 创建查询部门树形列表的 Agent Tool。
-func NewBaseDeptServiceTreeBaseDeptsAgentTool(baseDeptServiceServer BaseDeptServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*TreeBaseDeptsRequest, any](
-		"admin_v1_base_dept_service_tree_base_depts",
+// NewBaseDeptServiceTreeBaseDeptAgentTool 创建查询部门树形列表的 Agent Tool。
+func NewBaseDeptServiceTreeBaseDeptAgentTool(baseDeptServiceServer BaseDeptServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*TreeBaseDeptRequest, any](
+		"admin_v1_base_dept_service_tree_base_dept",
 		"查询部门树形列表",
-		func(ctx context.Context, req *TreeBaseDeptsRequest) (any, error) {
+		func(ctx context.Context, req *TreeBaseDeptRequest) (any, error) {
 			if req == nil {
-				req = &TreeBaseDeptsRequest{}
+				req = &TreeBaseDeptRequest{}
 			}
-			reply, err := baseDeptServiceServer.TreeBaseDepts(ctx, req)
+			reply, err := baseDeptServiceServer.TreeBaseDept(ctx, req)
 			if err != nil {
 				return nil, err
 			}
@@ -81,16 +81,16 @@ func NewBaseDeptServiceTreeBaseDeptsAgentTool(baseDeptServiceServer BaseDeptServ
 	)
 }
 
-// NewBaseDeptServiceOptionBaseDeptsAgentTool 创建查询部门树形选择的 Agent Tool。
-func NewBaseDeptServiceOptionBaseDeptsAgentTool(baseDeptServiceServer BaseDeptServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*OptionBaseDeptsRequest, any](
-		"admin_v1_base_dept_service_option_base_depts",
+// NewBaseDeptServiceOptionBaseDeptAgentTool 创建查询部门树形选择的 Agent Tool。
+func NewBaseDeptServiceOptionBaseDeptAgentTool(baseDeptServiceServer BaseDeptServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*OptionBaseDeptRequest, any](
+		"admin_v1_base_dept_service_option_base_dept",
 		"查询部门树形选择",
-		func(ctx context.Context, req *OptionBaseDeptsRequest) (any, error) {
+		func(ctx context.Context, req *OptionBaseDeptRequest) (any, error) {
 			if req == nil {
-				req = &OptionBaseDeptsRequest{}
+				req = &OptionBaseDeptRequest{}
 			}
-			reply, err := baseDeptServiceServer.OptionBaseDepts(ctx, req)
+			reply, err := baseDeptServiceServer.OptionBaseDept(ctx, req)
 			if err != nil {
 				return nil, err
 			}

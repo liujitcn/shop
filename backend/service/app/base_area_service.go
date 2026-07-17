@@ -36,13 +36,13 @@ func NewBaseAreaService(
 	return &ss
 }
 
-// TreeBaseAreas 查询行政区域树形列表
-func (s *BaseAreaService) TreeBaseAreas(ctx context.Context, req *appv1.TreeBaseAreasRequest) (*appv1.TreeBaseAreasResponse, error) {
-	tree, err := s.baseAreaCase.TreeBaseAreas(ctx)
+// TreeBaseArea 查询行政区域树形列表
+func (s *BaseAreaService) TreeBaseArea(ctx context.Context, req *appv1.TreeBaseAreaRequest) (*appv1.TreeBaseAreaResponse, error) {
+	tree, err := s.baseAreaCase.TreeBaseArea(ctx)
 	if err != nil {
-		log.Error(fmt.Sprintf("TreeBaseAreas %v", err))
+		log.Error(fmt.Sprintf("TreeBaseArea %v", err))
 		return nil, errorsx.WrapInternal(err, "查询行政区域树形列表失败")
 	}
 
-	return &appv1.TreeBaseAreasResponse{Areas: tree.GetList()}, nil
+	return &appv1.TreeBaseAreaResponse{Areas: tree.GetList()}, nil
 }

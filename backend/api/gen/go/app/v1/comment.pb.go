@@ -8,7 +8,6 @@ package appv1
 
 import (
 	reflect "reflect"
-	v1 "shop/api/gen/go/common/v1"
 	sync "sync"
 	unsafe "unsafe"
 
@@ -17,6 +16,8 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+
+	v1 "shop/api/gen/go/common/v1"
 )
 
 const (
@@ -922,7 +923,7 @@ func (x *GoodsCommentOverviewResponse) GetPreviewComments() []*CommentItem {
 }
 
 // 商品评价标签查询条件
-type GoodsCommentTagsRequest struct {
+type GoodsCommentTagRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	GoodsId       int64                  `protobuf:"varint,1,opt,name=goods_id,json=goodsId,proto3" json:"goods_id,omitempty"` // 商品ID
 	Limit         int32                  `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"`                    // 标签展示数量
@@ -930,20 +931,20 @@ type GoodsCommentTagsRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *GoodsCommentTagsRequest) Reset() {
-	*x = GoodsCommentTagsRequest{}
+func (x *GoodsCommentTagRequest) Reset() {
+	*x = GoodsCommentTagRequest{}
 	mi := &file_app_v1_comment_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GoodsCommentTagsRequest) String() string {
+func (x *GoodsCommentTagRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GoodsCommentTagsRequest) ProtoMessage() {}
+func (*GoodsCommentTagRequest) ProtoMessage() {}
 
-func (x *GoodsCommentTagsRequest) ProtoReflect() protoreflect.Message {
+func (x *GoodsCommentTagRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_app_v1_comment_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -955,19 +956,19 @@ func (x *GoodsCommentTagsRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GoodsCommentTagsRequest.ProtoReflect.Descriptor instead.
-func (*GoodsCommentTagsRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use GoodsCommentTagRequest.ProtoReflect.Descriptor instead.
+func (*GoodsCommentTagRequest) Descriptor() ([]byte, []int) {
 	return file_app_v1_comment_proto_rawDescGZIP(), []int{11}
 }
 
-func (x *GoodsCommentTagsRequest) GetGoodsId() int64 {
+func (x *GoodsCommentTagRequest) GetGoodsId() int64 {
 	if x != nil {
 		return x.GoodsId
 	}
 	return 0
 }
 
-func (x *GoodsCommentTagsRequest) GetLimit() int32 {
+func (x *GoodsCommentTagRequest) GetLimit() int32 {
 	if x != nil {
 		return x.Limit
 	}
@@ -975,27 +976,27 @@ func (x *GoodsCommentTagsRequest) GetLimit() int32 {
 }
 
 // 商品评价标签响应
-type GoodsCommentTagsResponse struct {
+type GoodsCommentTagResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	CommentTags   []*CommentTagItem      `protobuf:"bytes,1,rep,name=comment_tags,json=commentTags,proto3" json:"comment_tags,omitempty"` // 评价标签列表
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *GoodsCommentTagsResponse) Reset() {
-	*x = GoodsCommentTagsResponse{}
+func (x *GoodsCommentTagResponse) Reset() {
+	*x = GoodsCommentTagResponse{}
 	mi := &file_app_v1_comment_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GoodsCommentTagsResponse) String() string {
+func (x *GoodsCommentTagResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GoodsCommentTagsResponse) ProtoMessage() {}
+func (*GoodsCommentTagResponse) ProtoMessage() {}
 
-func (x *GoodsCommentTagsResponse) ProtoReflect() protoreflect.Message {
+func (x *GoodsCommentTagResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_app_v1_comment_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1007,12 +1008,12 @@ func (x *GoodsCommentTagsResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GoodsCommentTagsResponse.ProtoReflect.Descriptor instead.
-func (*GoodsCommentTagsResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use GoodsCommentTagResponse.ProtoReflect.Descriptor instead.
+func (*GoodsCommentTagResponse) Descriptor() ([]byte, []int) {
 	return file_app_v1_comment_proto_rawDescGZIP(), []int{12}
 }
 
-func (x *GoodsCommentTagsResponse) GetCommentTags() []*CommentTagItem {
+func (x *GoodsCommentTagResponse) GetCommentTags() []*CommentTagItem {
 	if x != nil {
 		return x.CommentTags
 	}
@@ -2162,11 +2163,11 @@ const file_app_v1_comment_proto_rawDesc = "" +
 	"recentDays\x12O\n" +
 	"\x10recent_good_rate\x18\x03 \x01(\x05B%\xbaG\"\x92\x02\x1f近N天好评率百分比整数R\x0erecentGoodRate\x12_\n" +
 	"\x0fcomment_summary\x18\x04 \x01(\v2\x16.app.v1.CommentSummaryB\x1e\xbaG\x1b\x92\x02\x18商品详情评价摘要R\x0ecommentSummary\x12X\n" +
-	"\x10preview_comments\x18\x06 \x03(\v2\x13.app.v1.CommentItemB\x18\xbaG\x15\x92\x02\x12评价预览列表R\x0fpreviewComments\"\x80\x01\n" +
-	"\x17GoodsCommentTagsRequest\x12)\n" +
+	"\x10preview_comments\x18\x06 \x03(\v2\x13.app.v1.CommentItemB\x18\xbaG\x15\x92\x02\x12评价预览列表R\x0fpreviewComments\"\x7f\n" +
+	"\x16GoodsCommentTagRequest\x12)\n" +
 	"\bgoods_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\agoodsId\x12:\n" +
-	"\x05limit\x18\x02 \x01(\x05B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x004@\x92\x02\x12标签展示数量R\x05limit\"o\n" +
-	"\x18GoodsCommentTagsResponse\x12S\n" +
+	"\x05limit\x18\x02 \x01(\x05B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x004@\x92\x02\x12标签展示数量R\x05limit\"n\n" +
+	"\x17GoodsCommentTagResponse\x12S\n" +
 	"\fcomment_tags\x18\x01 \x03(\v2\x16.app.v1.CommentTagItemB\x18\xbaG\x15\x92\x02\x12评价标签列表R\vcommentTags\"\xef\x04\n" +
 	"\x17PageGoodsCommentRequest\x12)\n" +
 	"\bgoods_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\agoodsId\x12K\n" +
@@ -2258,11 +2259,11 @@ const file_app_v1_comment_proto_rawDesc = "" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\x12-\n" +
 	"\bpage_num\x18\x03 \x01(\x03B\x12\xbaG\x0f\x92\x02\f当前页码R\apageNum\x12/\n" +
 	"\tpage_size\x18\x04 \x01(\x03B\x12\xbaG\x0f\x92\x02\f每页数量R\bpageSize\x126\n" +
-	"\bhas_more\x18\x05 \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否还有下一页R\ahasMore2\xde\n" +
+	"\bhas_more\x18\x05 \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否还有下一页R\ahasMore2\xdb\n" +
 	"\n" +
 	"\x0eCommentService\x12\x98\x01\n" +
-	"\x14GoodsCommentOverview\x12#.app.v1.GoodsCommentOverviewRequest\x1a$.app.v1.GoodsCommentOverviewResponse\"5\x82\xd3\xe4\x93\x02/\x12-/api/v1/app/comment/goods/{goods_id}/overview\x12\x88\x01\n" +
-	"\x10GoodsCommentTags\x12\x1f.app.v1.GoodsCommentTagsRequest\x1a .app.v1.GoodsCommentTagsResponse\"1\x82\xd3\xe4\x93\x02+\x12)/api/v1/app/comment/goods/{goods_id}/tags\x12\x83\x01\n" +
+	"\x14GoodsCommentOverview\x12#.app.v1.GoodsCommentOverviewRequest\x1a$.app.v1.GoodsCommentOverviewResponse\"5\x82\xd3\xe4\x93\x02/\x12-/api/v1/app/comment/goods/{goods_id}/overview\x12\x85\x01\n" +
+	"\x0fGoodsCommentTag\x12\x1e.app.v1.GoodsCommentTagRequest\x1a\x1f.app.v1.GoodsCommentTagResponse\"1\x82\xd3\xe4\x93\x02+\x12)/api/v1/app/comment/goods/{goods_id}/tags\x12\x83\x01\n" +
 	"\x10PageGoodsComment\x12\x1f.app.v1.PageGoodsCommentRequest\x1a .app.v1.PageGoodsCommentResponse\",\x82\xd3\xe4\x93\x02&\x12$/api/v1/app/comment/goods/{goods_id}\x12\x99\x01\n" +
 	"\x15PageCommentDiscussion\x12$.app.v1.PageCommentDiscussionRequest\x1a%.app.v1.PageCommentDiscussionResponse\"3\x82\xd3\xe4\x93\x02-\x12+/api/v1/app/comment/{comment_id}/discussion\x12\xa2\x01\n" +
 	"\x17CreateCommentDiscussion\x12&.app.v1.CreateCommentDiscussionRequest\x1a'.app.v1.CreateCommentDiscussionResponse\"6\x82\xd3\xe4\x93\x020:\x01*\"+/api/v1/app/comment/{comment_id}/discussion\x12\x87\x01\n" +
@@ -2299,8 +2300,8 @@ var file_app_v1_comment_proto_goTypes = []any{
 	(*PendingCommentGoodsItem)(nil),         // 8: app.v1.PendingCommentGoodsItem
 	(*GoodsCommentOverviewRequest)(nil),     // 9: app.v1.GoodsCommentOverviewRequest
 	(*GoodsCommentOverviewResponse)(nil),    // 10: app.v1.GoodsCommentOverviewResponse
-	(*GoodsCommentTagsRequest)(nil),         // 11: app.v1.GoodsCommentTagsRequest
-	(*GoodsCommentTagsResponse)(nil),        // 12: app.v1.GoodsCommentTagsResponse
+	(*GoodsCommentTagRequest)(nil),          // 11: app.v1.GoodsCommentTagRequest
+	(*GoodsCommentTagResponse)(nil),         // 12: app.v1.GoodsCommentTagResponse
 	(*PageGoodsCommentRequest)(nil),         // 13: app.v1.PageGoodsCommentRequest
 	(*PageGoodsCommentResponse)(nil),        // 14: app.v1.PageGoodsCommentResponse
 	(*PageCommentDiscussionRequest)(nil),    // 15: app.v1.PageCommentDiscussionRequest
@@ -2335,7 +2336,7 @@ var file_app_v1_comment_proto_depIdxs = []int32{
 	29, // 8: app.v1.CommentDiscussionItem.reaction_type:type_name -> common.v1.CommentReactionType
 	6,  // 9: app.v1.GoodsCommentOverviewResponse.comment_summary:type_name -> app.v1.CommentSummary
 	5,  // 10: app.v1.GoodsCommentOverviewResponse.preview_comments:type_name -> app.v1.CommentItem
-	4,  // 11: app.v1.GoodsCommentTagsResponse.comment_tags:type_name -> app.v1.CommentTagItem
+	4,  // 11: app.v1.GoodsCommentTagResponse.comment_tags:type_name -> app.v1.CommentTagItem
 	27, // 12: app.v1.PageGoodsCommentRequest.filter_type:type_name -> common.v1.CommentFilterType
 	31, // 13: app.v1.PageGoodsCommentRequest.sort_type:type_name -> common.v1.CommentSortType
 	3,  // 14: app.v1.PageGoodsCommentResponse.comment_filters:type_name -> app.v1.CommentFilterItem
@@ -2350,7 +2351,7 @@ var file_app_v1_comment_proto_depIdxs = []int32{
 	8,  // 23: app.v1.PagePendingCommentGoodsResponse.pending_comment_goods:type_name -> app.v1.PendingCommentGoodsItem
 	5,  // 24: app.v1.PageMyCommentResponse.comments:type_name -> app.v1.CommentItem
 	9,  // 25: app.v1.CommentService.GoodsCommentOverview:input_type -> app.v1.GoodsCommentOverviewRequest
-	11, // 26: app.v1.CommentService.GoodsCommentTags:input_type -> app.v1.GoodsCommentTagsRequest
+	11, // 26: app.v1.CommentService.GoodsCommentTag:input_type -> app.v1.GoodsCommentTagRequest
 	13, // 27: app.v1.CommentService.PageGoodsComment:input_type -> app.v1.PageGoodsCommentRequest
 	15, // 28: app.v1.CommentService.PageCommentDiscussion:input_type -> app.v1.PageCommentDiscussionRequest
 	17, // 29: app.v1.CommentService.CreateCommentDiscussion:input_type -> app.v1.CreateCommentDiscussionRequest
@@ -2360,7 +2361,7 @@ var file_app_v1_comment_proto_depIdxs = []int32{
 	0,  // 33: app.v1.CommentService.DeleteComment:input_type -> app.v1.DeleteCommentRequest
 	25, // 34: app.v1.CommentService.PageMyComment:input_type -> app.v1.PageMyCommentRequest
 	10, // 35: app.v1.CommentService.GoodsCommentOverview:output_type -> app.v1.GoodsCommentOverviewResponse
-	12, // 36: app.v1.CommentService.GoodsCommentTags:output_type -> app.v1.GoodsCommentTagsResponse
+	12, // 36: app.v1.CommentService.GoodsCommentTag:output_type -> app.v1.GoodsCommentTagResponse
 	14, // 37: app.v1.CommentService.PageGoodsComment:output_type -> app.v1.PageGoodsCommentResponse
 	16, // 38: app.v1.CommentService.PageCommentDiscussion:output_type -> app.v1.PageCommentDiscussionResponse
 	18, // 39: app.v1.CommentService.CreateCommentDiscussion:output_type -> app.v1.CreateCommentDiscussionResponse

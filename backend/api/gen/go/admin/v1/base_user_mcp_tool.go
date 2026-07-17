@@ -8,16 +8,17 @@ package adminv1
 
 import (
 	context "context"
-	v1 "shop/api/gen/go/common/v1"
 
 	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+
+	v1 "shop/api/gen/go/common/v1"
 )
 
 // RegisterBaseUserServiceMCPTools 注册Admin用户管理服务的 MCP Tool。
 func RegisterBaseUserServiceMCPTools(mcpServer *mcp.Server, baseUserServiceServer BaseUserServiceServer) {
-	RegisterBaseUserServiceOptionBaseUsersMCPTool(mcpServer, baseUserServiceServer)
-	RegisterBaseUserServicePageBaseUsersMCPTool(mcpServer, baseUserServiceServer)
+	RegisterBaseUserServiceOptionBaseUserMCPTool(mcpServer, baseUserServiceServer)
+	RegisterBaseUserServicePageBaseUserMCPTool(mcpServer, baseUserServiceServer)
 	RegisterBaseUserServiceGetBaseUserMCPTool(mcpServer, baseUserServiceServer)
 	RegisterBaseUserServiceCreateBaseUserMCPTool(mcpServer, baseUserServiceServer)
 	RegisterBaseUserServiceUpdateBaseUserMCPTool(mcpServer, baseUserServiceServer)
@@ -26,19 +27,19 @@ func RegisterBaseUserServiceMCPTools(mcpServer *mcp.Server, baseUserServiceServe
 	RegisterBaseUserServiceResetBaseUserPasswordMCPTool(mcpServer, baseUserServiceServer)
 }
 
-// RegisterBaseUserServiceOptionBaseUsersMCPTool 注册查询用户下拉选择的 MCP Tool。
-func RegisterBaseUserServiceOptionBaseUsersMCPTool(mcpServer *mcp.Server, baseUserServiceServer BaseUserServiceServer) {
-	mcp.AddTool[*OptionBaseUsersRequest, *v1.SelectOptionResponse](
+// RegisterBaseUserServiceOptionBaseUserMCPTool 注册查询用户下拉选择的 MCP Tool。
+func RegisterBaseUserServiceOptionBaseUserMCPTool(mcpServer *mcp.Server, baseUserServiceServer BaseUserServiceServer) {
+	mcp.AddTool[*OptionBaseUserRequest, *v1.SelectOptionResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "admin_v1_base_user_service_option_base_users",
+			Name:        "admin_v1_base_user_service_option_base_user",
 			Description: "查询用户下拉选择",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *OptionBaseUsersRequest) (*mcp.CallToolResult, *v1.SelectOptionResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *OptionBaseUserRequest) (*mcp.CallToolResult, *v1.SelectOptionResponse, error) {
 			if input == nil {
-				input = &OptionBaseUsersRequest{}
+				input = &OptionBaseUserRequest{}
 			}
-			reply, err := baseUserServiceServer.OptionBaseUsers(ctx, input)
+			reply, err := baseUserServiceServer.OptionBaseUser(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -47,19 +48,19 @@ func RegisterBaseUserServiceOptionBaseUsersMCPTool(mcpServer *mcp.Server, baseUs
 	)
 }
 
-// RegisterBaseUserServicePageBaseUsersMCPTool 注册查询用户分页列表的 MCP Tool。
-func RegisterBaseUserServicePageBaseUsersMCPTool(mcpServer *mcp.Server, baseUserServiceServer BaseUserServiceServer) {
-	mcp.AddTool[*PageBaseUsersRequest, *PageBaseUsersResponse](
+// RegisterBaseUserServicePageBaseUserMCPTool 注册查询用户分页列表的 MCP Tool。
+func RegisterBaseUserServicePageBaseUserMCPTool(mcpServer *mcp.Server, baseUserServiceServer BaseUserServiceServer) {
+	mcp.AddTool[*PageBaseUserRequest, *PageBaseUserResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "admin_v1_base_user_service_page_base_users",
+			Name:        "admin_v1_base_user_service_page_base_user",
 			Description: "查询用户分页列表",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBaseUsersRequest) (*mcp.CallToolResult, *PageBaseUsersResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBaseUserRequest) (*mcp.CallToolResult, *PageBaseUserResponse, error) {
 			if input == nil {
-				input = &PageBaseUsersRequest{}
+				input = &PageBaseUserRequest{}
 			}
-			reply, err := baseUserServiceServer.PageBaseUsers(ctx, input)
+			reply, err := baseUserServiceServer.PageBaseUser(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

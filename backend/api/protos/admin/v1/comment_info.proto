@@ -11,7 +11,7 @@ import "google/protobuf/empty.proto";
 // Admin评论管理服务
 service CommentInfoService {
   // 查询评论分页列表
-  rpc PageCommentInfos(PageCommentInfosRequest) returns (PageCommentInfosResponse) {
+  rpc PageCommentInfo(PageCommentInfoRequest) returns (PageCommentInfoResponse) {
     option (google.api.http) = {
       get: "/api/v1/admin/comment/info"
     };
@@ -25,7 +25,7 @@ service CommentInfoService {
   }
 
   // 查询评论审核记录列表
-  rpc ListCommentReviews(ListCommentReviewsRequest) returns (ListCommentReviewsResponse) {
+  rpc ListCommentReview(ListCommentReviewRequest) returns (ListCommentReviewResponse) {
     option (google.api.http) = {
       get: "/api/v1/admin/comment/info/review"
     };
@@ -47,7 +47,7 @@ service CommentInfoService {
   }
 
   // 查询评论讨论分页列表
-  rpc PageCommentDiscussions(PageCommentDiscussionsRequest) returns (PageCommentDiscussionsResponse) {
+  rpc PageCommentDiscussion(PageCommentDiscussionRequest) returns (PageCommentDiscussionResponse) {
     option (google.api.http) = {
       get: "/api/v1/admin/comment/info/{comment_id}/discussion"
     };
@@ -64,7 +64,7 @@ service CommentInfoService {
 }
 
 // 评论分页查询条件
-message PageCommentInfosRequest {
+message PageCommentInfoRequest {
   optional int64 tenant_id = 1 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
 
   optional int64 tenant_store_id = 2 [(gnostic.openapi.v3.property) = {description: "租户门店ID"}]; // 租户门店ID
@@ -97,7 +97,7 @@ message PageCommentInfosRequest {
 }
 
 // 评论分页响应
-message PageCommentInfosResponse {
+message PageCommentInfoResponse {
   repeated CommentInfo comment_infos = 1 [(gnostic.openapi.v3.property) = {description: "分页数据"}]; // 分页数据
 
   int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
@@ -132,14 +132,14 @@ message SetCommentDiscussionStatusRequest {
 }
 
 // 评论审核记录查询条件
-message ListCommentReviewsRequest {
+message ListCommentReviewRequest {
   .common.v1.CommentReviewTargetType target_type = 1 [(gnostic.openapi.v3.property) = {description: "审核目标类型：枚举【CommentReviewTargetType】"}]; // 审核目标类型：枚举【CommentReviewTargetType】
 
   int64 target_id = 2 [(gnostic.openapi.v3.property) = {description: "审核目标ID"}]; // 审核目标ID
 }
 
 // 评论审核记录列表响应
-message ListCommentReviewsResponse {
+message ListCommentReviewResponse {
   repeated CommentReview comment_reviews = 1 [(gnostic.openapi.v3.property) = {description: "审核记录列表"}]; // 审核记录列表
 }
 
@@ -238,7 +238,7 @@ message CommentTag {
 }
 
 // 评论讨论分页查询条件
-message PageCommentDiscussionsRequest {
+message PageCommentDiscussionRequest {
   int64 comment_id = 1 [(gnostic.openapi.v3.property) = {description: "所属评价ID"}]; // 所属评价ID
 
   optional string user_name = 2 [(gnostic.openapi.v3.property) = {description: "讨论用户昵称"}]; // 讨论用户昵称
@@ -259,7 +259,7 @@ message PageCommentDiscussionsRequest {
 }
 
 // 评论讨论分页响应
-message PageCommentDiscussionsResponse {
+message PageCommentDiscussionResponse {
   repeated CommentDiscussion comment_discussions = 1 [(gnostic.openapi.v3.property) = {description: "分页数据"}]; // 分页数据
 
   int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数

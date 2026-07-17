@@ -51,7 +51,7 @@ import FormDialog from "@/components/Dialog/FormDialog.vue";
 import type { ProFormField, ProFormOption } from "@/components/ProForm/interface";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { defBaseDictService } from "@/api/admin/base_dict";
-import type { BaseDictItem, BaseDictItemForm, PageBaseDictItemsRequest } from "@/rpc/admin/v1/base_dict";
+import type { BaseDictItem, BaseDictItemForm, PageBaseDictItemRequest } from "@/rpc/admin/v1/base_dict";
 import { Status } from "@/rpc/common/v1/enum";
 import { buildPageRequest, normalizeSelectedIds } from "@/utils/proTable";
 
@@ -228,8 +228,8 @@ watch(
 /**
  * 请求字典项分页列表，并补充当前路由上的字典 ID。
  */
-async function requestBaseDictItemTable(params: PageBaseDictItemsRequest) {
-  const data = await defBaseDictService.PageBaseDictItems({ ...buildPageRequest(params), dict_id: dictId.value });
+async function requestBaseDictItemTable(params: PageBaseDictItemRequest) {
+  const data = await defBaseDictService.PageBaseDictItem({ ...buildPageRequest(params), dict_id: dictId.value });
   return { data: { list: data.base_dict_items ?? [], total: data.total } };
 }
 

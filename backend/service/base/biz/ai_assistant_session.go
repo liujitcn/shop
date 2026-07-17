@@ -46,8 +46,8 @@ func NewAiAssistantSessionCase(
 	}
 }
 
-// ListAiAssistantSessions 查询当前用户的 AI 助手会话列表。
-func (c *AiAssistantSessionCase) ListAiAssistantSessions(ctx context.Context, req *basev1.ListAiAssistantSessionsRequest) (*basev1.ListAiAssistantSessionsResponse, error) {
+// ListAiAssistantSession 查询当前用户的 AI 助手会话列表。
+func (c *AiAssistantSessionCase) ListAiAssistantSession(ctx context.Context, req *basev1.ListAiAssistantSessionRequest) (*basev1.ListAiAssistantSessionResponse, error) {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return nil, err
@@ -69,7 +69,7 @@ func (c *AiAssistantSessionCase) ListAiAssistantSessions(ctx context.Context, re
 	for _, item := range list {
 		sessions = append(sessions, c.ToDTO(item))
 	}
-	return &basev1.ListAiAssistantSessionsResponse{Sessions: sessions}, nil
+	return &basev1.ListAiAssistantSessionResponse{Sessions: sessions}, nil
 }
 
 // CreateAiAssistantSession 创建当前用户的新会话。

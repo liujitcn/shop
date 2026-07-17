@@ -14,22 +14,22 @@ import (
 
 // RegisterShopServiceServiceMCPTools 注册App商城服务说明服务的 MCP Tool。
 func RegisterShopServiceServiceMCPTools(mcpServer *mcp.Server, shopServiceServiceServer ShopServiceServiceServer) {
-	RegisterShopServiceServiceListShopServicesMCPTool(mcpServer, shopServiceServiceServer)
+	RegisterShopServiceServiceListShopServiceMCPTool(mcpServer, shopServiceServiceServer)
 }
 
-// RegisterShopServiceServiceListShopServicesMCPTool 注册查询商城服务列表的 MCP Tool。
-func RegisterShopServiceServiceListShopServicesMCPTool(mcpServer *mcp.Server, shopServiceServiceServer ShopServiceServiceServer) {
-	mcp.AddTool[*ListShopServicesRequest, *ListShopServicesResponse](
+// RegisterShopServiceServiceListShopServiceMCPTool 注册查询商城服务列表的 MCP Tool。
+func RegisterShopServiceServiceListShopServiceMCPTool(mcpServer *mcp.Server, shopServiceServiceServer ShopServiceServiceServer) {
+	mcp.AddTool[*ListShopServiceRequest, *ListShopServiceResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "app_v1_shop_service_service_list_shop_services",
+			Name:        "app_v1_shop_service_service_list_shop_service",
 			Description: "查询商城服务列表",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *ListShopServicesRequest) (*mcp.CallToolResult, *ListShopServicesResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *ListShopServiceRequest) (*mcp.CallToolResult, *ListShopServiceResponse, error) {
 			if input == nil {
-				input = &ListShopServicesRequest{}
+				input = &ListShopServiceRequest{}
 			}
-			reply, err := shopServiceServiceServer.ListShopServices(ctx, input)
+			reply, err := shopServiceServiceServer.ListShopService(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

@@ -36,11 +36,11 @@ func NewCommentInfoService(
 	}
 }
 
-// PageCommentInfos 查询评论分页列表。
-func (s *CommentInfoService) PageCommentInfos(ctx context.Context, req *adminv1.PageCommentInfosRequest) (*adminv1.PageCommentInfosResponse, error) {
-	page, err := s.commentInfoCase.PageCommentInfos(ctx, req)
+// PageCommentInfo 查询评论分页列表。
+func (s *CommentInfoService) PageCommentInfo(ctx context.Context, req *adminv1.PageCommentInfoRequest) (*adminv1.PageCommentInfoResponse, error) {
+	page, err := s.commentInfoCase.PageCommentInfo(ctx, req)
 	if err != nil {
-		log.Error(fmt.Sprintf("PageCommentInfos %v", err))
+		log.Error(fmt.Sprintf("PageCommentInfo %v", err))
 		return nil, errorsx.WrapInternal(err, "查询评论分页列表失败")
 	}
 	return page, nil
@@ -76,11 +76,11 @@ func (s *CommentInfoService) SetCommentInfoStatus(ctx context.Context, req *admi
 	return new(emptypb.Empty), nil
 }
 
-// PageCommentDiscussions 查询评论讨论分页列表。
-func (s *CommentInfoService) PageCommentDiscussions(ctx context.Context, req *adminv1.PageCommentDiscussionsRequest) (*adminv1.PageCommentDiscussionsResponse, error) {
-	page, err := s.commentDiscussionCase.PageCommentDiscussions(ctx, req)
+// PageCommentDiscussion 查询评论讨论分页列表。
+func (s *CommentInfoService) PageCommentDiscussion(ctx context.Context, req *adminv1.PageCommentDiscussionRequest) (*adminv1.PageCommentDiscussionResponse, error) {
+	page, err := s.commentDiscussionCase.PageCommentDiscussion(ctx, req)
 	if err != nil {
-		log.Error(fmt.Sprintf("PageCommentDiscussions %v", err))
+		log.Error(fmt.Sprintf("PageCommentDiscussion %v", err))
 		return nil, errorsx.WrapInternal(err, "查询评论讨论分页列表失败")
 	}
 	return page, nil
@@ -96,12 +96,12 @@ func (s *CommentInfoService) SetCommentDiscussionStatus(ctx context.Context, req
 	return new(emptypb.Empty), nil
 }
 
-// ListCommentReviews 查询评论审核记录列表。
-func (s *CommentInfoService) ListCommentReviews(ctx context.Context, req *adminv1.ListCommentReviewsRequest) (*adminv1.ListCommentReviewsResponse, error) {
+// ListCommentReview 查询评论审核记录列表。
+func (s *CommentInfoService) ListCommentReview(ctx context.Context, req *adminv1.ListCommentReviewRequest) (*adminv1.ListCommentReviewResponse, error) {
 	list, err := s.commentReviewCase.ListByTarget(ctx, int32(req.GetTargetType()), req.GetTargetId())
 	if err != nil {
-		log.Error(fmt.Sprintf("ListCommentReviews %v", err))
+		log.Error(fmt.Sprintf("ListCommentReview %v", err))
 		return nil, errorsx.WrapInternal(err, "查询评论审核记录列表失败")
 	}
-	return &adminv1.ListCommentReviewsResponse{CommentReviews: list}, nil
+	return &adminv1.ListCommentReviewResponse{CommentReviews: list}, nil
 }

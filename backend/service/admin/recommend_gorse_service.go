@@ -38,47 +38,47 @@ func (s *RecommendGorseService) GetTimeSeries(ctx context.Context, req *adminv1.
 	return res, nil
 }
 
-// OptionCategories 查询 Gorse 推荐分类列表。
-func (s *RecommendGorseService) OptionCategories(ctx context.Context, req *adminv1.OptionCategoriesRequest) (*adminv1.OptionCategoriesResponse, error) {
-	res, err := s.recommendGorseCase.OptionCategories(ctx)
+// OptionCategory 查询 Gorse 推荐分类列表。
+func (s *RecommendGorseService) OptionCategory(ctx context.Context, req *adminv1.OptionCategoryRequest) (*adminv1.OptionCategoryResponse, error) {
+	res, err := s.recommendGorseCase.OptionCategory(ctx)
 	if err != nil {
-		log.Error(fmt.Sprintf("OptionCategories %v", err))
+		log.Error(fmt.Sprintf("OptionCategory %v", err))
 		return nil, errorsx.WrapInternal(err, "查询 Gorse 推荐分类列表失败")
 	}
 	return res, nil
 }
 
-// ListDashboardItems 查询 Gorse 推荐仪表盘推荐商品。
-func (s *RecommendGorseService) ListDashboardItems(
+// ListDashboardItem 查询 Gorse 推荐仪表盘推荐商品。
+func (s *RecommendGorseService) ListDashboardItem(
 	ctx context.Context,
-	req *adminv1.ListDashboardItemsRequest,
-) (*adminv1.ListDashboardItemsResponse, error) {
-	res, err := s.recommendGorseCase.ListDashboardItems(ctx, req.GetRecommender(), req.GetCategory(), req.GetEnd())
+	req *adminv1.ListDashboardItemRequest,
+) (*adminv1.ListDashboardItemResponse, error) {
+	res, err := s.recommendGorseCase.ListDashboardItem(ctx, req.GetRecommender(), req.GetCategory(), req.GetEnd())
 	if err != nil {
-		log.Error(fmt.Sprintf("ListDashboardItems %v", err))
+		log.Error(fmt.Sprintf("ListDashboardItem %v", err))
 		return nil, errorsx.WrapInternal(err, "查询 Gorse 推荐仪表盘推荐商品失败")
 	}
 	return res, nil
 }
 
-// ListTasks 查询 Gorse 推荐任务状态。
-func (s *RecommendGorseService) ListTasks(ctx context.Context, req *adminv1.ListTasksRequest) (*adminv1.ListTasksResponse, error) {
-	res, err := s.recommendGorseCase.ListTasks(ctx)
+// ListTask 查询 Gorse 推荐任务状态。
+func (s *RecommendGorseService) ListTask(ctx context.Context, req *adminv1.ListTaskRequest) (*adminv1.ListTaskResponse, error) {
+	res, err := s.recommendGorseCase.ListTask(ctx)
 	if err != nil {
-		log.Error(fmt.Sprintf("ListTasks %v", err))
+		log.Error(fmt.Sprintf("ListTask %v", err))
 		return nil, errorsx.WrapInternal(err, "查询 Gorse 推荐任务状态失败")
 	}
 	return res, nil
 }
 
-// PageUsers 查询 Gorse 推荐用户列表。
-func (s *RecommendGorseService) PageUsers(
+// PageUser 查询 Gorse 推荐用户列表。
+func (s *RecommendGorseService) PageUser(
 	ctx context.Context,
-	req *adminv1.PageUsersRequest,
-) (*adminv1.PageUsersResponse, error) {
-	res, err := s.recommendGorseCase.PageUsers(ctx, req.GetCursor(), req.GetN())
+	req *adminv1.PageUserRequest,
+) (*adminv1.PageUserResponse, error) {
+	res, err := s.recommendGorseCase.PageUser(ctx, req.GetCursor(), req.GetN())
 	if err != nil {
-		log.Error(fmt.Sprintf("PageUsers %v", err))
+		log.Error(fmt.Sprintf("PageUser %v", err))
 		return nil, errorsx.WrapInternal(err, "查询 Gorse 推荐用户列表失败")
 	}
 	return res, nil
@@ -143,14 +143,14 @@ func (s *RecommendGorseService) GetUserRecommend(
 	return res, nil
 }
 
-// PageItems 查询 Gorse 推荐商品列表。
-func (s *RecommendGorseService) PageItems(
+// PageItem 查询 Gorse 推荐商品列表。
+func (s *RecommendGorseService) PageItem(
 	ctx context.Context,
-	req *adminv1.PageItemsRequest,
-) (*adminv1.PageItemsResponse, error) {
-	res, err := s.recommendGorseCase.PageItems(ctx, req.GetCursor(), req.GetN())
+	req *adminv1.PageItemRequest,
+) (*adminv1.PageItemResponse, error) {
+	res, err := s.recommendGorseCase.PageItem(ctx, req.GetCursor(), req.GetN())
 	if err != nil {
-		log.Error(fmt.Sprintf("PageItems %v", err))
+		log.Error(fmt.Sprintf("PageItem %v", err))
 		return nil, errorsx.WrapInternal(err, "查询 Gorse 推荐商品列表失败")
 	}
 	return res, nil

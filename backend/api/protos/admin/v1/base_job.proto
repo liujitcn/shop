@@ -10,7 +10,7 @@ import "google/protobuf/empty.proto";
 // Admin定时任务服务
 service BaseJobService {
   // 查询定时任务分页列表
-  rpc PageBaseJobs(PageBaseJobsRequest) returns (PageBaseJobsResponse) {
+  rpc PageBaseJob(PageBaseJobRequest) returns (PageBaseJobResponse) {
     option (google.api.http) = {
       get: "/api/v1/admin/base/job"
     };
@@ -78,7 +78,7 @@ service BaseJobService {
   }
 
   // 查询定时任务日志分页列表
-  rpc PageBaseJobLogs(PageBaseJobLogsRequest) returns (PageBaseJobLogsResponse) {
+  rpc PageBaseJobLog(PageBaseJobLogRequest) returns (PageBaseJobLogResponse) {
     option (google.api.http) = {
       get: "/api/v1/admin/base/job-log"
     };
@@ -93,7 +93,7 @@ service BaseJobService {
 }
 
 // 定时任务分页查询条件
-message PageBaseJobsRequest {
+message PageBaseJobRequest {
   string name = 2 [(gnostic.openapi.v3.property) = {description: "任务名称"}]; // 任务名称
 
   string invoke_target = 3 [(gnostic.openapi.v3.property) = {description: "调用目标"}]; // 调用目标
@@ -112,7 +112,7 @@ message PageBaseJobsRequest {
 }
 
 // 定时任务分页响应
-message PageBaseJobsResponse {
+message PageBaseJobResponse {
   repeated BaseJob base_jobs = 1 [(gnostic.openapi.v3.property) = {description: "分页数据"}]; // 分页数据
 
   int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
@@ -161,7 +161,7 @@ message ExecuteBaseJobRequest {
 }
 
 // 定时任务日志分页查询条件
-message PageBaseJobLogsRequest {
+message PageBaseJobLogRequest {
   int64 job_id = 2 [(gnostic.openapi.v3.property) = {description: "任务ID"}]; // 任务ID
 
   optional .common.v1.BaseJobLogStatus status = 6 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
@@ -180,7 +180,7 @@ message PageBaseJobLogsRequest {
 }
 
 // 定时任务日志分页响应
-message PageBaseJobLogsResponse {
+message PageBaseJobLogResponse {
   repeated BaseJobLog base_job_logs = 1 [(gnostic.openapi.v3.property) = {description: "分页数据"}]; // 分页数据
 
   int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数

@@ -10,7 +10,7 @@ import "google/protobuf/empty.proto";
 // Admin商城热门推荐服务
 service ShopHotService {
   // 查询商城热门推荐列表
-  rpc PageShopHots(PageShopHotsRequest) returns (PageShopHotsResponse) {
+  rpc PageShopHot(PageShopHotRequest) returns (PageShopHotResponse) {
     option (google.api.http) = {
       get: "/api/v1/admin/shop/hot"
     };
@@ -55,7 +55,7 @@ service ShopHotService {
   }
 
   // 查询商城热门推荐属性列表
-  rpc PageShopHotItems(PageShopHotItemsRequest) returns (PageShopHotItemsResponse) {
+  rpc PageShopHotItem(PageShopHotItemRequest) returns (PageShopHotItemResponse) {
     option (google.api.http) = {
       get: "/api/v1/admin/shop/hot-item"
     };
@@ -101,7 +101,7 @@ service ShopHotService {
 }
 
 // 热门专区列表查询条件
-message PageShopHotsRequest {
+message PageShopHotRequest {
   string title = 2 [(gnostic.openapi.v3.property) = {description: "商城热门推荐标题"}]; // 商城热门推荐标题
 
   string desc = 3 [(gnostic.openapi.v3.property) = {description: "商城热门推荐描述"}]; // 商城热门推荐描述
@@ -123,7 +123,7 @@ message PageShopHotsRequest {
 }
 
 // 热门专区列表响应
-message PageShopHotsResponse {
+message PageShopHotResponse {
   repeated ShopHot shop_hots = 1 [(gnostic.openapi.v3.property) = {description: "热门专区列表"}]; // 热门专区列表
 
   int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
@@ -159,7 +159,7 @@ message SetShopHotStatusRequest {
 }
 
 // 热门专区项列表查询条件
-message PageShopHotItemsRequest {
+message PageShopHotItemRequest {
   int64 hot_id = 2 [(gnostic.openapi.v3.property) = {description: "商城热门推荐id"}]; // 商城热门推荐id
 
   string title = 3 [(gnostic.openapi.v3.property) = {description: "商城热门推荐属性标题"}]; // 商城热门推荐属性标题
@@ -178,7 +178,7 @@ message PageShopHotItemsRequest {
 }
 
 // 热门专区项列表响应
-message PageShopHotItemsResponse {
+message PageShopHotItemResponse {
   repeated ShopHotItem shop_hot_items = 1 [(gnostic.openapi.v3.property) = {description: "热门专区项列表"}]; // 热门专区项列表
 
   int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数

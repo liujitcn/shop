@@ -18,12 +18,12 @@ import (
 func NewShopServiceServiceAgentTools(shopServiceServiceServer ShopServiceServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error
-	var pageShopServicesTool tool.InvokableTool
-	pageShopServicesTool, err = NewShopServiceServicePageShopServicesAgentTool(shopServiceServiceServer)
+	var pageShopServiceTool tool.InvokableTool
+	pageShopServiceTool, err = NewShopServiceServicePageShopServiceAgentTool(shopServiceServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, pageShopServicesTool)
+	ts = append(ts, pageShopServiceTool)
 	var getShopServiceTool tool.InvokableTool
 	getShopServiceTool, err = NewShopServiceServiceGetShopServiceAgentTool(shopServiceServiceServer)
 	if err != nil {
@@ -57,16 +57,16 @@ func NewShopServiceServiceAgentTools(shopServiceServiceServer ShopServiceService
 	return ts, nil
 }
 
-// NewShopServiceServicePageShopServicesAgentTool 创建查询商城服务列表的 Agent Tool。
-func NewShopServiceServicePageShopServicesAgentTool(shopServiceServiceServer ShopServiceServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*PageShopServicesRequest, *PageShopServicesResponse](
-		"admin_v1_shop_service_service_page_shop_services",
+// NewShopServiceServicePageShopServiceAgentTool 创建查询商城服务列表的 Agent Tool。
+func NewShopServiceServicePageShopServiceAgentTool(shopServiceServiceServer ShopServiceServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PageShopServiceRequest, *PageShopServiceResponse](
+		"admin_v1_shop_service_service_page_shop_service",
 		"查询商城服务列表",
-		func(ctx context.Context, req *PageShopServicesRequest) (*PageShopServicesResponse, error) {
+		func(ctx context.Context, req *PageShopServiceRequest) (*PageShopServiceResponse, error) {
 			if req == nil {
-				req = &PageShopServicesRequest{}
+				req = &PageShopServiceRequest{}
 			}
-			return shopServiceServiceServer.PageShopServices(ctx, req)
+			return shopServiceServiceServer.PageShopService(ctx, req)
 		},
 	)
 }

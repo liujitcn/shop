@@ -11,14 +11,14 @@ import "google/protobuf/empty.proto";
 // Admin部门服务
 service BaseDeptService {
   // 查询部门树形列表
-  rpc TreeBaseDepts(TreeBaseDeptsRequest) returns (TreeBaseDeptsResponse) {
+  rpc TreeBaseDept(TreeBaseDeptRequest) returns (TreeBaseDeptResponse) {
     option (google.api.http) = {
       get: "/api/v1/admin/base/dept/tree"
     };
   }
 
   // 查询部门树形选择
-  rpc OptionBaseDepts(OptionBaseDeptsRequest) returns (.common.v1.TreeOptionResponse) {
+  rpc OptionBaseDept(OptionBaseDeptRequest) returns (.common.v1.TreeOptionResponse) {
     option (google.api.http) = {
       get: "/api/v1/admin/base/dept/option"
     };
@@ -64,17 +64,17 @@ service BaseDeptService {
 }
 
 // 部门树查询条件
-message TreeBaseDeptsRequest {
+message TreeBaseDeptRequest {
   optional int64 tenant_id = 1 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
 }
 
 // 部门树响应
-message TreeBaseDeptsResponse {
+message TreeBaseDeptResponse {
   repeated BaseDept base_depts = 1 [(gnostic.openapi.v3.property) = {description: "部门树"}]; // 部门树
 }
 
 // 部门选项查询条件
-message OptionBaseDeptsRequest {
+message OptionBaseDeptRequest {
   optional int64 tenant_id = 1 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
 
   optional int64 parent_id = 2 [(gnostic.openapi.v3.property) = {description: "父级部门ID"}]; // 父级部门ID

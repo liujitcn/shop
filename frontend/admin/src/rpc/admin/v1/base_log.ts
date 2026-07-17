@@ -7,7 +7,7 @@
 /* eslint-disable */
 
 /** 日志分页查询条件 */
-export interface PageBaseLogsRequest {
+export interface PageBaseLogRequest {
   /** 请求时间 */
   request_time: string[];
   /** 操作方法 */
@@ -23,7 +23,7 @@ export interface PageBaseLogsRequest {
 }
 
 /** 日志分页响应 */
-export interface PageBaseLogsResponse {
+export interface PageBaseLogResponse {
   /** 分页数据 */
   base_logs: BaseLog[];
   /** 总数 */
@@ -95,7 +95,7 @@ export interface BaseLog {
 /** Admin日志服务 */
 export interface BaseLogService {
   /** 查询日志分页列表 */
-  PageBaseLogs(request: PageBaseLogsRequest): Promise<PageBaseLogsResponse>;
+  PageBaseLog(request: PageBaseLogRequest): Promise<PageBaseLogResponse>;
   /** 查询日志 */
   GetBaseLog(request: GetBaseLogRequest): Promise<BaseLog>;
 }

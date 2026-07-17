@@ -2,8 +2,9 @@ package biz
 
 import (
 	"context"
-	_const "shop/pkg/const"
 	"strconv"
+
+	_const "shop/pkg/const"
 
 	adminv1 "shop/api/gen/go/admin/v1"
 	"shop/pkg/biz"
@@ -37,8 +38,8 @@ func NewBaseJobLogCase(baseCase *biz.BaseCase, baseJobLogRepo *data.BaseJobLogRe
 	return c
 }
 
-// PageBaseJobLogs 分页查询任务日志
-func (c *BaseJobLogCase) PageBaseJobLogs(ctx context.Context, req *adminv1.PageBaseJobLogsRequest) (*adminv1.PageBaseJobLogsResponse, error) {
+// PageBaseJobLog 分页查询任务日志
+func (c *BaseJobLogCase) PageBaseJobLog(ctx context.Context, req *adminv1.PageBaseJobLogRequest) (*adminv1.PageBaseJobLogResponse, error) {
 	query := c.Query(ctx).BaseJobLog
 	opts := make([]repository.QueryOption, 0, 5)
 	opts = append(opts, repository.Order(query.ExecuteTime.Desc()))
@@ -72,7 +73,7 @@ func (c *BaseJobLogCase) PageBaseJobLogs(ctx context.Context, req *adminv1.PageB
 	for _, item := range list {
 		resList = append(resList, c.toBaseJobLog(item))
 	}
-	return &adminv1.PageBaseJobLogsResponse{BaseJobLogs: resList, Total: int32(total)}, nil
+	return &adminv1.PageBaseJobLogResponse{BaseJobLogs: resList, Total: int32(total)}, nil
 }
 
 // GetBaseJobLog 获取任务日志

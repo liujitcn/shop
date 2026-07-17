@@ -20,8 +20,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ShopHotService_ListShopHots_FullMethodName     = "/app.v1.ShopHotService/ListShopHots"
-	ShopHotService_ListShopHotItems_FullMethodName = "/app.v1.ShopHotService/ListShopHotItems"
+	ShopHotService_ListShopHot_FullMethodName      = "/app.v1.ShopHotService/ListShopHot"
+	ShopHotService_ListShopHotItem_FullMethodName  = "/app.v1.ShopHotService/ListShopHotItem"
 	ShopHotService_PageShopHotGoods_FullMethodName = "/app.v1.ShopHotService/PageShopHotGoods"
 )
 
@@ -32,9 +32,9 @@ const (
 // App热门推荐服务
 type ShopHotServiceClient interface {
 	// 查询热门推荐列表
-	ListShopHots(ctx context.Context, in *ListShopHotsRequest, opts ...grpc.CallOption) (*ListShopHotsResponse, error)
+	ListShopHot(ctx context.Context, in *ListShopHotRequest, opts ...grpc.CallOption) (*ListShopHotResponse, error)
 	// 查询热门推荐选项
-	ListShopHotItems(ctx context.Context, in *ListShopHotItemsRequest, opts ...grpc.CallOption) (*ListShopHotItemsResponse, error)
+	ListShopHotItem(ctx context.Context, in *ListShopHotItemRequest, opts ...grpc.CallOption) (*ListShopHotItemResponse, error)
 	// 查询热门推荐商品
 	PageShopHotGoods(ctx context.Context, in *PageShopHotGoodsRequest, opts ...grpc.CallOption) (*PageShopHotGoodsResponse, error)
 }
@@ -47,20 +47,20 @@ func NewShopHotServiceClient(cc grpc.ClientConnInterface) ShopHotServiceClient {
 	return &shopHotServiceClient{cc}
 }
 
-func (c *shopHotServiceClient) ListShopHots(ctx context.Context, in *ListShopHotsRequest, opts ...grpc.CallOption) (*ListShopHotsResponse, error) {
+func (c *shopHotServiceClient) ListShopHot(ctx context.Context, in *ListShopHotRequest, opts ...grpc.CallOption) (*ListShopHotResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListShopHotsResponse)
-	err := c.cc.Invoke(ctx, ShopHotService_ListShopHots_FullMethodName, in, out, cOpts...)
+	out := new(ListShopHotResponse)
+	err := c.cc.Invoke(ctx, ShopHotService_ListShopHot_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *shopHotServiceClient) ListShopHotItems(ctx context.Context, in *ListShopHotItemsRequest, opts ...grpc.CallOption) (*ListShopHotItemsResponse, error) {
+func (c *shopHotServiceClient) ListShopHotItem(ctx context.Context, in *ListShopHotItemRequest, opts ...grpc.CallOption) (*ListShopHotItemResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListShopHotItemsResponse)
-	err := c.cc.Invoke(ctx, ShopHotService_ListShopHotItems_FullMethodName, in, out, cOpts...)
+	out := new(ListShopHotItemResponse)
+	err := c.cc.Invoke(ctx, ShopHotService_ListShopHotItem_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -84,9 +84,9 @@ func (c *shopHotServiceClient) PageShopHotGoods(ctx context.Context, in *PageSho
 // App热门推荐服务
 type ShopHotServiceServer interface {
 	// 查询热门推荐列表
-	ListShopHots(context.Context, *ListShopHotsRequest) (*ListShopHotsResponse, error)
+	ListShopHot(context.Context, *ListShopHotRequest) (*ListShopHotResponse, error)
 	// 查询热门推荐选项
-	ListShopHotItems(context.Context, *ListShopHotItemsRequest) (*ListShopHotItemsResponse, error)
+	ListShopHotItem(context.Context, *ListShopHotItemRequest) (*ListShopHotItemResponse, error)
 	// 查询热门推荐商品
 	PageShopHotGoods(context.Context, *PageShopHotGoodsRequest) (*PageShopHotGoodsResponse, error)
 	mustEmbedUnimplementedShopHotServiceServer()
@@ -99,11 +99,11 @@ type ShopHotServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedShopHotServiceServer struct{}
 
-func (UnimplementedShopHotServiceServer) ListShopHots(context.Context, *ListShopHotsRequest) (*ListShopHotsResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method ListShopHots not implemented")
+func (UnimplementedShopHotServiceServer) ListShopHot(context.Context, *ListShopHotRequest) (*ListShopHotResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListShopHot not implemented")
 }
-func (UnimplementedShopHotServiceServer) ListShopHotItems(context.Context, *ListShopHotItemsRequest) (*ListShopHotItemsResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method ListShopHotItems not implemented")
+func (UnimplementedShopHotServiceServer) ListShopHotItem(context.Context, *ListShopHotItemRequest) (*ListShopHotItemResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListShopHotItem not implemented")
 }
 func (UnimplementedShopHotServiceServer) PageShopHotGoods(context.Context, *PageShopHotGoodsRequest) (*PageShopHotGoodsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method PageShopHotGoods not implemented")
@@ -129,38 +129,38 @@ func RegisterShopHotServiceServer(s grpc.ServiceRegistrar, srv ShopHotServiceSer
 	s.RegisterService(&ShopHotService_ServiceDesc, srv)
 }
 
-func _ShopHotService_ListShopHots_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListShopHotsRequest)
+func _ShopHotService_ListShopHot_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListShopHotRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ShopHotServiceServer).ListShopHots(ctx, in)
+		return srv.(ShopHotServiceServer).ListShopHot(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ShopHotService_ListShopHots_FullMethodName,
+		FullMethod: ShopHotService_ListShopHot_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ShopHotServiceServer).ListShopHots(ctx, req.(*ListShopHotsRequest))
+		return srv.(ShopHotServiceServer).ListShopHot(ctx, req.(*ListShopHotRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ShopHotService_ListShopHotItems_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListShopHotItemsRequest)
+func _ShopHotService_ListShopHotItem_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListShopHotItemRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ShopHotServiceServer).ListShopHotItems(ctx, in)
+		return srv.(ShopHotServiceServer).ListShopHotItem(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ShopHotService_ListShopHotItems_FullMethodName,
+		FullMethod: ShopHotService_ListShopHotItem_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ShopHotServiceServer).ListShopHotItems(ctx, req.(*ListShopHotItemsRequest))
+		return srv.(ShopHotServiceServer).ListShopHotItem(ctx, req.(*ListShopHotItemRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -191,12 +191,12 @@ var ShopHotService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*ShopHotServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "ListShopHots",
-			Handler:    _ShopHotService_ListShopHots_Handler,
+			MethodName: "ListShopHot",
+			Handler:    _ShopHotService_ListShopHot_Handler,
 		},
 		{
-			MethodName: "ListShopHotItems",
-			Handler:    _ShopHotService_ListShopHotItems_Handler,
+			MethodName: "ListShopHotItem",
+			Handler:    _ShopHotService_ListShopHotItem_Handler,
 		},
 		{
 			MethodName: "PageShopHotGoods",

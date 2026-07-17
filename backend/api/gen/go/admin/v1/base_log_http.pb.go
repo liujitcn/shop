@@ -19,36 +19,36 @@ var _ = new(context.Context)
 const _ = http.SupportPackageIsVersion3
 
 const OperationBaseLogServiceGetBaseLog = "/admin.v1.BaseLogService/GetBaseLog"
-const OperationBaseLogServicePageBaseLogs = "/admin.v1.BaseLogService/PageBaseLogs"
+const OperationBaseLogServicePageBaseLog = "/admin.v1.BaseLogService/PageBaseLog"
 
 type BaseLogServiceHTTPServer interface {
 	// GetBaseLog 查询日志
 	GetBaseLog(context.Context, *GetBaseLogRequest) (*BaseLog, error)
-	// PageBaseLogs 查询日志分页列表
-	PageBaseLogs(context.Context, *PageBaseLogsRequest) (*PageBaseLogsResponse, error)
+	// PageBaseLog 查询日志分页列表
+	PageBaseLog(context.Context, *PageBaseLogRequest) (*PageBaseLogResponse, error)
 }
 
 func RegisterBaseLogServiceHTTPServer(s *http.Server, srv BaseLogServiceHTTPServer) {
 	r := s.Route("/")
-	r.Handle("GET", "/api/v1/admin/base/log", _BaseLogService_PageBaseLogs0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/base/log", _BaseLogService_PageBaseLog0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/base/log/{id}", _BaseLogService_GetBaseLog0_HTTP_Handler(srv))
 }
 
-func _BaseLogService_PageBaseLogs0_HTTP_Handler(srv BaseLogServiceHTTPServer) func(ctx http.Context) error {
+func _BaseLogService_PageBaseLog0_HTTP_Handler(srv BaseLogServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in PageBaseLogsRequest
+		var in PageBaseLogRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationBaseLogServicePageBaseLogs)
+		http.SetOperation(ctx, OperationBaseLogServicePageBaseLog)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.PageBaseLogs(ctx, req.(*PageBaseLogsRequest))
+			return srv.PageBaseLog(ctx, req.(*PageBaseLogRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*PageBaseLogsResponse)
+		reply := out.(*PageBaseLogResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -78,8 +78,8 @@ func _BaseLogService_GetBaseLog0_HTTP_Handler(srv BaseLogServiceHTTPServer) func
 type BaseLogServiceHTTPClient interface {
 	// GetBaseLog 查询日志
 	GetBaseLog(ctx context.Context, req *GetBaseLogRequest, opts ...http.CallOption) (rsp *BaseLog, err error)
-	// PageBaseLogs 查询日志分页列表
-	PageBaseLogs(ctx context.Context, req *PageBaseLogsRequest, opts ...http.CallOption) (rsp *PageBaseLogsResponse, err error)
+	// PageBaseLog 查询日志分页列表
+	PageBaseLog(ctx context.Context, req *PageBaseLogRequest, opts ...http.CallOption) (rsp *PageBaseLogResponse, err error)
 }
 
 type BaseLogServiceHTTPClientImpl struct {
@@ -107,14 +107,14 @@ func (c *BaseLogServiceHTTPClientImpl) GetBaseLog(ctx context.Context, in *GetBa
 	return &out, nil
 }
 
-// PageBaseLogs 查询日志分页列表
-func (c *BaseLogServiceHTTPClientImpl) PageBaseLogs(ctx context.Context, in *PageBaseLogsRequest, opts ...http.CallOption) (*PageBaseLogsResponse, error) {
-	var out PageBaseLogsResponse
+// PageBaseLog 查询日志分页列表
+func (c *BaseLogServiceHTTPClientImpl) PageBaseLog(ctx context.Context, in *PageBaseLogRequest, opts ...http.CallOption) (*PageBaseLogResponse, error) {
+	var out PageBaseLogResponse
 	pattern := "/api/v1/admin/base/log"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationBaseLogServicePageBaseLogs),
+		http.Operation(OperationBaseLogServicePageBaseLog),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)

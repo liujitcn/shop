@@ -21,8 +21,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	CodeGenProtoService_ListCodeGenProtos_FullMethodName = "/admin.v1.CodeGenProtoService/ListCodeGenProtos"
-	CodeGenProtoService_SaveCodeGenProtos_FullMethodName = "/admin.v1.CodeGenProtoService/SaveCodeGenProtos"
+	CodeGenProtoService_ListCodeGenProto_FullMethodName = "/admin.v1.CodeGenProtoService/ListCodeGenProto"
+	CodeGenProtoService_SaveCodeGenProto_FullMethodName = "/admin.v1.CodeGenProtoService/SaveCodeGenProto"
 )
 
 // CodeGenProtoServiceClient is the client API for CodeGenProtoService service.
@@ -32,9 +32,9 @@ const (
 // Admin代码生成Proto接口配置服务
 type CodeGenProtoServiceClient interface {
 	// 查询代码生成Proto接口配置
-	ListCodeGenProtos(ctx context.Context, in *ListCodeGenProtosRequest, opts ...grpc.CallOption) (*ListCodeGenProtosResponse, error)
+	ListCodeGenProto(ctx context.Context, in *ListCodeGenProtoRequest, opts ...grpc.CallOption) (*ListCodeGenProtoResponse, error)
 	// 保存代码生成Proto接口配置
-	SaveCodeGenProtos(ctx context.Context, in *SaveCodeGenProtosRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SaveCodeGenProto(ctx context.Context, in *SaveCodeGenProtoRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type codeGenProtoServiceClient struct {
@@ -45,20 +45,20 @@ func NewCodeGenProtoServiceClient(cc grpc.ClientConnInterface) CodeGenProtoServi
 	return &codeGenProtoServiceClient{cc}
 }
 
-func (c *codeGenProtoServiceClient) ListCodeGenProtos(ctx context.Context, in *ListCodeGenProtosRequest, opts ...grpc.CallOption) (*ListCodeGenProtosResponse, error) {
+func (c *codeGenProtoServiceClient) ListCodeGenProto(ctx context.Context, in *ListCodeGenProtoRequest, opts ...grpc.CallOption) (*ListCodeGenProtoResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListCodeGenProtosResponse)
-	err := c.cc.Invoke(ctx, CodeGenProtoService_ListCodeGenProtos_FullMethodName, in, out, cOpts...)
+	out := new(ListCodeGenProtoResponse)
+	err := c.cc.Invoke(ctx, CodeGenProtoService_ListCodeGenProto_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *codeGenProtoServiceClient) SaveCodeGenProtos(ctx context.Context, in *SaveCodeGenProtosRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *codeGenProtoServiceClient) SaveCodeGenProto(ctx context.Context, in *SaveCodeGenProtoRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, CodeGenProtoService_SaveCodeGenProtos_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, CodeGenProtoService_SaveCodeGenProto_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -72,9 +72,9 @@ func (c *codeGenProtoServiceClient) SaveCodeGenProtos(ctx context.Context, in *S
 // Admin代码生成Proto接口配置服务
 type CodeGenProtoServiceServer interface {
 	// 查询代码生成Proto接口配置
-	ListCodeGenProtos(context.Context, *ListCodeGenProtosRequest) (*ListCodeGenProtosResponse, error)
+	ListCodeGenProto(context.Context, *ListCodeGenProtoRequest) (*ListCodeGenProtoResponse, error)
 	// 保存代码生成Proto接口配置
-	SaveCodeGenProtos(context.Context, *SaveCodeGenProtosRequest) (*emptypb.Empty, error)
+	SaveCodeGenProto(context.Context, *SaveCodeGenProtoRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedCodeGenProtoServiceServer()
 }
 
@@ -85,11 +85,11 @@ type CodeGenProtoServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedCodeGenProtoServiceServer struct{}
 
-func (UnimplementedCodeGenProtoServiceServer) ListCodeGenProtos(context.Context, *ListCodeGenProtosRequest) (*ListCodeGenProtosResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method ListCodeGenProtos not implemented")
+func (UnimplementedCodeGenProtoServiceServer) ListCodeGenProto(context.Context, *ListCodeGenProtoRequest) (*ListCodeGenProtoResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListCodeGenProto not implemented")
 }
-func (UnimplementedCodeGenProtoServiceServer) SaveCodeGenProtos(context.Context, *SaveCodeGenProtosRequest) (*emptypb.Empty, error) {
-	return nil, status.Error(codes.Unimplemented, "method SaveCodeGenProtos not implemented")
+func (UnimplementedCodeGenProtoServiceServer) SaveCodeGenProto(context.Context, *SaveCodeGenProtoRequest) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method SaveCodeGenProto not implemented")
 }
 func (UnimplementedCodeGenProtoServiceServer) mustEmbedUnimplementedCodeGenProtoServiceServer() {}
 func (UnimplementedCodeGenProtoServiceServer) testEmbeddedByValue()                             {}
@@ -112,38 +112,38 @@ func RegisterCodeGenProtoServiceServer(s grpc.ServiceRegistrar, srv CodeGenProto
 	s.RegisterService(&CodeGenProtoService_ServiceDesc, srv)
 }
 
-func _CodeGenProtoService_ListCodeGenProtos_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListCodeGenProtosRequest)
+func _CodeGenProtoService_ListCodeGenProto_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListCodeGenProtoRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(CodeGenProtoServiceServer).ListCodeGenProtos(ctx, in)
+		return srv.(CodeGenProtoServiceServer).ListCodeGenProto(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: CodeGenProtoService_ListCodeGenProtos_FullMethodName,
+		FullMethod: CodeGenProtoService_ListCodeGenProto_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CodeGenProtoServiceServer).ListCodeGenProtos(ctx, req.(*ListCodeGenProtosRequest))
+		return srv.(CodeGenProtoServiceServer).ListCodeGenProto(ctx, req.(*ListCodeGenProtoRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _CodeGenProtoService_SaveCodeGenProtos_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SaveCodeGenProtosRequest)
+func _CodeGenProtoService_SaveCodeGenProto_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SaveCodeGenProtoRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(CodeGenProtoServiceServer).SaveCodeGenProtos(ctx, in)
+		return srv.(CodeGenProtoServiceServer).SaveCodeGenProto(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: CodeGenProtoService_SaveCodeGenProtos_FullMethodName,
+		FullMethod: CodeGenProtoService_SaveCodeGenProto_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CodeGenProtoServiceServer).SaveCodeGenProtos(ctx, req.(*SaveCodeGenProtosRequest))
+		return srv.(CodeGenProtoServiceServer).SaveCodeGenProto(ctx, req.(*SaveCodeGenProtoRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -156,12 +156,12 @@ var CodeGenProtoService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*CodeGenProtoServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "ListCodeGenProtos",
-			Handler:    _CodeGenProtoService_ListCodeGenProtos_Handler,
+			MethodName: "ListCodeGenProto",
+			Handler:    _CodeGenProtoService_ListCodeGenProto_Handler,
 		},
 		{
-			MethodName: "SaveCodeGenProtos",
-			Handler:    _CodeGenProtoService_SaveCodeGenProtos_Handler,
+			MethodName: "SaveCodeGenProto",
+			Handler:    _CodeGenProtoService_SaveCodeGenProto_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

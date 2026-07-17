@@ -10,7 +10,7 @@ import "google/protobuf/empty.proto";
 // Admin商城服务
 service ShopServiceService {
   // 查询商城服务列表
-  rpc PageShopServices(PageShopServicesRequest) returns (PageShopServicesResponse) {
+  rpc PageShopService(PageShopServiceRequest) returns (PageShopServiceResponse) {
     option (google.api.http) = {
       get: "/api/v1/admin/shop/service"
     };
@@ -56,7 +56,7 @@ service ShopServiceService {
 }
 
 // 商城服务列表查询条件
-message PageShopServicesRequest {
+message PageShopServiceRequest {
   string label = 1 [(gnostic.openapi.v3.property) = {description: "标签"}]; // 标签
 
   optional .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
@@ -73,7 +73,7 @@ message PageShopServicesRequest {
 }
 
 // 商城服务列表响应
-message PageShopServicesResponse {
+message PageShopServiceResponse {
   repeated ShopService shop_services = 1 [(gnostic.openapi.v3.property) = {description: "商城服务列表"}]; // 商城服务列表
 
   int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数

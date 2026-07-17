@@ -24,8 +24,8 @@ const OperationBaseJobServiceDeleteBaseJob = "/admin.v1.BaseJobService/DeleteBas
 const OperationBaseJobServiceExecuteBaseJob = "/admin.v1.BaseJobService/ExecuteBaseJob"
 const OperationBaseJobServiceGetBaseJob = "/admin.v1.BaseJobService/GetBaseJob"
 const OperationBaseJobServiceGetBaseJobLog = "/admin.v1.BaseJobService/GetBaseJobLog"
-const OperationBaseJobServicePageBaseJobLogs = "/admin.v1.BaseJobService/PageBaseJobLogs"
-const OperationBaseJobServicePageBaseJobs = "/admin.v1.BaseJobService/PageBaseJobs"
+const OperationBaseJobServicePageBaseJob = "/admin.v1.BaseJobService/PageBaseJob"
+const OperationBaseJobServicePageBaseJobLog = "/admin.v1.BaseJobService/PageBaseJobLog"
 const OperationBaseJobServiceSetBaseJobStatus = "/admin.v1.BaseJobService/SetBaseJobStatus"
 const OperationBaseJobServiceStartBaseJob = "/admin.v1.BaseJobService/StartBaseJob"
 const OperationBaseJobServiceStopBaseJob = "/admin.v1.BaseJobService/StopBaseJob"
@@ -42,10 +42,10 @@ type BaseJobServiceHTTPServer interface {
 	GetBaseJob(context.Context, *GetBaseJobRequest) (*BaseJobForm, error)
 	// GetBaseJobLog 查询定时任务日志
 	GetBaseJobLog(context.Context, *GetBaseJobLogRequest) (*BaseJobLog, error)
-	// PageBaseJobLogs 查询定时任务日志分页列表
-	PageBaseJobLogs(context.Context, *PageBaseJobLogsRequest) (*PageBaseJobLogsResponse, error)
-	// PageBaseJobs 查询定时任务分页列表
-	PageBaseJobs(context.Context, *PageBaseJobsRequest) (*PageBaseJobsResponse, error)
+	// PageBaseJob 查询定时任务分页列表
+	PageBaseJob(context.Context, *PageBaseJobRequest) (*PageBaseJobResponse, error)
+	// PageBaseJobLog 查询定时任务日志分页列表
+	PageBaseJobLog(context.Context, *PageBaseJobLogRequest) (*PageBaseJobLogResponse, error)
 	// SetBaseJobStatus 设置状态
 	SetBaseJobStatus(context.Context, *SetBaseJobStatusRequest) (*emptypb.Empty, error)
 	// StartBaseJob 启动任务
@@ -58,7 +58,7 @@ type BaseJobServiceHTTPServer interface {
 
 func RegisterBaseJobServiceHTTPServer(s *http.Server, srv BaseJobServiceHTTPServer) {
 	r := s.Route("/")
-	r.Handle("GET", "/api/v1/admin/base/job", _BaseJobService_PageBaseJobs0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/base/job", _BaseJobService_PageBaseJob0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/base/job/{id}", _BaseJobService_GetBaseJob0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/admin/base/job", _BaseJobService_CreateBaseJob0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/base/job/{base_job.id}", _BaseJobService_UpdateBaseJob0_HTTP_Handler(srv))
@@ -67,25 +67,25 @@ func RegisterBaseJobServiceHTTPServer(s *http.Server, srv BaseJobServiceHTTPServ
 	r.Handle("PUT", "/api/v1/admin/base/job/{id}/running", _BaseJobService_StartBaseJob0_HTTP_Handler(srv))
 	r.Handle("DELETE", "/api/v1/admin/base/job/{id}/running", _BaseJobService_StopBaseJob0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/admin/base/job/{id}/execution", _BaseJobService_ExecuteBaseJob0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/admin/base/job-log", _BaseJobService_PageBaseJobLogs0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/base/job-log", _BaseJobService_PageBaseJobLog0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/base/job-log/{id}", _BaseJobService_GetBaseJobLog0_HTTP_Handler(srv))
 }
 
-func _BaseJobService_PageBaseJobs0_HTTP_Handler(srv BaseJobServiceHTTPServer) func(ctx http.Context) error {
+func _BaseJobService_PageBaseJob0_HTTP_Handler(srv BaseJobServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in PageBaseJobsRequest
+		var in PageBaseJobRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationBaseJobServicePageBaseJobs)
+		http.SetOperation(ctx, OperationBaseJobServicePageBaseJob)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.PageBaseJobs(ctx, req.(*PageBaseJobsRequest))
+			return srv.PageBaseJob(ctx, req.(*PageBaseJobRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*PageBaseJobsResponse)
+		reply := out.(*PageBaseJobResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -269,21 +269,21 @@ func _BaseJobService_ExecuteBaseJob0_HTTP_Handler(srv BaseJobServiceHTTPServer) 
 	}
 }
 
-func _BaseJobService_PageBaseJobLogs0_HTTP_Handler(srv BaseJobServiceHTTPServer) func(ctx http.Context) error {
+func _BaseJobService_PageBaseJobLog0_HTTP_Handler(srv BaseJobServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in PageBaseJobLogsRequest
+		var in PageBaseJobLogRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationBaseJobServicePageBaseJobLogs)
+		http.SetOperation(ctx, OperationBaseJobServicePageBaseJobLog)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.PageBaseJobLogs(ctx, req.(*PageBaseJobLogsRequest))
+			return srv.PageBaseJobLog(ctx, req.(*PageBaseJobLogRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*PageBaseJobLogsResponse)
+		reply := out.(*PageBaseJobLogResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -321,10 +321,10 @@ type BaseJobServiceHTTPClient interface {
 	GetBaseJob(ctx context.Context, req *GetBaseJobRequest, opts ...http.CallOption) (rsp *BaseJobForm, err error)
 	// GetBaseJobLog 查询定时任务日志
 	GetBaseJobLog(ctx context.Context, req *GetBaseJobLogRequest, opts ...http.CallOption) (rsp *BaseJobLog, err error)
-	// PageBaseJobLogs 查询定时任务日志分页列表
-	PageBaseJobLogs(ctx context.Context, req *PageBaseJobLogsRequest, opts ...http.CallOption) (rsp *PageBaseJobLogsResponse, err error)
-	// PageBaseJobs 查询定时任务分页列表
-	PageBaseJobs(ctx context.Context, req *PageBaseJobsRequest, opts ...http.CallOption) (rsp *PageBaseJobsResponse, err error)
+	// PageBaseJob 查询定时任务分页列表
+	PageBaseJob(ctx context.Context, req *PageBaseJobRequest, opts ...http.CallOption) (rsp *PageBaseJobResponse, err error)
+	// PageBaseJobLog 查询定时任务日志分页列表
+	PageBaseJobLog(ctx context.Context, req *PageBaseJobLogRequest, opts ...http.CallOption) (rsp *PageBaseJobLogResponse, err error)
 	// SetBaseJobStatus 设置状态
 	SetBaseJobStatus(ctx context.Context, req *SetBaseJobStatusRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// StartBaseJob 启动任务
@@ -430,14 +430,14 @@ func (c *BaseJobServiceHTTPClientImpl) GetBaseJobLog(ctx context.Context, in *Ge
 	return &out, nil
 }
 
-// PageBaseJobLogs 查询定时任务日志分页列表
-func (c *BaseJobServiceHTTPClientImpl) PageBaseJobLogs(ctx context.Context, in *PageBaseJobLogsRequest, opts ...http.CallOption) (*PageBaseJobLogsResponse, error) {
-	var out PageBaseJobLogsResponse
-	pattern := "/api/v1/admin/base/job-log"
+// PageBaseJob 查询定时任务分页列表
+func (c *BaseJobServiceHTTPClientImpl) PageBaseJob(ctx context.Context, in *PageBaseJobRequest, opts ...http.CallOption) (*PageBaseJobResponse, error) {
+	var out PageBaseJobResponse
+	pattern := "/api/v1/admin/base/job"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationBaseJobServicePageBaseJobLogs),
+		http.Operation(OperationBaseJobServicePageBaseJob),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
@@ -447,14 +447,14 @@ func (c *BaseJobServiceHTTPClientImpl) PageBaseJobLogs(ctx context.Context, in *
 	return &out, nil
 }
 
-// PageBaseJobs 查询定时任务分页列表
-func (c *BaseJobServiceHTTPClientImpl) PageBaseJobs(ctx context.Context, in *PageBaseJobsRequest, opts ...http.CallOption) (*PageBaseJobsResponse, error) {
-	var out PageBaseJobsResponse
-	pattern := "/api/v1/admin/base/job"
+// PageBaseJobLog 查询定时任务日志分页列表
+func (c *BaseJobServiceHTTPClientImpl) PageBaseJobLog(ctx context.Context, in *PageBaseJobLogRequest, opts ...http.CallOption) (*PageBaseJobLogResponse, error) {
+	var out PageBaseJobLogResponse
+	pattern := "/api/v1/admin/base/job-log"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationBaseJobServicePageBaseJobs),
+		http.Operation(OperationBaseJobServicePageBaseJobLog),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)

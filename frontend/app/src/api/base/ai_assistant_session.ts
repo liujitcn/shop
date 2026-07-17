@@ -7,12 +7,12 @@ import type {
   CreateAiAssistantSessionResponse,
   DeleteAiAssistantSessionRequest,
   DeleteAiAssistantSessionResponse,
-  ListAiAssistantMessagesRequest,
-  ListAiAssistantMessagesResponse,
-  ListAiAssistantShortcutsRequest,
-  ListAiAssistantShortcutsResponse,
-  ListAiAssistantSessionsRequest,
-  ListAiAssistantSessionsResponse,
+  ListAiAssistantMessageRequest,
+  ListAiAssistantMessageResponse,
+  ListAiAssistantShortcutRequest,
+  ListAiAssistantShortcutResponse,
+  ListAiAssistantSessionRequest,
+  ListAiAssistantSessionResponse,
   UpdateAiAssistantSessionRequest,
   UpdateAiAssistantSessionResponse,
 } from '@/rpc/base/v1/ai_assistant_session'
@@ -23,10 +23,10 @@ const AI_ASSISTANT_SESSION_URL = '/v1/base/ai/assistant/session'
 /** AI 助手会话服务。 */
 export class AiAssistantSessionServiceImpl implements AiAssistantService {
   /** 查询 AI 助手快捷入口列表。 */
-  ListAiAssistantShortcuts(
-    request: ListAiAssistantShortcutsRequest,
-  ): Promise<ListAiAssistantShortcutsResponse> {
-    return http<ListAiAssistantShortcutsResponse>({
+  ListAiAssistantShortcut(
+    request: ListAiAssistantShortcutRequest,
+  ): Promise<ListAiAssistantShortcutResponse> {
+    return http<ListAiAssistantShortcutResponse>({
       url: AI_ASSISTANT_SHORTCUT_URL,
       method: 'GET',
       authMode: 'required',
@@ -35,10 +35,10 @@ export class AiAssistantSessionServiceImpl implements AiAssistantService {
   }
 
   /** 查询 AI 助手会话列表。 */
-  ListAiAssistantSessions(
-    request: ListAiAssistantSessionsRequest,
-  ): Promise<ListAiAssistantSessionsResponse> {
-    return http<ListAiAssistantSessionsResponse>({
+  ListAiAssistantSession(
+    request: ListAiAssistantSessionRequest,
+  ): Promise<ListAiAssistantSessionResponse> {
+    return http<ListAiAssistantSessionResponse>({
       url: AI_ASSISTANT_SESSION_URL,
       method: 'GET',
       authMode: 'required',
@@ -83,10 +83,10 @@ export class AiAssistantSessionServiceImpl implements AiAssistantService {
   }
 
   /** 查询 AI 助手消息列表。 */
-  ListAiAssistantMessages(
-    request: ListAiAssistantMessagesRequest,
-  ): Promise<ListAiAssistantMessagesResponse> {
-    return http<ListAiAssistantMessagesResponse>({
+  ListAiAssistantMessage(
+    request: ListAiAssistantMessageRequest,
+  ): Promise<ListAiAssistantMessageResponse> {
+    return http<ListAiAssistantMessageResponse>({
       url: `${AI_ASSISTANT_SESSION_URL}/${request.session_id}/message`,
       method: 'GET',
       authMode: 'required',

@@ -310,8 +310,8 @@ func (c *WorkspaceCase) SummaryWorkspaceReputation(ctx context.Context, req *adm
 	}, nil
 }
 
-// ListWorkspacePendingComments 查询工作台待审核评价。
-func (c *WorkspaceCase) ListWorkspacePendingComments(ctx context.Context, req *adminv1.ListWorkspacePendingCommentsRequest) (*adminv1.ListWorkspacePendingCommentsResponse, error) {
+// ListWorkspacePendingComment 查询工作台待审核评价。
+func (c *WorkspaceCase) ListWorkspacePendingComment(ctx context.Context, req *adminv1.ListWorkspacePendingCommentRequest) (*adminv1.ListWorkspacePendingCommentResponse, error) {
 	limit := int(req.GetLimit())
 	if limit <= 0 {
 		limit = DEFAULT_PENDING_COMMENT_LIMIT
@@ -348,7 +348,7 @@ func (c *WorkspaceCase) ListWorkspacePendingComments(ctx context.Context, req *a
 			CreatedAt:  item.CreatedAt.Format("2006-01-02 15:04:05"),
 		})
 	}
-	return &adminv1.ListWorkspacePendingCommentsResponse{PendingComments: pendingComments}, nil
+	return &adminv1.ListWorkspacePendingCommentResponse{PendingComments: pendingComments}, nil
 }
 
 // countDistinctOrderUsers 统计时间范围内下单用户数。

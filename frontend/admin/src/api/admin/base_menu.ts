@@ -5,10 +5,10 @@ import {
   type CreateBaseMenuRequest,
   type DeleteBaseMenuRequest,
   type GetBaseMenuRequest,
-  type OptionBaseMenusRequest,
+  type OptionBaseMenuRequest,
   type SetBaseMenuStatusRequest,
-  type TreeBaseMenusRequest,
-  type TreeBaseMenusResponse,
+  type TreeBaseMenuRequest,
+  type TreeBaseMenuResponse,
   type UpdateBaseMenuRequest
 } from "@/rpc/admin/v1/base_menu";
 import { type Empty } from "@/rpc/google/protobuf/empty";
@@ -19,8 +19,8 @@ const BASE_MENU_URL = "/v1/admin/base/menu";
 /** Admin菜单管理服务 */
 export class BaseMenuServiceImpl implements BaseMenuService {
   /** 查询菜单树形列表 */
-  TreeBaseMenus(request: TreeBaseMenusRequest): Promise<TreeBaseMenusResponse> {
-    return service<TreeBaseMenusRequest, TreeBaseMenusResponse>({
+  TreeBaseMenu(request: TreeBaseMenuRequest): Promise<TreeBaseMenuResponse> {
+    return service<TreeBaseMenuRequest, TreeBaseMenuResponse>({
       url: `${BASE_MENU_URL}/tree`,
       method: "get",
       params: request
@@ -28,8 +28,8 @@ export class BaseMenuServiceImpl implements BaseMenuService {
   }
 
   /** 查询菜单树形选择 */
-  OptionBaseMenus(request: OptionBaseMenusRequest): Promise<TreeOptionResponse> {
-    return service<OptionBaseMenusRequest, TreeOptionResponse>({
+  OptionBaseMenu(request: OptionBaseMenuRequest): Promise<TreeOptionResponse> {
+    return service<OptionBaseMenuRequest, TreeOptionResponse>({
       url: `${BASE_MENU_URL}/option`,
       method: "get",
       params: request

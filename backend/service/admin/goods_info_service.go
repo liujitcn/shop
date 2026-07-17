@@ -36,21 +36,21 @@ func NewGoodsInfoService(
 	}
 }
 
-// OptionGoodsInfos 查询商品信息下拉选择
-func (s *GoodsInfoService) OptionGoodsInfos(ctx context.Context, req *adminv1.OptionGoodsInfosRequest) (*adminv1.OptionGoodsInfosResponse, error) {
-	list, err := s.goodsInfoCase.OptionGoodsInfos(ctx, req)
+// OptionGoodsInfo 查询商品信息下拉选择
+func (s *GoodsInfoService) OptionGoodsInfo(ctx context.Context, req *adminv1.OptionGoodsInfoRequest) (*adminv1.OptionGoodsInfoResponse, error) {
+	list, err := s.goodsInfoCase.OptionGoodsInfo(ctx, req)
 	if err != nil {
-		log.Error(fmt.Sprintf("OptionGoodsInfos %v", err))
+		log.Error(fmt.Sprintf("OptionGoodsInfo %v", err))
 		return nil, errorsx.WrapInternal(err, "查询商品列表失败")
 	}
 	return list, nil
 }
 
-// PageGoodsInfos 查询商品信息列表
-func (s *GoodsInfoService) PageGoodsInfos(ctx context.Context, req *adminv1.PageGoodsInfosRequest) (*adminv1.PageGoodsInfosResponse, error) {
-	page, err := s.goodsInfoCase.PageGoodsInfos(ctx, req)
+// PageGoodsInfo 查询商品信息列表
+func (s *GoodsInfoService) PageGoodsInfo(ctx context.Context, req *adminv1.PageGoodsInfoRequest) (*adminv1.PageGoodsInfoResponse, error) {
+	page, err := s.goodsInfoCase.PageGoodsInfo(ctx, req)
 	if err != nil {
-		log.Error(fmt.Sprintf("PageGoodsInfos %v", err))
+		log.Error(fmt.Sprintf("PageGoodsInfo %v", err))
 		return nil, errorsx.WrapInternal(err, "查询商品列表失败")
 	}
 

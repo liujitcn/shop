@@ -66,7 +66,7 @@ const loadOverview = async () => {
     recentGoodRateText.value = `${res.recent_good_rate || 0}%`
     commentSummaryContent.value = res.comment_summary?.content?.[0]?.content || ''
     previewList.value = res.preview_comments || []
-    const tagRes = await defCommentService.GoodsCommentTags({
+    const tagRes = await defCommentService.GoodsCommentTag({
       goods_id: props.goods_id,
       limit: COMMENT_TAG_LIMIT,
     })

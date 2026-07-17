@@ -18,40 +18,40 @@ var _ = new(context.Context)
 
 const _ = http.SupportPackageIsVersion3
 
-const OperationShopBannerServiceListShopBanners = "/app.v1.ShopBannerService/ListShopBanners"
+const OperationShopBannerServiceListShopBanner = "/app.v1.ShopBannerService/ListShopBanner"
 
 type ShopBannerServiceHTTPServer interface {
-	// ListShopBanners 查询商城轮播图列表
-	ListShopBanners(context.Context, *ListShopBannersRequest) (*ListShopBannersResponse, error)
+	// ListShopBanner 查询商城轮播图列表
+	ListShopBanner(context.Context, *ListShopBannerRequest) (*ListShopBannerResponse, error)
 }
 
 func RegisterShopBannerServiceHTTPServer(s *http.Server, srv ShopBannerServiceHTTPServer) {
 	r := s.Route("/")
-	r.Handle("GET", "/api/v1/app/shop/banner", _ShopBannerService_ListShopBanners0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/app/shop/banner", _ShopBannerService_ListShopBanner0_HTTP_Handler(srv))
 }
 
-func _ShopBannerService_ListShopBanners0_HTTP_Handler(srv ShopBannerServiceHTTPServer) func(ctx http.Context) error {
+func _ShopBannerService_ListShopBanner0_HTTP_Handler(srv ShopBannerServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in ListShopBannersRequest
+		var in ListShopBannerRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationShopBannerServiceListShopBanners)
+		http.SetOperation(ctx, OperationShopBannerServiceListShopBanner)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.ListShopBanners(ctx, req.(*ListShopBannersRequest))
+			return srv.ListShopBanner(ctx, req.(*ListShopBannerRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*ListShopBannersResponse)
+		reply := out.(*ListShopBannerResponse)
 		return ctx.Result(200, reply)
 	}
 }
 
 type ShopBannerServiceHTTPClient interface {
-	// ListShopBanners 查询商城轮播图列表
-	ListShopBanners(ctx context.Context, req *ListShopBannersRequest, opts ...http.CallOption) (rsp *ListShopBannersResponse, err error)
+	// ListShopBanner 查询商城轮播图列表
+	ListShopBanner(ctx context.Context, req *ListShopBannerRequest, opts ...http.CallOption) (rsp *ListShopBannerResponse, err error)
 }
 
 type ShopBannerServiceHTTPClientImpl struct {
@@ -62,14 +62,14 @@ func NewShopBannerServiceHTTPClient(client *http.Client) ShopBannerServiceHTTPCl
 	return &ShopBannerServiceHTTPClientImpl{client}
 }
 
-// ListShopBanners 查询商城轮播图列表
-func (c *ShopBannerServiceHTTPClientImpl) ListShopBanners(ctx context.Context, in *ListShopBannersRequest, opts ...http.CallOption) (*ListShopBannersResponse, error) {
-	var out ListShopBannersResponse
+// ListShopBanner 查询商城轮播图列表
+func (c *ShopBannerServiceHTTPClientImpl) ListShopBanner(ctx context.Context, in *ListShopBannerRequest, opts ...http.CallOption) (*ListShopBannerResponse, error) {
+	var out ListShopBannerResponse
 	pattern := "/api/v1/app/shop/banner"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationShopBannerServiceListShopBanners),
+		http.Operation(OperationShopBannerServiceListShopBanner),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)

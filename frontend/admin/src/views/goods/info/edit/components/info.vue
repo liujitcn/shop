@@ -27,7 +27,7 @@ import ProForm from "@/components/ProForm/index.vue";
 import type { ProFormField, ProFormInstance } from "@/components/ProForm/interface";
 import { defGoodsCategoryService } from "@/api/admin/goods_category";
 import { defTenantStoreService } from "@/api/admin/tenant_store";
-import type { OptionTenantStoresResponse_Option } from "@/rpc/admin/v1/tenant_store";
+import type { OptionTenantStoreResponse_Option } from "@/rpc/admin/v1/tenant_store";
 import type { TreeOptionResponse_Option } from "@/rpc/common/v1/common";
 import { GoodsStatus } from "@/rpc/common/v1/enum";
 
@@ -55,7 +55,7 @@ const formData: any = computed({
 
 const state = reactive({
   goodsCategoryOptions: [] as Array<TreeOptionResponse_Option>,
-  tenantStoreOptions: [] as Array<OptionTenantStoresResponse_Option>,
+  tenantStoreOptions: [] as Array<OptionTenantStoreResponse_Option>,
   rules: {
     tenant_store_id: [{ required: true, message: "请选择所属门店", trigger: "change" }],
     category_id: [{ required: true, message: "请选择商品分类", trigger: "change" }],
@@ -173,8 +173,8 @@ async function handleNext() {
 /** 查询商品基础选项，作为门店和分类下拉数据。 */
 async function handleQuery() {
   const [tenantStoreResponse, goodsCategoryResponse] = await Promise.all([
-    defTenantStoreService.OptionTenantStores({ keyword: "" }),
-    defGoodsCategoryService.OptionGoodsCategories({})
+    defTenantStoreService.OptionTenantStore({ keyword: "" }),
+    defGoodsCategoryService.OptionGoodsCategory({})
   ]);
   state.tenantStoreOptions = tenantStoreResponse.list;
   state.goodsCategoryOptions = goodsCategoryResponse.list;

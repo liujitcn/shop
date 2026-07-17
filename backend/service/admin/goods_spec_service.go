@@ -35,11 +35,11 @@ func NewGoodsSpecService(
 	}
 }
 
-// ListGoodsSpecs 查询商品规格列表
-func (s *GoodsSpecService) ListGoodsSpecs(ctx context.Context, req *adminv1.ListGoodsSpecsRequest) (*adminv1.ListGoodsSpecsResponse, error) {
-	list, err := s.goodsSpecCase.ListGoodsSpecs(ctx, req)
+// ListGoodsSpec 查询商品规格列表
+func (s *GoodsSpecService) ListGoodsSpec(ctx context.Context, req *adminv1.ListGoodsSpecRequest) (*adminv1.ListGoodsSpecResponse, error) {
+	list, err := s.goodsSpecCase.ListGoodsSpec(ctx, req)
 	if err != nil {
-		log.Error(fmt.Sprintf("ListGoodsSpecs %v", err))
+		log.Error(fmt.Sprintf("ListGoodsSpec %v", err))
 		return nil, errorsx.WrapInternal(err, "查询规格列表失败")
 	}
 	return list, nil

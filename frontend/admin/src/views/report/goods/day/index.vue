@@ -277,7 +277,7 @@ async function loadData() {
     };
     const [summaryData, listData] = await Promise.all([
       defGoodsReportService.SummaryGoodsDayReport(request),
-      defGoodsReportService.ListGoodsDayReports(request)
+      defGoodsReportService.ListGoodsDayReport(request)
     ]);
     report.summary = {
       ...emptySummary(),

@@ -17,12 +17,12 @@ import (
 func NewBaseLogServiceAgentTools(baseLogServiceServer BaseLogServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error
-	var pageBaseLogsTool tool.InvokableTool
-	pageBaseLogsTool, err = NewBaseLogServicePageBaseLogsAgentTool(baseLogServiceServer)
+	var pageBaseLogTool tool.InvokableTool
+	pageBaseLogTool, err = NewBaseLogServicePageBaseLogAgentTool(baseLogServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, pageBaseLogsTool)
+	ts = append(ts, pageBaseLogTool)
 	var getBaseLogTool tool.InvokableTool
 	getBaseLogTool, err = NewBaseLogServiceGetBaseLogAgentTool(baseLogServiceServer)
 	if err != nil {
@@ -32,16 +32,16 @@ func NewBaseLogServiceAgentTools(baseLogServiceServer BaseLogServiceServer) ([]t
 	return ts, nil
 }
 
-// NewBaseLogServicePageBaseLogsAgentTool 创建查询日志分页列表的 Agent Tool。
-func NewBaseLogServicePageBaseLogsAgentTool(baseLogServiceServer BaseLogServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*PageBaseLogsRequest, *PageBaseLogsResponse](
-		"admin_v1_base_log_service_page_base_logs",
+// NewBaseLogServicePageBaseLogAgentTool 创建查询日志分页列表的 Agent Tool。
+func NewBaseLogServicePageBaseLogAgentTool(baseLogServiceServer BaseLogServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PageBaseLogRequest, *PageBaseLogResponse](
+		"admin_v1_base_log_service_page_base_log",
 		"查询日志分页列表",
-		func(ctx context.Context, req *PageBaseLogsRequest) (*PageBaseLogsResponse, error) {
+		func(ctx context.Context, req *PageBaseLogRequest) (*PageBaseLogResponse, error) {
 			if req == nil {
-				req = &PageBaseLogsRequest{}
+				req = &PageBaseLogRequest{}
 			}
-			return baseLogServiceServer.PageBaseLogs(ctx, req)
+			return baseLogServiceServer.PageBaseLog(ctx, req)
 		},
 	)
 }

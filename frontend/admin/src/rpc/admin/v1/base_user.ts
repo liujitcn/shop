@@ -11,7 +11,7 @@ import type { PasswordCrypto } from "../../common/v1/types";
 import type { Empty } from "../../google/protobuf/empty";
 
 /** 用户选项查询条件 */
-export interface OptionBaseUsersRequest {
+export interface OptionBaseUserRequest {
   /** 关键字 */
   keyword: string;
   /** 租户ID */
@@ -19,7 +19,7 @@ export interface OptionBaseUsersRequest {
 }
 
 /** 用户分页查询条件 */
-export interface PageBaseUsersRequest {
+export interface PageBaseUserRequest {
   /** 用户账号 */
   user_name: string;
   /** 用户昵称 */
@@ -49,7 +49,7 @@ export interface PageBaseUsersRequest {
 }
 
 /** 用户分页响应 */
-export interface PageBaseUsersResponse {
+export interface PageBaseUserResponse {
   /** 分页数据 */
   base_users: BaseUser[];
   /** 总数 */
@@ -169,9 +169,9 @@ export interface ResetBaseUserPasswordRequest {
 /** Admin用户管理服务 */
 export interface BaseUserService {
   /** 查询用户下拉选择 */
-  OptionBaseUsers(request: OptionBaseUsersRequest): Promise<SelectOptionResponse>;
+  OptionBaseUser(request: OptionBaseUserRequest): Promise<SelectOptionResponse>;
   /** 查询用户分页列表 */
-  PageBaseUsers(request: PageBaseUsersRequest): Promise<PageBaseUsersResponse>;
+  PageBaseUser(request: PageBaseUserRequest): Promise<PageBaseUserResponse>;
   /** 查询用户 */
   GetBaseUser(request: GetBaseUserRequest): Promise<BaseUserForm>;
   /** 创建用户 */

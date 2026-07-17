@@ -41,12 +41,12 @@ func NewWorkspaceServiceAgentTools(workspaceServiceServer WorkspaceServiceServer
 		return nil, err
 	}
 	ts = append(ts, summaryWorkspaceReputationTool)
-	var listWorkspacePendingCommentsTool tool.InvokableTool
-	listWorkspacePendingCommentsTool, err = NewWorkspaceServiceListWorkspacePendingCommentsAgentTool(workspaceServiceServer)
+	var listWorkspacePendingCommentTool tool.InvokableTool
+	listWorkspacePendingCommentTool, err = NewWorkspaceServiceListWorkspacePendingCommentAgentTool(workspaceServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, listWorkspacePendingCommentsTool)
+	ts = append(ts, listWorkspacePendingCommentTool)
 	return ts, nil
 }
 
@@ -106,16 +106,16 @@ func NewWorkspaceServiceSummaryWorkspaceReputationAgentTool(workspaceServiceServ
 	)
 }
 
-// NewWorkspaceServiceListWorkspacePendingCommentsAgentTool 创建查询工作台待审核评价的 Agent Tool。
-func NewWorkspaceServiceListWorkspacePendingCommentsAgentTool(workspaceServiceServer WorkspaceServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*ListWorkspacePendingCommentsRequest, *ListWorkspacePendingCommentsResponse](
-		"admin_v1_workspace_service_list_workspace_pending_comments",
+// NewWorkspaceServiceListWorkspacePendingCommentAgentTool 创建查询工作台待审核评价的 Agent Tool。
+func NewWorkspaceServiceListWorkspacePendingCommentAgentTool(workspaceServiceServer WorkspaceServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*ListWorkspacePendingCommentRequest, *ListWorkspacePendingCommentResponse](
+		"admin_v1_workspace_service_list_workspace_pending_comment",
 		"查询工作台待审核评价",
-		func(ctx context.Context, req *ListWorkspacePendingCommentsRequest) (*ListWorkspacePendingCommentsResponse, error) {
+		func(ctx context.Context, req *ListWorkspacePendingCommentRequest) (*ListWorkspacePendingCommentResponse, error) {
 			if req == nil {
-				req = &ListWorkspacePendingCommentsRequest{}
+				req = &ListWorkspacePendingCommentRequest{}
 			}
-			return workspaceServiceServer.ListWorkspacePendingComments(ctx, req)
+			return workspaceServiceServer.ListWorkspacePendingComment(ctx, req)
 		},
 	)
 }

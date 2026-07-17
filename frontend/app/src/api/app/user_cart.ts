@@ -1,7 +1,7 @@
 import { http } from '@/utils/http'
 import type {
   CountUserCartResponse,
-  ListUserCartsResponse,
+  ListUserCartResponse,
   CreateUserCartRequest,
   SetUserCartSelectionRequest,
   UserCartForm,
@@ -41,18 +41,13 @@ export class UserCartServiceImpl implements UserCartService {
   }
 
   /** 查询购物车列表 */
-  ListUserCarts(request: Empty): Promise<ListUserCartsResponse> {
-    return http<ListUserCartsResponse>({
+  ListUserCart(request: Empty): Promise<ListUserCartResponse> {
+    return http<ListUserCartResponse>({
       url: `${USER_CART_URL}`,
       method: 'GET',
       authMode: 'required',
       data: request,
     })
-  }
-
-  /** 查询购物车列表（旧生成接口兼容） */
-  ListUserCart(request: Empty): Promise<ListUserCartsResponse> {
-    return this.ListUserCarts(request)
   }
 
   /** 创建购物车 */

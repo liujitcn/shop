@@ -22,7 +22,7 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	BaseConfigService_RefreshBaseConfigCache_FullMethodName = "/admin.v1.BaseConfigService/RefreshBaseConfigCache"
-	BaseConfigService_PageBaseConfigs_FullMethodName        = "/admin.v1.BaseConfigService/PageBaseConfigs"
+	BaseConfigService_PageBaseConfig_FullMethodName         = "/admin.v1.BaseConfigService/PageBaseConfig"
 	BaseConfigService_GetBaseConfig_FullMethodName          = "/admin.v1.BaseConfigService/GetBaseConfig"
 	BaseConfigService_CreateBaseConfig_FullMethodName       = "/admin.v1.BaseConfigService/CreateBaseConfig"
 	BaseConfigService_UpdateBaseConfig_FullMethodName       = "/admin.v1.BaseConfigService/UpdateBaseConfig"
@@ -39,7 +39,7 @@ type BaseConfigServiceClient interface {
 	// 刷新缓存
 	RefreshBaseConfigCache(ctx context.Context, in *RefreshBaseConfigCacheRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 查询系统配置分页列表
-	PageBaseConfigs(ctx context.Context, in *PageBaseConfigsRequest, opts ...grpc.CallOption) (*PageBaseConfigsResponse, error)
+	PageBaseConfig(ctx context.Context, in *PageBaseConfigRequest, opts ...grpc.CallOption) (*PageBaseConfigResponse, error)
 	// 查询系统配置
 	GetBaseConfig(ctx context.Context, in *GetBaseConfigRequest, opts ...grpc.CallOption) (*BaseConfigForm, error)
 	// 创建系统配置
@@ -70,10 +70,10 @@ func (c *baseConfigServiceClient) RefreshBaseConfigCache(ctx context.Context, in
 	return out, nil
 }
 
-func (c *baseConfigServiceClient) PageBaseConfigs(ctx context.Context, in *PageBaseConfigsRequest, opts ...grpc.CallOption) (*PageBaseConfigsResponse, error) {
+func (c *baseConfigServiceClient) PageBaseConfig(ctx context.Context, in *PageBaseConfigRequest, opts ...grpc.CallOption) (*PageBaseConfigResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(PageBaseConfigsResponse)
-	err := c.cc.Invoke(ctx, BaseConfigService_PageBaseConfigs_FullMethodName, in, out, cOpts...)
+	out := new(PageBaseConfigResponse)
+	err := c.cc.Invoke(ctx, BaseConfigService_PageBaseConfig_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -139,7 +139,7 @@ type BaseConfigServiceServer interface {
 	// 刷新缓存
 	RefreshBaseConfigCache(context.Context, *RefreshBaseConfigCacheRequest) (*emptypb.Empty, error)
 	// 查询系统配置分页列表
-	PageBaseConfigs(context.Context, *PageBaseConfigsRequest) (*PageBaseConfigsResponse, error)
+	PageBaseConfig(context.Context, *PageBaseConfigRequest) (*PageBaseConfigResponse, error)
 	// 查询系统配置
 	GetBaseConfig(context.Context, *GetBaseConfigRequest) (*BaseConfigForm, error)
 	// 创建系统配置
@@ -163,8 +163,8 @@ type UnimplementedBaseConfigServiceServer struct{}
 func (UnimplementedBaseConfigServiceServer) RefreshBaseConfigCache(context.Context, *RefreshBaseConfigCacheRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method RefreshBaseConfigCache not implemented")
 }
-func (UnimplementedBaseConfigServiceServer) PageBaseConfigs(context.Context, *PageBaseConfigsRequest) (*PageBaseConfigsResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method PageBaseConfigs not implemented")
+func (UnimplementedBaseConfigServiceServer) PageBaseConfig(context.Context, *PageBaseConfigRequest) (*PageBaseConfigResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method PageBaseConfig not implemented")
 }
 func (UnimplementedBaseConfigServiceServer) GetBaseConfig(context.Context, *GetBaseConfigRequest) (*BaseConfigForm, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetBaseConfig not implemented")
@@ -220,20 +220,20 @@ func _BaseConfigService_RefreshBaseConfigCache_Handler(srv interface{}, ctx cont
 	return interceptor(ctx, in, info, handler)
 }
 
-func _BaseConfigService_PageBaseConfigs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PageBaseConfigsRequest)
+func _BaseConfigService_PageBaseConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PageBaseConfigRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BaseConfigServiceServer).PageBaseConfigs(ctx, in)
+		return srv.(BaseConfigServiceServer).PageBaseConfig(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: BaseConfigService_PageBaseConfigs_FullMethodName,
+		FullMethod: BaseConfigService_PageBaseConfig_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BaseConfigServiceServer).PageBaseConfigs(ctx, req.(*PageBaseConfigsRequest))
+		return srv.(BaseConfigServiceServer).PageBaseConfig(ctx, req.(*PageBaseConfigRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -340,8 +340,8 @@ var BaseConfigService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _BaseConfigService_RefreshBaseConfigCache_Handler,
 		},
 		{
-			MethodName: "PageBaseConfigs",
-			Handler:    _BaseConfigService_PageBaseConfigs_Handler,
+			MethodName: "PageBaseConfig",
+			Handler:    _BaseConfigService_PageBaseConfig_Handler,
 		},
 		{
 			MethodName: "GetBaseConfig",

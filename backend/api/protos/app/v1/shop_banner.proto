@@ -9,7 +9,7 @@ import "google/api/annotations.proto";
 // App商城轮播图服务
 service ShopBannerService {
   // 查询商城轮播图列表
-  rpc ListShopBanners(ListShopBannersRequest) returns (ListShopBannersResponse) {
+  rpc ListShopBanner(ListShopBannerRequest) returns (ListShopBannerResponse) {
     option (google.api.http) = {
       get: "/api/v1/app/shop/banner"
     };
@@ -17,12 +17,12 @@ service ShopBannerService {
 }
 
 // 轮播图列表查询条件
-message ListShopBannersRequest {
+message ListShopBannerRequest {
   common.v1.ShopBannerSite site = 1 [(gnostic.openapi.v3.property) = {description: "位置：枚举【ShopBannerSite】"}]; // 位置：枚举【ShopBannerSite】
 }
 
 // 轮播图列表响应
-message ListShopBannersResponse {
+message ListShopBannerResponse {
   repeated ShopBanner shop_banners = 1 [(gnostic.openapi.v3.property) = {description: "商城轮播图列表"}]; // 商城轮播图列表
 }
 

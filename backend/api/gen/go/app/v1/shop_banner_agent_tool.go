@@ -17,25 +17,25 @@ import (
 func NewShopBannerServiceAgentTools(shopBannerServiceServer ShopBannerServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error
-	var listShopBannersTool tool.InvokableTool
-	listShopBannersTool, err = NewShopBannerServiceListShopBannersAgentTool(shopBannerServiceServer)
+	var listShopBannerTool tool.InvokableTool
+	listShopBannerTool, err = NewShopBannerServiceListShopBannerAgentTool(shopBannerServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, listShopBannersTool)
+	ts = append(ts, listShopBannerTool)
 	return ts, nil
 }
 
-// NewShopBannerServiceListShopBannersAgentTool 创建查询商城轮播图列表的 Agent Tool。
-func NewShopBannerServiceListShopBannersAgentTool(shopBannerServiceServer ShopBannerServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*ListShopBannersRequest, *ListShopBannersResponse](
-		"app_v1_shop_banner_service_list_shop_banners",
+// NewShopBannerServiceListShopBannerAgentTool 创建查询商城轮播图列表的 Agent Tool。
+func NewShopBannerServiceListShopBannerAgentTool(shopBannerServiceServer ShopBannerServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*ListShopBannerRequest, *ListShopBannerResponse](
+		"app_v1_shop_banner_service_list_shop_banner",
 		"查询商城轮播图列表",
-		func(ctx context.Context, req *ListShopBannersRequest) (*ListShopBannersResponse, error) {
+		func(ctx context.Context, req *ListShopBannerRequest) (*ListShopBannerResponse, error) {
 			if req == nil {
-				req = &ListShopBannersRequest{}
+				req = &ListShopBannerRequest{}
 			}
-			return shopBannerServiceServer.ListShopBanners(ctx, req)
+			return shopBannerServiceServer.ListShopBanner(ctx, req)
 		},
 	)
 }

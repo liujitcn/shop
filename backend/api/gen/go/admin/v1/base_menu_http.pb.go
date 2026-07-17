@@ -8,10 +8,11 @@ package adminv1
 
 import (
 	context "context"
-	v1 "shop/api/gen/go/common/v1"
 
 	http "github.com/go-kratos/kratos/v3/transport/http"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+
+	v1 "shop/api/gen/go/common/v1"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -23,9 +24,9 @@ const _ = http.SupportPackageIsVersion3
 const OperationBaseMenuServiceCreateBaseMenu = "/admin.v1.BaseMenuService/CreateBaseMenu"
 const OperationBaseMenuServiceDeleteBaseMenu = "/admin.v1.BaseMenuService/DeleteBaseMenu"
 const OperationBaseMenuServiceGetBaseMenu = "/admin.v1.BaseMenuService/GetBaseMenu"
-const OperationBaseMenuServiceOptionBaseMenus = "/admin.v1.BaseMenuService/OptionBaseMenus"
+const OperationBaseMenuServiceOptionBaseMenu = "/admin.v1.BaseMenuService/OptionBaseMenu"
 const OperationBaseMenuServiceSetBaseMenuStatus = "/admin.v1.BaseMenuService/SetBaseMenuStatus"
-const OperationBaseMenuServiceTreeBaseMenus = "/admin.v1.BaseMenuService/TreeBaseMenus"
+const OperationBaseMenuServiceTreeBaseMenu = "/admin.v1.BaseMenuService/TreeBaseMenu"
 const OperationBaseMenuServiceUpdateBaseMenu = "/admin.v1.BaseMenuService/UpdateBaseMenu"
 
 type BaseMenuServiceHTTPServer interface {
@@ -35,20 +36,20 @@ type BaseMenuServiceHTTPServer interface {
 	DeleteBaseMenu(context.Context, *DeleteBaseMenuRequest) (*emptypb.Empty, error)
 	// GetBaseMenu 查询菜单
 	GetBaseMenu(context.Context, *GetBaseMenuRequest) (*BaseMenuForm, error)
-	// OptionBaseMenus 查询菜单树形选择
-	OptionBaseMenus(context.Context, *OptionBaseMenusRequest) (*v1.TreeOptionResponse, error)
+	// OptionBaseMenu 查询菜单树形选择
+	OptionBaseMenu(context.Context, *OptionBaseMenuRequest) (*v1.TreeOptionResponse, error)
 	// SetBaseMenuStatus 设置状态
 	SetBaseMenuStatus(context.Context, *SetBaseMenuStatusRequest) (*emptypb.Empty, error)
-	// TreeBaseMenus 查询菜单树形列表
-	TreeBaseMenus(context.Context, *TreeBaseMenusRequest) (*TreeBaseMenusResponse, error)
+	// TreeBaseMenu 查询菜单树形列表
+	TreeBaseMenu(context.Context, *TreeBaseMenuRequest) (*TreeBaseMenuResponse, error)
 	// UpdateBaseMenu 更新菜单
 	UpdateBaseMenu(context.Context, *UpdateBaseMenuRequest) (*emptypb.Empty, error)
 }
 
 func RegisterBaseMenuServiceHTTPServer(s *http.Server, srv BaseMenuServiceHTTPServer) {
 	r := s.Route("/")
-	r.Handle("GET", "/api/v1/admin/base/menu/tree", _BaseMenuService_TreeBaseMenus0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/admin/base/menu/option", _BaseMenuService_OptionBaseMenus0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/base/menu/tree", _BaseMenuService_TreeBaseMenu0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/base/menu/option", _BaseMenuService_OptionBaseMenu0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/base/menu/{id}", _BaseMenuService_GetBaseMenu0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/admin/base/menu", _BaseMenuService_CreateBaseMenu0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/base/menu/{base_menu.id}", _BaseMenuService_UpdateBaseMenu0_HTTP_Handler(srv))
@@ -56,34 +57,34 @@ func RegisterBaseMenuServiceHTTPServer(s *http.Server, srv BaseMenuServiceHTTPSe
 	r.Handle("PUT", "/api/v1/admin/base/menu/{id}/status", _BaseMenuService_SetBaseMenuStatus0_HTTP_Handler(srv))
 }
 
-func _BaseMenuService_TreeBaseMenus0_HTTP_Handler(srv BaseMenuServiceHTTPServer) func(ctx http.Context) error {
+func _BaseMenuService_TreeBaseMenu0_HTTP_Handler(srv BaseMenuServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in TreeBaseMenusRequest
+		var in TreeBaseMenuRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationBaseMenuServiceTreeBaseMenus)
+		http.SetOperation(ctx, OperationBaseMenuServiceTreeBaseMenu)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.TreeBaseMenus(ctx, req.(*TreeBaseMenusRequest))
+			return srv.TreeBaseMenu(ctx, req.(*TreeBaseMenuRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*TreeBaseMenusResponse)
+		reply := out.(*TreeBaseMenuResponse)
 		return ctx.Result(200, reply)
 	}
 }
 
-func _BaseMenuService_OptionBaseMenus0_HTTP_Handler(srv BaseMenuServiceHTTPServer) func(ctx http.Context) error {
+func _BaseMenuService_OptionBaseMenu0_HTTP_Handler(srv BaseMenuServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in OptionBaseMenusRequest
+		var in OptionBaseMenuRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationBaseMenuServiceOptionBaseMenus)
+		http.SetOperation(ctx, OperationBaseMenuServiceOptionBaseMenu)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.OptionBaseMenus(ctx, req.(*OptionBaseMenusRequest))
+			return srv.OptionBaseMenu(ctx, req.(*OptionBaseMenuRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -214,12 +215,12 @@ type BaseMenuServiceHTTPClient interface {
 	DeleteBaseMenu(ctx context.Context, req *DeleteBaseMenuRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// GetBaseMenu 查询菜单
 	GetBaseMenu(ctx context.Context, req *GetBaseMenuRequest, opts ...http.CallOption) (rsp *BaseMenuForm, err error)
-	// OptionBaseMenus 查询菜单树形选择
-	OptionBaseMenus(ctx context.Context, req *OptionBaseMenusRequest, opts ...http.CallOption) (rsp *v1.TreeOptionResponse, err error)
+	// OptionBaseMenu 查询菜单树形选择
+	OptionBaseMenu(ctx context.Context, req *OptionBaseMenuRequest, opts ...http.CallOption) (rsp *v1.TreeOptionResponse, err error)
 	// SetBaseMenuStatus 设置状态
 	SetBaseMenuStatus(ctx context.Context, req *SetBaseMenuStatusRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
-	// TreeBaseMenus 查询菜单树形列表
-	TreeBaseMenus(ctx context.Context, req *TreeBaseMenusRequest, opts ...http.CallOption) (rsp *TreeBaseMenusResponse, err error)
+	// TreeBaseMenu 查询菜单树形列表
+	TreeBaseMenu(ctx context.Context, req *TreeBaseMenuRequest, opts ...http.CallOption) (rsp *TreeBaseMenuResponse, err error)
 	// UpdateBaseMenu 更新菜单
 	UpdateBaseMenu(ctx context.Context, req *UpdateBaseMenuRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 }
@@ -284,14 +285,14 @@ func (c *BaseMenuServiceHTTPClientImpl) GetBaseMenu(ctx context.Context, in *Get
 	return &out, nil
 }
 
-// OptionBaseMenus 查询菜单树形选择
-func (c *BaseMenuServiceHTTPClientImpl) OptionBaseMenus(ctx context.Context, in *OptionBaseMenusRequest, opts ...http.CallOption) (*v1.TreeOptionResponse, error) {
+// OptionBaseMenu 查询菜单树形选择
+func (c *BaseMenuServiceHTTPClientImpl) OptionBaseMenu(ctx context.Context, in *OptionBaseMenuRequest, opts ...http.CallOption) (*v1.TreeOptionResponse, error) {
 	var out v1.TreeOptionResponse
 	pattern := "/api/v1/admin/base/menu/option"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationBaseMenuServiceOptionBaseMenus),
+		http.Operation(OperationBaseMenuServiceOptionBaseMenu),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
@@ -319,14 +320,14 @@ func (c *BaseMenuServiceHTTPClientImpl) SetBaseMenuStatus(ctx context.Context, i
 	return &out, nil
 }
 
-// TreeBaseMenus 查询菜单树形列表
-func (c *BaseMenuServiceHTTPClientImpl) TreeBaseMenus(ctx context.Context, in *TreeBaseMenusRequest, opts ...http.CallOption) (*TreeBaseMenusResponse, error) {
-	var out TreeBaseMenusResponse
+// TreeBaseMenu 查询菜单树形列表
+func (c *BaseMenuServiceHTTPClientImpl) TreeBaseMenu(ctx context.Context, in *TreeBaseMenuRequest, opts ...http.CallOption) (*TreeBaseMenuResponse, error) {
+	var out TreeBaseMenuResponse
 	pattern := "/api/v1/admin/base/menu/tree"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationBaseMenuServiceTreeBaseMenus),
+		http.Operation(OperationBaseMenuServiceTreeBaseMenu),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)

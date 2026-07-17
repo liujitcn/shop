@@ -8,7 +8,6 @@ package appv1
 
 import (
 	reflect "reflect"
-	v1 "shop/api/gen/go/common/v1"
 	sync "sync"
 	unsafe "unsafe"
 
@@ -16,6 +15,8 @@ import (
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+
+	v1 "shop/api/gen/go/common/v1"
 )
 
 const (
@@ -26,27 +27,27 @@ const (
 )
 
 // 轮播图列表查询条件
-type ListShopBannersRequest struct {
+type ListShopBannerRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Site          v1.ShopBannerSite      `protobuf:"varint,1,opt,name=site,proto3,enum=common.v1.ShopBannerSite" json:"site,omitempty"` // 位置：枚举【ShopBannerSite】
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListShopBannersRequest) Reset() {
-	*x = ListShopBannersRequest{}
+func (x *ListShopBannerRequest) Reset() {
+	*x = ListShopBannerRequest{}
 	mi := &file_app_v1_shop_banner_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListShopBannersRequest) String() string {
+func (x *ListShopBannerRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListShopBannersRequest) ProtoMessage() {}
+func (*ListShopBannerRequest) ProtoMessage() {}
 
-func (x *ListShopBannersRequest) ProtoReflect() protoreflect.Message {
+func (x *ListShopBannerRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_app_v1_shop_banner_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -58,12 +59,12 @@ func (x *ListShopBannersRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListShopBannersRequest.ProtoReflect.Descriptor instead.
-func (*ListShopBannersRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListShopBannerRequest.ProtoReflect.Descriptor instead.
+func (*ListShopBannerRequest) Descriptor() ([]byte, []int) {
 	return file_app_v1_shop_banner_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *ListShopBannersRequest) GetSite() v1.ShopBannerSite {
+func (x *ListShopBannerRequest) GetSite() v1.ShopBannerSite {
 	if x != nil {
 		return x.Site
 	}
@@ -71,27 +72,27 @@ func (x *ListShopBannersRequest) GetSite() v1.ShopBannerSite {
 }
 
 // 轮播图列表响应
-type ListShopBannersResponse struct {
+type ListShopBannerResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ShopBanners   []*ShopBanner          `protobuf:"bytes,1,rep,name=shop_banners,json=shopBanners,proto3" json:"shop_banners,omitempty"` // 商城轮播图列表
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListShopBannersResponse) Reset() {
-	*x = ListShopBannersResponse{}
+func (x *ListShopBannerResponse) Reset() {
+	*x = ListShopBannerResponse{}
 	mi := &file_app_v1_shop_banner_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListShopBannersResponse) String() string {
+func (x *ListShopBannerResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListShopBannersResponse) ProtoMessage() {}
+func (*ListShopBannerResponse) ProtoMessage() {}
 
-func (x *ListShopBannersResponse) ProtoReflect() protoreflect.Message {
+func (x *ListShopBannerResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_app_v1_shop_banner_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -103,12 +104,12 @@ func (x *ListShopBannersResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListShopBannersResponse.ProtoReflect.Descriptor instead.
-func (*ListShopBannersResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListShopBannerResponse.ProtoReflect.Descriptor instead.
+func (*ListShopBannerResponse) Descriptor() ([]byte, []int) {
 	return file_app_v1_shop_banner_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *ListShopBannersResponse) GetShopBanners() []*ShopBanner {
+func (x *ListShopBannerResponse) GetShopBanners() []*ShopBanner {
 	if x != nil {
 		return x.ShopBanners
 	}
@@ -196,10 +197,10 @@ var File_app_v1_shop_banner_proto protoreflect.FileDescriptor
 
 const file_app_v1_shop_banner_proto_rawDesc = "" +
 	"\n" +
-	"\x18app/v1/shop_banner.proto\x12\x06app.v1\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"r\n" +
-	"\x16ListShopBannersRequest\x12X\n" +
-	"\x04site\x18\x01 \x01(\x0e2\x19.common.v1.ShopBannerSiteB)\xbaG&\x92\x02#位置：枚举【ShopBannerSite】R\x04site\"m\n" +
-	"\x17ListShopBannersResponse\x12R\n" +
+	"\x18app/v1/shop_banner.proto\x12\x06app.v1\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"q\n" +
+	"\x15ListShopBannerRequest\x12X\n" +
+	"\x04site\x18\x01 \x01(\x0e2\x19.common.v1.ShopBannerSiteB)\xbaG&\x92\x02#位置：枚举【ShopBannerSite】R\x04site\"l\n" +
+	"\x16ListShopBannerResponse\x12R\n" +
 	"\fshop_banners\x18\x01 \x03(\v2\x12.app.v1.ShopBannerB\x1b\xbaG\x18\x92\x02\x15商城轮播图列表R\vshopBanners\"\xbc\x02\n" +
 	"\n" +
 	"ShopBanner\x12\x1e\n" +
@@ -207,9 +208,9 @@ const file_app_v1_shop_banner_proto_rawDesc = "" +
 	"\x04site\x18\x02 \x01(\x0e2\x19.common.v1.ShopBannerSiteB)\xbaG&\x92\x02#位置：枚举【ShopBannerSite】R\x04site\x12,\n" +
 	"\apicture\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f图片链接R\apicture\x12^\n" +
 	"\x04type\x18\x04 \x01(\x0e2\x19.common.v1.ShopBannerTypeB/\xbaG,\x92\x02)跳转类型：枚举【ShopBannerType】R\x04type\x12&\n" +
-	"\x04href\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\f跳转地址R\x04href2\x88\x01\n" +
-	"\x11ShopBannerService\x12s\n" +
-	"\x0fListShopBanners\x12\x1e.app.v1.ListShopBannersRequest\x1a\x1f.app.v1.ListShopBannersResponse\"\x1f\x82\xd3\xe4\x93\x02\x19\x12\x17/api/v1/app/shop/bannerBt\n" +
+	"\x04href\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\f跳转地址R\x04href2\x85\x01\n" +
+	"\x11ShopBannerService\x12p\n" +
+	"\x0eListShopBanner\x12\x1d.app.v1.ListShopBannerRequest\x1a\x1e.app.v1.ListShopBannerResponse\"\x1f\x82\xd3\xe4\x93\x02\x19\x12\x17/api/v1/app/shop/bannerBt\n" +
 	"\n" +
 	"com.app.v1B\x0fShopBannerProtoP\x01Z\x1cshop/api/gen/go/app/v1;appv1\xa2\x02\x03AXX\xaa\x02\x06App.V1\xca\x02\x06App\\V1\xe2\x02\x12App\\V1\\GPBMetadata\xea\x02\aApp::V1b\x06proto3"
 
@@ -227,19 +228,19 @@ func file_app_v1_shop_banner_proto_rawDescGZIP() []byte {
 
 var file_app_v1_shop_banner_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_app_v1_shop_banner_proto_goTypes = []any{
-	(*ListShopBannersRequest)(nil),  // 0: app.v1.ListShopBannersRequest
-	(*ListShopBannersResponse)(nil), // 1: app.v1.ListShopBannersResponse
-	(*ShopBanner)(nil),              // 2: app.v1.ShopBanner
-	(v1.ShopBannerSite)(0),          // 3: common.v1.ShopBannerSite
-	(v1.ShopBannerType)(0),          // 4: common.v1.ShopBannerType
+	(*ListShopBannerRequest)(nil),  // 0: app.v1.ListShopBannerRequest
+	(*ListShopBannerResponse)(nil), // 1: app.v1.ListShopBannerResponse
+	(*ShopBanner)(nil),             // 2: app.v1.ShopBanner
+	(v1.ShopBannerSite)(0),         // 3: common.v1.ShopBannerSite
+	(v1.ShopBannerType)(0),         // 4: common.v1.ShopBannerType
 }
 var file_app_v1_shop_banner_proto_depIdxs = []int32{
-	3, // 0: app.v1.ListShopBannersRequest.site:type_name -> common.v1.ShopBannerSite
-	2, // 1: app.v1.ListShopBannersResponse.shop_banners:type_name -> app.v1.ShopBanner
+	3, // 0: app.v1.ListShopBannerRequest.site:type_name -> common.v1.ShopBannerSite
+	2, // 1: app.v1.ListShopBannerResponse.shop_banners:type_name -> app.v1.ShopBanner
 	3, // 2: app.v1.ShopBanner.site:type_name -> common.v1.ShopBannerSite
 	4, // 3: app.v1.ShopBanner.type:type_name -> common.v1.ShopBannerType
-	0, // 4: app.v1.ShopBannerService.ListShopBanners:input_type -> app.v1.ListShopBannersRequest
-	1, // 5: app.v1.ShopBannerService.ListShopBanners:output_type -> app.v1.ListShopBannersResponse
+	0, // 4: app.v1.ShopBannerService.ListShopBanner:input_type -> app.v1.ListShopBannerRequest
+	1, // 5: app.v1.ShopBannerService.ListShopBanner:output_type -> app.v1.ListShopBannerResponse
 	5, // [5:6] is the sub-list for method output_type
 	4, // [4:5] is the sub-list for method input_type
 	4, // [4:4] is the sub-list for extension type_name

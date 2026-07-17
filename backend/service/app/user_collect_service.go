@@ -37,11 +37,11 @@ func NewUserCollectService(
 	return &ss
 }
 
-// PageUserCollects 查询用户收藏列表
-func (s *UserCollectService) PageUserCollects(ctx context.Context, req *appv1.PageUserCollectsRequest) (*appv1.PageUserCollectsResponse, error) {
-	page, err := s.userCollectCase.PageUserCollects(ctx, req)
+// PageUserCollect 查询用户收藏列表
+func (s *UserCollectService) PageUserCollect(ctx context.Context, req *appv1.PageUserCollectRequest) (*appv1.PageUserCollectResponse, error) {
+	page, err := s.userCollectCase.PageUserCollect(ctx, req)
 	if err != nil {
-		log.Error(fmt.Sprintf("PageUserCollects %v", err))
+		log.Error(fmt.Sprintf("PageUserCollect %v", err))
 		return nil, errorsx.WrapInternal(err, "查询用户收藏列表失败")
 	}
 	return page, nil

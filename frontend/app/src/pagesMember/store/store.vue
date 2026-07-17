@@ -82,7 +82,7 @@ const localData = ref<AppTreeOptionResponse_Option[]>([])
 // 页面加载
 onLoad(async () => {
   // #ifdef H5 || APP-PLUS
-  const tree = await defBaseAreaService.TreeBaseAreas({})
+  const tree = await defBaseAreaService.TreeBaseArea({})
   localData.value = tree.areas || []
   // #endif
   // 发送请求

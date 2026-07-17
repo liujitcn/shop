@@ -127,7 +127,7 @@ import PageLayout from "@/views/dashboard/analytics/components/PageLayout.vue";
 import { defOrderReportService } from "@/api/admin/order_report";
 import { defTenantStoreService } from "@/api/admin/tenant_store";
 import type { OrderMonthReportItem, SummaryOrderMonthReportResponse } from "@/rpc/admin/v1/order_report";
-import type { OptionTenantStoresResponse_Option } from "@/rpc/admin/v1/tenant_store";
+import type { OptionTenantStoreResponse_Option } from "@/rpc/admin/v1/tenant_store";
 import router from "@/routers";
 import { useUserStore } from "@/stores/modules/user";
 import { buildDictEnum } from "@/utils/proTable";
@@ -151,7 +151,7 @@ const payChannelOptions = ref<EnumProps[]>([]);
 const tenantStoreTreeValue = ref<string>();
 const tenantStoreId = ref<number>();
 const tenantStoreTreeOptions = ref<EnumProps[]>([]);
-const tenantStoreOptions = ref<OptionTenantStoresResponse_Option[]>([]);
+const tenantStoreOptions = ref<OptionTenantStoreResponse_Option[]>([]);
 const filters = reactive({
   payType: undefined as number | undefined,
   payChannel: undefined as number | undefined
@@ -374,7 +374,7 @@ async function loadData() {
     };
     const [summaryData, listData] = await Promise.all([
       defOrderReportService.SummaryOrderMonthReport(request),
-      defOrderReportService.ListOrderMonthReports(request)
+      defOrderReportService.ListOrderMonthReport(request)
     ]);
     const summary = summaryData;
     const items = listData.order_month_reports ?? [];
@@ -489,11 +489,11 @@ async function loadFilterOptions() {
 /** 加载当前账号可选择的租户门店范围。 */
 async function loadTenantStoreOptions() {
   if (isDefaultTenant.value) {
-    const response = await defTenantStoreService.TreeTenantStores({ keyword: "" });
+    const response = await defTenantStoreService.TreeTenantStore({ keyword: "" });
     tenantStoreTreeOptions.value = transformTenantStoreTreeOptions(response.list ?? []);
     return;
   }
-  const response = await defTenantStoreService.OptionTenantStores({ keyword: "" });
+  const response = await defTenantStoreService.OptionTenantStore({ keyword: "" });
   tenantStoreOptions.value = response.list ?? [];
 }
 

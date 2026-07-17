@@ -4,10 +4,10 @@ import type {
   SummaryGoodsDayReportResponse,
   SummaryGoodsMonthReportRequest,
   SummaryGoodsMonthReportResponse,
-  ListGoodsDayReportsRequest,
-  ListGoodsDayReportsResponse,
-  ListGoodsMonthReportsRequest,
-  ListGoodsMonthReportsResponse
+  ListGoodsDayReportRequest,
+  ListGoodsDayReportResponse,
+  ListGoodsMonthReportRequest,
+  ListGoodsMonthReportResponse
 } from "@/rpc/admin/v1/goods_report";
 
 const GOODS_REPORT_URL = "/v1/admin/report/goods";
@@ -24,8 +24,8 @@ export class GoodsReportServiceImpl {
   }
 
   /** 查询商品月报名细 */
-  ListGoodsMonthReports(request: ListGoodsMonthReportsRequest): Promise<ListGoodsMonthReportsResponse> {
-    return service<ListGoodsMonthReportsRequest, ListGoodsMonthReportsResponse>({
+  ListGoodsMonthReport(request: ListGoodsMonthReportRequest): Promise<ListGoodsMonthReportResponse> {
+    return service<ListGoodsMonthReportRequest, ListGoodsMonthReportResponse>({
       url: `${GOODS_REPORT_URL}/month`,
       method: "get",
       params: request
@@ -42,8 +42,8 @@ export class GoodsReportServiceImpl {
   }
 
   /** 查询商品日报明细 */
-  ListGoodsDayReports(request: ListGoodsDayReportsRequest): Promise<ListGoodsDayReportsResponse> {
-    return service<ListGoodsDayReportsRequest, ListGoodsDayReportsResponse>({
+  ListGoodsDayReport(request: ListGoodsDayReportRequest): Promise<ListGoodsDayReportResponse> {
+    return service<ListGoodsDayReportRequest, ListGoodsDayReportResponse>({
       url: `${GOODS_REPORT_URL}/day`,
       method: "get",
       params: request

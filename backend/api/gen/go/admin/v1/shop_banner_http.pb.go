@@ -22,7 +22,7 @@ const _ = http.SupportPackageIsVersion3
 const OperationShopBannerServiceCreateShopBanner = "/admin.v1.ShopBannerService/CreateShopBanner"
 const OperationShopBannerServiceDeleteShopBanner = "/admin.v1.ShopBannerService/DeleteShopBanner"
 const OperationShopBannerServiceGetShopBanner = "/admin.v1.ShopBannerService/GetShopBanner"
-const OperationShopBannerServicePageShopBanners = "/admin.v1.ShopBannerService/PageShopBanners"
+const OperationShopBannerServicePageShopBanner = "/admin.v1.ShopBannerService/PageShopBanner"
 const OperationShopBannerServiceSetShopBannerStatus = "/admin.v1.ShopBannerService/SetShopBannerStatus"
 const OperationShopBannerServiceUpdateShopBanner = "/admin.v1.ShopBannerService/UpdateShopBanner"
 
@@ -33,8 +33,8 @@ type ShopBannerServiceHTTPServer interface {
 	DeleteShopBanner(context.Context, *DeleteShopBannerRequest) (*emptypb.Empty, error)
 	// GetShopBanner 查询商城轮播图
 	GetShopBanner(context.Context, *GetShopBannerRequest) (*ShopBannerForm, error)
-	// PageShopBanners 查询商城轮播图列表
-	PageShopBanners(context.Context, *PageShopBannersRequest) (*PageShopBannersResponse, error)
+	// PageShopBanner 查询商城轮播图列表
+	PageShopBanner(context.Context, *PageShopBannerRequest) (*PageShopBannerResponse, error)
 	// SetShopBannerStatus 设置状态
 	SetShopBannerStatus(context.Context, *SetShopBannerStatusRequest) (*emptypb.Empty, error)
 	// UpdateShopBanner 更新商城轮播图
@@ -43,7 +43,7 @@ type ShopBannerServiceHTTPServer interface {
 
 func RegisterShopBannerServiceHTTPServer(s *http.Server, srv ShopBannerServiceHTTPServer) {
 	r := s.Route("/")
-	r.Handle("GET", "/api/v1/admin/shop/banner", _ShopBannerService_PageShopBanners0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/shop/banner", _ShopBannerService_PageShopBanner0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/shop/banner/{id}", _ShopBannerService_GetShopBanner0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/admin/shop/banner", _ShopBannerService_CreateShopBanner0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/shop/banner/{id}", _ShopBannerService_UpdateShopBanner0_HTTP_Handler(srv))
@@ -51,21 +51,21 @@ func RegisterShopBannerServiceHTTPServer(s *http.Server, srv ShopBannerServiceHT
 	r.Handle("PUT", "/api/v1/admin/shop/banner/{id}/status", _ShopBannerService_SetShopBannerStatus0_HTTP_Handler(srv))
 }
 
-func _ShopBannerService_PageShopBanners0_HTTP_Handler(srv ShopBannerServiceHTTPServer) func(ctx http.Context) error {
+func _ShopBannerService_PageShopBanner0_HTTP_Handler(srv ShopBannerServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in PageShopBannersRequest
+		var in PageShopBannerRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationShopBannerServicePageShopBanners)
+		http.SetOperation(ctx, OperationShopBannerServicePageShopBanner)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.PageShopBanners(ctx, req.(*PageShopBannersRequest))
+			return srv.PageShopBanner(ctx, req.(*PageShopBannerRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*PageShopBannersResponse)
+		reply := out.(*PageShopBannerResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -190,8 +190,8 @@ type ShopBannerServiceHTTPClient interface {
 	DeleteShopBanner(ctx context.Context, req *DeleteShopBannerRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// GetShopBanner 查询商城轮播图
 	GetShopBanner(ctx context.Context, req *GetShopBannerRequest, opts ...http.CallOption) (rsp *ShopBannerForm, err error)
-	// PageShopBanners 查询商城轮播图列表
-	PageShopBanners(ctx context.Context, req *PageShopBannersRequest, opts ...http.CallOption) (rsp *PageShopBannersResponse, err error)
+	// PageShopBanner 查询商城轮播图列表
+	PageShopBanner(ctx context.Context, req *PageShopBannerRequest, opts ...http.CallOption) (rsp *PageShopBannerResponse, err error)
 	// SetShopBannerStatus 设置状态
 	SetShopBannerStatus(ctx context.Context, req *SetShopBannerStatusRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// UpdateShopBanner 更新商城轮播图
@@ -258,14 +258,14 @@ func (c *ShopBannerServiceHTTPClientImpl) GetShopBanner(ctx context.Context, in 
 	return &out, nil
 }
 
-// PageShopBanners 查询商城轮播图列表
-func (c *ShopBannerServiceHTTPClientImpl) PageShopBanners(ctx context.Context, in *PageShopBannersRequest, opts ...http.CallOption) (*PageShopBannersResponse, error) {
-	var out PageShopBannersResponse
+// PageShopBanner 查询商城轮播图列表
+func (c *ShopBannerServiceHTTPClientImpl) PageShopBanner(ctx context.Context, in *PageShopBannerRequest, opts ...http.CallOption) (*PageShopBannerResponse, error) {
+	var out PageShopBannerResponse
 	pattern := "/api/v1/admin/shop/banner"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationShopBannerServicePageShopBanners),
+		http.Operation(OperationShopBannerServicePageShopBanner),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)

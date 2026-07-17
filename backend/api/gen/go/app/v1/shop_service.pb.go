@@ -25,26 +25,26 @@ const (
 )
 
 // 商城服务列表查询条件
-type ListShopServicesRequest struct {
+type ListShopServiceRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListShopServicesRequest) Reset() {
-	*x = ListShopServicesRequest{}
+func (x *ListShopServiceRequest) Reset() {
+	*x = ListShopServiceRequest{}
 	mi := &file_app_v1_shop_service_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListShopServicesRequest) String() string {
+func (x *ListShopServiceRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListShopServicesRequest) ProtoMessage() {}
+func (*ListShopServiceRequest) ProtoMessage() {}
 
-func (x *ListShopServicesRequest) ProtoReflect() protoreflect.Message {
+func (x *ListShopServiceRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_app_v1_shop_service_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -56,33 +56,33 @@ func (x *ListShopServicesRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListShopServicesRequest.ProtoReflect.Descriptor instead.
-func (*ListShopServicesRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListShopServiceRequest.ProtoReflect.Descriptor instead.
+func (*ListShopServiceRequest) Descriptor() ([]byte, []int) {
 	return file_app_v1_shop_service_proto_rawDescGZIP(), []int{0}
 }
 
 // 商城服务列表响应
-type ListShopServicesResponse struct {
+type ListShopServiceResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ShopServices  []*ShopService         `protobuf:"bytes,1,rep,name=shop_services,json=shopServices,proto3" json:"shop_services,omitempty"` // 商城服务列表
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListShopServicesResponse) Reset() {
-	*x = ListShopServicesResponse{}
+func (x *ListShopServiceResponse) Reset() {
+	*x = ListShopServiceResponse{}
 	mi := &file_app_v1_shop_service_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListShopServicesResponse) String() string {
+func (x *ListShopServiceResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListShopServicesResponse) ProtoMessage() {}
+func (*ListShopServiceResponse) ProtoMessage() {}
 
-func (x *ListShopServicesResponse) ProtoReflect() protoreflect.Message {
+func (x *ListShopServiceResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_app_v1_shop_service_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -94,12 +94,12 @@ func (x *ListShopServicesResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListShopServicesResponse.ProtoReflect.Descriptor instead.
-func (*ListShopServicesResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListShopServiceResponse.ProtoReflect.Descriptor instead.
+func (*ListShopServiceResponse) Descriptor() ([]byte, []int) {
 	return file_app_v1_shop_service_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *ListShopServicesResponse) GetShopServices() []*ShopService {
+func (x *ListShopServiceResponse) GetShopServices() []*ShopService {
 	if x != nil {
 		return x.ShopServices
 	}
@@ -163,15 +163,15 @@ var File_app_v1_shop_service_proto protoreflect.FileDescriptor
 
 const file_app_v1_shop_service_proto_rawDesc = "" +
 	"\n" +
-	"\x19app/v1/shop_service.proto\x12\x06app.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\x19\n" +
-	"\x17ListShopServicesRequest\"n\n" +
-	"\x18ListShopServicesResponse\x12R\n" +
+	"\x19app/v1/shop_service.proto\x12\x06app.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\x18\n" +
+	"\x16ListShopServiceRequest\"m\n" +
+	"\x17ListShopServiceResponse\x12R\n" +
 	"\rshop_services\x18\x01 \x03(\v2\x13.app.v1.ShopServiceB\x18\xbaG\x15\x92\x02\x12商城服务列表R\fshopServices\"R\n" +
 	"\vShopService\x12\"\n" +
 	"\x05label\x18\x02 \x01(\tB\f\xbaG\t\x92\x02\x06标签R\x05label\x12\x1f\n" +
-	"\x05value\x18\x03 \x01(\tB\t\xbaG\x06\x92\x02\x03值R\x05value2\x8d\x01\n" +
-	"\x12ShopServiceService\x12w\n" +
-	"\x10ListShopServices\x12\x1f.app.v1.ListShopServicesRequest\x1a .app.v1.ListShopServicesResponse\" \x82\xd3\xe4\x93\x02\x1a\x12\x18/api/v1/app/shop/serviceBu\n" +
+	"\x05value\x18\x03 \x01(\tB\t\xbaG\x06\x92\x02\x03值R\x05value2\x8a\x01\n" +
+	"\x12ShopServiceService\x12t\n" +
+	"\x0fListShopService\x12\x1e.app.v1.ListShopServiceRequest\x1a\x1f.app.v1.ListShopServiceResponse\" \x82\xd3\xe4\x93\x02\x1a\x12\x18/api/v1/app/shop/serviceBu\n" +
 	"\n" +
 	"com.app.v1B\x10ShopServiceProtoP\x01Z\x1cshop/api/gen/go/app/v1;appv1\xa2\x02\x03AXX\xaa\x02\x06App.V1\xca\x02\x06App\\V1\xe2\x02\x12App\\V1\\GPBMetadata\xea\x02\aApp::V1b\x06proto3"
 
@@ -189,14 +189,14 @@ func file_app_v1_shop_service_proto_rawDescGZIP() []byte {
 
 var file_app_v1_shop_service_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_app_v1_shop_service_proto_goTypes = []any{
-	(*ListShopServicesRequest)(nil),  // 0: app.v1.ListShopServicesRequest
-	(*ListShopServicesResponse)(nil), // 1: app.v1.ListShopServicesResponse
-	(*ShopService)(nil),              // 2: app.v1.ShopService
+	(*ListShopServiceRequest)(nil),  // 0: app.v1.ListShopServiceRequest
+	(*ListShopServiceResponse)(nil), // 1: app.v1.ListShopServiceResponse
+	(*ShopService)(nil),             // 2: app.v1.ShopService
 }
 var file_app_v1_shop_service_proto_depIdxs = []int32{
-	2, // 0: app.v1.ListShopServicesResponse.shop_services:type_name -> app.v1.ShopService
-	0, // 1: app.v1.ShopServiceService.ListShopServices:input_type -> app.v1.ListShopServicesRequest
-	1, // 2: app.v1.ShopServiceService.ListShopServices:output_type -> app.v1.ListShopServicesResponse
+	2, // 0: app.v1.ListShopServiceResponse.shop_services:type_name -> app.v1.ShopService
+	0, // 1: app.v1.ShopServiceService.ListShopService:input_type -> app.v1.ListShopServiceRequest
+	1, // 2: app.v1.ShopServiceService.ListShopService:output_type -> app.v1.ListShopServiceResponse
 	2, // [2:3] is the sub-list for method output_type
 	1, // [1:2] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name

@@ -17,25 +17,25 @@ import (
 func NewPayBillServiceAgentTools(payBillServiceServer PayBillServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error
-	var pagePayBillsTool tool.InvokableTool
-	pagePayBillsTool, err = NewPayBillServicePagePayBillsAgentTool(payBillServiceServer)
+	var pagePayBillTool tool.InvokableTool
+	pagePayBillTool, err = NewPayBillServicePagePayBillAgentTool(payBillServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, pagePayBillsTool)
+	ts = append(ts, pagePayBillTool)
 	return ts, nil
 }
 
-// NewPayBillServicePagePayBillsAgentTool 创建查询支付账单列表的 Agent Tool。
-func NewPayBillServicePagePayBillsAgentTool(payBillServiceServer PayBillServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*PagePayBillsRequest, *PagePayBillsResponse](
-		"admin_v1_pay_bill_service_page_pay_bills",
+// NewPayBillServicePagePayBillAgentTool 创建查询支付账单列表的 Agent Tool。
+func NewPayBillServicePagePayBillAgentTool(payBillServiceServer PayBillServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PagePayBillRequest, *PagePayBillResponse](
+		"admin_v1_pay_bill_service_page_pay_bill",
 		"查询支付账单列表",
-		func(ctx context.Context, req *PagePayBillsRequest) (*PagePayBillsResponse, error) {
+		func(ctx context.Context, req *PagePayBillRequest) (*PagePayBillResponse, error) {
 			if req == nil {
-				req = &PagePayBillsRequest{}
+				req = &PagePayBillRequest{}
 			}
-			return payBillServiceServer.PagePayBills(ctx, req)
+			return payBillServiceServer.PagePayBill(ctx, req)
 		},
 	)
 }

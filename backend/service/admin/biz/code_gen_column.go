@@ -48,8 +48,8 @@ func NewCodeGenColumnCase(
 	}
 }
 
-// ListCodeGenDatabaseColumns 查询指定数据库表的字段元数据。
-func (c *CodeGenColumnCase) ListCodeGenDatabaseColumns(ctx context.Context, tableName string) (*adminv1.ListCodeGenDatabaseColumnsResponse, error) {
+// ListCodeGenDatabaseColumn 查询指定数据库表的字段元数据。
+func (c *CodeGenColumnCase) ListCodeGenDatabaseColumn(ctx context.Context, tableName string) (*adminv1.ListCodeGenDatabaseColumnResponse, error) {
 	databaseColumns, err := c.listDatabaseColumns(ctx, tableName)
 	if err != nil {
 		return nil, err
@@ -75,16 +75,16 @@ func (c *CodeGenColumnCase) ListCodeGenDatabaseColumns(ctx context.Context, tabl
 			IsNullable:    item.IsNullable == "YES",
 		})
 	}
-	return &adminv1.ListCodeGenDatabaseColumnsResponse{Columns: columns}, nil
+	return &adminv1.ListCodeGenDatabaseColumnResponse{Columns: columns}, nil
 }
 
-// ListCodeGenColumns 查询允许用户维护的字段配置。
-func (c *CodeGenColumnCase) ListCodeGenColumns(ctx context.Context, tableID int64) (*adminv1.ListCodeGenColumnsResponse, error) {
+// ListCodeGenColumn 查询允许用户维护的字段配置。
+func (c *CodeGenColumnCase) ListCodeGenColumn(ctx context.Context, tableID int64) (*adminv1.ListCodeGenColumnResponse, error) {
 	columns, err := c.listCodeGenColumns(ctx, tableID)
 	if err != nil {
 		return nil, err
 	}
-	return &adminv1.ListCodeGenColumnsResponse{
+	return &adminv1.ListCodeGenColumnResponse{
 		CodeGenColumns: filterConfigurableCodeGenColumns(columns),
 	}, nil
 }
@@ -115,8 +115,8 @@ func (c *CodeGenColumnCase) listCodeGenColumns(ctx context.Context, tableID int6
 	return c.mergeCodeGenColumns(tableID, databaseColumns, savedColumns), nil
 }
 
-// SaveCodeGenColumns 保存代码生成字段配置快照。
-func (c *CodeGenColumnCase) SaveCodeGenColumns(ctx context.Context, req *adminv1.SaveCodeGenColumnsRequest) error {
+// SaveCodeGenColumn 保存代码生成字段配置快照。
+func (c *CodeGenColumnCase) SaveCodeGenColumn(ctx context.Context, req *adminv1.SaveCodeGenColumnRequest) error {
 	if req.GetTableId() <= 0 {
 		return errorsx.InvalidArgument("代码生成表配置ID不能为空")
 	}

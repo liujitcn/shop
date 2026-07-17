@@ -1,6 +1,6 @@
 import { http } from '@/utils/http'
 import type {
-  ListUserAddressesResponse,
+  ListUserAddressResponse,
   UserAddressForm,
   UserAddressService,
 } from '@/rpc/app/v1/user_address'
@@ -23,8 +23,8 @@ type UserAddressFormRequestCompat = Partial<UserAddressForm> & {
 /** 用户地址服务 */
 export class UserAddressServiceImpl implements UserAddressService {
   /** 查询用户地址列表 */
-  async ListUserAddresses(request: Empty): Promise<ListUserAddressesResponse> {
-    const response = await http<Partial<ListUserAddressesResponse>>({
+  async ListUserAddress(request: Empty): Promise<ListUserAddressResponse> {
+    const response = await http<Partial<ListUserAddressResponse>>({
       url: `${USER_ADDRESS_URL}`,
       method: 'GET',
       authMode: 'required',
@@ -34,11 +34,6 @@ export class UserAddressServiceImpl implements UserAddressService {
       ...response,
       user_addresses: response.user_addresses ?? [],
     }
-  }
-
-  /** 查询用户地址列表（旧生成接口兼容） */
-  ListUserAddress(request: Empty): Promise<ListUserAddressesResponse> {
-    return this.ListUserAddresses(request)
   }
 
   /** 查询用户地址 */

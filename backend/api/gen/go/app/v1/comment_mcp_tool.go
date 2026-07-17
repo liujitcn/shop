@@ -16,7 +16,7 @@ import (
 // RegisterCommentServiceMCPTools 注册App评价服务的 MCP Tool。
 func RegisterCommentServiceMCPTools(mcpServer *mcp.Server, commentServiceServer CommentServiceServer) {
 	RegisterCommentServiceGoodsCommentOverviewMCPTool(mcpServer, commentServiceServer)
-	RegisterCommentServiceGoodsCommentTagsMCPTool(mcpServer, commentServiceServer)
+	RegisterCommentServiceGoodsCommentTagMCPTool(mcpServer, commentServiceServer)
 	RegisterCommentServicePageGoodsCommentMCPTool(mcpServer, commentServiceServer)
 	RegisterCommentServicePageCommentDiscussionMCPTool(mcpServer, commentServiceServer)
 	RegisterCommentServiceCreateCommentDiscussionMCPTool(mcpServer, commentServiceServer)
@@ -48,19 +48,19 @@ func RegisterCommentServiceGoodsCommentOverviewMCPTool(mcpServer *mcp.Server, co
 	)
 }
 
-// RegisterCommentServiceGoodsCommentTagsMCPTool 注册查询商品评价标签列表的 MCP Tool。
-func RegisterCommentServiceGoodsCommentTagsMCPTool(mcpServer *mcp.Server, commentServiceServer CommentServiceServer) {
-	mcp.AddTool[*GoodsCommentTagsRequest, *GoodsCommentTagsResponse](
+// RegisterCommentServiceGoodsCommentTagMCPTool 注册查询商品评价标签列表的 MCP Tool。
+func RegisterCommentServiceGoodsCommentTagMCPTool(mcpServer *mcp.Server, commentServiceServer CommentServiceServer) {
+	mcp.AddTool[*GoodsCommentTagRequest, *GoodsCommentTagResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "app_v1_comment_service_goods_comment_tags",
+			Name:        "app_v1_comment_service_goods_comment_tag",
 			Description: "查询商品评价标签列表",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GoodsCommentTagsRequest) (*mcp.CallToolResult, *GoodsCommentTagsResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *GoodsCommentTagRequest) (*mcp.CallToolResult, *GoodsCommentTagResponse, error) {
 			if input == nil {
-				input = &GoodsCommentTagsRequest{}
+				input = &GoodsCommentTagRequest{}
 			}
-			reply, err := commentServiceServer.GoodsCommentTags(ctx, input)
+			reply, err := commentServiceServer.GoodsCommentTag(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

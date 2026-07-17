@@ -20,40 +20,40 @@ var _ = new(context.Context)
 const _ = http.SupportPackageIsVersion3
 
 const OperationGoodsSkuServiceGetGoodsSku = "/admin.v1.GoodsSkuService/GetGoodsSku"
-const OperationGoodsSkuServicePageGoodsSkus = "/admin.v1.GoodsSkuService/PageGoodsSkus"
+const OperationGoodsSkuServicePageGoodsSku = "/admin.v1.GoodsSkuService/PageGoodsSku"
 const OperationGoodsSkuServiceUpdateGoodsSku = "/admin.v1.GoodsSkuService/UpdateGoodsSku"
 
 type GoodsSkuServiceHTTPServer interface {
 	// GetGoodsSku 查询商品SKU
 	GetGoodsSku(context.Context, *GetGoodsSkuRequest) (*GoodsSku, error)
-	// PageGoodsSkus 查询商品SKU列表
-	PageGoodsSkus(context.Context, *PageGoodsSkusRequest) (*PageGoodsSkusResponse, error)
+	// PageGoodsSku 查询商品SKU列表
+	PageGoodsSku(context.Context, *PageGoodsSkuRequest) (*PageGoodsSkuResponse, error)
 	// UpdateGoodsSku 更新商品SKU
 	UpdateGoodsSku(context.Context, *UpdateGoodsSkuRequest) (*emptypb.Empty, error)
 }
 
 func RegisterGoodsSkuServiceHTTPServer(s *http.Server, srv GoodsSkuServiceHTTPServer) {
 	r := s.Route("/")
-	r.Handle("GET", "/api/v1/admin/goods/sku", _GoodsSkuService_PageGoodsSkus0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/goods/sku", _GoodsSkuService_PageGoodsSku0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/goods/sku/{id}", _GoodsSkuService_GetGoodsSku0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/goods/sku/{id}", _GoodsSkuService_UpdateGoodsSku0_HTTP_Handler(srv))
 }
 
-func _GoodsSkuService_PageGoodsSkus0_HTTP_Handler(srv GoodsSkuServiceHTTPServer) func(ctx http.Context) error {
+func _GoodsSkuService_PageGoodsSku0_HTTP_Handler(srv GoodsSkuServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in PageGoodsSkusRequest
+		var in PageGoodsSkuRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationGoodsSkuServicePageGoodsSkus)
+		http.SetOperation(ctx, OperationGoodsSkuServicePageGoodsSku)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.PageGoodsSkus(ctx, req.(*PageGoodsSkusRequest))
+			return srv.PageGoodsSku(ctx, req.(*PageGoodsSkuRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*PageGoodsSkusResponse)
+		reply := out.(*PageGoodsSkuResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -108,8 +108,8 @@ func _GoodsSkuService_UpdateGoodsSku0_HTTP_Handler(srv GoodsSkuServiceHTTPServer
 type GoodsSkuServiceHTTPClient interface {
 	// GetGoodsSku 查询商品SKU
 	GetGoodsSku(ctx context.Context, req *GetGoodsSkuRequest, opts ...http.CallOption) (rsp *GoodsSku, err error)
-	// PageGoodsSkus 查询商品SKU列表
-	PageGoodsSkus(ctx context.Context, req *PageGoodsSkusRequest, opts ...http.CallOption) (rsp *PageGoodsSkusResponse, err error)
+	// PageGoodsSku 查询商品SKU列表
+	PageGoodsSku(ctx context.Context, req *PageGoodsSkuRequest, opts ...http.CallOption) (rsp *PageGoodsSkuResponse, err error)
 	// UpdateGoodsSku 更新商品SKU
 	UpdateGoodsSku(ctx context.Context, req *UpdateGoodsSkuRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 }
@@ -139,14 +139,14 @@ func (c *GoodsSkuServiceHTTPClientImpl) GetGoodsSku(ctx context.Context, in *Get
 	return &out, nil
 }
 
-// PageGoodsSkus 查询商品SKU列表
-func (c *GoodsSkuServiceHTTPClientImpl) PageGoodsSkus(ctx context.Context, in *PageGoodsSkusRequest, opts ...http.CallOption) (*PageGoodsSkusResponse, error) {
-	var out PageGoodsSkusResponse
+// PageGoodsSku 查询商品SKU列表
+func (c *GoodsSkuServiceHTTPClientImpl) PageGoodsSku(ctx context.Context, in *PageGoodsSkuRequest, opts ...http.CallOption) (*PageGoodsSkuResponse, error) {
+	var out PageGoodsSkuResponse
 	pattern := "/api/v1/admin/goods/sku"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationGoodsSkuServicePageGoodsSkus),
+		http.Operation(OperationGoodsSkuServicePageGoodsSku),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)

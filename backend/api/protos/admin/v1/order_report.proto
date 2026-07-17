@@ -15,7 +15,7 @@ service OrderReportService {
   }
 
   // 查询订单月报明细
-  rpc ListOrderMonthReports(ListOrderMonthReportsRequest) returns (ListOrderMonthReportsResponse) {
+  rpc ListOrderMonthReport(ListOrderMonthReportRequest) returns (ListOrderMonthReportResponse) {
     option (google.api.http) = {
       get: "/api/v1/admin/report/order/month"
     };
@@ -29,7 +29,7 @@ service OrderReportService {
   }
 
   // 查询订单日报明细
-  rpc ListOrderDayReports(ListOrderDayReportsRequest) returns (ListOrderDayReportsResponse) {
+  rpc ListOrderDayReport(ListOrderDayReportRequest) returns (ListOrderDayReportResponse) {
     option (google.api.http) = {
       get: "/api/v1/admin/report/order/day"
     };
@@ -55,7 +55,7 @@ message SummaryOrderMonthReportRequest {
 }
 
 // 订单月报列表请求参数
-message ListOrderMonthReportsRequest {
+message ListOrderMonthReportRequest {
   optional int64 tenant_id = 1 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
   optional int64 tenant_store_id = 2 [(gnostic.openapi.v3.property) = {description: "租户门店ID"}]; // 租户门店ID
   string start_month = 3 [
@@ -130,7 +130,7 @@ message OrderMonthReportItem {
 }
 
 // 订单月报列表响应
-message ListOrderMonthReportsResponse {
+message ListOrderMonthReportResponse {
   repeated OrderMonthReportItem order_month_reports = 1 [(gnostic.openapi.v3.property) = {description: "月报明细"}]; // 月报明细
 }
 
@@ -153,7 +153,7 @@ message SummaryOrderDayReportRequest {
 }
 
 // 订单日报列表请求参数
-message ListOrderDayReportsRequest {
+message ListOrderDayReportRequest {
   optional int64 tenant_id = 1 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
   optional int64 tenant_store_id = 2 [(gnostic.openapi.v3.property) = {description: "租户门店ID"}]; // 租户门店ID
   string start_date = 3 [
@@ -228,6 +228,6 @@ message OrderDayReportItem {
 }
 
 // 订单日报列表响应
-message ListOrderDayReportsResponse {
+message ListOrderDayReportResponse {
   repeated OrderDayReportItem order_day_reports = 1 [(gnostic.openapi.v3.property) = {description: "日报明细"}]; // 日报明细
 }

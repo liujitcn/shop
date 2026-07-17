@@ -18,18 +18,18 @@ import (
 func NewGoodsInfoServiceAgentTools(goodsInfoServiceServer GoodsInfoServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error
-	var optionGoodsInfosTool tool.InvokableTool
-	optionGoodsInfosTool, err = NewGoodsInfoServiceOptionGoodsInfosAgentTool(goodsInfoServiceServer)
+	var optionGoodsInfoTool tool.InvokableTool
+	optionGoodsInfoTool, err = NewGoodsInfoServiceOptionGoodsInfoAgentTool(goodsInfoServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, optionGoodsInfosTool)
-	var pageGoodsInfosTool tool.InvokableTool
-	pageGoodsInfosTool, err = NewGoodsInfoServicePageGoodsInfosAgentTool(goodsInfoServiceServer)
+	ts = append(ts, optionGoodsInfoTool)
+	var pageGoodsInfoTool tool.InvokableTool
+	pageGoodsInfoTool, err = NewGoodsInfoServicePageGoodsInfoAgentTool(goodsInfoServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, pageGoodsInfosTool)
+	ts = append(ts, pageGoodsInfoTool)
 	var getGoodsInfoTool tool.InvokableTool
 	getGoodsInfoTool, err = NewGoodsInfoServiceGetGoodsInfoAgentTool(goodsInfoServiceServer)
 	if err != nil {
@@ -63,30 +63,30 @@ func NewGoodsInfoServiceAgentTools(goodsInfoServiceServer GoodsInfoServiceServer
 	return ts, nil
 }
 
-// NewGoodsInfoServiceOptionGoodsInfosAgentTool 创建查询商品信息下拉选择的 Agent Tool。
-func NewGoodsInfoServiceOptionGoodsInfosAgentTool(goodsInfoServiceServer GoodsInfoServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*OptionGoodsInfosRequest, *OptionGoodsInfosResponse](
-		"admin_v1_goods_info_service_option_goods_infos",
+// NewGoodsInfoServiceOptionGoodsInfoAgentTool 创建查询商品信息下拉选择的 Agent Tool。
+func NewGoodsInfoServiceOptionGoodsInfoAgentTool(goodsInfoServiceServer GoodsInfoServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*OptionGoodsInfoRequest, *OptionGoodsInfoResponse](
+		"admin_v1_goods_info_service_option_goods_info",
 		"查询商品信息下拉选择",
-		func(ctx context.Context, req *OptionGoodsInfosRequest) (*OptionGoodsInfosResponse, error) {
+		func(ctx context.Context, req *OptionGoodsInfoRequest) (*OptionGoodsInfoResponse, error) {
 			if req == nil {
-				req = &OptionGoodsInfosRequest{}
+				req = &OptionGoodsInfoRequest{}
 			}
-			return goodsInfoServiceServer.OptionGoodsInfos(ctx, req)
+			return goodsInfoServiceServer.OptionGoodsInfo(ctx, req)
 		},
 	)
 }
 
-// NewGoodsInfoServicePageGoodsInfosAgentTool 创建查询商品信息列表的 Agent Tool。
-func NewGoodsInfoServicePageGoodsInfosAgentTool(goodsInfoServiceServer GoodsInfoServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*PageGoodsInfosRequest, *PageGoodsInfosResponse](
-		"admin_v1_goods_info_service_page_goods_infos",
+// NewGoodsInfoServicePageGoodsInfoAgentTool 创建查询商品信息列表的 Agent Tool。
+func NewGoodsInfoServicePageGoodsInfoAgentTool(goodsInfoServiceServer GoodsInfoServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PageGoodsInfoRequest, *PageGoodsInfoResponse](
+		"admin_v1_goods_info_service_page_goods_info",
 		"查询商品信息列表",
-		func(ctx context.Context, req *PageGoodsInfosRequest) (*PageGoodsInfosResponse, error) {
+		func(ctx context.Context, req *PageGoodsInfoRequest) (*PageGoodsInfoResponse, error) {
 			if req == nil {
-				req = &PageGoodsInfosRequest{}
+				req = &PageGoodsInfoRequest{}
 			}
-			return goodsInfoServiceServer.PageGoodsInfos(ctx, req)
+			return goodsInfoServiceServer.PageGoodsInfo(ctx, req)
 		},
 	)
 }

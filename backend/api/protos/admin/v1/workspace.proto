@@ -36,7 +36,7 @@ service WorkspaceService {
   }
 
   // 查询工作台待审核评价
-  rpc ListWorkspacePendingComments(ListWorkspacePendingCommentsRequest) returns (ListWorkspacePendingCommentsResponse) {
+  rpc ListWorkspacePendingComment(ListWorkspacePendingCommentRequest) returns (ListWorkspacePendingCommentResponse) {
     option (google.api.http) = {
       get: "/api/v1/admin/workspace/comment/pending"
     };
@@ -103,14 +103,14 @@ message SummaryWorkspaceRiskResponse {
 }
 
 // 工作台待审核评价查询条件
-message ListWorkspacePendingCommentsRequest {
+message ListWorkspacePendingCommentRequest {
   optional int64 tenant_id = 1 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
   optional int64 tenant_store_id = 2 [(gnostic.openapi.v3.property) = {description: "租户门店ID"}]; // 租户门店ID
   int64 limit = 3 [(gnostic.openapi.v3.property) = {description: "返回数量，默认5，最大10"}]; // 返回数量，默认5，最大10
 }
 
 // 工作台待审核评价响应
-message ListWorkspacePendingCommentsResponse {
+message ListWorkspacePendingCommentResponse {
   repeated WorkspacePendingComment pending_comments = 1 [(gnostic.openapi.v3.property) = {description: "待审核评价"}]; // 待审核评价
 }
 

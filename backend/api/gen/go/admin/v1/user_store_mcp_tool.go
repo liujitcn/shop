@@ -15,24 +15,24 @@ import (
 
 // RegisterUserStoreServiceMCPTools 注册Admin用户门店管理服务的 MCP Tool。
 func RegisterUserStoreServiceMCPTools(mcpServer *mcp.Server, userStoreServiceServer UserStoreServiceServer) {
-	RegisterUserStoreServicePageUserStoresMCPTool(mcpServer, userStoreServiceServer)
+	RegisterUserStoreServicePageUserStoreMCPTool(mcpServer, userStoreServiceServer)
 	RegisterUserStoreServiceGetUserStoreMCPTool(mcpServer, userStoreServiceServer)
 	RegisterUserStoreServiceAuditUserStoreMCPTool(mcpServer, userStoreServiceServer)
 }
 
-// RegisterUserStoreServicePageUserStoresMCPTool 注册查询用户门店列表的 MCP Tool。
-func RegisterUserStoreServicePageUserStoresMCPTool(mcpServer *mcp.Server, userStoreServiceServer UserStoreServiceServer) {
-	mcp.AddTool[*PageUserStoresRequest, *PageUserStoresResponse](
+// RegisterUserStoreServicePageUserStoreMCPTool 注册查询用户门店列表的 MCP Tool。
+func RegisterUserStoreServicePageUserStoreMCPTool(mcpServer *mcp.Server, userStoreServiceServer UserStoreServiceServer) {
+	mcp.AddTool[*PageUserStoreRequest, *PageUserStoreResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "admin_v1_user_store_service_page_user_stores",
+			Name:        "admin_v1_user_store_service_page_user_store",
 			Description: "查询用户门店列表",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageUserStoresRequest) (*mcp.CallToolResult, *PageUserStoresResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *PageUserStoreRequest) (*mcp.CallToolResult, *PageUserStoreResponse, error) {
 			if input == nil {
-				input = &PageUserStoresRequest{}
+				input = &PageUserStoreRequest{}
 			}
-			reply, err := userStoreServiceServer.PageUserStores(ctx, input)
+			reply, err := userStoreServiceServer.PageUserStore(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

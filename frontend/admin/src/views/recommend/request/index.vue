@@ -15,7 +15,7 @@ import type { ColumnProps } from "@/components/ProTable/interface";
 import ProTable from "@/components/ProTable/index.vue";
 import RecommendProviderLabel from "@/views/recommend/request/components/ProviderLabel.vue";
 import { defRecommendRequestService } from "@/api/admin/recommend_request";
-import type { PageRecommendRequestsRequest, RecommendRequest } from "@/rpc/admin/v1/recommend_request";
+import type { PageRecommendRequestRequest, RecommendRequest } from "@/rpc/admin/v1/recommend_request";
 import { buildPageRequest } from "@/utils/proTable";
 import { navigateTo } from "@/utils/router";
 
@@ -87,8 +87,8 @@ const columns: ColumnProps[] = [
  * 请求推荐请求列表，并统一补齐分页与时间范围字段。
  */
 async function requestRecommendRequestTable(params: Record<string, any>) {
-  const data = await defRecommendRequestService.PageRecommendRequests(
-    buildPageRequest({ ...params, request_at: params.request_at ?? [] }) as PageRecommendRequestsRequest
+  const data = await defRecommendRequestService.PageRecommendRequest(
+    buildPageRequest({ ...params, request_at: params.request_at ?? [] }) as PageRecommendRequestRequest
   );
   return { data: { list: data.recommend_requests ?? [], total: data.total } };
 }

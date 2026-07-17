@@ -18,7 +18,7 @@ func RegisterWorkspaceServiceMCPTools(mcpServer *mcp.Server, workspaceServiceSer
 	RegisterWorkspaceServiceSummaryWorkspaceTodoMCPTool(mcpServer, workspaceServiceServer)
 	RegisterWorkspaceServiceSummaryWorkspaceRiskMCPTool(mcpServer, workspaceServiceServer)
 	RegisterWorkspaceServiceSummaryWorkspaceReputationMCPTool(mcpServer, workspaceServiceServer)
-	RegisterWorkspaceServiceListWorkspacePendingCommentsMCPTool(mcpServer, workspaceServiceServer)
+	RegisterWorkspaceServiceListWorkspacePendingCommentMCPTool(mcpServer, workspaceServiceServer)
 }
 
 // RegisterWorkspaceServiceSummaryWorkspaceMetricsMCPTool 注册查询工作台顶部指标的 MCP Tool。
@@ -105,19 +105,19 @@ func RegisterWorkspaceServiceSummaryWorkspaceReputationMCPTool(mcpServer *mcp.Se
 	)
 }
 
-// RegisterWorkspaceServiceListWorkspacePendingCommentsMCPTool 注册查询工作台待审核评价的 MCP Tool。
-func RegisterWorkspaceServiceListWorkspacePendingCommentsMCPTool(mcpServer *mcp.Server, workspaceServiceServer WorkspaceServiceServer) {
-	mcp.AddTool[*ListWorkspacePendingCommentsRequest, *ListWorkspacePendingCommentsResponse](
+// RegisterWorkspaceServiceListWorkspacePendingCommentMCPTool 注册查询工作台待审核评价的 MCP Tool。
+func RegisterWorkspaceServiceListWorkspacePendingCommentMCPTool(mcpServer *mcp.Server, workspaceServiceServer WorkspaceServiceServer) {
+	mcp.AddTool[*ListWorkspacePendingCommentRequest, *ListWorkspacePendingCommentResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "admin_v1_workspace_service_list_workspace_pending_comments",
+			Name:        "admin_v1_workspace_service_list_workspace_pending_comment",
 			Description: "查询工作台待审核评价",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *ListWorkspacePendingCommentsRequest) (*mcp.CallToolResult, *ListWorkspacePendingCommentsResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *ListWorkspacePendingCommentRequest) (*mcp.CallToolResult, *ListWorkspacePendingCommentResponse, error) {
 			if input == nil {
-				input = &ListWorkspacePendingCommentsRequest{}
+				input = &ListWorkspacePendingCommentRequest{}
 			}
-			reply, err := workspaceServiceServer.ListWorkspacePendingComments(ctx, input)
+			reply, err := workspaceServiceServer.ListWorkspacePendingComment(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

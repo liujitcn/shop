@@ -17,25 +17,25 @@ import (
 func NewShopServiceServiceAgentTools(shopServiceServiceServer ShopServiceServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error
-	var listShopServicesTool tool.InvokableTool
-	listShopServicesTool, err = NewShopServiceServiceListShopServicesAgentTool(shopServiceServiceServer)
+	var listShopServiceTool tool.InvokableTool
+	listShopServiceTool, err = NewShopServiceServiceListShopServiceAgentTool(shopServiceServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, listShopServicesTool)
+	ts = append(ts, listShopServiceTool)
 	return ts, nil
 }
 
-// NewShopServiceServiceListShopServicesAgentTool 创建查询商城服务列表的 Agent Tool。
-func NewShopServiceServiceListShopServicesAgentTool(shopServiceServiceServer ShopServiceServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*ListShopServicesRequest, *ListShopServicesResponse](
-		"app_v1_shop_service_service_list_shop_services",
+// NewShopServiceServiceListShopServiceAgentTool 创建查询商城服务列表的 Agent Tool。
+func NewShopServiceServiceListShopServiceAgentTool(shopServiceServiceServer ShopServiceServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*ListShopServiceRequest, *ListShopServiceResponse](
+		"app_v1_shop_service_service_list_shop_service",
 		"查询商城服务列表",
-		func(ctx context.Context, req *ListShopServicesRequest) (*ListShopServicesResponse, error) {
+		func(ctx context.Context, req *ListShopServiceRequest) (*ListShopServiceResponse, error) {
 			if req == nil {
-				req = &ListShopServicesRequest{}
+				req = &ListShopServiceRequest{}
 			}
-			return shopServiceServiceServer.ListShopServices(ctx, req)
+			return shopServiceServiceServer.ListShopService(ctx, req)
 		},
 	)
 }

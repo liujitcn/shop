@@ -34,7 +34,7 @@ import FormDialog from "@/components/Dialog/FormDialog.vue";
 import type { ProFormField, ProFormOption } from "@/components/ProForm/interface";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { defShopServiceService } from "@/api/admin/shop_service";
-import type { PageShopServicesRequest, ShopService, ShopServiceForm } from "@/rpc/admin/v1/shop_service";
+import type { PageShopServiceRequest, ShopService, ShopServiceForm } from "@/rpc/admin/v1/shop_service";
 import { Status } from "@/rpc/common/v1/enum";
 import { buildPageRequest, normalizeSelectedIds } from "@/utils/proTable";
 
@@ -161,8 +161,8 @@ const headerActions: HeaderActionProps[] = [
 /**
  * 请求商城服务列表，分页与搜索参数交给 ProTable 统一管理。
  */
-async function requestShopServiceTable(params: PageShopServicesRequest) {
-  const data = await defShopServiceService.PageShopServices(buildPageRequest(params));
+async function requestShopServiceTable(params: PageShopServiceRequest) {
+  const data = await defShopServiceService.PageShopService(buildPageRequest(params));
   return { data: { list: data.shop_services ?? [], total: data.total } };
 }
 

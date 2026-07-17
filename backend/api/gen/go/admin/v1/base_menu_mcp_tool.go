@@ -15,8 +15,8 @@ import (
 
 // RegisterBaseMenuServiceMCPTools 注册Admin菜单管理服务的 MCP Tool。
 func RegisterBaseMenuServiceMCPTools(mcpServer *mcp.Server, baseMenuServiceServer BaseMenuServiceServer) {
-	RegisterBaseMenuServiceTreeBaseMenusMCPTool(mcpServer, baseMenuServiceServer)
-	RegisterBaseMenuServiceOptionBaseMenusMCPTool(mcpServer, baseMenuServiceServer)
+	RegisterBaseMenuServiceTreeBaseMenuMCPTool(mcpServer, baseMenuServiceServer)
+	RegisterBaseMenuServiceOptionBaseMenuMCPTool(mcpServer, baseMenuServiceServer)
 	RegisterBaseMenuServiceGetBaseMenuMCPTool(mcpServer, baseMenuServiceServer)
 	RegisterBaseMenuServiceCreateBaseMenuMCPTool(mcpServer, baseMenuServiceServer)
 	RegisterBaseMenuServiceUpdateBaseMenuMCPTool(mcpServer, baseMenuServiceServer)
@@ -24,19 +24,19 @@ func RegisterBaseMenuServiceMCPTools(mcpServer *mcp.Server, baseMenuServiceServe
 	RegisterBaseMenuServiceSetBaseMenuStatusMCPTool(mcpServer, baseMenuServiceServer)
 }
 
-// RegisterBaseMenuServiceTreeBaseMenusMCPTool 注册查询菜单树形列表的 MCP Tool。
-func RegisterBaseMenuServiceTreeBaseMenusMCPTool(mcpServer *mcp.Server, baseMenuServiceServer BaseMenuServiceServer) {
-	mcp.AddTool[*TreeBaseMenusRequest, any](
+// RegisterBaseMenuServiceTreeBaseMenuMCPTool 注册查询菜单树形列表的 MCP Tool。
+func RegisterBaseMenuServiceTreeBaseMenuMCPTool(mcpServer *mcp.Server, baseMenuServiceServer BaseMenuServiceServer) {
+	mcp.AddTool[*TreeBaseMenuRequest, any](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "admin_v1_base_menu_service_tree_base_menus",
+			Name:        "admin_v1_base_menu_service_tree_base_menu",
 			Description: "查询菜单树形列表",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *TreeBaseMenusRequest) (*mcp.CallToolResult, any, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *TreeBaseMenuRequest) (*mcp.CallToolResult, any, error) {
 			if input == nil {
-				input = &TreeBaseMenusRequest{}
+				input = &TreeBaseMenuRequest{}
 			}
-			reply, err := baseMenuServiceServer.TreeBaseMenus(ctx, input)
+			reply, err := baseMenuServiceServer.TreeBaseMenu(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -45,19 +45,19 @@ func RegisterBaseMenuServiceTreeBaseMenusMCPTool(mcpServer *mcp.Server, baseMenu
 	)
 }
 
-// RegisterBaseMenuServiceOptionBaseMenusMCPTool 注册查询菜单树形选择的 MCP Tool。
-func RegisterBaseMenuServiceOptionBaseMenusMCPTool(mcpServer *mcp.Server, baseMenuServiceServer BaseMenuServiceServer) {
-	mcp.AddTool[*OptionBaseMenusRequest, any](
+// RegisterBaseMenuServiceOptionBaseMenuMCPTool 注册查询菜单树形选择的 MCP Tool。
+func RegisterBaseMenuServiceOptionBaseMenuMCPTool(mcpServer *mcp.Server, baseMenuServiceServer BaseMenuServiceServer) {
+	mcp.AddTool[*OptionBaseMenuRequest, any](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "admin_v1_base_menu_service_option_base_menus",
+			Name:        "admin_v1_base_menu_service_option_base_menu",
 			Description: "查询菜单树形选择",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *OptionBaseMenusRequest) (*mcp.CallToolResult, any, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *OptionBaseMenuRequest) (*mcp.CallToolResult, any, error) {
 			if input == nil {
-				input = &OptionBaseMenusRequest{}
+				input = &OptionBaseMenuRequest{}
 			}
-			reply, err := baseMenuServiceServer.OptionBaseMenus(ctx, input)
+			reply, err := baseMenuServiceServer.OptionBaseMenu(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

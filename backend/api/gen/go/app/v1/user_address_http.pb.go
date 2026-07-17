@@ -22,7 +22,7 @@ const _ = http.SupportPackageIsVersion3
 const OperationUserAddressServiceCreateUserAddress = "/app.v1.UserAddressService/CreateUserAddress"
 const OperationUserAddressServiceDeleteUserAddress = "/app.v1.UserAddressService/DeleteUserAddress"
 const OperationUserAddressServiceGetUserAddress = "/app.v1.UserAddressService/GetUserAddress"
-const OperationUserAddressServiceListUserAddresses = "/app.v1.UserAddressService/ListUserAddresses"
+const OperationUserAddressServiceListUserAddress = "/app.v1.UserAddressService/ListUserAddress"
 const OperationUserAddressServiceUpdateUserAddress = "/app.v1.UserAddressService/UpdateUserAddress"
 
 type UserAddressServiceHTTPServer interface {
@@ -32,36 +32,36 @@ type UserAddressServiceHTTPServer interface {
 	DeleteUserAddress(context.Context, *DeleteUserAddressRequest) (*emptypb.Empty, error)
 	// GetUserAddress 查询用户地址
 	GetUserAddress(context.Context, *GetUserAddressRequest) (*UserAddressForm, error)
-	// ListUserAddresses 查询用户地址列表
-	ListUserAddresses(context.Context, *ListUserAddressesRequest) (*ListUserAddressesResponse, error)
+	// ListUserAddress 查询用户地址列表
+	ListUserAddress(context.Context, *ListUserAddressRequest) (*ListUserAddressResponse, error)
 	// UpdateUserAddress 更新用户地址
 	UpdateUserAddress(context.Context, *UpdateUserAddressRequest) (*emptypb.Empty, error)
 }
 
 func RegisterUserAddressServiceHTTPServer(s *http.Server, srv UserAddressServiceHTTPServer) {
 	r := s.Route("/")
-	r.Handle("GET", "/api/v1/app/user/address", _UserAddressService_ListUserAddresses0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/app/user/address", _UserAddressService_ListUserAddress0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/app/user/address/{id}", _UserAddressService_GetUserAddress0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/app/user/address", _UserAddressService_CreateUserAddress0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/app/user/address/{id}", _UserAddressService_UpdateUserAddress0_HTTP_Handler(srv))
 	r.Handle("DELETE", "/api/v1/app/user/address/{id}", _UserAddressService_DeleteUserAddress0_HTTP_Handler(srv))
 }
 
-func _UserAddressService_ListUserAddresses0_HTTP_Handler(srv UserAddressServiceHTTPServer) func(ctx http.Context) error {
+func _UserAddressService_ListUserAddress0_HTTP_Handler(srv UserAddressServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in ListUserAddressesRequest
+		var in ListUserAddressRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationUserAddressServiceListUserAddresses)
+		http.SetOperation(ctx, OperationUserAddressServiceListUserAddress)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.ListUserAddresses(ctx, req.(*ListUserAddressesRequest))
+			return srv.ListUserAddress(ctx, req.(*ListUserAddressRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*ListUserAddressesResponse)
+		reply := out.(*ListUserAddressResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -164,8 +164,8 @@ type UserAddressServiceHTTPClient interface {
 	DeleteUserAddress(ctx context.Context, req *DeleteUserAddressRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// GetUserAddress 查询用户地址
 	GetUserAddress(ctx context.Context, req *GetUserAddressRequest, opts ...http.CallOption) (rsp *UserAddressForm, err error)
-	// ListUserAddresses 查询用户地址列表
-	ListUserAddresses(ctx context.Context, req *ListUserAddressesRequest, opts ...http.CallOption) (rsp *ListUserAddressesResponse, err error)
+	// ListUserAddress 查询用户地址列表
+	ListUserAddress(ctx context.Context, req *ListUserAddressRequest, opts ...http.CallOption) (rsp *ListUserAddressResponse, err error)
 	// UpdateUserAddress 更新用户地址
 	UpdateUserAddress(ctx context.Context, req *UpdateUserAddressRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 }
@@ -230,14 +230,14 @@ func (c *UserAddressServiceHTTPClientImpl) GetUserAddress(ctx context.Context, i
 	return &out, nil
 }
 
-// ListUserAddresses 查询用户地址列表
-func (c *UserAddressServiceHTTPClientImpl) ListUserAddresses(ctx context.Context, in *ListUserAddressesRequest, opts ...http.CallOption) (*ListUserAddressesResponse, error) {
-	var out ListUserAddressesResponse
+// ListUserAddress 查询用户地址列表
+func (c *UserAddressServiceHTTPClientImpl) ListUserAddress(ctx context.Context, in *ListUserAddressRequest, opts ...http.CallOption) (*ListUserAddressResponse, error) {
+	var out ListUserAddressResponse
 	pattern := "/api/v1/app/user/address"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationUserAddressServiceListUserAddresses),
+		http.Operation(OperationUserAddressServiceListUserAddress),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)

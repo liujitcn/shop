@@ -256,7 +256,7 @@ import type {
   OrderInfo,
   OrderInfoRefundResponse,
   OrderInfoShipmentForm,
-  PageOrderInfosRequest,
+  PageOrderInfoRequest,
   RefundOrderInfoRequest,
   ShipOrderInfoRequest
 } from "@/rpc/admin/v1/order_info";
@@ -301,7 +301,7 @@ const tenantStoreDisplayMap = ref(new Map<number, TenantStoreDisplayInfo>());
 const refundOrderPayMoney = ref(0);
 
 /** 订单列表搜索参数，兼容租户门店树筛选展示值。 */
-type OrderInfoSearchParams = PageOrderInfosRequest & {
+type OrderInfoSearchParams = PageOrderInfoRequest & {
   /** 默认租户的租户门店树筛选值。 */
   tenant_store_tree_value?: string;
 };
@@ -842,7 +842,7 @@ async function loadUserOptionsByKeyword(keyword: string) {
     return userOptions.value;
   }
 
-  const response = await defBaseUserService.OptionBaseUsers({ keyword: trimmedKeyword });
+  const response = await defBaseUserService.OptionBaseUser({ keyword: trimmedKeyword });
   userOptions.value.splice(0, userOptions.value.length, ...(response.list ?? []));
   return userOptions.value;
 }
@@ -851,14 +851,14 @@ async function loadUserOptionsByKeyword(keyword: string) {
  * 请求租户门店树筛选数据。
  */
 async function requestTenantStoreTreeOptions() {
-  const response = await defTenantStoreService.TreeTenantStores({ keyword: "" });
+  const response = await defTenantStoreService.TreeTenantStore({ keyword: "" });
   tenantStoreDisplayMap.value = buildTenantStoreDisplayMap(response.list ?? []);
   return { data: transformTenantStoreTreeOptions(response.list ?? []) };
 }
 
 /** 请求普通租户的门店下拉筛选数据。 */
 async function requestTenantStoreOptions() {
-  const response = await defTenantStoreService.OptionTenantStores({ keyword: "" });
+  const response = await defTenantStoreService.OptionTenantStore({ keyword: "" });
   tenantStoreDisplayMap.value = buildTenantStoreDisplayMapFromOptions(response.list ?? []);
   return { data: response.list ?? [] };
 }
@@ -880,14 +880,14 @@ function handleUserSearch(keyword: string) {
 /**
  * 请求订单分页列表，并补齐固定筛选参数。
  */
-async function requestOrderTable(params: PageOrderInfosRequest) {
+async function requestOrderTable(params: PageOrderInfoRequest) {
   const searchParams = params as OrderInfoSearchParams;
   // 默认租户按树节点解析租户或门店，普通租户直接传下拉选择的门店编号。
   const tenantStoreSelection = isDefaultTenant.value
     ? parseTenantStoreTreeValue(searchParams.tenant_store_tree_value)
     : { tenant_store_id: searchParams.tenant_store_id };
   const { tenant_store_tree_value: _tenantStoreTreeValue, tenant_id: _tenantId, tenant_store_id: _tenantStoreId, ...requestParams } = searchParams;
-  const data = await defOrderInfoService.PageOrderInfos(
+  const data = await defOrderInfoService.PageOrderInfo(
     buildPageRequest({
       ...requestParams,
       tenant_id: tenantStoreSelection.tenant_id,

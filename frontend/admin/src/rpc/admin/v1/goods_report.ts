@@ -23,7 +23,7 @@ export interface SummaryGoodsMonthReportRequest {
 }
 
 /** 商品月报列表请求参数 */
-export interface ListGoodsMonthReportsRequest {
+export interface ListGoodsMonthReportRequest {
   /** 租户ID */
   tenant_id?:
     | number
@@ -93,7 +93,7 @@ export interface GoodsMonthReportItem {
 }
 
 /** 商品月报列表响应 */
-export interface ListGoodsMonthReportsResponse {
+export interface ListGoodsMonthReportResponse {
   /** 商品月报明细 */
   goods_month_reports: GoodsMonthReportItem[];
 }
@@ -107,7 +107,7 @@ export interface SummaryGoodsDayReportRequest {
 }
 
 /** 商品日报列表请求参数 */
-export interface ListGoodsDayReportsRequest {
+export interface ListGoodsDayReportRequest {
   /** 开始日期，格式：YYYY-MM-DD */
   start_date: string;
   /** 结束日期，格式：YYYY-MM-DD */
@@ -169,7 +169,7 @@ export interface GoodsDayReportItem {
 }
 
 /** 商品日报列表响应 */
-export interface ListGoodsDayReportsResponse {
+export interface ListGoodsDayReportResponse {
   /** 商品日报明细 */
   goods_day_reports: GoodsDayReportItem[];
 }
@@ -179,9 +179,9 @@ export interface GoodsReportService {
   /** 查询商品月报汇总 */
   SummaryGoodsMonthReport(request: SummaryGoodsMonthReportRequest): Promise<SummaryGoodsMonthReportResponse>;
   /** 查询商品月报名细 */
-  ListGoodsMonthReports(request: ListGoodsMonthReportsRequest): Promise<ListGoodsMonthReportsResponse>;
+  ListGoodsMonthReport(request: ListGoodsMonthReportRequest): Promise<ListGoodsMonthReportResponse>;
   /** 查询商品日报汇总 */
   SummaryGoodsDayReport(request: SummaryGoodsDayReportRequest): Promise<SummaryGoodsDayReportResponse>;
   /** 查询商品日报明细 */
-  ListGoodsDayReports(request: ListGoodsDayReportsRequest): Promise<ListGoodsDayReportsResponse>;
+  ListGoodsDayReport(request: ListGoodsDayReportRequest): Promise<ListGoodsDayReportResponse>;
 }

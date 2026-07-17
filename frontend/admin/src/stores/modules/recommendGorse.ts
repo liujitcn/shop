@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 import { defGoodsCategoryService } from "@/api/admin/goods_category";
 import { defRecommendGorseService } from "@/api/admin/recommend_gorse";
 import { useDictStoreHook } from "@/stores/modules/dict";
-import type { OptionBaseDictsResponse_BaseDictItem } from "@/rpc/admin/v1/base_dict";
+import type { OptionBaseDictResponse_BaseDictItem } from "@/rpc/admin/v1/base_dict";
 import type { ConfigResponse } from "@/rpc/admin/v1/recommend_gorse";
 import type { TreeOptionResponse_Option } from "@/rpc/common/v1/common";
 
@@ -59,7 +59,7 @@ export const useRecommendGorseStore = defineStore("shop-recommend-gorse", {
     categoryLabelMap: {} as Record<string, string>
   }),
   getters: {
-    /** 概览页推荐器下拉数据，value 直接作为 ListDashboardItems 接口的推荐器名称。 */
+    /** 概览页推荐器下拉数据，value 直接作为 ListDashboardItem 接口的推荐器名称。 */
     dashboardRecommenderOptions(state): GorseSelectOption[] {
       const recommend = toRecord(state.config.recommend);
       const nonPersonalizedRecommenders = readRecordList(recommend, "non_personalized")
@@ -158,7 +158,7 @@ export const useRecommendGorseStore = defineStore("shop-recommend-gorse", {
         };
       }
 
-      const data = await defGoodsCategoryService.OptionGoodsCategories({});
+      const data = await defGoodsCategoryService.OptionGoodsCategory({});
       const nextLabelMap: Record<string, string> = {};
       this.categoryTreeOptions = buildGoodsCategoryTreeOptions(data.list ?? [], nextLabelMap);
       this.categoryLabelMap = nextLabelMap;
@@ -188,12 +188,12 @@ function formatFeedbackTypeLabel(type: string) {
 }
 
 /** 格式化推荐器中文文案。 */
-function formatDashboardRecommenderLabel(recommender: string, dictList: OptionBaseDictsResponse_BaseDictItem[]) {
+function formatDashboardRecommenderLabel(recommender: string, dictList: OptionBaseDictResponse_BaseDictItem[]) {
   return formatGorseRecommenderLabel(recommender, dictList);
 }
 
 /** 格式化通用推荐器中文文案。 */
-function formatGorseRecommenderLabel(recommender: string, dictList: OptionBaseDictsResponse_BaseDictItem[]) {
+function formatGorseRecommenderLabel(recommender: string, dictList: OptionBaseDictResponse_BaseDictItem[]) {
   const value = recommender.trim();
   const dictValue = buildGorseRecommenderDictValue(value);
   const matchedItem = dictList.find(item => item.value === dictValue);
@@ -204,7 +204,7 @@ function formatGorseRecommenderLabel(recommender: string, dictList: OptionBaseDi
 }
 
 /** 格式化用户相似推荐器中文文案。 */
-function formatUserToUserRecommenderLabel(recommender: string, dictList: OptionBaseDictsResponse_BaseDictItem[]) {
+function formatUserToUserRecommenderLabel(recommender: string, dictList: OptionBaseDictResponse_BaseDictItem[]) {
   const value = recommender.trim();
   const dictValue = buildGorseRecommenderDictValue(value, "user_to_user");
   const matchedItem = dictList.find(item => item.value === dictValue);
@@ -214,7 +214,7 @@ function formatUserToUserRecommenderLabel(recommender: string, dictList: OptionB
 }
 
 /** 格式化商品相似推荐器中文文案。 */
-function formatItemToItemRecommenderLabel(recommender: string, dictList: OptionBaseDictsResponse_BaseDictItem[]) {
+function formatItemToItemRecommenderLabel(recommender: string, dictList: OptionBaseDictResponse_BaseDictItem[]) {
   const value = recommender.trim();
   const dictValue = buildGorseRecommenderDictValue(value, "item_to_item");
   const matchedItem = dictList.find(item => item.value === dictValue);

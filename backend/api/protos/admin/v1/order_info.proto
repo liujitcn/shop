@@ -10,7 +10,7 @@ import "google/protobuf/empty.proto";
 // Admin订单信息服务
 service OrderInfoService {
   // 查询订单信息分页列表
-  rpc PageOrderInfos(PageOrderInfosRequest) returns (PageOrderInfosResponse) {
+  rpc PageOrderInfo(PageOrderInfoRequest) returns (PageOrderInfoResponse) {
     option (google.api.http) = {
       get: "/api/v1/admin/order/info"
     };
@@ -55,7 +55,7 @@ service OrderInfoService {
 }
 
 // 订单分页查询条件
-message PageOrderInfosRequest {
+message PageOrderInfoRequest {
   optional int64 tenant_id = 1 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
 
   optional int64 tenant_store_id = 2 [(gnostic.openapi.v3.property) = {description: "租户门店ID"}]; // 租户门店ID
@@ -84,7 +84,7 @@ message PageOrderInfosRequest {
 }
 
 // 订单分页响应
-message PageOrderInfosResponse {
+message PageOrderInfoResponse {
   repeated OrderInfo order_infos = 1 [(gnostic.openapi.v3.property) = {description: "订单分页数据"}]; // 订单分页数据
   int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
 }

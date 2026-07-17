@@ -10,7 +10,7 @@ import "google/protobuf/empty.proto";
 // Admin商城轮播图服务
 service ShopBannerService {
   // 查询商城轮播图列表
-  rpc PageShopBanners(PageShopBannersRequest) returns (PageShopBannersResponse) {
+  rpc PageShopBanner(PageShopBannerRequest) returns (PageShopBannerResponse) {
     option (google.api.http) = {
       get: "/api/v1/admin/shop/banner"
     };
@@ -56,7 +56,7 @@ service ShopBannerService {
 }
 
 // 轮播图列表查询条件
-message PageShopBannersRequest {
+message PageShopBannerRequest {
   optional .common.v1.ShopBannerSite site = 1 [(gnostic.openapi.v3.property) = {description: "位置：枚举【ShopBannerSite】"}]; // 位置：枚举【ShopBannerSite】
 
   optional .common.v1.ShopBannerType type = 2 [(gnostic.openapi.v3.property) = {description: "跳转类型：枚举【ShopBannerType】"}]; // 跳转类型：枚举【ShopBannerType】
@@ -75,7 +75,7 @@ message PageShopBannersRequest {
 }
 
 // 轮播图列表响应
-message PageShopBannersResponse {
+message PageShopBannerResponse {
   repeated ShopBanner shop_banners = 1 [(gnostic.openapi.v3.property) = {description: "轮播图列表"}]; // 轮播图列表
 
   int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数

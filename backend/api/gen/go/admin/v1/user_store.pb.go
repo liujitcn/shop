@@ -8,7 +8,6 @@ package adminv1
 
 import (
 	reflect "reflect"
-	v1 "shop/api/gen/go/common/v1"
 	sync "sync"
 	unsafe "unsafe"
 
@@ -17,6 +16,8 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+
+	v1 "shop/api/gen/go/common/v1"
 )
 
 const (
@@ -27,7 +28,7 @@ const (
 )
 
 // 用户门店列表查询条件
-type PageUserStoresRequest struct {
+type PageUserStoreRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`                                             // 门店名称
 	Status        *v1.UserStoreStatus    `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.UserStoreStatus,oneof" json:"status,omitempty"` // 状态
@@ -37,20 +38,20 @@ type PageUserStoresRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *PageUserStoresRequest) Reset() {
-	*x = PageUserStoresRequest{}
+func (x *PageUserStoreRequest) Reset() {
+	*x = PageUserStoreRequest{}
 	mi := &file_admin_v1_user_store_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PageUserStoresRequest) String() string {
+func (x *PageUserStoreRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PageUserStoresRequest) ProtoMessage() {}
+func (*PageUserStoreRequest) ProtoMessage() {}
 
-func (x *PageUserStoresRequest) ProtoReflect() protoreflect.Message {
+func (x *PageUserStoreRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_user_store_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -62,33 +63,33 @@ func (x *PageUserStoresRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PageUserStoresRequest.ProtoReflect.Descriptor instead.
-func (*PageUserStoresRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use PageUserStoreRequest.ProtoReflect.Descriptor instead.
+func (*PageUserStoreRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_user_store_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *PageUserStoresRequest) GetName() string {
+func (x *PageUserStoreRequest) GetName() string {
 	if x != nil {
 		return x.Name
 	}
 	return ""
 }
 
-func (x *PageUserStoresRequest) GetStatus() v1.UserStoreStatus {
+func (x *PageUserStoreRequest) GetStatus() v1.UserStoreStatus {
 	if x != nil && x.Status != nil {
 		return *x.Status
 	}
 	return v1.UserStoreStatus(0)
 }
 
-func (x *PageUserStoresRequest) GetPageNum() int64 {
+func (x *PageUserStoreRequest) GetPageNum() int64 {
 	if x != nil {
 		return x.PageNum
 	}
 	return 0
 }
 
-func (x *PageUserStoresRequest) GetPageSize() int64 {
+func (x *PageUserStoreRequest) GetPageSize() int64 {
 	if x != nil {
 		return x.PageSize
 	}
@@ -96,7 +97,7 @@ func (x *PageUserStoresRequest) GetPageSize() int64 {
 }
 
 // 用户门店列表响应
-type PageUserStoresResponse struct {
+type PageUserStoreResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserStores    []*UserStore           `protobuf:"bytes,1,rep,name=user_stores,json=userStores,proto3" json:"user_stores,omitempty"` // 用户门店列表
 	Total         int32                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`                            // 总数
@@ -104,20 +105,20 @@ type PageUserStoresResponse struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *PageUserStoresResponse) Reset() {
-	*x = PageUserStoresResponse{}
+func (x *PageUserStoreResponse) Reset() {
+	*x = PageUserStoreResponse{}
 	mi := &file_admin_v1_user_store_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PageUserStoresResponse) String() string {
+func (x *PageUserStoreResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PageUserStoresResponse) ProtoMessage() {}
+func (*PageUserStoreResponse) ProtoMessage() {}
 
-func (x *PageUserStoresResponse) ProtoReflect() protoreflect.Message {
+func (x *PageUserStoreResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_user_store_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -129,19 +130,19 @@ func (x *PageUserStoresResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PageUserStoresResponse.ProtoReflect.Descriptor instead.
-func (*PageUserStoresResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use PageUserStoreResponse.ProtoReflect.Descriptor instead.
+func (*PageUserStoreResponse) Descriptor() ([]byte, []int) {
 	return file_admin_v1_user_store_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *PageUserStoresResponse) GetUserStores() []*UserStore {
+func (x *PageUserStoreResponse) GetUserStores() []*UserStore {
 	if x != nil {
 		return x.UserStores
 	}
 	return nil
 }
 
-func (x *PageUserStoresResponse) GetTotal() int32 {
+func (x *PageUserStoreResponse) GetTotal() int32 {
 	if x != nil {
 		return x.Total
 	}
@@ -375,14 +376,14 @@ var File_admin_v1_user_store_proto protoreflect.FileDescriptor
 
 const file_admin_v1_user_store_proto_rawDesc = "" +
 	"\n" +
-	"\x19admin/v1/user_store.proto\x12\badmin.v1\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x9b\x02\n" +
-	"\x15PageUserStoresRequest\x12&\n" +
+	"\x19admin/v1/user_store.proto\x12\badmin.v1\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x9a\x02\n" +
+	"\x14PageUserStoreRequest\x12&\n" +
 	"\x04name\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f门店名称R\x04name\x12Q\n" +
 	"\x06status\x18d \x01(\x0e2\x1a.common.v1.UserStoreStatusB\x18\xbaG\x15\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\x00\x00\x92\x02\x06状态H\x00R\x06status\x88\x01\x01\x129\n" +
 	"\bpage_num\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12A\n" +
 	"\tpage_size\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSizeB\t\n" +
-	"\a_status\"\x8c\x01\n" +
-	"\x16PageUserStoresResponse\x12N\n" +
+	"\a_status\"\x8b\x01\n" +
+	"\x15PageUserStoreResponse\x12N\n" +
 	"\vuser_stores\x18\x01 \x03(\v2\x13.admin.v1.UserStoreB\x18\xbaG\x15\x92\x02\x12用户门店列表R\n" +
 	"userStores\x12\"\n" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\";\n" +
@@ -402,9 +403,9 @@ const file_admin_v1_user_store_proto_rawDesc = "" +
 	"\x06status\x183 \x01(\x0e2\x1a.common.v1.UserStoreStatusB\f\xbaG\t\x92\x02\x06状态R\x06status\x12'\n" +
 	"\x06remark\x184 \x01(\tB\x0f\xbaG\f\x92\x02\t备注名R\x06remark\x12,\n" +
 	"\tnick_name\x18d \x01(\tB\x0f\xbaG\f\x92\x02\t联系人R\bnickName\x12%\n" +
-	"\x05phone\x18e \x01(\tB\x0f\xbaG\f\x92\x02\t手机号R\x05phone2\xef\x02\n" +
-	"\x10UserStoreService\x12u\n" +
-	"\x0ePageUserStores\x12\x1f.admin.v1.PageUserStoresRequest\x1a .admin.v1.PageUserStoresResponse\" \x82\xd3\xe4\x93\x02\x1a\x12\x18/api/v1/admin/user/store\x12i\n" +
+	"\x05phone\x18e \x01(\tB\x0f\xbaG\f\x92\x02\t手机号R\x05phone2\xec\x02\n" +
+	"\x10UserStoreService\x12r\n" +
+	"\rPageUserStore\x12\x1e.admin.v1.PageUserStoreRequest\x1a\x1f.admin.v1.PageUserStoreResponse\" \x82\xd3\xe4\x93\x02\x1a\x12\x18/api/v1/admin/user/store\x12i\n" +
 	"\fGetUserStore\x12\x1d.admin.v1.GetUserStoreRequest\x1a\x13.admin.v1.UserStore\"%\x82\xd3\xe4\x93\x02\x1f\x12\x1d/api/v1/admin/user/store/{id}\x12y\n" +
 	"\x0eAuditUserStore\x12\x1f.admin.v1.AuditUserStoreRequest\x1a\x16.google.protobuf.Empty\".\x82\xd3\xe4\x93\x02(:\x01*\x1a#/api/v1/admin/user/store/{id}/auditB\x81\x01\n" +
 	"\fcom.admin.v1B\x0eUserStoreProtoP\x01Z shop/api/gen/go/admin/v1;adminv1\xa2\x02\x03AXX\xaa\x02\bAdmin.V1\xca\x02\bAdmin\\V1\xe2\x02\x14Admin\\V1\\GPBMetadata\xea\x02\tAdmin::V1b\x06proto3"
@@ -423,23 +424,23 @@ func file_admin_v1_user_store_proto_rawDescGZIP() []byte {
 
 var file_admin_v1_user_store_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_admin_v1_user_store_proto_goTypes = []any{
-	(*PageUserStoresRequest)(nil),  // 0: admin.v1.PageUserStoresRequest
-	(*PageUserStoresResponse)(nil), // 1: admin.v1.PageUserStoresResponse
-	(*GetUserStoreRequest)(nil),    // 2: admin.v1.GetUserStoreRequest
-	(*AuditUserStoreRequest)(nil),  // 3: admin.v1.AuditUserStoreRequest
-	(*UserStore)(nil),              // 4: admin.v1.UserStore
-	(v1.UserStoreStatus)(0),        // 5: common.v1.UserStoreStatus
-	(*emptypb.Empty)(nil),          // 6: google.protobuf.Empty
+	(*PageUserStoreRequest)(nil),  // 0: admin.v1.PageUserStoreRequest
+	(*PageUserStoreResponse)(nil), // 1: admin.v1.PageUserStoreResponse
+	(*GetUserStoreRequest)(nil),   // 2: admin.v1.GetUserStoreRequest
+	(*AuditUserStoreRequest)(nil), // 3: admin.v1.AuditUserStoreRequest
+	(*UserStore)(nil),             // 4: admin.v1.UserStore
+	(v1.UserStoreStatus)(0),       // 5: common.v1.UserStoreStatus
+	(*emptypb.Empty)(nil),         // 6: google.protobuf.Empty
 }
 var file_admin_v1_user_store_proto_depIdxs = []int32{
-	5, // 0: admin.v1.PageUserStoresRequest.status:type_name -> common.v1.UserStoreStatus
-	4, // 1: admin.v1.PageUserStoresResponse.user_stores:type_name -> admin.v1.UserStore
+	5, // 0: admin.v1.PageUserStoreRequest.status:type_name -> common.v1.UserStoreStatus
+	4, // 1: admin.v1.PageUserStoreResponse.user_stores:type_name -> admin.v1.UserStore
 	5, // 2: admin.v1.AuditUserStoreRequest.status:type_name -> common.v1.UserStoreStatus
 	5, // 3: admin.v1.UserStore.status:type_name -> common.v1.UserStoreStatus
-	0, // 4: admin.v1.UserStoreService.PageUserStores:input_type -> admin.v1.PageUserStoresRequest
+	0, // 4: admin.v1.UserStoreService.PageUserStore:input_type -> admin.v1.PageUserStoreRequest
 	2, // 5: admin.v1.UserStoreService.GetUserStore:input_type -> admin.v1.GetUserStoreRequest
 	3, // 6: admin.v1.UserStoreService.AuditUserStore:input_type -> admin.v1.AuditUserStoreRequest
-	1, // 7: admin.v1.UserStoreService.PageUserStores:output_type -> admin.v1.PageUserStoresResponse
+	1, // 7: admin.v1.UserStoreService.PageUserStore:output_type -> admin.v1.PageUserStoreResponse
 	4, // 8: admin.v1.UserStoreService.GetUserStore:output_type -> admin.v1.UserStore
 	6, // 9: admin.v1.UserStoreService.AuditUserStore:output_type -> google.protobuf.Empty
 	7, // [7:10] is the sub-list for method output_type

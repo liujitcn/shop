@@ -23,7 +23,7 @@ const OperationCommentServiceCreateComment = "/app.v1.CommentService/CreateComme
 const OperationCommentServiceCreateCommentDiscussion = "/app.v1.CommentService/CreateCommentDiscussion"
 const OperationCommentServiceDeleteComment = "/app.v1.CommentService/DeleteComment"
 const OperationCommentServiceGoodsCommentOverview = "/app.v1.CommentService/GoodsCommentOverview"
-const OperationCommentServiceGoodsCommentTags = "/app.v1.CommentService/GoodsCommentTags"
+const OperationCommentServiceGoodsCommentTag = "/app.v1.CommentService/GoodsCommentTag"
 const OperationCommentServicePageCommentDiscussion = "/app.v1.CommentService/PageCommentDiscussion"
 const OperationCommentServicePageGoodsComment = "/app.v1.CommentService/PageGoodsComment"
 const OperationCommentServicePageMyComment = "/app.v1.CommentService/PageMyComment"
@@ -39,8 +39,8 @@ type CommentServiceHTTPServer interface {
 	DeleteComment(context.Context, *DeleteCommentRequest) (*emptypb.Empty, error)
 	// GoodsCommentOverview 查询商品评价摘要
 	GoodsCommentOverview(context.Context, *GoodsCommentOverviewRequest) (*GoodsCommentOverviewResponse, error)
-	// GoodsCommentTags 查询商品评价标签列表
-	GoodsCommentTags(context.Context, *GoodsCommentTagsRequest) (*GoodsCommentTagsResponse, error)
+	// GoodsCommentTag 查询商品评价标签列表
+	GoodsCommentTag(context.Context, *GoodsCommentTagRequest) (*GoodsCommentTagResponse, error)
 	// PageCommentDiscussion 查询评价讨论分页列表
 	PageCommentDiscussion(context.Context, *PageCommentDiscussionRequest) (*PageCommentDiscussionResponse, error)
 	// PageGoodsComment 查询商品评价分页列表
@@ -56,7 +56,7 @@ type CommentServiceHTTPServer interface {
 func RegisterCommentServiceHTTPServer(s *http.Server, srv CommentServiceHTTPServer) {
 	r := s.Route("/")
 	r.Handle("GET", "/api/v1/app/comment/goods/{goods_id}/overview", _CommentService_GoodsCommentOverview0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/app/comment/goods/{goods_id}/tags", _CommentService_GoodsCommentTags0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/app/comment/goods/{goods_id}/tags", _CommentService_GoodsCommentTag0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/app/comment/goods/{goods_id}", _CommentService_PageGoodsComment0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/app/comment/{comment_id}/discussion", _CommentService_PageCommentDiscussion0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/app/comment/{comment_id}/discussion", _CommentService_CreateCommentDiscussion0_HTTP_Handler(srv))
@@ -89,24 +89,24 @@ func _CommentService_GoodsCommentOverview0_HTTP_Handler(srv CommentServiceHTTPSe
 	}
 }
 
-func _CommentService_GoodsCommentTags0_HTTP_Handler(srv CommentServiceHTTPServer) func(ctx http.Context) error {
+func _CommentService_GoodsCommentTag0_HTTP_Handler(srv CommentServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in GoodsCommentTagsRequest
+		var in GoodsCommentTagRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
 		if err := ctx.BindVars(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationCommentServiceGoodsCommentTags)
+		http.SetOperation(ctx, OperationCommentServiceGoodsCommentTag)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.GoodsCommentTags(ctx, req.(*GoodsCommentTagsRequest))
+			return srv.GoodsCommentTag(ctx, req.(*GoodsCommentTagRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*GoodsCommentTagsResponse)
+		reply := out.(*GoodsCommentTagResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -284,8 +284,8 @@ type CommentServiceHTTPClient interface {
 	DeleteComment(ctx context.Context, req *DeleteCommentRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// GoodsCommentOverview 查询商品评价摘要
 	GoodsCommentOverview(ctx context.Context, req *GoodsCommentOverviewRequest, opts ...http.CallOption) (rsp *GoodsCommentOverviewResponse, err error)
-	// GoodsCommentTags 查询商品评价标签列表
-	GoodsCommentTags(ctx context.Context, req *GoodsCommentTagsRequest, opts ...http.CallOption) (rsp *GoodsCommentTagsResponse, err error)
+	// GoodsCommentTag 查询商品评价标签列表
+	GoodsCommentTag(ctx context.Context, req *GoodsCommentTagRequest, opts ...http.CallOption) (rsp *GoodsCommentTagResponse, err error)
 	// PageCommentDiscussion 查询评价讨论分页列表
 	PageCommentDiscussion(ctx context.Context, req *PageCommentDiscussionRequest, opts ...http.CallOption) (rsp *PageCommentDiscussionResponse, err error)
 	// PageGoodsComment 查询商品评价分页列表
@@ -376,14 +376,14 @@ func (c *CommentServiceHTTPClientImpl) GoodsCommentOverview(ctx context.Context,
 	return &out, nil
 }
 
-// GoodsCommentTags 查询商品评价标签列表
-func (c *CommentServiceHTTPClientImpl) GoodsCommentTags(ctx context.Context, in *GoodsCommentTagsRequest, opts ...http.CallOption) (*GoodsCommentTagsResponse, error) {
-	var out GoodsCommentTagsResponse
+// GoodsCommentTag 查询商品评价标签列表
+func (c *CommentServiceHTTPClientImpl) GoodsCommentTag(ctx context.Context, in *GoodsCommentTagRequest, opts ...http.CallOption) (*GoodsCommentTagResponse, error) {
+	var out GoodsCommentTagResponse
 	pattern := "/api/v1/app/comment/goods/{goods_id}/tags"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationCommentServiceGoodsCommentTags),
+		http.Operation(OperationCommentServiceGoodsCommentTag),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)

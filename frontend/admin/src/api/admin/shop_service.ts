@@ -3,8 +3,8 @@ import {
   type CreateShopServiceRequest,
   type DeleteShopServiceRequest,
   type GetShopServiceRequest,
-  type PageShopServicesRequest,
-  type PageShopServicesResponse,
+  type PageShopServiceRequest,
+  type PageShopServiceResponse,
   type SetShopServiceStatusRequest,
   type ShopServiceForm,
   type ShopServiceService,
@@ -17,8 +17,8 @@ const SHOP_SERVICE_URL = "/v1/admin/shop/service";
 /** 商城服务 */
 export class ShopServiceServiceImpl implements ShopServiceService {
   /** 查询商城服务列表 */
-  PageShopServices(request: PageShopServicesRequest): Promise<PageShopServicesResponse> {
-    return service<PageShopServicesRequest, PageShopServicesResponse>({
+  PageShopService(request: PageShopServiceRequest): Promise<PageShopServiceResponse> {
+    return service<PageShopServiceRequest, PageShopServiceResponse>({
       url: `${SHOP_SERVICE_URL}`,
       method: "get",
       params: request

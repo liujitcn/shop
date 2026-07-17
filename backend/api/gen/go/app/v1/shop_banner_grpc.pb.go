@@ -20,7 +20,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ShopBannerService_ListShopBanners_FullMethodName = "/app.v1.ShopBannerService/ListShopBanners"
+	ShopBannerService_ListShopBanner_FullMethodName = "/app.v1.ShopBannerService/ListShopBanner"
 )
 
 // ShopBannerServiceClient is the client API for ShopBannerService service.
@@ -30,7 +30,7 @@ const (
 // App商城轮播图服务
 type ShopBannerServiceClient interface {
 	// 查询商城轮播图列表
-	ListShopBanners(ctx context.Context, in *ListShopBannersRequest, opts ...grpc.CallOption) (*ListShopBannersResponse, error)
+	ListShopBanner(ctx context.Context, in *ListShopBannerRequest, opts ...grpc.CallOption) (*ListShopBannerResponse, error)
 }
 
 type shopBannerServiceClient struct {
@@ -41,10 +41,10 @@ func NewShopBannerServiceClient(cc grpc.ClientConnInterface) ShopBannerServiceCl
 	return &shopBannerServiceClient{cc}
 }
 
-func (c *shopBannerServiceClient) ListShopBanners(ctx context.Context, in *ListShopBannersRequest, opts ...grpc.CallOption) (*ListShopBannersResponse, error) {
+func (c *shopBannerServiceClient) ListShopBanner(ctx context.Context, in *ListShopBannerRequest, opts ...grpc.CallOption) (*ListShopBannerResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListShopBannersResponse)
-	err := c.cc.Invoke(ctx, ShopBannerService_ListShopBanners_FullMethodName, in, out, cOpts...)
+	out := new(ListShopBannerResponse)
+	err := c.cc.Invoke(ctx, ShopBannerService_ListShopBanner_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +58,7 @@ func (c *shopBannerServiceClient) ListShopBanners(ctx context.Context, in *ListS
 // App商城轮播图服务
 type ShopBannerServiceServer interface {
 	// 查询商城轮播图列表
-	ListShopBanners(context.Context, *ListShopBannersRequest) (*ListShopBannersResponse, error)
+	ListShopBanner(context.Context, *ListShopBannerRequest) (*ListShopBannerResponse, error)
 	mustEmbedUnimplementedShopBannerServiceServer()
 }
 
@@ -69,8 +69,8 @@ type ShopBannerServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedShopBannerServiceServer struct{}
 
-func (UnimplementedShopBannerServiceServer) ListShopBanners(context.Context, *ListShopBannersRequest) (*ListShopBannersResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method ListShopBanners not implemented")
+func (UnimplementedShopBannerServiceServer) ListShopBanner(context.Context, *ListShopBannerRequest) (*ListShopBannerResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListShopBanner not implemented")
 }
 func (UnimplementedShopBannerServiceServer) mustEmbedUnimplementedShopBannerServiceServer() {}
 func (UnimplementedShopBannerServiceServer) testEmbeddedByValue()                           {}
@@ -93,20 +93,20 @@ func RegisterShopBannerServiceServer(s grpc.ServiceRegistrar, srv ShopBannerServ
 	s.RegisterService(&ShopBannerService_ServiceDesc, srv)
 }
 
-func _ShopBannerService_ListShopBanners_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListShopBannersRequest)
+func _ShopBannerService_ListShopBanner_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListShopBannerRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ShopBannerServiceServer).ListShopBanners(ctx, in)
+		return srv.(ShopBannerServiceServer).ListShopBanner(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ShopBannerService_ListShopBanners_FullMethodName,
+		FullMethod: ShopBannerService_ListShopBanner_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ShopBannerServiceServer).ListShopBanners(ctx, req.(*ListShopBannersRequest))
+		return srv.(ShopBannerServiceServer).ListShopBanner(ctx, req.(*ListShopBannerRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -119,8 +119,8 @@ var ShopBannerService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*ShopBannerServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "ListShopBanners",
-			Handler:    _ShopBannerService_ListShopBanners_Handler,
+			MethodName: "ListShopBanner",
+			Handler:    _ShopBannerService_ListShopBanner_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

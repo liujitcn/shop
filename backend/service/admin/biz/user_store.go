@@ -44,8 +44,8 @@ func NewUserStoreCase(baseCase *biz.BaseCase, tx data.Transaction, userStoreRepo
 	}
 }
 
-// PageUserStores 分页查询门店申请
-func (c *UserStoreCase) PageUserStores(ctx context.Context, req *adminv1.PageUserStoresRequest) (*adminv1.PageUserStoresResponse, error) {
+// PageUserStore 分页查询门店申请
+func (c *UserStoreCase) PageUserStore(ctx context.Context, req *adminv1.PageUserStoreRequest) (*adminv1.PageUserStoreResponse, error) {
 	query := c.Query(ctx).UserStore
 	opts := make([]repository.QueryOption, 0, 3)
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
@@ -91,7 +91,7 @@ func (c *UserStoreCase) PageUserStores(ctx context.Context, req *adminv1.PageUse
 		list = append(list, userStore)
 	}
 
-	return &adminv1.PageUserStoresResponse{
+	return &adminv1.PageUserStoreResponse{
 		UserStores: list,
 		Total:      int32(count),
 	}, nil

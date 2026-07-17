@@ -158,7 +158,7 @@ watch(
 
 /** 加载 Gorse 推荐可用分类ID。 */
 async function loadGorseCategories() {
-  const gorseData = await defRecommendGorseService.OptionCategories({});
+  const gorseData = await defRecommendGorseService.OptionCategory({});
   gorseCategoryIds.value = (gorseData.categories ?? []).map(item => String(item).trim()).filter(Boolean);
 }
 

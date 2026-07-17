@@ -57,8 +57,8 @@ func NewCommentInfoCase(
 	}
 }
 
-// PageCommentInfos 分页查询评论审核列表。
-func (c *CommentInfoCase) PageCommentInfos(ctx context.Context, req *adminv1.PageCommentInfosRequest) (*adminv1.PageCommentInfosResponse, error) {
+// PageCommentInfo 分页查询评论审核列表。
+func (c *CommentInfoCase) PageCommentInfo(ctx context.Context, req *adminv1.PageCommentInfoRequest) (*adminv1.PageCommentInfoResponse, error) {
 	query := c.Query(ctx).CommentInfo
 	opts := make([]repository.QueryOption, 0, 9)
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
@@ -104,7 +104,7 @@ func (c *CommentInfoCase) PageCommentInfos(ctx context.Context, req *adminv1.Pag
 	for _, item := range list {
 		resList = append(resList, c.commentInfoMapper.ToDTO(item))
 	}
-	return &adminv1.PageCommentInfosResponse{CommentInfos: resList, Total: int32(total)}, nil
+	return &adminv1.PageCommentInfoResponse{CommentInfos: resList, Total: int32(total)}, nil
 }
 
 // GetGoodsCommentInfo 按商品查询评论聚合信息。

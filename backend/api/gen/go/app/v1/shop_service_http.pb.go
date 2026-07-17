@@ -18,40 +18,40 @@ var _ = new(context.Context)
 
 const _ = http.SupportPackageIsVersion3
 
-const OperationShopServiceServiceListShopServices = "/app.v1.ShopServiceService/ListShopServices"
+const OperationShopServiceServiceListShopService = "/app.v1.ShopServiceService/ListShopService"
 
 type ShopServiceServiceHTTPServer interface {
-	// ListShopServices 查询商城服务列表
-	ListShopServices(context.Context, *ListShopServicesRequest) (*ListShopServicesResponse, error)
+	// ListShopService 查询商城服务列表
+	ListShopService(context.Context, *ListShopServiceRequest) (*ListShopServiceResponse, error)
 }
 
 func RegisterShopServiceServiceHTTPServer(s *http.Server, srv ShopServiceServiceHTTPServer) {
 	r := s.Route("/")
-	r.Handle("GET", "/api/v1/app/shop/service", _ShopServiceService_ListShopServices0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/app/shop/service", _ShopServiceService_ListShopService0_HTTP_Handler(srv))
 }
 
-func _ShopServiceService_ListShopServices0_HTTP_Handler(srv ShopServiceServiceHTTPServer) func(ctx http.Context) error {
+func _ShopServiceService_ListShopService0_HTTP_Handler(srv ShopServiceServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in ListShopServicesRequest
+		var in ListShopServiceRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationShopServiceServiceListShopServices)
+		http.SetOperation(ctx, OperationShopServiceServiceListShopService)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.ListShopServices(ctx, req.(*ListShopServicesRequest))
+			return srv.ListShopService(ctx, req.(*ListShopServiceRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*ListShopServicesResponse)
+		reply := out.(*ListShopServiceResponse)
 		return ctx.Result(200, reply)
 	}
 }
 
 type ShopServiceServiceHTTPClient interface {
-	// ListShopServices 查询商城服务列表
-	ListShopServices(ctx context.Context, req *ListShopServicesRequest, opts ...http.CallOption) (rsp *ListShopServicesResponse, err error)
+	// ListShopService 查询商城服务列表
+	ListShopService(ctx context.Context, req *ListShopServiceRequest, opts ...http.CallOption) (rsp *ListShopServiceResponse, err error)
 }
 
 type ShopServiceServiceHTTPClientImpl struct {
@@ -62,14 +62,14 @@ func NewShopServiceServiceHTTPClient(client *http.Client) ShopServiceServiceHTTP
 	return &ShopServiceServiceHTTPClientImpl{client}
 }
 
-// ListShopServices 查询商城服务列表
-func (c *ShopServiceServiceHTTPClientImpl) ListShopServices(ctx context.Context, in *ListShopServicesRequest, opts ...http.CallOption) (*ListShopServicesResponse, error) {
-	var out ListShopServicesResponse
+// ListShopService 查询商城服务列表
+func (c *ShopServiceServiceHTTPClientImpl) ListShopService(ctx context.Context, in *ListShopServiceRequest, opts ...http.CallOption) (*ListShopServiceResponse, error) {
+	var out ListShopServiceResponse
 	pattern := "/api/v1/app/shop/service"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationShopServiceServiceListShopServices),
+		http.Operation(OperationShopServiceServiceListShopService),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)

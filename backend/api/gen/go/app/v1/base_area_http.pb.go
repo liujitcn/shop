@@ -18,40 +18,40 @@ var _ = new(context.Context)
 
 const _ = http.SupportPackageIsVersion3
 
-const OperationBaseAreaServiceTreeBaseAreas = "/app.v1.BaseAreaService/TreeBaseAreas"
+const OperationBaseAreaServiceTreeBaseArea = "/app.v1.BaseAreaService/TreeBaseArea"
 
 type BaseAreaServiceHTTPServer interface {
-	// TreeBaseAreas 查询行政区域树形列表
-	TreeBaseAreas(context.Context, *TreeBaseAreasRequest) (*TreeBaseAreasResponse, error)
+	// TreeBaseArea 查询行政区域树形列表
+	TreeBaseArea(context.Context, *TreeBaseAreaRequest) (*TreeBaseAreaResponse, error)
 }
 
 func RegisterBaseAreaServiceHTTPServer(s *http.Server, srv BaseAreaServiceHTTPServer) {
 	r := s.Route("/")
-	r.Handle("GET", "/api/v1/app/base/area/tree", _BaseAreaService_TreeBaseAreas0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/app/base/area/tree", _BaseAreaService_TreeBaseArea0_HTTP_Handler(srv))
 }
 
-func _BaseAreaService_TreeBaseAreas0_HTTP_Handler(srv BaseAreaServiceHTTPServer) func(ctx http.Context) error {
+func _BaseAreaService_TreeBaseArea0_HTTP_Handler(srv BaseAreaServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in TreeBaseAreasRequest
+		var in TreeBaseAreaRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationBaseAreaServiceTreeBaseAreas)
+		http.SetOperation(ctx, OperationBaseAreaServiceTreeBaseArea)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.TreeBaseAreas(ctx, req.(*TreeBaseAreasRequest))
+			return srv.TreeBaseArea(ctx, req.(*TreeBaseAreaRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*TreeBaseAreasResponse)
+		reply := out.(*TreeBaseAreaResponse)
 		return ctx.Result(200, reply)
 	}
 }
 
 type BaseAreaServiceHTTPClient interface {
-	// TreeBaseAreas 查询行政区域树形列表
-	TreeBaseAreas(ctx context.Context, req *TreeBaseAreasRequest, opts ...http.CallOption) (rsp *TreeBaseAreasResponse, err error)
+	// TreeBaseArea 查询行政区域树形列表
+	TreeBaseArea(ctx context.Context, req *TreeBaseAreaRequest, opts ...http.CallOption) (rsp *TreeBaseAreaResponse, err error)
 }
 
 type BaseAreaServiceHTTPClientImpl struct {
@@ -62,14 +62,14 @@ func NewBaseAreaServiceHTTPClient(client *http.Client) BaseAreaServiceHTTPClient
 	return &BaseAreaServiceHTTPClientImpl{client}
 }
 
-// TreeBaseAreas 查询行政区域树形列表
-func (c *BaseAreaServiceHTTPClientImpl) TreeBaseAreas(ctx context.Context, in *TreeBaseAreasRequest, opts ...http.CallOption) (*TreeBaseAreasResponse, error) {
-	var out TreeBaseAreasResponse
+// TreeBaseArea 查询行政区域树形列表
+func (c *BaseAreaServiceHTTPClientImpl) TreeBaseArea(ctx context.Context, in *TreeBaseAreaRequest, opts ...http.CallOption) (*TreeBaseAreaResponse, error) {
+	var out TreeBaseAreaResponse
 	pattern := "/api/v1/app/base/area/tree"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationBaseAreaServiceTreeBaseAreas),
+		http.Operation(OperationBaseAreaServiceTreeBaseArea),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)

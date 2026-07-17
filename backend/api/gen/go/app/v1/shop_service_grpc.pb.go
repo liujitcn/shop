@@ -20,7 +20,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ShopServiceService_ListShopServices_FullMethodName = "/app.v1.ShopServiceService/ListShopServices"
+	ShopServiceService_ListShopService_FullMethodName = "/app.v1.ShopServiceService/ListShopService"
 )
 
 // ShopServiceServiceClient is the client API for ShopServiceService service.
@@ -30,7 +30,7 @@ const (
 // App商城服务说明服务
 type ShopServiceServiceClient interface {
 	// 查询商城服务列表
-	ListShopServices(ctx context.Context, in *ListShopServicesRequest, opts ...grpc.CallOption) (*ListShopServicesResponse, error)
+	ListShopService(ctx context.Context, in *ListShopServiceRequest, opts ...grpc.CallOption) (*ListShopServiceResponse, error)
 }
 
 type shopServiceServiceClient struct {
@@ -41,10 +41,10 @@ func NewShopServiceServiceClient(cc grpc.ClientConnInterface) ShopServiceService
 	return &shopServiceServiceClient{cc}
 }
 
-func (c *shopServiceServiceClient) ListShopServices(ctx context.Context, in *ListShopServicesRequest, opts ...grpc.CallOption) (*ListShopServicesResponse, error) {
+func (c *shopServiceServiceClient) ListShopService(ctx context.Context, in *ListShopServiceRequest, opts ...grpc.CallOption) (*ListShopServiceResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListShopServicesResponse)
-	err := c.cc.Invoke(ctx, ShopServiceService_ListShopServices_FullMethodName, in, out, cOpts...)
+	out := new(ListShopServiceResponse)
+	err := c.cc.Invoke(ctx, ShopServiceService_ListShopService_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +58,7 @@ func (c *shopServiceServiceClient) ListShopServices(ctx context.Context, in *Lis
 // App商城服务说明服务
 type ShopServiceServiceServer interface {
 	// 查询商城服务列表
-	ListShopServices(context.Context, *ListShopServicesRequest) (*ListShopServicesResponse, error)
+	ListShopService(context.Context, *ListShopServiceRequest) (*ListShopServiceResponse, error)
 	mustEmbedUnimplementedShopServiceServiceServer()
 }
 
@@ -69,8 +69,8 @@ type ShopServiceServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedShopServiceServiceServer struct{}
 
-func (UnimplementedShopServiceServiceServer) ListShopServices(context.Context, *ListShopServicesRequest) (*ListShopServicesResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method ListShopServices not implemented")
+func (UnimplementedShopServiceServiceServer) ListShopService(context.Context, *ListShopServiceRequest) (*ListShopServiceResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListShopService not implemented")
 }
 func (UnimplementedShopServiceServiceServer) mustEmbedUnimplementedShopServiceServiceServer() {}
 func (UnimplementedShopServiceServiceServer) testEmbeddedByValue()                            {}
@@ -93,20 +93,20 @@ func RegisterShopServiceServiceServer(s grpc.ServiceRegistrar, srv ShopServiceSe
 	s.RegisterService(&ShopServiceService_ServiceDesc, srv)
 }
 
-func _ShopServiceService_ListShopServices_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListShopServicesRequest)
+func _ShopServiceService_ListShopService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListShopServiceRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ShopServiceServiceServer).ListShopServices(ctx, in)
+		return srv.(ShopServiceServiceServer).ListShopService(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ShopServiceService_ListShopServices_FullMethodName,
+		FullMethod: ShopServiceService_ListShopService_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ShopServiceServiceServer).ListShopServices(ctx, req.(*ListShopServicesRequest))
+		return srv.(ShopServiceServiceServer).ListShopService(ctx, req.(*ListShopServiceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -119,8 +119,8 @@ var ShopServiceService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*ShopServiceServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "ListShopServices",
-			Handler:    _ShopServiceService_ListShopServices_Handler,
+			MethodName: "ListShopService",
+			Handler:    _ShopServiceService_ListShopService_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

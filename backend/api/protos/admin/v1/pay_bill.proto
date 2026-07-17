@@ -9,7 +9,7 @@ import "google/api/annotations.proto";
 // Admin支付账单服务
 service PayBillService {
   // 查询支付账单列表
-  rpc PagePayBills(PagePayBillsRequest) returns (PagePayBillsResponse) {
+  rpc PagePayBill(PagePayBillRequest) returns (PagePayBillResponse) {
     option (google.api.http) = {
       get: "/api/v1/admin/pay/bill"
     };
@@ -17,7 +17,7 @@ service PayBillService {
 }
 
 // 支付账单列表查询条件
-message PagePayBillsRequest {
+message PagePayBillRequest {
   string bill_date = 3 [(gnostic.openapi.v3.property) = {description: "账单日期"}]; // 账单日期
 
   optional .common.v1.PayBillStatus status = 4 [(gnostic.openapi.v3.property) = {description: "对账状态：枚举【PayBillStatus】"}]; // 对账状态：枚举【PayBillStatus】
@@ -34,7 +34,7 @@ message PagePayBillsRequest {
 }
 
 // 支付账单列表响应
-message PagePayBillsResponse {
+message PagePayBillResponse {
   repeated PayBill pay_bills = 1 [(gnostic.openapi.v3.property) = {description: "支付账单列表"}]; // 支付账单列表
 
   int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数

@@ -18,63 +18,63 @@ var _ = new(context.Context)
 
 const _ = http.SupportPackageIsVersion3
 
-const OperationShopHotServiceListShopHotItems = "/app.v1.ShopHotService/ListShopHotItems"
-const OperationShopHotServiceListShopHots = "/app.v1.ShopHotService/ListShopHots"
+const OperationShopHotServiceListShopHot = "/app.v1.ShopHotService/ListShopHot"
+const OperationShopHotServiceListShopHotItem = "/app.v1.ShopHotService/ListShopHotItem"
 const OperationShopHotServicePageShopHotGoods = "/app.v1.ShopHotService/PageShopHotGoods"
 
 type ShopHotServiceHTTPServer interface {
-	// ListShopHotItems 查询热门推荐选项
-	ListShopHotItems(context.Context, *ListShopHotItemsRequest) (*ListShopHotItemsResponse, error)
-	// ListShopHots 查询热门推荐列表
-	ListShopHots(context.Context, *ListShopHotsRequest) (*ListShopHotsResponse, error)
+	// ListShopHot 查询热门推荐列表
+	ListShopHot(context.Context, *ListShopHotRequest) (*ListShopHotResponse, error)
+	// ListShopHotItem 查询热门推荐选项
+	ListShopHotItem(context.Context, *ListShopHotItemRequest) (*ListShopHotItemResponse, error)
 	// PageShopHotGoods 查询热门推荐商品
 	PageShopHotGoods(context.Context, *PageShopHotGoodsRequest) (*PageShopHotGoodsResponse, error)
 }
 
 func RegisterShopHotServiceHTTPServer(s *http.Server, srv ShopHotServiceHTTPServer) {
 	r := s.Route("/")
-	r.Handle("GET", "/api/v1/app/shop/hot", _ShopHotService_ListShopHots0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/app/shop/hot/{id}/item", _ShopHotService_ListShopHotItems0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/app/shop/hot", _ShopHotService_ListShopHot0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/app/shop/hot/{id}/item", _ShopHotService_ListShopHotItem0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/app/shop/hot/item/{hot_item_id}/goods", _ShopHotService_PageShopHotGoods0_HTTP_Handler(srv))
 }
 
-func _ShopHotService_ListShopHots0_HTTP_Handler(srv ShopHotServiceHTTPServer) func(ctx http.Context) error {
+func _ShopHotService_ListShopHot0_HTTP_Handler(srv ShopHotServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in ListShopHotsRequest
+		var in ListShopHotRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationShopHotServiceListShopHots)
+		http.SetOperation(ctx, OperationShopHotServiceListShopHot)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.ListShopHots(ctx, req.(*ListShopHotsRequest))
+			return srv.ListShopHot(ctx, req.(*ListShopHotRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*ListShopHotsResponse)
+		reply := out.(*ListShopHotResponse)
 		return ctx.Result(200, reply)
 	}
 }
 
-func _ShopHotService_ListShopHotItems0_HTTP_Handler(srv ShopHotServiceHTTPServer) func(ctx http.Context) error {
+func _ShopHotService_ListShopHotItem0_HTTP_Handler(srv ShopHotServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in ListShopHotItemsRequest
+		var in ListShopHotItemRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
 		if err := ctx.BindVars(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationShopHotServiceListShopHotItems)
+		http.SetOperation(ctx, OperationShopHotServiceListShopHotItem)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.ListShopHotItems(ctx, req.(*ListShopHotItemsRequest))
+			return srv.ListShopHotItem(ctx, req.(*ListShopHotItemRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*ListShopHotItemsResponse)
+		reply := out.(*ListShopHotItemResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -102,10 +102,10 @@ func _ShopHotService_PageShopHotGoods0_HTTP_Handler(srv ShopHotServiceHTTPServer
 }
 
 type ShopHotServiceHTTPClient interface {
-	// ListShopHotItems 查询热门推荐选项
-	ListShopHotItems(ctx context.Context, req *ListShopHotItemsRequest, opts ...http.CallOption) (rsp *ListShopHotItemsResponse, err error)
-	// ListShopHots 查询热门推荐列表
-	ListShopHots(ctx context.Context, req *ListShopHotsRequest, opts ...http.CallOption) (rsp *ListShopHotsResponse, err error)
+	// ListShopHot 查询热门推荐列表
+	ListShopHot(ctx context.Context, req *ListShopHotRequest, opts ...http.CallOption) (rsp *ListShopHotResponse, err error)
+	// ListShopHotItem 查询热门推荐选项
+	ListShopHotItem(ctx context.Context, req *ListShopHotItemRequest, opts ...http.CallOption) (rsp *ListShopHotItemResponse, err error)
 	// PageShopHotGoods 查询热门推荐商品
 	PageShopHotGoods(ctx context.Context, req *PageShopHotGoodsRequest, opts ...http.CallOption) (rsp *PageShopHotGoodsResponse, err error)
 }
@@ -118,14 +118,14 @@ func NewShopHotServiceHTTPClient(client *http.Client) ShopHotServiceHTTPClient {
 	return &ShopHotServiceHTTPClientImpl{client}
 }
 
-// ListShopHotItems 查询热门推荐选项
-func (c *ShopHotServiceHTTPClientImpl) ListShopHotItems(ctx context.Context, in *ListShopHotItemsRequest, opts ...http.CallOption) (*ListShopHotItemsResponse, error) {
-	var out ListShopHotItemsResponse
-	pattern := "/api/v1/app/shop/hot/{id}/item"
+// ListShopHot 查询热门推荐列表
+func (c *ShopHotServiceHTTPClientImpl) ListShopHot(ctx context.Context, in *ListShopHotRequest, opts ...http.CallOption) (*ListShopHotResponse, error) {
+	var out ListShopHotResponse
+	pattern := "/api/v1/app/shop/hot"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationShopHotServiceListShopHotItems),
+		http.Operation(OperationShopHotServiceListShopHot),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
@@ -135,14 +135,14 @@ func (c *ShopHotServiceHTTPClientImpl) ListShopHotItems(ctx context.Context, in 
 	return &out, nil
 }
 
-// ListShopHots 查询热门推荐列表
-func (c *ShopHotServiceHTTPClientImpl) ListShopHots(ctx context.Context, in *ListShopHotsRequest, opts ...http.CallOption) (*ListShopHotsResponse, error) {
-	var out ListShopHotsResponse
-	pattern := "/api/v1/app/shop/hot"
+// ListShopHotItem 查询热门推荐选项
+func (c *ShopHotServiceHTTPClientImpl) ListShopHotItem(ctx context.Context, in *ListShopHotItemRequest, opts ...http.CallOption) (*ListShopHotItemResponse, error) {
+	var out ListShopHotItemResponse
+	pattern := "/api/v1/app/shop/hot/{id}/item"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationShopHotServiceListShopHots),
+		http.Operation(OperationShopHotServiceListShopHotItem),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)

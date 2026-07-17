@@ -18,12 +18,12 @@ import (
 func NewGoodsSkuServiceAgentTools(goodsSkuServiceServer GoodsSkuServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error
-	var pageGoodsSkusTool tool.InvokableTool
-	pageGoodsSkusTool, err = NewGoodsSkuServicePageGoodsSkusAgentTool(goodsSkuServiceServer)
+	var pageGoodsSkuTool tool.InvokableTool
+	pageGoodsSkuTool, err = NewGoodsSkuServicePageGoodsSkuAgentTool(goodsSkuServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, pageGoodsSkusTool)
+	ts = append(ts, pageGoodsSkuTool)
 	var getGoodsSkuTool tool.InvokableTool
 	getGoodsSkuTool, err = NewGoodsSkuServiceGetGoodsSkuAgentTool(goodsSkuServiceServer)
 	if err != nil {
@@ -39,16 +39,16 @@ func NewGoodsSkuServiceAgentTools(goodsSkuServiceServer GoodsSkuServiceServer) (
 	return ts, nil
 }
 
-// NewGoodsSkuServicePageGoodsSkusAgentTool 创建查询商品SKU列表的 Agent Tool。
-func NewGoodsSkuServicePageGoodsSkusAgentTool(goodsSkuServiceServer GoodsSkuServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*PageGoodsSkusRequest, *PageGoodsSkusResponse](
-		"admin_v1_goods_sku_service_page_goods_skus",
+// NewGoodsSkuServicePageGoodsSkuAgentTool 创建查询商品SKU列表的 Agent Tool。
+func NewGoodsSkuServicePageGoodsSkuAgentTool(goodsSkuServiceServer GoodsSkuServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PageGoodsSkuRequest, *PageGoodsSkuResponse](
+		"admin_v1_goods_sku_service_page_goods_sku",
 		"查询商品SKU列表",
-		func(ctx context.Context, req *PageGoodsSkusRequest) (*PageGoodsSkusResponse, error) {
+		func(ctx context.Context, req *PageGoodsSkuRequest) (*PageGoodsSkuResponse, error) {
 			if req == nil {
-				req = &PageGoodsSkusRequest{}
+				req = &PageGoodsSkuRequest{}
 			}
-			return goodsSkuServiceServer.PageGoodsSkus(ctx, req)
+			return goodsSkuServiceServer.PageGoodsSku(ctx, req)
 		},
 	)
 }

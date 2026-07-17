@@ -117,7 +117,7 @@ import FormDialog from "@/components/Dialog/FormDialog.vue";
 import type { ProFormField } from "@/components/ProForm/interface";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { defBaseApiService } from "@/api/admin/base_api";
-import type { BaseApi, BaseApiDoc, BaseApiDocResponse, BaseApiDocSchema, PageBaseApisRequest } from "@/rpc/admin/v1/base_api";
+import type { BaseApi, BaseApiDoc, BaseApiDocResponse, BaseApiDocSchema, PageBaseApiRequest } from "@/rpc/admin/v1/base_api";
 import { buildPageRequest } from "@/utils/proTable";
 
 defineOptions({
@@ -302,8 +302,8 @@ const columns: ColumnProps[] = [
 /**
  * 请求 API 分页列表，并由 ProTable 统一维护分页与搜索参数。
  */
-async function requestBaseApiTable(params: PageBaseApisRequest) {
-  const data = await defBaseApiService.PageBaseApis(buildPageRequest(params));
+async function requestBaseApiTable(params: PageBaseApiRequest) {
+  const data = await defBaseApiService.PageBaseApi(buildPageRequest(params));
   return { data: { list: data.base_apis ?? [], total: data.total } };
 }
 

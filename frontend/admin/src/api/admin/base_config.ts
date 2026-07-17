@@ -5,8 +5,8 @@ import {
   type CreateBaseConfigRequest,
   type DeleteBaseConfigRequest,
   type GetBaseConfigRequest,
-  type PageBaseConfigsRequest,
-  type PageBaseConfigsResponse,
+  type PageBaseConfigRequest,
+  type PageBaseConfigResponse,
   type RefreshBaseConfigCacheRequest,
   type SetBaseConfigStatusRequest,
   type UpdateBaseConfigRequest
@@ -27,8 +27,8 @@ export class BaseConfigServiceImpl implements BaseConfigService {
   }
 
   /** 查询系统配置分页列表 */
-  PageBaseConfigs(request: PageBaseConfigsRequest): Promise<PageBaseConfigsResponse> {
-    return service<PageBaseConfigsRequest, PageBaseConfigsResponse>({
+  PageBaseConfig(request: PageBaseConfigRequest): Promise<PageBaseConfigResponse> {
+    return service<PageBaseConfigRequest, PageBaseConfigResponse>({
       url: `${BASE_CONFIG_URL}`,
       method: "get",
       params: request

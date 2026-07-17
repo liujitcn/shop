@@ -218,16 +218,16 @@ func (c *AiAssistantMessageCase) RegenerateAiAssistantMessage(ctx context.Contex
 	return c.regenerateAiAssistantMessage(ctx, session, message)
 }
 
-// ListAiAssistantShortcuts 查询当前终端可用的 AI 助手快捷入口。
-func (c *AiAssistantMessageCase) ListAiAssistantShortcuts(ctx context.Context, req *basev1.ListAiAssistantShortcutsRequest) (*basev1.ListAiAssistantShortcutsResponse, error) {
+// ListAiAssistantShortcut 查询当前终端可用的 AI 助手快捷入口。
+func (c *AiAssistantMessageCase) ListAiAssistantShortcut(ctx context.Context, req *basev1.ListAiAssistantShortcutRequest) (*basev1.ListAiAssistantShortcutResponse, error) {
 	terminal := assistant.NormalizeTerminal(req.GetTerminal())
 	terminalName := assistant.NormalizeTerminalString(terminal)
 	enabledTools := c.assistantRuntime.EnabledToolNames(ctx, terminalName)
-	return &basev1.ListAiAssistantShortcutsResponse{Shortcuts: assistant.BuildShortcuts(terminal, enabledTools)}, nil
+	return &basev1.ListAiAssistantShortcutResponse{Shortcuts: assistant.BuildShortcuts(terminal, enabledTools)}, nil
 }
 
-// ListAiAssistantMessages 查询指定会话的消息列表。
-func (c *AiAssistantMessageCase) ListAiAssistantMessages(ctx context.Context, req *basev1.ListAiAssistantMessagesRequest) (*basev1.ListAiAssistantMessagesResponse, error) {
+// ListAiAssistantMessage 查询指定会话的消息列表。
+func (c *AiAssistantMessageCase) ListAiAssistantMessage(ctx context.Context, req *basev1.ListAiAssistantMessageRequest) (*basev1.ListAiAssistantMessageResponse, error) {
 	session, err := c.aiAssistantSessionCase.FindCurrentUserSessionByRawID(ctx, req.GetSessionId())
 	if err != nil {
 		return nil, err
@@ -247,7 +247,7 @@ func (c *AiAssistantMessageCase) ListAiAssistantMessages(ctx context.Context, re
 	for _, item := range list {
 		messages = append(messages, c.ToDTO(item))
 	}
-	return &basev1.ListAiAssistantMessagesResponse{Messages: messages}, nil
+	return &basev1.ListAiAssistantMessageResponse{Messages: messages}, nil
 }
 
 // ToDTO 转换消息模型到接口对象。

@@ -34,7 +34,7 @@ import FormDialog from "@/components/Dialog/FormDialog.vue";
 import type { ProFormField, ProFormOption } from "@/components/ProForm/interface";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { defBaseTenantService } from "@/api/admin/base_tenant";
-import type { BaseTenant, BaseTenantForm, PageBaseTenantsRequest } from "@/rpc/admin/v1/base_tenant";
+import type { BaseTenant, BaseTenantForm, PageBaseTenantRequest } from "@/rpc/admin/v1/base_tenant";
 import { Status } from "@/rpc/common/v1/enum";
 import { buildPageRequest, normalizeSelectedIds } from "@/utils/proTable";
 
@@ -174,8 +174,8 @@ const headerActions: HeaderActionProps[] = [
 /**
  * 请求租户列表，并由 ProTable 统一维护分页与搜索参数。
  */
-async function requestBaseTenantTable(params: PageBaseTenantsRequest) {
-  const data = await defBaseTenantService.PageBaseTenants(buildPageRequest(params));
+async function requestBaseTenantTable(params: PageBaseTenantRequest) {
+  const data = await defBaseTenantService.PageBaseTenant(buildPageRequest(params));
   return { data: { list: data.base_tenants ?? [], total: data.total } };
 }
 

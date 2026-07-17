@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { onLoad } from '@dcloudio/uni-app'
 import { ref } from 'vue'
-import type { PageUserCollectsRequest, UserCollect } from '@/rpc/app/v1/user_collect'
+import type { PageUserCollectRequest, UserCollect } from '@/rpc/app/v1/user_collect'
 import { defUserCollectService } from '@/api/app/user_collect'
 import { formatSrc, formatPrice } from '@/utils'
 import { goodsDetailUrl, switchTabToHome, tenantStoreUrl } from '@/utils/navigation'
 // 分页参数
-const pageParams: PageUserCollectsRequest = {
+const pageParams: PageUserCollectRequest = {
   page_num: 1,
   page_size: 10,
 }
@@ -22,7 +22,7 @@ const getCollectData = async () => {
   if (finish.value === true) {
     return uni.showToast({ icon: 'none', title: '没有更多数据~' })
   }
-  const res = await defUserCollectService.PageUserCollects(pageParams)
+  const res = await defUserCollectService.PageUserCollect(pageParams)
   // 数组追加
   const list = res.user_collects || []
   collectList.value.push(...list)

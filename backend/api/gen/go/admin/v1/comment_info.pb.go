@@ -8,7 +8,6 @@ package adminv1
 
 import (
 	reflect "reflect"
-	v1 "shop/api/gen/go/common/v1"
 	sync "sync"
 	unsafe "unsafe"
 
@@ -17,6 +16,8 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+
+	v1 "shop/api/gen/go/common/v1"
 )
 
 const (
@@ -27,7 +28,7 @@ const (
 )
 
 // 评论分页查询条件
-type PageCommentInfosRequest struct {
+type PageCommentInfoRequest struct {
 	state                protoimpl.MessageState `protogen:"open.v1"`
 	TenantId             *int64                 `protobuf:"varint,1,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`                                       // 租户ID
 	TenantStoreId        *int64                 `protobuf:"varint,2,opt,name=tenant_store_id,json=tenantStoreId,proto3,oneof" json:"tenant_store_id,omitempty"`                      // 租户门店ID
@@ -45,20 +46,20 @@ type PageCommentInfosRequest struct {
 	sizeCache            protoimpl.SizeCache
 }
 
-func (x *PageCommentInfosRequest) Reset() {
-	*x = PageCommentInfosRequest{}
+func (x *PageCommentInfoRequest) Reset() {
+	*x = PageCommentInfoRequest{}
 	mi := &file_admin_v1_comment_info_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PageCommentInfosRequest) String() string {
+func (x *PageCommentInfoRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PageCommentInfosRequest) ProtoMessage() {}
+func (*PageCommentInfoRequest) ProtoMessage() {}
 
-func (x *PageCommentInfosRequest) ProtoReflect() protoreflect.Message {
+func (x *PageCommentInfoRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_comment_info_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -70,89 +71,89 @@ func (x *PageCommentInfosRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PageCommentInfosRequest.ProtoReflect.Descriptor instead.
-func (*PageCommentInfosRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use PageCommentInfoRequest.ProtoReflect.Descriptor instead.
+func (*PageCommentInfoRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_comment_info_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *PageCommentInfosRequest) GetTenantId() int64 {
+func (x *PageCommentInfoRequest) GetTenantId() int64 {
 	if x != nil && x.TenantId != nil {
 		return *x.TenantId
 	}
 	return 0
 }
 
-func (x *PageCommentInfosRequest) GetTenantStoreId() int64 {
+func (x *PageCommentInfoRequest) GetTenantStoreId() int64 {
 	if x != nil && x.TenantStoreId != nil {
 		return *x.TenantStoreId
 	}
 	return 0
 }
 
-func (x *PageCommentInfosRequest) GetGoodsId() int64 {
+func (x *PageCommentInfoRequest) GetGoodsId() int64 {
 	if x != nil && x.GoodsId != nil {
 		return *x.GoodsId
 	}
 	return 0
 }
 
-func (x *PageCommentInfosRequest) GetGoodsName() string {
+func (x *PageCommentInfoRequest) GetGoodsName() string {
 	if x != nil && x.GoodsName != nil {
 		return *x.GoodsName
 	}
 	return ""
 }
 
-func (x *PageCommentInfosRequest) GetUserName() string {
+func (x *PageCommentInfoRequest) GetUserName() string {
 	if x != nil && x.UserName != nil {
 		return *x.UserName
 	}
 	return ""
 }
 
-func (x *PageCommentInfosRequest) GetGoodsScore() int32 {
+func (x *PageCommentInfoRequest) GetGoodsScore() int32 {
 	if x != nil && x.GoodsScore != nil {
 		return *x.GoodsScore
 	}
 	return 0
 }
 
-func (x *PageCommentInfosRequest) GetMinGoodsScore() int32 {
+func (x *PageCommentInfoRequest) GetMinGoodsScore() int32 {
 	if x != nil && x.MinGoodsScore != nil {
 		return *x.MinGoodsScore
 	}
 	return 0
 }
 
-func (x *PageCommentInfosRequest) GetMaxGoodsScore() int32 {
+func (x *PageCommentInfoRequest) GetMaxGoodsScore() int32 {
 	if x != nil && x.MaxGoodsScore != nil {
 		return *x.MaxGoodsScore
 	}
 	return 0
 }
 
-func (x *PageCommentInfosRequest) GetHasPendingDiscussion() bool {
+func (x *PageCommentInfoRequest) GetHasPendingDiscussion() bool {
 	if x != nil && x.HasPendingDiscussion != nil {
 		return *x.HasPendingDiscussion
 	}
 	return false
 }
 
-func (x *PageCommentInfosRequest) GetStatus() v1.CommentStatus {
+func (x *PageCommentInfoRequest) GetStatus() v1.CommentStatus {
 	if x != nil && x.Status != nil {
 		return *x.Status
 	}
 	return v1.CommentStatus(0)
 }
 
-func (x *PageCommentInfosRequest) GetPageNum() int64 {
+func (x *PageCommentInfoRequest) GetPageNum() int64 {
 	if x != nil {
 		return x.PageNum
 	}
 	return 0
 }
 
-func (x *PageCommentInfosRequest) GetPageSize() int64 {
+func (x *PageCommentInfoRequest) GetPageSize() int64 {
 	if x != nil {
 		return x.PageSize
 	}
@@ -160,7 +161,7 @@ func (x *PageCommentInfosRequest) GetPageSize() int64 {
 }
 
 // 评论分页响应
-type PageCommentInfosResponse struct {
+type PageCommentInfoResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	CommentInfos  []*CommentInfo         `protobuf:"bytes,1,rep,name=comment_infos,json=commentInfos,proto3" json:"comment_infos,omitempty"` // 分页数据
 	Total         int32                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`                                  // 总数
@@ -168,20 +169,20 @@ type PageCommentInfosResponse struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *PageCommentInfosResponse) Reset() {
-	*x = PageCommentInfosResponse{}
+func (x *PageCommentInfoResponse) Reset() {
+	*x = PageCommentInfoResponse{}
 	mi := &file_admin_v1_comment_info_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PageCommentInfosResponse) String() string {
+func (x *PageCommentInfoResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PageCommentInfosResponse) ProtoMessage() {}
+func (*PageCommentInfoResponse) ProtoMessage() {}
 
-func (x *PageCommentInfosResponse) ProtoReflect() protoreflect.Message {
+func (x *PageCommentInfoResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_comment_info_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -193,19 +194,19 @@ func (x *PageCommentInfosResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PageCommentInfosResponse.ProtoReflect.Descriptor instead.
-func (*PageCommentInfosResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use PageCommentInfoResponse.ProtoReflect.Descriptor instead.
+func (*PageCommentInfoResponse) Descriptor() ([]byte, []int) {
 	return file_admin_v1_comment_info_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *PageCommentInfosResponse) GetCommentInfos() []*CommentInfo {
+func (x *PageCommentInfoResponse) GetCommentInfos() []*CommentInfo {
 	if x != nil {
 		return x.CommentInfos
 	}
 	return nil
 }
 
-func (x *PageCommentInfosResponse) GetTotal() int32 {
+func (x *PageCommentInfoResponse) GetTotal() int32 {
 	if x != nil {
 		return x.Total
 	}
@@ -425,7 +426,7 @@ func (x *SetCommentDiscussionStatusRequest) GetReason() string {
 }
 
 // 评论审核记录查询条件
-type ListCommentReviewsRequest struct {
+type ListCommentReviewRequest struct {
 	state         protoimpl.MessageState     `protogen:"open.v1"`
 	TargetType    v1.CommentReviewTargetType `protobuf:"varint,1,opt,name=target_type,json=targetType,proto3,enum=common.v1.CommentReviewTargetType" json:"target_type,omitempty"` // 审核目标类型：枚举【CommentReviewTargetType】
 	TargetId      int64                      `protobuf:"varint,2,opt,name=target_id,json=targetId,proto3" json:"target_id,omitempty"`                                              // 审核目标ID
@@ -433,20 +434,20 @@ type ListCommentReviewsRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListCommentReviewsRequest) Reset() {
-	*x = ListCommentReviewsRequest{}
+func (x *ListCommentReviewRequest) Reset() {
+	*x = ListCommentReviewRequest{}
 	mi := &file_admin_v1_comment_info_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListCommentReviewsRequest) String() string {
+func (x *ListCommentReviewRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListCommentReviewsRequest) ProtoMessage() {}
+func (*ListCommentReviewRequest) ProtoMessage() {}
 
-func (x *ListCommentReviewsRequest) ProtoReflect() protoreflect.Message {
+func (x *ListCommentReviewRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_comment_info_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -458,19 +459,19 @@ func (x *ListCommentReviewsRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListCommentReviewsRequest.ProtoReflect.Descriptor instead.
-func (*ListCommentReviewsRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListCommentReviewRequest.ProtoReflect.Descriptor instead.
+func (*ListCommentReviewRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_comment_info_proto_rawDescGZIP(), []int{6}
 }
 
-func (x *ListCommentReviewsRequest) GetTargetType() v1.CommentReviewTargetType {
+func (x *ListCommentReviewRequest) GetTargetType() v1.CommentReviewTargetType {
 	if x != nil {
 		return x.TargetType
 	}
 	return v1.CommentReviewTargetType(0)
 }
 
-func (x *ListCommentReviewsRequest) GetTargetId() int64 {
+func (x *ListCommentReviewRequest) GetTargetId() int64 {
 	if x != nil {
 		return x.TargetId
 	}
@@ -478,27 +479,27 @@ func (x *ListCommentReviewsRequest) GetTargetId() int64 {
 }
 
 // 评论审核记录列表响应
-type ListCommentReviewsResponse struct {
+type ListCommentReviewResponse struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	CommentReviews []*CommentReview       `protobuf:"bytes,1,rep,name=comment_reviews,json=commentReviews,proto3" json:"comment_reviews,omitempty"` // 审核记录列表
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
 
-func (x *ListCommentReviewsResponse) Reset() {
-	*x = ListCommentReviewsResponse{}
+func (x *ListCommentReviewResponse) Reset() {
+	*x = ListCommentReviewResponse{}
 	mi := &file_admin_v1_comment_info_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListCommentReviewsResponse) String() string {
+func (x *ListCommentReviewResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListCommentReviewsResponse) ProtoMessage() {}
+func (*ListCommentReviewResponse) ProtoMessage() {}
 
-func (x *ListCommentReviewsResponse) ProtoReflect() protoreflect.Message {
+func (x *ListCommentReviewResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_comment_info_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -510,12 +511,12 @@ func (x *ListCommentReviewsResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListCommentReviewsResponse.ProtoReflect.Descriptor instead.
-func (*ListCommentReviewsResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListCommentReviewResponse.ProtoReflect.Descriptor instead.
+func (*ListCommentReviewResponse) Descriptor() ([]byte, []int) {
 	return file_admin_v1_comment_info_proto_rawDescGZIP(), []int{7}
 }
 
-func (x *ListCommentReviewsResponse) GetCommentReviews() []*CommentReview {
+func (x *ListCommentReviewResponse) GetCommentReviews() []*CommentReview {
 	if x != nil {
 		return x.CommentReviews
 	}
@@ -999,7 +1000,7 @@ func (x *CommentTag) GetSort() int32 {
 }
 
 // 评论讨论分页查询条件
-type PageCommentDiscussionsRequest struct {
+type PageCommentDiscussionRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	CommentId     int64                  `protobuf:"varint,1,opt,name=comment_id,json=commentId,proto3" json:"comment_id,omitempty"`               // 所属评价ID
 	UserName      *string                `protobuf:"bytes,2,opt,name=user_name,json=userName,proto3,oneof" json:"user_name,omitempty"`             // 讨论用户昵称
@@ -1011,20 +1012,20 @@ type PageCommentDiscussionsRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *PageCommentDiscussionsRequest) Reset() {
-	*x = PageCommentDiscussionsRequest{}
+func (x *PageCommentDiscussionRequest) Reset() {
+	*x = PageCommentDiscussionRequest{}
 	mi := &file_admin_v1_comment_info_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PageCommentDiscussionsRequest) String() string {
+func (x *PageCommentDiscussionRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PageCommentDiscussionsRequest) ProtoMessage() {}
+func (*PageCommentDiscussionRequest) ProtoMessage() {}
 
-func (x *PageCommentDiscussionsRequest) ProtoReflect() protoreflect.Message {
+func (x *PageCommentDiscussionRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_comment_info_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1036,47 +1037,47 @@ func (x *PageCommentDiscussionsRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PageCommentDiscussionsRequest.ProtoReflect.Descriptor instead.
-func (*PageCommentDiscussionsRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use PageCommentDiscussionRequest.ProtoReflect.Descriptor instead.
+func (*PageCommentDiscussionRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_comment_info_proto_rawDescGZIP(), []int{12}
 }
 
-func (x *PageCommentDiscussionsRequest) GetCommentId() int64 {
+func (x *PageCommentDiscussionRequest) GetCommentId() int64 {
 	if x != nil {
 		return x.CommentId
 	}
 	return 0
 }
 
-func (x *PageCommentDiscussionsRequest) GetUserName() string {
+func (x *PageCommentDiscussionRequest) GetUserName() string {
 	if x != nil && x.UserName != nil {
 		return *x.UserName
 	}
 	return ""
 }
 
-func (x *PageCommentDiscussionsRequest) GetContent() string {
+func (x *PageCommentDiscussionRequest) GetContent() string {
 	if x != nil && x.Content != nil {
 		return *x.Content
 	}
 	return ""
 }
 
-func (x *PageCommentDiscussionsRequest) GetStatus() v1.CommentStatus {
+func (x *PageCommentDiscussionRequest) GetStatus() v1.CommentStatus {
 	if x != nil && x.Status != nil {
 		return *x.Status
 	}
 	return v1.CommentStatus(0)
 }
 
-func (x *PageCommentDiscussionsRequest) GetPageNum() int64 {
+func (x *PageCommentDiscussionRequest) GetPageNum() int64 {
 	if x != nil {
 		return x.PageNum
 	}
 	return 0
 }
 
-func (x *PageCommentDiscussionsRequest) GetPageSize() int64 {
+func (x *PageCommentDiscussionRequest) GetPageSize() int64 {
 	if x != nil {
 		return x.PageSize
 	}
@@ -1084,7 +1085,7 @@ func (x *PageCommentDiscussionsRequest) GetPageSize() int64 {
 }
 
 // 评论讨论分页响应
-type PageCommentDiscussionsResponse struct {
+type PageCommentDiscussionResponse struct {
 	state              protoimpl.MessageState `protogen:"open.v1"`
 	CommentDiscussions []*CommentDiscussion   `protobuf:"bytes,1,rep,name=comment_discussions,json=commentDiscussions,proto3" json:"comment_discussions,omitempty"` // 分页数据
 	Total              int32                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`                                                    // 总数
@@ -1092,20 +1093,20 @@ type PageCommentDiscussionsResponse struct {
 	sizeCache          protoimpl.SizeCache
 }
 
-func (x *PageCommentDiscussionsResponse) Reset() {
-	*x = PageCommentDiscussionsResponse{}
+func (x *PageCommentDiscussionResponse) Reset() {
+	*x = PageCommentDiscussionResponse{}
 	mi := &file_admin_v1_comment_info_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PageCommentDiscussionsResponse) String() string {
+func (x *PageCommentDiscussionResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PageCommentDiscussionsResponse) ProtoMessage() {}
+func (*PageCommentDiscussionResponse) ProtoMessage() {}
 
-func (x *PageCommentDiscussionsResponse) ProtoReflect() protoreflect.Message {
+func (x *PageCommentDiscussionResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_comment_info_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1117,19 +1118,19 @@ func (x *PageCommentDiscussionsResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PageCommentDiscussionsResponse.ProtoReflect.Descriptor instead.
-func (*PageCommentDiscussionsResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use PageCommentDiscussionResponse.ProtoReflect.Descriptor instead.
+func (*PageCommentDiscussionResponse) Descriptor() ([]byte, []int) {
 	return file_admin_v1_comment_info_proto_rawDescGZIP(), []int{13}
 }
 
-func (x *PageCommentDiscussionsResponse) GetCommentDiscussions() []*CommentDiscussion {
+func (x *PageCommentDiscussionResponse) GetCommentDiscussions() []*CommentDiscussion {
 	if x != nil {
 		return x.CommentDiscussions
 	}
 	return nil
 }
 
-func (x *PageCommentDiscussionsResponse) GetTotal() int32 {
+func (x *PageCommentDiscussionResponse) GetTotal() int32 {
 	if x != nil {
 		return x.Total
 	}
@@ -1531,8 +1532,8 @@ var File_admin_v1_comment_info_proto protoreflect.FileDescriptor
 
 const file_admin_v1_comment_info_proto_rawDesc = "" +
 	"\n" +
-	"\x1badmin/v1/comment_info.proto\x12\badmin.v1\x1a\x16common/v1/common.proto\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xe7\a\n" +
-	"\x17PageCommentInfosRequest\x120\n" +
+	"\x1badmin/v1/comment_info.proto\x12\badmin.v1\x1a\x16common/v1/common.proto\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xe6\a\n" +
+	"\x16PageCommentInfoRequest\x120\n" +
 	"\ttenant_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12A\n" +
 	"\x0ftenant_store_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDH\x01R\rtenantStoreId\x88\x01\x01\x12.\n" +
 	"\bgoods_id\x18\x03 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDH\x02R\agoodsId\x88\x01\x01\x126\n" +
@@ -1558,8 +1559,8 @@ const file_admin_v1_comment_info_proto_rawDesc = "" +
 	"\x10_min_goods_scoreB\x12\n" +
 	"\x10_max_goods_scoreB\x19\n" +
 	"\x17_has_pending_discussionB\t\n" +
-	"\a_status\"\x8e\x01\n" +
-	"\x18PageCommentInfosResponse\x12N\n" +
+	"\a_status\"\x8d\x01\n" +
+	"\x17PageCommentInfoResponse\x12N\n" +
 	"\rcomment_infos\x18\x01 \x03(\v2\x15.admin.v1.CommentInfoB\x12\xbaG\x0f\x92\x02\f分页数据R\fcommentInfos\x12\"\n" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"G\n" +
 	"\x1aGetGoodsCommentInfoRequest\x12)\n" +
@@ -1573,12 +1574,12 @@ const file_admin_v1_comment_info_proto_rawDesc = "" +
 	"!SetCommentDiscussionStatusRequest\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b讨论IDR\x02id\x12`\n" +
 	"\x06status\x18\x02 \x01(\x0e2\x18.common.v1.CommentStatusB.\xbaG+\x92\x02(审核状态：枚举【CommentStatus】R\x06status\x12B\n" +
-	"\x06reason\x18\x03 \x01(\tB*\xbaG'\x92\x02$人工审核备注或不通过原因R\x06reason\"\xd4\x01\n" +
-	"\x19ListCommentReviewsRequest\x12\x83\x01\n" +
+	"\x06reason\x18\x03 \x01(\tB*\xbaG'\x92\x02$人工审核备注或不通过原因R\x06reason\"\xd3\x01\n" +
+	"\x18ListCommentReviewRequest\x12\x83\x01\n" +
 	"\vtarget_type\x18\x01 \x01(\x0e2\".common.v1.CommentReviewTargetTypeB>\xbaG;\x92\x028审核目标类型：枚举【CommentReviewTargetType】R\n" +
 	"targetType\x121\n" +
-	"\ttarget_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e审核目标IDR\btargetId\"x\n" +
-	"\x1aListCommentReviewsResponse\x12Z\n" +
+	"\ttarget_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e审核目标IDR\btargetId\"w\n" +
+	"\x19ListCommentReviewResponse\x12Z\n" +
 	"\x0fcomment_reviews\x18\x01 \x03(\v2\x17.admin.v1.CommentReviewB\x18\xbaG\x15\x92\x02\x12审核记录列表R\x0ecommentReviews\"\xd0\x03\n" +
 	"\x11CommentInfoDetail\x12C\n" +
 	"\acomment\x18\x01 \x01(\v2\x15.admin.v1.CommentInfoB\x12\xbaG\x0f\x92\x02\f评论内容R\acomment\x12Q\n" +
@@ -1630,8 +1631,8 @@ const file_admin_v1_comment_info_proto_rawDesc = "" +
 	"\bgoods_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\agoodsId\x12&\n" +
 	"\x04name\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f标签名称R\x04name\x127\n" +
 	"\rmention_count\x18\x04 \x01(\x05B\x12\xbaG\x0f\x92\x02\f提及次数R\fmentionCount\x12&\n" +
-	"\x04sort\x18\x05 \x01(\x05B\x12\xbaG\x0f\x92\x02\f展示排序R\x04sort\"\xcd\x03\n" +
-	"\x1dPageCommentDiscussionsRequest\x123\n" +
+	"\x04sort\x18\x05 \x01(\x05B\x12\xbaG\x0f\x92\x02\f展示排序R\x04sort\"\xcc\x03\n" +
+	"\x1cPageCommentDiscussionRequest\x123\n" +
 	"\n" +
 	"comment_id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e所属评价IDR\tcommentId\x12:\n" +
 	"\tuser_name\x18\x02 \x01(\tB\x18\xbaG\x15\x92\x02\x12讨论用户昵称H\x00R\buserName\x88\x01\x01\x121\n" +
@@ -1643,8 +1644,8 @@ const file_admin_v1_comment_info_proto_rawDesc = "" +
 	"_user_nameB\n" +
 	"\n" +
 	"\b_contentB\t\n" +
-	"\a_status\"\xa6\x01\n" +
-	"\x1ePageCommentDiscussionsResponse\x12`\n" +
+	"\a_status\"\xa5\x01\n" +
+	"\x1dPageCommentDiscussionResponse\x12`\n" +
 	"\x13comment_discussions\x18\x01 \x03(\v2\x1b.admin.v1.CommentDiscussionB\x12\xbaG\x0f\x92\x02\f分页数据R\x12commentDiscussions\x12\"\n" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\x80\b\n" +
 	"\x11CommentDiscussion\x12\"\n" +
@@ -1696,14 +1697,14 @@ const file_admin_v1_comment_info_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x128\n" +
 	"\n" +
-	"updated_at\x18\xc9\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12最后更新时间R\tupdatedAt2\x87\b\n" +
-	"\x12CommentInfoService\x12}\n" +
-	"\x10PageCommentInfos\x12!.admin.v1.PageCommentInfosRequest\x1a\".admin.v1.PageCommentInfosResponse\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/v1/admin/comment/info\x12\x94\x01\n" +
-	"\x13GetGoodsCommentInfo\x12$.admin.v1.GetGoodsCommentInfoRequest\x1a\".admin.v1.GoodsCommentInfoResponse\"3\x82\xd3\xe4\x93\x02-\x12+/api/v1/admin/comment/info/goods/{goods_id}\x12\x8a\x01\n" +
-	"\x12ListCommentReviews\x12#.admin.v1.ListCommentReviewsRequest\x1a$.admin.v1.ListCommentReviewsResponse\")\x82\xd3\xe4\x93\x02#\x12!/api/v1/admin/comment/info/review\x12w\n" +
+	"updated_at\x18\xc9\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12最后更新时间R\tupdatedAt2\xfe\a\n" +
+	"\x12CommentInfoService\x12z\n" +
+	"\x0fPageCommentInfo\x12 .admin.v1.PageCommentInfoRequest\x1a!.admin.v1.PageCommentInfoResponse\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/v1/admin/comment/info\x12\x94\x01\n" +
+	"\x13GetGoodsCommentInfo\x12$.admin.v1.GetGoodsCommentInfoRequest\x1a\".admin.v1.GoodsCommentInfoResponse\"3\x82\xd3\xe4\x93\x02-\x12+/api/v1/admin/comment/info/goods/{goods_id}\x12\x87\x01\n" +
+	"\x11ListCommentReview\x12\".admin.v1.ListCommentReviewRequest\x1a#.admin.v1.ListCommentReviewResponse\")\x82\xd3\xe4\x93\x02#\x12!/api/v1/admin/comment/info/review\x12w\n" +
 	"\x0eGetCommentInfo\x12\x1f.admin.v1.GetCommentInfoRequest\x1a\x1b.admin.v1.CommentInfoDetail\"'\x82\xd3\xe4\x93\x02!\x12\x1f/api/v1/admin/comment/info/{id}\x12\x88\x01\n" +
-	"\x14SetCommentInfoStatus\x12%.admin.v1.SetCommentInfoStatusRequest\x1a\x16.google.protobuf.Empty\"1\x82\xd3\xe4\x93\x02+:\x01*\x1a&/api/v1/admin/comment/info/{id}/status\x12\xa7\x01\n" +
-	"\x16PageCommentDiscussions\x12'.admin.v1.PageCommentDiscussionsRequest\x1a(.admin.v1.PageCommentDiscussionsResponse\":\x82\xd3\xe4\x93\x024\x122/api/v1/admin/comment/info/{comment_id}/discussion\x12\x9f\x01\n" +
+	"\x14SetCommentInfoStatus\x12%.admin.v1.SetCommentInfoStatusRequest\x1a\x16.google.protobuf.Empty\"1\x82\xd3\xe4\x93\x02+:\x01*\x1a&/api/v1/admin/comment/info/{id}/status\x12\xa4\x01\n" +
+	"\x15PageCommentDiscussion\x12&.admin.v1.PageCommentDiscussionRequest\x1a'.admin.v1.PageCommentDiscussionResponse\":\x82\xd3\xe4\x93\x024\x122/api/v1/admin/comment/info/{comment_id}/discussion\x12\x9f\x01\n" +
 	"\x1aSetCommentDiscussionStatus\x12+.admin.v1.SetCommentDiscussionStatusRequest\x1a\x16.google.protobuf.Empty\"<\x82\xd3\xe4\x93\x026:\x01*\x1a1/api/v1/admin/comment/info/discussion/{id}/statusB\x83\x01\n" +
 	"\fcom.admin.v1B\x10CommentInfoProtoP\x01Z shop/api/gen/go/admin/v1;adminv1\xa2\x02\x03AXX\xaa\x02\bAdmin.V1\xca\x02\bAdmin\\V1\xe2\x02\x14Admin\\V1\\GPBMetadata\xea\x02\tAdmin::V1b\x06proto3"
 
@@ -1721,20 +1722,20 @@ func file_admin_v1_comment_info_proto_rawDescGZIP() []byte {
 
 var file_admin_v1_comment_info_proto_msgTypes = make([]protoimpl.MessageInfo, 17)
 var file_admin_v1_comment_info_proto_goTypes = []any{
-	(*PageCommentInfosRequest)(nil),           // 0: admin.v1.PageCommentInfosRequest
-	(*PageCommentInfosResponse)(nil),          // 1: admin.v1.PageCommentInfosResponse
+	(*PageCommentInfoRequest)(nil),            // 0: admin.v1.PageCommentInfoRequest
+	(*PageCommentInfoResponse)(nil),           // 1: admin.v1.PageCommentInfoResponse
 	(*GetGoodsCommentInfoRequest)(nil),        // 2: admin.v1.GetGoodsCommentInfoRequest
 	(*GetCommentInfoRequest)(nil),             // 3: admin.v1.GetCommentInfoRequest
 	(*SetCommentInfoStatusRequest)(nil),       // 4: admin.v1.SetCommentInfoStatusRequest
 	(*SetCommentDiscussionStatusRequest)(nil), // 5: admin.v1.SetCommentDiscussionStatusRequest
-	(*ListCommentReviewsRequest)(nil),         // 6: admin.v1.ListCommentReviewsRequest
-	(*ListCommentReviewsResponse)(nil),        // 7: admin.v1.ListCommentReviewsResponse
+	(*ListCommentReviewRequest)(nil),          // 6: admin.v1.ListCommentReviewRequest
+	(*ListCommentReviewResponse)(nil),         // 7: admin.v1.ListCommentReviewResponse
 	(*CommentInfoDetail)(nil),                 // 8: admin.v1.CommentInfoDetail
 	(*GoodsCommentInfoResponse)(nil),          // 9: admin.v1.GoodsCommentInfoResponse
 	(*CommentInfo)(nil),                       // 10: admin.v1.CommentInfo
 	(*CommentTag)(nil),                        // 11: admin.v1.CommentTag
-	(*PageCommentDiscussionsRequest)(nil),     // 12: admin.v1.PageCommentDiscussionsRequest
-	(*PageCommentDiscussionsResponse)(nil),    // 13: admin.v1.PageCommentDiscussionsResponse
+	(*PageCommentDiscussionRequest)(nil),      // 12: admin.v1.PageCommentDiscussionRequest
+	(*PageCommentDiscussionResponse)(nil),     // 13: admin.v1.PageCommentDiscussionResponse
 	(*CommentDiscussion)(nil),                 // 14: admin.v1.CommentDiscussion
 	(*CommentSummary)(nil),                    // 15: admin.v1.CommentSummary
 	(*CommentReview)(nil),                     // 16: admin.v1.CommentReview
@@ -1747,12 +1748,12 @@ var file_admin_v1_comment_info_proto_goTypes = []any{
 	(*emptypb.Empty)(nil),                     // 23: google.protobuf.Empty
 }
 var file_admin_v1_comment_info_proto_depIdxs = []int32{
-	17, // 0: admin.v1.PageCommentInfosRequest.status:type_name -> common.v1.CommentStatus
-	10, // 1: admin.v1.PageCommentInfosResponse.comment_infos:type_name -> admin.v1.CommentInfo
+	17, // 0: admin.v1.PageCommentInfoRequest.status:type_name -> common.v1.CommentStatus
+	10, // 1: admin.v1.PageCommentInfoResponse.comment_infos:type_name -> admin.v1.CommentInfo
 	17, // 2: admin.v1.SetCommentInfoStatusRequest.status:type_name -> common.v1.CommentStatus
 	17, // 3: admin.v1.SetCommentDiscussionStatusRequest.status:type_name -> common.v1.CommentStatus
-	18, // 4: admin.v1.ListCommentReviewsRequest.target_type:type_name -> common.v1.CommentReviewTargetType
-	16, // 5: admin.v1.ListCommentReviewsResponse.comment_reviews:type_name -> admin.v1.CommentReview
+	18, // 4: admin.v1.ListCommentReviewRequest.target_type:type_name -> common.v1.CommentReviewTargetType
+	16, // 5: admin.v1.ListCommentReviewResponse.comment_reviews:type_name -> admin.v1.CommentReview
 	10, // 6: admin.v1.CommentInfoDetail.comment:type_name -> admin.v1.CommentInfo
 	11, // 7: admin.v1.CommentInfoDetail.comment_tags:type_name -> admin.v1.CommentTag
 	14, // 8: admin.v1.CommentInfoDetail.comment_discussions:type_name -> admin.v1.CommentDiscussion
@@ -1763,27 +1764,27 @@ var file_admin_v1_comment_info_proto_depIdxs = []int32{
 	14, // 13: admin.v1.GoodsCommentInfoResponse.comment_discussions:type_name -> admin.v1.CommentDiscussion
 	15, // 14: admin.v1.GoodsCommentInfoResponse.comment_summaries:type_name -> admin.v1.CommentSummary
 	17, // 15: admin.v1.CommentInfo.status:type_name -> common.v1.CommentStatus
-	17, // 16: admin.v1.PageCommentDiscussionsRequest.status:type_name -> common.v1.CommentStatus
-	14, // 17: admin.v1.PageCommentDiscussionsResponse.comment_discussions:type_name -> admin.v1.CommentDiscussion
+	17, // 16: admin.v1.PageCommentDiscussionRequest.status:type_name -> common.v1.CommentStatus
+	14, // 17: admin.v1.PageCommentDiscussionResponse.comment_discussions:type_name -> admin.v1.CommentDiscussion
 	17, // 18: admin.v1.CommentDiscussion.status:type_name -> common.v1.CommentStatus
 	19, // 19: admin.v1.CommentSummary.scene:type_name -> common.v1.CommentSummaryScene
 	20, // 20: admin.v1.CommentSummary.content:type_name -> common.v1.CommentSummaryContentItem
 	18, // 21: admin.v1.CommentReview.target_type:type_name -> common.v1.CommentReviewTargetType
 	21, // 22: admin.v1.CommentReview.type:type_name -> common.v1.CommentReviewType
 	22, // 23: admin.v1.CommentReview.status:type_name -> common.v1.CommentReviewStatus
-	0,  // 24: admin.v1.CommentInfoService.PageCommentInfos:input_type -> admin.v1.PageCommentInfosRequest
+	0,  // 24: admin.v1.CommentInfoService.PageCommentInfo:input_type -> admin.v1.PageCommentInfoRequest
 	2,  // 25: admin.v1.CommentInfoService.GetGoodsCommentInfo:input_type -> admin.v1.GetGoodsCommentInfoRequest
-	6,  // 26: admin.v1.CommentInfoService.ListCommentReviews:input_type -> admin.v1.ListCommentReviewsRequest
+	6,  // 26: admin.v1.CommentInfoService.ListCommentReview:input_type -> admin.v1.ListCommentReviewRequest
 	3,  // 27: admin.v1.CommentInfoService.GetCommentInfo:input_type -> admin.v1.GetCommentInfoRequest
 	4,  // 28: admin.v1.CommentInfoService.SetCommentInfoStatus:input_type -> admin.v1.SetCommentInfoStatusRequest
-	12, // 29: admin.v1.CommentInfoService.PageCommentDiscussions:input_type -> admin.v1.PageCommentDiscussionsRequest
+	12, // 29: admin.v1.CommentInfoService.PageCommentDiscussion:input_type -> admin.v1.PageCommentDiscussionRequest
 	5,  // 30: admin.v1.CommentInfoService.SetCommentDiscussionStatus:input_type -> admin.v1.SetCommentDiscussionStatusRequest
-	1,  // 31: admin.v1.CommentInfoService.PageCommentInfos:output_type -> admin.v1.PageCommentInfosResponse
+	1,  // 31: admin.v1.CommentInfoService.PageCommentInfo:output_type -> admin.v1.PageCommentInfoResponse
 	9,  // 32: admin.v1.CommentInfoService.GetGoodsCommentInfo:output_type -> admin.v1.GoodsCommentInfoResponse
-	7,  // 33: admin.v1.CommentInfoService.ListCommentReviews:output_type -> admin.v1.ListCommentReviewsResponse
+	7,  // 33: admin.v1.CommentInfoService.ListCommentReview:output_type -> admin.v1.ListCommentReviewResponse
 	8,  // 34: admin.v1.CommentInfoService.GetCommentInfo:output_type -> admin.v1.CommentInfoDetail
 	23, // 35: admin.v1.CommentInfoService.SetCommentInfoStatus:output_type -> google.protobuf.Empty
-	13, // 36: admin.v1.CommentInfoService.PageCommentDiscussions:output_type -> admin.v1.PageCommentDiscussionsResponse
+	13, // 36: admin.v1.CommentInfoService.PageCommentDiscussion:output_type -> admin.v1.PageCommentDiscussionResponse
 	23, // 37: admin.v1.CommentInfoService.SetCommentDiscussionStatus:output_type -> google.protobuf.Empty
 	31, // [31:38] is the sub-list for method output_type
 	24, // [24:31] is the sub-list for method input_type

@@ -8,13 +8,13 @@
 import type { ShopBannerSite, ShopBannerType } from "../../common/v1/enum";
 
 /** 轮播图列表查询条件 */
-export interface ListShopBannersRequest {
+export interface ListShopBannerRequest {
   /** 位置：枚举【ShopBannerSite】 */
   site: ShopBannerSite;
 }
 
 /** 轮播图列表响应 */
-export interface ListShopBannersResponse {
+export interface ListShopBannerResponse {
   /** 商城轮播图列表 */
   shop_banners: ShopBanner[];
 }
@@ -36,5 +36,5 @@ export interface ShopBanner {
 /** App商城轮播图服务 */
 export interface ShopBannerService {
   /** 查询商城轮播图列表 */
-  ListShopBanners(request: ListShopBannersRequest): Promise<ListShopBannersResponse>;
+  ListShopBanner(request: ListShopBannerRequest): Promise<ListShopBannerResponse>;
 }

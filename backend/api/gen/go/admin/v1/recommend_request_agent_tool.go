@@ -17,37 +17,37 @@ import (
 func NewRecommendRequestServiceAgentTools(recommendRequestServiceServer RecommendRequestServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error
-	var pageRecommendRequestsTool tool.InvokableTool
-	pageRecommendRequestsTool, err = NewRecommendRequestServicePageRecommendRequestsAgentTool(recommendRequestServiceServer)
+	var pageRecommendRequestTool tool.InvokableTool
+	pageRecommendRequestTool, err = NewRecommendRequestServicePageRecommendRequestAgentTool(recommendRequestServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, pageRecommendRequestsTool)
+	ts = append(ts, pageRecommendRequestTool)
 	var getRecommendRequestTool tool.InvokableTool
 	getRecommendRequestTool, err = NewRecommendRequestServiceGetRecommendRequestAgentTool(recommendRequestServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, getRecommendRequestTool)
-	var listRecommendRequestEventsTool tool.InvokableTool
-	listRecommendRequestEventsTool, err = NewRecommendRequestServiceListRecommendRequestEventsAgentTool(recommendRequestServiceServer)
+	var listRecommendRequestEventTool tool.InvokableTool
+	listRecommendRequestEventTool, err = NewRecommendRequestServiceListRecommendRequestEventAgentTool(recommendRequestServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, listRecommendRequestEventsTool)
+	ts = append(ts, listRecommendRequestEventTool)
 	return ts, nil
 }
 
-// NewRecommendRequestServicePageRecommendRequestsAgentTool 创建查询推荐请求分页列表的 Agent Tool。
-func NewRecommendRequestServicePageRecommendRequestsAgentTool(recommendRequestServiceServer RecommendRequestServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*PageRecommendRequestsRequest, *PageRecommendRequestsResponse](
-		"admin_v1_recommend_request_service_page_recommend_requests",
+// NewRecommendRequestServicePageRecommendRequestAgentTool 创建查询推荐请求分页列表的 Agent Tool。
+func NewRecommendRequestServicePageRecommendRequestAgentTool(recommendRequestServiceServer RecommendRequestServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PageRecommendRequestRequest, *PageRecommendRequestResponse](
+		"admin_v1_recommend_request_service_page_recommend_request",
 		"查询推荐请求分页列表",
-		func(ctx context.Context, req *PageRecommendRequestsRequest) (*PageRecommendRequestsResponse, error) {
+		func(ctx context.Context, req *PageRecommendRequestRequest) (*PageRecommendRequestResponse, error) {
 			if req == nil {
-				req = &PageRecommendRequestsRequest{}
+				req = &PageRecommendRequestRequest{}
 			}
-			return recommendRequestServiceServer.PageRecommendRequests(ctx, req)
+			return recommendRequestServiceServer.PageRecommendRequest(ctx, req)
 		},
 	)
 }
@@ -66,16 +66,16 @@ func NewRecommendRequestServiceGetRecommendRequestAgentTool(recommendRequestServ
 	)
 }
 
-// NewRecommendRequestServiceListRecommendRequestEventsAgentTool 创建查询推荐请求商品关联事件的 Agent Tool。
-func NewRecommendRequestServiceListRecommendRequestEventsAgentTool(recommendRequestServiceServer RecommendRequestServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*ListRecommendRequestEventsRequest, *ListRecommendRequestEventsResponse](
-		"admin_v1_recommend_request_service_list_recommend_request_events",
+// NewRecommendRequestServiceListRecommendRequestEventAgentTool 创建查询推荐请求商品关联事件的 Agent Tool。
+func NewRecommendRequestServiceListRecommendRequestEventAgentTool(recommendRequestServiceServer RecommendRequestServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*ListRecommendRequestEventRequest, *ListRecommendRequestEventResponse](
+		"admin_v1_recommend_request_service_list_recommend_request_event",
 		"查询推荐请求商品关联事件",
-		func(ctx context.Context, req *ListRecommendRequestEventsRequest) (*ListRecommendRequestEventsResponse, error) {
+		func(ctx context.Context, req *ListRecommendRequestEventRequest) (*ListRecommendRequestEventResponse, error) {
 			if req == nil {
-				req = &ListRecommendRequestEventsRequest{}
+				req = &ListRecommendRequestEventRequest{}
 			}
-			return recommendRequestServiceServer.ListRecommendRequestEvents(ctx, req)
+			return recommendRequestServiceServer.ListRecommendRequestEvent(ctx, req)
 		},
 	)
 }

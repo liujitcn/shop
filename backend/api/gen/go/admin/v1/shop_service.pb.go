@@ -8,7 +8,6 @@ package adminv1
 
 import (
 	reflect "reflect"
-	v1 "shop/api/gen/go/common/v1"
 	sync "sync"
 	unsafe "unsafe"
 
@@ -17,6 +16,8 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+
+	v1 "shop/api/gen/go/common/v1"
 )
 
 const (
@@ -27,7 +28,7 @@ const (
 )
 
 // 商城服务列表查询条件
-type PageShopServicesRequest struct {
+type PageShopServiceRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Label         string                 `protobuf:"bytes,1,opt,name=label,proto3" json:"label,omitempty"`                                  // 标签
 	Status        *v1.Status             `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"` // 状态
@@ -37,20 +38,20 @@ type PageShopServicesRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *PageShopServicesRequest) Reset() {
-	*x = PageShopServicesRequest{}
+func (x *PageShopServiceRequest) Reset() {
+	*x = PageShopServiceRequest{}
 	mi := &file_admin_v1_shop_service_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PageShopServicesRequest) String() string {
+func (x *PageShopServiceRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PageShopServicesRequest) ProtoMessage() {}
+func (*PageShopServiceRequest) ProtoMessage() {}
 
-func (x *PageShopServicesRequest) ProtoReflect() protoreflect.Message {
+func (x *PageShopServiceRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_shop_service_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -62,33 +63,33 @@ func (x *PageShopServicesRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PageShopServicesRequest.ProtoReflect.Descriptor instead.
-func (*PageShopServicesRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use PageShopServiceRequest.ProtoReflect.Descriptor instead.
+func (*PageShopServiceRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_shop_service_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *PageShopServicesRequest) GetLabel() string {
+func (x *PageShopServiceRequest) GetLabel() string {
 	if x != nil {
 		return x.Label
 	}
 	return ""
 }
 
-func (x *PageShopServicesRequest) GetStatus() v1.Status {
+func (x *PageShopServiceRequest) GetStatus() v1.Status {
 	if x != nil && x.Status != nil {
 		return *x.Status
 	}
 	return v1.Status(0)
 }
 
-func (x *PageShopServicesRequest) GetPageNum() int64 {
+func (x *PageShopServiceRequest) GetPageNum() int64 {
 	if x != nil {
 		return x.PageNum
 	}
 	return 0
 }
 
-func (x *PageShopServicesRequest) GetPageSize() int64 {
+func (x *PageShopServiceRequest) GetPageSize() int64 {
 	if x != nil {
 		return x.PageSize
 	}
@@ -96,7 +97,7 @@ func (x *PageShopServicesRequest) GetPageSize() int64 {
 }
 
 // 商城服务列表响应
-type PageShopServicesResponse struct {
+type PageShopServiceResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ShopServices  []*ShopService         `protobuf:"bytes,1,rep,name=shop_services,json=shopServices,proto3" json:"shop_services,omitempty"` // 商城服务列表
 	Total         int32                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`                                  // 总数
@@ -104,20 +105,20 @@ type PageShopServicesResponse struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *PageShopServicesResponse) Reset() {
-	*x = PageShopServicesResponse{}
+func (x *PageShopServiceResponse) Reset() {
+	*x = PageShopServiceResponse{}
 	mi := &file_admin_v1_shop_service_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PageShopServicesResponse) String() string {
+func (x *PageShopServiceResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PageShopServicesResponse) ProtoMessage() {}
+func (*PageShopServiceResponse) ProtoMessage() {}
 
-func (x *PageShopServicesResponse) ProtoReflect() protoreflect.Message {
+func (x *PageShopServiceResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_shop_service_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -129,19 +130,19 @@ func (x *PageShopServicesResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PageShopServicesResponse.ProtoReflect.Descriptor instead.
-func (*PageShopServicesResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use PageShopServiceResponse.ProtoReflect.Descriptor instead.
+func (*PageShopServiceResponse) Descriptor() ([]byte, []int) {
 	return file_admin_v1_shop_service_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *PageShopServicesResponse) GetShopServices() []*ShopService {
+func (x *PageShopServiceResponse) GetShopServices() []*ShopService {
 	if x != nil {
 		return x.ShopServices
 	}
 	return nil
 }
 
-func (x *PageShopServicesResponse) GetTotal() int32 {
+func (x *PageShopServiceResponse) GetTotal() int32 {
 	if x != nil {
 		return x.Total
 	}
@@ -563,14 +564,14 @@ var File_admin_v1_shop_service_proto protoreflect.FileDescriptor
 
 const file_admin_v1_shop_service_proto_rawDesc = "" +
 	"\n" +
-	"\x1badmin/v1/shop_service.proto\x12\badmin.v1\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x84\x02\n" +
-	"\x17PageShopServicesRequest\x12\"\n" +
+	"\x1badmin/v1/shop_service.proto\x12\badmin.v1\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x83\x02\n" +
+	"\x16PageShopServiceRequest\x12\"\n" +
 	"\x05label\x18\x01 \x01(\tB\f\xbaG\t\x92\x02\x06标签R\x05label\x12<\n" +
 	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态H\x00R\x06status\x88\x01\x01\x129\n" +
 	"\bpage_num\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12A\n" +
 	"\tpage_size\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSizeB\t\n" +
-	"\a_status\"\x94\x01\n" +
-	"\x18PageShopServicesResponse\x12T\n" +
+	"\a_status\"\x93\x01\n" +
+	"\x17PageShopServiceResponse\x12T\n" +
 	"\rshop_services\x18\x01 \x03(\v2\x15.admin.v1.ShopServiceB\x18\xbaG\x15\x92\x02\x12商城服务列表R\fshopServices\x12\"\n" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"7\n" +
 	"\x15GetShopServiceRequest\x12\x1e\n" +
@@ -601,9 +602,9 @@ const file_admin_v1_shop_service_proto_rawDesc = "" +
 	"\x05value\x18\x03 \x01(\tB\t\xbaG\x06\x92\x02\x03值R\x05value\x12 \n" +
 	"\x04sort\x18\x04 \x01(\x05B\f\xbaG\t\x92\x02\x06排序R\x04sort\x12Q\n" +
 	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB!\xbaG\x1e\x92\x02\x1b状态：枚举【Status】H\x00R\x06status\x88\x01\x01B\t\n" +
-	"\a_status2\x9d\x06\n" +
-	"\x12ShopServiceService\x12}\n" +
-	"\x10PageShopServices\x12!.admin.v1.PageShopServicesRequest\x1a\".admin.v1.PageShopServicesResponse\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/v1/admin/shop/service\x12u\n" +
+	"\a_status2\x9a\x06\n" +
+	"\x12ShopServiceService\x12z\n" +
+	"\x0fPageShopService\x12 .admin.v1.PageShopServiceRequest\x1a!.admin.v1.PageShopServiceResponse\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/v1/admin/shop/service\x12u\n" +
 	"\x0eGetShopService\x12\x1f.admin.v1.GetShopServiceRequest\x1a\x19.admin.v1.ShopServiceForm\"'\x82\xd3\xe4\x93\x02!\x12\x1f/api/v1/admin/shop/service/{id}\x12\x81\x01\n" +
 	"\x11CreateShopService\x12\".admin.v1.CreateShopServiceRequest\x1a\x16.google.protobuf.Empty\"0\x82\xd3\xe4\x93\x02*:\fshop_service\"\x1a/api/v1/admin/shop/service\x12\x86\x01\n" +
 	"\x11UpdateShopService\x12\".admin.v1.UpdateShopServiceRequest\x1a\x16.google.protobuf.Empty\"5\x82\xd3\xe4\x93\x02/:\fshop_service\x1a\x1f/api/v1/admin/shop/service/{id}\x12y\n" +
@@ -625,8 +626,8 @@ func file_admin_v1_shop_service_proto_rawDescGZIP() []byte {
 
 var file_admin_v1_shop_service_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_admin_v1_shop_service_proto_goTypes = []any{
-	(*PageShopServicesRequest)(nil),     // 0: admin.v1.PageShopServicesRequest
-	(*PageShopServicesResponse)(nil),    // 1: admin.v1.PageShopServicesResponse
+	(*PageShopServiceRequest)(nil),      // 0: admin.v1.PageShopServiceRequest
+	(*PageShopServiceResponse)(nil),     // 1: admin.v1.PageShopServiceResponse
 	(*GetShopServiceRequest)(nil),       // 2: admin.v1.GetShopServiceRequest
 	(*CreateShopServiceRequest)(nil),    // 3: admin.v1.CreateShopServiceRequest
 	(*UpdateShopServiceRequest)(nil),    // 4: admin.v1.UpdateShopServiceRequest
@@ -638,20 +639,20 @@ var file_admin_v1_shop_service_proto_goTypes = []any{
 	(*emptypb.Empty)(nil),               // 10: google.protobuf.Empty
 }
 var file_admin_v1_shop_service_proto_depIdxs = []int32{
-	9,  // 0: admin.v1.PageShopServicesRequest.status:type_name -> common.v1.Status
-	7,  // 1: admin.v1.PageShopServicesResponse.shop_services:type_name -> admin.v1.ShopService
+	9,  // 0: admin.v1.PageShopServiceRequest.status:type_name -> common.v1.Status
+	7,  // 1: admin.v1.PageShopServiceResponse.shop_services:type_name -> admin.v1.ShopService
 	8,  // 2: admin.v1.CreateShopServiceRequest.shop_service:type_name -> admin.v1.ShopServiceForm
 	8,  // 3: admin.v1.UpdateShopServiceRequest.shop_service:type_name -> admin.v1.ShopServiceForm
 	9,  // 4: admin.v1.SetShopServiceStatusRequest.status:type_name -> common.v1.Status
 	9,  // 5: admin.v1.ShopService.status:type_name -> common.v1.Status
 	9,  // 6: admin.v1.ShopServiceForm.status:type_name -> common.v1.Status
-	0,  // 7: admin.v1.ShopServiceService.PageShopServices:input_type -> admin.v1.PageShopServicesRequest
+	0,  // 7: admin.v1.ShopServiceService.PageShopService:input_type -> admin.v1.PageShopServiceRequest
 	2,  // 8: admin.v1.ShopServiceService.GetShopService:input_type -> admin.v1.GetShopServiceRequest
 	3,  // 9: admin.v1.ShopServiceService.CreateShopService:input_type -> admin.v1.CreateShopServiceRequest
 	4,  // 10: admin.v1.ShopServiceService.UpdateShopService:input_type -> admin.v1.UpdateShopServiceRequest
 	5,  // 11: admin.v1.ShopServiceService.DeleteShopService:input_type -> admin.v1.DeleteShopServiceRequest
 	6,  // 12: admin.v1.ShopServiceService.SetShopServiceStatus:input_type -> admin.v1.SetShopServiceStatusRequest
-	1,  // 13: admin.v1.ShopServiceService.PageShopServices:output_type -> admin.v1.PageShopServicesResponse
+	1,  // 13: admin.v1.ShopServiceService.PageShopService:output_type -> admin.v1.PageShopServiceResponse
 	8,  // 14: admin.v1.ShopServiceService.GetShopService:output_type -> admin.v1.ShopServiceForm
 	10, // 15: admin.v1.ShopServiceService.CreateShopService:output_type -> google.protobuf.Empty
 	10, // 16: admin.v1.ShopServiceService.UpdateShopService:output_type -> google.protobuf.Empty

@@ -8,7 +8,7 @@
 import type { Empty } from "../../google/protobuf/empty";
 
 /** 商品SKU列表查询条件 */
-export interface PageGoodsSkusRequest {
+export interface PageGoodsSkuRequest {
   /** 商品id */
   goods_id: number;
   /** 商品SKU编号 */
@@ -20,7 +20,7 @@ export interface PageGoodsSkusRequest {
 }
 
 /** 商品SKU列表响应 */
-export interface PageGoodsSkusResponse {
+export interface PageGoodsSkuResponse {
   /** 商品SKU列表 */
   goods_skus: GoodsSku[];
   /** 总数 */
@@ -68,7 +68,7 @@ export interface GoodsSku {
 /** Admin商品SKU服务 */
 export interface GoodsSkuService {
   /** 查询商品SKU列表 */
-  PageGoodsSkus(request: PageGoodsSkusRequest): Promise<PageGoodsSkusResponse>;
+  PageGoodsSku(request: PageGoodsSkuRequest): Promise<PageGoodsSkuResponse>;
   /** 查询商品SKU */
   GetGoodsSku(request: GetGoodsSkuRequest): Promise<GoodsSku>;
   /** 更新商品SKU */

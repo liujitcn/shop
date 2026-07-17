@@ -31,8 +31,8 @@ func NewShopServiceCase(baseCase *biz.BaseCase, shopServiceRepo *data.ShopServic
 	}
 }
 
-// PageShopServices 查询服务保障列表
-func (c *ShopServiceCase) PageShopServices(ctx context.Context, req *adminv1.PageShopServicesRequest) (*adminv1.PageShopServicesResponse, error) {
+// PageShopService 查询服务保障列表
+func (c *ShopServiceCase) PageShopService(ctx context.Context, req *adminv1.PageShopServiceRequest) (*adminv1.PageShopServiceResponse, error) {
 	query := c.Query(ctx).ShopService
 	opts := make([]repository.QueryOption, 0, 4)
 	opts = append(opts, repository.Order(query.Sort.Asc()))
@@ -55,7 +55,7 @@ func (c *ShopServiceCase) PageShopServices(ctx context.Context, req *adminv1.Pag
 		shopService := c.mapper.ToDTO(item)
 		resList = append(resList, shopService)
 	}
-	return &adminv1.PageShopServicesResponse{ShopServices: resList, Total: int32(total)}, nil
+	return &adminv1.PageShopServiceResponse{ShopServices: resList, Total: int32(total)}, nil
 }
 
 // GetShopService 获取服务保障

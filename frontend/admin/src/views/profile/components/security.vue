@@ -175,7 +175,7 @@ function getCurrentSecurityPath() {
 
 /** 拉取当前用户三方账号绑定状态。 */
 async function loadOauthBindings() {
-  const result = await defOauthService.ListOauthBindings({});
+  const result = await defOauthService.ListOauthBinding({});
   oauthBindings.value = result.bindings.map(withOauthProviderDisplay);
 }
 

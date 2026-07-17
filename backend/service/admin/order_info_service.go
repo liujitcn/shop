@@ -36,11 +36,11 @@ func NewOrderInfoService(
 	}
 }
 
-// PageOrderInfos 查询订单信息分页列表
-func (s *OrderInfoService) PageOrderInfos(ctx context.Context, req *adminv1.PageOrderInfosRequest) (*adminv1.PageOrderInfosResponse, error) {
-	page, err := s.orderInfoCase.PageOrderInfos(ctx, req)
+// PageOrderInfo 查询订单信息分页列表
+func (s *OrderInfoService) PageOrderInfo(ctx context.Context, req *adminv1.PageOrderInfoRequest) (*adminv1.PageOrderInfoResponse, error) {
+	page, err := s.orderInfoCase.PageOrderInfo(ctx, req)
 	if err != nil {
-		log.Error(fmt.Sprintf("PageOrderInfos %v", err))
+		log.Error(fmt.Sprintf("PageOrderInfo %v", err))
 		return nil, errorsx.WrapInternal(err, "查询订单分页列表失败")
 	}
 	return page, nil

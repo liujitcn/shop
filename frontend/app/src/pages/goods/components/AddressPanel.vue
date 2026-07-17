@@ -14,7 +14,7 @@ const addressStore = useAddressStore()
 const addressList = ref<UserAddress[]>([])
 const selectedAddressId = ref<number | null>(null)
 const getUserAddressData = async () => {
-  const res = await defUserAddressService.ListUserAddresses({})
+  const res = await defUserAddressService.ListUserAddress({})
   addressList.value = res.user_addresses || []
   if (addressStore.selectedAddress) {
     selectedAddressId.value = addressStore.selectedAddress.id

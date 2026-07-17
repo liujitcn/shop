@@ -8,7 +8,6 @@ package adminv1
 
 import (
 	reflect "reflect"
-	v1 "shop/api/gen/go/common/v1"
 	sync "sync"
 	unsafe "unsafe"
 
@@ -16,6 +15,8 @@ import (
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+
+	v1 "shop/api/gen/go/common/v1"
 )
 
 const (
@@ -26,7 +27,7 @@ const (
 )
 
 // 推荐请求分页查询条件
-type PageRecommendRequestsRequest struct {
+type PageRecommendRequestRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	RequestId     *string                `protobuf:"bytes,1,opt,name=request_id,json=requestId,proto3,oneof" json:"request_id,omitempty"`                                    // 推荐请求ID
 	ActorType     *v1.RecommendActorType `protobuf:"varint,2,opt,name=actor_type,json=actorType,proto3,enum=common.v1.RecommendActorType,oneof" json:"actor_type,omitempty"` // 主体类型：字典【recommend_actor_type】
@@ -39,20 +40,20 @@ type PageRecommendRequestsRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *PageRecommendRequestsRequest) Reset() {
-	*x = PageRecommendRequestsRequest{}
+func (x *PageRecommendRequestRequest) Reset() {
+	*x = PageRecommendRequestRequest{}
 	mi := &file_admin_v1_recommend_request_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PageRecommendRequestsRequest) String() string {
+func (x *PageRecommendRequestRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PageRecommendRequestsRequest) ProtoMessage() {}
+func (*PageRecommendRequestRequest) ProtoMessage() {}
 
-func (x *PageRecommendRequestsRequest) ProtoReflect() protoreflect.Message {
+func (x *PageRecommendRequestRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_recommend_request_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -64,54 +65,54 @@ func (x *PageRecommendRequestsRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PageRecommendRequestsRequest.ProtoReflect.Descriptor instead.
-func (*PageRecommendRequestsRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use PageRecommendRequestRequest.ProtoReflect.Descriptor instead.
+func (*PageRecommendRequestRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_recommend_request_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *PageRecommendRequestsRequest) GetRequestId() string {
+func (x *PageRecommendRequestRequest) GetRequestId() string {
 	if x != nil && x.RequestId != nil {
 		return *x.RequestId
 	}
 	return ""
 }
 
-func (x *PageRecommendRequestsRequest) GetActorType() v1.RecommendActorType {
+func (x *PageRecommendRequestRequest) GetActorType() v1.RecommendActorType {
 	if x != nil && x.ActorType != nil {
 		return *x.ActorType
 	}
 	return v1.RecommendActorType(0)
 }
 
-func (x *PageRecommendRequestsRequest) GetActorId() int64 {
+func (x *PageRecommendRequestRequest) GetActorId() int64 {
 	if x != nil && x.ActorId != nil {
 		return *x.ActorId
 	}
 	return 0
 }
 
-func (x *PageRecommendRequestsRequest) GetScene() v1.RecommendScene {
+func (x *PageRecommendRequestRequest) GetScene() v1.RecommendScene {
 	if x != nil && x.Scene != nil {
 		return *x.Scene
 	}
 	return v1.RecommendScene(0)
 }
 
-func (x *PageRecommendRequestsRequest) GetRequestAt() []string {
+func (x *PageRecommendRequestRequest) GetRequestAt() []string {
 	if x != nil {
 		return x.RequestAt
 	}
 	return nil
 }
 
-func (x *PageRecommendRequestsRequest) GetPageNum() int64 {
+func (x *PageRecommendRequestRequest) GetPageNum() int64 {
 	if x != nil {
 		return x.PageNum
 	}
 	return 0
 }
 
-func (x *PageRecommendRequestsRequest) GetPageSize() int64 {
+func (x *PageRecommendRequestRequest) GetPageSize() int64 {
 	if x != nil {
 		return x.PageSize
 	}
@@ -119,7 +120,7 @@ func (x *PageRecommendRequestsRequest) GetPageSize() int64 {
 }
 
 // 推荐请求分页响应
-type PageRecommendRequestsResponse struct {
+type PageRecommendRequestResponse struct {
 	state             protoimpl.MessageState `protogen:"open.v1"`
 	RecommendRequests []*RecommendRequest    `protobuf:"bytes,1,rep,name=recommend_requests,json=recommendRequests,proto3" json:"recommend_requests,omitempty"` // 分页数据
 	Total             int32                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`                                                 // 总数
@@ -127,20 +128,20 @@ type PageRecommendRequestsResponse struct {
 	sizeCache         protoimpl.SizeCache
 }
 
-func (x *PageRecommendRequestsResponse) Reset() {
-	*x = PageRecommendRequestsResponse{}
+func (x *PageRecommendRequestResponse) Reset() {
+	*x = PageRecommendRequestResponse{}
 	mi := &file_admin_v1_recommend_request_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PageRecommendRequestsResponse) String() string {
+func (x *PageRecommendRequestResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PageRecommendRequestsResponse) ProtoMessage() {}
+func (*PageRecommendRequestResponse) ProtoMessage() {}
 
-func (x *PageRecommendRequestsResponse) ProtoReflect() protoreflect.Message {
+func (x *PageRecommendRequestResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_recommend_request_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -152,19 +153,19 @@ func (x *PageRecommendRequestsResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PageRecommendRequestsResponse.ProtoReflect.Descriptor instead.
-func (*PageRecommendRequestsResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use PageRecommendRequestResponse.ProtoReflect.Descriptor instead.
+func (*PageRecommendRequestResponse) Descriptor() ([]byte, []int) {
 	return file_admin_v1_recommend_request_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *PageRecommendRequestsResponse) GetRecommendRequests() []*RecommendRequest {
+func (x *PageRecommendRequestResponse) GetRecommendRequests() []*RecommendRequest {
 	if x != nil {
 		return x.RecommendRequests
 	}
 	return nil
 }
 
-func (x *PageRecommendRequestsResponse) GetTotal() int32 {
+func (x *PageRecommendRequestResponse) GetTotal() int32 {
 	if x != nil {
 		return x.Total
 	}
@@ -698,7 +699,7 @@ func (x *RecommendRequestItem) GetEventCount() int64 {
 }
 
 // 推荐请求事件查询条件
-type ListRecommendRequestEventsRequest struct {
+type ListRecommendRequestEventRequest struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	RequestRecordId int64                  `protobuf:"varint,1,opt,name=request_record_id,json=requestRecordId,proto3" json:"request_record_id,omitempty"` // 推荐请求记录ID
 	GoodsId         int64                  `protobuf:"varint,2,opt,name=goods_id,json=goodsId,proto3" json:"goods_id,omitempty"`                           // 商品ID
@@ -707,20 +708,20 @@ type ListRecommendRequestEventsRequest struct {
 	sizeCache       protoimpl.SizeCache
 }
 
-func (x *ListRecommendRequestEventsRequest) Reset() {
-	*x = ListRecommendRequestEventsRequest{}
+func (x *ListRecommendRequestEventRequest) Reset() {
+	*x = ListRecommendRequestEventRequest{}
 	mi := &file_admin_v1_recommend_request_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListRecommendRequestEventsRequest) String() string {
+func (x *ListRecommendRequestEventRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListRecommendRequestEventsRequest) ProtoMessage() {}
+func (*ListRecommendRequestEventRequest) ProtoMessage() {}
 
-func (x *ListRecommendRequestEventsRequest) ProtoReflect() protoreflect.Message {
+func (x *ListRecommendRequestEventRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_recommend_request_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -732,26 +733,26 @@ func (x *ListRecommendRequestEventsRequest) ProtoReflect() protoreflect.Message 
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListRecommendRequestEventsRequest.ProtoReflect.Descriptor instead.
-func (*ListRecommendRequestEventsRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListRecommendRequestEventRequest.ProtoReflect.Descriptor instead.
+func (*ListRecommendRequestEventRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_recommend_request_proto_rawDescGZIP(), []int{8}
 }
 
-func (x *ListRecommendRequestEventsRequest) GetRequestRecordId() int64 {
+func (x *ListRecommendRequestEventRequest) GetRequestRecordId() int64 {
 	if x != nil {
 		return x.RequestRecordId
 	}
 	return 0
 }
 
-func (x *ListRecommendRequestEventsRequest) GetGoodsId() int64 {
+func (x *ListRecommendRequestEventRequest) GetGoodsId() int64 {
 	if x != nil {
 		return x.GoodsId
 	}
 	return 0
 }
 
-func (x *ListRecommendRequestEventsRequest) GetPosition() int32 {
+func (x *ListRecommendRequestEventRequest) GetPosition() int32 {
 	if x != nil {
 		return x.Position
 	}
@@ -759,7 +760,7 @@ func (x *ListRecommendRequestEventsRequest) GetPosition() int32 {
 }
 
 // 推荐请求事件响应
-type ListRecommendRequestEventsResponse struct {
+type ListRecommendRequestEventResponse struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	RecommendEvents []*RecommendEvent      `protobuf:"bytes,1,rep,name=recommend_events,json=recommendEvents,proto3" json:"recommend_events,omitempty"` // 事件数据
 	Total           int32                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`                                           // 总数
@@ -767,20 +768,20 @@ type ListRecommendRequestEventsResponse struct {
 	sizeCache       protoimpl.SizeCache
 }
 
-func (x *ListRecommendRequestEventsResponse) Reset() {
-	*x = ListRecommendRequestEventsResponse{}
+func (x *ListRecommendRequestEventResponse) Reset() {
+	*x = ListRecommendRequestEventResponse{}
 	mi := &file_admin_v1_recommend_request_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListRecommendRequestEventsResponse) String() string {
+func (x *ListRecommendRequestEventResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListRecommendRequestEventsResponse) ProtoMessage() {}
+func (*ListRecommendRequestEventResponse) ProtoMessage() {}
 
-func (x *ListRecommendRequestEventsResponse) ProtoReflect() protoreflect.Message {
+func (x *ListRecommendRequestEventResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_recommend_request_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -792,19 +793,19 @@ func (x *ListRecommendRequestEventsResponse) ProtoReflect() protoreflect.Message
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListRecommendRequestEventsResponse.ProtoReflect.Descriptor instead.
-func (*ListRecommendRequestEventsResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListRecommendRequestEventResponse.ProtoReflect.Descriptor instead.
+func (*ListRecommendRequestEventResponse) Descriptor() ([]byte, []int) {
 	return file_admin_v1_recommend_request_proto_rawDescGZIP(), []int{9}
 }
 
-func (x *ListRecommendRequestEventsResponse) GetRecommendEvents() []*RecommendEvent {
+func (x *ListRecommendRequestEventResponse) GetRecommendEvents() []*RecommendEvent {
 	if x != nil {
 		return x.RecommendEvents
 	}
 	return nil
 }
 
-func (x *ListRecommendRequestEventsResponse) GetTotal() int32 {
+func (x *ListRecommendRequestEventResponse) GetTotal() int32 {
 	if x != nil {
 		return x.Total
 	}
@@ -932,8 +933,8 @@ var File_admin_v1_recommend_request_proto protoreflect.FileDescriptor
 
 const file_admin_v1_recommend_request_proto_rawDesc = "" +
 	"\n" +
-	" admin/v1/recommend_request.proto\x12\badmin.v1\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\xef\x04\n" +
-	"\x1cPageRecommendRequestsRequest\x128\n" +
+	" admin/v1/recommend_request.proto\x12\badmin.v1\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\xee\x04\n" +
+	"\x1bPageRecommendRequestRequest\x128\n" +
 	"\n" +
 	"request_id\x18\x01 \x01(\tB\x14\xbaG\x11\x92\x02\x0e推荐请求IDH\x00R\trequestId\x88\x01\x01\x12x\n" +
 	"\n" +
@@ -947,8 +948,8 @@ const file_admin_v1_recommend_request_proto_rawDesc = "" +
 	"\v_request_idB\r\n" +
 	"\v_actor_typeB\v\n" +
 	"\t_actor_idB\b\n" +
-	"\x06_scene\"\xa2\x01\n" +
-	"\x1dPageRecommendRequestsResponse\x12]\n" +
+	"\x06_scene\"\xa1\x01\n" +
+	"\x1cPageRecommendRequestResponse\x12]\n" +
 	"\x12recommend_requests\x18\x01 \x03(\v2\x1a.admin.v1.RecommendRequestB\x12\xbaG\x0f\x92\x02\f分页数据R\x11recommendRequests\x12\"\n" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\xb6\x06\n" +
 	"\x10RecommendRequest\x12\x1e\n" +
@@ -1001,12 +1002,12 @@ const file_admin_v1_recommend_request_proto_rawDesc = "" +
 	"\x0ediscount_price\x18\x06 \x01(\x03B\x1b\xbaG\x18\x92\x02\x15折扣价格（分）R\rdiscountPrice\x12g\n" +
 	"\fgoods_status\x18\a \x01(\x0e2\x16.common.v1.GoodsStatusB,\xbaG)\x92\x02&商品状态：枚举【GoodsStatus】R\vgoodsStatus\x129\n" +
 	"\vevent_count\x18\b \x01(\x03B\x18\xbaG\x15\x92\x02\x12关联事件条数R\n" +
-	"eventCount\"\xc6\x01\n" +
-	"!ListRecommendRequestEventsRequest\x12F\n" +
+	"eventCount\"\xc5\x01\n" +
+	" ListRecommendRequestEventRequest\x12F\n" +
 	"\x11request_record_id\x18\x01 \x01(\x03B\x1a\xbaG\x17\x92\x02\x14推荐请求记录IDR\x0frequestRecordId\x12)\n" +
 	"\bgoods_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\agoodsId\x12.\n" +
-	"\bposition\x18\x03 \x01(\x05B\x12\xbaG\x0f\x92\x02\f结果位置R\bposition\"\xa1\x01\n" +
-	"\"ListRecommendRequestEventsResponse\x12W\n" +
+	"\bposition\x18\x03 \x01(\x05B\x12\xbaG\x0f\x92\x02\f结果位置R\bposition\"\xa0\x01\n" +
+	"!ListRecommendRequestEventResponse\x12W\n" +
 	"\x10recommend_events\x18\x01 \x03(\v2\x18.admin.v1.RecommendEventB\x12\xbaG\x0f\x92\x02\f事件数据R\x0frecommendEvents\x12\"\n" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\xb5\x05\n" +
 	"\x0eRecommendEvent\x12\x1e\n" +
@@ -1023,11 +1024,11 @@ const file_admin_v1_recommend_request_proto_rawDesc = "" +
 	"request_id\x18\b \x01(\tB\x14\xbaG\x11\x92\x02\x0e推荐请求IDR\trequestId\x12.\n" +
 	"\bposition\x18\t \x01(\x05B\x12\xbaG\x0f\x92\x02\f结果位置R\bposition\x12-\n" +
 	"\bevent_at\x18\n" +
-	" \x01(\tB\x12\xbaG\x0f\x92\x02\f事件时间R\aeventAt2\x80\x04\n" +
-	"\x17RecommendRequestService\x12\x91\x01\n" +
-	"\x15PageRecommendRequests\x12&.admin.v1.PageRecommendRequestsRequest\x1a'.admin.v1.PageRecommendRequestsResponse\"'\x82\xd3\xe4\x93\x02!\x12\x1f/api/v1/admin/recommend/request\x12\x93\x01\n" +
-	"\x13GetRecommendRequest\x12$.admin.v1.GetRecommendRequestRequest\x1a(.admin.v1.RecommendRequestDetailResponse\",\x82\xd3\xe4\x93\x02&\x12$/api/v1/admin/recommend/request/{id}\x12\xba\x01\n" +
-	"\x1aListRecommendRequestEvents\x12+.admin.v1.ListRecommendRequestEventsRequest\x1a,.admin.v1.ListRecommendRequestEventsResponse\"A\x82\xd3\xe4\x93\x02;\x129/api/v1/admin/recommend/request/{request_record_id}/eventB\x88\x01\n" +
+	" \x01(\tB\x12\xbaG\x0f\x92\x02\f事件时间R\aeventAt2\xfa\x03\n" +
+	"\x17RecommendRequestService\x12\x8e\x01\n" +
+	"\x14PageRecommendRequest\x12%.admin.v1.PageRecommendRequestRequest\x1a&.admin.v1.PageRecommendRequestResponse\"'\x82\xd3\xe4\x93\x02!\x12\x1f/api/v1/admin/recommend/request\x12\x93\x01\n" +
+	"\x13GetRecommendRequest\x12$.admin.v1.GetRecommendRequestRequest\x1a(.admin.v1.RecommendRequestDetailResponse\",\x82\xd3\xe4\x93\x02&\x12$/api/v1/admin/recommend/request/{id}\x12\xb7\x01\n" +
+	"\x19ListRecommendRequestEvent\x12*.admin.v1.ListRecommendRequestEventRequest\x1a+.admin.v1.ListRecommendRequestEventResponse\"A\x82\xd3\xe4\x93\x02;\x129/api/v1/admin/recommend/request/{request_record_id}/eventB\x88\x01\n" +
 	"\fcom.admin.v1B\x15RecommendRequestProtoP\x01Z shop/api/gen/go/admin/v1;adminv1\xa2\x02\x03AXX\xaa\x02\bAdmin.V1\xca\x02\bAdmin\\V1\xe2\x02\x14Admin\\V1\\GPBMetadata\xea\x02\tAdmin::V1b\x06proto3"
 
 var (
@@ -1044,27 +1045,27 @@ func file_admin_v1_recommend_request_proto_rawDescGZIP() []byte {
 
 var file_admin_v1_recommend_request_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_admin_v1_recommend_request_proto_goTypes = []any{
-	(*PageRecommendRequestsRequest)(nil),       // 0: admin.v1.PageRecommendRequestsRequest
-	(*PageRecommendRequestsResponse)(nil),      // 1: admin.v1.PageRecommendRequestsResponse
-	(*RecommendRequest)(nil),                   // 2: admin.v1.RecommendRequest
-	(*GetRecommendRequestRequest)(nil),         // 3: admin.v1.GetRecommendRequestRequest
-	(*RecommendRequestDetailResponse)(nil),     // 4: admin.v1.RecommendRequestDetailResponse
-	(*RecommendRequestContext)(nil),            // 5: admin.v1.RecommendRequestContext
-	(*RecommendRequestTrace)(nil),              // 6: admin.v1.RecommendRequestTrace
-	(*RecommendRequestItem)(nil),               // 7: admin.v1.RecommendRequestItem
-	(*ListRecommendRequestEventsRequest)(nil),  // 8: admin.v1.ListRecommendRequestEventsRequest
-	(*ListRecommendRequestEventsResponse)(nil), // 9: admin.v1.ListRecommendRequestEventsResponse
-	(*RecommendEvent)(nil),                     // 10: admin.v1.RecommendEvent
-	(v1.RecommendActorType)(0),                 // 11: common.v1.RecommendActorType
-	(v1.RecommendScene)(0),                     // 12: common.v1.RecommendScene
-	(v1.RecommendStrategy)(0),                  // 13: common.v1.RecommendStrategy
-	(v1.GoodsStatus)(0),                        // 14: common.v1.GoodsStatus
-	(v1.RecommendEventType)(0),                 // 15: common.v1.RecommendEventType
+	(*PageRecommendRequestRequest)(nil),       // 0: admin.v1.PageRecommendRequestRequest
+	(*PageRecommendRequestResponse)(nil),      // 1: admin.v1.PageRecommendRequestResponse
+	(*RecommendRequest)(nil),                  // 2: admin.v1.RecommendRequest
+	(*GetRecommendRequestRequest)(nil),        // 3: admin.v1.GetRecommendRequestRequest
+	(*RecommendRequestDetailResponse)(nil),    // 4: admin.v1.RecommendRequestDetailResponse
+	(*RecommendRequestContext)(nil),           // 5: admin.v1.RecommendRequestContext
+	(*RecommendRequestTrace)(nil),             // 6: admin.v1.RecommendRequestTrace
+	(*RecommendRequestItem)(nil),              // 7: admin.v1.RecommendRequestItem
+	(*ListRecommendRequestEventRequest)(nil),  // 8: admin.v1.ListRecommendRequestEventRequest
+	(*ListRecommendRequestEventResponse)(nil), // 9: admin.v1.ListRecommendRequestEventResponse
+	(*RecommendEvent)(nil),                    // 10: admin.v1.RecommendEvent
+	(v1.RecommendActorType)(0),                // 11: common.v1.RecommendActorType
+	(v1.RecommendScene)(0),                    // 12: common.v1.RecommendScene
+	(v1.RecommendStrategy)(0),                 // 13: common.v1.RecommendStrategy
+	(v1.GoodsStatus)(0),                       // 14: common.v1.GoodsStatus
+	(v1.RecommendEventType)(0),                // 15: common.v1.RecommendEventType
 }
 var file_admin_v1_recommend_request_proto_depIdxs = []int32{
-	11, // 0: admin.v1.PageRecommendRequestsRequest.actor_type:type_name -> common.v1.RecommendActorType
-	12, // 1: admin.v1.PageRecommendRequestsRequest.scene:type_name -> common.v1.RecommendScene
-	2,  // 2: admin.v1.PageRecommendRequestsResponse.recommend_requests:type_name -> admin.v1.RecommendRequest
+	11, // 0: admin.v1.PageRecommendRequestRequest.actor_type:type_name -> common.v1.RecommendActorType
+	12, // 1: admin.v1.PageRecommendRequestRequest.scene:type_name -> common.v1.RecommendScene
+	2,  // 2: admin.v1.PageRecommendRequestResponse.recommend_requests:type_name -> admin.v1.RecommendRequest
 	11, // 3: admin.v1.RecommendRequest.actor_type:type_name -> common.v1.RecommendActorType
 	12, // 4: admin.v1.RecommendRequest.scene:type_name -> common.v1.RecommendScene
 	13, // 5: admin.v1.RecommendRequest.strategy:type_name -> common.v1.RecommendStrategy
@@ -1074,16 +1075,16 @@ var file_admin_v1_recommend_request_proto_depIdxs = []int32{
 	13, // 9: admin.v1.RecommendRequestContext.strategy:type_name -> common.v1.RecommendStrategy
 	6,  // 10: admin.v1.RecommendRequestContext.trace:type_name -> admin.v1.RecommendRequestTrace
 	14, // 11: admin.v1.RecommendRequestItem.goods_status:type_name -> common.v1.GoodsStatus
-	10, // 12: admin.v1.ListRecommendRequestEventsResponse.recommend_events:type_name -> admin.v1.RecommendEvent
+	10, // 12: admin.v1.ListRecommendRequestEventResponse.recommend_events:type_name -> admin.v1.RecommendEvent
 	11, // 13: admin.v1.RecommendEvent.actor_type:type_name -> common.v1.RecommendActorType
 	12, // 14: admin.v1.RecommendEvent.scene:type_name -> common.v1.RecommendScene
 	15, // 15: admin.v1.RecommendEvent.event_type:type_name -> common.v1.RecommendEventType
-	0,  // 16: admin.v1.RecommendRequestService.PageRecommendRequests:input_type -> admin.v1.PageRecommendRequestsRequest
+	0,  // 16: admin.v1.RecommendRequestService.PageRecommendRequest:input_type -> admin.v1.PageRecommendRequestRequest
 	3,  // 17: admin.v1.RecommendRequestService.GetRecommendRequest:input_type -> admin.v1.GetRecommendRequestRequest
-	8,  // 18: admin.v1.RecommendRequestService.ListRecommendRequestEvents:input_type -> admin.v1.ListRecommendRequestEventsRequest
-	1,  // 19: admin.v1.RecommendRequestService.PageRecommendRequests:output_type -> admin.v1.PageRecommendRequestsResponse
+	8,  // 18: admin.v1.RecommendRequestService.ListRecommendRequestEvent:input_type -> admin.v1.ListRecommendRequestEventRequest
+	1,  // 19: admin.v1.RecommendRequestService.PageRecommendRequest:output_type -> admin.v1.PageRecommendRequestResponse
 	4,  // 20: admin.v1.RecommendRequestService.GetRecommendRequest:output_type -> admin.v1.RecommendRequestDetailResponse
-	9,  // 21: admin.v1.RecommendRequestService.ListRecommendRequestEvents:output_type -> admin.v1.ListRecommendRequestEventsResponse
+	9,  // 21: admin.v1.RecommendRequestService.ListRecommendRequestEvent:output_type -> admin.v1.ListRecommendRequestEventResponse
 	19, // [19:22] is the sub-list for method output_type
 	16, // [16:19] is the sub-list for method input_type
 	16, // [16:16] is the sub-list for extension type_name

@@ -30,22 +30,22 @@ const (
 )
 
 const (
-	adminToolSummaryWorkspaceMetrics      = "admin_v1_workspace_service_summary_workspace_metrics"
-	adminToolSummaryWorkspaceTodo         = "admin_v1_workspace_service_summary_workspace_todo"
-	adminToolSummaryWorkspaceRisk         = "admin_v1_workspace_service_summary_workspace_risk"
-	adminToolSummaryWorkspaceReputation   = "admin_v1_workspace_service_summary_workspace_reputation"
-	adminToolListWorkspacePendingComments = "admin_v1_workspace_service_list_workspace_pending_comments"
-	adminToolPageOrderInfos               = "admin_v1_order_info_service_page_order_infos"
-	adminToolGetOrderInfo                 = "admin_v1_order_info_service_get_order_info"
-	adminToolGetOrderInfoRefund           = "admin_v1_order_info_service_get_order_info_refund"
-	adminToolGetOrderInfoShipment         = "admin_v1_order_info_service_get_order_info_shipment"
-	adminToolShipOrderInfo                = "admin_v1_order_info_service_ship_order_info"
-	adminToolPageCommentInfos             = "admin_v1_comment_info_service_page_comment_infos"
-	adminToolGetCommentInfo               = "admin_v1_comment_info_service_get_comment_info"
-	adminToolSetCommentInfoStatus         = "admin_v1_comment_info_service_set_comment_info_status"
-	adminToolPageGoodsInfos               = "admin_v1_goods_info_service_page_goods_infos"
-	adminToolGetGoodsInfo                 = "admin_v1_goods_info_service_get_goods_info"
-	adminToolSetGoodsInfoStatus           = "admin_v1_goods_info_service_set_goods_info_status"
+	adminToolSummaryWorkspaceMetrics     = "admin_v1_workspace_service_summary_workspace_metrics"
+	adminToolSummaryWorkspaceTodo        = "admin_v1_workspace_service_summary_workspace_todo"
+	adminToolSummaryWorkspaceRisk        = "admin_v1_workspace_service_summary_workspace_risk"
+	adminToolSummaryWorkspaceReputation  = "admin_v1_workspace_service_summary_workspace_reputation"
+	adminToolListWorkspacePendingComment = "admin_v1_workspace_service_list_workspace_pending_comments"
+	adminToolPageOrderInfo               = "admin_v1_order_info_service_page_order_infos"
+	adminToolGetOrderInfo                = "admin_v1_order_info_service_get_order_info"
+	adminToolGetOrderInfoRefund          = "admin_v1_order_info_service_get_order_info_refund"
+	adminToolGetOrderInfoShipment        = "admin_v1_order_info_service_get_order_info_shipment"
+	adminToolShipOrderInfo               = "admin_v1_order_info_service_ship_order_info"
+	adminToolPageCommentInfo             = "admin_v1_comment_info_service_page_comment_infos"
+	adminToolGetCommentInfo              = "admin_v1_comment_info_service_get_comment_info"
+	adminToolSetCommentInfoStatus        = "admin_v1_comment_info_service_set_comment_info_status"
+	adminToolPageGoodsInfo               = "admin_v1_goods_info_service_page_goods_infos"
+	adminToolGetGoodsInfo                = "admin_v1_goods_info_service_get_goods_info"
+	adminToolSetGoodsInfoStatus          = "admin_v1_goods_info_service_set_goods_info_status"
 
 	// P1: 商品分析工具
 	adminToolSummaryGoodsAnalytics = "admin_v1_goods_analytics_service_summary_goods_analytics"
@@ -59,17 +59,17 @@ const (
 	adminToolPieOrderAnalytics     = "admin_v1_order_analytics_service_pie_order_analytics"
 
 	// P1: 门店审核工具
-	adminToolPageUserStores = "admin_v1_user_store_service_page_user_stores"
+	adminToolPageUserStore  = "admin_v1_user_store_service_page_user_stores"
 	adminToolGetUserStore   = "admin_v1_user_store_service_get_user_store"
 	adminToolAuditUserStore = "admin_v1_user_store_service_audit_user_store"
 
 	// P1: 推荐看板工具
-	adminToolListDashboardItems = "admin_v1_recommend_gorse_service_list_dashboard_items"
-	adminToolListTasks          = "admin_v1_recommend_gorse_service_list_tasks"
-	adminToolGetConfig          = "admin_v1_recommend_gorse_service_get_config"
+	adminToolListDashboardItem = "admin_v1_recommend_gorse_service_list_dashboard_items"
+	adminToolListTask          = "admin_v1_recommend_gorse_service_list_tasks"
+	adminToolGetConfig         = "admin_v1_recommend_gorse_service_get_config"
 
 	// P2: 对账检查工具
-	adminToolPagePayBills = "admin_v1_pay_bill_service_page_pay_bills"
+	adminToolPagePayBill = "admin_v1_pay_bill_service_page_pay_bills"
 
 	// P2: 经营报表工具
 	adminToolSummaryOrderMonthReport = "admin_v1_order_report_service_summary_order_month_report"
@@ -307,7 +307,7 @@ func buildAdminRiskBlock(output map[string]any) map[string]any {
 
 // openAdminPendingShipmentFlow 打开待发货流程。
 func (r *AdminRunner) openAdminPendingShipmentFlow(ctx context.Context) (*assistant.Response, error) {
-	output, usage, err := r.invokeAdminFlowTool(ctx, adminToolPageOrderInfos, map[string]any{
+	output, usage, err := r.invokeAdminFlowTool(ctx, adminToolPageOrderInfo, map[string]any{
 		"status":    int(commonv1.OrderInfoStatus_WAIT_SHIPMENT_OIS),
 		"page_num":  1,
 		"page_size": 5,
@@ -380,7 +380,7 @@ func (r *AdminRunner) confirmAdminShipment(ctx context.Context, payload map[stri
 
 // openAdminCommentReviewFlow 打开评价审核流程。
 func (r *AdminRunner) openAdminCommentReviewFlow(ctx context.Context) (*assistant.Response, error) {
-	output, usage, err := r.invokeAdminFlowTool(ctx, adminToolPageCommentInfos, map[string]any{
+	output, usage, err := r.invokeAdminFlowTool(ctx, adminToolPageCommentInfo, map[string]any{
 		"status":    int(commonv1.CommentStatus_PENDING_REVIEW_CS),
 		"page_num":  1,
 		"page_size": 5,
@@ -445,7 +445,7 @@ func (r *AdminRunner) confirmAdminCommentReview(ctx context.Context, payload map
 
 // openAdminGoodsInventoryAlertFlow 打开库存预警流程。
 func (r *AdminRunner) openAdminGoodsInventoryAlertFlow(ctx context.Context) (*assistant.Response, error) {
-	output, usage, err := r.invokeAdminFlowTool(ctx, adminToolPageGoodsInfos, map[string]any{
+	output, usage, err := r.invokeAdminFlowTool(ctx, adminToolPageGoodsInfo, map[string]any{
 		"inventory_alert": int(commonv1.GoodsInventoryAlert_LOW_STOCK),
 		"page_num":        1,
 		"page_size":       5,
@@ -521,7 +521,7 @@ func (r *AdminRunner) openAdminOrderRefundFlow(ctx context.Context) (*assistant.
 	for _, refundStatus := range refundStatuses {
 		var output map[string]any
 		var usage assistant.ToolUsage
-		output, usage, err = r.invokeAdminFlowTool(ctx, adminToolPageOrderInfos, map[string]any{
+		output, usage, err = r.invokeAdminFlowTool(ctx, adminToolPageOrderInfo, map[string]any{
 			"refund_status": int(refundStatus),
 			"page_num":      1,
 			"page_size":     5,
@@ -686,7 +686,7 @@ func (r *AdminRunner) openAdminOrderAnalyticsFlow(ctx context.Context) (*assista
 
 // openAdminStoreAuditFlow 打开门店审核流程。
 func (r *AdminRunner) openAdminStoreAuditFlow(ctx context.Context) (*assistant.Response, error) {
-	output, usage, err := r.invokeAdminFlowTool(ctx, adminToolPageUserStores, map[string]any{
+	output, usage, err := r.invokeAdminFlowTool(ctx, adminToolPageUserStore, map[string]any{
 		"status":    int(commonv1.UserStoreStatus_PENDING_REVIEW),
 		"page_num":  1,
 		"page_size": 5,
@@ -755,10 +755,10 @@ func (r *AdminRunner) confirmAdminStoreAudit(ctx context.Context, payload map[st
 func (r *AdminRunner) openAdminRecommendDashboardFlow(ctx context.Context) (*assistant.Response, error) {
 	tools := make([]assistant.ToolUsage, 0, 3)
 
-	dashboardOutput, dashboardUsage, dashboardErr := r.invokeAdminFlowTool(ctx, adminToolListDashboardItems, map[string]any{})
+	dashboardOutput, dashboardUsage, dashboardErr := r.invokeAdminFlowTool(ctx, adminToolListDashboardItem, map[string]any{})
 	tools = appendAiAssistantFlowTool(tools, dashboardUsage)
 
-	tasksOutput, tasksUsage, tasksErr := r.invokeAdminFlowTool(ctx, adminToolListTasks, map[string]any{})
+	tasksOutput, tasksUsage, tasksErr := r.invokeAdminFlowTool(ctx, adminToolListTask, map[string]any{})
 	tools = appendAiAssistantFlowTool(tools, tasksUsage)
 
 	configOutput, configUsage, configErr := r.invokeAdminFlowTool(ctx, adminToolGetConfig, map[string]any{})
@@ -803,7 +803,7 @@ func (r *AdminRunner) openAdminReputationInsightFlow(ctx context.Context) (*assi
 
 // openAdminPayBillCheckFlow 打开对账检查流程。
 func (r *AdminRunner) openAdminPayBillCheckFlow(ctx context.Context) (*assistant.Response, error) {
-	output, usage, err := r.invokeAdminFlowTool(ctx, adminToolPagePayBills, map[string]any{
+	output, usage, err := r.invokeAdminFlowTool(ctx, adminToolPagePayBill, map[string]any{
 		"status":    int(commonv1.PayBillStatus_HAS_ERROR),
 		"page_num":  1,
 		"page_size": 5,

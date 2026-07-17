@@ -50,8 +50,8 @@ func NewUserCollectCase(
 	}
 }
 
-// PageUserCollects 查询用户收藏列表
-func (c *UserCollectCase) PageUserCollects(ctx context.Context, req *appv1.PageUserCollectsRequest) (*appv1.PageUserCollectsResponse, error) {
+// PageUserCollect 查询用户收藏列表
+func (c *UserCollectCase) PageUserCollect(ctx context.Context, req *appv1.PageUserCollectRequest) (*appv1.PageUserCollectResponse, error) {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return nil, err
@@ -117,7 +117,7 @@ func (c *UserCollectCase) PageUserCollects(ctx context.Context, req *appv1.PageU
 		}
 		list = append(list, collect)
 	}
-	return &appv1.PageUserCollectsResponse{
+	return &appv1.PageUserCollectResponse{
 		UserCollects: list,
 		Total:        int32(count),
 	}, nil

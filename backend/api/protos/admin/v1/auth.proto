@@ -17,14 +17,14 @@ service AuthService {
   }
 
   // 查询已经登录的用户菜单树
-  rpc TreeUserMenus(TreeUserMenusRequest) returns (TreeRouteResponse) {
+  rpc TreeUserMenu(TreeUserMenuRequest) returns (TreeRouteResponse) {
     option (google.api.http) = {
       get: "/api/v1/admin/auth/menu/tree"
     };
   }
 
   // 查询已经登录的用户按钮列表
-  rpc ListUserButtons(ListUserButtonsRequest) returns (.common.v1.StringValues) {
+  rpc ListUserButton(ListUserButtonRequest) returns (.common.v1.StringValues) {
     option (google.api.http) = {
       get: "/api/v1/admin/auth/buttons"
     };
@@ -74,10 +74,10 @@ service AuthService {
 message GetUserInfoRequest {}
 
 // 登录用户菜单树查询参数
-message TreeUserMenusRequest {}
+message TreeUserMenuRequest {}
 
 // 登录用户按钮列表查询参数
-message ListUserButtonsRequest {}
+message ListUserButtonRequest {}
 
 // 获取个人中心用户信息请求参数
 message GetUserProfileRequest {}

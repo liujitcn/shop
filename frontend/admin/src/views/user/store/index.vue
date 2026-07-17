@@ -90,7 +90,7 @@ import ProForm from "@/components/ProForm/index.vue";
 import type { ProFormField, ProFormInstance } from "@/components/ProForm/interface";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { defUserStoreService } from "@/api/admin/user_store";
-import type { AuditUserStoreRequest, PageUserStoresRequest, UserStore } from "@/rpc/admin/v1/user_store";
+import type { AuditUserStoreRequest, PageUserStoreRequest, UserStore } from "@/rpc/admin/v1/user_store";
 import { UserStoreStatus } from "@/rpc/common/v1/enum";
 import { buildPageRequest } from "@/utils/proTable";
 
@@ -193,8 +193,8 @@ const columns: ColumnProps[] = [
 /**
  * 请求用户门店列表，并由 ProTable 统一维护分页与查询参数。
  */
-async function requestUserStoreTable(params: PageUserStoresRequest) {
-  const data = await defUserStoreService.PageUserStores(buildPageRequest(params));
+async function requestUserStoreTable(params: PageUserStoreRequest) {
+  const data = await defUserStoreService.PageUserStore(buildPageRequest(params));
   return { data: { list: data.user_stores ?? [], total: data.total } };
 }
 

@@ -8,10 +8,11 @@ package adminv1
 
 import (
 	context "context"
-	v1 "shop/api/gen/go/common/v1"
 
 	http "github.com/go-kratos/kratos/v3/transport/http"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+
+	v1 "shop/api/gen/go/common/v1"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -23,8 +24,8 @@ const _ = http.SupportPackageIsVersion3
 const OperationBaseRoleServiceCreateBaseRole = "/admin.v1.BaseRoleService/CreateBaseRole"
 const OperationBaseRoleServiceDeleteBaseRole = "/admin.v1.BaseRoleService/DeleteBaseRole"
 const OperationBaseRoleServiceGetBaseRole = "/admin.v1.BaseRoleService/GetBaseRole"
-const OperationBaseRoleServiceOptionBaseRoles = "/admin.v1.BaseRoleService/OptionBaseRoles"
-const OperationBaseRoleServicePageBaseRoles = "/admin.v1.BaseRoleService/PageBaseRoles"
+const OperationBaseRoleServiceOptionBaseRole = "/admin.v1.BaseRoleService/OptionBaseRole"
+const OperationBaseRoleServicePageBaseRole = "/admin.v1.BaseRoleService/PageBaseRole"
 const OperationBaseRoleServiceSetBaseRoleMenu = "/admin.v1.BaseRoleService/SetBaseRoleMenu"
 const OperationBaseRoleServiceSetBaseRoleStatus = "/admin.v1.BaseRoleService/SetBaseRoleStatus"
 const OperationBaseRoleServiceUpdateBaseRole = "/admin.v1.BaseRoleService/UpdateBaseRole"
@@ -36,10 +37,10 @@ type BaseRoleServiceHTTPServer interface {
 	DeleteBaseRole(context.Context, *DeleteBaseRoleRequest) (*emptypb.Empty, error)
 	// GetBaseRole 查询角色
 	GetBaseRole(context.Context, *GetBaseRoleRequest) (*BaseRoleForm, error)
-	// OptionBaseRoles 查询角色下拉选择
-	OptionBaseRoles(context.Context, *OptionBaseRolesRequest) (*v1.SelectOptionResponse, error)
-	// PageBaseRoles 查询角色分页列表
-	PageBaseRoles(context.Context, *PageBaseRolesRequest) (*PageBaseRolesResponse, error)
+	// OptionBaseRole 查询角色下拉选择
+	OptionBaseRole(context.Context, *OptionBaseRoleRequest) (*v1.SelectOptionResponse, error)
+	// PageBaseRole 查询角色分页列表
+	PageBaseRole(context.Context, *PageBaseRoleRequest) (*PageBaseRoleResponse, error)
 	// SetBaseRoleMenu 设置角色菜单权限
 	SetBaseRoleMenu(context.Context, *SetBaseRoleMenuRequest) (*emptypb.Empty, error)
 	// SetBaseRoleStatus 设置状态
@@ -50,8 +51,8 @@ type BaseRoleServiceHTTPServer interface {
 
 func RegisterBaseRoleServiceHTTPServer(s *http.Server, srv BaseRoleServiceHTTPServer) {
 	r := s.Route("/")
-	r.Handle("GET", "/api/v1/admin/base/role/option", _BaseRoleService_OptionBaseRoles0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/admin/base/role", _BaseRoleService_PageBaseRoles0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/base/role/option", _BaseRoleService_OptionBaseRole0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/base/role", _BaseRoleService_PageBaseRole0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/base/role/{id}", _BaseRoleService_GetBaseRole0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/admin/base/role", _BaseRoleService_CreateBaseRole0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/base/role/{base_role.id}", _BaseRoleService_UpdateBaseRole0_HTTP_Handler(srv))
@@ -60,15 +61,15 @@ func RegisterBaseRoleServiceHTTPServer(s *http.Server, srv BaseRoleServiceHTTPSe
 	r.Handle("PUT", "/api/v1/admin/base/role/{id}/menu", _BaseRoleService_SetBaseRoleMenu0_HTTP_Handler(srv))
 }
 
-func _BaseRoleService_OptionBaseRoles0_HTTP_Handler(srv BaseRoleServiceHTTPServer) func(ctx http.Context) error {
+func _BaseRoleService_OptionBaseRole0_HTTP_Handler(srv BaseRoleServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in OptionBaseRolesRequest
+		var in OptionBaseRoleRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationBaseRoleServiceOptionBaseRoles)
+		http.SetOperation(ctx, OperationBaseRoleServiceOptionBaseRole)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.OptionBaseRoles(ctx, req.(*OptionBaseRolesRequest))
+			return srv.OptionBaseRole(ctx, req.(*OptionBaseRoleRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -79,21 +80,21 @@ func _BaseRoleService_OptionBaseRoles0_HTTP_Handler(srv BaseRoleServiceHTTPServe
 	}
 }
 
-func _BaseRoleService_PageBaseRoles0_HTTP_Handler(srv BaseRoleServiceHTTPServer) func(ctx http.Context) error {
+func _BaseRoleService_PageBaseRole0_HTTP_Handler(srv BaseRoleServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in PageBaseRolesRequest
+		var in PageBaseRoleRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationBaseRoleServicePageBaseRoles)
+		http.SetOperation(ctx, OperationBaseRoleServicePageBaseRole)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.PageBaseRoles(ctx, req.(*PageBaseRolesRequest))
+			return srv.PageBaseRole(ctx, req.(*PageBaseRoleRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*PageBaseRolesResponse)
+		reply := out.(*PageBaseRoleResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -240,10 +241,10 @@ type BaseRoleServiceHTTPClient interface {
 	DeleteBaseRole(ctx context.Context, req *DeleteBaseRoleRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// GetBaseRole 查询角色
 	GetBaseRole(ctx context.Context, req *GetBaseRoleRequest, opts ...http.CallOption) (rsp *BaseRoleForm, err error)
-	// OptionBaseRoles 查询角色下拉选择
-	OptionBaseRoles(ctx context.Context, req *OptionBaseRolesRequest, opts ...http.CallOption) (rsp *v1.SelectOptionResponse, err error)
-	// PageBaseRoles 查询角色分页列表
-	PageBaseRoles(ctx context.Context, req *PageBaseRolesRequest, opts ...http.CallOption) (rsp *PageBaseRolesResponse, err error)
+	// OptionBaseRole 查询角色下拉选择
+	OptionBaseRole(ctx context.Context, req *OptionBaseRoleRequest, opts ...http.CallOption) (rsp *v1.SelectOptionResponse, err error)
+	// PageBaseRole 查询角色分页列表
+	PageBaseRole(ctx context.Context, req *PageBaseRoleRequest, opts ...http.CallOption) (rsp *PageBaseRoleResponse, err error)
 	// SetBaseRoleMenu 设置角色菜单权限
 	SetBaseRoleMenu(ctx context.Context, req *SetBaseRoleMenuRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// SetBaseRoleStatus 设置状态
@@ -312,14 +313,14 @@ func (c *BaseRoleServiceHTTPClientImpl) GetBaseRole(ctx context.Context, in *Get
 	return &out, nil
 }
 
-// OptionBaseRoles 查询角色下拉选择
-func (c *BaseRoleServiceHTTPClientImpl) OptionBaseRoles(ctx context.Context, in *OptionBaseRolesRequest, opts ...http.CallOption) (*v1.SelectOptionResponse, error) {
+// OptionBaseRole 查询角色下拉选择
+func (c *BaseRoleServiceHTTPClientImpl) OptionBaseRole(ctx context.Context, in *OptionBaseRoleRequest, opts ...http.CallOption) (*v1.SelectOptionResponse, error) {
 	var out v1.SelectOptionResponse
 	pattern := "/api/v1/admin/base/role/option"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationBaseRoleServiceOptionBaseRoles),
+		http.Operation(OperationBaseRoleServiceOptionBaseRole),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
@@ -329,14 +330,14 @@ func (c *BaseRoleServiceHTTPClientImpl) OptionBaseRoles(ctx context.Context, in 
 	return &out, nil
 }
 
-// PageBaseRoles 查询角色分页列表
-func (c *BaseRoleServiceHTTPClientImpl) PageBaseRoles(ctx context.Context, in *PageBaseRolesRequest, opts ...http.CallOption) (*PageBaseRolesResponse, error) {
-	var out PageBaseRolesResponse
+// PageBaseRole 查询角色分页列表
+func (c *BaseRoleServiceHTTPClientImpl) PageBaseRole(ctx context.Context, in *PageBaseRoleRequest, opts ...http.CallOption) (*PageBaseRoleResponse, error) {
+	var out PageBaseRoleResponse
 	pattern := "/api/v1/admin/base/role"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationBaseRoleServicePageBaseRoles),
+		http.Operation(OperationBaseRoleServicePageBaseRole),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)

@@ -9,7 +9,7 @@ import type { BaseJobLogStatus, Status } from "../../common/v1/enum";
 import type { Empty } from "../../google/protobuf/empty";
 
 /** 定时任务分页查询条件 */
-export interface PageBaseJobsRequest {
+export interface PageBaseJobRequest {
   /** 任务名称 */
   name: string;
   /** 调用目标 */
@@ -25,7 +25,7 @@ export interface PageBaseJobsRequest {
 }
 
 /** 定时任务分页响应 */
-export interface PageBaseJobsResponse {
+export interface PageBaseJobResponse {
   /** 分页数据 */
   base_jobs: BaseJob[];
   /** 总数 */
@@ -83,7 +83,7 @@ export interface ExecuteBaseJobRequest {
 }
 
 /** 定时任务日志分页查询条件 */
-export interface PageBaseJobLogsRequest {
+export interface PageBaseJobLogRequest {
   /** 任务ID */
   job_id: number;
   /** 状态 */
@@ -99,7 +99,7 @@ export interface PageBaseJobLogsRequest {
 }
 
 /** 定时任务日志分页响应 */
-export interface PageBaseJobLogsResponse {
+export interface PageBaseJobLogResponse {
   /** 分页数据 */
   base_job_logs: BaseJobLog[];
   /** 总数 */
@@ -181,7 +181,7 @@ export interface BaseJobLog {
 /** Admin定时任务服务 */
 export interface BaseJobService {
   /** 查询定时任务分页列表 */
-  PageBaseJobs(request: PageBaseJobsRequest): Promise<PageBaseJobsResponse>;
+  PageBaseJob(request: PageBaseJobRequest): Promise<PageBaseJobResponse>;
   /** 查询定时任务 */
   GetBaseJob(request: GetBaseJobRequest): Promise<BaseJobForm>;
   /** 创建定时任务 */
@@ -199,7 +199,7 @@ export interface BaseJobService {
   /** 执行任务 */
   ExecuteBaseJob(request: ExecuteBaseJobRequest): Promise<Empty>;
   /** 查询定时任务日志分页列表 */
-  PageBaseJobLogs(request: PageBaseJobLogsRequest): Promise<PageBaseJobLogsResponse>;
+  PageBaseJobLog(request: PageBaseJobLogRequest): Promise<PageBaseJobLogResponse>;
   /** 查询定时任务日志 */
   GetBaseJobLog(request: GetBaseJobLogRequest): Promise<BaseJobLog>;
 }

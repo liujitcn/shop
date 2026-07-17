@@ -140,7 +140,7 @@ const getUserOrderPreData = async () => {
 
 const addressList = ref<UserAddress[]>([])
 const getUserAddressData = async () => {
-  const res = await defUserAddressService.ListUserAddresses({})
+  const res = await defUserAddressService.ListUserAddress({})
   addressList.value = res.user_addresses || []
 }
 

@@ -5,8 +5,8 @@ import {
   type GetGoodsPropRequest,
   type GoodsProp,
   type GoodsPropService,
-  type PageGoodsPropsRequest,
-  type PageGoodsPropsResponse,
+  type PageGoodsPropRequest,
+  type PageGoodsPropResponse,
   type UpdateGoodsPropRequest
 } from "@/rpc/admin/v1/goods_prop";
 import type { Empty } from "@/rpc/google/protobuf/empty";
@@ -16,8 +16,8 @@ const GOODS_PROP_URL = "/v1/admin/goods/prop";
 /** Admin属性服务 */
 export class GoodsPropServiceImpl implements GoodsPropService {
   /** 查询属性列表 */
-  PageGoodsProps(request: PageGoodsPropsRequest): Promise<PageGoodsPropsResponse> {
-    return service<PageGoodsPropsRequest, PageGoodsPropsResponse>({
+  PageGoodsProp(request: PageGoodsPropRequest): Promise<PageGoodsPropResponse> {
+    return service<PageGoodsPropRequest, PageGoodsPropResponse>({
       url: `${GOODS_PROP_URL}`,
       method: "get",
       params: request

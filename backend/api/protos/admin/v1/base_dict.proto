@@ -10,14 +10,14 @@ import "google/protobuf/empty.proto";
 // Admin字典服务
 service BaseDictService {
   // 查询字典列表
-  rpc OptionBaseDicts(OptionBaseDictsRequest) returns (OptionBaseDictsResponse) {
+  rpc OptionBaseDict(OptionBaseDictRequest) returns (OptionBaseDictResponse) {
     option (google.api.http) = {
       get: "/api/v1/admin/base/dict/option"
     };
   }
 
   // 查询字典分页列表
-  rpc PageBaseDicts(PageBaseDictsRequest) returns (PageBaseDictsResponse) {
+  rpc PageBaseDict(PageBaseDictRequest) returns (PageBaseDictResponse) {
     option (google.api.http) = {
       get: "/api/v1/admin/base/dict"
     };
@@ -62,7 +62,7 @@ service BaseDictService {
   }
 
   // 查询字典属性分页列表
-  rpc PageBaseDictItems(PageBaseDictItemsRequest) returns (PageBaseDictItemsResponse) {
+  rpc PageBaseDictItem(PageBaseDictItemRequest) returns (PageBaseDictItemResponse) {
     option (google.api.http) = {
       get: "/api/v1/admin/base/dict-item"
     };
@@ -108,10 +108,10 @@ service BaseDictService {
 }
 
 // 字典选项查询条件
-message OptionBaseDictsRequest {}
+message OptionBaseDictRequest {}
 
 // 字典分页查询条件
-message PageBaseDictsRequest {
+message PageBaseDictRequest {
   string code = 2 [(gnostic.openapi.v3.property) = {description: "字典编号"}]; // 字典编号
 
   string name = 3 [(gnostic.openapi.v3.property) = {description: "字典名称"}]; // 字典名称
@@ -130,7 +130,7 @@ message PageBaseDictsRequest {
 }
 
 // 字典分页响应
-message PageBaseDictsResponse {
+message PageBaseDictResponse {
   repeated BaseDict base_dicts = 1 [(gnostic.openapi.v3.property) = {description: "分页数据"}]; // 分页数据
 
   int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
@@ -164,7 +164,7 @@ message SetBaseDictStatusRequest {
 }
 
 // 字典属性分页查询条件
-message PageBaseDictItemsRequest {
+message PageBaseDictItemRequest {
   int64 dict_id = 1 [(gnostic.openapi.v3.property) = {description: "字典ID"}]; // 字典ID
 
   string label = 2 [(gnostic.openapi.v3.property) = {description: "字典属性名称"}]; // 字典属性名称
@@ -183,7 +183,7 @@ message PageBaseDictItemsRequest {
 }
 
 // 字典属性分页响应
-message PageBaseDictItemsResponse {
+message PageBaseDictItemResponse {
   repeated BaseDictItem base_dict_items = 1 [(gnostic.openapi.v3.property) = {description: "分页数据"}]; // 分页数据
 
   int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
@@ -217,7 +217,7 @@ message SetBaseDictItemStatusRequest {
 }
 
 // 字典选项响应
-message OptionBaseDictsResponse {
+message OptionBaseDictResponse {
   // 字典项
   message BaseDictItem {
     string value = 3 [(gnostic.openapi.v3.property) = {description: "字典项值"}]; // 字典项值

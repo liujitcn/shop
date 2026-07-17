@@ -18,12 +18,12 @@ import (
 func NewUserStoreServiceAgentTools(userStoreServiceServer UserStoreServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error
-	var pageUserStoresTool tool.InvokableTool
-	pageUserStoresTool, err = NewUserStoreServicePageUserStoresAgentTool(userStoreServiceServer)
+	var pageUserStoreTool tool.InvokableTool
+	pageUserStoreTool, err = NewUserStoreServicePageUserStoreAgentTool(userStoreServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, pageUserStoresTool)
+	ts = append(ts, pageUserStoreTool)
 	var getUserStoreTool tool.InvokableTool
 	getUserStoreTool, err = NewUserStoreServiceGetUserStoreAgentTool(userStoreServiceServer)
 	if err != nil {
@@ -39,16 +39,16 @@ func NewUserStoreServiceAgentTools(userStoreServiceServer UserStoreServiceServer
 	return ts, nil
 }
 
-// NewUserStoreServicePageUserStoresAgentTool 创建查询用户门店列表的 Agent Tool。
-func NewUserStoreServicePageUserStoresAgentTool(userStoreServiceServer UserStoreServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*PageUserStoresRequest, *PageUserStoresResponse](
-		"admin_v1_user_store_service_page_user_stores",
+// NewUserStoreServicePageUserStoreAgentTool 创建查询用户门店列表的 Agent Tool。
+func NewUserStoreServicePageUserStoreAgentTool(userStoreServiceServer UserStoreServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PageUserStoreRequest, *PageUserStoreResponse](
+		"admin_v1_user_store_service_page_user_store",
 		"查询用户门店列表",
-		func(ctx context.Context, req *PageUserStoresRequest) (*PageUserStoresResponse, error) {
+		func(ctx context.Context, req *PageUserStoreRequest) (*PageUserStoreResponse, error) {
 			if req == nil {
-				req = &PageUserStoresRequest{}
+				req = &PageUserStoreRequest{}
 			}
-			return userStoreServiceServer.PageUserStores(ctx, req)
+			return userStoreServiceServer.PageUserStore(ctx, req)
 		},
 	)
 }

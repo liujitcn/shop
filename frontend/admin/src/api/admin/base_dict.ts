@@ -9,12 +9,12 @@ import {
   type DeleteBaseDictRequest,
   type GetBaseDictItemRequest,
   type GetBaseDictRequest,
-  type PageBaseDictItemsRequest,
-  type PageBaseDictItemsResponse,
-  type PageBaseDictsRequest,
-  type PageBaseDictsResponse,
-  type OptionBaseDictsRequest,
-  type OptionBaseDictsResponse,
+  type PageBaseDictItemRequest,
+  type PageBaseDictItemResponse,
+  type PageBaseDictRequest,
+  type PageBaseDictResponse,
+  type OptionBaseDictRequest,
+  type OptionBaseDictResponse,
   type SetBaseDictItemStatusRequest,
   type SetBaseDictStatusRequest,
   type UpdateBaseDictItemRequest,
@@ -28,8 +28,8 @@ const BASE_DICT_ITEM_URL = "/v1/admin/base/dict-item";
 /** Admin字典服务 */
 export class BaseDictServiceImpl implements BaseDictService {
   /** 查询字典下拉选择 */
-  OptionBaseDicts(request: OptionBaseDictsRequest): Promise<OptionBaseDictsResponse> {
-    return service<OptionBaseDictsRequest, OptionBaseDictsResponse>({
+  OptionBaseDict(request: OptionBaseDictRequest): Promise<OptionBaseDictResponse> {
+    return service<OptionBaseDictRequest, OptionBaseDictResponse>({
       url: `${BASE_DICT_URL}/option`,
       method: "get",
       params: request
@@ -37,8 +37,8 @@ export class BaseDictServiceImpl implements BaseDictService {
   }
 
   /** 查询字典分页列表 */
-  PageBaseDicts(request: PageBaseDictsRequest): Promise<PageBaseDictsResponse> {
-    return service<PageBaseDictsRequest, PageBaseDictsResponse>({
+  PageBaseDict(request: PageBaseDictRequest): Promise<PageBaseDictResponse> {
+    return service<PageBaseDictRequest, PageBaseDictResponse>({
       url: `${BASE_DICT_URL}`,
       method: "get",
       params: request
@@ -89,8 +89,8 @@ export class BaseDictServiceImpl implements BaseDictService {
   }
 
   /** 查询字典属性分页列表 */
-  PageBaseDictItems(request: PageBaseDictItemsRequest): Promise<PageBaseDictItemsResponse> {
-    return service<PageBaseDictItemsRequest, PageBaseDictItemsResponse>({
+  PageBaseDictItem(request: PageBaseDictItemRequest): Promise<PageBaseDictItemResponse> {
+    return service<PageBaseDictItemRequest, PageBaseDictItemResponse>({
       url: `${BASE_DICT_ITEM_URL}`,
       method: "get",
       params: request

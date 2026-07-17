@@ -28,7 +28,7 @@ import type { ProFormField, ProFormOption } from "@/components/ProForm/interface
 import ProTable from "@/components/ProTable/index.vue";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { defBaseJobService } from "@/api/admin/base_job";
-import type { BaseJob, BaseJobArgs, BaseJobForm, PageBaseJobsRequest } from "@/rpc/admin/v1/base_job";
+import type { BaseJob, BaseJobArgs, BaseJobForm, PageBaseJobRequest } from "@/rpc/admin/v1/base_job";
 import router from "@/routers";
 import { Status } from "@/rpc/common/v1/enum";
 import { buildPageRequest, normalizeSelectedIds } from "@/utils/proTable";
@@ -296,8 +296,8 @@ const headerActions: HeaderActionProps[] = [
 /**
  * 请求定时任务列表，并由 ProTable 统一维护分页与搜索参数。
  */
-async function requestBaseJobTable(params: PageBaseJobsRequest) {
-  const data = await defBaseJobService.PageBaseJobs(buildPageRequest(params));
+async function requestBaseJobTable(params: PageBaseJobRequest) {
+  const data = await defBaseJobService.PageBaseJob(buildPageRequest(params));
   return { data: { list: data.base_jobs ?? [], total: data.total } };
 }
 

@@ -21,7 +21,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	UserAddressService_ListUserAddresses_FullMethodName = "/app.v1.UserAddressService/ListUserAddresses"
+	UserAddressService_ListUserAddress_FullMethodName   = "/app.v1.UserAddressService/ListUserAddress"
 	UserAddressService_GetUserAddress_FullMethodName    = "/app.v1.UserAddressService/GetUserAddress"
 	UserAddressService_CreateUserAddress_FullMethodName = "/app.v1.UserAddressService/CreateUserAddress"
 	UserAddressService_UpdateUserAddress_FullMethodName = "/app.v1.UserAddressService/UpdateUserAddress"
@@ -35,7 +35,7 @@ const (
 // App用户地址管理服务
 type UserAddressServiceClient interface {
 	// 查询用户地址列表
-	ListUserAddresses(ctx context.Context, in *ListUserAddressesRequest, opts ...grpc.CallOption) (*ListUserAddressesResponse, error)
+	ListUserAddress(ctx context.Context, in *ListUserAddressRequest, opts ...grpc.CallOption) (*ListUserAddressResponse, error)
 	// 查询用户地址
 	GetUserAddress(ctx context.Context, in *GetUserAddressRequest, opts ...grpc.CallOption) (*UserAddressForm, error)
 	// 创建用户地址
@@ -54,10 +54,10 @@ func NewUserAddressServiceClient(cc grpc.ClientConnInterface) UserAddressService
 	return &userAddressServiceClient{cc}
 }
 
-func (c *userAddressServiceClient) ListUserAddresses(ctx context.Context, in *ListUserAddressesRequest, opts ...grpc.CallOption) (*ListUserAddressesResponse, error) {
+func (c *userAddressServiceClient) ListUserAddress(ctx context.Context, in *ListUserAddressRequest, opts ...grpc.CallOption) (*ListUserAddressResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListUserAddressesResponse)
-	err := c.cc.Invoke(ctx, UserAddressService_ListUserAddresses_FullMethodName, in, out, cOpts...)
+	out := new(ListUserAddressResponse)
+	err := c.cc.Invoke(ctx, UserAddressService_ListUserAddress_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -111,7 +111,7 @@ func (c *userAddressServiceClient) DeleteUserAddress(ctx context.Context, in *De
 // App用户地址管理服务
 type UserAddressServiceServer interface {
 	// 查询用户地址列表
-	ListUserAddresses(context.Context, *ListUserAddressesRequest) (*ListUserAddressesResponse, error)
+	ListUserAddress(context.Context, *ListUserAddressRequest) (*ListUserAddressResponse, error)
 	// 查询用户地址
 	GetUserAddress(context.Context, *GetUserAddressRequest) (*UserAddressForm, error)
 	// 创建用户地址
@@ -130,8 +130,8 @@ type UserAddressServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedUserAddressServiceServer struct{}
 
-func (UnimplementedUserAddressServiceServer) ListUserAddresses(context.Context, *ListUserAddressesRequest) (*ListUserAddressesResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method ListUserAddresses not implemented")
+func (UnimplementedUserAddressServiceServer) ListUserAddress(context.Context, *ListUserAddressRequest) (*ListUserAddressResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListUserAddress not implemented")
 }
 func (UnimplementedUserAddressServiceServer) GetUserAddress(context.Context, *GetUserAddressRequest) (*UserAddressForm, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetUserAddress not implemented")
@@ -166,20 +166,20 @@ func RegisterUserAddressServiceServer(s grpc.ServiceRegistrar, srv UserAddressSe
 	s.RegisterService(&UserAddressService_ServiceDesc, srv)
 }
 
-func _UserAddressService_ListUserAddresses_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListUserAddressesRequest)
+func _UserAddressService_ListUserAddress_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListUserAddressRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserAddressServiceServer).ListUserAddresses(ctx, in)
+		return srv.(UserAddressServiceServer).ListUserAddress(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: UserAddressService_ListUserAddresses_FullMethodName,
+		FullMethod: UserAddressService_ListUserAddress_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserAddressServiceServer).ListUserAddresses(ctx, req.(*ListUserAddressesRequest))
+		return srv.(UserAddressServiceServer).ListUserAddress(ctx, req.(*ListUserAddressRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -264,8 +264,8 @@ var UserAddressService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*UserAddressServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "ListUserAddresses",
-			Handler:    _UserAddressService_ListUserAddresses_Handler,
+			MethodName: "ListUserAddress",
+			Handler:    _UserAddressService_ListUserAddress_Handler,
 		},
 		{
 			MethodName: "GetUserAddress",

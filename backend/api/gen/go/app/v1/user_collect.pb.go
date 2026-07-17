@@ -116,7 +116,7 @@ func (x *GetIsCollectResponse) GetIsCollected() bool {
 }
 
 // 用户收藏列表查询条件
-type PageUserCollectsRequest struct {
+type PageUserCollectRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	PageNum       int64                  `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`    // 当前页码
 	PageSize      int64                  `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"` // 每一页的行数
@@ -124,20 +124,20 @@ type PageUserCollectsRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *PageUserCollectsRequest) Reset() {
-	*x = PageUserCollectsRequest{}
+func (x *PageUserCollectRequest) Reset() {
+	*x = PageUserCollectRequest{}
 	mi := &file_app_v1_user_collect_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PageUserCollectsRequest) String() string {
+func (x *PageUserCollectRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PageUserCollectsRequest) ProtoMessage() {}
+func (*PageUserCollectRequest) ProtoMessage() {}
 
-func (x *PageUserCollectsRequest) ProtoReflect() protoreflect.Message {
+func (x *PageUserCollectRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_app_v1_user_collect_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -149,19 +149,19 @@ func (x *PageUserCollectsRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PageUserCollectsRequest.ProtoReflect.Descriptor instead.
-func (*PageUserCollectsRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use PageUserCollectRequest.ProtoReflect.Descriptor instead.
+func (*PageUserCollectRequest) Descriptor() ([]byte, []int) {
 	return file_app_v1_user_collect_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *PageUserCollectsRequest) GetPageNum() int64 {
+func (x *PageUserCollectRequest) GetPageNum() int64 {
 	if x != nil {
 		return x.PageNum
 	}
 	return 0
 }
 
-func (x *PageUserCollectsRequest) GetPageSize() int64 {
+func (x *PageUserCollectRequest) GetPageSize() int64 {
 	if x != nil {
 		return x.PageSize
 	}
@@ -169,7 +169,7 @@ func (x *PageUserCollectsRequest) GetPageSize() int64 {
 }
 
 // 用户收藏列表响应
-type PageUserCollectsResponse struct {
+type PageUserCollectResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserCollects  []*UserCollect         `protobuf:"bytes,1,rep,name=user_collects,json=userCollects,proto3" json:"user_collects,omitempty"` // 用户收藏列表
 	Total         int32                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`                                  // 总数
@@ -177,20 +177,20 @@ type PageUserCollectsResponse struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *PageUserCollectsResponse) Reset() {
-	*x = PageUserCollectsResponse{}
+func (x *PageUserCollectResponse) Reset() {
+	*x = PageUserCollectResponse{}
 	mi := &file_app_v1_user_collect_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PageUserCollectsResponse) String() string {
+func (x *PageUserCollectResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PageUserCollectsResponse) ProtoMessage() {}
+func (*PageUserCollectResponse) ProtoMessage() {}
 
-func (x *PageUserCollectsResponse) ProtoReflect() protoreflect.Message {
+func (x *PageUserCollectResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_app_v1_user_collect_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -202,19 +202,19 @@ func (x *PageUserCollectsResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PageUserCollectsResponse.ProtoReflect.Descriptor instead.
-func (*PageUserCollectsResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use PageUserCollectResponse.ProtoReflect.Descriptor instead.
+func (*PageUserCollectResponse) Descriptor() ([]byte, []int) {
 	return file_app_v1_user_collect_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *PageUserCollectsResponse) GetUserCollects() []*UserCollect {
+func (x *PageUserCollectResponse) GetUserCollects() []*UserCollect {
 	if x != nil {
 		return x.UserCollects
 	}
 	return nil
 }
 
-func (x *PageUserCollectsResponse) GetTotal() int32 {
+func (x *PageUserCollectResponse) GetTotal() int32 {
 	if x != nil {
 		return x.Total
 	}
@@ -489,11 +489,11 @@ const file_app_v1_user_collect_proto_rawDesc = "" +
 	"\x13GetIsCollectRequest\x12)\n" +
 	"\bgoods_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\agoodsId\"P\n" +
 	"\x14GetIsCollectResponse\x128\n" +
-	"\fis_collected\x18\x01 \x01(\bB\x15\xbaG\x12\x92\x02\x0f是否已收藏R\visCollected\"\x97\x01\n" +
-	"\x17PageUserCollectsRequest\x129\n" +
+	"\fis_collected\x18\x01 \x01(\bB\x15\xbaG\x12\x92\x02\x0f是否已收藏R\visCollected\"\x96\x01\n" +
+	"\x16PageUserCollectRequest\x129\n" +
 	"\bpage_num\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12A\n" +
-	"\tpage_size\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSize\"\x92\x01\n" +
-	"\x18PageUserCollectsResponse\x12R\n" +
+	"\tpage_size\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSize\"\x91\x01\n" +
+	"\x17PageUserCollectResponse\x12R\n" +
 	"\ruser_collects\x18\x01 \x03(\v2\x13.app.v1.UserCollectB\x18\xbaG\x15\x92\x02\x12用户收藏列表R\fuserCollects\x12\"\n" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"j\n" +
 	"\x18CreateUserCollectRequest\x12N\n" +
@@ -514,9 +514,9 @@ const file_app_v1_user_collect_proto_rawDesc = "" +
 	"\x05price\x18) \x01(\x03B\f\xbaG\t\x92\x02\x06价格R\x05price\x124\n" +
 	"\n" +
 	"join_price\x182 \x01(\x03B\x15\xbaG\x12\x92\x02\x0f加入时价格R\tjoinPrice\x12J\n" +
-	"\ftenant_store\x184 \x01(\v2\x13.app.v1.TenantStoreB\x12\xbaG\x0f\x92\x02\f店铺信息R\vtenantStore2\xf7\x03\n" +
-	"\x12UserCollectService\x12w\n" +
-	"\x10PageUserCollects\x12\x1f.app.v1.PageUserCollectsRequest\x1a .app.v1.PageUserCollectsResponse\" \x82\xd3\xe4\x93\x02\x1a\x12\x18/api/v1/app/user/collect\x12r\n" +
+	"\ftenant_store\x184 \x01(\v2\x13.app.v1.TenantStoreB\x12\xbaG\x0f\x92\x02\f店铺信息R\vtenantStore2\xf4\x03\n" +
+	"\x12UserCollectService\x12t\n" +
+	"\x0fPageUserCollect\x12\x1e.app.v1.PageUserCollectRequest\x1a\x1f.app.v1.PageUserCollectResponse\" \x82\xd3\xe4\x93\x02\x1a\x12\x18/api/v1/app/user/collect\x12r\n" +
 	"\fGetIsCollect\x12\x1b.app.v1.GetIsCollectRequest\x1a\x1c.app.v1.GetIsCollectResponse\"'\x82\xd3\xe4\x93\x02!\x12\x1f/api/v1/app/user/collect/status\x12}\n" +
 	"\x11CreateUserCollect\x12 .app.v1.CreateUserCollectRequest\x1a\x16.google.protobuf.Empty\".\x82\xd3\xe4\x93\x02(:\fuser_collect\"\x18/api/v1/app/user/collect\x12u\n" +
 	"\x11DeleteUserCollect\x12 .app.v1.DeleteUserCollectRequest\x1a\x16.google.protobuf.Empty\"&\x82\xd3\xe4\x93\x02 *\x1e/api/v1/app/user/collect/{ids}Bu\n" +
@@ -539,8 +539,8 @@ var file_app_v1_user_collect_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_app_v1_user_collect_proto_goTypes = []any{
 	(*GetIsCollectRequest)(nil),      // 0: app.v1.GetIsCollectRequest
 	(*GetIsCollectResponse)(nil),     // 1: app.v1.GetIsCollectResponse
-	(*PageUserCollectsRequest)(nil),  // 2: app.v1.PageUserCollectsRequest
-	(*PageUserCollectsResponse)(nil), // 3: app.v1.PageUserCollectsResponse
+	(*PageUserCollectRequest)(nil),   // 2: app.v1.PageUserCollectRequest
+	(*PageUserCollectResponse)(nil),  // 3: app.v1.PageUserCollectResponse
 	(*CreateUserCollectRequest)(nil), // 4: app.v1.CreateUserCollectRequest
 	(*DeleteUserCollectRequest)(nil), // 5: app.v1.DeleteUserCollectRequest
 	(*UserCollectForm)(nil),          // 6: app.v1.UserCollectForm
@@ -550,15 +550,15 @@ var file_app_v1_user_collect_proto_goTypes = []any{
 	(*emptypb.Empty)(nil),            // 10: google.protobuf.Empty
 }
 var file_app_v1_user_collect_proto_depIdxs = []int32{
-	7,  // 0: app.v1.PageUserCollectsResponse.user_collects:type_name -> app.v1.UserCollect
+	7,  // 0: app.v1.PageUserCollectResponse.user_collects:type_name -> app.v1.UserCollect
 	6,  // 1: app.v1.CreateUserCollectRequest.user_collect:type_name -> app.v1.UserCollectForm
 	8,  // 2: app.v1.UserCollectForm.recommend_context:type_name -> app.v1.RecommendContext
 	9,  // 3: app.v1.UserCollect.tenant_store:type_name -> app.v1.TenantStore
-	2,  // 4: app.v1.UserCollectService.PageUserCollects:input_type -> app.v1.PageUserCollectsRequest
+	2,  // 4: app.v1.UserCollectService.PageUserCollect:input_type -> app.v1.PageUserCollectRequest
 	0,  // 5: app.v1.UserCollectService.GetIsCollect:input_type -> app.v1.GetIsCollectRequest
 	4,  // 6: app.v1.UserCollectService.CreateUserCollect:input_type -> app.v1.CreateUserCollectRequest
 	5,  // 7: app.v1.UserCollectService.DeleteUserCollect:input_type -> app.v1.DeleteUserCollectRequest
-	3,  // 8: app.v1.UserCollectService.PageUserCollects:output_type -> app.v1.PageUserCollectsResponse
+	3,  // 8: app.v1.UserCollectService.PageUserCollect:output_type -> app.v1.PageUserCollectResponse
 	1,  // 9: app.v1.UserCollectService.GetIsCollect:output_type -> app.v1.GetIsCollectResponse
 	10, // 10: app.v1.UserCollectService.CreateUserCollect:output_type -> google.protobuf.Empty
 	10, // 11: app.v1.UserCollectService.DeleteUserCollect:output_type -> google.protobuf.Empty

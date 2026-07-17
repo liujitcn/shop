@@ -8,31 +8,31 @@
 import type { Empty } from "../../google/protobuf/empty";
 
 /** 数据库表字段列表查询条件 */
-export interface ListCodeGenDatabaseColumnsRequest {
+export interface ListCodeGenDatabaseColumnRequest {
   /** 数据库表名 */
   table_name: string;
 }
 
 /** 数据库表字段列表响应 */
-export interface ListCodeGenDatabaseColumnsResponse {
+export interface ListCodeGenDatabaseColumnResponse {
   /** 数据库字段列表 */
   columns: CodeGenDatabaseColumn[];
 }
 
 /** 代码生成字段配置查询条件 */
-export interface ListCodeGenColumnsRequest {
+export interface ListCodeGenColumnRequest {
   /** 代码生成表配置ID */
   table_id: number;
 }
 
 /** 代码生成字段配置查询响应 */
-export interface ListCodeGenColumnsResponse {
+export interface ListCodeGenColumnResponse {
   /** 代码生成字段配置列表 */
   code_gen_columns: CodeGenColumn[];
 }
 
 /** 代码生成字段配置保存条件 */
-export interface SaveCodeGenColumnsRequest {
+export interface SaveCodeGenColumnRequest {
   /** 代码生成表配置ID */
   table_id: number;
   /** 代码生成字段配置列表 */
@@ -156,9 +156,9 @@ export interface CodeGenColumnOptionConfig {
 /** Admin代码生成字段服务 */
 export interface CodeGenColumnService {
   /** 查询数据库表字段列表 */
-  ListCodeGenDatabaseColumns(request: ListCodeGenDatabaseColumnsRequest): Promise<ListCodeGenDatabaseColumnsResponse>;
+  ListCodeGenDatabaseColumn(request: ListCodeGenDatabaseColumnRequest): Promise<ListCodeGenDatabaseColumnResponse>;
   /** 查询代码生成字段配置 */
-  ListCodeGenColumns(request: ListCodeGenColumnsRequest): Promise<ListCodeGenColumnsResponse>;
+  ListCodeGenColumn(request: ListCodeGenColumnRequest): Promise<ListCodeGenColumnResponse>;
   /** 保存代码生成字段配置 */
-  SaveCodeGenColumns(request: SaveCodeGenColumnsRequest): Promise<Empty>;
+  SaveCodeGenColumn(request: SaveCodeGenColumnRequest): Promise<Empty>;
 }

@@ -249,11 +249,11 @@ async function handleQuery() {
     if (!tableId.value) return;
     const [table, tableResponse] = await Promise.all([
       defCodeGenTableService.GetCodeGenTable({ id: tableId.value }),
-      defCodeGenTableService.ListCodeGenDatabaseTables({})
+      defCodeGenTableService.ListCodeGenDatabaseTable({})
     ]);
     Object.assign(formData, table);
     databaseTables.value = tableResponse.tables ?? [];
-    const columnResponse = await defCodeGenColumnService.ListCodeGenDatabaseColumns({ table_name: formData.name });
+    const columnResponse = await defCodeGenColumnService.ListCodeGenDatabaseColumn({ table_name: formData.name });
     targetColumnOptions[formData.name] = createColumnOptions(columnResponse.columns ?? []);
     await loadProtoChecks();
     syncWorkspaceTitle();
@@ -276,7 +276,7 @@ function syncWorkspaceTitle() {
  */
 async function loadProtoChecks() {
   if (!formData.id) return;
-  const data = await defCodeGenProtoService.ListCodeGenProtos({ table_id: formData.id });
+  const data = await defCodeGenProtoService.ListCodeGenProto({ table_id: formData.id });
   protoChecks.value = (data.code_gen_protos ?? []).map(item => ({
     ...item,
     config: normalizeCodeGenProtoConfig(item.config)
@@ -411,7 +411,7 @@ async function loadTargetColumnOptions(tableName: string) {
   if (!tableName || targetColumnOptions[tableName] || loadingTargetColumns.has(tableName)) return;
   loadingTargetColumns.add(tableName);
   try {
-    const data = await defCodeGenColumnService.ListCodeGenDatabaseColumns({ table_name: tableName });
+    const data = await defCodeGenColumnService.ListCodeGenDatabaseColumn({ table_name: tableName });
     targetColumnOptions[tableName] = createColumnOptions(data.columns ?? []);
   } finally {
     loadingTargetColumns.delete(tableName);
@@ -446,7 +446,7 @@ async function handleSaveProtoMethods(showMessage = true) {
     generate_when_missing: !item.exists && item.generate_when_missing,
     sort: index + 1
   }));
-  await defCodeGenProtoService.SaveCodeGenProtos({
+  await defCodeGenProtoService.SaveCodeGenProto({
     table_id: formData.id,
     code_gen_protos: codeGenProtos
   });

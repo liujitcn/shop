@@ -3,8 +3,8 @@ import {
   type GetGoodsSkuRequest,
   type GoodsSku,
   type GoodsSkuService,
-  type PageGoodsSkusRequest,
-  type PageGoodsSkusResponse,
+  type PageGoodsSkuRequest,
+  type PageGoodsSkuResponse,
   type UpdateGoodsSkuRequest
 } from "@/rpc/admin/v1/goods_sku";
 import type { Empty } from "@/rpc/google/protobuf/empty";
@@ -14,8 +14,8 @@ const GOODS_SKU_URL = "/v1/admin/goods/sku";
 /** Admin商品SKU服务 */
 export class GoodsSkuServiceImpl implements GoodsSkuService {
   /** 查询sku列表 */
-  PageGoodsSkus(request: PageGoodsSkusRequest): Promise<PageGoodsSkusResponse> {
-    return service<PageGoodsSkusRequest, PageGoodsSkusResponse>({
+  PageGoodsSku(request: PageGoodsSkuRequest): Promise<PageGoodsSkuResponse> {
+    return service<PageGoodsSkuRequest, PageGoodsSkuResponse>({
       url: `${GOODS_SKU_URL}`,
       method: "get",
       params: request

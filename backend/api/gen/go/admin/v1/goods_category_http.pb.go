@@ -8,10 +8,11 @@ package adminv1
 
 import (
 	context "context"
-	v1 "shop/api/gen/go/common/v1"
 
 	http "github.com/go-kratos/kratos/v3/transport/http"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+
+	v1 "shop/api/gen/go/common/v1"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -23,9 +24,9 @@ const _ = http.SupportPackageIsVersion3
 const OperationGoodsCategoryServiceCreateGoodsCategory = "/admin.v1.GoodsCategoryService/CreateGoodsCategory"
 const OperationGoodsCategoryServiceDeleteGoodsCategory = "/admin.v1.GoodsCategoryService/DeleteGoodsCategory"
 const OperationGoodsCategoryServiceGetGoodsCategory = "/admin.v1.GoodsCategoryService/GetGoodsCategory"
-const OperationGoodsCategoryServiceOptionGoodsCategories = "/admin.v1.GoodsCategoryService/OptionGoodsCategories"
+const OperationGoodsCategoryServiceOptionGoodsCategory = "/admin.v1.GoodsCategoryService/OptionGoodsCategory"
 const OperationGoodsCategoryServiceSetGoodsCategoryStatus = "/admin.v1.GoodsCategoryService/SetGoodsCategoryStatus"
-const OperationGoodsCategoryServiceTreeGoodsCategories = "/admin.v1.GoodsCategoryService/TreeGoodsCategories"
+const OperationGoodsCategoryServiceTreeGoodsCategory = "/admin.v1.GoodsCategoryService/TreeGoodsCategory"
 const OperationGoodsCategoryServiceUpdateGoodsCategory = "/admin.v1.GoodsCategoryService/UpdateGoodsCategory"
 
 type GoodsCategoryServiceHTTPServer interface {
@@ -35,20 +36,20 @@ type GoodsCategoryServiceHTTPServer interface {
 	DeleteGoodsCategory(context.Context, *DeleteGoodsCategoryRequest) (*emptypb.Empty, error)
 	// GetGoodsCategory 查询商品分类
 	GetGoodsCategory(context.Context, *GetGoodsCategoryRequest) (*GoodsCategoryForm, error)
-	// OptionGoodsCategories 查询商品分类树形选择
-	OptionGoodsCategories(context.Context, *OptionGoodsCategoriesRequest) (*v1.TreeOptionResponse, error)
+	// OptionGoodsCategory 查询商品分类树形选择
+	OptionGoodsCategory(context.Context, *OptionGoodsCategoryRequest) (*v1.TreeOptionResponse, error)
 	// SetGoodsCategoryStatus 设置状态
 	SetGoodsCategoryStatus(context.Context, *SetGoodsCategoryStatusRequest) (*emptypb.Empty, error)
-	// TreeGoodsCategories 查询商品分类树形列表
-	TreeGoodsCategories(context.Context, *TreeGoodsCategoriesRequest) (*TreeGoodsCategoriesResponse, error)
+	// TreeGoodsCategory 查询商品分类树形列表
+	TreeGoodsCategory(context.Context, *TreeGoodsCategoryRequest) (*TreeGoodsCategoryResponse, error)
 	// UpdateGoodsCategory 更新商品分类
 	UpdateGoodsCategory(context.Context, *UpdateGoodsCategoryRequest) (*emptypb.Empty, error)
 }
 
 func RegisterGoodsCategoryServiceHTTPServer(s *http.Server, srv GoodsCategoryServiceHTTPServer) {
 	r := s.Route("/")
-	r.Handle("GET", "/api/v1/admin/goods/category/tree", _GoodsCategoryService_TreeGoodsCategories0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/admin/goods/category/option", _GoodsCategoryService_OptionGoodsCategories0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/goods/category/tree", _GoodsCategoryService_TreeGoodsCategory0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/goods/category/option", _GoodsCategoryService_OptionGoodsCategory0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/goods/category/{id}", _GoodsCategoryService_GetGoodsCategory0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/admin/goods/category", _GoodsCategoryService_CreateGoodsCategory0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/goods/category/{id}", _GoodsCategoryService_UpdateGoodsCategory0_HTTP_Handler(srv))
@@ -56,34 +57,34 @@ func RegisterGoodsCategoryServiceHTTPServer(s *http.Server, srv GoodsCategorySer
 	r.Handle("PUT", "/api/v1/admin/goods/category/{id}/status", _GoodsCategoryService_SetGoodsCategoryStatus0_HTTP_Handler(srv))
 }
 
-func _GoodsCategoryService_TreeGoodsCategories0_HTTP_Handler(srv GoodsCategoryServiceHTTPServer) func(ctx http.Context) error {
+func _GoodsCategoryService_TreeGoodsCategory0_HTTP_Handler(srv GoodsCategoryServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in TreeGoodsCategoriesRequest
+		var in TreeGoodsCategoryRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationGoodsCategoryServiceTreeGoodsCategories)
+		http.SetOperation(ctx, OperationGoodsCategoryServiceTreeGoodsCategory)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.TreeGoodsCategories(ctx, req.(*TreeGoodsCategoriesRequest))
+			return srv.TreeGoodsCategory(ctx, req.(*TreeGoodsCategoryRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*TreeGoodsCategoriesResponse)
+		reply := out.(*TreeGoodsCategoryResponse)
 		return ctx.Result(200, reply)
 	}
 }
 
-func _GoodsCategoryService_OptionGoodsCategories0_HTTP_Handler(srv GoodsCategoryServiceHTTPServer) func(ctx http.Context) error {
+func _GoodsCategoryService_OptionGoodsCategory0_HTTP_Handler(srv GoodsCategoryServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in OptionGoodsCategoriesRequest
+		var in OptionGoodsCategoryRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationGoodsCategoryServiceOptionGoodsCategories)
+		http.SetOperation(ctx, OperationGoodsCategoryServiceOptionGoodsCategory)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.OptionGoodsCategories(ctx, req.(*OptionGoodsCategoriesRequest))
+			return srv.OptionGoodsCategory(ctx, req.(*OptionGoodsCategoryRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -214,12 +215,12 @@ type GoodsCategoryServiceHTTPClient interface {
 	DeleteGoodsCategory(ctx context.Context, req *DeleteGoodsCategoryRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// GetGoodsCategory 查询商品分类
 	GetGoodsCategory(ctx context.Context, req *GetGoodsCategoryRequest, opts ...http.CallOption) (rsp *GoodsCategoryForm, err error)
-	// OptionGoodsCategories 查询商品分类树形选择
-	OptionGoodsCategories(ctx context.Context, req *OptionGoodsCategoriesRequest, opts ...http.CallOption) (rsp *v1.TreeOptionResponse, err error)
+	// OptionGoodsCategory 查询商品分类树形选择
+	OptionGoodsCategory(ctx context.Context, req *OptionGoodsCategoryRequest, opts ...http.CallOption) (rsp *v1.TreeOptionResponse, err error)
 	// SetGoodsCategoryStatus 设置状态
 	SetGoodsCategoryStatus(ctx context.Context, req *SetGoodsCategoryStatusRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
-	// TreeGoodsCategories 查询商品分类树形列表
-	TreeGoodsCategories(ctx context.Context, req *TreeGoodsCategoriesRequest, opts ...http.CallOption) (rsp *TreeGoodsCategoriesResponse, err error)
+	// TreeGoodsCategory 查询商品分类树形列表
+	TreeGoodsCategory(ctx context.Context, req *TreeGoodsCategoryRequest, opts ...http.CallOption) (rsp *TreeGoodsCategoryResponse, err error)
 	// UpdateGoodsCategory 更新商品分类
 	UpdateGoodsCategory(ctx context.Context, req *UpdateGoodsCategoryRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 }
@@ -284,14 +285,14 @@ func (c *GoodsCategoryServiceHTTPClientImpl) GetGoodsCategory(ctx context.Contex
 	return &out, nil
 }
 
-// OptionGoodsCategories 查询商品分类树形选择
-func (c *GoodsCategoryServiceHTTPClientImpl) OptionGoodsCategories(ctx context.Context, in *OptionGoodsCategoriesRequest, opts ...http.CallOption) (*v1.TreeOptionResponse, error) {
+// OptionGoodsCategory 查询商品分类树形选择
+func (c *GoodsCategoryServiceHTTPClientImpl) OptionGoodsCategory(ctx context.Context, in *OptionGoodsCategoryRequest, opts ...http.CallOption) (*v1.TreeOptionResponse, error) {
 	var out v1.TreeOptionResponse
 	pattern := "/api/v1/admin/goods/category/option"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationGoodsCategoryServiceOptionGoodsCategories),
+		http.Operation(OperationGoodsCategoryServiceOptionGoodsCategory),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
@@ -319,14 +320,14 @@ func (c *GoodsCategoryServiceHTTPClientImpl) SetGoodsCategoryStatus(ctx context.
 	return &out, nil
 }
 
-// TreeGoodsCategories 查询商品分类树形列表
-func (c *GoodsCategoryServiceHTTPClientImpl) TreeGoodsCategories(ctx context.Context, in *TreeGoodsCategoriesRequest, opts ...http.CallOption) (*TreeGoodsCategoriesResponse, error) {
-	var out TreeGoodsCategoriesResponse
+// TreeGoodsCategory 查询商品分类树形列表
+func (c *GoodsCategoryServiceHTTPClientImpl) TreeGoodsCategory(ctx context.Context, in *TreeGoodsCategoryRequest, opts ...http.CallOption) (*TreeGoodsCategoryResponse, error) {
+	var out TreeGoodsCategoryResponse
 	pattern := "/api/v1/admin/goods/category/tree"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationGoodsCategoryServiceTreeGoodsCategories),
+		http.Operation(OperationGoodsCategoryServiceTreeGoodsCategory),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)

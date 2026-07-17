@@ -16,7 +16,7 @@ import (
 // RegisterUserCartServiceMCPTools 注册App用户购物车管理服务的 MCP Tool。
 func RegisterUserCartServiceMCPTools(mcpServer *mcp.Server, userCartServiceServer UserCartServiceServer) {
 	RegisterUserCartServiceCountUserCartMCPTool(mcpServer, userCartServiceServer)
-	RegisterUserCartServiceListUserCartsMCPTool(mcpServer, userCartServiceServer)
+	RegisterUserCartServiceListUserCartMCPTool(mcpServer, userCartServiceServer)
 	RegisterUserCartServiceCreateUserCartMCPTool(mcpServer, userCartServiceServer)
 	RegisterUserCartServiceSetUserCartSelectionMCPTool(mcpServer, userCartServiceServer)
 	RegisterUserCartServiceUpdateUserCartMCPTool(mcpServer, userCartServiceServer)
@@ -45,19 +45,19 @@ func RegisterUserCartServiceCountUserCartMCPTool(mcpServer *mcp.Server, userCart
 	)
 }
 
-// RegisterUserCartServiceListUserCartsMCPTool 注册查询用户购物车列表的 MCP Tool。
-func RegisterUserCartServiceListUserCartsMCPTool(mcpServer *mcp.Server, userCartServiceServer UserCartServiceServer) {
-	mcp.AddTool[*ListUserCartsRequest, *ListUserCartsResponse](
+// RegisterUserCartServiceListUserCartMCPTool 注册查询用户购物车列表的 MCP Tool。
+func RegisterUserCartServiceListUserCartMCPTool(mcpServer *mcp.Server, userCartServiceServer UserCartServiceServer) {
+	mcp.AddTool[*ListUserCartRequest, *ListUserCartResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "app_v1_user_cart_service_list_user_carts",
+			Name:        "app_v1_user_cart_service_list_user_cart",
 			Description: "查询用户购物车列表",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *ListUserCartsRequest) (*mcp.CallToolResult, *ListUserCartsResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *ListUserCartRequest) (*mcp.CallToolResult, *ListUserCartResponse, error) {
 			if input == nil {
-				input = &ListUserCartsRequest{}
+				input = &ListUserCartRequest{}
 			}
-			reply, err := userCartServiceServer.ListUserCarts(ctx, input)
+			reply, err := userCartServiceServer.ListUserCart(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

@@ -55,14 +55,14 @@ export const useAuthStore = defineStore("shop-auth", {
   actions: {
     /** 获取按钮权限列表 */
     async getAuthButtonList() {
-      const data = await defAuthService.ListUserButtons({});
+      const data = await defAuthService.ListUserButton({});
       this.authButtonList = {
         [GLOBAL_AUTH_BUTTON_KEY]: data.value ?? []
       };
     },
     /** 获取菜单权限列表 */
     async getAuthMenuList() {
-      const data = await defAuthService.TreeUserMenus({});
+      const data = await defAuthService.TreeUserMenu({});
       this.authMenuList = normalizeRouteTree(data.routes ?? []);
     },
     /** 设置当前路由名称 */

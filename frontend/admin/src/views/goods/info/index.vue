@@ -43,8 +43,8 @@ import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { defGoodsInfoService } from "@/api/admin/goods_info";
 import { defGoodsCategoryService } from "@/api/admin/goods_category";
 import { defTenantStoreService } from "@/api/admin/tenant_store";
-import type { GoodsInfo, PageGoodsInfosRequest } from "@/rpc/admin/v1/goods_info";
-import type { TreeTenantStoresResponse_Option } from "@/rpc/admin/v1/tenant_store";
+import type { GoodsInfo, PageGoodsInfoRequest } from "@/rpc/admin/v1/goods_info";
+import type { TreeTenantStoreResponse_Option } from "@/rpc/admin/v1/tenant_store";
 import type { TreeOptionResponse_Option } from "@/rpc/common/v1/common";
 import { GoodsStatus } from "@/rpc/common/v1/enum";
 import { useUserStore } from "@/stores/modules/user";
@@ -73,7 +73,7 @@ type CategoryFilterNode = {
 };
 
 /** 商品列表搜索参数。 */
-type GoodsInfoSearchParams = PageGoodsInfosRequest & {
+type GoodsInfoSearchParams = PageGoodsInfoRequest & {
   /** 默认租户的租户门店树筛选值。 */
   tenant_store_tree_value?: string;
 };
@@ -287,7 +287,7 @@ function transformCategoryFilterNodes(options: TreeOptionResponse_Option[] = [])
  * 请求分类树筛选数据。
  */
 async function requestCategoryTreeFilter() {
-  const response = await defGoodsCategoryService.OptionGoodsCategories({});
+  const response = await defGoodsCategoryService.OptionGoodsCategory({});
   return {
     data: transformCategoryFilterNodes(response.list ?? [])
   };
@@ -297,14 +297,14 @@ async function requestCategoryTreeFilter() {
  * 请求租户门店树筛选数据。
  */
 async function requestTenantStoreTreeOptions() {
-  const response = await defTenantStoreService.TreeTenantStores({ keyword: "" });
+  const response = await defTenantStoreService.TreeTenantStore({ keyword: "" });
   tenantStoreDisplayMap.value = buildTenantStoreDisplayMap(response.list ?? []);
   return { data: transformTenantStoreTreeOptions(response.list ?? []) };
 }
 
 /** 请求普通租户的门店下拉筛选数据。 */
 async function requestTenantStoreOptions() {
-  const response = await defTenantStoreService.OptionTenantStores({ keyword: "" });
+  const response = await defTenantStoreService.OptionTenantStore({ keyword: "" });
   tenantStoreDisplayMap.value = buildTenantStoreDisplayMapFromOptions(response.list ?? []);
   return { data: response.list ?? [] };
 }
@@ -331,7 +331,7 @@ function changeTreeFilter(value: string) {
 /**
  * 请求商品分页列表，并统一处理分页参数。
  */
-async function requestGoodsTable(params: PageGoodsInfosRequest) {
+async function requestGoodsTable(params: PageGoodsInfoRequest) {
   const searchParams = params as GoodsInfoSearchParams;
   // 默认租户按树节点解析租户或门店，普通租户直接传下拉选择的门店编号。
   const tenantStoreSelection = isDefaultTenant.value
@@ -343,7 +343,7 @@ async function requestGoodsTable(params: PageGoodsInfosRequest) {
     tenant_store_id: _tenantStoreId,
     ...requestParams
   } = searchParams;
-  const data = await defGoodsInfoService.PageGoodsInfos(
+  const data = await defGoodsInfoService.PageGoodsInfo(
     buildPageRequest({
       ...requestParams,
       tenant_id: tenantStoreSelection.tenant_id ?? initParam.tenant_id,

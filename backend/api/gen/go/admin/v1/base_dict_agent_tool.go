@@ -18,18 +18,18 @@ import (
 func NewBaseDictServiceAgentTools(baseDictServiceServer BaseDictServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error
-	var optionBaseDictsTool tool.InvokableTool
-	optionBaseDictsTool, err = NewBaseDictServiceOptionBaseDictsAgentTool(baseDictServiceServer)
+	var optionBaseDictTool tool.InvokableTool
+	optionBaseDictTool, err = NewBaseDictServiceOptionBaseDictAgentTool(baseDictServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, optionBaseDictsTool)
-	var pageBaseDictsTool tool.InvokableTool
-	pageBaseDictsTool, err = NewBaseDictServicePageBaseDictsAgentTool(baseDictServiceServer)
+	ts = append(ts, optionBaseDictTool)
+	var pageBaseDictTool tool.InvokableTool
+	pageBaseDictTool, err = NewBaseDictServicePageBaseDictAgentTool(baseDictServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, pageBaseDictsTool)
+	ts = append(ts, pageBaseDictTool)
 	var getBaseDictTool tool.InvokableTool
 	getBaseDictTool, err = NewBaseDictServiceGetBaseDictAgentTool(baseDictServiceServer)
 	if err != nil {
@@ -60,12 +60,12 @@ func NewBaseDictServiceAgentTools(baseDictServiceServer BaseDictServiceServer) (
 		return nil, err
 	}
 	ts = append(ts, setBaseDictStatusTool)
-	var pageBaseDictItemsTool tool.InvokableTool
-	pageBaseDictItemsTool, err = NewBaseDictServicePageBaseDictItemsAgentTool(baseDictServiceServer)
+	var pageBaseDictItemTool tool.InvokableTool
+	pageBaseDictItemTool, err = NewBaseDictServicePageBaseDictItemAgentTool(baseDictServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, pageBaseDictItemsTool)
+	ts = append(ts, pageBaseDictItemTool)
 	var getBaseDictItemTool tool.InvokableTool
 	getBaseDictItemTool, err = NewBaseDictServiceGetBaseDictItemAgentTool(baseDictServiceServer)
 	if err != nil {
@@ -99,30 +99,30 @@ func NewBaseDictServiceAgentTools(baseDictServiceServer BaseDictServiceServer) (
 	return ts, nil
 }
 
-// NewBaseDictServiceOptionBaseDictsAgentTool 创建查询字典列表的 Agent Tool。
-func NewBaseDictServiceOptionBaseDictsAgentTool(baseDictServiceServer BaseDictServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*OptionBaseDictsRequest, *OptionBaseDictsResponse](
-		"admin_v1_base_dict_service_option_base_dicts",
+// NewBaseDictServiceOptionBaseDictAgentTool 创建查询字典列表的 Agent Tool。
+func NewBaseDictServiceOptionBaseDictAgentTool(baseDictServiceServer BaseDictServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*OptionBaseDictRequest, *OptionBaseDictResponse](
+		"admin_v1_base_dict_service_option_base_dict",
 		"查询字典列表",
-		func(ctx context.Context, req *OptionBaseDictsRequest) (*OptionBaseDictsResponse, error) {
+		func(ctx context.Context, req *OptionBaseDictRequest) (*OptionBaseDictResponse, error) {
 			if req == nil {
-				req = &OptionBaseDictsRequest{}
+				req = &OptionBaseDictRequest{}
 			}
-			return baseDictServiceServer.OptionBaseDicts(ctx, req)
+			return baseDictServiceServer.OptionBaseDict(ctx, req)
 		},
 	)
 }
 
-// NewBaseDictServicePageBaseDictsAgentTool 创建查询字典分页列表的 Agent Tool。
-func NewBaseDictServicePageBaseDictsAgentTool(baseDictServiceServer BaseDictServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*PageBaseDictsRequest, *PageBaseDictsResponse](
-		"admin_v1_base_dict_service_page_base_dicts",
+// NewBaseDictServicePageBaseDictAgentTool 创建查询字典分页列表的 Agent Tool。
+func NewBaseDictServicePageBaseDictAgentTool(baseDictServiceServer BaseDictServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PageBaseDictRequest, *PageBaseDictResponse](
+		"admin_v1_base_dict_service_page_base_dict",
 		"查询字典分页列表",
-		func(ctx context.Context, req *PageBaseDictsRequest) (*PageBaseDictsResponse, error) {
+		func(ctx context.Context, req *PageBaseDictRequest) (*PageBaseDictResponse, error) {
 			if req == nil {
-				req = &PageBaseDictsRequest{}
+				req = &PageBaseDictRequest{}
 			}
-			return baseDictServiceServer.PageBaseDicts(ctx, req)
+			return baseDictServiceServer.PageBaseDict(ctx, req)
 		},
 	)
 }
@@ -197,16 +197,16 @@ func NewBaseDictServiceSetBaseDictStatusAgentTool(baseDictServiceServer BaseDict
 	)
 }
 
-// NewBaseDictServicePageBaseDictItemsAgentTool 创建查询字典属性分页列表的 Agent Tool。
-func NewBaseDictServicePageBaseDictItemsAgentTool(baseDictServiceServer BaseDictServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*PageBaseDictItemsRequest, *PageBaseDictItemsResponse](
-		"admin_v1_base_dict_service_page_base_dict_items",
+// NewBaseDictServicePageBaseDictItemAgentTool 创建查询字典属性分页列表的 Agent Tool。
+func NewBaseDictServicePageBaseDictItemAgentTool(baseDictServiceServer BaseDictServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PageBaseDictItemRequest, *PageBaseDictItemResponse](
+		"admin_v1_base_dict_service_page_base_dict_item",
 		"查询字典属性分页列表",
-		func(ctx context.Context, req *PageBaseDictItemsRequest) (*PageBaseDictItemsResponse, error) {
+		func(ctx context.Context, req *PageBaseDictItemRequest) (*PageBaseDictItemResponse, error) {
 			if req == nil {
-				req = &PageBaseDictItemsRequest{}
+				req = &PageBaseDictItemRequest{}
 			}
-			return baseDictServiceServer.PageBaseDictItems(ctx, req)
+			return baseDictServiceServer.PageBaseDictItem(ctx, req)
 		},
 	)
 }

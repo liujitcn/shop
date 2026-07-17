@@ -15,26 +15,26 @@ import (
 
 // RegisterUserAddressServiceMCPTools 注册App用户地址管理服务的 MCP Tool。
 func RegisterUserAddressServiceMCPTools(mcpServer *mcp.Server, userAddressServiceServer UserAddressServiceServer) {
-	RegisterUserAddressServiceListUserAddressesMCPTool(mcpServer, userAddressServiceServer)
+	RegisterUserAddressServiceListUserAddressMCPTool(mcpServer, userAddressServiceServer)
 	RegisterUserAddressServiceGetUserAddressMCPTool(mcpServer, userAddressServiceServer)
 	RegisterUserAddressServiceCreateUserAddressMCPTool(mcpServer, userAddressServiceServer)
 	RegisterUserAddressServiceUpdateUserAddressMCPTool(mcpServer, userAddressServiceServer)
 	RegisterUserAddressServiceDeleteUserAddressMCPTool(mcpServer, userAddressServiceServer)
 }
 
-// RegisterUserAddressServiceListUserAddressesMCPTool 注册查询用户地址列表的 MCP Tool。
-func RegisterUserAddressServiceListUserAddressesMCPTool(mcpServer *mcp.Server, userAddressServiceServer UserAddressServiceServer) {
-	mcp.AddTool[*ListUserAddressesRequest, *ListUserAddressesResponse](
+// RegisterUserAddressServiceListUserAddressMCPTool 注册查询用户地址列表的 MCP Tool。
+func RegisterUserAddressServiceListUserAddressMCPTool(mcpServer *mcp.Server, userAddressServiceServer UserAddressServiceServer) {
+	mcp.AddTool[*ListUserAddressRequest, *ListUserAddressResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "app_v1_user_address_service_list_user_addresses",
+			Name:        "app_v1_user_address_service_list_user_address",
 			Description: "查询用户地址列表",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *ListUserAddressesRequest) (*mcp.CallToolResult, *ListUserAddressesResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *ListUserAddressRequest) (*mcp.CallToolResult, *ListUserAddressResponse, error) {
 			if input == nil {
-				input = &ListUserAddressesRequest{}
+				input = &ListUserAddressRequest{}
 			}
-			reply, err := userAddressServiceServer.ListUserAddresses(ctx, input)
+			reply, err := userAddressServiceServer.ListUserAddress(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

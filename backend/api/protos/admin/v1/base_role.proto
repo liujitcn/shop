@@ -11,14 +11,14 @@ import "google/protobuf/empty.proto";
 // Admin角色管理服务
 service BaseRoleService {
   // 查询角色下拉选择
-  rpc OptionBaseRoles(OptionBaseRolesRequest) returns (.common.v1.SelectOptionResponse) {
+  rpc OptionBaseRole(OptionBaseRoleRequest) returns (.common.v1.SelectOptionResponse) {
     option (google.api.http) = {
       get: "/api/v1/admin/base/role/option"
     };
   }
 
   // 查询角色分页列表
-  rpc PageBaseRoles(PageBaseRolesRequest) returns (PageBaseRolesResponse) {
+  rpc PageBaseRole(PageBaseRoleRequest) returns (PageBaseRoleResponse) {
     option (google.api.http) = {
       get: "/api/v1/admin/base/role"
     };
@@ -72,12 +72,12 @@ service BaseRoleService {
 }
 
 // 角色选项查询条件
-message OptionBaseRolesRequest {
+message OptionBaseRoleRequest {
   optional int64 tenant_id = 1 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
 }
 
 // 角色分页查询条件
-message PageBaseRolesRequest {
+message PageBaseRoleRequest {
   string name = 2 [(gnostic.openapi.v3.property) = {description: "角色名称"}]; // 角色名称
 
   string code = 3 [(gnostic.openapi.v3.property) = {description: "角色编号"}]; // 角色编号
@@ -98,7 +98,7 @@ message PageBaseRolesRequest {
 }
 
 // 角色分页响应
-message PageBaseRolesResponse {
+message PageBaseRoleResponse {
   repeated BaseRole base_roles = 1 [(gnostic.openapi.v3.property) = {description: "分页数据"}]; // 分页数据
 
   int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数

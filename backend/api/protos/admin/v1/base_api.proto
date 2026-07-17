@@ -9,14 +9,14 @@ import "google/protobuf/empty.proto";
 // AdminAPI服务
 service BaseApiService {
   // 分页查询API列表
-  rpc PageBaseApis(PageBaseApisRequest) returns (PageBaseApisResponse) {
+  rpc PageBaseApi(PageBaseApiRequest) returns (PageBaseApiResponse) {
     option (google.api.http) = {
       get: "/api/v1/admin/base/api"
     };
   }
 
   // 查询菜单分配API选项列表
-  rpc ListBaseApis(ListBaseApisRequest) returns (ListBaseApisResponse) {
+  rpc ListBaseApi(ListBaseApiRequest) returns (ListBaseApiResponse) {
     option (google.api.http) = {
       get: "/api/v1/admin/base/api/option"
     };
@@ -62,7 +62,7 @@ service BaseApiService {
 }
 
 // API分页查询条件
-message PageBaseApisRequest {
+message PageBaseApiRequest {
   optional string service_name = 1 [(gnostic.openapi.v3.property) = {description: "服务名"}]; // 服务名
 
   optional string service_desc = 2 [(gnostic.openapi.v3.property) = {description: "服务描述"}]; // 服务描述
@@ -89,7 +89,7 @@ message PageBaseApisRequest {
 }
 
 // API分页查询响应
-message PageBaseApisResponse {
+message PageBaseApiResponse {
   repeated BaseApi base_apis = 1 [(gnostic.openapi.v3.property) = {description: "API列表"}]; // API列表
 
   int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
@@ -131,10 +131,10 @@ message UpdateBaseApiRequest {
 }
 
 // API列表查询条件
-message ListBaseApisRequest {}
+message ListBaseApiRequest {}
 
 // API列表响应
-message ListBaseApisResponse {
+message ListBaseApiResponse {
   repeated BaseApi base_apis = 1 [(gnostic.openapi.v3.property) = {description: "API列表"}]; // API列表
 }
 

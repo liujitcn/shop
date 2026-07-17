@@ -20,8 +20,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	BaseLogService_PageBaseLogs_FullMethodName = "/admin.v1.BaseLogService/PageBaseLogs"
-	BaseLogService_GetBaseLog_FullMethodName   = "/admin.v1.BaseLogService/GetBaseLog"
+	BaseLogService_PageBaseLog_FullMethodName = "/admin.v1.BaseLogService/PageBaseLog"
+	BaseLogService_GetBaseLog_FullMethodName  = "/admin.v1.BaseLogService/GetBaseLog"
 )
 
 // BaseLogServiceClient is the client API for BaseLogService service.
@@ -31,7 +31,7 @@ const (
 // Admin日志服务
 type BaseLogServiceClient interface {
 	// 查询日志分页列表
-	PageBaseLogs(ctx context.Context, in *PageBaseLogsRequest, opts ...grpc.CallOption) (*PageBaseLogsResponse, error)
+	PageBaseLog(ctx context.Context, in *PageBaseLogRequest, opts ...grpc.CallOption) (*PageBaseLogResponse, error)
 	// 查询日志
 	GetBaseLog(ctx context.Context, in *GetBaseLogRequest, opts ...grpc.CallOption) (*BaseLog, error)
 }
@@ -44,10 +44,10 @@ func NewBaseLogServiceClient(cc grpc.ClientConnInterface) BaseLogServiceClient {
 	return &baseLogServiceClient{cc}
 }
 
-func (c *baseLogServiceClient) PageBaseLogs(ctx context.Context, in *PageBaseLogsRequest, opts ...grpc.CallOption) (*PageBaseLogsResponse, error) {
+func (c *baseLogServiceClient) PageBaseLog(ctx context.Context, in *PageBaseLogRequest, opts ...grpc.CallOption) (*PageBaseLogResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(PageBaseLogsResponse)
-	err := c.cc.Invoke(ctx, BaseLogService_PageBaseLogs_FullMethodName, in, out, cOpts...)
+	out := new(PageBaseLogResponse)
+	err := c.cc.Invoke(ctx, BaseLogService_PageBaseLog_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +71,7 @@ func (c *baseLogServiceClient) GetBaseLog(ctx context.Context, in *GetBaseLogReq
 // Admin日志服务
 type BaseLogServiceServer interface {
 	// 查询日志分页列表
-	PageBaseLogs(context.Context, *PageBaseLogsRequest) (*PageBaseLogsResponse, error)
+	PageBaseLog(context.Context, *PageBaseLogRequest) (*PageBaseLogResponse, error)
 	// 查询日志
 	GetBaseLog(context.Context, *GetBaseLogRequest) (*BaseLog, error)
 	mustEmbedUnimplementedBaseLogServiceServer()
@@ -84,8 +84,8 @@ type BaseLogServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedBaseLogServiceServer struct{}
 
-func (UnimplementedBaseLogServiceServer) PageBaseLogs(context.Context, *PageBaseLogsRequest) (*PageBaseLogsResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method PageBaseLogs not implemented")
+func (UnimplementedBaseLogServiceServer) PageBaseLog(context.Context, *PageBaseLogRequest) (*PageBaseLogResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method PageBaseLog not implemented")
 }
 func (UnimplementedBaseLogServiceServer) GetBaseLog(context.Context, *GetBaseLogRequest) (*BaseLog, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetBaseLog not implemented")
@@ -111,20 +111,20 @@ func RegisterBaseLogServiceServer(s grpc.ServiceRegistrar, srv BaseLogServiceSer
 	s.RegisterService(&BaseLogService_ServiceDesc, srv)
 }
 
-func _BaseLogService_PageBaseLogs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PageBaseLogsRequest)
+func _BaseLogService_PageBaseLog_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PageBaseLogRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BaseLogServiceServer).PageBaseLogs(ctx, in)
+		return srv.(BaseLogServiceServer).PageBaseLog(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: BaseLogService_PageBaseLogs_FullMethodName,
+		FullMethod: BaseLogService_PageBaseLog_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BaseLogServiceServer).PageBaseLogs(ctx, req.(*PageBaseLogsRequest))
+		return srv.(BaseLogServiceServer).PageBaseLog(ctx, req.(*PageBaseLogRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -155,8 +155,8 @@ var BaseLogService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*BaseLogServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "PageBaseLogs",
-			Handler:    _BaseLogService_PageBaseLogs_Handler,
+			MethodName: "PageBaseLog",
+			Handler:    _BaseLogService_PageBaseLog_Handler,
 		},
 		{
 			MethodName: "GetBaseLog",

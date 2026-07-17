@@ -8,19 +8,19 @@
 import type { Empty } from "../../google/protobuf/empty";
 
 /** 代码生成Proto接口配置查询条件 */
-export interface ListCodeGenProtosRequest {
+export interface ListCodeGenProtoRequest {
   /** 代码生成表配置ID */
   table_id: number;
 }
 
 /** 代码生成Proto接口配置查询响应 */
-export interface ListCodeGenProtosResponse {
+export interface ListCodeGenProtoResponse {
   /** 代码生成Proto接口检查列表 */
   code_gen_protos: CodeGenProtoCheck[];
 }
 
 /** 代码生成Proto接口配置保存条件 */
-export interface SaveCodeGenProtosRequest {
+export interface SaveCodeGenProtoRequest {
   /** 代码生成表配置ID */
   table_id: number;
   /** 代码生成Proto接口配置列表 */
@@ -94,7 +94,7 @@ export interface CodeGenProtoConfig {
 /** Admin代码生成Proto接口配置服务 */
 export interface CodeGenProtoService {
   /** 查询代码生成Proto接口配置 */
-  ListCodeGenProtos(request: ListCodeGenProtosRequest): Promise<ListCodeGenProtosResponse>;
+  ListCodeGenProto(request: ListCodeGenProtoRequest): Promise<ListCodeGenProtoResponse>;
   /** 保存代码生成Proto接口配置 */
-  SaveCodeGenProtos(request: SaveCodeGenProtosRequest): Promise<Empty>;
+  SaveCodeGenProto(request: SaveCodeGenProtoRequest): Promise<Empty>;
 }

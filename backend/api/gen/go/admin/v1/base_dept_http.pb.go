@@ -8,10 +8,11 @@ package adminv1
 
 import (
 	context "context"
-	v1 "shop/api/gen/go/common/v1"
 
 	http "github.com/go-kratos/kratos/v3/transport/http"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+
+	v1 "shop/api/gen/go/common/v1"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -23,9 +24,9 @@ const _ = http.SupportPackageIsVersion3
 const OperationBaseDeptServiceCreateBaseDept = "/admin.v1.BaseDeptService/CreateBaseDept"
 const OperationBaseDeptServiceDeleteBaseDept = "/admin.v1.BaseDeptService/DeleteBaseDept"
 const OperationBaseDeptServiceGetBaseDept = "/admin.v1.BaseDeptService/GetBaseDept"
-const OperationBaseDeptServiceOptionBaseDepts = "/admin.v1.BaseDeptService/OptionBaseDepts"
+const OperationBaseDeptServiceOptionBaseDept = "/admin.v1.BaseDeptService/OptionBaseDept"
 const OperationBaseDeptServiceSetBaseDeptStatus = "/admin.v1.BaseDeptService/SetBaseDeptStatus"
-const OperationBaseDeptServiceTreeBaseDepts = "/admin.v1.BaseDeptService/TreeBaseDepts"
+const OperationBaseDeptServiceTreeBaseDept = "/admin.v1.BaseDeptService/TreeBaseDept"
 const OperationBaseDeptServiceUpdateBaseDept = "/admin.v1.BaseDeptService/UpdateBaseDept"
 
 type BaseDeptServiceHTTPServer interface {
@@ -35,20 +36,20 @@ type BaseDeptServiceHTTPServer interface {
 	DeleteBaseDept(context.Context, *DeleteBaseDeptRequest) (*emptypb.Empty, error)
 	// GetBaseDept 查询部门
 	GetBaseDept(context.Context, *GetBaseDeptRequest) (*BaseDeptForm, error)
-	// OptionBaseDepts 查询部门树形选择
-	OptionBaseDepts(context.Context, *OptionBaseDeptsRequest) (*v1.TreeOptionResponse, error)
+	// OptionBaseDept 查询部门树形选择
+	OptionBaseDept(context.Context, *OptionBaseDeptRequest) (*v1.TreeOptionResponse, error)
 	// SetBaseDeptStatus 设置状态
 	SetBaseDeptStatus(context.Context, *SetBaseDeptStatusRequest) (*emptypb.Empty, error)
-	// TreeBaseDepts 查询部门树形列表
-	TreeBaseDepts(context.Context, *TreeBaseDeptsRequest) (*TreeBaseDeptsResponse, error)
+	// TreeBaseDept 查询部门树形列表
+	TreeBaseDept(context.Context, *TreeBaseDeptRequest) (*TreeBaseDeptResponse, error)
 	// UpdateBaseDept 更新部门
 	UpdateBaseDept(context.Context, *UpdateBaseDeptRequest) (*emptypb.Empty, error)
 }
 
 func RegisterBaseDeptServiceHTTPServer(s *http.Server, srv BaseDeptServiceHTTPServer) {
 	r := s.Route("/")
-	r.Handle("GET", "/api/v1/admin/base/dept/tree", _BaseDeptService_TreeBaseDepts0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/admin/base/dept/option", _BaseDeptService_OptionBaseDepts0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/base/dept/tree", _BaseDeptService_TreeBaseDept0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/base/dept/option", _BaseDeptService_OptionBaseDept0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/base/dept/{id}", _BaseDeptService_GetBaseDept0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/admin/base/dept", _BaseDeptService_CreateBaseDept0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/base/dept/{base_dept.id}", _BaseDeptService_UpdateBaseDept0_HTTP_Handler(srv))
@@ -56,34 +57,34 @@ func RegisterBaseDeptServiceHTTPServer(s *http.Server, srv BaseDeptServiceHTTPSe
 	r.Handle("PUT", "/api/v1/admin/base/dept/{id}/status", _BaseDeptService_SetBaseDeptStatus0_HTTP_Handler(srv))
 }
 
-func _BaseDeptService_TreeBaseDepts0_HTTP_Handler(srv BaseDeptServiceHTTPServer) func(ctx http.Context) error {
+func _BaseDeptService_TreeBaseDept0_HTTP_Handler(srv BaseDeptServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in TreeBaseDeptsRequest
+		var in TreeBaseDeptRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationBaseDeptServiceTreeBaseDepts)
+		http.SetOperation(ctx, OperationBaseDeptServiceTreeBaseDept)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.TreeBaseDepts(ctx, req.(*TreeBaseDeptsRequest))
+			return srv.TreeBaseDept(ctx, req.(*TreeBaseDeptRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*TreeBaseDeptsResponse)
+		reply := out.(*TreeBaseDeptResponse)
 		return ctx.Result(200, reply)
 	}
 }
 
-func _BaseDeptService_OptionBaseDepts0_HTTP_Handler(srv BaseDeptServiceHTTPServer) func(ctx http.Context) error {
+func _BaseDeptService_OptionBaseDept0_HTTP_Handler(srv BaseDeptServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in OptionBaseDeptsRequest
+		var in OptionBaseDeptRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationBaseDeptServiceOptionBaseDepts)
+		http.SetOperation(ctx, OperationBaseDeptServiceOptionBaseDept)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.OptionBaseDepts(ctx, req.(*OptionBaseDeptsRequest))
+			return srv.OptionBaseDept(ctx, req.(*OptionBaseDeptRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -214,12 +215,12 @@ type BaseDeptServiceHTTPClient interface {
 	DeleteBaseDept(ctx context.Context, req *DeleteBaseDeptRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// GetBaseDept 查询部门
 	GetBaseDept(ctx context.Context, req *GetBaseDeptRequest, opts ...http.CallOption) (rsp *BaseDeptForm, err error)
-	// OptionBaseDepts 查询部门树形选择
-	OptionBaseDepts(ctx context.Context, req *OptionBaseDeptsRequest, opts ...http.CallOption) (rsp *v1.TreeOptionResponse, err error)
+	// OptionBaseDept 查询部门树形选择
+	OptionBaseDept(ctx context.Context, req *OptionBaseDeptRequest, opts ...http.CallOption) (rsp *v1.TreeOptionResponse, err error)
 	// SetBaseDeptStatus 设置状态
 	SetBaseDeptStatus(ctx context.Context, req *SetBaseDeptStatusRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
-	// TreeBaseDepts 查询部门树形列表
-	TreeBaseDepts(ctx context.Context, req *TreeBaseDeptsRequest, opts ...http.CallOption) (rsp *TreeBaseDeptsResponse, err error)
+	// TreeBaseDept 查询部门树形列表
+	TreeBaseDept(ctx context.Context, req *TreeBaseDeptRequest, opts ...http.CallOption) (rsp *TreeBaseDeptResponse, err error)
 	// UpdateBaseDept 更新部门
 	UpdateBaseDept(ctx context.Context, req *UpdateBaseDeptRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 }
@@ -284,14 +285,14 @@ func (c *BaseDeptServiceHTTPClientImpl) GetBaseDept(ctx context.Context, in *Get
 	return &out, nil
 }
 
-// OptionBaseDepts 查询部门树形选择
-func (c *BaseDeptServiceHTTPClientImpl) OptionBaseDepts(ctx context.Context, in *OptionBaseDeptsRequest, opts ...http.CallOption) (*v1.TreeOptionResponse, error) {
+// OptionBaseDept 查询部门树形选择
+func (c *BaseDeptServiceHTTPClientImpl) OptionBaseDept(ctx context.Context, in *OptionBaseDeptRequest, opts ...http.CallOption) (*v1.TreeOptionResponse, error) {
 	var out v1.TreeOptionResponse
 	pattern := "/api/v1/admin/base/dept/option"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationBaseDeptServiceOptionBaseDepts),
+		http.Operation(OperationBaseDeptServiceOptionBaseDept),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
@@ -319,14 +320,14 @@ func (c *BaseDeptServiceHTTPClientImpl) SetBaseDeptStatus(ctx context.Context, i
 	return &out, nil
 }
 
-// TreeBaseDepts 查询部门树形列表
-func (c *BaseDeptServiceHTTPClientImpl) TreeBaseDepts(ctx context.Context, in *TreeBaseDeptsRequest, opts ...http.CallOption) (*TreeBaseDeptsResponse, error) {
-	var out TreeBaseDeptsResponse
+// TreeBaseDept 查询部门树形列表
+func (c *BaseDeptServiceHTTPClientImpl) TreeBaseDept(ctx context.Context, in *TreeBaseDeptRequest, opts ...http.CallOption) (*TreeBaseDeptResponse, error) {
+	var out TreeBaseDeptResponse
 	pattern := "/api/v1/admin/base/dept/tree"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationBaseDeptServiceTreeBaseDepts),
+		http.Operation(OperationBaseDeptServiceTreeBaseDept),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)

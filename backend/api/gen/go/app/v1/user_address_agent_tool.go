@@ -18,12 +18,12 @@ import (
 func NewUserAddressServiceAgentTools(userAddressServiceServer UserAddressServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error
-	var listUserAddressesTool tool.InvokableTool
-	listUserAddressesTool, err = NewUserAddressServiceListUserAddressesAgentTool(userAddressServiceServer)
+	var listUserAddressTool tool.InvokableTool
+	listUserAddressTool, err = NewUserAddressServiceListUserAddressAgentTool(userAddressServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, listUserAddressesTool)
+	ts = append(ts, listUserAddressTool)
 	var getUserAddressTool tool.InvokableTool
 	getUserAddressTool, err = NewUserAddressServiceGetUserAddressAgentTool(userAddressServiceServer)
 	if err != nil {
@@ -51,16 +51,16 @@ func NewUserAddressServiceAgentTools(userAddressServiceServer UserAddressService
 	return ts, nil
 }
 
-// NewUserAddressServiceListUserAddressesAgentTool 创建查询用户地址列表的 Agent Tool。
-func NewUserAddressServiceListUserAddressesAgentTool(userAddressServiceServer UserAddressServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*ListUserAddressesRequest, *ListUserAddressesResponse](
-		"app_v1_user_address_service_list_user_addresses",
+// NewUserAddressServiceListUserAddressAgentTool 创建查询用户地址列表的 Agent Tool。
+func NewUserAddressServiceListUserAddressAgentTool(userAddressServiceServer UserAddressServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*ListUserAddressRequest, *ListUserAddressResponse](
+		"app_v1_user_address_service_list_user_address",
 		"查询用户地址列表",
-		func(ctx context.Context, req *ListUserAddressesRequest) (*ListUserAddressesResponse, error) {
+		func(ctx context.Context, req *ListUserAddressRequest) (*ListUserAddressResponse, error) {
 			if req == nil {
-				req = &ListUserAddressesRequest{}
+				req = &ListUserAddressRequest{}
 			}
-			return userAddressServiceServer.ListUserAddresses(ctx, req)
+			return userAddressServiceServer.ListUserAddress(ctx, req)
 		},
 	)
 }

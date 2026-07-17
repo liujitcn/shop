@@ -8,7 +8,7 @@ import "google/api/annotations.proto";
 // Admin商品规格服务
 service GoodsSpecService {
   // 查询商品规格列表
-  rpc ListGoodsSpecs(ListGoodsSpecsRequest) returns (ListGoodsSpecsResponse) {
+  rpc ListGoodsSpec(ListGoodsSpecRequest) returns (ListGoodsSpecResponse) {
     option (google.api.http) = {
       get: "/api/v1/admin/goods/spec"
     };
@@ -16,12 +16,12 @@ service GoodsSpecService {
 }
 
 // 商品规格列表查询条件
-message ListGoodsSpecsRequest {
+message ListGoodsSpecRequest {
   int64 goods_id = 1 [(gnostic.openapi.v3.property) = {description: "商品id"}]; // 商品id
 }
 
 // 商品规格列表响应
-message ListGoodsSpecsResponse {
+message ListGoodsSpecResponse {
   repeated GoodsSpec goods_specs = 1 [(gnostic.openapi.v3.property) = {description: "商品规格列表"}]; // 商品规格列表
 }
 

@@ -1,12 +1,12 @@
 import service from "@/utils/request";
 import type {
-  OptionCategoriesRequest,
-  OptionCategoriesResponse,
+  OptionCategoryRequest,
+  OptionCategoryResponse,
   ConfigResponse,
   DeleteItemRequest,
   DeleteUserRequest,
-  ListDashboardItemsRequest,
-  ListDashboardItemsResponse,
+  ListDashboardItemRequest,
+  ListDashboardItemResponse,
   ExportDataRequest,
   ExportDataResponse,
   FeedbackResponse,
@@ -16,14 +16,14 @@ import type {
   ImportDataRequest,
   ImportDataResponse,
   ItemListResponse,
-  ListTasksResponse,
+  ListTaskResponse,
   GetTimeSeriesRequest,
   Item,
-  PageItemsRequest,
-  PageItemsResponse,
-  ListTasksRequest,
-  PageUsersRequest,
-  PageUsersResponse,
+  PageItemRequest,
+  PageItemResponse,
+  ListTaskRequest,
+  PageUserRequest,
+  PageUserResponse,
   PreviewExternalRequest,
   PreviewExternalResponse,
   PreviewRankerPromptRequest,
@@ -58,8 +58,8 @@ export class RecommendGorseServiceImpl implements RecommendGorseService {
   }
 
   /** 查询 Gorse 推荐分类。 */
-  OptionCategories(request: OptionCategoriesRequest): Promise<OptionCategoriesResponse> {
-    return service<OptionCategoriesRequest, OptionCategoriesResponse>({
+  OptionCategory(request: OptionCategoryRequest): Promise<OptionCategoryResponse> {
+    return service<OptionCategoryRequest, OptionCategoryResponse>({
       url: `${RECOMMEND_GORSE_URL}/category/option`,
       method: "get",
       params: request
@@ -67,8 +67,8 @@ export class RecommendGorseServiceImpl implements RecommendGorseService {
   }
 
   /** 查询 Gorse 推荐仪表盘推荐商品。 */
-  ListDashboardItems(request: ListDashboardItemsRequest): Promise<ListDashboardItemsResponse> {
-    return service<ListDashboardItemsRequest, ListDashboardItemsResponse>({
+  ListDashboardItem(request: ListDashboardItemRequest): Promise<ListDashboardItemResponse> {
+    return service<ListDashboardItemRequest, ListDashboardItemResponse>({
       url: `${RECOMMEND_GORSE_URL}/dashboard`,
       method: "get",
       params: request
@@ -121,8 +121,8 @@ export class RecommendGorseServiceImpl implements RecommendGorseService {
   }
 
   /** 查询 Gorse 推荐任务状态。 */
-  ListTasks(request: ListTasksRequest): Promise<ListTasksResponse> {
-    return service<ListTasksRequest, ListTasksResponse>({
+  ListTask(request: ListTaskRequest): Promise<ListTaskResponse> {
+    return service<ListTaskRequest, ListTaskResponse>({
       url: `${RECOMMEND_GORSE_URL}/task`,
       method: "get",
       params: request
@@ -130,8 +130,8 @@ export class RecommendGorseServiceImpl implements RecommendGorseService {
   }
 
   /** 查询 Gorse 推荐用户列表。 */
-  PageUsers(request: PageUsersRequest): Promise<PageUsersResponse> {
-    return service<PageUsersRequest, PageUsersResponse>({
+  PageUser(request: PageUserRequest): Promise<PageUserResponse> {
+    return service<PageUserRequest, PageUserResponse>({
       url: `${RECOMMEND_GORSE_URL}/user`,
       method: "get",
       params: request
@@ -193,8 +193,8 @@ export class RecommendGorseServiceImpl implements RecommendGorseService {
   }
 
   /** 查询 Gorse 推荐商品列表。 */
-  PageItems(request: PageItemsRequest): Promise<PageItemsResponse> {
-    return service<PageItemsRequest, PageItemsResponse>({
+  PageItem(request: PageItemRequest): Promise<PageItemResponse> {
+    return service<PageItemRequest, PageItemResponse>({
       url: `${RECOMMEND_GORSE_URL}/item`,
       method: "get",
       params: request

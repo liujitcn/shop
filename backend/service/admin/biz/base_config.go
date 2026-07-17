@@ -57,8 +57,8 @@ func (c *BaseConfigCase) RefreshBaseConfig(ctx context.Context) error {
 	return nil
 }
 
-// PageBaseConfigs 分页查询配置
-func (c *BaseConfigCase) PageBaseConfigs(ctx context.Context, req *adminv1.PageBaseConfigsRequest) (*adminv1.PageBaseConfigsResponse, error) {
+// PageBaseConfig 分页查询配置
+func (c *BaseConfigCase) PageBaseConfig(ctx context.Context, req *adminv1.PageBaseConfigRequest) (*adminv1.PageBaseConfigResponse, error) {
 	query := c.Query(ctx).BaseConfig
 	opts := make([]repository.QueryOption, 0, 6)
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
@@ -91,7 +91,7 @@ func (c *BaseConfigCase) PageBaseConfigs(ctx context.Context, req *adminv1.PageB
 		resList = append(resList, baseConfig)
 	}
 
-	return &adminv1.PageBaseConfigsResponse{
+	return &adminv1.PageBaseConfigResponse{
 		BaseConfigs: resList,
 		Total:       int32(total),
 	}, nil

@@ -15,13 +15,13 @@ import (
 
 // RegisterShopHotServiceMCPTools 注册Admin商城热门推荐服务的 MCP Tool。
 func RegisterShopHotServiceMCPTools(mcpServer *mcp.Server, shopHotServiceServer ShopHotServiceServer) {
-	RegisterShopHotServicePageShopHotsMCPTool(mcpServer, shopHotServiceServer)
+	RegisterShopHotServicePageShopHotMCPTool(mcpServer, shopHotServiceServer)
 	RegisterShopHotServiceGetShopHotMCPTool(mcpServer, shopHotServiceServer)
 	RegisterShopHotServiceCreateShopHotMCPTool(mcpServer, shopHotServiceServer)
 	RegisterShopHotServiceUpdateShopHotMCPTool(mcpServer, shopHotServiceServer)
 	RegisterShopHotServiceDeleteShopHotMCPTool(mcpServer, shopHotServiceServer)
 	RegisterShopHotServiceSetShopHotStatusMCPTool(mcpServer, shopHotServiceServer)
-	RegisterShopHotServicePageShopHotItemsMCPTool(mcpServer, shopHotServiceServer)
+	RegisterShopHotServicePageShopHotItemMCPTool(mcpServer, shopHotServiceServer)
 	RegisterShopHotServiceGetShopHotItemMCPTool(mcpServer, shopHotServiceServer)
 	RegisterShopHotServiceCreateShopHotItemMCPTool(mcpServer, shopHotServiceServer)
 	RegisterShopHotServiceUpdateShopHotItemMCPTool(mcpServer, shopHotServiceServer)
@@ -29,19 +29,19 @@ func RegisterShopHotServiceMCPTools(mcpServer *mcp.Server, shopHotServiceServer 
 	RegisterShopHotServiceSetShopHotItemStatusMCPTool(mcpServer, shopHotServiceServer)
 }
 
-// RegisterShopHotServicePageShopHotsMCPTool 注册查询商城热门推荐列表的 MCP Tool。
-func RegisterShopHotServicePageShopHotsMCPTool(mcpServer *mcp.Server, shopHotServiceServer ShopHotServiceServer) {
-	mcp.AddTool[*PageShopHotsRequest, *PageShopHotsResponse](
+// RegisterShopHotServicePageShopHotMCPTool 注册查询商城热门推荐列表的 MCP Tool。
+func RegisterShopHotServicePageShopHotMCPTool(mcpServer *mcp.Server, shopHotServiceServer ShopHotServiceServer) {
+	mcp.AddTool[*PageShopHotRequest, *PageShopHotResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "admin_v1_shop_hot_service_page_shop_hots",
+			Name:        "admin_v1_shop_hot_service_page_shop_hot",
 			Description: "查询商城热门推荐列表",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageShopHotsRequest) (*mcp.CallToolResult, *PageShopHotsResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *PageShopHotRequest) (*mcp.CallToolResult, *PageShopHotResponse, error) {
 			if input == nil {
-				input = &PageShopHotsRequest{}
+				input = &PageShopHotRequest{}
 			}
-			reply, err := shopHotServiceServer.PageShopHots(ctx, input)
+			reply, err := shopHotServiceServer.PageShopHot(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -155,19 +155,19 @@ func RegisterShopHotServiceSetShopHotStatusMCPTool(mcpServer *mcp.Server, shopHo
 	)
 }
 
-// RegisterShopHotServicePageShopHotItemsMCPTool 注册查询商城热门推荐属性列表的 MCP Tool。
-func RegisterShopHotServicePageShopHotItemsMCPTool(mcpServer *mcp.Server, shopHotServiceServer ShopHotServiceServer) {
-	mcp.AddTool[*PageShopHotItemsRequest, *PageShopHotItemsResponse](
+// RegisterShopHotServicePageShopHotItemMCPTool 注册查询商城热门推荐属性列表的 MCP Tool。
+func RegisterShopHotServicePageShopHotItemMCPTool(mcpServer *mcp.Server, shopHotServiceServer ShopHotServiceServer) {
+	mcp.AddTool[*PageShopHotItemRequest, *PageShopHotItemResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "admin_v1_shop_hot_service_page_shop_hot_items",
+			Name:        "admin_v1_shop_hot_service_page_shop_hot_item",
 			Description: "查询商城热门推荐属性列表",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageShopHotItemsRequest) (*mcp.CallToolResult, *PageShopHotItemsResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *PageShopHotItemRequest) (*mcp.CallToolResult, *PageShopHotItemResponse, error) {
 			if input == nil {
-				input = &PageShopHotItemsRequest{}
+				input = &PageShopHotItemRequest{}
 			}
-			reply, err := shopHotServiceServer.PageShopHotItems(ctx, input)
+			reply, err := shopHotServiceServer.PageShopHotItem(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

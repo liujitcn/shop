@@ -8,11 +8,12 @@ package adminv1
 
 import (
 	context "context"
-	v1 "shop/api/gen/go/common/v1"
 
 	tool "github.com/cloudwego/eino/components/tool"
 	utils "github.com/cloudwego/eino/components/tool/utils"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+
+	v1 "shop/api/gen/go/common/v1"
 )
 
 // NewAuthServiceAgentTools 创建Admin用户登录认证服务的 Agent Tool。
@@ -25,18 +26,18 @@ func NewAuthServiceAgentTools(authServiceServer AuthServiceServer) ([]tool.Invok
 		return nil, err
 	}
 	ts = append(ts, getUserInfoTool)
-	var treeUserMenusTool tool.InvokableTool
-	treeUserMenusTool, err = NewAuthServiceTreeUserMenusAgentTool(authServiceServer)
+	var treeUserMenuTool tool.InvokableTool
+	treeUserMenuTool, err = NewAuthServiceTreeUserMenuAgentTool(authServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, treeUserMenusTool)
-	var listUserButtonsTool tool.InvokableTool
-	listUserButtonsTool, err = NewAuthServiceListUserButtonsAgentTool(authServiceServer)
+	ts = append(ts, treeUserMenuTool)
+	var listUserButtonTool tool.InvokableTool
+	listUserButtonTool, err = NewAuthServiceListUserButtonAgentTool(authServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, listUserButtonsTool)
+	ts = append(ts, listUserButtonTool)
 	var getUserProfileTool tool.InvokableTool
 	getUserProfileTool, err = NewAuthServiceGetUserProfileAgentTool(authServiceServer)
 	if err != nil {
@@ -84,16 +85,16 @@ func NewAuthServiceGetUserInfoAgentTool(authServiceServer AuthServiceServer) (to
 	)
 }
 
-// NewAuthServiceTreeUserMenusAgentTool 创建查询已经登录的用户菜单树的 Agent Tool。
-func NewAuthServiceTreeUserMenusAgentTool(authServiceServer AuthServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*TreeUserMenusRequest, any](
-		"admin_v1_auth_service_tree_user_menus",
+// NewAuthServiceTreeUserMenuAgentTool 创建查询已经登录的用户菜单树的 Agent Tool。
+func NewAuthServiceTreeUserMenuAgentTool(authServiceServer AuthServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*TreeUserMenuRequest, any](
+		"admin_v1_auth_service_tree_user_menu",
 		"查询已经登录的用户菜单树",
-		func(ctx context.Context, req *TreeUserMenusRequest) (any, error) {
+		func(ctx context.Context, req *TreeUserMenuRequest) (any, error) {
 			if req == nil {
-				req = &TreeUserMenusRequest{}
+				req = &TreeUserMenuRequest{}
 			}
-			reply, err := authServiceServer.TreeUserMenus(ctx, req)
+			reply, err := authServiceServer.TreeUserMenu(ctx, req)
 			if err != nil {
 				return nil, err
 			}
@@ -102,16 +103,16 @@ func NewAuthServiceTreeUserMenusAgentTool(authServiceServer AuthServiceServer) (
 	)
 }
 
-// NewAuthServiceListUserButtonsAgentTool 创建查询已经登录的用户按钮列表的 Agent Tool。
-func NewAuthServiceListUserButtonsAgentTool(authServiceServer AuthServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*ListUserButtonsRequest, *v1.StringValues](
-		"admin_v1_auth_service_list_user_buttons",
+// NewAuthServiceListUserButtonAgentTool 创建查询已经登录的用户按钮列表的 Agent Tool。
+func NewAuthServiceListUserButtonAgentTool(authServiceServer AuthServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*ListUserButtonRequest, *v1.StringValues](
+		"admin_v1_auth_service_list_user_button",
 		"查询已经登录的用户按钮列表",
-		func(ctx context.Context, req *ListUserButtonsRequest) (*v1.StringValues, error) {
+		func(ctx context.Context, req *ListUserButtonRequest) (*v1.StringValues, error) {
 			if req == nil {
-				req = &ListUserButtonsRequest{}
+				req = &ListUserButtonRequest{}
 			}
-			return authServiceServer.ListUserButtons(ctx, req)
+			return authServiceServer.ListUserButton(ctx, req)
 		},
 	)
 }

@@ -55,8 +55,8 @@ func NewBaseMenuCase(
 	}
 }
 
-// TreeBaseMenus 查询菜单树
-func (c *BaseMenuCase) TreeBaseMenus(ctx context.Context) (*adminv1.TreeBaseMenusResponse, error) {
+// TreeBaseMenu 查询菜单树
+func (c *BaseMenuCase) TreeBaseMenu(ctx context.Context) (*adminv1.TreeBaseMenuResponse, error) {
 	query := c.Query(ctx).BaseMenu
 	opts := make([]repository.QueryOption, 0, 3)
 	opts = append(opts, repository.Order(query.Sort.Asc()))
@@ -67,7 +67,7 @@ func (c *BaseMenuCase) TreeBaseMenus(ctx context.Context) (*adminv1.TreeBaseMenu
 	}
 	// 非超级管理员没有菜单权限时，菜单管理页直接返回空树。
 	if !isSuperRole && len(allowedMenuIDs) == 0 {
-		return &adminv1.TreeBaseMenusResponse{}, nil
+		return &adminv1.TreeBaseMenuResponse{}, nil
 	}
 	// 非超级管理员只能看到当前角色已经拥有的菜单上限。
 	if !isSuperRole {
@@ -78,11 +78,11 @@ func (c *BaseMenuCase) TreeBaseMenus(ctx context.Context) (*adminv1.TreeBaseMenu
 	if err != nil {
 		return nil, err
 	}
-	return &adminv1.TreeBaseMenusResponse{BaseMenus: c.buildBaseMenuTree(list, 0)}, nil
+	return &adminv1.TreeBaseMenuResponse{BaseMenus: c.buildBaseMenuTree(list, 0)}, nil
 }
 
-// OptionBaseMenus 查询菜单选项
-func (c *BaseMenuCase) OptionBaseMenus(ctx context.Context, req *adminv1.OptionBaseMenusRequest) (*commonv1.TreeOptionResponse, error) {
+// OptionBaseMenu 查询菜单选项
+func (c *BaseMenuCase) OptionBaseMenu(ctx context.Context, req *adminv1.OptionBaseMenuRequest) (*commonv1.TreeOptionResponse, error) {
 	query := c.Query(ctx).BaseMenu
 	opts := make([]repository.QueryOption, 0, 3)
 	opts = append(opts, repository.Order(query.Sort.Asc()))

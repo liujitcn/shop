@@ -84,8 +84,8 @@ func NewBaseTenantCase(
 	}
 }
 
-// OptionBaseTenants 查询租户选项。
-func (c *BaseTenantCase) OptionBaseTenants(ctx context.Context, req *adminv1.OptionBaseTenantsRequest) (*commonv1.SelectOptionResponse, error) {
+// OptionBaseTenant 查询租户选项。
+func (c *BaseTenantCase) OptionBaseTenant(ctx context.Context, req *adminv1.OptionBaseTenantRequest) (*commonv1.SelectOptionResponse, error) {
 	query := c.Query(ctx).BaseTenant
 	opts := make([]repository.QueryOption, 0, 4)
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
@@ -109,8 +109,8 @@ func (c *BaseTenantCase) OptionBaseTenants(ctx context.Context, req *adminv1.Opt
 	return &commonv1.SelectOptionResponse{List: options}, nil
 }
 
-// PageBaseTenants 分页查询租户。
-func (c *BaseTenantCase) PageBaseTenants(ctx context.Context, req *adminv1.PageBaseTenantsRequest) (*adminv1.PageBaseTenantsResponse, error) {
+// PageBaseTenant 分页查询租户。
+func (c *BaseTenantCase) PageBaseTenant(ctx context.Context, req *adminv1.PageBaseTenantRequest) (*adminv1.PageBaseTenantResponse, error) {
 	query := c.Query(ctx).BaseTenant
 	opts := make([]repository.QueryOption, 0, 5)
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
@@ -135,7 +135,7 @@ func (c *BaseTenantCase) PageBaseTenants(ctx context.Context, req *adminv1.PageB
 	for _, item := range list {
 		resList = append(resList, c.mapper.ToDTO(item))
 	}
-	return &adminv1.PageBaseTenantsResponse{BaseTenants: resList, Total: int32(total)}, nil
+	return &adminv1.PageBaseTenantResponse{BaseTenants: resList, Total: int32(total)}, nil
 }
 
 // GetBaseTenant 获取租户。

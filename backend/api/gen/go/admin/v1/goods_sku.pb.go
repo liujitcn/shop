@@ -26,7 +26,7 @@ const (
 )
 
 // 商品SKU列表查询条件
-type PageGoodsSkusRequest struct {
+type PageGoodsSkuRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	GoodsId       int64                  `protobuf:"varint,1,opt,name=goods_id,json=goodsId,proto3" json:"goods_id,omitempty"`      // 商品id
 	SkuCode       string                 `protobuf:"bytes,5,opt,name=sku_code,json=skuCode,proto3" json:"sku_code,omitempty"`       // 商品SKU编号
@@ -36,20 +36,20 @@ type PageGoodsSkusRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *PageGoodsSkusRequest) Reset() {
-	*x = PageGoodsSkusRequest{}
+func (x *PageGoodsSkuRequest) Reset() {
+	*x = PageGoodsSkuRequest{}
 	mi := &file_admin_v1_goods_sku_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PageGoodsSkusRequest) String() string {
+func (x *PageGoodsSkuRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PageGoodsSkusRequest) ProtoMessage() {}
+func (*PageGoodsSkuRequest) ProtoMessage() {}
 
-func (x *PageGoodsSkusRequest) ProtoReflect() protoreflect.Message {
+func (x *PageGoodsSkuRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_goods_sku_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -61,33 +61,33 @@ func (x *PageGoodsSkusRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PageGoodsSkusRequest.ProtoReflect.Descriptor instead.
-func (*PageGoodsSkusRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use PageGoodsSkuRequest.ProtoReflect.Descriptor instead.
+func (*PageGoodsSkuRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_goods_sku_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *PageGoodsSkusRequest) GetGoodsId() int64 {
+func (x *PageGoodsSkuRequest) GetGoodsId() int64 {
 	if x != nil {
 		return x.GoodsId
 	}
 	return 0
 }
 
-func (x *PageGoodsSkusRequest) GetSkuCode() string {
+func (x *PageGoodsSkuRequest) GetSkuCode() string {
 	if x != nil {
 		return x.SkuCode
 	}
 	return ""
 }
 
-func (x *PageGoodsSkusRequest) GetPageNum() int64 {
+func (x *PageGoodsSkuRequest) GetPageNum() int64 {
 	if x != nil {
 		return x.PageNum
 	}
 	return 0
 }
 
-func (x *PageGoodsSkusRequest) GetPageSize() int64 {
+func (x *PageGoodsSkuRequest) GetPageSize() int64 {
 	if x != nil {
 		return x.PageSize
 	}
@@ -95,7 +95,7 @@ func (x *PageGoodsSkusRequest) GetPageSize() int64 {
 }
 
 // 商品SKU列表响应
-type PageGoodsSkusResponse struct {
+type PageGoodsSkuResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	GoodsSkus     []*GoodsSku            `protobuf:"bytes,1,rep,name=goods_skus,json=goodsSkus,proto3" json:"goods_skus,omitempty"` // 商品SKU列表
 	Total         int32                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`                         // 总数
@@ -103,20 +103,20 @@ type PageGoodsSkusResponse struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *PageGoodsSkusResponse) Reset() {
-	*x = PageGoodsSkusResponse{}
+func (x *PageGoodsSkuResponse) Reset() {
+	*x = PageGoodsSkuResponse{}
 	mi := &file_admin_v1_goods_sku_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PageGoodsSkusResponse) String() string {
+func (x *PageGoodsSkuResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PageGoodsSkusResponse) ProtoMessage() {}
+func (*PageGoodsSkuResponse) ProtoMessage() {}
 
-func (x *PageGoodsSkusResponse) ProtoReflect() protoreflect.Message {
+func (x *PageGoodsSkuResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_goods_sku_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -128,19 +128,19 @@ func (x *PageGoodsSkusResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PageGoodsSkusResponse.ProtoReflect.Descriptor instead.
-func (*PageGoodsSkusResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use PageGoodsSkuResponse.ProtoReflect.Descriptor instead.
+func (*PageGoodsSkuResponse) Descriptor() ([]byte, []int) {
 	return file_admin_v1_goods_sku_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *PageGoodsSkusResponse) GetGoodsSkus() []*GoodsSku {
+func (x *PageGoodsSkuResponse) GetGoodsSkus() []*GoodsSku {
 	if x != nil {
 		return x.GoodsSkus
 	}
 	return nil
 }
 
-func (x *PageGoodsSkusResponse) GetTotal() int32 {
+func (x *PageGoodsSkuResponse) GetTotal() int32 {
 	if x != nil {
 		return x.Total
 	}
@@ -366,13 +366,13 @@ var File_admin_v1_goods_sku_proto protoreflect.FileDescriptor
 
 const file_admin_v1_goods_sku_proto_rawDesc = "" +
 	"\n" +
-	"\x18admin/v1/goods_sku.proto\x12\badmin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xf1\x01\n" +
-	"\x14PageGoodsSkusRequest\x12)\n" +
+	"\x18admin/v1/goods_sku.proto\x12\badmin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xf0\x01\n" +
+	"\x13PageGoodsSkuRequest\x12)\n" +
 	"\bgoods_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品idR\agoodsId\x120\n" +
 	"\bsku_code\x18\x05 \x01(\tB\x15\xbaG\x12\x92\x02\x0f商品SKU编号R\askuCode\x129\n" +
 	"\bpage_num\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12A\n" +
-	"\tpage_size\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSize\"\x85\x01\n" +
-	"\x15PageGoodsSkusResponse\x12H\n" +
+	"\tpage_size\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSize\"\x84\x01\n" +
+	"\x14PageGoodsSkuResponse\x12H\n" +
 	"\n" +
 	"goods_skus\x18\x01 \x03(\v2\x12.admin.v1.GoodsSkuB\x15\xbaG\x12\x92\x02\x0f商品SKU列表R\tgoodsSkus\x12\"\n" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"7\n" +
@@ -392,9 +392,9 @@ const file_admin_v1_goods_sku_proto_rawDesc = "" +
 	"\rinit_sale_num\x18\b \x01(\x03B\x12\xbaG\x0f\x92\x02\f初始销量R\vinitSaleNum\x12<\n" +
 	"\rreal_sale_num\x18\t \x01(\x03B\x18\xbaG\x15\x92\x02\x12真实销售数量R\vrealSaleNum\x120\n" +
 	"\tinventory\x18\n" +
-	" \x01(\x03B\x12\xbaG\x0f\x92\x02\f库存数量R\tinventory2\xe7\x02\n" +
-	"\x0fGoodsSkuService\x12q\n" +
-	"\rPageGoodsSkus\x12\x1e.admin.v1.PageGoodsSkusRequest\x1a\x1f.admin.v1.PageGoodsSkusResponse\"\x1f\x82\xd3\xe4\x93\x02\x19\x12\x17/api/v1/admin/goods/sku\x12e\n" +
+	" \x01(\x03B\x12\xbaG\x0f\x92\x02\f库存数量R\tinventory2\xe4\x02\n" +
+	"\x0fGoodsSkuService\x12n\n" +
+	"\fPageGoodsSku\x12\x1d.admin.v1.PageGoodsSkuRequest\x1a\x1e.admin.v1.PageGoodsSkuResponse\"\x1f\x82\xd3\xe4\x93\x02\x19\x12\x17/api/v1/admin/goods/sku\x12e\n" +
 	"\vGetGoodsSku\x12\x1c.admin.v1.GetGoodsSkuRequest\x1a\x12.admin.v1.GoodsSku\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/api/v1/admin/goods/sku/{id}\x12z\n" +
 	"\x0eUpdateGoodsSku\x12\x1f.admin.v1.UpdateGoodsSkuRequest\x1a\x16.google.protobuf.Empty\"/\x82\xd3\xe4\x93\x02):\tgoods_sku\x1a\x1c/api/v1/admin/goods/sku/{id}B\x80\x01\n" +
 	"\fcom.admin.v1B\rGoodsSkuProtoP\x01Z shop/api/gen/go/admin/v1;adminv1\xa2\x02\x03AXX\xaa\x02\bAdmin.V1\xca\x02\bAdmin\\V1\xe2\x02\x14Admin\\V1\\GPBMetadata\xea\x02\tAdmin::V1b\x06proto3"
@@ -413,20 +413,20 @@ func file_admin_v1_goods_sku_proto_rawDescGZIP() []byte {
 
 var file_admin_v1_goods_sku_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_admin_v1_goods_sku_proto_goTypes = []any{
-	(*PageGoodsSkusRequest)(nil),  // 0: admin.v1.PageGoodsSkusRequest
-	(*PageGoodsSkusResponse)(nil), // 1: admin.v1.PageGoodsSkusResponse
+	(*PageGoodsSkuRequest)(nil),   // 0: admin.v1.PageGoodsSkuRequest
+	(*PageGoodsSkuResponse)(nil),  // 1: admin.v1.PageGoodsSkuResponse
 	(*GetGoodsSkuRequest)(nil),    // 2: admin.v1.GetGoodsSkuRequest
 	(*UpdateGoodsSkuRequest)(nil), // 3: admin.v1.UpdateGoodsSkuRequest
 	(*GoodsSku)(nil),              // 4: admin.v1.GoodsSku
 	(*emptypb.Empty)(nil),         // 5: google.protobuf.Empty
 }
 var file_admin_v1_goods_sku_proto_depIdxs = []int32{
-	4, // 0: admin.v1.PageGoodsSkusResponse.goods_skus:type_name -> admin.v1.GoodsSku
+	4, // 0: admin.v1.PageGoodsSkuResponse.goods_skus:type_name -> admin.v1.GoodsSku
 	4, // 1: admin.v1.UpdateGoodsSkuRequest.goods_sku:type_name -> admin.v1.GoodsSku
-	0, // 2: admin.v1.GoodsSkuService.PageGoodsSkus:input_type -> admin.v1.PageGoodsSkusRequest
+	0, // 2: admin.v1.GoodsSkuService.PageGoodsSku:input_type -> admin.v1.PageGoodsSkuRequest
 	2, // 3: admin.v1.GoodsSkuService.GetGoodsSku:input_type -> admin.v1.GetGoodsSkuRequest
 	3, // 4: admin.v1.GoodsSkuService.UpdateGoodsSku:input_type -> admin.v1.UpdateGoodsSkuRequest
-	1, // 5: admin.v1.GoodsSkuService.PageGoodsSkus:output_type -> admin.v1.PageGoodsSkusResponse
+	1, // 5: admin.v1.GoodsSkuService.PageGoodsSku:output_type -> admin.v1.PageGoodsSkuResponse
 	4, // 6: admin.v1.GoodsSkuService.GetGoodsSku:output_type -> admin.v1.GoodsSku
 	5, // 7: admin.v1.GoodsSkuService.UpdateGoodsSku:output_type -> google.protobuf.Empty
 	5, // [5:8] is the sub-list for method output_type

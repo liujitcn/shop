@@ -44,7 +44,7 @@ import type { ColumnProps, ProTableInstance } from "@/components/ProTable/interf
 import ProTable from "@/components/ProTable/index.vue";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { defCommentInfoService } from "@/api/admin/comment_info";
-import type { CommentDiscussion, CommentReview, PageCommentDiscussionsRequest } from "@/rpc/admin/v1/comment_info";
+import type { CommentDiscussion, CommentReview, PageCommentDiscussionRequest } from "@/rpc/admin/v1/comment_info";
 import { CommentReviewTargetType, CommentStatus } from "@/rpc/common/v1/enum";
 import { buildPageRequest } from "@/utils/proTable";
 import ReviewTimeline from "../review/ReviewTimeline.vue";
@@ -84,8 +84,8 @@ const reviewDialog = reactive<ReviewDialogState>({
   list: []
 });
 
-const initParam = computed<Partial<PageCommentDiscussionsRequest>>(() => {
-  const params: Partial<PageCommentDiscussionsRequest> = {
+const initParam = computed<Partial<PageCommentDiscussionRequest>>(() => {
+  const params: Partial<PageCommentDiscussionRequest> = {
     comment_id: props.commentId,
     page_num: 1,
     page_size: 10
@@ -174,8 +174,8 @@ const columns: ColumnProps[] = [
 
 /** 请求评论讨论列表，并固定附加当前评论记录。 */
 async function requestDiscussionTable(params: Record<string, any>) {
-  const data = await defCommentInfoService.PageCommentDiscussions(
-    buildPageRequest({ ...params, comment_id: props.commentId }) as PageCommentDiscussionsRequest
+  const data = await defCommentInfoService.PageCommentDiscussion(
+    buildPageRequest({ ...params, comment_id: props.commentId }) as PageCommentDiscussionRequest
   );
   return { data: { list: data.comment_discussions ?? [], total: data.total } };
 }
@@ -192,7 +192,7 @@ async function handleOpenReviewDialog(row: CommentDiscussion) {
   reviewDialog.loading = true;
   reviewDialog.list = [];
   try {
-    const data = await defCommentInfoService.ListCommentReviews({
+    const data = await defCommentInfoService.ListCommentReview({
       target_type: CommentReviewTargetType.COMMENT_REVIEW_TARGET_TYPE_DISCUSSION,
       target_id: row.id
     });

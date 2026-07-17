@@ -1090,7 +1090,7 @@ async function loadAiAssistantShortcuts() {
 
   loadingShortcuts.value = true
   try {
-    const response = await defAiAssistantSessionService.ListAiAssistantShortcuts({
+    const response = await defAiAssistantSessionService.ListAiAssistantShortcut({
       terminal: AI_ASSISTANT_TERMINAL,
     })
     starterShortcuts.value = normalizeStarterShortcuts(response.shortcuts)
@@ -1111,7 +1111,7 @@ async function ensureSessionsLoaded() {
 
   loadingSessions.value = true
   try {
-    const response = await defAiAssistantSessionService.ListAiAssistantSessions({
+    const response = await defAiAssistantSessionService.ListAiAssistantSession({
       terminal: AI_ASSISTANT_TERMINAL,
     })
     sessions.value = normalizeSessionList(response.sessions)
@@ -1137,7 +1137,7 @@ async function loadMessages(sessionID: string, options?: { force?: boolean }) {
 
   loadingSessionID.value = sessionID
   try {
-    const response = await defAiAssistantMessageService.ListAiAssistantMessages({
+    const response = await defAiAssistantMessageService.ListAiAssistantMessage({
       session_id: sessionID,
     })
     if (loadingSessionID.value !== sessionID) {
@@ -2368,7 +2368,7 @@ async function ensureAddressAreaTreeLoaded() {
   }
   loadingAddressAreaTree = true
   try {
-    const response = await defBaseAreaService.TreeBaseAreas({})
+    const response = await defBaseAreaService.TreeBaseArea({})
     addressAreaTree.value = response.areas || []
   } catch {
     addressAreaTree.value = []

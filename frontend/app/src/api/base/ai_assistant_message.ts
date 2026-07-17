@@ -1,7 +1,7 @@
 import { getRequestAccessToken, handleAuthExpired, http, requestBaseURL } from '@/utils/http'
 import type {
-  ListAiAssistantMessagesRequest,
-  ListAiAssistantMessagesResponse,
+  ListAiAssistantMessageRequest,
+  ListAiAssistantMessageResponse,
 } from '@/rpc/base/v1/ai_assistant_session'
 import type {
   AiAssistantMessageService,
@@ -197,10 +197,10 @@ export function StreamAiAssistantMessageByChunkedRequest(
 /** AI 助手消息服务。 */
 export class AiAssistantMessageServiceImpl implements AiAssistantMessageService {
   /** 查询 AI 助手消息列表。 */
-  ListAiAssistantMessages(
-    request: ListAiAssistantMessagesRequest,
-  ): Promise<ListAiAssistantMessagesResponse> {
-    return http<ListAiAssistantMessagesResponse>({
+  ListAiAssistantMessage(
+    request: ListAiAssistantMessageRequest,
+  ): Promise<ListAiAssistantMessageResponse> {
+    return http<ListAiAssistantMessageResponse>({
       url: `${AI_ASSISTANT_SESSION_URL}/${request.session_id}/message`,
       method: 'GET',
       authMode: 'required',

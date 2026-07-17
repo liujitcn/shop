@@ -260,7 +260,7 @@ async function loadPreview() {
     if (!snapshot.value && tableId.value) {
       const [table, response] = await Promise.all([
         defCodeGenTableService.GetCodeGenTable({ id: tableId.value }),
-        defCodeGenColumnService.ListCodeGenColumns({ table_id: tableId.value })
+        defCodeGenColumnService.ListCodeGenColumn({ table_id: tableId.value })
       ]);
       snapshot.value = { table, columns: response.code_gen_columns ?? [] };
     }

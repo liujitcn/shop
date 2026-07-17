@@ -25,7 +25,7 @@ const (
 )
 
 // 日志分页查询条件
-type PageBaseLogsRequest struct {
+type PageBaseLogRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	RequestTime   []string               `protobuf:"bytes,3,rep,name=request_time,json=requestTime,proto3" json:"request_time,omitempty"`      // 请求时间
 	Operation     string                 `protobuf:"bytes,5,opt,name=operation,proto3" json:"operation,omitempty"`                             // 操作方法
@@ -36,20 +36,20 @@ type PageBaseLogsRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *PageBaseLogsRequest) Reset() {
-	*x = PageBaseLogsRequest{}
+func (x *PageBaseLogRequest) Reset() {
+	*x = PageBaseLogRequest{}
 	mi := &file_admin_v1_base_log_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PageBaseLogsRequest) String() string {
+func (x *PageBaseLogRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PageBaseLogsRequest) ProtoMessage() {}
+func (*PageBaseLogRequest) ProtoMessage() {}
 
-func (x *PageBaseLogsRequest) ProtoReflect() protoreflect.Message {
+func (x *PageBaseLogRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_base_log_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -61,40 +61,40 @@ func (x *PageBaseLogsRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PageBaseLogsRequest.ProtoReflect.Descriptor instead.
-func (*PageBaseLogsRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use PageBaseLogRequest.ProtoReflect.Descriptor instead.
+func (*PageBaseLogRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_base_log_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *PageBaseLogsRequest) GetRequestTime() []string {
+func (x *PageBaseLogRequest) GetRequestTime() []string {
 	if x != nil {
 		return x.RequestTime
 	}
 	return nil
 }
 
-func (x *PageBaseLogsRequest) GetOperation() string {
+func (x *PageBaseLogRequest) GetOperation() string {
 	if x != nil {
 		return x.Operation
 	}
 	return ""
 }
 
-func (x *PageBaseLogsRequest) GetStatusCode() int32 {
+func (x *PageBaseLogRequest) GetStatusCode() int32 {
 	if x != nil && x.StatusCode != nil {
 		return *x.StatusCode
 	}
 	return 0
 }
 
-func (x *PageBaseLogsRequest) GetPageNum() int64 {
+func (x *PageBaseLogRequest) GetPageNum() int64 {
 	if x != nil {
 		return x.PageNum
 	}
 	return 0
 }
 
-func (x *PageBaseLogsRequest) GetPageSize() int64 {
+func (x *PageBaseLogRequest) GetPageSize() int64 {
 	if x != nil {
 		return x.PageSize
 	}
@@ -102,7 +102,7 @@ func (x *PageBaseLogsRequest) GetPageSize() int64 {
 }
 
 // 日志分页响应
-type PageBaseLogsResponse struct {
+type PageBaseLogResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	BaseLogs      []*BaseLog             `protobuf:"bytes,1,rep,name=base_logs,json=baseLogs,proto3" json:"base_logs,omitempty"` // 分页数据
 	Total         int32                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`                      // 总数
@@ -110,20 +110,20 @@ type PageBaseLogsResponse struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *PageBaseLogsResponse) Reset() {
-	*x = PageBaseLogsResponse{}
+func (x *PageBaseLogResponse) Reset() {
+	*x = PageBaseLogResponse{}
 	mi := &file_admin_v1_base_log_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PageBaseLogsResponse) String() string {
+func (x *PageBaseLogResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PageBaseLogsResponse) ProtoMessage() {}
+func (*PageBaseLogResponse) ProtoMessage() {}
 
-func (x *PageBaseLogsResponse) ProtoReflect() protoreflect.Message {
+func (x *PageBaseLogResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_base_log_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -135,19 +135,19 @@ func (x *PageBaseLogsResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PageBaseLogsResponse.ProtoReflect.Descriptor instead.
-func (*PageBaseLogsResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use PageBaseLogResponse.ProtoReflect.Descriptor instead.
+func (*PageBaseLogResponse) Descriptor() ([]byte, []int) {
 	return file_admin_v1_base_log_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *PageBaseLogsResponse) GetBaseLogs() []*BaseLog {
+func (x *PageBaseLogResponse) GetBaseLogs() []*BaseLog {
 	if x != nil {
 		return x.BaseLogs
 	}
 	return nil
 }
 
-func (x *PageBaseLogsResponse) GetTotal() int32 {
+func (x *PageBaseLogResponse) GetTotal() int32 {
 	if x != nil {
 		return x.Total
 	}
@@ -448,16 +448,16 @@ var File_admin_v1_base_log_proto protoreflect.FileDescriptor
 
 const file_admin_v1_base_log_proto_rawDesc = "" +
 	"\n" +
-	"\x17admin/v1/base_log.proto\x12\badmin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\xc3\x02\n" +
-	"\x13PageBaseLogsRequest\x125\n" +
+	"\x17admin/v1/base_log.proto\x12\badmin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\xc2\x02\n" +
+	"\x12PageBaseLogRequest\x125\n" +
 	"\frequest_time\x18\x03 \x03(\tB\x12\xbaG\x0f\x92\x02\f请求时间R\vrequestTime\x120\n" +
 	"\toperation\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\f操作方法R\toperation\x125\n" +
 	"\vstatus_code\x18\x0e \x01(\x05B\x0f\xbaG\f\x92\x02\t状态码H\x00R\n" +
 	"statusCode\x88\x01\x01\x129\n" +
 	"\bpage_num\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12A\n" +
 	"\tpage_size\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSizeB\x0e\n" +
-	"\f_status_code\"~\n" +
-	"\x14PageBaseLogsResponse\x12B\n" +
+	"\f_status_code\"}\n" +
+	"\x13PageBaseLogResponse\x12B\n" +
 	"\tbase_logs\x18\x01 \x03(\v2\x11.admin.v1.BaseLogB\x12\xbaG\x0f\x92\x02\f分页数据R\bbaseLogs\x12\"\n" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"3\n" +
 	"\x11GetBaseLogRequest\x12\x1e\n" +
@@ -496,9 +496,9 @@ const file_admin_v1_base_log_proto_rawDesc = "" +
 	"clientName\x122\n" +
 	"\aos_name\x18\xae\x02 \x01(\tB\x18\xbaG\x15\x92\x02\x12操作系统名称R\x06osName\x128\n" +
 	"\n" +
-	"os_version\x18\xaf\x02 \x01(\tB\x18\xbaG\x15\x92\x02\x12操作系统版本R\tosVersion2\xe2\x01\n" +
-	"\x0eBaseLogService\x12m\n" +
-	"\fPageBaseLogs\x12\x1d.admin.v1.PageBaseLogsRequest\x1a\x1e.admin.v1.PageBaseLogsResponse\"\x1e\x82\xd3\xe4\x93\x02\x18\x12\x16/api/v1/admin/base/log\x12a\n" +
+	"os_version\x18\xaf\x02 \x01(\tB\x18\xbaG\x15\x92\x02\x12操作系统版本R\tosVersion2\xdf\x01\n" +
+	"\x0eBaseLogService\x12j\n" +
+	"\vPageBaseLog\x12\x1c.admin.v1.PageBaseLogRequest\x1a\x1d.admin.v1.PageBaseLogResponse\"\x1e\x82\xd3\xe4\x93\x02\x18\x12\x16/api/v1/admin/base/log\x12a\n" +
 	"\n" +
 	"GetBaseLog\x12\x1b.admin.v1.GetBaseLogRequest\x1a\x11.admin.v1.BaseLog\"#\x82\xd3\xe4\x93\x02\x1d\x12\x1b/api/v1/admin/base/log/{id}B\x7f\n" +
 	"\fcom.admin.v1B\fBaseLogProtoP\x01Z shop/api/gen/go/admin/v1;adminv1\xa2\x02\x03AXX\xaa\x02\bAdmin.V1\xca\x02\bAdmin\\V1\xe2\x02\x14Admin\\V1\\GPBMetadata\xea\x02\tAdmin::V1b\x06proto3"
@@ -517,16 +517,16 @@ func file_admin_v1_base_log_proto_rawDescGZIP() []byte {
 
 var file_admin_v1_base_log_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_admin_v1_base_log_proto_goTypes = []any{
-	(*PageBaseLogsRequest)(nil),  // 0: admin.v1.PageBaseLogsRequest
-	(*PageBaseLogsResponse)(nil), // 1: admin.v1.PageBaseLogsResponse
-	(*GetBaseLogRequest)(nil),    // 2: admin.v1.GetBaseLogRequest
-	(*BaseLog)(nil),              // 3: admin.v1.BaseLog
+	(*PageBaseLogRequest)(nil),  // 0: admin.v1.PageBaseLogRequest
+	(*PageBaseLogResponse)(nil), // 1: admin.v1.PageBaseLogResponse
+	(*GetBaseLogRequest)(nil),   // 2: admin.v1.GetBaseLogRequest
+	(*BaseLog)(nil),             // 3: admin.v1.BaseLog
 }
 var file_admin_v1_base_log_proto_depIdxs = []int32{
-	3, // 0: admin.v1.PageBaseLogsResponse.base_logs:type_name -> admin.v1.BaseLog
-	0, // 1: admin.v1.BaseLogService.PageBaseLogs:input_type -> admin.v1.PageBaseLogsRequest
+	3, // 0: admin.v1.PageBaseLogResponse.base_logs:type_name -> admin.v1.BaseLog
+	0, // 1: admin.v1.BaseLogService.PageBaseLog:input_type -> admin.v1.PageBaseLogRequest
 	2, // 2: admin.v1.BaseLogService.GetBaseLog:input_type -> admin.v1.GetBaseLogRequest
-	1, // 3: admin.v1.BaseLogService.PageBaseLogs:output_type -> admin.v1.PageBaseLogsResponse
+	1, // 3: admin.v1.BaseLogService.PageBaseLog:output_type -> admin.v1.PageBaseLogResponse
 	3, // 4: admin.v1.BaseLogService.GetBaseLog:output_type -> admin.v1.BaseLog
 	3, // [3:5] is the sub-list for method output_type
 	1, // [1:3] is the sub-list for method input_type

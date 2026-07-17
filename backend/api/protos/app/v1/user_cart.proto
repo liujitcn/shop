@@ -18,7 +18,7 @@ service UserCartService {
   }
 
   // 查询用户购物车列表
-  rpc ListUserCarts(ListUserCartsRequest) returns (ListUserCartsResponse) {
+  rpc ListUserCart(ListUserCartRequest) returns (ListUserCartResponse) {
     option (google.api.http) = {
       get: "/api/v1/app/user/cart"
     };
@@ -73,10 +73,10 @@ message CountUserCartResponse {
 }
 
 // 用户购物车列表查询条件
-message ListUserCartsRequest {}
+message ListUserCartRequest {}
 
 // 用户购物车列表响应
-message ListUserCartsResponse {
+message ListUserCartResponse {
   repeated UserCartStore user_cart_stores = 1 [(gnostic.openapi.v3.property) = {description: "按店铺分组的用户购物车列表"}]; // 按店铺分组的用户购物车列表
 }
 

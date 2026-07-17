@@ -16,7 +16,7 @@ import (
 // RegisterBaseConfigServiceMCPTools 注册Admin系统配置服务的 MCP Tool。
 func RegisterBaseConfigServiceMCPTools(mcpServer *mcp.Server, baseConfigServiceServer BaseConfigServiceServer) {
 	RegisterBaseConfigServiceRefreshBaseConfigCacheMCPTool(mcpServer, baseConfigServiceServer)
-	RegisterBaseConfigServicePageBaseConfigsMCPTool(mcpServer, baseConfigServiceServer)
+	RegisterBaseConfigServicePageBaseConfigMCPTool(mcpServer, baseConfigServiceServer)
 	RegisterBaseConfigServiceGetBaseConfigMCPTool(mcpServer, baseConfigServiceServer)
 	RegisterBaseConfigServiceCreateBaseConfigMCPTool(mcpServer, baseConfigServiceServer)
 	RegisterBaseConfigServiceUpdateBaseConfigMCPTool(mcpServer, baseConfigServiceServer)
@@ -45,19 +45,19 @@ func RegisterBaseConfigServiceRefreshBaseConfigCacheMCPTool(mcpServer *mcp.Serve
 	)
 }
 
-// RegisterBaseConfigServicePageBaseConfigsMCPTool 注册查询系统配置分页列表的 MCP Tool。
-func RegisterBaseConfigServicePageBaseConfigsMCPTool(mcpServer *mcp.Server, baseConfigServiceServer BaseConfigServiceServer) {
-	mcp.AddTool[*PageBaseConfigsRequest, *PageBaseConfigsResponse](
+// RegisterBaseConfigServicePageBaseConfigMCPTool 注册查询系统配置分页列表的 MCP Tool。
+func RegisterBaseConfigServicePageBaseConfigMCPTool(mcpServer *mcp.Server, baseConfigServiceServer BaseConfigServiceServer) {
+	mcp.AddTool[*PageBaseConfigRequest, *PageBaseConfigResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "admin_v1_base_config_service_page_base_configs",
+			Name:        "admin_v1_base_config_service_page_base_config",
 			Description: "查询系统配置分页列表",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBaseConfigsRequest) (*mcp.CallToolResult, *PageBaseConfigsResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBaseConfigRequest) (*mcp.CallToolResult, *PageBaseConfigResponse, error) {
 			if input == nil {
-				input = &PageBaseConfigsRequest{}
+				input = &PageBaseConfigRequest{}
 			}
-			reply, err := baseConfigServiceServer.PageBaseConfigs(ctx, input)
+			reply, err := baseConfigServiceServer.PageBaseConfig(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

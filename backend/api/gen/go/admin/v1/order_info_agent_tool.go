@@ -18,12 +18,12 @@ import (
 func NewOrderInfoServiceAgentTools(orderInfoServiceServer OrderInfoServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error
-	var pageOrderInfosTool tool.InvokableTool
-	pageOrderInfosTool, err = NewOrderInfoServicePageOrderInfosAgentTool(orderInfoServiceServer)
+	var pageOrderInfoTool tool.InvokableTool
+	pageOrderInfoTool, err = NewOrderInfoServicePageOrderInfoAgentTool(orderInfoServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, pageOrderInfosTool)
+	ts = append(ts, pageOrderInfoTool)
 	var getOrderInfoTool tool.InvokableTool
 	getOrderInfoTool, err = NewOrderInfoServiceGetOrderInfoAgentTool(orderInfoServiceServer)
 	if err != nil {
@@ -57,16 +57,16 @@ func NewOrderInfoServiceAgentTools(orderInfoServiceServer OrderInfoServiceServer
 	return ts, nil
 }
 
-// NewOrderInfoServicePageOrderInfosAgentTool 创建查询订单信息分页列表的 Agent Tool。
-func NewOrderInfoServicePageOrderInfosAgentTool(orderInfoServiceServer OrderInfoServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*PageOrderInfosRequest, *PageOrderInfosResponse](
-		"admin_v1_order_info_service_page_order_infos",
+// NewOrderInfoServicePageOrderInfoAgentTool 创建查询订单信息分页列表的 Agent Tool。
+func NewOrderInfoServicePageOrderInfoAgentTool(orderInfoServiceServer OrderInfoServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PageOrderInfoRequest, *PageOrderInfoResponse](
+		"admin_v1_order_info_service_page_order_info",
 		"查询订单信息分页列表",
-		func(ctx context.Context, req *PageOrderInfosRequest) (*PageOrderInfosResponse, error) {
+		func(ctx context.Context, req *PageOrderInfoRequest) (*PageOrderInfoResponse, error) {
 			if req == nil {
-				req = &PageOrderInfosRequest{}
+				req = &PageOrderInfoRequest{}
 			}
-			return orderInfoServiceServer.PageOrderInfos(ctx, req)
+			return orderInfoServiceServer.PageOrderInfo(ctx, req)
 		},
 	)
 }

@@ -39,14 +39,14 @@ const (
 	aiAssistantToolGetOrderInfoByID   = "app_v1_order_info_service_get_order_info_by_id"
 	aiAssistantToolGetOrderTradeByID  = "app_v1_order_info_service_get_order_trade_by_id"
 	aiAssistantToolReceiveOrderInfo   = "app_v1_order_info_service_receive_order_info"
-	aiAssistantToolListShopHots       = "app_v1_shop_hot_service_list_shop_hots"
-	aiAssistantToolListShopHotItems   = "app_v1_shop_hot_service_list_shop_hot_items"
+	aiAssistantToolListShopHot        = "app_v1_shop_hot_service_list_shop_hots"
+	aiAssistantToolListShopHotItem    = "app_v1_shop_hot_service_list_shop_hot_items"
 	aiAssistantToolPageShopHotGoods   = "app_v1_shop_hot_service_page_shop_hot_goods"
-	aiAssistantToolListShopServices   = "app_v1_shop_service_service_list_shop_services"
-	aiAssistantToolListUserAddresses  = "app_v1_user_address_service_list_user_addresses"
+	aiAssistantToolListShopService    = "app_v1_shop_service_service_list_shop_services"
+	aiAssistantToolListUserAddress    = "app_v1_user_address_service_list_user_addresses"
 	aiAssistantToolCreateUserAddress  = "app_v1_user_address_service_create_user_address"
-	aiAssistantToolListUserCarts      = "app_v1_user_cart_service_list_user_carts"
-	aiAssistantToolPageUserCollects   = "app_v1_user_collect_service_page_user_collects"
+	aiAssistantToolListUserCart       = "app_v1_user_cart_service_list_user_carts"
+	aiAssistantToolPageUserCollect    = "app_v1_user_collect_service_page_user_collects"
 	aiAssistantToolGetUserStore       = "app_v1_user_store_service_get_user_store"
 	aiAssistantToolPagePendingComment = "app_v1_comment_service_page_pending_comment_goods"
 	aiAssistantToolCreateComment      = "app_v1_comment_service_create_comment"
@@ -265,7 +265,7 @@ func (r *Runner) openAiAssistantCheckout(ctx context.Context, payload map[string
 	}
 	var addressOutput map[string]any
 	var addressUsage assistant.ToolUsage
-	addressOutput, addressUsage, err = r.invokeAiAssistantFlowTool(ctx, aiAssistantToolListUserAddresses, map[string]any{})
+	addressOutput, addressUsage, err = r.invokeAiAssistantFlowTool(ctx, aiAssistantToolListUserAddress, map[string]any{})
 	tools = appendAiAssistantFlowTool(tools, addressUsage)
 	if err != nil {
 		return r.aiAssistantFlowErrorResponse(aiAssistantFlowShopping, "checkout", tools), nil
@@ -299,7 +299,7 @@ func (r *Runner) createAiAssistantAddress(ctx context.Context, payload map[strin
 	}
 	var addressOutput map[string]any
 	var addressUsage assistant.ToolUsage
-	addressOutput, addressUsage, err = r.invokeAiAssistantFlowTool(ctx, aiAssistantToolListUserAddresses, map[string]any{})
+	addressOutput, addressUsage, err = r.invokeAiAssistantFlowTool(ctx, aiAssistantToolListUserAddress, map[string]any{})
 	tools = appendAiAssistantFlowTool(tools, addressUsage)
 	if err != nil {
 		return r.aiAssistantFlowErrorResponse(flowName, "address", tools), nil
@@ -501,7 +501,7 @@ func (r *Runner) receiveAiAssistantOrder(ctx context.Context, payload map[string
 
 // openAiAssistantUserCartFlow 打开购物车查询流程。
 func (r *Runner) openAiAssistantUserCartFlow(ctx context.Context) (*assistant.Response, error) {
-	output, usage, err := r.invokeAiAssistantFlowTool(ctx, aiAssistantToolListUserCarts, map[string]any{})
+	output, usage, err := r.invokeAiAssistantFlowTool(ctx, aiAssistantToolListUserCart, map[string]any{})
 	tools := appendAiAssistantFlowTool(nil, usage)
 	if err != nil {
 		return r.aiAssistantFlowErrorResponse(aiAssistantFlowUserCart, "list", tools), nil
@@ -512,7 +512,7 @@ func (r *Runner) openAiAssistantUserCartFlow(ctx context.Context) (*assistant.Re
 
 // openAiAssistantUserCollectFlow 打开收藏商品查询流程。
 func (r *Runner) openAiAssistantUserCollectFlow(ctx context.Context) (*assistant.Response, error) {
-	output, usage, err := r.invokeAiAssistantFlowTool(ctx, aiAssistantToolPageUserCollects, map[string]any{
+	output, usage, err := r.invokeAiAssistantFlowTool(ctx, aiAssistantToolPageUserCollect, map[string]any{
 		"page_num":  1,
 		"page_size": 6,
 	})
@@ -527,7 +527,7 @@ func (r *Runner) openAiAssistantUserCollectFlow(ctx context.Context) (*assistant
 
 // openAiAssistantUserAddressFlow 打开收货地址管理流程。
 func (r *Runner) openAiAssistantUserAddressFlow(ctx context.Context) (*assistant.Response, error) {
-	output, usage, err := r.invokeAiAssistantFlowTool(ctx, aiAssistantToolListUserAddresses, map[string]any{})
+	output, usage, err := r.invokeAiAssistantFlowTool(ctx, aiAssistantToolListUserAddress, map[string]any{})
 	tools := appendAiAssistantFlowTool(nil, usage)
 	if err != nil {
 		return r.aiAssistantFlowErrorResponse(aiAssistantFlowUserAddress, "list", tools), nil
@@ -619,7 +619,7 @@ func (r *Runner) viewAiAssistantGoodsCategory(ctx context.Context, payload map[s
 
 // openAiAssistantShopHotFlow 打开热门专区查询流程。
 func (r *Runner) openAiAssistantShopHotFlow(ctx context.Context) (*assistant.Response, error) {
-	output, usage, err := r.invokeAiAssistantFlowTool(ctx, aiAssistantToolListShopHots, map[string]any{})
+	output, usage, err := r.invokeAiAssistantFlowTool(ctx, aiAssistantToolListShopHot, map[string]any{})
 	tools := appendAiAssistantFlowTool(nil, usage)
 	if err != nil {
 		return r.aiAssistantFlowErrorResponse(aiAssistantFlowShopHot, "list", tools), nil
@@ -638,7 +638,7 @@ func (r *Runner) viewAiAssistantShopHotItem(ctx context.Context, payload map[str
 	if hotID <= 0 {
 		return nil, errorsx.InvalidArgument("热门专区参数不合法")
 	}
-	output, usage, err := r.invokeAiAssistantFlowTool(ctx, aiAssistantToolListShopHotItems, map[string]any{"id": hotID})
+	output, usage, err := r.invokeAiAssistantFlowTool(ctx, aiAssistantToolListShopHotItem, map[string]any{"id": hotID})
 	tools := appendAiAssistantFlowTool(nil, usage)
 	if err != nil {
 		return r.aiAssistantFlowErrorResponse(aiAssistantFlowShopHot, "item", tools), nil
@@ -665,7 +665,7 @@ func (r *Runner) viewAiAssistantShopHotGoods(ctx context.Context, hotItemID int6
 
 // openAiAssistantShopServiceFlow 打开商城服务说明流程。
 func (r *Runner) openAiAssistantShopServiceFlow(ctx context.Context) (*assistant.Response, error) {
-	output, usage, err := r.invokeAiAssistantFlowTool(ctx, aiAssistantToolListShopServices, map[string]any{})
+	output, usage, err := r.invokeAiAssistantFlowTool(ctx, aiAssistantToolListShopService, map[string]any{})
 	tools := appendAiAssistantFlowTool(nil, usage)
 	if err != nil {
 		return r.aiAssistantFlowErrorResponse(aiAssistantFlowShopService, "list", tools), nil

@@ -22,7 +22,7 @@ const _ = http.SupportPackageIsVersion3
 const OperationOrderInfoServiceGetOrderInfo = "/admin.v1.OrderInfoService/GetOrderInfo"
 const OperationOrderInfoServiceGetOrderInfoRefund = "/admin.v1.OrderInfoService/GetOrderInfoRefund"
 const OperationOrderInfoServiceGetOrderInfoShipment = "/admin.v1.OrderInfoService/GetOrderInfoShipment"
-const OperationOrderInfoServicePageOrderInfos = "/admin.v1.OrderInfoService/PageOrderInfos"
+const OperationOrderInfoServicePageOrderInfo = "/admin.v1.OrderInfoService/PageOrderInfo"
 const OperationOrderInfoServiceRefundOrderInfo = "/admin.v1.OrderInfoService/RefundOrderInfo"
 const OperationOrderInfoServiceShipOrderInfo = "/admin.v1.OrderInfoService/ShipOrderInfo"
 
@@ -33,8 +33,8 @@ type OrderInfoServiceHTTPServer interface {
 	GetOrderInfoRefund(context.Context, *GetOrderInfoRefundRequest) (*OrderInfoRefundResponse, error)
 	// GetOrderInfoShipment 查询订单信息发货信息
 	GetOrderInfoShipment(context.Context, *GetOrderInfoShipmentRequest) (*OrderInfoShipmentForm, error)
-	// PageOrderInfos 查询订单信息分页列表
-	PageOrderInfos(context.Context, *PageOrderInfosRequest) (*PageOrderInfosResponse, error)
+	// PageOrderInfo 查询订单信息分页列表
+	PageOrderInfo(context.Context, *PageOrderInfoRequest) (*PageOrderInfoResponse, error)
 	// RefundOrderInfo 订单信息退款
 	RefundOrderInfo(context.Context, *RefundOrderInfoRequest) (*emptypb.Empty, error)
 	// ShipOrderInfo 订单信息发货
@@ -43,7 +43,7 @@ type OrderInfoServiceHTTPServer interface {
 
 func RegisterOrderInfoServiceHTTPServer(s *http.Server, srv OrderInfoServiceHTTPServer) {
 	r := s.Route("/")
-	r.Handle("GET", "/api/v1/admin/order/info", _OrderInfoService_PageOrderInfos0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/order/info", _OrderInfoService_PageOrderInfo0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/order/info/{id}", _OrderInfoService_GetOrderInfo0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/order/info/{id}/refund", _OrderInfoService_GetOrderInfoRefund0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/order/info/{order_id}/refund", _OrderInfoService_RefundOrderInfo0_HTTP_Handler(srv))
@@ -51,21 +51,21 @@ func RegisterOrderInfoServiceHTTPServer(s *http.Server, srv OrderInfoServiceHTTP
 	r.Handle("PUT", "/api/v1/admin/order/info/{order_id}/shipment", _OrderInfoService_ShipOrderInfo0_HTTP_Handler(srv))
 }
 
-func _OrderInfoService_PageOrderInfos0_HTTP_Handler(srv OrderInfoServiceHTTPServer) func(ctx http.Context) error {
+func _OrderInfoService_PageOrderInfo0_HTTP_Handler(srv OrderInfoServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in PageOrderInfosRequest
+		var in PageOrderInfoRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationOrderInfoServicePageOrderInfos)
+		http.SetOperation(ctx, OperationOrderInfoServicePageOrderInfo)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.PageOrderInfos(ctx, req.(*PageOrderInfosRequest))
+			return srv.PageOrderInfo(ctx, req.(*PageOrderInfoRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*PageOrderInfosResponse)
+		reply := out.(*PageOrderInfoResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -187,8 +187,8 @@ type OrderInfoServiceHTTPClient interface {
 	GetOrderInfoRefund(ctx context.Context, req *GetOrderInfoRefundRequest, opts ...http.CallOption) (rsp *OrderInfoRefundResponse, err error)
 	// GetOrderInfoShipment 查询订单信息发货信息
 	GetOrderInfoShipment(ctx context.Context, req *GetOrderInfoShipmentRequest, opts ...http.CallOption) (rsp *OrderInfoShipmentForm, err error)
-	// PageOrderInfos 查询订单信息分页列表
-	PageOrderInfos(ctx context.Context, req *PageOrderInfosRequest, opts ...http.CallOption) (rsp *PageOrderInfosResponse, err error)
+	// PageOrderInfo 查询订单信息分页列表
+	PageOrderInfo(ctx context.Context, req *PageOrderInfoRequest, opts ...http.CallOption) (rsp *PageOrderInfoResponse, err error)
 	// RefundOrderInfo 订单信息退款
 	RefundOrderInfo(ctx context.Context, req *RefundOrderInfoRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// ShipOrderInfo 订单信息发货
@@ -254,14 +254,14 @@ func (c *OrderInfoServiceHTTPClientImpl) GetOrderInfoShipment(ctx context.Contex
 	return &out, nil
 }
 
-// PageOrderInfos 查询订单信息分页列表
-func (c *OrderInfoServiceHTTPClientImpl) PageOrderInfos(ctx context.Context, in *PageOrderInfosRequest, opts ...http.CallOption) (*PageOrderInfosResponse, error) {
-	var out PageOrderInfosResponse
+// PageOrderInfo 查询订单信息分页列表
+func (c *OrderInfoServiceHTTPClientImpl) PageOrderInfo(ctx context.Context, in *PageOrderInfoRequest, opts ...http.CallOption) (*PageOrderInfoResponse, error) {
+	var out PageOrderInfoResponse
 	pattern := "/api/v1/admin/order/info"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationOrderInfoServicePageOrderInfos),
+		http.Operation(OperationOrderInfoServicePageOrderInfo),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)

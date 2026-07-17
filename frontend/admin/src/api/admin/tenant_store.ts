@@ -4,14 +4,14 @@ import {
   type CreateTenantStoreRequest,
   type DeleteTenantStoreRequest,
   type GetTenantStoreRequest,
-  type OptionTenantStoresRequest,
-  type OptionTenantStoresResponse,
-  type PageTenantStoresRequest,
-  type PageTenantStoresResponse,
+  type OptionTenantStoreRequest,
+  type OptionTenantStoreResponse,
+  type PageTenantStoreRequest,
+  type PageTenantStoreResponse,
   type TenantStoreForm,
   type TenantStoreService,
-  type TreeTenantStoresRequest,
-  type TreeTenantStoresResponse,
+  type TreeTenantStoreRequest,
+  type TreeTenantStoreResponse,
   type UpdateTenantStoreRequest
 } from "@/rpc/admin/v1/tenant_store";
 import type { Empty } from "@/rpc/google/protobuf/empty";
@@ -21,8 +21,8 @@ const TENANT_STORE_URL = "/v1/admin/tenant/store";
 /** 租户门店服务 */
 export class TenantStoreServiceImpl implements TenantStoreService {
   /** 查询租户门店下拉选项 */
-  OptionTenantStores(request: OptionTenantStoresRequest): Promise<OptionTenantStoresResponse> {
-    return service<OptionTenantStoresRequest, OptionTenantStoresResponse>({
+  OptionTenantStore(request: OptionTenantStoreRequest): Promise<OptionTenantStoreResponse> {
+    return service<OptionTenantStoreRequest, OptionTenantStoreResponse>({
       url: `${TENANT_STORE_URL}/option`,
       method: "get",
       params: request
@@ -30,8 +30,8 @@ export class TenantStoreServiceImpl implements TenantStoreService {
   }
 
   /** 查询租户门店树形选项 */
-  TreeTenantStores(request: TreeTenantStoresRequest): Promise<TreeTenantStoresResponse> {
-    return service<TreeTenantStoresRequest, TreeTenantStoresResponse>({
+  TreeTenantStore(request: TreeTenantStoreRequest): Promise<TreeTenantStoreResponse> {
+    return service<TreeTenantStoreRequest, TreeTenantStoreResponse>({
       url: `${TENANT_STORE_URL}/tree`,
       method: "get",
       params: request
@@ -39,8 +39,8 @@ export class TenantStoreServiceImpl implements TenantStoreService {
   }
 
   /** 查询租户门店列表 */
-  PageTenantStores(request: PageTenantStoresRequest): Promise<PageTenantStoresResponse> {
-    return service<PageTenantStoresRequest, PageTenantStoresResponse>({
+  PageTenantStore(request: PageTenantStoreRequest): Promise<PageTenantStoreResponse> {
+    return service<PageTenantStoreRequest, PageTenantStoreResponse>({
       url: `${TENANT_STORE_URL}`,
       method: "get",
       params: request

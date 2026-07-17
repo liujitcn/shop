@@ -126,8 +126,8 @@ func (c *AuthCase) GetUserInfo(ctx context.Context) (*adminv1.UserInfoForm, erro
 	return res, nil
 }
 
-// TreeUserMenus 获取用户菜单
-func (c *AuthCase) TreeUserMenus(ctx context.Context) (*adminv1.TreeRouteResponse, error) {
+// TreeUserMenu 获取用户菜单
+func (c *AuthCase) TreeUserMenu(ctx context.Context) (*adminv1.TreeRouteResponse, error) {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return nil, err
@@ -179,8 +179,8 @@ func (c *AuthCase) TreeUserMenus(ctx context.Context) (*adminv1.TreeRouteRespons
 	return &adminv1.TreeRouteResponse{Routes: list}, nil
 }
 
-// ListUserButtons 获取用户按钮
-func (c *AuthCase) ListUserButtons(ctx context.Context) (*commonv1.StringValues, error) {
+// ListUserButton 获取用户按钮
+func (c *AuthCase) ListUserButton(ctx context.Context) (*commonv1.StringValues, error) {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return nil, err

@@ -51,7 +51,7 @@ import UploadImg from "@/components/Upload/Img.vue";
 import WangEditor from "@/components/WangEditor/index.vue";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { defBaseConfigService } from "@/api/admin/base_config";
-import type { BaseConfig, BaseConfigForm, PageBaseConfigsRequest } from "@/rpc/admin/v1/base_config";
+import type { BaseConfig, BaseConfigForm, PageBaseConfigRequest } from "@/rpc/admin/v1/base_config";
 import { BaseConfigType, Status } from "@/rpc/common/v1/enum";
 import { buildPageRequest, normalizeSelectedIds } from "@/utils/proTable";
 
@@ -247,8 +247,8 @@ const headerActions: HeaderActionProps[] = [
 /**
  * 请求系统配置列表，并由 ProTable 统一维护分页与搜索参数。
  */
-async function requestBaseConfigTable(params: PageBaseConfigsRequest) {
-  const data = await defBaseConfigService.PageBaseConfigs(buildPageRequest(params));
+async function requestBaseConfigTable(params: PageBaseConfigRequest) {
+  const data = await defBaseConfigService.PageBaseConfig(buildPageRequest(params));
   return { data: { list: data.base_configs ?? [], total: data.total } };
 }
 

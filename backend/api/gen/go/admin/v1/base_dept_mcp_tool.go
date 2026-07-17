@@ -15,8 +15,8 @@ import (
 
 // RegisterBaseDeptServiceMCPTools 注册Admin部门服务的 MCP Tool。
 func RegisterBaseDeptServiceMCPTools(mcpServer *mcp.Server, baseDeptServiceServer BaseDeptServiceServer) {
-	RegisterBaseDeptServiceTreeBaseDeptsMCPTool(mcpServer, baseDeptServiceServer)
-	RegisterBaseDeptServiceOptionBaseDeptsMCPTool(mcpServer, baseDeptServiceServer)
+	RegisterBaseDeptServiceTreeBaseDeptMCPTool(mcpServer, baseDeptServiceServer)
+	RegisterBaseDeptServiceOptionBaseDeptMCPTool(mcpServer, baseDeptServiceServer)
 	RegisterBaseDeptServiceGetBaseDeptMCPTool(mcpServer, baseDeptServiceServer)
 	RegisterBaseDeptServiceCreateBaseDeptMCPTool(mcpServer, baseDeptServiceServer)
 	RegisterBaseDeptServiceUpdateBaseDeptMCPTool(mcpServer, baseDeptServiceServer)
@@ -24,19 +24,19 @@ func RegisterBaseDeptServiceMCPTools(mcpServer *mcp.Server, baseDeptServiceServe
 	RegisterBaseDeptServiceSetBaseDeptStatusMCPTool(mcpServer, baseDeptServiceServer)
 }
 
-// RegisterBaseDeptServiceTreeBaseDeptsMCPTool 注册查询部门树形列表的 MCP Tool。
-func RegisterBaseDeptServiceTreeBaseDeptsMCPTool(mcpServer *mcp.Server, baseDeptServiceServer BaseDeptServiceServer) {
-	mcp.AddTool[*TreeBaseDeptsRequest, any](
+// RegisterBaseDeptServiceTreeBaseDeptMCPTool 注册查询部门树形列表的 MCP Tool。
+func RegisterBaseDeptServiceTreeBaseDeptMCPTool(mcpServer *mcp.Server, baseDeptServiceServer BaseDeptServiceServer) {
+	mcp.AddTool[*TreeBaseDeptRequest, any](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "admin_v1_base_dept_service_tree_base_depts",
+			Name:        "admin_v1_base_dept_service_tree_base_dept",
 			Description: "查询部门树形列表",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *TreeBaseDeptsRequest) (*mcp.CallToolResult, any, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *TreeBaseDeptRequest) (*mcp.CallToolResult, any, error) {
 			if input == nil {
-				input = &TreeBaseDeptsRequest{}
+				input = &TreeBaseDeptRequest{}
 			}
-			reply, err := baseDeptServiceServer.TreeBaseDepts(ctx, input)
+			reply, err := baseDeptServiceServer.TreeBaseDept(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -45,19 +45,19 @@ func RegisterBaseDeptServiceTreeBaseDeptsMCPTool(mcpServer *mcp.Server, baseDept
 	)
 }
 
-// RegisterBaseDeptServiceOptionBaseDeptsMCPTool 注册查询部门树形选择的 MCP Tool。
-func RegisterBaseDeptServiceOptionBaseDeptsMCPTool(mcpServer *mcp.Server, baseDeptServiceServer BaseDeptServiceServer) {
-	mcp.AddTool[*OptionBaseDeptsRequest, any](
+// RegisterBaseDeptServiceOptionBaseDeptMCPTool 注册查询部门树形选择的 MCP Tool。
+func RegisterBaseDeptServiceOptionBaseDeptMCPTool(mcpServer *mcp.Server, baseDeptServiceServer BaseDeptServiceServer) {
+	mcp.AddTool[*OptionBaseDeptRequest, any](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "admin_v1_base_dept_service_option_base_depts",
+			Name:        "admin_v1_base_dept_service_option_base_dept",
 			Description: "查询部门树形选择",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *OptionBaseDeptsRequest) (*mcp.CallToolResult, any, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *OptionBaseDeptRequest) (*mcp.CallToolResult, any, error) {
 			if input == nil {
-				input = &OptionBaseDeptsRequest{}
+				input = &OptionBaseDeptRequest{}
 			}
-			reply, err := baseDeptServiceServer.OptionBaseDepts(ctx, input)
+			reply, err := baseDeptServiceServer.OptionBaseDept(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

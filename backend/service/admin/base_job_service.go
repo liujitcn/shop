@@ -39,11 +39,11 @@ func NewBaseJobService(
 	}
 }
 
-// PageBaseJobs 查询定时任务分页列表
-func (s *BaseJobService) PageBaseJobs(ctx context.Context, req *adminv1.PageBaseJobsRequest) (*adminv1.PageBaseJobsResponse, error) {
-	page, err := s.baseJobCase.PageBaseJobs(ctx, req)
+// PageBaseJob 查询定时任务分页列表
+func (s *BaseJobService) PageBaseJob(ctx context.Context, req *adminv1.PageBaseJobRequest) (*adminv1.PageBaseJobResponse, error) {
+	page, err := s.baseJobCase.PageBaseJob(ctx, req)
 	if err != nil {
-		log.Error(fmt.Sprintf("PageBaseJobs %v", err))
+		log.Error(fmt.Sprintf("PageBaseJob %v", err))
 		return nil, errorsx.WrapInternal(err, "查询定时任务分页列表失败")
 	}
 	return page, nil
@@ -129,11 +129,11 @@ func (s *BaseJobService) ExecuteBaseJob(ctx context.Context, req *adminv1.Execut
 	return new(emptypb.Empty), nil
 }
 
-// PageBaseJobLogs 查询定时任务日志分页列表
-func (s *BaseJobService) PageBaseJobLogs(ctx context.Context, req *adminv1.PageBaseJobLogsRequest) (*adminv1.PageBaseJobLogsResponse, error) {
-	page, err := s.baseJobLogCase.PageBaseJobLogs(ctx, req)
+// PageBaseJobLog 查询定时任务日志分页列表
+func (s *BaseJobService) PageBaseJobLog(ctx context.Context, req *adminv1.PageBaseJobLogRequest) (*adminv1.PageBaseJobLogResponse, error) {
+	page, err := s.baseJobLogCase.PageBaseJobLog(ctx, req)
 	if err != nil {
-		log.Error(fmt.Sprintf("PageBaseJobLogs %v", err))
+		log.Error(fmt.Sprintf("PageBaseJobLog %v", err))
 		return nil, errorsx.WrapInternal(err, "查询定时任务日志分页列表失败")
 	}
 

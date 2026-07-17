@@ -8,12 +8,13 @@ package adminv1
 
 import (
 	context "context"
-	v1 "shop/api/gen/go/common/v1"
 
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+
+	v1 "shop/api/gen/go/common/v1"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -22,8 +23,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	BaseDeptService_TreeBaseDepts_FullMethodName     = "/admin.v1.BaseDeptService/TreeBaseDepts"
-	BaseDeptService_OptionBaseDepts_FullMethodName   = "/admin.v1.BaseDeptService/OptionBaseDepts"
+	BaseDeptService_TreeBaseDept_FullMethodName      = "/admin.v1.BaseDeptService/TreeBaseDept"
+	BaseDeptService_OptionBaseDept_FullMethodName    = "/admin.v1.BaseDeptService/OptionBaseDept"
 	BaseDeptService_GetBaseDept_FullMethodName       = "/admin.v1.BaseDeptService/GetBaseDept"
 	BaseDeptService_CreateBaseDept_FullMethodName    = "/admin.v1.BaseDeptService/CreateBaseDept"
 	BaseDeptService_UpdateBaseDept_FullMethodName    = "/admin.v1.BaseDeptService/UpdateBaseDept"
@@ -38,9 +39,9 @@ const (
 // Admin部门服务
 type BaseDeptServiceClient interface {
 	// 查询部门树形列表
-	TreeBaseDepts(ctx context.Context, in *TreeBaseDeptsRequest, opts ...grpc.CallOption) (*TreeBaseDeptsResponse, error)
+	TreeBaseDept(ctx context.Context, in *TreeBaseDeptRequest, opts ...grpc.CallOption) (*TreeBaseDeptResponse, error)
 	// 查询部门树形选择
-	OptionBaseDepts(ctx context.Context, in *OptionBaseDeptsRequest, opts ...grpc.CallOption) (*v1.TreeOptionResponse, error)
+	OptionBaseDept(ctx context.Context, in *OptionBaseDeptRequest, opts ...grpc.CallOption) (*v1.TreeOptionResponse, error)
 	// 查询部门
 	GetBaseDept(ctx context.Context, in *GetBaseDeptRequest, opts ...grpc.CallOption) (*BaseDeptForm, error)
 	// 创建部门
@@ -61,20 +62,20 @@ func NewBaseDeptServiceClient(cc grpc.ClientConnInterface) BaseDeptServiceClient
 	return &baseDeptServiceClient{cc}
 }
 
-func (c *baseDeptServiceClient) TreeBaseDepts(ctx context.Context, in *TreeBaseDeptsRequest, opts ...grpc.CallOption) (*TreeBaseDeptsResponse, error) {
+func (c *baseDeptServiceClient) TreeBaseDept(ctx context.Context, in *TreeBaseDeptRequest, opts ...grpc.CallOption) (*TreeBaseDeptResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(TreeBaseDeptsResponse)
-	err := c.cc.Invoke(ctx, BaseDeptService_TreeBaseDepts_FullMethodName, in, out, cOpts...)
+	out := new(TreeBaseDeptResponse)
+	err := c.cc.Invoke(ctx, BaseDeptService_TreeBaseDept_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *baseDeptServiceClient) OptionBaseDepts(ctx context.Context, in *OptionBaseDeptsRequest, opts ...grpc.CallOption) (*v1.TreeOptionResponse, error) {
+func (c *baseDeptServiceClient) OptionBaseDept(ctx context.Context, in *OptionBaseDeptRequest, opts ...grpc.CallOption) (*v1.TreeOptionResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(v1.TreeOptionResponse)
-	err := c.cc.Invoke(ctx, BaseDeptService_OptionBaseDepts_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, BaseDeptService_OptionBaseDept_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -138,9 +139,9 @@ func (c *baseDeptServiceClient) SetBaseDeptStatus(ctx context.Context, in *SetBa
 // Admin部门服务
 type BaseDeptServiceServer interface {
 	// 查询部门树形列表
-	TreeBaseDepts(context.Context, *TreeBaseDeptsRequest) (*TreeBaseDeptsResponse, error)
+	TreeBaseDept(context.Context, *TreeBaseDeptRequest) (*TreeBaseDeptResponse, error)
 	// 查询部门树形选择
-	OptionBaseDepts(context.Context, *OptionBaseDeptsRequest) (*v1.TreeOptionResponse, error)
+	OptionBaseDept(context.Context, *OptionBaseDeptRequest) (*v1.TreeOptionResponse, error)
 	// 查询部门
 	GetBaseDept(context.Context, *GetBaseDeptRequest) (*BaseDeptForm, error)
 	// 创建部门
@@ -161,11 +162,11 @@ type BaseDeptServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedBaseDeptServiceServer struct{}
 
-func (UnimplementedBaseDeptServiceServer) TreeBaseDepts(context.Context, *TreeBaseDeptsRequest) (*TreeBaseDeptsResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method TreeBaseDepts not implemented")
+func (UnimplementedBaseDeptServiceServer) TreeBaseDept(context.Context, *TreeBaseDeptRequest) (*TreeBaseDeptResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method TreeBaseDept not implemented")
 }
-func (UnimplementedBaseDeptServiceServer) OptionBaseDepts(context.Context, *OptionBaseDeptsRequest) (*v1.TreeOptionResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method OptionBaseDepts not implemented")
+func (UnimplementedBaseDeptServiceServer) OptionBaseDept(context.Context, *OptionBaseDeptRequest) (*v1.TreeOptionResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method OptionBaseDept not implemented")
 }
 func (UnimplementedBaseDeptServiceServer) GetBaseDept(context.Context, *GetBaseDeptRequest) (*BaseDeptForm, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetBaseDept not implemented")
@@ -203,38 +204,38 @@ func RegisterBaseDeptServiceServer(s grpc.ServiceRegistrar, srv BaseDeptServiceS
 	s.RegisterService(&BaseDeptService_ServiceDesc, srv)
 }
 
-func _BaseDeptService_TreeBaseDepts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(TreeBaseDeptsRequest)
+func _BaseDeptService_TreeBaseDept_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TreeBaseDeptRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BaseDeptServiceServer).TreeBaseDepts(ctx, in)
+		return srv.(BaseDeptServiceServer).TreeBaseDept(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: BaseDeptService_TreeBaseDepts_FullMethodName,
+		FullMethod: BaseDeptService_TreeBaseDept_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BaseDeptServiceServer).TreeBaseDepts(ctx, req.(*TreeBaseDeptsRequest))
+		return srv.(BaseDeptServiceServer).TreeBaseDept(ctx, req.(*TreeBaseDeptRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _BaseDeptService_OptionBaseDepts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(OptionBaseDeptsRequest)
+func _BaseDeptService_OptionBaseDept_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OptionBaseDeptRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BaseDeptServiceServer).OptionBaseDepts(ctx, in)
+		return srv.(BaseDeptServiceServer).OptionBaseDept(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: BaseDeptService_OptionBaseDepts_FullMethodName,
+		FullMethod: BaseDeptService_OptionBaseDept_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BaseDeptServiceServer).OptionBaseDepts(ctx, req.(*OptionBaseDeptsRequest))
+		return srv.(BaseDeptServiceServer).OptionBaseDept(ctx, req.(*OptionBaseDeptRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -337,12 +338,12 @@ var BaseDeptService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*BaseDeptServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "TreeBaseDepts",
-			Handler:    _BaseDeptService_TreeBaseDepts_Handler,
+			MethodName: "TreeBaseDept",
+			Handler:    _BaseDeptService_TreeBaseDept_Handler,
 		},
 		{
-			MethodName: "OptionBaseDepts",
-			Handler:    _BaseDeptService_OptionBaseDepts_Handler,
+			MethodName: "OptionBaseDept",
+			Handler:    _BaseDeptService_OptionBaseDept_Handler,
 		},
 		{
 			MethodName: "GetBaseDept",

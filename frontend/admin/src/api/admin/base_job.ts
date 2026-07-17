@@ -8,10 +8,10 @@ import {
   type ExecuteBaseJobRequest,
   type GetBaseJobLogRequest,
   type GetBaseJobRequest,
-  type PageBaseJobLogsRequest,
-  type PageBaseJobLogsResponse,
-  type PageBaseJobsRequest,
-  type PageBaseJobsResponse,
+  type PageBaseJobLogRequest,
+  type PageBaseJobLogResponse,
+  type PageBaseJobRequest,
+  type PageBaseJobResponse,
   type SetBaseJobStatusRequest,
   type StartBaseJobRequest,
   type StopBaseJobRequest,
@@ -25,8 +25,8 @@ const BASE_JOB_LOG_URL = "/v1/admin/base/job-log";
 /** Admin定时任务服务 */
 export class BaseJobServiceImpl implements BaseJobService {
   /** 查询定时任务分页列表 */
-  PageBaseJobs(request: PageBaseJobsRequest): Promise<PageBaseJobsResponse> {
-    return service<PageBaseJobsRequest, PageBaseJobsResponse>({
+  PageBaseJob(request: PageBaseJobRequest): Promise<PageBaseJobResponse> {
+    return service<PageBaseJobRequest, PageBaseJobResponse>({
       url: `${BASE_JOB_URL}`,
       method: "get",
       params: request
@@ -104,8 +104,8 @@ export class BaseJobServiceImpl implements BaseJobService {
   }
 
   /** 查询定时任务日志分页列表 */
-  PageBaseJobLogs(request: PageBaseJobLogsRequest): Promise<PageBaseJobLogsResponse> {
-    return service<PageBaseJobLogsRequest, PageBaseJobLogsResponse>({
+  PageBaseJobLog(request: PageBaseJobLogRequest): Promise<PageBaseJobLogResponse> {
+    return service<PageBaseJobLogRequest, PageBaseJobLogResponse>({
       url: `${BASE_JOB_LOG_URL}`,
       method: "get",
       params: request

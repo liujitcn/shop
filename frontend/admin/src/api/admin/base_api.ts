@@ -5,10 +5,10 @@ import {
   type BaseApiService,
   type GetBaseApiDocRequest,
   type GetBaseApiRequest,
-  type ListBaseApisRequest,
-  type ListBaseApisResponse,
-  type PageBaseApisRequest,
-  type PageBaseApisResponse,
+  type ListBaseApiRequest,
+  type ListBaseApiResponse,
+  type PageBaseApiRequest,
+  type PageBaseApiResponse,
   type SetBaseApiAgentEnabledRequest,
   type SetBaseApiMcpEnabledRequest,
   type UpdateBaseApiRequest
@@ -20,8 +20,8 @@ const BASE_API_URL = "/v1/admin/base/api";
 /** AdminAPI服务 */
 export class BaseApiServiceImpl implements BaseApiService {
   /** 查询API选项列表 */
-  ListBaseApis(request: ListBaseApisRequest): Promise<ListBaseApisResponse> {
-    return service<ListBaseApisRequest, ListBaseApisResponse>({
+  ListBaseApi(request: ListBaseApiRequest): Promise<ListBaseApiResponse> {
+    return service<ListBaseApiRequest, ListBaseApiResponse>({
       url: `${BASE_API_URL}/option`,
       method: "get",
       params: request
@@ -29,8 +29,8 @@ export class BaseApiServiceImpl implements BaseApiService {
   }
 
   /** 查询API分页列表 */
-  PageBaseApis(request: PageBaseApisRequest): Promise<PageBaseApisResponse> {
-    return service<PageBaseApisRequest, PageBaseApisResponse>({
+  PageBaseApi(request: PageBaseApiRequest): Promise<PageBaseApiResponse> {
+    return service<PageBaseApiRequest, PageBaseApiResponse>({
       url: `${BASE_API_URL}`,
       method: "get",
       params: request

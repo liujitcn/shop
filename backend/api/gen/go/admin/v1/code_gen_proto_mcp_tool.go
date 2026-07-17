@@ -15,23 +15,23 @@ import (
 
 // RegisterCodeGenProtoServiceMCPTools 注册Admin代码生成Proto接口配置服务的 MCP Tool。
 func RegisterCodeGenProtoServiceMCPTools(mcpServer *mcp.Server, codeGenProtoServiceServer CodeGenProtoServiceServer) {
-	RegisterCodeGenProtoServiceListCodeGenProtosMCPTool(mcpServer, codeGenProtoServiceServer)
-	RegisterCodeGenProtoServiceSaveCodeGenProtosMCPTool(mcpServer, codeGenProtoServiceServer)
+	RegisterCodeGenProtoServiceListCodeGenProtoMCPTool(mcpServer, codeGenProtoServiceServer)
+	RegisterCodeGenProtoServiceSaveCodeGenProtoMCPTool(mcpServer, codeGenProtoServiceServer)
 }
 
-// RegisterCodeGenProtoServiceListCodeGenProtosMCPTool 注册查询代码生成Proto接口配置的 MCP Tool。
-func RegisterCodeGenProtoServiceListCodeGenProtosMCPTool(mcpServer *mcp.Server, codeGenProtoServiceServer CodeGenProtoServiceServer) {
-	mcp.AddTool[*ListCodeGenProtosRequest, *ListCodeGenProtosResponse](
+// RegisterCodeGenProtoServiceListCodeGenProtoMCPTool 注册查询代码生成Proto接口配置的 MCP Tool。
+func RegisterCodeGenProtoServiceListCodeGenProtoMCPTool(mcpServer *mcp.Server, codeGenProtoServiceServer CodeGenProtoServiceServer) {
+	mcp.AddTool[*ListCodeGenProtoRequest, *ListCodeGenProtoResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "admin_v1_code_gen_proto_service_list_code_gen_protos",
+			Name:        "admin_v1_code_gen_proto_service_list_code_gen_proto",
 			Description: "查询代码生成Proto接口配置",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *ListCodeGenProtosRequest) (*mcp.CallToolResult, *ListCodeGenProtosResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *ListCodeGenProtoRequest) (*mcp.CallToolResult, *ListCodeGenProtoResponse, error) {
 			if input == nil {
-				input = &ListCodeGenProtosRequest{}
+				input = &ListCodeGenProtoRequest{}
 			}
-			reply, err := codeGenProtoServiceServer.ListCodeGenProtos(ctx, input)
+			reply, err := codeGenProtoServiceServer.ListCodeGenProto(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -40,19 +40,19 @@ func RegisterCodeGenProtoServiceListCodeGenProtosMCPTool(mcpServer *mcp.Server, 
 	)
 }
 
-// RegisterCodeGenProtoServiceSaveCodeGenProtosMCPTool 注册保存代码生成Proto接口配置的 MCP Tool。
-func RegisterCodeGenProtoServiceSaveCodeGenProtosMCPTool(mcpServer *mcp.Server, codeGenProtoServiceServer CodeGenProtoServiceServer) {
-	mcp.AddTool[*SaveCodeGenProtosRequest, *emptypb.Empty](
+// RegisterCodeGenProtoServiceSaveCodeGenProtoMCPTool 注册保存代码生成Proto接口配置的 MCP Tool。
+func RegisterCodeGenProtoServiceSaveCodeGenProtoMCPTool(mcpServer *mcp.Server, codeGenProtoServiceServer CodeGenProtoServiceServer) {
+	mcp.AddTool[*SaveCodeGenProtoRequest, *emptypb.Empty](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "admin_v1_code_gen_proto_service_save_code_gen_protos",
+			Name:        "admin_v1_code_gen_proto_service_save_code_gen_proto",
 			Description: "保存代码生成Proto接口配置",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *SaveCodeGenProtosRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *SaveCodeGenProtoRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
 			if input == nil {
-				input = &SaveCodeGenProtosRequest{}
+				input = &SaveCodeGenProtoRequest{}
 			}
-			reply, err := codeGenProtoServiceServer.SaveCodeGenProtos(ctx, input)
+			reply, err := codeGenProtoServiceServer.SaveCodeGenProto(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

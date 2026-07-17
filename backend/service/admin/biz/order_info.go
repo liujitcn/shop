@@ -86,8 +86,8 @@ func NewOrderInfoCase(
 	}
 }
 
-// PageOrderInfos 分页查询订单
-func (c *OrderInfoCase) PageOrderInfos(ctx context.Context, req *adminv1.PageOrderInfosRequest) (*adminv1.PageOrderInfosResponse, error) {
+// PageOrderInfo 分页查询订单
+func (c *OrderInfoCase) PageOrderInfo(ctx context.Context, req *adminv1.PageOrderInfoRequest) (*adminv1.PageOrderInfoResponse, error) {
 	query := c.Query(ctx).OrderInfo
 	opts := make([]repository.QueryOption, 0, 14)
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
@@ -166,7 +166,7 @@ func (c *OrderInfoCase) PageOrderInfos(ctx context.Context, req *adminv1.PageOrd
 		}
 		resList = append(resList, orderInfo)
 	}
-	return &adminv1.PageOrderInfosResponse{OrderInfos: resList, Total: int32(total)}, nil
+	return &adminv1.PageOrderInfoResponse{OrderInfos: resList, Total: int32(total)}, nil
 }
 
 // GetOrderInfo 获取订单

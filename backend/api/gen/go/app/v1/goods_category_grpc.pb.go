@@ -20,7 +20,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	GoodsCategoryService_ListGoodsCategories_FullMethodName = "/app.v1.GoodsCategoryService/ListGoodsCategories"
+	GoodsCategoryService_ListGoodsCategory_FullMethodName = "/app.v1.GoodsCategoryService/ListGoodsCategory"
 )
 
 // GoodsCategoryServiceClient is the client API for GoodsCategoryService service.
@@ -30,7 +30,7 @@ const (
 // App商品分类服务
 type GoodsCategoryServiceClient interface {
 	// 查询商品分类列表
-	ListGoodsCategories(ctx context.Context, in *ListGoodsCategoriesRequest, opts ...grpc.CallOption) (*ListGoodsCategoriesResponse, error)
+	ListGoodsCategory(ctx context.Context, in *ListGoodsCategoryRequest, opts ...grpc.CallOption) (*ListGoodsCategoryResponse, error)
 }
 
 type goodsCategoryServiceClient struct {
@@ -41,10 +41,10 @@ func NewGoodsCategoryServiceClient(cc grpc.ClientConnInterface) GoodsCategorySer
 	return &goodsCategoryServiceClient{cc}
 }
 
-func (c *goodsCategoryServiceClient) ListGoodsCategories(ctx context.Context, in *ListGoodsCategoriesRequest, opts ...grpc.CallOption) (*ListGoodsCategoriesResponse, error) {
+func (c *goodsCategoryServiceClient) ListGoodsCategory(ctx context.Context, in *ListGoodsCategoryRequest, opts ...grpc.CallOption) (*ListGoodsCategoryResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListGoodsCategoriesResponse)
-	err := c.cc.Invoke(ctx, GoodsCategoryService_ListGoodsCategories_FullMethodName, in, out, cOpts...)
+	out := new(ListGoodsCategoryResponse)
+	err := c.cc.Invoke(ctx, GoodsCategoryService_ListGoodsCategory_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +58,7 @@ func (c *goodsCategoryServiceClient) ListGoodsCategories(ctx context.Context, in
 // App商品分类服务
 type GoodsCategoryServiceServer interface {
 	// 查询商品分类列表
-	ListGoodsCategories(context.Context, *ListGoodsCategoriesRequest) (*ListGoodsCategoriesResponse, error)
+	ListGoodsCategory(context.Context, *ListGoodsCategoryRequest) (*ListGoodsCategoryResponse, error)
 	mustEmbedUnimplementedGoodsCategoryServiceServer()
 }
 
@@ -69,8 +69,8 @@ type GoodsCategoryServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedGoodsCategoryServiceServer struct{}
 
-func (UnimplementedGoodsCategoryServiceServer) ListGoodsCategories(context.Context, *ListGoodsCategoriesRequest) (*ListGoodsCategoriesResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method ListGoodsCategories not implemented")
+func (UnimplementedGoodsCategoryServiceServer) ListGoodsCategory(context.Context, *ListGoodsCategoryRequest) (*ListGoodsCategoryResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListGoodsCategory not implemented")
 }
 func (UnimplementedGoodsCategoryServiceServer) mustEmbedUnimplementedGoodsCategoryServiceServer() {}
 func (UnimplementedGoodsCategoryServiceServer) testEmbeddedByValue()                              {}
@@ -93,20 +93,20 @@ func RegisterGoodsCategoryServiceServer(s grpc.ServiceRegistrar, srv GoodsCatego
 	s.RegisterService(&GoodsCategoryService_ServiceDesc, srv)
 }
 
-func _GoodsCategoryService_ListGoodsCategories_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListGoodsCategoriesRequest)
+func _GoodsCategoryService_ListGoodsCategory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListGoodsCategoryRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(GoodsCategoryServiceServer).ListGoodsCategories(ctx, in)
+		return srv.(GoodsCategoryServiceServer).ListGoodsCategory(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: GoodsCategoryService_ListGoodsCategories_FullMethodName,
+		FullMethod: GoodsCategoryService_ListGoodsCategory_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GoodsCategoryServiceServer).ListGoodsCategories(ctx, req.(*ListGoodsCategoriesRequest))
+		return srv.(GoodsCategoryServiceServer).ListGoodsCategory(ctx, req.(*ListGoodsCategoryRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -119,8 +119,8 @@ var GoodsCategoryService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*GoodsCategoryServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "ListGoodsCategories",
-			Handler:    _GoodsCategoryService_ListGoodsCategories_Handler,
+			MethodName: "ListGoodsCategory",
+			Handler:    _GoodsCategoryService_ListGoodsCategory_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -1,6 +1,6 @@
 import previewAvatar from "@/assets/images/avatar.png";
 import type { ProFormOption } from "@/components/ProForm/interface";
-import type { OptionBaseDictsResponse_BaseDict } from "@/rpc/admin/v1/base_dict";
+import type { OptionBaseDictResponse_BaseDict } from "@/rpc/admin/v1/base_dict";
 import type { CodeGenColumn, CodeGenColumnOptionConfig, CodeGenColumnQueryConfig } from "@/rpc/admin/v1/code_gen_column";
 import type { CodeGenLeftTreeConfig, CodeGenTableForm } from "@/rpc/admin/v1/code_gen_table";
 
@@ -32,7 +32,7 @@ export function createCodeGenPreviewOptionKey(columnName: string, scope: CodeGen
 /** 根据当前字段配置和字典数据创建查询、列表和表单各自的模拟选项。 */
 export function createCodeGenPreviewOptionMap(
   columns: CodeGenColumn[],
-  dictionaries: OptionBaseDictsResponse_BaseDict[]
+  dictionaries: OptionBaseDictResponse_BaseDict[]
 ): CodeGenPreviewOptionMap {
   const dictionaryMap = new Map(dictionaries.map(dictionary => [dictionary.code, dictionary]));
   return columns.reduce<CodeGenPreviewOptionMap>((optionMap, column) => {
@@ -171,7 +171,7 @@ export function resolveCodeGenPreviewOptions(optionMap: CodeGenPreviewOptionMap,
 function createCodeGenPreviewOptions(
   label: string,
   option: CodeGenColumnOptionConfig | undefined,
-  dictionaryMap: Map<string, OptionBaseDictsResponse_BaseDict>
+  dictionaryMap: Map<string, OptionBaseDictResponse_BaseDict>
 ): ProFormOption[] {
   if (option?.source_type === "static") {
     const staticOptions = parseCodeGenStaticOptions(option.source_value);

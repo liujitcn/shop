@@ -48,7 +48,7 @@ func NewBaseAPICase(baseCase *biz.BaseCase, baseAPIRepo *data.BaseAPIRepository,
 }
 
 // PageBaseAPIs 分页查询接口列表
-func (c *BaseAPICase) PageBaseAPIs(ctx context.Context, req *adminv1.PageBaseApisRequest) (*adminv1.PageBaseApisResponse, error) {
+func (c *BaseAPICase) PageBaseAPIs(ctx context.Context, req *adminv1.PageBaseApiRequest) (*adminv1.PageBaseApiResponse, error) {
 	query := c.Query(ctx).BaseAPI
 	opts := make([]repository.QueryOption, 0, 10)
 	opts = append(opts, repository.Order(query.ID.Desc()))
@@ -110,7 +110,7 @@ func (c *BaseAPICase) PageBaseAPIs(ctx context.Context, req *adminv1.PageBaseApi
 		baseAPIs = append(baseAPIs, baseAPI)
 	}
 
-	return &adminv1.PageBaseApisResponse{
+	return &adminv1.PageBaseApiResponse{
 		BaseApis: baseAPIs,
 		Total:    int32(total),
 	}, nil
@@ -293,7 +293,7 @@ func parseToolPrompts(value string) []string {
 }
 
 // ListBaseAPIs 查询菜单分配接口选项列表
-func (c *BaseAPICase) ListBaseAPIs(ctx context.Context, _ *adminv1.ListBaseApisRequest) (*adminv1.ListBaseApisResponse, error) {
+func (c *BaseAPICase) ListBaseAPIs(ctx context.Context, _ *adminv1.ListBaseApiRequest) (*adminv1.ListBaseApiResponse, error) {
 	query := c.Query(ctx).BaseAPI
 	opts := make([]repository.QueryOption, 0, 1)
 	opts = append(opts, repository.Order(query.ServiceName.Asc(), query.Operation.Asc()))
@@ -316,7 +316,7 @@ func (c *BaseAPICase) ListBaseAPIs(ctx context.Context, _ *adminv1.ListBaseApisR
 		baseAPIs = append(baseAPIs, baseAPI)
 	}
 
-	return &adminv1.ListBaseApisResponse{BaseApis: baseAPIs}, nil
+	return &adminv1.ListBaseApiResponse{BaseApis: baseAPIs}, nil
 }
 
 // buildBaseAPIDocParameters 构建请求参数文档。

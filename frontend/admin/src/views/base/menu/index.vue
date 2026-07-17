@@ -680,7 +680,7 @@ function buildSubmitPayload(): BaseMenuForm {
 
 /** 加载菜单树选项和 API 列表，确保弹窗打开时相关数据已可用。 */
 async function loadDialogResources() {
-  const [menuData, apiData] = await Promise.all([defBaseMenuService.OptionBaseMenus({}), defBaseApiService.ListBaseApis({})]);
+  const [menuData, apiData] = await Promise.all([defBaseMenuService.OptionBaseMenu({}), defBaseApiService.ListBaseApi({})]);
   menuOptions.value = buildMenuOptions(menuData.list ?? []);
   apiList.value = apiData.base_apis ?? [];
 }
@@ -713,7 +713,7 @@ function filterMenuTree(menuList: BaseMenu[], keywordMap: Record<string, string>
 
 /** 请求菜单表格数据，并按搜索条件过滤树形结构。 */
 async function requestMenuTable(params: Record<string, string>) {
-  const data = await defBaseMenuService.TreeBaseMenus({});
+  const data = await defBaseMenuService.TreeBaseMenu({});
   const keywordMap = {
     title: params.title ?? "",
     name: params.name ?? "",

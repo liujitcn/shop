@@ -155,7 +155,7 @@ const columns: ColumnProps[] = [
 
 /** 加载 Gorse 推荐可用分类ID，并组装分类搜索树。 */
 async function loadGorseCategories() {
-  const data = await defRecommendGorseService.OptionCategories({});
+  const data = await defRecommendGorseService.OptionCategory({});
   gorseCategoryIds.value = (data.categories ?? []).map(item => String(item).trim()).filter(Boolean);
 }
 

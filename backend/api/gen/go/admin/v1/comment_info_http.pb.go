@@ -21,9 +21,9 @@ const _ = http.SupportPackageIsVersion3
 
 const OperationCommentInfoServiceGetCommentInfo = "/admin.v1.CommentInfoService/GetCommentInfo"
 const OperationCommentInfoServiceGetGoodsCommentInfo = "/admin.v1.CommentInfoService/GetGoodsCommentInfo"
-const OperationCommentInfoServiceListCommentReviews = "/admin.v1.CommentInfoService/ListCommentReviews"
-const OperationCommentInfoServicePageCommentDiscussions = "/admin.v1.CommentInfoService/PageCommentDiscussions"
-const OperationCommentInfoServicePageCommentInfos = "/admin.v1.CommentInfoService/PageCommentInfos"
+const OperationCommentInfoServiceListCommentReview = "/admin.v1.CommentInfoService/ListCommentReview"
+const OperationCommentInfoServicePageCommentDiscussion = "/admin.v1.CommentInfoService/PageCommentDiscussion"
+const OperationCommentInfoServicePageCommentInfo = "/admin.v1.CommentInfoService/PageCommentInfo"
 const OperationCommentInfoServiceSetCommentDiscussionStatus = "/admin.v1.CommentInfoService/SetCommentDiscussionStatus"
 const OperationCommentInfoServiceSetCommentInfoStatus = "/admin.v1.CommentInfoService/SetCommentInfoStatus"
 
@@ -32,12 +32,12 @@ type CommentInfoServiceHTTPServer interface {
 	GetCommentInfo(context.Context, *GetCommentInfoRequest) (*CommentInfoDetail, error)
 	// GetGoodsCommentInfo 按商品查询评论聚合信息
 	GetGoodsCommentInfo(context.Context, *GetGoodsCommentInfoRequest) (*GoodsCommentInfoResponse, error)
-	// ListCommentReviews 查询评论审核记录列表
-	ListCommentReviews(context.Context, *ListCommentReviewsRequest) (*ListCommentReviewsResponse, error)
-	// PageCommentDiscussions 查询评论讨论分页列表
-	PageCommentDiscussions(context.Context, *PageCommentDiscussionsRequest) (*PageCommentDiscussionsResponse, error)
-	// PageCommentInfos 查询评论分页列表
-	PageCommentInfos(context.Context, *PageCommentInfosRequest) (*PageCommentInfosResponse, error)
+	// ListCommentReview 查询评论审核记录列表
+	ListCommentReview(context.Context, *ListCommentReviewRequest) (*ListCommentReviewResponse, error)
+	// PageCommentDiscussion 查询评论讨论分页列表
+	PageCommentDiscussion(context.Context, *PageCommentDiscussionRequest) (*PageCommentDiscussionResponse, error)
+	// PageCommentInfo 查询评论分页列表
+	PageCommentInfo(context.Context, *PageCommentInfoRequest) (*PageCommentInfoResponse, error)
 	// SetCommentDiscussionStatus 设置评论讨论审核状态
 	SetCommentDiscussionStatus(context.Context, *SetCommentDiscussionStatusRequest) (*emptypb.Empty, error)
 	// SetCommentInfoStatus 设置评论审核状态
@@ -46,30 +46,30 @@ type CommentInfoServiceHTTPServer interface {
 
 func RegisterCommentInfoServiceHTTPServer(s *http.Server, srv CommentInfoServiceHTTPServer) {
 	r := s.Route("/")
-	r.Handle("GET", "/api/v1/admin/comment/info", _CommentInfoService_PageCommentInfos0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/comment/info", _CommentInfoService_PageCommentInfo0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/comment/info/goods/{goods_id}", _CommentInfoService_GetGoodsCommentInfo0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/admin/comment/info/review", _CommentInfoService_ListCommentReviews0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/comment/info/review", _CommentInfoService_ListCommentReview0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/comment/info/{id}", _CommentInfoService_GetCommentInfo0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/comment/info/{id}/status", _CommentInfoService_SetCommentInfoStatus0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/admin/comment/info/{comment_id}/discussion", _CommentInfoService_PageCommentDiscussions0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/comment/info/{comment_id}/discussion", _CommentInfoService_PageCommentDiscussion0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/comment/info/discussion/{id}/status", _CommentInfoService_SetCommentDiscussionStatus0_HTTP_Handler(srv))
 }
 
-func _CommentInfoService_PageCommentInfos0_HTTP_Handler(srv CommentInfoServiceHTTPServer) func(ctx http.Context) error {
+func _CommentInfoService_PageCommentInfo0_HTTP_Handler(srv CommentInfoServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in PageCommentInfosRequest
+		var in PageCommentInfoRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationCommentInfoServicePageCommentInfos)
+		http.SetOperation(ctx, OperationCommentInfoServicePageCommentInfo)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.PageCommentInfos(ctx, req.(*PageCommentInfosRequest))
+			return srv.PageCommentInfo(ctx, req.(*PageCommentInfoRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*PageCommentInfosResponse)
+		reply := out.(*PageCommentInfoResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -96,21 +96,21 @@ func _CommentInfoService_GetGoodsCommentInfo0_HTTP_Handler(srv CommentInfoServic
 	}
 }
 
-func _CommentInfoService_ListCommentReviews0_HTTP_Handler(srv CommentInfoServiceHTTPServer) func(ctx http.Context) error {
+func _CommentInfoService_ListCommentReview0_HTTP_Handler(srv CommentInfoServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in ListCommentReviewsRequest
+		var in ListCommentReviewRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationCommentInfoServiceListCommentReviews)
+		http.SetOperation(ctx, OperationCommentInfoServiceListCommentReview)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.ListCommentReviews(ctx, req.(*ListCommentReviewsRequest))
+			return srv.ListCommentReview(ctx, req.(*ListCommentReviewRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*ListCommentReviewsResponse)
+		reply := out.(*ListCommentReviewResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -159,24 +159,24 @@ func _CommentInfoService_SetCommentInfoStatus0_HTTP_Handler(srv CommentInfoServi
 	}
 }
 
-func _CommentInfoService_PageCommentDiscussions0_HTTP_Handler(srv CommentInfoServiceHTTPServer) func(ctx http.Context) error {
+func _CommentInfoService_PageCommentDiscussion0_HTTP_Handler(srv CommentInfoServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in PageCommentDiscussionsRequest
+		var in PageCommentDiscussionRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
 		if err := ctx.BindVars(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationCommentInfoServicePageCommentDiscussions)
+		http.SetOperation(ctx, OperationCommentInfoServicePageCommentDiscussion)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.PageCommentDiscussions(ctx, req.(*PageCommentDiscussionsRequest))
+			return srv.PageCommentDiscussion(ctx, req.(*PageCommentDiscussionRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*PageCommentDiscussionsResponse)
+		reply := out.(*PageCommentDiscussionResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -208,12 +208,12 @@ type CommentInfoServiceHTTPClient interface {
 	GetCommentInfo(ctx context.Context, req *GetCommentInfoRequest, opts ...http.CallOption) (rsp *CommentInfoDetail, err error)
 	// GetGoodsCommentInfo 按商品查询评论聚合信息
 	GetGoodsCommentInfo(ctx context.Context, req *GetGoodsCommentInfoRequest, opts ...http.CallOption) (rsp *GoodsCommentInfoResponse, err error)
-	// ListCommentReviews 查询评论审核记录列表
-	ListCommentReviews(ctx context.Context, req *ListCommentReviewsRequest, opts ...http.CallOption) (rsp *ListCommentReviewsResponse, err error)
-	// PageCommentDiscussions 查询评论讨论分页列表
-	PageCommentDiscussions(ctx context.Context, req *PageCommentDiscussionsRequest, opts ...http.CallOption) (rsp *PageCommentDiscussionsResponse, err error)
-	// PageCommentInfos 查询评论分页列表
-	PageCommentInfos(ctx context.Context, req *PageCommentInfosRequest, opts ...http.CallOption) (rsp *PageCommentInfosResponse, err error)
+	// ListCommentReview 查询评论审核记录列表
+	ListCommentReview(ctx context.Context, req *ListCommentReviewRequest, opts ...http.CallOption) (rsp *ListCommentReviewResponse, err error)
+	// PageCommentDiscussion 查询评论讨论分页列表
+	PageCommentDiscussion(ctx context.Context, req *PageCommentDiscussionRequest, opts ...http.CallOption) (rsp *PageCommentDiscussionResponse, err error)
+	// PageCommentInfo 查询评论分页列表
+	PageCommentInfo(ctx context.Context, req *PageCommentInfoRequest, opts ...http.CallOption) (rsp *PageCommentInfoResponse, err error)
 	// SetCommentDiscussionStatus 设置评论讨论审核状态
 	SetCommentDiscussionStatus(ctx context.Context, req *SetCommentDiscussionStatusRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// SetCommentInfoStatus 设置评论审核状态
@@ -262,14 +262,14 @@ func (c *CommentInfoServiceHTTPClientImpl) GetGoodsCommentInfo(ctx context.Conte
 	return &out, nil
 }
 
-// ListCommentReviews 查询评论审核记录列表
-func (c *CommentInfoServiceHTTPClientImpl) ListCommentReviews(ctx context.Context, in *ListCommentReviewsRequest, opts ...http.CallOption) (*ListCommentReviewsResponse, error) {
-	var out ListCommentReviewsResponse
+// ListCommentReview 查询评论审核记录列表
+func (c *CommentInfoServiceHTTPClientImpl) ListCommentReview(ctx context.Context, in *ListCommentReviewRequest, opts ...http.CallOption) (*ListCommentReviewResponse, error) {
+	var out ListCommentReviewResponse
 	pattern := "/api/v1/admin/comment/info/review"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationCommentInfoServiceListCommentReviews),
+		http.Operation(OperationCommentInfoServiceListCommentReview),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
@@ -279,14 +279,14 @@ func (c *CommentInfoServiceHTTPClientImpl) ListCommentReviews(ctx context.Contex
 	return &out, nil
 }
 
-// PageCommentDiscussions 查询评论讨论分页列表
-func (c *CommentInfoServiceHTTPClientImpl) PageCommentDiscussions(ctx context.Context, in *PageCommentDiscussionsRequest, opts ...http.CallOption) (*PageCommentDiscussionsResponse, error) {
-	var out PageCommentDiscussionsResponse
+// PageCommentDiscussion 查询评论讨论分页列表
+func (c *CommentInfoServiceHTTPClientImpl) PageCommentDiscussion(ctx context.Context, in *PageCommentDiscussionRequest, opts ...http.CallOption) (*PageCommentDiscussionResponse, error) {
+	var out PageCommentDiscussionResponse
 	pattern := "/api/v1/admin/comment/info/{comment_id}/discussion"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationCommentInfoServicePageCommentDiscussions),
+		http.Operation(OperationCommentInfoServicePageCommentDiscussion),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
@@ -296,14 +296,14 @@ func (c *CommentInfoServiceHTTPClientImpl) PageCommentDiscussions(ctx context.Co
 	return &out, nil
 }
 
-// PageCommentInfos 查询评论分页列表
-func (c *CommentInfoServiceHTTPClientImpl) PageCommentInfos(ctx context.Context, in *PageCommentInfosRequest, opts ...http.CallOption) (*PageCommentInfosResponse, error) {
-	var out PageCommentInfosResponse
+// PageCommentInfo 查询评论分页列表
+func (c *CommentInfoServiceHTTPClientImpl) PageCommentInfo(ctx context.Context, in *PageCommentInfoRequest, opts ...http.CallOption) (*PageCommentInfoResponse, error) {
+	var out PageCommentInfoResponse
 	pattern := "/api/v1/admin/comment/info"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationCommentInfoServicePageCommentInfos),
+		http.Operation(OperationCommentInfoServicePageCommentInfo),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)

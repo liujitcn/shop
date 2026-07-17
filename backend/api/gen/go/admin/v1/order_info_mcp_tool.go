@@ -15,7 +15,7 @@ import (
 
 // RegisterOrderInfoServiceMCPTools 注册Admin订单信息服务的 MCP Tool。
 func RegisterOrderInfoServiceMCPTools(mcpServer *mcp.Server, orderInfoServiceServer OrderInfoServiceServer) {
-	RegisterOrderInfoServicePageOrderInfosMCPTool(mcpServer, orderInfoServiceServer)
+	RegisterOrderInfoServicePageOrderInfoMCPTool(mcpServer, orderInfoServiceServer)
 	RegisterOrderInfoServiceGetOrderInfoMCPTool(mcpServer, orderInfoServiceServer)
 	RegisterOrderInfoServiceGetOrderInfoRefundMCPTool(mcpServer, orderInfoServiceServer)
 	RegisterOrderInfoServiceRefundOrderInfoMCPTool(mcpServer, orderInfoServiceServer)
@@ -23,19 +23,19 @@ func RegisterOrderInfoServiceMCPTools(mcpServer *mcp.Server, orderInfoServiceSer
 	RegisterOrderInfoServiceShipOrderInfoMCPTool(mcpServer, orderInfoServiceServer)
 }
 
-// RegisterOrderInfoServicePageOrderInfosMCPTool 注册查询订单信息分页列表的 MCP Tool。
-func RegisterOrderInfoServicePageOrderInfosMCPTool(mcpServer *mcp.Server, orderInfoServiceServer OrderInfoServiceServer) {
-	mcp.AddTool[*PageOrderInfosRequest, *PageOrderInfosResponse](
+// RegisterOrderInfoServicePageOrderInfoMCPTool 注册查询订单信息分页列表的 MCP Tool。
+func RegisterOrderInfoServicePageOrderInfoMCPTool(mcpServer *mcp.Server, orderInfoServiceServer OrderInfoServiceServer) {
+	mcp.AddTool[*PageOrderInfoRequest, *PageOrderInfoResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "admin_v1_order_info_service_page_order_infos",
+			Name:        "admin_v1_order_info_service_page_order_info",
 			Description: "查询订单信息分页列表",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageOrderInfosRequest) (*mcp.CallToolResult, *PageOrderInfosResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *PageOrderInfoRequest) (*mcp.CallToolResult, *PageOrderInfoResponse, error) {
 			if input == nil {
-				input = &PageOrderInfosRequest{}
+				input = &PageOrderInfoRequest{}
 			}
-			reply, err := orderInfoServiceServer.PageOrderInfos(ctx, input)
+			reply, err := orderInfoServiceServer.PageOrderInfo(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

@@ -8,13 +8,13 @@
 import type { GoodsInfo } from "./goods_info";
 
 /** 商品分类列表查询条件 */
-export interface ListGoodsCategoriesRequest {
+export interface ListGoodsCategoryRequest {
   /** 父节点ID */
   parent_id?: number | undefined;
 }
 
 /** 商品分类列表响应 */
-export interface ListGoodsCategoriesResponse {
+export interface ListGoodsCategoryResponse {
   /** 分页数据 */
   goods_categories: GoodsCategory[];
 }
@@ -36,5 +36,5 @@ export interface GoodsCategory {
 /** App商品分类服务 */
 export interface GoodsCategoryService {
   /** 查询商品分类列表 */
-  ListGoodsCategories(request: ListGoodsCategoriesRequest): Promise<ListGoodsCategoriesResponse>;
+  ListGoodsCategory(request: ListGoodsCategoryRequest): Promise<ListGoodsCategoryResponse>;
 }

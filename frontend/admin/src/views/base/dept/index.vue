@@ -270,7 +270,7 @@ function filterDeptTree(deptList: BaseDept[], keywordMap: { name: string; remark
  */
 async function requestBaseDeptTable(params: Record<string, string>) {
   currentTenantId.value = params.tenant_id ? Number(params.tenant_id) : undefined;
-  const data = await defBaseDeptService.TreeBaseDepts({ tenant_id: currentTenantId.value });
+  const data = await defBaseDeptService.TreeBaseDept({ tenant_id: currentTenantId.value });
   const keywordMap = {
     name: params.name ?? "",
     remark: params.remark ?? "",
@@ -295,7 +295,7 @@ async function loadDeptOptions() {
     deptOptions.value = [{ value: 0, label: "顶级部门", disabled: false, children: [] }];
     return;
   }
-  const optionBaseDeptResponse = await defBaseDeptService.OptionBaseDepts({
+  const optionBaseDeptResponse = await defBaseDeptService.OptionBaseDept({
     tenant_id: isDefaultTenant.value ? formData.tenant_id : undefined
   });
   deptOptions.value = [
@@ -313,7 +313,7 @@ async function loadDeptOptions() {
  */
 async function loadTenantOptions() {
   if (!isDefaultTenant.value || tenantOptions.value.length) return;
-  const response = await defBaseTenantService.OptionBaseTenants({ keyword: "" });
+  const response = await defBaseTenantService.OptionBaseTenant({ keyword: "" });
   tenantOptions.value = response.list ?? [];
 }
 

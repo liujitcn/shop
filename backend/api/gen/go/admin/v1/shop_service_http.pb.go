@@ -22,7 +22,7 @@ const _ = http.SupportPackageIsVersion3
 const OperationShopServiceServiceCreateShopService = "/admin.v1.ShopServiceService/CreateShopService"
 const OperationShopServiceServiceDeleteShopService = "/admin.v1.ShopServiceService/DeleteShopService"
 const OperationShopServiceServiceGetShopService = "/admin.v1.ShopServiceService/GetShopService"
-const OperationShopServiceServicePageShopServices = "/admin.v1.ShopServiceService/PageShopServices"
+const OperationShopServiceServicePageShopService = "/admin.v1.ShopServiceService/PageShopService"
 const OperationShopServiceServiceSetShopServiceStatus = "/admin.v1.ShopServiceService/SetShopServiceStatus"
 const OperationShopServiceServiceUpdateShopService = "/admin.v1.ShopServiceService/UpdateShopService"
 
@@ -33,8 +33,8 @@ type ShopServiceServiceHTTPServer interface {
 	DeleteShopService(context.Context, *DeleteShopServiceRequest) (*emptypb.Empty, error)
 	// GetShopService 查询商城服务
 	GetShopService(context.Context, *GetShopServiceRequest) (*ShopServiceForm, error)
-	// PageShopServices 查询商城服务列表
-	PageShopServices(context.Context, *PageShopServicesRequest) (*PageShopServicesResponse, error)
+	// PageShopService 查询商城服务列表
+	PageShopService(context.Context, *PageShopServiceRequest) (*PageShopServiceResponse, error)
 	// SetShopServiceStatus 设置状态
 	SetShopServiceStatus(context.Context, *SetShopServiceStatusRequest) (*emptypb.Empty, error)
 	// UpdateShopService 更新商城服务
@@ -43,7 +43,7 @@ type ShopServiceServiceHTTPServer interface {
 
 func RegisterShopServiceServiceHTTPServer(s *http.Server, srv ShopServiceServiceHTTPServer) {
 	r := s.Route("/")
-	r.Handle("GET", "/api/v1/admin/shop/service", _ShopServiceService_PageShopServices0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/shop/service", _ShopServiceService_PageShopService0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/shop/service/{id}", _ShopServiceService_GetShopService0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/admin/shop/service", _ShopServiceService_CreateShopService0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/shop/service/{id}", _ShopServiceService_UpdateShopService0_HTTP_Handler(srv))
@@ -51,21 +51,21 @@ func RegisterShopServiceServiceHTTPServer(s *http.Server, srv ShopServiceService
 	r.Handle("PUT", "/api/v1/admin/shop/service/{id}/status", _ShopServiceService_SetShopServiceStatus0_HTTP_Handler(srv))
 }
 
-func _ShopServiceService_PageShopServices0_HTTP_Handler(srv ShopServiceServiceHTTPServer) func(ctx http.Context) error {
+func _ShopServiceService_PageShopService0_HTTP_Handler(srv ShopServiceServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in PageShopServicesRequest
+		var in PageShopServiceRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationShopServiceServicePageShopServices)
+		http.SetOperation(ctx, OperationShopServiceServicePageShopService)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.PageShopServices(ctx, req.(*PageShopServicesRequest))
+			return srv.PageShopService(ctx, req.(*PageShopServiceRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*PageShopServicesResponse)
+		reply := out.(*PageShopServiceResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -190,8 +190,8 @@ type ShopServiceServiceHTTPClient interface {
 	DeleteShopService(ctx context.Context, req *DeleteShopServiceRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// GetShopService 查询商城服务
 	GetShopService(ctx context.Context, req *GetShopServiceRequest, opts ...http.CallOption) (rsp *ShopServiceForm, err error)
-	// PageShopServices 查询商城服务列表
-	PageShopServices(ctx context.Context, req *PageShopServicesRequest, opts ...http.CallOption) (rsp *PageShopServicesResponse, err error)
+	// PageShopService 查询商城服务列表
+	PageShopService(ctx context.Context, req *PageShopServiceRequest, opts ...http.CallOption) (rsp *PageShopServiceResponse, err error)
 	// SetShopServiceStatus 设置状态
 	SetShopServiceStatus(ctx context.Context, req *SetShopServiceStatusRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// UpdateShopService 更新商城服务
@@ -258,14 +258,14 @@ func (c *ShopServiceServiceHTTPClientImpl) GetShopService(ctx context.Context, i
 	return &out, nil
 }
 
-// PageShopServices 查询商城服务列表
-func (c *ShopServiceServiceHTTPClientImpl) PageShopServices(ctx context.Context, in *PageShopServicesRequest, opts ...http.CallOption) (*PageShopServicesResponse, error) {
-	var out PageShopServicesResponse
+// PageShopService 查询商城服务列表
+func (c *ShopServiceServiceHTTPClientImpl) PageShopService(ctx context.Context, in *PageShopServiceRequest, opts ...http.CallOption) (*PageShopServiceResponse, error) {
+	var out PageShopServiceResponse
 	pattern := "/api/v1/admin/shop/service"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationShopServiceServicePageShopServices),
+		http.Operation(OperationShopServiceServicePageShopService),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)

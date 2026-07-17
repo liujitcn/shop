@@ -21,8 +21,8 @@ const _ = http.SupportPackageIsVersion3
 
 const OperationBaseApiServiceGetBaseApi = "/admin.v1.BaseApiService/GetBaseApi"
 const OperationBaseApiServiceGetBaseApiDoc = "/admin.v1.BaseApiService/GetBaseApiDoc"
-const OperationBaseApiServiceListBaseApis = "/admin.v1.BaseApiService/ListBaseApis"
-const OperationBaseApiServicePageBaseApis = "/admin.v1.BaseApiService/PageBaseApis"
+const OperationBaseApiServiceListBaseApi = "/admin.v1.BaseApiService/ListBaseApi"
+const OperationBaseApiServicePageBaseApi = "/admin.v1.BaseApiService/PageBaseApi"
 const OperationBaseApiServiceSetBaseApiAgentEnabled = "/admin.v1.BaseApiService/SetBaseApiAgentEnabled"
 const OperationBaseApiServiceSetBaseApiMcpEnabled = "/admin.v1.BaseApiService/SetBaseApiMcpEnabled"
 const OperationBaseApiServiceUpdateBaseApi = "/admin.v1.BaseApiService/UpdateBaseApi"
@@ -32,10 +32,10 @@ type BaseApiServiceHTTPServer interface {
 	GetBaseApi(context.Context, *GetBaseApiRequest) (*BaseApi, error)
 	// GetBaseApiDoc 查询API文档
 	GetBaseApiDoc(context.Context, *GetBaseApiDocRequest) (*BaseApiDoc, error)
-	// ListBaseApis 查询菜单分配API选项列表
-	ListBaseApis(context.Context, *ListBaseApisRequest) (*ListBaseApisResponse, error)
-	// PageBaseApis 分页查询API列表
-	PageBaseApis(context.Context, *PageBaseApisRequest) (*PageBaseApisResponse, error)
+	// ListBaseApi 查询菜单分配API选项列表
+	ListBaseApi(context.Context, *ListBaseApiRequest) (*ListBaseApiResponse, error)
+	// PageBaseApi 分页查询API列表
+	PageBaseApi(context.Context, *PageBaseApiRequest) (*PageBaseApiResponse, error)
 	// SetBaseApiAgentEnabled 设置API Agent启用状态
 	SetBaseApiAgentEnabled(context.Context, *SetBaseApiAgentEnabledRequest) (*emptypb.Empty, error)
 	// SetBaseApiMcpEnabled 设置API MCP启用状态
@@ -46,8 +46,8 @@ type BaseApiServiceHTTPServer interface {
 
 func RegisterBaseApiServiceHTTPServer(s *http.Server, srv BaseApiServiceHTTPServer) {
 	r := s.Route("/")
-	r.Handle("GET", "/api/v1/admin/base/api", _BaseApiService_PageBaseApis0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/admin/base/api/option", _BaseApiService_ListBaseApis0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/base/api", _BaseApiService_PageBaseApi0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/base/api/option", _BaseApiService_ListBaseApi0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/base/api/{id}", _BaseApiService_GetBaseApi0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/base/api/{id}/doc", _BaseApiService_GetBaseApiDoc0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/base/api/{id}/mcp-enabled", _BaseApiService_SetBaseApiMcpEnabled0_HTTP_Handler(srv))
@@ -55,40 +55,40 @@ func RegisterBaseApiServiceHTTPServer(s *http.Server, srv BaseApiServiceHTTPServ
 	r.Handle("PUT", "/api/v1/admin/base/api/{id}", _BaseApiService_UpdateBaseApi0_HTTP_Handler(srv))
 }
 
-func _BaseApiService_PageBaseApis0_HTTP_Handler(srv BaseApiServiceHTTPServer) func(ctx http.Context) error {
+func _BaseApiService_PageBaseApi0_HTTP_Handler(srv BaseApiServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in PageBaseApisRequest
+		var in PageBaseApiRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationBaseApiServicePageBaseApis)
+		http.SetOperation(ctx, OperationBaseApiServicePageBaseApi)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.PageBaseApis(ctx, req.(*PageBaseApisRequest))
+			return srv.PageBaseApi(ctx, req.(*PageBaseApiRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*PageBaseApisResponse)
+		reply := out.(*PageBaseApiResponse)
 		return ctx.Result(200, reply)
 	}
 }
 
-func _BaseApiService_ListBaseApis0_HTTP_Handler(srv BaseApiServiceHTTPServer) func(ctx http.Context) error {
+func _BaseApiService_ListBaseApi0_HTTP_Handler(srv BaseApiServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in ListBaseApisRequest
+		var in ListBaseApiRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationBaseApiServiceListBaseApis)
+		http.SetOperation(ctx, OperationBaseApiServiceListBaseApi)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.ListBaseApis(ctx, req.(*ListBaseApisRequest))
+			return srv.ListBaseApi(ctx, req.(*ListBaseApiRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*ListBaseApisResponse)
+		reply := out.(*ListBaseApiResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -208,10 +208,10 @@ type BaseApiServiceHTTPClient interface {
 	GetBaseApi(ctx context.Context, req *GetBaseApiRequest, opts ...http.CallOption) (rsp *BaseApi, err error)
 	// GetBaseApiDoc 查询API文档
 	GetBaseApiDoc(ctx context.Context, req *GetBaseApiDocRequest, opts ...http.CallOption) (rsp *BaseApiDoc, err error)
-	// ListBaseApis 查询菜单分配API选项列表
-	ListBaseApis(ctx context.Context, req *ListBaseApisRequest, opts ...http.CallOption) (rsp *ListBaseApisResponse, err error)
-	// PageBaseApis 分页查询API列表
-	PageBaseApis(ctx context.Context, req *PageBaseApisRequest, opts ...http.CallOption) (rsp *PageBaseApisResponse, err error)
+	// ListBaseApi 查询菜单分配API选项列表
+	ListBaseApi(ctx context.Context, req *ListBaseApiRequest, opts ...http.CallOption) (rsp *ListBaseApiResponse, err error)
+	// PageBaseApi 分页查询API列表
+	PageBaseApi(ctx context.Context, req *PageBaseApiRequest, opts ...http.CallOption) (rsp *PageBaseApiResponse, err error)
 	// SetBaseApiAgentEnabled 设置API Agent启用状态
 	SetBaseApiAgentEnabled(ctx context.Context, req *SetBaseApiAgentEnabledRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// SetBaseApiMcpEnabled 设置API MCP启用状态
@@ -262,14 +262,14 @@ func (c *BaseApiServiceHTTPClientImpl) GetBaseApiDoc(ctx context.Context, in *Ge
 	return &out, nil
 }
 
-// ListBaseApis 查询菜单分配API选项列表
-func (c *BaseApiServiceHTTPClientImpl) ListBaseApis(ctx context.Context, in *ListBaseApisRequest, opts ...http.CallOption) (*ListBaseApisResponse, error) {
-	var out ListBaseApisResponse
+// ListBaseApi 查询菜单分配API选项列表
+func (c *BaseApiServiceHTTPClientImpl) ListBaseApi(ctx context.Context, in *ListBaseApiRequest, opts ...http.CallOption) (*ListBaseApiResponse, error) {
+	var out ListBaseApiResponse
 	pattern := "/api/v1/admin/base/api/option"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationBaseApiServiceListBaseApis),
+		http.Operation(OperationBaseApiServiceListBaseApi),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
@@ -279,14 +279,14 @@ func (c *BaseApiServiceHTTPClientImpl) ListBaseApis(ctx context.Context, in *Lis
 	return &out, nil
 }
 
-// PageBaseApis 分页查询API列表
-func (c *BaseApiServiceHTTPClientImpl) PageBaseApis(ctx context.Context, in *PageBaseApisRequest, opts ...http.CallOption) (*PageBaseApisResponse, error) {
-	var out PageBaseApisResponse
+// PageBaseApi 分页查询API列表
+func (c *BaseApiServiceHTTPClientImpl) PageBaseApi(ctx context.Context, in *PageBaseApiRequest, opts ...http.CallOption) (*PageBaseApiResponse, error) {
+	var out PageBaseApiResponse
 	pattern := "/api/v1/admin/base/api"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationBaseApiServicePageBaseApis),
+		http.Operation(OperationBaseApiServicePageBaseApi),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)

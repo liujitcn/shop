@@ -15,28 +15,28 @@ import (
 
 // RegisterCommentInfoServiceMCPTools 注册Admin评论管理服务的 MCP Tool。
 func RegisterCommentInfoServiceMCPTools(mcpServer *mcp.Server, commentInfoServiceServer CommentInfoServiceServer) {
-	RegisterCommentInfoServicePageCommentInfosMCPTool(mcpServer, commentInfoServiceServer)
+	RegisterCommentInfoServicePageCommentInfoMCPTool(mcpServer, commentInfoServiceServer)
 	RegisterCommentInfoServiceGetGoodsCommentInfoMCPTool(mcpServer, commentInfoServiceServer)
-	RegisterCommentInfoServiceListCommentReviewsMCPTool(mcpServer, commentInfoServiceServer)
+	RegisterCommentInfoServiceListCommentReviewMCPTool(mcpServer, commentInfoServiceServer)
 	RegisterCommentInfoServiceGetCommentInfoMCPTool(mcpServer, commentInfoServiceServer)
 	RegisterCommentInfoServiceSetCommentInfoStatusMCPTool(mcpServer, commentInfoServiceServer)
-	RegisterCommentInfoServicePageCommentDiscussionsMCPTool(mcpServer, commentInfoServiceServer)
+	RegisterCommentInfoServicePageCommentDiscussionMCPTool(mcpServer, commentInfoServiceServer)
 	RegisterCommentInfoServiceSetCommentDiscussionStatusMCPTool(mcpServer, commentInfoServiceServer)
 }
 
-// RegisterCommentInfoServicePageCommentInfosMCPTool 注册查询评论分页列表的 MCP Tool。
-func RegisterCommentInfoServicePageCommentInfosMCPTool(mcpServer *mcp.Server, commentInfoServiceServer CommentInfoServiceServer) {
-	mcp.AddTool[*PageCommentInfosRequest, *PageCommentInfosResponse](
+// RegisterCommentInfoServicePageCommentInfoMCPTool 注册查询评论分页列表的 MCP Tool。
+func RegisterCommentInfoServicePageCommentInfoMCPTool(mcpServer *mcp.Server, commentInfoServiceServer CommentInfoServiceServer) {
+	mcp.AddTool[*PageCommentInfoRequest, *PageCommentInfoResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "admin_v1_comment_info_service_page_comment_infos",
+			Name:        "admin_v1_comment_info_service_page_comment_info",
 			Description: "查询评论分页列表",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageCommentInfosRequest) (*mcp.CallToolResult, *PageCommentInfosResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *PageCommentInfoRequest) (*mcp.CallToolResult, *PageCommentInfoResponse, error) {
 			if input == nil {
-				input = &PageCommentInfosRequest{}
+				input = &PageCommentInfoRequest{}
 			}
-			reply, err := commentInfoServiceServer.PageCommentInfos(ctx, input)
+			reply, err := commentInfoServiceServer.PageCommentInfo(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -66,19 +66,19 @@ func RegisterCommentInfoServiceGetGoodsCommentInfoMCPTool(mcpServer *mcp.Server,
 	)
 }
 
-// RegisterCommentInfoServiceListCommentReviewsMCPTool 注册查询评论审核记录列表的 MCP Tool。
-func RegisterCommentInfoServiceListCommentReviewsMCPTool(mcpServer *mcp.Server, commentInfoServiceServer CommentInfoServiceServer) {
-	mcp.AddTool[*ListCommentReviewsRequest, *ListCommentReviewsResponse](
+// RegisterCommentInfoServiceListCommentReviewMCPTool 注册查询评论审核记录列表的 MCP Tool。
+func RegisterCommentInfoServiceListCommentReviewMCPTool(mcpServer *mcp.Server, commentInfoServiceServer CommentInfoServiceServer) {
+	mcp.AddTool[*ListCommentReviewRequest, *ListCommentReviewResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "admin_v1_comment_info_service_list_comment_reviews",
+			Name:        "admin_v1_comment_info_service_list_comment_review",
 			Description: "查询评论审核记录列表",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *ListCommentReviewsRequest) (*mcp.CallToolResult, *ListCommentReviewsResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *ListCommentReviewRequest) (*mcp.CallToolResult, *ListCommentReviewResponse, error) {
 			if input == nil {
-				input = &ListCommentReviewsRequest{}
+				input = &ListCommentReviewRequest{}
 			}
-			reply, err := commentInfoServiceServer.ListCommentReviews(ctx, input)
+			reply, err := commentInfoServiceServer.ListCommentReview(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -129,19 +129,19 @@ func RegisterCommentInfoServiceSetCommentInfoStatusMCPTool(mcpServer *mcp.Server
 	)
 }
 
-// RegisterCommentInfoServicePageCommentDiscussionsMCPTool 注册查询评论讨论分页列表的 MCP Tool。
-func RegisterCommentInfoServicePageCommentDiscussionsMCPTool(mcpServer *mcp.Server, commentInfoServiceServer CommentInfoServiceServer) {
-	mcp.AddTool[*PageCommentDiscussionsRequest, *PageCommentDiscussionsResponse](
+// RegisterCommentInfoServicePageCommentDiscussionMCPTool 注册查询评论讨论分页列表的 MCP Tool。
+func RegisterCommentInfoServicePageCommentDiscussionMCPTool(mcpServer *mcp.Server, commentInfoServiceServer CommentInfoServiceServer) {
+	mcp.AddTool[*PageCommentDiscussionRequest, *PageCommentDiscussionResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "admin_v1_comment_info_service_page_comment_discussions",
+			Name:        "admin_v1_comment_info_service_page_comment_discussion",
 			Description: "查询评论讨论分页列表",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageCommentDiscussionsRequest) (*mcp.CallToolResult, *PageCommentDiscussionsResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *PageCommentDiscussionRequest) (*mcp.CallToolResult, *PageCommentDiscussionResponse, error) {
 			if input == nil {
-				input = &PageCommentDiscussionsRequest{}
+				input = &PageCommentDiscussionRequest{}
 			}
-			reply, err := commentInfoServiceServer.PageCommentDiscussions(ctx, input)
+			reply, err := commentInfoServiceServer.PageCommentDiscussion(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

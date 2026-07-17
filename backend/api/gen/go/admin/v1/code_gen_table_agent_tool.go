@@ -18,18 +18,18 @@ import (
 func NewCodeGenTableServiceAgentTools(codeGenTableServiceServer CodeGenTableServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error
-	var listCodeGenDatabaseTablesTool tool.InvokableTool
-	listCodeGenDatabaseTablesTool, err = NewCodeGenTableServiceListCodeGenDatabaseTablesAgentTool(codeGenTableServiceServer)
+	var listCodeGenDatabaseTableTool tool.InvokableTool
+	listCodeGenDatabaseTableTool, err = NewCodeGenTableServiceListCodeGenDatabaseTableAgentTool(codeGenTableServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, listCodeGenDatabaseTablesTool)
-	var pageCodeGenTablesTool tool.InvokableTool
-	pageCodeGenTablesTool, err = NewCodeGenTableServicePageCodeGenTablesAgentTool(codeGenTableServiceServer)
+	ts = append(ts, listCodeGenDatabaseTableTool)
+	var pageCodeGenTableTool tool.InvokableTool
+	pageCodeGenTableTool, err = NewCodeGenTableServicePageCodeGenTableAgentTool(codeGenTableServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, pageCodeGenTablesTool)
+	ts = append(ts, pageCodeGenTableTool)
 	var getCodeGenTableTool tool.InvokableTool
 	getCodeGenTableTool, err = NewCodeGenTableServiceGetCodeGenTableAgentTool(codeGenTableServiceServer)
 	if err != nil {
@@ -57,30 +57,30 @@ func NewCodeGenTableServiceAgentTools(codeGenTableServiceServer CodeGenTableServ
 	return ts, nil
 }
 
-// NewCodeGenTableServiceListCodeGenDatabaseTablesAgentTool 创建查询数据库表列表的 Agent Tool。
-func NewCodeGenTableServiceListCodeGenDatabaseTablesAgentTool(codeGenTableServiceServer CodeGenTableServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*ListCodeGenDatabaseTablesRequest, *ListCodeGenDatabaseTablesResponse](
-		"admin_v1_code_gen_table_service_list_code_gen_database_tables",
+// NewCodeGenTableServiceListCodeGenDatabaseTableAgentTool 创建查询数据库表列表的 Agent Tool。
+func NewCodeGenTableServiceListCodeGenDatabaseTableAgentTool(codeGenTableServiceServer CodeGenTableServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*ListCodeGenDatabaseTableRequest, *ListCodeGenDatabaseTableResponse](
+		"admin_v1_code_gen_table_service_list_code_gen_database_table",
 		"查询数据库表列表",
-		func(ctx context.Context, req *ListCodeGenDatabaseTablesRequest) (*ListCodeGenDatabaseTablesResponse, error) {
+		func(ctx context.Context, req *ListCodeGenDatabaseTableRequest) (*ListCodeGenDatabaseTableResponse, error) {
 			if req == nil {
-				req = &ListCodeGenDatabaseTablesRequest{}
+				req = &ListCodeGenDatabaseTableRequest{}
 			}
-			return codeGenTableServiceServer.ListCodeGenDatabaseTables(ctx, req)
+			return codeGenTableServiceServer.ListCodeGenDatabaseTable(ctx, req)
 		},
 	)
 }
 
-// NewCodeGenTableServicePageCodeGenTablesAgentTool 创建分页查询代码生成表配置的 Agent Tool。
-func NewCodeGenTableServicePageCodeGenTablesAgentTool(codeGenTableServiceServer CodeGenTableServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*PageCodeGenTablesRequest, *PageCodeGenTablesResponse](
-		"admin_v1_code_gen_table_service_page_code_gen_tables",
+// NewCodeGenTableServicePageCodeGenTableAgentTool 创建分页查询代码生成表配置的 Agent Tool。
+func NewCodeGenTableServicePageCodeGenTableAgentTool(codeGenTableServiceServer CodeGenTableServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PageCodeGenTableRequest, *PageCodeGenTableResponse](
+		"admin_v1_code_gen_table_service_page_code_gen_table",
 		"分页查询代码生成表配置",
-		func(ctx context.Context, req *PageCodeGenTablesRequest) (*PageCodeGenTablesResponse, error) {
+		func(ctx context.Context, req *PageCodeGenTableRequest) (*PageCodeGenTableResponse, error) {
 			if req == nil {
-				req = &PageCodeGenTablesRequest{}
+				req = &PageCodeGenTableRequest{}
 			}
-			return codeGenTableServiceServer.PageCodeGenTables(ctx, req)
+			return codeGenTableServiceServer.PageCodeGenTable(ctx, req)
 		},
 	)
 }

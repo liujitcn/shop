@@ -16,16 +16,16 @@ import (
 // RegisterRecommendGorseServiceMCPTools 注册Admin Gorse 推荐服务的 MCP Tool。
 func RegisterRecommendGorseServiceMCPTools(mcpServer *mcp.Server, recommendGorseServiceServer RecommendGorseServiceServer) {
 	RegisterRecommendGorseServiceGetTimeSeriesMCPTool(mcpServer, recommendGorseServiceServer)
-	RegisterRecommendGorseServiceOptionCategoriesMCPTool(mcpServer, recommendGorseServiceServer)
-	RegisterRecommendGorseServiceListDashboardItemsMCPTool(mcpServer, recommendGorseServiceServer)
-	RegisterRecommendGorseServiceListTasksMCPTool(mcpServer, recommendGorseServiceServer)
-	RegisterRecommendGorseServicePageUsersMCPTool(mcpServer, recommendGorseServiceServer)
+	RegisterRecommendGorseServiceOptionCategoryMCPTool(mcpServer, recommendGorseServiceServer)
+	RegisterRecommendGorseServiceListDashboardItemMCPTool(mcpServer, recommendGorseServiceServer)
+	RegisterRecommendGorseServiceListTaskMCPTool(mcpServer, recommendGorseServiceServer)
+	RegisterRecommendGorseServicePageUserMCPTool(mcpServer, recommendGorseServiceServer)
 	RegisterRecommendGorseServiceGetUserMCPTool(mcpServer, recommendGorseServiceServer)
 	RegisterRecommendGorseServiceDeleteUserMCPTool(mcpServer, recommendGorseServiceServer)
 	RegisterRecommendGorseServiceGetUserSimilarMCPTool(mcpServer, recommendGorseServiceServer)
 	RegisterRecommendGorseServiceGetUserFeedbackMCPTool(mcpServer, recommendGorseServiceServer)
 	RegisterRecommendGorseServiceGetUserRecommendMCPTool(mcpServer, recommendGorseServiceServer)
-	RegisterRecommendGorseServicePageItemsMCPTool(mcpServer, recommendGorseServiceServer)
+	RegisterRecommendGorseServicePageItemMCPTool(mcpServer, recommendGorseServiceServer)
 	RegisterRecommendGorseServiceGetItemMCPTool(mcpServer, recommendGorseServiceServer)
 	RegisterRecommendGorseServiceDeleteItemMCPTool(mcpServer, recommendGorseServiceServer)
 	RegisterRecommendGorseServiceGetItemSimilarMCPTool(mcpServer, recommendGorseServiceServer)
@@ -59,19 +59,19 @@ func RegisterRecommendGorseServiceGetTimeSeriesMCPTool(mcpServer *mcp.Server, re
 	)
 }
 
-// RegisterRecommendGorseServiceOptionCategoriesMCPTool 注册查询 Gorse 推荐分类的 MCP Tool。
-func RegisterRecommendGorseServiceOptionCategoriesMCPTool(mcpServer *mcp.Server, recommendGorseServiceServer RecommendGorseServiceServer) {
-	mcp.AddTool[*OptionCategoriesRequest, *OptionCategoriesResponse](
+// RegisterRecommendGorseServiceOptionCategoryMCPTool 注册查询 Gorse 推荐分类的 MCP Tool。
+func RegisterRecommendGorseServiceOptionCategoryMCPTool(mcpServer *mcp.Server, recommendGorseServiceServer RecommendGorseServiceServer) {
+	mcp.AddTool[*OptionCategoryRequest, *OptionCategoryResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "admin_v1_recommend_gorse_service_option_categories",
+			Name:        "admin_v1_recommend_gorse_service_option_category",
 			Description: "查询 Gorse 推荐分类",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *OptionCategoriesRequest) (*mcp.CallToolResult, *OptionCategoriesResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *OptionCategoryRequest) (*mcp.CallToolResult, *OptionCategoryResponse, error) {
 			if input == nil {
-				input = &OptionCategoriesRequest{}
+				input = &OptionCategoryRequest{}
 			}
-			reply, err := recommendGorseServiceServer.OptionCategories(ctx, input)
+			reply, err := recommendGorseServiceServer.OptionCategory(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -80,19 +80,19 @@ func RegisterRecommendGorseServiceOptionCategoriesMCPTool(mcpServer *mcp.Server,
 	)
 }
 
-// RegisterRecommendGorseServiceListDashboardItemsMCPTool 注册查询 Gorse 推荐仪表盘推荐商品的 MCP Tool。
-func RegisterRecommendGorseServiceListDashboardItemsMCPTool(mcpServer *mcp.Server, recommendGorseServiceServer RecommendGorseServiceServer) {
-	mcp.AddTool[*ListDashboardItemsRequest, *ListDashboardItemsResponse](
+// RegisterRecommendGorseServiceListDashboardItemMCPTool 注册查询 Gorse 推荐仪表盘推荐商品的 MCP Tool。
+func RegisterRecommendGorseServiceListDashboardItemMCPTool(mcpServer *mcp.Server, recommendGorseServiceServer RecommendGorseServiceServer) {
+	mcp.AddTool[*ListDashboardItemRequest, *ListDashboardItemResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "admin_v1_recommend_gorse_service_list_dashboard_items",
+			Name:        "admin_v1_recommend_gorse_service_list_dashboard_item",
 			Description: "查询 Gorse 推荐仪表盘推荐商品",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *ListDashboardItemsRequest) (*mcp.CallToolResult, *ListDashboardItemsResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *ListDashboardItemRequest) (*mcp.CallToolResult, *ListDashboardItemResponse, error) {
 			if input == nil {
-				input = &ListDashboardItemsRequest{}
+				input = &ListDashboardItemRequest{}
 			}
-			reply, err := recommendGorseServiceServer.ListDashboardItems(ctx, input)
+			reply, err := recommendGorseServiceServer.ListDashboardItem(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -101,19 +101,19 @@ func RegisterRecommendGorseServiceListDashboardItemsMCPTool(mcpServer *mcp.Serve
 	)
 }
 
-// RegisterRecommendGorseServiceListTasksMCPTool 注册查询 Gorse 推荐任务状态的 MCP Tool。
-func RegisterRecommendGorseServiceListTasksMCPTool(mcpServer *mcp.Server, recommendGorseServiceServer RecommendGorseServiceServer) {
-	mcp.AddTool[*ListTasksRequest, *ListTasksResponse](
+// RegisterRecommendGorseServiceListTaskMCPTool 注册查询 Gorse 推荐任务状态的 MCP Tool。
+func RegisterRecommendGorseServiceListTaskMCPTool(mcpServer *mcp.Server, recommendGorseServiceServer RecommendGorseServiceServer) {
+	mcp.AddTool[*ListTaskRequest, *ListTaskResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "admin_v1_recommend_gorse_service_list_tasks",
+			Name:        "admin_v1_recommend_gorse_service_list_task",
 			Description: "查询 Gorse 推荐任务状态",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *ListTasksRequest) (*mcp.CallToolResult, *ListTasksResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *ListTaskRequest) (*mcp.CallToolResult, *ListTaskResponse, error) {
 			if input == nil {
-				input = &ListTasksRequest{}
+				input = &ListTaskRequest{}
 			}
-			reply, err := recommendGorseServiceServer.ListTasks(ctx, input)
+			reply, err := recommendGorseServiceServer.ListTask(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -122,19 +122,19 @@ func RegisterRecommendGorseServiceListTasksMCPTool(mcpServer *mcp.Server, recomm
 	)
 }
 
-// RegisterRecommendGorseServicePageUsersMCPTool 注册查询 Gorse 推荐用户列表的 MCP Tool。
-func RegisterRecommendGorseServicePageUsersMCPTool(mcpServer *mcp.Server, recommendGorseServiceServer RecommendGorseServiceServer) {
-	mcp.AddTool[*PageUsersRequest, *PageUsersResponse](
+// RegisterRecommendGorseServicePageUserMCPTool 注册查询 Gorse 推荐用户列表的 MCP Tool。
+func RegisterRecommendGorseServicePageUserMCPTool(mcpServer *mcp.Server, recommendGorseServiceServer RecommendGorseServiceServer) {
+	mcp.AddTool[*PageUserRequest, *PageUserResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "admin_v1_recommend_gorse_service_page_users",
+			Name:        "admin_v1_recommend_gorse_service_page_user",
 			Description: "查询 Gorse 推荐用户列表",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageUsersRequest) (*mcp.CallToolResult, *PageUsersResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *PageUserRequest) (*mcp.CallToolResult, *PageUserResponse, error) {
 			if input == nil {
-				input = &PageUsersRequest{}
+				input = &PageUserRequest{}
 			}
-			reply, err := recommendGorseServiceServer.PageUsers(ctx, input)
+			reply, err := recommendGorseServiceServer.PageUser(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -248,19 +248,19 @@ func RegisterRecommendGorseServiceGetUserRecommendMCPTool(mcpServer *mcp.Server,
 	)
 }
 
-// RegisterRecommendGorseServicePageItemsMCPTool 注册查询 Gorse 推荐商品列表的 MCP Tool。
-func RegisterRecommendGorseServicePageItemsMCPTool(mcpServer *mcp.Server, recommendGorseServiceServer RecommendGorseServiceServer) {
-	mcp.AddTool[*PageItemsRequest, *PageItemsResponse](
+// RegisterRecommendGorseServicePageItemMCPTool 注册查询 Gorse 推荐商品列表的 MCP Tool。
+func RegisterRecommendGorseServicePageItemMCPTool(mcpServer *mcp.Server, recommendGorseServiceServer RecommendGorseServiceServer) {
+	mcp.AddTool[*PageItemRequest, *PageItemResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "admin_v1_recommend_gorse_service_page_items",
+			Name:        "admin_v1_recommend_gorse_service_page_item",
 			Description: "查询 Gorse 推荐商品列表",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageItemsRequest) (*mcp.CallToolResult, *PageItemsResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *PageItemRequest) (*mcp.CallToolResult, *PageItemResponse, error) {
 			if input == nil {
-				input = &PageItemsRequest{}
+				input = &PageItemRequest{}
 			}
-			reply, err := recommendGorseServiceServer.PageItems(ctx, input)
+			reply, err := recommendGorseServiceServer.PageItem(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

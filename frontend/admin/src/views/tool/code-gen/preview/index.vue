@@ -81,7 +81,7 @@ import { defBaseDictService } from "@/api/admin/base_dict";
 import { defCodeGenColumnService } from "@/api/admin/code_gen_column";
 import { defCodeGenProtoService } from "@/api/admin/code_gen_proto";
 import { defCodeGenTableService } from "@/api/admin/code_gen_table";
-import type { OptionBaseDictsResponse_BaseDict } from "@/rpc/admin/v1/base_dict";
+import type { OptionBaseDictResponse_BaseDict } from "@/rpc/admin/v1/base_dict";
 import type { CodeGenColumn, CodeGenColumnOptionConfig } from "@/rpc/admin/v1/code_gen_column";
 import type { CodeGenProtoCheck } from "@/rpc/admin/v1/code_gen_proto";
 import type { CodeGenDatabaseTable } from "@/rpc/admin/v1/code_gen_table";
@@ -112,7 +112,7 @@ const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 const loading = ref(false);
 const snapshot = ref<CodeGenPagePreviewSnapshot | null>(null);
 const protoChecks = ref<CodeGenProtoCheck[]>([]);
-const dictionaries = ref<OptionBaseDictsResponse_BaseDict[]>([]);
+const dictionaries = ref<OptionBaseDictResponse_BaseDict[]>([]);
 const databaseTables = ref<CodeGenDatabaseTable[]>([]);
 const mockRows = ref<CodeGenPreviewRow[]>([]);
 const previewFormModel = reactive<Record<string, any>>({});
@@ -283,10 +283,10 @@ async function loadPreview() {
     if (!tableId.value) return;
     const [table, columnResponse, protoResponse, dictionaryResponse, databaseTableResponse] = await Promise.all([
       defCodeGenTableService.GetCodeGenTable({ id: tableId.value }),
-      defCodeGenColumnService.ListCodeGenColumns({ table_id: tableId.value }),
-      defCodeGenProtoService.ListCodeGenProtos({ table_id: tableId.value }),
-      defBaseDictService.OptionBaseDicts({}),
-      defCodeGenTableService.ListCodeGenDatabaseTables({})
+      defCodeGenColumnService.ListCodeGenColumn({ table_id: tableId.value }),
+      defCodeGenProtoService.ListCodeGenProto({ table_id: tableId.value }),
+      defBaseDictService.OptionBaseDict({}),
+      defCodeGenTableService.ListCodeGenDatabaseTable({})
     ]);
     snapshot.value = { table, columns: columnResponse.code_gen_columns ?? [] };
     protoChecks.value = protoResponse.code_gen_protos ?? [];

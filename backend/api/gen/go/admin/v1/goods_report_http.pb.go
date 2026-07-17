@@ -18,16 +18,16 @@ var _ = new(context.Context)
 
 const _ = http.SupportPackageIsVersion3
 
-const OperationGoodsReportServiceListGoodsDayReports = "/admin.v1.GoodsReportService/ListGoodsDayReports"
-const OperationGoodsReportServiceListGoodsMonthReports = "/admin.v1.GoodsReportService/ListGoodsMonthReports"
+const OperationGoodsReportServiceListGoodsDayReport = "/admin.v1.GoodsReportService/ListGoodsDayReport"
+const OperationGoodsReportServiceListGoodsMonthReport = "/admin.v1.GoodsReportService/ListGoodsMonthReport"
 const OperationGoodsReportServiceSummaryGoodsDayReport = "/admin.v1.GoodsReportService/SummaryGoodsDayReport"
 const OperationGoodsReportServiceSummaryGoodsMonthReport = "/admin.v1.GoodsReportService/SummaryGoodsMonthReport"
 
 type GoodsReportServiceHTTPServer interface {
-	// ListGoodsDayReports 查询商品日报明细
-	ListGoodsDayReports(context.Context, *ListGoodsDayReportsRequest) (*ListGoodsDayReportsResponse, error)
-	// ListGoodsMonthReports 查询商品月报名细
-	ListGoodsMonthReports(context.Context, *ListGoodsMonthReportsRequest) (*ListGoodsMonthReportsResponse, error)
+	// ListGoodsDayReport 查询商品日报明细
+	ListGoodsDayReport(context.Context, *ListGoodsDayReportRequest) (*ListGoodsDayReportResponse, error)
+	// ListGoodsMonthReport 查询商品月报名细
+	ListGoodsMonthReport(context.Context, *ListGoodsMonthReportRequest) (*ListGoodsMonthReportResponse, error)
 	// SummaryGoodsDayReport 查询商品日报汇总
 	SummaryGoodsDayReport(context.Context, *SummaryGoodsDayReportRequest) (*SummaryGoodsDayReportResponse, error)
 	// SummaryGoodsMonthReport 查询商品月报汇总
@@ -37,9 +37,9 @@ type GoodsReportServiceHTTPServer interface {
 func RegisterGoodsReportServiceHTTPServer(s *http.Server, srv GoodsReportServiceHTTPServer) {
 	r := s.Route("/")
 	r.Handle("GET", "/api/v1/admin/report/goods/month/summary", _GoodsReportService_SummaryGoodsMonthReport0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/admin/report/goods/month", _GoodsReportService_ListGoodsMonthReports0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/report/goods/month", _GoodsReportService_ListGoodsMonthReport0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/report/goods/day/summary", _GoodsReportService_SummaryGoodsDayReport0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/admin/report/goods/day", _GoodsReportService_ListGoodsDayReports0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/report/goods/day", _GoodsReportService_ListGoodsDayReport0_HTTP_Handler(srv))
 }
 
 func _GoodsReportService_SummaryGoodsMonthReport0_HTTP_Handler(srv GoodsReportServiceHTTPServer) func(ctx http.Context) error {
@@ -61,21 +61,21 @@ func _GoodsReportService_SummaryGoodsMonthReport0_HTTP_Handler(srv GoodsReportSe
 	}
 }
 
-func _GoodsReportService_ListGoodsMonthReports0_HTTP_Handler(srv GoodsReportServiceHTTPServer) func(ctx http.Context) error {
+func _GoodsReportService_ListGoodsMonthReport0_HTTP_Handler(srv GoodsReportServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in ListGoodsMonthReportsRequest
+		var in ListGoodsMonthReportRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationGoodsReportServiceListGoodsMonthReports)
+		http.SetOperation(ctx, OperationGoodsReportServiceListGoodsMonthReport)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.ListGoodsMonthReports(ctx, req.(*ListGoodsMonthReportsRequest))
+			return srv.ListGoodsMonthReport(ctx, req.(*ListGoodsMonthReportRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*ListGoodsMonthReportsResponse)
+		reply := out.(*ListGoodsMonthReportResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -99,30 +99,30 @@ func _GoodsReportService_SummaryGoodsDayReport0_HTTP_Handler(srv GoodsReportServ
 	}
 }
 
-func _GoodsReportService_ListGoodsDayReports0_HTTP_Handler(srv GoodsReportServiceHTTPServer) func(ctx http.Context) error {
+func _GoodsReportService_ListGoodsDayReport0_HTTP_Handler(srv GoodsReportServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in ListGoodsDayReportsRequest
+		var in ListGoodsDayReportRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationGoodsReportServiceListGoodsDayReports)
+		http.SetOperation(ctx, OperationGoodsReportServiceListGoodsDayReport)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.ListGoodsDayReports(ctx, req.(*ListGoodsDayReportsRequest))
+			return srv.ListGoodsDayReport(ctx, req.(*ListGoodsDayReportRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*ListGoodsDayReportsResponse)
+		reply := out.(*ListGoodsDayReportResponse)
 		return ctx.Result(200, reply)
 	}
 }
 
 type GoodsReportServiceHTTPClient interface {
-	// ListGoodsDayReports 查询商品日报明细
-	ListGoodsDayReports(ctx context.Context, req *ListGoodsDayReportsRequest, opts ...http.CallOption) (rsp *ListGoodsDayReportsResponse, err error)
-	// ListGoodsMonthReports 查询商品月报名细
-	ListGoodsMonthReports(ctx context.Context, req *ListGoodsMonthReportsRequest, opts ...http.CallOption) (rsp *ListGoodsMonthReportsResponse, err error)
+	// ListGoodsDayReport 查询商品日报明细
+	ListGoodsDayReport(ctx context.Context, req *ListGoodsDayReportRequest, opts ...http.CallOption) (rsp *ListGoodsDayReportResponse, err error)
+	// ListGoodsMonthReport 查询商品月报名细
+	ListGoodsMonthReport(ctx context.Context, req *ListGoodsMonthReportRequest, opts ...http.CallOption) (rsp *ListGoodsMonthReportResponse, err error)
 	// SummaryGoodsDayReport 查询商品日报汇总
 	SummaryGoodsDayReport(ctx context.Context, req *SummaryGoodsDayReportRequest, opts ...http.CallOption) (rsp *SummaryGoodsDayReportResponse, err error)
 	// SummaryGoodsMonthReport 查询商品月报汇总
@@ -137,14 +137,14 @@ func NewGoodsReportServiceHTTPClient(client *http.Client) GoodsReportServiceHTTP
 	return &GoodsReportServiceHTTPClientImpl{client}
 }
 
-// ListGoodsDayReports 查询商品日报明细
-func (c *GoodsReportServiceHTTPClientImpl) ListGoodsDayReports(ctx context.Context, in *ListGoodsDayReportsRequest, opts ...http.CallOption) (*ListGoodsDayReportsResponse, error) {
-	var out ListGoodsDayReportsResponse
+// ListGoodsDayReport 查询商品日报明细
+func (c *GoodsReportServiceHTTPClientImpl) ListGoodsDayReport(ctx context.Context, in *ListGoodsDayReportRequest, opts ...http.CallOption) (*ListGoodsDayReportResponse, error) {
+	var out ListGoodsDayReportResponse
 	pattern := "/api/v1/admin/report/goods/day"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationGoodsReportServiceListGoodsDayReports),
+		http.Operation(OperationGoodsReportServiceListGoodsDayReport),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
@@ -154,14 +154,14 @@ func (c *GoodsReportServiceHTTPClientImpl) ListGoodsDayReports(ctx context.Conte
 	return &out, nil
 }
 
-// ListGoodsMonthReports 查询商品月报名细
-func (c *GoodsReportServiceHTTPClientImpl) ListGoodsMonthReports(ctx context.Context, in *ListGoodsMonthReportsRequest, opts ...http.CallOption) (*ListGoodsMonthReportsResponse, error) {
-	var out ListGoodsMonthReportsResponse
+// ListGoodsMonthReport 查询商品月报名细
+func (c *GoodsReportServiceHTTPClientImpl) ListGoodsMonthReport(ctx context.Context, in *ListGoodsMonthReportRequest, opts ...http.CallOption) (*ListGoodsMonthReportResponse, error) {
+	var out ListGoodsMonthReportResponse
 	pattern := "/api/v1/admin/report/goods/month"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationGoodsReportServiceListGoodsMonthReports),
+		http.Operation(OperationGoodsReportServiceListGoodsMonthReport),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)

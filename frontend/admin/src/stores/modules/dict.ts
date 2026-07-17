@@ -3,7 +3,7 @@ import pinia from "@/stores";
 import { defBaseDictService } from "@/api/admin/base_dict";
 import type { DictState } from "@/stores/interface";
 import piniaPersistConfig from "@/stores/helper/persist";
-import type { OptionBaseDictsResponse_BaseDict, OptionBaseDictsResponse_BaseDictItem } from "@/rpc/admin/v1/base_dict";
+import type { OptionBaseDictResponse_BaseDict, OptionBaseDictResponse_BaseDictItem } from "@/rpc/admin/v1/base_dict";
 
 export const useDictStore = defineStore("shop-dict", {
   state: (): DictState => ({
@@ -12,7 +12,7 @@ export const useDictStore = defineStore("shop-dict", {
   getters: {},
   actions: {
     /** 设置单个字典缓存 */
-    setDictionary(dict: OptionBaseDictsResponse_BaseDict) {
+    setDictionary(dict: OptionBaseDictResponse_BaseDict) {
       if (!dict.code) return;
       this.dictionary[dict.code] = dict.items ?? [];
     },
@@ -20,8 +20,8 @@ export const useDictStore = defineStore("shop-dict", {
     async loadDictionaries(forceRefresh = false) {
       if (!forceRefresh && Object.keys(this.dictionary).length) return this.dictionary;
 
-      const dictRes = await defBaseDictService.OptionBaseDicts({});
-      const nextDictionary: Record<string, OptionBaseDictsResponse_BaseDictItem[]> = {};
+      const dictRes = await defBaseDictService.OptionBaseDict({});
+      const nextDictionary: Record<string, OptionBaseDictResponse_BaseDictItem[]> = {};
 
       const baseDicts = dictRes.base_dicts ?? [];
       baseDicts.forEach(dict => {
@@ -33,7 +33,7 @@ export const useDictStore = defineStore("shop-dict", {
       return this.dictionary;
     },
     /** 获取指定字典缓存 */
-    getDictionary(dictCode: string): OptionBaseDictsResponse_BaseDictItem[] {
+    getDictionary(dictCode: string): OptionBaseDictResponse_BaseDictItem[] {
       return this.dictionary[dictCode] ?? [];
     },
     /** 确保指定字典编码已加载，避免持久化旧缓存缺少新增字典时下拉为空 */

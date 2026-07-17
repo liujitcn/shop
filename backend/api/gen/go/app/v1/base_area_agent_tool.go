@@ -17,25 +17,25 @@ import (
 func NewBaseAreaServiceAgentTools(baseAreaServiceServer BaseAreaServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error
-	var treeBaseAreasTool tool.InvokableTool
-	treeBaseAreasTool, err = NewBaseAreaServiceTreeBaseAreasAgentTool(baseAreaServiceServer)
+	var treeBaseAreaTool tool.InvokableTool
+	treeBaseAreaTool, err = NewBaseAreaServiceTreeBaseAreaAgentTool(baseAreaServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, treeBaseAreasTool)
+	ts = append(ts, treeBaseAreaTool)
 	return ts, nil
 }
 
-// NewBaseAreaServiceTreeBaseAreasAgentTool 创建查询行政区域树形列表的 Agent Tool。
-func NewBaseAreaServiceTreeBaseAreasAgentTool(baseAreaServiceServer BaseAreaServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*TreeBaseAreasRequest, any](
-		"app_v1_base_area_service_tree_base_areas",
+// NewBaseAreaServiceTreeBaseAreaAgentTool 创建查询行政区域树形列表的 Agent Tool。
+func NewBaseAreaServiceTreeBaseAreaAgentTool(baseAreaServiceServer BaseAreaServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*TreeBaseAreaRequest, any](
+		"app_v1_base_area_service_tree_base_area",
 		"查询行政区域树形列表",
-		func(ctx context.Context, req *TreeBaseAreasRequest) (any, error) {
+		func(ctx context.Context, req *TreeBaseAreaRequest) (any, error) {
 			if req == nil {
-				req = &TreeBaseAreasRequest{}
+				req = &TreeBaseAreaRequest{}
 			}
-			reply, err := baseAreaServiceServer.TreeBaseAreas(ctx, req)
+			reply, err := baseAreaServiceServer.TreeBaseArea(ctx, req)
 			if err != nil {
 				return nil, err
 			}

@@ -7,7 +7,7 @@
 
 <script setup lang="ts">
 import { computed, ref, useAttrs, watch } from "vue";
-import type { OptionBaseDictsResponse_BaseDictItem } from "@/rpc/admin/v1/base_dict";
+import type { OptionBaseDictResponse_BaseDictItem } from "@/rpc/admin/v1/base_dict";
 import { useDictStore } from "@/stores/modules/dict";
 import { RecommendStrategy } from "@/rpc/common/v1/enum";
 
@@ -61,7 +61,7 @@ function buildRecommendProviderDictValue(strategy?: RecommendStrategy | string, 
  * 从字典列表中严格匹配推荐器字典项，仅使用策略+推荐器的唯一值。
  */
 function matchRecommendProviderDictItem(
-  dictList: OptionBaseDictsResponse_BaseDictItem[] = [],
+  dictList: OptionBaseDictResponse_BaseDictItem[] = [],
   strategy?: RecommendStrategy | string,
   providerName?: string
 ) {

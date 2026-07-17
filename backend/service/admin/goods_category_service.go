@@ -37,22 +37,22 @@ func NewGoodsCategoryService(
 	}
 }
 
-// TreeGoodsCategories 查询商品分类树形列表
-func (s *GoodsCategoryService) TreeGoodsCategories(ctx context.Context, req *adminv1.TreeGoodsCategoriesRequest) (*adminv1.TreeGoodsCategoriesResponse, error) {
-	tree, err := s.goodsCategoryCase.TreeGoodsCategories(ctx, req)
+// TreeGoodsCategory 查询商品分类树形列表
+func (s *GoodsCategoryService) TreeGoodsCategory(ctx context.Context, req *adminv1.TreeGoodsCategoryRequest) (*adminv1.TreeGoodsCategoryResponse, error) {
+	tree, err := s.goodsCategoryCase.TreeGoodsCategory(ctx, req)
 	if err != nil {
-		log.Error(fmt.Sprintf("TreeGoodsCategories %v", err))
+		log.Error(fmt.Sprintf("TreeGoodsCategory %v", err))
 		return nil, errorsx.WrapInternal(err, "查询商品分类树形列表失败")
 	}
 
 	return tree, nil
 }
 
-// OptionGoodsCategories 查询商品分类树形选择
-func (s *GoodsCategoryService) OptionGoodsCategories(ctx context.Context, req *adminv1.OptionGoodsCategoriesRequest) (*commonv1.TreeOptionResponse, error) {
-	tree, err := s.goodsCategoryCase.OptionGoodsCategories(ctx, req)
+// OptionGoodsCategory 查询商品分类树形选择
+func (s *GoodsCategoryService) OptionGoodsCategory(ctx context.Context, req *adminv1.OptionGoodsCategoryRequest) (*commonv1.TreeOptionResponse, error) {
+	tree, err := s.goodsCategoryCase.OptionGoodsCategory(ctx, req)
 	if err != nil {
-		log.Error(fmt.Sprintf("OptionGoodsCategories %v", err))
+		log.Error(fmt.Sprintf("OptionGoodsCategory %v", err))
 		return nil, errorsx.WrapInternal(err, "查询商品分类树形选择失败")
 	}
 	return tree, nil

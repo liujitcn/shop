@@ -13,7 +13,7 @@ import { goodsDetailUrl, searchPageUrl } from '@/utils/navigation'
 // 获取轮播图数据
 const bannerList = ref<ShopBanner[]>([])
 const getBannerData = async () => {
-  const res = await defShopBannerService.ListShopBanners({
+  const res = await defShopBannerService.ListShopBanner({
     site: ShopBannerSite.CATEGORY,
   })
   bannerList.value = res.shop_banners || []
@@ -25,13 +25,13 @@ const subCategoryList = ref<GoodsCategory[]>([])
 const activeMap = ref<Map<number, GoodsCategory[]>>()
 const activeIndex = ref(0)
 const getCategoryTopData = async () => {
-  const topRes = await defGoodsCategoryService.ListGoodsCategories({
+  const topRes = await defGoodsCategoryService.ListGoodsCategory({
     parent_id: 0,
   })
   categoryList.value = topRes.goods_categories || []
   // 查询二级分类
   if (categoryList.value.length) {
-    const subRes = await defGoodsCategoryService.ListGoodsCategories({
+    const subRes = await defGoodsCategoryService.ListGoodsCategory({
       parent_id: categoryList.value[0].id,
     })
     subCategoryList.value = subRes.goods_categories
@@ -47,7 +47,7 @@ const getSubCategoryData = async (index: number) => {
   if (activeMap!.value?.has(index)) {
     subCategoryList.value = activeMap!.value.get(index) || []
   } else {
-    const res = await defGoodsCategoryService.ListGoodsCategories({
+    const res = await defGoodsCategoryService.ListGoodsCategory({
       parent_id: categoryList.value[index].id,
     })
     subCategoryList.value = res.goods_categories || []

@@ -26,7 +26,7 @@ flowchart LR
   Action --> MessageAPI
 ~~~
 
-- 快捷入口来自 ListAiAssistantShortcuts，按终端过滤后返回。
+- 快捷入口来自 ListAiAssistantShortcut，按终端过滤后返回。
 - 前端点击快捷入口时，发送 text + action，不在端侧伪造业务结果。
 - 助手消息可以包含 Markdown、工具调用摘要、附件和结构化流程块。
 - 结构化流程动作继续通过消息接口提交，保证流程上下文在会话内闭环。
@@ -108,9 +108,9 @@ flowchart TB
 
 | 数据 | 来源 | 端侧处理 |
 | --- | --- | --- |
-| 快捷入口 | ListAiAssistantShortcuts | 按 sort 排序，过滤无 key 且无标题 / prompt 的异常项 |
-| 会话列表 | ListAiAssistantSessions | 支持创建、切换、搜索、重命名、删除 |
-| 消息列表 | ListAiAssistantMessages | 按当前会话缓存，切换会话时加载 |
+| 快捷入口 | ListAiAssistantShortcut | 按 sort 排序，过滤无 key 且无标题 / prompt 的异常项 |
+| 会话列表 | ListAiAssistantSession | 支持创建、切换、搜索、重命名、删除 |
+| 消息列表 | ListAiAssistantMessage | 按当前会话缓存，切换会话时加载 |
 | 流式回复 | 消息流接口 | 合并增量，维护生成态和失败态 |
 | 流程动作 | 助手消息 blocks | 点击后携带 action 回传消息接口 |
 

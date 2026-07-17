@@ -11,7 +11,7 @@ const addressStore = useAddressStore()
 // 获取收货地址列表数据
 const addressList = ref<UserAddress[]>([])
 const getUserAddressData = async () => {
-  const res = await defUserAddressService.ListUserAddresses({})
+  const res = await defUserAddressService.ListUserAddress({})
   addressList.value = res.user_addresses || []
 }
 

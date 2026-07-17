@@ -35,7 +35,7 @@ import ProTable from "@/components/ProTable/index.vue";
 import FormDialog from "@/components/Dialog/FormDialog.vue";
 import type { ProFormField } from "@/components/ProForm/interface";
 import { defGoodsPropService } from "@/api/admin/goods_prop";
-import type { GoodsProp, PageGoodsPropsRequest } from "@/rpc/admin/v1/goods_prop";
+import type { GoodsProp, PageGoodsPropRequest } from "@/rpc/admin/v1/goods_prop";
 import { buildPageRequest, normalizeSelectedIds } from "@/utils/proTable";
 
 defineOptions({
@@ -155,8 +155,8 @@ const headerActions: HeaderActionProps[] = [
 /**
  * 请求商品属性列表，并带上当前商品 ID。
  */
-async function requestGoodsPropTable(params: PageGoodsPropsRequest) {
-  const data = await defGoodsPropService.PageGoodsProps(buildPageRequest({ ...params, goods_id: goodsId.value }));
+async function requestGoodsPropTable(params: PageGoodsPropRequest) {
+  const data = await defGoodsPropService.PageGoodsProp(buildPageRequest({ ...params, goods_id: goodsId.value }));
   return { data: { list: data.goods_props ?? [], total: data.total } };
 }
 

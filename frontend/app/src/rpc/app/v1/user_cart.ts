@@ -20,11 +20,11 @@ export interface CountUserCartResponse {
 }
 
 /** 用户购物车列表查询条件 */
-export interface ListUserCartsRequest {
+export interface ListUserCartRequest {
 }
 
 /** 用户购物车列表响应 */
-export interface ListUserCartsResponse {
+export interface ListUserCartResponse {
   /** 按店铺分组的用户购物车列表 */
   user_cart_stores: UserCartStore[];
 }
@@ -122,7 +122,7 @@ export interface UserCartService {
   /** 查询用户购物车数量 */
   CountUserCart(request: CountUserCartRequest): Promise<CountUserCartResponse>;
   /** 查询用户购物车列表 */
-  ListUserCarts(request: ListUserCartsRequest): Promise<ListUserCartsResponse>;
+  ListUserCart(request: ListUserCartRequest): Promise<ListUserCartResponse>;
   /** 创建用户购物车 */
   CreateUserCart(request: CreateUserCartRequest): Promise<Empty>;
   /** 设置全选 */

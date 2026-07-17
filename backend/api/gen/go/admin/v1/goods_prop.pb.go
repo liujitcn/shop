@@ -26,7 +26,7 @@ const (
 )
 
 // 商品属性列表查询条件
-type PageGoodsPropsRequest struct {
+type PageGoodsPropRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	GoodsId       int64                  `protobuf:"varint,2,opt,name=goods_id,json=goodsId,proto3" json:"goods_id,omitempty"`      // 商品id
 	Label         string                 `protobuf:"bytes,3,opt,name=label,proto3" json:"label,omitempty"`                          // 商品属性名称
@@ -36,20 +36,20 @@ type PageGoodsPropsRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *PageGoodsPropsRequest) Reset() {
-	*x = PageGoodsPropsRequest{}
+func (x *PageGoodsPropRequest) Reset() {
+	*x = PageGoodsPropRequest{}
 	mi := &file_admin_v1_goods_prop_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PageGoodsPropsRequest) String() string {
+func (x *PageGoodsPropRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PageGoodsPropsRequest) ProtoMessage() {}
+func (*PageGoodsPropRequest) ProtoMessage() {}
 
-func (x *PageGoodsPropsRequest) ProtoReflect() protoreflect.Message {
+func (x *PageGoodsPropRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_goods_prop_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -61,33 +61,33 @@ func (x *PageGoodsPropsRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PageGoodsPropsRequest.ProtoReflect.Descriptor instead.
-func (*PageGoodsPropsRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use PageGoodsPropRequest.ProtoReflect.Descriptor instead.
+func (*PageGoodsPropRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_goods_prop_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *PageGoodsPropsRequest) GetGoodsId() int64 {
+func (x *PageGoodsPropRequest) GetGoodsId() int64 {
 	if x != nil {
 		return x.GoodsId
 	}
 	return 0
 }
 
-func (x *PageGoodsPropsRequest) GetLabel() string {
+func (x *PageGoodsPropRequest) GetLabel() string {
 	if x != nil {
 		return x.Label
 	}
 	return ""
 }
 
-func (x *PageGoodsPropsRequest) GetPageNum() int64 {
+func (x *PageGoodsPropRequest) GetPageNum() int64 {
 	if x != nil {
 		return x.PageNum
 	}
 	return 0
 }
 
-func (x *PageGoodsPropsRequest) GetPageSize() int64 {
+func (x *PageGoodsPropRequest) GetPageSize() int64 {
 	if x != nil {
 		return x.PageSize
 	}
@@ -95,7 +95,7 @@ func (x *PageGoodsPropsRequest) GetPageSize() int64 {
 }
 
 // 商品属性列表响应
-type PageGoodsPropsResponse struct {
+type PageGoodsPropResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	GoodsProps    []*GoodsProp           `protobuf:"bytes,1,rep,name=goods_props,json=goodsProps,proto3" json:"goods_props,omitempty"` // 商品属性列表
 	Total         int32                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`                            // 总数
@@ -103,20 +103,20 @@ type PageGoodsPropsResponse struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *PageGoodsPropsResponse) Reset() {
-	*x = PageGoodsPropsResponse{}
+func (x *PageGoodsPropResponse) Reset() {
+	*x = PageGoodsPropResponse{}
 	mi := &file_admin_v1_goods_prop_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PageGoodsPropsResponse) String() string {
+func (x *PageGoodsPropResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PageGoodsPropsResponse) ProtoMessage() {}
+func (*PageGoodsPropResponse) ProtoMessage() {}
 
-func (x *PageGoodsPropsResponse) ProtoReflect() protoreflect.Message {
+func (x *PageGoodsPropResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_goods_prop_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -128,19 +128,19 @@ func (x *PageGoodsPropsResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PageGoodsPropsResponse.ProtoReflect.Descriptor instead.
-func (*PageGoodsPropsResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use PageGoodsPropResponse.ProtoReflect.Descriptor instead.
+func (*PageGoodsPropResponse) Descriptor() ([]byte, []int) {
 	return file_admin_v1_goods_prop_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *PageGoodsPropsResponse) GetGoodsProps() []*GoodsProp {
+func (x *PageGoodsPropResponse) GetGoodsProps() []*GoodsProp {
 	if x != nil {
 		return x.GoodsProps
 	}
 	return nil
 }
 
-func (x *PageGoodsPropsResponse) GetTotal() int32 {
+func (x *PageGoodsPropResponse) GetTotal() int32 {
 	if x != nil {
 		return x.Total
 	}
@@ -416,13 +416,13 @@ var File_admin_v1_goods_prop_proto protoreflect.FileDescriptor
 
 const file_admin_v1_goods_prop_proto_rawDesc = "" +
 	"\n" +
-	"\x19admin/v1/goods_prop.proto\x12\badmin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xf0\x01\n" +
-	"\x15PageGoodsPropsRequest\x12)\n" +
+	"\x19admin/v1/goods_prop.proto\x12\badmin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xef\x01\n" +
+	"\x14PageGoodsPropRequest\x12)\n" +
 	"\bgoods_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品idR\agoodsId\x12.\n" +
 	"\x05label\x18\x03 \x01(\tB\x18\xbaG\x15\x92\x02\x12商品属性名称R\x05label\x129\n" +
 	"\bpage_num\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12A\n" +
-	"\tpage_size\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSize\"\x8c\x01\n" +
-	"\x16PageGoodsPropsResponse\x12N\n" +
+	"\tpage_size\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSize\"\x8b\x01\n" +
+	"\x15PageGoodsPropResponse\x12N\n" +
 	"\vgoods_props\x18\x01 \x03(\v2\x13.admin.v1.GoodsPropB\x18\xbaG\x15\x92\x02\x12商品属性列表R\n" +
 	"goodsProps\x12\"\n" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\";\n" +
@@ -442,9 +442,9 @@ const file_admin_v1_goods_prop_proto_rawDesc = "" +
 	"\bgoods_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品idR\agoodsId\x12.\n" +
 	"\x05label\x18\x03 \x01(\tB\x18\xbaG\x15\x92\x02\x12商品属性名称R\x05label\x12-\n" +
 	"\x05value\x18\x04 \x01(\tB\x17\xbaG\x14\x92\x02\x11商品属性valueR\x05value\x12 \n" +
-	"\x04sort\x18\x05 \x01(\x05B\f\xbaG\t\x92\x02\x06排序R\x04sort2\xe4\x04\n" +
-	"\x10GoodsPropService\x12u\n" +
-	"\x0ePageGoodsProps\x12\x1f.admin.v1.PageGoodsPropsRequest\x1a .admin.v1.PageGoodsPropsResponse\" \x82\xd3\xe4\x93\x02\x1a\x12\x18/api/v1/admin/goods/prop\x12i\n" +
+	"\x04sort\x18\x05 \x01(\x05B\f\xbaG\t\x92\x02\x06排序R\x04sort2\xe1\x04\n" +
+	"\x10GoodsPropService\x12r\n" +
+	"\rPageGoodsProp\x12\x1e.admin.v1.PageGoodsPropRequest\x1a\x1f.admin.v1.PageGoodsPropResponse\" \x82\xd3\xe4\x93\x02\x1a\x12\x18/api/v1/admin/goods/prop\x12i\n" +
 	"\fGetGoodsProp\x12\x1d.admin.v1.GetGoodsPropRequest\x1a\x13.admin.v1.GoodsProp\"%\x82\xd3\xe4\x93\x02\x1f\x12\x1d/api/v1/admin/goods/prop/{id}\x12y\n" +
 	"\x0fCreateGoodsProp\x12 .admin.v1.CreateGoodsPropRequest\x1a\x16.google.protobuf.Empty\",\x82\xd3\xe4\x93\x02&:\n" +
 	"goods_prop\"\x18/api/v1/admin/goods/prop\x12~\n" +
@@ -467,8 +467,8 @@ func file_admin_v1_goods_prop_proto_rawDescGZIP() []byte {
 
 var file_admin_v1_goods_prop_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_admin_v1_goods_prop_proto_goTypes = []any{
-	(*PageGoodsPropsRequest)(nil),  // 0: admin.v1.PageGoodsPropsRequest
-	(*PageGoodsPropsResponse)(nil), // 1: admin.v1.PageGoodsPropsResponse
+	(*PageGoodsPropRequest)(nil),   // 0: admin.v1.PageGoodsPropRequest
+	(*PageGoodsPropResponse)(nil),  // 1: admin.v1.PageGoodsPropResponse
 	(*GetGoodsPropRequest)(nil),    // 2: admin.v1.GetGoodsPropRequest
 	(*CreateGoodsPropRequest)(nil), // 3: admin.v1.CreateGoodsPropRequest
 	(*UpdateGoodsPropRequest)(nil), // 4: admin.v1.UpdateGoodsPropRequest
@@ -477,15 +477,15 @@ var file_admin_v1_goods_prop_proto_goTypes = []any{
 	(*emptypb.Empty)(nil),          // 7: google.protobuf.Empty
 }
 var file_admin_v1_goods_prop_proto_depIdxs = []int32{
-	6, // 0: admin.v1.PageGoodsPropsResponse.goods_props:type_name -> admin.v1.GoodsProp
+	6, // 0: admin.v1.PageGoodsPropResponse.goods_props:type_name -> admin.v1.GoodsProp
 	6, // 1: admin.v1.CreateGoodsPropRequest.goods_prop:type_name -> admin.v1.GoodsProp
 	6, // 2: admin.v1.UpdateGoodsPropRequest.goods_prop:type_name -> admin.v1.GoodsProp
-	0, // 3: admin.v1.GoodsPropService.PageGoodsProps:input_type -> admin.v1.PageGoodsPropsRequest
+	0, // 3: admin.v1.GoodsPropService.PageGoodsProp:input_type -> admin.v1.PageGoodsPropRequest
 	2, // 4: admin.v1.GoodsPropService.GetGoodsProp:input_type -> admin.v1.GetGoodsPropRequest
 	3, // 5: admin.v1.GoodsPropService.CreateGoodsProp:input_type -> admin.v1.CreateGoodsPropRequest
 	4, // 6: admin.v1.GoodsPropService.UpdateGoodsProp:input_type -> admin.v1.UpdateGoodsPropRequest
 	5, // 7: admin.v1.GoodsPropService.DeleteGoodsProp:input_type -> admin.v1.DeleteGoodsPropRequest
-	1, // 8: admin.v1.GoodsPropService.PageGoodsProps:output_type -> admin.v1.PageGoodsPropsResponse
+	1, // 8: admin.v1.GoodsPropService.PageGoodsProp:output_type -> admin.v1.PageGoodsPropResponse
 	6, // 9: admin.v1.GoodsPropService.GetGoodsProp:output_type -> admin.v1.GoodsProp
 	7, // 10: admin.v1.GoodsPropService.CreateGoodsProp:output_type -> google.protobuf.Empty
 	7, // 11: admin.v1.GoodsPropService.UpdateGoodsProp:output_type -> google.protobuf.Empty

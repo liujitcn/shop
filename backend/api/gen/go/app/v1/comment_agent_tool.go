@@ -24,12 +24,12 @@ func NewCommentServiceAgentTools(commentServiceServer CommentServiceServer) ([]t
 		return nil, err
 	}
 	ts = append(ts, goodsCommentOverviewTool)
-	var goodsCommentTagsTool tool.InvokableTool
-	goodsCommentTagsTool, err = NewCommentServiceGoodsCommentTagsAgentTool(commentServiceServer)
+	var goodsCommentTagTool tool.InvokableTool
+	goodsCommentTagTool, err = NewCommentServiceGoodsCommentTagAgentTool(commentServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, goodsCommentTagsTool)
+	ts = append(ts, goodsCommentTagTool)
 	var pageGoodsCommentTool tool.InvokableTool
 	pageGoodsCommentTool, err = NewCommentServicePageGoodsCommentAgentTool(commentServiceServer)
 	if err != nil {
@@ -95,16 +95,16 @@ func NewCommentServiceGoodsCommentOverviewAgentTool(commentServiceServer Comment
 	)
 }
 
-// NewCommentServiceGoodsCommentTagsAgentTool 创建查询商品评价标签列表的 Agent Tool。
-func NewCommentServiceGoodsCommentTagsAgentTool(commentServiceServer CommentServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*GoodsCommentTagsRequest, *GoodsCommentTagsResponse](
-		"app_v1_comment_service_goods_comment_tags",
+// NewCommentServiceGoodsCommentTagAgentTool 创建查询商品评价标签列表的 Agent Tool。
+func NewCommentServiceGoodsCommentTagAgentTool(commentServiceServer CommentServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*GoodsCommentTagRequest, *GoodsCommentTagResponse](
+		"app_v1_comment_service_goods_comment_tag",
 		"查询商品评价标签列表",
-		func(ctx context.Context, req *GoodsCommentTagsRequest) (*GoodsCommentTagsResponse, error) {
+		func(ctx context.Context, req *GoodsCommentTagRequest) (*GoodsCommentTagResponse, error) {
 			if req == nil {
-				req = &GoodsCommentTagsRequest{}
+				req = &GoodsCommentTagRequest{}
 			}
-			return commentServiceServer.GoodsCommentTags(ctx, req)
+			return commentServiceServer.GoodsCommentTag(ctx, req)
 		},
 	)
 }

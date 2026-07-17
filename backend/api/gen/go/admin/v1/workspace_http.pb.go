@@ -18,15 +18,15 @@ var _ = new(context.Context)
 
 const _ = http.SupportPackageIsVersion3
 
-const OperationWorkspaceServiceListWorkspacePendingComments = "/admin.v1.WorkspaceService/ListWorkspacePendingComments"
+const OperationWorkspaceServiceListWorkspacePendingComment = "/admin.v1.WorkspaceService/ListWorkspacePendingComment"
 const OperationWorkspaceServiceSummaryWorkspaceMetrics = "/admin.v1.WorkspaceService/SummaryWorkspaceMetrics"
 const OperationWorkspaceServiceSummaryWorkspaceReputation = "/admin.v1.WorkspaceService/SummaryWorkspaceReputation"
 const OperationWorkspaceServiceSummaryWorkspaceRisk = "/admin.v1.WorkspaceService/SummaryWorkspaceRisk"
 const OperationWorkspaceServiceSummaryWorkspaceTodo = "/admin.v1.WorkspaceService/SummaryWorkspaceTodo"
 
 type WorkspaceServiceHTTPServer interface {
-	// ListWorkspacePendingComments 查询工作台待审核评价
-	ListWorkspacePendingComments(context.Context, *ListWorkspacePendingCommentsRequest) (*ListWorkspacePendingCommentsResponse, error)
+	// ListWorkspacePendingComment 查询工作台待审核评价
+	ListWorkspacePendingComment(context.Context, *ListWorkspacePendingCommentRequest) (*ListWorkspacePendingCommentResponse, error)
 	// SummaryWorkspaceMetrics 查询工作台顶部指标
 	SummaryWorkspaceMetrics(context.Context, *SummaryWorkspaceMetricsRequest) (*SummaryWorkspaceMetricsResponse, error)
 	// SummaryWorkspaceReputation 查询工作台口碑洞察
@@ -43,7 +43,7 @@ func RegisterWorkspaceServiceHTTPServer(s *http.Server, srv WorkspaceServiceHTTP
 	r.Handle("GET", "/api/v1/admin/workspace/todo/summary", _WorkspaceService_SummaryWorkspaceTodo0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/workspace/risk/summary", _WorkspaceService_SummaryWorkspaceRisk0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/workspace/reputation/summary", _WorkspaceService_SummaryWorkspaceReputation0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/admin/workspace/comment/pending", _WorkspaceService_ListWorkspacePendingComments0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/workspace/comment/pending", _WorkspaceService_ListWorkspacePendingComment0_HTTP_Handler(srv))
 }
 
 func _WorkspaceService_SummaryWorkspaceMetrics0_HTTP_Handler(srv WorkspaceServiceHTTPServer) func(ctx http.Context) error {
@@ -122,28 +122,28 @@ func _WorkspaceService_SummaryWorkspaceReputation0_HTTP_Handler(srv WorkspaceSer
 	}
 }
 
-func _WorkspaceService_ListWorkspacePendingComments0_HTTP_Handler(srv WorkspaceServiceHTTPServer) func(ctx http.Context) error {
+func _WorkspaceService_ListWorkspacePendingComment0_HTTP_Handler(srv WorkspaceServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in ListWorkspacePendingCommentsRequest
+		var in ListWorkspacePendingCommentRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationWorkspaceServiceListWorkspacePendingComments)
+		http.SetOperation(ctx, OperationWorkspaceServiceListWorkspacePendingComment)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.ListWorkspacePendingComments(ctx, req.(*ListWorkspacePendingCommentsRequest))
+			return srv.ListWorkspacePendingComment(ctx, req.(*ListWorkspacePendingCommentRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*ListWorkspacePendingCommentsResponse)
+		reply := out.(*ListWorkspacePendingCommentResponse)
 		return ctx.Result(200, reply)
 	}
 }
 
 type WorkspaceServiceHTTPClient interface {
-	// ListWorkspacePendingComments 查询工作台待审核评价
-	ListWorkspacePendingComments(ctx context.Context, req *ListWorkspacePendingCommentsRequest, opts ...http.CallOption) (rsp *ListWorkspacePendingCommentsResponse, err error)
+	// ListWorkspacePendingComment 查询工作台待审核评价
+	ListWorkspacePendingComment(ctx context.Context, req *ListWorkspacePendingCommentRequest, opts ...http.CallOption) (rsp *ListWorkspacePendingCommentResponse, err error)
 	// SummaryWorkspaceMetrics 查询工作台顶部指标
 	SummaryWorkspaceMetrics(ctx context.Context, req *SummaryWorkspaceMetricsRequest, opts ...http.CallOption) (rsp *SummaryWorkspaceMetricsResponse, err error)
 	// SummaryWorkspaceReputation 查询工作台口碑洞察
@@ -162,14 +162,14 @@ func NewWorkspaceServiceHTTPClient(client *http.Client) WorkspaceServiceHTTPClie
 	return &WorkspaceServiceHTTPClientImpl{client}
 }
 
-// ListWorkspacePendingComments 查询工作台待审核评价
-func (c *WorkspaceServiceHTTPClientImpl) ListWorkspacePendingComments(ctx context.Context, in *ListWorkspacePendingCommentsRequest, opts ...http.CallOption) (*ListWorkspacePendingCommentsResponse, error) {
-	var out ListWorkspacePendingCommentsResponse
+// ListWorkspacePendingComment 查询工作台待审核评价
+func (c *WorkspaceServiceHTTPClientImpl) ListWorkspacePendingComment(ctx context.Context, in *ListWorkspacePendingCommentRequest, opts ...http.CallOption) (*ListWorkspacePendingCommentResponse, error) {
+	var out ListWorkspacePendingCommentResponse
 	pattern := "/api/v1/admin/workspace/comment/pending"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationWorkspaceServiceListWorkspacePendingComments),
+		http.Operation(OperationWorkspaceServiceListWorkspacePendingComment),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)

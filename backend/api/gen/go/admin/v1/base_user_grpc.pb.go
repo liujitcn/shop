@@ -8,12 +8,13 @@ package adminv1
 
 import (
 	context "context"
-	v1 "shop/api/gen/go/common/v1"
 
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+
+	v1 "shop/api/gen/go/common/v1"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -22,8 +23,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	BaseUserService_OptionBaseUsers_FullMethodName       = "/admin.v1.BaseUserService/OptionBaseUsers"
-	BaseUserService_PageBaseUsers_FullMethodName         = "/admin.v1.BaseUserService/PageBaseUsers"
+	BaseUserService_OptionBaseUser_FullMethodName        = "/admin.v1.BaseUserService/OptionBaseUser"
+	BaseUserService_PageBaseUser_FullMethodName          = "/admin.v1.BaseUserService/PageBaseUser"
 	BaseUserService_GetBaseUser_FullMethodName           = "/admin.v1.BaseUserService/GetBaseUser"
 	BaseUserService_CreateBaseUser_FullMethodName        = "/admin.v1.BaseUserService/CreateBaseUser"
 	BaseUserService_UpdateBaseUser_FullMethodName        = "/admin.v1.BaseUserService/UpdateBaseUser"
@@ -39,9 +40,9 @@ const (
 // Admin用户管理服务
 type BaseUserServiceClient interface {
 	// 查询用户下拉选择
-	OptionBaseUsers(ctx context.Context, in *OptionBaseUsersRequest, opts ...grpc.CallOption) (*v1.SelectOptionResponse, error)
+	OptionBaseUser(ctx context.Context, in *OptionBaseUserRequest, opts ...grpc.CallOption) (*v1.SelectOptionResponse, error)
 	// 查询用户分页列表
-	PageBaseUsers(ctx context.Context, in *PageBaseUsersRequest, opts ...grpc.CallOption) (*PageBaseUsersResponse, error)
+	PageBaseUser(ctx context.Context, in *PageBaseUserRequest, opts ...grpc.CallOption) (*PageBaseUserResponse, error)
 	// 查询用户
 	GetBaseUser(ctx context.Context, in *GetBaseUserRequest, opts ...grpc.CallOption) (*BaseUserForm, error)
 	// 创建用户
@@ -64,20 +65,20 @@ func NewBaseUserServiceClient(cc grpc.ClientConnInterface) BaseUserServiceClient
 	return &baseUserServiceClient{cc}
 }
 
-func (c *baseUserServiceClient) OptionBaseUsers(ctx context.Context, in *OptionBaseUsersRequest, opts ...grpc.CallOption) (*v1.SelectOptionResponse, error) {
+func (c *baseUserServiceClient) OptionBaseUser(ctx context.Context, in *OptionBaseUserRequest, opts ...grpc.CallOption) (*v1.SelectOptionResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(v1.SelectOptionResponse)
-	err := c.cc.Invoke(ctx, BaseUserService_OptionBaseUsers_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, BaseUserService_OptionBaseUser_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *baseUserServiceClient) PageBaseUsers(ctx context.Context, in *PageBaseUsersRequest, opts ...grpc.CallOption) (*PageBaseUsersResponse, error) {
+func (c *baseUserServiceClient) PageBaseUser(ctx context.Context, in *PageBaseUserRequest, opts ...grpc.CallOption) (*PageBaseUserResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(PageBaseUsersResponse)
-	err := c.cc.Invoke(ctx, BaseUserService_PageBaseUsers_FullMethodName, in, out, cOpts...)
+	out := new(PageBaseUserResponse)
+	err := c.cc.Invoke(ctx, BaseUserService_PageBaseUser_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -151,9 +152,9 @@ func (c *baseUserServiceClient) ResetBaseUserPassword(ctx context.Context, in *R
 // Admin用户管理服务
 type BaseUserServiceServer interface {
 	// 查询用户下拉选择
-	OptionBaseUsers(context.Context, *OptionBaseUsersRequest) (*v1.SelectOptionResponse, error)
+	OptionBaseUser(context.Context, *OptionBaseUserRequest) (*v1.SelectOptionResponse, error)
 	// 查询用户分页列表
-	PageBaseUsers(context.Context, *PageBaseUsersRequest) (*PageBaseUsersResponse, error)
+	PageBaseUser(context.Context, *PageBaseUserRequest) (*PageBaseUserResponse, error)
 	// 查询用户
 	GetBaseUser(context.Context, *GetBaseUserRequest) (*BaseUserForm, error)
 	// 创建用户
@@ -176,11 +177,11 @@ type BaseUserServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedBaseUserServiceServer struct{}
 
-func (UnimplementedBaseUserServiceServer) OptionBaseUsers(context.Context, *OptionBaseUsersRequest) (*v1.SelectOptionResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method OptionBaseUsers not implemented")
+func (UnimplementedBaseUserServiceServer) OptionBaseUser(context.Context, *OptionBaseUserRequest) (*v1.SelectOptionResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method OptionBaseUser not implemented")
 }
-func (UnimplementedBaseUserServiceServer) PageBaseUsers(context.Context, *PageBaseUsersRequest) (*PageBaseUsersResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method PageBaseUsers not implemented")
+func (UnimplementedBaseUserServiceServer) PageBaseUser(context.Context, *PageBaseUserRequest) (*PageBaseUserResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method PageBaseUser not implemented")
 }
 func (UnimplementedBaseUserServiceServer) GetBaseUser(context.Context, *GetBaseUserRequest) (*BaseUserForm, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetBaseUser not implemented")
@@ -221,38 +222,38 @@ func RegisterBaseUserServiceServer(s grpc.ServiceRegistrar, srv BaseUserServiceS
 	s.RegisterService(&BaseUserService_ServiceDesc, srv)
 }
 
-func _BaseUserService_OptionBaseUsers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(OptionBaseUsersRequest)
+func _BaseUserService_OptionBaseUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OptionBaseUserRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BaseUserServiceServer).OptionBaseUsers(ctx, in)
+		return srv.(BaseUserServiceServer).OptionBaseUser(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: BaseUserService_OptionBaseUsers_FullMethodName,
+		FullMethod: BaseUserService_OptionBaseUser_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BaseUserServiceServer).OptionBaseUsers(ctx, req.(*OptionBaseUsersRequest))
+		return srv.(BaseUserServiceServer).OptionBaseUser(ctx, req.(*OptionBaseUserRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _BaseUserService_PageBaseUsers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PageBaseUsersRequest)
+func _BaseUserService_PageBaseUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PageBaseUserRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BaseUserServiceServer).PageBaseUsers(ctx, in)
+		return srv.(BaseUserServiceServer).PageBaseUser(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: BaseUserService_PageBaseUsers_FullMethodName,
+		FullMethod: BaseUserService_PageBaseUser_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BaseUserServiceServer).PageBaseUsers(ctx, req.(*PageBaseUsersRequest))
+		return srv.(BaseUserServiceServer).PageBaseUser(ctx, req.(*PageBaseUserRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -373,12 +374,12 @@ var BaseUserService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*BaseUserServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "OptionBaseUsers",
-			Handler:    _BaseUserService_OptionBaseUsers_Handler,
+			MethodName: "OptionBaseUser",
+			Handler:    _BaseUserService_OptionBaseUser_Handler,
 		},
 		{
-			MethodName: "PageBaseUsers",
-			Handler:    _BaseUserService_PageBaseUsers_Handler,
+			MethodName: "PageBaseUser",
+			Handler:    _BaseUserService_PageBaseUser_Handler,
 		},
 		{
 			MethodName: "GetBaseUser",

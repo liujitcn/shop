@@ -5,9 +5,9 @@ import {
   type CreateBaseUserRequest,
   type DeleteBaseUserRequest,
   type GetBaseUserRequest,
-  type PageBaseUsersRequest,
-  type PageBaseUsersResponse,
-  type OptionBaseUsersRequest,
+  type PageBaseUserRequest,
+  type PageBaseUserResponse,
+  type OptionBaseUserRequest,
   type ResetBaseUserPasswordRequest,
   type SetBaseUserStatusRequest,
   type UpdateBaseUserRequest
@@ -20,8 +20,8 @@ const BASE_USER_URL = "/v1/admin/base/user";
 /** Admin用户服务 */
 export class BaseUserServiceImpl implements BaseUserService {
   /** 查询用户下拉选择 */
-  OptionBaseUsers(request: OptionBaseUsersRequest): Promise<SelectOptionResponse> {
-    return service<OptionBaseUsersRequest, SelectOptionResponse>({
+  OptionBaseUser(request: OptionBaseUserRequest): Promise<SelectOptionResponse> {
+    return service<OptionBaseUserRequest, SelectOptionResponse>({
       url: `${BASE_USER_URL}/option`,
       method: "get",
       params: request
@@ -29,8 +29,8 @@ export class BaseUserServiceImpl implements BaseUserService {
   }
 
   /** 查询用户分页列表 */
-  PageBaseUsers(request: PageBaseUsersRequest): Promise<PageBaseUsersResponse> {
-    return service<PageBaseUsersRequest, PageBaseUsersResponse>({
+  PageBaseUser(request: PageBaseUserRequest): Promise<PageBaseUserResponse> {
+    return service<PageBaseUserRequest, PageBaseUserResponse>({
       url: `${BASE_USER_URL}`,
       method: "get",
       params: request

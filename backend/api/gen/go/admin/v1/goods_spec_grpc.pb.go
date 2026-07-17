@@ -20,7 +20,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	GoodsSpecService_ListGoodsSpecs_FullMethodName = "/admin.v1.GoodsSpecService/ListGoodsSpecs"
+	GoodsSpecService_ListGoodsSpec_FullMethodName = "/admin.v1.GoodsSpecService/ListGoodsSpec"
 )
 
 // GoodsSpecServiceClient is the client API for GoodsSpecService service.
@@ -30,7 +30,7 @@ const (
 // Admin商品规格服务
 type GoodsSpecServiceClient interface {
 	// 查询商品规格列表
-	ListGoodsSpecs(ctx context.Context, in *ListGoodsSpecsRequest, opts ...grpc.CallOption) (*ListGoodsSpecsResponse, error)
+	ListGoodsSpec(ctx context.Context, in *ListGoodsSpecRequest, opts ...grpc.CallOption) (*ListGoodsSpecResponse, error)
 }
 
 type goodsSpecServiceClient struct {
@@ -41,10 +41,10 @@ func NewGoodsSpecServiceClient(cc grpc.ClientConnInterface) GoodsSpecServiceClie
 	return &goodsSpecServiceClient{cc}
 }
 
-func (c *goodsSpecServiceClient) ListGoodsSpecs(ctx context.Context, in *ListGoodsSpecsRequest, opts ...grpc.CallOption) (*ListGoodsSpecsResponse, error) {
+func (c *goodsSpecServiceClient) ListGoodsSpec(ctx context.Context, in *ListGoodsSpecRequest, opts ...grpc.CallOption) (*ListGoodsSpecResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListGoodsSpecsResponse)
-	err := c.cc.Invoke(ctx, GoodsSpecService_ListGoodsSpecs_FullMethodName, in, out, cOpts...)
+	out := new(ListGoodsSpecResponse)
+	err := c.cc.Invoke(ctx, GoodsSpecService_ListGoodsSpec_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +58,7 @@ func (c *goodsSpecServiceClient) ListGoodsSpecs(ctx context.Context, in *ListGoo
 // Admin商品规格服务
 type GoodsSpecServiceServer interface {
 	// 查询商品规格列表
-	ListGoodsSpecs(context.Context, *ListGoodsSpecsRequest) (*ListGoodsSpecsResponse, error)
+	ListGoodsSpec(context.Context, *ListGoodsSpecRequest) (*ListGoodsSpecResponse, error)
 	mustEmbedUnimplementedGoodsSpecServiceServer()
 }
 
@@ -69,8 +69,8 @@ type GoodsSpecServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedGoodsSpecServiceServer struct{}
 
-func (UnimplementedGoodsSpecServiceServer) ListGoodsSpecs(context.Context, *ListGoodsSpecsRequest) (*ListGoodsSpecsResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method ListGoodsSpecs not implemented")
+func (UnimplementedGoodsSpecServiceServer) ListGoodsSpec(context.Context, *ListGoodsSpecRequest) (*ListGoodsSpecResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListGoodsSpec not implemented")
 }
 func (UnimplementedGoodsSpecServiceServer) mustEmbedUnimplementedGoodsSpecServiceServer() {}
 func (UnimplementedGoodsSpecServiceServer) testEmbeddedByValue()                          {}
@@ -93,20 +93,20 @@ func RegisterGoodsSpecServiceServer(s grpc.ServiceRegistrar, srv GoodsSpecServic
 	s.RegisterService(&GoodsSpecService_ServiceDesc, srv)
 }
 
-func _GoodsSpecService_ListGoodsSpecs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListGoodsSpecsRequest)
+func _GoodsSpecService_ListGoodsSpec_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListGoodsSpecRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(GoodsSpecServiceServer).ListGoodsSpecs(ctx, in)
+		return srv.(GoodsSpecServiceServer).ListGoodsSpec(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: GoodsSpecService_ListGoodsSpecs_FullMethodName,
+		FullMethod: GoodsSpecService_ListGoodsSpec_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GoodsSpecServiceServer).ListGoodsSpecs(ctx, req.(*ListGoodsSpecsRequest))
+		return srv.(GoodsSpecServiceServer).ListGoodsSpec(ctx, req.(*ListGoodsSpecRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -119,8 +119,8 @@ var GoodsSpecService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*GoodsSpecServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "ListGoodsSpecs",
-			Handler:    _GoodsSpecService_ListGoodsSpecs_Handler,
+			MethodName: "ListGoodsSpec",
+			Handler:    _GoodsSpecService_ListGoodsSpec_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

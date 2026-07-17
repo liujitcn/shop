@@ -253,7 +253,7 @@ import { type GoodsSku } from "@/rpc/admin/v1/goods_sku";
 import { defGoodsInfoService } from "@/api/admin/goods_info";
 import { defCommentInfoService } from "@/api/admin/comment_info";
 import { defTenantStoreService } from "@/api/admin/tenant_store";
-import type { CommentInfo, PageCommentInfosRequest } from "@/rpc/admin/v1/comment_info";
+import type { CommentInfo, PageCommentInfoRequest } from "@/rpc/admin/v1/comment_info";
 import { CommentStatus, GoodsStatus } from "@/rpc/common/v1/enum";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { useUserStore } from "@/stores/modules/user";
@@ -358,7 +358,7 @@ const tenantStoreNameText = computed(() => tenantStoreDisplayMap.value.get(formD
 /** 加载租户门店映射，供详情页展示租户与门店名称。 */
 async function loadTenantStoreDisplayMap() {
   if (tenantStoreDisplayMap.value.size) return;
-  const response = await defTenantStoreService.TreeTenantStores({ keyword: "" });
+  const response = await defTenantStoreService.TreeTenantStore({ keyword: "" });
   tenantStoreDisplayMap.value = buildTenantStoreDisplayMap(response.list ?? []);
 }
 
@@ -644,12 +644,12 @@ const commentColumns: ColumnProps[] = [
 ];
 
 /** 请求当前商品评论列表，并固定附加商品ID，避免混入其他商品评论。 */
-async function requestGoodsCommentTable(params: PageCommentInfosRequest) {
+async function requestGoodsCommentTable(params: PageCommentInfoRequest) {
   if (!goodsId.value) {
     return { data: { list: [], total: 0 } };
   }
-  const data = await defCommentInfoService.PageCommentInfos(
-    buildPageRequest({ ...params, goods_id: goodsId.value }) as PageCommentInfosRequest
+  const data = await defCommentInfoService.PageCommentInfo(
+    buildPageRequest({ ...params, goods_id: goodsId.value }) as PageCommentInfoRequest
   );
   return { data: { list: data.comment_infos ?? [], total: data.total } };
 }

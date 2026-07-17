@@ -18,12 +18,12 @@ import (
 func NewBaseJobServiceAgentTools(baseJobServiceServer BaseJobServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error
-	var pageBaseJobsTool tool.InvokableTool
-	pageBaseJobsTool, err = NewBaseJobServicePageBaseJobsAgentTool(baseJobServiceServer)
+	var pageBaseJobTool tool.InvokableTool
+	pageBaseJobTool, err = NewBaseJobServicePageBaseJobAgentTool(baseJobServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, pageBaseJobsTool)
+	ts = append(ts, pageBaseJobTool)
 	var getBaseJobTool tool.InvokableTool
 	getBaseJobTool, err = NewBaseJobServiceGetBaseJobAgentTool(baseJobServiceServer)
 	if err != nil {
@@ -72,12 +72,12 @@ func NewBaseJobServiceAgentTools(baseJobServiceServer BaseJobServiceServer) ([]t
 		return nil, err
 	}
 	ts = append(ts, executeBaseJobTool)
-	var pageBaseJobLogsTool tool.InvokableTool
-	pageBaseJobLogsTool, err = NewBaseJobServicePageBaseJobLogsAgentTool(baseJobServiceServer)
+	var pageBaseJobLogTool tool.InvokableTool
+	pageBaseJobLogTool, err = NewBaseJobServicePageBaseJobLogAgentTool(baseJobServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, pageBaseJobLogsTool)
+	ts = append(ts, pageBaseJobLogTool)
 	var getBaseJobLogTool tool.InvokableTool
 	getBaseJobLogTool, err = NewBaseJobServiceGetBaseJobLogAgentTool(baseJobServiceServer)
 	if err != nil {
@@ -87,16 +87,16 @@ func NewBaseJobServiceAgentTools(baseJobServiceServer BaseJobServiceServer) ([]t
 	return ts, nil
 }
 
-// NewBaseJobServicePageBaseJobsAgentTool 创建查询定时任务分页列表的 Agent Tool。
-func NewBaseJobServicePageBaseJobsAgentTool(baseJobServiceServer BaseJobServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*PageBaseJobsRequest, *PageBaseJobsResponse](
-		"admin_v1_base_job_service_page_base_jobs",
+// NewBaseJobServicePageBaseJobAgentTool 创建查询定时任务分页列表的 Agent Tool。
+func NewBaseJobServicePageBaseJobAgentTool(baseJobServiceServer BaseJobServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PageBaseJobRequest, *PageBaseJobResponse](
+		"admin_v1_base_job_service_page_base_job",
 		"查询定时任务分页列表",
-		func(ctx context.Context, req *PageBaseJobsRequest) (*PageBaseJobsResponse, error) {
+		func(ctx context.Context, req *PageBaseJobRequest) (*PageBaseJobResponse, error) {
 			if req == nil {
-				req = &PageBaseJobsRequest{}
+				req = &PageBaseJobRequest{}
 			}
-			return baseJobServiceServer.PageBaseJobs(ctx, req)
+			return baseJobServiceServer.PageBaseJob(ctx, req)
 		},
 	)
 }
@@ -213,16 +213,16 @@ func NewBaseJobServiceExecuteBaseJobAgentTool(baseJobServiceServer BaseJobServic
 	)
 }
 
-// NewBaseJobServicePageBaseJobLogsAgentTool 创建查询定时任务日志分页列表的 Agent Tool。
-func NewBaseJobServicePageBaseJobLogsAgentTool(baseJobServiceServer BaseJobServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*PageBaseJobLogsRequest, *PageBaseJobLogsResponse](
-		"admin_v1_base_job_service_page_base_job_logs",
+// NewBaseJobServicePageBaseJobLogAgentTool 创建查询定时任务日志分页列表的 Agent Tool。
+func NewBaseJobServicePageBaseJobLogAgentTool(baseJobServiceServer BaseJobServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PageBaseJobLogRequest, *PageBaseJobLogResponse](
+		"admin_v1_base_job_service_page_base_job_log",
 		"查询定时任务日志分页列表",
-		func(ctx context.Context, req *PageBaseJobLogsRequest) (*PageBaseJobLogsResponse, error) {
+		func(ctx context.Context, req *PageBaseJobLogRequest) (*PageBaseJobLogResponse, error) {
 			if req == nil {
-				req = &PageBaseJobLogsRequest{}
+				req = &PageBaseJobLogRequest{}
 			}
-			return baseJobServiceServer.PageBaseJobLogs(ctx, req)
+			return baseJobServiceServer.PageBaseJobLog(ctx, req)
 		},
 	)
 }

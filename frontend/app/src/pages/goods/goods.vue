@@ -154,7 +154,7 @@ const loadData = async () => {
 
   loadErrorMessage.value = ''
   try {
-    const ssRes = await defShopServiceService.ListShopServices({})
+    const ssRes = await defShopServiceService.ListShopService({})
     serviceList.value = ssRes.shop_services || []
     const res = await defGoodsInfoService.GetGoodsInfo({
       id: goodsId,

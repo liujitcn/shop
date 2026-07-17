@@ -18,24 +18,24 @@ import (
 func NewCommentInfoServiceAgentTools(commentInfoServiceServer CommentInfoServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error
-	var pageCommentInfosTool tool.InvokableTool
-	pageCommentInfosTool, err = NewCommentInfoServicePageCommentInfosAgentTool(commentInfoServiceServer)
+	var pageCommentInfoTool tool.InvokableTool
+	pageCommentInfoTool, err = NewCommentInfoServicePageCommentInfoAgentTool(commentInfoServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, pageCommentInfosTool)
+	ts = append(ts, pageCommentInfoTool)
 	var getGoodsCommentInfoTool tool.InvokableTool
 	getGoodsCommentInfoTool, err = NewCommentInfoServiceGetGoodsCommentInfoAgentTool(commentInfoServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, getGoodsCommentInfoTool)
-	var listCommentReviewsTool tool.InvokableTool
-	listCommentReviewsTool, err = NewCommentInfoServiceListCommentReviewsAgentTool(commentInfoServiceServer)
+	var listCommentReviewTool tool.InvokableTool
+	listCommentReviewTool, err = NewCommentInfoServiceListCommentReviewAgentTool(commentInfoServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, listCommentReviewsTool)
+	ts = append(ts, listCommentReviewTool)
 	var getCommentInfoTool tool.InvokableTool
 	getCommentInfoTool, err = NewCommentInfoServiceGetCommentInfoAgentTool(commentInfoServiceServer)
 	if err != nil {
@@ -48,12 +48,12 @@ func NewCommentInfoServiceAgentTools(commentInfoServiceServer CommentInfoService
 		return nil, err
 	}
 	ts = append(ts, setCommentInfoStatusTool)
-	var pageCommentDiscussionsTool tool.InvokableTool
-	pageCommentDiscussionsTool, err = NewCommentInfoServicePageCommentDiscussionsAgentTool(commentInfoServiceServer)
+	var pageCommentDiscussionTool tool.InvokableTool
+	pageCommentDiscussionTool, err = NewCommentInfoServicePageCommentDiscussionAgentTool(commentInfoServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, pageCommentDiscussionsTool)
+	ts = append(ts, pageCommentDiscussionTool)
 	var setCommentDiscussionStatusTool tool.InvokableTool
 	setCommentDiscussionStatusTool, err = NewCommentInfoServiceSetCommentDiscussionStatusAgentTool(commentInfoServiceServer)
 	if err != nil {
@@ -63,16 +63,16 @@ func NewCommentInfoServiceAgentTools(commentInfoServiceServer CommentInfoService
 	return ts, nil
 }
 
-// NewCommentInfoServicePageCommentInfosAgentTool 创建查询评论分页列表的 Agent Tool。
-func NewCommentInfoServicePageCommentInfosAgentTool(commentInfoServiceServer CommentInfoServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*PageCommentInfosRequest, *PageCommentInfosResponse](
-		"admin_v1_comment_info_service_page_comment_infos",
+// NewCommentInfoServicePageCommentInfoAgentTool 创建查询评论分页列表的 Agent Tool。
+func NewCommentInfoServicePageCommentInfoAgentTool(commentInfoServiceServer CommentInfoServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PageCommentInfoRequest, *PageCommentInfoResponse](
+		"admin_v1_comment_info_service_page_comment_info",
 		"查询评论分页列表",
-		func(ctx context.Context, req *PageCommentInfosRequest) (*PageCommentInfosResponse, error) {
+		func(ctx context.Context, req *PageCommentInfoRequest) (*PageCommentInfoResponse, error) {
 			if req == nil {
-				req = &PageCommentInfosRequest{}
+				req = &PageCommentInfoRequest{}
 			}
-			return commentInfoServiceServer.PageCommentInfos(ctx, req)
+			return commentInfoServiceServer.PageCommentInfo(ctx, req)
 		},
 	)
 }
@@ -91,16 +91,16 @@ func NewCommentInfoServiceGetGoodsCommentInfoAgentTool(commentInfoServiceServer 
 	)
 }
 
-// NewCommentInfoServiceListCommentReviewsAgentTool 创建查询评论审核记录列表的 Agent Tool。
-func NewCommentInfoServiceListCommentReviewsAgentTool(commentInfoServiceServer CommentInfoServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*ListCommentReviewsRequest, *ListCommentReviewsResponse](
-		"admin_v1_comment_info_service_list_comment_reviews",
+// NewCommentInfoServiceListCommentReviewAgentTool 创建查询评论审核记录列表的 Agent Tool。
+func NewCommentInfoServiceListCommentReviewAgentTool(commentInfoServiceServer CommentInfoServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*ListCommentReviewRequest, *ListCommentReviewResponse](
+		"admin_v1_comment_info_service_list_comment_review",
 		"查询评论审核记录列表",
-		func(ctx context.Context, req *ListCommentReviewsRequest) (*ListCommentReviewsResponse, error) {
+		func(ctx context.Context, req *ListCommentReviewRequest) (*ListCommentReviewResponse, error) {
 			if req == nil {
-				req = &ListCommentReviewsRequest{}
+				req = &ListCommentReviewRequest{}
 			}
-			return commentInfoServiceServer.ListCommentReviews(ctx, req)
+			return commentInfoServiceServer.ListCommentReview(ctx, req)
 		},
 	)
 }
@@ -133,16 +133,16 @@ func NewCommentInfoServiceSetCommentInfoStatusAgentTool(commentInfoServiceServer
 	)
 }
 
-// NewCommentInfoServicePageCommentDiscussionsAgentTool 创建查询评论讨论分页列表的 Agent Tool。
-func NewCommentInfoServicePageCommentDiscussionsAgentTool(commentInfoServiceServer CommentInfoServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*PageCommentDiscussionsRequest, *PageCommentDiscussionsResponse](
-		"admin_v1_comment_info_service_page_comment_discussions",
+// NewCommentInfoServicePageCommentDiscussionAgentTool 创建查询评论讨论分页列表的 Agent Tool。
+func NewCommentInfoServicePageCommentDiscussionAgentTool(commentInfoServiceServer CommentInfoServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PageCommentDiscussionRequest, *PageCommentDiscussionResponse](
+		"admin_v1_comment_info_service_page_comment_discussion",
 		"查询评论讨论分页列表",
-		func(ctx context.Context, req *PageCommentDiscussionsRequest) (*PageCommentDiscussionsResponse, error) {
+		func(ctx context.Context, req *PageCommentDiscussionRequest) (*PageCommentDiscussionResponse, error) {
 			if req == nil {
-				req = &PageCommentDiscussionsRequest{}
+				req = &PageCommentDiscussionRequest{}
 			}
-			return commentInfoServiceServer.PageCommentDiscussions(ctx, req)
+			return commentInfoServiceServer.PageCommentDiscussion(ctx, req)
 		},
 	)
 }

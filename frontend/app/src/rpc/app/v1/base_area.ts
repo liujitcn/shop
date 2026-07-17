@@ -8,11 +8,11 @@
 import type { AppTreeOptionResponse_Option } from "../../common/v1/common";
 
 /** 行政区域树形查询条件 */
-export interface TreeBaseAreasRequest {
+export interface TreeBaseAreaRequest {
 }
 
 /** 行政区域树形响应 */
-export interface TreeBaseAreasResponse {
+export interface TreeBaseAreaResponse {
   /** 行政区域树形选项 */
   areas: AppTreeOptionResponse_Option[];
 }
@@ -20,5 +20,5 @@ export interface TreeBaseAreasResponse {
 /** App行政区域服务 */
 export interface BaseAreaService {
   /** 查询行政区域树形列表 */
-  TreeBaseAreas(request: TreeBaseAreasRequest): Promise<TreeBaseAreasResponse>;
+  TreeBaseArea(request: TreeBaseAreaRequest): Promise<TreeBaseAreaResponse>;
 }

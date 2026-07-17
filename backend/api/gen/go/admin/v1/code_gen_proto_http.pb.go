@@ -19,56 +19,56 @@ var _ = new(context.Context)
 
 const _ = http.SupportPackageIsVersion3
 
-const OperationCodeGenProtoServiceListCodeGenProtos = "/admin.v1.CodeGenProtoService/ListCodeGenProtos"
-const OperationCodeGenProtoServiceSaveCodeGenProtos = "/admin.v1.CodeGenProtoService/SaveCodeGenProtos"
+const OperationCodeGenProtoServiceListCodeGenProto = "/admin.v1.CodeGenProtoService/ListCodeGenProto"
+const OperationCodeGenProtoServiceSaveCodeGenProto = "/admin.v1.CodeGenProtoService/SaveCodeGenProto"
 
 type CodeGenProtoServiceHTTPServer interface {
-	// ListCodeGenProtos 查询代码生成Proto接口配置
-	ListCodeGenProtos(context.Context, *ListCodeGenProtosRequest) (*ListCodeGenProtosResponse, error)
-	// SaveCodeGenProtos 保存代码生成Proto接口配置
-	SaveCodeGenProtos(context.Context, *SaveCodeGenProtosRequest) (*emptypb.Empty, error)
+	// ListCodeGenProto 查询代码生成Proto接口配置
+	ListCodeGenProto(context.Context, *ListCodeGenProtoRequest) (*ListCodeGenProtoResponse, error)
+	// SaveCodeGenProto 保存代码生成Proto接口配置
+	SaveCodeGenProto(context.Context, *SaveCodeGenProtoRequest) (*emptypb.Empty, error)
 }
 
 func RegisterCodeGenProtoServiceHTTPServer(s *http.Server, srv CodeGenProtoServiceHTTPServer) {
 	r := s.Route("/")
-	r.Handle("GET", "/api/v1/admin/code-gen/table/{table_id}/proto", _CodeGenProtoService_ListCodeGenProtos0_HTTP_Handler(srv))
-	r.Handle("PUT", "/api/v1/admin/code-gen/table/{table_id}/proto", _CodeGenProtoService_SaveCodeGenProtos0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/code-gen/table/{table_id}/proto", _CodeGenProtoService_ListCodeGenProto0_HTTP_Handler(srv))
+	r.Handle("PUT", "/api/v1/admin/code-gen/table/{table_id}/proto", _CodeGenProtoService_SaveCodeGenProto0_HTTP_Handler(srv))
 }
 
-func _CodeGenProtoService_ListCodeGenProtos0_HTTP_Handler(srv CodeGenProtoServiceHTTPServer) func(ctx http.Context) error {
+func _CodeGenProtoService_ListCodeGenProto0_HTTP_Handler(srv CodeGenProtoServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in ListCodeGenProtosRequest
+		var in ListCodeGenProtoRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
 		if err := ctx.BindVars(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationCodeGenProtoServiceListCodeGenProtos)
+		http.SetOperation(ctx, OperationCodeGenProtoServiceListCodeGenProto)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.ListCodeGenProtos(ctx, req.(*ListCodeGenProtosRequest))
+			return srv.ListCodeGenProto(ctx, req.(*ListCodeGenProtoRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*ListCodeGenProtosResponse)
+		reply := out.(*ListCodeGenProtoResponse)
 		return ctx.Result(200, reply)
 	}
 }
 
-func _CodeGenProtoService_SaveCodeGenProtos0_HTTP_Handler(srv CodeGenProtoServiceHTTPServer) func(ctx http.Context) error {
+func _CodeGenProtoService_SaveCodeGenProto0_HTTP_Handler(srv CodeGenProtoServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in SaveCodeGenProtosRequest
+		var in SaveCodeGenProtoRequest
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
 		if err := ctx.BindVars(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationCodeGenProtoServiceSaveCodeGenProtos)
+		http.SetOperation(ctx, OperationCodeGenProtoServiceSaveCodeGenProto)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.SaveCodeGenProtos(ctx, req.(*SaveCodeGenProtosRequest))
+			return srv.SaveCodeGenProto(ctx, req.(*SaveCodeGenProtoRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -80,10 +80,10 @@ func _CodeGenProtoService_SaveCodeGenProtos0_HTTP_Handler(srv CodeGenProtoServic
 }
 
 type CodeGenProtoServiceHTTPClient interface {
-	// ListCodeGenProtos 查询代码生成Proto接口配置
-	ListCodeGenProtos(ctx context.Context, req *ListCodeGenProtosRequest, opts ...http.CallOption) (rsp *ListCodeGenProtosResponse, err error)
-	// SaveCodeGenProtos 保存代码生成Proto接口配置
-	SaveCodeGenProtos(ctx context.Context, req *SaveCodeGenProtosRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	// ListCodeGenProto 查询代码生成Proto接口配置
+	ListCodeGenProto(ctx context.Context, req *ListCodeGenProtoRequest, opts ...http.CallOption) (rsp *ListCodeGenProtoResponse, err error)
+	// SaveCodeGenProto 保存代码生成Proto接口配置
+	SaveCodeGenProto(ctx context.Context, req *SaveCodeGenProtoRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 }
 
 type CodeGenProtoServiceHTTPClientImpl struct {
@@ -94,14 +94,14 @@ func NewCodeGenProtoServiceHTTPClient(client *http.Client) CodeGenProtoServiceHT
 	return &CodeGenProtoServiceHTTPClientImpl{client}
 }
 
-// ListCodeGenProtos 查询代码生成Proto接口配置
-func (c *CodeGenProtoServiceHTTPClientImpl) ListCodeGenProtos(ctx context.Context, in *ListCodeGenProtosRequest, opts ...http.CallOption) (*ListCodeGenProtosResponse, error) {
-	var out ListCodeGenProtosResponse
+// ListCodeGenProto 查询代码生成Proto接口配置
+func (c *CodeGenProtoServiceHTTPClientImpl) ListCodeGenProto(ctx context.Context, in *ListCodeGenProtoRequest, opts ...http.CallOption) (*ListCodeGenProtoResponse, error) {
+	var out ListCodeGenProtoResponse
 	pattern := "/api/v1/admin/code-gen/table/{table_id}/proto"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationCodeGenProtoServiceListCodeGenProtos),
+		http.Operation(OperationCodeGenProtoServiceListCodeGenProto),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
@@ -111,15 +111,15 @@ func (c *CodeGenProtoServiceHTTPClientImpl) ListCodeGenProtos(ctx context.Contex
 	return &out, nil
 }
 
-// SaveCodeGenProtos 保存代码生成Proto接口配置
-func (c *CodeGenProtoServiceHTTPClientImpl) SaveCodeGenProtos(ctx context.Context, in *SaveCodeGenProtosRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
+// SaveCodeGenProto 保存代码生成Proto接口配置
+func (c *CodeGenProtoServiceHTTPClientImpl) SaveCodeGenProto(ctx context.Context, in *SaveCodeGenProtoRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
 	pattern := "/api/v1/admin/code-gen/table/{table_id}/proto"
 	path := http.BuildPath(pattern, in)
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
 		http.ContentType("application/protojson"),
-		http.Operation(OperationCodeGenProtoServiceSaveCodeGenProtos),
+		http.Operation(OperationCodeGenProtoServiceSaveCodeGenProto),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "PUT", path, in, &out, opts...)

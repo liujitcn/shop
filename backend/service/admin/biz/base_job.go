@@ -42,8 +42,8 @@ func NewBaseJobCase(baseCase *biz.BaseCase, baseJobRepo *data.BaseJobRepository,
 	}
 }
 
-// PageBaseJobs 分页查询定时任务
-func (c *BaseJobCase) PageBaseJobs(ctx context.Context, req *adminv1.PageBaseJobsRequest) (*adminv1.PageBaseJobsResponse, error) {
+// PageBaseJob 分页查询定时任务
+func (c *BaseJobCase) PageBaseJob(ctx context.Context, req *adminv1.PageBaseJobRequest) (*adminv1.PageBaseJobResponse, error) {
 	query := c.Query(ctx).BaseJob
 	opts := make([]repository.QueryOption, 0, 4)
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
@@ -69,7 +69,7 @@ func (c *BaseJobCase) PageBaseJobs(ctx context.Context, req *adminv1.PageBaseJob
 		baseJob := c.mapper.ToDTO(item)
 		resList = append(resList, baseJob)
 	}
-	return &adminv1.PageBaseJobsResponse{BaseJobs: resList, Total: int32(total)}, nil
+	return &adminv1.PageBaseJobResponse{BaseJobs: resList, Total: int32(total)}, nil
 }
 
 // GetBaseJob 获取定时任务

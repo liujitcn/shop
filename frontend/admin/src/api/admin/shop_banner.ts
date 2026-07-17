@@ -3,8 +3,8 @@ import {
   type CreateShopBannerRequest,
   type DeleteShopBannerRequest,
   type GetShopBannerRequest,
-  type PageShopBannersRequest,
-  type PageShopBannersResponse,
+  type PageShopBannerRequest,
+  type PageShopBannerResponse,
   type SetShopBannerStatusRequest,
   type ShopBannerForm,
   type ShopBannerService,
@@ -17,8 +17,8 @@ const SHOP_BANNER_URL = "/v1/admin/shop/banner";
 /** 轮播图服务 */
 export class ShopBannerServiceImpl implements ShopBannerService {
   /** 查询轮播图列表 */
-  PageShopBanners(request: PageShopBannersRequest): Promise<PageShopBannersResponse> {
-    return service<PageShopBannersRequest, PageShopBannersResponse>({
+  PageShopBanner(request: PageShopBannerRequest): Promise<PageShopBannerResponse> {
+    return service<PageShopBannerRequest, PageShopBannerResponse>({
       url: `${SHOP_BANNER_URL}`,
       method: "get",
       params: request

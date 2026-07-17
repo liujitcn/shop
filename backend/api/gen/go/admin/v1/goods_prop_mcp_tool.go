@@ -15,26 +15,26 @@ import (
 
 // RegisterGoodsPropServiceMCPTools 注册Admin商品属性服务的 MCP Tool。
 func RegisterGoodsPropServiceMCPTools(mcpServer *mcp.Server, goodsPropServiceServer GoodsPropServiceServer) {
-	RegisterGoodsPropServicePageGoodsPropsMCPTool(mcpServer, goodsPropServiceServer)
+	RegisterGoodsPropServicePageGoodsPropMCPTool(mcpServer, goodsPropServiceServer)
 	RegisterGoodsPropServiceGetGoodsPropMCPTool(mcpServer, goodsPropServiceServer)
 	RegisterGoodsPropServiceCreateGoodsPropMCPTool(mcpServer, goodsPropServiceServer)
 	RegisterGoodsPropServiceUpdateGoodsPropMCPTool(mcpServer, goodsPropServiceServer)
 	RegisterGoodsPropServiceDeleteGoodsPropMCPTool(mcpServer, goodsPropServiceServer)
 }
 
-// RegisterGoodsPropServicePageGoodsPropsMCPTool 注册查询商品属性列表的 MCP Tool。
-func RegisterGoodsPropServicePageGoodsPropsMCPTool(mcpServer *mcp.Server, goodsPropServiceServer GoodsPropServiceServer) {
-	mcp.AddTool[*PageGoodsPropsRequest, *PageGoodsPropsResponse](
+// RegisterGoodsPropServicePageGoodsPropMCPTool 注册查询商品属性列表的 MCP Tool。
+func RegisterGoodsPropServicePageGoodsPropMCPTool(mcpServer *mcp.Server, goodsPropServiceServer GoodsPropServiceServer) {
+	mcp.AddTool[*PageGoodsPropRequest, *PageGoodsPropResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "admin_v1_goods_prop_service_page_goods_props",
+			Name:        "admin_v1_goods_prop_service_page_goods_prop",
 			Description: "查询商品属性列表",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageGoodsPropsRequest) (*mcp.CallToolResult, *PageGoodsPropsResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *PageGoodsPropRequest) (*mcp.CallToolResult, *PageGoodsPropResponse, error) {
 			if input == nil {
-				input = &PageGoodsPropsRequest{}
+				input = &PageGoodsPropRequest{}
 			}
-			reply, err := goodsPropServiceServer.PageGoodsProps(ctx, input)
+			reply, err := goodsPropServiceServer.PageGoodsProp(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

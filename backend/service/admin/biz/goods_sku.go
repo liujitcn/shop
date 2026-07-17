@@ -33,7 +33,7 @@ func NewGoodsSKUCase(baseCase *biz.BaseCase, goodsSKURepo *data.GoodsSKUReposito
 }
 
 // ListGoodsSKUs 查询商品规格项列表
-func (c *GoodsSKUCase) ListGoodsSKUs(ctx context.Context, req *adminv1.PageGoodsSkusRequest) (*adminv1.PageGoodsSkusResponse, error) {
+func (c *GoodsSKUCase) ListGoodsSKUs(ctx context.Context, req *adminv1.PageGoodsSkuRequest) (*adminv1.PageGoodsSkuResponse, error) {
 	query := c.Query(ctx).GoodsSKU
 	opts := make([]repository.QueryOption, 0, 3)
 	opts = append(opts, repository.Order(query.SKUCode.Asc()))
@@ -55,7 +55,7 @@ func (c *GoodsSKUCase) ListGoodsSKUs(ctx context.Context, req *adminv1.PageGoods
 	for _, item := range list {
 		resList = append(resList, c.toGoodsSKU(item))
 	}
-	return &adminv1.PageGoodsSkusResponse{GoodsSkus: resList, Total: int32(total)}, nil
+	return &adminv1.PageGoodsSkuResponse{GoodsSkus: resList, Total: int32(total)}, nil
 }
 
 // GetGoodsSKU 获取商品规格项

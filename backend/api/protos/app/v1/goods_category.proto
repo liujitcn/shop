@@ -9,7 +9,7 @@ import "google/api/annotations.proto";
 // App商品分类服务
 service GoodsCategoryService {
   // 查询商品分类列表
-  rpc ListGoodsCategories(ListGoodsCategoriesRequest) returns (ListGoodsCategoriesResponse) {
+  rpc ListGoodsCategory(ListGoodsCategoryRequest) returns (ListGoodsCategoryResponse) {
     option (google.api.http) = {
       get: "/api/v1/app/goods/category"
     };
@@ -17,12 +17,12 @@ service GoodsCategoryService {
 }
 
 // 商品分类列表查询条件
-message ListGoodsCategoriesRequest {
+message ListGoodsCategoryRequest {
   optional int64 parent_id = 1 [(gnostic.openapi.v3.property) = {description: "父节点ID"}]; // 父节点ID
 }
 
 // 商品分类列表响应
-message ListGoodsCategoriesResponse {
+message ListGoodsCategoryResponse {
   repeated GoodsCategory goods_categories = 1 [(gnostic.openapi.v3.property) = {description: "分页数据"}]; // 分页数据
 }
 

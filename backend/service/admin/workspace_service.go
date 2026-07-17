@@ -67,11 +67,11 @@ func (s *WorkspaceService) SummaryWorkspaceReputation(ctx context.Context, req *
 	return res, nil
 }
 
-// ListWorkspacePendingComments 查询工作台待审核评价。
-func (s *WorkspaceService) ListWorkspacePendingComments(ctx context.Context, req *adminv1.ListWorkspacePendingCommentsRequest) (*adminv1.ListWorkspacePendingCommentsResponse, error) {
-	res, err := s.workspaceCase.ListWorkspacePendingComments(ctx, req)
+// ListWorkspacePendingComment 查询工作台待审核评价。
+func (s *WorkspaceService) ListWorkspacePendingComment(ctx context.Context, req *adminv1.ListWorkspacePendingCommentRequest) (*adminv1.ListWorkspacePendingCommentResponse, error) {
+	res, err := s.workspaceCase.ListWorkspacePendingComment(ctx, req)
 	if err != nil {
-		log.Error(fmt.Sprintf("ListWorkspacePendingComments %v", err))
+		log.Error(fmt.Sprintf("ListWorkspacePendingComment %v", err))
 		return nil, errorsx.WrapInternal(err, "查询工作台待审核评价失败")
 	}
 	return res, nil

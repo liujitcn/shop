@@ -8,7 +8,6 @@ package adminv1
 
 import (
 	reflect "reflect"
-	v1 "shop/api/gen/go/common/v1"
 	sync "sync"
 	unsafe "unsafe"
 
@@ -17,6 +16,8 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+
+	v1 "shop/api/gen/go/common/v1"
 )
 
 const (
@@ -504,7 +505,7 @@ func (x *GetTimeSeriesRequest) GetEnd() string {
 }
 
 // Gorse 推荐仪表盘推荐商品查询条件
-type ListDashboardItemsRequest struct {
+type ListDashboardItemRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Recommender   string                 `protobuf:"bytes,1,opt,name=recommender,proto3" json:"recommender,omitempty"` // 推荐器名称
 	Category      string                 `protobuf:"bytes,2,opt,name=category,proto3" json:"category,omitempty"`       // 分类
@@ -513,20 +514,20 @@ type ListDashboardItemsRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListDashboardItemsRequest) Reset() {
-	*x = ListDashboardItemsRequest{}
+func (x *ListDashboardItemRequest) Reset() {
+	*x = ListDashboardItemRequest{}
 	mi := &file_admin_v1_recommend_gorse_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListDashboardItemsRequest) String() string {
+func (x *ListDashboardItemRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListDashboardItemsRequest) ProtoMessage() {}
+func (*ListDashboardItemRequest) ProtoMessage() {}
 
-func (x *ListDashboardItemsRequest) ProtoReflect() protoreflect.Message {
+func (x *ListDashboardItemRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_recommend_gorse_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -538,26 +539,26 @@ func (x *ListDashboardItemsRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListDashboardItemsRequest.ProtoReflect.Descriptor instead.
-func (*ListDashboardItemsRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListDashboardItemRequest.ProtoReflect.Descriptor instead.
+func (*ListDashboardItemRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{9}
 }
 
-func (x *ListDashboardItemsRequest) GetRecommender() string {
+func (x *ListDashboardItemRequest) GetRecommender() string {
 	if x != nil {
 		return x.Recommender
 	}
 	return ""
 }
 
-func (x *ListDashboardItemsRequest) GetCategory() string {
+func (x *ListDashboardItemRequest) GetCategory() string {
 	if x != nil {
 		return x.Category
 	}
 	return ""
 }
 
-func (x *ListDashboardItemsRequest) GetEnd() int32 {
+func (x *ListDashboardItemRequest) GetEnd() int32 {
 	if x != nil {
 		return x.End
 	}
@@ -565,26 +566,26 @@ func (x *ListDashboardItemsRequest) GetEnd() int32 {
 }
 
 // Gorse 推荐分类查询条件
-type OptionCategoriesRequest struct {
+type OptionCategoryRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *OptionCategoriesRequest) Reset() {
-	*x = OptionCategoriesRequest{}
+func (x *OptionCategoryRequest) Reset() {
+	*x = OptionCategoryRequest{}
 	mi := &file_admin_v1_recommend_gorse_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *OptionCategoriesRequest) String() string {
+func (x *OptionCategoryRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*OptionCategoriesRequest) ProtoMessage() {}
+func (*OptionCategoryRequest) ProtoMessage() {}
 
-func (x *OptionCategoriesRequest) ProtoReflect() protoreflect.Message {
+func (x *OptionCategoryRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_recommend_gorse_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -596,33 +597,33 @@ func (x *OptionCategoriesRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use OptionCategoriesRequest.ProtoReflect.Descriptor instead.
-func (*OptionCategoriesRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use OptionCategoryRequest.ProtoReflect.Descriptor instead.
+func (*OptionCategoryRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{10}
 }
 
 // Gorse 推荐分类响应
-type OptionCategoriesResponse struct {
+type OptionCategoryResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Categories    []string               `protobuf:"bytes,1,rep,name=categories,proto3" json:"categories,omitempty"` // 分类列表
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *OptionCategoriesResponse) Reset() {
-	*x = OptionCategoriesResponse{}
+func (x *OptionCategoryResponse) Reset() {
+	*x = OptionCategoryResponse{}
 	mi := &file_admin_v1_recommend_gorse_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *OptionCategoriesResponse) String() string {
+func (x *OptionCategoryResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*OptionCategoriesResponse) ProtoMessage() {}
+func (*OptionCategoryResponse) ProtoMessage() {}
 
-func (x *OptionCategoriesResponse) ProtoReflect() protoreflect.Message {
+func (x *OptionCategoryResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_recommend_gorse_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -634,12 +635,12 @@ func (x *OptionCategoriesResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use OptionCategoriesResponse.ProtoReflect.Descriptor instead.
-func (*OptionCategoriesResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use OptionCategoryResponse.ProtoReflect.Descriptor instead.
+func (*OptionCategoryResponse) Descriptor() ([]byte, []int) {
 	return file_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{11}
 }
 
-func (x *OptionCategoriesResponse) GetCategories() []string {
+func (x *OptionCategoryResponse) GetCategories() []string {
 	if x != nil {
 		return x.Categories
 	}
@@ -647,7 +648,7 @@ func (x *OptionCategoriesResponse) GetCategories() []string {
 }
 
 // Gorse 推荐仪表盘推荐商品响应
-type ListDashboardItemsResponse struct {
+type ListDashboardItemResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Items         []*Item                `protobuf:"bytes,1,rep,name=items,json=Items,proto3" json:"items,omitempty"`                        // 商品列表
 	LastModified  string                 `protobuf:"bytes,2,opt,name=last_modified,json=LastModified,proto3" json:"last_modified,omitempty"` // 最后更新时间
@@ -655,20 +656,20 @@ type ListDashboardItemsResponse struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListDashboardItemsResponse) Reset() {
-	*x = ListDashboardItemsResponse{}
+func (x *ListDashboardItemResponse) Reset() {
+	*x = ListDashboardItemResponse{}
 	mi := &file_admin_v1_recommend_gorse_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListDashboardItemsResponse) String() string {
+func (x *ListDashboardItemResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListDashboardItemsResponse) ProtoMessage() {}
+func (*ListDashboardItemResponse) ProtoMessage() {}
 
-func (x *ListDashboardItemsResponse) ProtoReflect() protoreflect.Message {
+func (x *ListDashboardItemResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_recommend_gorse_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -680,19 +681,19 @@ func (x *ListDashboardItemsResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListDashboardItemsResponse.ProtoReflect.Descriptor instead.
-func (*ListDashboardItemsResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListDashboardItemResponse.ProtoReflect.Descriptor instead.
+func (*ListDashboardItemResponse) Descriptor() ([]byte, []int) {
 	return file_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{12}
 }
 
-func (x *ListDashboardItemsResponse) GetItems() []*Item {
+func (x *ListDashboardItemResponse) GetItems() []*Item {
 	if x != nil {
 		return x.Items
 	}
 	return nil
 }
 
-func (x *ListDashboardItemsResponse) GetLastModified() string {
+func (x *ListDashboardItemResponse) GetLastModified() string {
 	if x != nil {
 		return x.LastModified
 	}
@@ -1066,26 +1067,26 @@ func (x *GetUserRecommendRequest) GetN() int32 {
 }
 
 // Gorse 推荐任务状态查询条件
-type ListTasksRequest struct {
+type ListTaskRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListTasksRequest) Reset() {
-	*x = ListTasksRequest{}
+func (x *ListTaskRequest) Reset() {
+	*x = ListTaskRequest{}
 	mi := &file_admin_v1_recommend_gorse_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListTasksRequest) String() string {
+func (x *ListTaskRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListTasksRequest) ProtoMessage() {}
+func (*ListTaskRequest) ProtoMessage() {}
 
-func (x *ListTasksRequest) ProtoReflect() protoreflect.Message {
+func (x *ListTaskRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_recommend_gorse_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1097,33 +1098,33 @@ func (x *ListTasksRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListTasksRequest.ProtoReflect.Descriptor instead.
-func (*ListTasksRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListTaskRequest.ProtoReflect.Descriptor instead.
+func (*ListTaskRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{19}
 }
 
 // Gorse 推荐任务状态响应
-type ListTasksResponse struct {
+type ListTaskResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Tasks         []*Task                `protobuf:"bytes,1,rep,name=tasks,json=Tasks,proto3" json:"tasks,omitempty"` // 任务状态列表
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListTasksResponse) Reset() {
-	*x = ListTasksResponse{}
+func (x *ListTaskResponse) Reset() {
+	*x = ListTaskResponse{}
 	mi := &file_admin_v1_recommend_gorse_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListTasksResponse) String() string {
+func (x *ListTaskResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListTasksResponse) ProtoMessage() {}
+func (*ListTaskResponse) ProtoMessage() {}
 
-func (x *ListTasksResponse) ProtoReflect() protoreflect.Message {
+func (x *ListTaskResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_recommend_gorse_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1135,12 +1136,12 @@ func (x *ListTasksResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListTasksResponse.ProtoReflect.Descriptor instead.
-func (*ListTasksResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListTaskResponse.ProtoReflect.Descriptor instead.
+func (*ListTaskResponse) Descriptor() ([]byte, []int) {
 	return file_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{20}
 }
 
-func (x *ListTasksResponse) GetTasks() []*Task {
+func (x *ListTaskResponse) GetTasks() []*Task {
 	if x != nil {
 		return x.Tasks
 	}
@@ -1249,7 +1250,7 @@ func (x *Task) GetFinishTime() string {
 }
 
 // Gorse 推荐用户列表查询条件
-type PageUsersRequest struct {
+type PageUserRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Cursor        string                 `protobuf:"bytes,1,opt,name=cursor,proto3" json:"cursor,omitempty"` // 分页游标
 	N             int32                  `protobuf:"varint,2,opt,name=n,proto3" json:"n,omitempty"`          // 查询数量
@@ -1257,20 +1258,20 @@ type PageUsersRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *PageUsersRequest) Reset() {
-	*x = PageUsersRequest{}
+func (x *PageUserRequest) Reset() {
+	*x = PageUserRequest{}
 	mi := &file_admin_v1_recommend_gorse_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PageUsersRequest) String() string {
+func (x *PageUserRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PageUsersRequest) ProtoMessage() {}
+func (*PageUserRequest) ProtoMessage() {}
 
-func (x *PageUsersRequest) ProtoReflect() protoreflect.Message {
+func (x *PageUserRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_recommend_gorse_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1282,19 +1283,19 @@ func (x *PageUsersRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PageUsersRequest.ProtoReflect.Descriptor instead.
-func (*PageUsersRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use PageUserRequest.ProtoReflect.Descriptor instead.
+func (*PageUserRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{22}
 }
 
-func (x *PageUsersRequest) GetCursor() string {
+func (x *PageUserRequest) GetCursor() string {
 	if x != nil {
 		return x.Cursor
 	}
 	return ""
 }
 
-func (x *PageUsersRequest) GetN() int32 {
+func (x *PageUserRequest) GetN() int32 {
 	if x != nil {
 		return x.N
 	}
@@ -1392,7 +1393,7 @@ func (x *DeleteUserRequest) GetId() string {
 }
 
 // Gorse 推荐用户分页响应
-type PageUsersResponse struct {
+type PageUserResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Cursor        string                 `protobuf:"bytes,1,opt,name=cursor,json=Cursor,proto3" json:"cursor,omitempty"` // 下一页游标
 	Users         []*UserResponse        `protobuf:"bytes,2,rep,name=users,json=Users,proto3" json:"users,omitempty"`    // 用户列表
@@ -1400,20 +1401,20 @@ type PageUsersResponse struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *PageUsersResponse) Reset() {
-	*x = PageUsersResponse{}
+func (x *PageUserResponse) Reset() {
+	*x = PageUserResponse{}
 	mi := &file_admin_v1_recommend_gorse_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PageUsersResponse) String() string {
+func (x *PageUserResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PageUsersResponse) ProtoMessage() {}
+func (*PageUserResponse) ProtoMessage() {}
 
-func (x *PageUsersResponse) ProtoReflect() protoreflect.Message {
+func (x *PageUserResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_recommend_gorse_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1425,19 +1426,19 @@ func (x *PageUsersResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PageUsersResponse.ProtoReflect.Descriptor instead.
-func (*PageUsersResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use PageUserResponse.ProtoReflect.Descriptor instead.
+func (*PageUserResponse) Descriptor() ([]byte, []int) {
 	return file_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{25}
 }
 
-func (x *PageUsersResponse) GetCursor() string {
+func (x *PageUserResponse) GetCursor() string {
 	if x != nil {
 		return x.Cursor
 	}
 	return ""
 }
 
-func (x *PageUsersResponse) GetUsers() []*UserResponse {
+func (x *PageUserResponse) GetUsers() []*UserResponse {
 	if x != nil {
 		return x.Users
 	}
@@ -1644,7 +1645,7 @@ func (x *UserLabel) GetStatus() int32 {
 }
 
 // Gorse 推荐商品列表查询条件
-type PageItemsRequest struct {
+type PageItemRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Cursor        string                 `protobuf:"bytes,1,opt,name=cursor,proto3" json:"cursor,omitempty"` // 分页游标
 	N             int32                  `protobuf:"varint,2,opt,name=n,proto3" json:"n,omitempty"`          // 查询数量
@@ -1652,20 +1653,20 @@ type PageItemsRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *PageItemsRequest) Reset() {
-	*x = PageItemsRequest{}
+func (x *PageItemRequest) Reset() {
+	*x = PageItemRequest{}
 	mi := &file_admin_v1_recommend_gorse_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PageItemsRequest) String() string {
+func (x *PageItemRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PageItemsRequest) ProtoMessage() {}
+func (*PageItemRequest) ProtoMessage() {}
 
-func (x *PageItemsRequest) ProtoReflect() protoreflect.Message {
+func (x *PageItemRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_recommend_gorse_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1677,19 +1678,19 @@ func (x *PageItemsRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PageItemsRequest.ProtoReflect.Descriptor instead.
-func (*PageItemsRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use PageItemRequest.ProtoReflect.Descriptor instead.
+func (*PageItemRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{29}
 }
 
-func (x *PageItemsRequest) GetCursor() string {
+func (x *PageItemRequest) GetCursor() string {
 	if x != nil {
 		return x.Cursor
 	}
 	return ""
 }
 
-func (x *PageItemsRequest) GetN() int32 {
+func (x *PageItemRequest) GetN() int32 {
 	if x != nil {
 		return x.N
 	}
@@ -1787,7 +1788,7 @@ func (x *DeleteItemRequest) GetId() string {
 }
 
 // Gorse 推荐商品分页响应
-type PageItemsResponse struct {
+type PageItemResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Cursor        string                 `protobuf:"bytes,1,opt,name=cursor,json=Cursor,proto3" json:"cursor,omitempty"` // 下一页游标
 	Items         []*Item                `protobuf:"bytes,2,rep,name=items,json=Items,proto3" json:"items,omitempty"`    // 商品列表
@@ -1795,20 +1796,20 @@ type PageItemsResponse struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *PageItemsResponse) Reset() {
-	*x = PageItemsResponse{}
+func (x *PageItemResponse) Reset() {
+	*x = PageItemResponse{}
 	mi := &file_admin_v1_recommend_gorse_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PageItemsResponse) String() string {
+func (x *PageItemResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PageItemsResponse) ProtoMessage() {}
+func (*PageItemResponse) ProtoMessage() {}
 
-func (x *PageItemsResponse) ProtoReflect() protoreflect.Message {
+func (x *PageItemResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_recommend_gorse_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1820,19 +1821,19 @@ func (x *PageItemsResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PageItemsResponse.ProtoReflect.Descriptor instead.
-func (*PageItemsResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use PageItemResponse.ProtoReflect.Descriptor instead.
+func (*PageItemResponse) Descriptor() ([]byte, []int) {
 	return file_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{32}
 }
 
-func (x *PageItemsResponse) GetCursor() string {
+func (x *PageItemResponse) GetCursor() string {
 	if x != nil {
 		return x.Cursor
 	}
 	return ""
 }
 
-func (x *PageItemsResponse) GetItems() []*Item {
+func (x *PageItemResponse) GetItems() []*Item {
 	if x != nil {
 		return x.Items
 	}
@@ -4360,17 +4361,17 @@ const file_admin_v1_recommend_gorse_proto_rawDesc = "" +
 	"\x14GetTimeSeriesRequest\x12 \n" +
 	"\x04name\x18\x01 \x01(\tB\f\xbaG\t\x92\x02\x06名称R\x04name\x12(\n" +
 	"\x05begin\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f开始时间R\x05begin\x12$\n" +
-	"\x03end\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f结束时间R\x03end\"\xa4\x01\n" +
-	"\x19ListDashboardItemsRequest\x127\n" +
+	"\x03end\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f结束时间R\x03end\"\xa3\x01\n" +
+	"\x18ListDashboardItemRequest\x127\n" +
 	"\vrecommender\x18\x01 \x01(\tB\x15\xbaG\x12\x92\x02\x0f推荐器名称R\vrecommender\x12(\n" +
 	"\bcategory\x18\x02 \x01(\tB\f\xbaG\t\x92\x02\x06分类R\bcategory\x12$\n" +
-	"\x03end\x18\x03 \x01(\x05B\x12\xbaG\x0f\x92\x02\f结束位置R\x03end\"\x19\n" +
-	"\x17OptionCategoriesRequest\"N\n" +
-	"\x18OptionCategoriesResponse\x122\n" +
+	"\x03end\x18\x03 \x01(\x05B\x12\xbaG\x0f\x92\x02\f结束位置R\x03end\"\x17\n" +
+	"\x15OptionCategoryRequest\"L\n" +
+	"\x16OptionCategoryResponse\x122\n" +
 	"\n" +
 	"categories\x18\x01 \x03(\tB\x12\xbaG\x0f\x92\x02\f分类列表R\n" +
-	"categories\"\x95\x01\n" +
-	"\x1aListDashboardItemsResponse\x128\n" +
+	"categories\"\x94\x01\n" +
+	"\x19ListDashboardItemResponse\x128\n" +
 	"\x05items\x18\x01 \x03(\v2\x0e.admin.v1.ItemB\x12\xbaG\x0f\x92\x02\f商品列表R\x05Items\x12=\n" +
 	"\rlast_modified\x18\x02 \x01(\tB\x18\xbaG\x15\x92\x02\x12最后更新时间R\fLastModified\"d\n" +
 	"\x12TimeSeriesResponse\x12N\n" +
@@ -4396,9 +4397,9 @@ const file_admin_v1_recommend_gorse_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户编号R\x02id\x127\n" +
 	"\vrecommender\x18\x02 \x01(\tB\x15\xbaG\x12\x92\x02\x0f推荐器名称R\vrecommender\x12(\n" +
 	"\bcategory\x18\x03 \x01(\tB\f\xbaG\t\x92\x02\x06分类R\bcategory\x12 \n" +
-	"\x01n\x18\x04 \x01(\x05B\x12\xbaG\x0f\x92\x02\f查询数量R\x01n\"\x12\n" +
-	"\x10ListTasksRequest\"S\n" +
-	"\x11ListTasksResponse\x12>\n" +
+	"\x01n\x18\x04 \x01(\x05B\x12\xbaG\x0f\x92\x02\f查询数量R\x01n\"\x11\n" +
+	"\x0fListTaskRequest\"R\n" +
+	"\x10ListTaskResponse\x12>\n" +
 	"\x05tasks\x18\x01 \x03(\v2\x0e.admin.v1.TaskB\x18\xbaG\x15\x92\x02\x12任务状态列表R\x05Tasks\"\xe9\x02\n" +
 	"\x04Task\x12*\n" +
 	"\x06tracer\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f执行节点R\x06Tracer\x12&\n" +
@@ -4410,15 +4411,15 @@ const file_admin_v1_recommend_gorse_proto_rawDesc = "" +
 	"\n" +
 	"start_time\x18\a \x01(\tB\x12\xbaG\x0f\x92\x02\f开始时间R\tStartTime\x123\n" +
 	"\vfinish_time\x18\b \x01(\tB\x12\xbaG\x0f\x92\x02\f结束时间R\n" +
-	"FinishTime\"`\n" +
-	"\x10PageUsersRequest\x12*\n" +
+	"FinishTime\"_\n" +
+	"\x0fPageUserRequest\x12*\n" +
 	"\x06cursor\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f分页游标R\x06cursor\x12 \n" +
 	"\x01n\x18\x02 \x01(\x05B\x12\xbaG\x0f\x92\x02\f查询数量R\x01n\"4\n" +
 	"\x0eGetUserRequest\x12\"\n" +
 	"\x02id\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户编号R\x02id\"7\n" +
 	"\x11DeleteUserRequest\x12\"\n" +
-	"\x02id\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户编号R\x02id\"\x84\x01\n" +
-	"\x11PageUsersResponse\x12-\n" +
+	"\x02id\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户编号R\x02id\"\x83\x01\n" +
+	"\x10PageUserResponse\x12-\n" +
 	"\x06cursor\x18\x01 \x01(\tB\x15\xbaG\x12\x92\x02\x0f下一页游标R\x06Cursor\x12@\n" +
 	"\x05users\x18\x02 \x03(\v2\x16.admin.v1.UserResponseB\x12\xbaG\x0f\x92\x02\f用户列表R\x05Users\"]\n" +
 	"\x13UserSimilarResponse\x12F\n" +
@@ -4434,15 +4435,15 @@ const file_admin_v1_recommend_gorse_proto_rawDesc = "" +
 	"\adept_id\x18\x01 \x01(\x03B\x12\xbaG\x0f\x92\x02\f部门编号R\adept_id\x12$\n" +
 	"\x06gender\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06性别R\x06gender\x12,\n" +
 	"\arole_id\x18\x03 \x01(\x03B\x12\xbaG\x0f\x92\x02\f角色编号R\arole_id\x12$\n" +
-	"\x06status\x18\x04 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\"`\n" +
-	"\x10PageItemsRequest\x12*\n" +
+	"\x06status\x18\x04 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\"_\n" +
+	"\x0fPageItemRequest\x12*\n" +
 	"\x06cursor\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f分页游标R\x06cursor\x12 \n" +
 	"\x01n\x18\x02 \x01(\x05B\x12\xbaG\x0f\x92\x02\f查询数量R\x01n\"4\n" +
 	"\x0eGetItemRequest\x12\"\n" +
 	"\x02id\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f商品编号R\x02id\"7\n" +
 	"\x11DeleteItemRequest\x12\"\n" +
-	"\x02id\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f商品编号R\x02id\"|\n" +
-	"\x11PageItemsResponse\x12-\n" +
+	"\x02id\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f商品编号R\x02id\"{\n" +
+	"\x10PageItemResponse\x12-\n" +
 	"\x06cursor\x18\x01 \x01(\tB\x15\xbaG\x12\x92\x02\x0f下一页游标R\x06Cursor\x128\n" +
 	"\x05items\x18\x02 \x03(\v2\x0e.admin.v1.ItemB\x12\xbaG\x0f\x92\x02\f商品列表R\x05Items\"L\n" +
 	"\x10ItemListResponse\x128\n" +
@@ -4653,20 +4654,20 @@ const file_admin_v1_recommend_gorse_proto_rawDesc = "" +
 	"\rembedding_rpm\x18\b \x01(\x05B!\xbaG\x1e\x92\x02\x1bEmbedding每分钟请求数R\rembedding_rpm\x12F\n" +
 	"\rembedding_tpm\x18\t \x01(\x05B \xbaG\x1d\x92\x02\x1aEmbedding每分钟Token数R\rembedding_tpm\x12.\n" +
 	"\blog_file\x18\n" +
-	" \x01(\tB\x12\xbaG\x0f\x92\x02\f日志文件R\blog_file2\x89\x15\n" +
+	" \x01(\tB\x12\xbaG\x0f\x92\x02\f日志文件R\blog_file2\xf7\x14\n" +
 	"\x15RecommendGorseService\x12\x86\x01\n" +
-	"\rGetTimeSeries\x12\x1e.admin.v1.GetTimeSeriesRequest\x1a\x1c.admin.v1.TimeSeriesResponse\"7\x82\xd3\xe4\x93\x021\x12//api/v1/admin/recommend/gorse/timeseries/{name}\x12\x90\x01\n" +
-	"\x10OptionCategories\x12!.admin.v1.OptionCategoriesRequest\x1a\".admin.v1.OptionCategoriesResponse\"5\x82\xd3\xe4\x93\x02/\x12-/api/v1/admin/recommend/gorse/category/option\x12\x90\x01\n" +
-	"\x12ListDashboardItems\x12#.admin.v1.ListDashboardItemsRequest\x1a$.admin.v1.ListDashboardItemsResponse\"/\x82\xd3\xe4\x93\x02)\x12'/api/v1/admin/recommend/gorse/dashboard\x12p\n" +
-	"\tListTasks\x12\x1a.admin.v1.ListTasksRequest\x1a\x1b.admin.v1.ListTasksResponse\"*\x82\xd3\xe4\x93\x02$\x12\"/api/v1/admin/recommend/gorse/task\x12p\n" +
-	"\tPageUsers\x12\x1a.admin.v1.PageUsersRequest\x1a\x1b.admin.v1.PageUsersResponse\"*\x82\xd3\xe4\x93\x02$\x12\"/api/v1/admin/recommend/gorse/user\x12l\n" +
+	"\rGetTimeSeries\x12\x1e.admin.v1.GetTimeSeriesRequest\x1a\x1c.admin.v1.TimeSeriesResponse\"7\x82\xd3\xe4\x93\x021\x12//api/v1/admin/recommend/gorse/timeseries/{name}\x12\x8a\x01\n" +
+	"\x0eOptionCategory\x12\x1f.admin.v1.OptionCategoryRequest\x1a .admin.v1.OptionCategoryResponse\"5\x82\xd3\xe4\x93\x02/\x12-/api/v1/admin/recommend/gorse/category/option\x12\x8d\x01\n" +
+	"\x11ListDashboardItem\x12\".admin.v1.ListDashboardItemRequest\x1a#.admin.v1.ListDashboardItemResponse\"/\x82\xd3\xe4\x93\x02)\x12'/api/v1/admin/recommend/gorse/dashboard\x12m\n" +
+	"\bListTask\x12\x19.admin.v1.ListTaskRequest\x1a\x1a.admin.v1.ListTaskResponse\"*\x82\xd3\xe4\x93\x02$\x12\"/api/v1/admin/recommend/gorse/task\x12m\n" +
+	"\bPageUser\x12\x19.admin.v1.PageUserRequest\x1a\x1a.admin.v1.PageUserResponse\"*\x82\xd3\xe4\x93\x02$\x12\"/api/v1/admin/recommend/gorse/user\x12l\n" +
 	"\aGetUser\x12\x18.admin.v1.GetUserRequest\x1a\x16.admin.v1.UserResponse\"/\x82\xd3\xe4\x93\x02)\x12'/api/v1/admin/recommend/gorse/user/{id}\x12r\n" +
 	"\n" +
 	"DeleteUser\x12\x1b.admin.v1.DeleteUserRequest\x1a\x16.google.protobuf.Empty\"/\x82\xd3\xe4\x93\x02)*'/api/v1/admin/recommend/gorse/user/{id}\x12\x89\x01\n" +
 	"\x0eGetUserSimilar\x12\x1f.admin.v1.GetUserSimilarRequest\x1a\x1d.admin.v1.UserSimilarResponse\"7\x82\xd3\xe4\x93\x021\x12//api/v1/admin/recommend/gorse/user/{id}/similar\x12\x89\x01\n" +
 	"\x0fGetUserFeedback\x12 .admin.v1.GetUserFeedbackRequest\x1a\x1a.admin.v1.FeedbackResponse\"8\x82\xd3\xe4\x93\x022\x120/api/v1/admin/recommend/gorse/user/{id}/feedback\x12\x8c\x01\n" +
-	"\x10GetUserRecommend\x12!.admin.v1.GetUserRecommendRequest\x1a\x1a.admin.v1.ItemListResponse\"9\x82\xd3\xe4\x93\x023\x121/api/v1/admin/recommend/gorse/user/{id}/recommend\x12p\n" +
-	"\tPageItems\x12\x1a.admin.v1.PageItemsRequest\x1a\x1b.admin.v1.PageItemsResponse\"*\x82\xd3\xe4\x93\x02$\x12\"/api/v1/admin/recommend/gorse/item\x12d\n" +
+	"\x10GetUserRecommend\x12!.admin.v1.GetUserRecommendRequest\x1a\x1a.admin.v1.ItemListResponse\"9\x82\xd3\xe4\x93\x023\x121/api/v1/admin/recommend/gorse/user/{id}/recommend\x12m\n" +
+	"\bPageItem\x12\x19.admin.v1.PageItemRequest\x1a\x1a.admin.v1.PageItemResponse\"*\x82\xd3\xe4\x93\x02$\x12\"/api/v1/admin/recommend/gorse/item\x12d\n" +
 	"\aGetItem\x12\x18.admin.v1.GetItemRequest\x1a\x0e.admin.v1.Item\"/\x82\xd3\xe4\x93\x02)\x12'/api/v1/admin/recommend/gorse/item/{id}\x12r\n" +
 	"\n" +
 	"DeleteItem\x12\x1b.admin.v1.DeleteItemRequest\x1a\x16.google.protobuf.Empty\"/\x82\xd3\xe4\x93\x02)*'/api/v1/admin/recommend/gorse/item/{id}\x12\x86\x01\n" +
@@ -4706,30 +4707,30 @@ var file_admin_v1_recommend_gorse_proto_goTypes = []any{
 	(*ImportDataRequest)(nil),                           // 6: admin.v1.ImportDataRequest
 	(*ImportDataResponse)(nil),                          // 7: admin.v1.ImportDataResponse
 	(*GetTimeSeriesRequest)(nil),                        // 8: admin.v1.GetTimeSeriesRequest
-	(*ListDashboardItemsRequest)(nil),                   // 9: admin.v1.ListDashboardItemsRequest
-	(*OptionCategoriesRequest)(nil),                     // 10: admin.v1.OptionCategoriesRequest
-	(*OptionCategoriesResponse)(nil),                    // 11: admin.v1.OptionCategoriesResponse
-	(*ListDashboardItemsResponse)(nil),                  // 12: admin.v1.ListDashboardItemsResponse
+	(*ListDashboardItemRequest)(nil),                    // 9: admin.v1.ListDashboardItemRequest
+	(*OptionCategoryRequest)(nil),                       // 10: admin.v1.OptionCategoryRequest
+	(*OptionCategoryResponse)(nil),                      // 11: admin.v1.OptionCategoryResponse
+	(*ListDashboardItemResponse)(nil),                   // 12: admin.v1.ListDashboardItemResponse
 	(*TimeSeriesResponse)(nil),                          // 13: admin.v1.TimeSeriesResponse
 	(*TimeSeriesPoint)(nil),                             // 14: admin.v1.TimeSeriesPoint
 	(*GetUserSimilarRequest)(nil),                       // 15: admin.v1.GetUserSimilarRequest
 	(*GetItemSimilarRequest)(nil),                       // 16: admin.v1.GetItemSimilarRequest
 	(*GetUserFeedbackRequest)(nil),                      // 17: admin.v1.GetUserFeedbackRequest
 	(*GetUserRecommendRequest)(nil),                     // 18: admin.v1.GetUserRecommendRequest
-	(*ListTasksRequest)(nil),                            // 19: admin.v1.ListTasksRequest
-	(*ListTasksResponse)(nil),                           // 20: admin.v1.ListTasksResponse
+	(*ListTaskRequest)(nil),                             // 19: admin.v1.ListTaskRequest
+	(*ListTaskResponse)(nil),                            // 20: admin.v1.ListTaskResponse
 	(*Task)(nil),                                        // 21: admin.v1.Task
-	(*PageUsersRequest)(nil),                            // 22: admin.v1.PageUsersRequest
+	(*PageUserRequest)(nil),                             // 22: admin.v1.PageUserRequest
 	(*GetUserRequest)(nil),                              // 23: admin.v1.GetUserRequest
 	(*DeleteUserRequest)(nil),                           // 24: admin.v1.DeleteUserRequest
-	(*PageUsersResponse)(nil),                           // 25: admin.v1.PageUsersResponse
+	(*PageUserResponse)(nil),                            // 25: admin.v1.PageUserResponse
 	(*UserSimilarResponse)(nil),                         // 26: admin.v1.UserSimilarResponse
 	(*UserResponse)(nil),                                // 27: admin.v1.UserResponse
 	(*UserLabel)(nil),                                   // 28: admin.v1.UserLabel
-	(*PageItemsRequest)(nil),                            // 29: admin.v1.PageItemsRequest
+	(*PageItemRequest)(nil),                             // 29: admin.v1.PageItemRequest
 	(*GetItemRequest)(nil),                              // 30: admin.v1.GetItemRequest
 	(*DeleteItemRequest)(nil),                           // 31: admin.v1.DeleteItemRequest
-	(*PageItemsResponse)(nil),                           // 32: admin.v1.PageItemsResponse
+	(*PageItemResponse)(nil),                            // 32: admin.v1.PageItemResponse
 	(*ItemListResponse)(nil),                            // 33: admin.v1.ItemListResponse
 	(*Item)(nil),                                        // 34: admin.v1.Item
 	(*ItemLabel)(nil),                                   // 35: admin.v1.ItemLabel
@@ -4770,13 +4771,13 @@ var file_admin_v1_recommend_gorse_proto_goTypes = []any{
 var file_admin_v1_recommend_gorse_proto_depIdxs = []int32{
 	67, // 0: admin.v1.ExportDataRequest.data_type:type_name -> common.v1.AdvanceDataType
 	67, // 1: admin.v1.ImportDataRequest.data_type:type_name -> common.v1.AdvanceDataType
-	34, // 2: admin.v1.ListDashboardItemsResponse.items:type_name -> admin.v1.Item
+	34, // 2: admin.v1.ListDashboardItemResponse.items:type_name -> admin.v1.Item
 	14, // 3: admin.v1.TimeSeriesResponse.points:type_name -> admin.v1.TimeSeriesPoint
-	21, // 4: admin.v1.ListTasksResponse.tasks:type_name -> admin.v1.Task
-	27, // 5: admin.v1.PageUsersResponse.users:type_name -> admin.v1.UserResponse
+	21, // 4: admin.v1.ListTaskResponse.tasks:type_name -> admin.v1.Task
+	27, // 5: admin.v1.PageUserResponse.users:type_name -> admin.v1.UserResponse
 	27, // 6: admin.v1.UserSimilarResponse.users:type_name -> admin.v1.UserResponse
 	28, // 7: admin.v1.UserResponse.labels:type_name -> admin.v1.UserLabel
-	34, // 8: admin.v1.PageItemsResponse.items:type_name -> admin.v1.Item
+	34, // 8: admin.v1.PageItemResponse.items:type_name -> admin.v1.Item
 	34, // 9: admin.v1.ItemListResponse.items:type_name -> admin.v1.Item
 	35, // 10: admin.v1.Item.labels:type_name -> admin.v1.ItemLabel
 	37, // 11: admin.v1.FeedbackResponse.feedback:type_name -> admin.v1.Feedback
@@ -4809,16 +4810,16 @@ var file_admin_v1_recommend_gorse_proto_depIdxs = []int32{
 	59, // 38: admin.v1.ConfigResponse.Recommend.Ranker.early_stopping:type_name -> admin.v1.ConfigResponse.Recommend.EarlyStopping
 	63, // 39: admin.v1.ConfigResponse.Recommend.Ranker.reranker_api:type_name -> admin.v1.ConfigResponse.Recommend.Ranker.RerankerApi
 	8,  // 40: admin.v1.RecommendGorseService.GetTimeSeries:input_type -> admin.v1.GetTimeSeriesRequest
-	10, // 41: admin.v1.RecommendGorseService.OptionCategories:input_type -> admin.v1.OptionCategoriesRequest
-	9,  // 42: admin.v1.RecommendGorseService.ListDashboardItems:input_type -> admin.v1.ListDashboardItemsRequest
-	19, // 43: admin.v1.RecommendGorseService.ListTasks:input_type -> admin.v1.ListTasksRequest
-	22, // 44: admin.v1.RecommendGorseService.PageUsers:input_type -> admin.v1.PageUsersRequest
+	10, // 41: admin.v1.RecommendGorseService.OptionCategory:input_type -> admin.v1.OptionCategoryRequest
+	9,  // 42: admin.v1.RecommendGorseService.ListDashboardItem:input_type -> admin.v1.ListDashboardItemRequest
+	19, // 43: admin.v1.RecommendGorseService.ListTask:input_type -> admin.v1.ListTaskRequest
+	22, // 44: admin.v1.RecommendGorseService.PageUser:input_type -> admin.v1.PageUserRequest
 	23, // 45: admin.v1.RecommendGorseService.GetUser:input_type -> admin.v1.GetUserRequest
 	24, // 46: admin.v1.RecommendGorseService.DeleteUser:input_type -> admin.v1.DeleteUserRequest
 	15, // 47: admin.v1.RecommendGorseService.GetUserSimilar:input_type -> admin.v1.GetUserSimilarRequest
 	17, // 48: admin.v1.RecommendGorseService.GetUserFeedback:input_type -> admin.v1.GetUserFeedbackRequest
 	18, // 49: admin.v1.RecommendGorseService.GetUserRecommend:input_type -> admin.v1.GetUserRecommendRequest
-	29, // 50: admin.v1.RecommendGorseService.PageItems:input_type -> admin.v1.PageItemsRequest
+	29, // 50: admin.v1.RecommendGorseService.PageItem:input_type -> admin.v1.PageItemRequest
 	30, // 51: admin.v1.RecommendGorseService.GetItem:input_type -> admin.v1.GetItemRequest
 	31, // 52: admin.v1.RecommendGorseService.DeleteItem:input_type -> admin.v1.DeleteItemRequest
 	16, // 53: admin.v1.RecommendGorseService.GetItemSimilar:input_type -> admin.v1.GetItemSimilarRequest
@@ -4830,16 +4831,16 @@ var file_admin_v1_recommend_gorse_proto_depIdxs = []int32{
 	0,  // 59: admin.v1.RecommendGorseService.PreviewExternal:input_type -> admin.v1.PreviewExternalRequest
 	2,  // 60: admin.v1.RecommendGorseService.PreviewRankerPrompt:input_type -> admin.v1.PreviewRankerPromptRequest
 	13, // 61: admin.v1.RecommendGorseService.GetTimeSeries:output_type -> admin.v1.TimeSeriesResponse
-	11, // 62: admin.v1.RecommendGorseService.OptionCategories:output_type -> admin.v1.OptionCategoriesResponse
-	12, // 63: admin.v1.RecommendGorseService.ListDashboardItems:output_type -> admin.v1.ListDashboardItemsResponse
-	20, // 64: admin.v1.RecommendGorseService.ListTasks:output_type -> admin.v1.ListTasksResponse
-	25, // 65: admin.v1.RecommendGorseService.PageUsers:output_type -> admin.v1.PageUsersResponse
+	11, // 62: admin.v1.RecommendGorseService.OptionCategory:output_type -> admin.v1.OptionCategoryResponse
+	12, // 63: admin.v1.RecommendGorseService.ListDashboardItem:output_type -> admin.v1.ListDashboardItemResponse
+	20, // 64: admin.v1.RecommendGorseService.ListTask:output_type -> admin.v1.ListTaskResponse
+	25, // 65: admin.v1.RecommendGorseService.PageUser:output_type -> admin.v1.PageUserResponse
 	27, // 66: admin.v1.RecommendGorseService.GetUser:output_type -> admin.v1.UserResponse
 	68, // 67: admin.v1.RecommendGorseService.DeleteUser:output_type -> google.protobuf.Empty
 	26, // 68: admin.v1.RecommendGorseService.GetUserSimilar:output_type -> admin.v1.UserSimilarResponse
 	36, // 69: admin.v1.RecommendGorseService.GetUserFeedback:output_type -> admin.v1.FeedbackResponse
 	33, // 70: admin.v1.RecommendGorseService.GetUserRecommend:output_type -> admin.v1.ItemListResponse
-	32, // 71: admin.v1.RecommendGorseService.PageItems:output_type -> admin.v1.PageItemsResponse
+	32, // 71: admin.v1.RecommendGorseService.PageItem:output_type -> admin.v1.PageItemResponse
 	34, // 72: admin.v1.RecommendGorseService.GetItem:output_type -> admin.v1.Item
 	68, // 73: admin.v1.RecommendGorseService.DeleteItem:output_type -> google.protobuf.Empty
 	33, // 74: admin.v1.RecommendGorseService.GetItemSimilar:output_type -> admin.v1.ItemListResponse

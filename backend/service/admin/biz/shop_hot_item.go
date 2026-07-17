@@ -35,8 +35,8 @@ func NewShopHotItemCase(baseCase *biz.BaseCase, tx data.Transaction, shopHotRepo
 	}
 }
 
-// PageShopHotItems 查询热门专区项目列表
-func (c *ShopHotItemCase) PageShopHotItems(ctx context.Context, req *adminv1.PageShopHotItemsRequest) (*adminv1.PageShopHotItemsResponse, error) {
+// PageShopHotItem 查询热门专区项目列表
+func (c *ShopHotItemCase) PageShopHotItem(ctx context.Context, req *adminv1.PageShopHotItemRequest) (*adminv1.PageShopHotItemResponse, error) {
 	query := c.Query(ctx).ShopHotItem
 	opts := make([]repository.QueryOption, 0, 5)
 	opts = append(opts, repository.Order(query.Sort.Asc()))
@@ -63,7 +63,7 @@ func (c *ShopHotItemCase) PageShopHotItems(ctx context.Context, req *adminv1.Pag
 		shopHotItem := c.mapper.ToDTO(item)
 		resList = append(resList, shopHotItem)
 	}
-	return &adminv1.PageShopHotItemsResponse{ShopHotItems: resList, Total: int32(total)}, nil
+	return &adminv1.PageShopHotItemResponse{ShopHotItems: resList, Total: int32(total)}, nil
 }
 
 // GetShopHotItem 获取热门专区项目

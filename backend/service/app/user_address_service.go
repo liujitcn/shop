@@ -37,11 +37,11 @@ func NewUserAddressService(
 	return &ss
 }
 
-// ListUserAddresses 查询用户地址列表
-func (s *UserAddressService) ListUserAddresses(ctx context.Context, req *appv1.ListUserAddressesRequest) (*appv1.ListUserAddressesResponse, error) {
-	res, err := s.userAddressCase.ListUserAddresses(ctx)
+// ListUserAddress 查询用户地址列表
+func (s *UserAddressService) ListUserAddress(ctx context.Context, req *appv1.ListUserAddressRequest) (*appv1.ListUserAddressResponse, error) {
+	res, err := s.userAddressCase.ListUserAddress(ctx)
 	if err != nil {
-		log.Error(fmt.Sprintf("ListUserAddresses %v", err))
+		log.Error(fmt.Sprintf("ListUserAddress %v", err))
 		return nil, errorsx.WrapInternal(err, "查询用户地址列表失败")
 	}
 

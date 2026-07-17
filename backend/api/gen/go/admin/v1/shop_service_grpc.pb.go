@@ -21,7 +21,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ShopServiceService_PageShopServices_FullMethodName     = "/admin.v1.ShopServiceService/PageShopServices"
+	ShopServiceService_PageShopService_FullMethodName      = "/admin.v1.ShopServiceService/PageShopService"
 	ShopServiceService_GetShopService_FullMethodName       = "/admin.v1.ShopServiceService/GetShopService"
 	ShopServiceService_CreateShopService_FullMethodName    = "/admin.v1.ShopServiceService/CreateShopService"
 	ShopServiceService_UpdateShopService_FullMethodName    = "/admin.v1.ShopServiceService/UpdateShopService"
@@ -36,7 +36,7 @@ const (
 // Admin商城服务
 type ShopServiceServiceClient interface {
 	// 查询商城服务列表
-	PageShopServices(ctx context.Context, in *PageShopServicesRequest, opts ...grpc.CallOption) (*PageShopServicesResponse, error)
+	PageShopService(ctx context.Context, in *PageShopServiceRequest, opts ...grpc.CallOption) (*PageShopServiceResponse, error)
 	// 查询商城服务
 	GetShopService(ctx context.Context, in *GetShopServiceRequest, opts ...grpc.CallOption) (*ShopServiceForm, error)
 	// 创建商城服务
@@ -57,10 +57,10 @@ func NewShopServiceServiceClient(cc grpc.ClientConnInterface) ShopServiceService
 	return &shopServiceServiceClient{cc}
 }
 
-func (c *shopServiceServiceClient) PageShopServices(ctx context.Context, in *PageShopServicesRequest, opts ...grpc.CallOption) (*PageShopServicesResponse, error) {
+func (c *shopServiceServiceClient) PageShopService(ctx context.Context, in *PageShopServiceRequest, opts ...grpc.CallOption) (*PageShopServiceResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(PageShopServicesResponse)
-	err := c.cc.Invoke(ctx, ShopServiceService_PageShopServices_FullMethodName, in, out, cOpts...)
+	out := new(PageShopServiceResponse)
+	err := c.cc.Invoke(ctx, ShopServiceService_PageShopService_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -124,7 +124,7 @@ func (c *shopServiceServiceClient) SetShopServiceStatus(ctx context.Context, in 
 // Admin商城服务
 type ShopServiceServiceServer interface {
 	// 查询商城服务列表
-	PageShopServices(context.Context, *PageShopServicesRequest) (*PageShopServicesResponse, error)
+	PageShopService(context.Context, *PageShopServiceRequest) (*PageShopServiceResponse, error)
 	// 查询商城服务
 	GetShopService(context.Context, *GetShopServiceRequest) (*ShopServiceForm, error)
 	// 创建商城服务
@@ -145,8 +145,8 @@ type ShopServiceServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedShopServiceServiceServer struct{}
 
-func (UnimplementedShopServiceServiceServer) PageShopServices(context.Context, *PageShopServicesRequest) (*PageShopServicesResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method PageShopServices not implemented")
+func (UnimplementedShopServiceServiceServer) PageShopService(context.Context, *PageShopServiceRequest) (*PageShopServiceResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method PageShopService not implemented")
 }
 func (UnimplementedShopServiceServiceServer) GetShopService(context.Context, *GetShopServiceRequest) (*ShopServiceForm, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetShopService not implemented")
@@ -184,20 +184,20 @@ func RegisterShopServiceServiceServer(s grpc.ServiceRegistrar, srv ShopServiceSe
 	s.RegisterService(&ShopServiceService_ServiceDesc, srv)
 }
 
-func _ShopServiceService_PageShopServices_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PageShopServicesRequest)
+func _ShopServiceService_PageShopService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PageShopServiceRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ShopServiceServiceServer).PageShopServices(ctx, in)
+		return srv.(ShopServiceServiceServer).PageShopService(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ShopServiceService_PageShopServices_FullMethodName,
+		FullMethod: ShopServiceService_PageShopService_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ShopServiceServiceServer).PageShopServices(ctx, req.(*PageShopServicesRequest))
+		return srv.(ShopServiceServiceServer).PageShopService(ctx, req.(*PageShopServiceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -300,8 +300,8 @@ var ShopServiceService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*ShopServiceServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "PageShopServices",
-			Handler:    _ShopServiceService_PageShopServices_Handler,
+			MethodName: "PageShopService",
+			Handler:    _ShopServiceService_PageShopService_Handler,
 		},
 		{
 			MethodName: "GetShopService",

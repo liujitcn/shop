@@ -10,13 +10,13 @@ import type { BaseRoleDataScope, Status } from "../../common/v1/enum";
 import type { Empty } from "../../google/protobuf/empty";
 
 /** 角色选项查询条件 */
-export interface OptionBaseRolesRequest {
+export interface OptionBaseRoleRequest {
   /** 租户ID */
   tenant_id?: number | undefined;
 }
 
 /** 角色分页查询条件 */
-export interface PageBaseRolesRequest {
+export interface PageBaseRoleRequest {
   /** 角色名称 */
   name: string;
   /** 角色编号 */
@@ -36,7 +36,7 @@ export interface PageBaseRolesRequest {
 }
 
 /** 角色分页响应 */
-export interface PageBaseRolesResponse {
+export interface PageBaseRoleResponse {
   /** 分页数据 */
   base_roles: BaseRole[];
   /** 总数 */
@@ -136,9 +136,9 @@ export interface SetBaseRoleMenuRequest {
 /** Admin角色管理服务 */
 export interface BaseRoleService {
   /** 查询角色下拉选择 */
-  OptionBaseRoles(request: OptionBaseRolesRequest): Promise<SelectOptionResponse>;
+  OptionBaseRole(request: OptionBaseRoleRequest): Promise<SelectOptionResponse>;
   /** 查询角色分页列表 */
-  PageBaseRoles(request: PageBaseRolesRequest): Promise<PageBaseRolesResponse>;
+  PageBaseRole(request: PageBaseRoleRequest): Promise<PageBaseRoleResponse>;
   /** 查询角色 */
   GetBaseRole(request: GetBaseRoleRequest): Promise<BaseRoleForm>;
   /** 创建角色 */

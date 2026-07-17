@@ -37,21 +37,21 @@ func NewBaseMenuService(
 	}
 }
 
-// TreeBaseMenus 查询菜单树形列表
-func (s *BaseMenuService) TreeBaseMenus(ctx context.Context, req *adminv1.TreeBaseMenusRequest) (*adminv1.TreeBaseMenusResponse, error) {
-	tree, err := s.baseMenuCase.TreeBaseMenus(ctx)
+// TreeBaseMenu 查询菜单树形列表
+func (s *BaseMenuService) TreeBaseMenu(ctx context.Context, req *adminv1.TreeBaseMenuRequest) (*adminv1.TreeBaseMenuResponse, error) {
+	tree, err := s.baseMenuCase.TreeBaseMenu(ctx)
 	if err != nil {
-		log.Error(fmt.Sprintf("TreeBaseMenus %v", err))
+		log.Error(fmt.Sprintf("TreeBaseMenu %v", err))
 		return nil, errorsx.WrapInternal(err, "查询菜单树形列表失败")
 	}
 	return tree, nil
 }
 
-// OptionBaseMenus 查询菜单树形选择
-func (s *BaseMenuService) OptionBaseMenus(ctx context.Context, req *adminv1.OptionBaseMenusRequest) (*commonv1.TreeOptionResponse, error) {
-	tree, err := s.baseMenuCase.OptionBaseMenus(ctx, req)
+// OptionBaseMenu 查询菜单树形选择
+func (s *BaseMenuService) OptionBaseMenu(ctx context.Context, req *adminv1.OptionBaseMenuRequest) (*commonv1.TreeOptionResponse, error) {
+	tree, err := s.baseMenuCase.OptionBaseMenu(ctx, req)
 	if err != nil {
-		log.Error(fmt.Sprintf("OptionBaseMenus %v", err))
+		log.Error(fmt.Sprintf("OptionBaseMenu %v", err))
 		return nil, errorsx.WrapInternal(err, "查询菜单树形选择失败")
 	}
 	return tree, nil

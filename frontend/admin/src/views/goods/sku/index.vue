@@ -46,7 +46,7 @@ import FormDialog from "@/components/Dialog/FormDialog.vue";
 import type { ProFormField } from "@/components/ProForm/interface";
 import { defGoodsSkuService } from "@/api/admin/goods_sku";
 import { defGoodsSpecService } from "@/api/admin/goods_spec";
-import type { GoodsSku, PageGoodsSkusRequest } from "@/rpc/admin/v1/goods_sku";
+import type { GoodsSku, PageGoodsSkuRequest } from "@/rpc/admin/v1/goods_sku";
 import type { GoodsSpec } from "@/rpc/admin/v1/goods_spec";
 import { buildPageRequest } from "@/utils/proTable";
 
@@ -181,15 +181,15 @@ async function loadSpecList() {
     return;
   }
 
-  const res = await defGoodsSpecService.ListGoodsSpecs({ goods_id: goodsId.value });
+  const res = await defGoodsSpecService.ListGoodsSpec({ goods_id: goodsId.value });
   specList.value = res.goods_specs ?? [];
 }
 
 /**
  * 请求 SKU 列表，并将规格内容展开为动态列字段。
  */
-async function requestGoodsSkuTable(params: PageGoodsSkusRequest) {
-  const data = await defGoodsSkuService.PageGoodsSkus(buildPageRequest({ ...params, goods_id: goodsId.value }));
+async function requestGoodsSkuTable(params: PageGoodsSkuRequest) {
+  const data = await defGoodsSkuService.PageGoodsSku(buildPageRequest({ ...params, goods_id: goodsId.value }));
   const list = (data.goods_skus ?? []).map(item => {
     item.spec_item.forEach((spec, index) => {
       (item as Record<string, any>)[`spec_item${index}`] = spec;

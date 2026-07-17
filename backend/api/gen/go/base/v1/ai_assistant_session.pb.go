@@ -8,7 +8,6 @@ package basev1
 
 import (
 	reflect "reflect"
-	v1 "shop/api/gen/go/common/v1"
 	sync "sync"
 	unsafe "unsafe"
 
@@ -17,6 +16,8 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
+
+	v1 "shop/api/gen/go/common/v1"
 )
 
 const (
@@ -27,27 +28,27 @@ const (
 )
 
 // AI 助手快捷入口列表查询条件
-type ListAiAssistantShortcutsRequest struct {
+type ListAiAssistantShortcutRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Terminal      v1.Terminal            `protobuf:"varint,1,opt,name=terminal,proto3,enum=common.v1.Terminal" json:"terminal,omitempty"` // 终端类型：枚举【Terminal】
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListAiAssistantShortcutsRequest) Reset() {
-	*x = ListAiAssistantShortcutsRequest{}
+func (x *ListAiAssistantShortcutRequest) Reset() {
+	*x = ListAiAssistantShortcutRequest{}
 	mi := &file_base_v1_ai_assistant_session_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListAiAssistantShortcutsRequest) String() string {
+func (x *ListAiAssistantShortcutRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListAiAssistantShortcutsRequest) ProtoMessage() {}
+func (*ListAiAssistantShortcutRequest) ProtoMessage() {}
 
-func (x *ListAiAssistantShortcutsRequest) ProtoReflect() protoreflect.Message {
+func (x *ListAiAssistantShortcutRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_base_v1_ai_assistant_session_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -59,12 +60,12 @@ func (x *ListAiAssistantShortcutsRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListAiAssistantShortcutsRequest.ProtoReflect.Descriptor instead.
-func (*ListAiAssistantShortcutsRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListAiAssistantShortcutRequest.ProtoReflect.Descriptor instead.
+func (*ListAiAssistantShortcutRequest) Descriptor() ([]byte, []int) {
 	return file_base_v1_ai_assistant_session_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *ListAiAssistantShortcutsRequest) GetTerminal() v1.Terminal {
+func (x *ListAiAssistantShortcutRequest) GetTerminal() v1.Terminal {
 	if x != nil {
 		return x.Terminal
 	}
@@ -72,27 +73,27 @@ func (x *ListAiAssistantShortcutsRequest) GetTerminal() v1.Terminal {
 }
 
 // AI 助手快捷入口列表响应
-type ListAiAssistantShortcutsResponse struct {
+type ListAiAssistantShortcutResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Shortcuts     []*AiAssistantShortcut `protobuf:"bytes,1,rep,name=shortcuts,proto3" json:"shortcuts,omitempty"` // 快捷入口列表
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListAiAssistantShortcutsResponse) Reset() {
-	*x = ListAiAssistantShortcutsResponse{}
+func (x *ListAiAssistantShortcutResponse) Reset() {
+	*x = ListAiAssistantShortcutResponse{}
 	mi := &file_base_v1_ai_assistant_session_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListAiAssistantShortcutsResponse) String() string {
+func (x *ListAiAssistantShortcutResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListAiAssistantShortcutsResponse) ProtoMessage() {}
+func (*ListAiAssistantShortcutResponse) ProtoMessage() {}
 
-func (x *ListAiAssistantShortcutsResponse) ProtoReflect() protoreflect.Message {
+func (x *ListAiAssistantShortcutResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_base_v1_ai_assistant_session_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -104,12 +105,12 @@ func (x *ListAiAssistantShortcutsResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListAiAssistantShortcutsResponse.ProtoReflect.Descriptor instead.
-func (*ListAiAssistantShortcutsResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListAiAssistantShortcutResponse.ProtoReflect.Descriptor instead.
+func (*ListAiAssistantShortcutResponse) Descriptor() ([]byte, []int) {
 	return file_base_v1_ai_assistant_session_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *ListAiAssistantShortcutsResponse) GetShortcuts() []*AiAssistantShortcut {
+func (x *ListAiAssistantShortcutResponse) GetShortcuts() []*AiAssistantShortcut {
 	if x != nil {
 		return x.Shortcuts
 	}
@@ -279,27 +280,27 @@ func (x *AiAssistantShortcutAction) GetPayloadJson() string {
 }
 
 // AI 助手会话列表查询条件
-type ListAiAssistantSessionsRequest struct {
+type ListAiAssistantSessionRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Terminal      v1.Terminal            `protobuf:"varint,1,opt,name=terminal,proto3,enum=common.v1.Terminal" json:"terminal,omitempty"` // 终端类型：枚举【Terminal】
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListAiAssistantSessionsRequest) Reset() {
-	*x = ListAiAssistantSessionsRequest{}
+func (x *ListAiAssistantSessionRequest) Reset() {
+	*x = ListAiAssistantSessionRequest{}
 	mi := &file_base_v1_ai_assistant_session_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListAiAssistantSessionsRequest) String() string {
+func (x *ListAiAssistantSessionRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListAiAssistantSessionsRequest) ProtoMessage() {}
+func (*ListAiAssistantSessionRequest) ProtoMessage() {}
 
-func (x *ListAiAssistantSessionsRequest) ProtoReflect() protoreflect.Message {
+func (x *ListAiAssistantSessionRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_base_v1_ai_assistant_session_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -311,12 +312,12 @@ func (x *ListAiAssistantSessionsRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListAiAssistantSessionsRequest.ProtoReflect.Descriptor instead.
-func (*ListAiAssistantSessionsRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListAiAssistantSessionRequest.ProtoReflect.Descriptor instead.
+func (*ListAiAssistantSessionRequest) Descriptor() ([]byte, []int) {
 	return file_base_v1_ai_assistant_session_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *ListAiAssistantSessionsRequest) GetTerminal() v1.Terminal {
+func (x *ListAiAssistantSessionRequest) GetTerminal() v1.Terminal {
 	if x != nil {
 		return x.Terminal
 	}
@@ -324,27 +325,27 @@ func (x *ListAiAssistantSessionsRequest) GetTerminal() v1.Terminal {
 }
 
 // AI 助手会话列表响应
-type ListAiAssistantSessionsResponse struct {
+type ListAiAssistantSessionResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Sessions      []*AiAssistantSession  `protobuf:"bytes,1,rep,name=sessions,proto3" json:"sessions,omitempty"` // 会话列表
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListAiAssistantSessionsResponse) Reset() {
-	*x = ListAiAssistantSessionsResponse{}
+func (x *ListAiAssistantSessionResponse) Reset() {
+	*x = ListAiAssistantSessionResponse{}
 	mi := &file_base_v1_ai_assistant_session_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListAiAssistantSessionsResponse) String() string {
+func (x *ListAiAssistantSessionResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListAiAssistantSessionsResponse) ProtoMessage() {}
+func (*ListAiAssistantSessionResponse) ProtoMessage() {}
 
-func (x *ListAiAssistantSessionsResponse) ProtoReflect() protoreflect.Message {
+func (x *ListAiAssistantSessionResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_base_v1_ai_assistant_session_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -356,12 +357,12 @@ func (x *ListAiAssistantSessionsResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListAiAssistantSessionsResponse.ProtoReflect.Descriptor instead.
-func (*ListAiAssistantSessionsResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListAiAssistantSessionResponse.ProtoReflect.Descriptor instead.
+func (*ListAiAssistantSessionResponse) Descriptor() ([]byte, []int) {
 	return file_base_v1_ai_assistant_session_proto_rawDescGZIP(), []int{5}
 }
 
-func (x *ListAiAssistantSessionsResponse) GetSessions() []*AiAssistantSession {
+func (x *ListAiAssistantSessionResponse) GetSessions() []*AiAssistantSession {
 	if x != nil {
 		return x.Sessions
 	}
@@ -647,27 +648,27 @@ func (*DeleteAiAssistantSessionResponse) Descriptor() ([]byte, []int) {
 }
 
 // AI 助手消息列表查询条件
-type ListAiAssistantMessagesRequest struct {
+type ListAiAssistantMessageRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	SessionId     string                 `protobuf:"bytes,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"` // 会话ID
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListAiAssistantMessagesRequest) Reset() {
-	*x = ListAiAssistantMessagesRequest{}
+func (x *ListAiAssistantMessageRequest) Reset() {
+	*x = ListAiAssistantMessageRequest{}
 	mi := &file_base_v1_ai_assistant_session_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListAiAssistantMessagesRequest) String() string {
+func (x *ListAiAssistantMessageRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListAiAssistantMessagesRequest) ProtoMessage() {}
+func (*ListAiAssistantMessageRequest) ProtoMessage() {}
 
-func (x *ListAiAssistantMessagesRequest) ProtoReflect() protoreflect.Message {
+func (x *ListAiAssistantMessageRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_base_v1_ai_assistant_session_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -679,12 +680,12 @@ func (x *ListAiAssistantMessagesRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListAiAssistantMessagesRequest.ProtoReflect.Descriptor instead.
-func (*ListAiAssistantMessagesRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListAiAssistantMessageRequest.ProtoReflect.Descriptor instead.
+func (*ListAiAssistantMessageRequest) Descriptor() ([]byte, []int) {
 	return file_base_v1_ai_assistant_session_proto_rawDescGZIP(), []int{12}
 }
 
-func (x *ListAiAssistantMessagesRequest) GetSessionId() string {
+func (x *ListAiAssistantMessageRequest) GetSessionId() string {
 	if x != nil {
 		return x.SessionId
 	}
@@ -692,27 +693,27 @@ func (x *ListAiAssistantMessagesRequest) GetSessionId() string {
 }
 
 // AI 助手消息列表响应
-type ListAiAssistantMessagesResponse struct {
+type ListAiAssistantMessageResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Messages      []*AiAssistantMessage  `protobuf:"bytes,1,rep,name=messages,proto3" json:"messages,omitempty"` // 消息列表
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListAiAssistantMessagesResponse) Reset() {
-	*x = ListAiAssistantMessagesResponse{}
+func (x *ListAiAssistantMessageResponse) Reset() {
+	*x = ListAiAssistantMessageResponse{}
 	mi := &file_base_v1_ai_assistant_session_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListAiAssistantMessagesResponse) String() string {
+func (x *ListAiAssistantMessageResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListAiAssistantMessagesResponse) ProtoMessage() {}
+func (*ListAiAssistantMessageResponse) ProtoMessage() {}
 
-func (x *ListAiAssistantMessagesResponse) ProtoReflect() protoreflect.Message {
+func (x *ListAiAssistantMessageResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_base_v1_ai_assistant_session_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -724,12 +725,12 @@ func (x *ListAiAssistantMessagesResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListAiAssistantMessagesResponse.ProtoReflect.Descriptor instead.
-func (*ListAiAssistantMessagesResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListAiAssistantMessageResponse.ProtoReflect.Descriptor instead.
+func (*ListAiAssistantMessageResponse) Descriptor() ([]byte, []int) {
 	return file_base_v1_ai_assistant_session_proto_rawDescGZIP(), []int{13}
 }
 
-func (x *ListAiAssistantMessagesResponse) GetMessages() []*AiAssistantMessage {
+func (x *ListAiAssistantMessageResponse) GetMessages() []*AiAssistantMessage {
 	if x != nil {
 		return x.Messages
 	}
@@ -1449,10 +1450,10 @@ var File_base_v1_ai_assistant_session_proto protoreflect.FileDescriptor
 
 const file_base_v1_ai_assistant_session_proto_rawDesc = "" +
 	"\n" +
-	"\"base/v1/ai_assistant_session.proto\x12\abase.v1\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"}\n" +
-	"\x1fListAiAssistantShortcutsRequest\x12Z\n" +
-	"\bterminal\x18\x01 \x01(\x0e2\x13.common.v1.TerminalB)\xbaG&\x92\x02#终端类型：枚举【Terminal】R\bterminal\"x\n" +
-	" ListAiAssistantShortcutsResponse\x12T\n" +
+	"\"base/v1/ai_assistant_session.proto\x12\abase.v1\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"|\n" +
+	"\x1eListAiAssistantShortcutRequest\x12Z\n" +
+	"\bterminal\x18\x01 \x01(\x0e2\x13.common.v1.TerminalB)\xbaG&\x92\x02#终端类型：枚举【Terminal】R\bterminal\"w\n" +
+	"\x1fListAiAssistantShortcutResponse\x12T\n" +
 	"\tshortcuts\x18\x01 \x03(\v2\x1c.base.v1.AiAssistantShortcutB\x18\xbaG\x15\x92\x02\x12快捷入口列表R\tshortcuts\"\x8c\x03\n" +
 	"\x13AiAssistantShortcut\x12*\n" +
 	"\x03key\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12快捷入口标识R\x03key\x12(\n" +
@@ -1466,10 +1467,10 @@ const file_base_v1_ai_assistant_session_proto_rawDesc = "" +
 	"\x04flow\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f流程标识R\x04flow\x12&\n" +
 	"\x04step\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f流程步骤R\x04step\x12&\n" +
 	"\x04type\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f动作类型R\x04type\x129\n" +
-	"\fpayload_json\x18\x04 \x01(\tB\x16\xbaG\x13\x92\x02\x10动作负载JSONR\vpayloadJson\"|\n" +
-	"\x1eListAiAssistantSessionsRequest\x12Z\n" +
-	"\bterminal\x18\x01 \x01(\x0e2\x13.common.v1.TerminalB)\xbaG&\x92\x02#终端类型：枚举【Terminal】R\bterminal\"n\n" +
-	"\x1fListAiAssistantSessionsResponse\x12K\n" +
+	"\fpayload_json\x18\x04 \x01(\tB\x16\xbaG\x13\x92\x02\x10动作负载JSONR\vpayloadJson\"{\n" +
+	"\x1dListAiAssistantSessionRequest\x12Z\n" +
+	"\bterminal\x18\x01 \x01(\x0e2\x13.common.v1.TerminalB)\xbaG&\x92\x02#终端类型：枚举【Terminal】R\bterminal\"m\n" +
+	"\x1eListAiAssistantSessionResponse\x12K\n" +
 	"\bsessions\x18\x01 \x03(\v2\x1b.base.v1.AiAssistantSessionB\x12\xbaG\x0f\x92\x02\f会话列表R\bsessions\"\xa7\x01\n" +
 	"\x1fCreateAiAssistantSessionRequest\x12(\n" +
 	"\x05title\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f会话标题R\x05title\x12Z\n" +
@@ -1483,11 +1484,11 @@ const file_base_v1_ai_assistant_session_proto_rawDesc = "" +
 	"\asession\x18\x01 \x01(\v2\x1b.base.v1.AiAssistantSessionB\x12\xbaG\x0f\x92\x02\f会话信息R\asession\"A\n" +
 	"\x1fDeleteAiAssistantSessionRequest\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\tB\x0e\xbaG\v\x92\x02\b会话IDR\x02id\"\"\n" +
-	" DeleteAiAssistantSessionResponse\"O\n" +
-	"\x1eListAiAssistantMessagesRequest\x12-\n" +
+	" DeleteAiAssistantSessionResponse\"N\n" +
+	"\x1dListAiAssistantMessageRequest\x12-\n" +
 	"\n" +
-	"session_id\x18\x01 \x01(\tB\x0e\xbaG\v\x92\x02\b会话IDR\tsessionId\"n\n" +
-	"\x1fListAiAssistantMessagesResponse\x12K\n" +
+	"session_id\x18\x01 \x01(\tB\x0e\xbaG\v\x92\x02\b会话IDR\tsessionId\"m\n" +
+	"\x1eListAiAssistantMessageResponse\x12K\n" +
 	"\bmessages\x18\x01 \x03(\v2\x1b.base.v1.AiAssistantMessageB\x12\xbaG\x0f\x92\x02\f消息列表R\bmessages\"\xbd\x02\n" +
 	"%CreateAiAssistantSessionBranchRequest\x12@\n" +
 	"\x11source_session_id\x18\x01 \x01(\tB\x14\xbaG\x11\x92\x02\x0e来源会话IDR\x0fsourceSessionId\x12F\n" +
@@ -1549,14 +1550,14 @@ const file_base_v1_ai_assistant_session_proto_rawDesc = "" +
 	"\x05title\x18\x03 \x01(\tB\x18\xbaG\x15\x92\x02\x12工具展示名称R\x05title\x120\n" +
 	"\x06status\x18\x04 \x01(\tB\x18\xbaG\x15\x92\x02\x12工具调用状态R\x06status\x122\n" +
 	"\x05input\x18\x05 \x01(\tB\x1c\xbaG\x19\x92\x02\x16工具原始入参JSONR\x05input\x124\n" +
-	"\x06output\x18\x06 \x01(\tB\x1c\xbaG\x19\x92\x02\x16工具原始出参JSONR\x06output2\xaf\t\n" +
-	"\x12AiAssistantService\x12\x9b\x01\n" +
-	"\x18ListAiAssistantShortcuts\x12(.base.v1.ListAiAssistantShortcutsRequest\x1a).base.v1.ListAiAssistantShortcutsResponse\"*\x82\xd3\xe4\x93\x02$\x12\"/api/v1/base/ai/assistant/shortcut\x12\x97\x01\n" +
-	"\x17ListAiAssistantSessions\x12'.base.v1.ListAiAssistantSessionsRequest\x1a(.base.v1.ListAiAssistantSessionsResponse\")\x82\xd3\xe4\x93\x02#\x12!/api/v1/base/ai/assistant/session\x12\x9d\x01\n" +
+	"\x06output\x18\x06 \x01(\tB\x1c\xbaG\x19\x92\x02\x16工具原始出参JSONR\x06output2\xa6\t\n" +
+	"\x12AiAssistantService\x12\x98\x01\n" +
+	"\x17ListAiAssistantShortcut\x12'.base.v1.ListAiAssistantShortcutRequest\x1a(.base.v1.ListAiAssistantShortcutResponse\"*\x82\xd3\xe4\x93\x02$\x12\"/api/v1/base/ai/assistant/shortcut\x12\x94\x01\n" +
+	"\x16ListAiAssistantSession\x12&.base.v1.ListAiAssistantSessionRequest\x1a'.base.v1.ListAiAssistantSessionResponse\")\x82\xd3\xe4\x93\x02#\x12!/api/v1/base/ai/assistant/session\x12\x9d\x01\n" +
 	"\x18CreateAiAssistantSession\x12(.base.v1.CreateAiAssistantSessionRequest\x1a).base.v1.CreateAiAssistantSessionResponse\",\x82\xd3\xe4\x93\x02&:\x01*\"!/api/v1/base/ai/assistant/session\x12\xa2\x01\n" +
 	"\x18UpdateAiAssistantSession\x12(.base.v1.UpdateAiAssistantSessionRequest\x1a).base.v1.UpdateAiAssistantSessionResponse\"1\x82\xd3\xe4\x93\x02+:\x01*\x1a&/api/v1/base/ai/assistant/session/{id}\x12\x9f\x01\n" +
-	"\x18DeleteAiAssistantSession\x12(.base.v1.DeleteAiAssistantSessionRequest\x1a).base.v1.DeleteAiAssistantSessionResponse\".\x82\xd3\xe4\x93\x02(*&/api/v1/base/ai/assistant/session/{id}\x12\xac\x01\n" +
-	"\x17ListAiAssistantMessages\x12'.base.v1.ListAiAssistantMessagesRequest\x1a(.base.v1.ListAiAssistantMessagesResponse\">\x82\xd3\xe4\x93\x028\x126/api/v1/base/ai/assistant/session/{session_id}/message\x12\xca\x01\n" +
+	"\x18DeleteAiAssistantSession\x12(.base.v1.DeleteAiAssistantSessionRequest\x1a).base.v1.DeleteAiAssistantSessionResponse\".\x82\xd3\xe4\x93\x02(*&/api/v1/base/ai/assistant/session/{id}\x12\xa9\x01\n" +
+	"\x16ListAiAssistantMessage\x12&.base.v1.ListAiAssistantMessageRequest\x1a'.base.v1.ListAiAssistantMessageResponse\">\x82\xd3\xe4\x93\x028\x126/api/v1/base/ai/assistant/session/{session_id}/message\x12\xca\x01\n" +
 	"\x1eCreateAiAssistantSessionBranch\x12..base.v1.CreateAiAssistantSessionBranchRequest\x1a/.base.v1.CreateAiAssistantSessionBranchResponse\"G\x82\xd3\xe4\x93\x02A:\x01*\"</api/v1/base/ai/assistant/session/{source_session_id}/branchB\x83\x01\n" +
 	"\vcom.base.v1B\x17AiAssistantSessionProtoP\x01Z\x1eshop/api/gen/go/base/v1;basev1\xa2\x02\x03BXX\xaa\x02\aBase.V1\xca\x02\aBase\\V1\xe2\x02\x13Base\\V1\\GPBMetadata\xea\x02\bBase::V1b\x06proto3"
 
@@ -1574,20 +1575,20 @@ func file_base_v1_ai_assistant_session_proto_rawDescGZIP() []byte {
 
 var file_base_v1_ai_assistant_session_proto_msgTypes = make([]protoimpl.MessageInfo, 23)
 var file_base_v1_ai_assistant_session_proto_goTypes = []any{
-	(*ListAiAssistantShortcutsRequest)(nil),        // 0: base.v1.ListAiAssistantShortcutsRequest
-	(*ListAiAssistantShortcutsResponse)(nil),       // 1: base.v1.ListAiAssistantShortcutsResponse
+	(*ListAiAssistantShortcutRequest)(nil),         // 0: base.v1.ListAiAssistantShortcutRequest
+	(*ListAiAssistantShortcutResponse)(nil),        // 1: base.v1.ListAiAssistantShortcutResponse
 	(*AiAssistantShortcut)(nil),                    // 2: base.v1.AiAssistantShortcut
 	(*AiAssistantShortcutAction)(nil),              // 3: base.v1.AiAssistantShortcutAction
-	(*ListAiAssistantSessionsRequest)(nil),         // 4: base.v1.ListAiAssistantSessionsRequest
-	(*ListAiAssistantSessionsResponse)(nil),        // 5: base.v1.ListAiAssistantSessionsResponse
+	(*ListAiAssistantSessionRequest)(nil),          // 4: base.v1.ListAiAssistantSessionRequest
+	(*ListAiAssistantSessionResponse)(nil),         // 5: base.v1.ListAiAssistantSessionResponse
 	(*CreateAiAssistantSessionRequest)(nil),        // 6: base.v1.CreateAiAssistantSessionRequest
 	(*CreateAiAssistantSessionResponse)(nil),       // 7: base.v1.CreateAiAssistantSessionResponse
 	(*UpdateAiAssistantSessionRequest)(nil),        // 8: base.v1.UpdateAiAssistantSessionRequest
 	(*UpdateAiAssistantSessionResponse)(nil),       // 9: base.v1.UpdateAiAssistantSessionResponse
 	(*DeleteAiAssistantSessionRequest)(nil),        // 10: base.v1.DeleteAiAssistantSessionRequest
 	(*DeleteAiAssistantSessionResponse)(nil),       // 11: base.v1.DeleteAiAssistantSessionResponse
-	(*ListAiAssistantMessagesRequest)(nil),         // 12: base.v1.ListAiAssistantMessagesRequest
-	(*ListAiAssistantMessagesResponse)(nil),        // 13: base.v1.ListAiAssistantMessagesResponse
+	(*ListAiAssistantMessageRequest)(nil),          // 12: base.v1.ListAiAssistantMessageRequest
+	(*ListAiAssistantMessageResponse)(nil),         // 13: base.v1.ListAiAssistantMessageResponse
 	(*CreateAiAssistantSessionBranchRequest)(nil),  // 14: base.v1.CreateAiAssistantSessionBranchRequest
 	(*CreateAiAssistantSessionBranchResponse)(nil), // 15: base.v1.CreateAiAssistantSessionBranchResponse
 	(*AiAssistantSession)(nil),                     // 16: base.v1.AiAssistantSession
@@ -1602,15 +1603,15 @@ var file_base_v1_ai_assistant_session_proto_goTypes = []any{
 	(v1.AiAssistantMessageStatus)(0),               // 25: common.v1.AiAssistantMessageStatus
 }
 var file_base_v1_ai_assistant_session_proto_depIdxs = []int32{
-	23, // 0: base.v1.ListAiAssistantShortcutsRequest.terminal:type_name -> common.v1.Terminal
-	2,  // 1: base.v1.ListAiAssistantShortcutsResponse.shortcuts:type_name -> base.v1.AiAssistantShortcut
+	23, // 0: base.v1.ListAiAssistantShortcutRequest.terminal:type_name -> common.v1.Terminal
+	2,  // 1: base.v1.ListAiAssistantShortcutResponse.shortcuts:type_name -> base.v1.AiAssistantShortcut
 	3,  // 2: base.v1.AiAssistantShortcut.action:type_name -> base.v1.AiAssistantShortcutAction
-	23, // 3: base.v1.ListAiAssistantSessionsRequest.terminal:type_name -> common.v1.Terminal
-	16, // 4: base.v1.ListAiAssistantSessionsResponse.sessions:type_name -> base.v1.AiAssistantSession
+	23, // 3: base.v1.ListAiAssistantSessionRequest.terminal:type_name -> common.v1.Terminal
+	16, // 4: base.v1.ListAiAssistantSessionResponse.sessions:type_name -> base.v1.AiAssistantSession
 	23, // 5: base.v1.CreateAiAssistantSessionRequest.terminal:type_name -> common.v1.Terminal
 	16, // 6: base.v1.CreateAiAssistantSessionResponse.session:type_name -> base.v1.AiAssistantSession
 	16, // 7: base.v1.UpdateAiAssistantSessionResponse.session:type_name -> base.v1.AiAssistantSession
-	17, // 8: base.v1.ListAiAssistantMessagesResponse.messages:type_name -> base.v1.AiAssistantMessage
+	17, // 8: base.v1.ListAiAssistantMessageResponse.messages:type_name -> base.v1.AiAssistantMessage
 	23, // 9: base.v1.CreateAiAssistantSessionBranchRequest.terminal:type_name -> common.v1.Terminal
 	16, // 10: base.v1.CreateAiAssistantSessionBranchResponse.session:type_name -> base.v1.AiAssistantSession
 	17, // 11: base.v1.CreateAiAssistantSessionBranchResponse.messages:type_name -> base.v1.AiAssistantMessage
@@ -1623,19 +1624,19 @@ var file_base_v1_ai_assistant_session_proto_depIdxs = []int32{
 	25, // 18: base.v1.AiAssistantMessage.status:type_name -> common.v1.AiAssistantMessageStatus
 	20, // 19: base.v1.AiAssistantMessage.token:type_name -> base.v1.AiAssistantToken
 	22, // 20: base.v1.AiAssistantMessage.tools:type_name -> base.v1.AiAssistantTool
-	0,  // 21: base.v1.AiAssistantService.ListAiAssistantShortcuts:input_type -> base.v1.ListAiAssistantShortcutsRequest
-	4,  // 22: base.v1.AiAssistantService.ListAiAssistantSessions:input_type -> base.v1.ListAiAssistantSessionsRequest
+	0,  // 21: base.v1.AiAssistantService.ListAiAssistantShortcut:input_type -> base.v1.ListAiAssistantShortcutRequest
+	4,  // 22: base.v1.AiAssistantService.ListAiAssistantSession:input_type -> base.v1.ListAiAssistantSessionRequest
 	6,  // 23: base.v1.AiAssistantService.CreateAiAssistantSession:input_type -> base.v1.CreateAiAssistantSessionRequest
 	8,  // 24: base.v1.AiAssistantService.UpdateAiAssistantSession:input_type -> base.v1.UpdateAiAssistantSessionRequest
 	10, // 25: base.v1.AiAssistantService.DeleteAiAssistantSession:input_type -> base.v1.DeleteAiAssistantSessionRequest
-	12, // 26: base.v1.AiAssistantService.ListAiAssistantMessages:input_type -> base.v1.ListAiAssistantMessagesRequest
+	12, // 26: base.v1.AiAssistantService.ListAiAssistantMessage:input_type -> base.v1.ListAiAssistantMessageRequest
 	14, // 27: base.v1.AiAssistantService.CreateAiAssistantSessionBranch:input_type -> base.v1.CreateAiAssistantSessionBranchRequest
-	1,  // 28: base.v1.AiAssistantService.ListAiAssistantShortcuts:output_type -> base.v1.ListAiAssistantShortcutsResponse
-	5,  // 29: base.v1.AiAssistantService.ListAiAssistantSessions:output_type -> base.v1.ListAiAssistantSessionsResponse
+	1,  // 28: base.v1.AiAssistantService.ListAiAssistantShortcut:output_type -> base.v1.ListAiAssistantShortcutResponse
+	5,  // 29: base.v1.AiAssistantService.ListAiAssistantSession:output_type -> base.v1.ListAiAssistantSessionResponse
 	7,  // 30: base.v1.AiAssistantService.CreateAiAssistantSession:output_type -> base.v1.CreateAiAssistantSessionResponse
 	9,  // 31: base.v1.AiAssistantService.UpdateAiAssistantSession:output_type -> base.v1.UpdateAiAssistantSessionResponse
 	11, // 32: base.v1.AiAssistantService.DeleteAiAssistantSession:output_type -> base.v1.DeleteAiAssistantSessionResponse
-	13, // 33: base.v1.AiAssistantService.ListAiAssistantMessages:output_type -> base.v1.ListAiAssistantMessagesResponse
+	13, // 33: base.v1.AiAssistantService.ListAiAssistantMessage:output_type -> base.v1.ListAiAssistantMessageResponse
 	15, // 34: base.v1.AiAssistantService.CreateAiAssistantSessionBranch:output_type -> base.v1.CreateAiAssistantSessionBranchResponse
 	28, // [28:35] is the sub-list for method output_type
 	21, // [21:28] is the sub-list for method input_type

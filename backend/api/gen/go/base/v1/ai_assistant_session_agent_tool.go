@@ -17,18 +17,18 @@ import (
 func NewAiAssistantServiceAgentTools(aiAssistantServiceServer AiAssistantServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error
-	var listAiAssistantShortcutsTool tool.InvokableTool
-	listAiAssistantShortcutsTool, err = NewAiAssistantServiceListAiAssistantShortcutsAgentTool(aiAssistantServiceServer)
+	var listAiAssistantShortcutTool tool.InvokableTool
+	listAiAssistantShortcutTool, err = NewAiAssistantServiceListAiAssistantShortcutAgentTool(aiAssistantServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, listAiAssistantShortcutsTool)
-	var listAiAssistantSessionsTool tool.InvokableTool
-	listAiAssistantSessionsTool, err = NewAiAssistantServiceListAiAssistantSessionsAgentTool(aiAssistantServiceServer)
+	ts = append(ts, listAiAssistantShortcutTool)
+	var listAiAssistantSessionTool tool.InvokableTool
+	listAiAssistantSessionTool, err = NewAiAssistantServiceListAiAssistantSessionAgentTool(aiAssistantServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, listAiAssistantSessionsTool)
+	ts = append(ts, listAiAssistantSessionTool)
 	var createAiAssistantSessionTool tool.InvokableTool
 	createAiAssistantSessionTool, err = NewAiAssistantServiceCreateAiAssistantSessionAgentTool(aiAssistantServiceServer)
 	if err != nil {
@@ -47,12 +47,12 @@ func NewAiAssistantServiceAgentTools(aiAssistantServiceServer AiAssistantService
 		return nil, err
 	}
 	ts = append(ts, deleteAiAssistantSessionTool)
-	var listAiAssistantMessagesTool tool.InvokableTool
-	listAiAssistantMessagesTool, err = NewAiAssistantServiceListAiAssistantMessagesAgentTool(aiAssistantServiceServer)
+	var listAiAssistantMessageTool tool.InvokableTool
+	listAiAssistantMessageTool, err = NewAiAssistantServiceListAiAssistantMessageAgentTool(aiAssistantServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, listAiAssistantMessagesTool)
+	ts = append(ts, listAiAssistantMessageTool)
 	var createAiAssistantSessionBranchTool tool.InvokableTool
 	createAiAssistantSessionBranchTool, err = NewAiAssistantServiceCreateAiAssistantSessionBranchAgentTool(aiAssistantServiceServer)
 	if err != nil {
@@ -62,30 +62,30 @@ func NewAiAssistantServiceAgentTools(aiAssistantServiceServer AiAssistantService
 	return ts, nil
 }
 
-// NewAiAssistantServiceListAiAssistantShortcutsAgentTool 创建查询 AI 助手快捷入口列表的 Agent Tool。
-func NewAiAssistantServiceListAiAssistantShortcutsAgentTool(aiAssistantServiceServer AiAssistantServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*ListAiAssistantShortcutsRequest, *ListAiAssistantShortcutsResponse](
-		"base_v1_ai_assistant_service_list_ai_assistant_shortcuts",
+// NewAiAssistantServiceListAiAssistantShortcutAgentTool 创建查询 AI 助手快捷入口列表的 Agent Tool。
+func NewAiAssistantServiceListAiAssistantShortcutAgentTool(aiAssistantServiceServer AiAssistantServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*ListAiAssistantShortcutRequest, *ListAiAssistantShortcutResponse](
+		"base_v1_ai_assistant_service_list_ai_assistant_shortcut",
 		"查询 AI 助手快捷入口列表",
-		func(ctx context.Context, req *ListAiAssistantShortcutsRequest) (*ListAiAssistantShortcutsResponse, error) {
+		func(ctx context.Context, req *ListAiAssistantShortcutRequest) (*ListAiAssistantShortcutResponse, error) {
 			if req == nil {
-				req = &ListAiAssistantShortcutsRequest{}
+				req = &ListAiAssistantShortcutRequest{}
 			}
-			return aiAssistantServiceServer.ListAiAssistantShortcuts(ctx, req)
+			return aiAssistantServiceServer.ListAiAssistantShortcut(ctx, req)
 		},
 	)
 }
 
-// NewAiAssistantServiceListAiAssistantSessionsAgentTool 创建查询 AI 助手会话列表的 Agent Tool。
-func NewAiAssistantServiceListAiAssistantSessionsAgentTool(aiAssistantServiceServer AiAssistantServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*ListAiAssistantSessionsRequest, *ListAiAssistantSessionsResponse](
-		"base_v1_ai_assistant_service_list_ai_assistant_sessions",
+// NewAiAssistantServiceListAiAssistantSessionAgentTool 创建查询 AI 助手会话列表的 Agent Tool。
+func NewAiAssistantServiceListAiAssistantSessionAgentTool(aiAssistantServiceServer AiAssistantServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*ListAiAssistantSessionRequest, *ListAiAssistantSessionResponse](
+		"base_v1_ai_assistant_service_list_ai_assistant_session",
 		"查询 AI 助手会话列表",
-		func(ctx context.Context, req *ListAiAssistantSessionsRequest) (*ListAiAssistantSessionsResponse, error) {
+		func(ctx context.Context, req *ListAiAssistantSessionRequest) (*ListAiAssistantSessionResponse, error) {
 			if req == nil {
-				req = &ListAiAssistantSessionsRequest{}
+				req = &ListAiAssistantSessionRequest{}
 			}
-			return aiAssistantServiceServer.ListAiAssistantSessions(ctx, req)
+			return aiAssistantServiceServer.ListAiAssistantSession(ctx, req)
 		},
 	)
 }
@@ -132,16 +132,16 @@ func NewAiAssistantServiceDeleteAiAssistantSessionAgentTool(aiAssistantServiceSe
 	)
 }
 
-// NewAiAssistantServiceListAiAssistantMessagesAgentTool 创建查询 AI 助手消息列表的 Agent Tool。
-func NewAiAssistantServiceListAiAssistantMessagesAgentTool(aiAssistantServiceServer AiAssistantServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*ListAiAssistantMessagesRequest, *ListAiAssistantMessagesResponse](
-		"base_v1_ai_assistant_service_list_ai_assistant_messages",
+// NewAiAssistantServiceListAiAssistantMessageAgentTool 创建查询 AI 助手消息列表的 Agent Tool。
+func NewAiAssistantServiceListAiAssistantMessageAgentTool(aiAssistantServiceServer AiAssistantServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*ListAiAssistantMessageRequest, *ListAiAssistantMessageResponse](
+		"base_v1_ai_assistant_service_list_ai_assistant_message",
 		"查询 AI 助手消息列表",
-		func(ctx context.Context, req *ListAiAssistantMessagesRequest) (*ListAiAssistantMessagesResponse, error) {
+		func(ctx context.Context, req *ListAiAssistantMessageRequest) (*ListAiAssistantMessageResponse, error) {
 			if req == nil {
-				req = &ListAiAssistantMessagesRequest{}
+				req = &ListAiAssistantMessageRequest{}
 			}
-			return aiAssistantServiceServer.ListAiAssistantMessages(ctx, req)
+			return aiAssistantServiceServer.ListAiAssistantMessage(ctx, req)
 		},
 	)
 }

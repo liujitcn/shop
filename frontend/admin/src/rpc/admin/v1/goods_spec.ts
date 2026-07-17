@@ -7,13 +7,13 @@
 /* eslint-disable */
 
 /** 商品规格列表查询条件 */
-export interface ListGoodsSpecsRequest {
+export interface ListGoodsSpecRequest {
   /** 商品id */
   goods_id: number;
 }
 
 /** 商品规格列表响应 */
-export interface ListGoodsSpecsResponse {
+export interface ListGoodsSpecResponse {
   /** 商品规格列表 */
   goods_specs: GoodsSpec[];
 }
@@ -35,5 +35,5 @@ export interface GoodsSpec {
 /** Admin商品规格服务 */
 export interface GoodsSpecService {
   /** 查询商品规格列表 */
-  ListGoodsSpecs(request: ListGoodsSpecsRequest): Promise<ListGoodsSpecsResponse>;
+  ListGoodsSpec(request: ListGoodsSpecRequest): Promise<ListGoodsSpecResponse>;
 }

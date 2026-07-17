@@ -22,7 +22,7 @@ export interface GetIsCollectResponse {
 }
 
 /** 用户收藏列表查询条件 */
-export interface PageUserCollectsRequest {
+export interface PageUserCollectRequest {
   /** 当前页码 */
   page_num: number;
   /** 每一页的行数 */
@@ -30,7 +30,7 @@ export interface PageUserCollectsRequest {
 }
 
 /** 用户收藏列表响应 */
-export interface PageUserCollectsResponse {
+export interface PageUserCollectResponse {
   /** 用户收藏列表 */
   user_collects: UserCollect[];
   /** 总数 */
@@ -84,7 +84,7 @@ export interface UserCollect {
 /** App用户收藏管理服务 */
 export interface UserCollectService {
   /** 查询用户收藏列表 */
-  PageUserCollects(request: PageUserCollectsRequest): Promise<PageUserCollectsResponse>;
+  PageUserCollect(request: PageUserCollectRequest): Promise<PageUserCollectResponse>;
   /** 查询用户是否收藏 */
   GetIsCollect(request: GetIsCollectRequest): Promise<GetIsCollectResponse>;
   /** 创建用户收藏 */

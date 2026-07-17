@@ -46,7 +46,7 @@ import type {
   CodeGenDatabaseTable,
   CodeGenTable,
   CodeGenTableForm,
-  PageCodeGenTablesRequest
+  PageCodeGenTableRequest
 } from "@/rpc/admin/v1/code_gen_table";
 import type { TreeOptionResponse_Option } from "@/rpc/common/v1/common";
 import { buildPageRequest, normalizeSelectedIds } from "@/utils/proTable";
@@ -346,8 +346,8 @@ const headerActions: HeaderActionProps[] = [
 ];
 
 /** 请求代码生成表配置列表。 */
-async function requestCodeGenTable(params: PageCodeGenTablesRequest) {
-  const data = await defCodeGenTableService.PageCodeGenTables(buildPageRequest(params));
+async function requestCodeGenTable(params: PageCodeGenTableRequest) {
+  const data = await defCodeGenTableService.PageCodeGenTable(buildPageRequest(params));
   return { data: { ...data, list: data.code_gen_tables ?? [] } };
 }
 
@@ -355,8 +355,8 @@ async function requestCodeGenTable(params: PageCodeGenTablesRequest) {
 async function handleOpenDialog(tableId?: number) {
   resetForm();
   const [tableData, menuData] = await Promise.all([
-    defCodeGenTableService.ListCodeGenDatabaseTables({}),
-    defBaseMenuService.OptionBaseMenus({})
+    defCodeGenTableService.ListCodeGenDatabaseTable({}),
+    defBaseMenuService.OptionBaseMenu({})
   ]);
   databaseTables.value = tableData.tables ?? [];
   parentMenuOptions.value = convertMenuOptions(menuData.list ?? []);
@@ -466,7 +466,7 @@ async function loadDatabaseColumns(target: { value: CodeGenDatabaseColumn[] }, t
     target.value = [];
     return;
   }
-  const data = await defCodeGenColumnService.ListCodeGenDatabaseColumns({ table_name: tableName });
+  const data = await defCodeGenColumnService.ListCodeGenDatabaseColumn({ table_name: tableName });
   target.value = data.columns ?? [];
 }
 

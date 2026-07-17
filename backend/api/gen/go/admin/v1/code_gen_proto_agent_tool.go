@@ -18,45 +18,45 @@ import (
 func NewCodeGenProtoServiceAgentTools(codeGenProtoServiceServer CodeGenProtoServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error
-	var listCodeGenProtosTool tool.InvokableTool
-	listCodeGenProtosTool, err = NewCodeGenProtoServiceListCodeGenProtosAgentTool(codeGenProtoServiceServer)
+	var listCodeGenProtoTool tool.InvokableTool
+	listCodeGenProtoTool, err = NewCodeGenProtoServiceListCodeGenProtoAgentTool(codeGenProtoServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, listCodeGenProtosTool)
-	var saveCodeGenProtosTool tool.InvokableTool
-	saveCodeGenProtosTool, err = NewCodeGenProtoServiceSaveCodeGenProtosAgentTool(codeGenProtoServiceServer)
+	ts = append(ts, listCodeGenProtoTool)
+	var saveCodeGenProtoTool tool.InvokableTool
+	saveCodeGenProtoTool, err = NewCodeGenProtoServiceSaveCodeGenProtoAgentTool(codeGenProtoServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, saveCodeGenProtosTool)
+	ts = append(ts, saveCodeGenProtoTool)
 	return ts, nil
 }
 
-// NewCodeGenProtoServiceListCodeGenProtosAgentTool 创建查询代码生成Proto接口配置的 Agent Tool。
-func NewCodeGenProtoServiceListCodeGenProtosAgentTool(codeGenProtoServiceServer CodeGenProtoServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*ListCodeGenProtosRequest, *ListCodeGenProtosResponse](
-		"admin_v1_code_gen_proto_service_list_code_gen_protos",
+// NewCodeGenProtoServiceListCodeGenProtoAgentTool 创建查询代码生成Proto接口配置的 Agent Tool。
+func NewCodeGenProtoServiceListCodeGenProtoAgentTool(codeGenProtoServiceServer CodeGenProtoServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*ListCodeGenProtoRequest, *ListCodeGenProtoResponse](
+		"admin_v1_code_gen_proto_service_list_code_gen_proto",
 		"查询代码生成Proto接口配置",
-		func(ctx context.Context, req *ListCodeGenProtosRequest) (*ListCodeGenProtosResponse, error) {
+		func(ctx context.Context, req *ListCodeGenProtoRequest) (*ListCodeGenProtoResponse, error) {
 			if req == nil {
-				req = &ListCodeGenProtosRequest{}
+				req = &ListCodeGenProtoRequest{}
 			}
-			return codeGenProtoServiceServer.ListCodeGenProtos(ctx, req)
+			return codeGenProtoServiceServer.ListCodeGenProto(ctx, req)
 		},
 	)
 }
 
-// NewCodeGenProtoServiceSaveCodeGenProtosAgentTool 创建保存代码生成Proto接口配置的 Agent Tool。
-func NewCodeGenProtoServiceSaveCodeGenProtosAgentTool(codeGenProtoServiceServer CodeGenProtoServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*SaveCodeGenProtosRequest, *emptypb.Empty](
-		"admin_v1_code_gen_proto_service_save_code_gen_protos",
+// NewCodeGenProtoServiceSaveCodeGenProtoAgentTool 创建保存代码生成Proto接口配置的 Agent Tool。
+func NewCodeGenProtoServiceSaveCodeGenProtoAgentTool(codeGenProtoServiceServer CodeGenProtoServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*SaveCodeGenProtoRequest, *emptypb.Empty](
+		"admin_v1_code_gen_proto_service_save_code_gen_proto",
 		"保存代码生成Proto接口配置",
-		func(ctx context.Context, req *SaveCodeGenProtosRequest) (*emptypb.Empty, error) {
+		func(ctx context.Context, req *SaveCodeGenProtoRequest) (*emptypb.Empty, error) {
 			if req == nil {
-				req = &SaveCodeGenProtosRequest{}
+				req = &SaveCodeGenProtoRequest{}
 			}
-			return codeGenProtoServiceServer.SaveCodeGenProtos(ctx, req)
+			return codeGenProtoServiceServer.SaveCodeGenProto(ctx, req)
 		},
 	)
 }

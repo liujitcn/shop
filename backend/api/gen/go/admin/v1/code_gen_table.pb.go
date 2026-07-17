@@ -26,26 +26,26 @@ const (
 )
 
 // 数据库表列表查询条件
-type ListCodeGenDatabaseTablesRequest struct {
+type ListCodeGenDatabaseTableRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListCodeGenDatabaseTablesRequest) Reset() {
-	*x = ListCodeGenDatabaseTablesRequest{}
+func (x *ListCodeGenDatabaseTableRequest) Reset() {
+	*x = ListCodeGenDatabaseTableRequest{}
 	mi := &file_admin_v1_code_gen_table_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListCodeGenDatabaseTablesRequest) String() string {
+func (x *ListCodeGenDatabaseTableRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListCodeGenDatabaseTablesRequest) ProtoMessage() {}
+func (*ListCodeGenDatabaseTableRequest) ProtoMessage() {}
 
-func (x *ListCodeGenDatabaseTablesRequest) ProtoReflect() protoreflect.Message {
+func (x *ListCodeGenDatabaseTableRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_code_gen_table_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -57,33 +57,33 @@ func (x *ListCodeGenDatabaseTablesRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListCodeGenDatabaseTablesRequest.ProtoReflect.Descriptor instead.
-func (*ListCodeGenDatabaseTablesRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListCodeGenDatabaseTableRequest.ProtoReflect.Descriptor instead.
+func (*ListCodeGenDatabaseTableRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_code_gen_table_proto_rawDescGZIP(), []int{0}
 }
 
 // 数据库表列表响应
-type ListCodeGenDatabaseTablesResponse struct {
+type ListCodeGenDatabaseTableResponse struct {
 	state         protoimpl.MessageState  `protogen:"open.v1"`
 	Tables        []*CodeGenDatabaseTable `protobuf:"bytes,1,rep,name=tables,proto3" json:"tables,omitempty"` // 数据库表列表
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListCodeGenDatabaseTablesResponse) Reset() {
-	*x = ListCodeGenDatabaseTablesResponse{}
+func (x *ListCodeGenDatabaseTableResponse) Reset() {
+	*x = ListCodeGenDatabaseTableResponse{}
 	mi := &file_admin_v1_code_gen_table_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListCodeGenDatabaseTablesResponse) String() string {
+func (x *ListCodeGenDatabaseTableResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListCodeGenDatabaseTablesResponse) ProtoMessage() {}
+func (*ListCodeGenDatabaseTableResponse) ProtoMessage() {}
 
-func (x *ListCodeGenDatabaseTablesResponse) ProtoReflect() protoreflect.Message {
+func (x *ListCodeGenDatabaseTableResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_code_gen_table_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -95,12 +95,12 @@ func (x *ListCodeGenDatabaseTablesResponse) ProtoReflect() protoreflect.Message 
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListCodeGenDatabaseTablesResponse.ProtoReflect.Descriptor instead.
-func (*ListCodeGenDatabaseTablesResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListCodeGenDatabaseTableResponse.ProtoReflect.Descriptor instead.
+func (*ListCodeGenDatabaseTableResponse) Descriptor() ([]byte, []int) {
 	return file_admin_v1_code_gen_table_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *ListCodeGenDatabaseTablesResponse) GetTables() []*CodeGenDatabaseTable {
+func (x *ListCodeGenDatabaseTableResponse) GetTables() []*CodeGenDatabaseTable {
 	if x != nil {
 		return x.Tables
 	}
@@ -108,7 +108,7 @@ func (x *ListCodeGenDatabaseTablesResponse) GetTables() []*CodeGenDatabaseTable 
 }
 
 // 代码生成表配置分页查询条件
-type PageCodeGenTablesRequest struct {
+type PageCodeGenTableRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Name          *string                `protobuf:"bytes,1,opt,name=name,proto3,oneof" json:"name,omitempty"`                                     // 业务表名
 	BusinessName  *string                `protobuf:"bytes,2,opt,name=business_name,json=businessName,proto3,oneof" json:"business_name,omitempty"` // 业务名
@@ -121,20 +121,20 @@ type PageCodeGenTablesRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *PageCodeGenTablesRequest) Reset() {
-	*x = PageCodeGenTablesRequest{}
+func (x *PageCodeGenTableRequest) Reset() {
+	*x = PageCodeGenTableRequest{}
 	mi := &file_admin_v1_code_gen_table_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PageCodeGenTablesRequest) String() string {
+func (x *PageCodeGenTableRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PageCodeGenTablesRequest) ProtoMessage() {}
+func (*PageCodeGenTableRequest) ProtoMessage() {}
 
-func (x *PageCodeGenTablesRequest) ProtoReflect() protoreflect.Message {
+func (x *PageCodeGenTableRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_code_gen_table_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -146,54 +146,54 @@ func (x *PageCodeGenTablesRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PageCodeGenTablesRequest.ProtoReflect.Descriptor instead.
-func (*PageCodeGenTablesRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use PageCodeGenTableRequest.ProtoReflect.Descriptor instead.
+func (*PageCodeGenTableRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_code_gen_table_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *PageCodeGenTablesRequest) GetName() string {
+func (x *PageCodeGenTableRequest) GetName() string {
 	if x != nil && x.Name != nil {
 		return *x.Name
 	}
 	return ""
 }
 
-func (x *PageCodeGenTablesRequest) GetBusinessName() string {
+func (x *PageCodeGenTableRequest) GetBusinessName() string {
 	if x != nil && x.BusinessName != nil {
 		return *x.BusinessName
 	}
 	return ""
 }
 
-func (x *PageCodeGenTablesRequest) GetModulePath() string {
+func (x *PageCodeGenTableRequest) GetModulePath() string {
 	if x != nil && x.ModulePath != nil {
 		return *x.ModulePath
 	}
 	return ""
 }
 
-func (x *PageCodeGenTablesRequest) GetPageType() string {
+func (x *PageCodeGenTableRequest) GetPageType() string {
 	if x != nil && x.PageType != nil {
 		return *x.PageType
 	}
 	return ""
 }
 
-func (x *PageCodeGenTablesRequest) GetStatus() int32 {
+func (x *PageCodeGenTableRequest) GetStatus() int32 {
 	if x != nil && x.Status != nil {
 		return *x.Status
 	}
 	return 0
 }
 
-func (x *PageCodeGenTablesRequest) GetPageNum() int64 {
+func (x *PageCodeGenTableRequest) GetPageNum() int64 {
 	if x != nil {
 		return x.PageNum
 	}
 	return 0
 }
 
-func (x *PageCodeGenTablesRequest) GetPageSize() int64 {
+func (x *PageCodeGenTableRequest) GetPageSize() int64 {
 	if x != nil {
 		return x.PageSize
 	}
@@ -201,7 +201,7 @@ func (x *PageCodeGenTablesRequest) GetPageSize() int64 {
 }
 
 // 代码生成表配置分页响应
-type PageCodeGenTablesResponse struct {
+type PageCodeGenTableResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	CodeGenTables []*CodeGenTable        `protobuf:"bytes,1,rep,name=code_gen_tables,json=codeGenTables,proto3" json:"code_gen_tables,omitempty"` // 代码生成表配置列表
 	Total         int32                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`                                       // 总数
@@ -209,20 +209,20 @@ type PageCodeGenTablesResponse struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *PageCodeGenTablesResponse) Reset() {
-	*x = PageCodeGenTablesResponse{}
+func (x *PageCodeGenTableResponse) Reset() {
+	*x = PageCodeGenTableResponse{}
 	mi := &file_admin_v1_code_gen_table_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PageCodeGenTablesResponse) String() string {
+func (x *PageCodeGenTableResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PageCodeGenTablesResponse) ProtoMessage() {}
+func (*PageCodeGenTableResponse) ProtoMessage() {}
 
-func (x *PageCodeGenTablesResponse) ProtoReflect() protoreflect.Message {
+func (x *PageCodeGenTableResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_code_gen_table_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -234,19 +234,19 @@ func (x *PageCodeGenTablesResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PageCodeGenTablesResponse.ProtoReflect.Descriptor instead.
-func (*PageCodeGenTablesResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use PageCodeGenTableResponse.ProtoReflect.Descriptor instead.
+func (*PageCodeGenTableResponse) Descriptor() ([]byte, []int) {
 	return file_admin_v1_code_gen_table_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *PageCodeGenTablesResponse) GetCodeGenTables() []*CodeGenTable {
+func (x *PageCodeGenTableResponse) GetCodeGenTables() []*CodeGenTable {
 	if x != nil {
 		return x.CodeGenTables
 	}
 	return nil
 }
 
-func (x *PageCodeGenTablesResponse) GetTotal() int32 {
+func (x *PageCodeGenTableResponse) GetTotal() int32 {
 	if x != nil {
 		return x.Total
 	}
@@ -921,11 +921,11 @@ var File_admin_v1_code_gen_table_proto protoreflect.FileDescriptor
 
 const file_admin_v1_code_gen_table_proto_rawDesc = "" +
 	"\n" +
-	"\x1dadmin/v1/code_gen_table.proto\x12\badmin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\"\n" +
-	" ListCodeGenDatabaseTablesRequest\"u\n" +
-	"!ListCodeGenDatabaseTablesResponse\x12P\n" +
-	"\x06tables\x18\x01 \x03(\v2\x1e.admin.v1.CodeGenDatabaseTableB\x18\xbaG\x15\x92\x02\x12数据库表列表R\x06tables\"\xdf\x03\n" +
-	"\x18PageCodeGenTablesRequest\x12+\n" +
+	"\x1dadmin/v1/code_gen_table.proto\x12\badmin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"!\n" +
+	"\x1fListCodeGenDatabaseTableRequest\"t\n" +
+	" ListCodeGenDatabaseTableResponse\x12P\n" +
+	"\x06tables\x18\x01 \x03(\v2\x1e.admin.v1.CodeGenDatabaseTableB\x18\xbaG\x15\x92\x02\x12数据库表列表R\x06tables\"\xde\x03\n" +
+	"\x17PageCodeGenTableRequest\x12+\n" +
 	"\x04name\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f业务表名H\x00R\x04name\x88\x01\x01\x129\n" +
 	"\rbusiness_name\x18\x02 \x01(\tB\x0f\xbaG\f\x92\x02\t业务名H\x01R\fbusinessName\x88\x01\x01\x128\n" +
 	"\vmodule_path\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f模块路径H\x02R\n" +
@@ -939,8 +939,8 @@ const file_admin_v1_code_gen_table_proto_rawDesc = "" +
 	"\f_module_pathB\f\n" +
 	"\n" +
 	"_page_typeB\t\n" +
-	"\a_status\"\xa2\x01\n" +
-	"\x19PageCodeGenTablesResponse\x12a\n" +
+	"\a_status\"\xa1\x01\n" +
+	"\x18PageCodeGenTableResponse\x12a\n" +
 	"\x0fcode_gen_tables\x18\x01 \x03(\v2\x16.admin.v1.CodeGenTableB!\xbaG\x1e\x92\x02\x1b代码生成表配置列表R\rcodeGenTables\x12\"\n" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"8\n" +
 	"\x16GetCodeGenTableRequest\x12\x1e\n" +
@@ -1007,10 +1007,10 @@ const file_admin_v1_code_gen_table_proto_rawDesc = "" +
 	"\rparent_column\x18\x03 \x01(\tB\x1b\xbaG\x18\x92\x02\x15左树父节点字段R\fparentColumn\x12;\n" +
 	"\flabel_column\x18\x04 \x01(\tB\x18\xbaG\x15\x92\x02\x12左树显示字段R\vlabelColumn\x128\n" +
 	"\fvalue_column\x18\x05 \x01(\tB\x15\xbaG\x12\x92\x02\x0f左树值字段R\vvalueColumn\x12,\n" +
-	"\acomment\x18\x06 \x01(\tB\x12\xbaG\x0f\x92\x02\f左树描述R\acomment2\xd4\x06\n" +
-	"\x13CodeGenTableService\x12\xa3\x01\n" +
-	"\x19ListCodeGenDatabaseTables\x12*.admin.v1.ListCodeGenDatabaseTablesRequest\x1a+.admin.v1.ListCodeGenDatabaseTablesResponse\"-\x82\xd3\xe4\x93\x02'\x12%/api/v1/admin/code-gen/database/table\x12\x82\x01\n" +
-	"\x11PageCodeGenTables\x12\".admin.v1.PageCodeGenTablesRequest\x1a#.admin.v1.PageCodeGenTablesResponse\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/api/v1/admin/code-gen/table\x12z\n" +
+	"\acomment\x18\x06 \x01(\tB\x12\xbaG\x0f\x92\x02\f左树描述R\acomment2\xcd\x06\n" +
+	"\x13CodeGenTableService\x12\xa0\x01\n" +
+	"\x18ListCodeGenDatabaseTable\x12).admin.v1.ListCodeGenDatabaseTableRequest\x1a*.admin.v1.ListCodeGenDatabaseTableResponse\"-\x82\xd3\xe4\x93\x02'\x12%/api/v1/admin/code-gen/database/table\x12\x7f\n" +
+	"\x10PageCodeGenTable\x12!.admin.v1.PageCodeGenTableRequest\x1a\".admin.v1.PageCodeGenTableResponse\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/api/v1/admin/code-gen/table\x12z\n" +
 	"\x0fGetCodeGenTable\x12 .admin.v1.GetCodeGenTableRequest\x1a\x1a.admin.v1.CodeGenTableForm\")\x82\xd3\xe4\x93\x02#\x12!/api/v1/admin/code-gen/table/{id}\x12\x87\x01\n" +
 	"\x12CreateCodeGenTable\x12#.admin.v1.CreateCodeGenTableRequest\x1a\x16.google.protobuf.Empty\"4\x82\xd3\xe4\x93\x02.:\x0ecode_gen_table\"\x1c/api/v1/admin/code-gen/table\x12\x8c\x01\n" +
 	"\x12UpdateCodeGenTable\x12#.admin.v1.UpdateCodeGenTableRequest\x1a\x16.google.protobuf.Empty\"9\x82\xd3\xe4\x93\x023:\x0ecode_gen_table\x1a!/api/v1/admin/code-gen/table/{id}\x12}\n" +
@@ -1031,34 +1031,34 @@ func file_admin_v1_code_gen_table_proto_rawDescGZIP() []byte {
 
 var file_admin_v1_code_gen_table_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_admin_v1_code_gen_table_proto_goTypes = []any{
-	(*ListCodeGenDatabaseTablesRequest)(nil),  // 0: admin.v1.ListCodeGenDatabaseTablesRequest
-	(*ListCodeGenDatabaseTablesResponse)(nil), // 1: admin.v1.ListCodeGenDatabaseTablesResponse
-	(*PageCodeGenTablesRequest)(nil),          // 2: admin.v1.PageCodeGenTablesRequest
-	(*PageCodeGenTablesResponse)(nil),         // 3: admin.v1.PageCodeGenTablesResponse
-	(*GetCodeGenTableRequest)(nil),            // 4: admin.v1.GetCodeGenTableRequest
-	(*CreateCodeGenTableRequest)(nil),         // 5: admin.v1.CreateCodeGenTableRequest
-	(*UpdateCodeGenTableRequest)(nil),         // 6: admin.v1.UpdateCodeGenTableRequest
-	(*DeleteCodeGenTableRequest)(nil),         // 7: admin.v1.DeleteCodeGenTableRequest
-	(*CodeGenDatabaseTable)(nil),              // 8: admin.v1.CodeGenDatabaseTable
-	(*CodeGenTable)(nil),                      // 9: admin.v1.CodeGenTable
-	(*CodeGenTableForm)(nil),                  // 10: admin.v1.CodeGenTableForm
-	(*CodeGenLeftTreeConfig)(nil),             // 11: admin.v1.CodeGenLeftTreeConfig
-	(*emptypb.Empty)(nil),                     // 12: google.protobuf.Empty
+	(*ListCodeGenDatabaseTableRequest)(nil),  // 0: admin.v1.ListCodeGenDatabaseTableRequest
+	(*ListCodeGenDatabaseTableResponse)(nil), // 1: admin.v1.ListCodeGenDatabaseTableResponse
+	(*PageCodeGenTableRequest)(nil),          // 2: admin.v1.PageCodeGenTableRequest
+	(*PageCodeGenTableResponse)(nil),         // 3: admin.v1.PageCodeGenTableResponse
+	(*GetCodeGenTableRequest)(nil),           // 4: admin.v1.GetCodeGenTableRequest
+	(*CreateCodeGenTableRequest)(nil),        // 5: admin.v1.CreateCodeGenTableRequest
+	(*UpdateCodeGenTableRequest)(nil),        // 6: admin.v1.UpdateCodeGenTableRequest
+	(*DeleteCodeGenTableRequest)(nil),        // 7: admin.v1.DeleteCodeGenTableRequest
+	(*CodeGenDatabaseTable)(nil),             // 8: admin.v1.CodeGenDatabaseTable
+	(*CodeGenTable)(nil),                     // 9: admin.v1.CodeGenTable
+	(*CodeGenTableForm)(nil),                 // 10: admin.v1.CodeGenTableForm
+	(*CodeGenLeftTreeConfig)(nil),            // 11: admin.v1.CodeGenLeftTreeConfig
+	(*emptypb.Empty)(nil),                    // 12: google.protobuf.Empty
 }
 var file_admin_v1_code_gen_table_proto_depIdxs = []int32{
-	8,  // 0: admin.v1.ListCodeGenDatabaseTablesResponse.tables:type_name -> admin.v1.CodeGenDatabaseTable
-	9,  // 1: admin.v1.PageCodeGenTablesResponse.code_gen_tables:type_name -> admin.v1.CodeGenTable
+	8,  // 0: admin.v1.ListCodeGenDatabaseTableResponse.tables:type_name -> admin.v1.CodeGenDatabaseTable
+	9,  // 1: admin.v1.PageCodeGenTableResponse.code_gen_tables:type_name -> admin.v1.CodeGenTable
 	10, // 2: admin.v1.CreateCodeGenTableRequest.code_gen_table:type_name -> admin.v1.CodeGenTableForm
 	10, // 3: admin.v1.UpdateCodeGenTableRequest.code_gen_table:type_name -> admin.v1.CodeGenTableForm
 	11, // 4: admin.v1.CodeGenTableForm.left_tree_config:type_name -> admin.v1.CodeGenLeftTreeConfig
-	0,  // 5: admin.v1.CodeGenTableService.ListCodeGenDatabaseTables:input_type -> admin.v1.ListCodeGenDatabaseTablesRequest
-	2,  // 6: admin.v1.CodeGenTableService.PageCodeGenTables:input_type -> admin.v1.PageCodeGenTablesRequest
+	0,  // 5: admin.v1.CodeGenTableService.ListCodeGenDatabaseTable:input_type -> admin.v1.ListCodeGenDatabaseTableRequest
+	2,  // 6: admin.v1.CodeGenTableService.PageCodeGenTable:input_type -> admin.v1.PageCodeGenTableRequest
 	4,  // 7: admin.v1.CodeGenTableService.GetCodeGenTable:input_type -> admin.v1.GetCodeGenTableRequest
 	5,  // 8: admin.v1.CodeGenTableService.CreateCodeGenTable:input_type -> admin.v1.CreateCodeGenTableRequest
 	6,  // 9: admin.v1.CodeGenTableService.UpdateCodeGenTable:input_type -> admin.v1.UpdateCodeGenTableRequest
 	7,  // 10: admin.v1.CodeGenTableService.DeleteCodeGenTable:input_type -> admin.v1.DeleteCodeGenTableRequest
-	1,  // 11: admin.v1.CodeGenTableService.ListCodeGenDatabaseTables:output_type -> admin.v1.ListCodeGenDatabaseTablesResponse
-	3,  // 12: admin.v1.CodeGenTableService.PageCodeGenTables:output_type -> admin.v1.PageCodeGenTablesResponse
+	1,  // 11: admin.v1.CodeGenTableService.ListCodeGenDatabaseTable:output_type -> admin.v1.ListCodeGenDatabaseTableResponse
+	3,  // 12: admin.v1.CodeGenTableService.PageCodeGenTable:output_type -> admin.v1.PageCodeGenTableResponse
 	10, // 13: admin.v1.CodeGenTableService.GetCodeGenTable:output_type -> admin.v1.CodeGenTableForm
 	12, // 14: admin.v1.CodeGenTableService.CreateCodeGenTable:output_type -> google.protobuf.Empty
 	12, // 15: admin.v1.CodeGenTableService.UpdateCodeGenTable:output_type -> google.protobuf.Empty

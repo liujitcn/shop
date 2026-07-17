@@ -27,7 +27,7 @@ const subTypes = ref<
 const activeIndex = ref(0)
 // 获取热门推荐数据
 const getShopHotItem = async () => {
-  const res = await defShopHotService.ListShopHotItems({
+  const res = await defShopHotService.ListShopHotItem({
     id: Number(query.id),
   })
   bannerPicture.value = res.banner

@@ -8,7 +8,6 @@ package adminv1
 
 import (
 	reflect "reflect"
-	v1 "shop/api/gen/go/common/v1"
 	sync "sync"
 	unsafe "unsafe"
 
@@ -17,6 +16,8 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+
+	v1 "shop/api/gen/go/common/v1"
 )
 
 const (
@@ -27,7 +28,7 @@ const (
 )
 
 // 用户选项查询条件
-type OptionBaseUsersRequest struct {
+type OptionBaseUserRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Keyword       string                 `protobuf:"bytes,1,opt,name=keyword,proto3" json:"keyword,omitempty"`                          // 关键字
 	TenantId      *int64                 `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"` // 租户ID
@@ -35,20 +36,20 @@ type OptionBaseUsersRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *OptionBaseUsersRequest) Reset() {
-	*x = OptionBaseUsersRequest{}
+func (x *OptionBaseUserRequest) Reset() {
+	*x = OptionBaseUserRequest{}
 	mi := &file_admin_v1_base_user_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *OptionBaseUsersRequest) String() string {
+func (x *OptionBaseUserRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*OptionBaseUsersRequest) ProtoMessage() {}
+func (*OptionBaseUserRequest) ProtoMessage() {}
 
-func (x *OptionBaseUsersRequest) ProtoReflect() protoreflect.Message {
+func (x *OptionBaseUserRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_base_user_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -60,19 +61,19 @@ func (x *OptionBaseUsersRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use OptionBaseUsersRequest.ProtoReflect.Descriptor instead.
-func (*OptionBaseUsersRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use OptionBaseUserRequest.ProtoReflect.Descriptor instead.
+func (*OptionBaseUserRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_base_user_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *OptionBaseUsersRequest) GetKeyword() string {
+func (x *OptionBaseUserRequest) GetKeyword() string {
 	if x != nil {
 		return x.Keyword
 	}
 	return ""
 }
 
-func (x *OptionBaseUsersRequest) GetTenantId() int64 {
+func (x *OptionBaseUserRequest) GetTenantId() int64 {
 	if x != nil && x.TenantId != nil {
 		return *x.TenantId
 	}
@@ -80,7 +81,7 @@ func (x *OptionBaseUsersRequest) GetTenantId() int64 {
 }
 
 // 用户分页查询条件
-type PageBaseUsersRequest struct {
+type PageBaseUserRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserName      string                 `protobuf:"bytes,2,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`                  // 用户账号
 	NickName      string                 `protobuf:"bytes,3,opt,name=nick_name,json=nickName,proto3" json:"nick_name,omitempty"`                  // 用户昵称
@@ -95,20 +96,20 @@ type PageBaseUsersRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *PageBaseUsersRequest) Reset() {
-	*x = PageBaseUsersRequest{}
+func (x *PageBaseUserRequest) Reset() {
+	*x = PageBaseUserRequest{}
 	mi := &file_admin_v1_base_user_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PageBaseUsersRequest) String() string {
+func (x *PageBaseUserRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PageBaseUsersRequest) ProtoMessage() {}
+func (*PageBaseUserRequest) ProtoMessage() {}
 
-func (x *PageBaseUsersRequest) ProtoReflect() protoreflect.Message {
+func (x *PageBaseUserRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_base_user_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -120,68 +121,68 @@ func (x *PageBaseUsersRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PageBaseUsersRequest.ProtoReflect.Descriptor instead.
-func (*PageBaseUsersRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use PageBaseUserRequest.ProtoReflect.Descriptor instead.
+func (*PageBaseUserRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_base_user_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *PageBaseUsersRequest) GetUserName() string {
+func (x *PageBaseUserRequest) GetUserName() string {
 	if x != nil {
 		return x.UserName
 	}
 	return ""
 }
 
-func (x *PageBaseUsersRequest) GetNickName() string {
+func (x *PageBaseUserRequest) GetNickName() string {
 	if x != nil {
 		return x.NickName
 	}
 	return ""
 }
 
-func (x *PageBaseUsersRequest) GetTenantId() int64 {
+func (x *PageBaseUserRequest) GetTenantId() int64 {
 	if x != nil && x.TenantId != nil {
 		return *x.TenantId
 	}
 	return 0
 }
 
-func (x *PageBaseUsersRequest) GetDeptId() int64 {
+func (x *PageBaseUserRequest) GetDeptId() int64 {
 	if x != nil && x.DeptId != nil {
 		return *x.DeptId
 	}
 	return 0
 }
 
-func (x *PageBaseUsersRequest) GetPhone() string {
+func (x *PageBaseUserRequest) GetPhone() string {
 	if x != nil {
 		return x.Phone
 	}
 	return ""
 }
 
-func (x *PageBaseUsersRequest) GetGender() v1.BaseUserGender {
+func (x *PageBaseUserRequest) GetGender() v1.BaseUserGender {
 	if x != nil && x.Gender != nil {
 		return *x.Gender
 	}
 	return v1.BaseUserGender(0)
 }
 
-func (x *PageBaseUsersRequest) GetStatus() v1.Status {
+func (x *PageBaseUserRequest) GetStatus() v1.Status {
 	if x != nil && x.Status != nil {
 		return *x.Status
 	}
 	return v1.Status(0)
 }
 
-func (x *PageBaseUsersRequest) GetPageNum() int64 {
+func (x *PageBaseUserRequest) GetPageNum() int64 {
 	if x != nil {
 		return x.PageNum
 	}
 	return 0
 }
 
-func (x *PageBaseUsersRequest) GetPageSize() int64 {
+func (x *PageBaseUserRequest) GetPageSize() int64 {
 	if x != nil {
 		return x.PageSize
 	}
@@ -189,7 +190,7 @@ func (x *PageBaseUsersRequest) GetPageSize() int64 {
 }
 
 // 用户分页响应
-type PageBaseUsersResponse struct {
+type PageBaseUserResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	BaseUsers     []*BaseUser            `protobuf:"bytes,1,rep,name=base_users,json=baseUsers,proto3" json:"base_users,omitempty"` // 分页数据
 	Total         int32                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`                         // 总数
@@ -197,20 +198,20 @@ type PageBaseUsersResponse struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *PageBaseUsersResponse) Reset() {
-	*x = PageBaseUsersResponse{}
+func (x *PageBaseUserResponse) Reset() {
+	*x = PageBaseUserResponse{}
 	mi := &file_admin_v1_base_user_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PageBaseUsersResponse) String() string {
+func (x *PageBaseUserResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PageBaseUsersResponse) ProtoMessage() {}
+func (*PageBaseUserResponse) ProtoMessage() {}
 
-func (x *PageBaseUsersResponse) ProtoReflect() protoreflect.Message {
+func (x *PageBaseUserResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_base_user_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -222,19 +223,19 @@ func (x *PageBaseUsersResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PageBaseUsersResponse.ProtoReflect.Descriptor instead.
-func (*PageBaseUsersResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use PageBaseUserResponse.ProtoReflect.Descriptor instead.
+func (*PageBaseUserResponse) Descriptor() ([]byte, []int) {
 	return file_admin_v1_base_user_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *PageBaseUsersResponse) GetBaseUsers() []*BaseUser {
+func (x *PageBaseUserResponse) GetBaseUsers() []*BaseUser {
 	if x != nil {
 		return x.BaseUsers
 	}
 	return nil
 }
 
-func (x *PageBaseUsersResponse) GetTotal() int32 {
+func (x *PageBaseUserResponse) GetTotal() int32 {
 	if x != nil {
 		return x.Total
 	}
@@ -813,13 +814,13 @@ var File_admin_v1_base_user_proto protoreflect.FileDescriptor
 
 const file_admin_v1_base_user_proto_rawDesc = "" +
 	"\n" +
-	"\x18admin/v1/base_user.proto\x12\badmin.v1\x1a\x16common/v1/common.proto\x1a\x14common/v1/enum.proto\x1a\x15common/v1/types.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x83\x01\n" +
-	"\x16OptionBaseUsersRequest\x12)\n" +
+	"\x18admin/v1/base_user.proto\x12\badmin.v1\x1a\x16common/v1/common.proto\x1a\x14common/v1/enum.proto\x1a\x15common/v1/types.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x82\x01\n" +
+	"\x15OptionBaseUserRequest\x12)\n" +
 	"\akeyword\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t关键字R\akeyword\x120\n" +
 	"\ttenant_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01B\f\n" +
 	"\n" +
-	"_tenant_id\"\xb1\x04\n" +
-	"\x14PageBaseUsersRequest\x12/\n" +
+	"_tenant_id\"\xb0\x04\n" +
+	"\x13PageBaseUserRequest\x12/\n" +
 	"\tuser_name\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户账号R\buserName\x12/\n" +
 	"\tnick_name\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户昵称R\bnickName\x120\n" +
 	"\ttenant_id\x18\x04 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12,\n" +
@@ -834,8 +835,8 @@ const file_admin_v1_base_user_proto_rawDesc = "" +
 	"\n" +
 	"\b_dept_idB\t\n" +
 	"\a_genderB\t\n" +
-	"\a_status\"\x82\x01\n" +
-	"\x15PageBaseUsersResponse\x12E\n" +
+	"\a_status\"\x81\x01\n" +
+	"\x14PageBaseUserResponse\x12E\n" +
 	"\n" +
 	"base_users\x18\x01 \x03(\v2\x12.admin.v1.BaseUserB\x12\xbaG\x0f\x92\x02\f分页数据R\tbaseUsers\x12\"\n" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"4\n" +
@@ -888,10 +889,10 @@ const file_admin_v1_base_user_proto_rawDesc = "" +
 	"\a_status\"y\n" +
 	"\x1cResetBaseUserPasswordRequest\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b用户IDR\x02id\x129\n" +
-	"\x03pwd\x18\x02 \x01(\v2\x19.common.v1.PasswordCryptoB\f\xbaG\t\x92\x02\x06密码R\x03pwd2\xe9\a\n" +
-	"\x0fBaseUserService\x12|\n" +
-	"\x0fOptionBaseUsers\x12 .admin.v1.OptionBaseUsersRequest\x1a\x1f.common.v1.SelectOptionResponse\"&\x82\xd3\xe4\x93\x02 \x12\x1e/api/v1/admin/base/user/option\x12q\n" +
-	"\rPageBaseUsers\x12\x1e.admin.v1.PageBaseUsersRequest\x1a\x1f.admin.v1.PageBaseUsersResponse\"\x1f\x82\xd3\xe4\x93\x02\x19\x12\x17/api/v1/admin/base/user\x12i\n" +
+	"\x03pwd\x18\x02 \x01(\v2\x19.common.v1.PasswordCryptoB\f\xbaG\t\x92\x02\x06密码R\x03pwd2\xe4\a\n" +
+	"\x0fBaseUserService\x12z\n" +
+	"\x0eOptionBaseUser\x12\x1f.admin.v1.OptionBaseUserRequest\x1a\x1f.common.v1.SelectOptionResponse\"&\x82\xd3\xe4\x93\x02 \x12\x1e/api/v1/admin/base/user/option\x12n\n" +
+	"\fPageBaseUser\x12\x1d.admin.v1.PageBaseUserRequest\x1a\x1e.admin.v1.PageBaseUserResponse\"\x1f\x82\xd3\xe4\x93\x02\x19\x12\x17/api/v1/admin/base/user\x12i\n" +
 	"\vGetBaseUser\x12\x1c.admin.v1.GetBaseUserRequest\x1a\x16.admin.v1.BaseUserForm\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/api/v1/admin/base/user/{id}\x12u\n" +
 	"\x0eCreateBaseUser\x12\x1f.admin.v1.CreateBaseUserRequest\x1a\x16.google.protobuf.Empty\"*\x82\xd3\xe4\x93\x02$:\tbase_user\"\x17/api/v1/admin/base/user\x12\x84\x01\n" +
 	"\x0eUpdateBaseUser\x12\x1f.admin.v1.UpdateBaseUserRequest\x1a\x16.google.protobuf.Empty\"9\x82\xd3\xe4\x93\x023:\tbase_user\x1a&/api/v1/admin/base/user/{base_user.id}\x12o\n" +
@@ -914,9 +915,9 @@ func file_admin_v1_base_user_proto_rawDescGZIP() []byte {
 
 var file_admin_v1_base_user_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_admin_v1_base_user_proto_goTypes = []any{
-	(*OptionBaseUsersRequest)(nil),       // 0: admin.v1.OptionBaseUsersRequest
-	(*PageBaseUsersRequest)(nil),         // 1: admin.v1.PageBaseUsersRequest
-	(*PageBaseUsersResponse)(nil),        // 2: admin.v1.PageBaseUsersResponse
+	(*OptionBaseUserRequest)(nil),        // 0: admin.v1.OptionBaseUserRequest
+	(*PageBaseUserRequest)(nil),          // 1: admin.v1.PageBaseUserRequest
+	(*PageBaseUserResponse)(nil),         // 2: admin.v1.PageBaseUserResponse
 	(*GetBaseUserRequest)(nil),           // 3: admin.v1.GetBaseUserRequest
 	(*CreateBaseUserRequest)(nil),        // 4: admin.v1.CreateBaseUserRequest
 	(*UpdateBaseUserRequest)(nil),        // 5: admin.v1.UpdateBaseUserRequest
@@ -932,9 +933,9 @@ var file_admin_v1_base_user_proto_goTypes = []any{
 	(*emptypb.Empty)(nil),                // 15: google.protobuf.Empty
 }
 var file_admin_v1_base_user_proto_depIdxs = []int32{
-	11, // 0: admin.v1.PageBaseUsersRequest.gender:type_name -> common.v1.BaseUserGender
-	12, // 1: admin.v1.PageBaseUsersRequest.status:type_name -> common.v1.Status
-	8,  // 2: admin.v1.PageBaseUsersResponse.base_users:type_name -> admin.v1.BaseUser
+	11, // 0: admin.v1.PageBaseUserRequest.gender:type_name -> common.v1.BaseUserGender
+	12, // 1: admin.v1.PageBaseUserRequest.status:type_name -> common.v1.Status
+	8,  // 2: admin.v1.PageBaseUserResponse.base_users:type_name -> admin.v1.BaseUser
 	9,  // 3: admin.v1.CreateBaseUserRequest.base_user:type_name -> admin.v1.BaseUserForm
 	9,  // 4: admin.v1.UpdateBaseUserRequest.base_user:type_name -> admin.v1.BaseUserForm
 	11, // 5: admin.v1.BaseUser.gender:type_name -> common.v1.BaseUserGender
@@ -943,16 +944,16 @@ var file_admin_v1_base_user_proto_depIdxs = []int32{
 	13, // 8: admin.v1.BaseUserForm.pwd:type_name -> common.v1.PasswordCrypto
 	12, // 9: admin.v1.BaseUserForm.status:type_name -> common.v1.Status
 	13, // 10: admin.v1.ResetBaseUserPasswordRequest.pwd:type_name -> common.v1.PasswordCrypto
-	0,  // 11: admin.v1.BaseUserService.OptionBaseUsers:input_type -> admin.v1.OptionBaseUsersRequest
-	1,  // 12: admin.v1.BaseUserService.PageBaseUsers:input_type -> admin.v1.PageBaseUsersRequest
+	0,  // 11: admin.v1.BaseUserService.OptionBaseUser:input_type -> admin.v1.OptionBaseUserRequest
+	1,  // 12: admin.v1.BaseUserService.PageBaseUser:input_type -> admin.v1.PageBaseUserRequest
 	3,  // 13: admin.v1.BaseUserService.GetBaseUser:input_type -> admin.v1.GetBaseUserRequest
 	4,  // 14: admin.v1.BaseUserService.CreateBaseUser:input_type -> admin.v1.CreateBaseUserRequest
 	5,  // 15: admin.v1.BaseUserService.UpdateBaseUser:input_type -> admin.v1.UpdateBaseUserRequest
 	6,  // 16: admin.v1.BaseUserService.DeleteBaseUser:input_type -> admin.v1.DeleteBaseUserRequest
 	7,  // 17: admin.v1.BaseUserService.SetBaseUserStatus:input_type -> admin.v1.SetBaseUserStatusRequest
 	10, // 18: admin.v1.BaseUserService.ResetBaseUserPassword:input_type -> admin.v1.ResetBaseUserPasswordRequest
-	14, // 19: admin.v1.BaseUserService.OptionBaseUsers:output_type -> common.v1.SelectOptionResponse
-	2,  // 20: admin.v1.BaseUserService.PageBaseUsers:output_type -> admin.v1.PageBaseUsersResponse
+	14, // 19: admin.v1.BaseUserService.OptionBaseUser:output_type -> common.v1.SelectOptionResponse
+	2,  // 20: admin.v1.BaseUserService.PageBaseUser:output_type -> admin.v1.PageBaseUserResponse
 	9,  // 21: admin.v1.BaseUserService.GetBaseUser:output_type -> admin.v1.BaseUserForm
 	15, // 22: admin.v1.BaseUserService.CreateBaseUser:output_type -> google.protobuf.Empty
 	15, // 23: admin.v1.BaseUserService.UpdateBaseUser:output_type -> google.protobuf.Empty

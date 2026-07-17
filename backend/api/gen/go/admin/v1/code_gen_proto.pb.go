@@ -26,27 +26,27 @@ const (
 )
 
 // 代码生成Proto接口配置查询条件
-type ListCodeGenProtosRequest struct {
+type ListCodeGenProtoRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	TableId       int64                  `protobuf:"varint,1,opt,name=table_id,json=tableId,proto3" json:"table_id,omitempty"` // 代码生成表配置ID
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListCodeGenProtosRequest) Reset() {
-	*x = ListCodeGenProtosRequest{}
+func (x *ListCodeGenProtoRequest) Reset() {
+	*x = ListCodeGenProtoRequest{}
 	mi := &file_admin_v1_code_gen_proto_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListCodeGenProtosRequest) String() string {
+func (x *ListCodeGenProtoRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListCodeGenProtosRequest) ProtoMessage() {}
+func (*ListCodeGenProtoRequest) ProtoMessage() {}
 
-func (x *ListCodeGenProtosRequest) ProtoReflect() protoreflect.Message {
+func (x *ListCodeGenProtoRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_code_gen_proto_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -58,12 +58,12 @@ func (x *ListCodeGenProtosRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListCodeGenProtosRequest.ProtoReflect.Descriptor instead.
-func (*ListCodeGenProtosRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListCodeGenProtoRequest.ProtoReflect.Descriptor instead.
+func (*ListCodeGenProtoRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_code_gen_proto_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *ListCodeGenProtosRequest) GetTableId() int64 {
+func (x *ListCodeGenProtoRequest) GetTableId() int64 {
 	if x != nil {
 		return x.TableId
 	}
@@ -71,27 +71,27 @@ func (x *ListCodeGenProtosRequest) GetTableId() int64 {
 }
 
 // 代码生成Proto接口配置查询响应
-type ListCodeGenProtosResponse struct {
+type ListCodeGenProtoResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	CodeGenProtos []*CodeGenProtoCheck   `protobuf:"bytes,1,rep,name=code_gen_protos,json=codeGenProtos,proto3" json:"code_gen_protos,omitempty"` // 代码生成Proto接口检查列表
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListCodeGenProtosResponse) Reset() {
-	*x = ListCodeGenProtosResponse{}
+func (x *ListCodeGenProtoResponse) Reset() {
+	*x = ListCodeGenProtoResponse{}
 	mi := &file_admin_v1_code_gen_proto_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListCodeGenProtosResponse) String() string {
+func (x *ListCodeGenProtoResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListCodeGenProtosResponse) ProtoMessage() {}
+func (*ListCodeGenProtoResponse) ProtoMessage() {}
 
-func (x *ListCodeGenProtosResponse) ProtoReflect() protoreflect.Message {
+func (x *ListCodeGenProtoResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_code_gen_proto_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -103,12 +103,12 @@ func (x *ListCodeGenProtosResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListCodeGenProtosResponse.ProtoReflect.Descriptor instead.
-func (*ListCodeGenProtosResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListCodeGenProtoResponse.ProtoReflect.Descriptor instead.
+func (*ListCodeGenProtoResponse) Descriptor() ([]byte, []int) {
 	return file_admin_v1_code_gen_proto_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *ListCodeGenProtosResponse) GetCodeGenProtos() []*CodeGenProtoCheck {
+func (x *ListCodeGenProtoResponse) GetCodeGenProtos() []*CodeGenProtoCheck {
 	if x != nil {
 		return x.CodeGenProtos
 	}
@@ -116,7 +116,7 @@ func (x *ListCodeGenProtosResponse) GetCodeGenProtos() []*CodeGenProtoCheck {
 }
 
 // 代码生成Proto接口配置保存条件
-type SaveCodeGenProtosRequest struct {
+type SaveCodeGenProtoRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	TableId       int64                  `protobuf:"varint,1,opt,name=table_id,json=tableId,proto3" json:"table_id,omitempty"`                    // 代码生成表配置ID
 	CodeGenProtos []*CodeGenProto        `protobuf:"bytes,2,rep,name=code_gen_protos,json=codeGenProtos,proto3" json:"code_gen_protos,omitempty"` // 代码生成Proto接口配置列表
@@ -124,20 +124,20 @@ type SaveCodeGenProtosRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *SaveCodeGenProtosRequest) Reset() {
-	*x = SaveCodeGenProtosRequest{}
+func (x *SaveCodeGenProtoRequest) Reset() {
+	*x = SaveCodeGenProtoRequest{}
 	mi := &file_admin_v1_code_gen_proto_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *SaveCodeGenProtosRequest) String() string {
+func (x *SaveCodeGenProtoRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*SaveCodeGenProtosRequest) ProtoMessage() {}
+func (*SaveCodeGenProtoRequest) ProtoMessage() {}
 
-func (x *SaveCodeGenProtosRequest) ProtoReflect() protoreflect.Message {
+func (x *SaveCodeGenProtoRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_code_gen_proto_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -149,19 +149,19 @@ func (x *SaveCodeGenProtosRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use SaveCodeGenProtosRequest.ProtoReflect.Descriptor instead.
-func (*SaveCodeGenProtosRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use SaveCodeGenProtoRequest.ProtoReflect.Descriptor instead.
+func (*SaveCodeGenProtoRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_code_gen_proto_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *SaveCodeGenProtosRequest) GetTableId() int64 {
+func (x *SaveCodeGenProtoRequest) GetTableId() int64 {
 	if x != nil {
 		return x.TableId
 	}
 	return 0
 }
 
-func (x *SaveCodeGenProtosRequest) GetCodeGenProtos() []*CodeGenProto {
+func (x *SaveCodeGenProtoRequest) GetCodeGenProtos() []*CodeGenProto {
 	if x != nil {
 		return x.CodeGenProtos
 	}
@@ -475,12 +475,12 @@ var File_admin_v1_code_gen_proto_proto protoreflect.FileDescriptor
 
 const file_admin_v1_code_gen_proto_proto_rawDesc = "" +
 	"\n" +
-	"\x1dadmin/v1/code_gen_proto.proto\x12\badmin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"T\n" +
-	"\x18ListCodeGenProtosRequest\x128\n" +
-	"\btable_id\x18\x01 \x01(\x03B\x1d\xbaG\x1a\x92\x02\x17代码生成表配置IDR\atableId\"\x8b\x01\n" +
-	"\x19ListCodeGenProtosResponse\x12n\n" +
-	"\x0fcode_gen_protos\x18\x01 \x03(\v2\x1b.admin.v1.CodeGenProtoCheckB)\xbaG&\x92\x02#代码生成Proto接口检查列表R\rcodeGenProtos\"\xbf\x01\n" +
-	"\x18SaveCodeGenProtosRequest\x128\n" +
+	"\x1dadmin/v1/code_gen_proto.proto\x12\badmin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"S\n" +
+	"\x17ListCodeGenProtoRequest\x128\n" +
+	"\btable_id\x18\x01 \x01(\x03B\x1d\xbaG\x1a\x92\x02\x17代码生成表配置IDR\atableId\"\x8a\x01\n" +
+	"\x18ListCodeGenProtoResponse\x12n\n" +
+	"\x0fcode_gen_protos\x18\x01 \x03(\v2\x1b.admin.v1.CodeGenProtoCheckB)\xbaG&\x92\x02#代码生成Proto接口检查列表R\rcodeGenProtos\"\xbe\x01\n" +
+	"\x17SaveCodeGenProtoRequest\x128\n" +
 	"\btable_id\x18\x01 \x01(\x03B\x1d\xbaG\x1a\x92\x02\x17代码生成表配置IDR\atableId\x12i\n" +
 	"\x0fcode_gen_protos\x18\x02 \x03(\v2\x16.admin.v1.CodeGenProtoB)\xbaG&\x92\x02#代码生成Proto接口配置列表R\rcodeGenProtos\"\xc9\x04\n" +
 	"\fCodeGenProto\x12\x1e\n" +
@@ -513,10 +513,10 @@ const file_admin_v1_code_gen_proto_proto_rawDesc = "" +
 	"\rparent_column\x18\x01 \x01(\tB\x1e\xbaG\x1b\x92\x02\x18树接口父节点字段R\fparentColumn\x12;\n" +
 	"\flabel_column\x18\x02 \x01(\tB\x18\xbaG\x15\x92\x02\x12选项显示字段R\vlabelColumn\x128\n" +
 	"\fvalue_column\x18\x03 \x01(\tB\x15\xbaG\x12\x92\x02\x0f选项值字段R\vvalueColumn\x127\n" +
-	"\rstatus_column\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f状态字段R\fstatusColumn2\xb7\x02\n" +
-	"\x13CodeGenProtoService\x12\x93\x01\n" +
-	"\x11ListCodeGenProtos\x12\".admin.v1.ListCodeGenProtosRequest\x1a#.admin.v1.ListCodeGenProtosResponse\"5\x82\xd3\xe4\x93\x02/\x12-/api/v1/admin/code-gen/table/{table_id}/proto\x12\x89\x01\n" +
-	"\x11SaveCodeGenProtos\x12\".admin.v1.SaveCodeGenProtosRequest\x1a\x16.google.protobuf.Empty\"8\x82\xd3\xe4\x93\x022:\x01*\x1a-/api/v1/admin/code-gen/table/{table_id}/protoB\x84\x01\n" +
+	"\rstatus_column\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f状态字段R\fstatusColumn2\xb2\x02\n" +
+	"\x13CodeGenProtoService\x12\x90\x01\n" +
+	"\x10ListCodeGenProto\x12!.admin.v1.ListCodeGenProtoRequest\x1a\".admin.v1.ListCodeGenProtoResponse\"5\x82\xd3\xe4\x93\x02/\x12-/api/v1/admin/code-gen/table/{table_id}/proto\x12\x87\x01\n" +
+	"\x10SaveCodeGenProto\x12!.admin.v1.SaveCodeGenProtoRequest\x1a\x16.google.protobuf.Empty\"8\x82\xd3\xe4\x93\x022:\x01*\x1a-/api/v1/admin/code-gen/table/{table_id}/protoB\x84\x01\n" +
 	"\fcom.admin.v1B\x11CodeGenProtoProtoP\x01Z shop/api/gen/go/admin/v1;adminv1\xa2\x02\x03AXX\xaa\x02\bAdmin.V1\xca\x02\bAdmin\\V1\xe2\x02\x14Admin\\V1\\GPBMetadata\xea\x02\tAdmin::V1b\x06proto3"
 
 var (
@@ -533,23 +533,23 @@ func file_admin_v1_code_gen_proto_proto_rawDescGZIP() []byte {
 
 var file_admin_v1_code_gen_proto_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_admin_v1_code_gen_proto_proto_goTypes = []any{
-	(*ListCodeGenProtosRequest)(nil),  // 0: admin.v1.ListCodeGenProtosRequest
-	(*ListCodeGenProtosResponse)(nil), // 1: admin.v1.ListCodeGenProtosResponse
-	(*SaveCodeGenProtosRequest)(nil),  // 2: admin.v1.SaveCodeGenProtosRequest
-	(*CodeGenProto)(nil),              // 3: admin.v1.CodeGenProto
-	(*CodeGenProtoCheck)(nil),         // 4: admin.v1.CodeGenProtoCheck
-	(*CodeGenProtoConfig)(nil),        // 5: admin.v1.CodeGenProtoConfig
-	(*emptypb.Empty)(nil),             // 6: google.protobuf.Empty
+	(*ListCodeGenProtoRequest)(nil),  // 0: admin.v1.ListCodeGenProtoRequest
+	(*ListCodeGenProtoResponse)(nil), // 1: admin.v1.ListCodeGenProtoResponse
+	(*SaveCodeGenProtoRequest)(nil),  // 2: admin.v1.SaveCodeGenProtoRequest
+	(*CodeGenProto)(nil),             // 3: admin.v1.CodeGenProto
+	(*CodeGenProtoCheck)(nil),        // 4: admin.v1.CodeGenProtoCheck
+	(*CodeGenProtoConfig)(nil),       // 5: admin.v1.CodeGenProtoConfig
+	(*emptypb.Empty)(nil),            // 6: google.protobuf.Empty
 }
 var file_admin_v1_code_gen_proto_proto_depIdxs = []int32{
-	4, // 0: admin.v1.ListCodeGenProtosResponse.code_gen_protos:type_name -> admin.v1.CodeGenProtoCheck
-	3, // 1: admin.v1.SaveCodeGenProtosRequest.code_gen_protos:type_name -> admin.v1.CodeGenProto
+	4, // 0: admin.v1.ListCodeGenProtoResponse.code_gen_protos:type_name -> admin.v1.CodeGenProtoCheck
+	3, // 1: admin.v1.SaveCodeGenProtoRequest.code_gen_protos:type_name -> admin.v1.CodeGenProto
 	5, // 2: admin.v1.CodeGenProto.config:type_name -> admin.v1.CodeGenProtoConfig
 	5, // 3: admin.v1.CodeGenProtoCheck.config:type_name -> admin.v1.CodeGenProtoConfig
-	0, // 4: admin.v1.CodeGenProtoService.ListCodeGenProtos:input_type -> admin.v1.ListCodeGenProtosRequest
-	2, // 5: admin.v1.CodeGenProtoService.SaveCodeGenProtos:input_type -> admin.v1.SaveCodeGenProtosRequest
-	1, // 6: admin.v1.CodeGenProtoService.ListCodeGenProtos:output_type -> admin.v1.ListCodeGenProtosResponse
-	6, // 7: admin.v1.CodeGenProtoService.SaveCodeGenProtos:output_type -> google.protobuf.Empty
+	0, // 4: admin.v1.CodeGenProtoService.ListCodeGenProto:input_type -> admin.v1.ListCodeGenProtoRequest
+	2, // 5: admin.v1.CodeGenProtoService.SaveCodeGenProto:input_type -> admin.v1.SaveCodeGenProtoRequest
+	1, // 6: admin.v1.CodeGenProtoService.ListCodeGenProto:output_type -> admin.v1.ListCodeGenProtoResponse
+	6, // 7: admin.v1.CodeGenProtoService.SaveCodeGenProto:output_type -> google.protobuf.Empty
 	6, // [6:8] is the sub-list for method output_type
 	4, // [4:6] is the sub-list for method input_type
 	4, // [4:4] is the sub-list for extension type_name

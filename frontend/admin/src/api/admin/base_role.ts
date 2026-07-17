@@ -5,9 +5,9 @@ import {
   type CreateBaseRoleRequest,
   type DeleteBaseRoleRequest,
   type GetBaseRoleRequest,
-  type PageBaseRolesRequest,
-  type PageBaseRolesResponse,
-  type OptionBaseRolesRequest,
+  type PageBaseRoleRequest,
+  type PageBaseRoleResponse,
+  type OptionBaseRoleRequest,
   type SetBaseRoleMenuRequest,
   type SetBaseRoleStatusRequest,
   type UpdateBaseRoleRequest
@@ -20,8 +20,8 @@ const BASE_ROLE_URL = "/v1/admin/base/role";
 /** Admin角色服务 */
 export class BaseRoleServiceImpl implements BaseRoleService {
   /** 查询角色下拉选择 */
-  OptionBaseRoles(request: OptionBaseRolesRequest): Promise<SelectOptionResponse> {
-    return service<OptionBaseRolesRequest, SelectOptionResponse>({
+  OptionBaseRole(request: OptionBaseRoleRequest): Promise<SelectOptionResponse> {
+    return service<OptionBaseRoleRequest, SelectOptionResponse>({
       url: `${BASE_ROLE_URL}/option`,
       method: "get",
       params: request
@@ -29,8 +29,8 @@ export class BaseRoleServiceImpl implements BaseRoleService {
   }
 
   /** 查询角色分页列表 */
-  PageBaseRoles(request: PageBaseRolesRequest): Promise<PageBaseRolesResponse> {
-    return service<PageBaseRolesRequest, PageBaseRolesResponse>({
+  PageBaseRole(request: PageBaseRoleRequest): Promise<PageBaseRoleResponse> {
+    return service<PageBaseRoleRequest, PageBaseRoleResponse>({
       url: `${BASE_ROLE_URL}`,
       method: "get",
       params: request

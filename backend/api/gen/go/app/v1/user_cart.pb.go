@@ -108,26 +108,26 @@ func (x *CountUserCartResponse) GetCount() int32 {
 }
 
 // 用户购物车列表查询条件
-type ListUserCartsRequest struct {
+type ListUserCartRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListUserCartsRequest) Reset() {
-	*x = ListUserCartsRequest{}
+func (x *ListUserCartRequest) Reset() {
+	*x = ListUserCartRequest{}
 	mi := &file_app_v1_user_cart_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListUserCartsRequest) String() string {
+func (x *ListUserCartRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListUserCartsRequest) ProtoMessage() {}
+func (*ListUserCartRequest) ProtoMessage() {}
 
-func (x *ListUserCartsRequest) ProtoReflect() protoreflect.Message {
+func (x *ListUserCartRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_app_v1_user_cart_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -139,33 +139,33 @@ func (x *ListUserCartsRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListUserCartsRequest.ProtoReflect.Descriptor instead.
-func (*ListUserCartsRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListUserCartRequest.ProtoReflect.Descriptor instead.
+func (*ListUserCartRequest) Descriptor() ([]byte, []int) {
 	return file_app_v1_user_cart_proto_rawDescGZIP(), []int{2}
 }
 
 // 用户购物车列表响应
-type ListUserCartsResponse struct {
+type ListUserCartResponse struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	UserCartStores []*UserCartStore       `protobuf:"bytes,1,rep,name=user_cart_stores,json=userCartStores,proto3" json:"user_cart_stores,omitempty"` // 按店铺分组的用户购物车列表
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
 
-func (x *ListUserCartsResponse) Reset() {
-	*x = ListUserCartsResponse{}
+func (x *ListUserCartResponse) Reset() {
+	*x = ListUserCartResponse{}
 	mi := &file_app_v1_user_cart_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListUserCartsResponse) String() string {
+func (x *ListUserCartResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListUserCartsResponse) ProtoMessage() {}
+func (*ListUserCartResponse) ProtoMessage() {}
 
-func (x *ListUserCartsResponse) ProtoReflect() protoreflect.Message {
+func (x *ListUserCartResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_app_v1_user_cart_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -177,12 +177,12 @@ func (x *ListUserCartsResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListUserCartsResponse.ProtoReflect.Descriptor instead.
-func (*ListUserCartsResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListUserCartResponse.ProtoReflect.Descriptor instead.
+func (*ListUserCartResponse) Descriptor() ([]byte, []int) {
 	return file_app_v1_user_cart_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *ListUserCartsResponse) GetUserCartStores() []*UserCartStore {
+func (x *ListUserCartResponse) GetUserCartStores() []*UserCartStore {
 	if x != nil {
 		return x.UserCartStores
 	}
@@ -708,9 +708,9 @@ const file_app_v1_user_cart_proto_rawDesc = "" +
 	"\x16app/v1/user_cart.proto\x12\x06app.v1\x1a\x16app/v1/recommend.proto\x1a\x19app/v1/tenant_store.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x16\n" +
 	"\x14CountUserCartRequest\"D\n" +
 	"\x15CountUserCartResponse\x12+\n" +
-	"\x05count\x18\x01 \x01(\x05B\x15\xbaG\x12\x92\x02\x0f购物车数量R\x05count\"\x16\n" +
-	"\x14ListUserCartsRequest\"\x87\x01\n" +
-	"\x15ListUserCartsResponse\x12n\n" +
+	"\x05count\x18\x01 \x01(\x05B\x15\xbaG\x12\x92\x02\x0f购物车数量R\x05count\"\x15\n" +
+	"\x13ListUserCartRequest\"\x86\x01\n" +
+	"\x14ListUserCartResponse\x12n\n" +
 	"\x10user_cart_stores\x18\x01 \x03(\v2\x15.app.v1.UserCartStoreB-\xbaG*\x92\x02'按店铺分组的用户购物车列表R\x0euserCartStores\"\x8a\x01\n" +
 	"\rUserCartStore\x12=\n" +
 	"\x05store\x18\x01 \x01(\v2\x13.app.v1.TenantStoreB\x12\xbaG\x0f\x92\x02\f店铺信息R\x05store\x12:\n" +
@@ -750,10 +750,10 @@ const file_app_v1_user_cart_proto_rawDesc = "" +
 	"is_checked\x18\x02 \x01(\bB\x12\xbaG\x0f\x92\x02\f是否选中R\tisChecked\"P\n" +
 	"\x1bSetUserCartSelectionRequest\x121\n" +
 	"\n" +
-	"is_checked\x18\x01 \x01(\bB\x12\xbaG\x0f\x92\x02\f是否选中R\tisChecked2\xbf\x06\n" +
+	"is_checked\x18\x01 \x01(\bB\x12\xbaG\x0f\x92\x02\f是否选中R\tisChecked2\xbc\x06\n" +
 	"\x0fUserCartService\x12q\n" +
-	"\rCountUserCart\x12\x1c.app.v1.CountUserCartRequest\x1a\x1d.app.v1.CountUserCartResponse\"#\x82\xd3\xe4\x93\x02\x1d\x12\x1b/api/v1/app/user/cart/count\x12k\n" +
-	"\rListUserCarts\x12\x1c.app.v1.ListUserCartsRequest\x1a\x1d.app.v1.ListUserCartsResponse\"\x1d\x82\xd3\xe4\x93\x02\x17\x12\x15/api/v1/app/user/cart\x12i\n" +
+	"\rCountUserCart\x12\x1c.app.v1.CountUserCartRequest\x1a\x1d.app.v1.CountUserCartResponse\"#\x82\xd3\xe4\x93\x02\x1d\x12\x1b/api/v1/app/user/cart/count\x12h\n" +
+	"\fListUserCart\x12\x1b.app.v1.ListUserCartRequest\x1a\x1c.app.v1.ListUserCartResponse\"\x1d\x82\xd3\xe4\x93\x02\x17\x12\x15/api/v1/app/user/cart\x12i\n" +
 	"\x0eCreateUserCart\x12\x1d.app.v1.CreateUserCartRequest\x1a\x16.google.protobuf.Empty\" \x82\xd3\xe4\x93\x02\x1a:\x01*\"\x15/api/v1/app/user/cart\x12\x7f\n" +
 	"\x14SetUserCartSelection\x12#.app.v1.SetUserCartSelectionRequest\x1a\x16.google.protobuf.Empty\"*\x82\xd3\xe4\x93\x02$:\x01*\x1a\x1f/api/v1/app/user/cart/selection\x12v\n" +
 	"\x0eUpdateUserCart\x12\x1d.app.v1.UpdateUserCartRequest\x1a\x16.google.protobuf.Empty\"-\x82\xd3\xe4\x93\x02':\tuser_cart\x1a\x1a/api/v1/app/user/cart/{id}\x12k\n" +
@@ -778,8 +778,8 @@ var file_app_v1_user_cart_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_app_v1_user_cart_proto_goTypes = []any{
 	(*CountUserCartRequest)(nil),        // 0: app.v1.CountUserCartRequest
 	(*CountUserCartResponse)(nil),       // 1: app.v1.CountUserCartResponse
-	(*ListUserCartsRequest)(nil),        // 2: app.v1.ListUserCartsRequest
-	(*ListUserCartsResponse)(nil),       // 3: app.v1.ListUserCartsResponse
+	(*ListUserCartRequest)(nil),         // 2: app.v1.ListUserCartRequest
+	(*ListUserCartResponse)(nil),        // 3: app.v1.ListUserCartResponse
 	(*UserCartStore)(nil),               // 4: app.v1.UserCartStore
 	(*UserCart)(nil),                    // 5: app.v1.UserCart
 	(*CreateUserCartRequest)(nil),       // 6: app.v1.CreateUserCartRequest
@@ -793,21 +793,21 @@ var file_app_v1_user_cart_proto_goTypes = []any{
 	(*emptypb.Empty)(nil),               // 14: google.protobuf.Empty
 }
 var file_app_v1_user_cart_proto_depIdxs = []int32{
-	4,  // 0: app.v1.ListUserCartsResponse.user_cart_stores:type_name -> app.v1.UserCartStore
+	4,  // 0: app.v1.ListUserCartResponse.user_cart_stores:type_name -> app.v1.UserCartStore
 	12, // 1: app.v1.UserCartStore.store:type_name -> app.v1.TenantStore
 	5,  // 2: app.v1.UserCartStore.goods:type_name -> app.v1.UserCart
 	13, // 3: app.v1.UserCart.recommend_context:type_name -> app.v1.RecommendContext
 	13, // 4: app.v1.CreateUserCartRequest.recommend_context:type_name -> app.v1.RecommendContext
 	7,  // 5: app.v1.UpdateUserCartRequest.user_cart:type_name -> app.v1.UserCartForm
 	0,  // 6: app.v1.UserCartService.CountUserCart:input_type -> app.v1.CountUserCartRequest
-	2,  // 7: app.v1.UserCartService.ListUserCarts:input_type -> app.v1.ListUserCartsRequest
+	2,  // 7: app.v1.UserCartService.ListUserCart:input_type -> app.v1.ListUserCartRequest
 	6,  // 8: app.v1.UserCartService.CreateUserCart:input_type -> app.v1.CreateUserCartRequest
 	11, // 9: app.v1.UserCartService.SetUserCartSelection:input_type -> app.v1.SetUserCartSelectionRequest
 	8,  // 10: app.v1.UserCartService.UpdateUserCart:input_type -> app.v1.UpdateUserCartRequest
 	9,  // 11: app.v1.UserCartService.DeleteUserCart:input_type -> app.v1.DeleteUserCartRequest
 	10, // 12: app.v1.UserCartService.SetUserCartStatus:input_type -> app.v1.SetUserCartStatusRequest
 	1,  // 13: app.v1.UserCartService.CountUserCart:output_type -> app.v1.CountUserCartResponse
-	3,  // 14: app.v1.UserCartService.ListUserCarts:output_type -> app.v1.ListUserCartsResponse
+	3,  // 14: app.v1.UserCartService.ListUserCart:output_type -> app.v1.ListUserCartResponse
 	14, // 15: app.v1.UserCartService.CreateUserCart:output_type -> google.protobuf.Empty
 	14, // 16: app.v1.UserCartService.SetUserCartSelection:output_type -> google.protobuf.Empty
 	14, // 17: app.v1.UserCartService.UpdateUserCart:output_type -> google.protobuf.Empty

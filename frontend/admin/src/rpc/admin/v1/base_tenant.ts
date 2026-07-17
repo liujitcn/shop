@@ -10,13 +10,13 @@ import type { Status } from "../../common/v1/enum";
 import type { Empty } from "../../google/protobuf/empty";
 
 /** 租户选项查询条件 */
-export interface OptionBaseTenantsRequest {
+export interface OptionBaseTenantRequest {
   /** 关键字 */
   keyword: string;
 }
 
 /** 租户分页查询条件 */
-export interface PageBaseTenantsRequest {
+export interface PageBaseTenantRequest {
   /** 租户编号 */
   code: string;
   /** 租户名称 */
@@ -32,7 +32,7 @@ export interface PageBaseTenantsRequest {
 }
 
 /** 租户分页响应 */
-export interface PageBaseTenantsResponse {
+export interface PageBaseTenantResponse {
   /** 分页数据 */
   base_tenants: BaseTenant[];
   /** 总数 */
@@ -116,9 +116,9 @@ export interface BaseTenantForm {
 /** Admin租户管理服务 */
 export interface BaseTenantService {
   /** 查询租户下拉选择 */
-  OptionBaseTenants(request: OptionBaseTenantsRequest): Promise<SelectOptionResponse>;
+  OptionBaseTenant(request: OptionBaseTenantRequest): Promise<SelectOptionResponse>;
   /** 查询租户分页列表 */
-  PageBaseTenants(request: PageBaseTenantsRequest): Promise<PageBaseTenantsResponse>;
+  PageBaseTenant(request: PageBaseTenantRequest): Promise<PageBaseTenantResponse>;
   /** 查询租户 */
   GetBaseTenant(request: GetBaseTenantRequest): Promise<BaseTenantForm>;
   /** 创建租户 */

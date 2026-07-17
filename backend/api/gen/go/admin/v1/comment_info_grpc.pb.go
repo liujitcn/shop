@@ -21,12 +21,12 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	CommentInfoService_PageCommentInfos_FullMethodName           = "/admin.v1.CommentInfoService/PageCommentInfos"
+	CommentInfoService_PageCommentInfo_FullMethodName            = "/admin.v1.CommentInfoService/PageCommentInfo"
 	CommentInfoService_GetGoodsCommentInfo_FullMethodName        = "/admin.v1.CommentInfoService/GetGoodsCommentInfo"
-	CommentInfoService_ListCommentReviews_FullMethodName         = "/admin.v1.CommentInfoService/ListCommentReviews"
+	CommentInfoService_ListCommentReview_FullMethodName          = "/admin.v1.CommentInfoService/ListCommentReview"
 	CommentInfoService_GetCommentInfo_FullMethodName             = "/admin.v1.CommentInfoService/GetCommentInfo"
 	CommentInfoService_SetCommentInfoStatus_FullMethodName       = "/admin.v1.CommentInfoService/SetCommentInfoStatus"
-	CommentInfoService_PageCommentDiscussions_FullMethodName     = "/admin.v1.CommentInfoService/PageCommentDiscussions"
+	CommentInfoService_PageCommentDiscussion_FullMethodName      = "/admin.v1.CommentInfoService/PageCommentDiscussion"
 	CommentInfoService_SetCommentDiscussionStatus_FullMethodName = "/admin.v1.CommentInfoService/SetCommentDiscussionStatus"
 )
 
@@ -37,17 +37,17 @@ const (
 // Admin评论管理服务
 type CommentInfoServiceClient interface {
 	// 查询评论分页列表
-	PageCommentInfos(ctx context.Context, in *PageCommentInfosRequest, opts ...grpc.CallOption) (*PageCommentInfosResponse, error)
+	PageCommentInfo(ctx context.Context, in *PageCommentInfoRequest, opts ...grpc.CallOption) (*PageCommentInfoResponse, error)
 	// 按商品查询评论聚合信息
 	GetGoodsCommentInfo(ctx context.Context, in *GetGoodsCommentInfoRequest, opts ...grpc.CallOption) (*GoodsCommentInfoResponse, error)
 	// 查询评论审核记录列表
-	ListCommentReviews(ctx context.Context, in *ListCommentReviewsRequest, opts ...grpc.CallOption) (*ListCommentReviewsResponse, error)
+	ListCommentReview(ctx context.Context, in *ListCommentReviewRequest, opts ...grpc.CallOption) (*ListCommentReviewResponse, error)
 	// 查询评论详情
 	GetCommentInfo(ctx context.Context, in *GetCommentInfoRequest, opts ...grpc.CallOption) (*CommentInfoDetail, error)
 	// 设置评论审核状态
 	SetCommentInfoStatus(ctx context.Context, in *SetCommentInfoStatusRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 查询评论讨论分页列表
-	PageCommentDiscussions(ctx context.Context, in *PageCommentDiscussionsRequest, opts ...grpc.CallOption) (*PageCommentDiscussionsResponse, error)
+	PageCommentDiscussion(ctx context.Context, in *PageCommentDiscussionRequest, opts ...grpc.CallOption) (*PageCommentDiscussionResponse, error)
 	// 设置评论讨论审核状态
 	SetCommentDiscussionStatus(ctx context.Context, in *SetCommentDiscussionStatusRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
@@ -60,10 +60,10 @@ func NewCommentInfoServiceClient(cc grpc.ClientConnInterface) CommentInfoService
 	return &commentInfoServiceClient{cc}
 }
 
-func (c *commentInfoServiceClient) PageCommentInfos(ctx context.Context, in *PageCommentInfosRequest, opts ...grpc.CallOption) (*PageCommentInfosResponse, error) {
+func (c *commentInfoServiceClient) PageCommentInfo(ctx context.Context, in *PageCommentInfoRequest, opts ...grpc.CallOption) (*PageCommentInfoResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(PageCommentInfosResponse)
-	err := c.cc.Invoke(ctx, CommentInfoService_PageCommentInfos_FullMethodName, in, out, cOpts...)
+	out := new(PageCommentInfoResponse)
+	err := c.cc.Invoke(ctx, CommentInfoService_PageCommentInfo_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -80,10 +80,10 @@ func (c *commentInfoServiceClient) GetGoodsCommentInfo(ctx context.Context, in *
 	return out, nil
 }
 
-func (c *commentInfoServiceClient) ListCommentReviews(ctx context.Context, in *ListCommentReviewsRequest, opts ...grpc.CallOption) (*ListCommentReviewsResponse, error) {
+func (c *commentInfoServiceClient) ListCommentReview(ctx context.Context, in *ListCommentReviewRequest, opts ...grpc.CallOption) (*ListCommentReviewResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListCommentReviewsResponse)
-	err := c.cc.Invoke(ctx, CommentInfoService_ListCommentReviews_FullMethodName, in, out, cOpts...)
+	out := new(ListCommentReviewResponse)
+	err := c.cc.Invoke(ctx, CommentInfoService_ListCommentReview_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -110,10 +110,10 @@ func (c *commentInfoServiceClient) SetCommentInfoStatus(ctx context.Context, in 
 	return out, nil
 }
 
-func (c *commentInfoServiceClient) PageCommentDiscussions(ctx context.Context, in *PageCommentDiscussionsRequest, opts ...grpc.CallOption) (*PageCommentDiscussionsResponse, error) {
+func (c *commentInfoServiceClient) PageCommentDiscussion(ctx context.Context, in *PageCommentDiscussionRequest, opts ...grpc.CallOption) (*PageCommentDiscussionResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(PageCommentDiscussionsResponse)
-	err := c.cc.Invoke(ctx, CommentInfoService_PageCommentDiscussions_FullMethodName, in, out, cOpts...)
+	out := new(PageCommentDiscussionResponse)
+	err := c.cc.Invoke(ctx, CommentInfoService_PageCommentDiscussion_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -137,17 +137,17 @@ func (c *commentInfoServiceClient) SetCommentDiscussionStatus(ctx context.Contex
 // Admin评论管理服务
 type CommentInfoServiceServer interface {
 	// 查询评论分页列表
-	PageCommentInfos(context.Context, *PageCommentInfosRequest) (*PageCommentInfosResponse, error)
+	PageCommentInfo(context.Context, *PageCommentInfoRequest) (*PageCommentInfoResponse, error)
 	// 按商品查询评论聚合信息
 	GetGoodsCommentInfo(context.Context, *GetGoodsCommentInfoRequest) (*GoodsCommentInfoResponse, error)
 	// 查询评论审核记录列表
-	ListCommentReviews(context.Context, *ListCommentReviewsRequest) (*ListCommentReviewsResponse, error)
+	ListCommentReview(context.Context, *ListCommentReviewRequest) (*ListCommentReviewResponse, error)
 	// 查询评论详情
 	GetCommentInfo(context.Context, *GetCommentInfoRequest) (*CommentInfoDetail, error)
 	// 设置评论审核状态
 	SetCommentInfoStatus(context.Context, *SetCommentInfoStatusRequest) (*emptypb.Empty, error)
 	// 查询评论讨论分页列表
-	PageCommentDiscussions(context.Context, *PageCommentDiscussionsRequest) (*PageCommentDiscussionsResponse, error)
+	PageCommentDiscussion(context.Context, *PageCommentDiscussionRequest) (*PageCommentDiscussionResponse, error)
 	// 设置评论讨论审核状态
 	SetCommentDiscussionStatus(context.Context, *SetCommentDiscussionStatusRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedCommentInfoServiceServer()
@@ -160,14 +160,14 @@ type CommentInfoServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedCommentInfoServiceServer struct{}
 
-func (UnimplementedCommentInfoServiceServer) PageCommentInfos(context.Context, *PageCommentInfosRequest) (*PageCommentInfosResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method PageCommentInfos not implemented")
+func (UnimplementedCommentInfoServiceServer) PageCommentInfo(context.Context, *PageCommentInfoRequest) (*PageCommentInfoResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method PageCommentInfo not implemented")
 }
 func (UnimplementedCommentInfoServiceServer) GetGoodsCommentInfo(context.Context, *GetGoodsCommentInfoRequest) (*GoodsCommentInfoResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetGoodsCommentInfo not implemented")
 }
-func (UnimplementedCommentInfoServiceServer) ListCommentReviews(context.Context, *ListCommentReviewsRequest) (*ListCommentReviewsResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method ListCommentReviews not implemented")
+func (UnimplementedCommentInfoServiceServer) ListCommentReview(context.Context, *ListCommentReviewRequest) (*ListCommentReviewResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListCommentReview not implemented")
 }
 func (UnimplementedCommentInfoServiceServer) GetCommentInfo(context.Context, *GetCommentInfoRequest) (*CommentInfoDetail, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetCommentInfo not implemented")
@@ -175,8 +175,8 @@ func (UnimplementedCommentInfoServiceServer) GetCommentInfo(context.Context, *Ge
 func (UnimplementedCommentInfoServiceServer) SetCommentInfoStatus(context.Context, *SetCommentInfoStatusRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method SetCommentInfoStatus not implemented")
 }
-func (UnimplementedCommentInfoServiceServer) PageCommentDiscussions(context.Context, *PageCommentDiscussionsRequest) (*PageCommentDiscussionsResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method PageCommentDiscussions not implemented")
+func (UnimplementedCommentInfoServiceServer) PageCommentDiscussion(context.Context, *PageCommentDiscussionRequest) (*PageCommentDiscussionResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method PageCommentDiscussion not implemented")
 }
 func (UnimplementedCommentInfoServiceServer) SetCommentDiscussionStatus(context.Context, *SetCommentDiscussionStatusRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method SetCommentDiscussionStatus not implemented")
@@ -202,20 +202,20 @@ func RegisterCommentInfoServiceServer(s grpc.ServiceRegistrar, srv CommentInfoSe
 	s.RegisterService(&CommentInfoService_ServiceDesc, srv)
 }
 
-func _CommentInfoService_PageCommentInfos_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PageCommentInfosRequest)
+func _CommentInfoService_PageCommentInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PageCommentInfoRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(CommentInfoServiceServer).PageCommentInfos(ctx, in)
+		return srv.(CommentInfoServiceServer).PageCommentInfo(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: CommentInfoService_PageCommentInfos_FullMethodName,
+		FullMethod: CommentInfoService_PageCommentInfo_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CommentInfoServiceServer).PageCommentInfos(ctx, req.(*PageCommentInfosRequest))
+		return srv.(CommentInfoServiceServer).PageCommentInfo(ctx, req.(*PageCommentInfoRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -238,20 +238,20 @@ func _CommentInfoService_GetGoodsCommentInfo_Handler(srv interface{}, ctx contex
 	return interceptor(ctx, in, info, handler)
 }
 
-func _CommentInfoService_ListCommentReviews_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListCommentReviewsRequest)
+func _CommentInfoService_ListCommentReview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListCommentReviewRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(CommentInfoServiceServer).ListCommentReviews(ctx, in)
+		return srv.(CommentInfoServiceServer).ListCommentReview(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: CommentInfoService_ListCommentReviews_FullMethodName,
+		FullMethod: CommentInfoService_ListCommentReview_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CommentInfoServiceServer).ListCommentReviews(ctx, req.(*ListCommentReviewsRequest))
+		return srv.(CommentInfoServiceServer).ListCommentReview(ctx, req.(*ListCommentReviewRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -292,20 +292,20 @@ func _CommentInfoService_SetCommentInfoStatus_Handler(srv interface{}, ctx conte
 	return interceptor(ctx, in, info, handler)
 }
 
-func _CommentInfoService_PageCommentDiscussions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PageCommentDiscussionsRequest)
+func _CommentInfoService_PageCommentDiscussion_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PageCommentDiscussionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(CommentInfoServiceServer).PageCommentDiscussions(ctx, in)
+		return srv.(CommentInfoServiceServer).PageCommentDiscussion(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: CommentInfoService_PageCommentDiscussions_FullMethodName,
+		FullMethod: CommentInfoService_PageCommentDiscussion_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CommentInfoServiceServer).PageCommentDiscussions(ctx, req.(*PageCommentDiscussionsRequest))
+		return srv.(CommentInfoServiceServer).PageCommentDiscussion(ctx, req.(*PageCommentDiscussionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -336,16 +336,16 @@ var CommentInfoService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*CommentInfoServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "PageCommentInfos",
-			Handler:    _CommentInfoService_PageCommentInfos_Handler,
+			MethodName: "PageCommentInfo",
+			Handler:    _CommentInfoService_PageCommentInfo_Handler,
 		},
 		{
 			MethodName: "GetGoodsCommentInfo",
 			Handler:    _CommentInfoService_GetGoodsCommentInfo_Handler,
 		},
 		{
-			MethodName: "ListCommentReviews",
-			Handler:    _CommentInfoService_ListCommentReviews_Handler,
+			MethodName: "ListCommentReview",
+			Handler:    _CommentInfoService_ListCommentReview_Handler,
 		},
 		{
 			MethodName: "GetCommentInfo",
@@ -356,8 +356,8 @@ var CommentInfoService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _CommentInfoService_SetCommentInfoStatus_Handler,
 		},
 		{
-			MethodName: "PageCommentDiscussions",
-			Handler:    _CommentInfoService_PageCommentDiscussions_Handler,
+			MethodName: "PageCommentDiscussion",
+			Handler:    _CommentInfoService_PageCommentDiscussion_Handler,
 		},
 		{
 			MethodName: "SetCommentDiscussionStatus",

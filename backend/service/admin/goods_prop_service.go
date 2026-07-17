@@ -36,11 +36,11 @@ func NewGoodsPropService(
 	}
 }
 
-// PageGoodsProps 查询商品属性列表
-func (s *GoodsPropService) PageGoodsProps(ctx context.Context, req *adminv1.PageGoodsPropsRequest) (*adminv1.PageGoodsPropsResponse, error) {
-	page, err := s.goodsPropCase.PageGoodsProps(ctx, req)
+// PageGoodsProp 查询商品属性列表
+func (s *GoodsPropService) PageGoodsProp(ctx context.Context, req *adminv1.PageGoodsPropRequest) (*adminv1.PageGoodsPropResponse, error) {
+	page, err := s.goodsPropCase.PageGoodsProp(ctx, req)
 	if err != nil {
-		log.Error(fmt.Sprintf("PageGoodsProps %v", err))
+		log.Error(fmt.Sprintf("PageGoodsProp %v", err))
 		return nil, errorsx.WrapInternal(err, "查询属性列表失败")
 	}
 

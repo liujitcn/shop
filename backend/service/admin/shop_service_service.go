@@ -36,11 +36,11 @@ func NewShopServiceService(
 	}
 }
 
-// PageShopServices 查询商城服务列表
-func (s *ShopServiceService) PageShopServices(ctx context.Context, req *adminv1.PageShopServicesRequest) (*adminv1.PageShopServicesResponse, error) {
-	page, err := s.serviceCase.PageShopServices(ctx, req)
+// PageShopService 查询商城服务列表
+func (s *ShopServiceService) PageShopService(ctx context.Context, req *adminv1.PageShopServiceRequest) (*adminv1.PageShopServiceResponse, error) {
+	page, err := s.serviceCase.PageShopService(ctx, req)
 	if err != nil {
-		log.Error(fmt.Sprintf("PageShopServices %v", err))
+		log.Error(fmt.Sprintf("PageShopService %v", err))
 		return nil, errorsx.WrapInternal(err, "查询商城服务列表失败")
 	}
 

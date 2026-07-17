@@ -27,14 +27,14 @@ func NewRecommendRequestService(recommendRequestCase *biz.RecommendRequestCase) 
 	}
 }
 
-// PageRecommendRequests 查询推荐请求分页列表。
-func (s *RecommendRequestService) PageRecommendRequests(
+// PageRecommendRequest 查询推荐请求分页列表。
+func (s *RecommendRequestService) PageRecommendRequest(
 	ctx context.Context,
-	req *adminv1.PageRecommendRequestsRequest,
-) (*adminv1.PageRecommendRequestsResponse, error) {
-	page, err := s.recommendRequestCase.PageRecommendRequests(ctx, req)
+	req *adminv1.PageRecommendRequestRequest,
+) (*adminv1.PageRecommendRequestResponse, error) {
+	page, err := s.recommendRequestCase.PageRecommendRequest(ctx, req)
 	if err != nil {
-		log.Error(fmt.Sprintf("PageRecommendRequests %v", err))
+		log.Error(fmt.Sprintf("PageRecommendRequest %v", err))
 		return nil, errorsx.WrapInternal(err, "查询推荐请求分页列表失败")
 	}
 	return page, nil
@@ -53,14 +53,14 @@ func (s *RecommendRequestService) GetRecommendRequest(
 	return res, nil
 }
 
-// ListRecommendRequestEvents 查询推荐请求商品关联事件列表。
-func (s *RecommendRequestService) ListRecommendRequestEvents(
+// ListRecommendRequestEvent 查询推荐请求商品关联事件列表。
+func (s *RecommendRequestService) ListRecommendRequestEvent(
 	ctx context.Context,
-	req *adminv1.ListRecommendRequestEventsRequest,
-) (*adminv1.ListRecommendRequestEventsResponse, error) {
-	res, err := s.recommendRequestCase.ListRecommendRequestEvents(ctx, req.GetRequestRecordId(), req.GetGoodsId(), req.GetPosition())
+	req *adminv1.ListRecommendRequestEventRequest,
+) (*adminv1.ListRecommendRequestEventResponse, error) {
+	res, err := s.recommendRequestCase.ListRecommendRequestEvent(ctx, req.GetRequestRecordId(), req.GetGoodsId(), req.GetPosition())
 	if err != nil {
-		log.Error(fmt.Sprintf("ListRecommendRequestEvents %v", err))
+		log.Error(fmt.Sprintf("ListRecommendRequestEvent %v", err))
 		return nil, errorsx.WrapInternal(err, "查询推荐请求事件失败")
 	}
 	return res, nil

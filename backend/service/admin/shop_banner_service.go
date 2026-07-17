@@ -36,11 +36,11 @@ func NewShopBannerService(
 	}
 }
 
-// PageShopBanners 查询商城轮播图列表
-func (s *ShopBannerService) PageShopBanners(ctx context.Context, req *adminv1.PageShopBannersRequest) (*adminv1.PageShopBannersResponse, error) {
-	page, err := s.bannerCase.PageShopBanners(ctx, req)
+// PageShopBanner 查询商城轮播图列表
+func (s *ShopBannerService) PageShopBanner(ctx context.Context, req *adminv1.PageShopBannerRequest) (*adminv1.PageShopBannerResponse, error) {
+	page, err := s.bannerCase.PageShopBanner(ctx, req)
 	if err != nil {
-		log.Error(fmt.Sprintf("PageShopBanners %v", err))
+		log.Error(fmt.Sprintf("PageShopBanner %v", err))
 		return nil, errorsx.WrapInternal(err, "查询商城轮播图列表失败")
 	}
 

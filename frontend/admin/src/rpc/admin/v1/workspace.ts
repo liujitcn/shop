@@ -97,7 +97,7 @@ export interface SummaryWorkspaceRiskResponse {
 }
 
 /** 工作台待审核评价查询条件 */
-export interface ListWorkspacePendingCommentsRequest {
+export interface ListWorkspacePendingCommentRequest {
   /** 租户ID */
   tenant_id?:
     | number
@@ -111,7 +111,7 @@ export interface ListWorkspacePendingCommentsRequest {
 }
 
 /** 工作台待审核评价响应 */
-export interface ListWorkspacePendingCommentsResponse {
+export interface ListWorkspacePendingCommentResponse {
   /** 待审核评价 */
   pending_comments: WorkspacePendingComment[];
 }
@@ -173,7 +173,7 @@ export interface WorkspaceService {
   /** 查询工作台口碑洞察 */
   SummaryWorkspaceReputation(request: SummaryWorkspaceReputationRequest): Promise<SummaryWorkspaceReputationResponse>;
   /** 查询工作台待审核评价 */
-  ListWorkspacePendingComments(
-    request: ListWorkspacePendingCommentsRequest,
-  ): Promise<ListWorkspacePendingCommentsResponse>;
+  ListWorkspacePendingComment(
+    request: ListWorkspacePendingCommentRequest,
+  ): Promise<ListWorkspacePendingCommentResponse>;
 }

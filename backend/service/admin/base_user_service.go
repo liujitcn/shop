@@ -37,21 +37,21 @@ func NewBaseUserService(
 	}
 }
 
-// OptionBaseUsers 查询用户下拉选择
-func (s *BaseUserService) OptionBaseUsers(ctx context.Context, req *adminv1.OptionBaseUsersRequest) (*commonv1.SelectOptionResponse, error) {
-	list, err := s.baseUserCase.OptionBaseUsers(ctx, req)
+// OptionBaseUser 查询用户下拉选择
+func (s *BaseUserService) OptionBaseUser(ctx context.Context, req *adminv1.OptionBaseUserRequest) (*commonv1.SelectOptionResponse, error) {
+	list, err := s.baseUserCase.OptionBaseUser(ctx, req)
 	if err != nil {
-		log.Error(fmt.Sprintf("OptionBaseUsers %v", err))
+		log.Error(fmt.Sprintf("OptionBaseUser %v", err))
 		return nil, errorsx.WrapInternal(err, "查询用户下拉选择失败")
 	}
 	return list, nil
 }
 
-// PageBaseUsers 查询用户分页列表
-func (s *BaseUserService) PageBaseUsers(ctx context.Context, req *adminv1.PageBaseUsersRequest) (*adminv1.PageBaseUsersResponse, error) {
-	page, err := s.baseUserCase.PageBaseUsers(ctx, req)
+// PageBaseUser 查询用户分页列表
+func (s *BaseUserService) PageBaseUser(ctx context.Context, req *adminv1.PageBaseUserRequest) (*adminv1.PageBaseUserResponse, error) {
+	page, err := s.baseUserCase.PageBaseUser(ctx, req)
 	if err != nil {
-		log.Error(fmt.Sprintf("PageBaseUsers %v", err))
+		log.Error(fmt.Sprintf("PageBaseUser %v", err))
 		return nil, errorsx.WrapInternal(err, "查询用户分页列表失败")
 	}
 	return page, nil

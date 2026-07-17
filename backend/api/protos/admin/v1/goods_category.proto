@@ -11,14 +11,14 @@ import "google/protobuf/empty.proto";
 // Admin商品分类服务
 service GoodsCategoryService {
   // 查询商品分类树形列表
-  rpc TreeGoodsCategories(TreeGoodsCategoriesRequest) returns (TreeGoodsCategoriesResponse) {
+  rpc TreeGoodsCategory(TreeGoodsCategoryRequest) returns (TreeGoodsCategoryResponse) {
     option (google.api.http) = {
       get: "/api/v1/admin/goods/category/tree"
     };
   }
 
   // 查询商品分类树形选择
-  rpc OptionGoodsCategories(OptionGoodsCategoriesRequest) returns (.common.v1.TreeOptionResponse) {
+  rpc OptionGoodsCategory(OptionGoodsCategoryRequest) returns (.common.v1.TreeOptionResponse) {
     option (google.api.http) = {
       get: "/api/v1/admin/goods/category/option"
     };
@@ -64,15 +64,15 @@ service GoodsCategoryService {
 }
 
 // 商品分类树查询条件
-message TreeGoodsCategoriesRequest {}
+message TreeGoodsCategoryRequest {}
 
 // 商品分类树响应
-message TreeGoodsCategoriesResponse {
+message TreeGoodsCategoryResponse {
   repeated GoodsCategory goods_categories = 1 [(gnostic.openapi.v3.property) = {description: "商品分类列表"}]; // 商品分类列表
 }
 
 // 商品分类选项查询条件
-message OptionGoodsCategoriesRequest {
+message OptionGoodsCategoryRequest {
   optional int64 parent_id = 1 [(gnostic.openapi.v3.property) = {description: "父级商品分类ID"}]; // 父级商品分类ID
 }
 

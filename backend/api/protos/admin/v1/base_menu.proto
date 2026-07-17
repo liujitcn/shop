@@ -11,14 +11,14 @@ import "google/protobuf/empty.proto";
 // Admin菜单管理服务
 service BaseMenuService {
   // 查询菜单树形列表
-  rpc TreeBaseMenus(TreeBaseMenusRequest) returns (TreeBaseMenusResponse) {
+  rpc TreeBaseMenu(TreeBaseMenuRequest) returns (TreeBaseMenuResponse) {
     option (google.api.http) = {
       get: "/api/v1/admin/base/menu/tree"
     };
   }
 
   // 查询菜单树形选择
-  rpc OptionBaseMenus(OptionBaseMenusRequest) returns (.common.v1.TreeOptionResponse) {
+  rpc OptionBaseMenu(OptionBaseMenuRequest) returns (.common.v1.TreeOptionResponse) {
     option (google.api.http) = {
       get: "/api/v1/admin/base/menu/option"
     };
@@ -64,15 +64,15 @@ service BaseMenuService {
 }
 
 // 菜单树查询条件
-message TreeBaseMenusRequest {}
+message TreeBaseMenuRequest {}
 
 // 菜单树响应
-message TreeBaseMenusResponse {
+message TreeBaseMenuResponse {
   repeated BaseMenu base_menus = 1 [(gnostic.openapi.v3.property) = {description: "菜单树"}]; // 菜单树
 }
 
 // 菜单选项查询条件
-message OptionBaseMenusRequest {
+message OptionBaseMenuRequest {
   optional int64 parent_id = 1 [(gnostic.openapi.v3.property) = {description: "父级菜单ID"}]; // 父级菜单ID
 
   optional int64 role_id = 2 [(gnostic.openapi.v3.property) = {description: "目标角色ID"}]; // 目标角色ID

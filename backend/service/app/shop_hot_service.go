@@ -39,21 +39,21 @@ func NewShopHotService(
 	return &ss
 }
 
-// ListShopHots 查询热门推荐列表
-func (s *ShopHotService) ListShopHots(ctx context.Context, req *appv1.ListShopHotsRequest) (*appv1.ListShopHotsResponse, error) {
-	res, err := s.shopHotCase.ListShopHots(ctx)
+// ListShopHot 查询热门推荐列表
+func (s *ShopHotService) ListShopHot(ctx context.Context, req *appv1.ListShopHotRequest) (*appv1.ListShopHotResponse, error) {
+	res, err := s.shopHotCase.ListShopHot(ctx)
 	if err != nil {
-		log.Error(fmt.Sprintf("ListShopHots %v", err))
+		log.Error(fmt.Sprintf("ListShopHot %v", err))
 		return nil, errorsx.WrapInternal(err, "查询热门推荐列表失败")
 	}
 	return res, nil
 }
 
-// ListShopHotItems 查询热门推荐选项
-func (s *ShopHotService) ListShopHotItems(ctx context.Context, req *appv1.ListShopHotItemsRequest) (*appv1.ListShopHotItemsResponse, error) {
-	res, err := s.shopHotItemCase.ListShopHotItems(ctx, req.GetId())
+// ListShopHotItem 查询热门推荐选项
+func (s *ShopHotService) ListShopHotItem(ctx context.Context, req *appv1.ListShopHotItemRequest) (*appv1.ListShopHotItemResponse, error) {
+	res, err := s.shopHotItemCase.ListShopHotItem(ctx, req.GetId())
 	if err != nil {
-		log.Error(fmt.Sprintf("ListShopHotItems %v", err))
+		log.Error(fmt.Sprintf("ListShopHotItem %v", err))
 		return nil, errorsx.WrapInternal(err, "查询热门推荐选项失败")
 	}
 	return res, nil

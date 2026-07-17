@@ -39,11 +39,11 @@ func NewShopHotService(
 	}
 }
 
-// PageShopHots 查询商城热门推荐列表
-func (s *ShopHotService) PageShopHots(ctx context.Context, req *adminv1.PageShopHotsRequest) (*adminv1.PageShopHotsResponse, error) {
-	page, err := s.hotCase.PageShopHots(ctx, req)
+// PageShopHot 查询商城热门推荐列表
+func (s *ShopHotService) PageShopHot(ctx context.Context, req *adminv1.PageShopHotRequest) (*adminv1.PageShopHotResponse, error) {
+	page, err := s.hotCase.PageShopHot(ctx, req)
 	if err != nil {
-		log.Error(fmt.Sprintf("PageShopHots %v", err))
+		log.Error(fmt.Sprintf("PageShopHot %v", err))
 		return nil, errorsx.WrapInternal(err, "查询商城热门推荐列表失败")
 	}
 
@@ -100,11 +100,11 @@ func (s *ShopHotService) SetShopHotStatus(ctx context.Context, req *adminv1.SetS
 	return new(emptypb.Empty), nil
 }
 
-// PageShopHotItems 查询商城热门推荐属性列表
-func (s *ShopHotService) PageShopHotItems(ctx context.Context, req *adminv1.PageShopHotItemsRequest) (*adminv1.PageShopHotItemsResponse, error) {
-	page, err := s.hotItemCase.PageShopHotItems(ctx, req)
+// PageShopHotItem 查询商城热门推荐属性列表
+func (s *ShopHotService) PageShopHotItem(ctx context.Context, req *adminv1.PageShopHotItemRequest) (*adminv1.PageShopHotItemResponse, error) {
+	page, err := s.hotItemCase.PageShopHotItem(ctx, req)
 	if err != nil {
-		log.Error(fmt.Sprintf("PageShopHotItems %v", err))
+		log.Error(fmt.Sprintf("PageShopHotItem %v", err))
 		return nil, errorsx.WrapInternal(err, "查询热门推荐选项列表失败")
 	}
 	return page, nil

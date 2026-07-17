@@ -46,8 +46,8 @@ func NewTenantStoreCase(baseCase *biz.BaseCase, tx data.Transaction, tenantStore
 	}
 }
 
-// OptionTenantStores 查询已审核通过的门店下拉选项。
-func (c *TenantStoreCase) OptionTenantStores(ctx context.Context, req *adminv1.OptionTenantStoresRequest) (*adminv1.OptionTenantStoresResponse, error) {
+// OptionTenantStore 查询已审核通过的门店下拉选项。
+func (c *TenantStoreCase) OptionTenantStore(ctx context.Context, req *adminv1.OptionTenantStoreRequest) (*adminv1.OptionTenantStoreResponse, error) {
 	query := c.Query(ctx).TenantStore
 	opts := make([]repository.QueryOption, 0, 3)
 	opts = append(opts, repository.Where(query.Status.Eq(_const.TENANT_STORE_STATUS_APPROVED)))
@@ -61,18 +61,18 @@ func (c *TenantStoreCase) OptionTenantStores(ctx context.Context, req *adminv1.O
 		return nil, err
 	}
 
-	options := make([]*adminv1.OptionTenantStoresResponse_Option, 0, len(list))
+	options := make([]*adminv1.OptionTenantStoreResponse_Option, 0, len(list))
 	for _, item := range list {
-		options = append(options, &adminv1.OptionTenantStoresResponse_Option{
+		options = append(options, &adminv1.OptionTenantStoreResponse_Option{
 			Label: item.Name,
 			Value: item.ID,
 		})
 	}
-	return &adminv1.OptionTenantStoresResponse{List: options}, nil
+	return &adminv1.OptionTenantStoreResponse{List: options}, nil
 }
 
-// TreeTenantStores 查询租户门店树形选项。
-func (c *TenantStoreCase) TreeTenantStores(ctx context.Context, req *adminv1.TreeTenantStoresRequest) (*adminv1.TreeTenantStoresResponse, error) {
+// TreeTenantStore 查询租户门店树形选项。
+func (c *TenantStoreCase) TreeTenantStore(ctx context.Context, req *adminv1.TreeTenantStoreRequest) (*adminv1.TreeTenantStoreResponse, error) {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return nil, err
@@ -92,7 +92,7 @@ func (c *TenantStoreCase) TreeTenantStores(ctx context.Context, req *adminv1.Tre
 		return nil, err
 	}
 	if authInfo.TenantCode != databaseGorm.DefaultTenantCode {
-		return &adminv1.TreeTenantStoresResponse{List: c.buildStoreTreeOptions(list)}, nil
+		return &adminv1.TreeTenantStoreResponse{List: c.buildStoreTreeOptions(list)}, nil
 	}
 
 	tenantIDSet := _set.NewSet[int64]()
@@ -108,11 +108,11 @@ func (c *TenantStoreCase) TreeTenantStores(ctx context.Context, req *adminv1.Tre
 	for _, item := range tenantList {
 		tenantNames[item.ID] = item.Name
 	}
-	return &adminv1.TreeTenantStoresResponse{List: c.buildTenantStoreTreeOptions(list, tenantNames)}, nil
+	return &adminv1.TreeTenantStoreResponse{List: c.buildTenantStoreTreeOptions(list, tenantNames)}, nil
 }
 
-// PageTenantStores 分页查询租户门店。
-func (c *TenantStoreCase) PageTenantStores(ctx context.Context, req *adminv1.PageTenantStoresRequest) (*adminv1.PageTenantStoresResponse, error) {
+// PageTenantStore 分页查询租户门店。
+func (c *TenantStoreCase) PageTenantStore(ctx context.Context, req *adminv1.PageTenantStoreRequest) (*adminv1.PageTenantStoreResponse, error) {
 	query := c.Query(ctx).TenantStore
 	opts := make([]repository.QueryOption, 0, 5)
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
@@ -135,7 +135,7 @@ func (c *TenantStoreCase) PageTenantStores(ctx context.Context, req *adminv1.Pag
 	for _, item := range list {
 		resList = append(resList, c.mapper.ToDTO(item))
 	}
-	return &adminv1.PageTenantStoresResponse{TenantStores: resList, Total: int32(total)}, nil
+	return &adminv1.PageTenantStoreResponse{TenantStores: resList, Total: int32(total)}, nil
 }
 
 // GetTenantStore 获取租户门店。
@@ -264,10 +264,10 @@ func (c *TenantStoreCase) GetTenantStoreMapByIDs(ctx context.Context, ids []int6
 }
 
 // buildStoreTreeOptions 构建普通租户可见的门店树节点。
-func (c *TenantStoreCase) buildStoreTreeOptions(list []*models.TenantStore) []*adminv1.TreeTenantStoresResponse_Option {
-	options := make([]*adminv1.TreeTenantStoresResponse_Option, 0, len(list))
+func (c *TenantStoreCase) buildStoreTreeOptions(list []*models.TenantStore) []*adminv1.TreeTenantStoreResponse_Option {
+	options := make([]*adminv1.TreeTenantStoreResponse_Option, 0, len(list))
 	for _, item := range list {
-		options = append(options, &adminv1.TreeTenantStoresResponse_Option{
+		options = append(options, &adminv1.TreeTenantStoreResponse_Option{
 			Value:    fmt.Sprintf("store:%d", item.ID),
 			Label:    item.Name,
 			Type:     "store",
@@ -279,24 +279,24 @@ func (c *TenantStoreCase) buildStoreTreeOptions(list []*models.TenantStore) []*a
 }
 
 // buildTenantStoreTreeOptions 构建默认租户可见的租户-门店树节点。
-func (c *TenantStoreCase) buildTenantStoreTreeOptions(list []*models.TenantStore, tenantNames map[int64]string) []*adminv1.TreeTenantStoresResponse_Option {
-	options := make([]*adminv1.TreeTenantStoresResponse_Option, 0)
-	tenantOptionMap := make(map[int64]*adminv1.TreeTenantStoresResponse_Option)
+func (c *TenantStoreCase) buildTenantStoreTreeOptions(list []*models.TenantStore, tenantNames map[int64]string) []*adminv1.TreeTenantStoreResponse_Option {
+	options := make([]*adminv1.TreeTenantStoreResponse_Option, 0)
+	tenantOptionMap := make(map[int64]*adminv1.TreeTenantStoreResponse_Option)
 	for _, item := range list {
 		tenantOption := tenantOptionMap[item.TenantID]
 		if tenantOption == nil {
-			tenantOption = &adminv1.TreeTenantStoresResponse_Option{
+			tenantOption = &adminv1.TreeTenantStoreResponse_Option{
 				Value:    fmt.Sprintf("tenant:%d", item.TenantID),
 				Label:    tenantNames[item.TenantID],
 				Type:     "tenant",
 				Id:       item.TenantID,
 				TenantId: item.TenantID,
-				Children: []*adminv1.TreeTenantStoresResponse_Option{},
+				Children: []*adminv1.TreeTenantStoreResponse_Option{},
 			}
 			tenantOptionMap[item.TenantID] = tenantOption
 			options = append(options, tenantOption)
 		}
-		tenantOption.Children = append(tenantOption.Children, &adminv1.TreeTenantStoresResponse_Option{
+		tenantOption.Children = append(tenantOption.Children, &adminv1.TreeTenantStoreResponse_Option{
 			Value:    fmt.Sprintf("store:%d", item.ID),
 			Label:    item.Name,
 			Type:     "store",

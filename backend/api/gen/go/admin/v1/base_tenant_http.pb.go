@@ -8,10 +8,11 @@ package adminv1
 
 import (
 	context "context"
-	v1 "shop/api/gen/go/common/v1"
 
 	http "github.com/go-kratos/kratos/v3/transport/http"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+
+	v1 "shop/api/gen/go/common/v1"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -23,8 +24,8 @@ const _ = http.SupportPackageIsVersion3
 const OperationBaseTenantServiceCreateBaseTenant = "/admin.v1.BaseTenantService/CreateBaseTenant"
 const OperationBaseTenantServiceDeleteBaseTenant = "/admin.v1.BaseTenantService/DeleteBaseTenant"
 const OperationBaseTenantServiceGetBaseTenant = "/admin.v1.BaseTenantService/GetBaseTenant"
-const OperationBaseTenantServiceOptionBaseTenants = "/admin.v1.BaseTenantService/OptionBaseTenants"
-const OperationBaseTenantServicePageBaseTenants = "/admin.v1.BaseTenantService/PageBaseTenants"
+const OperationBaseTenantServiceOptionBaseTenant = "/admin.v1.BaseTenantService/OptionBaseTenant"
+const OperationBaseTenantServicePageBaseTenant = "/admin.v1.BaseTenantService/PageBaseTenant"
 const OperationBaseTenantServiceSetBaseTenantStatus = "/admin.v1.BaseTenantService/SetBaseTenantStatus"
 const OperationBaseTenantServiceUpdateBaseTenant = "/admin.v1.BaseTenantService/UpdateBaseTenant"
 
@@ -35,10 +36,10 @@ type BaseTenantServiceHTTPServer interface {
 	DeleteBaseTenant(context.Context, *DeleteBaseTenantRequest) (*emptypb.Empty, error)
 	// GetBaseTenant 查询租户
 	GetBaseTenant(context.Context, *GetBaseTenantRequest) (*BaseTenantForm, error)
-	// OptionBaseTenants 查询租户下拉选择
-	OptionBaseTenants(context.Context, *OptionBaseTenantsRequest) (*v1.SelectOptionResponse, error)
-	// PageBaseTenants 查询租户分页列表
-	PageBaseTenants(context.Context, *PageBaseTenantsRequest) (*PageBaseTenantsResponse, error)
+	// OptionBaseTenant 查询租户下拉选择
+	OptionBaseTenant(context.Context, *OptionBaseTenantRequest) (*v1.SelectOptionResponse, error)
+	// PageBaseTenant 查询租户分页列表
+	PageBaseTenant(context.Context, *PageBaseTenantRequest) (*PageBaseTenantResponse, error)
 	// SetBaseTenantStatus 设置状态
 	SetBaseTenantStatus(context.Context, *SetBaseTenantStatusRequest) (*emptypb.Empty, error)
 	// UpdateBaseTenant 更新租户
@@ -47,8 +48,8 @@ type BaseTenantServiceHTTPServer interface {
 
 func RegisterBaseTenantServiceHTTPServer(s *http.Server, srv BaseTenantServiceHTTPServer) {
 	r := s.Route("/")
-	r.Handle("GET", "/api/v1/admin/base/tenant/option", _BaseTenantService_OptionBaseTenants0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/admin/base/tenant", _BaseTenantService_PageBaseTenants0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/base/tenant/option", _BaseTenantService_OptionBaseTenant0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/base/tenant", _BaseTenantService_PageBaseTenant0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/base/tenant/{id}", _BaseTenantService_GetBaseTenant0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/admin/base/tenant", _BaseTenantService_CreateBaseTenant0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/base/tenant/{base_tenant.id}", _BaseTenantService_UpdateBaseTenant0_HTTP_Handler(srv))
@@ -56,15 +57,15 @@ func RegisterBaseTenantServiceHTTPServer(s *http.Server, srv BaseTenantServiceHT
 	r.Handle("PUT", "/api/v1/admin/base/tenant/{id}/status", _BaseTenantService_SetBaseTenantStatus0_HTTP_Handler(srv))
 }
 
-func _BaseTenantService_OptionBaseTenants0_HTTP_Handler(srv BaseTenantServiceHTTPServer) func(ctx http.Context) error {
+func _BaseTenantService_OptionBaseTenant0_HTTP_Handler(srv BaseTenantServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in OptionBaseTenantsRequest
+		var in OptionBaseTenantRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationBaseTenantServiceOptionBaseTenants)
+		http.SetOperation(ctx, OperationBaseTenantServiceOptionBaseTenant)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.OptionBaseTenants(ctx, req.(*OptionBaseTenantsRequest))
+			return srv.OptionBaseTenant(ctx, req.(*OptionBaseTenantRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -75,21 +76,21 @@ func _BaseTenantService_OptionBaseTenants0_HTTP_Handler(srv BaseTenantServiceHTT
 	}
 }
 
-func _BaseTenantService_PageBaseTenants0_HTTP_Handler(srv BaseTenantServiceHTTPServer) func(ctx http.Context) error {
+func _BaseTenantService_PageBaseTenant0_HTTP_Handler(srv BaseTenantServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in PageBaseTenantsRequest
+		var in PageBaseTenantRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationBaseTenantServicePageBaseTenants)
+		http.SetOperation(ctx, OperationBaseTenantServicePageBaseTenant)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.PageBaseTenants(ctx, req.(*PageBaseTenantsRequest))
+			return srv.PageBaseTenant(ctx, req.(*PageBaseTenantRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*PageBaseTenantsResponse)
+		reply := out.(*PageBaseTenantResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -214,10 +215,10 @@ type BaseTenantServiceHTTPClient interface {
 	DeleteBaseTenant(ctx context.Context, req *DeleteBaseTenantRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// GetBaseTenant 查询租户
 	GetBaseTenant(ctx context.Context, req *GetBaseTenantRequest, opts ...http.CallOption) (rsp *BaseTenantForm, err error)
-	// OptionBaseTenants 查询租户下拉选择
-	OptionBaseTenants(ctx context.Context, req *OptionBaseTenantsRequest, opts ...http.CallOption) (rsp *v1.SelectOptionResponse, err error)
-	// PageBaseTenants 查询租户分页列表
-	PageBaseTenants(ctx context.Context, req *PageBaseTenantsRequest, opts ...http.CallOption) (rsp *PageBaseTenantsResponse, err error)
+	// OptionBaseTenant 查询租户下拉选择
+	OptionBaseTenant(ctx context.Context, req *OptionBaseTenantRequest, opts ...http.CallOption) (rsp *v1.SelectOptionResponse, err error)
+	// PageBaseTenant 查询租户分页列表
+	PageBaseTenant(ctx context.Context, req *PageBaseTenantRequest, opts ...http.CallOption) (rsp *PageBaseTenantResponse, err error)
 	// SetBaseTenantStatus 设置状态
 	SetBaseTenantStatus(ctx context.Context, req *SetBaseTenantStatusRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// UpdateBaseTenant 更新租户
@@ -284,14 +285,14 @@ func (c *BaseTenantServiceHTTPClientImpl) GetBaseTenant(ctx context.Context, in 
 	return &out, nil
 }
 
-// OptionBaseTenants 查询租户下拉选择
-func (c *BaseTenantServiceHTTPClientImpl) OptionBaseTenants(ctx context.Context, in *OptionBaseTenantsRequest, opts ...http.CallOption) (*v1.SelectOptionResponse, error) {
+// OptionBaseTenant 查询租户下拉选择
+func (c *BaseTenantServiceHTTPClientImpl) OptionBaseTenant(ctx context.Context, in *OptionBaseTenantRequest, opts ...http.CallOption) (*v1.SelectOptionResponse, error) {
 	var out v1.SelectOptionResponse
 	pattern := "/api/v1/admin/base/tenant/option"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationBaseTenantServiceOptionBaseTenants),
+		http.Operation(OperationBaseTenantServiceOptionBaseTenant),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
@@ -301,14 +302,14 @@ func (c *BaseTenantServiceHTTPClientImpl) OptionBaseTenants(ctx context.Context,
 	return &out, nil
 }
 
-// PageBaseTenants 查询租户分页列表
-func (c *BaseTenantServiceHTTPClientImpl) PageBaseTenants(ctx context.Context, in *PageBaseTenantsRequest, opts ...http.CallOption) (*PageBaseTenantsResponse, error) {
-	var out PageBaseTenantsResponse
+// PageBaseTenant 查询租户分页列表
+func (c *BaseTenantServiceHTTPClientImpl) PageBaseTenant(ctx context.Context, in *PageBaseTenantRequest, opts ...http.CallOption) (*PageBaseTenantResponse, error) {
+	var out PageBaseTenantResponse
 	pattern := "/api/v1/admin/base/tenant"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationBaseTenantServicePageBaseTenants),
+		http.Operation(OperationBaseTenantServicePageBaseTenant),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)

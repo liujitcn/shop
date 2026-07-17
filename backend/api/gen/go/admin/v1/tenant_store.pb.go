@@ -8,7 +8,6 @@ package adminv1
 
 import (
 	reflect "reflect"
-	v1 "shop/api/gen/go/common/v1"
 	sync "sync"
 	unsafe "unsafe"
 
@@ -17,6 +16,8 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+
+	v1 "shop/api/gen/go/common/v1"
 )
 
 const (
@@ -27,27 +28,27 @@ const (
 )
 
 // 租户门店下拉选项查询条件
-type OptionTenantStoresRequest struct {
+type OptionTenantStoreRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Keyword       string                 `protobuf:"bytes,1,opt,name=keyword,proto3" json:"keyword,omitempty"` // 门店名称关键字
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *OptionTenantStoresRequest) Reset() {
-	*x = OptionTenantStoresRequest{}
+func (x *OptionTenantStoreRequest) Reset() {
+	*x = OptionTenantStoreRequest{}
 	mi := &file_admin_v1_tenant_store_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *OptionTenantStoresRequest) String() string {
+func (x *OptionTenantStoreRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*OptionTenantStoresRequest) ProtoMessage() {}
+func (*OptionTenantStoreRequest) ProtoMessage() {}
 
-func (x *OptionTenantStoresRequest) ProtoReflect() protoreflect.Message {
+func (x *OptionTenantStoreRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_tenant_store_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -59,12 +60,12 @@ func (x *OptionTenantStoresRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use OptionTenantStoresRequest.ProtoReflect.Descriptor instead.
-func (*OptionTenantStoresRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use OptionTenantStoreRequest.ProtoReflect.Descriptor instead.
+func (*OptionTenantStoreRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_tenant_store_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *OptionTenantStoresRequest) GetKeyword() string {
+func (x *OptionTenantStoreRequest) GetKeyword() string {
 	if x != nil {
 		return x.Keyword
 	}
@@ -72,27 +73,27 @@ func (x *OptionTenantStoresRequest) GetKeyword() string {
 }
 
 // 租户门店下拉选项响应
-type OptionTenantStoresResponse struct {
-	state         protoimpl.MessageState               `protogen:"open.v1"`
-	List          []*OptionTenantStoresResponse_Option `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"` // 门店选项列表
+type OptionTenantStoreResponse struct {
+	state         protoimpl.MessageState              `protogen:"open.v1"`
+	List          []*OptionTenantStoreResponse_Option `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"` // 门店选项列表
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *OptionTenantStoresResponse) Reset() {
-	*x = OptionTenantStoresResponse{}
+func (x *OptionTenantStoreResponse) Reset() {
+	*x = OptionTenantStoreResponse{}
 	mi := &file_admin_v1_tenant_store_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *OptionTenantStoresResponse) String() string {
+func (x *OptionTenantStoreResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*OptionTenantStoresResponse) ProtoMessage() {}
+func (*OptionTenantStoreResponse) ProtoMessage() {}
 
-func (x *OptionTenantStoresResponse) ProtoReflect() protoreflect.Message {
+func (x *OptionTenantStoreResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_tenant_store_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -104,12 +105,12 @@ func (x *OptionTenantStoresResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use OptionTenantStoresResponse.ProtoReflect.Descriptor instead.
-func (*OptionTenantStoresResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use OptionTenantStoreResponse.ProtoReflect.Descriptor instead.
+func (*OptionTenantStoreResponse) Descriptor() ([]byte, []int) {
 	return file_admin_v1_tenant_store_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *OptionTenantStoresResponse) GetList() []*OptionTenantStoresResponse_Option {
+func (x *OptionTenantStoreResponse) GetList() []*OptionTenantStoreResponse_Option {
 	if x != nil {
 		return x.List
 	}
@@ -117,27 +118,27 @@ func (x *OptionTenantStoresResponse) GetList() []*OptionTenantStoresResponse_Opt
 }
 
 // 租户门店树形选项查询条件
-type TreeTenantStoresRequest struct {
+type TreeTenantStoreRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Keyword       string                 `protobuf:"bytes,1,opt,name=keyword,proto3" json:"keyword,omitempty"` // 门店名称关键字
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *TreeTenantStoresRequest) Reset() {
-	*x = TreeTenantStoresRequest{}
+func (x *TreeTenantStoreRequest) Reset() {
+	*x = TreeTenantStoreRequest{}
 	mi := &file_admin_v1_tenant_store_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *TreeTenantStoresRequest) String() string {
+func (x *TreeTenantStoreRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*TreeTenantStoresRequest) ProtoMessage() {}
+func (*TreeTenantStoreRequest) ProtoMessage() {}
 
-func (x *TreeTenantStoresRequest) ProtoReflect() protoreflect.Message {
+func (x *TreeTenantStoreRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_tenant_store_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -149,12 +150,12 @@ func (x *TreeTenantStoresRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use TreeTenantStoresRequest.ProtoReflect.Descriptor instead.
-func (*TreeTenantStoresRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use TreeTenantStoreRequest.ProtoReflect.Descriptor instead.
+func (*TreeTenantStoreRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_tenant_store_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *TreeTenantStoresRequest) GetKeyword() string {
+func (x *TreeTenantStoreRequest) GetKeyword() string {
 	if x != nil {
 		return x.Keyword
 	}
@@ -162,27 +163,27 @@ func (x *TreeTenantStoresRequest) GetKeyword() string {
 }
 
 // 租户门店树形选项响应
-type TreeTenantStoresResponse struct {
-	state         protoimpl.MessageState             `protogen:"open.v1"`
-	List          []*TreeTenantStoresResponse_Option `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"` // 租户门店树形选项列表
+type TreeTenantStoreResponse struct {
+	state         protoimpl.MessageState            `protogen:"open.v1"`
+	List          []*TreeTenantStoreResponse_Option `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"` // 租户门店树形选项列表
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *TreeTenantStoresResponse) Reset() {
-	*x = TreeTenantStoresResponse{}
+func (x *TreeTenantStoreResponse) Reset() {
+	*x = TreeTenantStoreResponse{}
 	mi := &file_admin_v1_tenant_store_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *TreeTenantStoresResponse) String() string {
+func (x *TreeTenantStoreResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*TreeTenantStoresResponse) ProtoMessage() {}
+func (*TreeTenantStoreResponse) ProtoMessage() {}
 
-func (x *TreeTenantStoresResponse) ProtoReflect() protoreflect.Message {
+func (x *TreeTenantStoreResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_tenant_store_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -194,12 +195,12 @@ func (x *TreeTenantStoresResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use TreeTenantStoresResponse.ProtoReflect.Descriptor instead.
-func (*TreeTenantStoresResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use TreeTenantStoreResponse.ProtoReflect.Descriptor instead.
+func (*TreeTenantStoreResponse) Descriptor() ([]byte, []int) {
 	return file_admin_v1_tenant_store_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *TreeTenantStoresResponse) GetList() []*TreeTenantStoresResponse_Option {
+func (x *TreeTenantStoreResponse) GetList() []*TreeTenantStoreResponse_Option {
 	if x != nil {
 		return x.List
 	}
@@ -207,7 +208,7 @@ func (x *TreeTenantStoresResponse) GetList() []*TreeTenantStoresResponse_Option 
 }
 
 // 租户门店列表查询条件
-type PageTenantStoresRequest struct {
+type PageTenantStoreRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`                                               // 门店名称
 	TenantId      *int64                 `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`                // 租户ID
@@ -218,20 +219,20 @@ type PageTenantStoresRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *PageTenantStoresRequest) Reset() {
-	*x = PageTenantStoresRequest{}
+func (x *PageTenantStoreRequest) Reset() {
+	*x = PageTenantStoreRequest{}
 	mi := &file_admin_v1_tenant_store_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PageTenantStoresRequest) String() string {
+func (x *PageTenantStoreRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PageTenantStoresRequest) ProtoMessage() {}
+func (*PageTenantStoreRequest) ProtoMessage() {}
 
-func (x *PageTenantStoresRequest) ProtoReflect() protoreflect.Message {
+func (x *PageTenantStoreRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_tenant_store_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -243,40 +244,40 @@ func (x *PageTenantStoresRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PageTenantStoresRequest.ProtoReflect.Descriptor instead.
-func (*PageTenantStoresRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use PageTenantStoreRequest.ProtoReflect.Descriptor instead.
+func (*PageTenantStoreRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_tenant_store_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *PageTenantStoresRequest) GetName() string {
+func (x *PageTenantStoreRequest) GetName() string {
 	if x != nil {
 		return x.Name
 	}
 	return ""
 }
 
-func (x *PageTenantStoresRequest) GetTenantId() int64 {
+func (x *PageTenantStoreRequest) GetTenantId() int64 {
 	if x != nil && x.TenantId != nil {
 		return *x.TenantId
 	}
 	return 0
 }
 
-func (x *PageTenantStoresRequest) GetStatus() v1.TenantStoreStatus {
+func (x *PageTenantStoreRequest) GetStatus() v1.TenantStoreStatus {
 	if x != nil && x.Status != nil {
 		return *x.Status
 	}
 	return v1.TenantStoreStatus(0)
 }
 
-func (x *PageTenantStoresRequest) GetPageNum() int64 {
+func (x *PageTenantStoreRequest) GetPageNum() int64 {
 	if x != nil {
 		return x.PageNum
 	}
 	return 0
 }
 
-func (x *PageTenantStoresRequest) GetPageSize() int64 {
+func (x *PageTenantStoreRequest) GetPageSize() int64 {
 	if x != nil {
 		return x.PageSize
 	}
@@ -284,7 +285,7 @@ func (x *PageTenantStoresRequest) GetPageSize() int64 {
 }
 
 // 租户门店列表响应
-type PageTenantStoresResponse struct {
+type PageTenantStoreResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	TenantStores  []*TenantStore         `protobuf:"bytes,1,rep,name=tenant_stores,json=tenantStores,proto3" json:"tenant_stores,omitempty"` // 租户门店列表
 	Total         int32                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`                                  // 总数
@@ -292,20 +293,20 @@ type PageTenantStoresResponse struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *PageTenantStoresResponse) Reset() {
-	*x = PageTenantStoresResponse{}
+func (x *PageTenantStoreResponse) Reset() {
+	*x = PageTenantStoreResponse{}
 	mi := &file_admin_v1_tenant_store_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PageTenantStoresResponse) String() string {
+func (x *PageTenantStoreResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PageTenantStoresResponse) ProtoMessage() {}
+func (*PageTenantStoreResponse) ProtoMessage() {}
 
-func (x *PageTenantStoresResponse) ProtoReflect() protoreflect.Message {
+func (x *PageTenantStoreResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_tenant_store_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -317,19 +318,19 @@ func (x *PageTenantStoresResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PageTenantStoresResponse.ProtoReflect.Descriptor instead.
-func (*PageTenantStoresResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use PageTenantStoreResponse.ProtoReflect.Descriptor instead.
+func (*PageTenantStoreResponse) Descriptor() ([]byte, []int) {
 	return file_admin_v1_tenant_store_proto_rawDescGZIP(), []int{5}
 }
 
-func (x *PageTenantStoresResponse) GetTenantStores() []*TenantStore {
+func (x *PageTenantStoreResponse) GetTenantStores() []*TenantStore {
 	if x != nil {
 		return x.TenantStores
 	}
 	return nil
 }
 
-func (x *PageTenantStoresResponse) GetTotal() int32 {
+func (x *PageTenantStoreResponse) GetTotal() int32 {
 	if x != nil {
 		return x.Total
 	}
@@ -828,7 +829,7 @@ func (x *TenantStoreForm) GetStatus() v1.TenantStoreStatus {
 }
 
 // 租户门店选项
-type OptionTenantStoresResponse_Option struct {
+type OptionTenantStoreResponse_Option struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Value         int64                  `protobuf:"varint,1,opt,name=value,proto3" json:"value,omitempty"` // 门店ID
 	Label         string                 `protobuf:"bytes,2,opt,name=label,proto3" json:"label,omitempty"`  // 门店名称
@@ -836,20 +837,20 @@ type OptionTenantStoresResponse_Option struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *OptionTenantStoresResponse_Option) Reset() {
-	*x = OptionTenantStoresResponse_Option{}
+func (x *OptionTenantStoreResponse_Option) Reset() {
+	*x = OptionTenantStoreResponse_Option{}
 	mi := &file_admin_v1_tenant_store_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *OptionTenantStoresResponse_Option) String() string {
+func (x *OptionTenantStoreResponse_Option) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*OptionTenantStoresResponse_Option) ProtoMessage() {}
+func (*OptionTenantStoreResponse_Option) ProtoMessage() {}
 
-func (x *OptionTenantStoresResponse_Option) ProtoReflect() protoreflect.Message {
+func (x *OptionTenantStoreResponse_Option) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_tenant_store_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -861,19 +862,19 @@ func (x *OptionTenantStoresResponse_Option) ProtoReflect() protoreflect.Message 
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use OptionTenantStoresResponse_Option.ProtoReflect.Descriptor instead.
-func (*OptionTenantStoresResponse_Option) Descriptor() ([]byte, []int) {
+// Deprecated: Use OptionTenantStoreResponse_Option.ProtoReflect.Descriptor instead.
+func (*OptionTenantStoreResponse_Option) Descriptor() ([]byte, []int) {
 	return file_admin_v1_tenant_store_proto_rawDescGZIP(), []int{1, 0}
 }
 
-func (x *OptionTenantStoresResponse_Option) GetValue() int64 {
+func (x *OptionTenantStoreResponse_Option) GetValue() int64 {
 	if x != nil {
 		return x.Value
 	}
 	return 0
 }
 
-func (x *OptionTenantStoresResponse_Option) GetLabel() string {
+func (x *OptionTenantStoreResponse_Option) GetLabel() string {
 	if x != nil {
 		return x.Label
 	}
@@ -881,32 +882,32 @@ func (x *OptionTenantStoresResponse_Option) GetLabel() string {
 }
 
 // 租户门店树形选项
-type TreeTenantStoresResponse_Option struct {
-	state         protoimpl.MessageState             `protogen:"open.v1"`
-	Value         string                             `protobuf:"bytes,1,opt,name=value,proto3" json:"value,omitempty"`                        // 选项值，tenant:{id} 或 store:{id}
-	Label         string                             `protobuf:"bytes,2,opt,name=label,proto3" json:"label,omitempty"`                        // 选项名称
-	Type          string                             `protobuf:"bytes,3,opt,name=type,proto3" json:"type,omitempty"`                          // 节点类型：tenant 或 store
-	Id            int64                              `protobuf:"varint,4,opt,name=id,proto3" json:"id,omitempty"`                             // 节点业务ID
-	TenantId      int64                              `protobuf:"varint,5,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"` // 租户ID
-	Children      []*TreeTenantStoresResponse_Option `protobuf:"bytes,101,rep,name=children,proto3" json:"children,omitempty"`                // 子节点树
+type TreeTenantStoreResponse_Option struct {
+	state         protoimpl.MessageState            `protogen:"open.v1"`
+	Value         string                            `protobuf:"bytes,1,opt,name=value,proto3" json:"value,omitempty"`                        // 选项值，tenant:{id} 或 store:{id}
+	Label         string                            `protobuf:"bytes,2,opt,name=label,proto3" json:"label,omitempty"`                        // 选项名称
+	Type          string                            `protobuf:"bytes,3,opt,name=type,proto3" json:"type,omitempty"`                          // 节点类型：tenant 或 store
+	Id            int64                             `protobuf:"varint,4,opt,name=id,proto3" json:"id,omitempty"`                             // 节点业务ID
+	TenantId      int64                             `protobuf:"varint,5,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"` // 租户ID
+	Children      []*TreeTenantStoreResponse_Option `protobuf:"bytes,101,rep,name=children,proto3" json:"children,omitempty"`                // 子节点树
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *TreeTenantStoresResponse_Option) Reset() {
-	*x = TreeTenantStoresResponse_Option{}
+func (x *TreeTenantStoreResponse_Option) Reset() {
+	*x = TreeTenantStoreResponse_Option{}
 	mi := &file_admin_v1_tenant_store_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *TreeTenantStoresResponse_Option) String() string {
+func (x *TreeTenantStoreResponse_Option) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*TreeTenantStoresResponse_Option) ProtoMessage() {}
+func (*TreeTenantStoreResponse_Option) ProtoMessage() {}
 
-func (x *TreeTenantStoresResponse_Option) ProtoReflect() protoreflect.Message {
+func (x *TreeTenantStoreResponse_Option) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_tenant_store_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -918,47 +919,47 @@ func (x *TreeTenantStoresResponse_Option) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use TreeTenantStoresResponse_Option.ProtoReflect.Descriptor instead.
-func (*TreeTenantStoresResponse_Option) Descriptor() ([]byte, []int) {
+// Deprecated: Use TreeTenantStoreResponse_Option.ProtoReflect.Descriptor instead.
+func (*TreeTenantStoreResponse_Option) Descriptor() ([]byte, []int) {
 	return file_admin_v1_tenant_store_proto_rawDescGZIP(), []int{3, 0}
 }
 
-func (x *TreeTenantStoresResponse_Option) GetValue() string {
+func (x *TreeTenantStoreResponse_Option) GetValue() string {
 	if x != nil {
 		return x.Value
 	}
 	return ""
 }
 
-func (x *TreeTenantStoresResponse_Option) GetLabel() string {
+func (x *TreeTenantStoreResponse_Option) GetLabel() string {
 	if x != nil {
 		return x.Label
 	}
 	return ""
 }
 
-func (x *TreeTenantStoresResponse_Option) GetType() string {
+func (x *TreeTenantStoreResponse_Option) GetType() string {
 	if x != nil {
 		return x.Type
 	}
 	return ""
 }
 
-func (x *TreeTenantStoresResponse_Option) GetId() int64 {
+func (x *TreeTenantStoreResponse_Option) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
 	return 0
 }
 
-func (x *TreeTenantStoresResponse_Option) GetTenantId() int64 {
+func (x *TreeTenantStoreResponse_Option) GetTenantId() int64 {
 	if x != nil {
 		return x.TenantId
 	}
 	return 0
 }
 
-func (x *TreeTenantStoresResponse_Option) GetChildren() []*TreeTenantStoresResponse_Option {
+func (x *TreeTenantStoreResponse_Option) GetChildren() []*TreeTenantStoreResponse_Option {
 	if x != nil {
 		return x.Children
 	}
@@ -969,26 +970,26 @@ var File_admin_v1_tenant_store_proto protoreflect.FileDescriptor
 
 const file_admin_v1_tenant_store_proto_rawDesc = "" +
 	"\n" +
-	"\x1badmin/v1/tenant_store.proto\x12\badmin.v1\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"R\n" +
-	"\x19OptionTenantStoresRequest\x125\n" +
-	"\akeyword\x18\x01 \x01(\tB\x1b\xbaG\x18\x92\x02\x15门店名称关键字R\akeyword\"\xd1\x01\n" +
-	"\x1aOptionTenantStoresResponse\x12Y\n" +
-	"\x04list\x18\x01 \x03(\v2+.admin.v1.OptionTenantStoresResponse.OptionB\x18\xbaG\x15\x92\x02\x12门店选项列表R\x04list\x1aX\n" +
+	"\x1badmin/v1/tenant_store.proto\x12\badmin.v1\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"Q\n" +
+	"\x18OptionTenantStoreRequest\x125\n" +
+	"\akeyword\x18\x01 \x01(\tB\x1b\xbaG\x18\x92\x02\x15门店名称关键字R\akeyword\"\xcf\x01\n" +
+	"\x19OptionTenantStoreResponse\x12X\n" +
+	"\x04list\x18\x01 \x03(\v2*.admin.v1.OptionTenantStoreResponse.OptionB\x18\xbaG\x15\x92\x02\x12门店选项列表R\x04list\x1aX\n" +
 	"\x06Option\x12$\n" +
 	"\x05value\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b门店IDR\x05value\x12(\n" +
-	"\x05label\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f门店名称R\x05label\"P\n" +
-	"\x17TreeTenantStoresRequest\x125\n" +
-	"\akeyword\x18\x01 \x01(\tB\x1b\xbaG\x18\x92\x02\x15门店名称关键字R\akeyword\"\xe1\x03\n" +
-	"\x18TreeTenantStoresResponse\x12c\n" +
-	"\x04list\x18\x01 \x03(\v2).admin.v1.TreeTenantStoresResponse.OptionB$\xbaG!\x92\x02\x1e租户门店树形选项列表R\x04list\x1a\xdf\x02\n" +
+	"\x05label\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f门店名称R\x05label\"O\n" +
+	"\x16TreeTenantStoreRequest\x125\n" +
+	"\akeyword\x18\x01 \x01(\tB\x1b\xbaG\x18\x92\x02\x15门店名称关键字R\akeyword\"\xde\x03\n" +
+	"\x17TreeTenantStoreResponse\x12b\n" +
+	"\x04list\x18\x01 \x03(\v2(.admin.v1.TreeTenantStoreResponse.OptionB$\xbaG!\x92\x02\x1e租户门店树形选项列表R\x04list\x1a\xde\x02\n" +
 	"\x06Option\x12B\n" +
 	"\x05value\x18\x01 \x01(\tB,\xbaG)\x92\x02&选项值，tenant:{id} 或 store:{id}R\x05value\x12(\n" +
 	"\x05label\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f选项名称R\x05label\x129\n" +
 	"\x04type\x18\x03 \x01(\tB%\xbaG\"\x92\x02\x1f节点类型：tenant 或 storeR\x04type\x12$\n" +
 	"\x02id\x18\x04 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e节点业务IDR\x02id\x12+\n" +
-	"\ttenant_id\x18\x05 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDR\btenantId\x12Y\n" +
-	"\bchildren\x18e \x03(\v2).admin.v1.TreeTenantStoresResponse.OptionB\x12\xbaG\x0f\x92\x02\f子节点树R\bchildren\"\x85\x03\n" +
-	"\x17PageTenantStoresRequest\x12&\n" +
+	"\ttenant_id\x18\x05 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDR\btenantId\x12X\n" +
+	"\bchildren\x18e \x03(\v2(.admin.v1.TreeTenantStoreResponse.OptionB\x12\xbaG\x0f\x92\x02\f子节点树R\bchildren\"\x84\x03\n" +
+	"\x16PageTenantStoreRequest\x12&\n" +
 	"\x04name\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f门店名称R\x04name\x120\n" +
 	"\ttenant_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12y\n" +
 	"\x06status\x18d \x01(\x0e2\x1c.common.v1.TenantStoreStatusB>\xbaG;\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\x00\x00\x92\x02,审核状态：枚举【TenantStoreStatus】H\x01R\x06status\x88\x01\x01\x129\n" +
@@ -996,8 +997,8 @@ const file_admin_v1_tenant_store_proto_rawDesc = "" +
 	"\tpage_size\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSizeB\f\n" +
 	"\n" +
 	"_tenant_idB\t\n" +
-	"\a_status\"\x94\x01\n" +
-	"\x18PageTenantStoresResponse\x12T\n" +
+	"\a_status\"\x93\x01\n" +
+	"\x17PageTenantStoreResponse\x12T\n" +
 	"\rtenant_stores\x18\x01 \x03(\v2\x15.admin.v1.TenantStoreB\x18\xbaG\x15\x92\x02\x12租户门店列表R\ftenantStores\x12\"\n" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"7\n" +
 	"\x15GetTenantStoreRequest\x12\x1e\n" +
@@ -1040,11 +1041,11 @@ const file_admin_v1_tenant_store_proto_rawDesc = "" +
 	"\x10business_license\x18\a \x03(\tB\x12\xbaG\x0f\x92\x02\f营业执照R\x0fbusinessLicense\x12$\n" +
 	"\x06remark\x18\b \x01(\tB\f\xbaG\t\x92\x02\x06备注R\x06remark\x12m\n" +
 	"\x06status\x18d \x01(\x0e2\x1c.common.v1.TenantStoreStatusB2\xbaG/\x92\x02,审核状态：枚举【TenantStoreStatus】H\x00R\x06status\x88\x01\x01B\t\n" +
-	"\a_status2\xa5\b\n" +
-	"\x12TenantStoreService\x12\x8a\x01\n" +
-	"\x12OptionTenantStores\x12#.admin.v1.OptionTenantStoresRequest\x1a$.admin.v1.OptionTenantStoresResponse\")\x82\xd3\xe4\x93\x02#\x12!/api/v1/admin/tenant/store/option\x12\x82\x01\n" +
-	"\x10TreeTenantStores\x12!.admin.v1.TreeTenantStoresRequest\x1a\".admin.v1.TreeTenantStoresResponse\"'\x82\xd3\xe4\x93\x02!\x12\x1f/api/v1/admin/tenant/store/tree\x12}\n" +
-	"\x10PageTenantStores\x12!.admin.v1.PageTenantStoresRequest\x1a\".admin.v1.PageTenantStoresResponse\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/v1/admin/tenant/store\x12u\n" +
+	"\a_status2\x9b\b\n" +
+	"\x12TenantStoreService\x12\x87\x01\n" +
+	"\x11OptionTenantStore\x12\".admin.v1.OptionTenantStoreRequest\x1a#.admin.v1.OptionTenantStoreResponse\")\x82\xd3\xe4\x93\x02#\x12!/api/v1/admin/tenant/store/option\x12\x7f\n" +
+	"\x0fTreeTenantStore\x12 .admin.v1.TreeTenantStoreRequest\x1a!.admin.v1.TreeTenantStoreResponse\"'\x82\xd3\xe4\x93\x02!\x12\x1f/api/v1/admin/tenant/store/tree\x12z\n" +
+	"\x0fPageTenantStore\x12 .admin.v1.PageTenantStoreRequest\x1a!.admin.v1.PageTenantStoreResponse\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/v1/admin/tenant/store\x12u\n" +
 	"\x0eGetTenantStore\x12\x1f.admin.v1.GetTenantStoreRequest\x1a\x19.admin.v1.TenantStoreForm\"'\x82\xd3\xe4\x93\x02!\x12\x1f/api/v1/admin/tenant/store/{id}\x12\x81\x01\n" +
 	"\x11CreateTenantStore\x12\".admin.v1.CreateTenantStoreRequest\x1a\x16.google.protobuf.Empty\"0\x82\xd3\xe4\x93\x02*:\ftenant_store\"\x1a/api/v1/admin/tenant/store\x12\x86\x01\n" +
 	"\x11UpdateTenantStore\x12\".admin.v1.UpdateTenantStoreRequest\x1a\x16.google.protobuf.Empty\"5\x82\xd3\xe4\x93\x02/:\ftenant_store\x1a\x1f/api/v1/admin/tenant/store/{id}\x12y\n" +
@@ -1066,46 +1067,46 @@ func file_admin_v1_tenant_store_proto_rawDescGZIP() []byte {
 
 var file_admin_v1_tenant_store_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 var file_admin_v1_tenant_store_proto_goTypes = []any{
-	(*OptionTenantStoresRequest)(nil),         // 0: admin.v1.OptionTenantStoresRequest
-	(*OptionTenantStoresResponse)(nil),        // 1: admin.v1.OptionTenantStoresResponse
-	(*TreeTenantStoresRequest)(nil),           // 2: admin.v1.TreeTenantStoresRequest
-	(*TreeTenantStoresResponse)(nil),          // 3: admin.v1.TreeTenantStoresResponse
-	(*PageTenantStoresRequest)(nil),           // 4: admin.v1.PageTenantStoresRequest
-	(*PageTenantStoresResponse)(nil),          // 5: admin.v1.PageTenantStoresResponse
-	(*GetTenantStoreRequest)(nil),             // 6: admin.v1.GetTenantStoreRequest
-	(*CreateTenantStoreRequest)(nil),          // 7: admin.v1.CreateTenantStoreRequest
-	(*UpdateTenantStoreRequest)(nil),          // 8: admin.v1.UpdateTenantStoreRequest
-	(*DeleteTenantStoreRequest)(nil),          // 9: admin.v1.DeleteTenantStoreRequest
-	(*AuditTenantStoreRequest)(nil),           // 10: admin.v1.AuditTenantStoreRequest
-	(*TenantStore)(nil),                       // 11: admin.v1.TenantStore
-	(*TenantStoreForm)(nil),                   // 12: admin.v1.TenantStoreForm
-	(*OptionTenantStoresResponse_Option)(nil), // 13: admin.v1.OptionTenantStoresResponse.Option
-	(*TreeTenantStoresResponse_Option)(nil),   // 14: admin.v1.TreeTenantStoresResponse.Option
-	(v1.TenantStoreStatus)(0),                 // 15: common.v1.TenantStoreStatus
-	(*emptypb.Empty)(nil),                     // 16: google.protobuf.Empty
+	(*OptionTenantStoreRequest)(nil),         // 0: admin.v1.OptionTenantStoreRequest
+	(*OptionTenantStoreResponse)(nil),        // 1: admin.v1.OptionTenantStoreResponse
+	(*TreeTenantStoreRequest)(nil),           // 2: admin.v1.TreeTenantStoreRequest
+	(*TreeTenantStoreResponse)(nil),          // 3: admin.v1.TreeTenantStoreResponse
+	(*PageTenantStoreRequest)(nil),           // 4: admin.v1.PageTenantStoreRequest
+	(*PageTenantStoreResponse)(nil),          // 5: admin.v1.PageTenantStoreResponse
+	(*GetTenantStoreRequest)(nil),            // 6: admin.v1.GetTenantStoreRequest
+	(*CreateTenantStoreRequest)(nil),         // 7: admin.v1.CreateTenantStoreRequest
+	(*UpdateTenantStoreRequest)(nil),         // 8: admin.v1.UpdateTenantStoreRequest
+	(*DeleteTenantStoreRequest)(nil),         // 9: admin.v1.DeleteTenantStoreRequest
+	(*AuditTenantStoreRequest)(nil),          // 10: admin.v1.AuditTenantStoreRequest
+	(*TenantStore)(nil),                      // 11: admin.v1.TenantStore
+	(*TenantStoreForm)(nil),                  // 12: admin.v1.TenantStoreForm
+	(*OptionTenantStoreResponse_Option)(nil), // 13: admin.v1.OptionTenantStoreResponse.Option
+	(*TreeTenantStoreResponse_Option)(nil),   // 14: admin.v1.TreeTenantStoreResponse.Option
+	(v1.TenantStoreStatus)(0),                // 15: common.v1.TenantStoreStatus
+	(*emptypb.Empty)(nil),                    // 16: google.protobuf.Empty
 }
 var file_admin_v1_tenant_store_proto_depIdxs = []int32{
-	13, // 0: admin.v1.OptionTenantStoresResponse.list:type_name -> admin.v1.OptionTenantStoresResponse.Option
-	14, // 1: admin.v1.TreeTenantStoresResponse.list:type_name -> admin.v1.TreeTenantStoresResponse.Option
-	15, // 2: admin.v1.PageTenantStoresRequest.status:type_name -> common.v1.TenantStoreStatus
-	11, // 3: admin.v1.PageTenantStoresResponse.tenant_stores:type_name -> admin.v1.TenantStore
+	13, // 0: admin.v1.OptionTenantStoreResponse.list:type_name -> admin.v1.OptionTenantStoreResponse.Option
+	14, // 1: admin.v1.TreeTenantStoreResponse.list:type_name -> admin.v1.TreeTenantStoreResponse.Option
+	15, // 2: admin.v1.PageTenantStoreRequest.status:type_name -> common.v1.TenantStoreStatus
+	11, // 3: admin.v1.PageTenantStoreResponse.tenant_stores:type_name -> admin.v1.TenantStore
 	12, // 4: admin.v1.CreateTenantStoreRequest.tenant_store:type_name -> admin.v1.TenantStoreForm
 	12, // 5: admin.v1.UpdateTenantStoreRequest.tenant_store:type_name -> admin.v1.TenantStoreForm
 	15, // 6: admin.v1.AuditTenantStoreRequest.status:type_name -> common.v1.TenantStoreStatus
 	15, // 7: admin.v1.TenantStore.status:type_name -> common.v1.TenantStoreStatus
 	15, // 8: admin.v1.TenantStoreForm.status:type_name -> common.v1.TenantStoreStatus
-	14, // 9: admin.v1.TreeTenantStoresResponse.Option.children:type_name -> admin.v1.TreeTenantStoresResponse.Option
-	0,  // 10: admin.v1.TenantStoreService.OptionTenantStores:input_type -> admin.v1.OptionTenantStoresRequest
-	2,  // 11: admin.v1.TenantStoreService.TreeTenantStores:input_type -> admin.v1.TreeTenantStoresRequest
-	4,  // 12: admin.v1.TenantStoreService.PageTenantStores:input_type -> admin.v1.PageTenantStoresRequest
+	14, // 9: admin.v1.TreeTenantStoreResponse.Option.children:type_name -> admin.v1.TreeTenantStoreResponse.Option
+	0,  // 10: admin.v1.TenantStoreService.OptionTenantStore:input_type -> admin.v1.OptionTenantStoreRequest
+	2,  // 11: admin.v1.TenantStoreService.TreeTenantStore:input_type -> admin.v1.TreeTenantStoreRequest
+	4,  // 12: admin.v1.TenantStoreService.PageTenantStore:input_type -> admin.v1.PageTenantStoreRequest
 	6,  // 13: admin.v1.TenantStoreService.GetTenantStore:input_type -> admin.v1.GetTenantStoreRequest
 	7,  // 14: admin.v1.TenantStoreService.CreateTenantStore:input_type -> admin.v1.CreateTenantStoreRequest
 	8,  // 15: admin.v1.TenantStoreService.UpdateTenantStore:input_type -> admin.v1.UpdateTenantStoreRequest
 	9,  // 16: admin.v1.TenantStoreService.DeleteTenantStore:input_type -> admin.v1.DeleteTenantStoreRequest
 	10, // 17: admin.v1.TenantStoreService.AuditTenantStore:input_type -> admin.v1.AuditTenantStoreRequest
-	1,  // 18: admin.v1.TenantStoreService.OptionTenantStores:output_type -> admin.v1.OptionTenantStoresResponse
-	3,  // 19: admin.v1.TenantStoreService.TreeTenantStores:output_type -> admin.v1.TreeTenantStoresResponse
-	5,  // 20: admin.v1.TenantStoreService.PageTenantStores:output_type -> admin.v1.PageTenantStoresResponse
+	1,  // 18: admin.v1.TenantStoreService.OptionTenantStore:output_type -> admin.v1.OptionTenantStoreResponse
+	3,  // 19: admin.v1.TenantStoreService.TreeTenantStore:output_type -> admin.v1.TreeTenantStoreResponse
+	5,  // 20: admin.v1.TenantStoreService.PageTenantStore:output_type -> admin.v1.PageTenantStoreResponse
 	12, // 21: admin.v1.TenantStoreService.GetTenantStore:output_type -> admin.v1.TenantStoreForm
 	16, // 22: admin.v1.TenantStoreService.CreateTenantStore:output_type -> google.protobuf.Empty
 	16, // 23: admin.v1.TenantStoreService.UpdateTenantStore:output_type -> google.protobuf.Empty

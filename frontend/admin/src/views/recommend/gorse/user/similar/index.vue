@@ -194,8 +194,8 @@ function formatUserLabelValue(row: UserResponse, key: keyof NonNullable<UserResp
 /** 加载部门与角色名称映射。 */
 async function loadLabelNameMap() {
   const [deptResponse, roleResponse] = await Promise.all([
-    defBaseDeptService.OptionBaseDepts({}),
-    defBaseRoleService.OptionBaseRoles({})
+    defBaseDeptService.OptionBaseDept({}),
+    defBaseRoleService.OptionBaseRole({})
   ]);
 
   const nextDeptNameMap: Record<string, string> = {};

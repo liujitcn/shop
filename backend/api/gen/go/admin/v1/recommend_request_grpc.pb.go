@@ -20,9 +20,9 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	RecommendRequestService_PageRecommendRequests_FullMethodName      = "/admin.v1.RecommendRequestService/PageRecommendRequests"
-	RecommendRequestService_GetRecommendRequest_FullMethodName        = "/admin.v1.RecommendRequestService/GetRecommendRequest"
-	RecommendRequestService_ListRecommendRequestEvents_FullMethodName = "/admin.v1.RecommendRequestService/ListRecommendRequestEvents"
+	RecommendRequestService_PageRecommendRequest_FullMethodName      = "/admin.v1.RecommendRequestService/PageRecommendRequest"
+	RecommendRequestService_GetRecommendRequest_FullMethodName       = "/admin.v1.RecommendRequestService/GetRecommendRequest"
+	RecommendRequestService_ListRecommendRequestEvent_FullMethodName = "/admin.v1.RecommendRequestService/ListRecommendRequestEvent"
 )
 
 // RecommendRequestServiceClient is the client API for RecommendRequestService service.
@@ -32,11 +32,11 @@ const (
 // Admin推荐请求服务
 type RecommendRequestServiceClient interface {
 	// 查询推荐请求分页列表
-	PageRecommendRequests(ctx context.Context, in *PageRecommendRequestsRequest, opts ...grpc.CallOption) (*PageRecommendRequestsResponse, error)
+	PageRecommendRequest(ctx context.Context, in *PageRecommendRequestRequest, opts ...grpc.CallOption) (*PageRecommendRequestResponse, error)
 	// 查询推荐请求详情
 	GetRecommendRequest(ctx context.Context, in *GetRecommendRequestRequest, opts ...grpc.CallOption) (*RecommendRequestDetailResponse, error)
 	// 查询推荐请求商品关联事件
-	ListRecommendRequestEvents(ctx context.Context, in *ListRecommendRequestEventsRequest, opts ...grpc.CallOption) (*ListRecommendRequestEventsResponse, error)
+	ListRecommendRequestEvent(ctx context.Context, in *ListRecommendRequestEventRequest, opts ...grpc.CallOption) (*ListRecommendRequestEventResponse, error)
 }
 
 type recommendRequestServiceClient struct {
@@ -47,10 +47,10 @@ func NewRecommendRequestServiceClient(cc grpc.ClientConnInterface) RecommendRequ
 	return &recommendRequestServiceClient{cc}
 }
 
-func (c *recommendRequestServiceClient) PageRecommendRequests(ctx context.Context, in *PageRecommendRequestsRequest, opts ...grpc.CallOption) (*PageRecommendRequestsResponse, error) {
+func (c *recommendRequestServiceClient) PageRecommendRequest(ctx context.Context, in *PageRecommendRequestRequest, opts ...grpc.CallOption) (*PageRecommendRequestResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(PageRecommendRequestsResponse)
-	err := c.cc.Invoke(ctx, RecommendRequestService_PageRecommendRequests_FullMethodName, in, out, cOpts...)
+	out := new(PageRecommendRequestResponse)
+	err := c.cc.Invoke(ctx, RecommendRequestService_PageRecommendRequest_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -67,10 +67,10 @@ func (c *recommendRequestServiceClient) GetRecommendRequest(ctx context.Context,
 	return out, nil
 }
 
-func (c *recommendRequestServiceClient) ListRecommendRequestEvents(ctx context.Context, in *ListRecommendRequestEventsRequest, opts ...grpc.CallOption) (*ListRecommendRequestEventsResponse, error) {
+func (c *recommendRequestServiceClient) ListRecommendRequestEvent(ctx context.Context, in *ListRecommendRequestEventRequest, opts ...grpc.CallOption) (*ListRecommendRequestEventResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListRecommendRequestEventsResponse)
-	err := c.cc.Invoke(ctx, RecommendRequestService_ListRecommendRequestEvents_FullMethodName, in, out, cOpts...)
+	out := new(ListRecommendRequestEventResponse)
+	err := c.cc.Invoke(ctx, RecommendRequestService_ListRecommendRequestEvent_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -84,11 +84,11 @@ func (c *recommendRequestServiceClient) ListRecommendRequestEvents(ctx context.C
 // Admin推荐请求服务
 type RecommendRequestServiceServer interface {
 	// 查询推荐请求分页列表
-	PageRecommendRequests(context.Context, *PageRecommendRequestsRequest) (*PageRecommendRequestsResponse, error)
+	PageRecommendRequest(context.Context, *PageRecommendRequestRequest) (*PageRecommendRequestResponse, error)
 	// 查询推荐请求详情
 	GetRecommendRequest(context.Context, *GetRecommendRequestRequest) (*RecommendRequestDetailResponse, error)
 	// 查询推荐请求商品关联事件
-	ListRecommendRequestEvents(context.Context, *ListRecommendRequestEventsRequest) (*ListRecommendRequestEventsResponse, error)
+	ListRecommendRequestEvent(context.Context, *ListRecommendRequestEventRequest) (*ListRecommendRequestEventResponse, error)
 	mustEmbedUnimplementedRecommendRequestServiceServer()
 }
 
@@ -99,14 +99,14 @@ type RecommendRequestServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedRecommendRequestServiceServer struct{}
 
-func (UnimplementedRecommendRequestServiceServer) PageRecommendRequests(context.Context, *PageRecommendRequestsRequest) (*PageRecommendRequestsResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method PageRecommendRequests not implemented")
+func (UnimplementedRecommendRequestServiceServer) PageRecommendRequest(context.Context, *PageRecommendRequestRequest) (*PageRecommendRequestResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method PageRecommendRequest not implemented")
 }
 func (UnimplementedRecommendRequestServiceServer) GetRecommendRequest(context.Context, *GetRecommendRequestRequest) (*RecommendRequestDetailResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetRecommendRequest not implemented")
 }
-func (UnimplementedRecommendRequestServiceServer) ListRecommendRequestEvents(context.Context, *ListRecommendRequestEventsRequest) (*ListRecommendRequestEventsResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method ListRecommendRequestEvents not implemented")
+func (UnimplementedRecommendRequestServiceServer) ListRecommendRequestEvent(context.Context, *ListRecommendRequestEventRequest) (*ListRecommendRequestEventResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListRecommendRequestEvent not implemented")
 }
 func (UnimplementedRecommendRequestServiceServer) mustEmbedUnimplementedRecommendRequestServiceServer() {
 }
@@ -130,20 +130,20 @@ func RegisterRecommendRequestServiceServer(s grpc.ServiceRegistrar, srv Recommen
 	s.RegisterService(&RecommendRequestService_ServiceDesc, srv)
 }
 
-func _RecommendRequestService_PageRecommendRequests_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PageRecommendRequestsRequest)
+func _RecommendRequestService_PageRecommendRequest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PageRecommendRequestRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(RecommendRequestServiceServer).PageRecommendRequests(ctx, in)
+		return srv.(RecommendRequestServiceServer).PageRecommendRequest(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: RecommendRequestService_PageRecommendRequests_FullMethodName,
+		FullMethod: RecommendRequestService_PageRecommendRequest_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RecommendRequestServiceServer).PageRecommendRequests(ctx, req.(*PageRecommendRequestsRequest))
+		return srv.(RecommendRequestServiceServer).PageRecommendRequest(ctx, req.(*PageRecommendRequestRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -166,20 +166,20 @@ func _RecommendRequestService_GetRecommendRequest_Handler(srv interface{}, ctx c
 	return interceptor(ctx, in, info, handler)
 }
 
-func _RecommendRequestService_ListRecommendRequestEvents_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListRecommendRequestEventsRequest)
+func _RecommendRequestService_ListRecommendRequestEvent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListRecommendRequestEventRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(RecommendRequestServiceServer).ListRecommendRequestEvents(ctx, in)
+		return srv.(RecommendRequestServiceServer).ListRecommendRequestEvent(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: RecommendRequestService_ListRecommendRequestEvents_FullMethodName,
+		FullMethod: RecommendRequestService_ListRecommendRequestEvent_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RecommendRequestServiceServer).ListRecommendRequestEvents(ctx, req.(*ListRecommendRequestEventsRequest))
+		return srv.(RecommendRequestServiceServer).ListRecommendRequestEvent(ctx, req.(*ListRecommendRequestEventRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -192,16 +192,16 @@ var RecommendRequestService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*RecommendRequestServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "PageRecommendRequests",
-			Handler:    _RecommendRequestService_PageRecommendRequests_Handler,
+			MethodName: "PageRecommendRequest",
+			Handler:    _RecommendRequestService_PageRecommendRequest_Handler,
 		},
 		{
 			MethodName: "GetRecommendRequest",
 			Handler:    _RecommendRequestService_GetRecommendRequest_Handler,
 		},
 		{
-			MethodName: "ListRecommendRequestEvents",
-			Handler:    _RecommendRequestService_ListRecommendRequestEvents_Handler,
+			MethodName: "ListRecommendRequestEvent",
+			Handler:    _RecommendRequestService_ListRecommendRequestEvent_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

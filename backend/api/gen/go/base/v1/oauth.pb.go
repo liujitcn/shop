@@ -26,26 +26,26 @@ const (
 )
 
 // 三方登录方式查询条件
-type ListOauthProvidersRequest struct {
+type ListOauthProviderRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListOauthProvidersRequest) Reset() {
-	*x = ListOauthProvidersRequest{}
+func (x *ListOauthProviderRequest) Reset() {
+	*x = ListOauthProviderRequest{}
 	mi := &file_base_v1_oauth_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListOauthProvidersRequest) String() string {
+func (x *ListOauthProviderRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListOauthProvidersRequest) ProtoMessage() {}
+func (*ListOauthProviderRequest) ProtoMessage() {}
 
-func (x *ListOauthProvidersRequest) ProtoReflect() protoreflect.Message {
+func (x *ListOauthProviderRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_base_v1_oauth_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -57,8 +57,8 @@ func (x *ListOauthProvidersRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListOauthProvidersRequest.ProtoReflect.Descriptor instead.
-func (*ListOauthProvidersRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListOauthProviderRequest.ProtoReflect.Descriptor instead.
+func (*ListOauthProviderRequest) Descriptor() ([]byte, []int) {
 	return file_base_v1_oauth_proto_rawDescGZIP(), []int{0}
 }
 
@@ -108,27 +108,27 @@ func (x *OauthProvider) GetProvider() string {
 }
 
 // 三方登录方式查询结果
-type ListOauthProvidersResponse struct {
+type ListOauthProviderResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Providers     []*OauthProvider       `protobuf:"bytes,1,rep,name=providers,proto3" json:"providers,omitempty"` // 三方登录方式列表
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListOauthProvidersResponse) Reset() {
-	*x = ListOauthProvidersResponse{}
+func (x *ListOauthProviderResponse) Reset() {
+	*x = ListOauthProviderResponse{}
 	mi := &file_base_v1_oauth_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListOauthProvidersResponse) String() string {
+func (x *ListOauthProviderResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListOauthProvidersResponse) ProtoMessage() {}
+func (*ListOauthProviderResponse) ProtoMessage() {}
 
-func (x *ListOauthProvidersResponse) ProtoReflect() protoreflect.Message {
+func (x *ListOauthProviderResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_base_v1_oauth_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -140,12 +140,12 @@ func (x *ListOauthProvidersResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListOauthProvidersResponse.ProtoReflect.Descriptor instead.
-func (*ListOauthProvidersResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListOauthProviderResponse.ProtoReflect.Descriptor instead.
+func (*ListOauthProviderResponse) Descriptor() ([]byte, []int) {
 	return file_base_v1_oauth_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *ListOauthProvidersResponse) GetProviders() []*OauthProvider {
+func (x *ListOauthProviderResponse) GetProviders() []*OauthProvider {
 	if x != nil {
 		return x.Providers
 	}
@@ -601,26 +601,26 @@ func (x *CreateOauthSessionResponse) GetExpiresIn() int64 {
 }
 
 // 个人中心三方账号绑定列表查询条件
-type ListOauthBindingsRequest struct {
+type ListOauthBindingRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListOauthBindingsRequest) Reset() {
-	*x = ListOauthBindingsRequest{}
+func (x *ListOauthBindingRequest) Reset() {
+	*x = ListOauthBindingRequest{}
 	mi := &file_base_v1_oauth_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListOauthBindingsRequest) String() string {
+func (x *ListOauthBindingRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListOauthBindingsRequest) ProtoMessage() {}
+func (*ListOauthBindingRequest) ProtoMessage() {}
 
-func (x *ListOauthBindingsRequest) ProtoReflect() protoreflect.Message {
+func (x *ListOauthBindingRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_base_v1_oauth_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -632,33 +632,33 @@ func (x *ListOauthBindingsRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListOauthBindingsRequest.ProtoReflect.Descriptor instead.
-func (*ListOauthBindingsRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListOauthBindingRequest.ProtoReflect.Descriptor instead.
+func (*ListOauthBindingRequest) Descriptor() ([]byte, []int) {
 	return file_base_v1_oauth_proto_rawDescGZIP(), []int{11}
 }
 
 // 个人中心三方账号绑定列表响应
-type ListOauthBindingsResponse struct {
+type ListOauthBindingResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Bindings      []*OauthBinding        `protobuf:"bytes,1,rep,name=bindings,proto3" json:"bindings,omitempty"` // 三方账号绑定列表
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListOauthBindingsResponse) Reset() {
-	*x = ListOauthBindingsResponse{}
+func (x *ListOauthBindingResponse) Reset() {
+	*x = ListOauthBindingResponse{}
 	mi := &file_base_v1_oauth_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListOauthBindingsResponse) String() string {
+func (x *ListOauthBindingResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListOauthBindingsResponse) ProtoMessage() {}
+func (*ListOauthBindingResponse) ProtoMessage() {}
 
-func (x *ListOauthBindingsResponse) ProtoReflect() protoreflect.Message {
+func (x *ListOauthBindingResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_base_v1_oauth_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -670,12 +670,12 @@ func (x *ListOauthBindingsResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListOauthBindingsResponse.ProtoReflect.Descriptor instead.
-func (*ListOauthBindingsResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListOauthBindingResponse.ProtoReflect.Descriptor instead.
+func (*ListOauthBindingResponse) Descriptor() ([]byte, []int) {
 	return file_base_v1_oauth_proto_rawDescGZIP(), []int{12}
 }
 
-func (x *ListOauthBindingsResponse) GetBindings() []*OauthBinding {
+func (x *ListOauthBindingResponse) GetBindings() []*OauthBinding {
 	if x != nil {
 		return x.Bindings
 	}
@@ -996,11 +996,11 @@ var File_base_v1_oauth_proto protoreflect.FileDescriptor
 
 const file_base_v1_oauth_proto_rawDesc = "" +
 	"\n" +
-	"\x13base/v1/oauth.proto\x12\abase.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x1b\n" +
-	"\x19ListOauthProvidersRequest\"E\n" +
+	"\x13base/v1/oauth.proto\x12\abase.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x1a\n" +
+	"\x18ListOauthProviderRequest\"E\n" +
 	"\rOauthProvider\x124\n" +
-	"\bprovider\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12登录方式标识R\bprovider\"r\n" +
-	"\x1aListOauthProvidersResponse\x12T\n" +
+	"\bprovider\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12登录方式标识R\bprovider\"q\n" +
+	"\x19ListOauthProviderResponse\x12T\n" +
 	"\tproviders\x18\x01 \x03(\v2\x16.base.v1.OauthProviderB\x1e\xbaG\x1b\x92\x02\x18三方登录方式列表R\tproviders\"\xac\x01\n" +
 	"\x1fCreateOauthAuthorizationRequest\x124\n" +
 	"\bprovider\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12登录方式标识R\bprovider\x12S\n" +
@@ -1032,9 +1032,9 @@ const file_base_v1_oauth_proto_rawDesc = "" +
 	"\n" +
 	"token_type\x18\x03 \x01(\tB\x94\x01\xbaG\x90\x01\x8a\x02\b\x1a\x06Bearer\x92\x02\x81\x01令牌的类型，该值大小写不敏感，必选项，可以是bearer类型或mac类型，通常只是字符串“Bearer”。R\ttokenType\x12\xdc\x01\n" +
 	"\n" +
-	"expires_in\x18\x04 \x01(\x03B\xbc\x01\xbaG\xb8\x01\x92\x02\xb4\x01令牌有效时间，单位为秒。如果访问令牌过期，服务器应回复授予访问令牌的持续时间。如果省略该参数，必须其他方式设置过期时间。R\texpiresIn\"\x1a\n" +
-	"\x18ListOauthBindingsRequest\"n\n" +
-	"\x19ListOauthBindingsResponse\x12Q\n" +
+	"expires_in\x18\x04 \x01(\x03B\xbc\x01\xbaG\xb8\x01\x92\x02\xb4\x01令牌有效时间，单位为秒。如果访问令牌过期，服务器应回复授予访问令牌的持续时间。如果省略该参数，必须其他方式设置过期时间。R\texpiresIn\"\x19\n" +
+	"\x17ListOauthBindingRequest\"m\n" +
+	"\x18ListOauthBindingResponse\x12Q\n" +
 	"\bbindings\x18\x01 \x03(\v2\x15.base.v1.OauthBindingB\x1e\xbaG\x1b\x92\x02\x18三方账号绑定列表R\bbindings\"q\n" +
 	"\fOauthBinding\x124\n" +
 	"\bprovider\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12登录方式标识R\bprovider\x12+\n" +
@@ -1052,15 +1052,15 @@ const file_base_v1_oauth_proto_rawDesc = "" +
 	"\x11error_description\x18\x05 \x01(\tB\x18\xbaG\x15\x92\x02\x12三方错误描述R\x10errorDescription\"$\n" +
 	"\"HandleOauthBindingCallbackResponse\"Q\n" +
 	"\x19UnbindOauthAccountRequest\x124\n" +
-	"\bprovider\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12登录方式标识R\bprovider2\xc2\n" +
+	"\bprovider\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12登录方式标识R\bprovider2\xbb\n" +
 	"\n" +
-	"\fOauthService\x12\x82\x01\n" +
-	"\x12ListOauthProviders\x12\".base.v1.ListOauthProvidersRequest\x1a#.base.v1.ListOauthProvidersResponse\"#\x82\xd3\xe4\x93\x02\x1d\x12\x1b/api/v1/base/oauth/provider\x12\x9c\x01\n" +
+	"\fOauthService\x12\x7f\n" +
+	"\x11ListOauthProvider\x12!.base.v1.ListOauthProviderRequest\x1a\".base.v1.ListOauthProviderResponse\"#\x82\xd3\xe4\x93\x02\x1d\x12\x1b/api/v1/base/oauth/provider\x12\x9c\x01\n" +
 	"\x18CreateOauthAuthorization\x12(.base.v1.CreateOauthAuthorizationRequest\x1a).base.v1.CreateOauthAuthorizationResponse\"+\x82\xd3\xe4\x93\x02%:\x01*\" /api/v1/base/oauth/authorization\x12\x90\x01\n" +
 	"\x13HandleOauthCallback\x12#.base.v1.HandleOauthCallbackRequest\x1a$.base.v1.HandleOauthCallbackResponse\".\x82\xd3\xe4\x93\x02(\x12&/api/v1/base/oauth/{provider}/callback\x12\x86\x01\n" +
 	"\x13ExchangeOauthTicket\x12#.base.v1.ExchangeOauthTicketRequest\x1a$.base.v1.ExchangeOauthTicketResponse\"$\x82\xd3\xe4\x93\x02\x1e:\x01*\"\x19/api/v1/base/oauth/ticket\x12\x84\x01\n" +
-	"\x12CreateOauthSession\x12\".base.v1.CreateOauthSessionRequest\x1a#.base.v1.CreateOauthSessionResponse\"%\x82\xd3\xe4\x93\x02\x1f:\x01*\"\x1a/api/v1/base/oauth/session\x12~\n" +
-	"\x11ListOauthBindings\x12!.base.v1.ListOauthBindingsRequest\x1a\".base.v1.ListOauthBindingsResponse\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/v1/base/oauth/binding\x12\xb9\x01\n" +
+	"\x12CreateOauthSession\x12\".base.v1.CreateOauthSessionRequest\x1a#.base.v1.CreateOauthSessionResponse\"%\x82\xd3\xe4\x93\x02\x1f:\x01*\"\x1a/api/v1/base/oauth/session\x12{\n" +
+	"\x10ListOauthBinding\x12 .base.v1.ListOauthBindingRequest\x1a!.base.v1.ListOauthBindingResponse\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/v1/base/oauth/binding\x12\xb9\x01\n" +
 	"\x1fCreateOauthBindingAuthorization\x12/.base.v1.CreateOauthBindingAuthorizationRequest\x1a0.base.v1.CreateOauthBindingAuthorizationResponse\"3\x82\xd3\xe4\x93\x02-:\x01*\"(/api/v1/base/oauth/binding/authorization\x12\xad\x01\n" +
 	"\x1aHandleOauthBindingCallback\x12*.base.v1.HandleOauthBindingCallbackRequest\x1a+.base.v1.HandleOauthBindingCallbackResponse\"6\x82\xd3\xe4\x93\x020\x12./api/v1/base/oauth/{provider}/binding/callback\x12\x7f\n" +
 	"\x12UnbindOauthAccount\x12\".base.v1.UnbindOauthAccountRequest\x1a\x16.google.protobuf.Empty\"-\x82\xd3\xe4\x93\x02'*%/api/v1/base/oauth/binding/{provider}Bv\n" +
@@ -1081,9 +1081,9 @@ func file_base_v1_oauth_proto_rawDescGZIP() []byte {
 
 var file_base_v1_oauth_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
 var file_base_v1_oauth_proto_goTypes = []any{
-	(*ListOauthProvidersRequest)(nil),               // 0: base.v1.ListOauthProvidersRequest
+	(*ListOauthProviderRequest)(nil),                // 0: base.v1.ListOauthProviderRequest
 	(*OauthProvider)(nil),                           // 1: base.v1.OauthProvider
-	(*ListOauthProvidersResponse)(nil),              // 2: base.v1.ListOauthProvidersResponse
+	(*ListOauthProviderResponse)(nil),               // 2: base.v1.ListOauthProviderResponse
 	(*CreateOauthAuthorizationRequest)(nil),         // 3: base.v1.CreateOauthAuthorizationRequest
 	(*CreateOauthAuthorizationResponse)(nil),        // 4: base.v1.CreateOauthAuthorizationResponse
 	(*HandleOauthCallbackRequest)(nil),              // 5: base.v1.HandleOauthCallbackRequest
@@ -1092,8 +1092,8 @@ var file_base_v1_oauth_proto_goTypes = []any{
 	(*ExchangeOauthTicketResponse)(nil),             // 8: base.v1.ExchangeOauthTicketResponse
 	(*CreateOauthSessionRequest)(nil),               // 9: base.v1.CreateOauthSessionRequest
 	(*CreateOauthSessionResponse)(nil),              // 10: base.v1.CreateOauthSessionResponse
-	(*ListOauthBindingsRequest)(nil),                // 11: base.v1.ListOauthBindingsRequest
-	(*ListOauthBindingsResponse)(nil),               // 12: base.v1.ListOauthBindingsResponse
+	(*ListOauthBindingRequest)(nil),                 // 11: base.v1.ListOauthBindingRequest
+	(*ListOauthBindingResponse)(nil),                // 12: base.v1.ListOauthBindingResponse
 	(*OauthBinding)(nil),                            // 13: base.v1.OauthBinding
 	(*CreateOauthBindingAuthorizationRequest)(nil),  // 14: base.v1.CreateOauthBindingAuthorizationRequest
 	(*CreateOauthBindingAuthorizationResponse)(nil), // 15: base.v1.CreateOauthBindingAuthorizationResponse
@@ -1103,23 +1103,23 @@ var file_base_v1_oauth_proto_goTypes = []any{
 	(*emptypb.Empty)(nil),                           // 19: google.protobuf.Empty
 }
 var file_base_v1_oauth_proto_depIdxs = []int32{
-	1,  // 0: base.v1.ListOauthProvidersResponse.providers:type_name -> base.v1.OauthProvider
-	13, // 1: base.v1.ListOauthBindingsResponse.bindings:type_name -> base.v1.OauthBinding
-	0,  // 2: base.v1.OauthService.ListOauthProviders:input_type -> base.v1.ListOauthProvidersRequest
+	1,  // 0: base.v1.ListOauthProviderResponse.providers:type_name -> base.v1.OauthProvider
+	13, // 1: base.v1.ListOauthBindingResponse.bindings:type_name -> base.v1.OauthBinding
+	0,  // 2: base.v1.OauthService.ListOauthProvider:input_type -> base.v1.ListOauthProviderRequest
 	3,  // 3: base.v1.OauthService.CreateOauthAuthorization:input_type -> base.v1.CreateOauthAuthorizationRequest
 	5,  // 4: base.v1.OauthService.HandleOauthCallback:input_type -> base.v1.HandleOauthCallbackRequest
 	7,  // 5: base.v1.OauthService.ExchangeOauthTicket:input_type -> base.v1.ExchangeOauthTicketRequest
 	9,  // 6: base.v1.OauthService.CreateOauthSession:input_type -> base.v1.CreateOauthSessionRequest
-	11, // 7: base.v1.OauthService.ListOauthBindings:input_type -> base.v1.ListOauthBindingsRequest
+	11, // 7: base.v1.OauthService.ListOauthBinding:input_type -> base.v1.ListOauthBindingRequest
 	14, // 8: base.v1.OauthService.CreateOauthBindingAuthorization:input_type -> base.v1.CreateOauthBindingAuthorizationRequest
 	16, // 9: base.v1.OauthService.HandleOauthBindingCallback:input_type -> base.v1.HandleOauthBindingCallbackRequest
 	18, // 10: base.v1.OauthService.UnbindOauthAccount:input_type -> base.v1.UnbindOauthAccountRequest
-	2,  // 11: base.v1.OauthService.ListOauthProviders:output_type -> base.v1.ListOauthProvidersResponse
+	2,  // 11: base.v1.OauthService.ListOauthProvider:output_type -> base.v1.ListOauthProviderResponse
 	4,  // 12: base.v1.OauthService.CreateOauthAuthorization:output_type -> base.v1.CreateOauthAuthorizationResponse
 	6,  // 13: base.v1.OauthService.HandleOauthCallback:output_type -> base.v1.HandleOauthCallbackResponse
 	8,  // 14: base.v1.OauthService.ExchangeOauthTicket:output_type -> base.v1.ExchangeOauthTicketResponse
 	10, // 15: base.v1.OauthService.CreateOauthSession:output_type -> base.v1.CreateOauthSessionResponse
-	12, // 16: base.v1.OauthService.ListOauthBindings:output_type -> base.v1.ListOauthBindingsResponse
+	12, // 16: base.v1.OauthService.ListOauthBinding:output_type -> base.v1.ListOauthBindingResponse
 	15, // 17: base.v1.OauthService.CreateOauthBindingAuthorization:output_type -> base.v1.CreateOauthBindingAuthorizationResponse
 	17, // 18: base.v1.OauthService.HandleOauthBindingCallback:output_type -> base.v1.HandleOauthBindingCallbackResponse
 	19, // 19: base.v1.OauthService.UnbindOauthAccount:output_type -> google.protobuf.Empty

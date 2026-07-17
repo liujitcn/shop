@@ -11,14 +11,14 @@ import "google/protobuf/empty.proto";
 // Admin租户管理服务
 service BaseTenantService {
   // 查询租户下拉选择
-  rpc OptionBaseTenants(OptionBaseTenantsRequest) returns (.common.v1.SelectOptionResponse) {
+  rpc OptionBaseTenant(OptionBaseTenantRequest) returns (.common.v1.SelectOptionResponse) {
     option (google.api.http) = {
       get: "/api/v1/admin/base/tenant/option"
     };
   }
 
   // 查询租户分页列表
-  rpc PageBaseTenants(PageBaseTenantsRequest) returns (PageBaseTenantsResponse) {
+  rpc PageBaseTenant(PageBaseTenantRequest) returns (PageBaseTenantResponse) {
     option (google.api.http) = {
       get: "/api/v1/admin/base/tenant"
     };
@@ -64,12 +64,12 @@ service BaseTenantService {
 }
 
 // 租户选项查询条件
-message OptionBaseTenantsRequest {
+message OptionBaseTenantRequest {
   string keyword = 1 [(gnostic.openapi.v3.property) = {description: "关键字"}]; // 关键字
 }
 
 // 租户分页查询条件
-message PageBaseTenantsRequest {
+message PageBaseTenantRequest {
   string code = 2 [(gnostic.openapi.v3.property) = {description: "租户编号"}]; // 租户编号
 
   string name = 3 [(gnostic.openapi.v3.property) = {description: "租户名称"}]; // 租户名称
@@ -88,7 +88,7 @@ message PageBaseTenantsRequest {
 }
 
 // 租户分页响应
-message PageBaseTenantsResponse {
+message PageBaseTenantResponse {
   repeated BaseTenant base_tenants = 1 [(gnostic.openapi.v3.property) = {description: "分页数据"}]; // 分页数据
 
   int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数

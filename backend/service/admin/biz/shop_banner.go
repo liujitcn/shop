@@ -31,8 +31,8 @@ func NewShopBannerCase(baseCase *biz.BaseCase, shopBannerRepo *data.ShopBannerRe
 	}
 }
 
-// PageShopBanners 查询商城轮播图列表
-func (c *ShopBannerCase) PageShopBanners(ctx context.Context, req *adminv1.PageShopBannersRequest) (*adminv1.PageShopBannersResponse, error) {
+// PageShopBanner 查询商城轮播图列表
+func (c *ShopBannerCase) PageShopBanner(ctx context.Context, req *adminv1.PageShopBannerRequest) (*adminv1.PageShopBannerResponse, error) {
 	query := c.Query(ctx).ShopBanner
 	opts := make([]repository.QueryOption, 0, 5)
 	opts = append(opts, repository.Order(query.Sort.Asc()))
@@ -57,7 +57,7 @@ func (c *ShopBannerCase) PageShopBanners(ctx context.Context, req *adminv1.PageS
 		shopBanner := c.mapper.ToDTO(item)
 		resList = append(resList, shopBanner)
 	}
-	return &adminv1.PageShopBannersResponse{ShopBanners: resList, Total: int32(total)}, nil
+	return &adminv1.PageShopBannerResponse{ShopBanners: resList, Total: int32(total)}, nil
 }
 
 // GetShopBanner 获取商城轮播图

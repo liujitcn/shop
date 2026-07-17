@@ -22,7 +22,7 @@ const _ = http.SupportPackageIsVersion3
 const OperationGoodsPropServiceCreateGoodsProp = "/admin.v1.GoodsPropService/CreateGoodsProp"
 const OperationGoodsPropServiceDeleteGoodsProp = "/admin.v1.GoodsPropService/DeleteGoodsProp"
 const OperationGoodsPropServiceGetGoodsProp = "/admin.v1.GoodsPropService/GetGoodsProp"
-const OperationGoodsPropServicePageGoodsProps = "/admin.v1.GoodsPropService/PageGoodsProps"
+const OperationGoodsPropServicePageGoodsProp = "/admin.v1.GoodsPropService/PageGoodsProp"
 const OperationGoodsPropServiceUpdateGoodsProp = "/admin.v1.GoodsPropService/UpdateGoodsProp"
 
 type GoodsPropServiceHTTPServer interface {
@@ -32,36 +32,36 @@ type GoodsPropServiceHTTPServer interface {
 	DeleteGoodsProp(context.Context, *DeleteGoodsPropRequest) (*emptypb.Empty, error)
 	// GetGoodsProp 查询商品属性
 	GetGoodsProp(context.Context, *GetGoodsPropRequest) (*GoodsProp, error)
-	// PageGoodsProps 查询商品属性列表
-	PageGoodsProps(context.Context, *PageGoodsPropsRequest) (*PageGoodsPropsResponse, error)
+	// PageGoodsProp 查询商品属性列表
+	PageGoodsProp(context.Context, *PageGoodsPropRequest) (*PageGoodsPropResponse, error)
 	// UpdateGoodsProp 更新商品属性
 	UpdateGoodsProp(context.Context, *UpdateGoodsPropRequest) (*emptypb.Empty, error)
 }
 
 func RegisterGoodsPropServiceHTTPServer(s *http.Server, srv GoodsPropServiceHTTPServer) {
 	r := s.Route("/")
-	r.Handle("GET", "/api/v1/admin/goods/prop", _GoodsPropService_PageGoodsProps0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/goods/prop", _GoodsPropService_PageGoodsProp0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/goods/prop/{id}", _GoodsPropService_GetGoodsProp0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/admin/goods/prop", _GoodsPropService_CreateGoodsProp0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/goods/prop/{id}", _GoodsPropService_UpdateGoodsProp0_HTTP_Handler(srv))
 	r.Handle("DELETE", "/api/v1/admin/goods/prop/{ids}", _GoodsPropService_DeleteGoodsProp0_HTTP_Handler(srv))
 }
 
-func _GoodsPropService_PageGoodsProps0_HTTP_Handler(srv GoodsPropServiceHTTPServer) func(ctx http.Context) error {
+func _GoodsPropService_PageGoodsProp0_HTTP_Handler(srv GoodsPropServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in PageGoodsPropsRequest
+		var in PageGoodsPropRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationGoodsPropServicePageGoodsProps)
+		http.SetOperation(ctx, OperationGoodsPropServicePageGoodsProp)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.PageGoodsProps(ctx, req.(*PageGoodsPropsRequest))
+			return srv.PageGoodsProp(ctx, req.(*PageGoodsPropRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*PageGoodsPropsResponse)
+		reply := out.(*PageGoodsPropResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -164,8 +164,8 @@ type GoodsPropServiceHTTPClient interface {
 	DeleteGoodsProp(ctx context.Context, req *DeleteGoodsPropRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// GetGoodsProp 查询商品属性
 	GetGoodsProp(ctx context.Context, req *GetGoodsPropRequest, opts ...http.CallOption) (rsp *GoodsProp, err error)
-	// PageGoodsProps 查询商品属性列表
-	PageGoodsProps(ctx context.Context, req *PageGoodsPropsRequest, opts ...http.CallOption) (rsp *PageGoodsPropsResponse, err error)
+	// PageGoodsProp 查询商品属性列表
+	PageGoodsProp(ctx context.Context, req *PageGoodsPropRequest, opts ...http.CallOption) (rsp *PageGoodsPropResponse, err error)
 	// UpdateGoodsProp 更新商品属性
 	UpdateGoodsProp(ctx context.Context, req *UpdateGoodsPropRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 }
@@ -230,14 +230,14 @@ func (c *GoodsPropServiceHTTPClientImpl) GetGoodsProp(ctx context.Context, in *G
 	return &out, nil
 }
 
-// PageGoodsProps 查询商品属性列表
-func (c *GoodsPropServiceHTTPClientImpl) PageGoodsProps(ctx context.Context, in *PageGoodsPropsRequest, opts ...http.CallOption) (*PageGoodsPropsResponse, error) {
-	var out PageGoodsPropsResponse
+// PageGoodsProp 查询商品属性列表
+func (c *GoodsPropServiceHTTPClientImpl) PageGoodsProp(ctx context.Context, in *PageGoodsPropRequest, opts ...http.CallOption) (*PageGoodsPropResponse, error) {
+	var out PageGoodsPropResponse
 	pattern := "/api/v1/admin/goods/prop"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationGoodsPropServicePageGoodsProps),
+		http.Operation(OperationGoodsPropServicePageGoodsProp),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)

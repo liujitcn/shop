@@ -111,12 +111,12 @@ const showCartSyncToast = async (result: CartSyncResult) => {
 
 /** 拉取购物车列表，并在展示前同步失效库存。 */
 const getUserCartData = async () => {
-  const res = await defUserCartService.ListUserCarts({})
+  const res = await defUserCartService.ListUserCart({})
   const stores = res.user_cart_stores || []
   const list = stores.flatMap((store) => store.goods)
   const syncResult = await syncCartInventory(list)
   if (syncResult.synced) {
-    const latestRes = await defUserCartService.ListUserCarts({})
+    const latestRes = await defUserCartService.ListUserCart({})
     applyCartStores(latestRes.user_cart_stores || [])
     await showCartSyncToast(syncResult)
     return

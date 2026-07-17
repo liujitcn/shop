@@ -5,10 +5,10 @@ import {
   type GetGoodsInfoRequest,
   type GoodsInfoForm,
   type GoodsInfoService,
-  type PageGoodsInfosRequest,
-  type PageGoodsInfosResponse,
-  type OptionGoodsInfosRequest,
-  type OptionGoodsInfosResponse,
+  type PageGoodsInfoRequest,
+  type PageGoodsInfoResponse,
+  type OptionGoodsInfoRequest,
+  type OptionGoodsInfoResponse,
   type SetGoodsInfoStatusRequest,
   type UpdateGoodsInfoRequest
 } from "@/rpc/admin/v1/goods_info";
@@ -19,16 +19,16 @@ const GOODS_URL = "/v1/admin/goods/info";
 /** Admin商品服务 */
 export class GoodsInfoServiceImpl implements GoodsInfoService {
   /** 查询商品下拉选择 */
-  OptionGoodsInfos(request: OptionGoodsInfosRequest): Promise<OptionGoodsInfosResponse> {
-    return service<OptionGoodsInfosRequest, OptionGoodsInfosResponse>({
+  OptionGoodsInfo(request: OptionGoodsInfoRequest): Promise<OptionGoodsInfoResponse> {
+    return service<OptionGoodsInfoRequest, OptionGoodsInfoResponse>({
       url: `${GOODS_URL}/option`,
       method: "get",
       params: request
     });
   }
   /** 查询商品列表 */
-  PageGoodsInfos(request: PageGoodsInfosRequest): Promise<PageGoodsInfosResponse> {
-    return service<PageGoodsInfosRequest, PageGoodsInfosResponse>({
+  PageGoodsInfo(request: PageGoodsInfoRequest): Promise<PageGoodsInfoResponse> {
+    return service<PageGoodsInfoRequest, PageGoodsInfoResponse>({
       url: `${GOODS_URL}`,
       method: "get",
       params: request

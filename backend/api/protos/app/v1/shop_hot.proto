@@ -9,14 +9,14 @@ import "google/api/annotations.proto";
 // App热门推荐服务
 service ShopHotService {
   // 查询热门推荐列表
-  rpc ListShopHots(ListShopHotsRequest) returns (ListShopHotsResponse) {
+  rpc ListShopHot(ListShopHotRequest) returns (ListShopHotResponse) {
     option (google.api.http) = {
       get: "/api/v1/app/shop/hot"
     };
   }
 
   // 查询热门推荐选项
-  rpc ListShopHotItems(ListShopHotItemsRequest) returns (ListShopHotItemsResponse) {
+  rpc ListShopHotItem(ListShopHotItemRequest) returns (ListShopHotItemResponse) {
     option (google.api.http) = {
       get: "/api/v1/app/shop/hot/{id}/item"
     };
@@ -31,15 +31,15 @@ service ShopHotService {
 }
 
 // 热门专区列表查询条件
-message ListShopHotsRequest {}
+message ListShopHotRequest {}
 
 // 热门专区列表响应
-message ListShopHotsResponse {
+message ListShopHotResponse {
   repeated ShopHot shop_hots = 1 [(gnostic.openapi.v3.property) = {description: "热门专区列表"}]; // 热门专区列表
 }
 
 // 热门专区项列表查询条件
-message ListShopHotItemsRequest {
+message ListShopHotItemRequest {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "热门专区ID"}]; // 热门专区ID
 }
 
@@ -77,7 +77,7 @@ message ShopHot {
 }
 
 // 热门专区项列表响应
-message ListShopHotItemsResponse {
+message ListShopHotItemResponse {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "主键ID"}]; // 主键ID
 
   string title = 2 [(gnostic.openapi.v3.property) = {description: "标题"}]; // 标题

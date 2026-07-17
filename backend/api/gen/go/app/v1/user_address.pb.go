@@ -26,26 +26,26 @@ const (
 )
 
 // 用户地址列表查询条件
-type ListUserAddressesRequest struct {
+type ListUserAddressRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListUserAddressesRequest) Reset() {
-	*x = ListUserAddressesRequest{}
+func (x *ListUserAddressRequest) Reset() {
+	*x = ListUserAddressRequest{}
 	mi := &file_app_v1_user_address_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListUserAddressesRequest) String() string {
+func (x *ListUserAddressRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListUserAddressesRequest) ProtoMessage() {}
+func (*ListUserAddressRequest) ProtoMessage() {}
 
-func (x *ListUserAddressesRequest) ProtoReflect() protoreflect.Message {
+func (x *ListUserAddressRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_app_v1_user_address_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -57,8 +57,8 @@ func (x *ListUserAddressesRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListUserAddressesRequest.ProtoReflect.Descriptor instead.
-func (*ListUserAddressesRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListUserAddressRequest.ProtoReflect.Descriptor instead.
+func (*ListUserAddressRequest) Descriptor() ([]byte, []int) {
 	return file_app_v1_user_address_proto_rawDescGZIP(), []int{0}
 }
 
@@ -251,27 +251,27 @@ func (x *DeleteUserAddressRequest) GetId() int64 {
 }
 
 // 用户地址列表响应
-type ListUserAddressesResponse struct {
+type ListUserAddressResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserAddresses []*UserAddress         `protobuf:"bytes,1,rep,name=user_addresses,json=userAddresses,proto3" json:"user_addresses,omitempty"` // 用户地址列表
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListUserAddressesResponse) Reset() {
-	*x = ListUserAddressesResponse{}
+func (x *ListUserAddressResponse) Reset() {
+	*x = ListUserAddressResponse{}
 	mi := &file_app_v1_user_address_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListUserAddressesResponse) String() string {
+func (x *ListUserAddressResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListUserAddressesResponse) ProtoMessage() {}
+func (*ListUserAddressResponse) ProtoMessage() {}
 
-func (x *ListUserAddressesResponse) ProtoReflect() protoreflect.Message {
+func (x *ListUserAddressResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_app_v1_user_address_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -283,12 +283,12 @@ func (x *ListUserAddressesResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListUserAddressesResponse.ProtoReflect.Descriptor instead.
-func (*ListUserAddressesResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListUserAddressResponse.ProtoReflect.Descriptor instead.
+func (*ListUserAddressResponse) Descriptor() ([]byte, []int) {
 	return file_app_v1_user_address_proto_rawDescGZIP(), []int{5}
 }
 
-func (x *ListUserAddressesResponse) GetUserAddresses() []*UserAddress {
+func (x *ListUserAddressResponse) GetUserAddresses() []*UserAddress {
 	if x != nil {
 		return x.UserAddresses
 	}
@@ -477,8 +477,8 @@ var File_app_v1_user_address_proto protoreflect.FileDescriptor
 
 const file_app_v1_user_address_proto_rawDesc = "" +
 	"\n" +
-	"\x19app/v1/user_address.proto\x12\x06app.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x1a\n" +
-	"\x18ListUserAddressesRequest\"=\n" +
+	"\x19app/v1/user_address.proto\x12\x06app.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x18\n" +
+	"\x16ListUserAddressRequest\"=\n" +
 	"\x15GetUserAddressRequest\x12$\n" +
 	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e用户地址IDR\x02id\"j\n" +
 	"\x18CreateUserAddressRequest\x12N\n" +
@@ -487,8 +487,8 @@ const file_app_v1_user_address_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e用户地址IDR\x02id\x12N\n" +
 	"\fuser_address\x18\x02 \x01(\v2\x17.app.v1.UserAddressFormB\x12\xbaG\x0f\x92\x02\f用户地址R\vuserAddress\"@\n" +
 	"\x18DeleteUserAddressRequest\x12$\n" +
-	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e用户地址IDR\x02id\"q\n" +
-	"\x19ListUserAddressesResponse\x12T\n" +
+	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e用户地址IDR\x02id\"o\n" +
+	"\x17ListUserAddressResponse\x12T\n" +
 	"\x0euser_addresses\x18\x01 \x03(\v2\x13.app.v1.UserAddressB\x18\xbaG\x15\x92\x02\x12用户地址列表R\ruserAddresses\"\x9e\x02\n" +
 	"\vUserAddress\x12$\n" +
 	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e用户地址IDR\x02id\x12+\n" +
@@ -507,9 +507,9 @@ const file_app_v1_user_address_proto_rawDesc = "" +
 	"\faddress_name\x18\n" +
 	" \x03(\tB\x0f\xbaG\f\x92\x02\t省市区R\vaddressName\x121\n" +
 	"\n" +
-	"is_default\x183 \x01(\bB\x12\xbaG\x0f\x92\x02\f是否默认R\tisDefault2\xfb\x04\n" +
-	"\x12UserAddressService\x12z\n" +
-	"\x11ListUserAddresses\x12 .app.v1.ListUserAddressesRequest\x1a!.app.v1.ListUserAddressesResponse\" \x82\xd3\xe4\x93\x02\x1a\x12\x18/api/v1/app/user/address\x12o\n" +
+	"is_default\x183 \x01(\bB\x12\xbaG\x0f\x92\x02\f是否默认R\tisDefault2\xf5\x04\n" +
+	"\x12UserAddressService\x12t\n" +
+	"\x0fListUserAddress\x12\x1e.app.v1.ListUserAddressRequest\x1a\x1f.app.v1.ListUserAddressResponse\" \x82\xd3\xe4\x93\x02\x1a\x12\x18/api/v1/app/user/address\x12o\n" +
 	"\x0eGetUserAddress\x12\x1d.app.v1.GetUserAddressRequest\x1a\x17.app.v1.UserAddressForm\"%\x82\xd3\xe4\x93\x02\x1f\x12\x1d/api/v1/app/user/address/{id}\x12}\n" +
 	"\x11CreateUserAddress\x12 .app.v1.CreateUserAddressRequest\x1a\x16.google.protobuf.Empty\".\x82\xd3\xe4\x93\x02(:\fuser_address\"\x18/api/v1/app/user/address\x12\x82\x01\n" +
 	"\x11UpdateUserAddress\x12 .app.v1.UpdateUserAddressRequest\x1a\x16.google.protobuf.Empty\"3\x82\xd3\xe4\x93\x02-:\fuser_address\x1a\x1d/api/v1/app/user/address/{id}\x12t\n" +
@@ -531,26 +531,26 @@ func file_app_v1_user_address_proto_rawDescGZIP() []byte {
 
 var file_app_v1_user_address_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_app_v1_user_address_proto_goTypes = []any{
-	(*ListUserAddressesRequest)(nil),  // 0: app.v1.ListUserAddressesRequest
-	(*GetUserAddressRequest)(nil),     // 1: app.v1.GetUserAddressRequest
-	(*CreateUserAddressRequest)(nil),  // 2: app.v1.CreateUserAddressRequest
-	(*UpdateUserAddressRequest)(nil),  // 3: app.v1.UpdateUserAddressRequest
-	(*DeleteUserAddressRequest)(nil),  // 4: app.v1.DeleteUserAddressRequest
-	(*ListUserAddressesResponse)(nil), // 5: app.v1.ListUserAddressesResponse
-	(*UserAddress)(nil),               // 6: app.v1.UserAddress
-	(*UserAddressForm)(nil),           // 7: app.v1.UserAddressForm
-	(*emptypb.Empty)(nil),             // 8: google.protobuf.Empty
+	(*ListUserAddressRequest)(nil),   // 0: app.v1.ListUserAddressRequest
+	(*GetUserAddressRequest)(nil),    // 1: app.v1.GetUserAddressRequest
+	(*CreateUserAddressRequest)(nil), // 2: app.v1.CreateUserAddressRequest
+	(*UpdateUserAddressRequest)(nil), // 3: app.v1.UpdateUserAddressRequest
+	(*DeleteUserAddressRequest)(nil), // 4: app.v1.DeleteUserAddressRequest
+	(*ListUserAddressResponse)(nil),  // 5: app.v1.ListUserAddressResponse
+	(*UserAddress)(nil),              // 6: app.v1.UserAddress
+	(*UserAddressForm)(nil),          // 7: app.v1.UserAddressForm
+	(*emptypb.Empty)(nil),            // 8: google.protobuf.Empty
 }
 var file_app_v1_user_address_proto_depIdxs = []int32{
 	7, // 0: app.v1.CreateUserAddressRequest.user_address:type_name -> app.v1.UserAddressForm
 	7, // 1: app.v1.UpdateUserAddressRequest.user_address:type_name -> app.v1.UserAddressForm
-	6, // 2: app.v1.ListUserAddressesResponse.user_addresses:type_name -> app.v1.UserAddress
-	0, // 3: app.v1.UserAddressService.ListUserAddresses:input_type -> app.v1.ListUserAddressesRequest
+	6, // 2: app.v1.ListUserAddressResponse.user_addresses:type_name -> app.v1.UserAddress
+	0, // 3: app.v1.UserAddressService.ListUserAddress:input_type -> app.v1.ListUserAddressRequest
 	1, // 4: app.v1.UserAddressService.GetUserAddress:input_type -> app.v1.GetUserAddressRequest
 	2, // 5: app.v1.UserAddressService.CreateUserAddress:input_type -> app.v1.CreateUserAddressRequest
 	3, // 6: app.v1.UserAddressService.UpdateUserAddress:input_type -> app.v1.UpdateUserAddressRequest
 	4, // 7: app.v1.UserAddressService.DeleteUserAddress:input_type -> app.v1.DeleteUserAddressRequest
-	5, // 8: app.v1.UserAddressService.ListUserAddresses:output_type -> app.v1.ListUserAddressesResponse
+	5, // 8: app.v1.UserAddressService.ListUserAddress:output_type -> app.v1.ListUserAddressResponse
 	7, // 9: app.v1.UserAddressService.GetUserAddress:output_type -> app.v1.UserAddressForm
 	8, // 10: app.v1.UserAddressService.CreateUserAddress:output_type -> google.protobuf.Empty
 	8, // 11: app.v1.UserAddressService.UpdateUserAddress:output_type -> google.protobuf.Empty

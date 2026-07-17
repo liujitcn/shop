@@ -18,40 +18,40 @@ var _ = new(context.Context)
 
 const _ = http.SupportPackageIsVersion3
 
-const OperationGoodsSpecServiceListGoodsSpecs = "/admin.v1.GoodsSpecService/ListGoodsSpecs"
+const OperationGoodsSpecServiceListGoodsSpec = "/admin.v1.GoodsSpecService/ListGoodsSpec"
 
 type GoodsSpecServiceHTTPServer interface {
-	// ListGoodsSpecs 查询商品规格列表
-	ListGoodsSpecs(context.Context, *ListGoodsSpecsRequest) (*ListGoodsSpecsResponse, error)
+	// ListGoodsSpec 查询商品规格列表
+	ListGoodsSpec(context.Context, *ListGoodsSpecRequest) (*ListGoodsSpecResponse, error)
 }
 
 func RegisterGoodsSpecServiceHTTPServer(s *http.Server, srv GoodsSpecServiceHTTPServer) {
 	r := s.Route("/")
-	r.Handle("GET", "/api/v1/admin/goods/spec", _GoodsSpecService_ListGoodsSpecs0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/goods/spec", _GoodsSpecService_ListGoodsSpec0_HTTP_Handler(srv))
 }
 
-func _GoodsSpecService_ListGoodsSpecs0_HTTP_Handler(srv GoodsSpecServiceHTTPServer) func(ctx http.Context) error {
+func _GoodsSpecService_ListGoodsSpec0_HTTP_Handler(srv GoodsSpecServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in ListGoodsSpecsRequest
+		var in ListGoodsSpecRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationGoodsSpecServiceListGoodsSpecs)
+		http.SetOperation(ctx, OperationGoodsSpecServiceListGoodsSpec)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.ListGoodsSpecs(ctx, req.(*ListGoodsSpecsRequest))
+			return srv.ListGoodsSpec(ctx, req.(*ListGoodsSpecRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*ListGoodsSpecsResponse)
+		reply := out.(*ListGoodsSpecResponse)
 		return ctx.Result(200, reply)
 	}
 }
 
 type GoodsSpecServiceHTTPClient interface {
-	// ListGoodsSpecs 查询商品规格列表
-	ListGoodsSpecs(ctx context.Context, req *ListGoodsSpecsRequest, opts ...http.CallOption) (rsp *ListGoodsSpecsResponse, err error)
+	// ListGoodsSpec 查询商品规格列表
+	ListGoodsSpec(ctx context.Context, req *ListGoodsSpecRequest, opts ...http.CallOption) (rsp *ListGoodsSpecResponse, err error)
 }
 
 type GoodsSpecServiceHTTPClientImpl struct {
@@ -62,14 +62,14 @@ func NewGoodsSpecServiceHTTPClient(client *http.Client) GoodsSpecServiceHTTPClie
 	return &GoodsSpecServiceHTTPClientImpl{client}
 }
 
-// ListGoodsSpecs 查询商品规格列表
-func (c *GoodsSpecServiceHTTPClientImpl) ListGoodsSpecs(ctx context.Context, in *ListGoodsSpecsRequest, opts ...http.CallOption) (*ListGoodsSpecsResponse, error) {
-	var out ListGoodsSpecsResponse
+// ListGoodsSpec 查询商品规格列表
+func (c *GoodsSpecServiceHTTPClientImpl) ListGoodsSpec(ctx context.Context, in *ListGoodsSpecRequest, opts ...http.CallOption) (*ListGoodsSpecResponse, error) {
+	var out ListGoodsSpecResponse
 	pattern := "/api/v1/admin/goods/spec"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationGoodsSpecServiceListGoodsSpecs),
+		http.Operation(OperationGoodsSpecServiceListGoodsSpec),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)

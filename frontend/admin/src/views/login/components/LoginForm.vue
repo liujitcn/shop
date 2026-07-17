@@ -359,7 +359,7 @@ const getOauthLoginRedirectURL = () => {
 
 /** 查询配置启用的三方登录方式。 */
 const loadOauthProviders = async () => {
-  const result = await defOauthService.ListOauthProviders({});
+  const result = await defOauthService.ListOauthProvider({});
   oauthProviders.value = result.providers.map(withOauthProviderDisplay);
 };
 

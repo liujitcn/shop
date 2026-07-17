@@ -5,9 +5,9 @@ import {
   type CreateBaseTenantRequest,
   type DeleteBaseTenantRequest,
   type GetBaseTenantRequest,
-  type OptionBaseTenantsRequest,
-  type PageBaseTenantsRequest,
-  type PageBaseTenantsResponse,
+  type OptionBaseTenantRequest,
+  type PageBaseTenantRequest,
+  type PageBaseTenantResponse,
   type SetBaseTenantStatusRequest,
   type UpdateBaseTenantRequest
 } from "@/rpc/admin/v1/base_tenant";
@@ -19,8 +19,8 @@ const BASE_TENANT_URL = "/v1/admin/base/tenant";
 /** Admin租户管理服务 */
 export class BaseTenantServiceImpl implements BaseTenantService {
   /** 查询租户下拉选择 */
-  OptionBaseTenants(request: OptionBaseTenantsRequest): Promise<SelectOptionResponse> {
-    return service<OptionBaseTenantsRequest, SelectOptionResponse>({
+  OptionBaseTenant(request: OptionBaseTenantRequest): Promise<SelectOptionResponse> {
+    return service<OptionBaseTenantRequest, SelectOptionResponse>({
       url: `${BASE_TENANT_URL}/option`,
       method: "get",
       params: request
@@ -28,8 +28,8 @@ export class BaseTenantServiceImpl implements BaseTenantService {
   }
 
   /** 查询租户分页列表 */
-  PageBaseTenants(request: PageBaseTenantsRequest): Promise<PageBaseTenantsResponse> {
-    return service<PageBaseTenantsRequest, PageBaseTenantsResponse>({
+  PageBaseTenant(request: PageBaseTenantRequest): Promise<PageBaseTenantResponse> {
+    return service<PageBaseTenantRequest, PageBaseTenantResponse>({
       url: `${BASE_TENANT_URL}`,
       method: "get",
       params: request

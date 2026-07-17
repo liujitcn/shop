@@ -19,40 +19,40 @@ var _ = new(context.Context)
 const _ = http.SupportPackageIsVersion3
 
 const OperationRecommendRequestServiceGetRecommendRequest = "/admin.v1.RecommendRequestService/GetRecommendRequest"
-const OperationRecommendRequestServiceListRecommendRequestEvents = "/admin.v1.RecommendRequestService/ListRecommendRequestEvents"
-const OperationRecommendRequestServicePageRecommendRequests = "/admin.v1.RecommendRequestService/PageRecommendRequests"
+const OperationRecommendRequestServiceListRecommendRequestEvent = "/admin.v1.RecommendRequestService/ListRecommendRequestEvent"
+const OperationRecommendRequestServicePageRecommendRequest = "/admin.v1.RecommendRequestService/PageRecommendRequest"
 
 type RecommendRequestServiceHTTPServer interface {
 	// GetRecommendRequest 查询推荐请求详情
 	GetRecommendRequest(context.Context, *GetRecommendRequestRequest) (*RecommendRequestDetailResponse, error)
-	// ListRecommendRequestEvents 查询推荐请求商品关联事件
-	ListRecommendRequestEvents(context.Context, *ListRecommendRequestEventsRequest) (*ListRecommendRequestEventsResponse, error)
-	// PageRecommendRequests 查询推荐请求分页列表
-	PageRecommendRequests(context.Context, *PageRecommendRequestsRequest) (*PageRecommendRequestsResponse, error)
+	// ListRecommendRequestEvent 查询推荐请求商品关联事件
+	ListRecommendRequestEvent(context.Context, *ListRecommendRequestEventRequest) (*ListRecommendRequestEventResponse, error)
+	// PageRecommendRequest 查询推荐请求分页列表
+	PageRecommendRequest(context.Context, *PageRecommendRequestRequest) (*PageRecommendRequestResponse, error)
 }
 
 func RegisterRecommendRequestServiceHTTPServer(s *http.Server, srv RecommendRequestServiceHTTPServer) {
 	r := s.Route("/")
-	r.Handle("GET", "/api/v1/admin/recommend/request", _RecommendRequestService_PageRecommendRequests0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/recommend/request", _RecommendRequestService_PageRecommendRequest0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/recommend/request/{id}", _RecommendRequestService_GetRecommendRequest0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/admin/recommend/request/{request_record_id}/event", _RecommendRequestService_ListRecommendRequestEvents0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/recommend/request/{request_record_id}/event", _RecommendRequestService_ListRecommendRequestEvent0_HTTP_Handler(srv))
 }
 
-func _RecommendRequestService_PageRecommendRequests0_HTTP_Handler(srv RecommendRequestServiceHTTPServer) func(ctx http.Context) error {
+func _RecommendRequestService_PageRecommendRequest0_HTTP_Handler(srv RecommendRequestServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in PageRecommendRequestsRequest
+		var in PageRecommendRequestRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationRecommendRequestServicePageRecommendRequests)
+		http.SetOperation(ctx, OperationRecommendRequestServicePageRecommendRequest)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.PageRecommendRequests(ctx, req.(*PageRecommendRequestsRequest))
+			return srv.PageRecommendRequest(ctx, req.(*PageRecommendRequestRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*PageRecommendRequestsResponse)
+		reply := out.(*PageRecommendRequestResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -79,24 +79,24 @@ func _RecommendRequestService_GetRecommendRequest0_HTTP_Handler(srv RecommendReq
 	}
 }
 
-func _RecommendRequestService_ListRecommendRequestEvents0_HTTP_Handler(srv RecommendRequestServiceHTTPServer) func(ctx http.Context) error {
+func _RecommendRequestService_ListRecommendRequestEvent0_HTTP_Handler(srv RecommendRequestServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in ListRecommendRequestEventsRequest
+		var in ListRecommendRequestEventRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
 		if err := ctx.BindVars(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationRecommendRequestServiceListRecommendRequestEvents)
+		http.SetOperation(ctx, OperationRecommendRequestServiceListRecommendRequestEvent)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.ListRecommendRequestEvents(ctx, req.(*ListRecommendRequestEventsRequest))
+			return srv.ListRecommendRequestEvent(ctx, req.(*ListRecommendRequestEventRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*ListRecommendRequestEventsResponse)
+		reply := out.(*ListRecommendRequestEventResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -104,10 +104,10 @@ func _RecommendRequestService_ListRecommendRequestEvents0_HTTP_Handler(srv Recom
 type RecommendRequestServiceHTTPClient interface {
 	// GetRecommendRequest 查询推荐请求详情
 	GetRecommendRequest(ctx context.Context, req *GetRecommendRequestRequest, opts ...http.CallOption) (rsp *RecommendRequestDetailResponse, err error)
-	// ListRecommendRequestEvents 查询推荐请求商品关联事件
-	ListRecommendRequestEvents(ctx context.Context, req *ListRecommendRequestEventsRequest, opts ...http.CallOption) (rsp *ListRecommendRequestEventsResponse, err error)
-	// PageRecommendRequests 查询推荐请求分页列表
-	PageRecommendRequests(ctx context.Context, req *PageRecommendRequestsRequest, opts ...http.CallOption) (rsp *PageRecommendRequestsResponse, err error)
+	// ListRecommendRequestEvent 查询推荐请求商品关联事件
+	ListRecommendRequestEvent(ctx context.Context, req *ListRecommendRequestEventRequest, opts ...http.CallOption) (rsp *ListRecommendRequestEventResponse, err error)
+	// PageRecommendRequest 查询推荐请求分页列表
+	PageRecommendRequest(ctx context.Context, req *PageRecommendRequestRequest, opts ...http.CallOption) (rsp *PageRecommendRequestResponse, err error)
 }
 
 type RecommendRequestServiceHTTPClientImpl struct {
@@ -135,14 +135,14 @@ func (c *RecommendRequestServiceHTTPClientImpl) GetRecommendRequest(ctx context.
 	return &out, nil
 }
 
-// ListRecommendRequestEvents 查询推荐请求商品关联事件
-func (c *RecommendRequestServiceHTTPClientImpl) ListRecommendRequestEvents(ctx context.Context, in *ListRecommendRequestEventsRequest, opts ...http.CallOption) (*ListRecommendRequestEventsResponse, error) {
-	var out ListRecommendRequestEventsResponse
+// ListRecommendRequestEvent 查询推荐请求商品关联事件
+func (c *RecommendRequestServiceHTTPClientImpl) ListRecommendRequestEvent(ctx context.Context, in *ListRecommendRequestEventRequest, opts ...http.CallOption) (*ListRecommendRequestEventResponse, error) {
+	var out ListRecommendRequestEventResponse
 	pattern := "/api/v1/admin/recommend/request/{request_record_id}/event"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationRecommendRequestServiceListRecommendRequestEvents),
+		http.Operation(OperationRecommendRequestServiceListRecommendRequestEvent),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
@@ -152,14 +152,14 @@ func (c *RecommendRequestServiceHTTPClientImpl) ListRecommendRequestEvents(ctx c
 	return &out, nil
 }
 
-// PageRecommendRequests 查询推荐请求分页列表
-func (c *RecommendRequestServiceHTTPClientImpl) PageRecommendRequests(ctx context.Context, in *PageRecommendRequestsRequest, opts ...http.CallOption) (*PageRecommendRequestsResponse, error) {
-	var out PageRecommendRequestsResponse
+// PageRecommendRequest 查询推荐请求分页列表
+func (c *RecommendRequestServiceHTTPClientImpl) PageRecommendRequest(ctx context.Context, in *PageRecommendRequestRequest, opts ...http.CallOption) (*PageRecommendRequestResponse, error) {
+	var out PageRecommendRequestResponse
 	pattern := "/api/v1/admin/recommend/request"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationRecommendRequestServicePageRecommendRequests),
+		http.Operation(OperationRecommendRequestServicePageRecommendRequest),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)

@@ -25,31 +25,31 @@ func NewTenantStoreService(tenantStoreCase *biz.TenantStoreCase) *TenantStoreSer
 	return &TenantStoreService{tenantStoreCase: tenantStoreCase}
 }
 
-// OptionTenantStores 查询租户门店下拉选项。
-func (s *TenantStoreService) OptionTenantStores(ctx context.Context, req *adminv1.OptionTenantStoresRequest) (*adminv1.OptionTenantStoresResponse, error) {
-	res, err := s.tenantStoreCase.OptionTenantStores(ctx, req)
+// OptionTenantStore 查询租户门店下拉选项。
+func (s *TenantStoreService) OptionTenantStore(ctx context.Context, req *adminv1.OptionTenantStoreRequest) (*adminv1.OptionTenantStoreResponse, error) {
+	res, err := s.tenantStoreCase.OptionTenantStore(ctx, req)
 	if err != nil {
-		log.Error("OptionTenantStores", err)
+		log.Error("OptionTenantStore", err)
 		return nil, errorsx.WrapInternal(err, "查询租户门店下拉选项失败")
 	}
 	return res, nil
 }
 
-// TreeTenantStores 查询租户门店树形选项。
-func (s *TenantStoreService) TreeTenantStores(ctx context.Context, req *adminv1.TreeTenantStoresRequest) (*adminv1.TreeTenantStoresResponse, error) {
-	res, err := s.tenantStoreCase.TreeTenantStores(ctx, req)
+// TreeTenantStore 查询租户门店树形选项。
+func (s *TenantStoreService) TreeTenantStore(ctx context.Context, req *adminv1.TreeTenantStoreRequest) (*adminv1.TreeTenantStoreResponse, error) {
+	res, err := s.tenantStoreCase.TreeTenantStore(ctx, req)
 	if err != nil {
-		log.Error("TreeTenantStores", err)
+		log.Error("TreeTenantStore", err)
 		return nil, errorsx.WrapInternal(err, "查询租户门店树形选项失败")
 	}
 	return res, nil
 }
 
-// PageTenantStores 查询租户门店列表。
-func (s *TenantStoreService) PageTenantStores(ctx context.Context, req *adminv1.PageTenantStoresRequest) (*adminv1.PageTenantStoresResponse, error) {
-	res, err := s.tenantStoreCase.PageTenantStores(ctx, req)
+// PageTenantStore 查询租户门店列表。
+func (s *TenantStoreService) PageTenantStore(ctx context.Context, req *adminv1.PageTenantStoreRequest) (*adminv1.PageTenantStoreResponse, error) {
+	res, err := s.tenantStoreCase.PageTenantStore(ctx, req)
 	if err != nil {
-		log.Error("PageTenantStores", err)
+		log.Error("PageTenantStore", err)
 		return nil, errorsx.WrapInternal(err, "查询租户门店列表失败")
 	}
 	return res, nil

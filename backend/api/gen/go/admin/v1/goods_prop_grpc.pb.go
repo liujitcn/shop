@@ -21,7 +21,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	GoodsPropService_PageGoodsProps_FullMethodName  = "/admin.v1.GoodsPropService/PageGoodsProps"
+	GoodsPropService_PageGoodsProp_FullMethodName   = "/admin.v1.GoodsPropService/PageGoodsProp"
 	GoodsPropService_GetGoodsProp_FullMethodName    = "/admin.v1.GoodsPropService/GetGoodsProp"
 	GoodsPropService_CreateGoodsProp_FullMethodName = "/admin.v1.GoodsPropService/CreateGoodsProp"
 	GoodsPropService_UpdateGoodsProp_FullMethodName = "/admin.v1.GoodsPropService/UpdateGoodsProp"
@@ -35,7 +35,7 @@ const (
 // Admin商品属性服务
 type GoodsPropServiceClient interface {
 	// 查询商品属性列表
-	PageGoodsProps(ctx context.Context, in *PageGoodsPropsRequest, opts ...grpc.CallOption) (*PageGoodsPropsResponse, error)
+	PageGoodsProp(ctx context.Context, in *PageGoodsPropRequest, opts ...grpc.CallOption) (*PageGoodsPropResponse, error)
 	// 查询商品属性
 	GetGoodsProp(ctx context.Context, in *GetGoodsPropRequest, opts ...grpc.CallOption) (*GoodsProp, error)
 	// 创建商品属性
@@ -54,10 +54,10 @@ func NewGoodsPropServiceClient(cc grpc.ClientConnInterface) GoodsPropServiceClie
 	return &goodsPropServiceClient{cc}
 }
 
-func (c *goodsPropServiceClient) PageGoodsProps(ctx context.Context, in *PageGoodsPropsRequest, opts ...grpc.CallOption) (*PageGoodsPropsResponse, error) {
+func (c *goodsPropServiceClient) PageGoodsProp(ctx context.Context, in *PageGoodsPropRequest, opts ...grpc.CallOption) (*PageGoodsPropResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(PageGoodsPropsResponse)
-	err := c.cc.Invoke(ctx, GoodsPropService_PageGoodsProps_FullMethodName, in, out, cOpts...)
+	out := new(PageGoodsPropResponse)
+	err := c.cc.Invoke(ctx, GoodsPropService_PageGoodsProp_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -111,7 +111,7 @@ func (c *goodsPropServiceClient) DeleteGoodsProp(ctx context.Context, in *Delete
 // Admin商品属性服务
 type GoodsPropServiceServer interface {
 	// 查询商品属性列表
-	PageGoodsProps(context.Context, *PageGoodsPropsRequest) (*PageGoodsPropsResponse, error)
+	PageGoodsProp(context.Context, *PageGoodsPropRequest) (*PageGoodsPropResponse, error)
 	// 查询商品属性
 	GetGoodsProp(context.Context, *GetGoodsPropRequest) (*GoodsProp, error)
 	// 创建商品属性
@@ -130,8 +130,8 @@ type GoodsPropServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedGoodsPropServiceServer struct{}
 
-func (UnimplementedGoodsPropServiceServer) PageGoodsProps(context.Context, *PageGoodsPropsRequest) (*PageGoodsPropsResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method PageGoodsProps not implemented")
+func (UnimplementedGoodsPropServiceServer) PageGoodsProp(context.Context, *PageGoodsPropRequest) (*PageGoodsPropResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method PageGoodsProp not implemented")
 }
 func (UnimplementedGoodsPropServiceServer) GetGoodsProp(context.Context, *GetGoodsPropRequest) (*GoodsProp, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetGoodsProp not implemented")
@@ -166,20 +166,20 @@ func RegisterGoodsPropServiceServer(s grpc.ServiceRegistrar, srv GoodsPropServic
 	s.RegisterService(&GoodsPropService_ServiceDesc, srv)
 }
 
-func _GoodsPropService_PageGoodsProps_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PageGoodsPropsRequest)
+func _GoodsPropService_PageGoodsProp_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PageGoodsPropRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(GoodsPropServiceServer).PageGoodsProps(ctx, in)
+		return srv.(GoodsPropServiceServer).PageGoodsProp(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: GoodsPropService_PageGoodsProps_FullMethodName,
+		FullMethod: GoodsPropService_PageGoodsProp_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GoodsPropServiceServer).PageGoodsProps(ctx, req.(*PageGoodsPropsRequest))
+		return srv.(GoodsPropServiceServer).PageGoodsProp(ctx, req.(*PageGoodsPropRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -264,8 +264,8 @@ var GoodsPropService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*GoodsPropServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "PageGoodsProps",
-			Handler:    _GoodsPropService_PageGoodsProps_Handler,
+			MethodName: "PageGoodsProp",
+			Handler:    _GoodsPropService_PageGoodsProp_Handler,
 		},
 		{
 			MethodName: "GetGoodsProp",

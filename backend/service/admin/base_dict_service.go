@@ -39,21 +39,21 @@ func NewBaseDictService(
 	}
 }
 
-// OptionBaseDicts 查询字典下拉选择
-func (s *BaseDictService) OptionBaseDicts(ctx context.Context, req *adminv1.OptionBaseDictsRequest) (*adminv1.OptionBaseDictsResponse, error) {
-	res, err := s.baseDictCase.OptionBaseDicts(ctx)
+// OptionBaseDict 查询字典下拉选择
+func (s *BaseDictService) OptionBaseDict(ctx context.Context, req *adminv1.OptionBaseDictRequest) (*adminv1.OptionBaseDictResponse, error) {
+	res, err := s.baseDictCase.OptionBaseDict(ctx)
 	if err != nil {
-		log.Error(fmt.Sprintf("OptionBaseDicts %v", err))
+		log.Error(fmt.Sprintf("OptionBaseDict %v", err))
 		return nil, errorsx.WrapInternal(err, "查询失败")
 	}
 	return res, nil
 }
 
-// PageBaseDicts 查询字典分页列表
-func (s *BaseDictService) PageBaseDicts(ctx context.Context, req *adminv1.PageBaseDictsRequest) (*adminv1.PageBaseDictsResponse, error) {
-	page, err := s.baseDictCase.PageBaseDicts(ctx, req)
+// PageBaseDict 查询字典分页列表
+func (s *BaseDictService) PageBaseDict(ctx context.Context, req *adminv1.PageBaseDictRequest) (*adminv1.PageBaseDictResponse, error) {
+	page, err := s.baseDictCase.PageBaseDict(ctx, req)
 	if err != nil {
-		log.Error(fmt.Sprintf("PageBaseDicts %v", err))
+		log.Error(fmt.Sprintf("PageBaseDict %v", err))
 		return nil, errorsx.WrapInternal(err, "查询字典分页列表失败")
 	}
 
@@ -111,11 +111,11 @@ func (s *BaseDictService) SetBaseDictStatus(ctx context.Context, req *adminv1.Se
 	return new(emptypb.Empty), nil
 }
 
-// PageBaseDictItems 查询字典属性分页列表
-func (s *BaseDictService) PageBaseDictItems(ctx context.Context, req *adminv1.PageBaseDictItemsRequest) (*adminv1.PageBaseDictItemsResponse, error) {
-	page, err := s.baseDictItemCase.PageBaseDictItems(ctx, req)
+// PageBaseDictItem 查询字典属性分页列表
+func (s *BaseDictService) PageBaseDictItem(ctx context.Context, req *adminv1.PageBaseDictItemRequest) (*adminv1.PageBaseDictItemResponse, error) {
+	page, err := s.baseDictItemCase.PageBaseDictItem(ctx, req)
 	if err != nil {
-		log.Error(fmt.Sprintf("PageBaseDictItems %v", err))
+		log.Error(fmt.Sprintf("PageBaseDictItem %v", err))
 		return nil, errorsx.WrapInternal(err, "查询字典属性分页列表失败")
 	}
 	return page, nil

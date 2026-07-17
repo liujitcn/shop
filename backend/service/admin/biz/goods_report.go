@@ -69,8 +69,8 @@ func (c *GoodsReportCase) SummaryGoodsMonthReport(ctx context.Context, req *admi
 	return summary, nil
 }
 
-// ListGoodsMonthReports 查询商品月报名细。
-func (c *GoodsReportCase) ListGoodsMonthReports(ctx context.Context, req *adminv1.ListGoodsMonthReportsRequest) (*adminv1.ListGoodsMonthReportsResponse, error) {
+// ListGoodsMonthReport 查询商品月报名细。
+func (c *GoodsReportCase) ListGoodsMonthReport(ctx context.Context, req *adminv1.ListGoodsMonthReportRequest) (*adminv1.ListGoodsMonthReportResponse, error) {
 	startMonth, err := c.parseMonth(req.GetStartMonth())
 	if err != nil {
 		return nil, err
@@ -109,7 +109,7 @@ func (c *GoodsReportCase) ListGoodsMonthReports(ctx context.Context, req *adminv
 		items = append(items, c.toGoodsMonthReportItem(row))
 	}
 
-	return &adminv1.ListGoodsMonthReportsResponse{GoodsMonthReports: items}, nil
+	return &adminv1.ListGoodsMonthReportResponse{GoodsMonthReports: items}, nil
 }
 
 // SummaryGoodsDayReport 查询商品日报汇总。
@@ -148,8 +148,8 @@ func (c *GoodsReportCase) SummaryGoodsDayReport(ctx context.Context, req *adminv
 	return summary, nil
 }
 
-// ListGoodsDayReports 查询商品日报明细。
-func (c *GoodsReportCase) ListGoodsDayReports(ctx context.Context, req *adminv1.ListGoodsDayReportsRequest) (*adminv1.ListGoodsDayReportsResponse, error) {
+// ListGoodsDayReport 查询商品日报明细。
+func (c *GoodsReportCase) ListGoodsDayReport(ctx context.Context, req *adminv1.ListGoodsDayReportRequest) (*adminv1.ListGoodsDayReportResponse, error) {
 	startDate, err := c.parseDate(req.GetStartDate())
 	if err != nil {
 		return nil, err
@@ -188,7 +188,7 @@ func (c *GoodsReportCase) ListGoodsDayReports(ctx context.Context, req *adminv1.
 		items = append(items, c.toGoodsDayReportItem(row))
 	}
 
-	return &adminv1.ListGoodsDayReportsResponse{GoodsDayReports: items}, nil
+	return &adminv1.ListGoodsDayReportResponse{GoodsDayReports: items}, nil
 }
 
 // parseMonth 解析月份字符串并归一化到当月第一天。

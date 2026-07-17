@@ -21,12 +21,12 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	OauthService_ListOauthProviders_FullMethodName              = "/base.v1.OauthService/ListOauthProviders"
+	OauthService_ListOauthProvider_FullMethodName               = "/base.v1.OauthService/ListOauthProvider"
 	OauthService_CreateOauthAuthorization_FullMethodName        = "/base.v1.OauthService/CreateOauthAuthorization"
 	OauthService_HandleOauthCallback_FullMethodName             = "/base.v1.OauthService/HandleOauthCallback"
 	OauthService_ExchangeOauthTicket_FullMethodName             = "/base.v1.OauthService/ExchangeOauthTicket"
 	OauthService_CreateOauthSession_FullMethodName              = "/base.v1.OauthService/CreateOauthSession"
-	OauthService_ListOauthBindings_FullMethodName               = "/base.v1.OauthService/ListOauthBindings"
+	OauthService_ListOauthBinding_FullMethodName                = "/base.v1.OauthService/ListOauthBinding"
 	OauthService_CreateOauthBindingAuthorization_FullMethodName = "/base.v1.OauthService/CreateOauthBindingAuthorization"
 	OauthService_HandleOauthBindingCallback_FullMethodName      = "/base.v1.OauthService/HandleOauthBindingCallback"
 	OauthService_UnbindOauthAccount_FullMethodName              = "/base.v1.OauthService/UnbindOauthAccount"
@@ -39,7 +39,7 @@ const (
 // Base三方登录公共服务
 type OauthServiceClient interface {
 	// 查询三方登录方式
-	ListOauthProviders(ctx context.Context, in *ListOauthProvidersRequest, opts ...grpc.CallOption) (*ListOauthProvidersResponse, error)
+	ListOauthProvider(ctx context.Context, in *ListOauthProviderRequest, opts ...grpc.CallOption) (*ListOauthProviderResponse, error)
 	// 创建三方登录授权地址
 	CreateOauthAuthorization(ctx context.Context, in *CreateOauthAuthorizationRequest, opts ...grpc.CallOption) (*CreateOauthAuthorizationResponse, error)
 	// 处理三方登录回调
@@ -49,7 +49,7 @@ type OauthServiceClient interface {
 	// 创建三方登录会话
 	CreateOauthSession(ctx context.Context, in *CreateOauthSessionRequest, opts ...grpc.CallOption) (*CreateOauthSessionResponse, error)
 	// 查询个人中心三方账号绑定列表
-	ListOauthBindings(ctx context.Context, in *ListOauthBindingsRequest, opts ...grpc.CallOption) (*ListOauthBindingsResponse, error)
+	ListOauthBinding(ctx context.Context, in *ListOauthBindingRequest, opts ...grpc.CallOption) (*ListOauthBindingResponse, error)
 	// 创建个人中心三方账号绑定授权地址
 	CreateOauthBindingAuthorization(ctx context.Context, in *CreateOauthBindingAuthorizationRequest, opts ...grpc.CallOption) (*CreateOauthBindingAuthorizationResponse, error)
 	// 处理个人中心三方账号绑定回调
@@ -66,10 +66,10 @@ func NewOauthServiceClient(cc grpc.ClientConnInterface) OauthServiceClient {
 	return &oauthServiceClient{cc}
 }
 
-func (c *oauthServiceClient) ListOauthProviders(ctx context.Context, in *ListOauthProvidersRequest, opts ...grpc.CallOption) (*ListOauthProvidersResponse, error) {
+func (c *oauthServiceClient) ListOauthProvider(ctx context.Context, in *ListOauthProviderRequest, opts ...grpc.CallOption) (*ListOauthProviderResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListOauthProvidersResponse)
-	err := c.cc.Invoke(ctx, OauthService_ListOauthProviders_FullMethodName, in, out, cOpts...)
+	out := new(ListOauthProviderResponse)
+	err := c.cc.Invoke(ctx, OauthService_ListOauthProvider_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -116,10 +116,10 @@ func (c *oauthServiceClient) CreateOauthSession(ctx context.Context, in *CreateO
 	return out, nil
 }
 
-func (c *oauthServiceClient) ListOauthBindings(ctx context.Context, in *ListOauthBindingsRequest, opts ...grpc.CallOption) (*ListOauthBindingsResponse, error) {
+func (c *oauthServiceClient) ListOauthBinding(ctx context.Context, in *ListOauthBindingRequest, opts ...grpc.CallOption) (*ListOauthBindingResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListOauthBindingsResponse)
-	err := c.cc.Invoke(ctx, OauthService_ListOauthBindings_FullMethodName, in, out, cOpts...)
+	out := new(ListOauthBindingResponse)
+	err := c.cc.Invoke(ctx, OauthService_ListOauthBinding_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -163,7 +163,7 @@ func (c *oauthServiceClient) UnbindOauthAccount(ctx context.Context, in *UnbindO
 // Base三方登录公共服务
 type OauthServiceServer interface {
 	// 查询三方登录方式
-	ListOauthProviders(context.Context, *ListOauthProvidersRequest) (*ListOauthProvidersResponse, error)
+	ListOauthProvider(context.Context, *ListOauthProviderRequest) (*ListOauthProviderResponse, error)
 	// 创建三方登录授权地址
 	CreateOauthAuthorization(context.Context, *CreateOauthAuthorizationRequest) (*CreateOauthAuthorizationResponse, error)
 	// 处理三方登录回调
@@ -173,7 +173,7 @@ type OauthServiceServer interface {
 	// 创建三方登录会话
 	CreateOauthSession(context.Context, *CreateOauthSessionRequest) (*CreateOauthSessionResponse, error)
 	// 查询个人中心三方账号绑定列表
-	ListOauthBindings(context.Context, *ListOauthBindingsRequest) (*ListOauthBindingsResponse, error)
+	ListOauthBinding(context.Context, *ListOauthBindingRequest) (*ListOauthBindingResponse, error)
 	// 创建个人中心三方账号绑定授权地址
 	CreateOauthBindingAuthorization(context.Context, *CreateOauthBindingAuthorizationRequest) (*CreateOauthBindingAuthorizationResponse, error)
 	// 处理个人中心三方账号绑定回调
@@ -190,8 +190,8 @@ type OauthServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedOauthServiceServer struct{}
 
-func (UnimplementedOauthServiceServer) ListOauthProviders(context.Context, *ListOauthProvidersRequest) (*ListOauthProvidersResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method ListOauthProviders not implemented")
+func (UnimplementedOauthServiceServer) ListOauthProvider(context.Context, *ListOauthProviderRequest) (*ListOauthProviderResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListOauthProvider not implemented")
 }
 func (UnimplementedOauthServiceServer) CreateOauthAuthorization(context.Context, *CreateOauthAuthorizationRequest) (*CreateOauthAuthorizationResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreateOauthAuthorization not implemented")
@@ -205,8 +205,8 @@ func (UnimplementedOauthServiceServer) ExchangeOauthTicket(context.Context, *Exc
 func (UnimplementedOauthServiceServer) CreateOauthSession(context.Context, *CreateOauthSessionRequest) (*CreateOauthSessionResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreateOauthSession not implemented")
 }
-func (UnimplementedOauthServiceServer) ListOauthBindings(context.Context, *ListOauthBindingsRequest) (*ListOauthBindingsResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method ListOauthBindings not implemented")
+func (UnimplementedOauthServiceServer) ListOauthBinding(context.Context, *ListOauthBindingRequest) (*ListOauthBindingResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListOauthBinding not implemented")
 }
 func (UnimplementedOauthServiceServer) CreateOauthBindingAuthorization(context.Context, *CreateOauthBindingAuthorizationRequest) (*CreateOauthBindingAuthorizationResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreateOauthBindingAuthorization not implemented")
@@ -238,20 +238,20 @@ func RegisterOauthServiceServer(s grpc.ServiceRegistrar, srv OauthServiceServer)
 	s.RegisterService(&OauthService_ServiceDesc, srv)
 }
 
-func _OauthService_ListOauthProviders_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListOauthProvidersRequest)
+func _OauthService_ListOauthProvider_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListOauthProviderRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(OauthServiceServer).ListOauthProviders(ctx, in)
+		return srv.(OauthServiceServer).ListOauthProvider(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: OauthService_ListOauthProviders_FullMethodName,
+		FullMethod: OauthService_ListOauthProvider_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OauthServiceServer).ListOauthProviders(ctx, req.(*ListOauthProvidersRequest))
+		return srv.(OauthServiceServer).ListOauthProvider(ctx, req.(*ListOauthProviderRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -328,20 +328,20 @@ func _OauthService_CreateOauthSession_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
-func _OauthService_ListOauthBindings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListOauthBindingsRequest)
+func _OauthService_ListOauthBinding_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListOauthBindingRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(OauthServiceServer).ListOauthBindings(ctx, in)
+		return srv.(OauthServiceServer).ListOauthBinding(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: OauthService_ListOauthBindings_FullMethodName,
+		FullMethod: OauthService_ListOauthBinding_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OauthServiceServer).ListOauthBindings(ctx, req.(*ListOauthBindingsRequest))
+		return srv.(OauthServiceServer).ListOauthBinding(ctx, req.(*ListOauthBindingRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -408,8 +408,8 @@ var OauthService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*OauthServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "ListOauthProviders",
-			Handler:    _OauthService_ListOauthProviders_Handler,
+			MethodName: "ListOauthProvider",
+			Handler:    _OauthService_ListOauthProvider_Handler,
 		},
 		{
 			MethodName: "CreateOauthAuthorization",
@@ -428,8 +428,8 @@ var OauthService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _OauthService_CreateOauthSession_Handler,
 		},
 		{
-			MethodName: "ListOauthBindings",
-			Handler:    _OauthService_ListOauthBindings_Handler,
+			MethodName: "ListOauthBinding",
+			Handler:    _OauthService_ListOauthBinding_Handler,
 		},
 		{
 			MethodName: "CreateOauthBindingAuthorization",

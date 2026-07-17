@@ -8,7 +8,6 @@ package adminv1
 
 import (
 	reflect "reflect"
-	v1 "shop/api/gen/go/common/v1"
 	sync "sync"
 	unsafe "unsafe"
 
@@ -17,6 +16,8 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+
+	v1 "shop/api/gen/go/common/v1"
 )
 
 const (
@@ -27,26 +28,26 @@ const (
 )
 
 // 商品分类树查询条件
-type TreeGoodsCategoriesRequest struct {
+type TreeGoodsCategoryRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *TreeGoodsCategoriesRequest) Reset() {
-	*x = TreeGoodsCategoriesRequest{}
+func (x *TreeGoodsCategoryRequest) Reset() {
+	*x = TreeGoodsCategoryRequest{}
 	mi := &file_admin_v1_goods_category_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *TreeGoodsCategoriesRequest) String() string {
+func (x *TreeGoodsCategoryRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*TreeGoodsCategoriesRequest) ProtoMessage() {}
+func (*TreeGoodsCategoryRequest) ProtoMessage() {}
 
-func (x *TreeGoodsCategoriesRequest) ProtoReflect() protoreflect.Message {
+func (x *TreeGoodsCategoryRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_goods_category_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -58,33 +59,33 @@ func (x *TreeGoodsCategoriesRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use TreeGoodsCategoriesRequest.ProtoReflect.Descriptor instead.
-func (*TreeGoodsCategoriesRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use TreeGoodsCategoryRequest.ProtoReflect.Descriptor instead.
+func (*TreeGoodsCategoryRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_goods_category_proto_rawDescGZIP(), []int{0}
 }
 
 // 商品分类树响应
-type TreeGoodsCategoriesResponse struct {
+type TreeGoodsCategoryResponse struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	GoodsCategories []*GoodsCategory       `protobuf:"bytes,1,rep,name=goods_categories,json=goodsCategories,proto3" json:"goods_categories,omitempty"` // 商品分类列表
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
 
-func (x *TreeGoodsCategoriesResponse) Reset() {
-	*x = TreeGoodsCategoriesResponse{}
+func (x *TreeGoodsCategoryResponse) Reset() {
+	*x = TreeGoodsCategoryResponse{}
 	mi := &file_admin_v1_goods_category_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *TreeGoodsCategoriesResponse) String() string {
+func (x *TreeGoodsCategoryResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*TreeGoodsCategoriesResponse) ProtoMessage() {}
+func (*TreeGoodsCategoryResponse) ProtoMessage() {}
 
-func (x *TreeGoodsCategoriesResponse) ProtoReflect() protoreflect.Message {
+func (x *TreeGoodsCategoryResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_goods_category_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -96,12 +97,12 @@ func (x *TreeGoodsCategoriesResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use TreeGoodsCategoriesResponse.ProtoReflect.Descriptor instead.
-func (*TreeGoodsCategoriesResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use TreeGoodsCategoryResponse.ProtoReflect.Descriptor instead.
+func (*TreeGoodsCategoryResponse) Descriptor() ([]byte, []int) {
 	return file_admin_v1_goods_category_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *TreeGoodsCategoriesResponse) GetGoodsCategories() []*GoodsCategory {
+func (x *TreeGoodsCategoryResponse) GetGoodsCategories() []*GoodsCategory {
 	if x != nil {
 		return x.GoodsCategories
 	}
@@ -109,27 +110,27 @@ func (x *TreeGoodsCategoriesResponse) GetGoodsCategories() []*GoodsCategory {
 }
 
 // 商品分类选项查询条件
-type OptionGoodsCategoriesRequest struct {
+type OptionGoodsCategoryRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ParentId      *int64                 `protobuf:"varint,1,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"` // 父级商品分类ID
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *OptionGoodsCategoriesRequest) Reset() {
-	*x = OptionGoodsCategoriesRequest{}
+func (x *OptionGoodsCategoryRequest) Reset() {
+	*x = OptionGoodsCategoryRequest{}
 	mi := &file_admin_v1_goods_category_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *OptionGoodsCategoriesRequest) String() string {
+func (x *OptionGoodsCategoryRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*OptionGoodsCategoriesRequest) ProtoMessage() {}
+func (*OptionGoodsCategoryRequest) ProtoMessage() {}
 
-func (x *OptionGoodsCategoriesRequest) ProtoReflect() protoreflect.Message {
+func (x *OptionGoodsCategoryRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_goods_category_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -141,12 +142,12 @@ func (x *OptionGoodsCategoriesRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use OptionGoodsCategoriesRequest.ProtoReflect.Descriptor instead.
-func (*OptionGoodsCategoriesRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use OptionGoodsCategoryRequest.ProtoReflect.Descriptor instead.
+func (*OptionGoodsCategoryRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_goods_category_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *OptionGoodsCategoriesRequest) GetParentId() int64 {
+func (x *OptionGoodsCategoryRequest) GetParentId() int64 {
 	if x != nil && x.ParentId != nil {
 		return *x.ParentId
 	}
@@ -592,11 +593,11 @@ var File_admin_v1_goods_category_proto protoreflect.FileDescriptor
 
 const file_admin_v1_goods_category_proto_rawDesc = "" +
 	"\n" +
-	"\x1dadmin/v1/goods_category.proto\x12\badmin.v1\x1a\x16common/v1/common.proto\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x1c\n" +
-	"\x1aTreeGoodsCategoriesRequest\"{\n" +
-	"\x1bTreeGoodsCategoriesResponse\x12\\\n" +
-	"\x10goods_categories\x18\x01 \x03(\v2\x17.admin.v1.GoodsCategoryB\x18\xbaG\x15\x92\x02\x12商品分类列表R\x0fgoodsCategories\"j\n" +
-	"\x1cOptionGoodsCategoriesRequest\x12<\n" +
+	"\x1dadmin/v1/goods_category.proto\x12\badmin.v1\x1a\x16common/v1/common.proto\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x1a\n" +
+	"\x18TreeGoodsCategoryRequest\"y\n" +
+	"\x19TreeGoodsCategoryResponse\x12\\\n" +
+	"\x10goods_categories\x18\x01 \x03(\v2\x17.admin.v1.GoodsCategoryB\x18\xbaG\x15\x92\x02\x12商品分类列表R\x0fgoodsCategories\"h\n" +
+	"\x1aOptionGoodsCategoryRequest\x12<\n" +
 	"\tparent_id\x18\x01 \x01(\x03B\x1a\xbaG\x17\x92\x02\x14父级商品分类IDH\x00R\bparentId\x88\x01\x01B\f\n" +
 	"\n" +
 	"_parent_id\"?\n" +
@@ -633,10 +634,10 @@ const file_admin_v1_goods_category_proto_rawDesc = "" +
 	"\x06status\x182 \x01(\x0e2\x11.common.v1.StatusB\x12\xbaG\x0f\x92\x02\f菜单状态H\x01R\x06status\x88\x01\x01B\f\n" +
 	"\n" +
 	"_parent_idB\t\n" +
-	"\a_status2\xe2\a\n" +
-	"\x14GoodsCategoryService\x12\x8d\x01\n" +
-	"\x13TreeGoodsCategories\x12$.admin.v1.TreeGoodsCategoriesRequest\x1a%.admin.v1.TreeGoodsCategoriesResponse\")\x82\xd3\xe4\x93\x02#\x12!/api/v1/admin/goods/category/tree\x12\x8b\x01\n" +
-	"\x15OptionGoodsCategories\x12&.admin.v1.OptionGoodsCategoriesRequest\x1a\x1d.common.v1.TreeOptionResponse\"+\x82\xd3\xe4\x93\x02%\x12#/api/v1/admin/goods/category/option\x12}\n" +
+	"\a_status2\xd8\a\n" +
+	"\x14GoodsCategoryService\x12\x87\x01\n" +
+	"\x11TreeGoodsCategory\x12\".admin.v1.TreeGoodsCategoryRequest\x1a#.admin.v1.TreeGoodsCategoryResponse\")\x82\xd3\xe4\x93\x02#\x12!/api/v1/admin/goods/category/tree\x12\x87\x01\n" +
+	"\x13OptionGoodsCategory\x12$.admin.v1.OptionGoodsCategoryRequest\x1a\x1d.common.v1.TreeOptionResponse\"+\x82\xd3\xe4\x93\x02%\x12#/api/v1/admin/goods/category/option\x12}\n" +
 	"\x10GetGoodsCategory\x12!.admin.v1.GetGoodsCategoryRequest\x1a\x1b.admin.v1.GoodsCategoryForm\")\x82\xd3\xe4\x93\x02#\x12!/api/v1/admin/goods/category/{id}\x12\x89\x01\n" +
 	"\x13CreateGoodsCategory\x12$.admin.v1.CreateGoodsCategoryRequest\x1a\x16.google.protobuf.Empty\"4\x82\xd3\xe4\x93\x02.:\x0egoods_category\"\x1c/api/v1/admin/goods/category\x12\x8e\x01\n" +
 	"\x13UpdateGoodsCategory\x12$.admin.v1.UpdateGoodsCategoryRequest\x1a\x16.google.protobuf.Empty\"9\x82\xd3\xe4\x93\x023:\x0egoods_category\x1a!/api/v1/admin/goods/category/{id}\x12\x7f\n" +
@@ -658,9 +659,9 @@ func file_admin_v1_goods_category_proto_rawDescGZIP() []byte {
 
 var file_admin_v1_goods_category_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_admin_v1_goods_category_proto_goTypes = []any{
-	(*TreeGoodsCategoriesRequest)(nil),    // 0: admin.v1.TreeGoodsCategoriesRequest
-	(*TreeGoodsCategoriesResponse)(nil),   // 1: admin.v1.TreeGoodsCategoriesResponse
-	(*OptionGoodsCategoriesRequest)(nil),  // 2: admin.v1.OptionGoodsCategoriesRequest
+	(*TreeGoodsCategoryRequest)(nil),      // 0: admin.v1.TreeGoodsCategoryRequest
+	(*TreeGoodsCategoryResponse)(nil),     // 1: admin.v1.TreeGoodsCategoryResponse
+	(*OptionGoodsCategoryRequest)(nil),    // 2: admin.v1.OptionGoodsCategoryRequest
 	(*GetGoodsCategoryRequest)(nil),       // 3: admin.v1.GetGoodsCategoryRequest
 	(*CreateGoodsCategoryRequest)(nil),    // 4: admin.v1.CreateGoodsCategoryRequest
 	(*UpdateGoodsCategoryRequest)(nil),    // 5: admin.v1.UpdateGoodsCategoryRequest
@@ -673,22 +674,22 @@ var file_admin_v1_goods_category_proto_goTypes = []any{
 	(*emptypb.Empty)(nil),                 // 12: google.protobuf.Empty
 }
 var file_admin_v1_goods_category_proto_depIdxs = []int32{
-	8,  // 0: admin.v1.TreeGoodsCategoriesResponse.goods_categories:type_name -> admin.v1.GoodsCategory
+	8,  // 0: admin.v1.TreeGoodsCategoryResponse.goods_categories:type_name -> admin.v1.GoodsCategory
 	9,  // 1: admin.v1.CreateGoodsCategoryRequest.goods_category:type_name -> admin.v1.GoodsCategoryForm
 	9,  // 2: admin.v1.UpdateGoodsCategoryRequest.goods_category:type_name -> admin.v1.GoodsCategoryForm
 	10, // 3: admin.v1.SetGoodsCategoryStatusRequest.status:type_name -> common.v1.Status
 	10, // 4: admin.v1.GoodsCategory.status:type_name -> common.v1.Status
 	8,  // 5: admin.v1.GoodsCategory.children:type_name -> admin.v1.GoodsCategory
 	10, // 6: admin.v1.GoodsCategoryForm.status:type_name -> common.v1.Status
-	0,  // 7: admin.v1.GoodsCategoryService.TreeGoodsCategories:input_type -> admin.v1.TreeGoodsCategoriesRequest
-	2,  // 8: admin.v1.GoodsCategoryService.OptionGoodsCategories:input_type -> admin.v1.OptionGoodsCategoriesRequest
+	0,  // 7: admin.v1.GoodsCategoryService.TreeGoodsCategory:input_type -> admin.v1.TreeGoodsCategoryRequest
+	2,  // 8: admin.v1.GoodsCategoryService.OptionGoodsCategory:input_type -> admin.v1.OptionGoodsCategoryRequest
 	3,  // 9: admin.v1.GoodsCategoryService.GetGoodsCategory:input_type -> admin.v1.GetGoodsCategoryRequest
 	4,  // 10: admin.v1.GoodsCategoryService.CreateGoodsCategory:input_type -> admin.v1.CreateGoodsCategoryRequest
 	5,  // 11: admin.v1.GoodsCategoryService.UpdateGoodsCategory:input_type -> admin.v1.UpdateGoodsCategoryRequest
 	6,  // 12: admin.v1.GoodsCategoryService.DeleteGoodsCategory:input_type -> admin.v1.DeleteGoodsCategoryRequest
 	7,  // 13: admin.v1.GoodsCategoryService.SetGoodsCategoryStatus:input_type -> admin.v1.SetGoodsCategoryStatusRequest
-	1,  // 14: admin.v1.GoodsCategoryService.TreeGoodsCategories:output_type -> admin.v1.TreeGoodsCategoriesResponse
-	11, // 15: admin.v1.GoodsCategoryService.OptionGoodsCategories:output_type -> common.v1.TreeOptionResponse
+	1,  // 14: admin.v1.GoodsCategoryService.TreeGoodsCategory:output_type -> admin.v1.TreeGoodsCategoryResponse
+	11, // 15: admin.v1.GoodsCategoryService.OptionGoodsCategory:output_type -> common.v1.TreeOptionResponse
 	9,  // 16: admin.v1.GoodsCategoryService.GetGoodsCategory:output_type -> admin.v1.GoodsCategoryForm
 	12, // 17: admin.v1.GoodsCategoryService.CreateGoodsCategory:output_type -> google.protobuf.Empty
 	12, // 18: admin.v1.GoodsCategoryService.UpdateGoodsCategory:output_type -> google.protobuf.Empty

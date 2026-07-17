@@ -20,7 +20,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	BaseAreaService_TreeBaseAreas_FullMethodName = "/app.v1.BaseAreaService/TreeBaseAreas"
+	BaseAreaService_TreeBaseArea_FullMethodName = "/app.v1.BaseAreaService/TreeBaseArea"
 )
 
 // BaseAreaServiceClient is the client API for BaseAreaService service.
@@ -30,7 +30,7 @@ const (
 // App行政区域服务
 type BaseAreaServiceClient interface {
 	// 查询行政区域树形列表
-	TreeBaseAreas(ctx context.Context, in *TreeBaseAreasRequest, opts ...grpc.CallOption) (*TreeBaseAreasResponse, error)
+	TreeBaseArea(ctx context.Context, in *TreeBaseAreaRequest, opts ...grpc.CallOption) (*TreeBaseAreaResponse, error)
 }
 
 type baseAreaServiceClient struct {
@@ -41,10 +41,10 @@ func NewBaseAreaServiceClient(cc grpc.ClientConnInterface) BaseAreaServiceClient
 	return &baseAreaServiceClient{cc}
 }
 
-func (c *baseAreaServiceClient) TreeBaseAreas(ctx context.Context, in *TreeBaseAreasRequest, opts ...grpc.CallOption) (*TreeBaseAreasResponse, error) {
+func (c *baseAreaServiceClient) TreeBaseArea(ctx context.Context, in *TreeBaseAreaRequest, opts ...grpc.CallOption) (*TreeBaseAreaResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(TreeBaseAreasResponse)
-	err := c.cc.Invoke(ctx, BaseAreaService_TreeBaseAreas_FullMethodName, in, out, cOpts...)
+	out := new(TreeBaseAreaResponse)
+	err := c.cc.Invoke(ctx, BaseAreaService_TreeBaseArea_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +58,7 @@ func (c *baseAreaServiceClient) TreeBaseAreas(ctx context.Context, in *TreeBaseA
 // App行政区域服务
 type BaseAreaServiceServer interface {
 	// 查询行政区域树形列表
-	TreeBaseAreas(context.Context, *TreeBaseAreasRequest) (*TreeBaseAreasResponse, error)
+	TreeBaseArea(context.Context, *TreeBaseAreaRequest) (*TreeBaseAreaResponse, error)
 	mustEmbedUnimplementedBaseAreaServiceServer()
 }
 
@@ -69,8 +69,8 @@ type BaseAreaServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedBaseAreaServiceServer struct{}
 
-func (UnimplementedBaseAreaServiceServer) TreeBaseAreas(context.Context, *TreeBaseAreasRequest) (*TreeBaseAreasResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method TreeBaseAreas not implemented")
+func (UnimplementedBaseAreaServiceServer) TreeBaseArea(context.Context, *TreeBaseAreaRequest) (*TreeBaseAreaResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method TreeBaseArea not implemented")
 }
 func (UnimplementedBaseAreaServiceServer) mustEmbedUnimplementedBaseAreaServiceServer() {}
 func (UnimplementedBaseAreaServiceServer) testEmbeddedByValue()                         {}
@@ -93,20 +93,20 @@ func RegisterBaseAreaServiceServer(s grpc.ServiceRegistrar, srv BaseAreaServiceS
 	s.RegisterService(&BaseAreaService_ServiceDesc, srv)
 }
 
-func _BaseAreaService_TreeBaseAreas_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(TreeBaseAreasRequest)
+func _BaseAreaService_TreeBaseArea_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TreeBaseAreaRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BaseAreaServiceServer).TreeBaseAreas(ctx, in)
+		return srv.(BaseAreaServiceServer).TreeBaseArea(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: BaseAreaService_TreeBaseAreas_FullMethodName,
+		FullMethod: BaseAreaService_TreeBaseArea_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BaseAreaServiceServer).TreeBaseAreas(ctx, req.(*TreeBaseAreasRequest))
+		return srv.(BaseAreaServiceServer).TreeBaseArea(ctx, req.(*TreeBaseAreaRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -119,8 +119,8 @@ var BaseAreaService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*BaseAreaServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "TreeBaseAreas",
-			Handler:    _BaseAreaService_TreeBaseAreas_Handler,
+			MethodName: "TreeBaseArea",
+			Handler:    _BaseAreaService_TreeBaseArea_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

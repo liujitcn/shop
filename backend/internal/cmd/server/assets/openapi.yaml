@@ -307,7 +307,7 @@ paths:
             tags:
                 - AuthService
             description: 查询已经登录的用户按钮列表
-            operationId: AuthService_ListUserButtons
+            operationId: AuthService_ListUserButton
             responses:
                 "200":
                     description: OK
@@ -320,7 +320,7 @@ paths:
             tags:
                 - AuthService
             description: 查询已经登录的用户菜单树
-            operationId: AuthService_TreeUserMenus
+            operationId: AuthService_TreeUserMenu
             responses:
                 "200":
                     description: OK
@@ -422,7 +422,7 @@ paths:
             tags:
                 - BaseApiService
             description: 分页查询API列表
-            operationId: BaseApiService_PageBaseApis
+            operationId: BaseApiService_PageBaseApi
             parameters:
                 - name: service_name
                   in: query
@@ -478,20 +478,20 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/PageBaseApisResponse'
+                                $ref: '#/components/schemas/PageBaseApiResponse'
     /api/v1/admin/base/api/option:
         get:
             tags:
                 - BaseApiService
             description: 查询菜单分配API选项列表
-            operationId: BaseApiService_ListBaseApis
+            operationId: BaseApiService_ListBaseApi
             responses:
                 "200":
                     description: OK
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/ListBaseApisResponse'
+                                $ref: '#/components/schemas/ListBaseApiResponse'
     /api/v1/admin/base/api/{id}:
         get:
             tags:
@@ -600,7 +600,7 @@ paths:
             tags:
                 - BaseConfigService
             description: 查询系统配置分页列表
-            operationId: BaseConfigService_PageBaseConfigs
+            operationId: BaseConfigService_PageBaseConfig
             parameters:
                 - name: site
                   in: query
@@ -654,7 +654,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/PageBaseConfigsResponse'
+                                $ref: '#/components/schemas/PageBaseConfigResponse'
         post:
             tags:
                 - BaseConfigService
@@ -785,7 +785,7 @@ paths:
             tags:
                 - BaseDeptService
             description: 查询部门树形选择
-            operationId: BaseDeptService_OptionBaseDepts
+            operationId: BaseDeptService_OptionBaseDept
             parameters:
                 - name: tenant_id
                   in: query
@@ -807,7 +807,7 @@ paths:
             tags:
                 - BaseDeptService
             description: 查询部门树形列表
-            operationId: BaseDeptService_TreeBaseDepts
+            operationId: BaseDeptService_TreeBaseDept
             parameters:
                 - name: tenant_id
                   in: query
@@ -819,7 +819,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/TreeBaseDeptsResponse'
+                                $ref: '#/components/schemas/TreeBaseDeptResponse'
     /api/v1/admin/base/dept/{base_dept.id}:
         put:
             tags:
@@ -903,7 +903,7 @@ paths:
             tags:
                 - BaseDictService
             description: 查询字典分页列表
-            operationId: BaseDictService_PageBaseDicts
+            operationId: BaseDictService_PageBaseDict
             parameters:
                 - name: code
                   in: query
@@ -936,7 +936,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/PageBaseDictsResponse'
+                                $ref: '#/components/schemas/PageBaseDictResponse'
         post:
             tags:
                 - BaseDictService
@@ -957,7 +957,7 @@ paths:
             tags:
                 - BaseDictService
             description: 查询字典属性分页列表
-            operationId: BaseDictService_PageBaseDictItems
+            operationId: BaseDictService_PageBaseDictItem
             parameters:
                 - name: dict_id
                   in: query
@@ -990,7 +990,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/PageBaseDictItemsResponse'
+                                $ref: '#/components/schemas/PageBaseDictItemResponse'
         post:
             tags:
                 - BaseDictService
@@ -1089,14 +1089,14 @@ paths:
             tags:
                 - BaseDictService
             description: 查询字典列表
-            operationId: BaseDictService_OptionBaseDicts
+            operationId: BaseDictService_OptionBaseDict
             responses:
                 "200":
                     description: OK
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/OptionBaseDictsResponse'
+                                $ref: '#/components/schemas/OptionBaseDictResponse'
     /api/v1/admin/base/dict/{base_dict.id}:
         put:
             tags:
@@ -1180,7 +1180,7 @@ paths:
             tags:
                 - BaseJobService
             description: 查询定时任务分页列表
-            operationId: BaseJobService_PageBaseJobs
+            operationId: BaseJobService_PageBaseJob
             parameters:
                 - name: name
                   in: query
@@ -1213,7 +1213,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/PageBaseJobsResponse'
+                                $ref: '#/components/schemas/PageBaseJobResponse'
         post:
             tags:
                 - BaseJobService
@@ -1234,7 +1234,7 @@ paths:
             tags:
                 - BaseJobService
             description: 查询定时任务日志分页列表
-            operationId: BaseJobService_PageBaseJobLogs
+            operationId: BaseJobService_PageBaseJobLog
             parameters:
                 - name: job_id
                   in: query
@@ -1269,7 +1269,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/PageBaseJobLogsResponse'
+                                $ref: '#/components/schemas/PageBaseJobLogResponse'
     /api/v1/admin/base/job-log/{id}:
         get:
             tags:
@@ -1431,7 +1431,7 @@ paths:
             tags:
                 - BaseLogService
             description: 查询日志分页列表
-            operationId: BaseLogService_PageBaseLogs
+            operationId: BaseLogService_PageBaseLog
             parameters:
                 - name: request_time
                   in: query
@@ -1462,7 +1462,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/PageBaseLogsResponse'
+                                $ref: '#/components/schemas/PageBaseLogResponse'
     /api/v1/admin/base/log/{id}:
         get:
             tags:
@@ -1503,7 +1503,7 @@ paths:
             tags:
                 - BaseMenuService
             description: 查询菜单树形选择
-            operationId: BaseMenuService_OptionBaseMenus
+            operationId: BaseMenuService_OptionBaseMenu
             parameters:
                 - name: parent_id
                   in: query
@@ -1525,14 +1525,14 @@ paths:
             tags:
                 - BaseMenuService
             description: 查询菜单树形列表
-            operationId: BaseMenuService_TreeBaseMenus
+            operationId: BaseMenuService_TreeBaseMenu
             responses:
                 "200":
                     description: OK
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/TreeBaseMenusResponse'
+                                $ref: '#/components/schemas/TreeBaseMenuResponse'
     /api/v1/admin/base/menu/{base_menu.id}:
         put:
             tags:
@@ -1616,7 +1616,7 @@ paths:
             tags:
                 - BaseRoleService
             description: 查询角色分页列表
-            operationId: BaseRoleService_PageBaseRoles
+            operationId: BaseRoleService_PageBaseRole
             parameters:
                 - name: name
                   in: query
@@ -1653,7 +1653,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/PageBaseRolesResponse'
+                                $ref: '#/components/schemas/PageBaseRoleResponse'
         post:
             tags:
                 - BaseRoleService
@@ -1674,7 +1674,7 @@ paths:
             tags:
                 - BaseRoleService
             description: 查询角色下拉选择
-            operationId: BaseRoleService_OptionBaseRoles
+            operationId: BaseRoleService_OptionBaseRole
             parameters:
                 - name: tenant_id
                   in: query
@@ -1792,7 +1792,7 @@ paths:
             tags:
                 - BaseTenantService
             description: 查询租户分页列表
-            operationId: BaseTenantService_PageBaseTenants
+            operationId: BaseTenantService_PageBaseTenant
             parameters:
                 - name: code
                   in: query
@@ -1825,7 +1825,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/PageBaseTenantsResponse'
+                                $ref: '#/components/schemas/PageBaseTenantResponse'
         post:
             tags:
                 - BaseTenantService
@@ -1846,7 +1846,7 @@ paths:
             tags:
                 - BaseTenantService
             description: 查询租户下拉选择
-            operationId: BaseTenantService_OptionBaseTenants
+            operationId: BaseTenantService_OptionBaseTenant
             parameters:
                 - name: keyword
                   in: query
@@ -1942,7 +1942,7 @@ paths:
             tags:
                 - BaseUserService
             description: 查询用户分页列表
-            operationId: BaseUserService_PageBaseUsers
+            operationId: BaseUserService_PageBaseUser
             parameters:
                 - name: user_name
                   in: query
@@ -1997,7 +1997,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/PageBaseUsersResponse'
+                                $ref: '#/components/schemas/PageBaseUserResponse'
         post:
             tags:
                 - BaseUserService
@@ -2018,7 +2018,7 @@ paths:
             tags:
                 - BaseUserService
             description: 查询用户下拉选择
-            operationId: BaseUserService_OptionBaseUsers
+            operationId: BaseUserService_OptionBaseUser
             parameters:
                 - name: keyword
                   in: query
@@ -2140,20 +2140,20 @@ paths:
             tags:
                 - CodeGenTableService
             description: 查询数据库表列表
-            operationId: CodeGenTableService_ListCodeGenDatabaseTables
+            operationId: CodeGenTableService_ListCodeGenDatabaseTable
             responses:
                 "200":
                     description: OK
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/ListCodeGenDatabaseTablesResponse'
+                                $ref: '#/components/schemas/ListCodeGenDatabaseTableResponse'
     /api/v1/admin/code-gen/database/table/{table_name}/column:
         get:
             tags:
                 - CodeGenColumnService
             description: 查询数据库表字段列表
-            operationId: CodeGenColumnService_ListCodeGenDatabaseColumns
+            operationId: CodeGenColumnService_ListCodeGenDatabaseColumn
             parameters:
                 - name: table_name
                   in: path
@@ -2166,13 +2166,13 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/ListCodeGenDatabaseColumnsResponse'
+                                $ref: '#/components/schemas/ListCodeGenDatabaseColumnResponse'
     /api/v1/admin/code-gen/table:
         get:
             tags:
                 - CodeGenTableService
             description: 分页查询代码生成表配置
-            operationId: CodeGenTableService_PageCodeGenTables
+            operationId: CodeGenTableService_PageCodeGenTable
             parameters:
                 - name: name
                   in: query
@@ -2209,7 +2209,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/PageCodeGenTablesResponse'
+                                $ref: '#/components/schemas/PageCodeGenTableResponse'
         post:
             tags:
                 - CodeGenTableService
@@ -2286,7 +2286,7 @@ paths:
             tags:
                 - CodeGenColumnService
             description: 查询代码生成字段配置
-            operationId: CodeGenColumnService_ListCodeGenColumns
+            operationId: CodeGenColumnService_ListCodeGenColumn
             parameters:
                 - name: table_id
                   in: path
@@ -2299,12 +2299,12 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/ListCodeGenColumnsResponse'
+                                $ref: '#/components/schemas/ListCodeGenColumnResponse'
         put:
             tags:
                 - CodeGenColumnService
             description: 保存代码生成字段配置
-            operationId: CodeGenColumnService_SaveCodeGenColumns
+            operationId: CodeGenColumnService_SaveCodeGenColumn
             parameters:
                 - name: table_id
                   in: path
@@ -2315,7 +2315,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/SaveCodeGenColumnsRequest'
+                            $ref: '#/components/schemas/SaveCodeGenColumnRequest'
                 required: true
             responses:
                 "200":
@@ -2326,7 +2326,7 @@ paths:
             tags:
                 - CodeGenProtoService
             description: 查询代码生成Proto接口配置
-            operationId: CodeGenProtoService_ListCodeGenProtos
+            operationId: CodeGenProtoService_ListCodeGenProto
             parameters:
                 - name: table_id
                   in: path
@@ -2339,12 +2339,12 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/ListCodeGenProtosResponse'
+                                $ref: '#/components/schemas/ListCodeGenProtoResponse'
         put:
             tags:
                 - CodeGenProtoService
             description: 保存代码生成Proto接口配置
-            operationId: CodeGenProtoService_SaveCodeGenProtos
+            operationId: CodeGenProtoService_SaveCodeGenProto
             parameters:
                 - name: table_id
                   in: path
@@ -2355,7 +2355,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/SaveCodeGenProtosRequest'
+                            $ref: '#/components/schemas/SaveCodeGenProtoRequest'
                 required: true
             responses:
                 "200":
@@ -2366,7 +2366,7 @@ paths:
             tags:
                 - CommentInfoService
             description: 查询评论分页列表
-            operationId: CommentInfoService_PageCommentInfos
+            operationId: CommentInfoService_PageCommentInfo
             parameters:
                 - name: tenant_id
                   in: query
@@ -2431,7 +2431,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/PageCommentInfosResponse'
+                                $ref: '#/components/schemas/PageCommentInfoResponse'
     /api/v1/admin/comment/info/discussion/{id}/status:
         put:
             tags:
@@ -2478,7 +2478,7 @@ paths:
             tags:
                 - CommentInfoService
             description: 查询评论审核记录列表
-            operationId: CommentInfoService_ListCommentReviews
+            operationId: CommentInfoService_ListCommentReview
             parameters:
                 - name: target_type
                   in: query
@@ -2499,13 +2499,13 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/ListCommentReviewsResponse'
+                                $ref: '#/components/schemas/ListCommentReviewResponse'
     /api/v1/admin/comment/info/{comment_id}/discussion:
         get:
             tags:
                 - CommentInfoService
             description: 查询评论讨论分页列表
-            operationId: CommentInfoService_PageCommentDiscussions
+            operationId: CommentInfoService_PageCommentDiscussion
             parameters:
                 - name: comment_id
                   in: path
@@ -2544,7 +2544,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/PageCommentDiscussionsResponse'
+                                $ref: '#/components/schemas/PageCommentDiscussionResponse'
     /api/v1/admin/comment/info/{id}:
         get:
             tags:
@@ -2607,7 +2607,7 @@ paths:
             tags:
                 - GoodsCategoryService
             description: 查询商品分类树形选择
-            operationId: GoodsCategoryService_OptionGoodsCategories
+            operationId: GoodsCategoryService_OptionGoodsCategory
             parameters:
                 - name: parent_id
                   in: query
@@ -2625,14 +2625,14 @@ paths:
             tags:
                 - GoodsCategoryService
             description: 查询商品分类树形列表
-            operationId: GoodsCategoryService_TreeGoodsCategories
+            operationId: GoodsCategoryService_TreeGoodsCategory
             responses:
                 "200":
                     description: OK
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/TreeGoodsCategoriesResponse'
+                                $ref: '#/components/schemas/TreeGoodsCategoryResponse'
     /api/v1/admin/goods/category/{ids}:
         delete:
             tags:
@@ -2716,7 +2716,7 @@ paths:
             tags:
                 - GoodsInfoService
             description: 查询商品信息列表
-            operationId: GoodsInfoService_PageGoodsInfos
+            operationId: GoodsInfoService_PageGoodsInfo
             parameters:
                 - name: tenant_id
                   in: query
@@ -2775,7 +2775,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/PageGoodsInfosResponse'
+                                $ref: '#/components/schemas/PageGoodsInfoResponse'
         post:
             tags:
                 - GoodsInfoService
@@ -2796,7 +2796,7 @@ paths:
             tags:
                 - GoodsInfoService
             description: 查询商品信息下拉选择
-            operationId: GoodsInfoService_OptionGoodsInfos
+            operationId: GoodsInfoService_OptionGoodsInfo
             parameters:
                 - name: name
                   in: query
@@ -2808,7 +2808,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/OptionGoodsInfosResponse'
+                                $ref: '#/components/schemas/OptionGoodsInfoResponse'
     /api/v1/admin/goods/info/{ids}:
         delete:
             tags:
@@ -2892,7 +2892,7 @@ paths:
             tags:
                 - GoodsPropService
             description: 查询商品属性列表
-            operationId: GoodsPropService_PageGoodsProps
+            operationId: GoodsPropService_PageGoodsProp
             parameters:
                 - name: goods_id
                   in: query
@@ -2916,7 +2916,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/PageGoodsPropsResponse'
+                                $ref: '#/components/schemas/PageGoodsPropResponse'
         post:
             tags:
                 - GoodsPropService
@@ -2993,7 +2993,7 @@ paths:
             tags:
                 - GoodsSkuService
             description: 查询商品SKU列表
-            operationId: GoodsSkuService_PageGoodsSkus
+            operationId: GoodsSkuService_PageGoodsSku
             parameters:
                 - name: goods_id
                   in: query
@@ -3017,7 +3017,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/PageGoodsSkusResponse'
+                                $ref: '#/components/schemas/PageGoodsSkuResponse'
     /api/v1/admin/goods/sku/{id}:
         get:
             tags:
@@ -3063,7 +3063,7 @@ paths:
             tags:
                 - GoodsSpecService
             description: 查询商品规格列表
-            operationId: GoodsSpecService_ListGoodsSpecs
+            operationId: GoodsSpecService_ListGoodsSpec
             parameters:
                 - name: goods_id
                   in: query
@@ -3075,13 +3075,13 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/ListGoodsSpecsResponse'
+                                $ref: '#/components/schemas/ListGoodsSpecResponse'
     /api/v1/admin/order/info:
         get:
             tags:
                 - OrderInfoService
             description: 查询订单信息分页列表
-            operationId: OrderInfoService_PageOrderInfos
+            operationId: OrderInfoService_PageOrderInfo
             parameters:
                 - name: tenant_id
                   in: query
@@ -3176,7 +3176,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/PageOrderInfosResponse'
+                                $ref: '#/components/schemas/PageOrderInfoResponse'
     /api/v1/admin/order/info/{id}:
         get:
             tags:
@@ -3283,7 +3283,7 @@ paths:
             tags:
                 - PayBillService
             description: 查询支付账单列表
-            operationId: PayBillService_PagePayBills
+            operationId: PayBillService_PagePayBill
             parameters:
                 - name: bill_date
                   in: query
@@ -3313,20 +3313,20 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/PagePayBillsResponse'
+                                $ref: '#/components/schemas/PagePayBillResponse'
     /api/v1/admin/recommend/gorse/category/option:
         get:
             tags:
                 - RecommendGorseService
             description: 查询 Gorse 推荐分类
-            operationId: RecommendGorseService_OptionCategories
+            operationId: RecommendGorseService_OptionCategory
             responses:
                 "200":
                     description: OK
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/OptionCategoriesResponse'
+                                $ref: '#/components/schemas/OptionCategoryResponse'
     /api/v1/admin/recommend/gorse/config:
         get:
             tags:
@@ -3372,7 +3372,7 @@ paths:
             tags:
                 - RecommendGorseService
             description: 查询 Gorse 推荐仪表盘推荐商品
-            operationId: RecommendGorseService_ListDashboardItems
+            operationId: RecommendGorseService_ListDashboardItem
             parameters:
                 - name: recommender
                   in: query
@@ -3393,7 +3393,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/ListDashboardItemsResponse'
+                                $ref: '#/components/schemas/ListDashboardItemResponse'
     /api/v1/admin/recommend/gorse/export:
         get:
             tags:
@@ -3461,7 +3461,7 @@ paths:
             tags:
                 - RecommendGorseService
             description: 查询 Gorse 推荐商品列表
-            operationId: RecommendGorseService_PageItems
+            operationId: RecommendGorseService_PageItem
             parameters:
                 - name: cursor
                   in: query
@@ -3478,7 +3478,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/PageItemsResponse'
+                                $ref: '#/components/schemas/PageItemResponse'
     /api/v1/admin/recommend/gorse/item/{id}:
         get:
             tags:
@@ -3564,14 +3564,14 @@ paths:
             tags:
                 - RecommendGorseService
             description: 查询 Gorse 推荐任务状态
-            operationId: RecommendGorseService_ListTasks
+            operationId: RecommendGorseService_ListTask
             responses:
                 "200":
                     description: OK
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/ListTasksResponse'
+                                $ref: '#/components/schemas/ListTaskResponse'
     /api/v1/admin/recommend/gorse/timeseries/{name}:
         get:
             tags:
@@ -3604,7 +3604,7 @@ paths:
             tags:
                 - RecommendGorseService
             description: 查询 Gorse 推荐用户列表
-            operationId: RecommendGorseService_PageUsers
+            operationId: RecommendGorseService_PageUser
             parameters:
                 - name: cursor
                   in: query
@@ -3621,7 +3621,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/PageUsersResponse'
+                                $ref: '#/components/schemas/PageUserResponse'
     /api/v1/admin/recommend/gorse/user/{id}:
         get:
             tags:
@@ -3753,7 +3753,7 @@ paths:
             tags:
                 - RecommendRequestService
             description: 查询推荐请求分页列表
-            operationId: RecommendRequestService_PageRecommendRequests
+            operationId: RecommendRequestService_PageRecommendRequest
             parameters:
                 - name: request_id
                   in: query
@@ -3805,7 +3805,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/PageRecommendRequestsResponse'
+                                $ref: '#/components/schemas/PageRecommendRequestResponse'
     /api/v1/admin/recommend/request/{id}:
         get:
             tags:
@@ -3830,7 +3830,7 @@ paths:
             tags:
                 - RecommendRequestService
             description: 查询推荐请求商品关联事件
-            operationId: RecommendRequestService_ListRecommendRequestEvents
+            operationId: RecommendRequestService_ListRecommendRequestEvent
             parameters:
                 - name: request_record_id
                   in: path
@@ -3852,13 +3852,13 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/ListRecommendRequestEventsResponse'
+                                $ref: '#/components/schemas/ListRecommendRequestEventResponse'
     /api/v1/admin/report/goods/day:
         get:
             tags:
                 - GoodsReportService
             description: 查询商品日报明细
-            operationId: GoodsReportService_ListGoodsDayReports
+            operationId: GoodsReportService_ListGoodsDayReport
             parameters:
                 - name: start_date
                   in: query
@@ -3874,7 +3874,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/ListGoodsDayReportsResponse'
+                                $ref: '#/components/schemas/ListGoodsDayReportResponse'
     /api/v1/admin/report/goods/day/summary:
         get:
             tags:
@@ -3902,7 +3902,7 @@ paths:
             tags:
                 - GoodsReportService
             description: 查询商品月报名细
-            operationId: GoodsReportService_ListGoodsMonthReports
+            operationId: GoodsReportService_ListGoodsMonthReport
             parameters:
                 - name: tenant_id
                   in: query
@@ -3926,7 +3926,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/ListGoodsMonthReportsResponse'
+                                $ref: '#/components/schemas/ListGoodsMonthReportResponse'
     /api/v1/admin/report/goods/month/summary:
         get:
             tags:
@@ -3962,7 +3962,7 @@ paths:
             tags:
                 - OrderReportService
             description: 查询订单日报明细
-            operationId: OrderReportService_ListOrderDayReports
+            operationId: OrderReportService_ListOrderDayReport
             parameters:
                 - name: tenant_id
                   in: query
@@ -3996,7 +3996,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/ListOrderDayReportsResponse'
+                                $ref: '#/components/schemas/ListOrderDayReportResponse'
     /api/v1/admin/report/order/day/summary:
         get:
             tags:
@@ -4042,7 +4042,7 @@ paths:
             tags:
                 - OrderReportService
             description: 查询订单月报明细
-            operationId: OrderReportService_ListOrderMonthReports
+            operationId: OrderReportService_ListOrderMonthReport
             parameters:
                 - name: tenant_id
                   in: query
@@ -4076,7 +4076,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/ListOrderMonthReportsResponse'
+                                $ref: '#/components/schemas/ListOrderMonthReportResponse'
     /api/v1/admin/report/order/month/summary:
         get:
             tags:
@@ -4122,7 +4122,7 @@ paths:
             tags:
                 - ShopBannerService
             description: 查询商城轮播图列表
-            operationId: ShopBannerService_PageShopBanners
+            operationId: ShopBannerService_PageShopBanner
             parameters:
                 - name: site
                   in: query
@@ -4167,7 +4167,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/PageShopBannersResponse'
+                                $ref: '#/components/schemas/PageShopBannerResponse'
         post:
             tags:
                 - ShopBannerService
@@ -4266,7 +4266,7 @@ paths:
             tags:
                 - ShopHotService
             description: 查询商城热门推荐列表
-            operationId: ShopHotService_PageShopHots
+            operationId: ShopHotService_PageShopHot
             parameters:
                 - name: title
                   in: query
@@ -4299,7 +4299,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/PageShopHotsResponse'
+                                $ref: '#/components/schemas/PageShopHotResponse'
         post:
             tags:
                 - ShopHotService
@@ -4320,7 +4320,7 @@ paths:
             tags:
                 - ShopHotService
             description: 查询商城热门推荐属性列表
-            operationId: ShopHotService_PageShopHotItems
+            operationId: ShopHotService_PageShopHotItem
             parameters:
                 - name: hot_id
                   in: query
@@ -4353,7 +4353,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/PageShopHotItemsResponse'
+                                $ref: '#/components/schemas/PageShopHotItemResponse'
         post:
             tags:
                 - ShopHotService
@@ -4530,7 +4530,7 @@ paths:
             tags:
                 - ShopServiceService
             description: 查询商城服务列表
-            operationId: ShopServiceService_PageShopServices
+            operationId: ShopServiceService_PageShopService
             parameters:
                 - name: label
                   in: query
@@ -4559,7 +4559,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/PageShopServicesResponse'
+                                $ref: '#/components/schemas/PageShopServiceResponse'
         post:
             tags:
                 - ShopServiceService
@@ -4658,7 +4658,7 @@ paths:
             tags:
                 - TenantStoreService
             description: 查询租户门店列表
-            operationId: TenantStoreService_PageTenantStores
+            operationId: TenantStoreService_PageTenantStore
             parameters:
                 - name: name
                   in: query
@@ -4692,7 +4692,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/PageTenantStoresResponse'
+                                $ref: '#/components/schemas/PageTenantStoreResponse'
         post:
             tags:
                 - TenantStoreService
@@ -4713,7 +4713,7 @@ paths:
             tags:
                 - TenantStoreService
             description: 查询租户门店下拉选项
-            operationId: TenantStoreService_OptionTenantStores
+            operationId: TenantStoreService_OptionTenantStore
             parameters:
                 - name: keyword
                   in: query
@@ -4725,13 +4725,13 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/OptionTenantStoresResponse'
+                                $ref: '#/components/schemas/OptionTenantStoreResponse'
     /api/v1/admin/tenant/store/tree:
         get:
             tags:
                 - TenantStoreService
             description: 查询租户门店树形选项
-            operationId: TenantStoreService_TreeTenantStores
+            operationId: TenantStoreService_TreeTenantStore
             parameters:
                 - name: keyword
                   in: query
@@ -4743,7 +4743,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/TreeTenantStoresResponse'
+                                $ref: '#/components/schemas/TreeTenantStoreResponse'
     /api/v1/admin/tenant/store/{ids}:
         delete:
             tags:
@@ -4827,7 +4827,7 @@ paths:
             tags:
                 - UserStoreService
             description: 查询用户门店列表
-            operationId: UserStoreService_PageUserStores
+            operationId: UserStoreService_PageUserStore
             parameters:
                 - name: name
                   in: query
@@ -4857,7 +4857,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/PageUserStoresResponse'
+                                $ref: '#/components/schemas/PageUserStoreResponse'
     /api/v1/admin/user/store/{id}:
         get:
             tags:
@@ -4904,7 +4904,7 @@ paths:
             tags:
                 - WorkspaceService
             description: 查询工作台待审核评价
-            operationId: WorkspaceService_ListWorkspacePendingComments
+            operationId: WorkspaceService_ListWorkspacePendingComment
             parameters:
                 - name: tenant_id
                   in: query
@@ -4924,7 +4924,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/ListWorkspacePendingCommentsResponse'
+                                $ref: '#/components/schemas/ListWorkspacePendingCommentResponse'
     /api/v1/admin/workspace/metrics/summary:
         get:
             tags:
@@ -5065,14 +5065,14 @@ paths:
             tags:
                 - BaseAreaService
             description: 查询行政区域树形列表
-            operationId: BaseAreaService_TreeBaseAreas
+            operationId: BaseAreaService_TreeBaseArea
             responses:
                 "200":
                     description: OK
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/TreeBaseAreasResponse'
+                                $ref: '#/components/schemas/TreeBaseAreaResponse'
     /api/v1/app/base/dict/{code}:
         get:
             tags:
@@ -5199,7 +5199,7 @@ paths:
             tags:
                 - CommentService
             description: 查询商品评价标签列表
-            operationId: CommentService_GoodsCommentTags
+            operationId: CommentService_GoodsCommentTag
             parameters:
                 - name: goods_id
                   in: path
@@ -5217,7 +5217,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/GoodsCommentTagsResponse'
+                                $ref: '#/components/schemas/GoodsCommentTagResponse'
     /api/v1/app/comment/my:
         get:
             tags:
@@ -5357,7 +5357,7 @@ paths:
             tags:
                 - GoodsCategoryService
             description: 查询商品分类列表
-            operationId: GoodsCategoryService_ListGoodsCategories
+            operationId: GoodsCategoryService_ListGoodsCategory
             parameters:
                 - name: parent_id
                   in: query
@@ -5369,7 +5369,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/ListGoodsCategoriesResponse'
+                                $ref: '#/components/schemas/ListGoodsCategoryResponse'
     /api/v1/app/goods/info:
         get:
             tags:
@@ -5900,7 +5900,7 @@ paths:
             tags:
                 - ShopBannerService
             description: 查询商城轮播图列表
-            operationId: ShopBannerService_ListShopBanners
+            operationId: ShopBannerService_ListShopBanner
             parameters:
                 - name: site
                   in: query
@@ -5917,20 +5917,20 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/ListShopBannersResponse'
+                                $ref: '#/components/schemas/ListShopBannerResponse'
     /api/v1/app/shop/hot:
         get:
             tags:
                 - ShopHotService
             description: 查询热门推荐列表
-            operationId: ShopHotService_ListShopHots
+            operationId: ShopHotService_ListShopHot
             responses:
                 "200":
                     description: OK
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/ListShopHotsResponse'
+                                $ref: '#/components/schemas/ListShopHotResponse'
     /api/v1/app/shop/hot/item/{hot_item_id}/goods:
         get:
             tags:
@@ -5963,7 +5963,7 @@ paths:
             tags:
                 - ShopHotService
             description: 查询热门推荐选项
-            operationId: ShopHotService_ListShopHotItems
+            operationId: ShopHotService_ListShopHotItem
             parameters:
                 - name: id
                   in: path
@@ -5976,20 +5976,20 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/ListShopHotItemsResponse'
+                                $ref: '#/components/schemas/ListShopHotItemResponse'
     /api/v1/app/shop/service:
         get:
             tags:
                 - ShopServiceService
             description: 查询商城服务列表
-            operationId: ShopServiceService_ListShopServices
+            operationId: ShopServiceService_ListShopService
             responses:
                 "200":
                     description: OK
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/ListShopServicesResponse'
+                                $ref: '#/components/schemas/ListShopServiceResponse'
     /api/v1/app/tenant/store/{id}:
         get:
             tags:
@@ -6014,14 +6014,14 @@ paths:
             tags:
                 - UserAddressService
             description: 查询用户地址列表
-            operationId: UserAddressService_ListUserAddresses
+            operationId: UserAddressService_ListUserAddress
             responses:
                 "200":
                     description: OK
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/ListUserAddressesResponse'
+                                $ref: '#/components/schemas/ListUserAddressResponse'
         post:
             tags:
                 - UserAddressService
@@ -6097,14 +6097,14 @@ paths:
             tags:
                 - UserCartService
             description: 查询用户购物车列表
-            operationId: UserCartService_ListUserCarts
+            operationId: UserCartService_ListUserCart
             responses:
                 "200":
                     description: OK
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/ListUserCartsResponse'
+                                $ref: '#/components/schemas/ListUserCartResponse'
         post:
             tags:
                 - UserCartService
@@ -6213,7 +6213,7 @@ paths:
             tags:
                 - UserCollectService
             description: 查询用户收藏列表
-            operationId: UserCollectService_PageUserCollects
+            operationId: UserCollectService_PageUserCollect
             parameters:
                 - name: page_num
                   in: query
@@ -6229,7 +6229,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/PageUserCollectsResponse'
+                                $ref: '#/components/schemas/PageUserCollectResponse'
         post:
             tags:
                 - UserCollectService
@@ -6334,7 +6334,7 @@ paths:
             tags:
                 - AiAssistantService
             description: 查询 AI 助手会话列表
-            operationId: AiAssistantService_ListAiAssistantSessions
+            operationId: AiAssistantService_ListAiAssistantSession
             parameters:
                 - name: terminal
                   in: query
@@ -6351,7 +6351,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/ListAiAssistantSessionsResponse'
+                                $ref: '#/components/schemas/ListAiAssistantSessionResponse'
         post:
             tags:
                 - AiAssistantService
@@ -6418,7 +6418,7 @@ paths:
             tags:
                 - AiAssistantService
             description: 查询 AI 助手消息列表
-            operationId: AiAssistantService_ListAiAssistantMessages
+            operationId: AiAssistantService_ListAiAssistantMessage
             parameters:
                 - name: session_id
                   in: path
@@ -6431,7 +6431,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/ListAiAssistantMessagesResponse'
+                                $ref: '#/components/schemas/ListAiAssistantMessageResponse'
         post:
             tags:
                 - AiAssistantMessageService
@@ -6599,7 +6599,7 @@ paths:
             tags:
                 - AiAssistantService
             description: 查询 AI 助手快捷入口列表
-            operationId: AiAssistantService_ListAiAssistantShortcuts
+            operationId: AiAssistantService_ListAiAssistantShortcut
             parameters:
                 - name: terminal
                   in: query
@@ -6616,7 +6616,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/ListAiAssistantShortcutsResponse'
+                                $ref: '#/components/schemas/ListAiAssistantShortcutResponse'
     /api/v1/base/captcha:
         get:
             tags:
@@ -6762,14 +6762,14 @@ paths:
             tags:
                 - OauthService
             description: 查询个人中心三方账号绑定列表
-            operationId: OauthService_ListOauthBindings
+            operationId: OauthService_ListOauthBinding
             responses:
                 "200":
                     description: OK
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/ListOauthBindingsResponse'
+                                $ref: '#/components/schemas/ListOauthBindingResponse'
     /api/v1/base/oauth/binding/authorization:
         post:
             tags:
@@ -6810,14 +6810,14 @@ paths:
             tags:
                 - OauthService
             description: 查询三方登录方式
-            operationId: OauthService_ListOauthProviders
+            operationId: OauthService_ListOauthProvider
             responses:
                 "200":
                     description: OK
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/ListOauthProvidersResponse'
+                                $ref: '#/components/schemas/ListOauthProviderResponse'
     /api/v1/base/oauth/session:
         post:
             tags:
@@ -10327,7 +10327,7 @@ components:
                         $ref: '#/components/schemas/CommentItem'
                     description: 评价预览列表
             description: 商品评价摘要响应
-        GoodsCommentTagsResponse:
+        GoodsCommentTagResponse:
             type: object
             properties:
                 comment_tags:
@@ -10863,7 +10863,7 @@ components:
                     type: string
                     description: 签名，使用字段appId、timeStamp、nonceStr、package计算得出的签名值 注意：取值RSA格式。详细参考JSAPI调起支付签名https://pay.weixin.qq.com/doc/v3/merchant/4012365339
             description: 小程序支付响应
-        ListAiAssistantMessagesResponse:
+        ListAiAssistantMessageResponse:
             type: object
             properties:
                 messages:
@@ -10872,7 +10872,7 @@ components:
                         $ref: '#/components/schemas/AiAssistantMessage'
                     description: 消息列表
             description: AI 助手消息列表响应
-        ListAiAssistantSessionsResponse:
+        ListAiAssistantSessionResponse:
             type: object
             properties:
                 sessions:
@@ -10881,7 +10881,7 @@ components:
                         $ref: '#/components/schemas/AiAssistantSession'
                     description: 会话列表
             description: AI 助手会话列表响应
-        ListAiAssistantShortcutsResponse:
+        ListAiAssistantShortcutResponse:
             type: object
             properties:
                 shortcuts:
@@ -10890,7 +10890,7 @@ components:
                         $ref: '#/components/schemas/AiAssistantShortcut'
                     description: 快捷入口列表
             description: AI 助手快捷入口列表响应
-        ListBaseApisResponse:
+        ListBaseApiResponse:
             type: object
             properties:
                 base_apis:
@@ -10899,7 +10899,7 @@ components:
                         $ref: '#/components/schemas/BaseApi'
                     description: API列表
             description: API列表响应
-        ListCodeGenColumnsResponse:
+        ListCodeGenColumnResponse:
             type: object
             properties:
                 code_gen_columns:
@@ -10908,7 +10908,7 @@ components:
                         $ref: '#/components/schemas/CodeGenColumn'
                     description: 代码生成字段配置列表
             description: 代码生成字段配置查询响应
-        ListCodeGenDatabaseColumnsResponse:
+        ListCodeGenDatabaseColumnResponse:
             type: object
             properties:
                 columns:
@@ -10917,7 +10917,7 @@ components:
                         $ref: '#/components/schemas/CodeGenDatabaseColumn'
                     description: 数据库字段列表
             description: 数据库表字段列表响应
-        ListCodeGenDatabaseTablesResponse:
+        ListCodeGenDatabaseTableResponse:
             type: object
             properties:
                 tables:
@@ -10926,7 +10926,7 @@ components:
                         $ref: '#/components/schemas/CodeGenDatabaseTable'
                     description: 数据库表列表
             description: 数据库表列表响应
-        ListCodeGenProtosResponse:
+        ListCodeGenProtoResponse:
             type: object
             properties:
                 code_gen_protos:
@@ -10935,7 +10935,7 @@ components:
                         $ref: '#/components/schemas/CodeGenProtoCheck'
                     description: 代码生成Proto接口检查列表
             description: 代码生成Proto接口配置查询响应
-        ListCommentReviewsResponse:
+        ListCommentReviewResponse:
             type: object
             properties:
                 comment_reviews:
@@ -10944,7 +10944,7 @@ components:
                         $ref: '#/components/schemas/CommentReview'
                     description: 审核记录列表
             description: 评论审核记录列表响应
-        ListDashboardItemsResponse:
+        ListDashboardItemResponse:
             type: object
             properties:
                 items:
@@ -10956,7 +10956,7 @@ components:
                     type: string
                     description: 最后更新时间
             description: Gorse 推荐仪表盘推荐商品响应
-        ListGoodsCategoriesResponse:
+        ListGoodsCategoryResponse:
             type: object
             properties:
                 goods_categories:
@@ -10965,7 +10965,7 @@ components:
                         $ref: '#/components/schemas/GoodsCategory'
                     description: 分页数据
             description: 商品分类列表响应
-        ListGoodsDayReportsResponse:
+        ListGoodsDayReportResponse:
             type: object
             properties:
                 goods_day_reports:
@@ -10974,7 +10974,7 @@ components:
                         $ref: '#/components/schemas/GoodsDayReportItem'
                     description: 商品日报明细
             description: 商品日报列表响应
-        ListGoodsMonthReportsResponse:
+        ListGoodsMonthReportResponse:
             type: object
             properties:
                 goods_month_reports:
@@ -10983,7 +10983,7 @@ components:
                         $ref: '#/components/schemas/GoodsMonthReportItem'
                     description: 商品月报明细
             description: 商品月报列表响应
-        ListGoodsSpecsResponse:
+        ListGoodsSpecResponse:
             type: object
             properties:
                 goods_specs:
@@ -10992,7 +10992,7 @@ components:
                         $ref: '#/components/schemas/GoodsSpec'
                     description: 商品规格列表
             description: 商品规格列表响应
-        ListOauthBindingsResponse:
+        ListOauthBindingResponse:
             type: object
             properties:
                 bindings:
@@ -11001,7 +11001,7 @@ components:
                         $ref: '#/components/schemas/OauthBinding'
                     description: 三方账号绑定列表
             description: 个人中心三方账号绑定列表响应
-        ListOauthProvidersResponse:
+        ListOauthProviderResponse:
             type: object
             properties:
                 providers:
@@ -11010,7 +11010,7 @@ components:
                         $ref: '#/components/schemas/OauthProvider'
                     description: 三方登录方式列表
             description: 三方登录方式查询结果
-        ListOrderDayReportsResponse:
+        ListOrderDayReportResponse:
             type: object
             properties:
                 order_day_reports:
@@ -11019,7 +11019,7 @@ components:
                         $ref: '#/components/schemas/OrderDayReportItem'
                     description: 日报明细
             description: 订单日报列表响应
-        ListOrderMonthReportsResponse:
+        ListOrderMonthReportResponse:
             type: object
             properties:
                 order_month_reports:
@@ -11028,7 +11028,7 @@ components:
                         $ref: '#/components/schemas/OrderMonthReportItem'
                     description: 月报明细
             description: 订单月报列表响应
-        ListRecommendRequestEventsResponse:
+        ListRecommendRequestEventResponse:
             type: object
             properties:
                 recommend_events:
@@ -11041,7 +11041,7 @@ components:
                     description: 总数
                     format: int32
             description: 推荐请求事件响应
-        ListShopBannersResponse:
+        ListShopBannerResponse:
             type: object
             properties:
                 shop_banners:
@@ -11050,7 +11050,7 @@ components:
                         $ref: '#/components/schemas/ShopBanner'
                     description: 商城轮播图列表
             description: 轮播图列表响应
-        ListShopHotItemsResponse:
+        ListShopHotItemResponse:
             type: object
             properties:
                 id:
@@ -11068,7 +11068,7 @@ components:
                         $ref: '#/components/schemas/ShopHotItem'
                     description: 热门专区选项
             description: 热门专区项列表响应
-        ListShopHotsResponse:
+        ListShopHotResponse:
             type: object
             properties:
                 shop_hots:
@@ -11077,7 +11077,7 @@ components:
                         $ref: '#/components/schemas/ShopHot'
                     description: 热门专区列表
             description: 热门专区列表响应
-        ListShopServicesResponse:
+        ListShopServiceResponse:
             type: object
             properties:
                 shop_services:
@@ -11086,7 +11086,7 @@ components:
                         $ref: '#/components/schemas/ShopService'
                     description: 商城服务列表
             description: 商城服务列表响应
-        ListTasksResponse:
+        ListTaskResponse:
             type: object
             properties:
                 tasks:
@@ -11095,7 +11095,7 @@ components:
                         $ref: '#/components/schemas/Task'
                     description: 任务状态列表
             description: Gorse 推荐任务状态响应
-        ListUserAddressesResponse:
+        ListUserAddressResponse:
             type: object
             properties:
                 user_addresses:
@@ -11104,7 +11104,7 @@ components:
                         $ref: '#/components/schemas/UserAddress'
                     description: 用户地址列表
             description: 用户地址列表响应
-        ListUserCartsResponse:
+        ListUserCartResponse:
             type: object
             properties:
                 user_cart_stores:
@@ -11113,7 +11113,7 @@ components:
                         $ref: '#/components/schemas/UserCartStore'
                     description: 按店铺分组的用户购物车列表
             description: 用户购物车列表响应
-        ListWorkspacePendingCommentsResponse:
+        ListWorkspacePendingCommentResponse:
             type: object
             properties:
                 pending_comments:
@@ -11192,16 +11192,16 @@ components:
                     type: string
                     description: 登录方式标识
             description: 三方登录方式信息
-        OptionBaseDictsResponse:
+        OptionBaseDictResponse:
             type: object
             properties:
                 base_dicts:
                     type: array
                     items:
-                        $ref: '#/components/schemas/OptionBaseDictsResponse_BaseDict'
+                        $ref: '#/components/schemas/OptionBaseDictResponse_BaseDict'
                     description: 字典列表
             description: 字典选项响应
-        OptionBaseDictsResponse_BaseDict:
+        OptionBaseDictResponse_BaseDict:
             type: object
             properties:
                 code:
@@ -11213,10 +11213,10 @@ components:
                 items:
                     type: array
                     items:
-                        $ref: '#/components/schemas/OptionBaseDictsResponse_BaseDictItem'
+                        $ref: '#/components/schemas/OptionBaseDictResponse_BaseDictItem'
                     description: 字典属性
             description: 字典
-        OptionBaseDictsResponse_BaseDictItem:
+        OptionBaseDictResponse_BaseDictItem:
             type: object
             properties:
                 value:
@@ -11229,7 +11229,7 @@ components:
                     type: string
                     description: 标签类型，用于前端样式展示（如success、warning等）
             description: 字典项
-        OptionCategoriesResponse:
+        OptionCategoryResponse:
             type: object
             properties:
                 categories:
@@ -11238,16 +11238,16 @@ components:
                         type: string
                     description: 分类列表
             description: Gorse 推荐分类响应
-        OptionGoodsInfosResponse:
+        OptionGoodsInfoResponse:
             type: object
             properties:
                 goods_infos:
                     type: array
                     items:
-                        $ref: '#/components/schemas/OptionGoodsInfosResponse_GoodsInfo'
+                        $ref: '#/components/schemas/OptionGoodsInfoResponse_GoodsInfo'
                     description: 商品选项列表
             description: 商品选项响应
-        OptionGoodsInfosResponse_GoodsInfo:
+        OptionGoodsInfoResponse_GoodsInfo:
             type: object
             properties:
                 id:
@@ -11263,16 +11263,16 @@ components:
                     type: string
                     description: 分类名称
             description: 商品选项
-        OptionTenantStoresResponse:
+        OptionTenantStoreResponse:
             type: object
             properties:
                 list:
                     type: array
                     items:
-                        $ref: '#/components/schemas/OptionTenantStoresResponse_Option'
+                        $ref: '#/components/schemas/OptionTenantStoreResponse_Option'
                     description: 门店选项列表
             description: 租户门店下拉选项响应
-        OptionTenantStoresResponse_Option:
+        OptionTenantStoreResponse_Option:
             type: object
             properties:
                 value:
@@ -11822,7 +11822,7 @@ components:
                     type: string
                     description: 商品总数
             description: Order汇总
-        PageBaseApisResponse:
+        PageBaseApiResponse:
             type: object
             properties:
                 base_apis:
@@ -11835,7 +11835,7 @@ components:
                     description: 总数
                     format: int32
             description: API分页查询响应
-        PageBaseConfigsResponse:
+        PageBaseConfigResponse:
             type: object
             properties:
                 base_configs:
@@ -11848,7 +11848,7 @@ components:
                     description: 总数
                     format: int32
             description: 系统配置分页响应
-        PageBaseDictItemsResponse:
+        PageBaseDictItemResponse:
             type: object
             properties:
                 base_dict_items:
@@ -11861,7 +11861,7 @@ components:
                     description: 总数
                     format: int32
             description: 字典属性分页响应
-        PageBaseDictsResponse:
+        PageBaseDictResponse:
             type: object
             properties:
                 base_dicts:
@@ -11874,7 +11874,7 @@ components:
                     description: 总数
                     format: int32
             description: 字典分页响应
-        PageBaseJobLogsResponse:
+        PageBaseJobLogResponse:
             type: object
             properties:
                 base_job_logs:
@@ -11887,7 +11887,7 @@ components:
                     description: 总数
                     format: int32
             description: 定时任务日志分页响应
-        PageBaseJobsResponse:
+        PageBaseJobResponse:
             type: object
             properties:
                 base_jobs:
@@ -11900,7 +11900,7 @@ components:
                     description: 总数
                     format: int32
             description: 定时任务分页响应
-        PageBaseLogsResponse:
+        PageBaseLogResponse:
             type: object
             properties:
                 base_logs:
@@ -11913,7 +11913,7 @@ components:
                     description: 总数
                     format: int32
             description: 日志分页响应
-        PageBaseRolesResponse:
+        PageBaseRoleResponse:
             type: object
             properties:
                 base_roles:
@@ -11926,7 +11926,7 @@ components:
                     description: 总数
                     format: int32
             description: 角色分页响应
-        PageBaseTenantsResponse:
+        PageBaseTenantResponse:
             type: object
             properties:
                 base_tenants:
@@ -11939,7 +11939,7 @@ components:
                     description: 总数
                     format: int32
             description: 租户分页响应
-        PageBaseUsersResponse:
+        PageBaseUserResponse:
             type: object
             properties:
                 base_users:
@@ -11952,7 +11952,7 @@ components:
                     description: 总数
                     format: int32
             description: 用户分页响应
-        PageCodeGenTablesResponse:
+        PageCodeGenTableResponse:
             type: object
             properties:
                 code_gen_tables:
@@ -11968,31 +11968,6 @@ components:
         PageCommentDiscussionResponse:
             type: object
             properties:
-                comment_id:
-                    type: string
-                    description: 评价ID
-                comment_discussions:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/CommentDiscussionItem'
-                    description: 讨论分页数据
-                total:
-                    type: integer
-                    description: 总数
-                    format: int32
-                page_num:
-                    type: string
-                    description: 当前页码
-                page_size:
-                    type: string
-                    description: 每页数量
-                has_more:
-                    type: boolean
-                    description: 是否还有下一页
-            description: 评价讨论分页响应
-        PageCommentDiscussionsResponse:
-            type: object
-            properties:
                 comment_discussions:
                     type: array
                     items:
@@ -12003,7 +11978,7 @@ components:
                     description: 总数
                     format: int32
             description: 评论讨论分页响应
-        PageCommentInfosResponse:
+        PageCommentInfoResponse:
             type: object
             properties:
                 comment_infos:
@@ -12052,26 +12027,13 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/GoodsInfo'
-                    description: 分页数据
-                total:
-                    type: integer
-                    description: 总数
-                    format: int32
-            description: 商品分页响应
-        PageGoodsInfosResponse:
-            type: object
-            properties:
-                goods_infos:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/GoodsInfo'
                     description: 商品列表
                 total:
                     type: integer
                     description: 总数
                     format: int32
             description: 商品列表响应
-        PageGoodsPropsResponse:
+        PageGoodsPropResponse:
             type: object
             properties:
                 goods_props:
@@ -12084,7 +12046,7 @@ components:
                     description: 总数
                     format: int32
             description: 商品属性列表响应
-        PageGoodsSkusResponse:
+        PageGoodsSkuResponse:
             type: object
             properties:
                 goods_skus:
@@ -12097,7 +12059,7 @@ components:
                     description: 总数
                     format: int32
             description: 商品SKU列表响应
-        PageItemsResponse:
+        PageItemResponse:
             type: object
             properties:
                 cursor:
@@ -12138,26 +12100,13 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/OrderInfo'
-                    description: 分页数据
-                total:
-                    type: integer
-                    description: 总数
-                    format: int32
-            description: 订单分页响应
-        PageOrderInfosResponse:
-            type: object
-            properties:
-                order_infos:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/OrderInfo'
                     description: 订单分页数据
                 total:
                     type: integer
                     description: 总数
                     format: int32
             description: 订单分页响应
-        PagePayBillsResponse:
+        PagePayBillResponse:
             type: object
             properties:
                 pay_bills:
@@ -12192,7 +12141,7 @@ components:
                     type: boolean
                     description: 是否还有下一页
             description: 待评价商品分页响应
-        PageRecommendRequestsResponse:
+        PageRecommendRequestResponse:
             type: object
             properties:
                 recommend_requests:
@@ -12205,7 +12154,7 @@ components:
                     description: 总数
                     format: int32
             description: 推荐请求分页响应
-        PageShopBannersResponse:
+        PageShopBannerResponse:
             type: object
             properties:
                 shop_banners:
@@ -12231,7 +12180,7 @@ components:
                     description: 总数
                     format: int32
             description: 热门专区商品分页响应
-        PageShopHotItemsResponse:
+        PageShopHotItemResponse:
             type: object
             properties:
                 shop_hot_items:
@@ -12244,7 +12193,7 @@ components:
                     description: 总数
                     format: int32
             description: 热门专区项列表响应
-        PageShopHotsResponse:
+        PageShopHotResponse:
             type: object
             properties:
                 shop_hots:
@@ -12257,7 +12206,7 @@ components:
                     description: 总数
                     format: int32
             description: 热门专区列表响应
-        PageShopServicesResponse:
+        PageShopServiceResponse:
             type: object
             properties:
                 shop_services:
@@ -12270,7 +12219,7 @@ components:
                     description: 总数
                     format: int32
             description: 商城服务列表响应
-        PageTenantStoresResponse:
+        PageTenantStoreResponse:
             type: object
             properties:
                 tenant_stores:
@@ -12283,7 +12232,7 @@ components:
                     description: 总数
                     format: int32
             description: 租户门店列表响应
-        PageUserCollectsResponse:
+        PageUserCollectResponse:
             type: object
             properties:
                 user_collects:
@@ -12296,7 +12245,19 @@ components:
                     description: 总数
                     format: int32
             description: 用户收藏列表响应
-        PageUserStoresResponse:
+        PageUserResponse:
+            type: object
+            properties:
+                cursor:
+                    type: string
+                    description: 下一页游标
+                users:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/UserResponse'
+                    description: 用户列表
+            description: Gorse 推荐用户分页响应
+        PageUserStoreResponse:
             type: object
             properties:
                 user_stores:
@@ -12309,18 +12270,6 @@ components:
                     description: 总数
                     format: int32
             description: 用户门店列表响应
-        PageUsersResponse:
-            type: object
-            properties:
-                cursor:
-                    type: string
-                    description: 下一页游标
-                users:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/UserResponse'
-                    description: 用户列表
-            description: Gorse 推荐用户分页响应
         PasswordCrypto:
             type: object
             properties:
@@ -13167,7 +13116,7 @@ components:
                     type: string
                     description: value
             description: Route参数
-        SaveCodeGenColumnsRequest:
+        SaveCodeGenColumnRequest:
             type: object
             properties:
                 table_id:
@@ -13179,7 +13128,7 @@ components:
                         $ref: '#/components/schemas/CodeGenColumn'
                     description: 代码生成字段配置列表
             description: 代码生成字段配置保存条件
-        SaveCodeGenProtosRequest:
+        SaveCodeGenProtoRequest:
             type: object
             properties:
                 table_id:
@@ -14359,7 +14308,7 @@ components:
                         $ref: '#/components/schemas/TimeSeriesPoint'
                     description: 时间序列点列表
             description: Gorse 推荐时间序列响应
-        TreeBaseAreasResponse:
+        TreeBaseAreaResponse:
             type: object
             properties:
                 areas:
@@ -14368,7 +14317,7 @@ components:
                         $ref: '#/components/schemas/AppTreeOptionResponse_Option'
                     description: 行政区域树形选项
             description: 行政区域树形响应
-        TreeBaseDeptsResponse:
+        TreeBaseDeptResponse:
             type: object
             properties:
                 base_depts:
@@ -14377,7 +14326,7 @@ components:
                         $ref: '#/components/schemas/BaseDept'
                     description: 部门树
             description: 部门树响应
-        TreeBaseMenusResponse:
+        TreeBaseMenuResponse:
             type: object
             properties:
                 base_menus:
@@ -14386,7 +14335,7 @@ components:
                         $ref: '#/components/schemas/BaseMenu'
                     description: 菜单树
             description: 菜单树响应
-        TreeGoodsCategoriesResponse:
+        TreeGoodsCategoryResponse:
             type: object
             properties:
                 goods_categories:
@@ -14431,16 +14380,16 @@ components:
                         $ref: '#/components/schemas/RouteItem'
                     description: 路由列表
             description: Route树响应
-        TreeTenantStoresResponse:
+        TreeTenantStoreResponse:
             type: object
             properties:
                 list:
                     type: array
                     items:
-                        $ref: '#/components/schemas/TreeTenantStoresResponse_Option'
+                        $ref: '#/components/schemas/TreeTenantStoreResponse_Option'
                     description: 租户门店树形选项列表
             description: 租户门店树形选项响应
-        TreeTenantStoresResponse_Option:
+        TreeTenantStoreResponse_Option:
             type: object
             properties:
                 value:
@@ -14461,7 +14410,7 @@ components:
                 children:
                     type: array
                     items:
-                        $ref: '#/components/schemas/TreeTenantStoresResponse_Option'
+                        $ref: '#/components/schemas/TreeTenantStoreResponse_Option'
                     description: 子节点树
             description: 租户门店树形选项
         UpdateAiAssistantMessageRequest:

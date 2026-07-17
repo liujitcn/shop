@@ -17,25 +17,25 @@ import (
 func NewGoodsSpecServiceAgentTools(goodsSpecServiceServer GoodsSpecServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error
-	var listGoodsSpecsTool tool.InvokableTool
-	listGoodsSpecsTool, err = NewGoodsSpecServiceListGoodsSpecsAgentTool(goodsSpecServiceServer)
+	var listGoodsSpecTool tool.InvokableTool
+	listGoodsSpecTool, err = NewGoodsSpecServiceListGoodsSpecAgentTool(goodsSpecServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, listGoodsSpecsTool)
+	ts = append(ts, listGoodsSpecTool)
 	return ts, nil
 }
 
-// NewGoodsSpecServiceListGoodsSpecsAgentTool 创建查询商品规格列表的 Agent Tool。
-func NewGoodsSpecServiceListGoodsSpecsAgentTool(goodsSpecServiceServer GoodsSpecServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*ListGoodsSpecsRequest, *ListGoodsSpecsResponse](
-		"admin_v1_goods_spec_service_list_goods_specs",
+// NewGoodsSpecServiceListGoodsSpecAgentTool 创建查询商品规格列表的 Agent Tool。
+func NewGoodsSpecServiceListGoodsSpecAgentTool(goodsSpecServiceServer GoodsSpecServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*ListGoodsSpecRequest, *ListGoodsSpecResponse](
+		"admin_v1_goods_spec_service_list_goods_spec",
 		"查询商品规格列表",
-		func(ctx context.Context, req *ListGoodsSpecsRequest) (*ListGoodsSpecsResponse, error) {
+		func(ctx context.Context, req *ListGoodsSpecRequest) (*ListGoodsSpecResponse, error) {
 			if req == nil {
-				req = &ListGoodsSpecsRequest{}
+				req = &ListGoodsSpecRequest{}
 			}
-			return goodsSpecServiceServer.ListGoodsSpecs(ctx, req)
+			return goodsSpecServiceServer.ListGoodsSpec(ctx, req)
 		},
 	)
 }

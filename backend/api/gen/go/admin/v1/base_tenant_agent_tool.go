@@ -8,29 +8,30 @@ package adminv1
 
 import (
 	context "context"
-	v1 "shop/api/gen/go/common/v1"
 
 	tool "github.com/cloudwego/eino/components/tool"
 	utils "github.com/cloudwego/eino/components/tool/utils"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+
+	v1 "shop/api/gen/go/common/v1"
 )
 
 // NewBaseTenantServiceAgentTools 创建Admin租户管理服务的 Agent Tool。
 func NewBaseTenantServiceAgentTools(baseTenantServiceServer BaseTenantServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error
-	var optionBaseTenantsTool tool.InvokableTool
-	optionBaseTenantsTool, err = NewBaseTenantServiceOptionBaseTenantsAgentTool(baseTenantServiceServer)
+	var optionBaseTenantTool tool.InvokableTool
+	optionBaseTenantTool, err = NewBaseTenantServiceOptionBaseTenantAgentTool(baseTenantServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, optionBaseTenantsTool)
-	var pageBaseTenantsTool tool.InvokableTool
-	pageBaseTenantsTool, err = NewBaseTenantServicePageBaseTenantsAgentTool(baseTenantServiceServer)
+	ts = append(ts, optionBaseTenantTool)
+	var pageBaseTenantTool tool.InvokableTool
+	pageBaseTenantTool, err = NewBaseTenantServicePageBaseTenantAgentTool(baseTenantServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, pageBaseTenantsTool)
+	ts = append(ts, pageBaseTenantTool)
 	var getBaseTenantTool tool.InvokableTool
 	getBaseTenantTool, err = NewBaseTenantServiceGetBaseTenantAgentTool(baseTenantServiceServer)
 	if err != nil {
@@ -64,30 +65,30 @@ func NewBaseTenantServiceAgentTools(baseTenantServiceServer BaseTenantServiceSer
 	return ts, nil
 }
 
-// NewBaseTenantServiceOptionBaseTenantsAgentTool 创建查询租户下拉选择的 Agent Tool。
-func NewBaseTenantServiceOptionBaseTenantsAgentTool(baseTenantServiceServer BaseTenantServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*OptionBaseTenantsRequest, *v1.SelectOptionResponse](
-		"admin_v1_base_tenant_service_option_base_tenants",
+// NewBaseTenantServiceOptionBaseTenantAgentTool 创建查询租户下拉选择的 Agent Tool。
+func NewBaseTenantServiceOptionBaseTenantAgentTool(baseTenantServiceServer BaseTenantServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*OptionBaseTenantRequest, *v1.SelectOptionResponse](
+		"admin_v1_base_tenant_service_option_base_tenant",
 		"查询租户下拉选择",
-		func(ctx context.Context, req *OptionBaseTenantsRequest) (*v1.SelectOptionResponse, error) {
+		func(ctx context.Context, req *OptionBaseTenantRequest) (*v1.SelectOptionResponse, error) {
 			if req == nil {
-				req = &OptionBaseTenantsRequest{}
+				req = &OptionBaseTenantRequest{}
 			}
-			return baseTenantServiceServer.OptionBaseTenants(ctx, req)
+			return baseTenantServiceServer.OptionBaseTenant(ctx, req)
 		},
 	)
 }
 
-// NewBaseTenantServicePageBaseTenantsAgentTool 创建查询租户分页列表的 Agent Tool。
-func NewBaseTenantServicePageBaseTenantsAgentTool(baseTenantServiceServer BaseTenantServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*PageBaseTenantsRequest, *PageBaseTenantsResponse](
-		"admin_v1_base_tenant_service_page_base_tenants",
+// NewBaseTenantServicePageBaseTenantAgentTool 创建查询租户分页列表的 Agent Tool。
+func NewBaseTenantServicePageBaseTenantAgentTool(baseTenantServiceServer BaseTenantServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PageBaseTenantRequest, *PageBaseTenantResponse](
+		"admin_v1_base_tenant_service_page_base_tenant",
 		"查询租户分页列表",
-		func(ctx context.Context, req *PageBaseTenantsRequest) (*PageBaseTenantsResponse, error) {
+		func(ctx context.Context, req *PageBaseTenantRequest) (*PageBaseTenantResponse, error) {
 			if req == nil {
-				req = &PageBaseTenantsRequest{}
+				req = &PageBaseTenantRequest{}
 			}
-			return baseTenantServiceServer.PageBaseTenants(ctx, req)
+			return baseTenantServiceServer.PageBaseTenant(ctx, req)
 		},
 	)
 }

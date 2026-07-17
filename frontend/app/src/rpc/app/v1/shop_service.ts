@@ -7,11 +7,11 @@
 /* eslint-disable */
 
 /** 商城服务列表查询条件 */
-export interface ListShopServicesRequest {
+export interface ListShopServiceRequest {
 }
 
 /** 商城服务列表响应 */
-export interface ListShopServicesResponse {
+export interface ListShopServiceResponse {
   /** 商城服务列表 */
   shop_services: ShopService[];
 }
@@ -27,5 +27,5 @@ export interface ShopService {
 /** App商城服务说明服务 */
 export interface ShopServiceService {
   /** 查询商城服务列表 */
-  ListShopServices(request: ListShopServicesRequest): Promise<ListShopServicesResponse>;
+  ListShopService(request: ListShopServiceRequest): Promise<ListShopServiceResponse>;
 }

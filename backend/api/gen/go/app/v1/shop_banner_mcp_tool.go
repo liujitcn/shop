@@ -14,22 +14,22 @@ import (
 
 // RegisterShopBannerServiceMCPTools 注册App商城轮播图服务的 MCP Tool。
 func RegisterShopBannerServiceMCPTools(mcpServer *mcp.Server, shopBannerServiceServer ShopBannerServiceServer) {
-	RegisterShopBannerServiceListShopBannersMCPTool(mcpServer, shopBannerServiceServer)
+	RegisterShopBannerServiceListShopBannerMCPTool(mcpServer, shopBannerServiceServer)
 }
 
-// RegisterShopBannerServiceListShopBannersMCPTool 注册查询商城轮播图列表的 MCP Tool。
-func RegisterShopBannerServiceListShopBannersMCPTool(mcpServer *mcp.Server, shopBannerServiceServer ShopBannerServiceServer) {
-	mcp.AddTool[*ListShopBannersRequest, *ListShopBannersResponse](
+// RegisterShopBannerServiceListShopBannerMCPTool 注册查询商城轮播图列表的 MCP Tool。
+func RegisterShopBannerServiceListShopBannerMCPTool(mcpServer *mcp.Server, shopBannerServiceServer ShopBannerServiceServer) {
+	mcp.AddTool[*ListShopBannerRequest, *ListShopBannerResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "app_v1_shop_banner_service_list_shop_banners",
+			Name:        "app_v1_shop_banner_service_list_shop_banner",
 			Description: "查询商城轮播图列表",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *ListShopBannersRequest) (*mcp.CallToolResult, *ListShopBannersResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *ListShopBannerRequest) (*mcp.CallToolResult, *ListShopBannerResponse, error) {
 			if input == nil {
-				input = &ListShopBannersRequest{}
+				input = &ListShopBannerRequest{}
 			}
-			reply, err := shopBannerServiceServer.ListShopBanners(ctx, input)
+			reply, err := shopBannerServiceServer.ListShopBanner(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

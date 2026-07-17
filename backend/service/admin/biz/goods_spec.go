@@ -26,8 +26,8 @@ func NewGoodsSpecCase(baseCase *biz.BaseCase, goodsSpecRepo *data.GoodsSpecRepos
 	return &GoodsSpecCase{BaseCase: baseCase, GoodsSpecRepository: goodsSpecRepo, mapper: goodsSpecMapper}
 }
 
-// ListGoodsSpecs 查询商品规格列表
-func (c *GoodsSpecCase) ListGoodsSpecs(ctx context.Context, req *adminv1.ListGoodsSpecsRequest) (*adminv1.ListGoodsSpecsResponse, error) {
+// ListGoodsSpec 查询商品规格列表
+func (c *GoodsSpecCase) ListGoodsSpec(ctx context.Context, req *adminv1.ListGoodsSpecRequest) (*adminv1.ListGoodsSpecResponse, error) {
 	query := c.Query(ctx).GoodsSpec
 	opts := make([]repository.QueryOption, 0, 2)
 	opts = append(opts, repository.Order(query.Sort.Asc()))
@@ -41,5 +41,5 @@ func (c *GoodsSpecCase) ListGoodsSpecs(ctx context.Context, req *adminv1.ListGoo
 	for _, item := range list {
 		resList = append(resList, c.mapper.ToDTO(item))
 	}
-	return &adminv1.ListGoodsSpecsResponse{GoodsSpecs: resList}, nil
+	return &adminv1.ListGoodsSpecResponse{GoodsSpecs: resList}, nil
 }

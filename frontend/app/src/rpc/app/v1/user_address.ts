@@ -8,7 +8,7 @@
 import type { Empty } from "../../google/protobuf/empty";
 
 /** 用户地址列表查询条件 */
-export interface ListUserAddressesRequest {
+export interface ListUserAddressRequest {
 }
 
 /** 查询用户地址请求参数 */
@@ -38,7 +38,7 @@ export interface DeleteUserAddressRequest {
 }
 
 /** 用户地址列表响应 */
-export interface ListUserAddressesResponse {
+export interface ListUserAddressResponse {
   /** 用户地址列表 */
   user_addresses: UserAddress[];
 }
@@ -80,7 +80,7 @@ export interface UserAddressForm {
 /** App用户地址管理服务 */
 export interface UserAddressService {
   /** 查询用户地址列表 */
-  ListUserAddresses(request: ListUserAddressesRequest): Promise<ListUserAddressesResponse>;
+  ListUserAddress(request: ListUserAddressRequest): Promise<ListUserAddressResponse>;
   /** 查询用户地址 */
   GetUserAddress(request: GetUserAddressRequest): Promise<UserAddressForm>;
   /** 创建用户地址 */

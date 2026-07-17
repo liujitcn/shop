@@ -39,14 +39,14 @@ const (
 	toolCountOrderInfo     = "app_v1_order_info_service_count_order_info"
 	toolPageOrderInfo      = "app_v1_order_info_service_page_order_info"
 	toolGetOrderInfoByID   = "app_v1_order_info_service_get_order_info_by_id"
-	toolListShopHots       = "app_v1_shop_hot_service_list_shop_hots"
-	toolListShopHotItems   = "app_v1_shop_hot_service_list_shop_hot_items"
+	toolListShopHot        = "app_v1_shop_hot_service_list_shop_hots"
+	toolListShopHotItem    = "app_v1_shop_hot_service_list_shop_hot_items"
 	toolPageShopHotGoods   = "app_v1_shop_hot_service_page_shop_hot_goods"
-	toolListShopServices   = "app_v1_shop_service_service_list_shop_services"
-	toolListUserAddresses  = "app_v1_user_address_service_list_user_addresses"
+	toolListShopService    = "app_v1_shop_service_service_list_shop_services"
+	toolListUserAddress    = "app_v1_user_address_service_list_user_addresses"
 	toolCreateUserAddress  = "app_v1_user_address_service_create_user_address"
-	toolListUserCarts      = "app_v1_user_cart_service_list_user_carts"
-	toolPageUserCollects   = "app_v1_user_collect_service_page_user_collects"
+	toolListUserCart       = "app_v1_user_cart_service_list_user_carts"
+	toolPageUserCollect    = "app_v1_user_collect_service_page_user_collects"
 	toolGetUserStore       = "app_v1_user_store_service_get_user_store"
 	toolPagePendingComment = "app_v1_comment_service_page_pending_comment_goods"
 	toolCreateComment      = "app_v1_comment_service_create_comment"
@@ -83,15 +83,15 @@ const (
 
 	// 管理端工具
 	toolAdminSummaryWorkspaceMetrics    = "admin_v1_workspace_service_summary_workspace_metrics"
-	toolAdminPageOrderInfos             = "admin_v1_order_info_service_page_order_infos"
-	toolAdminPageCommentInfos           = "admin_v1_comment_info_service_page_comment_infos"
-	toolAdminPageGoodsInfos             = "admin_v1_goods_info_service_page_goods_infos"
+	toolAdminPageOrderInfo              = "admin_v1_order_info_service_page_order_infos"
+	toolAdminPageCommentInfo            = "admin_v1_comment_info_service_page_comment_infos"
+	toolAdminPageGoodsInfo              = "admin_v1_goods_info_service_page_goods_infos"
 	toolAdminSummaryGoodsAnalytics      = "admin_v1_goods_analytics_service_summary_goods_analytics"
 	toolAdminSummaryOrderAnalytics      = "admin_v1_order_analytics_service_summary_order_analytics"
-	toolAdminPageUserStores             = "admin_v1_user_store_service_page_user_stores"
-	toolAdminListDashboardItems         = "admin_v1_recommend_gorse_service_list_dashboard_items"
+	toolAdminPageUserStore              = "admin_v1_user_store_service_page_user_stores"
+	toolAdminListDashboardItem          = "admin_v1_recommend_gorse_service_list_dashboard_items"
 	toolAdminSummaryWorkspaceReputation = "admin_v1_workspace_service_summary_workspace_reputation"
-	toolAdminPagePayBills               = "admin_v1_pay_bill_service_page_pay_bills"
+	toolAdminPagePayBill                = "admin_v1_pay_bill_service_page_pay_bills"
 	toolAdminSummaryOrderMonthReport    = "admin_v1_order_report_service_summary_order_month_report"
 )
 
@@ -112,7 +112,7 @@ var shortcutCatalog = []shortcutItem{
 			toolGetGoodsInfo,
 			toolBuyNowOrderInfo,
 			toolCreateOrderInfo,
-			toolListUserAddresses,
+			toolListUserAddress,
 			toolCreateUserAddress,
 			toolJSAPIPay,
 			toolH5Pay,
@@ -134,7 +134,7 @@ var shortcutCatalog = []shortcutItem{
 			toolGetGoodsInfo,
 			toolBuyNowOrderInfo,
 			toolCreateOrderInfo,
-			toolListUserAddresses,
+			toolListUserAddress,
 			toolCreateUserAddress,
 			toolJSAPIPay,
 			toolH5Pay,
@@ -217,7 +217,7 @@ var shortcutCatalog = []shortcutItem{
 			typ:  shortcutActionOpenUserCart,
 		},
 		requiredTools: []string{
-			toolListUserCarts,
+			toolListUserCart,
 		},
 	},
 	{
@@ -232,7 +232,7 @@ var shortcutCatalog = []shortcutItem{
 			typ:  shortcutActionOpenUserCollect,
 		},
 		requiredTools: []string{
-			toolPageUserCollects,
+			toolPageUserCollect,
 		},
 	},
 	{
@@ -247,7 +247,7 @@ var shortcutCatalog = []shortcutItem{
 			typ:  shortcutActionOpenUserAddress,
 		},
 		requiredTools: []string{
-			toolListUserAddresses,
+			toolListUserAddress,
 			toolCreateUserAddress,
 			toolListBaseAreas,
 		},
@@ -309,8 +309,8 @@ var shortcutCatalog = []shortcutItem{
 			typ:  shortcutActionOpenShopHot,
 		},
 		requiredTools: []string{
-			toolListShopHots,
-			toolListShopHotItems,
+			toolListShopHot,
+			toolListShopHotItem,
 			toolPageShopHotGoods,
 		},
 	},
@@ -326,7 +326,7 @@ var shortcutCatalog = []shortcutItem{
 			typ:  shortcutActionOpenShopService,
 		},
 		requiredTools: []string{
-			toolListShopServices,
+			toolListShopService,
 		},
 	},
 	// ===== 管理端快捷入口 =====
@@ -359,7 +359,7 @@ var shortcutCatalog = []shortcutItem{
 			typ:  shortcutAdminActionOpenPendingShipment,
 		},
 		requiredTools: []string{
-			toolAdminPageOrderInfos,
+			toolAdminPageOrderInfo,
 		},
 	},
 	{
@@ -375,7 +375,7 @@ var shortcutCatalog = []shortcutItem{
 			typ:  shortcutAdminActionOpenCommentReview,
 		},
 		requiredTools: []string{
-			toolAdminPageCommentInfos,
+			toolAdminPageCommentInfo,
 		},
 	},
 	{
@@ -391,7 +391,7 @@ var shortcutCatalog = []shortcutItem{
 			typ:  shortcutAdminActionOpenGoodsInventoryAlert,
 		},
 		requiredTools: []string{
-			toolAdminPageGoodsInfos,
+			toolAdminPageGoodsInfo,
 		},
 	},
 	{
@@ -407,7 +407,7 @@ var shortcutCatalog = []shortcutItem{
 			typ:  shortcutAdminActionOpenOrderRefund,
 		},
 		requiredTools: []string{
-			toolAdminPageOrderInfos,
+			toolAdminPageOrderInfo,
 		},
 	},
 	{
@@ -455,7 +455,7 @@ var shortcutCatalog = []shortcutItem{
 			typ:  shortcutAdminActionOpenStoreAudit,
 		},
 		requiredTools: []string{
-			toolAdminPageUserStores,
+			toolAdminPageUserStore,
 		},
 	},
 	{
@@ -471,7 +471,7 @@ var shortcutCatalog = []shortcutItem{
 			typ:  shortcutAdminActionOpenRecommendDashboard,
 		},
 		requiredTools: []string{
-			toolAdminListDashboardItems,
+			toolAdminListDashboardItem,
 		},
 	},
 	{
@@ -503,7 +503,7 @@ var shortcutCatalog = []shortcutItem{
 			typ:  shortcutAdminActionOpenPayBillCheck,
 		},
 		requiredTools: []string{
-			toolAdminPagePayBills,
+			toolAdminPagePayBill,
 		},
 	},
 	{

@@ -79,7 +79,7 @@ import ProDialog from "@/components/Dialog/ProDialog.vue";
 import { defBaseLogService } from "@/api/admin/base_log";
 import { buildPageRequest } from "@/utils/proTable";
 import { formatJson } from "@/utils/utils";
-import type { BaseLog, PageBaseLogsRequest } from "@/rpc/admin/v1/base_log";
+import type { BaseLog, PageBaseLogRequest } from "@/rpc/admin/v1/base_log";
 
 defineOptions({
   name: "BaseLog",
@@ -253,8 +253,8 @@ const columns: ColumnProps[] = [
 /**
  * 请求系统日志列表，并通过 buildPageRequest 统一处理分页参数。
  */
-async function requestBaseLogTable(params: PageBaseLogsRequest) {
-  const data = await defBaseLogService.PageBaseLogs(buildPageRequest(params));
+async function requestBaseLogTable(params: PageBaseLogRequest) {
+  const data = await defBaseLogService.PageBaseLog(buildPageRequest(params));
   return { data: { list: data.base_logs ?? [], total: data.total } };
 }
 

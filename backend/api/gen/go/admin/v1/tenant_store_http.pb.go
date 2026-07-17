@@ -23,9 +23,9 @@ const OperationTenantStoreServiceAuditTenantStore = "/admin.v1.TenantStoreServic
 const OperationTenantStoreServiceCreateTenantStore = "/admin.v1.TenantStoreService/CreateTenantStore"
 const OperationTenantStoreServiceDeleteTenantStore = "/admin.v1.TenantStoreService/DeleteTenantStore"
 const OperationTenantStoreServiceGetTenantStore = "/admin.v1.TenantStoreService/GetTenantStore"
-const OperationTenantStoreServiceOptionTenantStores = "/admin.v1.TenantStoreService/OptionTenantStores"
-const OperationTenantStoreServicePageTenantStores = "/admin.v1.TenantStoreService/PageTenantStores"
-const OperationTenantStoreServiceTreeTenantStores = "/admin.v1.TenantStoreService/TreeTenantStores"
+const OperationTenantStoreServiceOptionTenantStore = "/admin.v1.TenantStoreService/OptionTenantStore"
+const OperationTenantStoreServicePageTenantStore = "/admin.v1.TenantStoreService/PageTenantStore"
+const OperationTenantStoreServiceTreeTenantStore = "/admin.v1.TenantStoreService/TreeTenantStore"
 const OperationTenantStoreServiceUpdateTenantStore = "/admin.v1.TenantStoreService/UpdateTenantStore"
 
 type TenantStoreServiceHTTPServer interface {
@@ -37,21 +37,21 @@ type TenantStoreServiceHTTPServer interface {
 	DeleteTenantStore(context.Context, *DeleteTenantStoreRequest) (*emptypb.Empty, error)
 	// GetTenantStore 查询租户门店
 	GetTenantStore(context.Context, *GetTenantStoreRequest) (*TenantStoreForm, error)
-	// OptionTenantStores 查询租户门店下拉选项
-	OptionTenantStores(context.Context, *OptionTenantStoresRequest) (*OptionTenantStoresResponse, error)
-	// PageTenantStores 查询租户门店列表
-	PageTenantStores(context.Context, *PageTenantStoresRequest) (*PageTenantStoresResponse, error)
-	// TreeTenantStores 查询租户门店树形选项
-	TreeTenantStores(context.Context, *TreeTenantStoresRequest) (*TreeTenantStoresResponse, error)
+	// OptionTenantStore 查询租户门店下拉选项
+	OptionTenantStore(context.Context, *OptionTenantStoreRequest) (*OptionTenantStoreResponse, error)
+	// PageTenantStore 查询租户门店列表
+	PageTenantStore(context.Context, *PageTenantStoreRequest) (*PageTenantStoreResponse, error)
+	// TreeTenantStore 查询租户门店树形选项
+	TreeTenantStore(context.Context, *TreeTenantStoreRequest) (*TreeTenantStoreResponse, error)
 	// UpdateTenantStore 更新租户门店
 	UpdateTenantStore(context.Context, *UpdateTenantStoreRequest) (*emptypb.Empty, error)
 }
 
 func RegisterTenantStoreServiceHTTPServer(s *http.Server, srv TenantStoreServiceHTTPServer) {
 	r := s.Route("/")
-	r.Handle("GET", "/api/v1/admin/tenant/store/option", _TenantStoreService_OptionTenantStores0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/admin/tenant/store/tree", _TenantStoreService_TreeTenantStores0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/admin/tenant/store", _TenantStoreService_PageTenantStores0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/tenant/store/option", _TenantStoreService_OptionTenantStore0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/tenant/store/tree", _TenantStoreService_TreeTenantStore0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/tenant/store", _TenantStoreService_PageTenantStore0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/tenant/store/{id}", _TenantStoreService_GetTenantStore0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/admin/tenant/store", _TenantStoreService_CreateTenantStore0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/tenant/store/{id}", _TenantStoreService_UpdateTenantStore0_HTTP_Handler(srv))
@@ -59,59 +59,59 @@ func RegisterTenantStoreServiceHTTPServer(s *http.Server, srv TenantStoreService
 	r.Handle("PUT", "/api/v1/admin/tenant/store/{id}/audit", _TenantStoreService_AuditTenantStore0_HTTP_Handler(srv))
 }
 
-func _TenantStoreService_OptionTenantStores0_HTTP_Handler(srv TenantStoreServiceHTTPServer) func(ctx http.Context) error {
+func _TenantStoreService_OptionTenantStore0_HTTP_Handler(srv TenantStoreServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in OptionTenantStoresRequest
+		var in OptionTenantStoreRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationTenantStoreServiceOptionTenantStores)
+		http.SetOperation(ctx, OperationTenantStoreServiceOptionTenantStore)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.OptionTenantStores(ctx, req.(*OptionTenantStoresRequest))
+			return srv.OptionTenantStore(ctx, req.(*OptionTenantStoreRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*OptionTenantStoresResponse)
+		reply := out.(*OptionTenantStoreResponse)
 		return ctx.Result(200, reply)
 	}
 }
 
-func _TenantStoreService_TreeTenantStores0_HTTP_Handler(srv TenantStoreServiceHTTPServer) func(ctx http.Context) error {
+func _TenantStoreService_TreeTenantStore0_HTTP_Handler(srv TenantStoreServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in TreeTenantStoresRequest
+		var in TreeTenantStoreRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationTenantStoreServiceTreeTenantStores)
+		http.SetOperation(ctx, OperationTenantStoreServiceTreeTenantStore)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.TreeTenantStores(ctx, req.(*TreeTenantStoresRequest))
+			return srv.TreeTenantStore(ctx, req.(*TreeTenantStoreRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*TreeTenantStoresResponse)
+		reply := out.(*TreeTenantStoreResponse)
 		return ctx.Result(200, reply)
 	}
 }
 
-func _TenantStoreService_PageTenantStores0_HTTP_Handler(srv TenantStoreServiceHTTPServer) func(ctx http.Context) error {
+func _TenantStoreService_PageTenantStore0_HTTP_Handler(srv TenantStoreServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in PageTenantStoresRequest
+		var in PageTenantStoreRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationTenantStoreServicePageTenantStores)
+		http.SetOperation(ctx, OperationTenantStoreServicePageTenantStore)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.PageTenantStores(ctx, req.(*PageTenantStoresRequest))
+			return srv.PageTenantStore(ctx, req.(*PageTenantStoreRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*PageTenantStoresResponse)
+		reply := out.(*PageTenantStoreResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -238,12 +238,12 @@ type TenantStoreServiceHTTPClient interface {
 	DeleteTenantStore(ctx context.Context, req *DeleteTenantStoreRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// GetTenantStore 查询租户门店
 	GetTenantStore(ctx context.Context, req *GetTenantStoreRequest, opts ...http.CallOption) (rsp *TenantStoreForm, err error)
-	// OptionTenantStores 查询租户门店下拉选项
-	OptionTenantStores(ctx context.Context, req *OptionTenantStoresRequest, opts ...http.CallOption) (rsp *OptionTenantStoresResponse, err error)
-	// PageTenantStores 查询租户门店列表
-	PageTenantStores(ctx context.Context, req *PageTenantStoresRequest, opts ...http.CallOption) (rsp *PageTenantStoresResponse, err error)
-	// TreeTenantStores 查询租户门店树形选项
-	TreeTenantStores(ctx context.Context, req *TreeTenantStoresRequest, opts ...http.CallOption) (rsp *TreeTenantStoresResponse, err error)
+	// OptionTenantStore 查询租户门店下拉选项
+	OptionTenantStore(ctx context.Context, req *OptionTenantStoreRequest, opts ...http.CallOption) (rsp *OptionTenantStoreResponse, err error)
+	// PageTenantStore 查询租户门店列表
+	PageTenantStore(ctx context.Context, req *PageTenantStoreRequest, opts ...http.CallOption) (rsp *PageTenantStoreResponse, err error)
+	// TreeTenantStore 查询租户门店树形选项
+	TreeTenantStore(ctx context.Context, req *TreeTenantStoreRequest, opts ...http.CallOption) (rsp *TreeTenantStoreResponse, err error)
 	// UpdateTenantStore 更新租户门店
 	UpdateTenantStore(ctx context.Context, req *UpdateTenantStoreRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 }
@@ -326,14 +326,14 @@ func (c *TenantStoreServiceHTTPClientImpl) GetTenantStore(ctx context.Context, i
 	return &out, nil
 }
 
-// OptionTenantStores 查询租户门店下拉选项
-func (c *TenantStoreServiceHTTPClientImpl) OptionTenantStores(ctx context.Context, in *OptionTenantStoresRequest, opts ...http.CallOption) (*OptionTenantStoresResponse, error) {
-	var out OptionTenantStoresResponse
+// OptionTenantStore 查询租户门店下拉选项
+func (c *TenantStoreServiceHTTPClientImpl) OptionTenantStore(ctx context.Context, in *OptionTenantStoreRequest, opts ...http.CallOption) (*OptionTenantStoreResponse, error) {
+	var out OptionTenantStoreResponse
 	pattern := "/api/v1/admin/tenant/store/option"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationTenantStoreServiceOptionTenantStores),
+		http.Operation(OperationTenantStoreServiceOptionTenantStore),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
@@ -343,14 +343,14 @@ func (c *TenantStoreServiceHTTPClientImpl) OptionTenantStores(ctx context.Contex
 	return &out, nil
 }
 
-// PageTenantStores 查询租户门店列表
-func (c *TenantStoreServiceHTTPClientImpl) PageTenantStores(ctx context.Context, in *PageTenantStoresRequest, opts ...http.CallOption) (*PageTenantStoresResponse, error) {
-	var out PageTenantStoresResponse
+// PageTenantStore 查询租户门店列表
+func (c *TenantStoreServiceHTTPClientImpl) PageTenantStore(ctx context.Context, in *PageTenantStoreRequest, opts ...http.CallOption) (*PageTenantStoreResponse, error) {
+	var out PageTenantStoreResponse
 	pattern := "/api/v1/admin/tenant/store"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationTenantStoreServicePageTenantStores),
+		http.Operation(OperationTenantStoreServicePageTenantStore),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
@@ -360,14 +360,14 @@ func (c *TenantStoreServiceHTTPClientImpl) PageTenantStores(ctx context.Context,
 	return &out, nil
 }
 
-// TreeTenantStores 查询租户门店树形选项
-func (c *TenantStoreServiceHTTPClientImpl) TreeTenantStores(ctx context.Context, in *TreeTenantStoresRequest, opts ...http.CallOption) (*TreeTenantStoresResponse, error) {
-	var out TreeTenantStoresResponse
+// TreeTenantStore 查询租户门店树形选项
+func (c *TenantStoreServiceHTTPClientImpl) TreeTenantStore(ctx context.Context, in *TreeTenantStoreRequest, opts ...http.CallOption) (*TreeTenantStoreResponse, error) {
+	var out TreeTenantStoreResponse
 	pattern := "/api/v1/admin/tenant/store/tree"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationTenantStoreServiceTreeTenantStores),
+		http.Operation(OperationTenantStoreServiceTreeTenantStore),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)

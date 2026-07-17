@@ -8,7 +8,6 @@ package adminv1
 
 import (
 	reflect "reflect"
-	v1 "shop/api/gen/go/common/v1"
 	sync "sync"
 	unsafe "unsafe"
 
@@ -17,6 +16,8 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+
+	v1 "shop/api/gen/go/common/v1"
 )
 
 const (
@@ -27,26 +28,26 @@ const (
 )
 
 // 菜单树查询条件
-type TreeBaseMenusRequest struct {
+type TreeBaseMenuRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *TreeBaseMenusRequest) Reset() {
-	*x = TreeBaseMenusRequest{}
+func (x *TreeBaseMenuRequest) Reset() {
+	*x = TreeBaseMenuRequest{}
 	mi := &file_admin_v1_base_menu_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *TreeBaseMenusRequest) String() string {
+func (x *TreeBaseMenuRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*TreeBaseMenusRequest) ProtoMessage() {}
+func (*TreeBaseMenuRequest) ProtoMessage() {}
 
-func (x *TreeBaseMenusRequest) ProtoReflect() protoreflect.Message {
+func (x *TreeBaseMenuRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_base_menu_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -58,33 +59,33 @@ func (x *TreeBaseMenusRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use TreeBaseMenusRequest.ProtoReflect.Descriptor instead.
-func (*TreeBaseMenusRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use TreeBaseMenuRequest.ProtoReflect.Descriptor instead.
+func (*TreeBaseMenuRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_base_menu_proto_rawDescGZIP(), []int{0}
 }
 
 // 菜单树响应
-type TreeBaseMenusResponse struct {
+type TreeBaseMenuResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	BaseMenus     []*BaseMenu            `protobuf:"bytes,1,rep,name=base_menus,json=baseMenus,proto3" json:"base_menus,omitempty"` // 菜单树
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *TreeBaseMenusResponse) Reset() {
-	*x = TreeBaseMenusResponse{}
+func (x *TreeBaseMenuResponse) Reset() {
+	*x = TreeBaseMenuResponse{}
 	mi := &file_admin_v1_base_menu_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *TreeBaseMenusResponse) String() string {
+func (x *TreeBaseMenuResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*TreeBaseMenusResponse) ProtoMessage() {}
+func (*TreeBaseMenuResponse) ProtoMessage() {}
 
-func (x *TreeBaseMenusResponse) ProtoReflect() protoreflect.Message {
+func (x *TreeBaseMenuResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_base_menu_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -96,12 +97,12 @@ func (x *TreeBaseMenusResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use TreeBaseMenusResponse.ProtoReflect.Descriptor instead.
-func (*TreeBaseMenusResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use TreeBaseMenuResponse.ProtoReflect.Descriptor instead.
+func (*TreeBaseMenuResponse) Descriptor() ([]byte, []int) {
 	return file_admin_v1_base_menu_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *TreeBaseMenusResponse) GetBaseMenus() []*BaseMenu {
+func (x *TreeBaseMenuResponse) GetBaseMenus() []*BaseMenu {
 	if x != nil {
 		return x.BaseMenus
 	}
@@ -109,7 +110,7 @@ func (x *TreeBaseMenusResponse) GetBaseMenus() []*BaseMenu {
 }
 
 // 菜单选项查询条件
-type OptionBaseMenusRequest struct {
+type OptionBaseMenuRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ParentId      *int64                 `protobuf:"varint,1,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"` // 父级菜单ID
 	RoleId        *int64                 `protobuf:"varint,2,opt,name=role_id,json=roleId,proto3,oneof" json:"role_id,omitempty"`       // 目标角色ID
@@ -117,20 +118,20 @@ type OptionBaseMenusRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *OptionBaseMenusRequest) Reset() {
-	*x = OptionBaseMenusRequest{}
+func (x *OptionBaseMenuRequest) Reset() {
+	*x = OptionBaseMenuRequest{}
 	mi := &file_admin_v1_base_menu_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *OptionBaseMenusRequest) String() string {
+func (x *OptionBaseMenuRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*OptionBaseMenusRequest) ProtoMessage() {}
+func (*OptionBaseMenuRequest) ProtoMessage() {}
 
-func (x *OptionBaseMenusRequest) ProtoReflect() protoreflect.Message {
+func (x *OptionBaseMenuRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_base_menu_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -142,19 +143,19 @@ func (x *OptionBaseMenusRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use OptionBaseMenusRequest.ProtoReflect.Descriptor instead.
-func (*OptionBaseMenusRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use OptionBaseMenuRequest.ProtoReflect.Descriptor instead.
+func (*OptionBaseMenuRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_base_menu_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *OptionBaseMenusRequest) GetParentId() int64 {
+func (x *OptionBaseMenuRequest) GetParentId() int64 {
 	if x != nil && x.ParentId != nil {
 		return *x.ParentId
 	}
 	return 0
 }
 
-func (x *OptionBaseMenusRequest) GetRoleId() int64 {
+func (x *OptionBaseMenuRequest) GetRoleId() int64 {
 	if x != nil && x.RoleId != nil {
 		return *x.RoleId
 	}
@@ -818,12 +819,12 @@ var File_admin_v1_base_menu_proto protoreflect.FileDescriptor
 
 const file_admin_v1_base_menu_proto_rawDesc = "" +
 	"\n" +
-	"\x18admin/v1/base_menu.proto\x12\badmin.v1\x1a\x16common/v1/common.proto\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x16\n" +
-	"\x14TreeBaseMenusRequest\"[\n" +
-	"\x15TreeBaseMenusResponse\x12B\n" +
+	"\x18admin/v1/base_menu.proto\x12\badmin.v1\x1a\x16common/v1/common.proto\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x15\n" +
+	"\x13TreeBaseMenuRequest\"Z\n" +
+	"\x14TreeBaseMenuResponse\x12B\n" +
 	"\n" +
-	"base_menus\x18\x01 \x03(\v2\x12.admin.v1.BaseMenuB\x0f\xbaG\f\x92\x02\t菜单树R\tbaseMenus\"\x9e\x01\n" +
-	"\x16OptionBaseMenusRequest\x126\n" +
+	"base_menus\x18\x01 \x03(\v2\x12.admin.v1.BaseMenuB\x0f\xbaG\f\x92\x02\t菜单树R\tbaseMenus\"\x9d\x01\n" +
+	"\x15OptionBaseMenuRequest\x126\n" +
 	"\tparent_id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e父级菜单IDH\x00R\bparentId\x88\x01\x01\x122\n" +
 	"\arole_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e目标角色IDH\x01R\x06roleId\x88\x01\x01B\f\n" +
 	"\n" +
@@ -892,10 +893,10 @@ const file_admin_v1_base_menu_proto_rawDesc = "" +
 	"\x06_affix\"\\\n" +
 	"\x0eBaseMenuParams\x12!\n" +
 	"\x03key\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t参数keyR\x03key\x12'\n" +
-	"\x05value\x18\x02 \x01(\tB\x11\xbaG\x0e\x92\x02\v参数valueR\x05value2\xe0\x06\n" +
-	"\x0fBaseMenuService\x12v\n" +
-	"\rTreeBaseMenus\x12\x1e.admin.v1.TreeBaseMenusRequest\x1a\x1f.admin.v1.TreeBaseMenusResponse\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/api/v1/admin/base/menu/tree\x12z\n" +
-	"\x0fOptionBaseMenus\x12 .admin.v1.OptionBaseMenusRequest\x1a\x1d.common.v1.TreeOptionResponse\"&\x82\xd3\xe4\x93\x02 \x12\x1e/api/v1/admin/base/menu/option\x12i\n" +
+	"\x05value\x18\x02 \x01(\tB\x11\xbaG\x0e\x92\x02\v参数valueR\x05value2\xdb\x06\n" +
+	"\x0fBaseMenuService\x12s\n" +
+	"\fTreeBaseMenu\x12\x1d.admin.v1.TreeBaseMenuRequest\x1a\x1e.admin.v1.TreeBaseMenuResponse\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/api/v1/admin/base/menu/tree\x12x\n" +
+	"\x0eOptionBaseMenu\x12\x1f.admin.v1.OptionBaseMenuRequest\x1a\x1d.common.v1.TreeOptionResponse\"&\x82\xd3\xe4\x93\x02 \x12\x1e/api/v1/admin/base/menu/option\x12i\n" +
 	"\vGetBaseMenu\x12\x1c.admin.v1.GetBaseMenuRequest\x1a\x16.admin.v1.BaseMenuForm\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/api/v1/admin/base/menu/{id}\x12u\n" +
 	"\x0eCreateBaseMenu\x12\x1f.admin.v1.CreateBaseMenuRequest\x1a\x16.google.protobuf.Empty\"*\x82\xd3\xe4\x93\x02$:\tbase_menu\"\x17/api/v1/admin/base/menu\x12\x84\x01\n" +
 	"\x0eUpdateBaseMenu\x12\x1f.admin.v1.UpdateBaseMenuRequest\x1a\x16.google.protobuf.Empty\"9\x82\xd3\xe4\x93\x023:\tbase_menu\x1a&/api/v1/admin/base/menu/{base_menu.id}\x12o\n" +
@@ -917,9 +918,9 @@ func file_admin_v1_base_menu_proto_rawDescGZIP() []byte {
 
 var file_admin_v1_base_menu_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_admin_v1_base_menu_proto_goTypes = []any{
-	(*TreeBaseMenusRequest)(nil),     // 0: admin.v1.TreeBaseMenusRequest
-	(*TreeBaseMenusResponse)(nil),    // 1: admin.v1.TreeBaseMenusResponse
-	(*OptionBaseMenusRequest)(nil),   // 2: admin.v1.OptionBaseMenusRequest
+	(*TreeBaseMenuRequest)(nil),      // 0: admin.v1.TreeBaseMenuRequest
+	(*TreeBaseMenuResponse)(nil),     // 1: admin.v1.TreeBaseMenuResponse
+	(*OptionBaseMenuRequest)(nil),    // 2: admin.v1.OptionBaseMenuRequest
 	(*GetBaseMenuRequest)(nil),       // 3: admin.v1.GetBaseMenuRequest
 	(*CreateBaseMenuRequest)(nil),    // 4: admin.v1.CreateBaseMenuRequest
 	(*UpdateBaseMenuRequest)(nil),    // 5: admin.v1.UpdateBaseMenuRequest
@@ -935,7 +936,7 @@ var file_admin_v1_base_menu_proto_goTypes = []any{
 	(*emptypb.Empty)(nil),            // 15: google.protobuf.Empty
 }
 var file_admin_v1_base_menu_proto_depIdxs = []int32{
-	8,  // 0: admin.v1.TreeBaseMenusResponse.base_menus:type_name -> admin.v1.BaseMenu
+	8,  // 0: admin.v1.TreeBaseMenuResponse.base_menus:type_name -> admin.v1.BaseMenu
 	9,  // 1: admin.v1.CreateBaseMenuRequest.base_menu:type_name -> admin.v1.BaseMenuForm
 	9,  // 2: admin.v1.UpdateBaseMenuRequest.base_menu:type_name -> admin.v1.BaseMenuForm
 	12, // 3: admin.v1.BaseMenu.type:type_name -> common.v1.BaseMenuType
@@ -946,15 +947,15 @@ var file_admin_v1_base_menu_proto_depIdxs = []int32{
 	10, // 8: admin.v1.BaseMenuForm.meta:type_name -> admin.v1.BaseMenuMeta
 	13, // 9: admin.v1.BaseMenuForm.status:type_name -> common.v1.Status
 	11, // 10: admin.v1.BaseMenuMeta.params:type_name -> admin.v1.BaseMenuParams
-	0,  // 11: admin.v1.BaseMenuService.TreeBaseMenus:input_type -> admin.v1.TreeBaseMenusRequest
-	2,  // 12: admin.v1.BaseMenuService.OptionBaseMenus:input_type -> admin.v1.OptionBaseMenusRequest
+	0,  // 11: admin.v1.BaseMenuService.TreeBaseMenu:input_type -> admin.v1.TreeBaseMenuRequest
+	2,  // 12: admin.v1.BaseMenuService.OptionBaseMenu:input_type -> admin.v1.OptionBaseMenuRequest
 	3,  // 13: admin.v1.BaseMenuService.GetBaseMenu:input_type -> admin.v1.GetBaseMenuRequest
 	4,  // 14: admin.v1.BaseMenuService.CreateBaseMenu:input_type -> admin.v1.CreateBaseMenuRequest
 	5,  // 15: admin.v1.BaseMenuService.UpdateBaseMenu:input_type -> admin.v1.UpdateBaseMenuRequest
 	6,  // 16: admin.v1.BaseMenuService.DeleteBaseMenu:input_type -> admin.v1.DeleteBaseMenuRequest
 	7,  // 17: admin.v1.BaseMenuService.SetBaseMenuStatus:input_type -> admin.v1.SetBaseMenuStatusRequest
-	1,  // 18: admin.v1.BaseMenuService.TreeBaseMenus:output_type -> admin.v1.TreeBaseMenusResponse
-	14, // 19: admin.v1.BaseMenuService.OptionBaseMenus:output_type -> common.v1.TreeOptionResponse
+	1,  // 18: admin.v1.BaseMenuService.TreeBaseMenu:output_type -> admin.v1.TreeBaseMenuResponse
+	14, // 19: admin.v1.BaseMenuService.OptionBaseMenu:output_type -> common.v1.TreeOptionResponse
 	9,  // 20: admin.v1.BaseMenuService.GetBaseMenu:output_type -> admin.v1.BaseMenuForm
 	15, // 21: admin.v1.BaseMenuService.CreateBaseMenu:output_type -> google.protobuf.Empty
 	15, // 22: admin.v1.BaseMenuService.UpdateBaseMenu:output_type -> google.protobuf.Empty

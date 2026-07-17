@@ -15,27 +15,27 @@ import (
 
 // RegisterCodeGenTableServiceMCPTools 注册Admin代码生成表配置服务的 MCP Tool。
 func RegisterCodeGenTableServiceMCPTools(mcpServer *mcp.Server, codeGenTableServiceServer CodeGenTableServiceServer) {
-	RegisterCodeGenTableServiceListCodeGenDatabaseTablesMCPTool(mcpServer, codeGenTableServiceServer)
-	RegisterCodeGenTableServicePageCodeGenTablesMCPTool(mcpServer, codeGenTableServiceServer)
+	RegisterCodeGenTableServiceListCodeGenDatabaseTableMCPTool(mcpServer, codeGenTableServiceServer)
+	RegisterCodeGenTableServicePageCodeGenTableMCPTool(mcpServer, codeGenTableServiceServer)
 	RegisterCodeGenTableServiceGetCodeGenTableMCPTool(mcpServer, codeGenTableServiceServer)
 	RegisterCodeGenTableServiceCreateCodeGenTableMCPTool(mcpServer, codeGenTableServiceServer)
 	RegisterCodeGenTableServiceUpdateCodeGenTableMCPTool(mcpServer, codeGenTableServiceServer)
 	RegisterCodeGenTableServiceDeleteCodeGenTableMCPTool(mcpServer, codeGenTableServiceServer)
 }
 
-// RegisterCodeGenTableServiceListCodeGenDatabaseTablesMCPTool 注册查询数据库表列表的 MCP Tool。
-func RegisterCodeGenTableServiceListCodeGenDatabaseTablesMCPTool(mcpServer *mcp.Server, codeGenTableServiceServer CodeGenTableServiceServer) {
-	mcp.AddTool[*ListCodeGenDatabaseTablesRequest, *ListCodeGenDatabaseTablesResponse](
+// RegisterCodeGenTableServiceListCodeGenDatabaseTableMCPTool 注册查询数据库表列表的 MCP Tool。
+func RegisterCodeGenTableServiceListCodeGenDatabaseTableMCPTool(mcpServer *mcp.Server, codeGenTableServiceServer CodeGenTableServiceServer) {
+	mcp.AddTool[*ListCodeGenDatabaseTableRequest, *ListCodeGenDatabaseTableResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "admin_v1_code_gen_table_service_list_code_gen_database_tables",
+			Name:        "admin_v1_code_gen_table_service_list_code_gen_database_table",
 			Description: "查询数据库表列表",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *ListCodeGenDatabaseTablesRequest) (*mcp.CallToolResult, *ListCodeGenDatabaseTablesResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *ListCodeGenDatabaseTableRequest) (*mcp.CallToolResult, *ListCodeGenDatabaseTableResponse, error) {
 			if input == nil {
-				input = &ListCodeGenDatabaseTablesRequest{}
+				input = &ListCodeGenDatabaseTableRequest{}
 			}
-			reply, err := codeGenTableServiceServer.ListCodeGenDatabaseTables(ctx, input)
+			reply, err := codeGenTableServiceServer.ListCodeGenDatabaseTable(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -44,19 +44,19 @@ func RegisterCodeGenTableServiceListCodeGenDatabaseTablesMCPTool(mcpServer *mcp.
 	)
 }
 
-// RegisterCodeGenTableServicePageCodeGenTablesMCPTool 注册分页查询代码生成表配置的 MCP Tool。
-func RegisterCodeGenTableServicePageCodeGenTablesMCPTool(mcpServer *mcp.Server, codeGenTableServiceServer CodeGenTableServiceServer) {
-	mcp.AddTool[*PageCodeGenTablesRequest, *PageCodeGenTablesResponse](
+// RegisterCodeGenTableServicePageCodeGenTableMCPTool 注册分页查询代码生成表配置的 MCP Tool。
+func RegisterCodeGenTableServicePageCodeGenTableMCPTool(mcpServer *mcp.Server, codeGenTableServiceServer CodeGenTableServiceServer) {
+	mcp.AddTool[*PageCodeGenTableRequest, *PageCodeGenTableResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "admin_v1_code_gen_table_service_page_code_gen_tables",
+			Name:        "admin_v1_code_gen_table_service_page_code_gen_table",
 			Description: "分页查询代码生成表配置",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageCodeGenTablesRequest) (*mcp.CallToolResult, *PageCodeGenTablesResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *PageCodeGenTableRequest) (*mcp.CallToolResult, *PageCodeGenTableResponse, error) {
 			if input == nil {
-				input = &PageCodeGenTablesRequest{}
+				input = &PageCodeGenTableRequest{}
 			}
-			reply, err := codeGenTableServiceServer.PageCodeGenTables(ctx, input)
+			reply, err := codeGenTableServiceServer.PageCodeGenTable(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

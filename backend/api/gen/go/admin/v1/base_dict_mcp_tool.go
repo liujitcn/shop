@@ -15,14 +15,14 @@ import (
 
 // RegisterBaseDictServiceMCPTools 注册Admin字典服务的 MCP Tool。
 func RegisterBaseDictServiceMCPTools(mcpServer *mcp.Server, baseDictServiceServer BaseDictServiceServer) {
-	RegisterBaseDictServiceOptionBaseDictsMCPTool(mcpServer, baseDictServiceServer)
-	RegisterBaseDictServicePageBaseDictsMCPTool(mcpServer, baseDictServiceServer)
+	RegisterBaseDictServiceOptionBaseDictMCPTool(mcpServer, baseDictServiceServer)
+	RegisterBaseDictServicePageBaseDictMCPTool(mcpServer, baseDictServiceServer)
 	RegisterBaseDictServiceGetBaseDictMCPTool(mcpServer, baseDictServiceServer)
 	RegisterBaseDictServiceCreateBaseDictMCPTool(mcpServer, baseDictServiceServer)
 	RegisterBaseDictServiceUpdateBaseDictMCPTool(mcpServer, baseDictServiceServer)
 	RegisterBaseDictServiceDeleteBaseDictMCPTool(mcpServer, baseDictServiceServer)
 	RegisterBaseDictServiceSetBaseDictStatusMCPTool(mcpServer, baseDictServiceServer)
-	RegisterBaseDictServicePageBaseDictItemsMCPTool(mcpServer, baseDictServiceServer)
+	RegisterBaseDictServicePageBaseDictItemMCPTool(mcpServer, baseDictServiceServer)
 	RegisterBaseDictServiceGetBaseDictItemMCPTool(mcpServer, baseDictServiceServer)
 	RegisterBaseDictServiceCreateBaseDictItemMCPTool(mcpServer, baseDictServiceServer)
 	RegisterBaseDictServiceUpdateBaseDictItemMCPTool(mcpServer, baseDictServiceServer)
@@ -30,19 +30,19 @@ func RegisterBaseDictServiceMCPTools(mcpServer *mcp.Server, baseDictServiceServe
 	RegisterBaseDictServiceSetBaseDictItemStatusMCPTool(mcpServer, baseDictServiceServer)
 }
 
-// RegisterBaseDictServiceOptionBaseDictsMCPTool 注册查询字典列表的 MCP Tool。
-func RegisterBaseDictServiceOptionBaseDictsMCPTool(mcpServer *mcp.Server, baseDictServiceServer BaseDictServiceServer) {
-	mcp.AddTool[*OptionBaseDictsRequest, *OptionBaseDictsResponse](
+// RegisterBaseDictServiceOptionBaseDictMCPTool 注册查询字典列表的 MCP Tool。
+func RegisterBaseDictServiceOptionBaseDictMCPTool(mcpServer *mcp.Server, baseDictServiceServer BaseDictServiceServer) {
+	mcp.AddTool[*OptionBaseDictRequest, *OptionBaseDictResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "admin_v1_base_dict_service_option_base_dicts",
+			Name:        "admin_v1_base_dict_service_option_base_dict",
 			Description: "查询字典列表",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *OptionBaseDictsRequest) (*mcp.CallToolResult, *OptionBaseDictsResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *OptionBaseDictRequest) (*mcp.CallToolResult, *OptionBaseDictResponse, error) {
 			if input == nil {
-				input = &OptionBaseDictsRequest{}
+				input = &OptionBaseDictRequest{}
 			}
-			reply, err := baseDictServiceServer.OptionBaseDicts(ctx, input)
+			reply, err := baseDictServiceServer.OptionBaseDict(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -51,19 +51,19 @@ func RegisterBaseDictServiceOptionBaseDictsMCPTool(mcpServer *mcp.Server, baseDi
 	)
 }
 
-// RegisterBaseDictServicePageBaseDictsMCPTool 注册查询字典分页列表的 MCP Tool。
-func RegisterBaseDictServicePageBaseDictsMCPTool(mcpServer *mcp.Server, baseDictServiceServer BaseDictServiceServer) {
-	mcp.AddTool[*PageBaseDictsRequest, *PageBaseDictsResponse](
+// RegisterBaseDictServicePageBaseDictMCPTool 注册查询字典分页列表的 MCP Tool。
+func RegisterBaseDictServicePageBaseDictMCPTool(mcpServer *mcp.Server, baseDictServiceServer BaseDictServiceServer) {
+	mcp.AddTool[*PageBaseDictRequest, *PageBaseDictResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "admin_v1_base_dict_service_page_base_dicts",
+			Name:        "admin_v1_base_dict_service_page_base_dict",
 			Description: "查询字典分页列表",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBaseDictsRequest) (*mcp.CallToolResult, *PageBaseDictsResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBaseDictRequest) (*mcp.CallToolResult, *PageBaseDictResponse, error) {
 			if input == nil {
-				input = &PageBaseDictsRequest{}
+				input = &PageBaseDictRequest{}
 			}
-			reply, err := baseDictServiceServer.PageBaseDicts(ctx, input)
+			reply, err := baseDictServiceServer.PageBaseDict(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -177,19 +177,19 @@ func RegisterBaseDictServiceSetBaseDictStatusMCPTool(mcpServer *mcp.Server, base
 	)
 }
 
-// RegisterBaseDictServicePageBaseDictItemsMCPTool 注册查询字典属性分页列表的 MCP Tool。
-func RegisterBaseDictServicePageBaseDictItemsMCPTool(mcpServer *mcp.Server, baseDictServiceServer BaseDictServiceServer) {
-	mcp.AddTool[*PageBaseDictItemsRequest, *PageBaseDictItemsResponse](
+// RegisterBaseDictServicePageBaseDictItemMCPTool 注册查询字典属性分页列表的 MCP Tool。
+func RegisterBaseDictServicePageBaseDictItemMCPTool(mcpServer *mcp.Server, baseDictServiceServer BaseDictServiceServer) {
+	mcp.AddTool[*PageBaseDictItemRequest, *PageBaseDictItemResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "admin_v1_base_dict_service_page_base_dict_items",
+			Name:        "admin_v1_base_dict_service_page_base_dict_item",
 			Description: "查询字典属性分页列表",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBaseDictItemsRequest) (*mcp.CallToolResult, *PageBaseDictItemsResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBaseDictItemRequest) (*mcp.CallToolResult, *PageBaseDictItemResponse, error) {
 			if input == nil {
-				input = &PageBaseDictItemsRequest{}
+				input = &PageBaseDictItemRequest{}
 			}
-			reply, err := baseDictServiceServer.PageBaseDictItems(ctx, input)
+			reply, err := baseDictServiceServer.PageBaseDictItem(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

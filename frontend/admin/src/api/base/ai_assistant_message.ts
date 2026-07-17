@@ -1,5 +1,5 @@
 import service, { getRequestAccessToken, handleAuthExpired, requestBaseURL } from "@/utils/request";
-import type { ListAiAssistantMessagesRequest, ListAiAssistantMessagesResponse } from "@/rpc/base/v1/ai_assistant_session";
+import type { ListAiAssistantMessageRequest, ListAiAssistantMessageResponse } from "@/rpc/base/v1/ai_assistant_session";
 import type {
   AiAssistantMessageService,
   DeleteAiAssistantMessageRequest,
@@ -73,8 +73,8 @@ export async function SendAiAssistantMessageStream(
 /** AI 助手消息服务。 */
 export class AiAssistantMessageServiceImpl implements AiAssistantMessageService {
   /** 查询 AI 助手消息列表。 */
-  ListAiAssistantMessages(request: ListAiAssistantMessagesRequest): Promise<ListAiAssistantMessagesResponse> {
-    return service<ListAiAssistantMessagesRequest, ListAiAssistantMessagesResponse>({
+  ListAiAssistantMessage(request: ListAiAssistantMessageRequest): Promise<ListAiAssistantMessageResponse> {
+    return service<ListAiAssistantMessageRequest, ListAiAssistantMessageResponse>({
       url: `${AI_ASSISTANT_SESSION_URL}/${request.session_id}/message`,
       method: "get",
       params: request

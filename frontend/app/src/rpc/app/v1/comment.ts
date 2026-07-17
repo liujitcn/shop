@@ -188,7 +188,7 @@ export interface GoodsCommentOverviewResponse {
 }
 
 /** 商品评价标签查询条件 */
-export interface GoodsCommentTagsRequest {
+export interface GoodsCommentTagRequest {
   /** 商品ID */
   goods_id: number;
   /** 标签展示数量 */
@@ -196,7 +196,7 @@ export interface GoodsCommentTagsRequest {
 }
 
 /** 商品评价标签响应 */
-export interface GoodsCommentTagsResponse {
+export interface GoodsCommentTagResponse {
   /** 评价标签列表 */
   comment_tags: CommentTagItem[];
 }
@@ -402,7 +402,7 @@ export interface CommentService {
   /** 查询商品评价摘要 */
   GoodsCommentOverview(request: GoodsCommentOverviewRequest): Promise<GoodsCommentOverviewResponse>;
   /** 查询商品评价标签列表 */
-  GoodsCommentTags(request: GoodsCommentTagsRequest): Promise<GoodsCommentTagsResponse>;
+  GoodsCommentTag(request: GoodsCommentTagRequest): Promise<GoodsCommentTagResponse>;
   /** 查询商品评价分页列表 */
   PageGoodsComment(request: PageGoodsCommentRequest): Promise<PageGoodsCommentResponse>;
   /** 查询评价讨论分页列表 */

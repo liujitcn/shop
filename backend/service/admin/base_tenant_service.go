@@ -29,21 +29,21 @@ func NewBaseTenantService(baseTenantCase *biz.BaseTenantCase) *BaseTenantService
 	}
 }
 
-// OptionBaseTenants 查询租户下拉选择。
-func (s *BaseTenantService) OptionBaseTenants(ctx context.Context, req *adminv1.OptionBaseTenantsRequest) (*commonv1.SelectOptionResponse, error) {
-	list, err := s.baseTenantCase.OptionBaseTenants(ctx, req)
+// OptionBaseTenant 查询租户下拉选择。
+func (s *BaseTenantService) OptionBaseTenant(ctx context.Context, req *adminv1.OptionBaseTenantRequest) (*commonv1.SelectOptionResponse, error) {
+	list, err := s.baseTenantCase.OptionBaseTenant(ctx, req)
 	if err != nil {
-		log.Error(fmt.Sprintf("OptionBaseTenants %v", err))
+		log.Error(fmt.Sprintf("OptionBaseTenant %v", err))
 		return nil, errorsx.WrapInternal(err, "查询租户下拉选择失败")
 	}
 	return list, nil
 }
 
-// PageBaseTenants 查询租户分页列表。
-func (s *BaseTenantService) PageBaseTenants(ctx context.Context, req *adminv1.PageBaseTenantsRequest) (*adminv1.PageBaseTenantsResponse, error) {
-	page, err := s.baseTenantCase.PageBaseTenants(ctx, req)
+// PageBaseTenant 查询租户分页列表。
+func (s *BaseTenantService) PageBaseTenant(ctx context.Context, req *adminv1.PageBaseTenantRequest) (*adminv1.PageBaseTenantResponse, error) {
+	page, err := s.baseTenantCase.PageBaseTenant(ctx, req)
 	if err != nil {
-		log.Error(fmt.Sprintf("PageBaseTenants %v", err))
+		log.Error(fmt.Sprintf("PageBaseTenant %v", err))
 		return nil, errorsx.WrapInternal(err, "查询租户分页列表失败")
 	}
 	return page, nil

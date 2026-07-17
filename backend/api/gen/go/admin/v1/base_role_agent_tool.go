@@ -8,29 +8,30 @@ package adminv1
 
 import (
 	context "context"
-	v1 "shop/api/gen/go/common/v1"
 
 	tool "github.com/cloudwego/eino/components/tool"
 	utils "github.com/cloudwego/eino/components/tool/utils"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+
+	v1 "shop/api/gen/go/common/v1"
 )
 
 // NewBaseRoleServiceAgentTools 创建Admin角色管理服务的 Agent Tool。
 func NewBaseRoleServiceAgentTools(baseRoleServiceServer BaseRoleServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error
-	var optionBaseRolesTool tool.InvokableTool
-	optionBaseRolesTool, err = NewBaseRoleServiceOptionBaseRolesAgentTool(baseRoleServiceServer)
+	var optionBaseRoleTool tool.InvokableTool
+	optionBaseRoleTool, err = NewBaseRoleServiceOptionBaseRoleAgentTool(baseRoleServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, optionBaseRolesTool)
-	var pageBaseRolesTool tool.InvokableTool
-	pageBaseRolesTool, err = NewBaseRoleServicePageBaseRolesAgentTool(baseRoleServiceServer)
+	ts = append(ts, optionBaseRoleTool)
+	var pageBaseRoleTool tool.InvokableTool
+	pageBaseRoleTool, err = NewBaseRoleServicePageBaseRoleAgentTool(baseRoleServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, pageBaseRolesTool)
+	ts = append(ts, pageBaseRoleTool)
 	var getBaseRoleTool tool.InvokableTool
 	getBaseRoleTool, err = NewBaseRoleServiceGetBaseRoleAgentTool(baseRoleServiceServer)
 	if err != nil {
@@ -70,30 +71,30 @@ func NewBaseRoleServiceAgentTools(baseRoleServiceServer BaseRoleServiceServer) (
 	return ts, nil
 }
 
-// NewBaseRoleServiceOptionBaseRolesAgentTool 创建查询角色下拉选择的 Agent Tool。
-func NewBaseRoleServiceOptionBaseRolesAgentTool(baseRoleServiceServer BaseRoleServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*OptionBaseRolesRequest, *v1.SelectOptionResponse](
-		"admin_v1_base_role_service_option_base_roles",
+// NewBaseRoleServiceOptionBaseRoleAgentTool 创建查询角色下拉选择的 Agent Tool。
+func NewBaseRoleServiceOptionBaseRoleAgentTool(baseRoleServiceServer BaseRoleServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*OptionBaseRoleRequest, *v1.SelectOptionResponse](
+		"admin_v1_base_role_service_option_base_role",
 		"查询角色下拉选择",
-		func(ctx context.Context, req *OptionBaseRolesRequest) (*v1.SelectOptionResponse, error) {
+		func(ctx context.Context, req *OptionBaseRoleRequest) (*v1.SelectOptionResponse, error) {
 			if req == nil {
-				req = &OptionBaseRolesRequest{}
+				req = &OptionBaseRoleRequest{}
 			}
-			return baseRoleServiceServer.OptionBaseRoles(ctx, req)
+			return baseRoleServiceServer.OptionBaseRole(ctx, req)
 		},
 	)
 }
 
-// NewBaseRoleServicePageBaseRolesAgentTool 创建查询角色分页列表的 Agent Tool。
-func NewBaseRoleServicePageBaseRolesAgentTool(baseRoleServiceServer BaseRoleServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*PageBaseRolesRequest, *PageBaseRolesResponse](
-		"admin_v1_base_role_service_page_base_roles",
+// NewBaseRoleServicePageBaseRoleAgentTool 创建查询角色分页列表的 Agent Tool。
+func NewBaseRoleServicePageBaseRoleAgentTool(baseRoleServiceServer BaseRoleServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PageBaseRoleRequest, *PageBaseRoleResponse](
+		"admin_v1_base_role_service_page_base_role",
 		"查询角色分页列表",
-		func(ctx context.Context, req *PageBaseRolesRequest) (*PageBaseRolesResponse, error) {
+		func(ctx context.Context, req *PageBaseRoleRequest) (*PageBaseRoleResponse, error) {
 			if req == nil {
-				req = &PageBaseRolesRequest{}
+				req = &PageBaseRoleRequest{}
 			}
-			return baseRoleServiceServer.PageBaseRoles(ctx, req)
+			return baseRoleServiceServer.PageBaseRole(ctx, req)
 		},
 	)
 }

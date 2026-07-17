@@ -10,17 +10,17 @@ import type { Status } from "../../common/v1/enum";
 import type { Empty } from "../../google/protobuf/empty";
 
 /** 商品分类树查询条件 */
-export interface TreeGoodsCategoriesRequest {
+export interface TreeGoodsCategoryRequest {
 }
 
 /** 商品分类树响应 */
-export interface TreeGoodsCategoriesResponse {
+export interface TreeGoodsCategoryResponse {
   /** 商品分类列表 */
   goods_categories: GoodsCategory[];
 }
 
 /** 商品分类选项查询条件 */
-export interface OptionGoodsCategoriesRequest {
+export interface OptionGoodsCategoryRequest {
   /** 父级商品分类ID */
   parent_id?: number | undefined;
 }
@@ -102,9 +102,9 @@ export interface GoodsCategoryForm {
 /** Admin商品分类服务 */
 export interface GoodsCategoryService {
   /** 查询商品分类树形列表 */
-  TreeGoodsCategories(request: TreeGoodsCategoriesRequest): Promise<TreeGoodsCategoriesResponse>;
+  TreeGoodsCategory(request: TreeGoodsCategoryRequest): Promise<TreeGoodsCategoryResponse>;
   /** 查询商品分类树形选择 */
-  OptionGoodsCategories(request: OptionGoodsCategoriesRequest): Promise<TreeOptionResponse>;
+  OptionGoodsCategory(request: OptionGoodsCategoryRequest): Promise<TreeOptionResponse>;
   /** 查询商品分类 */
   GetGoodsCategory(request: GetGoodsCategoryRequest): Promise<GoodsCategoryForm>;
   /** 创建商品分类 */

@@ -46,8 +46,8 @@ import type { ProFormField, ProFormOption } from "@/components/ProForm/interface
 import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { defShopHotService } from "@/api/admin/shop_hot";
 import { defGoodsInfoService } from "@/api/admin/goods_info";
-import type { OptionGoodsInfosResponse_GoodsInfo } from "@/rpc/admin/v1/goods_info";
-import type { PageShopHotItemsRequest, ShopHotItem, ShopHotItemForm } from "@/rpc/admin/v1/shop_hot";
+import type { OptionGoodsInfoResponse_GoodsInfo } from "@/rpc/admin/v1/goods_info";
+import type { PageShopHotItemRequest, ShopHotItem, ShopHotItemForm } from "@/rpc/admin/v1/shop_hot";
 import { Status } from "@/rpc/common/v1/enum";
 import { buildPageRequest, normalizeSelectedIds } from "@/utils/proTable";
 import { formatPrice } from "@/utils/utils";
@@ -87,7 +87,7 @@ const formData = reactive<ShopHotItemForm>({
   status: Status.ENABLE
 });
 
-const goodsInfoList = ref<OptionGoodsInfosResponse_GoodsInfo[]>([]);
+const goodsInfoList = ref<OptionGoodsInfoResponse_GoodsInfo[]>([]);
 
 const rules = computed(() => ({
   title: [{ required: true, message: "请输入热门推荐选项标题", trigger: "blur" }],
@@ -221,8 +221,8 @@ watch(
  * 请求热门推荐选项分页数据，并附带当前热门推荐 ID。
  */
 async function requestShopHotItemTable(params: Record<string, any>) {
-  const data = await defShopHotService.PageShopHotItems(
-    buildPageRequest({ ...params, hot_id: hotId.value }) as PageShopHotItemsRequest
+  const data = await defShopHotService.PageShopHotItem(
+    buildPageRequest({ ...params, hot_id: hotId.value }) as PageShopHotItemRequest
   );
   return { data: { list: data.shop_hot_items ?? [], total: data.total } };
 }
@@ -238,7 +238,7 @@ function refreshTable() {
  * 加载推荐商品下拉数据，供穿梭框使用。
  */
 async function loadGoodsOptions() {
-  const listGoodsInfoResponse = await defGoodsInfoService.OptionGoodsInfos({ name: "" });
+  const listGoodsInfoResponse = await defGoodsInfoService.OptionGoodsInfo({ name: "" });
   goodsInfoList.value = listGoodsInfoResponse.goods_infos ?? [];
 }
 

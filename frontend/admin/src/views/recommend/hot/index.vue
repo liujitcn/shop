@@ -29,7 +29,7 @@ import FormDialog from "@/components/Dialog/FormDialog.vue";
 import type { ProFormField, ProFormOption } from "@/components/ProForm/interface";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { defShopHotService } from "@/api/admin/shop_hot";
-import type { PageShopHotsRequest, ShopHot, ShopHotForm } from "@/rpc/admin/v1/shop_hot";
+import type { PageShopHotRequest, ShopHot, ShopHotForm } from "@/rpc/admin/v1/shop_hot";
 import { Status } from "@/rpc/common/v1/enum";
 import { buildPageRequest, normalizeSelectedIds } from "@/utils/proTable";
 import { navigateTo } from "@/utils/router";
@@ -176,7 +176,7 @@ const headerActions: HeaderActionProps[] = [
  * 请求热门推荐列表，交给 ProTable 统一处理分页和筛选。
  */
 async function requestShopHotTable(params: Record<string, any>) {
-  const data = await defShopHotService.PageShopHots(buildPageRequest(params) as PageShopHotsRequest);
+  const data = await defShopHotService.PageShopHot(buildPageRequest(params) as PageShopHotRequest);
   return { data: { list: data.shop_hots ?? [], total: data.total } };
 }
 

@@ -9,7 +9,7 @@ import "google/protobuf/empty.proto";
 // Admin商品属性服务
 service GoodsPropService {
   // 查询商品属性列表
-  rpc PageGoodsProps(PageGoodsPropsRequest) returns (PageGoodsPropsResponse) {
+  rpc PageGoodsProp(PageGoodsPropRequest) returns (PageGoodsPropResponse) {
     option (google.api.http) = {
       get: "/api/v1/admin/goods/prop"
     };
@@ -47,7 +47,7 @@ service GoodsPropService {
 }
 
 // 商品属性列表查询条件
-message PageGoodsPropsRequest {
+message PageGoodsPropRequest {
   int64 goods_id = 2 [(gnostic.openapi.v3.property) = {description: "商品id"}]; // 商品id
 
   string label = 3 [(gnostic.openapi.v3.property) = {description: "商品属性名称"}]; // 商品属性名称
@@ -64,7 +64,7 @@ message PageGoodsPropsRequest {
 }
 
 // 商品属性列表响应
-message PageGoodsPropsResponse {
+message PageGoodsPropResponse {
   repeated GoodsProp goods_props = 1 [(gnostic.openapi.v3.property) = {description: "商品属性列表"}]; // 商品属性列表
 
   int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数

@@ -72,7 +72,7 @@ import type { ProFormField, ProFormOption } from "@/components/ProForm/interface
 import TreeFilter from "@/components/TreeFilter/index.vue";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { defBaseUserService } from "@/api/admin/base_user";
-import type { BaseUser, BaseUserForm, PageBaseUsersRequest, ResetBaseUserPasswordRequest } from "@/rpc/admin/v1/base_user";
+import type { BaseUser, BaseUserForm, PageBaseUserRequest, ResetBaseUserPasswordRequest } from "@/rpc/admin/v1/base_user";
 import { defBaseDeptService } from "@/api/admin/base_dept";
 import { defBaseRoleService } from "@/api/admin/base_role";
 import { defBaseTenantService } from "@/api/admin/base_tenant";
@@ -398,7 +398,7 @@ function transformDeptFilterNodes(options: TreeOptionResponse_Option[] = []): De
  * 请求部门树筛选数据。
  */
 async function requestDeptTreeFilter() {
-  const response = await defBaseDeptService.OptionBaseDepts({ tenant_id: selectedTenantId.value });
+  const response = await defBaseDeptService.OptionBaseDept({ tenant_id: selectedTenantId.value });
   return {
     data: transformDeptFilterNodes(response.list ?? [])
   };
@@ -418,14 +418,14 @@ function changeTreeFilter(value: string) {
 /**
  * 请求用户分页列表，并统一处理分页参数。
  */
-async function requestBaseUserTable(params: PageBaseUsersRequest) {
+async function requestBaseUserTable(params: PageBaseUserRequest) {
   const tenantId = isDefaultTenant.value ? params.tenant_id : undefined;
   if (tenantId !== selectedTenantId.value) {
     selectedTenantId.value = tenantId;
     initParam.dept_id = undefined;
     deptFilterValue.value = "";
   }
-  const data = await defBaseUserService.PageBaseUsers({
+  const data = await defBaseUserService.PageBaseUser({
     ...buildPageRequest(params),
     tenant_id: tenantId,
     dept_id: initParam.dept_id
@@ -553,8 +553,8 @@ async function loadFormOptions() {
   }
   const tenantId = isDefaultTenant.value ? formData.tenant_id : undefined;
   const [optionBaseRoleResponse, optionBaseDeptResponse] = await Promise.all([
-    defBaseRoleService.OptionBaseRoles({ tenant_id: tenantId }),
-    defBaseDeptService.OptionBaseDepts({ tenant_id: tenantId })
+    defBaseRoleService.OptionBaseRole({ tenant_id: tenantId }),
+    defBaseDeptService.OptionBaseDept({ tenant_id: tenantId })
   ]);
   baseRoleOptions.value = optionBaseRoleResponse.list || [];
   basedDeptOptions.value = optionBaseDeptResponse.list || [];
@@ -565,7 +565,7 @@ async function loadFormOptions() {
  */
 async function loadTenantOptions() {
   if (!isDefaultTenant.value || tenantOptions.value.length) return;
-  const response = await defBaseTenantService.OptionBaseTenants({ keyword: "" });
+  const response = await defBaseTenantService.OptionBaseTenant({ keyword: "" });
   tenantOptions.value = response.list ?? [];
 }
 

@@ -14,22 +14,22 @@ import (
 
 // RegisterBaseAreaServiceMCPTools 注册App行政区域服务的 MCP Tool。
 func RegisterBaseAreaServiceMCPTools(mcpServer *mcp.Server, baseAreaServiceServer BaseAreaServiceServer) {
-	RegisterBaseAreaServiceTreeBaseAreasMCPTool(mcpServer, baseAreaServiceServer)
+	RegisterBaseAreaServiceTreeBaseAreaMCPTool(mcpServer, baseAreaServiceServer)
 }
 
-// RegisterBaseAreaServiceTreeBaseAreasMCPTool 注册查询行政区域树形列表的 MCP Tool。
-func RegisterBaseAreaServiceTreeBaseAreasMCPTool(mcpServer *mcp.Server, baseAreaServiceServer BaseAreaServiceServer) {
-	mcp.AddTool[*TreeBaseAreasRequest, any](
+// RegisterBaseAreaServiceTreeBaseAreaMCPTool 注册查询行政区域树形列表的 MCP Tool。
+func RegisterBaseAreaServiceTreeBaseAreaMCPTool(mcpServer *mcp.Server, baseAreaServiceServer BaseAreaServiceServer) {
+	mcp.AddTool[*TreeBaseAreaRequest, any](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "app_v1_base_area_service_tree_base_areas",
+			Name:        "app_v1_base_area_service_tree_base_area",
 			Description: "查询行政区域树形列表",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *TreeBaseAreasRequest) (*mcp.CallToolResult, any, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *TreeBaseAreaRequest) (*mcp.CallToolResult, any, error) {
 			if input == nil {
-				input = &TreeBaseAreasRequest{}
+				input = &TreeBaseAreaRequest{}
 			}
-			reply, err := baseAreaServiceServer.TreeBaseAreas(ctx, input)
+			reply, err := baseAreaServiceServer.TreeBaseArea(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

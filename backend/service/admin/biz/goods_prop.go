@@ -32,8 +32,8 @@ func NewGoodsPropCase(baseCase *biz.BaseCase, goodsPropRepo *data.GoodsPropRepos
 	}
 }
 
-// PageGoodsProps 查询商品属性列表
-func (c *GoodsPropCase) PageGoodsProps(ctx context.Context, req *adminv1.PageGoodsPropsRequest) (*adminv1.PageGoodsPropsResponse, error) {
+// PageGoodsProp 查询商品属性列表
+func (c *GoodsPropCase) PageGoodsProp(ctx context.Context, req *adminv1.PageGoodsPropRequest) (*adminv1.PageGoodsPropResponse, error) {
 	query := c.Query(ctx).GoodsProp
 	opts := make([]repository.QueryOption, 0, 3)
 	opts = append(opts, repository.Order(query.Sort.Asc()))
@@ -56,7 +56,7 @@ func (c *GoodsPropCase) PageGoodsProps(ctx context.Context, req *adminv1.PageGoo
 		goodsProp := c.mapper.ToDTO(item)
 		resList = append(resList, goodsProp)
 	}
-	return &adminv1.PageGoodsPropsResponse{GoodsProps: resList, Total: int32(total)}, nil
+	return &adminv1.PageGoodsPropResponse{GoodsProps: resList, Total: int32(total)}, nil
 }
 
 // GetGoodsProp 获取商品属性

@@ -49,7 +49,7 @@ import ProDialog from "@/components/Dialog/ProDialog.vue";
 import DictLabel from "@/components/Dict/DictLabel.vue";
 import ProTable from "@/components/ProTable/index.vue";
 import { defRecommendRequestService } from "@/api/admin/recommend_request";
-import type { ListRecommendRequestEventsResponse, RecommendRequestItem } from "@/rpc/admin/v1/recommend_request";
+import type { ListRecommendRequestEventResponse, RecommendRequestItem } from "@/rpc/admin/v1/recommend_request";
 
 defineOptions({
   name: "RecommendRequestEventDialog",
@@ -84,14 +84,14 @@ const eventColumns: ColumnProps[] = [
 ];
 
 /** 创建默认推荐事件响应，避免弹窗切换商品时残留上一条数据。 */
-function createDefaultEventData(): ListRecommendRequestEventsResponse {
+function createDefaultEventData(): ListRecommendRequestEventResponse {
   return {
     recommend_events: [],
     total: 0
   };
 }
 
-const eventData = reactive<ListRecommendRequestEventsResponse>(createDefaultEventData());
+const eventData = reactive<ListRecommendRequestEventResponse>(createDefaultEventData());
 
 /** 重置弹窗内的事件数据。 */
 function resetEventData() {
@@ -147,7 +147,7 @@ async function queryEventData() {
   loading.value = true;
   resetEventData();
   try {
-    const data = await defRecommendRequestService.ListRecommendRequestEvents({
+    const data = await defRecommendRequestService.ListRecommendRequestEvent({
       request_record_id: currentRequestRecordId.value,
       goods_id: item.goods_id,
       position: item.position

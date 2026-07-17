@@ -11,7 +11,7 @@ import "google/protobuf/empty.proto";
 // App用户收藏管理服务
 service UserCollectService {
   // 查询用户收藏列表
-  rpc PageUserCollects(PageUserCollectsRequest) returns (PageUserCollectsResponse) {
+  rpc PageUserCollect(PageUserCollectRequest) returns (PageUserCollectResponse) {
     option (google.api.http) = {
       get: "/api/v1/app/user/collect"
     };
@@ -51,7 +51,7 @@ message GetIsCollectResponse {
 }
 
 // 用户收藏列表查询条件
-message PageUserCollectsRequest {
+message PageUserCollectRequest {
   int64 page_num = 101 [(gnostic.openapi.v3.property) = {
     description: "当前页码"
     default: {number: 1}
@@ -64,7 +64,7 @@ message PageUserCollectsRequest {
 }
 
 // 用户收藏列表响应
-message PageUserCollectsResponse {
+message PageUserCollectResponse {
   repeated UserCollect user_collects = 1 [(gnostic.openapi.v3.property) = {description: "用户收藏列表"}]; // 用户收藏列表
 
   int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数

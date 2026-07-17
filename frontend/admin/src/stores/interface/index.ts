@@ -1,5 +1,5 @@
 import type { RouteItem, UserInfoForm } from "@/rpc/admin/v1/auth";
-import type { OptionBaseDictsResponse_BaseDictItem } from "@/rpc/admin/v1/base_dict";
+import type { OptionBaseDictResponse_BaseDictItem } from "@/rpc/admin/v1/base_dict";
 
 /** 后台整体布局模式。 */
 export type LayoutType = "vertical" | "classic" | "transverse" | "columns";
@@ -90,7 +90,7 @@ export interface KeepAliveState {
 
 /** 全局字典缓存状态。 */
 export interface DictState {
-  dictionary: Record<string, OptionBaseDictsResponse_BaseDictItem[]>;
+  dictionary: Record<string, OptionBaseDictResponse_BaseDictItem[]>;
 }
 
 /** 站点配置状态 */

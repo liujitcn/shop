@@ -8,29 +8,30 @@ package adminv1
 
 import (
 	context "context"
-	v1 "shop/api/gen/go/common/v1"
 
 	tool "github.com/cloudwego/eino/components/tool"
 	utils "github.com/cloudwego/eino/components/tool/utils"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+
+	v1 "shop/api/gen/go/common/v1"
 )
 
 // NewBaseUserServiceAgentTools 创建Admin用户管理服务的 Agent Tool。
 func NewBaseUserServiceAgentTools(baseUserServiceServer BaseUserServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error
-	var optionBaseUsersTool tool.InvokableTool
-	optionBaseUsersTool, err = NewBaseUserServiceOptionBaseUsersAgentTool(baseUserServiceServer)
+	var optionBaseUserTool tool.InvokableTool
+	optionBaseUserTool, err = NewBaseUserServiceOptionBaseUserAgentTool(baseUserServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, optionBaseUsersTool)
-	var pageBaseUsersTool tool.InvokableTool
-	pageBaseUsersTool, err = NewBaseUserServicePageBaseUsersAgentTool(baseUserServiceServer)
+	ts = append(ts, optionBaseUserTool)
+	var pageBaseUserTool tool.InvokableTool
+	pageBaseUserTool, err = NewBaseUserServicePageBaseUserAgentTool(baseUserServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, pageBaseUsersTool)
+	ts = append(ts, pageBaseUserTool)
 	var getBaseUserTool tool.InvokableTool
 	getBaseUserTool, err = NewBaseUserServiceGetBaseUserAgentTool(baseUserServiceServer)
 	if err != nil {
@@ -70,30 +71,30 @@ func NewBaseUserServiceAgentTools(baseUserServiceServer BaseUserServiceServer) (
 	return ts, nil
 }
 
-// NewBaseUserServiceOptionBaseUsersAgentTool 创建查询用户下拉选择的 Agent Tool。
-func NewBaseUserServiceOptionBaseUsersAgentTool(baseUserServiceServer BaseUserServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*OptionBaseUsersRequest, *v1.SelectOptionResponse](
-		"admin_v1_base_user_service_option_base_users",
+// NewBaseUserServiceOptionBaseUserAgentTool 创建查询用户下拉选择的 Agent Tool。
+func NewBaseUserServiceOptionBaseUserAgentTool(baseUserServiceServer BaseUserServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*OptionBaseUserRequest, *v1.SelectOptionResponse](
+		"admin_v1_base_user_service_option_base_user",
 		"查询用户下拉选择",
-		func(ctx context.Context, req *OptionBaseUsersRequest) (*v1.SelectOptionResponse, error) {
+		func(ctx context.Context, req *OptionBaseUserRequest) (*v1.SelectOptionResponse, error) {
 			if req == nil {
-				req = &OptionBaseUsersRequest{}
+				req = &OptionBaseUserRequest{}
 			}
-			return baseUserServiceServer.OptionBaseUsers(ctx, req)
+			return baseUserServiceServer.OptionBaseUser(ctx, req)
 		},
 	)
 }
 
-// NewBaseUserServicePageBaseUsersAgentTool 创建查询用户分页列表的 Agent Tool。
-func NewBaseUserServicePageBaseUsersAgentTool(baseUserServiceServer BaseUserServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*PageBaseUsersRequest, *PageBaseUsersResponse](
-		"admin_v1_base_user_service_page_base_users",
+// NewBaseUserServicePageBaseUserAgentTool 创建查询用户分页列表的 Agent Tool。
+func NewBaseUserServicePageBaseUserAgentTool(baseUserServiceServer BaseUserServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PageBaseUserRequest, *PageBaseUserResponse](
+		"admin_v1_base_user_service_page_base_user",
 		"查询用户分页列表",
-		func(ctx context.Context, req *PageBaseUsersRequest) (*PageBaseUsersResponse, error) {
+		func(ctx context.Context, req *PageBaseUserRequest) (*PageBaseUserResponse, error) {
 			if req == nil {
-				req = &PageBaseUsersRequest{}
+				req = &PageBaseUserRequest{}
 			}
-			return baseUserServiceServer.PageBaseUsers(ctx, req)
+			return baseUserServiceServer.PageBaseUser(ctx, req)
 		},
 	)
 }

@@ -8,16 +8,17 @@ package adminv1
 
 import (
 	context "context"
-	v1 "shop/api/gen/go/common/v1"
 
 	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+
+	v1 "shop/api/gen/go/common/v1"
 )
 
 // RegisterBaseTenantServiceMCPTools 注册Admin租户管理服务的 MCP Tool。
 func RegisterBaseTenantServiceMCPTools(mcpServer *mcp.Server, baseTenantServiceServer BaseTenantServiceServer) {
-	RegisterBaseTenantServiceOptionBaseTenantsMCPTool(mcpServer, baseTenantServiceServer)
-	RegisterBaseTenantServicePageBaseTenantsMCPTool(mcpServer, baseTenantServiceServer)
+	RegisterBaseTenantServiceOptionBaseTenantMCPTool(mcpServer, baseTenantServiceServer)
+	RegisterBaseTenantServicePageBaseTenantMCPTool(mcpServer, baseTenantServiceServer)
 	RegisterBaseTenantServiceGetBaseTenantMCPTool(mcpServer, baseTenantServiceServer)
 	RegisterBaseTenantServiceCreateBaseTenantMCPTool(mcpServer, baseTenantServiceServer)
 	RegisterBaseTenantServiceUpdateBaseTenantMCPTool(mcpServer, baseTenantServiceServer)
@@ -25,19 +26,19 @@ func RegisterBaseTenantServiceMCPTools(mcpServer *mcp.Server, baseTenantServiceS
 	RegisterBaseTenantServiceSetBaseTenantStatusMCPTool(mcpServer, baseTenantServiceServer)
 }
 
-// RegisterBaseTenantServiceOptionBaseTenantsMCPTool 注册查询租户下拉选择的 MCP Tool。
-func RegisterBaseTenantServiceOptionBaseTenantsMCPTool(mcpServer *mcp.Server, baseTenantServiceServer BaseTenantServiceServer) {
-	mcp.AddTool[*OptionBaseTenantsRequest, *v1.SelectOptionResponse](
+// RegisterBaseTenantServiceOptionBaseTenantMCPTool 注册查询租户下拉选择的 MCP Tool。
+func RegisterBaseTenantServiceOptionBaseTenantMCPTool(mcpServer *mcp.Server, baseTenantServiceServer BaseTenantServiceServer) {
+	mcp.AddTool[*OptionBaseTenantRequest, *v1.SelectOptionResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "admin_v1_base_tenant_service_option_base_tenants",
+			Name:        "admin_v1_base_tenant_service_option_base_tenant",
 			Description: "查询租户下拉选择",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *OptionBaseTenantsRequest) (*mcp.CallToolResult, *v1.SelectOptionResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *OptionBaseTenantRequest) (*mcp.CallToolResult, *v1.SelectOptionResponse, error) {
 			if input == nil {
-				input = &OptionBaseTenantsRequest{}
+				input = &OptionBaseTenantRequest{}
 			}
-			reply, err := baseTenantServiceServer.OptionBaseTenants(ctx, input)
+			reply, err := baseTenantServiceServer.OptionBaseTenant(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -46,19 +47,19 @@ func RegisterBaseTenantServiceOptionBaseTenantsMCPTool(mcpServer *mcp.Server, ba
 	)
 }
 
-// RegisterBaseTenantServicePageBaseTenantsMCPTool 注册查询租户分页列表的 MCP Tool。
-func RegisterBaseTenantServicePageBaseTenantsMCPTool(mcpServer *mcp.Server, baseTenantServiceServer BaseTenantServiceServer) {
-	mcp.AddTool[*PageBaseTenantsRequest, *PageBaseTenantsResponse](
+// RegisterBaseTenantServicePageBaseTenantMCPTool 注册查询租户分页列表的 MCP Tool。
+func RegisterBaseTenantServicePageBaseTenantMCPTool(mcpServer *mcp.Server, baseTenantServiceServer BaseTenantServiceServer) {
+	mcp.AddTool[*PageBaseTenantRequest, *PageBaseTenantResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "admin_v1_base_tenant_service_page_base_tenants",
+			Name:        "admin_v1_base_tenant_service_page_base_tenant",
 			Description: "查询租户分页列表",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBaseTenantsRequest) (*mcp.CallToolResult, *PageBaseTenantsResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBaseTenantRequest) (*mcp.CallToolResult, *PageBaseTenantResponse, error) {
 			if input == nil {
-				input = &PageBaseTenantsRequest{}
+				input = &PageBaseTenantRequest{}
 			}
-			reply, err := baseTenantServiceServer.PageBaseTenants(ctx, input)
+			reply, err := baseTenantServiceServer.PageBaseTenant(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

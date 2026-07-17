@@ -35,8 +35,8 @@ func NewShopBannerCase(baseCase *biz.BaseCase, shopBannerRepo *data.ShopBannerRe
 	}
 }
 
-// ListShopBanners 查询商城轮播图列表
-func (c *ShopBannerCase) ListShopBanners(ctx context.Context, req *appv1.ListShopBannersRequest) (*appv1.ListShopBannersResponse, error) {
+// ListShopBanner 查询商城轮播图列表
+func (c *ShopBannerCase) ListShopBanner(ctx context.Context, req *appv1.ListShopBannerRequest) (*appv1.ListShopBannerResponse, error) {
 	all, err := c.listBySite(ctx, int32(req.GetSite()))
 	if err != nil {
 		return nil, err
@@ -47,7 +47,7 @@ func (c *ShopBannerCase) ListShopBanners(ctx context.Context, req *appv1.ListSho
 		list = append(list, c.convertToProto(ctx, item))
 	}
 
-	return &appv1.ListShopBannersResponse{
+	return &appv1.ListShopBannerResponse{
 		ShopBanners: list,
 	}, nil
 }

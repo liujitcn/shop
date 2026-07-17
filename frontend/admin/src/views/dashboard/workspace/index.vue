@@ -196,7 +196,7 @@ import {
   SseRefreshTarget,
   SseStream
 } from "@/rpc/common/v1/enum";
-import type { OptionTenantStoresResponse_Option } from "@/rpc/admin/v1/tenant_store";
+import type { OptionTenantStoreResponse_Option } from "@/rpc/admin/v1/tenant_store";
 import { navigateTo } from "@/utils/router";
 import { formatPrice } from "@/utils/utils";
 import { DEFAULT_TENANT_CODE, parseTenantStoreTreeValue, transformTenantStoreTreeOptions } from "@/utils/tenant";
@@ -274,7 +274,7 @@ const pendingComments = ref<WorkspacePendingComment[]>([]);
 const tenantStoreTreeValue = ref<string>();
 const tenantStoreId = ref<number>();
 const tenantStoreTreeOptions = ref<EnumProps[]>([]);
-const tenantStoreOptions = ref<OptionTenantStoresResponse_Option[]>([]);
+const tenantStoreOptions = ref<OptionTenantStoreResponse_Option[]>([]);
 const workspaceRefreshTargets: SseRefreshTarget[] = [
   SseRefreshTarget.SSE_REFRESH_TARGET_ADMIN_WORKSPACE_METRICS,
   SseRefreshTarget.SSE_REFRESH_TARGET_ADMIN_WORKSPACE_TODO,
@@ -706,18 +706,18 @@ async function loadWorkspaceReputation() {
 
 /** 加载工作台待审核评价。 */
 async function loadWorkspacePendingComments() {
-  const response = await defWorkspaceService.ListWorkspacePendingComments({ limit: 5, ...workspaceScope.value });
+  const response = await defWorkspaceService.ListWorkspacePendingComment({ limit: 5, ...workspaceScope.value });
   pendingComments.value = response.pending_comments ?? [];
 }
 
 /** 加载当前账号可选择的租户门店范围。 */
 async function loadTenantStoreOptions() {
   if (isDefaultTenant.value) {
-    const response = await defTenantStoreService.TreeTenantStores({ keyword: "" });
+    const response = await defTenantStoreService.TreeTenantStore({ keyword: "" });
     tenantStoreTreeOptions.value = transformTenantStoreTreeOptions(response.list ?? []);
     return;
   }
-  const response = await defTenantStoreService.OptionTenantStores({ keyword: "" });
+  const response = await defTenantStoreService.OptionTenantStore({ keyword: "" });
   tenantStoreOptions.value = response.list ?? [];
 }
 

@@ -37,21 +37,21 @@ func NewBaseRoleService(
 	}
 }
 
-// OptionBaseRoles 查询角色下拉选择
-func (s *BaseRoleService) OptionBaseRoles(ctx context.Context, req *adminv1.OptionBaseRolesRequest) (*commonv1.SelectOptionResponse, error) {
-	list, err := s.baseRoleCase.OptionBaseRoles(ctx, req)
+// OptionBaseRole 查询角色下拉选择
+func (s *BaseRoleService) OptionBaseRole(ctx context.Context, req *adminv1.OptionBaseRoleRequest) (*commonv1.SelectOptionResponse, error) {
+	list, err := s.baseRoleCase.OptionBaseRole(ctx, req)
 	if err != nil {
-		log.Error(fmt.Sprintf("OptionBaseRoles %v", err))
+		log.Error(fmt.Sprintf("OptionBaseRole %v", err))
 		return nil, errorsx.WrapInternal(err, "查询角色下拉列表失败")
 	}
 	return list, nil
 }
 
-// PageBaseRoles 查询角色分页列表
-func (s *BaseRoleService) PageBaseRoles(ctx context.Context, req *adminv1.PageBaseRolesRequest) (*adminv1.PageBaseRolesResponse, error) {
-	page, err := s.baseRoleCase.PageBaseRoles(ctx, req)
+// PageBaseRole 查询角色分页列表
+func (s *BaseRoleService) PageBaseRole(ctx context.Context, req *adminv1.PageBaseRoleRequest) (*adminv1.PageBaseRoleResponse, error) {
+	page, err := s.baseRoleCase.PageBaseRole(ctx, req)
 	if err != nil {
-		log.Error(fmt.Sprintf("PageBaseRoles %v", err))
+		log.Error(fmt.Sprintf("PageBaseRole %v", err))
 		return nil, errorsx.WrapInternal(err, "查询角色分页列表失败")
 	}
 	return page, nil

@@ -14,22 +14,22 @@ import (
 
 // RegisterGoodsCategoryServiceMCPTools 注册App商品分类服务的 MCP Tool。
 func RegisterGoodsCategoryServiceMCPTools(mcpServer *mcp.Server, goodsCategoryServiceServer GoodsCategoryServiceServer) {
-	RegisterGoodsCategoryServiceListGoodsCategoriesMCPTool(mcpServer, goodsCategoryServiceServer)
+	RegisterGoodsCategoryServiceListGoodsCategoryMCPTool(mcpServer, goodsCategoryServiceServer)
 }
 
-// RegisterGoodsCategoryServiceListGoodsCategoriesMCPTool 注册查询商品分类列表的 MCP Tool。
-func RegisterGoodsCategoryServiceListGoodsCategoriesMCPTool(mcpServer *mcp.Server, goodsCategoryServiceServer GoodsCategoryServiceServer) {
-	mcp.AddTool[*ListGoodsCategoriesRequest, *ListGoodsCategoriesResponse](
+// RegisterGoodsCategoryServiceListGoodsCategoryMCPTool 注册查询商品分类列表的 MCP Tool。
+func RegisterGoodsCategoryServiceListGoodsCategoryMCPTool(mcpServer *mcp.Server, goodsCategoryServiceServer GoodsCategoryServiceServer) {
+	mcp.AddTool[*ListGoodsCategoryRequest, *ListGoodsCategoryResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "app_v1_goods_category_service_list_goods_categories",
+			Name:        "app_v1_goods_category_service_list_goods_category",
 			Description: "查询商品分类列表",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *ListGoodsCategoriesRequest) (*mcp.CallToolResult, *ListGoodsCategoriesResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *ListGoodsCategoryRequest) (*mcp.CallToolResult, *ListGoodsCategoryResponse, error) {
 			if input == nil {
-				input = &ListGoodsCategoriesRequest{}
+				input = &ListGoodsCategoryRequest{}
 			}
-			reply, err := goodsCategoryServiceServer.ListGoodsCategories(ctx, input)
+			reply, err := goodsCategoryServiceServer.ListGoodsCategory(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

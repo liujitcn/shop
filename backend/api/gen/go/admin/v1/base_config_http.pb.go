@@ -22,7 +22,7 @@ const _ = http.SupportPackageIsVersion3
 const OperationBaseConfigServiceCreateBaseConfig = "/admin.v1.BaseConfigService/CreateBaseConfig"
 const OperationBaseConfigServiceDeleteBaseConfig = "/admin.v1.BaseConfigService/DeleteBaseConfig"
 const OperationBaseConfigServiceGetBaseConfig = "/admin.v1.BaseConfigService/GetBaseConfig"
-const OperationBaseConfigServicePageBaseConfigs = "/admin.v1.BaseConfigService/PageBaseConfigs"
+const OperationBaseConfigServicePageBaseConfig = "/admin.v1.BaseConfigService/PageBaseConfig"
 const OperationBaseConfigServiceRefreshBaseConfigCache = "/admin.v1.BaseConfigService/RefreshBaseConfigCache"
 const OperationBaseConfigServiceSetBaseConfigStatus = "/admin.v1.BaseConfigService/SetBaseConfigStatus"
 const OperationBaseConfigServiceUpdateBaseConfig = "/admin.v1.BaseConfigService/UpdateBaseConfig"
@@ -34,8 +34,8 @@ type BaseConfigServiceHTTPServer interface {
 	DeleteBaseConfig(context.Context, *DeleteBaseConfigRequest) (*emptypb.Empty, error)
 	// GetBaseConfig 查询系统配置
 	GetBaseConfig(context.Context, *GetBaseConfigRequest) (*BaseConfigForm, error)
-	// PageBaseConfigs 查询系统配置分页列表
-	PageBaseConfigs(context.Context, *PageBaseConfigsRequest) (*PageBaseConfigsResponse, error)
+	// PageBaseConfig 查询系统配置分页列表
+	PageBaseConfig(context.Context, *PageBaseConfigRequest) (*PageBaseConfigResponse, error)
 	// RefreshBaseConfigCache 刷新缓存
 	RefreshBaseConfigCache(context.Context, *RefreshBaseConfigCacheRequest) (*emptypb.Empty, error)
 	// SetBaseConfigStatus 设置状态
@@ -47,7 +47,7 @@ type BaseConfigServiceHTTPServer interface {
 func RegisterBaseConfigServiceHTTPServer(s *http.Server, srv BaseConfigServiceHTTPServer) {
 	r := s.Route("/")
 	r.Handle("PUT", "/api/v1/admin/base/config/cache", _BaseConfigService_RefreshBaseConfigCache0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/admin/base/config", _BaseConfigService_PageBaseConfigs0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/base/config", _BaseConfigService_PageBaseConfig0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/base/config/{id}", _BaseConfigService_GetBaseConfig0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/admin/base/config", _BaseConfigService_CreateBaseConfig0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/base/config/{base_config.id}", _BaseConfigService_UpdateBaseConfig0_HTTP_Handler(srv))
@@ -74,21 +74,21 @@ func _BaseConfigService_RefreshBaseConfigCache0_HTTP_Handler(srv BaseConfigServi
 	}
 }
 
-func _BaseConfigService_PageBaseConfigs0_HTTP_Handler(srv BaseConfigServiceHTTPServer) func(ctx http.Context) error {
+func _BaseConfigService_PageBaseConfig0_HTTP_Handler(srv BaseConfigServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in PageBaseConfigsRequest
+		var in PageBaseConfigRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationBaseConfigServicePageBaseConfigs)
+		http.SetOperation(ctx, OperationBaseConfigServicePageBaseConfig)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.PageBaseConfigs(ctx, req.(*PageBaseConfigsRequest))
+			return srv.PageBaseConfig(ctx, req.(*PageBaseConfigRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*PageBaseConfigsResponse)
+		reply := out.(*PageBaseConfigResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -213,8 +213,8 @@ type BaseConfigServiceHTTPClient interface {
 	DeleteBaseConfig(ctx context.Context, req *DeleteBaseConfigRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// GetBaseConfig 查询系统配置
 	GetBaseConfig(ctx context.Context, req *GetBaseConfigRequest, opts ...http.CallOption) (rsp *BaseConfigForm, err error)
-	// PageBaseConfigs 查询系统配置分页列表
-	PageBaseConfigs(ctx context.Context, req *PageBaseConfigsRequest, opts ...http.CallOption) (rsp *PageBaseConfigsResponse, err error)
+	// PageBaseConfig 查询系统配置分页列表
+	PageBaseConfig(ctx context.Context, req *PageBaseConfigRequest, opts ...http.CallOption) (rsp *PageBaseConfigResponse, err error)
 	// RefreshBaseConfigCache 刷新缓存
 	RefreshBaseConfigCache(ctx context.Context, req *RefreshBaseConfigCacheRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// SetBaseConfigStatus 设置状态
@@ -283,14 +283,14 @@ func (c *BaseConfigServiceHTTPClientImpl) GetBaseConfig(ctx context.Context, in 
 	return &out, nil
 }
 
-// PageBaseConfigs 查询系统配置分页列表
-func (c *BaseConfigServiceHTTPClientImpl) PageBaseConfigs(ctx context.Context, in *PageBaseConfigsRequest, opts ...http.CallOption) (*PageBaseConfigsResponse, error) {
-	var out PageBaseConfigsResponse
+// PageBaseConfig 查询系统配置分页列表
+func (c *BaseConfigServiceHTTPClientImpl) PageBaseConfig(ctx context.Context, in *PageBaseConfigRequest, opts ...http.CallOption) (*PageBaseConfigResponse, error) {
+	var out PageBaseConfigResponse
 	pattern := "/api/v1/admin/base/config"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationBaseConfigServicePageBaseConfigs),
+		http.Operation(OperationBaseConfigServicePageBaseConfig),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)

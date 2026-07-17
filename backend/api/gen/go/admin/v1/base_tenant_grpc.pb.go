@@ -8,12 +8,13 @@ package adminv1
 
 import (
 	context "context"
-	v1 "shop/api/gen/go/common/v1"
 
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+
+	v1 "shop/api/gen/go/common/v1"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -22,8 +23,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	BaseTenantService_OptionBaseTenants_FullMethodName   = "/admin.v1.BaseTenantService/OptionBaseTenants"
-	BaseTenantService_PageBaseTenants_FullMethodName     = "/admin.v1.BaseTenantService/PageBaseTenants"
+	BaseTenantService_OptionBaseTenant_FullMethodName    = "/admin.v1.BaseTenantService/OptionBaseTenant"
+	BaseTenantService_PageBaseTenant_FullMethodName      = "/admin.v1.BaseTenantService/PageBaseTenant"
 	BaseTenantService_GetBaseTenant_FullMethodName       = "/admin.v1.BaseTenantService/GetBaseTenant"
 	BaseTenantService_CreateBaseTenant_FullMethodName    = "/admin.v1.BaseTenantService/CreateBaseTenant"
 	BaseTenantService_UpdateBaseTenant_FullMethodName    = "/admin.v1.BaseTenantService/UpdateBaseTenant"
@@ -38,9 +39,9 @@ const (
 // Admin租户管理服务
 type BaseTenantServiceClient interface {
 	// 查询租户下拉选择
-	OptionBaseTenants(ctx context.Context, in *OptionBaseTenantsRequest, opts ...grpc.CallOption) (*v1.SelectOptionResponse, error)
+	OptionBaseTenant(ctx context.Context, in *OptionBaseTenantRequest, opts ...grpc.CallOption) (*v1.SelectOptionResponse, error)
 	// 查询租户分页列表
-	PageBaseTenants(ctx context.Context, in *PageBaseTenantsRequest, opts ...grpc.CallOption) (*PageBaseTenantsResponse, error)
+	PageBaseTenant(ctx context.Context, in *PageBaseTenantRequest, opts ...grpc.CallOption) (*PageBaseTenantResponse, error)
 	// 查询租户
 	GetBaseTenant(ctx context.Context, in *GetBaseTenantRequest, opts ...grpc.CallOption) (*BaseTenantForm, error)
 	// 创建租户
@@ -61,20 +62,20 @@ func NewBaseTenantServiceClient(cc grpc.ClientConnInterface) BaseTenantServiceCl
 	return &baseTenantServiceClient{cc}
 }
 
-func (c *baseTenantServiceClient) OptionBaseTenants(ctx context.Context, in *OptionBaseTenantsRequest, opts ...grpc.CallOption) (*v1.SelectOptionResponse, error) {
+func (c *baseTenantServiceClient) OptionBaseTenant(ctx context.Context, in *OptionBaseTenantRequest, opts ...grpc.CallOption) (*v1.SelectOptionResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(v1.SelectOptionResponse)
-	err := c.cc.Invoke(ctx, BaseTenantService_OptionBaseTenants_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, BaseTenantService_OptionBaseTenant_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *baseTenantServiceClient) PageBaseTenants(ctx context.Context, in *PageBaseTenantsRequest, opts ...grpc.CallOption) (*PageBaseTenantsResponse, error) {
+func (c *baseTenantServiceClient) PageBaseTenant(ctx context.Context, in *PageBaseTenantRequest, opts ...grpc.CallOption) (*PageBaseTenantResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(PageBaseTenantsResponse)
-	err := c.cc.Invoke(ctx, BaseTenantService_PageBaseTenants_FullMethodName, in, out, cOpts...)
+	out := new(PageBaseTenantResponse)
+	err := c.cc.Invoke(ctx, BaseTenantService_PageBaseTenant_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -138,9 +139,9 @@ func (c *baseTenantServiceClient) SetBaseTenantStatus(ctx context.Context, in *S
 // Admin租户管理服务
 type BaseTenantServiceServer interface {
 	// 查询租户下拉选择
-	OptionBaseTenants(context.Context, *OptionBaseTenantsRequest) (*v1.SelectOptionResponse, error)
+	OptionBaseTenant(context.Context, *OptionBaseTenantRequest) (*v1.SelectOptionResponse, error)
 	// 查询租户分页列表
-	PageBaseTenants(context.Context, *PageBaseTenantsRequest) (*PageBaseTenantsResponse, error)
+	PageBaseTenant(context.Context, *PageBaseTenantRequest) (*PageBaseTenantResponse, error)
 	// 查询租户
 	GetBaseTenant(context.Context, *GetBaseTenantRequest) (*BaseTenantForm, error)
 	// 创建租户
@@ -161,11 +162,11 @@ type BaseTenantServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedBaseTenantServiceServer struct{}
 
-func (UnimplementedBaseTenantServiceServer) OptionBaseTenants(context.Context, *OptionBaseTenantsRequest) (*v1.SelectOptionResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method OptionBaseTenants not implemented")
+func (UnimplementedBaseTenantServiceServer) OptionBaseTenant(context.Context, *OptionBaseTenantRequest) (*v1.SelectOptionResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method OptionBaseTenant not implemented")
 }
-func (UnimplementedBaseTenantServiceServer) PageBaseTenants(context.Context, *PageBaseTenantsRequest) (*PageBaseTenantsResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method PageBaseTenants not implemented")
+func (UnimplementedBaseTenantServiceServer) PageBaseTenant(context.Context, *PageBaseTenantRequest) (*PageBaseTenantResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method PageBaseTenant not implemented")
 }
 func (UnimplementedBaseTenantServiceServer) GetBaseTenant(context.Context, *GetBaseTenantRequest) (*BaseTenantForm, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetBaseTenant not implemented")
@@ -203,38 +204,38 @@ func RegisterBaseTenantServiceServer(s grpc.ServiceRegistrar, srv BaseTenantServ
 	s.RegisterService(&BaseTenantService_ServiceDesc, srv)
 }
 
-func _BaseTenantService_OptionBaseTenants_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(OptionBaseTenantsRequest)
+func _BaseTenantService_OptionBaseTenant_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OptionBaseTenantRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BaseTenantServiceServer).OptionBaseTenants(ctx, in)
+		return srv.(BaseTenantServiceServer).OptionBaseTenant(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: BaseTenantService_OptionBaseTenants_FullMethodName,
+		FullMethod: BaseTenantService_OptionBaseTenant_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BaseTenantServiceServer).OptionBaseTenants(ctx, req.(*OptionBaseTenantsRequest))
+		return srv.(BaseTenantServiceServer).OptionBaseTenant(ctx, req.(*OptionBaseTenantRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _BaseTenantService_PageBaseTenants_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PageBaseTenantsRequest)
+func _BaseTenantService_PageBaseTenant_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PageBaseTenantRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BaseTenantServiceServer).PageBaseTenants(ctx, in)
+		return srv.(BaseTenantServiceServer).PageBaseTenant(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: BaseTenantService_PageBaseTenants_FullMethodName,
+		FullMethod: BaseTenantService_PageBaseTenant_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BaseTenantServiceServer).PageBaseTenants(ctx, req.(*PageBaseTenantsRequest))
+		return srv.(BaseTenantServiceServer).PageBaseTenant(ctx, req.(*PageBaseTenantRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -337,12 +338,12 @@ var BaseTenantService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*BaseTenantServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "OptionBaseTenants",
-			Handler:    _BaseTenantService_OptionBaseTenants_Handler,
+			MethodName: "OptionBaseTenant",
+			Handler:    _BaseTenantService_OptionBaseTenant_Handler,
 		},
 		{
-			MethodName: "PageBaseTenants",
-			Handler:    _BaseTenantService_PageBaseTenants_Handler,
+			MethodName: "PageBaseTenant",
+			Handler:    _BaseTenantService_PageBaseTenant_Handler,
 		},
 		{
 			MethodName: "GetBaseTenant",

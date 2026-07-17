@@ -9,19 +9,19 @@ import type { TenantStoreStatus } from "../../common/v1/enum";
 import type { Empty } from "../../google/protobuf/empty";
 
 /** 租户门店下拉选项查询条件 */
-export interface OptionTenantStoresRequest {
+export interface OptionTenantStoreRequest {
   /** 门店名称关键字 */
   keyword: string;
 }
 
 /** 租户门店下拉选项响应 */
-export interface OptionTenantStoresResponse {
+export interface OptionTenantStoreResponse {
   /** 门店选项列表 */
-  list: OptionTenantStoresResponse_Option[];
+  list: OptionTenantStoreResponse_Option[];
 }
 
 /** 租户门店选项 */
-export interface OptionTenantStoresResponse_Option {
+export interface OptionTenantStoreResponse_Option {
   /** 门店ID */
   value: number;
   /** 门店名称 */
@@ -29,19 +29,19 @@ export interface OptionTenantStoresResponse_Option {
 }
 
 /** 租户门店树形选项查询条件 */
-export interface TreeTenantStoresRequest {
+export interface TreeTenantStoreRequest {
   /** 门店名称关键字 */
   keyword: string;
 }
 
 /** 租户门店树形选项响应 */
-export interface TreeTenantStoresResponse {
+export interface TreeTenantStoreResponse {
   /** 租户门店树形选项列表 */
-  list: TreeTenantStoresResponse_Option[];
+  list: TreeTenantStoreResponse_Option[];
 }
 
 /** 租户门店树形选项 */
-export interface TreeTenantStoresResponse_Option {
+export interface TreeTenantStoreResponse_Option {
   /** 选项值，tenant:{id} 或 store:{id} */
   value: string;
   /** 选项名称 */
@@ -53,11 +53,11 @@ export interface TreeTenantStoresResponse_Option {
   /** 租户ID */
   tenant_id: number;
   /** 子节点树 */
-  children: TreeTenantStoresResponse_Option[];
+  children: TreeTenantStoreResponse_Option[];
 }
 
 /** 租户门店列表查询条件 */
-export interface PageTenantStoresRequest {
+export interface PageTenantStoreRequest {
   /** 门店名称 */
   name: string;
   /** 租户ID */
@@ -75,7 +75,7 @@ export interface PageTenantStoresRequest {
 }
 
 /** 租户门店列表响应 */
-export interface PageTenantStoresResponse {
+export interface PageTenantStoreResponse {
   /** 租户门店列表 */
   tenant_stores: TenantStore[];
   /** 总数 */
@@ -171,11 +171,11 @@ export interface TenantStoreForm {
 /** Admin租户门店服务 */
 export interface TenantStoreService {
   /** 查询租户门店下拉选项 */
-  OptionTenantStores(request: OptionTenantStoresRequest): Promise<OptionTenantStoresResponse>;
+  OptionTenantStore(request: OptionTenantStoreRequest): Promise<OptionTenantStoreResponse>;
   /** 查询租户门店树形选项 */
-  TreeTenantStores(request: TreeTenantStoresRequest): Promise<TreeTenantStoresResponse>;
+  TreeTenantStore(request: TreeTenantStoreRequest): Promise<TreeTenantStoreResponse>;
   /** 查询租户门店列表 */
-  PageTenantStores(request: PageTenantStoresRequest): Promise<PageTenantStoresResponse>;
+  PageTenantStore(request: PageTenantStoreRequest): Promise<PageTenantStoreResponse>;
   /** 查询租户门店 */
   GetTenantStore(request: GetTenantStoreRequest): Promise<TenantStoreForm>;
   /** 创建租户门店 */

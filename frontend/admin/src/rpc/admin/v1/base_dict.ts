@@ -9,11 +9,11 @@ import type { Status } from "../../common/v1/enum";
 import type { Empty } from "../../google/protobuf/empty";
 
 /** 字典选项查询条件 */
-export interface OptionBaseDictsRequest {
+export interface OptionBaseDictRequest {
 }
 
 /** 字典分页查询条件 */
-export interface PageBaseDictsRequest {
+export interface PageBaseDictRequest {
   /** 字典编号 */
   code: string;
   /** 字典名称 */
@@ -29,7 +29,7 @@ export interface PageBaseDictsRequest {
 }
 
 /** 字典分页响应 */
-export interface PageBaseDictsResponse {
+export interface PageBaseDictResponse {
   /** 分页数据 */
   base_dicts: BaseDict[];
   /** 总数 */
@@ -69,7 +69,7 @@ export interface SetBaseDictStatusRequest {
 }
 
 /** 字典属性分页查询条件 */
-export interface PageBaseDictItemsRequest {
+export interface PageBaseDictItemRequest {
   /** 字典ID */
   dict_id: number;
   /** 字典属性名称 */
@@ -85,7 +85,7 @@ export interface PageBaseDictItemsRequest {
 }
 
 /** 字典属性分页响应 */
-export interface PageBaseDictItemsResponse {
+export interface PageBaseDictItemResponse {
   /** 分页数据 */
   base_dict_items: BaseDictItem[];
   /** 总数 */
@@ -125,13 +125,13 @@ export interface SetBaseDictItemStatusRequest {
 }
 
 /** 字典选项响应 */
-export interface OptionBaseDictsResponse {
+export interface OptionBaseDictResponse {
   /** 字典列表 */
-  base_dicts: OptionBaseDictsResponse_BaseDict[];
+  base_dicts: OptionBaseDictResponse_BaseDict[];
 }
 
 /** 字典项 */
-export interface OptionBaseDictsResponse_BaseDictItem {
+export interface OptionBaseDictResponse_BaseDictItem {
   /** 字典项值 */
   value: string;
   /** 字典项标签 */
@@ -141,13 +141,13 @@ export interface OptionBaseDictsResponse_BaseDictItem {
 }
 
 /** 字典 */
-export interface OptionBaseDictsResponse_BaseDict {
+export interface OptionBaseDictResponse_BaseDict {
   /** 字典编号 */
   code: string;
   /** 字典名称 */
   name: string;
   /** 字典属性 */
-  items: OptionBaseDictsResponse_BaseDictItem[];
+  items: OptionBaseDictResponse_BaseDictItem[];
 }
 
 /** 字典 */
@@ -221,9 +221,9 @@ export interface BaseDictItemForm {
 /** Admin字典服务 */
 export interface BaseDictService {
   /** 查询字典列表 */
-  OptionBaseDicts(request: OptionBaseDictsRequest): Promise<OptionBaseDictsResponse>;
+  OptionBaseDict(request: OptionBaseDictRequest): Promise<OptionBaseDictResponse>;
   /** 查询字典分页列表 */
-  PageBaseDicts(request: PageBaseDictsRequest): Promise<PageBaseDictsResponse>;
+  PageBaseDict(request: PageBaseDictRequest): Promise<PageBaseDictResponse>;
   /** 查询字典 */
   GetBaseDict(request: GetBaseDictRequest): Promise<BaseDictForm>;
   /** 创建字典 */
@@ -235,7 +235,7 @@ export interface BaseDictService {
   /** 设置状态 */
   SetBaseDictStatus(request: SetBaseDictStatusRequest): Promise<Empty>;
   /** 查询字典属性分页列表 */
-  PageBaseDictItems(request: PageBaseDictItemsRequest): Promise<PageBaseDictItemsResponse>;
+  PageBaseDictItem(request: PageBaseDictItemRequest): Promise<PageBaseDictItemResponse>;
   /** 查询字典属性 */
   GetBaseDictItem(request: GetBaseDictItemRequest): Promise<BaseDictItemForm>;
   /** 创建字典属性 */

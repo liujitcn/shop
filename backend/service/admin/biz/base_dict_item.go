@@ -34,8 +34,8 @@ func NewBaseDictItemCase(baseCase *biz.BaseCase, baseDictRepo *data.BaseDictRepo
 	}
 }
 
-// PageBaseDictItems 分页查询字典项
-func (c *BaseDictItemCase) PageBaseDictItems(ctx context.Context, req *adminv1.PageBaseDictItemsRequest) (*adminv1.PageBaseDictItemsResponse, error) {
+// PageBaseDictItem 分页查询字典项
+func (c *BaseDictItemCase) PageBaseDictItem(ctx context.Context, req *adminv1.PageBaseDictItemRequest) (*adminv1.PageBaseDictItemResponse, error) {
 	query := c.Query(ctx).BaseDictItem
 	opts := make([]repository.QueryOption, 0, 5)
 	opts = append(opts, repository.Order(query.Sort.Asc()))
@@ -62,7 +62,7 @@ func (c *BaseDictItemCase) PageBaseDictItems(ctx context.Context, req *adminv1.P
 		baseDictItem := c.mapper.ToDTO(item)
 		resList = append(resList, baseDictItem)
 	}
-	return &adminv1.PageBaseDictItemsResponse{BaseDictItems: resList, Total: int32(total)}, nil
+	return &adminv1.PageBaseDictItemResponse{BaseDictItems: resList, Total: int32(total)}, nil
 }
 
 // GetBaseDictItem 获取字典项

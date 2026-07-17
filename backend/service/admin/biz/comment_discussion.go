@@ -53,8 +53,8 @@ func NewCommentDiscussionCase(
 	}
 }
 
-// PageCommentDiscussions 分页查询评论讨论审核列表。
-func (c *CommentDiscussionCase) PageCommentDiscussions(ctx context.Context, req *adminv1.PageCommentDiscussionsRequest) (*adminv1.PageCommentDiscussionsResponse, error) {
+// PageCommentDiscussion 分页查询评论讨论审核列表。
+func (c *CommentDiscussionCase) PageCommentDiscussion(ctx context.Context, req *adminv1.PageCommentDiscussionRequest) (*adminv1.PageCommentDiscussionResponse, error) {
 	query := c.Query(ctx).CommentDiscussion
 	opts := make([]repository.QueryOption, 0, 6)
 	opts = append(opts, repository.Where(query.CommentID.Eq(req.GetCommentId())))
@@ -80,7 +80,7 @@ func (c *CommentDiscussionCase) PageCommentDiscussions(ctx context.Context, req 
 	for _, item := range list {
 		resList = append(resList, c.discussionMapper.ToDTO(item))
 	}
-	return &adminv1.PageCommentDiscussionsResponse{CommentDiscussions: resList, Total: int32(total)}, nil
+	return &adminv1.PageCommentDiscussionResponse{CommentDiscussions: resList, Total: int32(total)}, nil
 }
 
 // SetCommentDiscussionStatus 设置评论讨论审核状态。

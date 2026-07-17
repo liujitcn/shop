@@ -24,12 +24,12 @@ func NewBaseConfigServiceAgentTools(baseConfigServiceServer BaseConfigServiceSer
 		return nil, err
 	}
 	ts = append(ts, refreshBaseConfigCacheTool)
-	var pageBaseConfigsTool tool.InvokableTool
-	pageBaseConfigsTool, err = NewBaseConfigServicePageBaseConfigsAgentTool(baseConfigServiceServer)
+	var pageBaseConfigTool tool.InvokableTool
+	pageBaseConfigTool, err = NewBaseConfigServicePageBaseConfigAgentTool(baseConfigServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, pageBaseConfigsTool)
+	ts = append(ts, pageBaseConfigTool)
 	var getBaseConfigTool tool.InvokableTool
 	getBaseConfigTool, err = NewBaseConfigServiceGetBaseConfigAgentTool(baseConfigServiceServer)
 	if err != nil {
@@ -77,16 +77,16 @@ func NewBaseConfigServiceRefreshBaseConfigCacheAgentTool(baseConfigServiceServer
 	)
 }
 
-// NewBaseConfigServicePageBaseConfigsAgentTool 创建查询系统配置分页列表的 Agent Tool。
-func NewBaseConfigServicePageBaseConfigsAgentTool(baseConfigServiceServer BaseConfigServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*PageBaseConfigsRequest, *PageBaseConfigsResponse](
-		"admin_v1_base_config_service_page_base_configs",
+// NewBaseConfigServicePageBaseConfigAgentTool 创建查询系统配置分页列表的 Agent Tool。
+func NewBaseConfigServicePageBaseConfigAgentTool(baseConfigServiceServer BaseConfigServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PageBaseConfigRequest, *PageBaseConfigResponse](
+		"admin_v1_base_config_service_page_base_config",
 		"查询系统配置分页列表",
-		func(ctx context.Context, req *PageBaseConfigsRequest) (*PageBaseConfigsResponse, error) {
+		func(ctx context.Context, req *PageBaseConfigRequest) (*PageBaseConfigResponse, error) {
 			if req == nil {
-				req = &PageBaseConfigsRequest{}
+				req = &PageBaseConfigRequest{}
 			}
-			return baseConfigServiceServer.PageBaseConfigs(ctx, req)
+			return baseConfigServiceServer.PageBaseConfig(ctx, req)
 		},
 	)
 }

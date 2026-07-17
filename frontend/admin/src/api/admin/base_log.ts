@@ -3,8 +3,8 @@ import {
   type BaseLog,
   type BaseLogService,
   type GetBaseLogRequest,
-  type PageBaseLogsRequest,
-  type PageBaseLogsResponse
+  type PageBaseLogRequest,
+  type PageBaseLogResponse
 } from "@/rpc/admin/v1/base_log";
 
 const BASE_LOG_URL = "/v1/admin/base/log";
@@ -12,8 +12,8 @@ const BASE_LOG_URL = "/v1/admin/base/log";
 /** Admin系统日志服务 */
 export class BaseLogServiceImpl implements BaseLogService {
   /** 查询系统日志分页列表 */
-  PageBaseLogs(request: PageBaseLogsRequest): Promise<PageBaseLogsResponse> {
-    return service<PageBaseLogsRequest, PageBaseLogsResponse>({
+  PageBaseLog(request: PageBaseLogRequest): Promise<PageBaseLogResponse> {
+    return service<PageBaseLogRequest, PageBaseLogResponse>({
       url: `${BASE_LOG_URL}`,
       method: "get",
       params: request

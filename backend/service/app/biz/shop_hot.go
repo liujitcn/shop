@@ -34,8 +34,8 @@ func NewShopHotCase(baseCase *biz.BaseCase, shopHotRepo *data.ShopHotRepository)
 	}
 }
 
-// ListShopHots 查询热门推荐列表
-func (c *ShopHotCase) ListShopHots(ctx context.Context) (*appv1.ListShopHotsResponse, error) {
+// ListShopHot 查询热门推荐列表
+func (c *ShopHotCase) ListShopHot(ctx context.Context) (*appv1.ListShopHotResponse, error) {
 	query := c.Query(ctx).ShopHot
 	opts := make([]repository.QueryOption, 0, 3)
 	opts = append(opts, repository.Order(query.Sort.Asc()))
@@ -51,7 +51,7 @@ func (c *ShopHotCase) ListShopHots(ctx context.Context) (*appv1.ListShopHotsResp
 		list = append(list, c.mapper.ToDTO(item))
 	}
 
-	return &appv1.ListShopHotsResponse{
+	return &appv1.ListShopHotResponse{
 		ShopHots: list,
 	}, nil
 }

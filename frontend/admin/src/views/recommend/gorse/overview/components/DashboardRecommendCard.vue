@@ -176,7 +176,7 @@ async function loadDashboardData() {
 
 /** 加载 Gorse 推荐仪表盘分类下拉。 */
 async function loadCategories() {
-  const gorseData = await defRecommendGorseService.OptionCategories({});
+  const gorseData = await defRecommendGorseService.OptionCategory({});
   categories.value = (gorseData.categories ?? []).map(item => item.trim()).filter(Boolean);
   // 分类列表刷新后，如果当前分类不再存在，则清空筛选条件。
   if (selectedCategory.value && !categories.value.includes(selectedCategory.value)) selectedCategory.value = "";
@@ -186,7 +186,7 @@ async function loadCategories() {
 async function loadDashboardItems() {
   dashboardItemsLoading.value = true;
   try {
-    const data = await defRecommendGorseService.ListDashboardItems({
+    const data = await defRecommendGorseService.ListDashboardItem({
       recommender: selectedRecommender.value || "latest",
       category: selectedCategory.value,
       end: dashboardItemsLimit

@@ -10,7 +10,7 @@ import "google/protobuf/empty.proto";
 // Admin用户门店管理服务
 service UserStoreService {
   // 查询用户门店列表
-  rpc PageUserStores(PageUserStoresRequest) returns (PageUserStoresResponse) {
+  rpc PageUserStore(PageUserStoreRequest) returns (PageUserStoreResponse) {
     option (google.api.http) = {
       get: "/api/v1/admin/user/store"
     };
@@ -33,7 +33,7 @@ service UserStoreService {
 }
 
 // 用户门店列表查询条件
-message PageUserStoresRequest {
+message PageUserStoreRequest {
   string name = 1 [(gnostic.openapi.v3.property) = {description: "门店名称"}]; // 门店名称
   optional .common.v1.UserStoreStatus status = 100 [(gnostic.openapi.v3.property) = {
     description: "状态"
@@ -50,7 +50,7 @@ message PageUserStoresRequest {
 }
 
 // 用户门店列表响应
-message PageUserStoresResponse {
+message PageUserStoreResponse {
   repeated UserStore user_stores = 1 [(gnostic.openapi.v3.property) = {description: "用户门店列表"}]; // 用户门店列表
   int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
 }

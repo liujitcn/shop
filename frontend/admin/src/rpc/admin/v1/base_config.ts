@@ -13,7 +13,7 @@ export interface RefreshBaseConfigCacheRequest {
 }
 
 /** 系统配置分页查询条件 */
-export interface PageBaseConfigsRequest {
+export interface PageBaseConfigRequest {
   /** 位置：枚举【BaseConfigSite】 */
   site?:
     | BaseConfigSite
@@ -41,7 +41,7 @@ export interface PageBaseConfigsRequest {
 }
 
 /** 系统配置分页响应 */
-export interface PageBaseConfigsResponse {
+export interface PageBaseConfigResponse {
   /** 分页数据 */
   base_configs: BaseConfig[];
   /** 总数 */
@@ -129,7 +129,7 @@ export interface BaseConfigService {
   /** 刷新缓存 */
   RefreshBaseConfigCache(request: RefreshBaseConfigCacheRequest): Promise<Empty>;
   /** 查询系统配置分页列表 */
-  PageBaseConfigs(request: PageBaseConfigsRequest): Promise<PageBaseConfigsResponse>;
+  PageBaseConfig(request: PageBaseConfigRequest): Promise<PageBaseConfigResponse>;
   /** 查询系统配置 */
   GetBaseConfig(request: GetBaseConfigRequest): Promise<BaseConfigForm>;
   /** 创建系统配置 */

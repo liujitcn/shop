@@ -9,7 +9,7 @@ import "google/protobuf/empty.proto";
 // App用户地址管理服务
 service UserAddressService {
   // 查询用户地址列表
-  rpc ListUserAddresses(ListUserAddressesRequest) returns (ListUserAddressesResponse) {
+  rpc ListUserAddress(ListUserAddressRequest) returns (ListUserAddressResponse) {
     option (google.api.http) = {
       get: "/api/v1/app/user/address"
     };
@@ -47,7 +47,7 @@ service UserAddressService {
 }
 
 // 用户地址列表查询条件
-message ListUserAddressesRequest {}
+message ListUserAddressRequest {}
 
 // 查询用户地址请求参数
 message GetUserAddressRequest {
@@ -72,7 +72,7 @@ message DeleteUserAddressRequest {
 }
 
 // 用户地址列表响应
-message ListUserAddressesResponse {
+message ListUserAddressResponse {
   repeated UserAddress user_addresses = 1 [(gnostic.openapi.v3.property) = {description: "用户地址列表"}]; // 用户地址列表
 }
 

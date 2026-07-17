@@ -15,9 +15,9 @@ import (
 
 // RegisterTenantStoreServiceMCPTools 注册Admin租户门店服务的 MCP Tool。
 func RegisterTenantStoreServiceMCPTools(mcpServer *mcp.Server, tenantStoreServiceServer TenantStoreServiceServer) {
-	RegisterTenantStoreServiceOptionTenantStoresMCPTool(mcpServer, tenantStoreServiceServer)
-	RegisterTenantStoreServiceTreeTenantStoresMCPTool(mcpServer, tenantStoreServiceServer)
-	RegisterTenantStoreServicePageTenantStoresMCPTool(mcpServer, tenantStoreServiceServer)
+	RegisterTenantStoreServiceOptionTenantStoreMCPTool(mcpServer, tenantStoreServiceServer)
+	RegisterTenantStoreServiceTreeTenantStoreMCPTool(mcpServer, tenantStoreServiceServer)
+	RegisterTenantStoreServicePageTenantStoreMCPTool(mcpServer, tenantStoreServiceServer)
 	RegisterTenantStoreServiceGetTenantStoreMCPTool(mcpServer, tenantStoreServiceServer)
 	RegisterTenantStoreServiceCreateTenantStoreMCPTool(mcpServer, tenantStoreServiceServer)
 	RegisterTenantStoreServiceUpdateTenantStoreMCPTool(mcpServer, tenantStoreServiceServer)
@@ -25,19 +25,19 @@ func RegisterTenantStoreServiceMCPTools(mcpServer *mcp.Server, tenantStoreServic
 	RegisterTenantStoreServiceAuditTenantStoreMCPTool(mcpServer, tenantStoreServiceServer)
 }
 
-// RegisterTenantStoreServiceOptionTenantStoresMCPTool 注册查询租户门店下拉选项的 MCP Tool。
-func RegisterTenantStoreServiceOptionTenantStoresMCPTool(mcpServer *mcp.Server, tenantStoreServiceServer TenantStoreServiceServer) {
-	mcp.AddTool[*OptionTenantStoresRequest, *OptionTenantStoresResponse](
+// RegisterTenantStoreServiceOptionTenantStoreMCPTool 注册查询租户门店下拉选项的 MCP Tool。
+func RegisterTenantStoreServiceOptionTenantStoreMCPTool(mcpServer *mcp.Server, tenantStoreServiceServer TenantStoreServiceServer) {
+	mcp.AddTool[*OptionTenantStoreRequest, *OptionTenantStoreResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "admin_v1_tenant_store_service_option_tenant_stores",
+			Name:        "admin_v1_tenant_store_service_option_tenant_store",
 			Description: "查询租户门店下拉选项",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *OptionTenantStoresRequest) (*mcp.CallToolResult, *OptionTenantStoresResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *OptionTenantStoreRequest) (*mcp.CallToolResult, *OptionTenantStoreResponse, error) {
 			if input == nil {
-				input = &OptionTenantStoresRequest{}
+				input = &OptionTenantStoreRequest{}
 			}
-			reply, err := tenantStoreServiceServer.OptionTenantStores(ctx, input)
+			reply, err := tenantStoreServiceServer.OptionTenantStore(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -46,19 +46,19 @@ func RegisterTenantStoreServiceOptionTenantStoresMCPTool(mcpServer *mcp.Server, 
 	)
 }
 
-// RegisterTenantStoreServiceTreeTenantStoresMCPTool 注册查询租户门店树形选项的 MCP Tool。
-func RegisterTenantStoreServiceTreeTenantStoresMCPTool(mcpServer *mcp.Server, tenantStoreServiceServer TenantStoreServiceServer) {
-	mcp.AddTool[*TreeTenantStoresRequest, any](
+// RegisterTenantStoreServiceTreeTenantStoreMCPTool 注册查询租户门店树形选项的 MCP Tool。
+func RegisterTenantStoreServiceTreeTenantStoreMCPTool(mcpServer *mcp.Server, tenantStoreServiceServer TenantStoreServiceServer) {
+	mcp.AddTool[*TreeTenantStoreRequest, any](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "admin_v1_tenant_store_service_tree_tenant_stores",
+			Name:        "admin_v1_tenant_store_service_tree_tenant_store",
 			Description: "查询租户门店树形选项",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *TreeTenantStoresRequest) (*mcp.CallToolResult, any, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *TreeTenantStoreRequest) (*mcp.CallToolResult, any, error) {
 			if input == nil {
-				input = &TreeTenantStoresRequest{}
+				input = &TreeTenantStoreRequest{}
 			}
-			reply, err := tenantStoreServiceServer.TreeTenantStores(ctx, input)
+			reply, err := tenantStoreServiceServer.TreeTenantStore(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -67,19 +67,19 @@ func RegisterTenantStoreServiceTreeTenantStoresMCPTool(mcpServer *mcp.Server, te
 	)
 }
 
-// RegisterTenantStoreServicePageTenantStoresMCPTool 注册查询租户门店列表的 MCP Tool。
-func RegisterTenantStoreServicePageTenantStoresMCPTool(mcpServer *mcp.Server, tenantStoreServiceServer TenantStoreServiceServer) {
-	mcp.AddTool[*PageTenantStoresRequest, *PageTenantStoresResponse](
+// RegisterTenantStoreServicePageTenantStoreMCPTool 注册查询租户门店列表的 MCP Tool。
+func RegisterTenantStoreServicePageTenantStoreMCPTool(mcpServer *mcp.Server, tenantStoreServiceServer TenantStoreServiceServer) {
+	mcp.AddTool[*PageTenantStoreRequest, *PageTenantStoreResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "admin_v1_tenant_store_service_page_tenant_stores",
+			Name:        "admin_v1_tenant_store_service_page_tenant_store",
 			Description: "查询租户门店列表",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageTenantStoresRequest) (*mcp.CallToolResult, *PageTenantStoresResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *PageTenantStoreRequest) (*mcp.CallToolResult, *PageTenantStoreResponse, error) {
 			if input == nil {
-				input = &PageTenantStoresRequest{}
+				input = &PageTenantStoreRequest{}
 			}
-			reply, err := tenantStoreServiceServer.PageTenantStores(ctx, input)
+			reply, err := tenantStoreServiceServer.PageTenantStore(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

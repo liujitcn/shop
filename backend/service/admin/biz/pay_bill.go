@@ -28,8 +28,8 @@ func NewPayBillCase(baseCase *biz.BaseCase, payBillRepo *data.PayBillRepository)
 	}
 }
 
-// PagePayBills 查询支付账单列表
-func (c *PayBillCase) PagePayBills(ctx context.Context, req *adminv1.PagePayBillsRequest) (*adminv1.PagePayBillsResponse, error) {
+// PagePayBill 查询支付账单列表
+func (c *PayBillCase) PagePayBill(ctx context.Context, req *adminv1.PagePayBillRequest) (*adminv1.PagePayBillResponse, error) {
 	query := c.Query(ctx).PayBill
 	opts := make([]repository.QueryOption, 0, 3)
 	opts = append(opts, repository.Order(query.BillDate.Asc()))
@@ -51,5 +51,5 @@ func (c *PayBillCase) PagePayBills(ctx context.Context, req *adminv1.PagePayBill
 		payBill := c.mapper.ToDTO(item)
 		resList = append(resList, payBill)
 	}
-	return &adminv1.PagePayBillsResponse{PayBills: resList, Total: int32(total)}, nil
+	return &adminv1.PagePayBillResponse{PayBills: resList, Total: int32(total)}, nil
 }

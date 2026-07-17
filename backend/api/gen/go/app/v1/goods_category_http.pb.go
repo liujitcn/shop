@@ -18,40 +18,40 @@ var _ = new(context.Context)
 
 const _ = http.SupportPackageIsVersion3
 
-const OperationGoodsCategoryServiceListGoodsCategories = "/app.v1.GoodsCategoryService/ListGoodsCategories"
+const OperationGoodsCategoryServiceListGoodsCategory = "/app.v1.GoodsCategoryService/ListGoodsCategory"
 
 type GoodsCategoryServiceHTTPServer interface {
-	// ListGoodsCategories 查询商品分类列表
-	ListGoodsCategories(context.Context, *ListGoodsCategoriesRequest) (*ListGoodsCategoriesResponse, error)
+	// ListGoodsCategory 查询商品分类列表
+	ListGoodsCategory(context.Context, *ListGoodsCategoryRequest) (*ListGoodsCategoryResponse, error)
 }
 
 func RegisterGoodsCategoryServiceHTTPServer(s *http.Server, srv GoodsCategoryServiceHTTPServer) {
 	r := s.Route("/")
-	r.Handle("GET", "/api/v1/app/goods/category", _GoodsCategoryService_ListGoodsCategories0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/app/goods/category", _GoodsCategoryService_ListGoodsCategory0_HTTP_Handler(srv))
 }
 
-func _GoodsCategoryService_ListGoodsCategories0_HTTP_Handler(srv GoodsCategoryServiceHTTPServer) func(ctx http.Context) error {
+func _GoodsCategoryService_ListGoodsCategory0_HTTP_Handler(srv GoodsCategoryServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in ListGoodsCategoriesRequest
+		var in ListGoodsCategoryRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationGoodsCategoryServiceListGoodsCategories)
+		http.SetOperation(ctx, OperationGoodsCategoryServiceListGoodsCategory)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.ListGoodsCategories(ctx, req.(*ListGoodsCategoriesRequest))
+			return srv.ListGoodsCategory(ctx, req.(*ListGoodsCategoryRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*ListGoodsCategoriesResponse)
+		reply := out.(*ListGoodsCategoryResponse)
 		return ctx.Result(200, reply)
 	}
 }
 
 type GoodsCategoryServiceHTTPClient interface {
-	// ListGoodsCategories 查询商品分类列表
-	ListGoodsCategories(ctx context.Context, req *ListGoodsCategoriesRequest, opts ...http.CallOption) (rsp *ListGoodsCategoriesResponse, err error)
+	// ListGoodsCategory 查询商品分类列表
+	ListGoodsCategory(ctx context.Context, req *ListGoodsCategoryRequest, opts ...http.CallOption) (rsp *ListGoodsCategoryResponse, err error)
 }
 
 type GoodsCategoryServiceHTTPClientImpl struct {
@@ -62,14 +62,14 @@ func NewGoodsCategoryServiceHTTPClient(client *http.Client) GoodsCategoryService
 	return &GoodsCategoryServiceHTTPClientImpl{client}
 }
 
-// ListGoodsCategories 查询商品分类列表
-func (c *GoodsCategoryServiceHTTPClientImpl) ListGoodsCategories(ctx context.Context, in *ListGoodsCategoriesRequest, opts ...http.CallOption) (*ListGoodsCategoriesResponse, error) {
-	var out ListGoodsCategoriesResponse
+// ListGoodsCategory 查询商品分类列表
+func (c *GoodsCategoryServiceHTTPClientImpl) ListGoodsCategory(ctx context.Context, in *ListGoodsCategoryRequest, opts ...http.CallOption) (*ListGoodsCategoryResponse, error) {
+	var out ListGoodsCategoryResponse
 	pattern := "/api/v1/app/goods/category"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationGoodsCategoryServiceListGoodsCategories),
+		http.Operation(OperationGoodsCategoryServiceListGoodsCategory),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)

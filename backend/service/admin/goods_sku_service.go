@@ -34,11 +34,11 @@ func NewGoodsSkuService(goodsSKUCase *biz.GoodsSKUCase) *GoodsSkuService {
 	}
 }
 
-// PageGoodsSkus 查询商品SKU列表
-func (s *GoodsSkuService) PageGoodsSkus(ctx context.Context, req *adminv1.PageGoodsSkusRequest) (*adminv1.PageGoodsSkusResponse, error) {
+// PageGoodsSku 查询商品SKU列表
+func (s *GoodsSkuService) PageGoodsSku(ctx context.Context, req *adminv1.PageGoodsSkuRequest) (*adminv1.PageGoodsSkuResponse, error) {
 	page, err := s.goodsSKUCase.ListGoodsSKUs(ctx, req)
 	if err != nil {
-		log.Error(fmt.Sprintf("PageGoodsSkus %v", err))
+		log.Error(fmt.Sprintf("PageGoodsSku %v", err))
 		return nil, errorsx.WrapInternal(err, "查询商品SKU列表失败")
 	}
 	return page, nil

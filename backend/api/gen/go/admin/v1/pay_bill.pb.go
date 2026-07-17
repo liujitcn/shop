@@ -8,7 +8,6 @@ package adminv1
 
 import (
 	reflect "reflect"
-	v1 "shop/api/gen/go/common/v1"
 	sync "sync"
 	unsafe "unsafe"
 
@@ -16,6 +15,8 @@ import (
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+
+	v1 "shop/api/gen/go/common/v1"
 )
 
 const (
@@ -26,7 +27,7 @@ const (
 )
 
 // 支付账单列表查询条件
-type PagePayBillsRequest struct {
+type PagePayBillRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	BillDate      string                 `protobuf:"bytes,3,opt,name=bill_date,json=billDate,proto3" json:"bill_date,omitempty"`                 // 账单日期
 	Status        *v1.PayBillStatus      `protobuf:"varint,4,opt,name=status,proto3,enum=common.v1.PayBillStatus,oneof" json:"status,omitempty"` // 对账状态：枚举【PayBillStatus】
@@ -36,20 +37,20 @@ type PagePayBillsRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *PagePayBillsRequest) Reset() {
-	*x = PagePayBillsRequest{}
+func (x *PagePayBillRequest) Reset() {
+	*x = PagePayBillRequest{}
 	mi := &file_admin_v1_pay_bill_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PagePayBillsRequest) String() string {
+func (x *PagePayBillRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PagePayBillsRequest) ProtoMessage() {}
+func (*PagePayBillRequest) ProtoMessage() {}
 
-func (x *PagePayBillsRequest) ProtoReflect() protoreflect.Message {
+func (x *PagePayBillRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_pay_bill_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -61,33 +62,33 @@ func (x *PagePayBillsRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PagePayBillsRequest.ProtoReflect.Descriptor instead.
-func (*PagePayBillsRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use PagePayBillRequest.ProtoReflect.Descriptor instead.
+func (*PagePayBillRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_pay_bill_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *PagePayBillsRequest) GetBillDate() string {
+func (x *PagePayBillRequest) GetBillDate() string {
 	if x != nil {
 		return x.BillDate
 	}
 	return ""
 }
 
-func (x *PagePayBillsRequest) GetStatus() v1.PayBillStatus {
+func (x *PagePayBillRequest) GetStatus() v1.PayBillStatus {
 	if x != nil && x.Status != nil {
 		return *x.Status
 	}
 	return v1.PayBillStatus(0)
 }
 
-func (x *PagePayBillsRequest) GetPageNum() int64 {
+func (x *PagePayBillRequest) GetPageNum() int64 {
 	if x != nil {
 		return x.PageNum
 	}
 	return 0
 }
 
-func (x *PagePayBillsRequest) GetPageSize() int64 {
+func (x *PagePayBillRequest) GetPageSize() int64 {
 	if x != nil {
 		return x.PageSize
 	}
@@ -95,7 +96,7 @@ func (x *PagePayBillsRequest) GetPageSize() int64 {
 }
 
 // 支付账单列表响应
-type PagePayBillsResponse struct {
+type PagePayBillResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	PayBills      []*PayBill             `protobuf:"bytes,1,rep,name=pay_bills,json=payBills,proto3" json:"pay_bills,omitempty"` // 支付账单列表
 	Total         int32                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`                      // 总数
@@ -103,20 +104,20 @@ type PagePayBillsResponse struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *PagePayBillsResponse) Reset() {
-	*x = PagePayBillsResponse{}
+func (x *PagePayBillResponse) Reset() {
+	*x = PagePayBillResponse{}
 	mi := &file_admin_v1_pay_bill_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PagePayBillsResponse) String() string {
+func (x *PagePayBillResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PagePayBillsResponse) ProtoMessage() {}
+func (*PagePayBillResponse) ProtoMessage() {}
 
-func (x *PagePayBillsResponse) ProtoReflect() protoreflect.Message {
+func (x *PagePayBillResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_pay_bill_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -128,19 +129,19 @@ func (x *PagePayBillsResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PagePayBillsResponse.ProtoReflect.Descriptor instead.
-func (*PagePayBillsResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use PagePayBillResponse.ProtoReflect.Descriptor instead.
+func (*PagePayBillResponse) Descriptor() ([]byte, []int) {
 	return file_admin_v1_pay_bill_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *PagePayBillsResponse) GetPayBills() []*PayBill {
+func (x *PagePayBillResponse) GetPayBills() []*PayBill {
 	if x != nil {
 		return x.PayBills
 	}
 	return nil
 }
 
-func (x *PagePayBillsResponse) GetTotal() int32 {
+func (x *PagePayBillResponse) GetTotal() int32 {
 	if x != nil {
 		return x.Total
 	}
@@ -276,14 +277,14 @@ var File_admin_v1_pay_bill_proto protoreflect.FileDescriptor
 
 const file_admin_v1_pay_bill_proto_rawDesc = "" +
 	"\n" +
-	"\x17admin/v1/pay_bill.proto\x12\badmin.v1\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\xb6\x02\n" +
-	"\x13PagePayBillsRequest\x12/\n" +
+	"\x17admin/v1/pay_bill.proto\x12\badmin.v1\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\xb5\x02\n" +
+	"\x12PagePayBillRequest\x12/\n" +
 	"\tbill_date\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f账单日期R\bbillDate\x12e\n" +
 	"\x06status\x18\x04 \x01(\x0e2\x18.common.v1.PayBillStatusB.\xbaG+\x92\x02(对账状态：枚举【PayBillStatus】H\x00R\x06status\x88\x01\x01\x129\n" +
 	"\bpage_num\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12A\n" +
 	"\tpage_size\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSizeB\t\n" +
-	"\a_status\"\x84\x01\n" +
-	"\x14PagePayBillsResponse\x12H\n" +
+	"\a_status\"\x83\x01\n" +
+	"\x13PagePayBillResponse\x12H\n" +
 	"\tpay_bills\x18\x01 \x03(\v2\x11.admin.v1.PayBillB\x18\xbaG\x15\x92\x02\x12支付账单列表R\bpayBills\x12\"\n" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\xe3\a\n" +
 	"\aPayBill\x12\x1e\n" +
@@ -300,9 +301,9 @@ const file_admin_v1_pay_bill_proto_rawDesc = "" +
 	"\x11third_total_count\x18\t \x01(\x03B\x1b\xbaG\x18\x92\x02\x15对账文件总笔数R\x0fthirdTotalCount\x12X\n" +
 	"\x12third_total_amount\x18\n" +
 	" \x01(\x03B*\xbaG'\x92\x02$对账文件总金额，单位：分R\x10thirdTotalAmount\x12`\n" +
-	"\x06status\x18\v \x01(\x0e2\x18.common.v1.PayBillStatusB.\xbaG+\x92\x02(对账状态：枚举【PayBillStatus】R\x06status2\x7f\n" +
-	"\x0ePayBillService\x12m\n" +
-	"\fPagePayBills\x12\x1d.admin.v1.PagePayBillsRequest\x1a\x1e.admin.v1.PagePayBillsResponse\"\x1e\x82\xd3\xe4\x93\x02\x18\x12\x16/api/v1/admin/pay/billB\x7f\n" +
+	"\x06status\x18\v \x01(\x0e2\x18.common.v1.PayBillStatusB.\xbaG+\x92\x02(对账状态：枚举【PayBillStatus】R\x06status2|\n" +
+	"\x0ePayBillService\x12j\n" +
+	"\vPagePayBill\x12\x1c.admin.v1.PagePayBillRequest\x1a\x1d.admin.v1.PagePayBillResponse\"\x1e\x82\xd3\xe4\x93\x02\x18\x12\x16/api/v1/admin/pay/billB\x7f\n" +
 	"\fcom.admin.v1B\fPayBillProtoP\x01Z shop/api/gen/go/admin/v1;adminv1\xa2\x02\x03AXX\xaa\x02\bAdmin.V1\xca\x02\bAdmin\\V1\xe2\x02\x14Admin\\V1\\GPBMetadata\xea\x02\tAdmin::V1b\x06proto3"
 
 var (
@@ -319,17 +320,17 @@ func file_admin_v1_pay_bill_proto_rawDescGZIP() []byte {
 
 var file_admin_v1_pay_bill_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_admin_v1_pay_bill_proto_goTypes = []any{
-	(*PagePayBillsRequest)(nil),  // 0: admin.v1.PagePayBillsRequest
-	(*PagePayBillsResponse)(nil), // 1: admin.v1.PagePayBillsResponse
-	(*PayBill)(nil),              // 2: admin.v1.PayBill
-	(v1.PayBillStatus)(0),        // 3: common.v1.PayBillStatus
+	(*PagePayBillRequest)(nil),  // 0: admin.v1.PagePayBillRequest
+	(*PagePayBillResponse)(nil), // 1: admin.v1.PagePayBillResponse
+	(*PayBill)(nil),             // 2: admin.v1.PayBill
+	(v1.PayBillStatus)(0),       // 3: common.v1.PayBillStatus
 }
 var file_admin_v1_pay_bill_proto_depIdxs = []int32{
-	3, // 0: admin.v1.PagePayBillsRequest.status:type_name -> common.v1.PayBillStatus
-	2, // 1: admin.v1.PagePayBillsResponse.pay_bills:type_name -> admin.v1.PayBill
+	3, // 0: admin.v1.PagePayBillRequest.status:type_name -> common.v1.PayBillStatus
+	2, // 1: admin.v1.PagePayBillResponse.pay_bills:type_name -> admin.v1.PayBill
 	3, // 2: admin.v1.PayBill.status:type_name -> common.v1.PayBillStatus
-	0, // 3: admin.v1.PayBillService.PagePayBills:input_type -> admin.v1.PagePayBillsRequest
-	1, // 4: admin.v1.PayBillService.PagePayBills:output_type -> admin.v1.PagePayBillsResponse
+	0, // 3: admin.v1.PayBillService.PagePayBill:input_type -> admin.v1.PagePayBillRequest
+	1, // 4: admin.v1.PayBillService.PagePayBill:output_type -> admin.v1.PagePayBillResponse
 	4, // [4:5] is the sub-list for method output_type
 	3, // [3:4] is the sub-list for method input_type
 	3, // [3:3] is the sub-list for extension type_name

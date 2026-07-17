@@ -403,7 +403,7 @@ import { useTabsStore } from "@/stores/modules/tabs";
 import { defBaseDictService } from "@/api/admin/base_dict";
 import { defCodeGenColumnService } from "@/api/admin/code_gen_column";
 import { defCodeGenTableService } from "@/api/admin/code_gen_table";
-import type { OptionBaseDictsResponse_BaseDict } from "@/rpc/admin/v1/base_dict";
+import type { OptionBaseDictResponse_BaseDict } from "@/rpc/admin/v1/base_dict";
 import type {
   CodeGenColumn as CodeGenColumnDTO,
   CodeGenColumnFormConfig,
@@ -446,7 +446,7 @@ const { BUTTONS } = useAuthButtons();
 const loading = ref(false);
 const columns = ref<CodeGenColumnView[]>([]);
 const formData = reactive<CodeGenTableForm>(createDefaultCodeGenTableForm());
-const dictionaries = ref<OptionBaseDictsResponse_BaseDict[]>([]);
+const dictionaries = ref<OptionBaseDictResponse_BaseDict[]>([]);
 const databaseTables = ref<CodeGenDatabaseTable[]>([]);
 const databaseColumns = reactive<Record<string, CodeGenDatabaseColumn[]>>({});
 const staticOptions = reactive(new Map<string, CodeGenStaticOption[]>());
@@ -542,7 +542,7 @@ async function handleQuery() {
     if (!tableId.value) return;
     const [table, response] = await Promise.all([
       defCodeGenTableService.GetCodeGenTable({ id: tableId.value }),
-      defCodeGenColumnService.ListCodeGenColumns({ table_id: tableId.value })
+      defCodeGenColumnService.ListCodeGenColumn({ table_id: tableId.value })
     ]);
     Object.assign(formData, table);
     // 字段配置和预览都保留数据库完整字段快照，由用户决定是否调整默认配置。
@@ -574,7 +574,7 @@ async function handleSaveColumns(showMessage = true) {
     await openOptionDialog(optionIssue.row, optionIssue.scope);
     return false;
   }
-  await defCodeGenColumnService.SaveCodeGenColumns({
+  await defCodeGenColumnService.SaveCodeGenColumn({
     table_id: formData.id,
     code_gen_columns: columns.value.map((item, index) => ({
       ...item,
@@ -719,7 +719,7 @@ async function loadDictionaries() {
   if (dictionariesLoaded || loadingDictionaries.value) return;
   loadingDictionaries.value = true;
   try {
-    const data = await defBaseDictService.OptionBaseDicts({});
+    const data = await defBaseDictService.OptionBaseDict({});
     dictionaries.value = data.base_dicts ?? [];
     dictionariesLoaded = true;
   } finally {
@@ -732,7 +732,7 @@ async function loadDatabaseTables() {
   if (databaseTablesLoaded || loadingDatabaseTables.value) return;
   loadingDatabaseTables.value = true;
   try {
-    const data = await defCodeGenTableService.ListCodeGenDatabaseTables({});
+    const data = await defCodeGenTableService.ListCodeGenDatabaseTable({});
     databaseTables.value = data.tables ?? [];
     databaseTablesLoaded = true;
   } finally {
@@ -745,7 +745,7 @@ async function loadDatabaseColumns(tableName: string) {
   if (!tableName || databaseColumns[tableName] || loadingDatabaseColumns.has(tableName)) return;
   loadingDatabaseColumns.add(tableName);
   try {
-    const data = await defCodeGenColumnService.ListCodeGenDatabaseColumns({ table_name: tableName });
+    const data = await defCodeGenColumnService.ListCodeGenDatabaseColumn({ table_name: tableName });
     databaseColumns[tableName] = data.columns ?? [];
   } finally {
     loadingDatabaseColumns.delete(tableName);

@@ -53,11 +53,11 @@ func (s *BaseConfigService) RefreshBaseConfigCache(ctx context.Context, req *adm
 	return new(emptypb.Empty), nil
 }
 
-// PageBaseConfigs 查询系统配置分页列表
-func (s *BaseConfigService) PageBaseConfigs(ctx context.Context, req *adminv1.PageBaseConfigsRequest) (*adminv1.PageBaseConfigsResponse, error) {
-	page, err := s.baseConfigCase.PageBaseConfigs(ctx, req)
+// PageBaseConfig 查询系统配置分页列表
+func (s *BaseConfigService) PageBaseConfig(ctx context.Context, req *adminv1.PageBaseConfigRequest) (*adminv1.PageBaseConfigResponse, error) {
+	page, err := s.baseConfigCase.PageBaseConfig(ctx, req)
 	if err != nil {
-		log.Error(fmt.Sprintf("PageBaseConfigs %v", err))
+		log.Error(fmt.Sprintf("PageBaseConfig %v", err))
 		return nil, errorsx.WrapInternal(err, "查询系统配置分页列表失败")
 	}
 

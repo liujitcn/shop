@@ -26,21 +26,21 @@ func NewCodeGenTableService(codeGenTableCase *biz.CodeGenTableCase) *CodeGenTabl
 	return &CodeGenTableService{codeGenTableCase: codeGenTableCase}
 }
 
-// ListCodeGenDatabaseTables 查询数据库表列表。
-func (s *CodeGenTableService) ListCodeGenDatabaseTables(ctx context.Context, _ *adminv1.ListCodeGenDatabaseTablesRequest) (*adminv1.ListCodeGenDatabaseTablesResponse, error) {
-	res, err := s.codeGenTableCase.ListCodeGenDatabaseTables(ctx)
+// ListCodeGenDatabaseTable 查询数据库表列表。
+func (s *CodeGenTableService) ListCodeGenDatabaseTable(ctx context.Context, _ *adminv1.ListCodeGenDatabaseTableRequest) (*adminv1.ListCodeGenDatabaseTableResponse, error) {
+	res, err := s.codeGenTableCase.ListCodeGenDatabaseTable(ctx)
 	if err != nil {
-		log.Error(fmt.Sprintf("ListCodeGenDatabaseTables %v", err))
+		log.Error(fmt.Sprintf("ListCodeGenDatabaseTable %v", err))
 		return nil, errorsx.WrapInternal(err, "查询数据库表列表失败")
 	}
 	return res, nil
 }
 
-// PageCodeGenTables 查询代码生成表配置列表。
-func (s *CodeGenTableService) PageCodeGenTables(ctx context.Context, req *adminv1.PageCodeGenTablesRequest) (*adminv1.PageCodeGenTablesResponse, error) {
-	page, err := s.codeGenTableCase.PageCodeGenTables(ctx, req)
+// PageCodeGenTable 查询代码生成表配置列表。
+func (s *CodeGenTableService) PageCodeGenTable(ctx context.Context, req *adminv1.PageCodeGenTableRequest) (*adminv1.PageCodeGenTableResponse, error) {
+	page, err := s.codeGenTableCase.PageCodeGenTable(ctx, req)
 	if err != nil {
-		log.Error(fmt.Sprintf("PageCodeGenTables %v", err))
+		log.Error(fmt.Sprintf("PageCodeGenTable %v", err))
 		return nil, errorsx.WrapInternal(err, "查询代码生成表配置列表失败")
 	}
 	return page, nil

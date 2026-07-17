@@ -223,7 +223,7 @@ const tenantStoreNameText = computed(() => tenantStoreDisplayMap.value.get(formD
 /** 加载租户门店映射，供详情页展示租户与门店名称。 */
 async function loadTenantStoreDisplayMap() {
   if (tenantStoreDisplayMap.value.size) return;
-  const response = await defTenantStoreService.TreeTenantStores({ keyword: "" });
+  const response = await defTenantStoreService.TreeTenantStore({ keyword: "" });
   tenantStoreDisplayMap.value = buildTenantStoreDisplayMap(response.list ?? []);
 }
 

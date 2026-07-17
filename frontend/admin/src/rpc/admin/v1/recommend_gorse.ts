@@ -81,7 +81,7 @@ export interface GetTimeSeriesRequest {
 }
 
 /** Gorse 推荐仪表盘推荐商品查询条件 */
-export interface ListDashboardItemsRequest {
+export interface ListDashboardItemRequest {
   /** 推荐器名称 */
   recommender: string;
   /** 分类 */
@@ -91,17 +91,17 @@ export interface ListDashboardItemsRequest {
 }
 
 /** Gorse 推荐分类查询条件 */
-export interface OptionCategoriesRequest {
+export interface OptionCategoryRequest {
 }
 
 /** Gorse 推荐分类响应 */
-export interface OptionCategoriesResponse {
+export interface OptionCategoryResponse {
   /** 分类列表 */
   categories: string[];
 }
 
 /** Gorse 推荐仪表盘推荐商品响应 */
-export interface ListDashboardItemsResponse {
+export interface ListDashboardItemResponse {
   /** 商品列表 */
   items: Item[];
   /** 最后更新时间 */
@@ -169,11 +169,11 @@ export interface GetUserRecommendRequest {
 }
 
 /** Gorse 推荐任务状态查询条件 */
-export interface ListTasksRequest {
+export interface ListTaskRequest {
 }
 
 /** Gorse 推荐任务状态响应 */
-export interface ListTasksResponse {
+export interface ListTaskResponse {
   /** 任务状态列表 */
   tasks: Task[];
 }
@@ -199,7 +199,7 @@ export interface Task {
 }
 
 /** Gorse 推荐用户列表查询条件 */
-export interface PageUsersRequest {
+export interface PageUserRequest {
   /** 分页游标 */
   cursor: string;
   /** 查询数量 */
@@ -219,7 +219,7 @@ export interface DeleteUserRequest {
 }
 
 /** Gorse 推荐用户分页响应 */
-export interface PageUsersResponse {
+export interface PageUserResponse {
   /** 下一页游标 */
   cursor: string;
   /** 用户列表 */
@@ -263,7 +263,7 @@ export interface UserLabel {
 }
 
 /** Gorse 推荐商品列表查询条件 */
-export interface PageItemsRequest {
+export interface PageItemRequest {
   /** 分页游标 */
   cursor: string;
   /** 查询数量 */
@@ -283,7 +283,7 @@ export interface DeleteItemRequest {
 }
 
 /** Gorse 推荐商品分页响应 */
-export interface PageItemsResponse {
+export interface PageItemResponse {
   /** 下一页游标 */
   cursor: string;
   /** 商品列表 */
@@ -775,13 +775,13 @@ export interface RecommendGorseService {
   /** 查询 Gorse 推荐时间序列 */
   GetTimeSeries(request: GetTimeSeriesRequest): Promise<TimeSeriesResponse>;
   /** 查询 Gorse 推荐分类 */
-  OptionCategories(request: OptionCategoriesRequest): Promise<OptionCategoriesResponse>;
+  OptionCategory(request: OptionCategoryRequest): Promise<OptionCategoryResponse>;
   /** 查询 Gorse 推荐仪表盘推荐商品 */
-  ListDashboardItems(request: ListDashboardItemsRequest): Promise<ListDashboardItemsResponse>;
+  ListDashboardItem(request: ListDashboardItemRequest): Promise<ListDashboardItemResponse>;
   /** 查询 Gorse 推荐任务状态 */
-  ListTasks(request: ListTasksRequest): Promise<ListTasksResponse>;
+  ListTask(request: ListTaskRequest): Promise<ListTaskResponse>;
   /** 查询 Gorse 推荐用户列表 */
-  PageUsers(request: PageUsersRequest): Promise<PageUsersResponse>;
+  PageUser(request: PageUserRequest): Promise<PageUserResponse>;
   /** 查询 Gorse 推荐用户 */
   GetUser(request: GetUserRequest): Promise<UserResponse>;
   /** 删除 Gorse 推荐用户 */
@@ -793,7 +793,7 @@ export interface RecommendGorseService {
   /** 查询 Gorse 推荐用户推荐结果 */
   GetUserRecommend(request: GetUserRecommendRequest): Promise<ItemListResponse>;
   /** 查询 Gorse 推荐商品列表 */
-  PageItems(request: PageItemsRequest): Promise<PageItemsResponse>;
+  PageItem(request: PageItemRequest): Promise<PageItemResponse>;
   /** 查询 Gorse 推荐商品 */
   GetItem(request: GetItemRequest): Promise<Item>;
   /** 删除 Gorse 推荐商品 */

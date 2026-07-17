@@ -2,8 +2,8 @@ import service from "@/utils/request";
 import {
   type UserStore,
   type UserStoreService,
-  type PageUserStoresRequest,
-  type PageUserStoresResponse,
+  type PageUserStoreRequest,
+  type PageUserStoreResponse,
   type GetUserStoreRequest,
   type AuditUserStoreRequest
 } from "@/rpc/admin/v1/user_store";
@@ -14,8 +14,8 @@ const USER_STORE_URL = "/v1/admin/user/store";
 /** Admin用户门店服务 */
 export class UserStoreServiceImpl implements UserStoreService {
   /** 查询用户门店分页列表 */
-  PageUserStores(request: PageUserStoresRequest): Promise<PageUserStoresResponse> {
-    return service<PageUserStoresRequest, PageUserStoresResponse>({
+  PageUserStore(request: PageUserStoreRequest): Promise<PageUserStoreResponse> {
+    return service<PageUserStoreRequest, PageUserStoreResponse>({
       url: `${USER_STORE_URL}`,
       method: "get",
       params: request

@@ -19,7 +19,7 @@ import type {
 import type { Empty } from "../../google/protobuf/empty";
 
 /** 订单分页查询条件 */
-export interface PageOrderInfosRequest {
+export interface PageOrderInfoRequest {
   /** 租户ID */
   tenant_id?:
     | number
@@ -61,7 +61,7 @@ export interface PageOrderInfosRequest {
 }
 
 /** 订单分页响应 */
-export interface PageOrderInfosResponse {
+export interface PageOrderInfoResponse {
   /** 订单分页数据 */
   order_infos: OrderInfo[];
   /** 总数 */
@@ -383,7 +383,7 @@ export interface OrderRefund_Amount {
 /** Admin订单信息服务 */
 export interface OrderInfoService {
   /** 查询订单信息分页列表 */
-  PageOrderInfos(request: PageOrderInfosRequest): Promise<PageOrderInfosResponse>;
+  PageOrderInfo(request: PageOrderInfoRequest): Promise<PageOrderInfoResponse>;
   /** 查询订单信息 */
   GetOrderInfo(request: GetOrderInfoRequest): Promise<OrderInfoResponse>;
   /** 查询订单信息退款信息 */

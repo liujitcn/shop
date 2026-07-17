@@ -18,12 +18,12 @@ import (
 func NewGoodsPropServiceAgentTools(goodsPropServiceServer GoodsPropServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error
-	var pageGoodsPropsTool tool.InvokableTool
-	pageGoodsPropsTool, err = NewGoodsPropServicePageGoodsPropsAgentTool(goodsPropServiceServer)
+	var pageGoodsPropTool tool.InvokableTool
+	pageGoodsPropTool, err = NewGoodsPropServicePageGoodsPropAgentTool(goodsPropServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, pageGoodsPropsTool)
+	ts = append(ts, pageGoodsPropTool)
 	var getGoodsPropTool tool.InvokableTool
 	getGoodsPropTool, err = NewGoodsPropServiceGetGoodsPropAgentTool(goodsPropServiceServer)
 	if err != nil {
@@ -51,16 +51,16 @@ func NewGoodsPropServiceAgentTools(goodsPropServiceServer GoodsPropServiceServer
 	return ts, nil
 }
 
-// NewGoodsPropServicePageGoodsPropsAgentTool 创建查询商品属性列表的 Agent Tool。
-func NewGoodsPropServicePageGoodsPropsAgentTool(goodsPropServiceServer GoodsPropServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*PageGoodsPropsRequest, *PageGoodsPropsResponse](
-		"admin_v1_goods_prop_service_page_goods_props",
+// NewGoodsPropServicePageGoodsPropAgentTool 创建查询商品属性列表的 Agent Tool。
+func NewGoodsPropServicePageGoodsPropAgentTool(goodsPropServiceServer GoodsPropServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PageGoodsPropRequest, *PageGoodsPropResponse](
+		"admin_v1_goods_prop_service_page_goods_prop",
 		"查询商品属性列表",
-		func(ctx context.Context, req *PageGoodsPropsRequest) (*PageGoodsPropsResponse, error) {
+		func(ctx context.Context, req *PageGoodsPropRequest) (*PageGoodsPropResponse, error) {
 			if req == nil {
-				req = &PageGoodsPropsRequest{}
+				req = &PageGoodsPropRequest{}
 			}
-			return goodsPropServiceServer.PageGoodsProps(ctx, req)
+			return goodsPropServiceServer.PageGoodsProp(ctx, req)
 		},
 	)
 }

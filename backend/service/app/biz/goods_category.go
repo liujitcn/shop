@@ -39,8 +39,8 @@ func NewGoodsCategoryCase(baseCase *biz.BaseCase, goodsCategoryRepo *data.GoodsC
 	}
 }
 
-// ListGoodsCategories 查询分类列表
-func (c *GoodsCategoryCase) ListGoodsCategories(ctx context.Context, req *appv1.ListGoodsCategoriesRequest) (*appv1.ListGoodsCategoriesResponse, error) {
+// ListGoodsCategory 查询分类列表
+func (c *GoodsCategoryCase) ListGoodsCategory(ctx context.Context, req *appv1.ListGoodsCategoryRequest) (*appv1.ListGoodsCategoryResponse, error) {
 	query := c.Query(ctx).GoodsCategory
 	opts := make([]repository.QueryOption, 0, 4)
 	opts = append(opts, repository.Order(query.Sort.Asc()))
@@ -115,7 +115,7 @@ func (c *GoodsCategoryCase) ListGoodsCategories(ctx context.Context, req *appv1.
 		list = append(list, category)
 	}
 
-	return &appv1.ListGoodsCategoriesResponse{
+	return &appv1.ListGoodsCategoryResponse{
 		GoodsCategories: list,
 	}, nil
 }

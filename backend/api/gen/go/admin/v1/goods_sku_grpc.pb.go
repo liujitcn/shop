@@ -21,7 +21,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	GoodsSkuService_PageGoodsSkus_FullMethodName  = "/admin.v1.GoodsSkuService/PageGoodsSkus"
+	GoodsSkuService_PageGoodsSku_FullMethodName   = "/admin.v1.GoodsSkuService/PageGoodsSku"
 	GoodsSkuService_GetGoodsSku_FullMethodName    = "/admin.v1.GoodsSkuService/GetGoodsSku"
 	GoodsSkuService_UpdateGoodsSku_FullMethodName = "/admin.v1.GoodsSkuService/UpdateGoodsSku"
 )
@@ -33,7 +33,7 @@ const (
 // Admin商品SKU服务
 type GoodsSkuServiceClient interface {
 	// 查询商品SKU列表
-	PageGoodsSkus(ctx context.Context, in *PageGoodsSkusRequest, opts ...grpc.CallOption) (*PageGoodsSkusResponse, error)
+	PageGoodsSku(ctx context.Context, in *PageGoodsSkuRequest, opts ...grpc.CallOption) (*PageGoodsSkuResponse, error)
 	// 查询商品SKU
 	GetGoodsSku(ctx context.Context, in *GetGoodsSkuRequest, opts ...grpc.CallOption) (*GoodsSku, error)
 	// 更新商品SKU
@@ -48,10 +48,10 @@ func NewGoodsSkuServiceClient(cc grpc.ClientConnInterface) GoodsSkuServiceClient
 	return &goodsSkuServiceClient{cc}
 }
 
-func (c *goodsSkuServiceClient) PageGoodsSkus(ctx context.Context, in *PageGoodsSkusRequest, opts ...grpc.CallOption) (*PageGoodsSkusResponse, error) {
+func (c *goodsSkuServiceClient) PageGoodsSku(ctx context.Context, in *PageGoodsSkuRequest, opts ...grpc.CallOption) (*PageGoodsSkuResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(PageGoodsSkusResponse)
-	err := c.cc.Invoke(ctx, GoodsSkuService_PageGoodsSkus_FullMethodName, in, out, cOpts...)
+	out := new(PageGoodsSkuResponse)
+	err := c.cc.Invoke(ctx, GoodsSkuService_PageGoodsSku_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -85,7 +85,7 @@ func (c *goodsSkuServiceClient) UpdateGoodsSku(ctx context.Context, in *UpdateGo
 // Admin商品SKU服务
 type GoodsSkuServiceServer interface {
 	// 查询商品SKU列表
-	PageGoodsSkus(context.Context, *PageGoodsSkusRequest) (*PageGoodsSkusResponse, error)
+	PageGoodsSku(context.Context, *PageGoodsSkuRequest) (*PageGoodsSkuResponse, error)
 	// 查询商品SKU
 	GetGoodsSku(context.Context, *GetGoodsSkuRequest) (*GoodsSku, error)
 	// 更新商品SKU
@@ -100,8 +100,8 @@ type GoodsSkuServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedGoodsSkuServiceServer struct{}
 
-func (UnimplementedGoodsSkuServiceServer) PageGoodsSkus(context.Context, *PageGoodsSkusRequest) (*PageGoodsSkusResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method PageGoodsSkus not implemented")
+func (UnimplementedGoodsSkuServiceServer) PageGoodsSku(context.Context, *PageGoodsSkuRequest) (*PageGoodsSkuResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method PageGoodsSku not implemented")
 }
 func (UnimplementedGoodsSkuServiceServer) GetGoodsSku(context.Context, *GetGoodsSkuRequest) (*GoodsSku, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetGoodsSku not implemented")
@@ -130,20 +130,20 @@ func RegisterGoodsSkuServiceServer(s grpc.ServiceRegistrar, srv GoodsSkuServiceS
 	s.RegisterService(&GoodsSkuService_ServiceDesc, srv)
 }
 
-func _GoodsSkuService_PageGoodsSkus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PageGoodsSkusRequest)
+func _GoodsSkuService_PageGoodsSku_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PageGoodsSkuRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(GoodsSkuServiceServer).PageGoodsSkus(ctx, in)
+		return srv.(GoodsSkuServiceServer).PageGoodsSku(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: GoodsSkuService_PageGoodsSkus_FullMethodName,
+		FullMethod: GoodsSkuService_PageGoodsSku_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GoodsSkuServiceServer).PageGoodsSkus(ctx, req.(*PageGoodsSkusRequest))
+		return srv.(GoodsSkuServiceServer).PageGoodsSku(ctx, req.(*PageGoodsSkuRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -192,8 +192,8 @@ var GoodsSkuService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*GoodsSkuServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "PageGoodsSkus",
-			Handler:    _GoodsSkuService_PageGoodsSkus_Handler,
+			MethodName: "PageGoodsSku",
+			Handler:    _GoodsSkuService_PageGoodsSku_Handler,
 		},
 		{
 			MethodName: "GetGoodsSku",

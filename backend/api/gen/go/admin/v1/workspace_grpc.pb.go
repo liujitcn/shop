@@ -20,11 +20,11 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	WorkspaceService_SummaryWorkspaceMetrics_FullMethodName      = "/admin.v1.WorkspaceService/SummaryWorkspaceMetrics"
-	WorkspaceService_SummaryWorkspaceTodo_FullMethodName         = "/admin.v1.WorkspaceService/SummaryWorkspaceTodo"
-	WorkspaceService_SummaryWorkspaceRisk_FullMethodName         = "/admin.v1.WorkspaceService/SummaryWorkspaceRisk"
-	WorkspaceService_SummaryWorkspaceReputation_FullMethodName   = "/admin.v1.WorkspaceService/SummaryWorkspaceReputation"
-	WorkspaceService_ListWorkspacePendingComments_FullMethodName = "/admin.v1.WorkspaceService/ListWorkspacePendingComments"
+	WorkspaceService_SummaryWorkspaceMetrics_FullMethodName     = "/admin.v1.WorkspaceService/SummaryWorkspaceMetrics"
+	WorkspaceService_SummaryWorkspaceTodo_FullMethodName        = "/admin.v1.WorkspaceService/SummaryWorkspaceTodo"
+	WorkspaceService_SummaryWorkspaceRisk_FullMethodName        = "/admin.v1.WorkspaceService/SummaryWorkspaceRisk"
+	WorkspaceService_SummaryWorkspaceReputation_FullMethodName  = "/admin.v1.WorkspaceService/SummaryWorkspaceReputation"
+	WorkspaceService_ListWorkspacePendingComment_FullMethodName = "/admin.v1.WorkspaceService/ListWorkspacePendingComment"
 )
 
 // WorkspaceServiceClient is the client API for WorkspaceService service.
@@ -42,7 +42,7 @@ type WorkspaceServiceClient interface {
 	// 查询工作台口碑洞察
 	SummaryWorkspaceReputation(ctx context.Context, in *SummaryWorkspaceReputationRequest, opts ...grpc.CallOption) (*SummaryWorkspaceReputationResponse, error)
 	// 查询工作台待审核评价
-	ListWorkspacePendingComments(ctx context.Context, in *ListWorkspacePendingCommentsRequest, opts ...grpc.CallOption) (*ListWorkspacePendingCommentsResponse, error)
+	ListWorkspacePendingComment(ctx context.Context, in *ListWorkspacePendingCommentRequest, opts ...grpc.CallOption) (*ListWorkspacePendingCommentResponse, error)
 }
 
 type workspaceServiceClient struct {
@@ -93,10 +93,10 @@ func (c *workspaceServiceClient) SummaryWorkspaceReputation(ctx context.Context,
 	return out, nil
 }
 
-func (c *workspaceServiceClient) ListWorkspacePendingComments(ctx context.Context, in *ListWorkspacePendingCommentsRequest, opts ...grpc.CallOption) (*ListWorkspacePendingCommentsResponse, error) {
+func (c *workspaceServiceClient) ListWorkspacePendingComment(ctx context.Context, in *ListWorkspacePendingCommentRequest, opts ...grpc.CallOption) (*ListWorkspacePendingCommentResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListWorkspacePendingCommentsResponse)
-	err := c.cc.Invoke(ctx, WorkspaceService_ListWorkspacePendingComments_FullMethodName, in, out, cOpts...)
+	out := new(ListWorkspacePendingCommentResponse)
+	err := c.cc.Invoke(ctx, WorkspaceService_ListWorkspacePendingComment_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -118,7 +118,7 @@ type WorkspaceServiceServer interface {
 	// 查询工作台口碑洞察
 	SummaryWorkspaceReputation(context.Context, *SummaryWorkspaceReputationRequest) (*SummaryWorkspaceReputationResponse, error)
 	// 查询工作台待审核评价
-	ListWorkspacePendingComments(context.Context, *ListWorkspacePendingCommentsRequest) (*ListWorkspacePendingCommentsResponse, error)
+	ListWorkspacePendingComment(context.Context, *ListWorkspacePendingCommentRequest) (*ListWorkspacePendingCommentResponse, error)
 	mustEmbedUnimplementedWorkspaceServiceServer()
 }
 
@@ -141,8 +141,8 @@ func (UnimplementedWorkspaceServiceServer) SummaryWorkspaceRisk(context.Context,
 func (UnimplementedWorkspaceServiceServer) SummaryWorkspaceReputation(context.Context, *SummaryWorkspaceReputationRequest) (*SummaryWorkspaceReputationResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method SummaryWorkspaceReputation not implemented")
 }
-func (UnimplementedWorkspaceServiceServer) ListWorkspacePendingComments(context.Context, *ListWorkspacePendingCommentsRequest) (*ListWorkspacePendingCommentsResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method ListWorkspacePendingComments not implemented")
+func (UnimplementedWorkspaceServiceServer) ListWorkspacePendingComment(context.Context, *ListWorkspacePendingCommentRequest) (*ListWorkspacePendingCommentResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListWorkspacePendingComment not implemented")
 }
 func (UnimplementedWorkspaceServiceServer) mustEmbedUnimplementedWorkspaceServiceServer() {}
 func (UnimplementedWorkspaceServiceServer) testEmbeddedByValue()                          {}
@@ -237,20 +237,20 @@ func _WorkspaceService_SummaryWorkspaceReputation_Handler(srv interface{}, ctx c
 	return interceptor(ctx, in, info, handler)
 }
 
-func _WorkspaceService_ListWorkspacePendingComments_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListWorkspacePendingCommentsRequest)
+func _WorkspaceService_ListWorkspacePendingComment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListWorkspacePendingCommentRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(WorkspaceServiceServer).ListWorkspacePendingComments(ctx, in)
+		return srv.(WorkspaceServiceServer).ListWorkspacePendingComment(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: WorkspaceService_ListWorkspacePendingComments_FullMethodName,
+		FullMethod: WorkspaceService_ListWorkspacePendingComment_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(WorkspaceServiceServer).ListWorkspacePendingComments(ctx, req.(*ListWorkspacePendingCommentsRequest))
+		return srv.(WorkspaceServiceServer).ListWorkspacePendingComment(ctx, req.(*ListWorkspacePendingCommentRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -279,8 +279,8 @@ var WorkspaceService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _WorkspaceService_SummaryWorkspaceReputation_Handler,
 		},
 		{
-			MethodName: "ListWorkspacePendingComments",
-			Handler:    _WorkspaceService_ListWorkspacePendingComments_Handler,
+			MethodName: "ListWorkspacePendingComment",
+			Handler:    _WorkspaceService_ListWorkspacePendingComment_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

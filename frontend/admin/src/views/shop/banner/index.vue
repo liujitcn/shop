@@ -34,8 +34,8 @@ import FormDialog from "@/components/Dialog/FormDialog.vue";
 import type { ProFormField, ProFormOption } from "@/components/ProForm/interface";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { defShopBannerService } from "@/api/admin/shop_banner";
-import type { PageShopBannersRequest, ShopBanner, ShopBannerForm } from "@/rpc/admin/v1/shop_banner";
-import type { OptionGoodsInfosResponse_GoodsInfo } from "@/rpc/admin/v1/goods_info";
+import type { PageShopBannerRequest, ShopBanner, ShopBannerForm } from "@/rpc/admin/v1/shop_banner";
+import type { OptionGoodsInfoResponse_GoodsInfo } from "@/rpc/admin/v1/goods_info";
 import { defGoodsInfoService } from "@/api/admin/goods_info";
 import { ShopBannerType, Status } from "@/rpc/common/v1/enum";
 import type { TreeOptionResponse_Option } from "@/rpc/common/v1/common";
@@ -64,12 +64,12 @@ const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 const route = useRoute();
 
-const goodsInfoList = ref<OptionGoodsInfosResponse_GoodsInfo[]>([]);
+const goodsInfoList = ref<OptionGoodsInfoResponse_GoodsInfo[]>([]);
 const goodsCategoryOptions = ref<CategoryOption[]>([]);
 
-const initParam = computed<PageShopBannersRequest>(() => {
+const initParam = computed<PageShopBannerRequest>(() => {
   const status = Number(route.query.status ?? 0);
-  const params: PageShopBannersRequest = {
+  const params: PageShopBannerRequest = {
     status: status > 0 ? status : undefined,
     page_num: 1,
     page_size: 10
@@ -274,12 +274,12 @@ function normalizeBannerEnumFilter(value: unknown) {
 /**
  * 请求轮播图列表，并由 ProTable 统一管理分页和筛选。
  */
-async function requestShopBannerTable(params: PageShopBannersRequest) {
+async function requestShopBannerTable(params: PageShopBannerRequest) {
   const requestParams = buildPageRequest(params);
-  requestParams.site = normalizeBannerEnumFilter(requestParams.site) as PageShopBannersRequest["site"];
-  requestParams.type = normalizeBannerEnumFilter(requestParams.type) as PageShopBannersRequest["type"];
-  requestParams.status = normalizeBannerEnumFilter(requestParams.status) as PageShopBannersRequest["status"];
-  const data = await defShopBannerService.PageShopBanners(requestParams);
+  requestParams.site = normalizeBannerEnumFilter(requestParams.site) as PageShopBannerRequest["site"];
+  requestParams.type = normalizeBannerEnumFilter(requestParams.type) as PageShopBannerRequest["type"];
+  requestParams.status = normalizeBannerEnumFilter(requestParams.status) as PageShopBannerRequest["status"];
+  const data = await defShopBannerService.PageShopBanner(requestParams);
   return { data: { list: data.shop_banners ?? [], total: data.total } };
 }
 
@@ -295,8 +295,8 @@ function refreshTable() {
  */
 async function loadBannerOptions() {
   const [listGoodsInfoResponse, optionGoodsCategoryResponse] = await Promise.all([
-    defGoodsInfoService.OptionGoodsInfos({ name: "" }),
-    defGoodsCategoryService.OptionGoodsCategories({})
+    defGoodsInfoService.OptionGoodsInfo({ name: "" }),
+    defGoodsCategoryService.OptionGoodsCategory({})
   ]);
 
   goodsInfoList.value = listGoodsInfoResponse.goods_infos ?? [];

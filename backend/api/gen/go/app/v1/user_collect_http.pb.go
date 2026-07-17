@@ -22,7 +22,7 @@ const _ = http.SupportPackageIsVersion3
 const OperationUserCollectServiceCreateUserCollect = "/app.v1.UserCollectService/CreateUserCollect"
 const OperationUserCollectServiceDeleteUserCollect = "/app.v1.UserCollectService/DeleteUserCollect"
 const OperationUserCollectServiceGetIsCollect = "/app.v1.UserCollectService/GetIsCollect"
-const OperationUserCollectServicePageUserCollects = "/app.v1.UserCollectService/PageUserCollects"
+const OperationUserCollectServicePageUserCollect = "/app.v1.UserCollectService/PageUserCollect"
 
 type UserCollectServiceHTTPServer interface {
 	// CreateUserCollect 创建用户收藏
@@ -31,33 +31,33 @@ type UserCollectServiceHTTPServer interface {
 	DeleteUserCollect(context.Context, *DeleteUserCollectRequest) (*emptypb.Empty, error)
 	// GetIsCollect 查询用户是否收藏
 	GetIsCollect(context.Context, *GetIsCollectRequest) (*GetIsCollectResponse, error)
-	// PageUserCollects 查询用户收藏列表
-	PageUserCollects(context.Context, *PageUserCollectsRequest) (*PageUserCollectsResponse, error)
+	// PageUserCollect 查询用户收藏列表
+	PageUserCollect(context.Context, *PageUserCollectRequest) (*PageUserCollectResponse, error)
 }
 
 func RegisterUserCollectServiceHTTPServer(s *http.Server, srv UserCollectServiceHTTPServer) {
 	r := s.Route("/")
-	r.Handle("GET", "/api/v1/app/user/collect", _UserCollectService_PageUserCollects0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/app/user/collect", _UserCollectService_PageUserCollect0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/app/user/collect/status", _UserCollectService_GetIsCollect0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/app/user/collect", _UserCollectService_CreateUserCollect0_HTTP_Handler(srv))
 	r.Handle("DELETE", "/api/v1/app/user/collect/{ids}", _UserCollectService_DeleteUserCollect0_HTTP_Handler(srv))
 }
 
-func _UserCollectService_PageUserCollects0_HTTP_Handler(srv UserCollectServiceHTTPServer) func(ctx http.Context) error {
+func _UserCollectService_PageUserCollect0_HTTP_Handler(srv UserCollectServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in PageUserCollectsRequest
+		var in PageUserCollectRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationUserCollectServicePageUserCollects)
+		http.SetOperation(ctx, OperationUserCollectServicePageUserCollect)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.PageUserCollects(ctx, req.(*PageUserCollectsRequest))
+			return srv.PageUserCollect(ctx, req.(*PageUserCollectRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*PageUserCollectsResponse)
+		reply := out.(*PageUserCollectResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -132,8 +132,8 @@ type UserCollectServiceHTTPClient interface {
 	DeleteUserCollect(ctx context.Context, req *DeleteUserCollectRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// GetIsCollect 查询用户是否收藏
 	GetIsCollect(ctx context.Context, req *GetIsCollectRequest, opts ...http.CallOption) (rsp *GetIsCollectResponse, err error)
-	// PageUserCollects 查询用户收藏列表
-	PageUserCollects(ctx context.Context, req *PageUserCollectsRequest, opts ...http.CallOption) (rsp *PageUserCollectsResponse, err error)
+	// PageUserCollect 查询用户收藏列表
+	PageUserCollect(ctx context.Context, req *PageUserCollectRequest, opts ...http.CallOption) (rsp *PageUserCollectResponse, err error)
 }
 
 type UserCollectServiceHTTPClientImpl struct {
@@ -196,14 +196,14 @@ func (c *UserCollectServiceHTTPClientImpl) GetIsCollect(ctx context.Context, in 
 	return &out, nil
 }
 
-// PageUserCollects 查询用户收藏列表
-func (c *UserCollectServiceHTTPClientImpl) PageUserCollects(ctx context.Context, in *PageUserCollectsRequest, opts ...http.CallOption) (*PageUserCollectsResponse, error) {
-	var out PageUserCollectsResponse
+// PageUserCollect 查询用户收藏列表
+func (c *UserCollectServiceHTTPClientImpl) PageUserCollect(ctx context.Context, in *PageUserCollectRequest, opts ...http.CallOption) (*PageUserCollectResponse, error) {
+	var out PageUserCollectResponse
 	pattern := "/api/v1/app/user/collect"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationUserCollectServicePageUserCollects),
+		http.Operation(OperationUserCollectServicePageUserCollect),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)

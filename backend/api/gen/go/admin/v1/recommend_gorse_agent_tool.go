@@ -24,30 +24,30 @@ func NewRecommendGorseServiceAgentTools(recommendGorseServiceServer RecommendGor
 		return nil, err
 	}
 	ts = append(ts, getTimeSeriesTool)
-	var optionCategoriesTool tool.InvokableTool
-	optionCategoriesTool, err = NewRecommendGorseServiceOptionCategoriesAgentTool(recommendGorseServiceServer)
+	var optionCategoryTool tool.InvokableTool
+	optionCategoryTool, err = NewRecommendGorseServiceOptionCategoryAgentTool(recommendGorseServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, optionCategoriesTool)
-	var listDashboardItemsTool tool.InvokableTool
-	listDashboardItemsTool, err = NewRecommendGorseServiceListDashboardItemsAgentTool(recommendGorseServiceServer)
+	ts = append(ts, optionCategoryTool)
+	var listDashboardItemTool tool.InvokableTool
+	listDashboardItemTool, err = NewRecommendGorseServiceListDashboardItemAgentTool(recommendGorseServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, listDashboardItemsTool)
-	var listTasksTool tool.InvokableTool
-	listTasksTool, err = NewRecommendGorseServiceListTasksAgentTool(recommendGorseServiceServer)
+	ts = append(ts, listDashboardItemTool)
+	var listTaskTool tool.InvokableTool
+	listTaskTool, err = NewRecommendGorseServiceListTaskAgentTool(recommendGorseServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, listTasksTool)
-	var pageUsersTool tool.InvokableTool
-	pageUsersTool, err = NewRecommendGorseServicePageUsersAgentTool(recommendGorseServiceServer)
+	ts = append(ts, listTaskTool)
+	var pageUserTool tool.InvokableTool
+	pageUserTool, err = NewRecommendGorseServicePageUserAgentTool(recommendGorseServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, pageUsersTool)
+	ts = append(ts, pageUserTool)
 	var getUserTool tool.InvokableTool
 	getUserTool, err = NewRecommendGorseServiceGetUserAgentTool(recommendGorseServiceServer)
 	if err != nil {
@@ -78,12 +78,12 @@ func NewRecommendGorseServiceAgentTools(recommendGorseServiceServer RecommendGor
 		return nil, err
 	}
 	ts = append(ts, getUserRecommendTool)
-	var pageItemsTool tool.InvokableTool
-	pageItemsTool, err = NewRecommendGorseServicePageItemsAgentTool(recommendGorseServiceServer)
+	var pageItemTool tool.InvokableTool
+	pageItemTool, err = NewRecommendGorseServicePageItemAgentTool(recommendGorseServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, pageItemsTool)
+	ts = append(ts, pageItemTool)
 	var getItemTool tool.InvokableTool
 	getItemTool, err = NewRecommendGorseServiceGetItemAgentTool(recommendGorseServiceServer)
 	if err != nil {
@@ -161,58 +161,58 @@ func NewRecommendGorseServiceGetTimeSeriesAgentTool(recommendGorseServiceServer 
 	)
 }
 
-// NewRecommendGorseServiceOptionCategoriesAgentTool 创建查询 Gorse 推荐分类的 Agent Tool。
-func NewRecommendGorseServiceOptionCategoriesAgentTool(recommendGorseServiceServer RecommendGorseServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*OptionCategoriesRequest, *OptionCategoriesResponse](
-		"admin_v1_recommend_gorse_service_option_categories",
+// NewRecommendGorseServiceOptionCategoryAgentTool 创建查询 Gorse 推荐分类的 Agent Tool。
+func NewRecommendGorseServiceOptionCategoryAgentTool(recommendGorseServiceServer RecommendGorseServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*OptionCategoryRequest, *OptionCategoryResponse](
+		"admin_v1_recommend_gorse_service_option_category",
 		"查询 Gorse 推荐分类",
-		func(ctx context.Context, req *OptionCategoriesRequest) (*OptionCategoriesResponse, error) {
+		func(ctx context.Context, req *OptionCategoryRequest) (*OptionCategoryResponse, error) {
 			if req == nil {
-				req = &OptionCategoriesRequest{}
+				req = &OptionCategoryRequest{}
 			}
-			return recommendGorseServiceServer.OptionCategories(ctx, req)
+			return recommendGorseServiceServer.OptionCategory(ctx, req)
 		},
 	)
 }
 
-// NewRecommendGorseServiceListDashboardItemsAgentTool 创建查询 Gorse 推荐仪表盘推荐商品的 Agent Tool。
-func NewRecommendGorseServiceListDashboardItemsAgentTool(recommendGorseServiceServer RecommendGorseServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*ListDashboardItemsRequest, *ListDashboardItemsResponse](
-		"admin_v1_recommend_gorse_service_list_dashboard_items",
+// NewRecommendGorseServiceListDashboardItemAgentTool 创建查询 Gorse 推荐仪表盘推荐商品的 Agent Tool。
+func NewRecommendGorseServiceListDashboardItemAgentTool(recommendGorseServiceServer RecommendGorseServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*ListDashboardItemRequest, *ListDashboardItemResponse](
+		"admin_v1_recommend_gorse_service_list_dashboard_item",
 		"查询 Gorse 推荐仪表盘推荐商品",
-		func(ctx context.Context, req *ListDashboardItemsRequest) (*ListDashboardItemsResponse, error) {
+		func(ctx context.Context, req *ListDashboardItemRequest) (*ListDashboardItemResponse, error) {
 			if req == nil {
-				req = &ListDashboardItemsRequest{}
+				req = &ListDashboardItemRequest{}
 			}
-			return recommendGorseServiceServer.ListDashboardItems(ctx, req)
+			return recommendGorseServiceServer.ListDashboardItem(ctx, req)
 		},
 	)
 }
 
-// NewRecommendGorseServiceListTasksAgentTool 创建查询 Gorse 推荐任务状态的 Agent Tool。
-func NewRecommendGorseServiceListTasksAgentTool(recommendGorseServiceServer RecommendGorseServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*ListTasksRequest, *ListTasksResponse](
-		"admin_v1_recommend_gorse_service_list_tasks",
+// NewRecommendGorseServiceListTaskAgentTool 创建查询 Gorse 推荐任务状态的 Agent Tool。
+func NewRecommendGorseServiceListTaskAgentTool(recommendGorseServiceServer RecommendGorseServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*ListTaskRequest, *ListTaskResponse](
+		"admin_v1_recommend_gorse_service_list_task",
 		"查询 Gorse 推荐任务状态",
-		func(ctx context.Context, req *ListTasksRequest) (*ListTasksResponse, error) {
+		func(ctx context.Context, req *ListTaskRequest) (*ListTaskResponse, error) {
 			if req == nil {
-				req = &ListTasksRequest{}
+				req = &ListTaskRequest{}
 			}
-			return recommendGorseServiceServer.ListTasks(ctx, req)
+			return recommendGorseServiceServer.ListTask(ctx, req)
 		},
 	)
 }
 
-// NewRecommendGorseServicePageUsersAgentTool 创建查询 Gorse 推荐用户列表的 Agent Tool。
-func NewRecommendGorseServicePageUsersAgentTool(recommendGorseServiceServer RecommendGorseServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*PageUsersRequest, *PageUsersResponse](
-		"admin_v1_recommend_gorse_service_page_users",
+// NewRecommendGorseServicePageUserAgentTool 创建查询 Gorse 推荐用户列表的 Agent Tool。
+func NewRecommendGorseServicePageUserAgentTool(recommendGorseServiceServer RecommendGorseServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PageUserRequest, *PageUserResponse](
+		"admin_v1_recommend_gorse_service_page_user",
 		"查询 Gorse 推荐用户列表",
-		func(ctx context.Context, req *PageUsersRequest) (*PageUsersResponse, error) {
+		func(ctx context.Context, req *PageUserRequest) (*PageUserResponse, error) {
 			if req == nil {
-				req = &PageUsersRequest{}
+				req = &PageUserRequest{}
 			}
-			return recommendGorseServiceServer.PageUsers(ctx, req)
+			return recommendGorseServiceServer.PageUser(ctx, req)
 		},
 	)
 }
@@ -287,16 +287,16 @@ func NewRecommendGorseServiceGetUserRecommendAgentTool(recommendGorseServiceServ
 	)
 }
 
-// NewRecommendGorseServicePageItemsAgentTool 创建查询 Gorse 推荐商品列表的 Agent Tool。
-func NewRecommendGorseServicePageItemsAgentTool(recommendGorseServiceServer RecommendGorseServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*PageItemsRequest, *PageItemsResponse](
-		"admin_v1_recommend_gorse_service_page_items",
+// NewRecommendGorseServicePageItemAgentTool 创建查询 Gorse 推荐商品列表的 Agent Tool。
+func NewRecommendGorseServicePageItemAgentTool(recommendGorseServiceServer RecommendGorseServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PageItemRequest, *PageItemResponse](
+		"admin_v1_recommend_gorse_service_page_item",
 		"查询 Gorse 推荐商品列表",
-		func(ctx context.Context, req *PageItemsRequest) (*PageItemsResponse, error) {
+		func(ctx context.Context, req *PageItemRequest) (*PageItemResponse, error) {
 			if req == nil {
-				req = &PageItemsRequest{}
+				req = &PageItemRequest{}
 			}
-			return recommendGorseServiceServer.PageItems(ctx, req)
+			return recommendGorseServiceServer.PageItem(ctx, req)
 		},
 	)
 }

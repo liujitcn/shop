@@ -69,8 +69,8 @@ func NewGoodsInfoCase(baseCase *biz.BaseCase, tx data.Transaction, goodsInfoRepo
 	}
 }
 
-// OptionGoodsInfos 查询商品下拉选择
-func (c *GoodsInfoCase) OptionGoodsInfos(ctx context.Context, req *adminv1.OptionGoodsInfosRequest) (*adminv1.OptionGoodsInfosResponse, error) {
+// OptionGoodsInfo 查询商品下拉选择
+func (c *GoodsInfoCase) OptionGoodsInfo(ctx context.Context, req *adminv1.OptionGoodsInfoRequest) (*adminv1.OptionGoodsInfoResponse, error) {
 	query := c.Query(ctx).GoodsInfo
 	opts := make([]repository.QueryOption, 0, 2)
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
@@ -90,20 +90,20 @@ func (c *GoodsInfoCase) OptionGoodsInfos(ctx context.Context, req *adminv1.Optio
 		return nil, err
 	}
 
-	resList := make([]*adminv1.OptionGoodsInfosResponse_GoodsInfo, 0, len(list))
+	resList := make([]*adminv1.OptionGoodsInfoResponse_GoodsInfo, 0, len(list))
 	for _, item := range list {
-		resList = append(resList, &adminv1.OptionGoodsInfosResponse_GoodsInfo{
+		resList = append(resList, &adminv1.OptionGoodsInfoResponse_GoodsInfo{
 			Id:           item.ID,
 			Name:         item.Name,
 			Price:        item.Price,
 			CategoryName: c.buildCategoryNameText(c.parseCategoryIDs(item.CategoryID), categoryNames),
 		})
 	}
-	return &adminv1.OptionGoodsInfosResponse{GoodsInfos: resList}, nil
+	return &adminv1.OptionGoodsInfoResponse{GoodsInfos: resList}, nil
 }
 
-// PageGoodsInfos 查询商品列表
-func (c *GoodsInfoCase) PageGoodsInfos(ctx context.Context, req *adminv1.PageGoodsInfosRequest) (*adminv1.PageGoodsInfosResponse, error) {
+// PageGoodsInfo 查询商品列表
+func (c *GoodsInfoCase) PageGoodsInfo(ctx context.Context, req *adminv1.PageGoodsInfoRequest) (*adminv1.PageGoodsInfoResponse, error) {
 	query := c.Query(ctx).GoodsInfo
 	opts := make([]repository.QueryOption, 0, 6)
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
@@ -132,7 +132,7 @@ func (c *GoodsInfoCase) PageGoodsInfos(ctx context.Context, req *adminv1.PageGoo
 		}
 		// 分类条件无命中商品时，直接返回空分页结果。
 		if len(goodsIDList) == 0 {
-			return &adminv1.PageGoodsInfosResponse{GoodsInfos: []*adminv1.GoodsInfo{}, Total: 0}, nil
+			return &adminv1.PageGoodsInfoResponse{GoodsInfos: []*adminv1.GoodsInfo{}, Total: 0}, nil
 		}
 		opts = append(opts, repository.Where(query.ID.In(goodsIDList...)))
 	}
@@ -148,7 +148,7 @@ func (c *GoodsInfoCase) PageGoodsInfos(ctx context.Context, req *adminv1.PageGoo
 		}
 		// 预警条件无命中商品时，直接返回空分页结果。
 		if len(goodsIDList) == 0 {
-			return &adminv1.PageGoodsInfosResponse{GoodsInfos: []*adminv1.GoodsInfo{}, Total: 0}, nil
+			return &adminv1.PageGoodsInfoResponse{GoodsInfos: []*adminv1.GoodsInfo{}, Total: 0}, nil
 		}
 		opts = append(opts, repository.Where(query.ID.In(goodsIDList...)))
 	}
@@ -161,7 +161,7 @@ func (c *GoodsInfoCase) PageGoodsInfos(ctx context.Context, req *adminv1.PageGoo
 		}
 		// 异常价格条件无命中商品时，直接返回空分页结果。
 		if len(goodsIDList) == 0 {
-			return &adminv1.PageGoodsInfosResponse{GoodsInfos: []*adminv1.GoodsInfo{}, Total: 0}, nil
+			return &adminv1.PageGoodsInfoResponse{GoodsInfos: []*adminv1.GoodsInfo{}, Total: 0}, nil
 		}
 		opts = append(opts, repository.Where(query.ID.In(goodsIDList...)))
 	}
@@ -185,7 +185,7 @@ func (c *GoodsInfoCase) PageGoodsInfos(ctx context.Context, req *adminv1.PageGoo
 		goodsInfo.CategoryName = c.buildCategoryNameText(c.parseCategoryIDs(item.CategoryID), categoryNames)
 		resList = append(resList, goodsInfo)
 	}
-	return &adminv1.PageGoodsInfosResponse{GoodsInfos: resList, Total: int32(total)}, nil
+	return &adminv1.PageGoodsInfoResponse{GoodsInfos: resList, Total: int32(total)}, nil
 }
 
 // GetGoodsInfo 获取商品
@@ -207,8 +207,8 @@ func (c *GoodsInfoCase) GetGoodsInfo(ctx context.Context, id int64) (*adminv1.Go
 	if err != nil {
 		return nil, err
 	}
-	var specList *adminv1.ListGoodsSpecsResponse
-	specList, err = c.goodsSpecCase.ListGoodsSpecs(ctx, &adminv1.ListGoodsSpecsRequest{GoodsId: goodsForm.Id})
+	var specList *adminv1.ListGoodsSpecResponse
+	specList, err = c.goodsSpecCase.ListGoodsSpec(ctx, &adminv1.ListGoodsSpecRequest{GoodsId: goodsForm.Id})
 	if err != nil {
 		return nil, err
 	}

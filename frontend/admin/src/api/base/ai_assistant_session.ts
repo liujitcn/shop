@@ -7,12 +7,12 @@ import type {
   CreateAiAssistantSessionResponse,
   DeleteAiAssistantSessionRequest,
   DeleteAiAssistantSessionResponse,
-  ListAiAssistantMessagesRequest,
-  ListAiAssistantMessagesResponse,
-  ListAiAssistantShortcutsRequest,
-  ListAiAssistantShortcutsResponse,
-  ListAiAssistantSessionsRequest,
-  ListAiAssistantSessionsResponse,
+  ListAiAssistantMessageRequest,
+  ListAiAssistantMessageResponse,
+  ListAiAssistantShortcutRequest,
+  ListAiAssistantShortcutResponse,
+  ListAiAssistantSessionRequest,
+  ListAiAssistantSessionResponse,
   UpdateAiAssistantSessionRequest,
   UpdateAiAssistantSessionResponse
 } from "@/rpc/base/v1/ai_assistant_session";
@@ -23,8 +23,8 @@ const AI_ASSISTANT_SESSION_URL = "/v1/base/ai/assistant/session";
 /** AI 助手会话服务。 */
 export class AiAssistantSessionServiceImpl implements AiAssistantService {
   /** 查询 AI 助手快捷入口列表。 */
-  ListAiAssistantShortcuts(request: ListAiAssistantShortcutsRequest): Promise<ListAiAssistantShortcutsResponse> {
-    return service<ListAiAssistantShortcutsRequest, ListAiAssistantShortcutsResponse>({
+  ListAiAssistantShortcut(request: ListAiAssistantShortcutRequest): Promise<ListAiAssistantShortcutResponse> {
+    return service<ListAiAssistantShortcutRequest, ListAiAssistantShortcutResponse>({
       url: `${AI_ASSISTANT_SHORTCUT_URL}`,
       method: "get",
       params: request
@@ -32,8 +32,8 @@ export class AiAssistantSessionServiceImpl implements AiAssistantService {
   }
 
   /** 查询 AI 助手会话列表。 */
-  ListAiAssistantSessions(request: ListAiAssistantSessionsRequest): Promise<ListAiAssistantSessionsResponse> {
-    return service<ListAiAssistantSessionsRequest, ListAiAssistantSessionsResponse>({
+  ListAiAssistantSession(request: ListAiAssistantSessionRequest): Promise<ListAiAssistantSessionResponse> {
+    return service<ListAiAssistantSessionRequest, ListAiAssistantSessionResponse>({
       url: `${AI_ASSISTANT_SESSION_URL}`,
       method: "get",
       params: request
@@ -68,8 +68,8 @@ export class AiAssistantSessionServiceImpl implements AiAssistantService {
   }
 
   /** 查询 AI 助手消息列表。 */
-  ListAiAssistantMessages(request: ListAiAssistantMessagesRequest): Promise<ListAiAssistantMessagesResponse> {
-    return service<ListAiAssistantMessagesRequest, ListAiAssistantMessagesResponse>({
+  ListAiAssistantMessage(request: ListAiAssistantMessageRequest): Promise<ListAiAssistantMessageResponse> {
+    return service<ListAiAssistantMessageRequest, ListAiAssistantMessageResponse>({
       url: `${AI_ASSISTANT_SESSION_URL}/${request.session_id}/message`,
       method: "get",
       params: request

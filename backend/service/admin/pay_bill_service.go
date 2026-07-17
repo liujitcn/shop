@@ -35,11 +35,11 @@ func NewPayBillService(
 	}
 }
 
-// PagePayBills 查询支付账单列表
-func (s *PayBillService) PagePayBills(ctx context.Context, req *adminv1.PagePayBillsRequest) (*adminv1.PagePayBillsResponse, error) {
-	page, err := s.payBillCase.PagePayBills(ctx, req)
+// PagePayBill 查询支付账单列表
+func (s *PayBillService) PagePayBill(ctx context.Context, req *adminv1.PagePayBillRequest) (*adminv1.PagePayBillResponse, error) {
+	page, err := s.payBillCase.PagePayBill(ctx, req)
 	if err != nil {
-		log.Error(fmt.Sprintf("PagePayBills %v", err))
+		log.Error(fmt.Sprintf("PagePayBill %v", err))
 		return nil, errorsx.WrapInternal(err, "查询支付账单列表失败")
 	}
 	return page, nil

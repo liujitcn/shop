@@ -5,12 +5,12 @@ import {
   type GetCommentInfoRequest,
   type GetGoodsCommentInfoRequest,
   type GoodsCommentInfoResponse,
-  type ListCommentReviewsRequest,
-  type ListCommentReviewsResponse,
-  type PageCommentDiscussionsRequest,
-  type PageCommentDiscussionsResponse,
-  type PageCommentInfosRequest,
-  type PageCommentInfosResponse,
+  type ListCommentReviewRequest,
+  type ListCommentReviewResponse,
+  type PageCommentDiscussionRequest,
+  type PageCommentDiscussionResponse,
+  type PageCommentInfoRequest,
+  type PageCommentInfoResponse,
   type SetCommentDiscussionStatusRequest,
   type SetCommentInfoStatusRequest
 } from "@/rpc/admin/v1/comment_info";
@@ -21,8 +21,8 @@ const COMMENT_INFO_URL = "/v1/admin/comment/info";
 /** Admin评论管理服务。 */
 export class CommentInfoServiceImpl implements CommentInfoService {
   /** 查询评论分页列表。 */
-  PageCommentInfos(request: PageCommentInfosRequest): Promise<PageCommentInfosResponse> {
-    return service<PageCommentInfosRequest, PageCommentInfosResponse>({
+  PageCommentInfo(request: PageCommentInfoRequest): Promise<PageCommentInfoResponse> {
+    return service<PageCommentInfoRequest, PageCommentInfoResponse>({
       url: `${COMMENT_INFO_URL}`,
       method: "get",
       params: request
@@ -46,8 +46,8 @@ export class CommentInfoServiceImpl implements CommentInfoService {
   }
 
   /** 查询评论审核记录列表。 */
-  ListCommentReviews(request: ListCommentReviewsRequest): Promise<ListCommentReviewsResponse> {
-    return service<ListCommentReviewsRequest, ListCommentReviewsResponse>({
+  ListCommentReview(request: ListCommentReviewRequest): Promise<ListCommentReviewResponse> {
+    return service<ListCommentReviewRequest, ListCommentReviewResponse>({
       url: `${COMMENT_INFO_URL}/review`,
       method: "get",
       params: request
@@ -64,8 +64,8 @@ export class CommentInfoServiceImpl implements CommentInfoService {
   }
 
   /** 查询评论讨论分页列表。 */
-  PageCommentDiscussions(request: PageCommentDiscussionsRequest): Promise<PageCommentDiscussionsResponse> {
-    return service<PageCommentDiscussionsRequest, PageCommentDiscussionsResponse>({
+  PageCommentDiscussion(request: PageCommentDiscussionRequest): Promise<PageCommentDiscussionResponse> {
+    return service<PageCommentDiscussionRequest, PageCommentDiscussionResponse>({
       url: `${COMMENT_INFO_URL}/${request.comment_id}/discussion`,
       method: "get",
       params: request

@@ -39,8 +39,8 @@ func NewUserAddressCase(baseCase *biz.BaseCase, tx data.Transaction,
 	}
 }
 
-// ListUserAddresses 查询用户地址列表
-func (c *UserAddressCase) ListUserAddresses(ctx context.Context) (*appv1.ListUserAddressesResponse, error) {
+// ListUserAddress 查询用户地址列表
+func (c *UserAddressCase) ListUserAddress(ctx context.Context) (*appv1.ListUserAddressResponse, error) {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return nil, err
@@ -61,7 +61,7 @@ func (c *UserAddressCase) ListUserAddresses(ctx context.Context) (*appv1.ListUse
 		item.Address = c.baseAreaCase.getAddressListByCode(ctx, address.Address)
 		list = append(list, item)
 	}
-	return &appv1.ListUserAddressesResponse{
+	return &appv1.ListUserAddressResponse{
 		UserAddresses: list,
 	}, nil
 }

@@ -10,21 +10,21 @@ import "google/protobuf/empty.proto";
 // Admin租户门店服务
 service TenantStoreService {
   // 查询租户门店下拉选项
-  rpc OptionTenantStores(OptionTenantStoresRequest) returns (OptionTenantStoresResponse) {
+  rpc OptionTenantStore(OptionTenantStoreRequest) returns (OptionTenantStoreResponse) {
     option (google.api.http) = {
       get: "/api/v1/admin/tenant/store/option"
     };
   }
 
   // 查询租户门店树形选项
-  rpc TreeTenantStores(TreeTenantStoresRequest) returns (TreeTenantStoresResponse) {
+  rpc TreeTenantStore(TreeTenantStoreRequest) returns (TreeTenantStoreResponse) {
     option (google.api.http) = {
       get: "/api/v1/admin/tenant/store/tree"
     };
   }
 
   // 查询租户门店列表
-  rpc PageTenantStores(PageTenantStoresRequest) returns (PageTenantStoresResponse) {
+  rpc PageTenantStore(PageTenantStoreRequest) returns (PageTenantStoreResponse) {
     option (google.api.http) = {
       get: "/api/v1/admin/tenant/store"
     };
@@ -70,12 +70,12 @@ service TenantStoreService {
 }
 
 // 租户门店下拉选项查询条件
-message OptionTenantStoresRequest {
+message OptionTenantStoreRequest {
   string keyword = 1 [(gnostic.openapi.v3.property) = {description: "门店名称关键字"}]; // 门店名称关键字
 }
 
 // 租户门店下拉选项响应
-message OptionTenantStoresResponse {
+message OptionTenantStoreResponse {
   // 租户门店选项
   message Option {
     int64 value = 1 [(gnostic.openapi.v3.property) = {description: "门店ID"}]; // 门店ID
@@ -87,12 +87,12 @@ message OptionTenantStoresResponse {
 }
 
 // 租户门店树形选项查询条件
-message TreeTenantStoresRequest {
+message TreeTenantStoreRequest {
   string keyword = 1 [(gnostic.openapi.v3.property) = {description: "门店名称关键字"}]; // 门店名称关键字
 }
 
 // 租户门店树形选项响应
-message TreeTenantStoresResponse {
+message TreeTenantStoreResponse {
   // 租户门店树形选项
   message Option {
     string value = 1 [(gnostic.openapi.v3.property) = {description: "选项值，tenant:{id} 或 store:{id}"}]; // 选项值，tenant:{id} 或 store:{id}
@@ -112,7 +112,7 @@ message TreeTenantStoresResponse {
 }
 
 // 租户门店列表查询条件
-message PageTenantStoresRequest {
+message PageTenantStoreRequest {
   string name = 1 [(gnostic.openapi.v3.property) = {description: "门店名称"}]; // 门店名称
 
   optional int64 tenant_id = 2 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
@@ -134,7 +134,7 @@ message PageTenantStoresRequest {
 }
 
 // 租户门店列表响应
-message PageTenantStoresResponse {
+message PageTenantStoreResponse {
   repeated TenantStore tenant_stores = 1 [(gnostic.openapi.v3.property) = {description: "租户门店列表"}]; // 租户门店列表
 
   int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数

@@ -110,7 +110,7 @@ import ProForm from "@/components/ProForm/index.vue";
 import type { ProFormField, ProFormInstance } from "@/components/ProForm/interface";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { defTenantStoreService } from "@/api/admin/tenant_store";
-import type { AuditTenantStoreRequest, PageTenantStoresRequest, TenantStore, TenantStoreForm } from "@/rpc/admin/v1/tenant_store";
+import type { AuditTenantStoreRequest, PageTenantStoreRequest, TenantStore, TenantStoreForm } from "@/rpc/admin/v1/tenant_store";
 import type { SelectOptionResponse_Option } from "@/rpc/common/v1/common";
 import { TenantStoreStatus } from "@/rpc/common/v1/enum";
 import { buildPageRequest, normalizeSelectedIds } from "@/utils/proTable";
@@ -129,7 +129,7 @@ const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 const auditFormRef = ref<ProFormInstance>();
 const tenantOptions = ref<SelectOptionResponse_Option[]>([]);
 
-const initParam = reactive<PageTenantStoresRequest>({
+const initParam = reactive<PageTenantStoreRequest>({
   name: "",
   page_num: 1,
   page_size: 10
@@ -378,14 +378,14 @@ async function loadTenantOptions() {
 }
 
 /** 请求租户门店列表，并由 ProTable 统一管理分页和筛选。 */
-async function requestTenantStoreTable(params: PageTenantStoresRequest) {
+async function requestTenantStoreTable(params: PageTenantStoreRequest) {
   await loadTenantOptions();
   const requestParams = buildPageRequest(params);
-  requestParams.status = normalizeEnumFilter(requestParams.status) as PageTenantStoresRequest["status"];
+  requestParams.status = normalizeEnumFilter(requestParams.status) as PageTenantStoreRequest["status"];
   if (!isDefaultTenant.value) {
     requestParams.tenant_id = undefined;
   }
-  const data = await defTenantStoreService.PageTenantStores(requestParams);
+  const data = await defTenantStoreService.PageTenantStore(requestParams);
   return { data: { list: data.tenant_stores ?? [], total: data.total } };
 }
 

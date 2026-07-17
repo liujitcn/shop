@@ -89,7 +89,7 @@ import FormDialog from "@/components/Dialog/FormDialog.vue";
 import type { ProFormField, ProFormOption } from "@/components/ProForm/interface";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { defBaseRoleService } from "@/api/admin/base_role";
-import type { BaseRole, BaseRoleForm, PageBaseRolesRequest } from "@/rpc/admin/v1/base_role";
+import type { BaseRole, BaseRoleForm, PageBaseRoleRequest } from "@/rpc/admin/v1/base_role";
 import { defBaseMenuService } from "@/api/admin/base_menu";
 import { defBaseTenantService } from "@/api/admin/base_tenant";
 import type { SelectOptionResponse_Option, TreeOptionResponse_Option } from "@/rpc/common/v1/common";
@@ -306,8 +306,8 @@ const headerActions: HeaderActionProps[] = [
 /**
  * 请求角色列表，并由 ProTable 统一维护分页与搜索参数。
  */
-async function requestBaseRoleTable(params: PageBaseRolesRequest) {
-  const data = await defBaseRoleService.PageBaseRoles({
+async function requestBaseRoleTable(params: PageBaseRoleRequest) {
+  const data = await defBaseRoleService.PageBaseRole({
     ...buildPageRequest(params),
     tenant_id: isDefaultTenant.value ? params.tenant_id : undefined,
   });
@@ -332,7 +332,7 @@ function canManageRole(row?: BaseRole) {
  * 按目标角色加载可分配的菜单权限树数据。
  */
 async function loadMenuPermOptions(roleId?: number) {
-  const optionBaseMenuRes = await defBaseMenuService.OptionBaseMenus({
+  const optionBaseMenuRes = await defBaseMenuService.OptionBaseMenu({
     role_id: roleId
   });
   menuPermOptions.value = optionBaseMenuRes.list ?? [];
@@ -368,7 +368,7 @@ function handleCheck(currentNode: unknown, { checkedNodes }: { checkedNodes: Arr
  */
 async function loadTenantOptions() {
   if (!isDefaultTenant.value || tenantOptions.value.length) return;
-  const response = await defBaseTenantService.OptionBaseTenants({ keyword: "" });
+  const response = await defBaseTenantService.OptionBaseTenant({ keyword: "" });
   tenantOptions.value = response.list ?? [];
 }
 

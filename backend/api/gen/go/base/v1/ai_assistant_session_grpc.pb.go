@@ -20,12 +20,12 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AiAssistantService_ListAiAssistantShortcuts_FullMethodName       = "/base.v1.AiAssistantService/ListAiAssistantShortcuts"
-	AiAssistantService_ListAiAssistantSessions_FullMethodName        = "/base.v1.AiAssistantService/ListAiAssistantSessions"
+	AiAssistantService_ListAiAssistantShortcut_FullMethodName        = "/base.v1.AiAssistantService/ListAiAssistantShortcut"
+	AiAssistantService_ListAiAssistantSession_FullMethodName         = "/base.v1.AiAssistantService/ListAiAssistantSession"
 	AiAssistantService_CreateAiAssistantSession_FullMethodName       = "/base.v1.AiAssistantService/CreateAiAssistantSession"
 	AiAssistantService_UpdateAiAssistantSession_FullMethodName       = "/base.v1.AiAssistantService/UpdateAiAssistantSession"
 	AiAssistantService_DeleteAiAssistantSession_FullMethodName       = "/base.v1.AiAssistantService/DeleteAiAssistantSession"
-	AiAssistantService_ListAiAssistantMessages_FullMethodName        = "/base.v1.AiAssistantService/ListAiAssistantMessages"
+	AiAssistantService_ListAiAssistantMessage_FullMethodName         = "/base.v1.AiAssistantService/ListAiAssistantMessage"
 	AiAssistantService_CreateAiAssistantSessionBranch_FullMethodName = "/base.v1.AiAssistantService/CreateAiAssistantSessionBranch"
 )
 
@@ -36,9 +36,9 @@ const (
 // Base AI 助手会话服务
 type AiAssistantServiceClient interface {
 	// 查询 AI 助手快捷入口列表
-	ListAiAssistantShortcuts(ctx context.Context, in *ListAiAssistantShortcutsRequest, opts ...grpc.CallOption) (*ListAiAssistantShortcutsResponse, error)
+	ListAiAssistantShortcut(ctx context.Context, in *ListAiAssistantShortcutRequest, opts ...grpc.CallOption) (*ListAiAssistantShortcutResponse, error)
 	// 查询 AI 助手会话列表
-	ListAiAssistantSessions(ctx context.Context, in *ListAiAssistantSessionsRequest, opts ...grpc.CallOption) (*ListAiAssistantSessionsResponse, error)
+	ListAiAssistantSession(ctx context.Context, in *ListAiAssistantSessionRequest, opts ...grpc.CallOption) (*ListAiAssistantSessionResponse, error)
 	// 创建 AI 助手会话
 	CreateAiAssistantSession(ctx context.Context, in *CreateAiAssistantSessionRequest, opts ...grpc.CallOption) (*CreateAiAssistantSessionResponse, error)
 	// 更新 AI 助手会话
@@ -46,7 +46,7 @@ type AiAssistantServiceClient interface {
 	// 删除 AI 助手会话
 	DeleteAiAssistantSession(ctx context.Context, in *DeleteAiAssistantSessionRequest, opts ...grpc.CallOption) (*DeleteAiAssistantSessionResponse, error)
 	// 查询 AI 助手消息列表
-	ListAiAssistantMessages(ctx context.Context, in *ListAiAssistantMessagesRequest, opts ...grpc.CallOption) (*ListAiAssistantMessagesResponse, error)
+	ListAiAssistantMessage(ctx context.Context, in *ListAiAssistantMessageRequest, opts ...grpc.CallOption) (*ListAiAssistantMessageResponse, error)
 	// 从指定消息创建 AI 助手分支会话
 	CreateAiAssistantSessionBranch(ctx context.Context, in *CreateAiAssistantSessionBranchRequest, opts ...grpc.CallOption) (*CreateAiAssistantSessionBranchResponse, error)
 }
@@ -59,20 +59,20 @@ func NewAiAssistantServiceClient(cc grpc.ClientConnInterface) AiAssistantService
 	return &aiAssistantServiceClient{cc}
 }
 
-func (c *aiAssistantServiceClient) ListAiAssistantShortcuts(ctx context.Context, in *ListAiAssistantShortcutsRequest, opts ...grpc.CallOption) (*ListAiAssistantShortcutsResponse, error) {
+func (c *aiAssistantServiceClient) ListAiAssistantShortcut(ctx context.Context, in *ListAiAssistantShortcutRequest, opts ...grpc.CallOption) (*ListAiAssistantShortcutResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListAiAssistantShortcutsResponse)
-	err := c.cc.Invoke(ctx, AiAssistantService_ListAiAssistantShortcuts_FullMethodName, in, out, cOpts...)
+	out := new(ListAiAssistantShortcutResponse)
+	err := c.cc.Invoke(ctx, AiAssistantService_ListAiAssistantShortcut_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *aiAssistantServiceClient) ListAiAssistantSessions(ctx context.Context, in *ListAiAssistantSessionsRequest, opts ...grpc.CallOption) (*ListAiAssistantSessionsResponse, error) {
+func (c *aiAssistantServiceClient) ListAiAssistantSession(ctx context.Context, in *ListAiAssistantSessionRequest, opts ...grpc.CallOption) (*ListAiAssistantSessionResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListAiAssistantSessionsResponse)
-	err := c.cc.Invoke(ctx, AiAssistantService_ListAiAssistantSessions_FullMethodName, in, out, cOpts...)
+	out := new(ListAiAssistantSessionResponse)
+	err := c.cc.Invoke(ctx, AiAssistantService_ListAiAssistantSession_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -109,10 +109,10 @@ func (c *aiAssistantServiceClient) DeleteAiAssistantSession(ctx context.Context,
 	return out, nil
 }
 
-func (c *aiAssistantServiceClient) ListAiAssistantMessages(ctx context.Context, in *ListAiAssistantMessagesRequest, opts ...grpc.CallOption) (*ListAiAssistantMessagesResponse, error) {
+func (c *aiAssistantServiceClient) ListAiAssistantMessage(ctx context.Context, in *ListAiAssistantMessageRequest, opts ...grpc.CallOption) (*ListAiAssistantMessageResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListAiAssistantMessagesResponse)
-	err := c.cc.Invoke(ctx, AiAssistantService_ListAiAssistantMessages_FullMethodName, in, out, cOpts...)
+	out := new(ListAiAssistantMessageResponse)
+	err := c.cc.Invoke(ctx, AiAssistantService_ListAiAssistantMessage_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -136,9 +136,9 @@ func (c *aiAssistantServiceClient) CreateAiAssistantSessionBranch(ctx context.Co
 // Base AI 助手会话服务
 type AiAssistantServiceServer interface {
 	// 查询 AI 助手快捷入口列表
-	ListAiAssistantShortcuts(context.Context, *ListAiAssistantShortcutsRequest) (*ListAiAssistantShortcutsResponse, error)
+	ListAiAssistantShortcut(context.Context, *ListAiAssistantShortcutRequest) (*ListAiAssistantShortcutResponse, error)
 	// 查询 AI 助手会话列表
-	ListAiAssistantSessions(context.Context, *ListAiAssistantSessionsRequest) (*ListAiAssistantSessionsResponse, error)
+	ListAiAssistantSession(context.Context, *ListAiAssistantSessionRequest) (*ListAiAssistantSessionResponse, error)
 	// 创建 AI 助手会话
 	CreateAiAssistantSession(context.Context, *CreateAiAssistantSessionRequest) (*CreateAiAssistantSessionResponse, error)
 	// 更新 AI 助手会话
@@ -146,7 +146,7 @@ type AiAssistantServiceServer interface {
 	// 删除 AI 助手会话
 	DeleteAiAssistantSession(context.Context, *DeleteAiAssistantSessionRequest) (*DeleteAiAssistantSessionResponse, error)
 	// 查询 AI 助手消息列表
-	ListAiAssistantMessages(context.Context, *ListAiAssistantMessagesRequest) (*ListAiAssistantMessagesResponse, error)
+	ListAiAssistantMessage(context.Context, *ListAiAssistantMessageRequest) (*ListAiAssistantMessageResponse, error)
 	// 从指定消息创建 AI 助手分支会话
 	CreateAiAssistantSessionBranch(context.Context, *CreateAiAssistantSessionBranchRequest) (*CreateAiAssistantSessionBranchResponse, error)
 	mustEmbedUnimplementedAiAssistantServiceServer()
@@ -159,11 +159,11 @@ type AiAssistantServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedAiAssistantServiceServer struct{}
 
-func (UnimplementedAiAssistantServiceServer) ListAiAssistantShortcuts(context.Context, *ListAiAssistantShortcutsRequest) (*ListAiAssistantShortcutsResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method ListAiAssistantShortcuts not implemented")
+func (UnimplementedAiAssistantServiceServer) ListAiAssistantShortcut(context.Context, *ListAiAssistantShortcutRequest) (*ListAiAssistantShortcutResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListAiAssistantShortcut not implemented")
 }
-func (UnimplementedAiAssistantServiceServer) ListAiAssistantSessions(context.Context, *ListAiAssistantSessionsRequest) (*ListAiAssistantSessionsResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method ListAiAssistantSessions not implemented")
+func (UnimplementedAiAssistantServiceServer) ListAiAssistantSession(context.Context, *ListAiAssistantSessionRequest) (*ListAiAssistantSessionResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListAiAssistantSession not implemented")
 }
 func (UnimplementedAiAssistantServiceServer) CreateAiAssistantSession(context.Context, *CreateAiAssistantSessionRequest) (*CreateAiAssistantSessionResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreateAiAssistantSession not implemented")
@@ -174,8 +174,8 @@ func (UnimplementedAiAssistantServiceServer) UpdateAiAssistantSession(context.Co
 func (UnimplementedAiAssistantServiceServer) DeleteAiAssistantSession(context.Context, *DeleteAiAssistantSessionRequest) (*DeleteAiAssistantSessionResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteAiAssistantSession not implemented")
 }
-func (UnimplementedAiAssistantServiceServer) ListAiAssistantMessages(context.Context, *ListAiAssistantMessagesRequest) (*ListAiAssistantMessagesResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method ListAiAssistantMessages not implemented")
+func (UnimplementedAiAssistantServiceServer) ListAiAssistantMessage(context.Context, *ListAiAssistantMessageRequest) (*ListAiAssistantMessageResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListAiAssistantMessage not implemented")
 }
 func (UnimplementedAiAssistantServiceServer) CreateAiAssistantSessionBranch(context.Context, *CreateAiAssistantSessionBranchRequest) (*CreateAiAssistantSessionBranchResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreateAiAssistantSessionBranch not implemented")
@@ -201,38 +201,38 @@ func RegisterAiAssistantServiceServer(s grpc.ServiceRegistrar, srv AiAssistantSe
 	s.RegisterService(&AiAssistantService_ServiceDesc, srv)
 }
 
-func _AiAssistantService_ListAiAssistantShortcuts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListAiAssistantShortcutsRequest)
+func _AiAssistantService_ListAiAssistantShortcut_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListAiAssistantShortcutRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AiAssistantServiceServer).ListAiAssistantShortcuts(ctx, in)
+		return srv.(AiAssistantServiceServer).ListAiAssistantShortcut(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: AiAssistantService_ListAiAssistantShortcuts_FullMethodName,
+		FullMethod: AiAssistantService_ListAiAssistantShortcut_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AiAssistantServiceServer).ListAiAssistantShortcuts(ctx, req.(*ListAiAssistantShortcutsRequest))
+		return srv.(AiAssistantServiceServer).ListAiAssistantShortcut(ctx, req.(*ListAiAssistantShortcutRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AiAssistantService_ListAiAssistantSessions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListAiAssistantSessionsRequest)
+func _AiAssistantService_ListAiAssistantSession_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListAiAssistantSessionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AiAssistantServiceServer).ListAiAssistantSessions(ctx, in)
+		return srv.(AiAssistantServiceServer).ListAiAssistantSession(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: AiAssistantService_ListAiAssistantSessions_FullMethodName,
+		FullMethod: AiAssistantService_ListAiAssistantSession_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AiAssistantServiceServer).ListAiAssistantSessions(ctx, req.(*ListAiAssistantSessionsRequest))
+		return srv.(AiAssistantServiceServer).ListAiAssistantSession(ctx, req.(*ListAiAssistantSessionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -291,20 +291,20 @@ func _AiAssistantService_DeleteAiAssistantSession_Handler(srv interface{}, ctx c
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AiAssistantService_ListAiAssistantMessages_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListAiAssistantMessagesRequest)
+func _AiAssistantService_ListAiAssistantMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListAiAssistantMessageRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AiAssistantServiceServer).ListAiAssistantMessages(ctx, in)
+		return srv.(AiAssistantServiceServer).ListAiAssistantMessage(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: AiAssistantService_ListAiAssistantMessages_FullMethodName,
+		FullMethod: AiAssistantService_ListAiAssistantMessage_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AiAssistantServiceServer).ListAiAssistantMessages(ctx, req.(*ListAiAssistantMessagesRequest))
+		return srv.(AiAssistantServiceServer).ListAiAssistantMessage(ctx, req.(*ListAiAssistantMessageRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -335,12 +335,12 @@ var AiAssistantService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*AiAssistantServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "ListAiAssistantShortcuts",
-			Handler:    _AiAssistantService_ListAiAssistantShortcuts_Handler,
+			MethodName: "ListAiAssistantShortcut",
+			Handler:    _AiAssistantService_ListAiAssistantShortcut_Handler,
 		},
 		{
-			MethodName: "ListAiAssistantSessions",
-			Handler:    _AiAssistantService_ListAiAssistantSessions_Handler,
+			MethodName: "ListAiAssistantSession",
+			Handler:    _AiAssistantService_ListAiAssistantSession_Handler,
 		},
 		{
 			MethodName: "CreateAiAssistantSession",
@@ -355,8 +355,8 @@ var AiAssistantService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _AiAssistantService_DeleteAiAssistantSession_Handler,
 		},
 		{
-			MethodName: "ListAiAssistantMessages",
-			Handler:    _AiAssistantService_ListAiAssistantMessages_Handler,
+			MethodName: "ListAiAssistantMessage",
+			Handler:    _AiAssistantService_ListAiAssistantMessage_Handler,
 		},
 		{
 			MethodName: "CreateAiAssistantSessionBranch",

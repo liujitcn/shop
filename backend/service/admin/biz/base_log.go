@@ -2,8 +2,9 @@ package biz
 
 import (
 	"context"
-	_const "shop/pkg/const"
 	"time"
+
+	_const "shop/pkg/const"
 
 	adminv1 "shop/api/gen/go/admin/v1"
 	"shop/pkg/biz"
@@ -37,8 +38,8 @@ func NewBaseLogCase(baseCase *biz.BaseCase, baseLogRepo *data.BaseLogRepository)
 	return c
 }
 
-// PageBaseLogs 分页查询日志
-func (c *BaseLogCase) PageBaseLogs(ctx context.Context, req *adminv1.PageBaseLogsRequest) (*adminv1.PageBaseLogsResponse, error) {
+// PageBaseLog 分页查询日志
+func (c *BaseLogCase) PageBaseLog(ctx context.Context, req *adminv1.PageBaseLogRequest) (*adminv1.PageBaseLogResponse, error) {
 	query := c.Query(ctx).BaseLog
 	opts := make([]repository.QueryOption, 0, 5)
 	opts = append(opts, repository.Order(query.RequestTime.Desc()))
@@ -75,7 +76,7 @@ func (c *BaseLogCase) PageBaseLogs(ctx context.Context, req *adminv1.PageBaseLog
 	for _, item := range list {
 		resList = append(resList, c.toBaseLog(item))
 	}
-	return &adminv1.PageBaseLogsResponse{BaseLogs: resList, Total: int32(total)}, nil
+	return &adminv1.PageBaseLogResponse{BaseLogs: resList, Total: int32(total)}, nil
 }
 
 // GetBaseLog 获取日志

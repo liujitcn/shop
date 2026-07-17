@@ -15,25 +15,25 @@ import (
 
 // RegisterUserCollectServiceMCPTools 注册App用户收藏管理服务的 MCP Tool。
 func RegisterUserCollectServiceMCPTools(mcpServer *mcp.Server, userCollectServiceServer UserCollectServiceServer) {
-	RegisterUserCollectServicePageUserCollectsMCPTool(mcpServer, userCollectServiceServer)
+	RegisterUserCollectServicePageUserCollectMCPTool(mcpServer, userCollectServiceServer)
 	RegisterUserCollectServiceGetIsCollectMCPTool(mcpServer, userCollectServiceServer)
 	RegisterUserCollectServiceCreateUserCollectMCPTool(mcpServer, userCollectServiceServer)
 	RegisterUserCollectServiceDeleteUserCollectMCPTool(mcpServer, userCollectServiceServer)
 }
 
-// RegisterUserCollectServicePageUserCollectsMCPTool 注册查询用户收藏列表的 MCP Tool。
-func RegisterUserCollectServicePageUserCollectsMCPTool(mcpServer *mcp.Server, userCollectServiceServer UserCollectServiceServer) {
-	mcp.AddTool[*PageUserCollectsRequest, *PageUserCollectsResponse](
+// RegisterUserCollectServicePageUserCollectMCPTool 注册查询用户收藏列表的 MCP Tool。
+func RegisterUserCollectServicePageUserCollectMCPTool(mcpServer *mcp.Server, userCollectServiceServer UserCollectServiceServer) {
+	mcp.AddTool[*PageUserCollectRequest, *PageUserCollectResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "app_v1_user_collect_service_page_user_collects",
+			Name:        "app_v1_user_collect_service_page_user_collect",
 			Description: "查询用户收藏列表",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageUserCollectsRequest) (*mcp.CallToolResult, *PageUserCollectsResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *PageUserCollectRequest) (*mcp.CallToolResult, *PageUserCollectResponse, error) {
 			if input == nil {
-				input = &PageUserCollectsRequest{}
+				input = &PageUserCollectRequest{}
 			}
-			reply, err := userCollectServiceServer.PageUserCollects(ctx, input)
+			reply, err := userCollectServiceServer.PageUserCollect(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

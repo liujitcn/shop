@@ -9,7 +9,7 @@ import type { ShopBannerSite, ShopBannerType, Status } from "../../common/v1/enu
 import type { Empty } from "../../google/protobuf/empty";
 
 /** 轮播图列表查询条件 */
-export interface PageShopBannersRequest {
+export interface PageShopBannerRequest {
   /** 位置：枚举【ShopBannerSite】 */
   site?:
     | ShopBannerSite
@@ -29,7 +29,7 @@ export interface PageShopBannersRequest {
 }
 
 /** 轮播图列表响应 */
-export interface PageShopBannersResponse {
+export interface PageShopBannerResponse {
   /** 轮播图列表 */
   shop_banners: ShopBanner[];
   /** 总数 */
@@ -117,7 +117,7 @@ export interface ShopBannerForm {
 /** Admin商城轮播图服务 */
 export interface ShopBannerService {
   /** 查询商城轮播图列表 */
-  PageShopBanners(request: PageShopBannersRequest): Promise<PageShopBannersResponse>;
+  PageShopBanner(request: PageShopBannerRequest): Promise<PageShopBannerResponse>;
   /** 查询商城轮播图 */
   GetShopBanner(request: GetShopBannerRequest): Promise<ShopBannerForm>;
   /** 创建商城轮播图 */

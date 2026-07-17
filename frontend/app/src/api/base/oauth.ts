@@ -12,10 +12,10 @@ import type {
   HandleOauthBindingCallbackResponse,
   HandleOauthCallbackRequest,
   HandleOauthCallbackResponse,
-  ListOauthBindingsRequest,
-  ListOauthBindingsResponse,
-  ListOauthProvidersRequest,
-  ListOauthProvidersResponse,
+  ListOauthBindingRequest,
+  ListOauthBindingResponse,
+  ListOauthProviderRequest,
+  ListOauthProviderResponse,
   OauthService,
   UnbindOauthAccountRequest,
 } from '@/rpc/base/v1/oauth'
@@ -32,8 +32,8 @@ const OAUTH_BINDING_AUTHORIZATION_URL = '/v1/base/oauth/binding/authorization'
 /** 三方登录公共服务 */
 export class OauthServiceImpl implements OauthService {
   /** 查询三方登录方式 */
-  ListOauthProviders(request: ListOauthProvidersRequest): Promise<ListOauthProvidersResponse> {
-    return http<ListOauthProvidersResponse>({
+  ListOauthProvider(request: ListOauthProviderRequest): Promise<ListOauthProviderResponse> {
+    return http<ListOauthProviderResponse>({
       url: `${OAUTH_PROVIDER_URL}`,
       method: 'GET',
       authMode: 'none',
@@ -89,8 +89,8 @@ export class OauthServiceImpl implements OauthService {
   }
 
   /** 查询个人中心三方账号绑定列表 */
-  ListOauthBindings(request: ListOauthBindingsRequest): Promise<ListOauthBindingsResponse> {
-    return http<ListOauthBindingsResponse>({
+  ListOauthBinding(request: ListOauthBindingRequest): Promise<ListOauthBindingResponse> {
+    return http<ListOauthBindingResponse>({
       url: `${OAUTH_BINDING_URL}`,
       method: 'GET',
       authMode: 'required',

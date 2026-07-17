@@ -8,16 +8,17 @@ package adminv1
 
 import (
 	context "context"
-	v1 "shop/api/gen/go/common/v1"
 
 	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+
+	v1 "shop/api/gen/go/common/v1"
 )
 
 // RegisterBaseRoleServiceMCPTools 注册Admin角色管理服务的 MCP Tool。
 func RegisterBaseRoleServiceMCPTools(mcpServer *mcp.Server, baseRoleServiceServer BaseRoleServiceServer) {
-	RegisterBaseRoleServiceOptionBaseRolesMCPTool(mcpServer, baseRoleServiceServer)
-	RegisterBaseRoleServicePageBaseRolesMCPTool(mcpServer, baseRoleServiceServer)
+	RegisterBaseRoleServiceOptionBaseRoleMCPTool(mcpServer, baseRoleServiceServer)
+	RegisterBaseRoleServicePageBaseRoleMCPTool(mcpServer, baseRoleServiceServer)
 	RegisterBaseRoleServiceGetBaseRoleMCPTool(mcpServer, baseRoleServiceServer)
 	RegisterBaseRoleServiceCreateBaseRoleMCPTool(mcpServer, baseRoleServiceServer)
 	RegisterBaseRoleServiceUpdateBaseRoleMCPTool(mcpServer, baseRoleServiceServer)
@@ -26,19 +27,19 @@ func RegisterBaseRoleServiceMCPTools(mcpServer *mcp.Server, baseRoleServiceServe
 	RegisterBaseRoleServiceSetBaseRoleMenuMCPTool(mcpServer, baseRoleServiceServer)
 }
 
-// RegisterBaseRoleServiceOptionBaseRolesMCPTool 注册查询角色下拉选择的 MCP Tool。
-func RegisterBaseRoleServiceOptionBaseRolesMCPTool(mcpServer *mcp.Server, baseRoleServiceServer BaseRoleServiceServer) {
-	mcp.AddTool[*OptionBaseRolesRequest, *v1.SelectOptionResponse](
+// RegisterBaseRoleServiceOptionBaseRoleMCPTool 注册查询角色下拉选择的 MCP Tool。
+func RegisterBaseRoleServiceOptionBaseRoleMCPTool(mcpServer *mcp.Server, baseRoleServiceServer BaseRoleServiceServer) {
+	mcp.AddTool[*OptionBaseRoleRequest, *v1.SelectOptionResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "admin_v1_base_role_service_option_base_roles",
+			Name:        "admin_v1_base_role_service_option_base_role",
 			Description: "查询角色下拉选择",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *OptionBaseRolesRequest) (*mcp.CallToolResult, *v1.SelectOptionResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *OptionBaseRoleRequest) (*mcp.CallToolResult, *v1.SelectOptionResponse, error) {
 			if input == nil {
-				input = &OptionBaseRolesRequest{}
+				input = &OptionBaseRoleRequest{}
 			}
-			reply, err := baseRoleServiceServer.OptionBaseRoles(ctx, input)
+			reply, err := baseRoleServiceServer.OptionBaseRole(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -47,19 +48,19 @@ func RegisterBaseRoleServiceOptionBaseRolesMCPTool(mcpServer *mcp.Server, baseRo
 	)
 }
 
-// RegisterBaseRoleServicePageBaseRolesMCPTool 注册查询角色分页列表的 MCP Tool。
-func RegisterBaseRoleServicePageBaseRolesMCPTool(mcpServer *mcp.Server, baseRoleServiceServer BaseRoleServiceServer) {
-	mcp.AddTool[*PageBaseRolesRequest, *PageBaseRolesResponse](
+// RegisterBaseRoleServicePageBaseRoleMCPTool 注册查询角色分页列表的 MCP Tool。
+func RegisterBaseRoleServicePageBaseRoleMCPTool(mcpServer *mcp.Server, baseRoleServiceServer BaseRoleServiceServer) {
+	mcp.AddTool[*PageBaseRoleRequest, *PageBaseRoleResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "admin_v1_base_role_service_page_base_roles",
+			Name:        "admin_v1_base_role_service_page_base_role",
 			Description: "查询角色分页列表",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBaseRolesRequest) (*mcp.CallToolResult, *PageBaseRolesResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBaseRoleRequest) (*mcp.CallToolResult, *PageBaseRoleResponse, error) {
 			if input == nil {
-				input = &PageBaseRolesRequest{}
+				input = &PageBaseRoleRequest{}
 			}
-			reply, err := baseRoleServiceServer.PageBaseRoles(ctx, input)
+			reply, err := baseRoleServiceServer.PageBaseRole(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

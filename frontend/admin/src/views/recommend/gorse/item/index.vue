@@ -143,7 +143,7 @@ watch(
 async function loadItemPage(cursor = currentCursor.value) {
   loading.value = true;
   try {
-    const data = await defRecommendGorseService.PageItems({ cursor, n: pageSize.value });
+    const data = await defRecommendGorseService.PageItem({ cursor, n: pageSize.value });
     currentCursor.value = cursor;
     nextCursor.value = data.cursor || "";
     itemList.value = data.items ?? [];

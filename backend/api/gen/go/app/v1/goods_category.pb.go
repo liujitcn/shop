@@ -25,27 +25,27 @@ const (
 )
 
 // 商品分类列表查询条件
-type ListGoodsCategoriesRequest struct {
+type ListGoodsCategoryRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ParentId      *int64                 `protobuf:"varint,1,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"` // 父节点ID
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListGoodsCategoriesRequest) Reset() {
-	*x = ListGoodsCategoriesRequest{}
+func (x *ListGoodsCategoryRequest) Reset() {
+	*x = ListGoodsCategoryRequest{}
 	mi := &file_app_v1_goods_category_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListGoodsCategoriesRequest) String() string {
+func (x *ListGoodsCategoryRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListGoodsCategoriesRequest) ProtoMessage() {}
+func (*ListGoodsCategoryRequest) ProtoMessage() {}
 
-func (x *ListGoodsCategoriesRequest) ProtoReflect() protoreflect.Message {
+func (x *ListGoodsCategoryRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_app_v1_goods_category_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -57,12 +57,12 @@ func (x *ListGoodsCategoriesRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListGoodsCategoriesRequest.ProtoReflect.Descriptor instead.
-func (*ListGoodsCategoriesRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListGoodsCategoryRequest.ProtoReflect.Descriptor instead.
+func (*ListGoodsCategoryRequest) Descriptor() ([]byte, []int) {
 	return file_app_v1_goods_category_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *ListGoodsCategoriesRequest) GetParentId() int64 {
+func (x *ListGoodsCategoryRequest) GetParentId() int64 {
 	if x != nil && x.ParentId != nil {
 		return *x.ParentId
 	}
@@ -70,27 +70,27 @@ func (x *ListGoodsCategoriesRequest) GetParentId() int64 {
 }
 
 // 商品分类列表响应
-type ListGoodsCategoriesResponse struct {
+type ListGoodsCategoryResponse struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	GoodsCategories []*GoodsCategory       `protobuf:"bytes,1,rep,name=goods_categories,json=goodsCategories,proto3" json:"goods_categories,omitempty"` // 分页数据
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
 
-func (x *ListGoodsCategoriesResponse) Reset() {
-	*x = ListGoodsCategoriesResponse{}
+func (x *ListGoodsCategoryResponse) Reset() {
+	*x = ListGoodsCategoryResponse{}
 	mi := &file_app_v1_goods_category_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListGoodsCategoriesResponse) String() string {
+func (x *ListGoodsCategoryResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListGoodsCategoriesResponse) ProtoMessage() {}
+func (*ListGoodsCategoryResponse) ProtoMessage() {}
 
-func (x *ListGoodsCategoriesResponse) ProtoReflect() protoreflect.Message {
+func (x *ListGoodsCategoryResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_app_v1_goods_category_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -102,12 +102,12 @@ func (x *ListGoodsCategoriesResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListGoodsCategoriesResponse.ProtoReflect.Descriptor instead.
-func (*ListGoodsCategoriesResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListGoodsCategoryResponse.ProtoReflect.Descriptor instead.
+func (*ListGoodsCategoryResponse) Descriptor() ([]byte, []int) {
 	return file_app_v1_goods_category_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *ListGoodsCategoriesResponse) GetGoodsCategories() []*GoodsCategory {
+func (x *ListGoodsCategoryResponse) GetGoodsCategories() []*GoodsCategory {
 	if x != nil {
 		return x.GoodsCategories
 	}
@@ -195,21 +195,21 @@ var File_app_v1_goods_category_proto protoreflect.FileDescriptor
 
 const file_app_v1_goods_category_proto_rawDesc = "" +
 	"\n" +
-	"\x1bapp/v1/goods_category.proto\x12\x06app.v1\x1a\x17app/v1/goods_info.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"_\n" +
-	"\x1aListGoodsCategoriesRequest\x123\n" +
+	"\x1bapp/v1/goods_category.proto\x12\x06app.v1\x1a\x17app/v1/goods_info.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"]\n" +
+	"\x18ListGoodsCategoryRequest\x123\n" +
 	"\tparent_id\x18\x01 \x01(\x03B\x11\xbaG\x0e\x92\x02\v父节点IDH\x00R\bparentId\x88\x01\x01B\f\n" +
 	"\n" +
-	"_parent_id\"s\n" +
-	"\x1bListGoodsCategoriesResponse\x12T\n" +
+	"_parent_id\"q\n" +
+	"\x19ListGoodsCategoryResponse\x12T\n" +
 	"\x10goods_categories\x18\x01 \x03(\v2\x15.app.v1.GoodsCategoryB\x12\xbaG\x0f\x92\x02\f分页数据R\x0fgoodsCategories\"\x84\x02\n" +
 	"\rGoodsCategory\x12$\n" +
 	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e商品分类IDR\x02id\x12.\n" +
 	"\tparent_id\x18\x02 \x01(\x03B\x11\xbaG\x0e\x92\x02\v父节点IDR\bparentId\x12,\n" +
 	"\x04name\x18\x03 \x01(\tB\x18\xbaG\x15\x92\x02\x12商品分类名称R\x04name\x122\n" +
 	"\apicture\x18\x04 \x01(\tB\x18\xbaG\x15\x92\x02\x12商品分类图片R\apicture\x12;\n" +
-	"\x05goods\x18e \x03(\v2\x11.app.v1.GoodsInfoB\x12\xbaG\x0f\x92\x02\f商品列表R\x05goods2\x9b\x01\n" +
-	"\x14GoodsCategoryService\x12\x82\x01\n" +
-	"\x13ListGoodsCategories\x12\".app.v1.ListGoodsCategoriesRequest\x1a#.app.v1.ListGoodsCategoriesResponse\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/v1/app/goods/categoryBw\n" +
+	"\x05goods\x18e \x03(\v2\x11.app.v1.GoodsInfoB\x12\xbaG\x0f\x92\x02\f商品列表R\x05goods2\x94\x01\n" +
+	"\x14GoodsCategoryService\x12|\n" +
+	"\x11ListGoodsCategory\x12 .app.v1.ListGoodsCategoryRequest\x1a!.app.v1.ListGoodsCategoryResponse\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/v1/app/goods/categoryBw\n" +
 	"\n" +
 	"com.app.v1B\x12GoodsCategoryProtoP\x01Z\x1cshop/api/gen/go/app/v1;appv1\xa2\x02\x03AXX\xaa\x02\x06App.V1\xca\x02\x06App\\V1\xe2\x02\x12App\\V1\\GPBMetadata\xea\x02\aApp::V1b\x06proto3"
 
@@ -227,16 +227,16 @@ func file_app_v1_goods_category_proto_rawDescGZIP() []byte {
 
 var file_app_v1_goods_category_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_app_v1_goods_category_proto_goTypes = []any{
-	(*ListGoodsCategoriesRequest)(nil),  // 0: app.v1.ListGoodsCategoriesRequest
-	(*ListGoodsCategoriesResponse)(nil), // 1: app.v1.ListGoodsCategoriesResponse
-	(*GoodsCategory)(nil),               // 2: app.v1.GoodsCategory
-	(*GoodsInfo)(nil),                   // 3: app.v1.GoodsInfo
+	(*ListGoodsCategoryRequest)(nil),  // 0: app.v1.ListGoodsCategoryRequest
+	(*ListGoodsCategoryResponse)(nil), // 1: app.v1.ListGoodsCategoryResponse
+	(*GoodsCategory)(nil),             // 2: app.v1.GoodsCategory
+	(*GoodsInfo)(nil),                 // 3: app.v1.GoodsInfo
 }
 var file_app_v1_goods_category_proto_depIdxs = []int32{
-	2, // 0: app.v1.ListGoodsCategoriesResponse.goods_categories:type_name -> app.v1.GoodsCategory
+	2, // 0: app.v1.ListGoodsCategoryResponse.goods_categories:type_name -> app.v1.GoodsCategory
 	3, // 1: app.v1.GoodsCategory.goods:type_name -> app.v1.GoodsInfo
-	0, // 2: app.v1.GoodsCategoryService.ListGoodsCategories:input_type -> app.v1.ListGoodsCategoriesRequest
-	1, // 3: app.v1.GoodsCategoryService.ListGoodsCategories:output_type -> app.v1.ListGoodsCategoriesResponse
+	0, // 2: app.v1.GoodsCategoryService.ListGoodsCategory:input_type -> app.v1.ListGoodsCategoryRequest
+	1, // 3: app.v1.GoodsCategoryService.ListGoodsCategory:output_type -> app.v1.ListGoodsCategoryResponse
 	3, // [3:4] is the sub-list for method output_type
 	2, // [2:3] is the sub-list for method input_type
 	2, // [2:2] is the sub-list for extension type_name

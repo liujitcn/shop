@@ -11,7 +11,7 @@ import type { ECOption } from "@/components/ECharts/config";
 import { defOrderAnalyticsService } from "@/api/admin/order_analytics";
 import DataPanelCard from "@/components/Card/DataPanelCard.vue";
 import type { AnalyticsPieResponse, AnalyticsTimeType } from "@/rpc/common/v1/analytics";
-import type { OptionBaseDictsResponse_BaseDictItem } from "@/rpc/admin/v1/base_dict";
+import type { OptionBaseDictResponse_BaseDictItem } from "@/rpc/admin/v1/base_dict";
 import { useDictStore } from "@/stores/modules/dict";
 
 const props = defineProps<{
@@ -58,7 +58,7 @@ const option = computed<ECOption>(() => ({
 }));
 
 /** 根据订单履约状态字典转换图表展示名称。 */
-function resolveOrderInfoStatusName(statusValue: string, dictList: OptionBaseDictsResponse_BaseDictItem[]) {
+function resolveOrderInfoStatusName(statusValue: string, dictList: OptionBaseDictResponse_BaseDictItem[]) {
   const matchedItem = dictList.find(dictItem => dictItem.value === statusValue);
   return matchedItem?.label || `状态${statusValue}`;
 }

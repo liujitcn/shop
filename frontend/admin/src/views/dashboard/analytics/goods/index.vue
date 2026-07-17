@@ -54,7 +54,7 @@ import { useRoute } from "vue-router";
 import type { EnumProps } from "@/components/ProTable/interface";
 import { defTenantStoreService } from "@/api/admin/tenant_store";
 import { AnalyticsTimeType } from "@/rpc/common/v1/analytics";
-import type { OptionTenantStoresResponse_Option } from "@/rpc/admin/v1/tenant_store";
+import type { OptionTenantStoreResponse_Option } from "@/rpc/admin/v1/tenant_store";
 import { useUserStore } from "@/stores/modules/user";
 import { DEFAULT_TENANT_CODE, parseTenantStoreTreeValue, transformTenantStoreTreeOptions } from "@/utils/tenant";
 import PageLayout from "../components/PageLayout.vue";
@@ -79,7 +79,7 @@ const tenantStoreTreeValue = ref(
 );
 const tenantStoreId = ref<number | undefined>(routeTenantStoreID > 0 ? routeTenantStoreID : undefined);
 const tenantStoreTreeOptions = ref<EnumProps[]>([]);
-const tenantStoreOptions = ref<OptionTenantStoresResponse_Option[]>([]);
+const tenantStoreOptions = ref<OptionTenantStoreResponse_Option[]>([]);
 
 /** 当前登录账号是否默认租户。 */
 const isDefaultTenant = computed(() => userStore.userInfo.tenant_code === DEFAULT_TENANT_CODE);
@@ -106,11 +106,11 @@ const activeTimeLabel = computed(() => {
 /** 加载当前账号可选择的租户门店范围。 */
 async function loadTenantStoreOptions() {
   if (isDefaultTenant.value) {
-    const response = await defTenantStoreService.TreeTenantStores({ keyword: "" });
+    const response = await defTenantStoreService.TreeTenantStore({ keyword: "" });
     tenantStoreTreeOptions.value = transformTenantStoreTreeOptions(response.list ?? []);
     return;
   }
-  const response = await defTenantStoreService.OptionTenantStores({ keyword: "" });
+  const response = await defTenantStoreService.OptionTenantStore({ keyword: "" });
   tenantStoreOptions.value = response.list ?? [];
 }
 

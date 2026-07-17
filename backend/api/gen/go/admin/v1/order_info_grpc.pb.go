@@ -21,7 +21,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	OrderInfoService_PageOrderInfos_FullMethodName       = "/admin.v1.OrderInfoService/PageOrderInfos"
+	OrderInfoService_PageOrderInfo_FullMethodName        = "/admin.v1.OrderInfoService/PageOrderInfo"
 	OrderInfoService_GetOrderInfo_FullMethodName         = "/admin.v1.OrderInfoService/GetOrderInfo"
 	OrderInfoService_GetOrderInfoRefund_FullMethodName   = "/admin.v1.OrderInfoService/GetOrderInfoRefund"
 	OrderInfoService_RefundOrderInfo_FullMethodName      = "/admin.v1.OrderInfoService/RefundOrderInfo"
@@ -36,7 +36,7 @@ const (
 // Admin订单信息服务
 type OrderInfoServiceClient interface {
 	// 查询订单信息分页列表
-	PageOrderInfos(ctx context.Context, in *PageOrderInfosRequest, opts ...grpc.CallOption) (*PageOrderInfosResponse, error)
+	PageOrderInfo(ctx context.Context, in *PageOrderInfoRequest, opts ...grpc.CallOption) (*PageOrderInfoResponse, error)
 	// 查询订单信息
 	GetOrderInfo(ctx context.Context, in *GetOrderInfoRequest, opts ...grpc.CallOption) (*OrderInfoResponse, error)
 	// 查询订单信息退款信息
@@ -57,10 +57,10 @@ func NewOrderInfoServiceClient(cc grpc.ClientConnInterface) OrderInfoServiceClie
 	return &orderInfoServiceClient{cc}
 }
 
-func (c *orderInfoServiceClient) PageOrderInfos(ctx context.Context, in *PageOrderInfosRequest, opts ...grpc.CallOption) (*PageOrderInfosResponse, error) {
+func (c *orderInfoServiceClient) PageOrderInfo(ctx context.Context, in *PageOrderInfoRequest, opts ...grpc.CallOption) (*PageOrderInfoResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(PageOrderInfosResponse)
-	err := c.cc.Invoke(ctx, OrderInfoService_PageOrderInfos_FullMethodName, in, out, cOpts...)
+	out := new(PageOrderInfoResponse)
+	err := c.cc.Invoke(ctx, OrderInfoService_PageOrderInfo_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -124,7 +124,7 @@ func (c *orderInfoServiceClient) ShipOrderInfo(ctx context.Context, in *ShipOrde
 // Admin订单信息服务
 type OrderInfoServiceServer interface {
 	// 查询订单信息分页列表
-	PageOrderInfos(context.Context, *PageOrderInfosRequest) (*PageOrderInfosResponse, error)
+	PageOrderInfo(context.Context, *PageOrderInfoRequest) (*PageOrderInfoResponse, error)
 	// 查询订单信息
 	GetOrderInfo(context.Context, *GetOrderInfoRequest) (*OrderInfoResponse, error)
 	// 查询订单信息退款信息
@@ -145,8 +145,8 @@ type OrderInfoServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedOrderInfoServiceServer struct{}
 
-func (UnimplementedOrderInfoServiceServer) PageOrderInfos(context.Context, *PageOrderInfosRequest) (*PageOrderInfosResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method PageOrderInfos not implemented")
+func (UnimplementedOrderInfoServiceServer) PageOrderInfo(context.Context, *PageOrderInfoRequest) (*PageOrderInfoResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method PageOrderInfo not implemented")
 }
 func (UnimplementedOrderInfoServiceServer) GetOrderInfo(context.Context, *GetOrderInfoRequest) (*OrderInfoResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetOrderInfo not implemented")
@@ -184,20 +184,20 @@ func RegisterOrderInfoServiceServer(s grpc.ServiceRegistrar, srv OrderInfoServic
 	s.RegisterService(&OrderInfoService_ServiceDesc, srv)
 }
 
-func _OrderInfoService_PageOrderInfos_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PageOrderInfosRequest)
+func _OrderInfoService_PageOrderInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PageOrderInfoRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(OrderInfoServiceServer).PageOrderInfos(ctx, in)
+		return srv.(OrderInfoServiceServer).PageOrderInfo(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: OrderInfoService_PageOrderInfos_FullMethodName,
+		FullMethod: OrderInfoService_PageOrderInfo_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OrderInfoServiceServer).PageOrderInfos(ctx, req.(*PageOrderInfosRequest))
+		return srv.(OrderInfoServiceServer).PageOrderInfo(ctx, req.(*PageOrderInfoRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -300,8 +300,8 @@ var OrderInfoService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*OrderInfoServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "PageOrderInfos",
-			Handler:    _OrderInfoService_PageOrderInfos_Handler,
+			MethodName: "PageOrderInfo",
+			Handler:    _OrderInfoService_PageOrderInfo_Handler,
 		},
 		{
 			MethodName: "GetOrderInfo",

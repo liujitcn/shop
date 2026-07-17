@@ -4,8 +4,8 @@ import type {
   DeleteUserCollectRequest,
   GetIsCollectRequest,
   GetIsCollectResponse,
-  PageUserCollectsRequest,
-  PageUserCollectsResponse,
+  PageUserCollectRequest,
+  PageUserCollectResponse,
   UserCollectForm,
   UserCollectService,
 } from '@/rpc/app/v1/user_collect'
@@ -19,8 +19,8 @@ type CreateUserCollectRequestCompat = CreateUserCollectRequest | UserCollectForm
 /** 收藏服务 */
 export class UserCollectServiceImpl implements UserCollectService {
   /** 查询用户收藏列表 */
-  async PageUserCollects(request: PageUserCollectsRequest): Promise<PageUserCollectsResponse> {
-    const response = await http<Partial<PageUserCollectsResponse>>({
+  async PageUserCollect(request: PageUserCollectRequest): Promise<PageUserCollectResponse> {
+    const response = await http<Partial<PageUserCollectResponse>>({
       url: `${USER_COLLECT_URL}`,
       method: 'GET',
       authMode: 'required',

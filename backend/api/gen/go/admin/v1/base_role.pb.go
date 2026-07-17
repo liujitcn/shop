@@ -8,7 +8,6 @@ package adminv1
 
 import (
 	reflect "reflect"
-	v1 "shop/api/gen/go/common/v1"
 	sync "sync"
 	unsafe "unsafe"
 
@@ -17,6 +16,8 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+
+	v1 "shop/api/gen/go/common/v1"
 )
 
 const (
@@ -27,27 +28,27 @@ const (
 )
 
 // 角色选项查询条件
-type OptionBaseRolesRequest struct {
+type OptionBaseRoleRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	TenantId      *int64                 `protobuf:"varint,1,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"` // 租户ID
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *OptionBaseRolesRequest) Reset() {
-	*x = OptionBaseRolesRequest{}
+func (x *OptionBaseRoleRequest) Reset() {
+	*x = OptionBaseRoleRequest{}
 	mi := &file_admin_v1_base_role_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *OptionBaseRolesRequest) String() string {
+func (x *OptionBaseRoleRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*OptionBaseRolesRequest) ProtoMessage() {}
+func (*OptionBaseRoleRequest) ProtoMessage() {}
 
-func (x *OptionBaseRolesRequest) ProtoReflect() protoreflect.Message {
+func (x *OptionBaseRoleRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_base_role_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -59,12 +60,12 @@ func (x *OptionBaseRolesRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use OptionBaseRolesRequest.ProtoReflect.Descriptor instead.
-func (*OptionBaseRolesRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use OptionBaseRoleRequest.ProtoReflect.Descriptor instead.
+func (*OptionBaseRoleRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_base_role_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *OptionBaseRolesRequest) GetTenantId() int64 {
+func (x *OptionBaseRoleRequest) GetTenantId() int64 {
 	if x != nil && x.TenantId != nil {
 		return *x.TenantId
 	}
@@ -72,7 +73,7 @@ func (x *OptionBaseRolesRequest) GetTenantId() int64 {
 }
 
 // 角色分页查询条件
-type PageBaseRolesRequest struct {
+type PageBaseRoleRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`                                    // 角色名称
 	Code          string                 `protobuf:"bytes,3,opt,name=code,proto3" json:"code,omitempty"`                                    // 角色编号
@@ -84,20 +85,20 @@ type PageBaseRolesRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *PageBaseRolesRequest) Reset() {
-	*x = PageBaseRolesRequest{}
+func (x *PageBaseRoleRequest) Reset() {
+	*x = PageBaseRoleRequest{}
 	mi := &file_admin_v1_base_role_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PageBaseRolesRequest) String() string {
+func (x *PageBaseRoleRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PageBaseRolesRequest) ProtoMessage() {}
+func (*PageBaseRoleRequest) ProtoMessage() {}
 
-func (x *PageBaseRolesRequest) ProtoReflect() protoreflect.Message {
+func (x *PageBaseRoleRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_base_role_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -109,47 +110,47 @@ func (x *PageBaseRolesRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PageBaseRolesRequest.ProtoReflect.Descriptor instead.
-func (*PageBaseRolesRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use PageBaseRoleRequest.ProtoReflect.Descriptor instead.
+func (*PageBaseRoleRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_base_role_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *PageBaseRolesRequest) GetName() string {
+func (x *PageBaseRoleRequest) GetName() string {
 	if x != nil {
 		return x.Name
 	}
 	return ""
 }
 
-func (x *PageBaseRolesRequest) GetCode() string {
+func (x *PageBaseRoleRequest) GetCode() string {
 	if x != nil {
 		return x.Code
 	}
 	return ""
 }
 
-func (x *PageBaseRolesRequest) GetTenantId() int64 {
+func (x *PageBaseRoleRequest) GetTenantId() int64 {
 	if x != nil && x.TenantId != nil {
 		return *x.TenantId
 	}
 	return 0
 }
 
-func (x *PageBaseRolesRequest) GetStatus() v1.Status {
+func (x *PageBaseRoleRequest) GetStatus() v1.Status {
 	if x != nil && x.Status != nil {
 		return *x.Status
 	}
 	return v1.Status(0)
 }
 
-func (x *PageBaseRolesRequest) GetPageNum() int64 {
+func (x *PageBaseRoleRequest) GetPageNum() int64 {
 	if x != nil {
 		return x.PageNum
 	}
 	return 0
 }
 
-func (x *PageBaseRolesRequest) GetPageSize() int64 {
+func (x *PageBaseRoleRequest) GetPageSize() int64 {
 	if x != nil {
 		return x.PageSize
 	}
@@ -157,7 +158,7 @@ func (x *PageBaseRolesRequest) GetPageSize() int64 {
 }
 
 // 角色分页响应
-type PageBaseRolesResponse struct {
+type PageBaseRoleResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	BaseRoles     []*BaseRole            `protobuf:"bytes,1,rep,name=base_roles,json=baseRoles,proto3" json:"base_roles,omitempty"` // 分页数据
 	Total         int32                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`                         // 总数
@@ -165,20 +166,20 @@ type PageBaseRolesResponse struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *PageBaseRolesResponse) Reset() {
-	*x = PageBaseRolesResponse{}
+func (x *PageBaseRoleResponse) Reset() {
+	*x = PageBaseRoleResponse{}
 	mi := &file_admin_v1_base_role_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PageBaseRolesResponse) String() string {
+func (x *PageBaseRoleResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PageBaseRolesResponse) ProtoMessage() {}
+func (*PageBaseRoleResponse) ProtoMessage() {}
 
-func (x *PageBaseRolesResponse) ProtoReflect() protoreflect.Message {
+func (x *PageBaseRoleResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_base_role_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -190,19 +191,19 @@ func (x *PageBaseRolesResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PageBaseRolesResponse.ProtoReflect.Descriptor instead.
-func (*PageBaseRolesResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use PageBaseRoleResponse.ProtoReflect.Descriptor instead.
+func (*PageBaseRoleResponse) Descriptor() ([]byte, []int) {
 	return file_admin_v1_base_role_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *PageBaseRolesResponse) GetBaseRoles() []*BaseRole {
+func (x *PageBaseRoleResponse) GetBaseRoles() []*BaseRole {
 	if x != nil {
 		return x.BaseRoles
 	}
 	return nil
 }
 
-func (x *PageBaseRolesResponse) GetTotal() int32 {
+func (x *PageBaseRoleResponse) GetTotal() int32 {
 	if x != nil {
 		return x.Total
 	}
@@ -725,12 +726,12 @@ var File_admin_v1_base_role_proto protoreflect.FileDescriptor
 
 const file_admin_v1_base_role_proto_rawDesc = "" +
 	"\n" +
-	"\x18admin/v1/base_role.proto\x12\badmin.v1\x1a\x16common/v1/common.proto\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"X\n" +
-	"\x16OptionBaseRolesRequest\x120\n" +
+	"\x18admin/v1/base_role.proto\x12\badmin.v1\x1a\x16common/v1/common.proto\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"W\n" +
+	"\x15OptionBaseRoleRequest\x120\n" +
 	"\ttenant_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01B\f\n" +
 	"\n" +
-	"_tenant_id\"\xed\x02\n" +
-	"\x14PageBaseRolesRequest\x12&\n" +
+	"_tenant_id\"\xec\x02\n" +
+	"\x13PageBaseRoleRequest\x12&\n" +
 	"\x04name\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f角色名称R\x04name\x12&\n" +
 	"\x04code\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f角色编号R\x04code\x120\n" +
 	"\ttenant_id\x18\x04 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12<\n" +
@@ -739,8 +740,8 @@ const file_admin_v1_base_role_proto_rawDesc = "" +
 	"\tpage_size\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSizeB\f\n" +
 	"\n" +
 	"_tenant_idB\t\n" +
-	"\a_status\"\x82\x01\n" +
-	"\x15PageBaseRolesResponse\x12E\n" +
+	"\a_status\"\x81\x01\n" +
+	"\x14PageBaseRoleResponse\x12E\n" +
 	"\n" +
 	"base_roles\x18\x01 \x03(\v2\x12.admin.v1.BaseRoleB\x12\xbaG\x0f\x92\x02\f分页数据R\tbaseRoles\x12\"\n" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"4\n" +
@@ -784,10 +785,10 @@ const file_admin_v1_base_role_proto_rawDesc = "" +
 	"\a_status\"k\n" +
 	"\x16SetBaseRoleMenuRequest\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b角色IDR\x02id\x121\n" +
-	"\x05menus\x18\x02 \x03(\x03B\x1b\xbaG\x18\x92\x02\x15分配的菜单列表R\x05menus2\xd8\a\n" +
-	"\x0fBaseRoleService\x12|\n" +
-	"\x0fOptionBaseRoles\x12 .admin.v1.OptionBaseRolesRequest\x1a\x1f.common.v1.SelectOptionResponse\"&\x82\xd3\xe4\x93\x02 \x12\x1e/api/v1/admin/base/role/option\x12q\n" +
-	"\rPageBaseRoles\x12\x1e.admin.v1.PageBaseRolesRequest\x1a\x1f.admin.v1.PageBaseRolesResponse\"\x1f\x82\xd3\xe4\x93\x02\x19\x12\x17/api/v1/admin/base/role\x12i\n" +
+	"\x05menus\x18\x02 \x03(\x03B\x1b\xbaG\x18\x92\x02\x15分配的菜单列表R\x05menus2\xd3\a\n" +
+	"\x0fBaseRoleService\x12z\n" +
+	"\x0eOptionBaseRole\x12\x1f.admin.v1.OptionBaseRoleRequest\x1a\x1f.common.v1.SelectOptionResponse\"&\x82\xd3\xe4\x93\x02 \x12\x1e/api/v1/admin/base/role/option\x12n\n" +
+	"\fPageBaseRole\x12\x1d.admin.v1.PageBaseRoleRequest\x1a\x1e.admin.v1.PageBaseRoleResponse\"\x1f\x82\xd3\xe4\x93\x02\x19\x12\x17/api/v1/admin/base/role\x12i\n" +
 	"\vGetBaseRole\x12\x1c.admin.v1.GetBaseRoleRequest\x1a\x16.admin.v1.BaseRoleForm\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/api/v1/admin/base/role/{id}\x12u\n" +
 	"\x0eCreateBaseRole\x12\x1f.admin.v1.CreateBaseRoleRequest\x1a\x16.google.protobuf.Empty\"*\x82\xd3\xe4\x93\x02$:\tbase_role\"\x17/api/v1/admin/base/role\x12\x84\x01\n" +
 	"\x0eUpdateBaseRole\x12\x1f.admin.v1.UpdateBaseRoleRequest\x1a\x16.google.protobuf.Empty\"9\x82\xd3\xe4\x93\x023:\tbase_role\x1a&/api/v1/admin/base/role/{base_role.id}\x12o\n" +
@@ -810,9 +811,9 @@ func file_admin_v1_base_role_proto_rawDescGZIP() []byte {
 
 var file_admin_v1_base_role_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_admin_v1_base_role_proto_goTypes = []any{
-	(*OptionBaseRolesRequest)(nil),   // 0: admin.v1.OptionBaseRolesRequest
-	(*PageBaseRolesRequest)(nil),     // 1: admin.v1.PageBaseRolesRequest
-	(*PageBaseRolesResponse)(nil),    // 2: admin.v1.PageBaseRolesResponse
+	(*OptionBaseRoleRequest)(nil),    // 0: admin.v1.OptionBaseRoleRequest
+	(*PageBaseRoleRequest)(nil),      // 1: admin.v1.PageBaseRoleRequest
+	(*PageBaseRoleResponse)(nil),     // 2: admin.v1.PageBaseRoleResponse
 	(*GetBaseRoleRequest)(nil),       // 3: admin.v1.GetBaseRoleRequest
 	(*CreateBaseRoleRequest)(nil),    // 4: admin.v1.CreateBaseRoleRequest
 	(*UpdateBaseRoleRequest)(nil),    // 5: admin.v1.UpdateBaseRoleRequest
@@ -827,24 +828,24 @@ var file_admin_v1_base_role_proto_goTypes = []any{
 	(*emptypb.Empty)(nil),            // 14: google.protobuf.Empty
 }
 var file_admin_v1_base_role_proto_depIdxs = []int32{
-	11, // 0: admin.v1.PageBaseRolesRequest.status:type_name -> common.v1.Status
-	8,  // 1: admin.v1.PageBaseRolesResponse.base_roles:type_name -> admin.v1.BaseRole
+	11, // 0: admin.v1.PageBaseRoleRequest.status:type_name -> common.v1.Status
+	8,  // 1: admin.v1.PageBaseRoleResponse.base_roles:type_name -> admin.v1.BaseRole
 	9,  // 2: admin.v1.CreateBaseRoleRequest.base_role:type_name -> admin.v1.BaseRoleForm
 	9,  // 3: admin.v1.UpdateBaseRoleRequest.base_role:type_name -> admin.v1.BaseRoleForm
 	12, // 4: admin.v1.BaseRole.data_scope:type_name -> common.v1.BaseRoleDataScope
 	11, // 5: admin.v1.BaseRole.status:type_name -> common.v1.Status
 	12, // 6: admin.v1.BaseRoleForm.data_scope:type_name -> common.v1.BaseRoleDataScope
 	11, // 7: admin.v1.BaseRoleForm.status:type_name -> common.v1.Status
-	0,  // 8: admin.v1.BaseRoleService.OptionBaseRoles:input_type -> admin.v1.OptionBaseRolesRequest
-	1,  // 9: admin.v1.BaseRoleService.PageBaseRoles:input_type -> admin.v1.PageBaseRolesRequest
+	0,  // 8: admin.v1.BaseRoleService.OptionBaseRole:input_type -> admin.v1.OptionBaseRoleRequest
+	1,  // 9: admin.v1.BaseRoleService.PageBaseRole:input_type -> admin.v1.PageBaseRoleRequest
 	3,  // 10: admin.v1.BaseRoleService.GetBaseRole:input_type -> admin.v1.GetBaseRoleRequest
 	4,  // 11: admin.v1.BaseRoleService.CreateBaseRole:input_type -> admin.v1.CreateBaseRoleRequest
 	5,  // 12: admin.v1.BaseRoleService.UpdateBaseRole:input_type -> admin.v1.UpdateBaseRoleRequest
 	6,  // 13: admin.v1.BaseRoleService.DeleteBaseRole:input_type -> admin.v1.DeleteBaseRoleRequest
 	7,  // 14: admin.v1.BaseRoleService.SetBaseRoleStatus:input_type -> admin.v1.SetBaseRoleStatusRequest
 	10, // 15: admin.v1.BaseRoleService.SetBaseRoleMenu:input_type -> admin.v1.SetBaseRoleMenuRequest
-	13, // 16: admin.v1.BaseRoleService.OptionBaseRoles:output_type -> common.v1.SelectOptionResponse
-	2,  // 17: admin.v1.BaseRoleService.PageBaseRoles:output_type -> admin.v1.PageBaseRolesResponse
+	13, // 16: admin.v1.BaseRoleService.OptionBaseRole:output_type -> common.v1.SelectOptionResponse
+	2,  // 17: admin.v1.BaseRoleService.PageBaseRole:output_type -> admin.v1.PageBaseRoleResponse
 	9,  // 18: admin.v1.BaseRoleService.GetBaseRole:output_type -> admin.v1.BaseRoleForm
 	14, // 19: admin.v1.BaseRoleService.CreateBaseRole:output_type -> google.protobuf.Empty
 	14, // 20: admin.v1.BaseRoleService.UpdateBaseRole:output_type -> google.protobuf.Empty

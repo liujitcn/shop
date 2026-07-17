@@ -18,7 +18,7 @@ service CommentService {
   }
 
   // 查询商品评价标签列表
-  rpc GoodsCommentTags(GoodsCommentTagsRequest) returns (GoodsCommentTagsResponse) {
+  rpc GoodsCommentTag(GoodsCommentTagRequest) returns (GoodsCommentTagResponse) {
     option (google.api.http) = {
       get: "/api/v1/app/comment/goods/{goods_id}/tags"
     };
@@ -243,7 +243,7 @@ message GoodsCommentOverviewResponse {
 }
 
 // 商品评价标签查询条件
-message GoodsCommentTagsRequest {
+message GoodsCommentTagRequest {
   int64 goods_id = 1 [(gnostic.openapi.v3.property) = {description: "商品ID"}]; // 商品ID
 
   int32 limit = 2 [(gnostic.openapi.v3.property) = {
@@ -253,7 +253,7 @@ message GoodsCommentTagsRequest {
 }
 
 // 商品评价标签响应
-message GoodsCommentTagsResponse {
+message GoodsCommentTagResponse {
   repeated CommentTagItem comment_tags = 1 [(gnostic.openapi.v3.property) = {description: "评价标签列表"}]; // 评价标签列表
 }
 

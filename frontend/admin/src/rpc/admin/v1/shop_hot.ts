@@ -9,7 +9,7 @@ import type { Status } from "../../common/v1/enum";
 import type { Empty } from "../../google/protobuf/empty";
 
 /** 热门专区列表查询条件 */
-export interface PageShopHotsRequest {
+export interface PageShopHotRequest {
   /** 商城热门推荐标题 */
   title: string;
   /** 商城热门推荐描述 */
@@ -25,7 +25,7 @@ export interface PageShopHotsRequest {
 }
 
 /** 热门专区列表响应 */
-export interface PageShopHotsResponse {
+export interface PageShopHotResponse {
   /** 热门专区列表 */
   shop_hots: ShopHot[];
   /** 总数 */
@@ -67,7 +67,7 @@ export interface SetShopHotStatusRequest {
 }
 
 /** 热门专区项列表查询条件 */
-export interface PageShopHotItemsRequest {
+export interface PageShopHotItemRequest {
   /** 商城热门推荐id */
   hot_id: number;
   /** 商城热门推荐属性标题 */
@@ -83,7 +83,7 @@ export interface PageShopHotItemsRequest {
 }
 
 /** 热门专区项列表响应 */
-export interface PageShopHotItemsResponse {
+export interface PageShopHotItemResponse {
   /** 热门专区项列表 */
   shop_hot_items: ShopHotItem[];
   /** 总数 */
@@ -197,7 +197,7 @@ export interface ShopHotItemForm {
 /** Admin商城热门推荐服务 */
 export interface ShopHotService {
   /** 查询商城热门推荐列表 */
-  PageShopHots(request: PageShopHotsRequest): Promise<PageShopHotsResponse>;
+  PageShopHot(request: PageShopHotRequest): Promise<PageShopHotResponse>;
   /** 查询商城热门推荐 */
   GetShopHot(request: GetShopHotRequest): Promise<ShopHotForm>;
   /** 创建商城热门推荐 */
@@ -209,7 +209,7 @@ export interface ShopHotService {
   /** 设置状态 */
   SetShopHotStatus(request: SetShopHotStatusRequest): Promise<Empty>;
   /** 查询商城热门推荐属性列表 */
-  PageShopHotItems(request: PageShopHotItemsRequest): Promise<PageShopHotItemsResponse>;
+  PageShopHotItem(request: PageShopHotItemRequest): Promise<PageShopHotItemResponse>;
   /** 查询商城热门推荐属性 */
   GetShopHotItem(request: GetShopHotItemRequest): Promise<ShopHotItemForm>;
   /** 创建商城热门推荐属性 */

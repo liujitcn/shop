@@ -21,7 +21,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	UserCollectService_PageUserCollects_FullMethodName  = "/app.v1.UserCollectService/PageUserCollects"
+	UserCollectService_PageUserCollect_FullMethodName   = "/app.v1.UserCollectService/PageUserCollect"
 	UserCollectService_GetIsCollect_FullMethodName      = "/app.v1.UserCollectService/GetIsCollect"
 	UserCollectService_CreateUserCollect_FullMethodName = "/app.v1.UserCollectService/CreateUserCollect"
 	UserCollectService_DeleteUserCollect_FullMethodName = "/app.v1.UserCollectService/DeleteUserCollect"
@@ -34,7 +34,7 @@ const (
 // App用户收藏管理服务
 type UserCollectServiceClient interface {
 	// 查询用户收藏列表
-	PageUserCollects(ctx context.Context, in *PageUserCollectsRequest, opts ...grpc.CallOption) (*PageUserCollectsResponse, error)
+	PageUserCollect(ctx context.Context, in *PageUserCollectRequest, opts ...grpc.CallOption) (*PageUserCollectResponse, error)
 	// 查询用户是否收藏
 	GetIsCollect(ctx context.Context, in *GetIsCollectRequest, opts ...grpc.CallOption) (*GetIsCollectResponse, error)
 	// 创建用户收藏
@@ -51,10 +51,10 @@ func NewUserCollectServiceClient(cc grpc.ClientConnInterface) UserCollectService
 	return &userCollectServiceClient{cc}
 }
 
-func (c *userCollectServiceClient) PageUserCollects(ctx context.Context, in *PageUserCollectsRequest, opts ...grpc.CallOption) (*PageUserCollectsResponse, error) {
+func (c *userCollectServiceClient) PageUserCollect(ctx context.Context, in *PageUserCollectRequest, opts ...grpc.CallOption) (*PageUserCollectResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(PageUserCollectsResponse)
-	err := c.cc.Invoke(ctx, UserCollectService_PageUserCollects_FullMethodName, in, out, cOpts...)
+	out := new(PageUserCollectResponse)
+	err := c.cc.Invoke(ctx, UserCollectService_PageUserCollect_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -98,7 +98,7 @@ func (c *userCollectServiceClient) DeleteUserCollect(ctx context.Context, in *De
 // App用户收藏管理服务
 type UserCollectServiceServer interface {
 	// 查询用户收藏列表
-	PageUserCollects(context.Context, *PageUserCollectsRequest) (*PageUserCollectsResponse, error)
+	PageUserCollect(context.Context, *PageUserCollectRequest) (*PageUserCollectResponse, error)
 	// 查询用户是否收藏
 	GetIsCollect(context.Context, *GetIsCollectRequest) (*GetIsCollectResponse, error)
 	// 创建用户收藏
@@ -115,8 +115,8 @@ type UserCollectServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedUserCollectServiceServer struct{}
 
-func (UnimplementedUserCollectServiceServer) PageUserCollects(context.Context, *PageUserCollectsRequest) (*PageUserCollectsResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method PageUserCollects not implemented")
+func (UnimplementedUserCollectServiceServer) PageUserCollect(context.Context, *PageUserCollectRequest) (*PageUserCollectResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method PageUserCollect not implemented")
 }
 func (UnimplementedUserCollectServiceServer) GetIsCollect(context.Context, *GetIsCollectRequest) (*GetIsCollectResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetIsCollect not implemented")
@@ -148,20 +148,20 @@ func RegisterUserCollectServiceServer(s grpc.ServiceRegistrar, srv UserCollectSe
 	s.RegisterService(&UserCollectService_ServiceDesc, srv)
 }
 
-func _UserCollectService_PageUserCollects_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PageUserCollectsRequest)
+func _UserCollectService_PageUserCollect_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PageUserCollectRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserCollectServiceServer).PageUserCollects(ctx, in)
+		return srv.(UserCollectServiceServer).PageUserCollect(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: UserCollectService_PageUserCollects_FullMethodName,
+		FullMethod: UserCollectService_PageUserCollect_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserCollectServiceServer).PageUserCollects(ctx, req.(*PageUserCollectsRequest))
+		return srv.(UserCollectServiceServer).PageUserCollect(ctx, req.(*PageUserCollectRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -228,8 +228,8 @@ var UserCollectService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*UserCollectServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "PageUserCollects",
-			Handler:    _UserCollectService_PageUserCollects_Handler,
+			MethodName: "PageUserCollect",
+			Handler:    _UserCollectService_PageUserCollect_Handler,
 		},
 		{
 			MethodName: "GetIsCollect",

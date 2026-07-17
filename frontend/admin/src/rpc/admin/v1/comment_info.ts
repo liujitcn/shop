@@ -16,7 +16,7 @@ import type {
 import type { Empty } from "../../google/protobuf/empty";
 
 /** 评论分页查询条件 */
-export interface PageCommentInfosRequest {
+export interface PageCommentInfoRequest {
   /** 租户ID */
   tenant_id?:
     | number
@@ -64,7 +64,7 @@ export interface PageCommentInfosRequest {
 }
 
 /** 评论分页响应 */
-export interface PageCommentInfosResponse {
+export interface PageCommentInfoResponse {
   /** 分页数据 */
   comment_infos: CommentInfo[];
   /** 总数 */
@@ -104,7 +104,7 @@ export interface SetCommentDiscussionStatusRequest {
 }
 
 /** 评论审核记录查询条件 */
-export interface ListCommentReviewsRequest {
+export interface ListCommentReviewRequest {
   /** 审核目标类型：枚举【CommentReviewTargetType】 */
   target_type: CommentReviewTargetType;
   /** 审核目标ID */
@@ -112,7 +112,7 @@ export interface ListCommentReviewsRequest {
 }
 
 /** 评论审核记录列表响应 */
-export interface ListCommentReviewsResponse {
+export interface ListCommentReviewResponse {
   /** 审核记录列表 */
   comment_reviews: CommentReview[];
 }
@@ -218,7 +218,7 @@ export interface CommentTag {
 }
 
 /** 评论讨论分页查询条件 */
-export interface PageCommentDiscussionsRequest {
+export interface PageCommentDiscussionRequest {
   /** 所属评价ID */
   comment_id: number;
   /** 讨论用户昵称 */
@@ -240,7 +240,7 @@ export interface PageCommentDiscussionsRequest {
 }
 
 /** 评论讨论分页响应 */
-export interface PageCommentDiscussionsResponse {
+export interface PageCommentDiscussionResponse {
   /** 分页数据 */
   comment_discussions: CommentDiscussion[];
   /** 总数 */
@@ -332,17 +332,17 @@ export interface CommentReview {
 /** Admin评论管理服务 */
 export interface CommentInfoService {
   /** 查询评论分页列表 */
-  PageCommentInfos(request: PageCommentInfosRequest): Promise<PageCommentInfosResponse>;
+  PageCommentInfo(request: PageCommentInfoRequest): Promise<PageCommentInfoResponse>;
   /** 按商品查询评论聚合信息 */
   GetGoodsCommentInfo(request: GetGoodsCommentInfoRequest): Promise<GoodsCommentInfoResponse>;
   /** 查询评论审核记录列表 */
-  ListCommentReviews(request: ListCommentReviewsRequest): Promise<ListCommentReviewsResponse>;
+  ListCommentReview(request: ListCommentReviewRequest): Promise<ListCommentReviewResponse>;
   /** 查询评论详情 */
   GetCommentInfo(request: GetCommentInfoRequest): Promise<CommentInfoDetail>;
   /** 设置评论审核状态 */
   SetCommentInfoStatus(request: SetCommentInfoStatusRequest): Promise<Empty>;
   /** 查询评论讨论分页列表 */
-  PageCommentDiscussions(request: PageCommentDiscussionsRequest): Promise<PageCommentDiscussionsResponse>;
+  PageCommentDiscussion(request: PageCommentDiscussionRequest): Promise<PageCommentDiscussionResponse>;
   /** 设置评论讨论审核状态 */
   SetCommentDiscussionStatus(request: SetCommentDiscussionStatusRequest): Promise<Empty>;
 }

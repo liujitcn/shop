@@ -8,12 +8,13 @@ package adminv1
 
 import (
 	context "context"
-	v1 "shop/api/gen/go/common/v1"
 
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+
+	v1 "shop/api/gen/go/common/v1"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -22,8 +23,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	BaseMenuService_TreeBaseMenus_FullMethodName     = "/admin.v1.BaseMenuService/TreeBaseMenus"
-	BaseMenuService_OptionBaseMenus_FullMethodName   = "/admin.v1.BaseMenuService/OptionBaseMenus"
+	BaseMenuService_TreeBaseMenu_FullMethodName      = "/admin.v1.BaseMenuService/TreeBaseMenu"
+	BaseMenuService_OptionBaseMenu_FullMethodName    = "/admin.v1.BaseMenuService/OptionBaseMenu"
 	BaseMenuService_GetBaseMenu_FullMethodName       = "/admin.v1.BaseMenuService/GetBaseMenu"
 	BaseMenuService_CreateBaseMenu_FullMethodName    = "/admin.v1.BaseMenuService/CreateBaseMenu"
 	BaseMenuService_UpdateBaseMenu_FullMethodName    = "/admin.v1.BaseMenuService/UpdateBaseMenu"
@@ -38,9 +39,9 @@ const (
 // Admin菜单管理服务
 type BaseMenuServiceClient interface {
 	// 查询菜单树形列表
-	TreeBaseMenus(ctx context.Context, in *TreeBaseMenusRequest, opts ...grpc.CallOption) (*TreeBaseMenusResponse, error)
+	TreeBaseMenu(ctx context.Context, in *TreeBaseMenuRequest, opts ...grpc.CallOption) (*TreeBaseMenuResponse, error)
 	// 查询菜单树形选择
-	OptionBaseMenus(ctx context.Context, in *OptionBaseMenusRequest, opts ...grpc.CallOption) (*v1.TreeOptionResponse, error)
+	OptionBaseMenu(ctx context.Context, in *OptionBaseMenuRequest, opts ...grpc.CallOption) (*v1.TreeOptionResponse, error)
 	// 查询菜单
 	GetBaseMenu(ctx context.Context, in *GetBaseMenuRequest, opts ...grpc.CallOption) (*BaseMenuForm, error)
 	// 创建菜单
@@ -61,20 +62,20 @@ func NewBaseMenuServiceClient(cc grpc.ClientConnInterface) BaseMenuServiceClient
 	return &baseMenuServiceClient{cc}
 }
 
-func (c *baseMenuServiceClient) TreeBaseMenus(ctx context.Context, in *TreeBaseMenusRequest, opts ...grpc.CallOption) (*TreeBaseMenusResponse, error) {
+func (c *baseMenuServiceClient) TreeBaseMenu(ctx context.Context, in *TreeBaseMenuRequest, opts ...grpc.CallOption) (*TreeBaseMenuResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(TreeBaseMenusResponse)
-	err := c.cc.Invoke(ctx, BaseMenuService_TreeBaseMenus_FullMethodName, in, out, cOpts...)
+	out := new(TreeBaseMenuResponse)
+	err := c.cc.Invoke(ctx, BaseMenuService_TreeBaseMenu_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *baseMenuServiceClient) OptionBaseMenus(ctx context.Context, in *OptionBaseMenusRequest, opts ...grpc.CallOption) (*v1.TreeOptionResponse, error) {
+func (c *baseMenuServiceClient) OptionBaseMenu(ctx context.Context, in *OptionBaseMenuRequest, opts ...grpc.CallOption) (*v1.TreeOptionResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(v1.TreeOptionResponse)
-	err := c.cc.Invoke(ctx, BaseMenuService_OptionBaseMenus_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, BaseMenuService_OptionBaseMenu_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -138,9 +139,9 @@ func (c *baseMenuServiceClient) SetBaseMenuStatus(ctx context.Context, in *SetBa
 // Admin菜单管理服务
 type BaseMenuServiceServer interface {
 	// 查询菜单树形列表
-	TreeBaseMenus(context.Context, *TreeBaseMenusRequest) (*TreeBaseMenusResponse, error)
+	TreeBaseMenu(context.Context, *TreeBaseMenuRequest) (*TreeBaseMenuResponse, error)
 	// 查询菜单树形选择
-	OptionBaseMenus(context.Context, *OptionBaseMenusRequest) (*v1.TreeOptionResponse, error)
+	OptionBaseMenu(context.Context, *OptionBaseMenuRequest) (*v1.TreeOptionResponse, error)
 	// 查询菜单
 	GetBaseMenu(context.Context, *GetBaseMenuRequest) (*BaseMenuForm, error)
 	// 创建菜单
@@ -161,11 +162,11 @@ type BaseMenuServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedBaseMenuServiceServer struct{}
 
-func (UnimplementedBaseMenuServiceServer) TreeBaseMenus(context.Context, *TreeBaseMenusRequest) (*TreeBaseMenusResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method TreeBaseMenus not implemented")
+func (UnimplementedBaseMenuServiceServer) TreeBaseMenu(context.Context, *TreeBaseMenuRequest) (*TreeBaseMenuResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method TreeBaseMenu not implemented")
 }
-func (UnimplementedBaseMenuServiceServer) OptionBaseMenus(context.Context, *OptionBaseMenusRequest) (*v1.TreeOptionResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method OptionBaseMenus not implemented")
+func (UnimplementedBaseMenuServiceServer) OptionBaseMenu(context.Context, *OptionBaseMenuRequest) (*v1.TreeOptionResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method OptionBaseMenu not implemented")
 }
 func (UnimplementedBaseMenuServiceServer) GetBaseMenu(context.Context, *GetBaseMenuRequest) (*BaseMenuForm, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetBaseMenu not implemented")
@@ -203,38 +204,38 @@ func RegisterBaseMenuServiceServer(s grpc.ServiceRegistrar, srv BaseMenuServiceS
 	s.RegisterService(&BaseMenuService_ServiceDesc, srv)
 }
 
-func _BaseMenuService_TreeBaseMenus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(TreeBaseMenusRequest)
+func _BaseMenuService_TreeBaseMenu_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TreeBaseMenuRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BaseMenuServiceServer).TreeBaseMenus(ctx, in)
+		return srv.(BaseMenuServiceServer).TreeBaseMenu(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: BaseMenuService_TreeBaseMenus_FullMethodName,
+		FullMethod: BaseMenuService_TreeBaseMenu_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BaseMenuServiceServer).TreeBaseMenus(ctx, req.(*TreeBaseMenusRequest))
+		return srv.(BaseMenuServiceServer).TreeBaseMenu(ctx, req.(*TreeBaseMenuRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _BaseMenuService_OptionBaseMenus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(OptionBaseMenusRequest)
+func _BaseMenuService_OptionBaseMenu_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OptionBaseMenuRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BaseMenuServiceServer).OptionBaseMenus(ctx, in)
+		return srv.(BaseMenuServiceServer).OptionBaseMenu(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: BaseMenuService_OptionBaseMenus_FullMethodName,
+		FullMethod: BaseMenuService_OptionBaseMenu_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BaseMenuServiceServer).OptionBaseMenus(ctx, req.(*OptionBaseMenusRequest))
+		return srv.(BaseMenuServiceServer).OptionBaseMenu(ctx, req.(*OptionBaseMenuRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -337,12 +338,12 @@ var BaseMenuService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*BaseMenuServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "TreeBaseMenus",
-			Handler:    _BaseMenuService_TreeBaseMenus_Handler,
+			MethodName: "TreeBaseMenu",
+			Handler:    _BaseMenuService_TreeBaseMenu_Handler,
 		},
 		{
-			MethodName: "OptionBaseMenus",
-			Handler:    _BaseMenuService_OptionBaseMenus_Handler,
+			MethodName: "OptionBaseMenu",
+			Handler:    _BaseMenuService_OptionBaseMenu_Handler,
 		},
 		{
 			MethodName: "GetBaseMenu",

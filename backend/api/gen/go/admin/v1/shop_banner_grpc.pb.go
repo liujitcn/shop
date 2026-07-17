@@ -21,7 +21,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ShopBannerService_PageShopBanners_FullMethodName     = "/admin.v1.ShopBannerService/PageShopBanners"
+	ShopBannerService_PageShopBanner_FullMethodName      = "/admin.v1.ShopBannerService/PageShopBanner"
 	ShopBannerService_GetShopBanner_FullMethodName       = "/admin.v1.ShopBannerService/GetShopBanner"
 	ShopBannerService_CreateShopBanner_FullMethodName    = "/admin.v1.ShopBannerService/CreateShopBanner"
 	ShopBannerService_UpdateShopBanner_FullMethodName    = "/admin.v1.ShopBannerService/UpdateShopBanner"
@@ -36,7 +36,7 @@ const (
 // Admin商城轮播图服务
 type ShopBannerServiceClient interface {
 	// 查询商城轮播图列表
-	PageShopBanners(ctx context.Context, in *PageShopBannersRequest, opts ...grpc.CallOption) (*PageShopBannersResponse, error)
+	PageShopBanner(ctx context.Context, in *PageShopBannerRequest, opts ...grpc.CallOption) (*PageShopBannerResponse, error)
 	// 查询商城轮播图
 	GetShopBanner(ctx context.Context, in *GetShopBannerRequest, opts ...grpc.CallOption) (*ShopBannerForm, error)
 	// 创建商城轮播图
@@ -57,10 +57,10 @@ func NewShopBannerServiceClient(cc grpc.ClientConnInterface) ShopBannerServiceCl
 	return &shopBannerServiceClient{cc}
 }
 
-func (c *shopBannerServiceClient) PageShopBanners(ctx context.Context, in *PageShopBannersRequest, opts ...grpc.CallOption) (*PageShopBannersResponse, error) {
+func (c *shopBannerServiceClient) PageShopBanner(ctx context.Context, in *PageShopBannerRequest, opts ...grpc.CallOption) (*PageShopBannerResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(PageShopBannersResponse)
-	err := c.cc.Invoke(ctx, ShopBannerService_PageShopBanners_FullMethodName, in, out, cOpts...)
+	out := new(PageShopBannerResponse)
+	err := c.cc.Invoke(ctx, ShopBannerService_PageShopBanner_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -124,7 +124,7 @@ func (c *shopBannerServiceClient) SetShopBannerStatus(ctx context.Context, in *S
 // Admin商城轮播图服务
 type ShopBannerServiceServer interface {
 	// 查询商城轮播图列表
-	PageShopBanners(context.Context, *PageShopBannersRequest) (*PageShopBannersResponse, error)
+	PageShopBanner(context.Context, *PageShopBannerRequest) (*PageShopBannerResponse, error)
 	// 查询商城轮播图
 	GetShopBanner(context.Context, *GetShopBannerRequest) (*ShopBannerForm, error)
 	// 创建商城轮播图
@@ -145,8 +145,8 @@ type ShopBannerServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedShopBannerServiceServer struct{}
 
-func (UnimplementedShopBannerServiceServer) PageShopBanners(context.Context, *PageShopBannersRequest) (*PageShopBannersResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method PageShopBanners not implemented")
+func (UnimplementedShopBannerServiceServer) PageShopBanner(context.Context, *PageShopBannerRequest) (*PageShopBannerResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method PageShopBanner not implemented")
 }
 func (UnimplementedShopBannerServiceServer) GetShopBanner(context.Context, *GetShopBannerRequest) (*ShopBannerForm, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetShopBanner not implemented")
@@ -184,20 +184,20 @@ func RegisterShopBannerServiceServer(s grpc.ServiceRegistrar, srv ShopBannerServ
 	s.RegisterService(&ShopBannerService_ServiceDesc, srv)
 }
 
-func _ShopBannerService_PageShopBanners_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PageShopBannersRequest)
+func _ShopBannerService_PageShopBanner_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PageShopBannerRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ShopBannerServiceServer).PageShopBanners(ctx, in)
+		return srv.(ShopBannerServiceServer).PageShopBanner(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ShopBannerService_PageShopBanners_FullMethodName,
+		FullMethod: ShopBannerService_PageShopBanner_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ShopBannerServiceServer).PageShopBanners(ctx, req.(*PageShopBannersRequest))
+		return srv.(ShopBannerServiceServer).PageShopBanner(ctx, req.(*PageShopBannerRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -300,8 +300,8 @@ var ShopBannerService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*ShopBannerServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "PageShopBanners",
-			Handler:    _ShopBannerService_PageShopBanners_Handler,
+			MethodName: "PageShopBanner",
+			Handler:    _ShopBannerService_PageShopBanner_Handler,
 		},
 		{
 			MethodName: "GetShopBanner",

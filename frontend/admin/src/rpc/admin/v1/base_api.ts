@@ -8,7 +8,7 @@
 import type { Empty } from "../../google/protobuf/empty";
 
 /** API分页查询条件 */
-export interface PageBaseApisRequest {
+export interface PageBaseApiRequest {
   /** 服务名 */
   service_name?:
     | string
@@ -56,7 +56,7 @@ export interface PageBaseApisRequest {
 }
 
 /** API分页查询响应 */
-export interface PageBaseApisResponse {
+export interface PageBaseApiResponse {
   /** API列表 */
   base_apis: BaseApi[];
   /** 总数 */
@@ -104,11 +104,11 @@ export interface UpdateBaseApiRequest {
 }
 
 /** API列表查询条件 */
-export interface ListBaseApisRequest {
+export interface ListBaseApiRequest {
 }
 
 /** API列表响应 */
-export interface ListBaseApisResponse {
+export interface ListBaseApiResponse {
   /** API列表 */
   base_apis: BaseApi[];
 }
@@ -194,9 +194,9 @@ export interface BaseApiDocResponse {
 /** AdminAPI服务 */
 export interface BaseApiService {
   /** 分页查询API列表 */
-  PageBaseApis(request: PageBaseApisRequest): Promise<PageBaseApisResponse>;
+  PageBaseApi(request: PageBaseApiRequest): Promise<PageBaseApiResponse>;
   /** 查询菜单分配API选项列表 */
-  ListBaseApis(request: ListBaseApisRequest): Promise<ListBaseApisResponse>;
+  ListBaseApi(request: ListBaseApiRequest): Promise<ListBaseApiResponse>;
   /** 查询API详情 */
   GetBaseApi(request: GetBaseApiRequest): Promise<BaseApi>;
   /** 查询API文档 */

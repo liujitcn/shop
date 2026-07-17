@@ -17,25 +17,25 @@ import (
 func NewGoodsCategoryServiceAgentTools(goodsCategoryServiceServer GoodsCategoryServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error
-	var listGoodsCategoriesTool tool.InvokableTool
-	listGoodsCategoriesTool, err = NewGoodsCategoryServiceListGoodsCategoriesAgentTool(goodsCategoryServiceServer)
+	var listGoodsCategoryTool tool.InvokableTool
+	listGoodsCategoryTool, err = NewGoodsCategoryServiceListGoodsCategoryAgentTool(goodsCategoryServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, listGoodsCategoriesTool)
+	ts = append(ts, listGoodsCategoryTool)
 	return ts, nil
 }
 
-// NewGoodsCategoryServiceListGoodsCategoriesAgentTool 创建查询商品分类列表的 Agent Tool。
-func NewGoodsCategoryServiceListGoodsCategoriesAgentTool(goodsCategoryServiceServer GoodsCategoryServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*ListGoodsCategoriesRequest, *ListGoodsCategoriesResponse](
-		"app_v1_goods_category_service_list_goods_categories",
+// NewGoodsCategoryServiceListGoodsCategoryAgentTool 创建查询商品分类列表的 Agent Tool。
+func NewGoodsCategoryServiceListGoodsCategoryAgentTool(goodsCategoryServiceServer GoodsCategoryServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*ListGoodsCategoryRequest, *ListGoodsCategoryResponse](
+		"app_v1_goods_category_service_list_goods_category",
 		"查询商品分类列表",
-		func(ctx context.Context, req *ListGoodsCategoriesRequest) (*ListGoodsCategoriesResponse, error) {
+		func(ctx context.Context, req *ListGoodsCategoryRequest) (*ListGoodsCategoryResponse, error) {
 			if req == nil {
-				req = &ListGoodsCategoriesRequest{}
+				req = &ListGoodsCategoryRequest{}
 			}
-			return goodsCategoryServiceServer.ListGoodsCategories(ctx, req)
+			return goodsCategoryServiceServer.ListGoodsCategory(ctx, req)
 		},
 	)
 }

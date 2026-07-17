@@ -12,19 +12,19 @@ import type { GoodsSku } from "./goods_sku";
 import type { GoodsSpec } from "./goods_spec";
 
 /** 商品选项查询条件 */
-export interface OptionGoodsInfosRequest {
+export interface OptionGoodsInfoRequest {
   /** 商品名称 */
   name: string;
 }
 
 /** 商品选项响应 */
-export interface OptionGoodsInfosResponse {
+export interface OptionGoodsInfoResponse {
   /** 商品选项列表 */
-  goods_infos: OptionGoodsInfosResponse_GoodsInfo[];
+  goods_infos: OptionGoodsInfoResponse_GoodsInfo[];
 }
 
 /** 商品选项 */
-export interface OptionGoodsInfosResponse_GoodsInfo {
+export interface OptionGoodsInfoResponse_GoodsInfo {
   /** 商品ID */
   id: number;
   /** 名称 */
@@ -36,7 +36,7 @@ export interface OptionGoodsInfosResponse_GoodsInfo {
 }
 
 /** 商品列表查询条件 */
-export interface PageGoodsInfosRequest {
+export interface PageGoodsInfoRequest {
   /** 租户ID */
   tenant_id?:
     | number
@@ -70,7 +70,7 @@ export interface PageGoodsInfosRequest {
 }
 
 /** 商品列表响应 */
-export interface PageGoodsInfosResponse {
+export interface PageGoodsInfoResponse {
   /** 商品列表 */
   goods_infos: GoodsInfo[];
   /** 总数 */
@@ -184,9 +184,9 @@ export interface GoodsInfoForm {
 /** Admin商品信息服务 */
 export interface GoodsInfoService {
   /** 查询商品信息下拉选择 */
-  OptionGoodsInfos(request: OptionGoodsInfosRequest): Promise<OptionGoodsInfosResponse>;
+  OptionGoodsInfo(request: OptionGoodsInfoRequest): Promise<OptionGoodsInfoResponse>;
   /** 查询商品信息列表 */
-  PageGoodsInfos(request: PageGoodsInfosRequest): Promise<PageGoodsInfosResponse>;
+  PageGoodsInfo(request: PageGoodsInfoRequest): Promise<PageGoodsInfoResponse>;
   /** 查询商品信息 */
   GetGoodsInfo(request: GetGoodsInfoRequest): Promise<GoodsInfoForm>;
   /** 创建商品信息 */

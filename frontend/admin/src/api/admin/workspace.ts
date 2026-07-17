@@ -1,7 +1,7 @@
 import service from "@/utils/request";
 import type {
-  ListWorkspacePendingCommentsRequest,
-  ListWorkspacePendingCommentsResponse,
+  ListWorkspacePendingCommentRequest,
+  ListWorkspacePendingCommentResponse,
   SummaryWorkspaceMetricsRequest,
   SummaryWorkspaceMetricsResponse,
   SummaryWorkspaceRiskRequest,
@@ -54,8 +54,8 @@ export class WorkspaceServiceImpl implements WorkspaceService {
   }
 
   /** 查询工作台待审核评价 */
-  ListWorkspacePendingComments(request: ListWorkspacePendingCommentsRequest): Promise<ListWorkspacePendingCommentsResponse> {
-    return service<ListWorkspacePendingCommentsRequest, ListWorkspacePendingCommentsResponse>({
+  ListWorkspacePendingComment(request: ListWorkspacePendingCommentRequest): Promise<ListWorkspacePendingCommentResponse> {
+    return service<ListWorkspacePendingCommentRequest, ListWorkspacePendingCommentResponse>({
       url: `${ADMIN_WORKSPACE}/comment/pending`,
       method: "get",
       params: request

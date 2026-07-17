@@ -36,11 +36,11 @@ func NewUserStoreService(
 	}
 }
 
-// PageUserStores 查询用户门店列表
-func (s *UserStoreService) PageUserStores(ctx context.Context, req *adminv1.PageUserStoresRequest) (*adminv1.PageUserStoresResponse, error) {
-	page, err := s.userStoreCase.PageUserStores(ctx, req)
+// PageUserStore 查询用户门店列表
+func (s *UserStoreService) PageUserStore(ctx context.Context, req *adminv1.PageUserStoreRequest) (*adminv1.PageUserStoreResponse, error) {
+	page, err := s.userStoreCase.PageUserStore(ctx, req)
 	if err != nil {
-		log.Error(fmt.Sprintf("PageUserStores %v", err))
+		log.Error(fmt.Sprintf("PageUserStore %v", err))
 		return nil, errorsx.WrapInternal(err, "查询用户门店列表失败")
 	}
 

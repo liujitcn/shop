@@ -1,6 +1,6 @@
 import type { EnumProps } from "@/components/ProTable/interface";
 import { defBaseTenantService } from "@/api/admin/base_tenant";
-import type { OptionTenantStoresResponse_Option, TreeTenantStoresResponse_Option } from "@/rpc/admin/v1/tenant_store";
+import type { OptionTenantStoreResponse_Option, TreeTenantStoreResponse_Option } from "@/rpc/admin/v1/tenant_store";
 
 /** 默认租户编码。 */
 export const DEFAULT_TENANT_CODE = "0000";
@@ -23,12 +23,12 @@ export type TenantStoreDisplayInfo = {
 
 /** 读取租户列表筛选选项。 */
 export async function requestTenantOptions() {
-  const response = await defBaseTenantService.OptionBaseTenants({ keyword: "" });
+  const response = await defBaseTenantService.OptionBaseTenant({ keyword: "" });
   return { data: response.list ?? [] };
 }
 
 /** 递归转换租户门店树筛选选项，适配 ProTable 搜索枚举结构。 */
-export function transformTenantStoreTreeOptions(options: TreeTenantStoresResponse_Option[] = []): EnumProps[] {
+export function transformTenantStoreTreeOptions(options: TreeTenantStoreResponse_Option[] = []): EnumProps[] {
   return options.map(option => ({
     label: option.label,
     value: option.value,
@@ -37,7 +37,7 @@ export function transformTenantStoreTreeOptions(options: TreeTenantStoresRespons
 }
 
 /** 从租户门店树构建门店展示映射，列表可按门店编号反查租户和门店名称。 */
-export function buildTenantStoreDisplayMap(options: TreeTenantStoresResponse_Option[] = []) {
+export function buildTenantStoreDisplayMap(options: TreeTenantStoreResponse_Option[] = []) {
   const displayMap = new Map<number, TenantStoreDisplayInfo>();
   options.forEach(option => {
     if (option.type === "store") {
@@ -61,7 +61,7 @@ export function buildTenantStoreDisplayMap(options: TreeTenantStoresResponse_Opt
 }
 
 /** 从门店下拉选项构建门店展示映射。 */
-export function buildTenantStoreDisplayMapFromOptions(options: OptionTenantStoresResponse_Option[] = []) {
+export function buildTenantStoreDisplayMapFromOptions(options: OptionTenantStoreResponse_Option[] = []) {
   const displayMap = new Map<number, TenantStoreDisplayInfo>();
   options.forEach(option => {
     displayMap.set(option.value, {

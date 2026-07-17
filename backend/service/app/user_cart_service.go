@@ -49,11 +49,11 @@ func (s *UserCartService) CountUserCart(ctx context.Context, req *appv1.CountUse
 	}, nil
 }
 
-// ListUserCarts 查询用户购物车列表
-func (s *UserCartService) ListUserCarts(ctx context.Context, req *appv1.ListUserCartsRequest) (*appv1.ListUserCartsResponse, error) {
-	res, err := s.userCartCase.ListUserCarts(ctx)
+// ListUserCart 查询用户购物车列表
+func (s *UserCartService) ListUserCart(ctx context.Context, req *appv1.ListUserCartRequest) (*appv1.ListUserCartResponse, error) {
+	res, err := s.userCartCase.ListUserCart(ctx)
 	if err != nil {
-		log.Error(fmt.Sprintf("ListUserCarts %v", err))
+		log.Error(fmt.Sprintf("ListUserCart %v", err))
 		return nil, errorsx.WrapInternal(err, "查询用户购物车列表失败")
 	}
 	return res, nil

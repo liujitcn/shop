@@ -29,11 +29,11 @@ func NewOauthService(oauthCase *biz.OauthCase) *OauthService {
 	}
 }
 
-// ListOauthProviders 查询三方登录方式。
-func (s *OauthService) ListOauthProviders(ctx context.Context, req *basev1.ListOauthProvidersRequest) (*basev1.ListOauthProvidersResponse, error) {
-	res, err := s.oauthCase.ListOauthProviders(ctx, req)
+// ListOauthProvider 查询三方登录方式。
+func (s *OauthService) ListOauthProvider(ctx context.Context, req *basev1.ListOauthProviderRequest) (*basev1.ListOauthProviderResponse, error) {
+	res, err := s.oauthCase.ListOauthProvider(ctx, req)
 	if err != nil {
-		log.Error(fmt.Sprintf("ListOauthProviders %v", err))
+		log.Error(fmt.Sprintf("ListOauthProvider %v", err))
 		return nil, errorsx.WrapInternal(err, "查询三方登录方式失败")
 	}
 	return res, nil
@@ -82,11 +82,11 @@ func (s *OauthService) CreateOauthSession(ctx context.Context, req *basev1.Creat
 	return res, nil
 }
 
-// ListOauthBindings 查询个人中心三方账号绑定列表。
-func (s *OauthService) ListOauthBindings(ctx context.Context, req *basev1.ListOauthBindingsRequest) (*basev1.ListOauthBindingsResponse, error) {
-	res, err := s.oauthCase.ListOauthBindings(ctx, req)
+// ListOauthBinding 查询个人中心三方账号绑定列表。
+func (s *OauthService) ListOauthBinding(ctx context.Context, req *basev1.ListOauthBindingRequest) (*basev1.ListOauthBindingResponse, error) {
+	res, err := s.oauthCase.ListOauthBinding(ctx, req)
 	if err != nil {
-		log.Error(fmt.Sprintf("ListOauthBindings %v", err))
+		log.Error(fmt.Sprintf("ListOauthBinding %v", err))
 		return nil, errorsx.WrapInternal(err, "查询三方账号绑定失败")
 	}
 	return res, nil

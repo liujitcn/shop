@@ -8,7 +8,7 @@
 import type { Empty } from "../../google/protobuf/empty";
 
 /** 三方登录方式查询条件 */
-export interface ListOauthProvidersRequest {
+export interface ListOauthProviderRequest {
 }
 
 /** 三方登录方式信息 */
@@ -18,7 +18,7 @@ export interface OauthProvider {
 }
 
 /** 三方登录方式查询结果 */
-export interface ListOauthProvidersResponse {
+export interface ListOauthProviderResponse {
   /** 三方登录方式列表 */
   providers: OauthProvider[];
 }
@@ -94,11 +94,11 @@ export interface CreateOauthSessionResponse {
 }
 
 /** 个人中心三方账号绑定列表查询条件 */
-export interface ListOauthBindingsRequest {
+export interface ListOauthBindingRequest {
 }
 
 /** 个人中心三方账号绑定列表响应 */
-export interface ListOauthBindingsResponse {
+export interface ListOauthBindingResponse {
   /** 三方账号绑定列表 */
   bindings: OauthBinding[];
 }
@@ -152,7 +152,7 @@ export interface UnbindOauthAccountRequest {
 /** Base三方登录公共服务 */
 export interface OauthService {
   /** 查询三方登录方式 */
-  ListOauthProviders(request: ListOauthProvidersRequest): Promise<ListOauthProvidersResponse>;
+  ListOauthProvider(request: ListOauthProviderRequest): Promise<ListOauthProviderResponse>;
   /** 创建三方登录授权地址 */
   CreateOauthAuthorization(request: CreateOauthAuthorizationRequest): Promise<CreateOauthAuthorizationResponse>;
   /** 处理三方登录回调 */
@@ -162,7 +162,7 @@ export interface OauthService {
   /** 创建三方登录会话 */
   CreateOauthSession(request: CreateOauthSessionRequest): Promise<CreateOauthSessionResponse>;
   /** 查询个人中心三方账号绑定列表 */
-  ListOauthBindings(request: ListOauthBindingsRequest): Promise<ListOauthBindingsResponse>;
+  ListOauthBinding(request: ListOauthBindingRequest): Promise<ListOauthBindingResponse>;
   /** 创建个人中心三方账号绑定授权地址 */
   CreateOauthBindingAuthorization(
     request: CreateOauthBindingAuthorizationRequest,

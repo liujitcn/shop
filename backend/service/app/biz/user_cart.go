@@ -64,8 +64,8 @@ func (c *UserCartCase) CountUserCart(ctx context.Context) (int64, error) {
 	return c.Count(ctx, opts...)
 }
 
-// ListUserCarts 查询用户购物车列表
-func (c *UserCartCase) ListUserCarts(ctx context.Context) (*appv1.ListUserCartsResponse, error) {
+// ListUserCart 查询用户购物车列表
+func (c *UserCartCase) ListUserCart(ctx context.Context) (*appv1.ListUserCartResponse, error) {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return nil, err
@@ -163,7 +163,7 @@ func (c *UserCartCase) ListUserCarts(ctx context.Context) (*appv1.ListUserCartsR
 		}
 		store.Goods = append(store.Goods, cart)
 	}
-	return &appv1.ListUserCartsResponse{
+	return &appv1.ListUserCartResponse{
 		UserCartStores: userCartStores,
 	}, nil
 }

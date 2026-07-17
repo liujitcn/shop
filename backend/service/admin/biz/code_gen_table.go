@@ -71,8 +71,8 @@ func NewCodeGenTableCase(
 	}
 }
 
-// ListCodeGenDatabaseTables 查询当前数据库表元数据。
-func (c *CodeGenTableCase) ListCodeGenDatabaseTables(ctx context.Context) (*adminv1.ListCodeGenDatabaseTablesResponse, error) {
+// ListCodeGenDatabaseTable 查询当前数据库表元数据。
+func (c *CodeGenTableCase) ListCodeGenDatabaseTable(ctx context.Context) (*adminv1.ListCodeGenDatabaseTableResponse, error) {
 	query := c.Query(ctx).CodeGenTable
 	opts := make([]repository.QueryOption, 0, 1)
 	opts = append(opts, repository.Order(query.Name.Asc()))
@@ -114,11 +114,11 @@ func (c *CodeGenTableCase) ListCodeGenDatabaseTables(ctx context.Context) (*admi
 			PermissionPrefix: strings.Join(pathSegments, ":"),
 		})
 	}
-	return &adminv1.ListCodeGenDatabaseTablesResponse{Tables: tables}, nil
+	return &adminv1.ListCodeGenDatabaseTableResponse{Tables: tables}, nil
 }
 
-// PageCodeGenTables 查询代码生成表配置分页数据。
-func (c *CodeGenTableCase) PageCodeGenTables(ctx context.Context, req *adminv1.PageCodeGenTablesRequest) (*adminv1.PageCodeGenTablesResponse, error) {
+// PageCodeGenTable 查询代码生成表配置分页数据。
+func (c *CodeGenTableCase) PageCodeGenTable(ctx context.Context, req *adminv1.PageCodeGenTableRequest) (*adminv1.PageCodeGenTableResponse, error) {
 	query := c.Query(ctx).CodeGenTable
 	opts := make([]repository.QueryOption, 0, 6)
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
@@ -145,7 +145,7 @@ func (c *CodeGenTableCase) PageCodeGenTables(ctx context.Context, req *adminv1.P
 	for _, item := range list {
 		codeGenTables = append(codeGenTables, c.mapper.ToDTO(item))
 	}
-	return &adminv1.PageCodeGenTablesResponse{CodeGenTables: codeGenTables, Total: int32(total)}, nil
+	return &adminv1.PageCodeGenTableResponse{CodeGenTables: codeGenTables, Total: int32(total)}, nil
 }
 
 // GetCodeGenTable 查询代码生成表配置。

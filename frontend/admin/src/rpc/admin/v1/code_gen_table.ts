@@ -8,17 +8,17 @@
 import type { Empty } from "../../google/protobuf/empty";
 
 /** 数据库表列表查询条件 */
-export interface ListCodeGenDatabaseTablesRequest {
+export interface ListCodeGenDatabaseTableRequest {
 }
 
 /** 数据库表列表响应 */
-export interface ListCodeGenDatabaseTablesResponse {
+export interface ListCodeGenDatabaseTableResponse {
   /** 数据库表列表 */
   tables: CodeGenDatabaseTable[];
 }
 
 /** 代码生成表配置分页查询条件 */
-export interface PageCodeGenTablesRequest {
+export interface PageCodeGenTableRequest {
   /** 业务表名 */
   name?:
     | string
@@ -46,7 +46,7 @@ export interface PageCodeGenTablesRequest {
 }
 
 /** 代码生成表配置分页响应 */
-export interface PageCodeGenTablesResponse {
+export interface PageCodeGenTableResponse {
   /** 代码生成表配置列表 */
   code_gen_tables: CodeGenTable[];
   /** 总数 */
@@ -182,9 +182,9 @@ export interface CodeGenLeftTreeConfig {
 /** Admin代码生成表配置服务 */
 export interface CodeGenTableService {
   /** 查询数据库表列表 */
-  ListCodeGenDatabaseTables(request: ListCodeGenDatabaseTablesRequest): Promise<ListCodeGenDatabaseTablesResponse>;
+  ListCodeGenDatabaseTable(request: ListCodeGenDatabaseTableRequest): Promise<ListCodeGenDatabaseTableResponse>;
   /** 分页查询代码生成表配置 */
-  PageCodeGenTables(request: PageCodeGenTablesRequest): Promise<PageCodeGenTablesResponse>;
+  PageCodeGenTable(request: PageCodeGenTableRequest): Promise<PageCodeGenTableResponse>;
   /** 查询代码生成表配置 */
   GetCodeGenTable(request: GetCodeGenTableRequest): Promise<CodeGenTableForm>;
   /** 创建代码生成表配置 */

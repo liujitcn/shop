@@ -10,17 +10,17 @@ import type { BaseMenuType, Status } from "../../common/v1/enum";
 import type { Empty } from "../../google/protobuf/empty";
 
 /** 菜单树查询条件 */
-export interface TreeBaseMenusRequest {
+export interface TreeBaseMenuRequest {
 }
 
 /** 菜单树响应 */
-export interface TreeBaseMenusResponse {
+export interface TreeBaseMenuResponse {
   /** 菜单树 */
   base_menus: BaseMenu[];
 }
 
 /** 菜单选项查询条件 */
-export interface OptionBaseMenusRequest {
+export interface OptionBaseMenuRequest {
   /** 父级菜单ID */
   parent_id?:
     | number
@@ -168,9 +168,9 @@ export interface BaseMenuParams {
 /** Admin菜单管理服务 */
 export interface BaseMenuService {
   /** 查询菜单树形列表 */
-  TreeBaseMenus(request: TreeBaseMenusRequest): Promise<TreeBaseMenusResponse>;
+  TreeBaseMenu(request: TreeBaseMenuRequest): Promise<TreeBaseMenuResponse>;
   /** 查询菜单树形选择 */
-  OptionBaseMenus(request: OptionBaseMenusRequest): Promise<TreeOptionResponse>;
+  OptionBaseMenu(request: OptionBaseMenuRequest): Promise<TreeOptionResponse>;
   /** 查询菜单 */
   GetBaseMenu(request: GetBaseMenuRequest): Promise<BaseMenuForm>;
   /** 创建菜单 */

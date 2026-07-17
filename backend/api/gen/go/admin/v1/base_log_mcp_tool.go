@@ -14,23 +14,23 @@ import (
 
 // RegisterBaseLogServiceMCPTools 注册Admin日志服务的 MCP Tool。
 func RegisterBaseLogServiceMCPTools(mcpServer *mcp.Server, baseLogServiceServer BaseLogServiceServer) {
-	RegisterBaseLogServicePageBaseLogsMCPTool(mcpServer, baseLogServiceServer)
+	RegisterBaseLogServicePageBaseLogMCPTool(mcpServer, baseLogServiceServer)
 	RegisterBaseLogServiceGetBaseLogMCPTool(mcpServer, baseLogServiceServer)
 }
 
-// RegisterBaseLogServicePageBaseLogsMCPTool 注册查询日志分页列表的 MCP Tool。
-func RegisterBaseLogServicePageBaseLogsMCPTool(mcpServer *mcp.Server, baseLogServiceServer BaseLogServiceServer) {
-	mcp.AddTool[*PageBaseLogsRequest, *PageBaseLogsResponse](
+// RegisterBaseLogServicePageBaseLogMCPTool 注册查询日志分页列表的 MCP Tool。
+func RegisterBaseLogServicePageBaseLogMCPTool(mcpServer *mcp.Server, baseLogServiceServer BaseLogServiceServer) {
+	mcp.AddTool[*PageBaseLogRequest, *PageBaseLogResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "admin_v1_base_log_service_page_base_logs",
+			Name:        "admin_v1_base_log_service_page_base_log",
 			Description: "查询日志分页列表",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBaseLogsRequest) (*mcp.CallToolResult, *PageBaseLogsResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBaseLogRequest) (*mcp.CallToolResult, *PageBaseLogResponse, error) {
 			if input == nil {
-				input = &PageBaseLogsRequest{}
+				input = &PageBaseLogRequest{}
 			}
-			reply, err := baseLogServiceServer.PageBaseLogs(ctx, input)
+			reply, err := baseLogServiceServer.PageBaseLog(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

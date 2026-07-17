@@ -81,8 +81,8 @@ func (c *OrderReportCase) SummaryOrderMonthReport(ctx context.Context, req *admi
 	return summary, nil
 }
 
-// ListOrderMonthReports 查询订单月报名细
-func (c *OrderReportCase) ListOrderMonthReports(ctx context.Context, req *adminv1.ListOrderMonthReportsRequest) (*adminv1.ListOrderMonthReportsResponse, error) {
+// ListOrderMonthReport 查询订单月报名细
+func (c *OrderReportCase) ListOrderMonthReport(ctx context.Context, req *adminv1.ListOrderMonthReportRequest) (*adminv1.ListOrderMonthReportResponse, error) {
 	startMonth, err := c.parseMonth(req.GetStartMonth())
 	if err != nil {
 		return nil, err
@@ -128,7 +128,7 @@ func (c *OrderReportCase) ListOrderMonthReports(ctx context.Context, req *adminv
 		items = append(items, c.toOrderMonthReportItem(row))
 	}
 
-	return &adminv1.ListOrderMonthReportsResponse{
+	return &adminv1.ListOrderMonthReportResponse{
 		OrderMonthReports: items,
 	}, nil
 }
@@ -175,8 +175,8 @@ func (c *OrderReportCase) SummaryOrderDayReport(ctx context.Context, req *adminv
 	return summary, nil
 }
 
-// ListOrderDayReports 查询订单日报明细
-func (c *OrderReportCase) ListOrderDayReports(ctx context.Context, req *adminv1.ListOrderDayReportsRequest) (*adminv1.ListOrderDayReportsResponse, error) {
+// ListOrderDayReport 查询订单日报明细
+func (c *OrderReportCase) ListOrderDayReport(ctx context.Context, req *adminv1.ListOrderDayReportRequest) (*adminv1.ListOrderDayReportResponse, error) {
 	startDate, err := c.parseDate(req.GetStartDate())
 	if err != nil {
 		return nil, err
@@ -222,7 +222,7 @@ func (c *OrderReportCase) ListOrderDayReports(ctx context.Context, req *adminv1.
 		items = append(items, c.toOrderDayReportItem(row))
 	}
 
-	return &adminv1.ListOrderDayReportsResponse{
+	return &adminv1.ListOrderDayReportResponse{
 		OrderDayReports: items,
 	}, nil
 }

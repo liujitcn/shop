@@ -8,7 +8,6 @@ package adminv1
 
 import (
 	reflect "reflect"
-	v1 "shop/api/gen/go/common/v1"
 	sync "sync"
 	unsafe "unsafe"
 
@@ -17,6 +16,8 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+
+	v1 "shop/api/gen/go/common/v1"
 )
 
 const (
@@ -27,27 +28,27 @@ const (
 )
 
 // 租户选项查询条件
-type OptionBaseTenantsRequest struct {
+type OptionBaseTenantRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Keyword       string                 `protobuf:"bytes,1,opt,name=keyword,proto3" json:"keyword,omitempty"` // 关键字
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *OptionBaseTenantsRequest) Reset() {
-	*x = OptionBaseTenantsRequest{}
+func (x *OptionBaseTenantRequest) Reset() {
+	*x = OptionBaseTenantRequest{}
 	mi := &file_admin_v1_base_tenant_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *OptionBaseTenantsRequest) String() string {
+func (x *OptionBaseTenantRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*OptionBaseTenantsRequest) ProtoMessage() {}
+func (*OptionBaseTenantRequest) ProtoMessage() {}
 
-func (x *OptionBaseTenantsRequest) ProtoReflect() protoreflect.Message {
+func (x *OptionBaseTenantRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_base_tenant_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -59,12 +60,12 @@ func (x *OptionBaseTenantsRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use OptionBaseTenantsRequest.ProtoReflect.Descriptor instead.
-func (*OptionBaseTenantsRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use OptionBaseTenantRequest.ProtoReflect.Descriptor instead.
+func (*OptionBaseTenantRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_base_tenant_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *OptionBaseTenantsRequest) GetKeyword() string {
+func (x *OptionBaseTenantRequest) GetKeyword() string {
 	if x != nil {
 		return x.Keyword
 	}
@@ -72,7 +73,7 @@ func (x *OptionBaseTenantsRequest) GetKeyword() string {
 }
 
 // 租户分页查询条件
-type PageBaseTenantsRequest struct {
+type PageBaseTenantRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Code          string                 `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`                                    // 租户编号
 	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                    // 租户名称
@@ -83,20 +84,20 @@ type PageBaseTenantsRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *PageBaseTenantsRequest) Reset() {
-	*x = PageBaseTenantsRequest{}
+func (x *PageBaseTenantRequest) Reset() {
+	*x = PageBaseTenantRequest{}
 	mi := &file_admin_v1_base_tenant_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PageBaseTenantsRequest) String() string {
+func (x *PageBaseTenantRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PageBaseTenantsRequest) ProtoMessage() {}
+func (*PageBaseTenantRequest) ProtoMessage() {}
 
-func (x *PageBaseTenantsRequest) ProtoReflect() protoreflect.Message {
+func (x *PageBaseTenantRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_base_tenant_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -108,40 +109,40 @@ func (x *PageBaseTenantsRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PageBaseTenantsRequest.ProtoReflect.Descriptor instead.
-func (*PageBaseTenantsRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use PageBaseTenantRequest.ProtoReflect.Descriptor instead.
+func (*PageBaseTenantRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_base_tenant_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *PageBaseTenantsRequest) GetCode() string {
+func (x *PageBaseTenantRequest) GetCode() string {
 	if x != nil {
 		return x.Code
 	}
 	return ""
 }
 
-func (x *PageBaseTenantsRequest) GetName() string {
+func (x *PageBaseTenantRequest) GetName() string {
 	if x != nil {
 		return x.Name
 	}
 	return ""
 }
 
-func (x *PageBaseTenantsRequest) GetStatus() v1.Status {
+func (x *PageBaseTenantRequest) GetStatus() v1.Status {
 	if x != nil && x.Status != nil {
 		return *x.Status
 	}
 	return v1.Status(0)
 }
 
-func (x *PageBaseTenantsRequest) GetPageNum() int64 {
+func (x *PageBaseTenantRequest) GetPageNum() int64 {
 	if x != nil {
 		return x.PageNum
 	}
 	return 0
 }
 
-func (x *PageBaseTenantsRequest) GetPageSize() int64 {
+func (x *PageBaseTenantRequest) GetPageSize() int64 {
 	if x != nil {
 		return x.PageSize
 	}
@@ -149,7 +150,7 @@ func (x *PageBaseTenantsRequest) GetPageSize() int64 {
 }
 
 // 租户分页响应
-type PageBaseTenantsResponse struct {
+type PageBaseTenantResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	BaseTenants   []*BaseTenant          `protobuf:"bytes,1,rep,name=base_tenants,json=baseTenants,proto3" json:"base_tenants,omitempty"` // 分页数据
 	Total         int32                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`                               // 总数
@@ -157,20 +158,20 @@ type PageBaseTenantsResponse struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *PageBaseTenantsResponse) Reset() {
-	*x = PageBaseTenantsResponse{}
+func (x *PageBaseTenantResponse) Reset() {
+	*x = PageBaseTenantResponse{}
 	mi := &file_admin_v1_base_tenant_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PageBaseTenantsResponse) String() string {
+func (x *PageBaseTenantResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PageBaseTenantsResponse) ProtoMessage() {}
+func (*PageBaseTenantResponse) ProtoMessage() {}
 
-func (x *PageBaseTenantsResponse) ProtoReflect() protoreflect.Message {
+func (x *PageBaseTenantResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_base_tenant_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -182,19 +183,19 @@ func (x *PageBaseTenantsResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PageBaseTenantsResponse.ProtoReflect.Descriptor instead.
-func (*PageBaseTenantsResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use PageBaseTenantResponse.ProtoReflect.Descriptor instead.
+func (*PageBaseTenantResponse) Descriptor() ([]byte, []int) {
 	return file_admin_v1_base_tenant_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *PageBaseTenantsResponse) GetBaseTenants() []*BaseTenant {
+func (x *PageBaseTenantResponse) GetBaseTenants() []*BaseTenant {
 	if x != nil {
 		return x.BaseTenants
 	}
 	return nil
 }
 
-func (x *PageBaseTenantsResponse) GetTotal() int32 {
+func (x *PageBaseTenantResponse) GetTotal() int32 {
 	if x != nil {
 		return x.Total
 	}
@@ -640,17 +641,17 @@ var File_admin_v1_base_tenant_proto protoreflect.FileDescriptor
 
 const file_admin_v1_base_tenant_proto_rawDesc = "" +
 	"\n" +
-	"\x1aadmin/v1/base_tenant.proto\x12\badmin.v1\x1a\x16common/v1/common.proto\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"E\n" +
-	"\x18OptionBaseTenantsRequest\x12)\n" +
-	"\akeyword\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t关键字R\akeyword\"\xaf\x02\n" +
-	"\x16PageBaseTenantsRequest\x12&\n" +
+	"\x1aadmin/v1/base_tenant.proto\x12\badmin.v1\x1a\x16common/v1/common.proto\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"D\n" +
+	"\x17OptionBaseTenantRequest\x12)\n" +
+	"\akeyword\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t关键字R\akeyword\"\xae\x02\n" +
+	"\x15PageBaseTenantRequest\x12&\n" +
 	"\x04code\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f租户编号R\x04code\x12&\n" +
 	"\x04name\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f租户名称R\x04name\x12<\n" +
 	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态H\x00R\x06status\x88\x01\x01\x129\n" +
 	"\bpage_num\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12A\n" +
 	"\tpage_size\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSizeB\t\n" +
-	"\a_status\"\x8a\x01\n" +
-	"\x17PageBaseTenantsResponse\x12K\n" +
+	"\a_status\"\x89\x01\n" +
+	"\x16PageBaseTenantResponse\x12K\n" +
 	"\fbase_tenants\x18\x01 \x03(\v2\x14.admin.v1.BaseTenantB\x12\xbaG\x0f\x92\x02\f分页数据R\vbaseTenants\x12\"\n" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"6\n" +
 	"\x14GetBaseTenantRequest\x12\x1e\n" +
@@ -687,10 +688,10 @@ const file_admin_v1_base_tenant_proto_rawDesc = "" +
 	"\rcontact_phone\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\f联系电话R\fcontactPhone\x12<\n" +
 	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态H\x00R\x06status\x88\x01\x01\x12$\n" +
 	"\x06remark\x18e \x01(\tB\f\xbaG\t\x92\x02\x06备注R\x06remarkB\t\n" +
-	"\a_status2\x95\a\n" +
-	"\x11BaseTenantService\x12\x82\x01\n" +
-	"\x11OptionBaseTenants\x12\".admin.v1.OptionBaseTenantsRequest\x1a\x1f.common.v1.SelectOptionResponse\"(\x82\xd3\xe4\x93\x02\"\x12 /api/v1/admin/base/tenant/option\x12y\n" +
-	"\x0fPageBaseTenants\x12 .admin.v1.PageBaseTenantsRequest\x1a!.admin.v1.PageBaseTenantsResponse\"!\x82\xd3\xe4\x93\x02\x1b\x12\x19/api/v1/admin/base/tenant\x12q\n" +
+	"\a_status2\x90\a\n" +
+	"\x11BaseTenantService\x12\x80\x01\n" +
+	"\x10OptionBaseTenant\x12!.admin.v1.OptionBaseTenantRequest\x1a\x1f.common.v1.SelectOptionResponse\"(\x82\xd3\xe4\x93\x02\"\x12 /api/v1/admin/base/tenant/option\x12v\n" +
+	"\x0ePageBaseTenant\x12\x1f.admin.v1.PageBaseTenantRequest\x1a .admin.v1.PageBaseTenantResponse\"!\x82\xd3\xe4\x93\x02\x1b\x12\x19/api/v1/admin/base/tenant\x12q\n" +
 	"\rGetBaseTenant\x12\x1e.admin.v1.GetBaseTenantRequest\x1a\x18.admin.v1.BaseTenantForm\"&\x82\xd3\xe4\x93\x02 \x12\x1e/api/v1/admin/base/tenant/{id}\x12}\n" +
 	"\x10CreateBaseTenant\x12!.admin.v1.CreateBaseTenantRequest\x1a\x16.google.protobuf.Empty\".\x82\xd3\xe4\x93\x02(:\vbase_tenant\"\x19/api/v1/admin/base/tenant\x12\x8e\x01\n" +
 	"\x10UpdateBaseTenant\x12!.admin.v1.UpdateBaseTenantRequest\x1a\x16.google.protobuf.Empty\"?\x82\xd3\xe4\x93\x029:\vbase_tenant\x1a*/api/v1/admin/base/tenant/{base_tenant.id}\x12u\n" +
@@ -712,9 +713,9 @@ func file_admin_v1_base_tenant_proto_rawDescGZIP() []byte {
 
 var file_admin_v1_base_tenant_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_admin_v1_base_tenant_proto_goTypes = []any{
-	(*OptionBaseTenantsRequest)(nil),   // 0: admin.v1.OptionBaseTenantsRequest
-	(*PageBaseTenantsRequest)(nil),     // 1: admin.v1.PageBaseTenantsRequest
-	(*PageBaseTenantsResponse)(nil),    // 2: admin.v1.PageBaseTenantsResponse
+	(*OptionBaseTenantRequest)(nil),    // 0: admin.v1.OptionBaseTenantRequest
+	(*PageBaseTenantRequest)(nil),      // 1: admin.v1.PageBaseTenantRequest
+	(*PageBaseTenantResponse)(nil),     // 2: admin.v1.PageBaseTenantResponse
 	(*GetBaseTenantRequest)(nil),       // 3: admin.v1.GetBaseTenantRequest
 	(*CreateBaseTenantRequest)(nil),    // 4: admin.v1.CreateBaseTenantRequest
 	(*UpdateBaseTenantRequest)(nil),    // 5: admin.v1.UpdateBaseTenantRequest
@@ -727,21 +728,21 @@ var file_admin_v1_base_tenant_proto_goTypes = []any{
 	(*emptypb.Empty)(nil),              // 12: google.protobuf.Empty
 }
 var file_admin_v1_base_tenant_proto_depIdxs = []int32{
-	10, // 0: admin.v1.PageBaseTenantsRequest.status:type_name -> common.v1.Status
-	8,  // 1: admin.v1.PageBaseTenantsResponse.base_tenants:type_name -> admin.v1.BaseTenant
+	10, // 0: admin.v1.PageBaseTenantRequest.status:type_name -> common.v1.Status
+	8,  // 1: admin.v1.PageBaseTenantResponse.base_tenants:type_name -> admin.v1.BaseTenant
 	9,  // 2: admin.v1.CreateBaseTenantRequest.base_tenant:type_name -> admin.v1.BaseTenantForm
 	9,  // 3: admin.v1.UpdateBaseTenantRequest.base_tenant:type_name -> admin.v1.BaseTenantForm
 	10, // 4: admin.v1.BaseTenant.status:type_name -> common.v1.Status
 	10, // 5: admin.v1.BaseTenantForm.status:type_name -> common.v1.Status
-	0,  // 6: admin.v1.BaseTenantService.OptionBaseTenants:input_type -> admin.v1.OptionBaseTenantsRequest
-	1,  // 7: admin.v1.BaseTenantService.PageBaseTenants:input_type -> admin.v1.PageBaseTenantsRequest
+	0,  // 6: admin.v1.BaseTenantService.OptionBaseTenant:input_type -> admin.v1.OptionBaseTenantRequest
+	1,  // 7: admin.v1.BaseTenantService.PageBaseTenant:input_type -> admin.v1.PageBaseTenantRequest
 	3,  // 8: admin.v1.BaseTenantService.GetBaseTenant:input_type -> admin.v1.GetBaseTenantRequest
 	4,  // 9: admin.v1.BaseTenantService.CreateBaseTenant:input_type -> admin.v1.CreateBaseTenantRequest
 	5,  // 10: admin.v1.BaseTenantService.UpdateBaseTenant:input_type -> admin.v1.UpdateBaseTenantRequest
 	6,  // 11: admin.v1.BaseTenantService.DeleteBaseTenant:input_type -> admin.v1.DeleteBaseTenantRequest
 	7,  // 12: admin.v1.BaseTenantService.SetBaseTenantStatus:input_type -> admin.v1.SetBaseTenantStatusRequest
-	11, // 13: admin.v1.BaseTenantService.OptionBaseTenants:output_type -> common.v1.SelectOptionResponse
-	2,  // 14: admin.v1.BaseTenantService.PageBaseTenants:output_type -> admin.v1.PageBaseTenantsResponse
+	11, // 13: admin.v1.BaseTenantService.OptionBaseTenant:output_type -> common.v1.SelectOptionResponse
+	2,  // 14: admin.v1.BaseTenantService.PageBaseTenant:output_type -> admin.v1.PageBaseTenantResponse
 	9,  // 15: admin.v1.BaseTenantService.GetBaseTenant:output_type -> admin.v1.BaseTenantForm
 	12, // 16: admin.v1.BaseTenantService.CreateBaseTenant:output_type -> google.protobuf.Empty
 	12, // 17: admin.v1.BaseTenantService.UpdateBaseTenant:output_type -> google.protobuf.Empty

@@ -47,21 +47,21 @@ func (s *AuthService) GetUserInfo(ctx context.Context, req *adminv1.GetUserInfoR
 	return res, nil
 }
 
-// TreeUserMenus 获取已经登录的用户菜单
-func (s *AuthService) TreeUserMenus(ctx context.Context, req *adminv1.TreeUserMenusRequest) (*adminv1.TreeRouteResponse, error) {
-	res, err := s.authCase.TreeUserMenus(ctx)
+// TreeUserMenu 获取已经登录的用户菜单
+func (s *AuthService) TreeUserMenu(ctx context.Context, req *adminv1.TreeUserMenuRequest) (*adminv1.TreeRouteResponse, error) {
+	res, err := s.authCase.TreeUserMenu(ctx)
 	if err != nil {
-		log.Error(fmt.Sprintf("TreeUserMenus %v", err))
+		log.Error(fmt.Sprintf("TreeUserMenu %v", err))
 		return nil, errorsx.WrapInternal(err, "获取用户菜单失败")
 	}
 	return res, nil
 }
 
-// ListUserButtons 获取已经登录的用户按钮
-func (s *AuthService) ListUserButtons(ctx context.Context, req *adminv1.ListUserButtonsRequest) (*commonv1.StringValues, error) {
-	res, err := s.authCase.ListUserButtons(ctx)
+// ListUserButton 获取已经登录的用户按钮
+func (s *AuthService) ListUserButton(ctx context.Context, req *adminv1.ListUserButtonRequest) (*commonv1.StringValues, error) {
+	res, err := s.authCase.ListUserButton(ctx)
 	if err != nil {
-		log.Error(fmt.Sprintf("ListUserButtons %v", err))
+		log.Error(fmt.Sprintf("ListUserButton %v", err))
 		return nil, errorsx.WrapInternal(err, "获取用户按钮权限失败")
 	}
 	return res, nil

@@ -8,7 +8,7 @@
 import type { Empty } from "../../google/protobuf/empty";
 
 /** 商品属性列表查询条件 */
-export interface PageGoodsPropsRequest {
+export interface PageGoodsPropRequest {
   /** 商品id */
   goods_id: number;
   /** 商品属性名称 */
@@ -20,7 +20,7 @@ export interface PageGoodsPropsRequest {
 }
 
 /** 商品属性列表响应 */
-export interface PageGoodsPropsResponse {
+export interface PageGoodsPropResponse {
   /** 商品属性列表 */
   goods_props: GoodsProp[];
   /** 总数 */
@@ -70,7 +70,7 @@ export interface GoodsProp {
 /** Admin商品属性服务 */
 export interface GoodsPropService {
   /** 查询商品属性列表 */
-  PageGoodsProps(request: PageGoodsPropsRequest): Promise<PageGoodsPropsResponse>;
+  PageGoodsProp(request: PageGoodsPropRequest): Promise<PageGoodsPropResponse>;
   /** 查询商品属性 */
   GetGoodsProp(request: GetGoodsPropRequest): Promise<GoodsProp>;
   /** 创建商品属性 */

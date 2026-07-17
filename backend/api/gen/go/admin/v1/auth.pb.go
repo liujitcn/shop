@@ -8,7 +8,6 @@ package adminv1
 
 import (
 	reflect "reflect"
-	v1 "shop/api/gen/go/common/v1"
 	sync "sync"
 	unsafe "unsafe"
 
@@ -17,6 +16,8 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+
+	v1 "shop/api/gen/go/common/v1"
 )
 
 const (
@@ -64,26 +65,26 @@ func (*GetUserInfoRequest) Descriptor() ([]byte, []int) {
 }
 
 // 登录用户菜单树查询参数
-type TreeUserMenusRequest struct {
+type TreeUserMenuRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *TreeUserMenusRequest) Reset() {
-	*x = TreeUserMenusRequest{}
+func (x *TreeUserMenuRequest) Reset() {
+	*x = TreeUserMenuRequest{}
 	mi := &file_admin_v1_auth_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *TreeUserMenusRequest) String() string {
+func (x *TreeUserMenuRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*TreeUserMenusRequest) ProtoMessage() {}
+func (*TreeUserMenuRequest) ProtoMessage() {}
 
-func (x *TreeUserMenusRequest) ProtoReflect() protoreflect.Message {
+func (x *TreeUserMenuRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_auth_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -95,32 +96,32 @@ func (x *TreeUserMenusRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use TreeUserMenusRequest.ProtoReflect.Descriptor instead.
-func (*TreeUserMenusRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use TreeUserMenuRequest.ProtoReflect.Descriptor instead.
+func (*TreeUserMenuRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_auth_proto_rawDescGZIP(), []int{1}
 }
 
 // 登录用户按钮列表查询参数
-type ListUserButtonsRequest struct {
+type ListUserButtonRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListUserButtonsRequest) Reset() {
-	*x = ListUserButtonsRequest{}
+func (x *ListUserButtonRequest) Reset() {
+	*x = ListUserButtonRequest{}
 	mi := &file_admin_v1_auth_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListUserButtonsRequest) String() string {
+func (x *ListUserButtonRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListUserButtonsRequest) ProtoMessage() {}
+func (*ListUserButtonRequest) ProtoMessage() {}
 
-func (x *ListUserButtonsRequest) ProtoReflect() protoreflect.Message {
+func (x *ListUserButtonRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_auth_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -132,8 +133,8 @@ func (x *ListUserButtonsRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListUserButtonsRequest.ProtoReflect.Descriptor instead.
-func (*ListUserButtonsRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListUserButtonRequest.ProtoReflect.Descriptor instead.
+func (*ListUserButtonRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_auth_proto_rawDescGZIP(), []int{2}
 }
 
@@ -959,9 +960,9 @@ var File_admin_v1_auth_proto protoreflect.FileDescriptor
 const file_admin_v1_auth_proto_rawDesc = "" +
 	"\n" +
 	"\x13admin/v1/auth.proto\x12\badmin.v1\x1a\x15common/v1/types.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x14\n" +
-	"\x12GetUserInfoRequest\"\x16\n" +
-	"\x14TreeUserMenusRequest\"\x18\n" +
-	"\x16ListUserButtonsRequest\"\x17\n" +
+	"\x12GetUserInfoRequest\"\x15\n" +
+	"\x13TreeUserMenuRequest\"\x17\n" +
+	"\x15ListUserButtonRequest\"\x17\n" +
 	"\x15GetUserProfileRequest\"x\n" +
 	"\x18UpdateUserProfileRequest\x12\\\n" +
 	"\fuser_profile\x18\x01 \x01(\v2\x19.admin.v1.UserProfileFormB\x1e\xbaG\x1b\x92\x02\x18个人中心用户信息R\vuserProfile\"m\n" +
@@ -1038,11 +1039,11 @@ const file_admin_v1_auth_proto_rawDesc = "" +
 	"\x05phone\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t手机号R\x05phone\"[\n" +
 	"\rUserPhoneForm\x12%\n" +
 	"\x05phone\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t手机号R\x05phone\x12#\n" +
-	"\x04code\x18\x02 \x01(\tB\x0f\xbaG\f\x92\x02\t验证码R\x04code2\xc5\a\n" +
+	"\x04code\x18\x02 \x01(\tB\x0f\xbaG\f\x92\x02\t验证码R\x04code2\xc1\a\n" +
 	"\vAuthService\x12d\n" +
-	"\vGetUserInfo\x12\x1c.admin.v1.GetUserInfoRequest\x1a\x16.admin.v1.UserInfoForm\"\x1f\x82\xd3\xe4\x93\x02\x19\x12\x17/api/v1/admin/auth/user\x12r\n" +
-	"\rTreeUserMenus\x12\x1e.admin.v1.TreeUserMenusRequest\x1a\x1b.admin.v1.TreeRouteResponse\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/api/v1/admin/auth/menu/tree\x12p\n" +
-	"\x0fListUserButtons\x12 .admin.v1.ListUserButtonsRequest\x1a\x17.common.v1.StringValues\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/v1/admin/auth/buttons\x12p\n" +
+	"\vGetUserInfo\x12\x1c.admin.v1.GetUserInfoRequest\x1a\x16.admin.v1.UserInfoForm\"\x1f\x82\xd3\xe4\x93\x02\x19\x12\x17/api/v1/admin/auth/user\x12p\n" +
+	"\fTreeUserMenu\x12\x1d.admin.v1.TreeUserMenuRequest\x1a\x1b.admin.v1.TreeRouteResponse\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/api/v1/admin/auth/menu/tree\x12n\n" +
+	"\x0eListUserButton\x12\x1f.admin.v1.ListUserButtonRequest\x1a\x17.common.v1.StringValues\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/v1/admin/auth/buttons\x12p\n" +
 	"\x0eGetUserProfile\x12\x1f.admin.v1.GetUserProfileRequest\x1a\x19.admin.v1.UserProfileForm\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/v1/admin/auth/profile\x12\x81\x01\n" +
 	"\x11UpdateUserProfile\x12\".admin.v1.UpdateUserProfileRequest\x1a\x16.google.protobuf.Empty\"0\x82\xd3\xe4\x93\x02*:\fuser_profile\x1a\x1a/api/v1/admin/auth/profile\x12q\n" +
 	"\rSendPhoneCode\x12\x1e.admin.v1.SendPhoneCodeRequest\x1a\x16.google.protobuf.Empty\"(\x82\xd3\xe4\x93\x02\":\x01*\"\x1d/api/v1/admin/auth/phone/code\x12y\n" +
@@ -1066,8 +1067,8 @@ func file_admin_v1_auth_proto_rawDescGZIP() []byte {
 var file_admin_v1_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
 var file_admin_v1_auth_proto_goTypes = []any{
 	(*GetUserInfoRequest)(nil),        // 0: admin.v1.GetUserInfoRequest
-	(*TreeUserMenusRequest)(nil),      // 1: admin.v1.TreeUserMenusRequest
-	(*ListUserButtonsRequest)(nil),    // 2: admin.v1.ListUserButtonsRequest
+	(*TreeUserMenuRequest)(nil),       // 1: admin.v1.TreeUserMenuRequest
+	(*ListUserButtonRequest)(nil),     // 2: admin.v1.ListUserButtonRequest
 	(*GetUserProfileRequest)(nil),     // 3: admin.v1.GetUserProfileRequest
 	(*UpdateUserProfileRequest)(nil),  // 4: admin.v1.UpdateUserProfileRequest
 	(*UpdateUserPhoneRequest)(nil),    // 5: admin.v1.UpdateUserPhoneRequest
@@ -1096,16 +1097,16 @@ var file_admin_v1_auth_proto_depIdxs = []int32{
 	16, // 7: admin.v1.UserPasswordForm.old_pwd:type_name -> common.v1.PasswordCrypto
 	16, // 8: admin.v1.UserPasswordForm.new_pwd:type_name -> common.v1.PasswordCrypto
 	0,  // 9: admin.v1.AuthService.GetUserInfo:input_type -> admin.v1.GetUserInfoRequest
-	1,  // 10: admin.v1.AuthService.TreeUserMenus:input_type -> admin.v1.TreeUserMenusRequest
-	2,  // 11: admin.v1.AuthService.ListUserButtons:input_type -> admin.v1.ListUserButtonsRequest
+	1,  // 10: admin.v1.AuthService.TreeUserMenu:input_type -> admin.v1.TreeUserMenuRequest
+	2,  // 11: admin.v1.AuthService.ListUserButton:input_type -> admin.v1.ListUserButtonRequest
 	3,  // 12: admin.v1.AuthService.GetUserProfile:input_type -> admin.v1.GetUserProfileRequest
 	4,  // 13: admin.v1.AuthService.UpdateUserProfile:input_type -> admin.v1.UpdateUserProfileRequest
 	14, // 14: admin.v1.AuthService.SendPhoneCode:input_type -> admin.v1.SendPhoneCodeRequest
 	5,  // 15: admin.v1.AuthService.UpdateUserPhone:input_type -> admin.v1.UpdateUserPhoneRequest
 	6,  // 16: admin.v1.AuthService.UpdateUserPassword:input_type -> admin.v1.UpdateUserPasswordRequest
 	7,  // 17: admin.v1.AuthService.GetUserInfo:output_type -> admin.v1.UserInfoForm
-	8,  // 18: admin.v1.AuthService.TreeUserMenus:output_type -> admin.v1.TreeRouteResponse
-	17, // 19: admin.v1.AuthService.ListUserButtons:output_type -> common.v1.StringValues
+	8,  // 18: admin.v1.AuthService.TreeUserMenu:output_type -> admin.v1.TreeRouteResponse
+	17, // 19: admin.v1.AuthService.ListUserButton:output_type -> common.v1.StringValues
 	12, // 20: admin.v1.AuthService.GetUserProfile:output_type -> admin.v1.UserProfileForm
 	18, // 21: admin.v1.AuthService.UpdateUserProfile:output_type -> google.protobuf.Empty
 	18, // 22: admin.v1.AuthService.SendPhoneCode:output_type -> google.protobuf.Empty

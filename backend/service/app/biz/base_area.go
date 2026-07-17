@@ -38,8 +38,8 @@ func NewBaseAreaCase(
 	}
 }
 
-// TreeBaseAreas 查询行政区域树形列表
-func (c *BaseAreaCase) TreeBaseAreas(ctx context.Context) (*commonv1.AppTreeOptionResponse, error) {
+// TreeBaseArea 查询行政区域树形列表
+func (c *BaseAreaCase) TreeBaseArea(ctx context.Context) (*commonv1.AppTreeOptionResponse, error) {
 	lock.RLock()
 	defer lock.RUnlock()
 	// 树缓存尚未初始化时，从数据库加载并构建整棵区域树。

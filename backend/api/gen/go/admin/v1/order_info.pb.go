@@ -8,7 +8,6 @@ package adminv1
 
 import (
 	reflect "reflect"
-	v1 "shop/api/gen/go/common/v1"
 	sync "sync"
 	unsafe "unsafe"
 
@@ -17,6 +16,8 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+
+	v1 "shop/api/gen/go/common/v1"
 )
 
 const (
@@ -27,7 +28,7 @@ const (
 )
 
 // 订单分页查询条件
-type PageOrderInfosRequest struct {
+type PageOrderInfoRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	TenantId      *int64                 `protobuf:"varint,1,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`                                               // 租户ID
 	TenantStoreId *int64                 `protobuf:"varint,2,opt,name=tenant_store_id,json=tenantStoreId,proto3,oneof" json:"tenant_store_id,omitempty"`                              // 租户门店ID
@@ -45,20 +46,20 @@ type PageOrderInfosRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *PageOrderInfosRequest) Reset() {
-	*x = PageOrderInfosRequest{}
+func (x *PageOrderInfoRequest) Reset() {
+	*x = PageOrderInfoRequest{}
 	mi := &file_admin_v1_order_info_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PageOrderInfosRequest) String() string {
+func (x *PageOrderInfoRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PageOrderInfosRequest) ProtoMessage() {}
+func (*PageOrderInfoRequest) ProtoMessage() {}
 
-func (x *PageOrderInfosRequest) ProtoReflect() protoreflect.Message {
+func (x *PageOrderInfoRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_order_info_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -70,89 +71,89 @@ func (x *PageOrderInfosRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PageOrderInfosRequest.ProtoReflect.Descriptor instead.
-func (*PageOrderInfosRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use PageOrderInfoRequest.ProtoReflect.Descriptor instead.
+func (*PageOrderInfoRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_order_info_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *PageOrderInfosRequest) GetTenantId() int64 {
+func (x *PageOrderInfoRequest) GetTenantId() int64 {
 	if x != nil && x.TenantId != nil {
 		return *x.TenantId
 	}
 	return 0
 }
 
-func (x *PageOrderInfosRequest) GetTenantStoreId() int64 {
+func (x *PageOrderInfoRequest) GetTenantStoreId() int64 {
 	if x != nil && x.TenantStoreId != nil {
 		return *x.TenantStoreId
 	}
 	return 0
 }
 
-func (x *PageOrderInfosRequest) GetOrderNo() string {
+func (x *PageOrderInfoRequest) GetOrderNo() string {
 	if x != nil {
 		return x.OrderNo
 	}
 	return ""
 }
 
-func (x *PageOrderInfosRequest) GetUserId() int64 {
+func (x *PageOrderInfoRequest) GetUserId() int64 {
 	if x != nil {
 		return x.UserId
 	}
 	return 0
 }
 
-func (x *PageOrderInfosRequest) GetStatus() v1.OrderInfoStatus {
+func (x *PageOrderInfoRequest) GetStatus() v1.OrderInfoStatus {
 	if x != nil && x.Status != nil {
 		return *x.Status
 	}
 	return v1.OrderInfoStatus(0)
 }
 
-func (x *PageOrderInfosRequest) GetPayType() v1.OrderPayType {
+func (x *PageOrderInfoRequest) GetPayType() v1.OrderPayType {
 	if x != nil && x.PayType != nil {
 		return *x.PayType
 	}
 	return v1.OrderPayType(0)
 }
 
-func (x *PageOrderInfosRequest) GetPayChannel() v1.OrderPayChannel {
+func (x *PageOrderInfoRequest) GetPayChannel() v1.OrderPayChannel {
 	if x != nil && x.PayChannel != nil {
 		return *x.PayChannel
 	}
 	return v1.OrderPayChannel(0)
 }
 
-func (x *PageOrderInfosRequest) GetTradeStatus() v1.OrderTradeStatus {
+func (x *PageOrderInfoRequest) GetTradeStatus() v1.OrderTradeStatus {
 	if x != nil && x.TradeStatus != nil {
 		return *x.TradeStatus
 	}
 	return v1.OrderTradeStatus(0)
 }
 
-func (x *PageOrderInfosRequest) GetRefundStatus() v1.OrderRefundStatus {
+func (x *PageOrderInfoRequest) GetRefundStatus() v1.OrderRefundStatus {
 	if x != nil && x.RefundStatus != nil {
 		return *x.RefundStatus
 	}
 	return v1.OrderRefundStatus(0)
 }
 
-func (x *PageOrderInfosRequest) GetCreatedAt() []string {
+func (x *PageOrderInfoRequest) GetCreatedAt() []string {
 	if x != nil {
 		return x.CreatedAt
 	}
 	return nil
 }
 
-func (x *PageOrderInfosRequest) GetPageNum() int64 {
+func (x *PageOrderInfoRequest) GetPageNum() int64 {
 	if x != nil {
 		return x.PageNum
 	}
 	return 0
 }
 
-func (x *PageOrderInfosRequest) GetPageSize() int64 {
+func (x *PageOrderInfoRequest) GetPageSize() int64 {
 	if x != nil {
 		return x.PageSize
 	}
@@ -160,7 +161,7 @@ func (x *PageOrderInfosRequest) GetPageSize() int64 {
 }
 
 // 订单分页响应
-type PageOrderInfosResponse struct {
+type PageOrderInfoResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	OrderInfos    []*OrderInfo           `protobuf:"bytes,1,rep,name=order_infos,json=orderInfos,proto3" json:"order_infos,omitempty"` // 订单分页数据
 	Total         int32                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`                            // 总数
@@ -168,20 +169,20 @@ type PageOrderInfosResponse struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *PageOrderInfosResponse) Reset() {
-	*x = PageOrderInfosResponse{}
+func (x *PageOrderInfoResponse) Reset() {
+	*x = PageOrderInfoResponse{}
 	mi := &file_admin_v1_order_info_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PageOrderInfosResponse) String() string {
+func (x *PageOrderInfoResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PageOrderInfosResponse) ProtoMessage() {}
+func (*PageOrderInfoResponse) ProtoMessage() {}
 
-func (x *PageOrderInfosResponse) ProtoReflect() protoreflect.Message {
+func (x *PageOrderInfoResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_order_info_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -193,19 +194,19 @@ func (x *PageOrderInfosResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PageOrderInfosResponse.ProtoReflect.Descriptor instead.
-func (*PageOrderInfosResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use PageOrderInfoResponse.ProtoReflect.Descriptor instead.
+func (*PageOrderInfoResponse) Descriptor() ([]byte, []int) {
 	return file_admin_v1_order_info_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *PageOrderInfosResponse) GetOrderInfos() []*OrderInfo {
+func (x *PageOrderInfoResponse) GetOrderInfos() []*OrderInfo {
 	if x != nil {
 		return x.OrderInfos
 	}
 	return nil
 }
 
-func (x *PageOrderInfosResponse) GetTotal() int32 {
+func (x *PageOrderInfoResponse) GetTotal() int32 {
 	if x != nil {
 		return x.Total
 	}
@@ -1788,8 +1789,8 @@ var File_admin_v1_order_info_proto protoreflect.FileDescriptor
 
 const file_admin_v1_order_info_proto_rawDesc = "" +
 	"\n" +
-	"\x19admin/v1/order_info.proto\x12\badmin.v1\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xf3\a\n" +
-	"\x15PageOrderInfosRequest\x120\n" +
+	"\x19admin/v1/order_info.proto\x12\badmin.v1\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xf2\a\n" +
+	"\x14PageOrderInfoRequest\x120\n" +
 	"\ttenant_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12A\n" +
 	"\x0ftenant_store_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDH\x01R\rtenantStoreId\x88\x01\x01\x12-\n" +
 	"\border_no\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f订单编号R\aorderNo\x12'\n" +
@@ -1812,8 +1813,8 @@ const file_admin_v1_order_info_proto_rawDesc = "" +
 	"\t_pay_typeB\x0e\n" +
 	"\f_pay_channelB\x0f\n" +
 	"\r_trade_statusB\x10\n" +
-	"\x0e_refund_status\"\x8c\x01\n" +
-	"\x16PageOrderInfosResponse\x12N\n" +
+	"\x0e_refund_status\"\x8b\x01\n" +
+	"\x15PageOrderInfoResponse\x12N\n" +
 	"\vorder_infos\x18\x01 \x03(\v2\x13.admin.v1.OrderInfoB\x18\xbaG\x15\x92\x02\x12订单分页数据R\n" +
 	"orderInfos\x12\"\n" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"5\n" +
@@ -1959,9 +1960,9 @@ const file_admin_v1_order_info_proto_rawDesc = "" +
 	"\x06refund\x18\x02 \x01(\x03B$\xbaG!\x92\x02\x1e【退款金额】单位：分R\x06refund\x12Q\n" +
 	"\vpayer_total\x18\x03 \x01(\x03B0\xbaG-\x92\x02*【用户实际支付金额】单位：分R\n" +
 	"payerTotal\x12M\n" +
-	"\fpayer_refund\x18\x04 \x01(\x03B*\xbaG'\x92\x02$【用户退款金额】单位：分R\vpayerRefund2\xa2\x06\n" +
-	"\x10OrderInfoService\x12u\n" +
-	"\x0ePageOrderInfos\x12\x1f.admin.v1.PageOrderInfosRequest\x1a .admin.v1.PageOrderInfosResponse\" \x82\xd3\xe4\x93\x02\x1a\x12\x18/api/v1/admin/order/info\x12q\n" +
+	"\fpayer_refund\x18\x04 \x01(\x03B*\xbaG'\x92\x02$【用户退款金额】单位：分R\vpayerRefund2\x9f\x06\n" +
+	"\x10OrderInfoService\x12r\n" +
+	"\rPageOrderInfo\x12\x1e.admin.v1.PageOrderInfoRequest\x1a\x1f.admin.v1.PageOrderInfoResponse\" \x82\xd3\xe4\x93\x02\x1a\x12\x18/api/v1/admin/order/info\x12q\n" +
 	"\fGetOrderInfo\x12\x1d.admin.v1.GetOrderInfoRequest\x1a\x1b.admin.v1.OrderInfoResponse\"%\x82\xd3\xe4\x93\x02\x1f\x12\x1d/api/v1/admin/order/info/{id}\x12\x8a\x01\n" +
 	"\x12GetOrderInfoRefund\x12#.admin.v1.GetOrderInfoRefundRequest\x1a!.admin.v1.OrderInfoRefundResponse\",\x82\xd3\xe4\x93\x02&\x12$/api/v1/admin/order/info/{id}/refund\x12\x82\x01\n" +
 	"\x0fRefundOrderInfo\x12 .admin.v1.RefundOrderInfoRequest\x1a\x16.google.protobuf.Empty\"5\x82\xd3\xe4\x93\x02/:\x01*\x1a*/api/v1/admin/order/info/{order_id}/refund\x12\x8e\x01\n" +
@@ -1983,8 +1984,8 @@ func file_admin_v1_order_info_proto_rawDescGZIP() []byte {
 
 var file_admin_v1_order_info_proto_msgTypes = make([]protoimpl.MessageInfo, 22)
 var file_admin_v1_order_info_proto_goTypes = []any{
-	(*PageOrderInfosRequest)(nil),       // 0: admin.v1.PageOrderInfosRequest
-	(*PageOrderInfosResponse)(nil),      // 1: admin.v1.PageOrderInfosResponse
+	(*PageOrderInfoRequest)(nil),        // 0: admin.v1.PageOrderInfoRequest
+	(*PageOrderInfoResponse)(nil),       // 1: admin.v1.PageOrderInfoResponse
 	(*GetOrderInfoRequest)(nil),         // 2: admin.v1.GetOrderInfoRequest
 	(*GetOrderInfoRefundRequest)(nil),   // 3: admin.v1.GetOrderInfoRefundRequest
 	(*GetOrderInfoShipmentRequest)(nil), // 4: admin.v1.GetOrderInfoShipmentRequest
@@ -2017,12 +2018,12 @@ var file_admin_v1_order_info_proto_goTypes = []any{
 	(*emptypb.Empty)(nil),               // 31: google.protobuf.Empty
 }
 var file_admin_v1_order_info_proto_depIdxs = []int32{
-	22, // 0: admin.v1.PageOrderInfosRequest.status:type_name -> common.v1.OrderInfoStatus
-	23, // 1: admin.v1.PageOrderInfosRequest.pay_type:type_name -> common.v1.OrderPayType
-	24, // 2: admin.v1.PageOrderInfosRequest.pay_channel:type_name -> common.v1.OrderPayChannel
-	25, // 3: admin.v1.PageOrderInfosRequest.trade_status:type_name -> common.v1.OrderTradeStatus
-	26, // 4: admin.v1.PageOrderInfosRequest.refund_status:type_name -> common.v1.OrderRefundStatus
-	10, // 5: admin.v1.PageOrderInfosResponse.order_infos:type_name -> admin.v1.OrderInfo
+	22, // 0: admin.v1.PageOrderInfoRequest.status:type_name -> common.v1.OrderInfoStatus
+	23, // 1: admin.v1.PageOrderInfoRequest.pay_type:type_name -> common.v1.OrderPayType
+	24, // 2: admin.v1.PageOrderInfoRequest.pay_channel:type_name -> common.v1.OrderPayChannel
+	25, // 3: admin.v1.PageOrderInfoRequest.trade_status:type_name -> common.v1.OrderTradeStatus
+	26, // 4: admin.v1.PageOrderInfoRequest.refund_status:type_name -> common.v1.OrderRefundStatus
+	10, // 5: admin.v1.PageOrderInfoResponse.order_infos:type_name -> admin.v1.OrderInfo
 	10, // 6: admin.v1.OrderInfoResponse.order:type_name -> admin.v1.OrderInfo
 	11, // 7: admin.v1.OrderInfoResponse.address:type_name -> admin.v1.OrderAddress
 	12, // 8: admin.v1.OrderInfoResponse.cancel:type_name -> admin.v1.OrderCancel
@@ -2051,13 +2052,13 @@ var file_admin_v1_order_info_proto_depIdxs = []int32{
 	27, // 31: admin.v1.OrderRefund.reason:type_name -> common.v1.OrderRefundReason
 	21, // 32: admin.v1.OrderRefund.amount:type_name -> admin.v1.OrderRefund.Amount
 	30, // 33: admin.v1.OrderRefund.status:type_name -> common.v1.OrderBillStatus
-	0,  // 34: admin.v1.OrderInfoService.PageOrderInfos:input_type -> admin.v1.PageOrderInfosRequest
+	0,  // 34: admin.v1.OrderInfoService.PageOrderInfo:input_type -> admin.v1.PageOrderInfoRequest
 	2,  // 35: admin.v1.OrderInfoService.GetOrderInfo:input_type -> admin.v1.GetOrderInfoRequest
 	3,  // 36: admin.v1.OrderInfoService.GetOrderInfoRefund:input_type -> admin.v1.GetOrderInfoRefundRequest
 	7,  // 37: admin.v1.OrderInfoService.RefundOrderInfo:input_type -> admin.v1.RefundOrderInfoRequest
 	4,  // 38: admin.v1.OrderInfoService.GetOrderInfoShipment:input_type -> admin.v1.GetOrderInfoShipmentRequest
 	9,  // 39: admin.v1.OrderInfoService.ShipOrderInfo:input_type -> admin.v1.ShipOrderInfoRequest
-	1,  // 40: admin.v1.OrderInfoService.PageOrderInfos:output_type -> admin.v1.PageOrderInfosResponse
+	1,  // 40: admin.v1.OrderInfoService.PageOrderInfo:output_type -> admin.v1.PageOrderInfoResponse
 	5,  // 41: admin.v1.OrderInfoService.GetOrderInfo:output_type -> admin.v1.OrderInfoResponse
 	6,  // 42: admin.v1.OrderInfoService.GetOrderInfoRefund:output_type -> admin.v1.OrderInfoRefundResponse
 	31, // 43: admin.v1.OrderInfoService.RefundOrderInfo:output_type -> google.protobuf.Empty

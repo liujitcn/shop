@@ -9,13 +9,13 @@ import type { AiAssistantMessageStatus, Terminal } from "../../common/v1/enum";
 import type { Timestamp } from "../../google/protobuf/timestamp";
 
 /** AI 助手快捷入口列表查询条件 */
-export interface ListAiAssistantShortcutsRequest {
+export interface ListAiAssistantShortcutRequest {
   /** 终端类型：枚举【Terminal】 */
   terminal: Terminal;
 }
 
 /** AI 助手快捷入口列表响应 */
-export interface ListAiAssistantShortcutsResponse {
+export interface ListAiAssistantShortcutResponse {
   /** 快捷入口列表 */
   shortcuts: AiAssistantShortcut[];
 }
@@ -53,13 +53,13 @@ export interface AiAssistantShortcutAction {
 }
 
 /** AI 助手会话列表查询条件 */
-export interface ListAiAssistantSessionsRequest {
+export interface ListAiAssistantSessionRequest {
   /** 终端类型：枚举【Terminal】 */
   terminal: Terminal;
 }
 
 /** AI 助手会话列表响应 */
-export interface ListAiAssistantSessionsResponse {
+export interface ListAiAssistantSessionResponse {
   /** 会话列表 */
   sessions: AiAssistantSession[];
 }
@@ -103,13 +103,13 @@ export interface DeleteAiAssistantSessionResponse {
 }
 
 /** AI 助手消息列表查询条件 */
-export interface ListAiAssistantMessagesRequest {
+export interface ListAiAssistantMessageRequest {
   /** 会话ID */
   session_id: string;
 }
 
 /** AI 助手消息列表响应 */
-export interface ListAiAssistantMessagesResponse {
+export interface ListAiAssistantMessageResponse {
   /** 消息列表 */
   messages: AiAssistantMessage[];
 }
@@ -259,9 +259,9 @@ export interface AiAssistantTool {
 /** Base AI 助手会话服务 */
 export interface AiAssistantService {
   /** 查询 AI 助手快捷入口列表 */
-  ListAiAssistantShortcuts(request: ListAiAssistantShortcutsRequest): Promise<ListAiAssistantShortcutsResponse>;
+  ListAiAssistantShortcut(request: ListAiAssistantShortcutRequest): Promise<ListAiAssistantShortcutResponse>;
   /** 查询 AI 助手会话列表 */
-  ListAiAssistantSessions(request: ListAiAssistantSessionsRequest): Promise<ListAiAssistantSessionsResponse>;
+  ListAiAssistantSession(request: ListAiAssistantSessionRequest): Promise<ListAiAssistantSessionResponse>;
   /** 创建 AI 助手会话 */
   CreateAiAssistantSession(request: CreateAiAssistantSessionRequest): Promise<CreateAiAssistantSessionResponse>;
   /** 更新 AI 助手会话 */
@@ -269,7 +269,7 @@ export interface AiAssistantService {
   /** 删除 AI 助手会话 */
   DeleteAiAssistantSession(request: DeleteAiAssistantSessionRequest): Promise<DeleteAiAssistantSessionResponse>;
   /** 查询 AI 助手消息列表 */
-  ListAiAssistantMessages(request: ListAiAssistantMessagesRequest): Promise<ListAiAssistantMessagesResponse>;
+  ListAiAssistantMessage(request: ListAiAssistantMessageRequest): Promise<ListAiAssistantMessageResponse>;
   /** 从指定消息创建 AI 助手分支会话 */
   CreateAiAssistantSessionBranch(
     request: CreateAiAssistantSessionBranchRequest,

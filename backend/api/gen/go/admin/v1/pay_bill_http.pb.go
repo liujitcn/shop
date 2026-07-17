@@ -18,40 +18,40 @@ var _ = new(context.Context)
 
 const _ = http.SupportPackageIsVersion3
 
-const OperationPayBillServicePagePayBills = "/admin.v1.PayBillService/PagePayBills"
+const OperationPayBillServicePagePayBill = "/admin.v1.PayBillService/PagePayBill"
 
 type PayBillServiceHTTPServer interface {
-	// PagePayBills 查询支付账单列表
-	PagePayBills(context.Context, *PagePayBillsRequest) (*PagePayBillsResponse, error)
+	// PagePayBill 查询支付账单列表
+	PagePayBill(context.Context, *PagePayBillRequest) (*PagePayBillResponse, error)
 }
 
 func RegisterPayBillServiceHTTPServer(s *http.Server, srv PayBillServiceHTTPServer) {
 	r := s.Route("/")
-	r.Handle("GET", "/api/v1/admin/pay/bill", _PayBillService_PagePayBills0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/pay/bill", _PayBillService_PagePayBill0_HTTP_Handler(srv))
 }
 
-func _PayBillService_PagePayBills0_HTTP_Handler(srv PayBillServiceHTTPServer) func(ctx http.Context) error {
+func _PayBillService_PagePayBill0_HTTP_Handler(srv PayBillServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in PagePayBillsRequest
+		var in PagePayBillRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationPayBillServicePagePayBills)
+		http.SetOperation(ctx, OperationPayBillServicePagePayBill)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.PagePayBills(ctx, req.(*PagePayBillsRequest))
+			return srv.PagePayBill(ctx, req.(*PagePayBillRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*PagePayBillsResponse)
+		reply := out.(*PagePayBillResponse)
 		return ctx.Result(200, reply)
 	}
 }
 
 type PayBillServiceHTTPClient interface {
-	// PagePayBills 查询支付账单列表
-	PagePayBills(ctx context.Context, req *PagePayBillsRequest, opts ...http.CallOption) (rsp *PagePayBillsResponse, err error)
+	// PagePayBill 查询支付账单列表
+	PagePayBill(ctx context.Context, req *PagePayBillRequest, opts ...http.CallOption) (rsp *PagePayBillResponse, err error)
 }
 
 type PayBillServiceHTTPClientImpl struct {
@@ -62,14 +62,14 @@ func NewPayBillServiceHTTPClient(client *http.Client) PayBillServiceHTTPClient {
 	return &PayBillServiceHTTPClientImpl{client}
 }
 
-// PagePayBills 查询支付账单列表
-func (c *PayBillServiceHTTPClientImpl) PagePayBills(ctx context.Context, in *PagePayBillsRequest, opts ...http.CallOption) (*PagePayBillsResponse, error) {
-	var out PagePayBillsResponse
+// PagePayBill 查询支付账单列表
+func (c *PayBillServiceHTTPClientImpl) PagePayBill(ctx context.Context, in *PagePayBillRequest, opts ...http.CallOption) (*PagePayBillResponse, error) {
+	var out PagePayBillResponse
 	pattern := "/api/v1/admin/pay/bill"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationPayBillServicePagePayBills),
+		http.Operation(OperationPayBillServicePagePayBill),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
