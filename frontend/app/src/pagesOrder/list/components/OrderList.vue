@@ -284,7 +284,7 @@ const onRefresherRefresh = async () => {
   <scroll-view
     enable-back-to-top
     scroll-y
-    class="orders"
+    class="order-list"
     refresher-enabled
     :refresher-triggered="isTriggered"
     @refresherrefresh="onRefresherRefresh"
@@ -295,12 +295,23 @@ const onRefresherRefresh = async () => {
       :key="order.is_trade ? `trade-${order.trade_id}` : `order-${order.id}`"
       class="card"
     >
-      <!-- 订单信息 -->
-      <view class="status">
-        <view class="order-number">
-          {{ order.is_trade ? '交易单' : '订单' }}
-          {{ order.is_trade ? order.trade_no : order.order_no }}
-        </view>
+      <!-- 普通订单有门店时展示门店；交易单仅展示状态。 -->
+      <view v-if="order.is_trade || order.order_goods_stores[0]?.store?.id" class="status">
+        <navigator
+          v-if="!order.is_trade && order.order_goods_stores[0]?.store?.id"
+          class="store-info"
+          :url="tenantStoreUrl(order.order_goods_stores[0].store.id)"
+          hover-class="none"
+        >
+          <image
+            v-if="order.order_goods_stores[0].store.logo"
+            class="store-logo"
+            :src="formatSrc(order.order_goods_stores[0].store.logo)"
+            mode="aspectFill"
+          />
+          <text class="store-name">{{ order.order_goods_stores[0].store.name || '门店信息' }}</text>
+          <text class="store-arrow">&gt;</text>
+        </navigator>
         <view class="status-info">
           <text class="date" v-if="order.cancel_time">{{ order.cancel_time }}</text>
           <text>{{ getOrderDisplayStatus(order) }}</text>
@@ -308,46 +319,29 @@ const onRefresherRefresh = async () => {
         </view>
       </view>
 
-      <!-- 聚合交易包含多个门店，门店子订单只包含当前门店。 -->
-      <view
+      <!-- 交易单按门店分组的商品直接连续展示，不显示门店或单号。 -->
+      <template
         v-for="group in order.order_goods_stores"
         :key="`${order.trade_id}-${group.store?.id}`"
-        class="store-group"
       >
         <navigator
-          v-if="group.store?.id"
-          class="store-info"
-          :url="tenantStoreUrl(group.store.id)"
-          hover-class="none"
-        >
-          <image
-            v-if="group.store.logo"
-            class="store-logo"
-            :src="formatSrc(group.store.logo)"
-            mode="aspectFill"
-          />
-          <text class="store-name">{{ group.store.name || '门店信息' }}</text>
-          <text class="store-arrow">&gt;</text>
-        </navigator>
-        <view v-else class="store-info">
-          <text class="store-name">门店信息</text>
-        </view>
-        <navigator
           v-for="item in group.goods"
-          :key="`${item.goods_id}-${item.sku_code}`"
-          class="goods"
+          :key="`${group.store?.id ?? 'store'}-${item.goods_id}-${item.sku_code}`"
+          class="goods-link"
           :url="buildOrderDetailUrl(order)"
           hover-class="none"
         >
-          <view class="cover">
-            <image class="image" mode="aspectFit" :src="formatSrc(item.picture)"></image>
-          </view>
-          <view class="meta">
-            <view class="name ellipsis">{{ item.name }}</view>
-            <view class="type">{{ item.spec_item.join('/') }}</view>
+          <view class="goods">
+            <view class="cover">
+              <image class="image" mode="aspectFit" :src="formatSrc(item.picture)"></image>
+            </view>
+            <view class="meta">
+              <view class="name ellipsis">{{ item.name }}</view>
+              <view class="type">{{ item.spec_item.join('/') }}</view>
+            </view>
           </view>
         </navigator>
-      </view>
+      </template>
       <!-- 支付信息 -->
       <view class="payment">
         <text class="quantity">共{{ order.goods_num }}件商品</text>
@@ -428,7 +422,7 @@ const onRefresherRefresh = async () => {
 
 <style lang="scss">
 // 订单列表
-.orders {
+.order-list {
   height: 100%;
 
   .card {
@@ -460,7 +454,16 @@ const onRefresherRefresh = async () => {
       color: #444;
     }
 
+    .store-logo {
+      flex-shrink: 0;
+      width: 36rpx;
+      height: 36rpx;
+      margin-right: 10rpx;
+      border-radius: 50%;
+    }
+
     .store-name {
+      min-width: 0;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -474,6 +477,7 @@ const onRefresherRefresh = async () => {
 
     .status-info {
       display: flex;
+      margin-left: auto;
       flex-shrink: 0;
       align-items: center;
     }
@@ -495,54 +499,17 @@ const onRefresherRefresh = async () => {
     }
   }
 
-  .order-number {
-    min-width: 0;
-    margin-right: 20rpx;
-    overflow: hidden;
-    color: #666;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .store-group {
-    padding-top: 12rpx;
-    border-top: 1rpx solid #eee;
-  }
-
-  .store-info {
-    display: flex;
-    align-items: center;
-    min-width: 0;
-    height: 64rpx;
-    color: #444;
-  }
-
-  .store-logo {
-    flex-shrink: 0;
-    width: 36rpx;
-    height: 36rpx;
-    margin-right: 10rpx;
-    border-radius: 50%;
-  }
-
-  .store-name {
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .store-arrow {
-    flex-shrink: 0;
-    margin-left: 8rpx;
-    color: #999;
+  .goods-link {
+    display: block;
+    margin-bottom: 20rpx;
   }
 
   .goods {
     display: flex;
-    margin-bottom: 20rpx;
+    min-width: 0;
 
     .cover {
+      flex: 0 0 170rpx;
       width: 170rpx;
       height: 170rpx;
       margin-right: 20rpx;
@@ -569,6 +536,7 @@ const onRefresherRefresh = async () => {
 
     .meta {
       flex: 1;
+      min-width: 0;
       display: flex;
       flex-direction: column;
       justify-content: center;

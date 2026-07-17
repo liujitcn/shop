@@ -1,7 +1,7 @@
 <template>
   <div class="goods-side-panels">
-    <HotRankChart :time-type="timeType" />
-    <CategoryChart :time-type="timeType" />
+    <HotRankChart :time-type="timeType" :tenant-id="tenantId" :tenant-store-id="tenantStoreId" />
+    <CategoryChart :time-type="timeType" :tenant-id="tenantId" :tenant-store-id="tenantStoreId" />
   </div>
 </template>
 
@@ -12,6 +12,10 @@ import HotRankChart from "./HotRankChart.vue";
 
 defineProps<{
   timeType: AnalyticsTimeType;
+  /** 默认租户选择的租户ID。 */
+  tenantId?: number;
+  /** 当前选择的门店ID。 */
+  tenantStoreId?: number;
 }>();
 </script>
 

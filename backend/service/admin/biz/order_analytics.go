@@ -249,7 +249,8 @@ func (c *OrderAnalyticsCase) queryOrderSummary(ctx context.Context, timeType com
 	for _, item := range countRows {
 		summaryMap[item.Key] = item
 	}
-	paidFacts, err := c.orderInfoCase.queryPaidOrderFacts(ctx, 0, 0, tenantID, tenantStoreID, startAt, endAt, false)
+	var paidFacts []*dto.OrderPaidFact
+	paidFacts, err = c.orderInfoCase.queryPaidOrderFacts(ctx, 0, 0, tenantID, tenantStoreID, startAt, endAt, false)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -289,7 +290,8 @@ func (c *OrderAnalyticsCase) queryGlobalOrderTradeSummary(ctx context.Context, t
 	for _, item := range countRows {
 		summaryMap[item.Key] = item
 	}
-	paidFacts, err := c.orderInfoCase.queryPaidOrderFacts(ctx, 0, 0, 0, 0, startAt, endAt, true)
+	var paidFacts []*dto.OrderPaidFact
+	paidFacts, err = c.orderInfoCase.queryPaidOrderFacts(ctx, 0, 0, 0, 0, startAt, endAt, true)
 	if err != nil {
 		return nil, nil, err
 	}

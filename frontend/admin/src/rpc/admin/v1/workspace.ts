@@ -98,14 +98,16 @@ export interface SummaryWorkspaceRiskResponse {
 
 /** 工作台待审核评价查询条件 */
 export interface ListWorkspacePendingCommentsRequest {
-  /** 返回数量，默认5，最大10 */
-  limit: number;
   /** 租户ID */
   tenant_id?:
     | number
     | undefined;
   /** 租户门店ID */
-  tenant_store_id?: number | undefined;
+  tenant_store_id?:
+    | number
+    | undefined;
+  /** 返回数量，默认5，最大10 */
+  limit: number;
 }
 
 /** 工作台待审核评价响应 */

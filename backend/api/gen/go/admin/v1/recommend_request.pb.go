@@ -414,14 +414,14 @@ func (x *RecommendRequestDetailResponse) GetItemList() []*RecommendRequestItem {
 type RecommendRequestContext struct {
 	state             protoimpl.MessageState   `protogen:"open.v1"`
 	GoodsId           int64                    `protobuf:"varint,1,opt,name=goods_id,json=goodsId,proto3" json:"goods_id,omitempty"`                                  // 锚点商品ID
-	OrderId           int64                    `protobuf:"varint,2,opt,name=order_id,json=orderId,proto3" json:"order_id,omitempty"`                                  // 关联订单ID
-	ContextGoodsIds   []int64                  `protobuf:"varint,3,rep,packed,name=context_goods_ids,json=contextGoodsIds,proto3" json:"context_goods_ids,omitempty"` // 上下文商品ID列表
-	Strategy          v1.RecommendStrategy     `protobuf:"varint,4,opt,name=strategy,proto3,enum=common.v1.RecommendStrategy" json:"strategy,omitempty"`              // 命中的推荐策略：字典【recommend_strategy】
-	ProviderName      string                   `protobuf:"bytes,5,opt,name=provider_name,json=providerName,proto3" json:"provider_name,omitempty"`                    // 上下文记录的推荐器
-	FinalProviderName string                   `protobuf:"bytes,6,opt,name=final_provider_name,json=finalProviderName,proto3" json:"final_provider_name,omitempty"`   // 最终命中的推荐器
-	Trace             []*RecommendRequestTrace `protobuf:"bytes,7,rep,name=trace,proto3" json:"trace,omitempty"`                                                      // 推荐请求链路轨迹
-	RawJson           string                   `protobuf:"bytes,8,opt,name=raw_json,json=rawJson,proto3" json:"raw_json,omitempty"`                                   // 原始上下文JSON
-	TradeId           int64                    `protobuf:"varint,9,opt,name=trade_id,json=tradeId,proto3" json:"trade_id,omitempty"`                                  // 关联交易单ID
+	TradeId           int64                    `protobuf:"varint,2,opt,name=trade_id,json=tradeId,proto3" json:"trade_id,omitempty"`                                  // 关联交易单ID
+	OrderId           int64                    `protobuf:"varint,3,opt,name=order_id,json=orderId,proto3" json:"order_id,omitempty"`                                  // 关联订单ID
+	ContextGoodsIds   []int64                  `protobuf:"varint,4,rep,packed,name=context_goods_ids,json=contextGoodsIds,proto3" json:"context_goods_ids,omitempty"` // 上下文商品ID列表
+	Strategy          v1.RecommendStrategy     `protobuf:"varint,5,opt,name=strategy,proto3,enum=common.v1.RecommendStrategy" json:"strategy,omitempty"`              // 命中的推荐策略：字典【recommend_strategy】
+	ProviderName      string                   `protobuf:"bytes,6,opt,name=provider_name,json=providerName,proto3" json:"provider_name,omitempty"`                    // 上下文记录的推荐器
+	FinalProviderName string                   `protobuf:"bytes,7,opt,name=final_provider_name,json=finalProviderName,proto3" json:"final_provider_name,omitempty"`   // 最终命中的推荐器
+	Trace             []*RecommendRequestTrace `protobuf:"bytes,8,rep,name=trace,proto3" json:"trace,omitempty"`                                                      // 推荐请求链路轨迹
+	RawJson           string                   `protobuf:"bytes,9,opt,name=raw_json,json=rawJson,proto3" json:"raw_json,omitempty"`                                   // 原始上下文JSON
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
@@ -459,6 +459,13 @@ func (*RecommendRequestContext) Descriptor() ([]byte, []int) {
 func (x *RecommendRequestContext) GetGoodsId() int64 {
 	if x != nil {
 		return x.GoodsId
+	}
+	return 0
+}
+
+func (x *RecommendRequestContext) GetTradeId() int64 {
+	if x != nil {
+		return x.TradeId
 	}
 	return 0
 }
@@ -510,13 +517,6 @@ func (x *RecommendRequestContext) GetRawJson() string {
 		return x.RawJson
 	}
 	return ""
-}
-
-func (x *RecommendRequestContext) GetTradeId() int64 {
-	if x != nil {
-		return x.TradeId
-	}
-	return 0
 }
 
 // 推荐请求链路轨迹
@@ -976,15 +976,15 @@ const file_admin_v1_recommend_request_proto_rawDesc = "" +
 	"\acontext\x18\x02 \x01(\v2!.admin.v1.RecommendRequestContextB\x1b\xbaG\x18\x92\x02\x15推荐上下文信息R\acontext\x12g\n" +
 	"\titem_list\x18\x03 \x03(\v2\x1e.admin.v1.RecommendRequestItemB*\xbaG'\x92\x02$当前请求页的推荐商品列表R\bitemList\"\x97\x05\n" +
 	"\x17RecommendRequestContext\x12/\n" +
-	"\bgoods_id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e锚点商品IDR\agoodsId\x12/\n" +
-	"\border_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e关联订单IDR\aorderId\x12I\n" +
-	"\x11context_goods_ids\x18\x03 \x03(\x03B\x1d\xbaG\x1a\x92\x02\x17上下文商品ID列表R\x0fcontextGoodsIds\x12v\n" +
-	"\bstrategy\x18\x04 \x01(\x0e2\x1c.common.v1.RecommendStrategyB<\xbaG9\x92\x026命中的推荐策略：字典【recommend_strategy】R\bstrategy\x12F\n" +
-	"\rprovider_name\x18\x05 \x01(\tB!\xbaG\x1e\x92\x02\x1b上下文记录的推荐器R\fproviderName\x12N\n" +
-	"\x13final_provider_name\x18\x06 \x01(\tB\x1e\xbaG\x1b\x92\x02\x18最终命中的推荐器R\x11finalProviderName\x12U\n" +
-	"\x05trace\x18\a \x03(\v2\x1f.admin.v1.RecommendRequestTraceB\x1e\xbaG\x1b\x92\x02\x18推荐请求链路轨迹R\x05trace\x124\n" +
-	"\braw_json\x18\b \x01(\tB\x19\xbaG\x16\x92\x02\x13原始上下文JSONR\arawJson\x122\n" +
-	"\btrade_id\x18\t \x01(\x03B\x17\xbaG\x14\x92\x02\x11关联交易单IDR\atradeId\"\xea\x02\n" +
+	"\bgoods_id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e锚点商品IDR\agoodsId\x122\n" +
+	"\btrade_id\x18\x02 \x01(\x03B\x17\xbaG\x14\x92\x02\x11关联交易单IDR\atradeId\x12/\n" +
+	"\border_id\x18\x03 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e关联订单IDR\aorderId\x12I\n" +
+	"\x11context_goods_ids\x18\x04 \x03(\x03B\x1d\xbaG\x1a\x92\x02\x17上下文商品ID列表R\x0fcontextGoodsIds\x12v\n" +
+	"\bstrategy\x18\x05 \x01(\x0e2\x1c.common.v1.RecommendStrategyB<\xbaG9\x92\x026命中的推荐策略：字典【recommend_strategy】R\bstrategy\x12F\n" +
+	"\rprovider_name\x18\x06 \x01(\tB!\xbaG\x1e\x92\x02\x1b上下文记录的推荐器R\fproviderName\x12N\n" +
+	"\x13final_provider_name\x18\a \x01(\tB\x1e\xbaG\x1b\x92\x02\x18最终命中的推荐器R\x11finalProviderName\x12U\n" +
+	"\x05trace\x18\b \x03(\v2\x1f.admin.v1.RecommendRequestTraceB\x1e\xbaG\x1b\x92\x02\x18推荐请求链路轨迹R\x05trace\x124\n" +
+	"\braw_json\x18\t \x01(\tB\x19\xbaG\x16\x92\x02\x13原始上下文JSONR\arawJson\"\xea\x02\n" +
 	"\x15RecommendRequestTrace\x12:\n" +
 	"\rprovider_name\x18\x01 \x01(\tB\x15\xbaG\x12\x92\x02\x0f推荐器名称R\fproviderName\x12M\n" +
 	"\fresult_count\x18\x02 \x01(\x05B*\xbaG'\x92\x02$当前推荐器返回的商品数量R\vresultCount\x123\n" +

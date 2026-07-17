@@ -15,6 +15,10 @@ import type { AnalyticsTimeType, AnalyticsTrendResponse } from "@/rpc/common/v1/
 
 const props = defineProps<{
   timeType: AnalyticsTimeType;
+  /** 默认租户选择的租户ID。 */
+  tenantId?: number;
+  /** 当前选择的门店ID。 */
+  tenantStoreId?: number;
 }>();
 
 const trendData = reactive<AnalyticsTrendResponse>({
@@ -87,15 +91,26 @@ const option = computed<ECOption>(() => ({
 }));
 
 /** 加载商品行为趋势数据。 */
-async function loadData(timeType: AnalyticsTimeType) {
-  const data = await defGoodsAnalyticsService.TrendGoodsAnalytics({ time_type: timeType });
-  Object.assign(trendData, data);
+async function loadData(timeType: AnalyticsTimeType, tenantId?: number, tenantStoreId?: number) {
+  try {
+    const data = await defGoodsAnalyticsService.TrendGoodsAnalytics({
+      time_type: timeType,
+      tenant_id: tenantId,
+      tenant_store_id: tenantStoreId
+    });
+    Object.assign(trendData, data);
+  } catch (_error) {
+    // 接口异常时清空趋势数据，避免未捕获 Promise 影响页面后续渲染。
+    trendData.axis = [];
+    trendData.series = [];
+    trendData.y_axis_names = [];
+  }
 }
 
 watch(
-  () => props.timeType,
-  value => {
-    loadData(value);
+  () => [props.timeType, props.tenantId, props.tenantStoreId] as const,
+  ([timeType, tenantId, tenantStoreId]) => {
+    loadData(timeType, tenantId, tenantStoreId);
   },
   { immediate: true }
 );

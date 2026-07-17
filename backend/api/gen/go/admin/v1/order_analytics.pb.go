@@ -28,9 +28,9 @@ const (
 // 订单摘要指标查询条件
 type SummaryOrderAnalyticsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	TimeType      v1.AnalyticsTimeType   `protobuf:"varint,1,opt,name=time_type,json=timeType,proto3,enum=common.v1.AnalyticsTimeType" json:"time_type,omitempty"` // 时间类型
-	TenantId      *int64                 `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`                            // 租户ID
-	TenantStoreId *int64                 `protobuf:"varint,3,opt,name=tenant_store_id,json=tenantStoreId,proto3,oneof" json:"tenant_store_id,omitempty"`           // 租户门店ID
+	TenantId      *int64                 `protobuf:"varint,1,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`                            // 租户ID
+	TenantStoreId *int64                 `protobuf:"varint,2,opt,name=tenant_store_id,json=tenantStoreId,proto3,oneof" json:"tenant_store_id,omitempty"`           // 租户门店ID
+	TimeType      v1.AnalyticsTimeType   `protobuf:"varint,3,opt,name=time_type,json=timeType,proto3,enum=common.v1.AnalyticsTimeType" json:"time_type,omitempty"` // 时间类型
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -65,13 +65,6 @@ func (*SummaryOrderAnalyticsRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_order_analytics_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *SummaryOrderAnalyticsRequest) GetTimeType() v1.AnalyticsTimeType {
-	if x != nil {
-		return x.TimeType
-	}
-	return v1.AnalyticsTimeType(0)
-}
-
 func (x *SummaryOrderAnalyticsRequest) GetTenantId() int64 {
 	if x != nil && x.TenantId != nil {
 		return *x.TenantId
@@ -86,12 +79,19 @@ func (x *SummaryOrderAnalyticsRequest) GetTenantStoreId() int64 {
 	return 0
 }
 
+func (x *SummaryOrderAnalyticsRequest) GetTimeType() v1.AnalyticsTimeType {
+	if x != nil {
+		return x.TimeType
+	}
+	return v1.AnalyticsTimeType(0)
+}
+
 // 订单趋势查询条件
 type TrendOrderAnalyticsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	TimeType      v1.AnalyticsTimeType   `protobuf:"varint,1,opt,name=time_type,json=timeType,proto3,enum=common.v1.AnalyticsTimeType" json:"time_type,omitempty"` // 时间类型
-	TenantId      *int64                 `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`                            // 租户ID
-	TenantStoreId *int64                 `protobuf:"varint,3,opt,name=tenant_store_id,json=tenantStoreId,proto3,oneof" json:"tenant_store_id,omitempty"`           // 租户门店ID
+	TenantId      *int64                 `protobuf:"varint,1,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`                            // 租户ID
+	TenantStoreId *int64                 `protobuf:"varint,2,opt,name=tenant_store_id,json=tenantStoreId,proto3,oneof" json:"tenant_store_id,omitempty"`           // 租户门店ID
+	TimeType      v1.AnalyticsTimeType   `protobuf:"varint,3,opt,name=time_type,json=timeType,proto3,enum=common.v1.AnalyticsTimeType" json:"time_type,omitempty"` // 时间类型
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -126,13 +126,6 @@ func (*TrendOrderAnalyticsRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_order_analytics_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *TrendOrderAnalyticsRequest) GetTimeType() v1.AnalyticsTimeType {
-	if x != nil {
-		return x.TimeType
-	}
-	return v1.AnalyticsTimeType(0)
-}
-
 func (x *TrendOrderAnalyticsRequest) GetTenantId() int64 {
 	if x != nil && x.TenantId != nil {
 		return *x.TenantId
@@ -147,12 +140,19 @@ func (x *TrendOrderAnalyticsRequest) GetTenantStoreId() int64 {
 	return 0
 }
 
+func (x *TrendOrderAnalyticsRequest) GetTimeType() v1.AnalyticsTimeType {
+	if x != nil {
+		return x.TimeType
+	}
+	return v1.AnalyticsTimeType(0)
+}
+
 // 订单状态分布查询条件
 type PieOrderAnalyticsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	TimeType      v1.AnalyticsTimeType   `protobuf:"varint,1,opt,name=time_type,json=timeType,proto3,enum=common.v1.AnalyticsTimeType" json:"time_type,omitempty"` // 时间类型
-	TenantId      *int64                 `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`                            // 租户ID
-	TenantStoreId *int64                 `protobuf:"varint,3,opt,name=tenant_store_id,json=tenantStoreId,proto3,oneof" json:"tenant_store_id,omitempty"`           // 租户门店ID
+	TenantId      *int64                 `protobuf:"varint,1,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`                            // 租户ID
+	TenantStoreId *int64                 `protobuf:"varint,2,opt,name=tenant_store_id,json=tenantStoreId,proto3,oneof" json:"tenant_store_id,omitempty"`           // 租户门店ID
+	TimeType      v1.AnalyticsTimeType   `protobuf:"varint,3,opt,name=time_type,json=timeType,proto3,enum=common.v1.AnalyticsTimeType" json:"time_type,omitempty"` // 时间类型
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -187,13 +187,6 @@ func (*PieOrderAnalyticsRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_order_analytics_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *PieOrderAnalyticsRequest) GetTimeType() v1.AnalyticsTimeType {
-	if x != nil {
-		return x.TimeType
-	}
-	return v1.AnalyticsTimeType(0)
-}
-
 func (x *PieOrderAnalyticsRequest) GetTenantId() int64 {
 	if x != nil && x.TenantId != nil {
 		return *x.TenantId
@@ -206,6 +199,13 @@ func (x *PieOrderAnalyticsRequest) GetTenantStoreId() int64 {
 		return *x.TenantStoreId
 	}
 	return 0
+}
+
+func (x *PieOrderAnalyticsRequest) GetTimeType() v1.AnalyticsTimeType {
+	if x != nil {
+		return x.TimeType
+	}
+	return v1.AnalyticsTimeType(0)
 }
 
 // 订单分析汇总响应
@@ -298,24 +298,24 @@ var File_admin_v1_order_analytics_proto protoreflect.FileDescriptor
 const file_admin_v1_order_analytics_proto_rawDesc = "" +
 	"\n" +
 	"\x1eadmin/v1/order_analytics.proto\x12\badmin.v1\x1a\x19common/v1/analytics.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\x84\x02\n" +
-	"\x1cSummaryOrderAnalyticsRequest\x12M\n" +
-	"\ttime_type\x18\x01 \x01(\x0e2\x1c.common.v1.AnalyticsTimeTypeB\x12\xbaG\x0f\x92\x02\f时间类型R\btimeType\x120\n" +
-	"\ttenant_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12A\n" +
-	"\x0ftenant_store_id\x18\x03 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDH\x01R\rtenantStoreId\x88\x01\x01B\f\n" +
+	"\x1cSummaryOrderAnalyticsRequest\x120\n" +
+	"\ttenant_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12A\n" +
+	"\x0ftenant_store_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDH\x01R\rtenantStoreId\x88\x01\x01\x12M\n" +
+	"\ttime_type\x18\x03 \x01(\x0e2\x1c.common.v1.AnalyticsTimeTypeB\x12\xbaG\x0f\x92\x02\f时间类型R\btimeTypeB\f\n" +
 	"\n" +
 	"_tenant_idB\x12\n" +
 	"\x10_tenant_store_id\"\x82\x02\n" +
-	"\x1aTrendOrderAnalyticsRequest\x12M\n" +
-	"\ttime_type\x18\x01 \x01(\x0e2\x1c.common.v1.AnalyticsTimeTypeB\x12\xbaG\x0f\x92\x02\f时间类型R\btimeType\x120\n" +
-	"\ttenant_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12A\n" +
-	"\x0ftenant_store_id\x18\x03 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDH\x01R\rtenantStoreId\x88\x01\x01B\f\n" +
+	"\x1aTrendOrderAnalyticsRequest\x120\n" +
+	"\ttenant_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12A\n" +
+	"\x0ftenant_store_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDH\x01R\rtenantStoreId\x88\x01\x01\x12M\n" +
+	"\ttime_type\x18\x03 \x01(\x0e2\x1c.common.v1.AnalyticsTimeTypeB\x12\xbaG\x0f\x92\x02\f时间类型R\btimeTypeB\f\n" +
 	"\n" +
 	"_tenant_idB\x12\n" +
 	"\x10_tenant_store_id\"\x80\x02\n" +
-	"\x18PieOrderAnalyticsRequest\x12M\n" +
-	"\ttime_type\x18\x01 \x01(\x0e2\x1c.common.v1.AnalyticsTimeTypeB\x12\xbaG\x0f\x92\x02\f时间类型R\btimeType\x120\n" +
-	"\ttenant_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12A\n" +
-	"\x0ftenant_store_id\x18\x03 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDH\x01R\rtenantStoreId\x88\x01\x01B\f\n" +
+	"\x18PieOrderAnalyticsRequest\x120\n" +
+	"\ttenant_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12A\n" +
+	"\x0ftenant_store_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDH\x01R\rtenantStoreId\x88\x01\x01\x12M\n" +
+	"\ttime_type\x18\x03 \x01(\x0e2\x1c.common.v1.AnalyticsTimeTypeB\x12\xbaG\x0f\x92\x02\f时间类型R\btimeTypeB\f\n" +
 	"\n" +
 	"_tenant_idB\x12\n" +
 	"\x10_tenant_store_id\"\x9e\x03\n" +

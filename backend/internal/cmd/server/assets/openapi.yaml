@@ -13,6 +13,14 @@ paths:
             description: 查询商品分类分布
             operationId: GoodsAnalyticsService_PieGoodsAnalytics
             parameters:
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+                - name: tenant_store_id
+                  in: query
+                  schema:
+                    type: string
                 - name: time_type
                   in: query
                   schema:
@@ -37,6 +45,14 @@ paths:
             description: 查询商品支付排行
             operationId: GoodsAnalyticsService_RankGoodsAnalytics
             parameters:
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+                - name: tenant_store_id
+                  in: query
+                  schema:
+                    type: string
                 - name: time_type
                   in: query
                   schema:
@@ -61,6 +77,14 @@ paths:
             description: 查询商品摘要指标
             operationId: GoodsAnalyticsService_SummaryGoodsAnalytics
             parameters:
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+                - name: tenant_store_id
+                  in: query
+                  schema:
+                    type: string
                 - name: time_type
                   in: query
                   schema:
@@ -85,6 +109,14 @@ paths:
             description: 查询商品趋势
             operationId: GoodsAnalyticsService_TrendGoodsAnalytics
             parameters:
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+                - name: tenant_store_id
+                  in: query
+                  schema:
+                    type: string
                 - name: time_type
                   in: query
                   schema:
@@ -109,6 +141,14 @@ paths:
             description: 查询订单状态分布
             operationId: OrderAnalyticsService_PieOrderAnalytics
             parameters:
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+                - name: tenant_store_id
+                  in: query
+                  schema:
+                    type: string
                 - name: time_type
                   in: query
                   schema:
@@ -119,14 +159,6 @@ paths:
                         - ANALYTICS_TIME_TYPE_YEAR
                     type: string
                     format: enum
-                - name: tenant_id
-                  in: query
-                  schema:
-                    type: string
-                - name: tenant_store_id
-                  in: query
-                  schema:
-                    type: string
             responses:
                 "200":
                     description: OK
@@ -141,6 +173,14 @@ paths:
             description: 查询订单摘要指标
             operationId: OrderAnalyticsService_SummaryOrderAnalytics
             parameters:
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+                - name: tenant_store_id
+                  in: query
+                  schema:
+                    type: string
                 - name: time_type
                   in: query
                   schema:
@@ -151,14 +191,6 @@ paths:
                         - ANALYTICS_TIME_TYPE_YEAR
                     type: string
                     format: enum
-                - name: tenant_id
-                  in: query
-                  schema:
-                    type: string
-                - name: tenant_store_id
-                  in: query
-                  schema:
-                    type: string
             responses:
                 "200":
                     description: OK
@@ -173,6 +205,14 @@ paths:
             description: 查询订单趋势
             operationId: OrderAnalyticsService_TrendOrderAnalytics
             parameters:
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+                - name: tenant_store_id
+                  in: query
+                  schema:
+                    type: string
                 - name: time_type
                   in: query
                   schema:
@@ -183,14 +223,6 @@ paths:
                         - ANALYTICS_TIME_TYPE_YEAR
                     type: string
                     format: enum
-                - name: tenant_id
-                  in: query
-                  schema:
-                    type: string
-                - name: tenant_store_id
-                  in: query
-                  schema:
-                    type: string
             responses:
                 "200":
                     description: OK
@@ -3792,6 +3824,14 @@ paths:
             description: 查询商品月报名细
             operationId: GoodsReportService_ListGoodsMonthReports
             parameters:
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+                - name: tenant_store_id
+                  in: query
+                  schema:
+                    type: string
                 - name: start_month
                   in: query
                   schema:
@@ -3814,6 +3854,14 @@ paths:
             description: 查询商品月报汇总
             operationId: GoodsReportService_SummaryGoodsMonthReport
             parameters:
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+                - name: tenant_store_id
+                  in: query
+                  schema:
+                    type: string
                 - name: start_month
                   in: query
                   schema:
@@ -3836,6 +3884,14 @@ paths:
             description: 查询订单日报明细
             operationId: OrderReportService_ListOrderDayReports
             parameters:
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+                - name: tenant_store_id
+                  in: query
+                  schema:
+                    type: string
                 - name: start_date
                   in: query
                   schema:
@@ -3854,14 +3910,6 @@ paths:
                   schema:
                     type: integer
                     format: int32
-                - name: tenant_id
-                  in: query
-                  schema:
-                    type: string
-                - name: tenant_store_id
-                  in: query
-                  schema:
-                    type: string
             responses:
                 "200":
                     description: OK
@@ -3876,6 +3924,14 @@ paths:
             description: 查询订单日报汇总
             operationId: OrderReportService_SummaryOrderDayReport
             parameters:
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+                - name: tenant_store_id
+                  in: query
+                  schema:
+                    type: string
                 - name: start_date
                   in: query
                   schema:
@@ -3894,14 +3950,6 @@ paths:
                   schema:
                     type: integer
                     format: int32
-                - name: tenant_id
-                  in: query
-                  schema:
-                    type: string
-                - name: tenant_store_id
-                  in: query
-                  schema:
-                    type: string
             responses:
                 "200":
                     description: OK
@@ -3916,6 +3964,14 @@ paths:
             description: 查询订单月报明细
             operationId: OrderReportService_ListOrderMonthReports
             parameters:
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+                - name: tenant_store_id
+                  in: query
+                  schema:
+                    type: string
                 - name: start_month
                   in: query
                   schema:
@@ -3934,14 +3990,6 @@ paths:
                   schema:
                     type: integer
                     format: int32
-                - name: tenant_id
-                  in: query
-                  schema:
-                    type: string
-                - name: tenant_store_id
-                  in: query
-                  schema:
-                    type: string
             responses:
                 "200":
                     description: OK
@@ -3956,6 +4004,14 @@ paths:
             description: 查询订单月报汇总
             operationId: OrderReportService_SummaryOrderMonthReport
             parameters:
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+                - name: tenant_store_id
+                  in: query
+                  schema:
+                    type: string
                 - name: start_month
                   in: query
                   schema:
@@ -3974,14 +4030,6 @@ paths:
                   schema:
                     type: integer
                     format: int32
-                - name: tenant_id
-                  in: query
-                  schema:
-                    type: string
-                - name: tenant_store_id
-                  in: query
-                  schema:
-                    type: string
             responses:
                 "200":
                     description: OK
@@ -4778,15 +4826,15 @@ paths:
             description: 查询工作台待审核评价
             operationId: WorkspaceService_ListWorkspacePendingComments
             parameters:
-                - name: limit
-                  in: query
-                  schema:
-                    type: string
                 - name: tenant_id
                   in: query
                   schema:
                     type: string
                 - name: tenant_store_id
+                  in: query
+                  schema:
+                    type: string
+                - name: limit
                   in: query
                   schema:
                     type: string
@@ -12375,6 +12423,9 @@ components:
                 goods_id:
                     type: string
                     description: 锚点商品ID
+                trade_id:
+                    type: string
+                    description: 关联交易单ID
                 order_id:
                     type: string
                     description: 关联订单ID
@@ -12405,9 +12456,6 @@ components:
                 raw_json:
                     type: string
                     description: 原始上下文JSON
-                trade_id:
-                    type: string
-                    description: 关联交易单ID
             description: 推荐请求上下文信息
         RecommendRequestDetailResponse:
             type: object

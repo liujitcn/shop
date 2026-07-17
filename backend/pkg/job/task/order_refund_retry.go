@@ -10,6 +10,7 @@ import (
 
 	appv1 "shop/api/gen/go/app/v1"
 	"shop/pkg/gen/data"
+	"shop/pkg/gen/models"
 	"shop/pkg/wx"
 	appBiz "shop/service/app/biz"
 
@@ -74,7 +75,8 @@ func (t *OrderRefundRetry) Exec(args map[string]string) ([]string, error) {
 	opts = append(opts, repository.Where(query.CreateTime.Lte(time.Now().Add(-time.Duration(retryDelayMinutes)*time.Minute))))
 	opts = append(opts, repository.Order(query.CreateTime.Asc()))
 	opts = append(opts, repository.Limit(batchSize))
-	orderRefunds, err := t.orderRefundRepo.List(t.ctx, opts...)
+	var orderRefunds []*models.OrderRefund
+	orderRefunds, err = t.orderRefundRepo.List(t.ctx, opts...)
 	if err != nil {
 		return []string{err.Error()}, err
 	}

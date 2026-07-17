@@ -35,14 +35,12 @@ const refundStatusText = new Map<OrderRefundStatus, string>([
 
 /** getOrderDisplayStatus 返回订单卡片和详情页使用的状态文案。 */
 export const getOrderDisplayStatus = (order: OrderInfo) => {
-  if (
-    order.refund_status !== OrderRefundStatus.UNKNOWN_ORS &&
-    order.refund_status !== OrderRefundStatus.NONE_ORS
-  ) {
-    return refundStatusText.get(order.refund_status) || '退款/售后'
-  }
   if (order.is_trade || order.status === OrderInfoStatus.NOT_STARTED_OIS) {
     return tradeStatusText.get(order.trade_status) || '交易处理中'
+  }
+  const refundStatus = refundStatusText.get(order.refund_status)
+  if (refundStatus) {
+    return refundStatus
   }
   return orderStatusText.get(order.status) || '订单处理中'
 }

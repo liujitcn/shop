@@ -129,7 +129,7 @@ type WxPay struct {
 	NotifyUrl     string                 `protobuf:"bytes,3,opt,name=notify_url,json=notifyUrl,proto3" json:"notify_url,omitempty"`            // 通知地址
 	MchCertSn     string                 `protobuf:"bytes,80,opt,name=mch_cert_sn,json=mchCertSn,proto3" json:"mch_cert_sn,omitempty"`         // 商户证书序列号
 	MchCertPath   string                 `protobuf:"bytes,81,opt,name=mch_cert_path,json=mchCertPath,proto3" json:"mch_cert_path,omitempty"`   // 商户证书路径
-	MchApiV3Key   string                 `protobuf:"bytes,82,opt,name=mch_api_v3_key,json=mchAPIv3Key,proto3" json:"mch_api_v3_key,omitempty"` // api 密钥
+	MchApiV3Key   string                 `protobuf:"bytes,82,opt,name=mch_api_v3_key,json=mchApiV3Key,proto3" json:"mch_api_v3_key,omitempty"` // api 密钥
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -278,7 +278,7 @@ const file_config_v1_shop_config_proto_rawDesc = "" +
 	"\vmch_cert_sn\x18P \x01(\tB\x1b\xbaG\x18\x92\x02\x15商户证书序列号R\tmchCertSn\x12<\n" +
 	"\rmch_cert_path\x18Q \x01(\tB\x18\xbaG\x15\x92\x02\x12商户证书路径R\vmchCertPath\x125\n" +
 	"\x0emch_api_v3_key\x18R \x01(\tB\x10\xbaG\r\x92\x02\n" +
-	"api 密钥R\vmchAPIv3Key\"k\n" +
+	"api 密钥R\vmchApiV3Key\"k\n" +
 	"\tRecommend\x123\n" +
 	"\ventry_point\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f请求地址R\n" +
 	"entryPoint\x12)\n" +

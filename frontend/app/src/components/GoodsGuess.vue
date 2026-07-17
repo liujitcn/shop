@@ -252,7 +252,7 @@ defineExpose({
     <view class="caption">
       <text class="text">{{ props.title }}</text>
     </view>
-    <view v-if="guessList.length" class="guess">
+    <view v-if="guessList.length" class="goods-grid">
       <view v-for="item in guessList" :key="item.id" class="guess-item" @tap="onTapGoods(item)">
         <image class="image" mode="aspectFill" :src="formatSrc(item.picture)" />
         <view class="name"> {{ item.name }} </view>
@@ -308,21 +308,26 @@ defineExpose({
 }
 
 /* 猜你喜欢 */
-.guess {
+.goods-grid {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
+  row-gap: 20rpx;
   padding: 0 20rpx;
+
   .guess-item {
+    box-sizing: border-box;
+    min-width: 0;
     width: 345rpx;
     padding: 24rpx 20rpx 20rpx;
-    margin-bottom: 20rpx;
     border-radius: 10rpx;
     overflow: hidden;
     background-color: #fff;
   }
+
   .image {
-    width: 304rpx;
+    display: block;
+    width: 100%;
     height: 304rpx;
   }
   .name {

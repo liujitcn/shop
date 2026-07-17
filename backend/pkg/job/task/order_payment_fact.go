@@ -44,7 +44,8 @@ func listPaidTradesByFactTime(
 		tradeOpts = append(tradeOpts, repository.Where(tradeQuery.ID.In(onlineTradeIDs...)))
 		tradeOpts = append(tradeOpts, repository.Where(tradeQuery.PayType.Eq(_const.ORDER_PAY_TYPE_ONLINE_PAY)))
 		tradeOpts = append(tradeOpts, repository.Where(tradeQuery.Status.In(utils.PaidTradeStatuses()...)))
-		orderTrades, err := orderTradeRepo.List(ctx, tradeOpts...)
+		var orderTrades []*models.OrderTrade
+		orderTrades, err = orderTradeRepo.List(ctx, tradeOpts...)
 		if err != nil {
 			return nil, err
 		}
@@ -59,7 +60,8 @@ func listPaidTradesByFactTime(
 	tradeOpts = append(tradeOpts, repository.Where(tradeQuery.CreatedAt.Lt(endAt)))
 	tradeOpts = append(tradeOpts, repository.Where(tradeQuery.PayType.Eq(_const.ORDER_PAY_TYPE_CASH_ON_DELIVERY)))
 	tradeOpts = append(tradeOpts, repository.Where(tradeQuery.Status.In(utils.PaidTradeStatuses()...)))
-	cashOnDeliveryTrades, err := orderTradeRepo.List(ctx, tradeOpts...)
+	var cashOnDeliveryTrades []*models.OrderTrade
+	cashOnDeliveryTrades, err = orderTradeRepo.List(ctx, tradeOpts...)
 	if err != nil {
 		return nil, err
 	}

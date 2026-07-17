@@ -893,7 +893,8 @@ func (c *CommentCase) approveDiscussionByAI(ctx context.Context, record *models.
 	if !updated {
 		return nil
 	}
-	commentInfo, err := c.commentInfoCase.FindAnyByID(ctx, record.CommentID)
+	var commentInfo *models.CommentInfo
+	commentInfo, err = c.commentInfoCase.FindAnyByID(ctx, record.CommentID)
 	if err == nil {
 		queue.DispatchCommentSummaryRefresh(commentInfo.GoodsID)
 	}
@@ -964,7 +965,8 @@ func (c *CommentCase) refreshGoodsCommentSummary(ctx context.Context, goodsID in
 	}
 
 	tagNameMap := make(map[int64]string)
-	tagList, err := c.commentTagCase.listVisibleByGoodsID(ctx, goodsID)
+	var tagList []*models.CommentTag
+	tagList, err = c.commentTagCase.listVisibleByGoodsID(ctx, goodsID)
 	if err != nil {
 		log.Error(fmt.Sprintf("refreshGoodsCommentSummary load tags goodsID=%d err=%v", goodsID, err))
 	} else {

@@ -8,6 +8,14 @@
 
 /** 商品月报汇总查询条件 */
 export interface SummaryGoodsMonthReportRequest {
+  /** 租户ID */
+  tenant_id?:
+    | number
+    | undefined;
+  /** 租户门店ID */
+  tenant_store_id?:
+    | number
+    | undefined;
   /** 开始月份，格式：YYYY-MM */
   start_month: string;
   /** 结束月份，格式：YYYY-MM */
@@ -16,6 +24,14 @@ export interface SummaryGoodsMonthReportRequest {
 
 /** 商品月报列表请求参数 */
 export interface ListGoodsMonthReportsRequest {
+  /** 租户ID */
+  tenant_id?:
+    | number
+    | undefined;
+  /** 租户门店ID */
+  tenant_store_id?:
+    | number
+    | undefined;
   /** 开始月份，格式：YYYY-MM */
   start_month: string;
   /** 结束月份，格式：YYYY-MM */

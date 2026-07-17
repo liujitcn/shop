@@ -257,12 +257,13 @@ const onOrderSubmit = async () => {
   if (Number(activePayType.value.value) === OrderPayType.ONLINE_PAY) {
     try {
       await startOrderPayment(res.trade_id)
-    } catch {
-      // 交易已经创建，预支付失败时也进入结果页，避免重复下单。
-      await redirectToOrderPayment(res.trade_id)
+    } catch (error) {
+      // 调起支付失败时保留接口错误提示，不进入支付结果页伪装为支付确认中。
+      isSubmitting.value = false
+      throw error
     }
   } else {
-    uni.redirectTo({ url: orderDetailUrl({ trade_id: res.trade_id }) })
+    await redirectToOrderPayment(res.trade_id)
   }
 }
 
@@ -415,6 +416,10 @@ const onOrderSubmitOk = computed(() => {
         <text class="number symbol"> {{ formatPrice(orderPre!.summary?.post_fee) }}</text>
       </view>
     </view>
+    <view
+      class="toolbar-placeholder"
+      :style="{ height: `calc(100rpx + ${safeAreaInsets!.bottom}px)` }"
+    />
   </scroll-view>
 
   <!-- 吸底工具栏 -->

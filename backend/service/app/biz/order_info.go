@@ -313,7 +313,8 @@ func (c *OrderInfoCase) recoverCompletedOrderRefund(ctx context.Context, orderTr
 	query := c.orderRefundCase.Query(ctx).OrderRefund
 	opts := make([]repository.QueryOption, 0, 1)
 	opts = append(opts, repository.Where(query.OrderID.Eq(orderInfo.ID)))
-	orderRefunds, err := c.orderRefundCase.List(ctx, opts...)
+	var orderRefunds []*models.OrderRefund
+	orderRefunds, err = c.orderRefundCase.List(ctx, opts...)
 	if err != nil {
 		return err
 	}
@@ -589,7 +590,12 @@ func (c *OrderInfoCase) PageOrderInfo(ctx context.Context, req *appv1.PageOrderI
 				_const.ORDER_TRADE_STATUS_CLOSED,
 			)))
 		}
-		opts = append(opts, repository.Order(query.CreatedAt.Desc(), query.ID.Desc()))
+		// 全部订单页优先展示待支付、支付中和已关闭的交易单，再按创建时间排序。
+		if noStatusFilter {
+			opts = append(opts, repository.Order(query.Status.Asc(), query.CreatedAt.Desc(), query.ID.Desc()))
+		} else {
+			opts = append(opts, repository.Order(query.CreatedAt.Desc(), query.ID.Desc()))
+		}
 		trades, tradeTotal, err = c.orderTradeCase.Page(ctx, 1, fetchSize, opts...)
 		if err != nil {
 			return nil, err
@@ -692,11 +698,13 @@ func (c *OrderInfoCase) PageOrderInfo(ctx context.Context, req *appv1.PageOrderI
 		orderIDs = append(orderIDs, orderInfo.ID)
 		orderInfoMap[orderInfo.ID] = orderInfo
 	}
-	orderGoodsMap, err := c.orderGoodsCase.mapByOrderIDs(ctx, orderIDs)
+	var orderGoodsMap map[int64][]*models.OrderGoods
+	orderGoodsMap, err = c.orderGoodsCase.mapByOrderIDs(ctx, orderIDs)
 	if err != nil {
 		return nil, err
 	}
-	orderGoodsStoreMap, err := c.buildOrderGoodsStoreMap(ctx, orderGoodsMap)
+	var orderGoodsStoreMap map[int64][]*appv1.OrderGoodsStore
+	orderGoodsStoreMap, err = c.buildOrderGoodsStoreMap(ctx, orderGoodsMap)
 	if err != nil {
 		return nil, err
 	}
@@ -724,14 +732,24 @@ func (c *OrderInfoCase) PageOrderInfo(ctx context.Context, req *appv1.PageOrderI
 		items = append(items, &appDto.OrderPageItem{OrderInfo: protoOrder, CreatedAt: trade.CreatedAt})
 	}
 	return &appv1.PageOrderInfoResponse{
-		OrderInfos: pageOrderItems(items, pageNum, pageSize),
+		OrderInfos: pageOrderItems(items, pageNum, pageSize, noStatusFilter),
 		Total:      int32(tradeTotal + orderTotal),
 	}, nil
 }
 
-// pageOrderItems 将交易聚合记录和门店订单按创建时间合并后截取目标页。
-func pageOrderItems(items []*appDto.OrderPageItem, pageNum, pageSize int64) []*appv1.OrderInfo {
+// pageOrderItems 将交易聚合记录和门店订单合并后截取目标页。
+func pageOrderItems(items []*appDto.OrderPageItem, pageNum, pageSize int64, prioritizeTrades bool) []*appv1.OrderInfo {
 	sort.SliceStable(items, func(i, j int) bool {
+		if prioritizeTrades {
+			leftTrade := items[i].OrderInfo.GetIsTrade()
+			rightTrade := items[j].OrderInfo.GetIsTrade()
+			if leftTrade != rightTrade {
+				return leftTrade
+			}
+			if leftTrade && items[i].OrderInfo.GetTradeStatus() != items[j].OrderInfo.GetTradeStatus() {
+				return items[i].OrderInfo.GetTradeStatus() < items[j].OrderInfo.GetTradeStatus()
+			}
+		}
 		if items[i].CreatedAt.Equal(items[j].CreatedAt) {
 			return items[i].OrderInfo.GetId() > items[j].OrderInfo.GetId()
 		}
@@ -802,7 +820,8 @@ func (c *OrderInfoCase) GetOrderInfoByID(ctx context.Context, id int64) (*appv1.
 	}
 
 	// 查询订单商品明细，并同时按商品快照中的门店编号生成展示分组。
-	orderGoodsList, err := c.orderGoodsCase.listByOrderID(ctx, orderInfo.Id)
+	var orderGoodsList []*models.OrderGoods
+	orderGoodsList, err = c.orderGoodsCase.listByOrderID(ctx, orderInfo.Id)
 	if err != nil {
 		return nil, err
 	}
@@ -1607,7 +1626,8 @@ func (c *OrderInfoCase) cancelOrder(ctx context.Context, userID int64, req *appv
 	opts := make([]repository.QueryOption, 0, 2)
 	opts = append(opts, repository.Where(query.TradeID.Eq(orderTrade.ID)))
 	opts = append(opts, repository.Where(query.UserID.Eq(userID)))
-	orderInfos, err := c.List(ctx, opts...)
+	var orderInfos []*models.OrderInfo
+	orderInfos, err = c.List(ctx, opts...)
 	if err != nil {
 		return err
 	}

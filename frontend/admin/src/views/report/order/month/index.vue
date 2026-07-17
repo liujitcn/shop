@@ -8,15 +8,6 @@
     >
       <template #toolbar>
         <div class="report-toolbar">
-          <el-date-picker
-            v-model="monthRange"
-            type="monthrange"
-            unlink-panels
-            range-separator="~"
-            start-placeholder="开始月份"
-            end-placeholder="结束月份"
-            value-format="YYYY-MM"
-          />
           <el-tree-select
             v-if="isDefaultTenant"
             v-model="tenantStoreTreeValue"
@@ -42,6 +33,15 @@
               :value="Number(item.value)"
             />
           </el-select>
+          <el-date-picker
+            v-model="monthRange"
+            type="monthrange"
+            unlink-panels
+            range-separator="~"
+            start-placeholder="开始月份"
+            end-placeholder="结束月份"
+            value-format="YYYY-MM"
+          />
           <el-button type="primary" @click="loadData">查询</el-button>
         </div>
       </template>

@@ -14,6 +14,10 @@ import type { AnalyticsRankResponse, AnalyticsTimeType } from "@/rpc/common/v1/a
 
 const props = defineProps<{
   timeType: AnalyticsTimeType;
+  /** 默认租户选择的租户ID。 */
+  tenantId?: number;
+  /** 当前选择的门店ID。 */
+  tenantStoreId?: number;
 }>();
 
 const rankData = reactive<AnalyticsRankResponse>({
@@ -72,15 +76,19 @@ const option = computed<ECOption>(() => ({
 }));
 
 /** 加载商品支付排行数据。 */
-async function loadData(timeType: AnalyticsTimeType) {
-  const data = await defGoodsAnalyticsService.RankGoodsAnalytics({ time_type: timeType });
+async function loadData(timeType: AnalyticsTimeType, tenantId?: number, tenantStoreId?: number) {
+  const data = await defGoodsAnalyticsService.RankGoodsAnalytics({
+    time_type: timeType,
+    tenant_id: tenantId,
+    tenant_store_id: tenantStoreId
+  });
   Object.assign(rankData, data);
 }
 
 watch(
-  () => props.timeType,
-  value => {
-    loadData(value);
+  () => [props.timeType, props.tenantId, props.tenantStoreId] as const,
+  ([timeType, tenantId, tenantStoreId]) => {
+    loadData(timeType, tenantId, tenantStoreId);
   },
   { immediate: true }
 );

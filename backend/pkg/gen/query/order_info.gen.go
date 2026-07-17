@@ -28,9 +28,9 @@ func newOrderInfo(db *gorm.DB, opts ...gen.DOOption) orderInfo {
 	tableName := _orderInfo.orderInfoDo.TableName()
 	_orderInfo.ALL = field.NewAsterisk(tableName)
 	_orderInfo.ID = field.NewInt64(tableName, "id")
-	_orderInfo.TradeID = field.NewInt64(tableName, "trade_id")
 	_orderInfo.TenantID = field.NewInt64(tableName, "tenant_id")
 	_orderInfo.TenantStoreID = field.NewInt64(tableName, "tenant_store_id")
+	_orderInfo.TradeID = field.NewInt64(tableName, "trade_id")
 	_orderInfo.OrderNo = field.NewString(tableName, "order_no")
 	_orderInfo.UserID = field.NewInt64(tableName, "user_id")
 	_orderInfo.PayMoney = field.NewInt64(tableName, "pay_money")
@@ -56,9 +56,9 @@ type orderInfo struct {
 
 	ALL           field.Asterisk
 	ID            field.Int64  // 订单ID
-	TradeID       field.Int64  // 交易单ID
 	TenantID      field.Int64  // 租户ID
 	TenantStoreID field.Int64  // 租户门店ID
+	TradeID       field.Int64  // 交易单ID
 	OrderNo       field.String // 订单编号
 	UserID        field.Int64  // 用户ID
 	PayMoney      field.Int64  // 实际支付金额
@@ -89,9 +89,9 @@ func (o orderInfo) As(alias string) *orderInfo {
 func (o *orderInfo) updateTableName(table string) *orderInfo {
 	o.ALL = field.NewAsterisk(table)
 	o.ID = field.NewInt64(table, "id")
-	o.TradeID = field.NewInt64(table, "trade_id")
 	o.TenantID = field.NewInt64(table, "tenant_id")
 	o.TenantStoreID = field.NewInt64(table, "tenant_store_id")
+	o.TradeID = field.NewInt64(table, "trade_id")
 	o.OrderNo = field.NewString(table, "order_no")
 	o.UserID = field.NewInt64(table, "user_id")
 	o.PayMoney = field.NewInt64(table, "pay_money")
@@ -133,9 +133,9 @@ func (o *orderInfo) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 func (o *orderInfo) fillFieldMap() {
 	o.fieldMap = make(map[string]field.Expr, 17)
 	o.fieldMap["id"] = o.ID
-	o.fieldMap["trade_id"] = o.TradeID
 	o.fieldMap["tenant_id"] = o.TenantID
 	o.fieldMap["tenant_store_id"] = o.TenantStoreID
+	o.fieldMap["trade_id"] = o.TradeID
 	o.fieldMap["order_no"] = o.OrderNo
 	o.fieldMap["user_id"] = o.UserID
 	o.fieldMap["pay_money"] = o.PayMoney

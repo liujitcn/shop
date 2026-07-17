@@ -92,7 +92,8 @@ func (r *Runner) Run(ctx context.Context, request Request) (*Result, error) {
 		EnableStreaming: request.Stream,
 	})
 	iter := runner.Run(ctx, request.Messages, einoadk.WithCallbacks(callback.NewHandler()))
-	messageValue, err := consumeEvents(iter, request.OnDelta, request.Stream)
+	var messageValue *schema.AgenticMessage
+	messageValue, err = consumeEvents(iter, request.OnDelta, request.Stream)
 	if err != nil {
 		return nil, err
 	}

@@ -14,24 +14,56 @@ import type {
 
 /** 商品摘要指标查询条件 */
 export interface SummaryGoodsAnalyticsRequest {
+  /** 租户ID */
+  tenant_id?:
+    | number
+    | undefined;
+  /** 租户门店ID */
+  tenant_store_id?:
+    | number
+    | undefined;
   /** 时间类型 */
   time_type: AnalyticsTimeType;
 }
 
 /** 商品趋势查询条件 */
 export interface TrendGoodsAnalyticsRequest {
+  /** 租户ID */
+  tenant_id?:
+    | number
+    | undefined;
+  /** 租户门店ID */
+  tenant_store_id?:
+    | number
+    | undefined;
   /** 时间类型 */
   time_type: AnalyticsTimeType;
 }
 
 /** 商品分类分布查询条件 */
 export interface PieGoodsAnalyticsRequest {
+  /** 租户ID */
+  tenant_id?:
+    | number
+    | undefined;
+  /** 租户门店ID */
+  tenant_store_id?:
+    | number
+    | undefined;
   /** 时间类型 */
   time_type: AnalyticsTimeType;
 }
 
 /** 商品支付排行查询条件 */
 export interface RankGoodsAnalyticsRequest {
+  /** 租户ID */
+  tenant_id?:
+    | number
+    | undefined;
+  /** 租户门店ID */
+  tenant_store_id?:
+    | number
+    | undefined;
   /** 时间类型 */
   time_type: AnalyticsTimeType;
 }

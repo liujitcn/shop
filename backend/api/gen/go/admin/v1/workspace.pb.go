@@ -489,9 +489,9 @@ func (x *SummaryWorkspaceRiskResponse) GetLowScoreCommentCount() int64 {
 // 工作台待审核评价查询条件
 type ListWorkspacePendingCommentsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Limit         int64                  `protobuf:"varint,1,opt,name=limit,proto3" json:"limit,omitempty"`                                              // 返回数量，默认5，最大10
-	TenantId      *int64                 `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`                  // 租户ID
-	TenantStoreId *int64                 `protobuf:"varint,3,opt,name=tenant_store_id,json=tenantStoreId,proto3,oneof" json:"tenant_store_id,omitempty"` // 租户门店ID
+	TenantId      *int64                 `protobuf:"varint,1,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`                  // 租户ID
+	TenantStoreId *int64                 `protobuf:"varint,2,opt,name=tenant_store_id,json=tenantStoreId,proto3,oneof" json:"tenant_store_id,omitempty"` // 租户门店ID
+	Limit         int64                  `protobuf:"varint,3,opt,name=limit,proto3" json:"limit,omitempty"`                                              // 返回数量，默认5，最大10
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -526,13 +526,6 @@ func (*ListWorkspacePendingCommentsRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_workspace_proto_rawDescGZIP(), []int{6}
 }
 
-func (x *ListWorkspacePendingCommentsRequest) GetLimit() int64 {
-	if x != nil {
-		return x.Limit
-	}
-	return 0
-}
-
 func (x *ListWorkspacePendingCommentsRequest) GetTenantId() int64 {
 	if x != nil && x.TenantId != nil {
 		return *x.TenantId
@@ -543,6 +536,13 @@ func (x *ListWorkspacePendingCommentsRequest) GetTenantId() int64 {
 func (x *ListWorkspacePendingCommentsRequest) GetTenantStoreId() int64 {
 	if x != nil && x.TenantStoreId != nil {
 		return *x.TenantStoreId
+	}
+	return 0
+}
+
+func (x *ListWorkspacePendingCommentsRequest) GetLimit() int64 {
+	if x != nil {
+		return x.Limit
 	}
 	return 0
 }
@@ -903,10 +903,10 @@ const file_admin_v1_workspace_proto_rawDesc = "" +
 	"\x1fzero_inventory_put_on_sku_count\x18\x02 \x01(\x03B\x1e\xbaG\x1b\x92\x02\x18零库存仍上架SKU数R\x1azeroInventoryPutOnSkuCount\x12W\n" +
 	"\x18abnormal_price_sku_count\x18\x03 \x01(\x03B\x1e\xbaG\x1b\x92\x02\x18价格配置异常SKU数R\x15abnormalPriceSkuCount\x12S\n" +
 	"\x17low_score_comment_count\x18\x04 \x01(\x03B\x1c\xbaG\x19\x92\x02\x16近7日低分评价数R\x14lowScoreCommentCount\"\xfb\x01\n" +
-	"#ListWorkspacePendingCommentsRequest\x12=\n" +
-	"\x05limit\x18\x01 \x01(\x03B'\xbaG$\x92\x02!返回数量，默认5，最大10R\x05limit\x120\n" +
-	"\ttenant_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12A\n" +
-	"\x0ftenant_store_id\x18\x03 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDH\x01R\rtenantStoreId\x88\x01\x01B\f\n" +
+	"#ListWorkspacePendingCommentsRequest\x120\n" +
+	"\ttenant_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12A\n" +
+	"\x0ftenant_store_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDH\x01R\rtenantStoreId\x88\x01\x01\x12=\n" +
+	"\x05limit\x18\x03 \x01(\x03B'\xbaG$\x92\x02!返回数量，默认5，最大10R\x05limitB\f\n" +
 	"\n" +
 	"_tenant_idB\x12\n" +
 	"\x10_tenant_store_id\"\x8b\x01\n" +

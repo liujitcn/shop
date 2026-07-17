@@ -8,6 +8,20 @@
     >
       <template #toolbar>
         <div class="report-toolbar">
+          <el-tree-select
+            v-if="isDefaultTenant"
+            v-model="tenantStoreTreeValue"
+            :data="tenantStoreTreeOptions"
+            clearable
+            filterable
+            check-strictly
+            :render-after-expand="false"
+            placeholder="全部租户/门店"
+            class="report-toolbar__scope"
+          />
+          <el-select v-else v-model="tenantStoreId" clearable filterable placeholder="全部门店" class="report-toolbar__scope">
+            <el-option v-for="item in tenantStoreOptions" :key="item.value" :label="item.label" :value="item.value" />
+          </el-select>
           <el-date-picker
             v-model="monthRange"
             type="monthrange"
@@ -95,11 +109,16 @@ import { Box, Goods, Money, Tickets, TrendCharts } from "@element-plus/icons-vue
 import type { ECElementEvent } from "echarts/core";
 import ECharts from "@/components/ECharts/index.vue";
 import type { ECOption } from "@/components/ECharts/config";
+import type { EnumProps } from "@/components/ProTable/interface";
 import MetricCards, { type MetricCardItem } from "@/views/dashboard/analytics/components/MetricCards.vue";
 import PageLayout from "@/views/dashboard/analytics/components/PageLayout.vue";
 import { defGoodsReportService } from "@/api/admin/goods_report";
+import { defTenantStoreService } from "@/api/admin/tenant_store";
 import type { GoodsMonthReportItem, SummaryGoodsMonthReportResponse } from "@/rpc/admin/v1/goods_report";
+import type { OptionTenantStoresResponse_Option } from "@/rpc/admin/v1/tenant_store";
 import router from "@/routers";
+import { useUserStore } from "@/stores/modules/user";
+import { DEFAULT_TENANT_CODE, parseTenantStoreTreeValue, transformTenantStoreTreeOptions } from "@/utils/tenant";
 import { formatPrice } from "@/utils/utils";
 
 /** 月报内容面板类型。 */
@@ -108,6 +127,22 @@ type ReportPanelType = "trend" | "summary";
 const loading = ref(false);
 const activePanel = ref<ReportPanelType>("trend");
 const monthRange = ref<[string, string]>(getDefaultMonthRange());
+const userStore = useUserStore();
+const tenantStoreTreeValue = ref<string>();
+const tenantStoreId = ref<number>();
+const tenantStoreTreeOptions = ref<EnumProps[]>([]);
+const tenantStoreOptions = ref<OptionTenantStoresResponse_Option[]>([]);
+
+/** 当前登录账号是否默认租户。 */
+const isDefaultTenant = computed(() => userStore.userInfo.tenant_code === DEFAULT_TENANT_CODE);
+
+/** 当前商品月报的租户与门店查询范围。 */
+const tenantStoreScope = computed(() => {
+  if (isDefaultTenant.value) {
+    return parseTenantStoreTreeValue(tenantStoreTreeValue.value);
+  }
+  return { tenant_store_id: tenantStoreId.value };
+});
 
 const emptySummary = (): SummaryGoodsMonthReportResponse => ({
   view_count: 0,
@@ -292,7 +327,8 @@ async function loadData() {
     const [startMonth, endMonth] = monthRange.value;
     const request = {
       start_month: startMonth,
-      end_month: endMonth
+      end_month: endMonth,
+      ...tenantStoreScope.value
     };
     const [summaryData, listData] = await Promise.all([
       defGoodsReportService.SummaryGoodsMonthReport(request),
@@ -394,8 +430,20 @@ function getDefaultMonthRange(): [string, string] {
   return [currentMonth.subtract(5, "month").format("YYYY-MM"), currentMonth.format("YYYY-MM")];
 }
 
+/** 加载当前账号可选择的租户门店范围。 */
+async function loadTenantStoreOptions() {
+  if (isDefaultTenant.value) {
+    const response = await defTenantStoreService.TreeTenantStores({ keyword: "" });
+    tenantStoreTreeOptions.value = transformTenantStoreTreeOptions(response.list ?? []);
+    return;
+  }
+  const response = await defTenantStoreService.OptionTenantStores({ keyword: "" });
+  tenantStoreOptions.value = response.list ?? [];
+}
+
 /** 初始化页面并拉取商品月报数据。 */
 async function initializePage() {
+  await loadTenantStoreOptions();
   await loadData().catch(() => undefined);
 }
 
@@ -412,6 +460,9 @@ initializePage();
   display: flex;
   gap: 12px;
   justify-content: flex-end;
+}
+.report-toolbar__scope {
+  width: 240px;
 }
 .report-card {
   padding: 18px;
@@ -487,6 +538,9 @@ initializePage();
   .report-toolbar {
     flex-direction: column;
     align-items: stretch;
+  }
+  .report-toolbar__scope {
+    width: 100%;
   }
   .report-card__header--tabs {
     flex-direction: column;

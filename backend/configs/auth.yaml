@@ -1,9 +1,9 @@
 authn:
   jwt:
     secret: Shop@Server
-    accessTokenExpires: 3600s
-    refreshTokenExpires: 2592000s
-    whiteList:
+    access_token_expires: 3600s
+    refresh_token_expires: 2592000s
+    white_list:
       prefix:
       regex:
       path:
@@ -28,7 +28,7 @@ authn:
         - "/app.v1.ShopServiceService/ListShopServices"
         - "/app.v1.ShopHotService/PageShopHotGoods"
         - "/app.v1.PayService/PayNotify"
-    optionalAuth:
+    optional_auth:
       prefix:
       regex:
       path:

@@ -6,6 +6,7 @@ import (
 
 	appv1 "shop/api/gen/go/app/v1"
 	_const "shop/pkg/const"
+	"shop/pkg/gen/models"
 	orderutils "shop/pkg/utils"
 	"shop/service/admin/dto"
 
@@ -47,7 +48,8 @@ func (c *OrderInfoCase) queryPaidOrderFacts(
 			if payChannel > 0 {
 				tradeOpts = append(tradeOpts, repository.Where(tradeQuery.PayChannel.Eq(payChannel)))
 			}
-			orderTrades, err := c.orderTradeRepo.List(ctx, tradeOpts...)
+			var orderTrades []*models.OrderTrade
+			orderTrades, err = c.orderTradeRepo.List(ctx, tradeOpts...)
 			if err != nil {
 				return nil, err
 			}

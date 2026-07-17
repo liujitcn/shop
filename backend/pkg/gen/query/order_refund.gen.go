@@ -28,9 +28,9 @@ func newOrderRefund(db *gorm.DB, opts ...gen.DOOption) orderRefund {
 	tableName := _orderRefund.orderRefundDo.TableName()
 	_orderRefund.ALL = field.NewAsterisk(tableName)
 	_orderRefund.ID = field.NewInt64(tableName, "id")
-	_orderRefund.TradeID = field.NewInt64(tableName, "trade_id")
 	_orderRefund.TenantID = field.NewInt64(tableName, "tenant_id")
 	_orderRefund.TenantStoreID = field.NewInt64(tableName, "tenant_store_id")
+	_orderRefund.TradeID = field.NewInt64(tableName, "trade_id")
 	_orderRefund.OrderID = field.NewInt64(tableName, "order_id")
 	_orderRefund.TradeNo = field.NewString(tableName, "trade_no")
 	_orderRefund.ThirdOrderNo = field.NewString(tableName, "third_order_no")
@@ -58,9 +58,9 @@ type orderRefund struct {
 
 	ALL                 field.Asterisk
 	ID                  field.Int64  // 订单退款ID
-	TradeID             field.Int64  // 交易单ID
 	TenantID            field.Int64  // 租户ID
 	TenantStoreID       field.Int64  // 租户门店ID
+	TradeID             field.Int64  // 交易单ID
 	OrderID             field.Int64  // 订单ID
 	TradeNo             field.String // 支付交易单编号
 	ThirdOrderNo        field.String // 三方支付订单编号
@@ -93,9 +93,9 @@ func (o orderRefund) As(alias string) *orderRefund {
 func (o *orderRefund) updateTableName(table string) *orderRefund {
 	o.ALL = field.NewAsterisk(table)
 	o.ID = field.NewInt64(table, "id")
-	o.TradeID = field.NewInt64(table, "trade_id")
 	o.TenantID = field.NewInt64(table, "tenant_id")
 	o.TenantStoreID = field.NewInt64(table, "tenant_store_id")
+	o.TradeID = field.NewInt64(table, "trade_id")
 	o.OrderID = field.NewInt64(table, "order_id")
 	o.TradeNo = field.NewString(table, "trade_no")
 	o.ThirdOrderNo = field.NewString(table, "third_order_no")
@@ -139,9 +139,9 @@ func (o *orderRefund) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 func (o *orderRefund) fillFieldMap() {
 	o.fieldMap = make(map[string]field.Expr, 19)
 	o.fieldMap["id"] = o.ID
-	o.fieldMap["trade_id"] = o.TradeID
 	o.fieldMap["tenant_id"] = o.TenantID
 	o.fieldMap["tenant_store_id"] = o.TenantStoreID
+	o.fieldMap["trade_id"] = o.TradeID
 	o.fieldMap["order_id"] = o.OrderID
 	o.fieldMap["trade_no"] = o.TradeNo
 	o.fieldMap["third_order_no"] = o.ThirdOrderNo

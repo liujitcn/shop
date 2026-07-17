@@ -361,7 +361,8 @@ func (c *LoginCase) verifyLoginCaptcha(ctx context.Context, captchaID, captchaCo
 		return nil
 	}
 	// 预校验会删除原始答案并签发 token，原始 code 未命中时再兼容 token 登录。
-	consumed, err := c.consumeLoginCaptchaToken(captchaID, captchaCode)
+	var consumed bool
+	consumed, err = c.consumeLoginCaptchaToken(captchaID, captchaCode)
 	if err != nil {
 		return err
 	}

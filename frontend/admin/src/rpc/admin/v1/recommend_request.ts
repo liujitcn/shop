@@ -99,6 +99,8 @@ export interface RecommendRequestDetailResponse {
 export interface RecommendRequestContext {
   /** 锚点商品ID */
   goods_id: number;
+  /** 关联交易单ID */
+  trade_id: number;
   /** 关联订单ID */
   order_id: number;
   /** 上下文商品ID列表 */
@@ -113,8 +115,6 @@ export interface RecommendRequestContext {
   trace: RecommendRequestTrace[];
   /** 原始上下文JSON */
   raw_json: string;
-  /** 关联交易单ID */
-  trade_id: number;
 }
 
 /** 推荐请求链路轨迹 */

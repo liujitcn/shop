@@ -27,12 +27,12 @@ const (
 // 订单月报汇总查询条件
 type SummaryOrderMonthReportRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	StartMonth    string                 `protobuf:"bytes,1,opt,name=start_month,json=startMonth,proto3" json:"start_month,omitempty"`                   // 开始月份，格式：YYYY-MM
-	EndMonth      string                 `protobuf:"bytes,2,opt,name=end_month,json=endMonth,proto3" json:"end_month,omitempty"`                         // 结束月份，格式：YYYY-MM
-	PayType       int32                  `protobuf:"varint,3,opt,name=pay_type,json=payType,proto3" json:"pay_type,omitempty"`                           // 支付方式：枚举【OrderPayType】，0 表示全部
-	PayChannel    int32                  `protobuf:"varint,4,opt,name=pay_channel,json=payChannel,proto3" json:"pay_channel,omitempty"`                  // 支付渠道：枚举【OrderPayChannel】，0 表示全部
-	TenantId      *int64                 `protobuf:"varint,5,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`                  // 租户ID
-	TenantStoreId *int64                 `protobuf:"varint,6,opt,name=tenant_store_id,json=tenantStoreId,proto3,oneof" json:"tenant_store_id,omitempty"` // 租户门店ID
+	TenantId      *int64                 `protobuf:"varint,1,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`                  // 租户ID
+	TenantStoreId *int64                 `protobuf:"varint,2,opt,name=tenant_store_id,json=tenantStoreId,proto3,oneof" json:"tenant_store_id,omitempty"` // 租户门店ID
+	StartMonth    string                 `protobuf:"bytes,3,opt,name=start_month,json=startMonth,proto3" json:"start_month,omitempty"`                   // 开始月份，格式：YYYY-MM
+	EndMonth      string                 `protobuf:"bytes,4,opt,name=end_month,json=endMonth,proto3" json:"end_month,omitempty"`                         // 结束月份，格式：YYYY-MM
+	PayType       int32                  `protobuf:"varint,5,opt,name=pay_type,json=payType,proto3" json:"pay_type,omitempty"`                           // 支付方式：枚举【OrderPayType】，0 表示全部
+	PayChannel    int32                  `protobuf:"varint,6,opt,name=pay_channel,json=payChannel,proto3" json:"pay_channel,omitempty"`                  // 支付渠道：枚举【OrderPayChannel】，0 表示全部
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -67,6 +67,20 @@ func (*SummaryOrderMonthReportRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_order_report_proto_rawDescGZIP(), []int{0}
 }
 
+func (x *SummaryOrderMonthReportRequest) GetTenantId() int64 {
+	if x != nil && x.TenantId != nil {
+		return *x.TenantId
+	}
+	return 0
+}
+
+func (x *SummaryOrderMonthReportRequest) GetTenantStoreId() int64 {
+	if x != nil && x.TenantStoreId != nil {
+		return *x.TenantStoreId
+	}
+	return 0
+}
+
 func (x *SummaryOrderMonthReportRequest) GetStartMonth() string {
 	if x != nil {
 		return x.StartMonth
@@ -95,29 +109,15 @@ func (x *SummaryOrderMonthReportRequest) GetPayChannel() int32 {
 	return 0
 }
 
-func (x *SummaryOrderMonthReportRequest) GetTenantId() int64 {
-	if x != nil && x.TenantId != nil {
-		return *x.TenantId
-	}
-	return 0
-}
-
-func (x *SummaryOrderMonthReportRequest) GetTenantStoreId() int64 {
-	if x != nil && x.TenantStoreId != nil {
-		return *x.TenantStoreId
-	}
-	return 0
-}
-
 // 订单月报列表请求参数
 type ListOrderMonthReportsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	StartMonth    string                 `protobuf:"bytes,1,opt,name=start_month,json=startMonth,proto3" json:"start_month,omitempty"`                   // 开始月份，格式：YYYY-MM
-	EndMonth      string                 `protobuf:"bytes,2,opt,name=end_month,json=endMonth,proto3" json:"end_month,omitempty"`                         // 结束月份，格式：YYYY-MM
-	PayType       int32                  `protobuf:"varint,3,opt,name=pay_type,json=payType,proto3" json:"pay_type,omitempty"`                           // 支付方式：枚举【OrderPayType】，0 表示全部
-	PayChannel    int32                  `protobuf:"varint,4,opt,name=pay_channel,json=payChannel,proto3" json:"pay_channel,omitempty"`                  // 支付渠道：枚举【OrderPayChannel】，0 表示全部
-	TenantId      *int64                 `protobuf:"varint,5,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`                  // 租户ID
-	TenantStoreId *int64                 `protobuf:"varint,6,opt,name=tenant_store_id,json=tenantStoreId,proto3,oneof" json:"tenant_store_id,omitempty"` // 租户门店ID
+	TenantId      *int64                 `protobuf:"varint,1,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`                  // 租户ID
+	TenantStoreId *int64                 `protobuf:"varint,2,opt,name=tenant_store_id,json=tenantStoreId,proto3,oneof" json:"tenant_store_id,omitempty"` // 租户门店ID
+	StartMonth    string                 `protobuf:"bytes,3,opt,name=start_month,json=startMonth,proto3" json:"start_month,omitempty"`                   // 开始月份，格式：YYYY-MM
+	EndMonth      string                 `protobuf:"bytes,4,opt,name=end_month,json=endMonth,proto3" json:"end_month,omitempty"`                         // 结束月份，格式：YYYY-MM
+	PayType       int32                  `protobuf:"varint,5,opt,name=pay_type,json=payType,proto3" json:"pay_type,omitempty"`                           // 支付方式：枚举【OrderPayType】，0 表示全部
+	PayChannel    int32                  `protobuf:"varint,6,opt,name=pay_channel,json=payChannel,proto3" json:"pay_channel,omitempty"`                  // 支付渠道：枚举【OrderPayChannel】，0 表示全部
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -152,6 +152,20 @@ func (*ListOrderMonthReportsRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_order_report_proto_rawDescGZIP(), []int{1}
 }
 
+func (x *ListOrderMonthReportsRequest) GetTenantId() int64 {
+	if x != nil && x.TenantId != nil {
+		return *x.TenantId
+	}
+	return 0
+}
+
+func (x *ListOrderMonthReportsRequest) GetTenantStoreId() int64 {
+	if x != nil && x.TenantStoreId != nil {
+		return *x.TenantStoreId
+	}
+	return 0
+}
+
 func (x *ListOrderMonthReportsRequest) GetStartMonth() string {
 	if x != nil {
 		return x.StartMonth
@@ -176,20 +190,6 @@ func (x *ListOrderMonthReportsRequest) GetPayType() int32 {
 func (x *ListOrderMonthReportsRequest) GetPayChannel() int32 {
 	if x != nil {
 		return x.PayChannel
-	}
-	return 0
-}
-
-func (x *ListOrderMonthReportsRequest) GetTenantId() int64 {
-	if x != nil && x.TenantId != nil {
-		return *x.TenantId
-	}
-	return 0
-}
-
-func (x *ListOrderMonthReportsRequest) GetTenantStoreId() int64 {
-	if x != nil && x.TenantStoreId != nil {
-		return *x.TenantStoreId
 	}
 	return 0
 }
@@ -452,12 +452,12 @@ func (x *ListOrderMonthReportsResponse) GetOrderMonthReports() []*OrderMonthRepo
 // 订单日报汇总查询条件
 type SummaryOrderDayReportRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	StartDate     string                 `protobuf:"bytes,1,opt,name=start_date,json=startDate,proto3" json:"start_date,omitempty"`                      // 开始日期，格式：YYYY-MM-DD
-	EndDate       string                 `protobuf:"bytes,2,opt,name=end_date,json=endDate,proto3" json:"end_date,omitempty"`                            // 结束日期，格式：YYYY-MM-DD
-	PayType       int32                  `protobuf:"varint,3,opt,name=pay_type,json=payType,proto3" json:"pay_type,omitempty"`                           // 支付方式：枚举【OrderPayType】，0 表示全部
-	PayChannel    int32                  `protobuf:"varint,4,opt,name=pay_channel,json=payChannel,proto3" json:"pay_channel,omitempty"`                  // 支付渠道：枚举【OrderPayChannel】，0 表示全部
-	TenantId      *int64                 `protobuf:"varint,5,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`                  // 租户ID
-	TenantStoreId *int64                 `protobuf:"varint,6,opt,name=tenant_store_id,json=tenantStoreId,proto3,oneof" json:"tenant_store_id,omitempty"` // 租户门店ID
+	TenantId      *int64                 `protobuf:"varint,1,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`                  // 租户ID
+	TenantStoreId *int64                 `protobuf:"varint,2,opt,name=tenant_store_id,json=tenantStoreId,proto3,oneof" json:"tenant_store_id,omitempty"` // 租户门店ID
+	StartDate     string                 `protobuf:"bytes,3,opt,name=start_date,json=startDate,proto3" json:"start_date,omitempty"`                      // 开始日期，格式：YYYY-MM-DD
+	EndDate       string                 `protobuf:"bytes,4,opt,name=end_date,json=endDate,proto3" json:"end_date,omitempty"`                            // 结束日期，格式：YYYY-MM-DD
+	PayType       int32                  `protobuf:"varint,5,opt,name=pay_type,json=payType,proto3" json:"pay_type,omitempty"`                           // 支付方式：枚举【OrderPayType】，0 表示全部
+	PayChannel    int32                  `protobuf:"varint,6,opt,name=pay_channel,json=payChannel,proto3" json:"pay_channel,omitempty"`                  // 支付渠道：枚举【OrderPayChannel】，0 表示全部
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -492,6 +492,20 @@ func (*SummaryOrderDayReportRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_order_report_proto_rawDescGZIP(), []int{5}
 }
 
+func (x *SummaryOrderDayReportRequest) GetTenantId() int64 {
+	if x != nil && x.TenantId != nil {
+		return *x.TenantId
+	}
+	return 0
+}
+
+func (x *SummaryOrderDayReportRequest) GetTenantStoreId() int64 {
+	if x != nil && x.TenantStoreId != nil {
+		return *x.TenantStoreId
+	}
+	return 0
+}
+
 func (x *SummaryOrderDayReportRequest) GetStartDate() string {
 	if x != nil {
 		return x.StartDate
@@ -520,29 +534,15 @@ func (x *SummaryOrderDayReportRequest) GetPayChannel() int32 {
 	return 0
 }
 
-func (x *SummaryOrderDayReportRequest) GetTenantId() int64 {
-	if x != nil && x.TenantId != nil {
-		return *x.TenantId
-	}
-	return 0
-}
-
-func (x *SummaryOrderDayReportRequest) GetTenantStoreId() int64 {
-	if x != nil && x.TenantStoreId != nil {
-		return *x.TenantStoreId
-	}
-	return 0
-}
-
 // 订单日报列表请求参数
 type ListOrderDayReportsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	StartDate     string                 `protobuf:"bytes,1,opt,name=start_date,json=startDate,proto3" json:"start_date,omitempty"`                      // 开始日期，格式：YYYY-MM-DD
-	EndDate       string                 `protobuf:"bytes,2,opt,name=end_date,json=endDate,proto3" json:"end_date,omitempty"`                            // 结束日期，格式：YYYY-MM-DD
-	PayType       int32                  `protobuf:"varint,3,opt,name=pay_type,json=payType,proto3" json:"pay_type,omitempty"`                           // 支付方式：枚举【OrderPayType】，0 表示全部
-	PayChannel    int32                  `protobuf:"varint,4,opt,name=pay_channel,json=payChannel,proto3" json:"pay_channel,omitempty"`                  // 支付渠道：枚举【OrderPayChannel】，0 表示全部
-	TenantId      *int64                 `protobuf:"varint,5,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`                  // 租户ID
-	TenantStoreId *int64                 `protobuf:"varint,6,opt,name=tenant_store_id,json=tenantStoreId,proto3,oneof" json:"tenant_store_id,omitempty"` // 租户门店ID
+	TenantId      *int64                 `protobuf:"varint,1,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`                  // 租户ID
+	TenantStoreId *int64                 `protobuf:"varint,2,opt,name=tenant_store_id,json=tenantStoreId,proto3,oneof" json:"tenant_store_id,omitempty"` // 租户门店ID
+	StartDate     string                 `protobuf:"bytes,3,opt,name=start_date,json=startDate,proto3" json:"start_date,omitempty"`                      // 开始日期，格式：YYYY-MM-DD
+	EndDate       string                 `protobuf:"bytes,4,opt,name=end_date,json=endDate,proto3" json:"end_date,omitempty"`                            // 结束日期，格式：YYYY-MM-DD
+	PayType       int32                  `protobuf:"varint,5,opt,name=pay_type,json=payType,proto3" json:"pay_type,omitempty"`                           // 支付方式：枚举【OrderPayType】，0 表示全部
+	PayChannel    int32                  `protobuf:"varint,6,opt,name=pay_channel,json=payChannel,proto3" json:"pay_channel,omitempty"`                  // 支付渠道：枚举【OrderPayChannel】，0 表示全部
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -577,6 +577,20 @@ func (*ListOrderDayReportsRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_order_report_proto_rawDescGZIP(), []int{6}
 }
 
+func (x *ListOrderDayReportsRequest) GetTenantId() int64 {
+	if x != nil && x.TenantId != nil {
+		return *x.TenantId
+	}
+	return 0
+}
+
+func (x *ListOrderDayReportsRequest) GetTenantStoreId() int64 {
+	if x != nil && x.TenantStoreId != nil {
+		return *x.TenantStoreId
+	}
+	return 0
+}
+
 func (x *ListOrderDayReportsRequest) GetStartDate() string {
 	if x != nil {
 		return x.StartDate
@@ -601,20 +615,6 @@ func (x *ListOrderDayReportsRequest) GetPayType() int32 {
 func (x *ListOrderDayReportsRequest) GetPayChannel() int32 {
 	if x != nil {
 		return x.PayChannel
-	}
-	return 0
-}
-
-func (x *ListOrderDayReportsRequest) GetTenantId() int64 {
-	if x != nil && x.TenantId != nil {
-		return *x.TenantId
-	}
-	return 0
-}
-
-func (x *ListOrderDayReportsRequest) GetTenantStoreId() int64 {
-	if x != nil && x.TenantStoreId != nil {
-		return *x.TenantStoreId
 	}
 	return 0
 }
@@ -879,27 +879,27 @@ var File_admin_v1_order_report_proto protoreflect.FileDescriptor
 const file_admin_v1_order_report_proto_rawDesc = "" +
 	"\n" +
 	"\x1badmin/v1/order_report.proto\x12\badmin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\x82\x04\n" +
-	"\x1eSummaryOrderMonthReportRequest\x12F\n" +
-	"\vstart_month\x18\x01 \x01(\tB%\xbaG\"\x92\x02\x1f开始月份，格式：YYYY-MMR\n" +
+	"\x1eSummaryOrderMonthReportRequest\x120\n" +
+	"\ttenant_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12A\n" +
+	"\x0ftenant_store_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDH\x01R\rtenantStoreId\x88\x01\x01\x12F\n" +
+	"\vstart_month\x18\x03 \x01(\tB%\xbaG\"\x92\x02\x1f开始月份，格式：YYYY-MMR\n" +
 	"startMonth\x12B\n" +
-	"\tend_month\x18\x02 \x01(\tB%\xbaG\"\x92\x02\x1f结束月份，格式：YYYY-MMR\bendMonth\x12Y\n" +
-	"\bpay_type\x18\x03 \x01(\x05B>\xbaG;\x92\x028支付方式：枚举【OrderPayType】，0 表示全部R\apayType\x12b\n" +
-	"\vpay_channel\x18\x04 \x01(\x05BA\xbaG>\x92\x02;支付渠道：枚举【OrderPayChannel】，0 表示全部R\n" +
-	"payChannel\x120\n" +
-	"\ttenant_id\x18\x05 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12A\n" +
-	"\x0ftenant_store_id\x18\x06 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDH\x01R\rtenantStoreId\x88\x01\x01B\f\n" +
+	"\tend_month\x18\x04 \x01(\tB%\xbaG\"\x92\x02\x1f结束月份，格式：YYYY-MMR\bendMonth\x12Y\n" +
+	"\bpay_type\x18\x05 \x01(\x05B>\xbaG;\x92\x028支付方式：枚举【OrderPayType】，0 表示全部R\apayType\x12b\n" +
+	"\vpay_channel\x18\x06 \x01(\x05BA\xbaG>\x92\x02;支付渠道：枚举【OrderPayChannel】，0 表示全部R\n" +
+	"payChannelB\f\n" +
 	"\n" +
 	"_tenant_idB\x12\n" +
 	"\x10_tenant_store_id\"\x80\x04\n" +
-	"\x1cListOrderMonthReportsRequest\x12F\n" +
-	"\vstart_month\x18\x01 \x01(\tB%\xbaG\"\x92\x02\x1f开始月份，格式：YYYY-MMR\n" +
+	"\x1cListOrderMonthReportsRequest\x120\n" +
+	"\ttenant_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12A\n" +
+	"\x0ftenant_store_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDH\x01R\rtenantStoreId\x88\x01\x01\x12F\n" +
+	"\vstart_month\x18\x03 \x01(\tB%\xbaG\"\x92\x02\x1f开始月份，格式：YYYY-MMR\n" +
 	"startMonth\x12B\n" +
-	"\tend_month\x18\x02 \x01(\tB%\xbaG\"\x92\x02\x1f结束月份，格式：YYYY-MMR\bendMonth\x12Y\n" +
-	"\bpay_type\x18\x03 \x01(\x05B>\xbaG;\x92\x028支付方式：枚举【OrderPayType】，0 表示全部R\apayType\x12b\n" +
-	"\vpay_channel\x18\x04 \x01(\x05BA\xbaG>\x92\x02;支付渠道：枚举【OrderPayChannel】，0 表示全部R\n" +
-	"payChannel\x120\n" +
-	"\ttenant_id\x18\x05 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12A\n" +
-	"\x0ftenant_store_id\x18\x06 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDH\x01R\rtenantStoreId\x88\x01\x01B\f\n" +
+	"\tend_month\x18\x04 \x01(\tB%\xbaG\"\x92\x02\x1f结束月份，格式：YYYY-MMR\bendMonth\x12Y\n" +
+	"\bpay_type\x18\x05 \x01(\x05B>\xbaG;\x92\x028支付方式：枚举【OrderPayType】，0 表示全部R\apayType\x12b\n" +
+	"\vpay_channel\x18\x06 \x01(\x05BA\xbaG>\x92\x02;支付渠道：枚举【OrderPayChannel】，0 表示全部R\n" +
+	"payChannelB\f\n" +
 	"\n" +
 	"_tenant_idB\x12\n" +
 	"\x10_tenant_store_id\"\xe6\x04\n" +
@@ -926,27 +926,27 @@ const file_admin_v1_order_report_proto_rawDesc = "" +
 	"\x13customer_unit_price\x18\t \x01(\x03B\x1b\xbaG\x18\x92\x02\x15客单价，单位分R\x11customerUnitPrice\"\x83\x01\n" +
 	"\x1dListOrderMonthReportsResponse\x12b\n" +
 	"\x13order_month_reports\x18\x01 \x03(\v2\x1e.admin.v1.OrderMonthReportItemB\x12\xbaG\x0f\x92\x02\f月报明细R\x11orderMonthReports\"\x82\x04\n" +
-	"\x1cSummaryOrderDayReportRequest\x12G\n" +
+	"\x1cSummaryOrderDayReportRequest\x120\n" +
+	"\ttenant_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12A\n" +
+	"\x0ftenant_store_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDH\x01R\rtenantStoreId\x88\x01\x01\x12G\n" +
 	"\n" +
-	"start_date\x18\x01 \x01(\tB(\xbaG%\x92\x02\"开始日期，格式：YYYY-MM-DDR\tstartDate\x12C\n" +
-	"\bend_date\x18\x02 \x01(\tB(\xbaG%\x92\x02\"结束日期，格式：YYYY-MM-DDR\aendDate\x12Y\n" +
-	"\bpay_type\x18\x03 \x01(\x05B>\xbaG;\x92\x028支付方式：枚举【OrderPayType】，0 表示全部R\apayType\x12b\n" +
-	"\vpay_channel\x18\x04 \x01(\x05BA\xbaG>\x92\x02;支付渠道：枚举【OrderPayChannel】，0 表示全部R\n" +
-	"payChannel\x120\n" +
-	"\ttenant_id\x18\x05 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12A\n" +
-	"\x0ftenant_store_id\x18\x06 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDH\x01R\rtenantStoreId\x88\x01\x01B\f\n" +
+	"start_date\x18\x03 \x01(\tB(\xbaG%\x92\x02\"开始日期，格式：YYYY-MM-DDR\tstartDate\x12C\n" +
+	"\bend_date\x18\x04 \x01(\tB(\xbaG%\x92\x02\"结束日期，格式：YYYY-MM-DDR\aendDate\x12Y\n" +
+	"\bpay_type\x18\x05 \x01(\x05B>\xbaG;\x92\x028支付方式：枚举【OrderPayType】，0 表示全部R\apayType\x12b\n" +
+	"\vpay_channel\x18\x06 \x01(\x05BA\xbaG>\x92\x02;支付渠道：枚举【OrderPayChannel】，0 表示全部R\n" +
+	"payChannelB\f\n" +
 	"\n" +
 	"_tenant_idB\x12\n" +
 	"\x10_tenant_store_id\"\x80\x04\n" +
-	"\x1aListOrderDayReportsRequest\x12G\n" +
+	"\x1aListOrderDayReportsRequest\x120\n" +
+	"\ttenant_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12A\n" +
+	"\x0ftenant_store_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDH\x01R\rtenantStoreId\x88\x01\x01\x12G\n" +
 	"\n" +
-	"start_date\x18\x01 \x01(\tB(\xbaG%\x92\x02\"开始日期，格式：YYYY-MM-DDR\tstartDate\x12C\n" +
-	"\bend_date\x18\x02 \x01(\tB(\xbaG%\x92\x02\"结束日期，格式：YYYY-MM-DDR\aendDate\x12Y\n" +
-	"\bpay_type\x18\x03 \x01(\x05B>\xbaG;\x92\x028支付方式：枚举【OrderPayType】，0 表示全部R\apayType\x12b\n" +
-	"\vpay_channel\x18\x04 \x01(\x05BA\xbaG>\x92\x02;支付渠道：枚举【OrderPayChannel】，0 表示全部R\n" +
-	"payChannel\x120\n" +
-	"\ttenant_id\x18\x05 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12A\n" +
-	"\x0ftenant_store_id\x18\x06 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDH\x01R\rtenantStoreId\x88\x01\x01B\f\n" +
+	"start_date\x18\x03 \x01(\tB(\xbaG%\x92\x02\"开始日期，格式：YYYY-MM-DDR\tstartDate\x12C\n" +
+	"\bend_date\x18\x04 \x01(\tB(\xbaG%\x92\x02\"结束日期，格式：YYYY-MM-DDR\aendDate\x12Y\n" +
+	"\bpay_type\x18\x05 \x01(\x05B>\xbaG;\x92\x028支付方式：枚举【OrderPayType】，0 表示全部R\apayType\x12b\n" +
+	"\vpay_channel\x18\x06 \x01(\x05BA\xbaG>\x92\x02;支付渠道：枚举【OrderPayChannel】，0 表示全部R\n" +
+	"payChannelB\f\n" +
 	"\n" +
 	"_tenant_idB\x12\n" +
 	"\x10_tenant_store_id\"\xe4\x04\n" +

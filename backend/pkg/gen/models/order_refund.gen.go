@@ -15,9 +15,9 @@ const TableNameOrderRefund = "order_refund"
 // OrderRefund 订单退款信息
 type OrderRefund struct {
 	ID                  int64          `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:订单退款ID" json:"id"`                                                        // 订单退款ID
-	TradeID             int64          `gorm:"column:trade_id;type:bigint;not null;index:idx_order_refund_trade_id,priority:1;comment:交易单ID" json:"trade_id"`                       // 交易单ID
 	TenantID            int64          `gorm:"column:tenant_id;type:bigint;not null;index:idx_order_refund_tenant_id,priority:1;comment:租户ID" json:"tenant_id"`                     // 租户ID
 	TenantStoreID       int64          `gorm:"column:tenant_store_id;type:bigint;not null;index:idx_order_refund_tenant_store_id,priority:1;comment:租户门店ID" json:"tenant_store_id"` // 租户门店ID
+	TradeID             int64          `gorm:"column:trade_id;type:bigint;not null;index:idx_order_refund_trade_id,priority:1;comment:交易单ID" json:"trade_id"`                       // 交易单ID
 	OrderID             int64          `gorm:"column:order_id;type:bigint;not null;index:idx_order_refund_order_id,priority:1;comment:订单ID" json:"order_id"`                        // 订单ID
 	TradeNo             string         `gorm:"column:trade_no;type:varchar(32);comment:支付交易单编号" json:"trade_no"`                                                                    // 支付交易单编号
 	ThirdOrderNo        string         `gorm:"column:third_order_no;type:varchar(32);comment:三方支付订单编号" json:"third_order_no"`                                                       // 三方支付订单编号

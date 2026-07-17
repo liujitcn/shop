@@ -409,17 +409,19 @@ const onRefundSuccess = async () => {
             "
             hover-class="none"
           >
-            <image class="cover" :src="formatSrc(item.picture)" />
-            <view class="meta">
-              <view class="name ellipsis">{{ item.name }}</view>
-              <view class="type">{{ item.spec_item.join('/') }}</view>
-              <view class="price">
-                <view class="actual">
-                  <text class="symbol">¥</text>
-                  <text>{{ formatPrice(item.pay_price) }}</text>
+            <view class="goods-row">
+              <image class="cover" :src="formatSrc(item.picture)" />
+              <view class="meta">
+                <view class="name ellipsis">{{ item.name }}</view>
+                <view class="type">{{ item.spec_item.join('/') }}</view>
+                <view class="price">
+                  <view class="actual">
+                    <text class="symbol">¥</text>
+                    <text>{{ formatPrice(item.pay_price) }}</text>
+                  </view>
                 </view>
+                <view class="quantity">x{{ item.num }}</view>
               </view>
-              <view class="quantity">x{{ item.num }}</view>
             </view>
           </navigator>
         </view>
@@ -766,11 +768,17 @@ page {
     border-bottom: 1rpx solid #eee;
 
     .navigator {
-      display: flex;
+      display: block;
       margin: 20rpx 0;
     }
 
+    .goods-row {
+      display: flex;
+      min-width: 0;
+    }
+
     .cover {
+      flex: 0 0 170rpx;
       width: 170rpx;
       height: 170rpx;
       border-radius: 10rpx;
@@ -779,6 +787,7 @@ page {
 
     .meta {
       flex: 1;
+      min-width: 0;
       display: flex;
       flex-direction: column;
       justify-content: center;

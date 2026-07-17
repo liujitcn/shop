@@ -28,7 +28,9 @@ const (
 // 商品摘要指标查询条件
 type SummaryGoodsAnalyticsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	TimeType      v1.AnalyticsTimeType   `protobuf:"varint,1,opt,name=time_type,json=timeType,proto3,enum=common.v1.AnalyticsTimeType" json:"time_type,omitempty"` // 时间类型
+	TenantId      *int64                 `protobuf:"varint,1,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`                            // 租户ID
+	TenantStoreId *int64                 `protobuf:"varint,2,opt,name=tenant_store_id,json=tenantStoreId,proto3,oneof" json:"tenant_store_id,omitempty"`           // 租户门店ID
+	TimeType      v1.AnalyticsTimeType   `protobuf:"varint,3,opt,name=time_type,json=timeType,proto3,enum=common.v1.AnalyticsTimeType" json:"time_type,omitempty"` // 时间类型
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -63,6 +65,20 @@ func (*SummaryGoodsAnalyticsRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_goods_analytics_proto_rawDescGZIP(), []int{0}
 }
 
+func (x *SummaryGoodsAnalyticsRequest) GetTenantId() int64 {
+	if x != nil && x.TenantId != nil {
+		return *x.TenantId
+	}
+	return 0
+}
+
+func (x *SummaryGoodsAnalyticsRequest) GetTenantStoreId() int64 {
+	if x != nil && x.TenantStoreId != nil {
+		return *x.TenantStoreId
+	}
+	return 0
+}
+
 func (x *SummaryGoodsAnalyticsRequest) GetTimeType() v1.AnalyticsTimeType {
 	if x != nil {
 		return x.TimeType
@@ -73,7 +89,9 @@ func (x *SummaryGoodsAnalyticsRequest) GetTimeType() v1.AnalyticsTimeType {
 // 商品趋势查询条件
 type TrendGoodsAnalyticsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	TimeType      v1.AnalyticsTimeType   `protobuf:"varint,1,opt,name=time_type,json=timeType,proto3,enum=common.v1.AnalyticsTimeType" json:"time_type,omitempty"` // 时间类型
+	TenantId      *int64                 `protobuf:"varint,1,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`                            // 租户ID
+	TenantStoreId *int64                 `protobuf:"varint,2,opt,name=tenant_store_id,json=tenantStoreId,proto3,oneof" json:"tenant_store_id,omitempty"`           // 租户门店ID
+	TimeType      v1.AnalyticsTimeType   `protobuf:"varint,3,opt,name=time_type,json=timeType,proto3,enum=common.v1.AnalyticsTimeType" json:"time_type,omitempty"` // 时间类型
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -108,6 +126,20 @@ func (*TrendGoodsAnalyticsRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_goods_analytics_proto_rawDescGZIP(), []int{1}
 }
 
+func (x *TrendGoodsAnalyticsRequest) GetTenantId() int64 {
+	if x != nil && x.TenantId != nil {
+		return *x.TenantId
+	}
+	return 0
+}
+
+func (x *TrendGoodsAnalyticsRequest) GetTenantStoreId() int64 {
+	if x != nil && x.TenantStoreId != nil {
+		return *x.TenantStoreId
+	}
+	return 0
+}
+
 func (x *TrendGoodsAnalyticsRequest) GetTimeType() v1.AnalyticsTimeType {
 	if x != nil {
 		return x.TimeType
@@ -118,7 +150,9 @@ func (x *TrendGoodsAnalyticsRequest) GetTimeType() v1.AnalyticsTimeType {
 // 商品分类分布查询条件
 type PieGoodsAnalyticsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	TimeType      v1.AnalyticsTimeType   `protobuf:"varint,1,opt,name=time_type,json=timeType,proto3,enum=common.v1.AnalyticsTimeType" json:"time_type,omitempty"` // 时间类型
+	TenantId      *int64                 `protobuf:"varint,1,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`                            // 租户ID
+	TenantStoreId *int64                 `protobuf:"varint,2,opt,name=tenant_store_id,json=tenantStoreId,proto3,oneof" json:"tenant_store_id,omitempty"`           // 租户门店ID
+	TimeType      v1.AnalyticsTimeType   `protobuf:"varint,3,opt,name=time_type,json=timeType,proto3,enum=common.v1.AnalyticsTimeType" json:"time_type,omitempty"` // 时间类型
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -153,6 +187,20 @@ func (*PieGoodsAnalyticsRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_goods_analytics_proto_rawDescGZIP(), []int{2}
 }
 
+func (x *PieGoodsAnalyticsRequest) GetTenantId() int64 {
+	if x != nil && x.TenantId != nil {
+		return *x.TenantId
+	}
+	return 0
+}
+
+func (x *PieGoodsAnalyticsRequest) GetTenantStoreId() int64 {
+	if x != nil && x.TenantStoreId != nil {
+		return *x.TenantStoreId
+	}
+	return 0
+}
+
 func (x *PieGoodsAnalyticsRequest) GetTimeType() v1.AnalyticsTimeType {
 	if x != nil {
 		return x.TimeType
@@ -163,7 +211,9 @@ func (x *PieGoodsAnalyticsRequest) GetTimeType() v1.AnalyticsTimeType {
 // 商品支付排行查询条件
 type RankGoodsAnalyticsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	TimeType      v1.AnalyticsTimeType   `protobuf:"varint,1,opt,name=time_type,json=timeType,proto3,enum=common.v1.AnalyticsTimeType" json:"time_type,omitempty"` // 时间类型
+	TenantId      *int64                 `protobuf:"varint,1,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`                            // 租户ID
+	TenantStoreId *int64                 `protobuf:"varint,2,opt,name=tenant_store_id,json=tenantStoreId,proto3,oneof" json:"tenant_store_id,omitempty"`           // 租户门店ID
+	TimeType      v1.AnalyticsTimeType   `protobuf:"varint,3,opt,name=time_type,json=timeType,proto3,enum=common.v1.AnalyticsTimeType" json:"time_type,omitempty"` // 时间类型
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -196,6 +246,20 @@ func (x *RankGoodsAnalyticsRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use RankGoodsAnalyticsRequest.ProtoReflect.Descriptor instead.
 func (*RankGoodsAnalyticsRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_goods_analytics_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *RankGoodsAnalyticsRequest) GetTenantId() int64 {
+	if x != nil && x.TenantId != nil {
+		return *x.TenantId
+	}
+	return 0
+}
+
+func (x *RankGoodsAnalyticsRequest) GetTenantStoreId() int64 {
+	if x != nil && x.TenantStoreId != nil {
+		return *x.TenantStoreId
+	}
+	return 0
 }
 
 func (x *RankGoodsAnalyticsRequest) GetTimeType() v1.AnalyticsTimeType {
@@ -374,15 +438,35 @@ var File_admin_v1_goods_analytics_proto protoreflect.FileDescriptor
 
 const file_admin_v1_goods_analytics_proto_rawDesc = "" +
 	"\n" +
-	"\x1eadmin/v1/goods_analytics.proto\x12\badmin.v1\x1a\x19common/v1/analytics.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"m\n" +
-	"\x1cSummaryGoodsAnalyticsRequest\x12M\n" +
-	"\ttime_type\x18\x01 \x01(\x0e2\x1c.common.v1.AnalyticsTimeTypeB\x12\xbaG\x0f\x92\x02\f时间类型R\btimeType\"k\n" +
-	"\x1aTrendGoodsAnalyticsRequest\x12M\n" +
-	"\ttime_type\x18\x01 \x01(\x0e2\x1c.common.v1.AnalyticsTimeTypeB\x12\xbaG\x0f\x92\x02\f时间类型R\btimeType\"i\n" +
-	"\x18PieGoodsAnalyticsRequest\x12M\n" +
-	"\ttime_type\x18\x01 \x01(\x0e2\x1c.common.v1.AnalyticsTimeTypeB\x12\xbaG\x0f\x92\x02\f时间类型R\btimeType\"j\n" +
-	"\x19RankGoodsAnalyticsRequest\x12M\n" +
-	"\ttime_type\x18\x01 \x01(\x0e2\x1c.common.v1.AnalyticsTimeTypeB\x12\xbaG\x0f\x92\x02\f时间类型R\btimeType\"\x9c\b\n" +
+	"\x1eadmin/v1/goods_analytics.proto\x12\badmin.v1\x1a\x19common/v1/analytics.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\x84\x02\n" +
+	"\x1cSummaryGoodsAnalyticsRequest\x120\n" +
+	"\ttenant_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12A\n" +
+	"\x0ftenant_store_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDH\x01R\rtenantStoreId\x88\x01\x01\x12M\n" +
+	"\ttime_type\x18\x03 \x01(\x0e2\x1c.common.v1.AnalyticsTimeTypeB\x12\xbaG\x0f\x92\x02\f时间类型R\btimeTypeB\f\n" +
+	"\n" +
+	"_tenant_idB\x12\n" +
+	"\x10_tenant_store_id\"\x82\x02\n" +
+	"\x1aTrendGoodsAnalyticsRequest\x120\n" +
+	"\ttenant_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12A\n" +
+	"\x0ftenant_store_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDH\x01R\rtenantStoreId\x88\x01\x01\x12M\n" +
+	"\ttime_type\x18\x03 \x01(\x0e2\x1c.common.v1.AnalyticsTimeTypeB\x12\xbaG\x0f\x92\x02\f时间类型R\btimeTypeB\f\n" +
+	"\n" +
+	"_tenant_idB\x12\n" +
+	"\x10_tenant_store_id\"\x80\x02\n" +
+	"\x18PieGoodsAnalyticsRequest\x120\n" +
+	"\ttenant_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12A\n" +
+	"\x0ftenant_store_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDH\x01R\rtenantStoreId\x88\x01\x01\x12M\n" +
+	"\ttime_type\x18\x03 \x01(\x0e2\x1c.common.v1.AnalyticsTimeTypeB\x12\xbaG\x0f\x92\x02\f时间类型R\btimeTypeB\f\n" +
+	"\n" +
+	"_tenant_idB\x12\n" +
+	"\x10_tenant_store_id\"\x81\x02\n" +
+	"\x19RankGoodsAnalyticsRequest\x120\n" +
+	"\ttenant_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12A\n" +
+	"\x0ftenant_store_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDH\x01R\rtenantStoreId\x88\x01\x01\x12M\n" +
+	"\ttime_type\x18\x03 \x01(\x0e2\x1c.common.v1.AnalyticsTimeTypeB\x12\xbaG\x0f\x92\x02\f时间类型R\btimeTypeB\f\n" +
+	"\n" +
+	"_tenant_idB\x12\n" +
+	"\x10_tenant_store_id\"\x9c\b\n" +
 	"\x1dSummaryGoodsAnalyticsResponse\x12=\n" +
 	"\x0fnew_goods_count\x18\x01 \x01(\x03B\x15\xbaG\x12\x92\x02\x0f新增商品数R\rnewGoodsCount\x12C\n" +
 	"\x11put_on_goods_rate\x18\x02 \x01(\x03B\x18\xbaG\x15\x92\x02\x12上架商品占比R\x0eputOnGoodsRate\x12C\n" +
@@ -462,6 +546,10 @@ func file_admin_v1_goods_analytics_proto_init() {
 	if File_admin_v1_goods_analytics_proto != nil {
 		return
 	}
+	file_admin_v1_goods_analytics_proto_msgTypes[0].OneofWrappers = []any{}
+	file_admin_v1_goods_analytics_proto_msgTypes[1].OneofWrappers = []any{}
+	file_admin_v1_goods_analytics_proto_msgTypes[2].OneofWrappers = []any{}
+	file_admin_v1_goods_analytics_proto_msgTypes[3].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

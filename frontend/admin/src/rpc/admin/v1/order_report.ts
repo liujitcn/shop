@@ -8,6 +8,14 @@
 
 /** 订单月报汇总查询条件 */
 export interface SummaryOrderMonthReportRequest {
+  /** 租户ID */
+  tenant_id?:
+    | number
+    | undefined;
+  /** 租户门店ID */
+  tenant_store_id?:
+    | number
+    | undefined;
   /** 开始月份，格式：YYYY-MM */
   start_month: string;
   /** 结束月份，格式：YYYY-MM */
@@ -16,16 +24,18 @@ export interface SummaryOrderMonthReportRequest {
   pay_type: number;
   /** 支付渠道：枚举【OrderPayChannel】，0 表示全部 */
   pay_channel: number;
-  /** 租户ID */
-  tenant_id?:
-    | number
-    | undefined;
-  /** 租户门店ID */
-  tenant_store_id?: number | undefined;
 }
 
 /** 订单月报列表请求参数 */
 export interface ListOrderMonthReportsRequest {
+  /** 租户ID */
+  tenant_id?:
+    | number
+    | undefined;
+  /** 租户门店ID */
+  tenant_store_id?:
+    | number
+    | undefined;
   /** 开始月份，格式：YYYY-MM */
   start_month: string;
   /** 结束月份，格式：YYYY-MM */
@@ -34,12 +44,6 @@ export interface ListOrderMonthReportsRequest {
   pay_type: number;
   /** 支付渠道：枚举【OrderPayChannel】，0 表示全部 */
   pay_channel: number;
-  /** 租户ID */
-  tenant_id?:
-    | number
-    | undefined;
-  /** 租户门店ID */
-  tenant_store_id?: number | undefined;
 }
 
 /** 订单月报汇总响应 */
@@ -92,6 +96,14 @@ export interface ListOrderMonthReportsResponse {
 
 /** 订单日报汇总查询条件 */
 export interface SummaryOrderDayReportRequest {
+  /** 租户ID */
+  tenant_id?:
+    | number
+    | undefined;
+  /** 租户门店ID */
+  tenant_store_id?:
+    | number
+    | undefined;
   /** 开始日期，格式：YYYY-MM-DD */
   start_date: string;
   /** 结束日期，格式：YYYY-MM-DD */
@@ -100,16 +112,18 @@ export interface SummaryOrderDayReportRequest {
   pay_type: number;
   /** 支付渠道：枚举【OrderPayChannel】，0 表示全部 */
   pay_channel: number;
-  /** 租户ID */
-  tenant_id?:
-    | number
-    | undefined;
-  /** 租户门店ID */
-  tenant_store_id?: number | undefined;
 }
 
 /** 订单日报列表请求参数 */
 export interface ListOrderDayReportsRequest {
+  /** 租户ID */
+  tenant_id?:
+    | number
+    | undefined;
+  /** 租户门店ID */
+  tenant_store_id?:
+    | number
+    | undefined;
   /** 开始日期，格式：YYYY-MM-DD */
   start_date: string;
   /** 结束日期，格式：YYYY-MM-DD */
@@ -118,12 +132,6 @@ export interface ListOrderDayReportsRequest {
   pay_type: number;
   /** 支付渠道：枚举【OrderPayChannel】，0 表示全部 */
   pay_channel: number;
-  /** 租户ID */
-  tenant_id?:
-    | number
-    | undefined;
-  /** 租户门店ID */
-  tenant_store_id?: number | undefined;
 }
 
 /** 订单日报汇总响应 */

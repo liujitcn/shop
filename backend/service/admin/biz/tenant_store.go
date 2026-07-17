@@ -86,7 +86,8 @@ func (c *TenantStoreCase) TreeTenantStores(ctx context.Context, req *adminv1.Tre
 		opts = append(opts, repository.Where(query.Name.Like("%"+req.GetKeyword()+"%")))
 	}
 
-	list, err := c.List(ctx, opts...)
+	var list []*models.TenantStore
+	list, err = c.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -98,7 +99,8 @@ func (c *TenantStoreCase) TreeTenantStores(ctx context.Context, req *adminv1.Tre
 	for _, item := range list {
 		tenantIDSet.Add(item.TenantID)
 	}
-	tenantList, err := c.baseTenantCase.ListByIDs(ctx, tenantIDSet.ToSlice())
+	var tenantList []*models.BaseTenant
+	tenantList, err = c.baseTenantCase.ListByIDs(ctx, tenantIDSet.ToSlice())
 	if err != nil {
 		return nil, err
 	}

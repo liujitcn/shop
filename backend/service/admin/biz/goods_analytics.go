@@ -40,40 +40,53 @@ func (c *GoodsAnalyticsCase) SummaryGoodsAnalytics(ctx context.Context, req *adm
 	startAt, endAt := utils.GetAnalyticsTimeRange(req.GetTimeType())
 	prevStartAt, prevEndAt := utils.GetPreviousAnalyticsTimeRange(req.GetTimeType(), startAt)
 
-	newGoodsCount, err := c.countNewGoods(ctx, startAt, endAt)
+	newGoodsCount, err := c.countNewGoods(ctx, req.GetTenantId(), req.GetTenantStoreId(), startAt, endAt)
 	if err != nil {
 		return nil, err
 	}
 	query := c.goodsInfoCase.Query(ctx).GoodsInfo
+	dao := query.WithContext(ctx)
+	// 默认租户可按租户筛选，普通租户继续受数据库租户隔离约束。
+	if req.GetTenantId() > 0 {
+		dao = dao.Where(query.TenantID.Eq(req.GetTenantId()))
+	}
+	if req.GetTenantStoreId() > 0 {
+		dao = dao.Where(query.TenantStoreID.Eq(req.GetTenantStoreId()))
+	}
 	var totalGoodsCount int64
-	totalGoodsCount, err = query.WithContext(ctx).Count()
+	totalGoodsCount, err = dao.Count()
 	if err != nil {
 		return nil, err
 	}
 	var putOnGoodsCount int64
-	putOnGoodsCount, err = query.WithContext(ctx).
-		Where(query.Status.Eq(_const.GOODS_STATUS_PUT_ON)).
-		Count()
+	putOnDAO := query.WithContext(ctx).Where(query.Status.Eq(_const.GOODS_STATUS_PUT_ON))
+	if req.GetTenantId() > 0 {
+		putOnDAO = putOnDAO.Where(query.TenantID.Eq(req.GetTenantId()))
+	}
+	if req.GetTenantStoreId() > 0 {
+		putOnDAO = putOnDAO.Where(query.TenantStoreID.Eq(req.GetTenantStoreId()))
+	}
+	putOnGoodsCount, err = putOnDAO.Count()
 	if err != nil {
 		return nil, err
 	}
 	var activeGoodsCount int64
-	activeGoodsCount, err = c.countDistinctActiveGoods(ctx, startAt, endAt)
+	activeGoodsCount, err = c.countDistinctActiveGoods(ctx, req.GetTenantId(), req.GetTenantStoreId(), startAt, endAt)
 	if err != nil {
 		return nil, err
 	}
 	var saleCount int64
-	saleCount, err = c.countGoodsSaleNum(ctx, startAt, endAt)
+	saleCount, err = c.countGoodsSaleNum(ctx, req.GetTenantId(), req.GetTenantStoreId(), startAt, endAt)
 	if err != nil {
 		return nil, err
 	}
 	var prevSaleCount int64
-	prevSaleCount, err = c.countGoodsSaleNum(ctx, prevStartAt, prevEndAt)
+	prevSaleCount, err = c.countGoodsSaleNum(ctx, req.GetTenantId(), req.GetTenantStoreId(), prevStartAt, prevEndAt)
 	if err != nil {
 		return nil, err
 	}
 	var behaviorSummary *dto.GoodsAnalyticsSummaryRow
-	behaviorSummary, err = c.queryGoodsBehaviorSummary(ctx, startAt, endAt)
+	behaviorSummary, err = c.queryGoodsBehaviorSummary(ctx, req.GetTenantId(), req.GetTenantStoreId(), startAt, endAt)
 	if err != nil {
 		return nil, err
 	}
@@ -101,7 +114,7 @@ func (c *GoodsAnalyticsCase) SummaryGoodsAnalytics(ctx context.Context, req *adm
 // TrendGoodsAnalytics 查询商品趋势。
 func (c *GoodsAnalyticsCase) TrendGoodsAnalytics(ctx context.Context, req *adminv1.TrendGoodsAnalyticsRequest) (*commonv1.AnalyticsTrendResponse, error) {
 	startAt, endAt := utils.GetAnalyticsTimeRange(req.GetTimeType())
-	summary, axis, err := c.queryGoodsTrendSummary(ctx, req.GetTimeType(), startAt, endAt)
+	summary, axis, err := c.queryGoodsTrendSummary(ctx, req.GetTimeType(), req.GetTenantId(), req.GetTenantStoreId(), startAt, endAt)
 	if err != nil {
 		return nil, err
 	}
@@ -133,7 +146,7 @@ func (c *GoodsAnalyticsCase) TrendGoodsAnalytics(ctx context.Context, req *admin
 // PieGoodsAnalytics 查询商品分类分布。
 func (c *GoodsAnalyticsCase) PieGoodsAnalytics(ctx context.Context, req *adminv1.PieGoodsAnalyticsRequest) (*commonv1.AnalyticsPieResponse, error) {
 	startAt, endAt := utils.GetAnalyticsTimeRange(req.GetTimeType())
-	summary, err := c.queryGoodsCategorySummary(ctx, startAt, endAt)
+	summary, err := c.queryGoodsCategorySummary(ctx, req.GetTenantId(), req.GetTenantStoreId(), startAt, endAt)
 	if err != nil {
 		return nil, err
 	}
@@ -153,7 +166,7 @@ func (c *GoodsAnalyticsCase) PieGoodsAnalytics(ctx context.Context, req *adminv1
 // RankGoodsAnalytics 查询商品支付排行。
 func (c *GoodsAnalyticsCase) RankGoodsAnalytics(ctx context.Context, req *adminv1.RankGoodsAnalyticsRequest) (*commonv1.AnalyticsRankResponse, error) {
 	startAt, endAt := utils.GetAnalyticsTimeRange(req.GetTimeType())
-	rows, err := c.queryGoodsRankRows(ctx, startAt, endAt, 10)
+	rows, err := c.queryGoodsRankRows(ctx, req.GetTenantId(), req.GetTenantStoreId(), startAt, endAt, 10)
 	if err != nil {
 		return nil, err
 	}
@@ -163,7 +176,7 @@ func (c *GoodsAnalyticsCase) RankGoodsAnalytics(ctx context.Context, req *adminv
 		goodsIDs = append(goodsIDs, item.GoodsID)
 	}
 	var nameMap map[int64]string
-	nameMap, err = c.loadGoodsNameMap(ctx, goodsIDs)
+	nameMap, err = c.loadGoodsNameMap(ctx, req.GetTenantId(), req.GetTenantStoreId(), goodsIDs)
 	if err != nil {
 		return nil, err
 	}
@@ -184,34 +197,45 @@ func (c *GoodsAnalyticsCase) RankGoodsAnalytics(ctx context.Context, req *adminv
 }
 
 // countNewGoods 统计时间范围内新增商品数。
-func (c *GoodsAnalyticsCase) countNewGoods(ctx context.Context, startAt, endAt time.Time) (int64, error) {
+func (c *GoodsAnalyticsCase) countNewGoods(ctx context.Context, tenantID, tenantStoreID int64, startAt, endAt time.Time) (int64, error) {
 	query := c.goodsInfoCase.Query(ctx).GoodsInfo
-	count, err := query.WithContext(ctx).
+	dao := query.WithContext(ctx).
 		Where(
 			query.CreatedAt.Gte(startAt),
 			query.CreatedAt.Lt(endAt),
-		).
-		Count()
+		)
+	if tenantID > 0 {
+		dao = dao.Where(query.TenantID.Eq(tenantID))
+	}
+	if tenantStoreID > 0 {
+		dao = dao.Where(query.TenantStoreID.Eq(tenantStoreID))
+	}
+	count, err := dao.Count()
 	return count, err
 }
 
 // countDistinctActiveGoods 统计时间范围内动销商品数。
-func (c *GoodsAnalyticsCase) countDistinctActiveGoods(ctx context.Context, startAt, endAt time.Time) (int64, error) {
+func (c *GoodsAnalyticsCase) countDistinctActiveGoods(ctx context.Context, tenantID, tenantStoreID int64, startAt, endAt time.Time) (int64, error) {
 	query := c.goodsStatDayRepo.Query(ctx).GoodsStatDay
-	count, err := query.WithContext(ctx).
+	dao := query.WithContext(ctx).
 		Where(
 			query.StatDate.Gte(startAt),
 			query.StatDate.Lt(endAt),
 			query.PayGoodsNum.Gt(0),
-		).
-		Distinct(query.GoodsID).
-		Count()
+		)
+	if tenantID > 0 {
+		dao = dao.Where(query.TenantID.Eq(tenantID))
+	}
+	if tenantStoreID > 0 {
+		dao = dao.Where(query.TenantStoreID.Eq(tenantStoreID))
+	}
+	count, err := dao.Distinct(query.GoodsID).Count()
 	return count, err
 }
 
 // countGoodsSaleNum 统计时间范围内商品销量。
-func (c *GoodsAnalyticsCase) countGoodsSaleNum(ctx context.Context, startAt, endAt time.Time) (int64, error) {
-	summary, err := c.queryGoodsBehaviorSummary(ctx, startAt, endAt)
+func (c *GoodsAnalyticsCase) countGoodsSaleNum(ctx context.Context, tenantID, tenantStoreID int64, startAt, endAt time.Time) (int64, error) {
+	summary, err := c.queryGoodsBehaviorSummary(ctx, tenantID, tenantStoreID, startAt, endAt)
 	if err != nil {
 		return 0, err
 	}
@@ -219,10 +243,10 @@ func (c *GoodsAnalyticsCase) countGoodsSaleNum(ctx context.Context, startAt, end
 }
 
 // queryGoodsBehaviorSummary 查询商品行为汇总。
-func (c *GoodsAnalyticsCase) queryGoodsBehaviorSummary(ctx context.Context, startAt, endAt time.Time) (*dto.GoodsAnalyticsSummaryRow, error) {
+func (c *GoodsAnalyticsCase) queryGoodsBehaviorSummary(ctx context.Context, tenantID, tenantStoreID int64, startAt, endAt time.Time) (*dto.GoodsAnalyticsSummaryRow, error) {
 	row := &dto.GoodsAnalyticsSummaryRow{}
 	query := c.goodsStatDayRepo.Query(ctx).GoodsStatDay
-	err := query.WithContext(ctx).
+	dao := query.WithContext(ctx).
 		Select(
 			query.ViewCount.Sum().FloorDiv(1).IfNull(0).As("view_count"),
 			query.CollectCount.Sum().FloorDiv(1).IfNull(0).As("collect_count"),
@@ -235,8 +259,14 @@ func (c *GoodsAnalyticsCase) queryGoodsBehaviorSummary(ctx context.Context, star
 		Where(
 			query.StatDate.Gte(startAt),
 			query.StatDate.Lt(endAt),
-		).
-		Scan(row)
+		)
+	if tenantID > 0 {
+		dao = dao.Where(query.TenantID.Eq(tenantID))
+	}
+	if tenantStoreID > 0 {
+		dao = dao.Where(query.TenantStoreID.Eq(tenantStoreID))
+	}
+	err := dao.Scan(row)
 	return row, err
 }
 
@@ -244,12 +274,13 @@ func (c *GoodsAnalyticsCase) queryGoodsBehaviorSummary(ctx context.Context, star
 func (c *GoodsAnalyticsCase) queryGoodsTrendSummary(
 	ctx context.Context,
 	timeType commonv1.AnalyticsTimeType,
+	tenantID, tenantStoreID int64,
 	startAt, endAt time.Time,
 ) (map[int64]dto.GoodsAnalyticsTrendBucket, []string, error) {
 	rows := make([]*dto.GoodsAnalyticsTrendRow, 0)
 	query := c.goodsStatDayRepo.Query(ctx).GoodsStatDay
 	groupField, axis := utils.GetAnalyticsGroupFieldByColumn(timeType, startAt, endAt, query.StatDate)
-	err := query.WithContext(ctx).
+	dao := query.WithContext(ctx).
 		Select(
 			groupField.As("key"),
 			query.ViewCount.Sum().FloorDiv(1).IfNull(0).As("view_count"),
@@ -260,9 +291,14 @@ func (c *GoodsAnalyticsCase) queryGoodsTrendSummary(
 		Where(
 			query.StatDate.Gte(startAt),
 			query.StatDate.Lt(endAt),
-		).
-		Group(utils.AnalyticsGroupAliasField()).
-		Scan(&rows)
+		)
+	if tenantID > 0 {
+		dao = dao.Where(query.TenantID.Eq(tenantID))
+	}
+	if tenantStoreID > 0 {
+		dao = dao.Where(query.TenantStoreID.Eq(tenantStoreID))
+	}
+	err := dao.Group(utils.AnalyticsGroupAliasField()).Scan(&rows)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -287,7 +323,7 @@ func (c *GoodsAnalyticsCase) queryGoodsTrendSummary(
 }
 
 // queryGoodsCategorySummary 查询商品分类分布。
-func (c *GoodsAnalyticsCase) queryGoodsCategorySummary(ctx context.Context, startAt, endAt time.Time) ([]*dto.GoodsAnalyticsCategorySummaryRow, error) {
+func (c *GoodsAnalyticsCase) queryGoodsCategorySummary(ctx context.Context, tenantID, tenantStoreID int64, startAt, endAt time.Time) ([]*dto.GoodsAnalyticsCategorySummaryRow, error) {
 	categoryList, err := c.goodsCategoryCase.List(ctx)
 	if err != nil {
 		return nil, err
@@ -311,7 +347,7 @@ func (c *GoodsAnalyticsCase) queryGoodsCategorySummary(ctx context.Context, star
 
 	rows := make([]*dto.GoodsAnalyticsCategorySummaryRow, 0)
 	query := c.goodsStatDayRepo.Query(ctx).GoodsStatDay
-	err = query.WithContext(ctx).
+	dao := query.WithContext(ctx).
 		Select(
 			query.GoodsID,
 			query.PayGoodsNum.Sum().FloorDiv(1).IfNull(0).As("goods_count"),
@@ -319,9 +355,14 @@ func (c *GoodsAnalyticsCase) queryGoodsCategorySummary(ctx context.Context, star
 		Where(
 			query.StatDate.Gte(startAt),
 			query.StatDate.Lt(endAt),
-		).
-		Group(query.GoodsID).
-		Scan(&rows)
+		)
+	if tenantID > 0 {
+		dao = dao.Where(query.TenantID.Eq(tenantID))
+	}
+	if tenantStoreID > 0 {
+		dao = dao.Where(query.TenantStoreID.Eq(tenantStoreID))
+	}
+	err = dao.Group(query.GoodsID).Scan(&rows)
 	if err != nil {
 		return nil, err
 	}
@@ -339,13 +380,19 @@ func (c *GoodsAnalyticsCase) queryGoodsCategorySummary(ctx context.Context, star
 
 	goodsRows := make([]*dto.GoodsCategoryIDsRow, 0, len(goodsIDs))
 	goodsQuery := c.goodsInfoCase.Query(ctx).GoodsInfo
-	err = goodsQuery.WithContext(ctx).
+	goodsDAO := goodsQuery.WithContext(ctx).
 		Select(goodsQuery.ID, goodsQuery.CategoryID).
 		Where(
 			goodsQuery.DeletedAt.IsNull(),
 			goodsQuery.ID.In(goodsIDs...),
-		).
-		Scan(&goodsRows)
+		)
+	if tenantID > 0 {
+		goodsDAO = goodsDAO.Where(goodsQuery.TenantID.Eq(tenantID))
+	}
+	if tenantStoreID > 0 {
+		goodsDAO = goodsDAO.Where(goodsQuery.TenantStoreID.Eq(tenantStoreID))
+	}
+	err = goodsDAO.Scan(&goodsRows)
 	if err != nil {
 		return nil, err
 	}
@@ -383,11 +430,11 @@ func (c *GoodsAnalyticsCase) queryGoodsCategorySummary(ctx context.Context, star
 }
 
 // queryGoodsRankRows 查询商品支付排行。
-func (c *GoodsAnalyticsCase) queryGoodsRankRows(ctx context.Context, startAt, endAt time.Time, limit int) ([]*dto.GoodsAnalyticsRankRow, error) {
+func (c *GoodsAnalyticsCase) queryGoodsRankRows(ctx context.Context, tenantID, tenantStoreID int64, startAt, endAt time.Time, limit int) ([]*dto.GoodsAnalyticsRankRow, error) {
 	rows := make([]*dto.GoodsAnalyticsRankRow, 0)
 	query := c.goodsStatDayRepo.Query(ctx).GoodsStatDay
 	payAmountField := query.PayAmount.Sum().FloorDiv(1).IfNull(0)
-	err := query.WithContext(ctx).
+	dao := query.WithContext(ctx).
 		Select(
 			query.GoodsID,
 			payAmountField.As("pay_amount"),
@@ -395,16 +442,19 @@ func (c *GoodsAnalyticsCase) queryGoodsRankRows(ctx context.Context, startAt, en
 		Where(
 			query.StatDate.Gte(startAt),
 			query.StatDate.Lt(endAt),
-		).
-		Group(query.GoodsID).
-		Order(query.PayAmount.Sum().Desc()).
-		Limit(limit).
-		Scan(&rows)
+		)
+	if tenantID > 0 {
+		dao = dao.Where(query.TenantID.Eq(tenantID))
+	}
+	if tenantStoreID > 0 {
+		dao = dao.Where(query.TenantStoreID.Eq(tenantStoreID))
+	}
+	err := dao.Group(query.GoodsID).Order(query.PayAmount.Sum().Desc()).Limit(limit).Scan(&rows)
 	return rows, err
 }
 
 // loadGoodsNameMap 加载商品名称映射。
-func (c *GoodsAnalyticsCase) loadGoodsNameMap(ctx context.Context, goodsIDs []int64) (map[int64]string, error) {
+func (c *GoodsAnalyticsCase) loadGoodsNameMap(ctx context.Context, tenantID, tenantStoreID int64, goodsIDs []int64) (map[int64]string, error) {
 	// 排行结果为空时，不需要回查商品名称。
 	if len(goodsIDs) == 0 {
 		return map[int64]string{}, nil
@@ -412,13 +462,19 @@ func (c *GoodsAnalyticsCase) loadGoodsNameMap(ctx context.Context, goodsIDs []in
 
 	rows := make([]*dto.GoodsNameRow, 0, len(goodsIDs))
 	query := c.goodsInfoCase.Query(ctx).GoodsInfo
-	err := query.WithContext(ctx).
+	dao := query.WithContext(ctx).
 		Select(query.ID, query.Name).
 		Where(
 			query.DeletedAt.IsNull(),
 			query.ID.In(goodsIDs...),
-		).
-		Scan(&rows)
+		)
+	if tenantID > 0 {
+		dao = dao.Where(query.TenantID.Eq(tenantID))
+	}
+	if tenantStoreID > 0 {
+		dao = dao.Where(query.TenantStoreID.Eq(tenantStoreID))
+	}
+	err := dao.Scan(&rows)
 	if err != nil {
 		return nil, err
 	}

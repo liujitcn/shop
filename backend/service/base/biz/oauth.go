@@ -390,7 +390,8 @@ func (c *OauthCase) ListOauthBindings(ctx context.Context, req *basev1.ListOauth
 		return nil, err
 	}
 
-	providerRes, err := c.ListOauthProviders(ctx, nil)
+	var providerRes *basev1.ListOauthProvidersResponse
+	providerRes, err = c.ListOauthProviders(ctx, nil)
 	if err != nil {
 		return nil, err
 	}

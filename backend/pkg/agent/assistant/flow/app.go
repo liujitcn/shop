@@ -263,7 +263,9 @@ func (r *Runner) openAiAssistantCheckout(ctx context.Context, payload map[string
 	if err != nil {
 		return r.aiAssistantFlowErrorResponse(aiAssistantFlowShopping, "checkout", tools), nil
 	}
-	addressOutput, addressUsage, err := r.invokeAiAssistantFlowTool(ctx, aiAssistantToolListUserAddresses, map[string]any{})
+	var addressOutput map[string]any
+	var addressUsage assistant.ToolUsage
+	addressOutput, addressUsage, err = r.invokeAiAssistantFlowTool(ctx, aiAssistantToolListUserAddresses, map[string]any{})
 	tools = appendAiAssistantFlowTool(tools, addressUsage)
 	if err != nil {
 		return r.aiAssistantFlowErrorResponse(aiAssistantFlowShopping, "checkout", tools), nil
@@ -295,7 +297,9 @@ func (r *Runner) createAiAssistantAddress(ctx context.Context, payload map[strin
 	if err != nil {
 		return r.aiAssistantFlowErrorResponse(flowName, "address", tools), nil
 	}
-	addressOutput, addressUsage, err := r.invokeAiAssistantFlowTool(ctx, aiAssistantToolListUserAddresses, map[string]any{})
+	var addressOutput map[string]any
+	var addressUsage assistant.ToolUsage
+	addressOutput, addressUsage, err = r.invokeAiAssistantFlowTool(ctx, aiAssistantToolListUserAddresses, map[string]any{})
 	tools = appendAiAssistantFlowTool(tools, addressUsage)
 	if err != nil {
 		return r.aiAssistantFlowErrorResponse(flowName, "address", tools), nil
@@ -481,7 +485,9 @@ func (r *Runner) receiveAiAssistantOrder(ctx context.Context, payload map[string
 	if err != nil {
 		return r.aiAssistantFlowErrorResponse(aiAssistantFlowOrderLogistics, "receipt", tools), nil
 	}
-	output, detailUsage, err := r.invokeAiAssistantFlowTool(ctx, aiAssistantToolGetOrderInfoByID, map[string]any{"id": orderID})
+	var output map[string]any
+	var detailUsage assistant.ToolUsage
+	output, detailUsage, err = r.invokeAiAssistantFlowTool(ctx, aiAssistantToolGetOrderInfoByID, map[string]any{"id": orderID})
 	tools = appendAiAssistantFlowTool(tools, detailUsage)
 	if err != nil {
 		return r.aiAssistantFlowErrorResponse(aiAssistantFlowOrderLogistics, "detail", tools), nil

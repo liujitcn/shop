@@ -24,7 +24,6 @@ message WxPay {
   string mch_cert_sn = 80 [(gnostic.openapi.v3.property) = {description: "商户证书序列号"}]; // 商户证书序列号
   string mch_cert_path = 81 [(gnostic.openapi.v3.property) = {description: "商户证书路径"}]; // 商户证书路径
   string mch_api_v3_key = 82 [
-    json_name = "mchAPIv3Key",
     (gnostic.openapi.v3.property) = {description: "api 密钥"}
   ]; // api 密钥
 }

@@ -52,7 +52,7 @@ func (c *GoodsReportCase) SummaryGoodsMonthReport(ctx context.Context, req *admi
 	}
 
 	var rows []*dto.GoodsMonthReportRow
-	rows, err = c.queryGoodsMonthReportRows(ctx, startMonth, endMonth.AddDate(0, 1, 0))
+	rows, err = c.queryGoodsMonthReportRows(ctx, req.GetTenantId(), req.GetTenantStoreId(), startMonth, endMonth.AddDate(0, 1, 0))
 	if err != nil {
 		return nil, err
 	}
@@ -88,7 +88,7 @@ func (c *GoodsReportCase) ListGoodsMonthReports(ctx context.Context, req *adminv
 	}
 
 	var rows []*dto.GoodsMonthReportRow
-	rows, err = c.queryGoodsMonthReportRows(ctx, startMonth, endMonth.AddDate(0, 1, 0))
+	rows, err = c.queryGoodsMonthReportRows(ctx, req.GetTenantId(), req.GetTenantStoreId(), startMonth, endMonth.AddDate(0, 1, 0))
 	if err != nil {
 		return nil, err
 	}
@@ -244,11 +244,11 @@ func (c *GoodsReportCase) appendDayReportSummary(summary *adminv1.SummaryGoodsDa
 }
 
 // queryGoodsMonthReportRows 查询商品月报聚合数据。
-func (c *GoodsReportCase) queryGoodsMonthReportRows(ctx context.Context, startAt, endAt time.Time) ([]*dto.GoodsMonthReportRow, error) {
+func (c *GoodsReportCase) queryGoodsMonthReportRows(ctx context.Context, tenantID, tenantStoreID int64, startAt, endAt time.Time) ([]*dto.GoodsMonthReportRow, error) {
 	rows := make([]*dto.GoodsMonthReportRow, 0)
 	query := c.Query(ctx).GoodsStatDay
 	groupField := utils.MonthReportGroupField(query.StatDate)
-	err := query.WithContext(ctx).
+	dao := query.WithContext(ctx).
 		Select(
 			groupField.As("month"),
 			query.ViewCount.Sum().FloorDiv(1).IfNull(0).As("view_count"),
@@ -263,10 +263,15 @@ func (c *GoodsReportCase) queryGoodsMonthReportRows(ctx context.Context, startAt
 			query.DeletedAt.IsNull(),
 			query.StatDate.Gte(startAt),
 			query.StatDate.Lt(endAt),
-		).
-		Group(utils.MonthReportAliasField()).
-		Order(utils.MonthReportAliasField()).
-		Scan(&rows)
+		)
+	// 默认租户可按租户筛选，普通租户继续受数据库租户隔离约束。
+	if tenantID > 0 {
+		dao = dao.Where(query.TenantID.Eq(tenantID))
+	}
+	if tenantStoreID > 0 {
+		dao = dao.Where(query.TenantStoreID.Eq(tenantStoreID))
+	}
+	err := dao.Group(utils.MonthReportAliasField()).Order(utils.MonthReportAliasField()).Scan(&rows)
 	return rows, err
 }
 

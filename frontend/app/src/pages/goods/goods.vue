@@ -444,13 +444,13 @@ onBeforeUnmount(() => {
       />
 
       <view v-if="tenantStore" class="store-entry" @tap="onEnterStore">
-        <text class="store-entry__label">店铺</text>
         <image
           v-if="tenantStore.logo"
           class="store-entry__logo"
           mode="aspectFill"
           :src="formatSrc(tenantStore.logo)"
         />
+        <view v-else class="store-entry__logo store-entry__logo--text">店</view>
         <text class="store-entry__name ellipsis">{{ tenantStore.name }}</text>
         <uni-icons class="store-entry__arrow" type="right" size="18" color="#ccc" />
       </view>
@@ -709,17 +709,21 @@ page {
     color: #333;
     font-size: 26rpx;
   }
-  .store-entry__label {
-    width: 80rpx;
-    flex-shrink: 0;
-    color: #999;
-  }
   .store-entry__logo {
     width: 48rpx;
     height: 48rpx;
     flex-shrink: 0;
     margin-right: 16rpx;
     border-radius: 4rpx;
+    background-color: #fff;
+  }
+  .store-entry__logo--text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #27ba9b;
+    font-size: 28rpx;
+    font-weight: 700;
   }
   .store-entry__name {
     min-width: 0;

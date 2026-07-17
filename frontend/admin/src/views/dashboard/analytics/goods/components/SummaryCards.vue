@@ -13,6 +13,10 @@ import { formatPrice } from "@/utils/utils";
 
 const props = defineProps<{
   timeType: AnalyticsTimeType;
+  /** 默认租户选择的租户ID。 */
+  tenantId?: number;
+  /** 当前选择的门店ID。 */
+  tenantStoreId?: number;
 }>();
 
 const summary = reactive<SummaryGoodsAnalyticsResponse>({
@@ -110,15 +114,23 @@ const cards = computed<MetricCardItem[]>(() => [
 ]);
 
 /** 加载商品摘要数据，并同步覆盖本地展示状态。 */
-async function loadData(timeType: AnalyticsTimeType) {
-  const data = await defGoodsAnalyticsService.SummaryGoodsAnalytics({ time_type: timeType });
-  Object.assign(summary, data);
+async function loadData(timeType: AnalyticsTimeType, tenantId?: number, tenantStoreId?: number) {
+  try {
+    const data = await defGoodsAnalyticsService.SummaryGoodsAnalytics({
+      time_type: timeType,
+      tenant_id: tenantId,
+      tenant_store_id: tenantStoreId
+    });
+    Object.assign(summary, data);
+  } catch (_error) {
+    // 接口异常时保留默认 0 值展示，避免未捕获 Promise 影响页面后续渲染。
+  }
 }
 
 watch(
-  () => props.timeType,
-  value => {
-    loadData(value);
+  () => [props.timeType, props.tenantId, props.tenantStoreId] as const,
+  ([timeType, tenantId, tenantStoreId]) => {
+    loadData(timeType, tenantId, tenantStoreId);
   },
   { immediate: true }
 );

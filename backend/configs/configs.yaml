@@ -1,12 +1,12 @@
 shop:
-  wxPay:
+  wx_pay:
     appid: xxx
-    mchId: 'xxxx'
-    notifyUrl: xxxx
-    mchCertSn: xxxx
-    mchCertPath: xxxx
-    mchAPIv3Key: xxxx
+    mch_id: 'xxxx'
+    notify_url: xxxx
+    mch_cert_sn: xxxx
+    mch_cert_path: xxxx
+    mch_api_v3_key: xxxx
   recommend:
     # Gorse 推荐客户端走 HTTP API，这里要指向推荐服务配置中的 http_port。
-    entryPoint: http://127.0.0.1:8088
-    apiKey: ''
+    entry_point: http://127.0.0.1:8088
+    api_key: ''

@@ -464,7 +464,8 @@ func compileActionGraph[T any](registry *Registry[T], graphName string) (compose
 		return nil, fmt.Errorf("注册固定流程路由分支失败: %w", err)
 	}
 
-	runnable, err := graph.Compile(context.Background(), compose.WithGraphName(graphName))
+	var runnable compose.Runnable[ActionRequest, LookupResult]
+	runnable, err = graph.Compile(context.Background(), compose.WithGraphName(graphName))
 	if err != nil {
 		return nil, fmt.Errorf("编译固定流程 Action Graph 失败: %w", err)
 	}
