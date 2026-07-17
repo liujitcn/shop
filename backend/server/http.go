@@ -5,6 +5,8 @@ import (
 	stdhttp "net/http"
 	"os"
 	"path/filepath"
+	"strings"
+
 	adminv1 "shop/api/gen/go/admin/v1"
 	appv1 "shop/api/gen/go/app/v1"
 	basev1 "shop/api/gen/go/base/v1"
@@ -13,7 +15,6 @@ import (
 	appMiddleware "shop/pkg/middleware"
 	"shop/pkg/middleware/logging"
 	"shop/service/base"
-	"strings"
 
 	bootstrapConfigv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 
@@ -83,6 +84,7 @@ func NewHTTPServer(
 	adminv1.RegisterBaseTenantServiceHTTPServer(srv, services.adminBaseTenant)
 	adminv1.RegisterBaseUserServiceHTTPServer(srv, services.adminBaseUser)
 	adminv1.RegisterCodeGenColumnServiceHTTPServer(srv, services.adminCodeGenColumn)
+	adminv1.RegisterCodeGenProtoServiceHTTPServer(srv, services.adminCodeGenProto)
 	adminv1.RegisterCodeGenTableServiceHTTPServer(srv, services.adminCodeGenTable)
 	adminv1.RegisterCommentInfoServiceHTTPServer(srv, services.adminCommentInfo)
 	adminv1.RegisterTenantStoreServiceHTTPServer(srv, services.adminTenantStore)

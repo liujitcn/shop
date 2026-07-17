@@ -11,6 +11,7 @@ import (
 
 	tool "github.com/cloudwego/eino/components/tool"
 	utils "github.com/cloudwego/eino/components/tool/utils"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // NewCodeGenColumnServiceAgentTools 创建Admin代码生成字段服务的 Agent Tool。
@@ -23,6 +24,18 @@ func NewCodeGenColumnServiceAgentTools(codeGenColumnServiceServer CodeGenColumnS
 		return nil, err
 	}
 	ts = append(ts, listCodeGenDatabaseColumnsTool)
+	var listCodeGenColumnsTool tool.InvokableTool
+	listCodeGenColumnsTool, err = NewCodeGenColumnServiceListCodeGenColumnsAgentTool(codeGenColumnServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, listCodeGenColumnsTool)
+	var saveCodeGenColumnsTool tool.InvokableTool
+	saveCodeGenColumnsTool, err = NewCodeGenColumnServiceSaveCodeGenColumnsAgentTool(codeGenColumnServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, saveCodeGenColumnsTool)
 	return ts, nil
 }
 
@@ -36,6 +49,34 @@ func NewCodeGenColumnServiceListCodeGenDatabaseColumnsAgentTool(codeGenColumnSer
 				req = &ListCodeGenDatabaseColumnsRequest{}
 			}
 			return codeGenColumnServiceServer.ListCodeGenDatabaseColumns(ctx, req)
+		},
+	)
+}
+
+// NewCodeGenColumnServiceListCodeGenColumnsAgentTool 创建查询代码生成字段配置的 Agent Tool。
+func NewCodeGenColumnServiceListCodeGenColumnsAgentTool(codeGenColumnServiceServer CodeGenColumnServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*ListCodeGenColumnsRequest, *ListCodeGenColumnsResponse](
+		"admin_v1_code_gen_column_service_list_code_gen_columns",
+		"查询代码生成字段配置",
+		func(ctx context.Context, req *ListCodeGenColumnsRequest) (*ListCodeGenColumnsResponse, error) {
+			if req == nil {
+				req = &ListCodeGenColumnsRequest{}
+			}
+			return codeGenColumnServiceServer.ListCodeGenColumns(ctx, req)
+		},
+	)
+}
+
+// NewCodeGenColumnServiceSaveCodeGenColumnsAgentTool 创建保存代码生成字段配置的 Agent Tool。
+func NewCodeGenColumnServiceSaveCodeGenColumnsAgentTool(codeGenColumnServiceServer CodeGenColumnServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*SaveCodeGenColumnsRequest, *emptypb.Empty](
+		"admin_v1_code_gen_column_service_save_code_gen_columns",
+		"保存代码生成字段配置",
+		func(ctx context.Context, req *SaveCodeGenColumnsRequest) (*emptypb.Empty, error) {
+			if req == nil {
+				req = &SaveCodeGenColumnsRequest{}
+			}
+			return codeGenColumnServiceServer.SaveCodeGenColumns(ctx, req)
 		},
 	)
 }

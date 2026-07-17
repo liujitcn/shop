@@ -10,6 +10,7 @@ import (
 	context "context"
 
 	http "github.com/go-kratos/kratos/v3/transport/http"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -18,16 +19,24 @@ var _ = new(context.Context)
 
 const _ = http.SupportPackageIsVersion3
 
+const OperationCodeGenColumnServiceListCodeGenColumns = "/admin.v1.CodeGenColumnService/ListCodeGenColumns"
 const OperationCodeGenColumnServiceListCodeGenDatabaseColumns = "/admin.v1.CodeGenColumnService/ListCodeGenDatabaseColumns"
+const OperationCodeGenColumnServiceSaveCodeGenColumns = "/admin.v1.CodeGenColumnService/SaveCodeGenColumns"
 
 type CodeGenColumnServiceHTTPServer interface {
+	// ListCodeGenColumns 查询代码生成字段配置
+	ListCodeGenColumns(context.Context, *ListCodeGenColumnsRequest) (*ListCodeGenColumnsResponse, error)
 	// ListCodeGenDatabaseColumns 查询数据库表字段列表
 	ListCodeGenDatabaseColumns(context.Context, *ListCodeGenDatabaseColumnsRequest) (*ListCodeGenDatabaseColumnsResponse, error)
+	// SaveCodeGenColumns 保存代码生成字段配置
+	SaveCodeGenColumns(context.Context, *SaveCodeGenColumnsRequest) (*emptypb.Empty, error)
 }
 
 func RegisterCodeGenColumnServiceHTTPServer(s *http.Server, srv CodeGenColumnServiceHTTPServer) {
 	r := s.Route("/")
 	r.Handle("GET", "/api/v1/admin/code-gen/database/table/{table_name}/column", _CodeGenColumnService_ListCodeGenDatabaseColumns0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/code-gen/table/{table_id}/column", _CodeGenColumnService_ListCodeGenColumns0_HTTP_Handler(srv))
+	r.Handle("PUT", "/api/v1/admin/code-gen/table/{table_id}/column", _CodeGenColumnService_SaveCodeGenColumns0_HTTP_Handler(srv))
 }
 
 func _CodeGenColumnService_ListCodeGenDatabaseColumns0_HTTP_Handler(srv CodeGenColumnServiceHTTPServer) func(ctx http.Context) error {
@@ -52,9 +61,57 @@ func _CodeGenColumnService_ListCodeGenDatabaseColumns0_HTTP_Handler(srv CodeGenC
 	}
 }
 
+func _CodeGenColumnService_ListCodeGenColumns0_HTTP_Handler(srv CodeGenColumnServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in ListCodeGenColumnsRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationCodeGenColumnServiceListCodeGenColumns)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.ListCodeGenColumns(ctx, req.(*ListCodeGenColumnsRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*ListCodeGenColumnsResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _CodeGenColumnService_SaveCodeGenColumns0_HTTP_Handler(srv CodeGenColumnServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in SaveCodeGenColumnsRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationCodeGenColumnServiceSaveCodeGenColumns)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.SaveCodeGenColumns(ctx, req.(*SaveCodeGenColumnsRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
 type CodeGenColumnServiceHTTPClient interface {
+	// ListCodeGenColumns 查询代码生成字段配置
+	ListCodeGenColumns(ctx context.Context, req *ListCodeGenColumnsRequest, opts ...http.CallOption) (rsp *ListCodeGenColumnsResponse, err error)
 	// ListCodeGenDatabaseColumns 查询数据库表字段列表
 	ListCodeGenDatabaseColumns(ctx context.Context, req *ListCodeGenDatabaseColumnsRequest, opts ...http.CallOption) (rsp *ListCodeGenDatabaseColumnsResponse, err error)
+	// SaveCodeGenColumns 保存代码生成字段配置
+	SaveCodeGenColumns(ctx context.Context, req *SaveCodeGenColumnsRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 }
 
 type CodeGenColumnServiceHTTPClientImpl struct {
@@ -63,6 +120,23 @@ type CodeGenColumnServiceHTTPClientImpl struct {
 
 func NewCodeGenColumnServiceHTTPClient(client *http.Client) CodeGenColumnServiceHTTPClient {
 	return &CodeGenColumnServiceHTTPClientImpl{client}
+}
+
+// ListCodeGenColumns 查询代码生成字段配置
+func (c *CodeGenColumnServiceHTTPClientImpl) ListCodeGenColumns(ctx context.Context, in *ListCodeGenColumnsRequest, opts ...http.CallOption) (*ListCodeGenColumnsResponse, error) {
+	var out ListCodeGenColumnsResponse
+	pattern := "/api/v1/admin/code-gen/table/{table_id}/column"
+	path := http.BuildPath(pattern, in, http.WithQueryParams())
+	opts = append([]http.CallOption{
+		http.Accept("application/protojson"),
+		http.Operation(OperationCodeGenColumnServiceListCodeGenColumns),
+		http.PathTemplate(pattern),
+	}, opts...)
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
 }
 
 // ListCodeGenDatabaseColumns 查询数据库表字段列表
@@ -76,6 +150,24 @@ func (c *CodeGenColumnServiceHTTPClientImpl) ListCodeGenDatabaseColumns(ctx cont
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// SaveCodeGenColumns 保存代码生成字段配置
+func (c *CodeGenColumnServiceHTTPClientImpl) SaveCodeGenColumns(ctx context.Context, in *SaveCodeGenColumnsRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/api/v1/admin/code-gen/table/{table_id}/column"
+	path := http.BuildPath(pattern, in)
+	opts = append([]http.CallOption{
+		http.Accept("application/protojson"),
+		http.ContentType("application/protojson"),
+		http.Operation(OperationCodeGenColumnServiceSaveCodeGenColumns),
+		http.PathTemplate(pattern),
+	}, opts...)
+	err := c.cc.Invoke(ctx, "PUT", path, in, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

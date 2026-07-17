@@ -90,6 +90,31 @@ func (*CasbinRule) TableComment() string {
 }
 
 // TableComment 返回表注释。
+func (*CodeGenBaseDept) TableComment() string {
+	return "部门信息"
+}
+
+// TableComment 返回表注释。
+func (*CodeGenBaseRole) TableComment() string {
+	return "角色信息"
+}
+
+// TableComment 返回表注释。
+func (*CodeGenBaseUser) TableComment() string {
+	return "用户信息"
+}
+
+// TableComment 返回表注释。
+func (*CodeGenColumn) TableComment() string {
+	return "代码生成字段配置表"
+}
+
+// TableComment 返回表注释。
+func (*CodeGenProto) TableComment() string {
+	return "代码生成Proto接口配置表"
+}
+
+// TableComment 返回表注释。
 func (*CodeGenTable) TableComment() string {
 	return "代码生成对象表"
 }

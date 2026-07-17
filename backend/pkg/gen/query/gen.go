@@ -35,6 +35,11 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		BaseThirdAccount:     newBaseThirdAccount(db, opts...),
 		BaseUser:             newBaseUser(db, opts...),
 		CasbinRule:           newCasbinRule(db, opts...),
+		CodeGenBaseDept:      newCodeGenBaseDept(db, opts...),
+		CodeGenBaseRole:      newCodeGenBaseRole(db, opts...),
+		CodeGenBaseUser:      newCodeGenBaseUser(db, opts...),
+		CodeGenColumn:        newCodeGenColumn(db, opts...),
+		CodeGenProto:         newCodeGenProto(db, opts...),
 		CodeGenTable:         newCodeGenTable(db, opts...),
 		CommentDiscussion:    newCommentDiscussion(db, opts...),
 		CommentInfo:          newCommentInfo(db, opts...),
@@ -94,6 +99,11 @@ type Query struct {
 	BaseThirdAccount     baseThirdAccount
 	BaseUser             baseUser
 	CasbinRule           casbinRule
+	CodeGenBaseDept      codeGenBaseDept
+	CodeGenBaseRole      codeGenBaseRole
+	CodeGenBaseUser      codeGenBaseUser
+	CodeGenColumn        codeGenColumn
+	CodeGenProto         codeGenProto
 	CodeGenTable         codeGenTable
 	CommentDiscussion    commentDiscussion
 	CommentInfo          commentInfo
@@ -154,6 +164,11 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		BaseThirdAccount:     q.BaseThirdAccount.clone(db),
 		BaseUser:             q.BaseUser.clone(db),
 		CasbinRule:           q.CasbinRule.clone(db),
+		CodeGenBaseDept:      q.CodeGenBaseDept.clone(db),
+		CodeGenBaseRole:      q.CodeGenBaseRole.clone(db),
+		CodeGenBaseUser:      q.CodeGenBaseUser.clone(db),
+		CodeGenColumn:        q.CodeGenColumn.clone(db),
+		CodeGenProto:         q.CodeGenProto.clone(db),
 		CodeGenTable:         q.CodeGenTable.clone(db),
 		CommentDiscussion:    q.CommentDiscussion.clone(db),
 		CommentInfo:          q.CommentInfo.clone(db),
@@ -221,6 +236,11 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		BaseThirdAccount:     q.BaseThirdAccount.replaceDB(db),
 		BaseUser:             q.BaseUser.replaceDB(db),
 		CasbinRule:           q.CasbinRule.replaceDB(db),
+		CodeGenBaseDept:      q.CodeGenBaseDept.replaceDB(db),
+		CodeGenBaseRole:      q.CodeGenBaseRole.replaceDB(db),
+		CodeGenBaseUser:      q.CodeGenBaseUser.replaceDB(db),
+		CodeGenColumn:        q.CodeGenColumn.replaceDB(db),
+		CodeGenProto:         q.CodeGenProto.replaceDB(db),
 		CodeGenTable:         q.CodeGenTable.replaceDB(db),
 		CommentDiscussion:    q.CommentDiscussion.replaceDB(db),
 		CommentInfo:          q.CommentInfo.replaceDB(db),
@@ -278,6 +298,11 @@ type queryCtx struct {
 	BaseThirdAccount     *baseThirdAccountDo
 	BaseUser             *baseUserDo
 	CasbinRule           *casbinRuleDo
+	CodeGenBaseDept      *codeGenBaseDeptDo
+	CodeGenBaseRole      *codeGenBaseRoleDo
+	CodeGenBaseUser      *codeGenBaseUserDo
+	CodeGenColumn        *codeGenColumnDo
+	CodeGenProto         *codeGenProtoDo
 	CodeGenTable         *codeGenTableDo
 	CommentDiscussion    *commentDiscussionDo
 	CommentInfo          *commentInfoDo
@@ -335,6 +360,11 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		BaseThirdAccount:     q.BaseThirdAccount.WithContext(ctx),
 		BaseUser:             q.BaseUser.WithContext(ctx),
 		CasbinRule:           q.CasbinRule.WithContext(ctx),
+		CodeGenBaseDept:      q.CodeGenBaseDept.WithContext(ctx),
+		CodeGenBaseRole:      q.CodeGenBaseRole.WithContext(ctx),
+		CodeGenBaseUser:      q.CodeGenBaseUser.WithContext(ctx),
+		CodeGenColumn:        q.CodeGenColumn.WithContext(ctx),
+		CodeGenProto:         q.CodeGenProto.WithContext(ctx),
 		CodeGenTable:         q.CodeGenTable.WithContext(ctx),
 		CommentDiscussion:    q.CommentDiscussion.WithContext(ctx),
 		CommentInfo:          q.CommentInfo.WithContext(ctx),

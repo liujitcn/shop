@@ -34,6 +34,7 @@ func registerMCPTools(mcpSrv *mcpserver.Server, services *ServerServices) {
 	adminv1.RegisterBaseRoleServiceMCPTools(mcpServer, services.adminBaseRole)
 	adminv1.RegisterBaseUserServiceMCPTools(mcpServer, services.adminBaseUser)
 	adminv1.RegisterCodeGenColumnServiceMCPTools(mcpServer, services.adminCodeGenColumn)
+	adminv1.RegisterCodeGenProtoServiceMCPTools(mcpServer, services.adminCodeGenProto)
 	adminv1.RegisterCodeGenTableServiceMCPTools(mcpServer, services.adminCodeGenTable)
 	adminv1.RegisterCommentInfoServiceMCPTools(mcpServer, services.adminCommentInfo)
 	adminv1.RegisterTenantStoreServiceMCPTools(mcpServer, services.adminTenantStore)

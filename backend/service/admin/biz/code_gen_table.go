@@ -26,17 +26,23 @@ const (
 // CodeGenTableCase 管理代码生成表配置。
 type CodeGenTableCase struct {
 	*data.CodeGenTableRepository
-	dbClient     *databaseGorm.Client // 数据库元数据客户端
-	baseMenuCase *BaseMenuCase        // 父级菜单校验能力
-	formMapper   *mapper.CopierMapper[adminv1.CodeGenTableForm, models.CodeGenTable]
-	mapper       *mapper.CopierMapper[adminv1.CodeGenTable, models.CodeGenTable]
+	dbClient          *databaseGorm.Client // 数据库元数据客户端
+	tx                data.Transaction
+	baseMenuCase      *BaseMenuCase
+	codeGenColumnCase *CodeGenColumnCase
+	codeGenProtoCase  *CodeGenProtoCase
+	formMapper        *mapper.CopierMapper[adminv1.CodeGenTableForm, models.CodeGenTable]
+	mapper            *mapper.CopierMapper[adminv1.CodeGenTable, models.CodeGenTable]
 }
 
 // NewCodeGenTableCase 创建代码生成表配置业务实例。
 func NewCodeGenTableCase(
 	codeGenTableRepo *data.CodeGenTableRepository,
 	dbClient *databaseGorm.Client,
+	tx data.Transaction,
 	baseMenuCase *BaseMenuCase,
+	codeGenColumnCase *CodeGenColumnCase,
+	codeGenProtoCase *CodeGenProtoCase,
 ) *CodeGenTableCase {
 	formMapper := mapper.NewCopierMapper[adminv1.CodeGenTableForm, models.CodeGenTable]()
 	formMapper.AppendConverters(mapper.NewJSONTypeConverter[*adminv1.CodeGenLeftTreeConfig]().NewConverterPair())
@@ -56,7 +62,10 @@ func NewCodeGenTableCase(
 	return &CodeGenTableCase{
 		CodeGenTableRepository: codeGenTableRepo,
 		dbClient:               dbClient,
+		tx:                     tx,
 		baseMenuCase:           baseMenuCase,
+		codeGenColumnCase:      codeGenColumnCase,
+		codeGenProtoCase:       codeGenProtoCase,
 		formMapper:             formMapper,
 		mapper:                 mapper.NewCopierMapper[adminv1.CodeGenTable, models.CodeGenTable](),
 	}
@@ -205,7 +214,17 @@ func (c *CodeGenTableCase) DeleteCodeGenTable(ctx context.Context, ids string) e
 	if len(idList) == 0 {
 		return nil
 	}
-	return c.DeleteByIDs(ctx, idList)
+	return c.tx.Transaction(ctx, func(ctx context.Context) error {
+		err := c.codeGenColumnCase.DeleteByTableIDs(ctx, idList)
+		if err != nil {
+			return err
+		}
+		err = c.codeGenProtoCase.DeleteByTableIDs(ctx, idList)
+		if err != nil {
+			return err
+		}
+		return c.DeleteByIDs(ctx, idList)
+	})
 }
 
 // codeGenTableFormToModel 校验并转换代码生成表配置保存模型。

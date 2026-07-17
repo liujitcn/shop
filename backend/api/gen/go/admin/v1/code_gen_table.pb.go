@@ -835,12 +835,12 @@ func (x *CodeGenTableForm) GetRemark() string {
 // 左树右表页面配置
 type CodeGenLeftTreeConfig struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	SourceType    string                 `protobuf:"bytes,1,opt,name=source_type,json=sourceType,proto3" json:"source_type,omitempty"`       // 左树数据源类型
-	SourceValue   string                 `protobuf:"bytes,2,opt,name=source_value,json=sourceValue,proto3" json:"source_value,omitempty"`    // 左树数据源值
-	FilterColumn  string                 `protobuf:"bytes,3,opt,name=filter_column,json=filterColumn,proto3" json:"filter_column,omitempty"` // 左树筛选当前表字段
-	ParentColumn  string                 `protobuf:"bytes,4,opt,name=parent_column,json=parentColumn,proto3" json:"parent_column,omitempty"` // 左树父节点字段
-	LabelColumn   string                 `protobuf:"bytes,5,opt,name=label_column,json=labelColumn,proto3" json:"label_column,omitempty"`    // 左树显示字段
-	ValueColumn   string                 `protobuf:"bytes,6,opt,name=value_column,json=valueColumn,proto3" json:"value_column,omitempty"`    // 左树值字段
+	TableName     string                 `protobuf:"bytes,1,opt,name=table_name,json=tableName,proto3" json:"table_name,omitempty"`          // 左树数据表名
+	FilterColumn  string                 `protobuf:"bytes,2,opt,name=filter_column,json=filterColumn,proto3" json:"filter_column,omitempty"` // 左树筛选当前表字段
+	ParentColumn  string                 `protobuf:"bytes,3,opt,name=parent_column,json=parentColumn,proto3" json:"parent_column,omitempty"` // 左树父节点字段
+	LabelColumn   string                 `protobuf:"bytes,4,opt,name=label_column,json=labelColumn,proto3" json:"label_column,omitempty"`    // 左树显示字段
+	ValueColumn   string                 `protobuf:"bytes,5,opt,name=value_column,json=valueColumn,proto3" json:"value_column,omitempty"`    // 左树值字段
+	Comment       string                 `protobuf:"bytes,6,opt,name=comment,proto3" json:"comment,omitempty"`                               // 左树描述
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -875,16 +875,9 @@ func (*CodeGenLeftTreeConfig) Descriptor() ([]byte, []int) {
 	return file_admin_v1_code_gen_table_proto_rawDescGZIP(), []int{11}
 }
 
-func (x *CodeGenLeftTreeConfig) GetSourceType() string {
+func (x *CodeGenLeftTreeConfig) GetTableName() string {
 	if x != nil {
-		return x.SourceType
-	}
-	return ""
-}
-
-func (x *CodeGenLeftTreeConfig) GetSourceValue() string {
-	if x != nil {
-		return x.SourceValue
+		return x.TableName
 	}
 	return ""
 }
@@ -913,6 +906,13 @@ func (x *CodeGenLeftTreeConfig) GetLabelColumn() string {
 func (x *CodeGenLeftTreeConfig) GetValueColumn() string {
 	if x != nil {
 		return x.ValueColumn
+	}
+	return ""
+}
+
+func (x *CodeGenLeftTreeConfig) GetComment() string {
+	if x != nil {
+		return x.Comment
 	}
 	return ""
 }
@@ -999,15 +999,15 @@ const file_admin_v1_code_gen_table_proto_rawDesc = "" +
 	"\agen_sql\x18\x14 \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否生成建表SQLR\x06genSql\x12:\n" +
 	"\x0eparent_menu_id\x18\x15 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e父级菜单IDR\fparentMenuId\x12$\n" +
 	"\x06status\x18d \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\x12$\n" +
-	"\x06remark\x18e \x01(\tB\f\xbaG\t\x92\x02\x06备注R\x06remark\"\x93\x03\n" +
-	"\x15CodeGenLeftTreeConfig\x12<\n" +
-	"\vsource_type\x18\x01 \x01(\tB\x1b\xbaG\x18\x92\x02\x15左树数据源类型R\n" +
-	"sourceType\x12;\n" +
-	"\fsource_value\x18\x02 \x01(\tB\x18\xbaG\x15\x92\x02\x12左树数据源值R\vsourceValue\x12F\n" +
-	"\rfilter_column\x18\x03 \x01(\tB!\xbaG\x1e\x92\x02\x1b左树筛选当前表字段R\ffilterColumn\x12@\n" +
-	"\rparent_column\x18\x04 \x01(\tB\x1b\xbaG\x18\x92\x02\x15左树父节点字段R\fparentColumn\x12;\n" +
-	"\flabel_column\x18\x05 \x01(\tB\x18\xbaG\x15\x92\x02\x12左树显示字段R\vlabelColumn\x128\n" +
-	"\fvalue_column\x18\x06 \x01(\tB\x15\xbaG\x12\x92\x02\x0f左树值字段R\vvalueColumn2\xd4\x06\n" +
+	"\x06remark\x18e \x01(\tB\f\xbaG\t\x92\x02\x06备注R\x06remark\"\xff\x02\n" +
+	"\x15CodeGenLeftTreeConfig\x127\n" +
+	"\n" +
+	"table_name\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12左树数据表名R\ttableName\x12F\n" +
+	"\rfilter_column\x18\x02 \x01(\tB!\xbaG\x1e\x92\x02\x1b左树筛选当前表字段R\ffilterColumn\x12@\n" +
+	"\rparent_column\x18\x03 \x01(\tB\x1b\xbaG\x18\x92\x02\x15左树父节点字段R\fparentColumn\x12;\n" +
+	"\flabel_column\x18\x04 \x01(\tB\x18\xbaG\x15\x92\x02\x12左树显示字段R\vlabelColumn\x128\n" +
+	"\fvalue_column\x18\x05 \x01(\tB\x15\xbaG\x12\x92\x02\x0f左树值字段R\vvalueColumn\x12,\n" +
+	"\acomment\x18\x06 \x01(\tB\x12\xbaG\x0f\x92\x02\f左树描述R\acomment2\xd4\x06\n" +
 	"\x13CodeGenTableService\x12\xa3\x01\n" +
 	"\x19ListCodeGenDatabaseTables\x12*.admin.v1.ListCodeGenDatabaseTablesRequest\x1a+.admin.v1.ListCodeGenDatabaseTablesResponse\"-\x82\xd3\xe4\x93\x02'\x12%/api/v1/admin/code-gen/database/table\x12\x82\x01\n" +
 	"\x11PageCodeGenTables\x12\".admin.v1.PageCodeGenTablesRequest\x1a#.admin.v1.PageCodeGenTablesResponse\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/api/v1/admin/code-gen/table\x12z\n" +

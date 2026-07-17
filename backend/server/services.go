@@ -22,6 +22,7 @@ type ServerServices struct {
 	adminBaseTenant       *admin.BaseTenantService
 	adminBaseUser         *admin.BaseUserService
 	adminCodeGenColumn    *admin.CodeGenColumnService
+	adminCodeGenProto     *admin.CodeGenProtoService
 	adminCodeGenTable     *admin.CodeGenTableService
 	adminCommentInfo      *admin.CommentInfoService
 	adminTenantStore      *admin.TenantStoreService
@@ -85,6 +86,7 @@ func NewServerServices(
 	adminBaseTenant *admin.BaseTenantService,
 	adminBaseUser *admin.BaseUserService,
 	adminCodeGenColumn *admin.CodeGenColumnService,
+	adminCodeGenProto *admin.CodeGenProtoService,
 	adminCodeGenTable *admin.CodeGenTableService,
 	adminCommentInfo *admin.CommentInfoService,
 	adminTenantStore *admin.TenantStoreService,
@@ -147,6 +149,7 @@ func NewServerServices(
 		adminBaseTenant:       adminBaseTenant,
 		adminBaseUser:         adminBaseUser,
 		adminCodeGenColumn:    adminCodeGenColumn,
+		adminCodeGenProto:     adminCodeGenProto,
 		adminCodeGenTable:     adminCodeGenTable,
 		adminCommentInfo:      adminCommentInfo,
 		adminTenantStore:      adminTenantStore,

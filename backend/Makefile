@@ -16,7 +16,7 @@ GEN_BIN ?= $(or \
 	$(shell command -v gen 2>/dev/null), \
 	$(shell GOBIN=$$(go env GOBIN); GOPATH=$$(go env GOPATH); if [ -n "$$GOBIN" ]; then printf '%s' "$$GOBIN/gen"; else printf '%s' "$$GOPATH/bin/gen"; fi) \
 )
-GORM_GEN_SOURCE ?= root:112233@tcp(192.168.60.52:3306)/shop_test?charset=utf8&parseTime=True&loc=Local&timeout=1000ms
+GORM_GEN_SOURCE ?= root:112233@tcp(192.168.60.52:3306)/shop_codex_tenant_gen?charset=utf8&parseTime=True&loc=Local&timeout=1000ms
 
 # 初始化开发环境
 init: plugin cli

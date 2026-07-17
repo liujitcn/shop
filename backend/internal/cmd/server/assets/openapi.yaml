@@ -2281,6 +2281,86 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/code-gen/table/{table_id}/column:
+        get:
+            tags:
+                - CodeGenColumnService
+            description: 查询代码生成字段配置
+            operationId: CodeGenColumnService_ListCodeGenColumns
+            parameters:
+                - name: table_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListCodeGenColumnsResponse'
+        put:
+            tags:
+                - CodeGenColumnService
+            description: 保存代码生成字段配置
+            operationId: CodeGenColumnService_SaveCodeGenColumns
+            parameters:
+                - name: table_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/SaveCodeGenColumnsRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/code-gen/table/{table_id}/proto:
+        get:
+            tags:
+                - CodeGenProtoService
+            description: 查询代码生成Proto接口配置
+            operationId: CodeGenProtoService_ListCodeGenProtos
+            parameters:
+                - name: table_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListCodeGenProtosResponse'
+        put:
+            tags:
+                - CodeGenProtoService
+            description: 保存代码生成Proto接口配置
+            operationId: CodeGenProtoService_SaveCodeGenProtos
+            parameters:
+                - name: table_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/SaveCodeGenProtosRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
     /api/v1/admin/comment/info:
         get:
             tags:
@@ -8487,6 +8567,131 @@ components:
                     type: string
                     description: 验证码base64
             description: 验证码响应
+        CodeGenColumn:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 主键ID
+                table_id:
+                    type: string
+                    description: 代码生成表配置ID
+                column_name:
+                    type: string
+                    description: 数据库字段名
+                column_comment:
+                    type: string
+                    description: 数据库字段注释
+                db_type:
+                    type: string
+                    description: 数据库字段类型
+                db_length:
+                    type: integer
+                    description: 数据库字段长度
+                    format: int32
+                db_scale:
+                    type: integer
+                    description: 数据库字段小数位
+                    format: int32
+                is_primary:
+                    type: boolean
+                    description: 是否主键
+                is_auto_increment:
+                    type: boolean
+                    description: 是否自增
+                is_nullable:
+                    type: boolean
+                    description: 是否允许为空
+                go_type:
+                    type: string
+                    description: Go字段类型
+                proto_type:
+                    type: string
+                    description: Proto字段类型
+                ts_type:
+                    type: string
+                    description: TypeScript字段类型
+                query_config:
+                    $ref: '#/components/schemas/CodeGenColumnQueryConfig'
+                list_config:
+                    $ref: '#/components/schemas/CodeGenColumnListConfig'
+                form_config:
+                    $ref: '#/components/schemas/CodeGenColumnFormConfig'
+                sort:
+                    type: integer
+                    description: 排序
+                    format: int32
+            description: 代码生成字段配置
+        CodeGenColumnFormConfig:
+            type: object
+            properties:
+                enabled:
+                    type: boolean
+                    description: 是否在表单展示
+                component:
+                    type: string
+                    description: 表单录入组件
+                required:
+                    type: boolean
+                    description: 是否必填
+                option:
+                    $ref: '#/components/schemas/CodeGenColumnOptionConfig'
+            description: 代码生成字段表单录入配置
+        CodeGenColumnListConfig:
+            type: object
+            properties:
+                enabled:
+                    type: boolean
+                    description: 是否在列表展示
+                component:
+                    type: string
+                    description: 列表展示组件
+                option:
+                    $ref: '#/components/schemas/CodeGenColumnOptionConfig'
+            description: 代码生成字段列表展示配置
+        CodeGenColumnOptionConfig:
+            type: object
+            properties:
+                kind:
+                    type: string
+                    description: 选项展示类型
+                source_type:
+                    type: string
+                    description: 选项数据源类型
+                source_value:
+                    type: string
+                    description: 选项数据源值
+                label_field:
+                    type: string
+                    description: 选项显示字段
+                value_field:
+                    type: string
+                    description: 选项取值字段
+                parent_field:
+                    type: string
+                    description: 树形选项父级字段
+                active_value:
+                    type: string
+                    description: 开关开启值
+                inactive_value:
+                    type: string
+                    description: 开关关闭值
+            description: 代码生成字段选项配置
+        CodeGenColumnQueryConfig:
+            type: object
+            properties:
+                enabled:
+                    type: boolean
+                    description: 是否启用查询
+                operator:
+                    type: string
+                    description: 查询操作符
+                component:
+                    type: string
+                    description: 查询组件
+                option:
+                    $ref: '#/components/schemas/CodeGenColumnOptionConfig'
+            description: 代码生成字段查询条件配置
         CodeGenDatabaseColumn:
             type: object
             properties:
@@ -8537,12 +8742,9 @@ components:
         CodeGenLeftTreeConfig:
             type: object
             properties:
-                source_type:
+                table_name:
                     type: string
-                    description: 左树数据源类型
-                source_value:
-                    type: string
-                    description: 左树数据源值
+                    description: 左树数据表名
                 filter_column:
                     type: string
                     description: 左树筛选当前表字段
@@ -8555,7 +8757,93 @@ components:
                 value_column:
                     type: string
                     description: 左树值字段
+                comment:
+                    type: string
+                    description: 左树描述
             description: 左树右表页面配置
+        CodeGenProto:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 主键ID
+                table_id:
+                    type: string
+                    description: 代码生成表配置ID
+                trigger_type:
+                    type: string
+                    description: 触发来源
+                api_kind:
+                    type: string
+                    description: 接口类型
+                target_entity_name:
+                    type: string
+                    description: 目标实体名
+                method_name:
+                    type: string
+                    description: 方法名
+                proto_file_path:
+                    type: string
+                    description: Proto文件路径
+                generate_when_missing:
+                    type: boolean
+                    description: 缺失时是否生成
+                config:
+                    $ref: '#/components/schemas/CodeGenProtoConfig'
+                sort:
+                    type: integer
+                    description: 排序
+                    format: int32
+            description: 代码生成Proto接口配置
+        CodeGenProtoCheck:
+            type: object
+            properties:
+                table_id:
+                    type: string
+                    description: 代码生成表配置ID
+                trigger_type:
+                    type: string
+                    description: 触发来源
+                api_kind:
+                    type: string
+                    description: 接口类型
+                target_entity_name:
+                    type: string
+                    description: 目标实体名
+                method_name:
+                    type: string
+                    description: 方法名
+                proto_file_path:
+                    type: string
+                    description: Proto文件路径
+                exists:
+                    type: boolean
+                    description: 接口是否已存在
+                generate_when_missing:
+                    type: boolean
+                    description: 缺失时是否生成
+                config:
+                    $ref: '#/components/schemas/CodeGenProtoConfig'
+                message:
+                    type: string
+                    description: 检查说明
+            description: 代码生成Proto接口检查项
+        CodeGenProtoConfig:
+            type: object
+            properties:
+                parent_column:
+                    type: string
+                    description: 树接口父节点字段
+                label_column:
+                    type: string
+                    description: 选项显示字段
+                value_column:
+                    type: string
+                    description: 选项值字段
+                status_column:
+                    type: string
+                    description: 状态字段
+            description: 代码生成Proto接口类型配置
         CodeGenTable:
             type: object
             properties:
@@ -10611,6 +10899,15 @@ components:
                         $ref: '#/components/schemas/BaseApi'
                     description: API列表
             description: API列表响应
+        ListCodeGenColumnsResponse:
+            type: object
+            properties:
+                code_gen_columns:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/CodeGenColumn'
+                    description: 代码生成字段配置列表
+            description: 代码生成字段配置查询响应
         ListCodeGenDatabaseColumnsResponse:
             type: object
             properties:
@@ -10629,6 +10926,15 @@ components:
                         $ref: '#/components/schemas/CodeGenDatabaseTable'
                     description: 数据库表列表
             description: 数据库表列表响应
+        ListCodeGenProtosResponse:
+            type: object
+            properties:
+                code_gen_protos:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/CodeGenProtoCheck'
+                    description: 代码生成Proto接口检查列表
+            description: 代码生成Proto接口配置查询响应
         ListCommentReviewsResponse:
             type: object
             properties:
@@ -12861,6 +13167,30 @@ components:
                     type: string
                     description: value
             description: Route参数
+        SaveCodeGenColumnsRequest:
+            type: object
+            properties:
+                table_id:
+                    type: string
+                    description: 代码生成表配置ID
+                code_gen_columns:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/CodeGenColumn'
+                    description: 代码生成字段配置列表
+            description: 代码生成字段配置保存条件
+        SaveCodeGenProtosRequest:
+            type: object
+            properties:
+                table_id:
+                    type: string
+                    description: 代码生成表配置ID
+                code_gen_protos:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/CodeGenProto'
+                    description: 代码生成Proto接口配置列表
+            description: 代码生成Proto接口配置保存条件
         SaveCommentReactionRequest:
             type: object
             properties:
@@ -14644,9 +14974,9 @@ tags:
     - name: BaseDeptService
       description: Admin部门服务
     - name: BaseDictService
-      description: Admin字典服务
-    - name: BaseDictService
       description: App字典服务
+    - name: BaseDictService
+      description: Admin字典服务
     - name: BaseJobService
       description: Admin定时任务服务
     - name: BaseLogService
@@ -14661,6 +14991,8 @@ tags:
       description: Admin用户管理服务
     - name: CodeGenColumnService
       description: Admin代码生成字段服务
+    - name: CodeGenProtoService
+      description: Admin代码生成Proto接口配置服务
     - name: CodeGenTableService
       description: Admin代码生成表配置服务
     - name: CommentInfoService
@@ -14674,13 +15006,13 @@ tags:
     - name: GoodsAnalyticsService
       description: Admin商品分析服务
     - name: GoodsCategoryService
-      description: App商品分类服务
-    - name: GoodsCategoryService
       description: Admin商品分类服务
-    - name: GoodsInfoService
-      description: App商品信息服务
+    - name: GoodsCategoryService
+      description: App商品分类服务
     - name: GoodsInfoService
       description: Admin商品信息服务
+    - name: GoodsInfoService
+      description: App商品信息服务
     - name: GoodsPropService
       description: Admin商品属性服务
     - name: GoodsReportService
@@ -14698,9 +15030,9 @@ tags:
     - name: OrderAnalyticsService
       description: Admin订单分析服务
     - name: OrderInfoService
-      description: App订单信息服务
-    - name: OrderInfoService
       description: Admin订单信息服务
+    - name: OrderInfoService
+      description: App订单信息服务
     - name: OrderReportService
       description: Admin订单报表服务
     - name: PayBillService
@@ -14728,9 +15060,9 @@ tags:
     - name: SseService
       description: Base SSE服务
     - name: TenantStoreService
-      description: Admin租户门店服务
-    - name: TenantStoreService
       description: App租户门店服务
+    - name: TenantStoreService
+      description: Admin租户门店服务
     - name: UserAddressService
       description: App用户地址管理服务
     - name: UserAnalyticsService
@@ -14740,8 +15072,8 @@ tags:
     - name: UserCollectService
       description: App用户收藏管理服务
     - name: UserStoreService
-      description: App用户门店管理服务
-    - name: UserStoreService
       description: Admin用户门店管理服务
+    - name: UserStoreService
+      description: App用户门店管理服务
     - name: WorkspaceService
       description: Admin工作台服务

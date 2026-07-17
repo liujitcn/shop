@@ -194,15 +194,15 @@ message CodeGenTableForm {
 
 // 左树右表页面配置
 message CodeGenLeftTreeConfig {
-  string source_type = 1 [(gnostic.openapi.v3.property) = {description: "左树数据源类型"}]; // 左树数据源类型
+  string table_name = 1 [(gnostic.openapi.v3.property) = {description: "左树数据表名"}]; // 左树数据表名
 
-  string source_value = 2 [(gnostic.openapi.v3.property) = {description: "左树数据源值"}]; // 左树数据源值
+  string filter_column = 2 [(gnostic.openapi.v3.property) = {description: "左树筛选当前表字段"}]; // 左树筛选当前表字段
 
-  string filter_column = 3 [(gnostic.openapi.v3.property) = {description: "左树筛选当前表字段"}]; // 左树筛选当前表字段
+  string parent_column = 3 [(gnostic.openapi.v3.property) = {description: "左树父节点字段"}]; // 左树父节点字段
 
-  string parent_column = 4 [(gnostic.openapi.v3.property) = {description: "左树父节点字段"}]; // 左树父节点字段
+  string label_column = 4 [(gnostic.openapi.v3.property) = {description: "左树显示字段"}]; // 左树显示字段
 
-  string label_column = 5 [(gnostic.openapi.v3.property) = {description: "左树显示字段"}]; // 左树显示字段
+  string value_column = 5 [(gnostic.openapi.v3.property) = {description: "左树值字段"}]; // 左树值字段
 
-  string value_column = 6 [(gnostic.openapi.v3.property) = {description: "左树值字段"}]; // 左树值字段
+  string comment = 6 [(gnostic.openapi.v3.property) = {description: "左树描述"}]; // 左树描述
 }

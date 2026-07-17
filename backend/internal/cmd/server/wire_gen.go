@@ -280,10 +280,14 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	baseRoleService := admin.NewBaseRoleService(baseRoleCase)
 	baseTenantService := admin.NewBaseTenantService(baseTenantCase)
 	baseUserService := admin.NewBaseUserService(bizBaseUserCase)
-	codeGenColumnCase := biz2.NewCodeGenColumnCase(client)
-	codeGenColumnService := admin.NewCodeGenColumnService(codeGenColumnCase)
+	codeGenColumnRepository := data.NewCodeGenColumnRepository(dataData)
 	codeGenTableRepository := data.NewCodeGenTableRepository(dataData)
-	codeGenTableCase := biz2.NewCodeGenTableCase(codeGenTableRepository, client, baseMenuCase)
+	codeGenColumnCase := biz2.NewCodeGenColumnCase(codeGenColumnRepository, client, transaction, codeGenTableRepository)
+	codeGenColumnService := admin.NewCodeGenColumnService(codeGenColumnCase)
+	codeGenProtoRepository := data.NewCodeGenProtoRepository(dataData)
+	codeGenProtoCase := biz2.NewCodeGenProtoCase(codeGenProtoRepository, transaction, codeGenTableRepository, codeGenColumnCase)
+	codeGenProtoService := admin.NewCodeGenProtoService(codeGenProtoCase)
+	codeGenTableCase := biz2.NewCodeGenTableCase(codeGenTableRepository, client, transaction, baseMenuCase, codeGenColumnCase, codeGenProtoCase)
 	codeGenTableService := admin.NewCodeGenTableService(codeGenTableCase)
 	bizCommentTagCase := biz2.NewCommentTagCase(baseCase, commentTagRepository)
 	bizCommentReviewCase := biz2.NewCommentReviewCase(baseCase, commentReviewRepository)
@@ -415,7 +419,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	baseThirdAccountCase := biz4.NewBaseThirdAccountCase(baseThirdAccountRepository)
 	oauthCase := biz4.NewOauthCase(baseCase, transaction, manager, baseThirdAccountCase, baseUserCase2, loginCase)
 	oauthService := base.NewOauthService(oauthCase)
-	serverServices, err := server.NewServerServices(authService, baseApiService, baseConfigService, baseDeptService, baseDictService, baseJobService, baseLogService, baseMenuService, baseRoleService, baseTenantService, baseUserService, codeGenColumnService, codeGenTableService, commentInfoService, tenantStoreService, goodsAnalyticsService, goodsReportService, goodsCategoryService, goodsPropService, goodsInfoService, goodsSkuService, goodsSpecService, orderAnalyticsService, orderReportService, orderInfoService, payBillService, recommendRequestService, recommendGorseService, shopBannerService, shopHotService, shopServiceService, userAnalyticsService, userStoreService, workspaceService, appAuthService, baseAreaService, appBaseDictService, commentService, appGoodsCategoryService, appGoodsInfoService, appTenantStoreService, appOrderInfoService, payService, recommendService, appShopBannerService, appShopHotService, appShopServiceService, userAddressService, userCartService, userCollectService, appUserStoreService, assistantRuntime, aiAssistantService, aiAssistantMessageService, configService, fileService, loginService, oauthService)
+	serverServices, err := server.NewServerServices(authService, baseApiService, baseConfigService, baseDeptService, baseDictService, baseJobService, baseLogService, baseMenuService, baseRoleService, baseTenantService, baseUserService, codeGenColumnService, codeGenProtoService, codeGenTableService, commentInfoService, tenantStoreService, goodsAnalyticsService, goodsReportService, goodsCategoryService, goodsPropService, goodsInfoService, goodsSkuService, goodsSpecService, orderAnalyticsService, orderReportService, orderInfoService, payBillService, recommendRequestService, recommendGorseService, shopBannerService, shopHotService, shopServiceService, userAnalyticsService, userStoreService, workspaceService, appAuthService, baseAreaService, appBaseDictService, commentService, appGoodsCategoryService, appGoodsInfoService, appTenantStoreService, appOrderInfoService, payService, recommendService, appShopBannerService, appShopHotService, appShopServiceService, userAddressService, userCartService, userCollectService, appUserStoreService, assistantRuntime, aiAssistantService, aiAssistantMessageService, configService, fileService, loginService, oauthService)
 	if err != nil {
 		cleanup4()
 		cleanup3()
@@ -457,7 +461,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 		return nil, nil, err
 	}
 	sseService := base.NewSseService(sseCase)
-	grpcServer, err := server.NewGRPCServer(context, grpcMiddlewares, authService, baseApiService, baseConfigService, baseDeptService, baseDictService, baseJobService, baseLogService, baseMenuService, baseRoleService, baseTenantService, baseUserService, codeGenColumnService, codeGenTableService, commentInfoService, tenantStoreService, goodsAnalyticsService, goodsReportService, goodsCategoryService, goodsPropService, goodsInfoService, goodsSkuService, goodsSpecService, orderAnalyticsService, orderReportService, orderInfoService, payBillService, recommendRequestService, recommendGorseService, shopBannerService, shopHotService, shopServiceService, userAnalyticsService, userStoreService, workspaceService, appAuthService, baseAreaService, appBaseDictService, commentService, appGoodsCategoryService, appGoodsInfoService, appTenantStoreService, appOrderInfoService, payService, recommendService, appShopBannerService, appShopHotService, appShopServiceService, userAddressService, userCartService, userCollectService, appUserStoreService, aiAssistantService, aiAssistantMessageService, configService, fileService, loginService, oauthService, mcpService, sseService)
+	grpcServer, err := server.NewGRPCServer(context, grpcMiddlewares, authService, baseApiService, baseConfigService, baseDeptService, baseDictService, baseJobService, baseLogService, baseMenuService, baseRoleService, baseTenantService, baseUserService, codeGenColumnService, codeGenProtoService, codeGenTableService, commentInfoService, tenantStoreService, goodsAnalyticsService, goodsReportService, goodsCategoryService, goodsPropService, goodsInfoService, goodsSkuService, goodsSpecService, orderAnalyticsService, orderReportService, orderInfoService, payBillService, recommendRequestService, recommendGorseService, shopBannerService, shopHotService, shopServiceService, userAnalyticsService, userStoreService, workspaceService, appAuthService, baseAreaService, appBaseDictService, commentService, appGoodsCategoryService, appGoodsInfoService, appTenantStoreService, appOrderInfoService, payService, recommendService, appShopBannerService, appShopHotService, appShopServiceService, userAddressService, userCartService, userCollectService, appUserStoreService, aiAssistantService, aiAssistantMessageService, configService, fileService, loginService, oauthService, mcpService, sseService)
 	if err != nil {
 		cleanup4()
 		cleanup3()

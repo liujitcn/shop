@@ -50,6 +50,8 @@ export interface ProFormField {
   options?: ProFormOption[] | ((model: Record<string, any>) => ProFormOption[]);
   /** 栅格占位列数。 */
   colSpan?: number;
+  /** 是否在当前字段前强制换行。 */
+  rowBreakBefore?: boolean;
   /** 自定义插槽名称。 */
   slotName?: string;
   /** 标题提示文案。 */

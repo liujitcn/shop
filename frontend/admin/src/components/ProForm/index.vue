@@ -2,6 +2,7 @@
   <el-form ref="formRef" :model="model" :rules="formRules" :label-width="labelWidth" v-bind="$attrs">
     <el-row :gutter="gutter">
       <template v-for="field in visibleFields" :key="field.prop">
+        <span v-if="field.rowBreakBefore" class="pro-form__row-break" aria-hidden="true" />
         <el-col :span="field.colSpan ?? colSpan">
           <el-form-item :label="field.label" :prop="field.prop" :rules="field.rules" v-bind="resolveFieldItemProps(field)">
             <template v-if="field.labelTooltip" #label>
@@ -102,6 +103,10 @@ defineExpose({
 </script>
 
 <style scoped lang="scss">
+.pro-form__row-break {
+  flex: 0 0 100%;
+  height: 0;
+}
 .pro-form__label {
   display: inline-flex;
   gap: 4px;

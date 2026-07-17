@@ -1,7 +1,14 @@
 <!-- 代码生成表配置 -->
 <template>
   <div class="table-box">
-    <ProTable ref="proTable" row-key="id" :columns="columns" :header-actions="headerActions" :request-api="requestCodeGenTable" />
+    <ProTable
+      ref="proTable"
+      class="code-gen-table"
+      row-key="id"
+      :columns="columns"
+      :header-actions="headerActions"
+      :request-api="requestCodeGenTable"
+    />
 
     <FormDialog
       v-model="dialog.visible"
@@ -24,6 +31,8 @@
 
 <script setup lang="ts">
 import { computed, nextTick, reactive, ref } from "vue";
+import { useRouter } from "vue-router";
+import { Connection, SetUp, View } from "@element-plus/icons-vue";
 import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@/components/ProTable/interface";
 import ProTable from "@/components/ProTable/index.vue";
 import FormDialog from "@/components/Dialog/FormDialog.vue";
@@ -43,12 +52,11 @@ import type { TreeOptionResponse_Option } from "@/rpc/common/v1/common";
 import { buildPageRequest, normalizeSelectedIds } from "@/utils/proTable";
 import {
   codeGenPageTypeOptions,
-  codeGenSourceTypeOptions,
   codeGenStatusOptions,
   codeGenTableRules,
   createDefaultCodeGenLeftTreeConfig,
   createDefaultCodeGenTableForm
-} from "./config";
+} from "../config";
 
 defineOptions({
   name: "CodeGen",
@@ -59,6 +67,7 @@ defineOptions({
 type CodeGenDeleteTarget = number | string | Array<number | string> | CodeGenTable | CodeGenTable[];
 
 const { BUTTONS } = useAuthButtons();
+const router = useRouter();
 const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 const saving = ref(false);
@@ -119,7 +128,7 @@ const formFields = computed<ProFormField[]>(() => [
     label: "业务表描述",
     component: "input",
     colSpan: 24,
-    props: { placeholder: "选择业务表后自动带出", disabled: true }
+    props: { placeholder: "选择业务表后自动带出，可修改" }
   },
   { prop: "business_name", label: "业务名", component: "input", props: { placeholder: "如 base_dept" } },
   { prop: "entity_name", label: "实体名", component: "input", props: { placeholder: "如 BaseDept" } },
@@ -130,11 +139,12 @@ const formFields = computed<ProFormField[]>(() => [
     label: "父级菜单",
     component: "tree-select",
     options: parentMenuOptions.value,
-    colSpan: 24,
     props: {
       placeholder: "请选择生成页面挂载菜单",
       clearable: true,
       filterable: true,
+      emptyValues: [0, undefined, null, ""],
+      valueOnClear: 0,
       checkStrictly: true,
       renderAfterExpand: false,
       style: { width: "100%" }
@@ -145,7 +155,6 @@ const formFields = computed<ProFormField[]>(() => [
     label: "页面类型",
     component: "segmented",
     options: codeGenPageTypeOptions,
-    colSpan: 24,
     props: { onChange: handlePageTypeChange }
   },
   {
@@ -165,43 +174,30 @@ const formFields = computed<ProFormField[]>(() => [
     visible: model => model.page_type === "tree"
   },
   {
-    prop: "left_tree_config.source_type",
-    label: "左树来源",
+    prop: "left_tree_config.table_name",
+    label: "左树数据表",
     component: "select",
-    options: codeGenSourceTypeOptions,
+    options: leftTreeTableOptions.value,
     props: {
-      placeholder: "请选择左树来源类型",
+      placeholder: "请选择左树数据表",
       clearable: true,
+      filterable: true,
       style: { width: "100%" },
-      onChange: handleLeftTreeSourceTypeChange
+      onChange: handleLeftTreeTableNameChange
     },
     visible: model => model.page_type === "left_tree"
   },
   {
-    prop: "left_tree_config.source_value",
-    label: "来源数据表",
-    component: "select",
-    options: leftTreeTableOptions.value,
-    props: {
-      placeholder: "请选择左树来源表",
-      clearable: true,
-      filterable: true,
-      style: { width: "100%" },
-      onChange: handleLeftTreeSourceValueChange
-    },
-    visible: model => model.page_type === "left_tree" && model.left_tree_config?.source_type === "table"
-  },
-  {
-    prop: "left_tree_config.source_value",
-    label: "来源标识",
+    prop: "left_tree_config.comment",
+    label: "左树描述",
     component: "input",
-    props: { placeholder: "请输入静态数据或字典标识" },
-    visible: model =>
-      model.page_type === "left_tree" && !!model.left_tree_config?.source_type && model.left_tree_config.source_type !== "table"
+    props: { placeholder: "选择左树数据表后自动带出，可修改" },
+    visible: model => model.page_type === "left_tree"
   },
   {
     prop: "left_tree_config.filter_column",
     label: "筛选字段",
+    labelTooltip: "选择当前业务表中用于关联左树节点值的字段。点击左树节点后，右侧列表将按该字段筛选。",
     component: "select",
     options: databaseColumnOptions.value,
     props: { placeholder: "请选择当前表筛选字段", clearable: true, filterable: true, style: { width: "100%" } },
@@ -210,40 +206,33 @@ const formFields = computed<ProFormField[]>(() => [
   {
     prop: "left_tree_config.parent_column",
     label: "左树父字段",
-    component: formData.left_tree_config?.source_type === "table" ? "select" : "input",
+    component: "select",
     options: leftTreeColumnOptions.value,
-    props:
-      formData.left_tree_config?.source_type === "table"
-        ? { placeholder: "请选择左树父字段", clearable: true, filterable: true, style: { width: "100%" } }
-        : { placeholder: "如 parent_id" },
-    visible: model => model.page_type === "left_tree" && !!model.left_tree_config?.source_type
+    props: { placeholder: "请选择左树父字段", clearable: true, filterable: true, style: { width: "100%" } },
+    visible: model => model.page_type === "left_tree"
   },
   {
     prop: "left_tree_config.label_column",
     label: "左树显示字段",
-    component: formData.left_tree_config?.source_type === "table" ? "select" : "input",
+    component: "select",
     options: leftTreeColumnOptions.value,
-    props:
-      formData.left_tree_config?.source_type === "table"
-        ? { placeholder: "请选择左树显示字段", clearable: true, filterable: true, style: { width: "100%" } }
-        : { placeholder: "如 name" },
-    visible: model => model.page_type === "left_tree" && !!model.left_tree_config?.source_type
+    props: { placeholder: "请选择左树显示字段", clearable: true, filterable: true, style: { width: "100%" } },
+    visible: model => model.page_type === "left_tree"
   },
   {
     prop: "left_tree_config.value_column",
     label: "左树值字段",
-    component: formData.left_tree_config?.source_type === "table" ? "select" : "input",
+    component: "select",
     options: leftTreeColumnOptions.value,
-    props:
-      formData.left_tree_config?.source_type === "table"
-        ? { placeholder: "请选择左树值字段", clearable: true, filterable: true, style: { width: "100%" } }
-        : { placeholder: "如 id" },
-    visible: model => model.page_type === "left_tree" && !!model.left_tree_config?.source_type
+    props: { placeholder: "请选择左树值字段", clearable: true, filterable: true, style: { width: "100%" } },
+    visible: model => model.page_type === "left_tree"
   },
   {
     prop: "gen_backend",
     label: "生成后端",
     component: "switch",
+    // 三个生成开关始终从新行开始并排展示。
+    rowBreakBefore: true,
     colSpan: 8,
     props: { activeText: "生成", inactiveText: "跳过" }
   },
@@ -274,16 +263,40 @@ const columns: ColumnProps[] = [
   {
     prop: "operation",
     label: "操作",
-    width: 150,
+    width: 440,
     fixed: "right",
     cellType: "actions",
     actions: [
+      {
+        label: "字段配置",
+        type: "success",
+        link: true,
+        icon: SetUp,
+        hidden: () => !BUTTONS.value["tool:code-gen-table:column"],
+        onClick: scope => handleOpenColumnConfig((scope.row as CodeGenTable).id)
+      },
+      {
+        label: "Proto配置",
+        type: "warning",
+        link: true,
+        icon: Connection,
+        hidden: () => !BUTTONS.value["tool:code-gen-table:proto"],
+        onClick: scope => handleOpenProtoConfig((scope.row as CodeGenTable).id)
+      },
+      {
+        label: "预览",
+        type: "primary",
+        link: true,
+        icon: View,
+        hidden: () => !BUTTONS.value["tool:code-gen-table:preview"],
+        onClick: scope => handleOpenPreview((scope.row as CodeGenTable).id)
+      },
       {
         label: "编辑",
         type: "primary",
         link: true,
         icon: EditPen,
-        hidden: () => !BUTTONS.value["tool:code-gen:update"],
+        hidden: () => !BUTTONS.value["tool:code-gen-table:update"],
         onClick: scope => handleOpenDialog((scope.row as CodeGenTable).id)
       },
       {
@@ -291,12 +304,27 @@ const columns: ColumnProps[] = [
         type: "danger",
         link: true,
         icon: Delete,
-        hidden: () => !BUTTONS.value["tool:code-gen:delete"],
+        hidden: () => !BUTTONS.value["tool:code-gen-table:delete"],
         onClick: scope => handleDelete(scope.row as CodeGenTable)
       }
     ]
   }
 ];
+
+/** 打开已经保存的代码生成页面预览。 */
+async function handleOpenPreview(tableId: number) {
+  await router.push(`/tool/code-gen/preview/${tableId}`);
+}
+
+/** 打开字段配置页面。 */
+async function handleOpenColumnConfig(tableId: number) {
+  await router.push(`/tool/code-gen/columns/${tableId}`);
+}
+
+/** 打开Proto接口配置页面。 */
+async function handleOpenProtoConfig(tableId: number) {
+  await router.push(`/tool/code-gen/proto/${tableId}`);
+}
 
 /** 代码生成表配置列表顶部操作。 */
 const headerActions: HeaderActionProps[] = [
@@ -304,14 +332,14 @@ const headerActions: HeaderActionProps[] = [
     label: "新增",
     type: "success",
     icon: CirclePlus,
-    hidden: () => !BUTTONS.value["tool:code-gen:create"],
+    hidden: () => !BUTTONS.value["tool:code-gen-table:create"],
     onClick: () => handleOpenDialog()
   },
   {
     label: "删除",
     type: "danger",
     icon: Delete,
-    hidden: () => !BUTTONS.value["tool:code-gen:delete"],
+    hidden: () => !BUTTONS.value["tool:code-gen-table:delete"],
     disabled: scope => !scope.selectedList.length,
     onClick: scope => handleDelete(scope.selectedList as CodeGenTable[])
   }
@@ -344,7 +372,7 @@ async function handleOpenDialog(tableId?: number) {
   dialog.visible = true;
 }
 
-/** 选择业务表后同步数据库注释、默认命名和字段选项。 */
+/** 选择业务表后同步数据库注释、默认命名、字段选项和树字段默认值。 */
 async function handleTableNameChange(tableName: string) {
   const table = databaseTables.value.find(item => item.name === tableName);
   formData.comment = table?.comment ?? "";
@@ -354,6 +382,8 @@ async function handleTableNameChange(tableName: string) {
   formData.permission_prefix = table?.permission_prefix ?? "";
   await loadDatabaseColumns(databaseColumns, tableName);
   resetUnavailableTableColumns();
+  formData.parent_column = resolveDefaultColumn(databaseColumns.value, "parent_id");
+  formData.tree_label_column = resolveDefaultColumn(databaseColumns.value, "name");
 }
 
 /** 页面类型变化时清理不再生效的页面字段。 */
@@ -367,20 +397,16 @@ function handlePageTypeChange(pageType: string) {
   }
 }
 
-/** 左树数据源类型变化时清理旧来源配置。 */
-function handleLeftTreeSourceTypeChange() {
+/** 左树来源表变化时覆盖描述、加载字段选项并设置约定默认字段。 */
+async function handleLeftTreeTableNameChange(tableName: string) {
   const config = ensureLeftTreeConfig();
-  config.source_value = "";
-  config.parent_column = "";
-  config.label_column = "";
-  config.value_column = "";
-  leftTreeDatabaseColumns.value = [];
-}
-
-/** 左树来源表变化时加载字段选项。 */
-async function handleLeftTreeSourceValueChange() {
+  const table = databaseTables.value.find(item => item.name === tableName);
+  config.comment = table?.comment ?? "";
   await loadLeftTreeDatabaseColumns();
   resetUnavailableLeftTreeColumns();
+  config.parent_column = resolveDefaultColumn(leftTreeDatabaseColumns.value, "parent_id");
+  config.label_column = resolveDefaultColumn(leftTreeDatabaseColumns.value, "name");
+  config.value_column = resolveDefaultColumn(leftTreeDatabaseColumns.value, "id");
 }
 
 /** 提交代码生成表配置。 */
@@ -447,11 +473,11 @@ async function loadDatabaseColumns(target: { value: CodeGenDatabaseColumn[] }, t
 /** 查询左树来源表字段选项。 */
 async function loadLeftTreeDatabaseColumns() {
   const config = ensureLeftTreeConfig();
-  if (formData.page_type !== "left_tree" || config.source_type !== "table") {
+  if (formData.page_type !== "left_tree") {
     leftTreeDatabaseColumns.value = [];
     return;
   }
-  await loadDatabaseColumns(leftTreeDatabaseColumns, config.source_value);
+  await loadDatabaseColumns(leftTreeDatabaseColumns, config.table_name);
 }
 
 /** 转换数据库字段为 ProForm 选择项。 */
@@ -462,6 +488,11 @@ function createDatabaseColumnOptions(columns: CodeGenDatabaseColumn[]): ProFormO
       : `${item.column_name}（${item.column_type || item.db_type}）`,
     value: item.column_name
   }));
+}
+
+/** 从字段列表中解析存在的约定默认字段。 */
+function resolveDefaultColumn(columns: CodeGenDatabaseColumn[], columnName: string) {
+  return columns.some(item => item.column_name === columnName) ? columnName : "";
 }
 
 /** 转换菜单树为 ProForm 树形选择项。 */
@@ -536,3 +567,14 @@ function refreshTable() {
 
 // 页面从缓存重新激活时刷新列表数据。
 </script>
+
+<style scoped lang="scss">
+/* 固定操作列表头与普通表头使用同一主题背景，并保持行内操作单行展示。 */
+:deep(.code-gen-table) {
+  --el-table-header-bg-color: var(--el-fill-color-light);
+
+  td.el-table-fixed-column--right .cell {
+    white-space: nowrap;
+  }
+}
+</style>

@@ -165,10 +165,8 @@ export interface CodeGenTableForm {
 
 /** 左树右表页面配置 */
 export interface CodeGenLeftTreeConfig {
-  /** 左树数据源类型 */
-  source_type: string;
-  /** 左树数据源值 */
-  source_value: string;
+  /** 左树数据表名 */
+  table_name: string;
   /** 左树筛选当前表字段 */
   filter_column: string;
   /** 左树父节点字段 */
@@ -177,6 +175,8 @@ export interface CodeGenLeftTreeConfig {
   label_column: string;
   /** 左树值字段 */
   value_column: string;
+  /** 左树描述 */
+  comment: string;
 }
 
 /** Admin代码生成表配置服务 */

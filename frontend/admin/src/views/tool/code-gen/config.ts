@@ -1,5 +1,11 @@
 import type { FormRules } from "element-plus";
-import type { ProFormOption } from "@/components/ProForm/interface";
+import type { ProFormComponentType, ProFormOption } from "@/components/ProForm/interface";
+import type {
+  CodeGenColumnFormConfig,
+  CodeGenColumnListConfig,
+  CodeGenColumnOptionConfig,
+  CodeGenColumnQueryConfig
+} from "@/rpc/admin/v1/code_gen_column";
 import type { CodeGenLeftTreeConfig, CodeGenTableForm } from "@/rpc/admin/v1/code_gen_table";
 
 /** 代码生成表配置页面类型选项。 */
@@ -23,18 +29,76 @@ export const codeGenSourceTypeOptions: ProFormOption[] = [
   { label: "数据表", value: "table" }
 ];
 
+/** 查询操作符选项。 */
+export const codeGenQueryOperatorOptions: ProFormOption[] = [
+  { label: "等于", value: "eq" },
+  { label: "模糊", value: "like" },
+  { label: "区间", value: "between" }
+];
+
+/** 查询组件选项。 */
+export const codeGenQueryComponentOptions: ProFormOption[] = [
+  { label: "输入框", value: "input" },
+  { label: "数字输入", value: "input-number" },
+  { label: "下拉选择", value: "select" },
+  { label: "树形选择", value: "tree-select" },
+  { label: "日期", value: "date-picker" }
+];
+
+/** 列表展示组件选项。 */
+export const codeGenListComponentOptions: ProFormOption[] = [
+  { label: "文本", value: "text" },
+  { label: "开关", value: "switch" },
+  { label: "下拉", value: "select" },
+  { label: "树形", value: "tree-select" },
+  { label: "图片", value: "image" },
+  { label: "金额", value: "money" },
+  { label: "日期", value: "date" }
+];
+
+/** ProForm 全量组件类型对应的中文名称。 */
+const codeGenFormComponentLabels: Record<ProFormComponentType, string> = {
+  input: "输入框",
+  password: "密码框",
+  textarea: "文本域",
+  "input-number": "数字输入",
+  segmented: "分段选择",
+  switch: "开关",
+  checkbox: "复选框",
+  select: "下拉选择",
+  dict: "字典选择",
+  "radio-group": "单选组",
+  "checkbox-group": "复选组",
+  "tree-select": "树形选择",
+  "date-picker": "日期选择",
+  "cron-expression": "Cron 表达式",
+  transfer: "穿梭框",
+  "image-upload": "单图上传",
+  "images-upload": "多图上传",
+  "file-upload": "单文件上传",
+  "files-upload": "多文件上传",
+  "rich-text": "富文本",
+  "dynamic-list": "动态列表",
+  "kv-list": "键值列表",
+  slot: "自定义插槽"
+};
+
+/** 表单录入组件选项，保持与 ProForm 支持类型完整一致。 */
+export const codeGenFormComponentOptions: ProFormOption[] = (
+  Object.entries(codeGenFormComponentLabels) as Array<[ProFormComponentType, string]>
+).map(([value, label]) => ({ label, value }));
+
 /** 代码生成表配置校验规则。 */
 export const codeGenTableRules: FormRules = {
   name: [{ required: true, message: "请选择业务表", trigger: "change" }],
   business_name: [{ required: true, message: "业务名不能为空", trigger: "blur" }],
   entity_name: [{ required: true, message: "实体名不能为空", trigger: "blur" }],
   module_path: [{ required: true, message: "模块路径不能为空", trigger: "blur" }],
-  parent_menu_id: [{ required: true, message: "请选择父级菜单", trigger: "change" }],
+  parent_menu_id: [{ required: true, type: "number", min: 1, message: "请选择父级菜单", trigger: "change" }],
   page_type: [{ required: true, message: "请选择页面类型", trigger: "change" }],
   parent_column: [{ required: true, message: "请选择父节点字段", trigger: "change" }],
   tree_label_column: [{ required: true, message: "请选择树显示字段", trigger: "change" }],
-  "left_tree_config.source_type": [{ required: true, message: "请选择左树来源", trigger: "change" }],
-  "left_tree_config.source_value": [{ required: true, message: "请配置左树来源", trigger: ["blur", "change"] }],
+  "left_tree_config.table_name": [{ required: true, message: "请选择左树数据表", trigger: "change" }],
   "left_tree_config.filter_column": [{ required: true, message: "请选择筛选字段", trigger: "change" }],
   "left_tree_config.parent_column": [{ required: true, message: "请配置左树父字段", trigger: ["blur", "change"] }],
   "left_tree_config.label_column": [{ required: true, message: "请配置左树显示字段", trigger: ["blur", "change"] }],
@@ -44,12 +108,12 @@ export const codeGenTableRules: FormRules = {
 /** 创建默认左树右表页面配置。 */
 export function createDefaultCodeGenLeftTreeConfig(): CodeGenLeftTreeConfig {
   return {
-    source_type: "",
-    source_value: "",
+    table_name: "",
     filter_column: "",
     parent_column: "",
     label_column: "",
-    value_column: ""
+    value_column: "",
+    comment: ""
   };
 }
 
@@ -73,5 +137,38 @@ export function createDefaultCodeGenTableForm(): CodeGenTableForm {
     parent_menu_id: 0,
     status: 0,
     remark: ""
+  };
+}
+
+/** 创建默认字段查询配置。 */
+export function createDefaultCodeGenQueryConfig(): CodeGenColumnQueryConfig {
+  return { enabled: false, operator: "like", component: "input", option: createDefaultCodeGenOptionConfig() };
+}
+
+/** 创建默认字段列表配置。 */
+export function createDefaultCodeGenListConfig(): CodeGenColumnListConfig {
+  return {
+    enabled: true,
+    component: "text",
+    option: createDefaultCodeGenOptionConfig()
+  };
+}
+
+/** 创建默认字段表单配置。 */
+export function createDefaultCodeGenFormConfig(): CodeGenColumnFormConfig {
+  return { enabled: true, component: "input", required: false, option: createDefaultCodeGenOptionConfig() };
+}
+
+/** 创建一份独立的字段选项配置。 */
+export function createDefaultCodeGenOptionConfig(): CodeGenColumnOptionConfig {
+  return {
+    kind: "",
+    source_type: "",
+    source_value: "",
+    label_field: "",
+    value_field: "",
+    parent_field: "",
+    active_value: "",
+    inactive_value: ""
   };
 }

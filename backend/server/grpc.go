@@ -64,6 +64,7 @@ func NewGRPCServer(
 	adminBaseTenant *admin.BaseTenantService,
 	adminBaseUser *admin.BaseUserService,
 	adminCodeGenColumn *admin.CodeGenColumnService,
+	adminCodeGenProto *admin.CodeGenProtoService,
 	adminCodeGenTable *admin.CodeGenTableService,
 	adminCommentInfo *admin.CommentInfoService,
 	adminTenantStore *admin.TenantStoreService,
@@ -136,6 +137,7 @@ func NewGRPCServer(
 	adminv1.RegisterBaseTenantServiceServer(srv, adminBaseTenant)
 	adminv1.RegisterBaseUserServiceServer(srv, adminBaseUser)
 	adminv1.RegisterCodeGenColumnServiceServer(srv, adminCodeGenColumn)
+	adminv1.RegisterCodeGenProtoServiceServer(srv, adminCodeGenProto)
 	adminv1.RegisterCodeGenTableServiceServer(srv, adminCodeGenTable)
 	adminv1.RegisterCommentInfoServiceServer(srv, adminCommentInfo)
 	adminv1.RegisterTenantStoreServiceServer(srv, adminTenantStore)

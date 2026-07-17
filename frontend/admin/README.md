@@ -152,8 +152,12 @@ src/rpc
 代码生成表配置页面使用独立接口封装：
 
 - `src/api/admin/code_gen_table.ts`：数据库表选项及表配置 CRUD。
-- `src/api/admin/code_gen_column.ts`：数据库字段元数据查询。
-- `src/views/tool/code-gen/index.vue`：基于 `ProTable + FormDialog + ProForm` 的单页配置入口。
+- `src/api/admin/code_gen_column.ts`：数据库字段元数据及字段配置查询、保存。
+- `src/api/admin/code_gen_proto.ts`：Proto 接口检查与配置保存。
+- `src/views/tool/code-gen/table/index.vue`：基于 `ProTable + FormDialog + ProForm` 的表配置入口；选择业务表后默认使用存在的 `parent_id`、`name` 作为树父字段和显示字段，选择左树数据表后默认使用存在的 `parent_id`、`name`、`id` 作为左树父字段、显示字段和值字段。选择业务表或左树数据表后会自动带出对应数据库表描述，两个描述均可继续修改；重新选择数据表时使用新表描述覆盖。
+- `src/views/tool/code-gen/columns/index.vue`：结构化字段配置页面，字段配置接口不返回数据库主键和 `deleted_at`；页面完整展示其余数据库字段注释并允许单独修改字段描述，查询、列表和表单分别维护自己的选项数据源，相同组件会将完整选项一次性复刻到尚未配置的范围，复刻后允许独立修改，组件切回相同类型时重新复刻；选项形态由组件自动确定，表单组件范围与 `ProForm` 保持一致。列表组件固定为文本、开关、下拉、树形、图片、金额、日期；开关固定选择字典后分别选择开启值和关闭值，下拉支持静态数据、字典和数据表来源，选择数据表且存在对应列时默认使用 `name`、`id` 作为 Label 字段、Value 字段；树形固定使用数据表来源，并在所选表存在对应列时默认使用 `parent_id`、`name`、`id` 作为树父字段、树显示字段、树值字段。
+- `src/views/tool/code-gen/preview/index.vue`：从代码生成列表进入的独立完整页面预览，读取已经保存的表、字段、Proto 和字典配置，按普通表格、树形表格、左树右表三种类型渲染最终页面形态；三种表格统一使用自适应最小列宽，列少时自动铺满且不显示横向滚动条，列多时在表格内显示横向滚动条并固定操作列。左树右表预览复用用户管理的 `TreeFilter`，标题优先使用保存的左树描述，旧配置缺少描述时使用左树数据表描述补齐，并保持搜索、重置、展开、折叠和选中交互一致。开关使用配置的字典开启值、关闭值及标签，其他数据表选项在前端模拟。新增、编辑、删除按钮仅在对应 Proto 接口已存在或已勾选生成时展示，更新和删除接口都不可用时不生成操作列。模拟数据辅助逻辑位于同目录 `data.ts`，隐藏动态路由由 `sql/default-data.sql` 注册。
+- `src/views/tool/code-gen/proto/index.vue`：Proto 接口检查与生成选择页面；表格合并展示接口信息、目标位置和检查状态。只有缺失接口勾选生成且接口类型为选项、树形或状态时，才在复选框后展示配置入口，并按接口类型固定显示所需字段；接口字段按目标实体对应的数据库表元数据加载和校验，不复用已过滤的字段配置接口结果。
 
 当前管理后台 AI助手会复用：
 
@@ -178,6 +182,7 @@ src/rpc
 ## 开发约定
 
 - 后台列表页优先延续 `ProTable + FormDialog + ProForm` 的页面结构。
+- `ProForm` 字段使用 `colSpan` 控制栅格宽度；需要避免后续字段填充当前行剩余空间时，使用 `rowBreakBefore` 从新行开始布局。
 - 图片列、状态列、顶部按钮、行内按钮优先使用 `ProTable` 现有配置能力。
 - 业务页样式优先复用 `src/styles/common.scss`、`src/styles/element-dark.scss` 与主题变量。
 - 新增页面后需要同步检查菜单初始化数据和后端接口权限初始化数据。
