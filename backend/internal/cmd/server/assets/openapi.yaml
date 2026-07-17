@@ -11410,6 +11410,12 @@ components:
                 remark:
                     type: string
                     description: 订单备注
+                order_id:
+                    type: string
+                    description: 门店订单ID
+                order_no:
+                    type: string
+                    description: 门店订单编号
             description: 订单商品门店分组
         OrderInfo:
             type: object

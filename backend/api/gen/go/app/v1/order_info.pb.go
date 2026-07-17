@@ -929,11 +929,12 @@ func (x *PageOrderInfoResponse) GetTotal() int32 {
 
 // 订单详情响应
 type OrderInfoResponse struct {
-	state         protoimpl.MessageState       `protogen:"open.v1"`
-	Order         *OrderInfo                   `protobuf:"bytes,1,opt,name=order,proto3" json:"order,omitempty"`           // 订单信息
-	Address       *OrderInfoResponse_Address   `protobuf:"bytes,2,opt,name=address,proto3" json:"address,omitempty"`       // 地址信息
-	Logistics     *OrderInfoResponse_Logistics `protobuf:"bytes,3,opt,name=logistics,proto3" json:"logistics,omitempty"`   // 物流信息
-	Countdown     float32                      `protobuf:"fixed32,4,opt,name=countdown,proto3" json:"countdown,omitempty"` // 支付倒计时
+	state         protoimpl.MessageState            `protogen:"open.v1"`
+	Order         *OrderInfo                        `protobuf:"bytes,1,opt,name=order,proto3" json:"order,omitempty"`                                      // 订单信息
+	Address       *OrderInfoResponse_Address        `protobuf:"bytes,2,opt,name=address,proto3" json:"address,omitempty"`                                  // 地址信息
+	Logistics     *OrderInfoResponse_Logistics      `protobuf:"bytes,3,opt,name=logistics,proto3" json:"logistics,omitempty"`                              // 物流信息
+	Countdown     float32                           `protobuf:"fixed32,4,opt,name=countdown,proto3" json:"countdown,omitempty"`                            // 支付倒计时
+	RelatedOrders []*OrderInfoResponse_RelatedOrder `protobuf:"bytes,5,rep,name=related_orders,json=relatedOrders,proto3" json:"related_orders,omitempty"` // 关联门店订单
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -994,6 +995,13 @@ func (x *OrderInfoResponse) GetCountdown() float32 {
 		return x.Countdown
 	}
 	return 0
+}
+
+func (x *OrderInfoResponse) GetRelatedOrders() []*OrderInfoResponse_RelatedOrder {
+	if x != nil {
+		return x.RelatedOrders
+	}
+	return nil
 }
 
 // 创建订单请求参数
@@ -1487,6 +1495,8 @@ type OrderGoodsStore struct {
 	Summary       *OrderSummary          `protobuf:"bytes,3,opt,name=summary,proto3" json:"summary,omitempty"`                                                                 // 门店订单汇总
 	DeliveryTime  v1.OrderDeliveryTime   `protobuf:"varint,4,opt,name=delivery_time,json=deliveryTime,proto3,enum=common.v1.OrderDeliveryTime" json:"delivery_time,omitempty"` // 配送时间：枚举【OrderDeliveryTime】
 	Remark        string                 `protobuf:"bytes,5,opt,name=remark,proto3" json:"remark,omitempty"`                                                                   // 订单备注
+	OrderId       int64                  `protobuf:"varint,6,opt,name=order_id,json=orderId,proto3" json:"order_id,omitempty"`                                                 // 门店订单ID
+	OrderNo       string                 `protobuf:"bytes,7,opt,name=order_no,json=orderNo,proto3" json:"order_no,omitempty"`                                                  // 门店订单编号
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1552,6 +1562,20 @@ func (x *OrderGoodsStore) GetDeliveryTime() v1.OrderDeliveryTime {
 func (x *OrderGoodsStore) GetRemark() string {
 	if x != nil {
 		return x.Remark
+	}
+	return ""
+}
+
+func (x *OrderGoodsStore) GetOrderId() int64 {
+	if x != nil {
+		return x.OrderId
+	}
+	return 0
+}
+
+func (x *OrderGoodsStore) GetOrderNo() string {
+	if x != nil {
+		return x.OrderNo
 	}
 	return ""
 }
@@ -2045,6 +2069,59 @@ func (x *OrderInfoResponse_Logistics) GetDetail() []*OrderInfoResponse_Logistics
 	return nil
 }
 
+// 关联订单
+type OrderInfoResponse_RelatedOrder struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	OrderId       int64                  `protobuf:"varint,1,opt,name=order_id,json=orderId,proto3" json:"order_id,omitempty"` // 订单ID
+	OrderNo       string                 `protobuf:"bytes,2,opt,name=order_no,json=orderNo,proto3" json:"order_no,omitempty"`  // 订单编号
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *OrderInfoResponse_RelatedOrder) Reset() {
+	*x = OrderInfoResponse_RelatedOrder{}
+	mi := &file_app_v1_order_info_proto_msgTypes[31]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OrderInfoResponse_RelatedOrder) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OrderInfoResponse_RelatedOrder) ProtoMessage() {}
+
+func (x *OrderInfoResponse_RelatedOrder) ProtoReflect() protoreflect.Message {
+	mi := &file_app_v1_order_info_proto_msgTypes[31]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use OrderInfoResponse_RelatedOrder.ProtoReflect.Descriptor instead.
+func (*OrderInfoResponse_RelatedOrder) Descriptor() ([]byte, []int) {
+	return file_app_v1_order_info_proto_rawDescGZIP(), []int{17, 2}
+}
+
+func (x *OrderInfoResponse_RelatedOrder) GetOrderId() int64 {
+	if x != nil {
+		return x.OrderId
+	}
+	return 0
+}
+
+func (x *OrderInfoResponse_RelatedOrder) GetOrderNo() string {
+	if x != nil {
+		return x.OrderNo
+	}
+	return ""
+}
+
 // Detail
 type OrderInfoResponse_Logistics_Detail struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -2056,7 +2133,7 @@ type OrderInfoResponse_Logistics_Detail struct {
 
 func (x *OrderInfoResponse_Logistics_Detail) Reset() {
 	*x = OrderInfoResponse_Logistics_Detail{}
-	mi := &file_app_v1_order_info_proto_msgTypes[31]
+	mi := &file_app_v1_order_info_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2068,7 +2145,7 @@ func (x *OrderInfoResponse_Logistics_Detail) String() string {
 func (*OrderInfoResponse_Logistics_Detail) ProtoMessage() {}
 
 func (x *OrderInfoResponse_Logistics_Detail) ProtoReflect() protoreflect.Message {
-	mi := &file_app_v1_order_info_proto_msgTypes[31]
+	mi := &file_app_v1_order_info_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2170,12 +2247,13 @@ const file_app_v1_order_info_proto_rawDesc = "" +
 	"\x15PageOrderInfoResponse\x12F\n" +
 	"\vorder_infos\x18\x01 \x03(\v2\x11.app.v1.OrderInfoB\x12\xbaG\x0f\x92\x02\f分页数据R\n" +
 	"orderInfos\x12\"\n" +
-	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\x9c\x06\n" +
+	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\xef\a\n" +
 	"\x11OrderInfoResponse\x12;\n" +
 	"\x05order\x18\x01 \x01(\v2\x11.app.v1.OrderInfoB\x12\xbaG\x0f\x92\x02\f订单信息R\x05order\x12O\n" +
 	"\aaddress\x18\x02 \x01(\v2!.app.v1.OrderInfoResponse.AddressB\x12\xbaG\x0f\x92\x02\f地址信息R\aaddress\x12U\n" +
 	"\tlogistics\x18\x03 \x01(\v2#.app.v1.OrderInfoResponse.LogisticsB\x12\xbaG\x0f\x92\x02\f物流信息R\tlogistics\x123\n" +
-	"\tcountdown\x18\x04 \x01(\x02B\x15\xbaG\x12\x92\x02\x0f支付倒计时R\tcountdown\x1a\xc1\x01\n" +
+	"\tcountdown\x18\x04 \x01(\x02B\x15\xbaG\x12\x92\x02\x0f支付倒计时R\tcountdown\x12g\n" +
+	"\x0erelated_orders\x18\x05 \x03(\v2&.app.v1.OrderInfoResponse.RelatedOrderB\x18\xbaG\x15\x92\x02\x12关联门店订单R\rrelatedOrders\x1a\xc1\x01\n" +
 	"\aAddress\x12+\n" +
 	"\breceiver\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t联系人R\breceiver\x12,\n" +
 	"\acontact\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f联系方式R\acontact\x12/\n" +
@@ -2188,7 +2266,10 @@ const file_app_v1_order_info_proto_rawDesc = "" +
 	"\x06detail\x18\x04 \x03(\v2*.app.v1.OrderInfoResponse.Logistics.DetailB\x12\xbaG\x0f\x92\x02\f物流详情R\x06detail\x1aL\n" +
 	"\x06Detail\x12 \n" +
 	"\x04time\x18\x01 \x01(\tB\f\xbaG\t\x92\x02\x06时间R\x04time\x12 \n" +
-	"\x04text\x18\x02 \x01(\tB\f\xbaG\t\x92\x02\x06动态R\x04text\"\x81\x04\n" +
+	"\x04text\x18\x02 \x01(\tB\f\xbaG\t\x92\x02\x06动态R\x04text\x1ah\n" +
+	"\fRelatedOrder\x12)\n" +
+	"\border_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单IDR\aorderId\x12-\n" +
+	"\border_no\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f订单编号R\aorderNo\"\x81\x04\n" +
 	"\x16CreateOrderInfoRequest\x12-\n" +
 	"\n" +
 	"address_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b地址idR\taddressId\x12:\n" +
@@ -2230,13 +2311,15 @@ const file_app_v1_order_info_proto_rawDesc = "" +
 	"totalPrice\x12@\n" +
 	"\x0ftotal_pay_price\x18\n" +
 	" \x01(\x03B\x18\xbaG\x15\x92\x02\x12支付金额汇总R\rtotalPayPrice\x12\\\n" +
-	"\x11recommend_context\x18\v \x01(\v2\x18.app.v1.RecommendContextB\x15\xbaG\x12\x92\x02\x0f推荐上下文R\x10recommendContext\"\xfb\x02\n" +
+	"\x11recommend_context\x18\v \x01(\v2\x18.app.v1.RecommendContextB\x15\xbaG\x12\x92\x02\x0f推荐上下文R\x10recommendContext\"\xe1\x03\n" +
 	"\x0fOrderGoodsStore\x12=\n" +
 	"\x05store\x18\x01 \x01(\v2\x13.app.v1.TenantStoreB\x12\xbaG\x0f\x92\x02\f店铺信息R\x05store\x12<\n" +
 	"\x05goods\x18\x02 \x03(\v2\x12.app.v1.OrderGoodsB\x12\xbaG\x0f\x92\x02\f商品信息R\x05goods\x12H\n" +
 	"\asummary\x18\x03 \x01(\v2\x14.app.v1.OrderSummaryB\x18\xbaG\x15\x92\x02\x12门店订单汇总R\asummary\x12u\n" +
 	"\rdelivery_time\x18\x04 \x01(\x0e2\x1c.common.v1.OrderDeliveryTimeB2\xbaG/\x92\x02,配送时间：枚举【OrderDeliveryTime】R\fdeliveryTime\x12*\n" +
-	"\x06remark\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\f订单备注R\x06remark\"\x89\f\n" +
+	"\x06remark\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\f订单备注R\x06remark\x12/\n" +
+	"\border_id\x18\x06 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e门店订单IDR\aorderId\x123\n" +
+	"\border_no\x18\a \x01(\tB\x18\xbaG\x15\x92\x02\x12门店订单编号R\aorderNo\"\x89\f\n" +
 	"\tOrderInfo\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单idR\x02id\x12,\n" +
 	"\btrade_id\x18\x02 \x01(\x03B\x11\xbaG\x0e\x92\x02\v交易单IDR\atradeId\x12-\n" +
@@ -2303,7 +2386,7 @@ func file_app_v1_order_info_proto_rawDescGZIP() []byte {
 	return file_app_v1_order_info_proto_rawDescData
 }
 
-var file_app_v1_order_info_proto_msgTypes = make([]protoimpl.MessageInfo, 32)
+var file_app_v1_order_info_proto_msgTypes = make([]protoimpl.MessageInfo, 33)
 var file_app_v1_order_info_proto_goTypes = []any{
 	(*ConfirmOrderInfoRequest)(nil),            // 0: app.v1.ConfirmOrderInfoRequest
 	(*CountOrderInfoRequest)(nil),              // 1: app.v1.CountOrderInfoRequest
@@ -2336,22 +2419,23 @@ var file_app_v1_order_info_proto_goTypes = []any{
 	(*CountOrderInfoResponse_Count)(nil),       // 28: app.v1.CountOrderInfoResponse.Count
 	(*OrderInfoResponse_Address)(nil),          // 29: app.v1.OrderInfoResponse.Address
 	(*OrderInfoResponse_Logistics)(nil),        // 30: app.v1.OrderInfoResponse.Logistics
-	(*OrderInfoResponse_Logistics_Detail)(nil), // 31: app.v1.OrderInfoResponse.Logistics.Detail
-	(*RecommendContext)(nil),                   // 32: app.v1.RecommendContext
-	(v1.OrderInfoStatus)(0),                    // 33: common.v1.OrderInfoStatus
-	(v1.OrderTradeStatus)(0),                   // 34: common.v1.OrderTradeStatus
-	(v1.OrderRefundStatus)(0),                  // 35: common.v1.OrderRefundStatus
-	(v1.OrderPayType)(0),                       // 36: common.v1.OrderPayType
-	(v1.OrderPayChannel)(0),                    // 37: common.v1.OrderPayChannel
-	(v1.OrderCancelReason)(0),                  // 38: common.v1.OrderCancelReason
-	(v1.OrderDeliveryTime)(0),                  // 39: common.v1.OrderDeliveryTime
-	(v1.OrderRefundReason)(0),                  // 40: common.v1.OrderRefundReason
-	(*TenantStore)(nil),                        // 41: app.v1.TenantStore
-	(*emptypb.Empty)(nil),                      // 42: google.protobuf.Empty
+	(*OrderInfoResponse_RelatedOrder)(nil),     // 31: app.v1.OrderInfoResponse.RelatedOrder
+	(*OrderInfoResponse_Logistics_Detail)(nil), // 32: app.v1.OrderInfoResponse.Logistics.Detail
+	(*RecommendContext)(nil),                   // 33: app.v1.RecommendContext
+	(v1.OrderInfoStatus)(0),                    // 34: common.v1.OrderInfoStatus
+	(v1.OrderTradeStatus)(0),                   // 35: common.v1.OrderTradeStatus
+	(v1.OrderRefundStatus)(0),                  // 36: common.v1.OrderRefundStatus
+	(v1.OrderPayType)(0),                       // 37: common.v1.OrderPayType
+	(v1.OrderPayChannel)(0),                    // 38: common.v1.OrderPayChannel
+	(v1.OrderCancelReason)(0),                  // 39: common.v1.OrderCancelReason
+	(v1.OrderDeliveryTime)(0),                  // 40: common.v1.OrderDeliveryTime
+	(v1.OrderRefundReason)(0),                  // 41: common.v1.OrderRefundReason
+	(*TenantStore)(nil),                        // 42: app.v1.TenantStore
+	(*emptypb.Empty)(nil),                      // 43: google.protobuf.Empty
 }
 var file_app_v1_order_info_proto_depIdxs = []int32{
-	32, // 0: app.v1.BuyNowOrderInfoRequest.recommend_context:type_name -> app.v1.RecommendContext
-	32, // 1: app.v1.CreateOrderInfoGoods.recommend_context:type_name -> app.v1.RecommendContext
+	33, // 0: app.v1.BuyNowOrderInfoRequest.recommend_context:type_name -> app.v1.RecommendContext
+	33, // 1: app.v1.CreateOrderInfoGoods.recommend_context:type_name -> app.v1.RecommendContext
 	25, // 2: app.v1.ConfirmOrderInfoResponse.order_goods_stores:type_name -> app.v1.OrderGoodsStore
 	27, // 3: app.v1.ConfirmOrderInfoResponse.summary:type_name -> app.v1.OrderSummary
 	25, // 4: app.v1.BuyNowOrderInfoResponse.order_goods_stores:type_name -> app.v1.OrderGoodsStore
@@ -2359,69 +2443,70 @@ var file_app_v1_order_info_proto_depIdxs = []int32{
 	25, // 6: app.v1.RepurchaseOrderInfoResponse.order_goods_stores:type_name -> app.v1.OrderGoodsStore
 	27, // 7: app.v1.RepurchaseOrderInfoResponse.summary:type_name -> app.v1.OrderSummary
 	28, // 8: app.v1.CountOrderInfoResponse.counts:type_name -> app.v1.CountOrderInfoResponse.Count
-	33, // 9: app.v1.PageOrderInfoRequest.status:type_name -> common.v1.OrderInfoStatus
-	34, // 10: app.v1.PageOrderInfoRequest.trade_status:type_name -> common.v1.OrderTradeStatus
-	35, // 11: app.v1.PageOrderInfoRequest.refund_status:type_name -> common.v1.OrderRefundStatus
+	34, // 9: app.v1.PageOrderInfoRequest.status:type_name -> common.v1.OrderInfoStatus
+	35, // 10: app.v1.PageOrderInfoRequest.trade_status:type_name -> common.v1.OrderTradeStatus
+	36, // 11: app.v1.PageOrderInfoRequest.refund_status:type_name -> common.v1.OrderRefundStatus
 	26, // 12: app.v1.PageOrderInfoResponse.order_infos:type_name -> app.v1.OrderInfo
 	26, // 13: app.v1.OrderInfoResponse.order:type_name -> app.v1.OrderInfo
 	29, // 14: app.v1.OrderInfoResponse.address:type_name -> app.v1.OrderInfoResponse.Address
 	30, // 15: app.v1.OrderInfoResponse.logistics:type_name -> app.v1.OrderInfoResponse.Logistics
-	36, // 16: app.v1.CreateOrderInfoRequest.pay_type:type_name -> common.v1.OrderPayType
-	37, // 17: app.v1.CreateOrderInfoRequest.pay_channel:type_name -> common.v1.OrderPayChannel
-	21, // 18: app.v1.CreateOrderInfoRequest.order_store_options:type_name -> app.v1.OrderStoreOption
-	9,  // 19: app.v1.CreateOrderInfoRequest.goods:type_name -> app.v1.CreateOrderInfoGoods
-	38, // 20: app.v1.CancelOrderInfoRequest.reason:type_name -> common.v1.OrderCancelReason
-	39, // 21: app.v1.OrderStoreOption.delivery_time:type_name -> common.v1.OrderDeliveryTime
-	40, // 22: app.v1.RefundOrderInfoRequest.reason:type_name -> common.v1.OrderRefundReason
-	32, // 23: app.v1.OrderGoods.recommend_context:type_name -> app.v1.RecommendContext
-	41, // 24: app.v1.OrderGoodsStore.store:type_name -> app.v1.TenantStore
-	24, // 25: app.v1.OrderGoodsStore.goods:type_name -> app.v1.OrderGoods
-	27, // 26: app.v1.OrderGoodsStore.summary:type_name -> app.v1.OrderSummary
-	39, // 27: app.v1.OrderGoodsStore.delivery_time:type_name -> common.v1.OrderDeliveryTime
-	39, // 28: app.v1.OrderInfo.delivery_time:type_name -> common.v1.OrderDeliveryTime
-	33, // 29: app.v1.OrderInfo.status:type_name -> common.v1.OrderInfoStatus
-	35, // 30: app.v1.OrderInfo.refund_status:type_name -> common.v1.OrderRefundStatus
-	36, // 31: app.v1.OrderInfo.pay_type:type_name -> common.v1.OrderPayType
-	37, // 32: app.v1.OrderInfo.pay_channel:type_name -> common.v1.OrderPayChannel
-	34, // 33: app.v1.OrderInfo.trade_status:type_name -> common.v1.OrderTradeStatus
-	25, // 34: app.v1.OrderInfo.order_goods_stores:type_name -> app.v1.OrderGoodsStore
-	33, // 35: app.v1.CountOrderInfoResponse.Count.status:type_name -> common.v1.OrderInfoStatus
-	34, // 36: app.v1.CountOrderInfoResponse.Count.trade_status:type_name -> common.v1.OrderTradeStatus
-	35, // 37: app.v1.CountOrderInfoResponse.Count.refund_status:type_name -> common.v1.OrderRefundStatus
-	31, // 38: app.v1.OrderInfoResponse.Logistics.detail:type_name -> app.v1.OrderInfoResponse.Logistics.Detail
-	0,  // 39: app.v1.OrderInfoService.ConfirmOrderInfo:input_type -> app.v1.ConfirmOrderInfoRequest
-	8,  // 40: app.v1.OrderInfoService.BuyNowOrderInfo:input_type -> app.v1.BuyNowOrderInfoRequest
-	12, // 41: app.v1.OrderInfoService.RepurchaseOrderInfo:input_type -> app.v1.RepurchaseOrderInfoRequest
-	1,  // 42: app.v1.OrderInfoService.CountOrderInfo:input_type -> app.v1.CountOrderInfoRequest
-	15, // 43: app.v1.OrderInfoService.PageOrderInfo:input_type -> app.v1.PageOrderInfoRequest
-	2,  // 44: app.v1.OrderInfoService.GetOrderInfoIdByOrderNo:input_type -> app.v1.GetOrderInfoIdByOrderNoRequest
-	4,  // 45: app.v1.OrderInfoService.GetOrderInfoById:input_type -> app.v1.GetOrderInfoByIdRequest
-	5,  // 46: app.v1.OrderInfoService.GetOrderTradeById:input_type -> app.v1.GetOrderTradeByIdRequest
-	18, // 47: app.v1.OrderInfoService.CreateOrderInfo:input_type -> app.v1.CreateOrderInfoRequest
-	6,  // 48: app.v1.OrderInfoService.DeleteOrderInfo:input_type -> app.v1.DeleteOrderInfoRequest
-	7,  // 49: app.v1.OrderInfoService.DeleteOrderTrade:input_type -> app.v1.DeleteOrderTradeRequest
-	20, // 50: app.v1.OrderInfoService.CancelOrderInfo:input_type -> app.v1.CancelOrderInfoRequest
-	22, // 51: app.v1.OrderInfoService.RefundOrderInfo:input_type -> app.v1.RefundOrderInfoRequest
-	23, // 52: app.v1.OrderInfoService.ReceiveOrderInfo:input_type -> app.v1.ReceiveOrderInfoRequest
-	10, // 53: app.v1.OrderInfoService.ConfirmOrderInfo:output_type -> app.v1.ConfirmOrderInfoResponse
-	11, // 54: app.v1.OrderInfoService.BuyNowOrderInfo:output_type -> app.v1.BuyNowOrderInfoResponse
-	13, // 55: app.v1.OrderInfoService.RepurchaseOrderInfo:output_type -> app.v1.RepurchaseOrderInfoResponse
-	14, // 56: app.v1.OrderInfoService.CountOrderInfo:output_type -> app.v1.CountOrderInfoResponse
-	16, // 57: app.v1.OrderInfoService.PageOrderInfo:output_type -> app.v1.PageOrderInfoResponse
-	3,  // 58: app.v1.OrderInfoService.GetOrderInfoIdByOrderNo:output_type -> app.v1.GetOrderInfoIdByOrderNoResponse
-	17, // 59: app.v1.OrderInfoService.GetOrderInfoById:output_type -> app.v1.OrderInfoResponse
-	17, // 60: app.v1.OrderInfoService.GetOrderTradeById:output_type -> app.v1.OrderInfoResponse
-	19, // 61: app.v1.OrderInfoService.CreateOrderInfo:output_type -> app.v1.CreateOrderInfoResponse
-	42, // 62: app.v1.OrderInfoService.DeleteOrderInfo:output_type -> google.protobuf.Empty
-	42, // 63: app.v1.OrderInfoService.DeleteOrderTrade:output_type -> google.protobuf.Empty
-	42, // 64: app.v1.OrderInfoService.CancelOrderInfo:output_type -> google.protobuf.Empty
-	42, // 65: app.v1.OrderInfoService.RefundOrderInfo:output_type -> google.protobuf.Empty
-	42, // 66: app.v1.OrderInfoService.ReceiveOrderInfo:output_type -> google.protobuf.Empty
-	53, // [53:67] is the sub-list for method output_type
-	39, // [39:53] is the sub-list for method input_type
-	39, // [39:39] is the sub-list for extension type_name
-	39, // [39:39] is the sub-list for extension extendee
-	0,  // [0:39] is the sub-list for field type_name
+	31, // 16: app.v1.OrderInfoResponse.related_orders:type_name -> app.v1.OrderInfoResponse.RelatedOrder
+	37, // 17: app.v1.CreateOrderInfoRequest.pay_type:type_name -> common.v1.OrderPayType
+	38, // 18: app.v1.CreateOrderInfoRequest.pay_channel:type_name -> common.v1.OrderPayChannel
+	21, // 19: app.v1.CreateOrderInfoRequest.order_store_options:type_name -> app.v1.OrderStoreOption
+	9,  // 20: app.v1.CreateOrderInfoRequest.goods:type_name -> app.v1.CreateOrderInfoGoods
+	39, // 21: app.v1.CancelOrderInfoRequest.reason:type_name -> common.v1.OrderCancelReason
+	40, // 22: app.v1.OrderStoreOption.delivery_time:type_name -> common.v1.OrderDeliveryTime
+	41, // 23: app.v1.RefundOrderInfoRequest.reason:type_name -> common.v1.OrderRefundReason
+	33, // 24: app.v1.OrderGoods.recommend_context:type_name -> app.v1.RecommendContext
+	42, // 25: app.v1.OrderGoodsStore.store:type_name -> app.v1.TenantStore
+	24, // 26: app.v1.OrderGoodsStore.goods:type_name -> app.v1.OrderGoods
+	27, // 27: app.v1.OrderGoodsStore.summary:type_name -> app.v1.OrderSummary
+	40, // 28: app.v1.OrderGoodsStore.delivery_time:type_name -> common.v1.OrderDeliveryTime
+	40, // 29: app.v1.OrderInfo.delivery_time:type_name -> common.v1.OrderDeliveryTime
+	34, // 30: app.v1.OrderInfo.status:type_name -> common.v1.OrderInfoStatus
+	36, // 31: app.v1.OrderInfo.refund_status:type_name -> common.v1.OrderRefundStatus
+	37, // 32: app.v1.OrderInfo.pay_type:type_name -> common.v1.OrderPayType
+	38, // 33: app.v1.OrderInfo.pay_channel:type_name -> common.v1.OrderPayChannel
+	35, // 34: app.v1.OrderInfo.trade_status:type_name -> common.v1.OrderTradeStatus
+	25, // 35: app.v1.OrderInfo.order_goods_stores:type_name -> app.v1.OrderGoodsStore
+	34, // 36: app.v1.CountOrderInfoResponse.Count.status:type_name -> common.v1.OrderInfoStatus
+	35, // 37: app.v1.CountOrderInfoResponse.Count.trade_status:type_name -> common.v1.OrderTradeStatus
+	36, // 38: app.v1.CountOrderInfoResponse.Count.refund_status:type_name -> common.v1.OrderRefundStatus
+	32, // 39: app.v1.OrderInfoResponse.Logistics.detail:type_name -> app.v1.OrderInfoResponse.Logistics.Detail
+	0,  // 40: app.v1.OrderInfoService.ConfirmOrderInfo:input_type -> app.v1.ConfirmOrderInfoRequest
+	8,  // 41: app.v1.OrderInfoService.BuyNowOrderInfo:input_type -> app.v1.BuyNowOrderInfoRequest
+	12, // 42: app.v1.OrderInfoService.RepurchaseOrderInfo:input_type -> app.v1.RepurchaseOrderInfoRequest
+	1,  // 43: app.v1.OrderInfoService.CountOrderInfo:input_type -> app.v1.CountOrderInfoRequest
+	15, // 44: app.v1.OrderInfoService.PageOrderInfo:input_type -> app.v1.PageOrderInfoRequest
+	2,  // 45: app.v1.OrderInfoService.GetOrderInfoIdByOrderNo:input_type -> app.v1.GetOrderInfoIdByOrderNoRequest
+	4,  // 46: app.v1.OrderInfoService.GetOrderInfoById:input_type -> app.v1.GetOrderInfoByIdRequest
+	5,  // 47: app.v1.OrderInfoService.GetOrderTradeById:input_type -> app.v1.GetOrderTradeByIdRequest
+	18, // 48: app.v1.OrderInfoService.CreateOrderInfo:input_type -> app.v1.CreateOrderInfoRequest
+	6,  // 49: app.v1.OrderInfoService.DeleteOrderInfo:input_type -> app.v1.DeleteOrderInfoRequest
+	7,  // 50: app.v1.OrderInfoService.DeleteOrderTrade:input_type -> app.v1.DeleteOrderTradeRequest
+	20, // 51: app.v1.OrderInfoService.CancelOrderInfo:input_type -> app.v1.CancelOrderInfoRequest
+	22, // 52: app.v1.OrderInfoService.RefundOrderInfo:input_type -> app.v1.RefundOrderInfoRequest
+	23, // 53: app.v1.OrderInfoService.ReceiveOrderInfo:input_type -> app.v1.ReceiveOrderInfoRequest
+	10, // 54: app.v1.OrderInfoService.ConfirmOrderInfo:output_type -> app.v1.ConfirmOrderInfoResponse
+	11, // 55: app.v1.OrderInfoService.BuyNowOrderInfo:output_type -> app.v1.BuyNowOrderInfoResponse
+	13, // 56: app.v1.OrderInfoService.RepurchaseOrderInfo:output_type -> app.v1.RepurchaseOrderInfoResponse
+	14, // 57: app.v1.OrderInfoService.CountOrderInfo:output_type -> app.v1.CountOrderInfoResponse
+	16, // 58: app.v1.OrderInfoService.PageOrderInfo:output_type -> app.v1.PageOrderInfoResponse
+	3,  // 59: app.v1.OrderInfoService.GetOrderInfoIdByOrderNo:output_type -> app.v1.GetOrderInfoIdByOrderNoResponse
+	17, // 60: app.v1.OrderInfoService.GetOrderInfoById:output_type -> app.v1.OrderInfoResponse
+	17, // 61: app.v1.OrderInfoService.GetOrderTradeById:output_type -> app.v1.OrderInfoResponse
+	19, // 62: app.v1.OrderInfoService.CreateOrderInfo:output_type -> app.v1.CreateOrderInfoResponse
+	43, // 63: app.v1.OrderInfoService.DeleteOrderInfo:output_type -> google.protobuf.Empty
+	43, // 64: app.v1.OrderInfoService.DeleteOrderTrade:output_type -> google.protobuf.Empty
+	43, // 65: app.v1.OrderInfoService.CancelOrderInfo:output_type -> google.protobuf.Empty
+	43, // 66: app.v1.OrderInfoService.RefundOrderInfo:output_type -> google.protobuf.Empty
+	43, // 67: app.v1.OrderInfoService.ReceiveOrderInfo:output_type -> google.protobuf.Empty
+	54, // [54:68] is the sub-list for method output_type
+	40, // [40:54] is the sub-list for method input_type
+	40, // [40:40] is the sub-list for extension type_name
+	40, // [40:40] is the sub-list for extension extendee
+	0,  // [0:40] is the sub-list for field type_name
 }
 
 func init() { file_app_v1_order_info_proto_init() }
@@ -2438,7 +2523,7 @@ func file_app_v1_order_info_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_app_v1_order_info_proto_rawDesc), len(file_app_v1_order_info_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   32,
+			NumMessages:   33,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

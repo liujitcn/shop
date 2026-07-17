@@ -3,15 +3,11 @@ import { useGuessList } from '@/composables'
 import { useUserStore } from '@/stores'
 import { onShow } from '@dcloudio/uni-app'
 import { defOrderService } from '@/api/app/order_info.ts'
+import { defCommentService } from '@/api/app/comment'
 import { computed, ref } from 'vue'
 import { formatSrc } from '@/utils'
 import { navigateToLogin, orderListUrl } from '@/utils/navigation'
-import {
-  OrderInfoStatus,
-  OrderRefundStatus,
-  OrderTradeStatus,
-  RecommendScene,
-} from '@/rpc/common/v1/enum'
+import { OrderInfoStatus, OrderTradeStatus, RecommendScene } from '@/rpc/common/v1/enum'
 import type { OrderListFilter } from '@/utils/order'
 // 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync()
@@ -25,8 +21,6 @@ type OrderCountEntry = {
   icon: string
   text: string
   filter?: OrderListFilter
-  tradeStatuses?: OrderTradeStatus[]
-  status?: OrderInfoStatus
   refund: boolean
   url?: string
   num: number
@@ -38,7 +32,6 @@ const orderCount = ref<OrderCountEntry[]>([
     icon: '/static/images/order_pay_ref.png',
     text: '待支付',
     filter: { trade_status: OrderTradeStatus.PENDING_PAYMENT_OTS },
-    tradeStatuses: [OrderTradeStatus.PENDING_PAYMENT_OTS, OrderTradeStatus.PAYING_OTS],
     refund: false,
     num: 0,
   },
@@ -47,7 +40,6 @@ const orderCount = ref<OrderCountEntry[]>([
     icon: '/static/images/order_deliver_ref.png',
     text: '待发货',
     filter: { status: OrderInfoStatus.WAIT_SHIPMENT_OIS },
-    status: OrderInfoStatus.WAIT_SHIPMENT_OIS,
     refund: false,
     num: 0,
   },
@@ -56,7 +48,6 @@ const orderCount = ref<OrderCountEntry[]>([
     icon: '/static/images/order_receive_ref.png',
     text: '待收货',
     filter: { status: OrderInfoStatus.SHIPPED_OIS },
-    status: OrderInfoStatus.SHIPPED_OIS,
     refund: false,
     num: 0,
   },
@@ -64,7 +55,6 @@ const orderCount = ref<OrderCountEntry[]>([
     key: 'wait-review',
     icon: '/static/images/order_review_ref.png',
     text: '待评价',
-    status: OrderInfoStatus.WAIT_REVIEW_OIS,
     refund: false,
     url: COMMENT_CENTER_PENDING_PAGE,
     num: 0,
@@ -73,6 +63,7 @@ const orderCount = ref<OrderCountEntry[]>([
     key: 'refund',
     icon: '/static/images/order_aftersale_ref.png',
     text: '退款/售后',
+    filter: { has_refund: true },
     refund: true,
     url: AFTERSALE_RECORD_PAGE,
     num: 0,
@@ -90,28 +81,26 @@ const getOrderData = async () => {
     return
   }
 
-  const res = await defOrderService.CountOrderInfo({})
+  const counts = await Promise.all(
+    orderCount.value.map(async (entry) => {
+      if (entry.key === 'wait-review') {
+        const res = await defCommentService.PagePendingCommentGoods({ page_num: 1, page_size: 1 })
+        return res.total
+      }
+      const res = await defOrderService.PageOrderInfo({
+        page_num: 1,
+        page_size: 1,
+        ...entry.filter,
+      })
+      return res.total
+    }),
+  )
   if (!canLoadOrderData()) {
     return
   }
 
-  orderCount.value.forEach((entry) => {
-    entry.num = res.counts.reduce((total, item) => {
-      if (entry.tradeStatuses?.includes(item.trade_status)) {
-        return total + item.num
-      }
-      if (entry.status === item.status) {
-        return total + item.num
-      }
-      if (
-        entry.refund &&
-        item.refund_status !== OrderRefundStatus.UNKNOWN_ORS &&
-        item.refund_status !== OrderRefundStatus.NONE_ORS
-      ) {
-        return total + item.num
-      }
-      return total
-    }, 0)
+  orderCount.value.forEach((entry, index) => {
+    entry.num = counts[index]
   })
 }
 

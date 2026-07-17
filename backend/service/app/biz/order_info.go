@@ -834,6 +834,26 @@ func (c *OrderInfoCase) GetOrderInfoByID(ctx context.Context, id int64) (*appv1.
 	}
 	orderInfo.OrderGoodsStores = orderGoodsStoreMap[orderInfo.Id]
 	applyOrderStoreOptions(orderInfo.OrderGoodsStores, []*models.OrderInfo{item})
+
+	// 合并支付的门店订单返回同一交易下的其他订单，用于详情页相互跳转。
+	query := c.Query(ctx).OrderInfo
+	opts := make([]repository.QueryOption, 0, 4)
+	opts = append(opts, repository.Where(query.TradeID.Eq(item.TradeID)))
+	opts = append(opts, repository.Where(query.UserID.Eq(item.UserID)))
+	opts = append(opts, repository.Where(query.ID.Neq(item.ID)))
+	opts = append(opts, repository.Order(query.ID.Asc()))
+	var relatedOrderInfos []*models.OrderInfo
+	relatedOrderInfos, err = c.List(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+	relatedOrders := make([]*appv1.OrderInfoResponse_RelatedOrder, 0, len(relatedOrderInfos))
+	for _, relatedOrderInfo := range relatedOrderInfos {
+		relatedOrders = append(relatedOrders, &appv1.OrderInfoResponse_RelatedOrder{
+			OrderId: relatedOrderInfo.ID,
+			OrderNo: relatedOrderInfo.OrderNo,
+		})
+	}
 	// 查询订单收货地址快照
 	var address *appv1.OrderInfoResponse_Address
 	address, err = c.orderAddressCase.findByTradeID(ctx, orderInfo.TradeId)
@@ -847,9 +867,10 @@ func (c *OrderInfoCase) GetOrderInfoByID(ctx context.Context, id int64) (*appv1.
 	}
 
 	res := appv1.OrderInfoResponse{
-		Order:     orderInfo,
-		Address:   address,
-		Countdown: float32(countdown),
+		Order:         orderInfo,
+		Address:       address,
+		Countdown:     float32(countdown),
+		RelatedOrders: relatedOrders,
 	}
 
 	// 在线支付交易进入已支付或退款状态后，补充支付完成时间。
@@ -1437,7 +1458,7 @@ func (c *OrderInfoCase) buildOrderGoodsStoreMap(ctx context.Context, orderGoodsM
 	return res, nil
 }
 
-// applyOrderStoreOptions 将门店子订单的配送时间和备注补充到对应门店分组。
+// applyOrderStoreOptions 将门店子订单信息补充到对应门店分组。
 func applyOrderStoreOptions(orderGoodsStores []*appv1.OrderGoodsStore, orderInfos []*models.OrderInfo) {
 	orderInfoMap := make(map[int64]*models.OrderInfo, len(orderInfos))
 	for _, orderInfo := range orderInfos {
@@ -1448,6 +1469,8 @@ func applyOrderStoreOptions(orderGoodsStores []*appv1.OrderGoodsStore, orderInfo
 		if orderInfo == nil {
 			continue
 		}
+		orderGoodsStore.OrderId = orderInfo.ID
+		orderGoodsStore.OrderNo = orderInfo.OrderNo
 		orderGoodsStore.DeliveryTime = commonv1.OrderDeliveryTime(orderInfo.DeliveryTime)
 		orderGoodsStore.Remark = orderInfo.Remark
 	}
