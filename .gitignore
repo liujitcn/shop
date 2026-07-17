@@ -67,3 +67,4 @@ service_tmp/
 
 .pnpm-store/
 .workbuddy/
+/docs/superpowers/
