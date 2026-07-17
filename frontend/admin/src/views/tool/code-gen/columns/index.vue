@@ -480,6 +480,13 @@ interface CodeGenOptionDialog {
   option: CodeGenColumnOptionConfig | null;
 }
 
+/** 保存前需要打开选项编辑器的字段配置问题。 */
+interface CodeGenColumnOptionIssue {
+  row: CodeGenColumnView;
+  scope: CodeGenOptionScope;
+  message: string;
+}
+
 const optionDialog = reactive<CodeGenOptionDialog>({
   visible: false,
   scope: "query",
@@ -557,7 +564,16 @@ function syncWorkspaceTitle() {
 async function handleSaveColumns(showMessage = true) {
   if (!formData.id) return false;
   columns.value.forEach(syncColumnOptionKinds);
-  if (!validateCodeGenColumns(columns.value)) return false;
+  if (columns.value.some(item => !item.column_name || !item.db_type)) {
+    ElMessage.warning("字段名和数据库类型不能为空");
+    return false;
+  }
+  const optionIssue = findCodeGenColumnOptionIssue(columns.value);
+  if (optionIssue) {
+    ElMessage.warning(optionIssue.message);
+    await openOptionDialog(optionIssue.row, optionIssue.scope);
+    return false;
+  }
   await defCodeGenColumnService.SaveCodeGenColumns({
     table_id: formData.id,
     code_gen_columns: columns.value.map((item, index) => ({
@@ -821,32 +837,24 @@ function serializeCodeGenStaticOptions(options: CodeGenStaticOption[]) {
   return JSON.stringify(options);
 }
 
-/** 校验字段基础信息和三份独立选项。 */
-function validateCodeGenColumns(items: CodeGenColumnView[]) {
-  const invalid = items.find(item => !item.column_name || !item.db_type);
-  if (invalid) {
-    ElMessage.warning("字段名和数据库类型不能为空");
-    return false;
-  }
+/** 返回保存前首个需要补齐来源配置的字段选项。 */
+function findCodeGenColumnOptionIssue(items: CodeGenColumnView[]): CodeGenColumnOptionIssue | undefined {
   for (const column of items) {
-    const optionConfigs: Array<[string, CodeGenColumnOptionConfig]> = [
-      ["查询", column.query_config.option],
-      ["列表", column.list_config.option],
-      ["表单", column.form_config.option]
+    const optionConfigs: Array<[CodeGenOptionScope, CodeGenColumnOptionConfig]> = [
+      ["query", column.query_config.option],
+      ["list", column.list_config.option],
+      ["form", column.form_config.option]
     ];
     for (const [scope, option] of optionConfigs) {
-      const message = validateCodeGenOption(column.column_name, scope, option);
-      if (message) {
-        ElMessage.warning(message);
-        return false;
-      }
+      const scopeLabel = scope === "query" ? "查询" : scope === "list" ? "列表" : "表单";
+      const message = getCodeGenOptionValidationMessage(column.column_name, scopeLabel, option);
+      if (message) return { row: column, scope, message };
     }
   }
-  return true;
 }
 
-/** 校验单个范围内已经填写的选项配置。 */
-function validateCodeGenOption(columnName: string, scope: string, option: CodeGenColumnOptionConfig) {
+/** 返回单个范围内不完整选项配置的提示文案。 */
+function getCodeGenOptionValidationMessage(columnName: string, scope: string, option: CodeGenColumnOptionConfig) {
   const hasSourceFields = !!(
     option.source_type ||
     option.source_value ||
