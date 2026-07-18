@@ -208,6 +208,7 @@ message CountOrderInfoResponse {
     int32 num = 2 [(gnostic.openapi.v3.property) = {description: "订单数量"}]; // 订单数量
     .common.v1.OrderTradeStatus trade_status = 3 [(gnostic.openapi.v3.property) = {description: "交易支付状态"}]; // 交易支付状态
     .common.v1.OrderRefundStatus refund_status = 4 [(gnostic.openapi.v3.property) = {description: "订单退款状态"}]; // 订单退款状态
+    bool refundable = 5 [(gnostic.openapi.v3.property) = {description: "是否为可申请售后订单统计"}]; // 是否为可申请售后订单统计
   }
 
   repeated Count counts = 1 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数

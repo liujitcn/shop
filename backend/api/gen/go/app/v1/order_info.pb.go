@@ -7,16 +7,15 @@
 package appv1
 
 import (
-	reflect "reflect"
-	v1 "shop/api/gen/go/common/v1"
-	sync "sync"
-	unsafe "unsafe"
-
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+	reflect "reflect"
+	v1 "shop/api/gen/go/common/v1"
+	sync "sync"
+	unsafe "unsafe"
 )
 
 const (
@@ -1869,6 +1868,7 @@ type CountOrderInfoResponse_Count struct {
 	Num           int32                  `protobuf:"varint,2,opt,name=num,proto3" json:"num,omitempty"`                                                                        // 订单数量
 	TradeStatus   v1.OrderTradeStatus    `protobuf:"varint,3,opt,name=trade_status,json=tradeStatus,proto3,enum=common.v1.OrderTradeStatus" json:"trade_status,omitempty"`     // 交易支付状态
 	RefundStatus  v1.OrderRefundStatus   `protobuf:"varint,4,opt,name=refund_status,json=refundStatus,proto3,enum=common.v1.OrderRefundStatus" json:"refund_status,omitempty"` // 订单退款状态
+	Refundable    bool                   `protobuf:"varint,5,opt,name=refundable,proto3" json:"refundable,omitempty"`                                                          // 是否为可申请售后订单统计
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1929,6 +1929,13 @@ func (x *CountOrderInfoResponse_Count) GetRefundStatus() v1.OrderRefundStatus {
 		return x.RefundStatus
 	}
 	return v1.OrderRefundStatus(0)
+}
+
+func (x *CountOrderInfoResponse_Count) GetRefundable() bool {
+	if x != nil {
+		return x.Refundable
+	}
+	return false
 }
 
 // 收货地址
@@ -2220,14 +2227,17 @@ const file_app_v1_order_info_proto_rawDesc = "" +
 	"\x12order_goods_stores\x18\x01 \x03(\v2\x17.app.v1.OrderGoodsStoreB$\xbaG!\x92\x02\x1e按门店分组的商品信息R\x10orderGoodsStores\x12B\n" +
 	"\asummary\x18\x02 \x01(\v2\x14.app.v1.OrderSummaryB\x12\xbaG\x0f\x92\x02\f汇总信息R\asummary\x12:\n" +
 	"\n" +
-	"clear_cart\x18\x03 \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否清空购物车R\tclearCart\"\x99\x03\n" +
+	"clear_cart\x18\x03 \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否清空购物车R\tclearCart\"\xe5\x03\n" +
 	"\x16CountOrderInfoResponse\x12J\n" +
-	"\x06counts\x18\x01 \x03(\v2$.app.v1.CountOrderInfoResponse.CountB\f\xbaG\t\x92\x02\x06总数R\x06counts\x1a\xb2\x02\n" +
+	"\x06counts\x18\x01 \x03(\v2$.app.v1.CountOrderInfoResponse.CountB\f\xbaG\t\x92\x02\x06总数R\x06counts\x1a\xfe\x02\n" +
 	"\x05Count\x12L\n" +
 	"\x06status\x18\x01 \x01(\x0e2\x1a.common.v1.OrderInfoStatusB\x18\xbaG\x15\x92\x02\x12订单履约状态R\x06status\x12$\n" +
 	"\x03num\x18\x02 \x01(\x05B\x12\xbaG\x0f\x92\x02\f订单数量R\x03num\x12X\n" +
 	"\ftrade_status\x18\x03 \x01(\x0e2\x1b.common.v1.OrderTradeStatusB\x18\xbaG\x15\x92\x02\x12交易支付状态R\vtradeStatus\x12[\n" +
-	"\rrefund_status\x18\x04 \x01(\x0e2\x1c.common.v1.OrderRefundStatusB\x18\xbaG\x15\x92\x02\x12订单退款状态R\frefundStatus\"\x83\x05\n" +
+	"\rrefund_status\x18\x04 \x01(\x0e2\x1c.common.v1.OrderRefundStatusB\x18\xbaG\x15\x92\x02\x12订单退款状态R\frefundStatus\x12J\n" +
+	"\n" +
+	"refundable\x18\x05 \x01(\bB*\xbaG'\x92\x02$是否为可申请售后订单统计R\n" +
+	"refundable\"\x83\x05\n" +
 	"\x14PageOrderInfoRequest\x12Q\n" +
 	"\x06status\x18\x01 \x01(\x0e2\x1a.common.v1.OrderInfoStatusB\x18\xbaG\x15\x92\x02\x12订单履约状态H\x00R\x06status\x88\x01\x01\x12]\n" +
 	"\ftrade_status\x18\x02 \x01(\x0e2\x1b.common.v1.OrderTradeStatusB\x18\xbaG\x15\x92\x02\x12交易支付状态H\x01R\vtradeStatus\x88\x01\x01\x12`\n" +

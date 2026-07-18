@@ -12,7 +12,7 @@ import type { OrderListFilter } from '@/utils/order'
 // 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync()
 const COMMENT_CENTER_PENDING_PAGE = '/pagesOrder/comment/center?tab=pending'
-const AFTERSALE_RECORD_PAGE = '/pagesOrder/aftersale/aftersale?tab=record'
+const AFTERSALE_APPLY_PAGE = '/pagesOrder/aftersale/aftersale?tab=apply'
 const AI_ASSISTANT_PAGE = '/pagesMember/ai-assistant/index'
 
 /** 我的页面订单入口展示项。 */
@@ -63,9 +63,9 @@ const orderCount = ref<OrderCountEntry[]>([
     key: 'refund',
     icon: '/static/images/order_aftersale_ref.png',
     text: '退款/售后',
-    filter: { has_refund: true },
+    filter: { refundable: true },
     refund: true,
-    url: AFTERSALE_RECORD_PAGE,
+    url: AFTERSALE_APPLY_PAGE,
     num: 0,
   },
 ])
@@ -81,26 +81,29 @@ const getOrderData = async () => {
     return
   }
 
-  const counts = await Promise.all(
-    orderCount.value.map(async (entry) => {
-      if (entry.key === 'wait-review') {
-        const res = await defCommentService.PagePendingCommentGoods({ page_num: 1, page_size: 1 })
-        return res.total
-      }
-      const res = await defOrderService.PageOrderInfo({
-        page_num: 1,
-        page_size: 1,
-        ...entry.filter,
-      })
-      return res.total
-    }),
-  )
+  const [orderResponse, pendingCommentResponse] = await Promise.all([
+    defOrderService.CountOrderInfo({}),
+    defCommentService.PagePendingCommentGoods({ page_num: 1, page_size: 1 }),
+  ])
   if (!canLoadOrderData()) {
     return
   }
 
-  orderCount.value.forEach((entry, index) => {
-    entry.num = counts[index]
+  orderCount.value.forEach((entry) => {
+    if (entry.key === 'wait-review') {
+      entry.num = pendingCommentResponse.total
+      return
+    }
+    // 服务端 JSON 会省略零值字段，必须归一化默认值后按全部维度精确匹配统计项。
+    entry.num = orderResponse.counts.reduce((total, item) => {
+      const matched =
+        (entry.filter?.trade_status ?? OrderTradeStatus.UNKNOWN_OTS) ===
+          (item.trade_status ?? OrderTradeStatus.UNKNOWN_OTS) &&
+        (entry.filter?.status ?? OrderInfoStatus.UNKNOWN_OIS) ===
+          (item.status ?? OrderInfoStatus.UNKNOWN_OIS) &&
+        Boolean(entry.filter?.refundable) === Boolean(item.refundable)
+      return matched ? total + (item.num ?? 0) : total
+    }, 0)
   })
 }
 

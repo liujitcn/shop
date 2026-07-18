@@ -19,10 +19,16 @@ import type { UserAddress } from '@/rpc/app/v1/user_address'
 import { defUserAddressService } from '@/api/app/user_address'
 import { defBaseDictService } from '@/api/app/base_dict'
 import { formatSrc, formatPrice } from '@/utils'
-import { OrderPayChannel, OrderPayType, RecommendScene } from '@/rpc/common/v1/enum'
+import {
+  OrderPayChannel,
+  OrderPayType,
+  OrderTradeStatus,
+  RecommendScene,
+} from '@/rpc/common/v1/enum'
 import {
   goodsDetailUrl,
   orderDetailUrl,
+  orderListUrl,
   parseRecommendRouteQuery,
   navigateToLogin,
   redirectToOrderPayment,
@@ -257,10 +263,11 @@ const onOrderSubmit = async () => {
   if (Number(activePayType.value.value) === OrderPayType.ONLINE_PAY) {
     try {
       await startOrderPayment(res.trade_id)
-    } catch (error) {
-      // 调起支付失败时保留接口错误提示，不进入支付结果页伪装为支付确认中。
-      isSubmitting.value = false
-      throw error
+    } catch {
+      // 订单已创建，支付失败后退出下单页，避免用户再次提交生成重复订单。
+      await uni.redirectTo({
+        url: orderListUrl({ trade_status: OrderTradeStatus.PENDING_PAYMENT_OTS }),
+      })
     }
   } else {
     await redirectToOrderPayment(res.trade_id)

@@ -487,61 +487,79 @@ func (c *OrderInfoCase) CountOrderInfo(ctx context.Context) (*appv1.CountOrderIn
 	if err != nil {
 		return nil, err
 	}
-	tradeQuery := c.orderTradeCase.Query(ctx).OrderTrade
-	tradeRows := make([]*appDto.OrderStatusCountRow, 0)
-	err = tradeQuery.WithContext(ctx).
-		Select(tradeQuery.Status, tradeQuery.ID.Count().As("total")).
-		Where(tradeQuery.UserID.Eq(authInfo.UserId), tradeQuery.DeletedAt.IsNull()).
-		Group(tradeQuery.Status).
-		Scan(&tradeRows)
+	var pendingPaymentCount int32
+	pendingPaymentCount, err = c.countPageOrderInfo(ctx, authInfo.UserId, &appv1.PageOrderInfoRequest{
+		TradeStatus: commonv1.OrderTradeStatus_PENDING_PAYMENT_OTS.Enum(),
+	})
 	if err != nil {
 		return nil, err
 	}
-	query := c.Query(ctx).OrderInfo
-	orderRows := make([]*appDto.OrderStatusCountRow, 0)
-	err = query.WithContext(ctx).
-		Select(query.Status, query.ID.Count().As("total")).
-		Where(query.UserID.Eq(authInfo.UserId), query.DeletedAt.IsNull()).
-		Group(query.Status).
-		Scan(&orderRows)
+	var waitShipmentCount int32
+	waitShipmentCount, err = c.countPageOrderInfo(ctx, authInfo.UserId, &appv1.PageOrderInfoRequest{
+		Status: commonv1.OrderInfoStatus_WAIT_SHIPMENT_OIS.Enum(),
+	})
 	if err != nil {
 		return nil, err
 	}
-	refundRows := make([]*appDto.OrderStatusCountRow, 0)
-	err = query.WithContext(ctx).
-		Select(query.RefundStatus.As("status"), query.ID.Count().As("total")).
-		Where(
-			query.UserID.Eq(authInfo.UserId),
-			query.RefundStatus.Neq(_const.ORDER_REFUND_STATUS_NONE),
-			query.DeletedAt.IsNull(),
-		).
-		Group(query.RefundStatus).
-		Scan(&refundRows)
+	var shippedCount int32
+	shippedCount, err = c.countPageOrderInfo(ctx, authInfo.UserId, &appv1.PageOrderInfoRequest{
+		Status: commonv1.OrderInfoStatus_SHIPPED_OIS.Enum(),
+	})
 	if err != nil {
 		return nil, err
 	}
-	count := make([]*appv1.CountOrderInfoResponse_Count, 0, len(tradeRows)+len(orderRows)+len(refundRows))
-	for _, row := range tradeRows {
-		count = append(count, &appv1.CountOrderInfoResponse_Count{
-			TradeStatus: commonv1.OrderTradeStatus(row.Status),
-			Num:         int32(row.Total),
-		})
-	}
-	for _, row := range orderRows {
-		count = append(count, &appv1.CountOrderInfoResponse_Count{
-			Status: commonv1.OrderInfoStatus(row.Status),
-			Num:    int32(row.Total),
-		})
-	}
-	for _, row := range refundRows {
-		count = append(count, &appv1.CountOrderInfoResponse_Count{
-			RefundStatus: commonv1.OrderRefundStatus(row.Status),
-			Num:          int32(row.Total),
-		})
+	refundable := true
+	var refundableCount int32
+	refundableCount, err = c.countPageOrderInfo(ctx, authInfo.UserId, &appv1.PageOrderInfoRequest{
+		Refundable: &refundable,
+	})
+	if err != nil {
+		return nil, err
 	}
 	return &appv1.CountOrderInfoResponse{
-		Counts: count,
+		Counts: []*appv1.CountOrderInfoResponse_Count{
+			{
+				TradeStatus: commonv1.OrderTradeStatus_PENDING_PAYMENT_OTS,
+				Num:         pendingPaymentCount,
+			},
+			{
+				Status: commonv1.OrderInfoStatus_WAIT_SHIPMENT_OIS,
+				Num:    waitShipmentCount,
+			},
+			{
+				Status: commonv1.OrderInfoStatus_SHIPPED_OIS,
+				Num:    shippedCount,
+			},
+			{
+				Refundable: true,
+				Num:        refundableCount,
+			},
+		},
 	}, nil
+}
+
+// countPageOrderInfo 使用订单分页的筛选条件统计结果数量。
+func (c *OrderInfoCase) countPageOrderInfo(ctx context.Context, userID int64, req *appv1.PageOrderInfoRequest) (int32, error) {
+	tradeOpts, orderOpts, _ := c.pageOrderInfoQueryOptions(ctx, userID, req)
+	var total int64
+	var err error
+	if len(tradeOpts) > 0 {
+		var tradeTotal int64
+		tradeTotal, err = c.orderTradeCase.Count(ctx, tradeOpts...)
+		if err != nil {
+			return 0, err
+		}
+		total += tradeTotal
+	}
+	if len(orderOpts) > 0 {
+		var orderTotal int64
+		orderTotal, err = c.Count(ctx, orderOpts...)
+		if err != nil {
+			return 0, err
+		}
+		total += orderTotal
+	}
+	return int32(total), nil
 }
 
 // PageOrderInfo 查询订单分页列表
@@ -553,103 +571,30 @@ func (c *OrderInfoCase) PageOrderInfo(ctx context.Context, req *appv1.PageOrderI
 	pageNum, pageSize := repository.PageDefault(int64(req.GetPageNum()), int64(req.GetPageSize()))
 	// 两类记录各取合并目标页之前的候选，保证结果准确且不随用户全部订单量增长。
 	fetchSize := pageNum * pageSize
-	tradeStatus := req.GetTradeStatus()
-	orderStatus := req.GetStatus()
-	refundStatus := req.GetRefundStatus()
-	refundableOnly := req.Refundable != nil && req.GetRefundable()
-	noStatusFilter := tradeStatus == commonv1.OrderTradeStatus_UNKNOWN_OTS &&
-		orderStatus == commonv1.OrderInfoStatus_UNKNOWN_OIS &&
-		refundStatus == commonv1.OrderRefundStatus_UNKNOWN_ORS && req.HasRefund == nil && !refundableOnly
-	aggregateTradeStatus := tradeStatus == commonv1.OrderTradeStatus_PENDING_PAYMENT_OTS ||
-		tradeStatus == commonv1.OrderTradeStatus_PAYING_OTS ||
-		tradeStatus == commonv1.OrderTradeStatus_CLOSED_OTS
+	tradeOpts, orderOpts, noStatusFilter := c.pageOrderInfoQueryOptions(ctx, authInfo.UserId, req)
 
 	var trades []*models.OrderTrade
 	var tradeTotal int64
-	// 待支付、支付中和已关闭按交易聚合展示，取消履约筛选同样映射到已关闭交易。
-	if noStatusFilter || aggregateTradeStatus || orderStatus == commonv1.OrderInfoStatus_CANCELED_OIS {
+	if len(tradeOpts) > 0 {
 		query := c.orderTradeCase.Query(ctx).OrderTrade
-		opts := make([]repository.QueryOption, 0, 3)
-		opts = append(opts, repository.Where(query.UserID.Eq(authInfo.UserId)))
-		if aggregateTradeStatus {
-			// “待支付”标签同时覆盖尚未发起支付和已经获取预支付参数的交易。
-			if tradeStatus == commonv1.OrderTradeStatus_PENDING_PAYMENT_OTS {
-				opts = append(opts, repository.Where(query.Status.In(
-					_const.ORDER_TRADE_STATUS_PENDING_PAYMENT,
-					_const.ORDER_TRADE_STATUS_PAYING,
-				)))
-			} else {
-				opts = append(opts, repository.Where(query.Status.Eq(int32(tradeStatus))))
-			}
-		} else if orderStatus == commonv1.OrderInfoStatus_CANCELED_OIS {
-			opts = append(opts, repository.Where(query.Status.Eq(_const.ORDER_TRADE_STATUS_CLOSED)))
-		} else {
-			opts = append(opts, repository.Where(query.Status.In(
-				_const.ORDER_TRADE_STATUS_PENDING_PAYMENT,
-				_const.ORDER_TRADE_STATUS_PAYING,
-				_const.ORDER_TRADE_STATUS_CLOSED,
-			)))
-		}
 		// 全部订单页优先展示待支付、支付中和已关闭的交易单，再按创建时间排序。
 		if noStatusFilter {
-			opts = append(opts, repository.Order(query.Status.Asc(), query.CreatedAt.Desc(), query.ID.Desc()))
+			tradeOpts = append(tradeOpts, repository.Order(query.Status.Asc(), query.CreatedAt.Desc(), query.ID.Desc()))
 		} else {
-			opts = append(opts, repository.Order(query.CreatedAt.Desc(), query.ID.Desc()))
+			tradeOpts = append(tradeOpts, repository.Order(query.CreatedAt.Desc(), query.ID.Desc()))
 		}
-		trades, tradeTotal, err = c.orderTradeCase.Page(ctx, 1, fetchSize, opts...)
+		trades, tradeTotal, err = c.orderTradeCase.Page(ctx, 1, fetchSize, tradeOpts...)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	childTradeStatus := tradeStatus != commonv1.OrderTradeStatus_UNKNOWN_OTS && !aggregateTradeStatus
 	var orderInfos []*models.OrderInfo
 	var orderTotal int64
-	queryChildOrders := noStatusFilter || childTradeStatus ||
-		(orderStatus != commonv1.OrderInfoStatus_UNKNOWN_OIS && orderStatus != commonv1.OrderInfoStatus_CANCELED_OIS) ||
-		refundStatus != commonv1.OrderRefundStatus_UNKNOWN_ORS || req.HasRefund != nil || refundableOnly
-	if queryChildOrders {
+	if len(orderOpts) > 0 {
 		query := c.Query(ctx).OrderInfo
-		opts := make([]repository.QueryOption, 0, 8)
-		opts = append(opts, repository.Where(query.UserID.Eq(authInfo.UserId)))
-		if childTradeStatus {
-			// 交易支付状态属于 order_trade，使用类型化连接直接筛选，避免先加载全部交易编号。
-			tradeQuery := c.orderTradeCase.Query(ctx).OrderTrade
-			opts = append(opts, repository.Join(tradeQuery, query.TradeID.EqCol(tradeQuery.ID)))
-			opts = append(opts, repository.Where(tradeQuery.UserID.Eq(authInfo.UserId)))
-			opts = append(opts, repository.Where(tradeQuery.Status.Eq(int32(tradeStatus))))
-			opts = append(opts, repository.Where(tradeQuery.DeletedAt.IsNull()))
-		}
-		if orderStatus != commonv1.OrderInfoStatus_UNKNOWN_OIS {
-			opts = append(opts, repository.Where(query.Status.Eq(int32(orderStatus))))
-		} else if noStatusFilter {
-			opts = append(opts, repository.Where(query.Status.NotIn(
-				_const.ORDER_INFO_STATUS_NOT_STARTED,
-				_const.ORDER_INFO_STATUS_CANCELED,
-			)))
-		}
-		if refundStatus != commonv1.OrderRefundStatus_UNKNOWN_ORS {
-			opts = append(opts, repository.Where(query.RefundStatus.Eq(int32(refundStatus))))
-		}
-		if req.HasRefund != nil {
-			// 售后记录查询需要覆盖处理中、部分退款、已退款和已关闭/失败。
-			if req.GetHasRefund() {
-				opts = append(opts, repository.Where(query.RefundStatus.Neq(_const.ORDER_REFUND_STATUS_NONE)))
-			} else {
-				opts = append(opts, repository.Where(query.RefundStatus.Eq(_const.ORDER_REFUND_STATUS_NONE)))
-			}
-		}
-		if refundableOnly {
-			// 可申请退款订单必须尚未发货，且当前没有进行中的退款或全额退款。
-			opts = append(opts, repository.Where(query.Status.Eq(_const.ORDER_INFO_STATUS_WAIT_SHIPMENT)))
-			opts = append(opts, repository.Where(query.RefundStatus.In(
-				_const.ORDER_REFUND_STATUS_NONE,
-				_const.ORDER_REFUND_STATUS_PARTIAL_REFUND,
-				_const.ORDER_REFUND_STATUS_CLOSED_OR_FAILED,
-			)))
-		}
-		opts = append(opts, repository.Order(query.CreatedAt.Desc(), query.ID.Desc()))
-		orderInfos, orderTotal, err = c.Page(ctx, 1, fetchSize, opts...)
+		orderOpts = append(orderOpts, repository.Order(query.CreatedAt.Desc(), query.ID.Desc()))
+		orderInfos, orderTotal, err = c.Page(ctx, 1, fetchSize, orderOpts...)
 		if err != nil {
 			return nil, err
 		}
@@ -735,6 +680,104 @@ func (c *OrderInfoCase) PageOrderInfo(ctx context.Context, req *appv1.PageOrderI
 		OrderInfos: pageOrderItems(items, pageNum, pageSize, noStatusFilter),
 		Total:      int32(tradeTotal + orderTotal),
 	}, nil
+}
+
+// pageOrderInfoQueryOptions 构造订单分页与数量汇总共用的交易单和门店订单筛选条件。
+func (c *OrderInfoCase) pageOrderInfoQueryOptions(
+	ctx context.Context,
+	userID int64,
+	req *appv1.PageOrderInfoRequest,
+) ([]repository.QueryOption, []repository.QueryOption, bool) {
+	tradeStatus := req.GetTradeStatus()
+	orderStatus := req.GetStatus()
+	refundStatus := req.GetRefundStatus()
+	refundableOnly := req.Refundable != nil && req.GetRefundable()
+	noStatusFilter := tradeStatus == commonv1.OrderTradeStatus_UNKNOWN_OTS &&
+		orderStatus == commonv1.OrderInfoStatus_UNKNOWN_OIS &&
+		refundStatus == commonv1.OrderRefundStatus_UNKNOWN_ORS && req.HasRefund == nil && !refundableOnly
+	aggregateTradeStatus := tradeStatus == commonv1.OrderTradeStatus_PENDING_PAYMENT_OTS ||
+		tradeStatus == commonv1.OrderTradeStatus_PAYING_OTS ||
+		tradeStatus == commonv1.OrderTradeStatus_CLOSED_OTS
+
+	var tradeOpts []repository.QueryOption
+	// 待支付、支付中和已关闭按交易聚合展示，取消履约筛选同样映射到已关闭交易。
+	if noStatusFilter || aggregateTradeStatus || orderStatus == commonv1.OrderInfoStatus_CANCELED_OIS {
+		query := c.orderTradeCase.Query(ctx).OrderTrade
+		tradeOpts = make([]repository.QueryOption, 0, 2)
+		tradeOpts = append(tradeOpts, repository.Where(query.UserID.Eq(userID)))
+		if aggregateTradeStatus {
+			// “待支付”标签同时覆盖尚未发起支付和已经获取预支付参数的交易。
+			if tradeStatus == commonv1.OrderTradeStatus_PENDING_PAYMENT_OTS {
+				tradeOpts = append(tradeOpts, repository.Where(query.Status.In(
+					_const.ORDER_TRADE_STATUS_PENDING_PAYMENT,
+					_const.ORDER_TRADE_STATUS_PAYING,
+				)))
+			} else {
+				tradeOpts = append(tradeOpts, repository.Where(query.Status.Eq(int32(tradeStatus))))
+			}
+		} else if orderStatus == commonv1.OrderInfoStatus_CANCELED_OIS {
+			tradeOpts = append(tradeOpts, repository.Where(query.Status.Eq(_const.ORDER_TRADE_STATUS_CLOSED)))
+		} else {
+			tradeOpts = append(tradeOpts, repository.Where(query.Status.In(
+				_const.ORDER_TRADE_STATUS_PENDING_PAYMENT,
+				_const.ORDER_TRADE_STATUS_PAYING,
+				_const.ORDER_TRADE_STATUS_CLOSED,
+			)))
+		}
+	}
+
+	childTradeStatus := tradeStatus != commonv1.OrderTradeStatus_UNKNOWN_OTS && !aggregateTradeStatus
+	queryChildOrders := noStatusFilter || childTradeStatus ||
+		(orderStatus != commonv1.OrderInfoStatus_UNKNOWN_OIS && orderStatus != commonv1.OrderInfoStatus_CANCELED_OIS) ||
+		refundStatus != commonv1.OrderRefundStatus_UNKNOWN_ORS || req.HasRefund != nil || refundableOnly
+	var orderOpts []repository.QueryOption
+	if queryChildOrders {
+		query := c.Query(ctx).OrderInfo
+		orderOpts = make([]repository.QueryOption, 0, 7)
+		orderOpts = append(orderOpts, repository.Where(query.UserID.Eq(userID)))
+		if childTradeStatus {
+			// 交易支付状态属于 order_trade，使用类型化连接直接筛选，避免先加载全部交易编号。
+			tradeQuery := c.orderTradeCase.Query(ctx).OrderTrade
+			orderOpts = append(orderOpts, repository.Join(tradeQuery, query.TradeID.EqCol(tradeQuery.ID)))
+			orderOpts = append(orderOpts, repository.Where(tradeQuery.UserID.Eq(userID)))
+			orderOpts = append(orderOpts, repository.Where(tradeQuery.Status.Eq(int32(tradeStatus))))
+			orderOpts = append(orderOpts, repository.Where(tradeQuery.DeletedAt.IsNull()))
+		}
+		if orderStatus != commonv1.OrderInfoStatus_UNKNOWN_OIS {
+			orderOpts = append(orderOpts, repository.Where(query.Status.Eq(int32(orderStatus))))
+		} else if noStatusFilter {
+			orderOpts = append(orderOpts, repository.Where(query.Status.NotIn(
+				_const.ORDER_INFO_STATUS_NOT_STARTED,
+				_const.ORDER_INFO_STATUS_CANCELED,
+			)))
+		}
+		if refundStatus != commonv1.OrderRefundStatus_UNKNOWN_ORS {
+			orderOpts = append(orderOpts, repository.Where(query.RefundStatus.Eq(int32(refundStatus))))
+		}
+		if req.HasRefund != nil {
+			// 售后记录查询需要覆盖处理中、部分退款、已退款和已关闭/失败。
+			if req.GetHasRefund() {
+				orderOpts = append(orderOpts, repository.Where(query.RefundStatus.In(
+					_const.ORDER_REFUND_STATUS_PROCESSING,
+					_const.ORDER_REFUND_STATUS_PARTIAL_REFUND,
+					_const.ORDER_REFUND_STATUS_REFUNDED,
+					_const.ORDER_REFUND_STATUS_CLOSED_OR_FAILED,
+				)))
+			} else {
+				orderOpts = append(orderOpts, repository.Where(query.RefundStatus.Eq(_const.ORDER_REFUND_STATUS_NONE)))
+			}
+		}
+		if refundableOnly {
+			// 可申请退款订单必须尚未发货，且当前没有进行中的退款或全额退款。
+			orderOpts = append(orderOpts, repository.Where(query.Status.Eq(_const.ORDER_INFO_STATUS_WAIT_SHIPMENT)))
+			orderOpts = append(orderOpts, repository.Where(query.RefundStatus.In(
+				_const.ORDER_REFUND_STATUS_NONE,
+				_const.ORDER_REFUND_STATUS_PARTIAL_REFUND,
+				_const.ORDER_REFUND_STATUS_CLOSED_OR_FAILED,
+			)))
+		}
+	}
+	return tradeOpts, orderOpts, noStatusFilter
 }
 
 // pageOrderItems 将交易聚合记录和门店订单合并后截取目标页。

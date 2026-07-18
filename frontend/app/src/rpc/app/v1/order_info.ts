@@ -145,6 +145,8 @@ export interface CountOrderInfoResponse_Count {
   trade_status: OrderTradeStatus;
   /** 订单退款状态 */
   refund_status: OrderRefundStatus;
+  /** 是否为可申请售后订单统计 */
+  refundable: boolean;
 }
 
 /** 订单分页查询条件 */
