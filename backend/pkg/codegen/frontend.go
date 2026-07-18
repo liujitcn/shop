@@ -443,7 +443,8 @@ func (c *renderer) appendExternalTargetFrontendAPIMethods(content string, table 
 	if index < 0 {
 		return content
 	}
-	return content[:index] + "\n" + c.renderExternalTargetFrontendAPIMethods(table, missingMethods) + content[index:]
+	content = content[:index] + "\n" + c.renderExternalTargetFrontendAPIMethods(table, missingMethods) + content[index:]
+	return reorderTSClassMethods(content, className)
 }
 
 // renderExternalTargetFrontendAPIMethods 渲染外部目标实体选项 API 方法。

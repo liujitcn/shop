@@ -213,7 +213,7 @@ func (c *renderer) appendExternalTargetBizMethods(content string, table *Table, 
 	methodContent = strings.ReplaceAll(methodContent, "*"+generatedReceiver, "*"+existingReceiver)
 	methodContent = strings.ReplaceAll(methodContent, "models."+table.EntityName, "models."+repositoryType)
 	methodContent = strings.ReplaceAll(methodContent, "c.Query(ctx)."+table.EntityName, "c.Query(ctx)."+repositoryType)
-	return appendGeneratedGoMethods(content, methodContent)
+	return reorderGoReceiverMethods(appendGeneratedGoMethods(content, methodContent), existingReceiver)
 }
 
 // renderExternalTargetBizFile 渲染外部目标实体的最小业务文件。
@@ -265,7 +265,7 @@ func (c *renderer) appendExternalTargetServiceMethods(content string, table *Tab
 	}
 	methodContent = strings.ReplaceAll(methodContent, "*"+generatedReceiver, "*"+existingReceiver)
 	methodContent = strings.ReplaceAll(methodContent, "s."+generatedCaseField, "s."+existingCaseField)
-	return appendGeneratedGoMethods(content, methodContent)
+	return reorderGoReceiverMethods(appendGeneratedGoMethods(content, methodContent), existingReceiver)
 }
 
 // renderExternalTargetServiceFile 渲染外部目标实体的最小服务文件。
