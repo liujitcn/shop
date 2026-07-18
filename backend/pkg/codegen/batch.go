@@ -207,7 +207,7 @@ func validateBatchMethodConflicts(inputs []BatchGenerationInput, generations []*
 				messageKey := method.ProtoFilePath + ":message:" + messageName
 				messageDefinition := batchDefinition{
 					tableName:   generation.Table.TableName_,
-					fingerprint: strings.TrimSpace(renderer.renderProtoMessageByName(generation.Table, input.Columns, method, messageName)),
+					fingerprint: normalizeBatchProtoDefinition(renderer.renderProtoMessageByName(generation.Table, input.Columns, method, messageName)),
 				}
 				if err := compareBatchDefinition(messages, messageKey, messageDefinition, "消息"); err != nil {
 					return err
@@ -261,7 +261,7 @@ func compareBatchDefinition(definitions map[string]batchDefinition, key string, 
 func (c *renderer) batchProtoMethodFingerprint(table *Table, columns []*CodeGenColumn, method *Proto) string {
 	var builder strings.Builder
 	targetEntity := DefaultString(method.TargetEntityName, table.EntityName)
-	builder.WriteString(strings.TrimSpace(c.renderProtoRPC(table, method, resourcePathByEntity(targetEntity))))
+	builder.WriteString(normalizeBatchProtoDefinition(c.renderProtoRPC(table, method, resourcePathByEntity(targetEntity))))
 	// 选项接口的触发来源和外键字段只描述调用方，不会改变目标实体的接口实现。
 	// 目标实体及其树形、显示和取值字段才决定可复用的接口定义。
 	semanticParts := []string{
@@ -279,9 +279,24 @@ func (c *renderer) batchProtoMethodFingerprint(table *Table, columns []*CodeGenC
 	builder.WriteString(strings.Join(semanticParts, "\x00"))
 	for _, messageName := range c.protoMessageNamesForMethod(table, method) {
 		builder.WriteString("\n")
-		builder.WriteString(strings.TrimSpace(c.renderProtoMessageByName(table, columns, method, messageName)))
+		builder.WriteString(normalizeBatchProtoDefinition(c.renderProtoMessageByName(table, columns, method, messageName)))
 	}
 	return builder.String()
+}
+
+// normalizeBatchProtoDefinition 移除不影响接口语义的独立 Proto 注释行。
+func normalizeBatchProtoDefinition(content string) string {
+	lines := strings.Split(content, "\n")
+	var builder strings.Builder
+	for _, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		if strings.HasPrefix(trimmed, "//") {
+			continue
+		}
+		builder.WriteString(trimmed)
+		builder.WriteByte('\n')
+	}
+	return strings.TrimSpace(builder.String())
 }
 
 // isBatchMergeableFile 判断同一文件是否支持按已有增量补丁规则合并。

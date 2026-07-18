@@ -169,15 +169,12 @@ func (c *renderer) renderGeneratedProtoMessages(table *Table, columns []*CodeGen
 	return builder.String()
 }
 
-// renderPatchProtoMessages 渲染追加 RPC 时缺失的 message。
-func (c *renderer) renderPatchProtoMessages(table *Table, columns []*CodeGenColumn, method *Proto, protoPath string, scheduled map[string]struct{}) []string {
+// renderPatchProtoMessages 渲染追加或修复 RPC 依赖的 message。
+func (c *renderer) renderPatchProtoMessages(table *Table, columns []*CodeGenColumn, method *Proto, scheduled map[string]struct{}) []string {
 	names := c.protoMessageNamesForMethod(table, method)
 	list := make([]string, 0, len(names))
 	for _, name := range names {
 		if _, ok := scheduled[name]; ok {
-			continue
-		}
-		if c.checkProtoMessageExists(protoPath, name) {
 			continue
 		}
 		scheduled[name] = struct{}{}
@@ -484,14 +481,22 @@ func redactCodeGenCommandOutput(output string) string {
 	return strings.TrimSpace(output)
 }
 
-// reorderGoReceiverMethods 重排指定接收者的连续方法，其他源码保持不变。
+// reorderGoReceiverMethods 重排指定接收者的方法，并将夹在其中的包级辅助函数保留在方法组之后。
 func reorderGoReceiverMethods(content string, receiverName string) string {
 	file, fileSet, err := parseGoSource(content)
 	if err != nil {
 		return content
 	}
+	type sourceRange struct {
+		start            int
+		end              int
+		declarationIndex int
+	}
 	blocks := make([]CodeGenSourceMethodBlock, 0)
-	for _, declaration := range file.Decls {
+	ranges := make([]sourceRange, 0)
+	firstDeclarationIndex := -1
+	lastDeclarationIndex := -1
+	for declarationIndex, declaration := range file.Decls {
 		function, ok := declaration.(*ast.FuncDecl)
 		if !ok || function.Recv == nil || len(function.Recv.List) == 0 || goReceiverName(function.Recv.List[0].Type) != receiverName {
 			continue
@@ -511,25 +516,68 @@ func reorderGoReceiverMethods(content string, receiverName string) string {
 			End:           end,
 			OriginalIndex: len(blocks),
 		})
+		ranges = append(ranges, sourceRange{start: start, end: end, declarationIndex: declarationIndex})
+		if firstDeclarationIndex < 0 {
+			firstDeclarationIndex = declarationIndex
+		}
+		lastDeclarationIndex = declarationIndex
 	}
 	if len(blocks) < 2 {
 		return content
 	}
-	// 只重排彼此连续的方法；中间存在变量、类型或其他声明时保留人工组织方式。
-	for i := 1; i < len(blocks); i++ {
-		if strings.TrimSpace(content[blocks[i-1].End:blocks[i].Start]) != "" {
+	// 仅跨越普通包级辅助函数；变量、类型、init 或其他接收者的方法仍是人工组织边界。
+	for declarationIndex := firstDeclarationIndex + 1; declarationIndex < lastDeclarationIndex; declarationIndex++ {
+		function, ok := file.Decls[declarationIndex].(*ast.FuncDecl)
+		if !ok {
+			return content
+		}
+		if function.Recv != nil && len(function.Recv.List) > 0 && goReceiverName(function.Recv.List[0].Type) == receiverName {
+			continue
+		}
+		if function.Recv != nil || function.Name.Name == "init" {
 			return content
 		}
 	}
 	start := blocks[0].Start
-	end := blocks[len(blocks)-1].End
-	// 排序范围仅覆盖当前接收者的方法块，文件头、其他类型和包级函数不变。
+	// 包级辅助函数后的方法被移走时，同时移除方法前的空白，避免末尾遗留重复空行。
+	for i := 1; i < len(ranges); i++ {
+		previousFunction, ok := file.Decls[ranges[i].declarationIndex-1].(*ast.FuncDecl)
+		if !ok || previousFunction.Recv != nil || previousFunction.Name.Name == "init" {
+			continue
+		}
+		for ranges[i].start > 0 {
+			character := content[ranges[i].start-1]
+			if character != ' ' && character != '\t' && character != '\r' && character != '\n' {
+				break
+			}
+			ranges[i].start--
+		}
+	}
+	// 除最后一个方法外，移除其后的空白，避免留下重复空行。
+	for i := 0; i < len(ranges)-1; i++ {
+		for ranges[i].end < len(content) {
+			character := content[ranges[i].end]
+			if character != ' ' && character != '\t' && character != '\r' && character != '\n' {
+				break
+			}
+			ranges[i].end++
+		}
+	}
+	// 仅移动当前接收者的方法块，包级辅助函数仍保留在原位置。
 	sortCodeGenSourceMethodBlocks(blocks)
 	methodContents := make([]string, 0, len(blocks))
 	for _, block := range blocks {
 		methodContents = append(methodContents, strings.Trim(block.Content, "\r\n"))
 	}
-	return content[:start] + strings.Join(methodContents, "\n\n") + content[end:]
+	for i := len(ranges) - 1; i >= 0; i-- {
+		rangeItem := ranges[i]
+		content = content[:rangeItem.start] + content[rangeItem.end:]
+	}
+	separator := ""
+	if start < len(content) && content[start] != '\r' && content[start] != '\n' {
+		separator = "\n\n"
+	}
+	return content[:start] + strings.Join(methodContents, "\n\n") + separator + content[start:]
 }
 
 // reorderTSClassMethods 重排指定服务类的连续方法，未知扩展方法保持在固定槽位之后。
@@ -638,6 +686,8 @@ func codeGenSourceMethodPosition(methodName string) int {
 		return 10
 	case strings.HasPrefix(methodName, "Page"), strings.HasPrefix(methodName, "Tree"):
 		return 20
+	case strings.HasPrefix(methodName, "List"):
+		return 21
 	case strings.HasPrefix(methodName, "Get"):
 		return 30
 	case strings.HasPrefix(methodName, "Create"):

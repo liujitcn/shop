@@ -25,8 +25,8 @@
         <section class="api-doc-section">
           <div class="api-doc-title">请求参数</div>
           <el-table
-            v-if="detailDoc.parameters.length > 0"
-            :data="detailDoc.parameters"
+            v-if="detailParameters.length > 0"
+            :data="detailParameters"
             row-key="path"
             default-expand-all
             :tree-props="{ children: 'children' }"
@@ -67,8 +67,8 @@
 
         <section class="api-doc-section">
           <div class="api-doc-title">返回值</div>
-          <el-collapse v-if="detailDoc.responses.length > 0">
-            <el-collapse-item v-for="response in detailDoc.responses" :key="response.status" :name="response.status">
+          <el-collapse v-if="detailResponses.length > 0">
+            <el-collapse-item v-for="response in detailResponses" :key="response.status" :name="response.status">
               <template #title>
                 <span class="api-doc-response-title">{{ response.status }} {{ response.description }}</span>
               </template>
@@ -154,6 +154,10 @@ const editForm = reactive({
 });
 
 const requestBodyRows = computed(() => schemaRows(detailDoc.value?.request_body));
+
+/** 将 ProtoJSON 省略的空重复字段固定为数组，供详情区域安全渲染。 */
+const detailParameters = computed(() => detailDoc.value?.parameters ?? []);
+const detailResponses = computed(() => detailDoc.value?.responses ?? []);
 
 /** API 编辑表单字段配置。 */
 const editFields: ProFormField[] = [
@@ -418,7 +422,8 @@ function formatSchemaType(schema: BaseApiDocSchema) {
   const values = [schema.type];
   if (schema.format) values.push(`<${schema.format}>`);
   if (schema.ref) values.push(schema.ref);
-  if (schema.enum.length > 0) values.push(schema.enum.join(" | "));
+  // ProtoJSON 会省略空 repeated 字段，枚举缺失时按空数组展示。
+  if (schema.enum?.length > 0) values.push(schema.enum.join(" | "));
   return values.filter(Boolean).join(" ");
 }
 

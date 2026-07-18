@@ -5,6 +5,7 @@
     width="min(1080px, 94vw)"
     top="4vh"
     :close-on-click-modal="false"
+    :show-footer="false"
     @update:model-value="emit('update:modelValue', $event)"
   >
     <div v-loading="loading" class="progress-dialog">

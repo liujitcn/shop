@@ -10,11 +10,12 @@
       :tool-button="false"
     />
 
-    <el-dialog
+    <ProDialog
       v-model="reviewDialog.visible"
       title="讨论审核记录"
       width="720px"
       destroy-on-close
+      :show-footer="false"
       @closed="handleResetReviewDialog"
     >
       <div v-if="reviewDialog.row" class="discussion-review-dialog">
@@ -34,12 +35,13 @@
 
         <ReviewTimeline :review-list="reviewDialog.list" :loading="reviewDialog.loading" />
       </div>
-    </el-dialog>
+    </ProDialog>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, nextTick, reactive, ref, watch } from "vue";
+import ProDialog from "@/components/Dialog/ProDialog.vue";
 import type { ColumnProps, ProTableInstance } from "@/components/ProTable/interface";
 import ProTable from "@/components/ProTable/index.vue";
 import { useAuthButtons } from "@/hooks/useAuthButtons";

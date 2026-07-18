@@ -14,10 +14,10 @@
   >
     <slot />
 
-    <template v-if="$slots.footer" #footer>
+    <template v-if="showFooter && $slots.footer" #footer>
       <slot name="footer" />
     </template>
-    <template v-else #footer>
+    <template v-else-if="showFooter" #footer>
       <div class="dialog-footer">
         <el-button @click="handleCancel"> {{ cancelText }} </el-button>
         <el-button type="primary" :loading="confirmLoading" @click="handleConfirm"> {{ confirmText }} </el-button>
@@ -39,6 +39,8 @@ interface ProDialogProps {
   destroyOnClose?: boolean;
   closeOnClickModal?: boolean;
   closeOnPressEscape?: boolean;
+  /** 是否展示弹窗底部操作区。 */
+  showFooter?: boolean;
 }
 
 withDefaults(defineProps<ProDialogProps>(), {
@@ -50,7 +52,8 @@ withDefaults(defineProps<ProDialogProps>(), {
   confirmLoading: false,
   destroyOnClose: false,
   closeOnClickModal: true,
-  closeOnPressEscape: true
+  closeOnPressEscape: true,
+  showFooter: true
 });
 
 const emit = defineEmits<{

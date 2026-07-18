@@ -32,7 +32,7 @@
       </template>
     </ProTable>
 
-    <el-dialog v-model="approveDialog.visible" title="评论审核" width="560px" destroy-on-close @closed="handleResetApproveDialog">
+    <ProDialog v-model="approveDialog.visible" title="评论审核" width="560px" destroy-on-close @closed="handleResetApproveDialog">
       <div v-if="approveDialog.row" class="approve-preview">
         <el-descriptions :column="1" border>
           <el-descriptions-item label="商品名称">{{ approveDialog.row.goods_name_snapshot }}</el-descriptions-item>
@@ -58,31 +58,23 @@
         </section>
       </div>
 
-      <el-form label-position="top" class="approve-form">
-        <el-form-item label="审核备注 / 不通过原因">
-          <el-input
-            v-model="approveDialog.reason"
-            type="textarea"
-            :rows="3"
-            maxlength="200"
-            show-word-limit
-            placeholder="通过可选填备注；不通过请填写原因"
-          />
-        </el-form-item>
-      </el-form>
+      <ProForm :model="approveDialog" :fields="approveFormFields" label-position="top" class="approve-form" />
 
       <template #footer>
         <el-button @click="handleCancelApprove">取消</el-button>
         <el-button type="danger" :loading="approveDialog.loading" @click="handleConfirmReject">不通过</el-button>
         <el-button type="success" :loading="approveDialog.loading" @click="handleConfirmApprove">通过</el-button>
       </template>
-    </el-dialog>
+    </ProDialog>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import ProDialog from "@/components/Dialog/ProDialog.vue";
+import ProForm from "@/components/ProForm/index.vue";
+import type { ProFormField } from "@/components/ProForm/interface";
 import type { ColumnProps, ProTableInstance } from "@/components/ProTable/interface";
 import ProTable from "@/components/ProTable/index.vue";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
@@ -142,6 +134,21 @@ const approveDialog = reactive<ApproveDialogState>({
   row: undefined,
   reason: ""
 });
+
+/** 评论审核备注表单字段。 */
+const approveFormFields: ProFormField[] = [
+  {
+    prop: "reason",
+    label: "审核备注 / 不通过原因",
+    component: "textarea",
+    props: {
+      rows: 3,
+      maxlength: 200,
+      showWordLimit: true,
+      placeholder: "通过可选填备注；不通过请填写原因"
+    }
+  }
+];
 
 /** 当前登录账号是否默认租户。 */
 const isDefaultTenant = computed(() => userStore.userInfo.tenant_code === DEFAULT_TENANT_CODE);

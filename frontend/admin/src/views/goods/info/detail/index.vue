@@ -207,7 +207,7 @@
       </el-tabs>
     </el-card>
 
-    <el-dialog v-model="approveDialog.visible" title="评论审核" width="560px" destroy-on-close @closed="handleResetApproveDialog">
+    <ProDialog v-model="approveDialog.visible" title="评论审核" width="560px" destroy-on-close @closed="handleResetApproveDialog">
       <div v-if="approveDialog.row" class="approve-preview">
         <el-descriptions :column="1" border>
           <el-descriptions-item label="商品名称">{{ approveDialog.row.goods_name_snapshot }}</el-descriptions-item>
@@ -237,13 +237,14 @@
         <el-button @click="handleCancelApprove">取消</el-button>
         <el-button type="success" :loading="approveDialog.loading" @click="handleConfirmApprove">通过</el-button>
       </template>
-    </el-dialog>
+    </ProDialog>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, onActivated, reactive, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import ProDialog from "@/components/Dialog/ProDialog.vue";
 import type { ColumnProps, ProTableInstance } from "@/components/ProTable/interface";
 import DictLabel from "@/components/Dict/DictLabel.vue";
 import ProTable from "@/components/ProTable/index.vue";

@@ -73,7 +73,7 @@ type CodeGenProtoPatch struct {
 	ServiceNames []string
 	// RPCs 按服务名称分组的 RPC 定义。
 	RPCs map[string][]string
-	// Messages 需要追加的消息定义。
+	// Messages 需要补齐的消息定义。
 	Messages []string
 }
 

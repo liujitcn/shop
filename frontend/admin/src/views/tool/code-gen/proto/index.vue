@@ -14,131 +14,70 @@
           <el-button type="primary" :icon="Document" :disabled="!canEdit" @click="handleSaveProtoMethods()">保存</el-button>
         </div>
 
-        <el-table :data="protoChecks" :row-key="resolveProtoRowKey" border>
-          <el-table-column label="接口信息" min-width="260">
-            <template #default="{ row }">
-              <div class="code-gen-proto-cell">
-                <strong class="code-gen-proto-cell__primary">{{ row.method_name }}</strong>
-                <div class="code-gen-proto-cell__tags">
-                  <el-tag size="small" effect="plain">{{ resolveTriggerTypeLabel(row.trigger_type) }}</el-tag>
-                  <el-tag size="small" type="info" effect="plain">{{ resolveAPIKindLabel(row.api_kind) }}</el-tag>
-                </div>
+        <ProTable
+          row-key="method_name"
+          :data="protoChecks"
+          :columns="protoColumns"
+          :pagination="false"
+          :tool-button="false"
+        >
+          <template #method_name="{ row }">
+            <div class="code-gen-proto-cell">
+              <strong class="code-gen-proto-cell__primary">{{ row.method_name }}</strong>
+              <div class="code-gen-proto-cell__tags">
+                <el-tag size="small" effect="plain">{{ resolveTriggerTypeLabel(row.trigger_type) }}</el-tag>
+                <el-tag size="small" type="info" effect="plain">{{ resolveAPIKindLabel(row.api_kind) }}</el-tag>
               </div>
-            </template>
-          </el-table-column>
-          <el-table-column label="目标位置" min-width="330">
-            <template #default="{ row }">
-              <div class="code-gen-proto-cell">
-                <span class="code-gen-proto-cell__primary">{{ row.target_entity_name }}</span>
-                <span class="code-gen-proto-cell__path" :title="row.proto_file_path">{{ row.proto_file_path }}</span>
-              </div>
-            </template>
-          </el-table-column>
-          <el-table-column label="状态" min-width="210">
-            <template #default="{ row }">
-              <div class="code-gen-proto-status">
-                <el-tag :type="row.exists ? 'success' : 'warning'">{{ row.exists ? "已存在" : "缺失" }}</el-tag>
-                <span class="code-gen-proto-cell__secondary" :title="row.message">{{ row.message }}</span>
-              </div>
-            </template>
-          </el-table-column>
-          <el-table-column label="生成设置" min-width="230">
-            <template #default="{ row }">
-              <div class="code-gen-proto-generate">
-                <el-checkbox v-model="row.generate_when_missing" :disabled="row.exists || !canEdit">生成接口</el-checkbox>
-                <el-button
-                  v-if="showProtoConfigButton(row)"
-                  type="primary"
-                  size="small"
-                  link
-                  :icon="Setting"
-                  :disabled="!canEdit"
-                  @click="openProtoConfigDialog(row)"
-                >
-                  配置
-                </el-button>
-              </div>
-            </template>
-          </el-table-column>
-        </el-table>
+            </div>
+          </template>
+          <template #target_entity_name="{ row }">
+            <div class="code-gen-proto-cell">
+              <span class="code-gen-proto-cell__primary">{{ row.target_entity_name }}</span>
+              <span class="code-gen-proto-cell__path" :title="row.proto_file_path">{{ row.proto_file_path }}</span>
+            </div>
+          </template>
+          <template #exists="{ row }">
+            <div class="code-gen-proto-status">
+              <el-tag :type="row.exists ? 'success' : 'warning'">{{ row.exists ? "已存在" : "缺失" }}</el-tag>
+              <span class="code-gen-proto-cell__secondary" :title="row.message">{{ row.message }}</span>
+            </div>
+          </template>
+          <template #generate_when_missing="{ row }">
+            <div class="code-gen-proto-generate">
+              <el-checkbox v-model="row.generate_when_missing" :disabled="row.exists || !canEdit">生成接口</el-checkbox>
+              <el-button
+                v-if="showProtoConfigButton(row)"
+                type="primary"
+                size="small"
+                link
+                :icon="Setting"
+                :disabled="!canEdit"
+                @click="openProtoConfigDialog(row)"
+              >
+                配置
+              </el-button>
+            </div>
+          </template>
+        </ProTable>
       </template>
       <el-empty v-else description="请先选择生成记录" />
     </el-card>
 
-    <el-dialog
+    <ProDialog
       v-model="configDialog.visible"
       :title="`${configDialog.methodName} - ${resolveAPIKindLabel(configDialog.apiKind)}配置`"
       width="min(520px, calc(100vw - 32px))"
       destroy-on-close
+      :show-footer="false"
       @closed="handleProtoConfigDialogClosed"
     >
-      <el-form :model="configDialog.config" label-position="top" class="code-gen-proto-config-form">
-        <el-form-item v-if="configDialog.apiKind === 'tree'" label="父节点字段" prop="parent_column">
-          <el-select
-            v-model="configDialog.config.parent_column"
-            :loading="configDialogLoading"
-            filterable
-            clearable
-            placeholder="请选择父节点字段"
-          >
-            <el-option
-              v-for="item in configColumnOptions"
-              :key="String(item.value)"
-              :label="item.label"
-              :value="item.value"
-            />
-          </el-select>
-        </el-form-item>
-        <el-form-item v-if="['option', 'tree'].includes(configDialog.apiKind)" label="显示字段" prop="label_column">
-          <el-select
-            v-model="configDialog.config.label_column"
-            :loading="configDialogLoading"
-            filterable
-            clearable
-            placeholder="请选择显示字段"
-          >
-            <el-option
-              v-for="item in configColumnOptions"
-              :key="String(item.value)"
-              :label="item.label"
-              :value="item.value"
-            />
-          </el-select>
-        </el-form-item>
-        <el-form-item v-if="['option', 'tree'].includes(configDialog.apiKind)" label="值字段" prop="value_column">
-          <el-select
-            v-model="configDialog.config.value_column"
-            :loading="configDialogLoading"
-            filterable
-            clearable
-            placeholder="请选择值字段"
-          >
-            <el-option
-              v-for="item in configColumnOptions"
-              :key="String(item.value)"
-              :label="item.label"
-              :value="item.value"
-            />
-          </el-select>
-        </el-form-item>
-        <el-form-item v-if="configDialog.apiKind === 'status'" label="状态字段" prop="status_column">
-          <el-select
-            v-model="configDialog.config.status_column"
-            :loading="configDialogLoading"
-            filterable
-            clearable
-            placeholder="请选择状态字段"
-          >
-            <el-option
-              v-for="item in configColumnOptions"
-              :key="String(item.value)"
-              :label="item.label"
-              :value="item.value"
-            />
-          </el-select>
-        </el-form-item>
-      </el-form>
-    </el-dialog>
+      <ProForm
+        :model="protoConfigFormModel"
+        :fields="protoConfigFields"
+        label-position="top"
+        class="code-gen-proto-config-form"
+      />
+    </ProDialog>
   </div>
 </template>
 
@@ -146,7 +85,11 @@
 import { computed, onMounted, reactive, ref, watch } from "vue";
 import { Document, Setting } from "@element-plus/icons-vue";
 import { useRoute, useRouter } from "vue-router";
-import type { ProFormOption } from "@/components/ProForm/interface";
+import ProDialog from "@/components/Dialog/ProDialog.vue";
+import ProForm from "@/components/ProForm/index.vue";
+import type { ProFormField, ProFormOption } from "@/components/ProForm/interface";
+import type { ColumnProps } from "@/components/ProTable/interface";
+import ProTable from "@/components/ProTable/index.vue";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { useTabsStore } from "@/stores/modules/tabs";
 import { defCodeGenColumnService } from "@/api/admin/code_gen_column";
@@ -209,6 +152,53 @@ const configDialog = reactive<CodeGenProtoConfigDialog>({
   apiKind: "",
   config: createDefaultCodeGenProtoConfig()
 });
+
+/** Proto 检查结果表格列配置。 */
+const protoColumns: ColumnProps[] = [
+  { prop: "method_name", label: "接口信息", minWidth: 260 },
+  { prop: "target_entity_name", label: "目标位置", minWidth: 330 },
+  { prop: "exists", label: "状态", minWidth: 210 },
+  { prop: "generate_when_missing", label: "生成设置", minWidth: 230 }
+];
+
+/** 将 Proto 配置对象适配为 ProForm 所需的通用表单模型。 */
+const protoConfigFormModel = computed<Record<string, any>>(() => configDialog.config as Record<string, any>);
+
+/** Proto 配置弹窗的动态表单字段。 */
+const protoConfigFields = computed<ProFormField[]>(() => [
+  {
+    prop: "parent_column",
+    label: "父节点字段",
+    component: "select",
+    options: () => configColumnOptions.value,
+    props: () => ({ loading: configDialogLoading.value, filterable: true, clearable: true, placeholder: "请选择父节点字段" }),
+    visible: () => configDialog.apiKind === "tree"
+  },
+  {
+    prop: "label_column",
+    label: "显示字段",
+    component: "select",
+    options: () => configColumnOptions.value,
+    props: () => ({ loading: configDialogLoading.value, filterable: true, clearable: true, placeholder: "请选择显示字段" }),
+    visible: () => ["option", "tree"].includes(configDialog.apiKind)
+  },
+  {
+    prop: "value_column",
+    label: "值字段",
+    component: "select",
+    options: () => configColumnOptions.value,
+    props: () => ({ loading: configDialogLoading.value, filterable: true, clearable: true, placeholder: "请选择值字段" }),
+    visible: () => ["option", "tree"].includes(configDialog.apiKind)
+  },
+  {
+    prop: "status_column",
+    label: "状态字段",
+    component: "select",
+    options: () => configColumnOptions.value,
+    props: () => ({ loading: configDialogLoading.value, filterable: true, clearable: true, placeholder: "请选择状态字段" }),
+    visible: () => configDialog.apiKind === "status"
+  }
+]);
 
 /** 当前生成对象 ID。 */
 const tableId = computed(() => {
@@ -295,11 +285,6 @@ function resolveTargetTableName(row: CodeGenProtoCheck) {
 /** 返回检查项目标表对应的字段选项。 */
 function resolveColumnNameOptions(row: CodeGenProtoCheck) {
   return targetColumnOptions[resolveTargetTableName(row)] ?? [];
-}
-
-/** 返回 Proto 检查行的稳定标识。 */
-function resolveProtoRowKey(row: CodeGenProtoCheck) {
-  return `${row.proto_file_path}:${row.target_entity_name}:${row.method_name}`;
 }
 
 /** 返回触发来源的展示文案。 */

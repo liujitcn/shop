@@ -242,7 +242,7 @@ func (c *renderer) newTargetProtoPreviewFile(table *Table, columns []*CodeGenCol
 
 	originalContent := string(content)
 	patch := c.renderProtoPatch(table, columns, methods, path)
-	normalizedContent := normalizeProtoRPCOrder(dedupeProtoMessageBlocks(originalContent), methods, path)
+	normalizedContent := normalizeProtoMessageOrder(normalizeProtoRPCOrder(dedupeProtoMessageBlocks(originalContent), methods, path))
 	if patch.Empty() {
 		if normalizedContent != originalContent {
 			return &adminv1.CodeGenPreviewFile{
@@ -261,7 +261,7 @@ func (c *renderer) newTargetProtoPreviewFile(table *Table, columns []*CodeGenCol
 			Message: "Proto文件已存在，未选择缺失接口",
 		}
 	}
-	patched := normalizeProtoRPCOrder(dedupeProtoMessageBlocks(c.appendProtoPatch(normalizedContent, patch)), methods, path)
+	patched := normalizeProtoMessageOrder(normalizeProtoRPCOrder(dedupeProtoMessageBlocks(c.appendProtoPatch(normalizedContent, patch)), methods, path))
 	if patched == originalContent {
 		return &adminv1.CodeGenPreviewFile{
 			Path:    path,

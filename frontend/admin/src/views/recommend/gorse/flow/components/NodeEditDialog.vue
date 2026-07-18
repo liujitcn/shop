@@ -1,5 +1,5 @@
 <template>
-  <el-dialog v-model="dialogVisible" :title="nodeDialogTitle" width="760px" @closed="handleClosed">
+  <ProDialog v-model="dialogVisible" :title="nodeDialogTitle" width="760px" @closed="handleClosed">
     <ProForm
       ref="nodeFormRef"
       class="gorse-flow-node-form"
@@ -21,11 +21,12 @@
       <el-button @click="dialogVisible = false">取消</el-button>
       <el-button type="primary" @click="handleSubmit">保存</el-button>
     </template>
-  </el-dialog>
+  </ProDialog>
 </template>
 
 <script setup lang="ts">
 import { computed, ref } from "vue";
+import ProDialog from "@/components/Dialog/ProDialog.vue";
 import ProForm from "@/components/ProForm/index.vue";
 import type { ProFormField, ProFormInstance } from "@/components/ProForm/interface";
 import FallbackRecommendersField from "./FallbackRecommendersField.vue";

@@ -227,11 +227,12 @@
       <el-empty v-else description="请先选择生成记录" />
     </el-card>
 
-    <el-dialog
+    <ProDialog
       v-model="optionDialog.visible"
       :title="`${optionDialog.scopeLabel}选项 - ${optionDialog.columnName}`"
       width="min(560px, calc(100vw - 32px))"
       destroy-on-close
+      :show-footer="false"
       @closed="handleOptionDialogClosed"
     >
       <div v-if="optionDialog.option" class="code-gen-option-dialog">
@@ -421,7 +422,7 @@
           <el-empty v-else :image-size="48" description="暂无静态数据" />
         </div>
       </div>
-    </el-dialog>
+    </ProDialog>
   </div>
 </template>
 
@@ -429,6 +430,7 @@
 import { computed, onMounted, reactive, ref, watch } from "vue";
 import { ArrowDown, ArrowUp, Delete, Document, Plus, Setting } from "@element-plus/icons-vue";
 import { useRoute, useRouter } from "vue-router";
+import ProDialog from "@/components/Dialog/ProDialog.vue";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { useTabsStore } from "@/stores/modules/tabs";
 import { defBaseDictService } from "@/api/admin/base_dict";

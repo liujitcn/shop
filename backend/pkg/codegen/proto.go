@@ -90,15 +90,14 @@ func (c *renderer) renderProtoPatch(table *Table, columns []*CodeGenColumn, meth
 	// 一个 Proto 文件可能包含多个 service，RPC 按目标 service 分组，message 则在文件级去重。
 	for _, method := range filtered {
 		exists, _ := c.protoMethodExists(method.ProtoFilePath, method.TargetEntityName, method.MethodName)
-		if exists {
-			continue
+		if !exists {
+			serviceName := method.TargetEntityName + "Service"
+			if _, ok := patch.RPCs[serviceName]; !ok {
+				patch.ServiceNames = append(patch.ServiceNames, serviceName)
+			}
+			patch.RPCs[serviceName] = append(patch.RPCs[serviceName], c.renderProtoRPC(table, method, resourcePathByEntity(method.TargetEntityName)))
 		}
-		serviceName := method.TargetEntityName + "Service"
-		if _, ok := patch.RPCs[serviceName]; !ok {
-			patch.ServiceNames = append(patch.ServiceNames, serviceName)
-		}
-		patch.RPCs[serviceName] = append(patch.RPCs[serviceName], c.renderProtoRPC(table, method, resourcePathByEntity(method.TargetEntityName)))
-		patch.Messages = append(patch.Messages, c.renderPatchProtoMessages(table, columns, method, protoPath, messageNames)...)
+		patch.Messages = append(patch.Messages, c.renderPatchProtoMessages(table, columns, method, messageNames)...)
 	}
 	return patch
 }
@@ -126,11 +125,203 @@ func (c *renderer) appendProtoPatch(content string, patch CodeGenProtoPatch) str
 		}
 		content = content[:insertIndex] + "\n" + strings.TrimRight(rpcContent, "\n") + "\n" + content[insertIndex:]
 	}
-	// message 是文件级声明，统一追加到末尾，后续再由去重与格式化流程整理。
-	if len(patch.Messages) > 0 {
-		content = strings.TrimRight(content, "\n") + "\n\n" + strings.TrimSpace(strings.Join(patch.Messages, "\n")) + "\n"
+	return appendMissingProtoMessages(content, patch.Messages)
+}
+
+// appendMissingProtoMessages 补齐缺失 message 和字段，并按 RPC 顺序整理消息位置。
+func appendMissingProtoMessages(content string, messages []string) string {
+	missingMessages := make([]string, 0, len(messages))
+	for _, message := range messages {
+		messageName := protoMessageName(message)
+		if messageName == "" {
+			continue
+		}
+		messageStart, messageEnd := findProtoMessageBounds(content, messageName)
+		if messageStart < 0 || messageEnd < 0 {
+			missingMessages = append(missingMessages, message)
+			continue
+		}
+		content = appendMissingProtoMessageFields(content, messageStart, messageEnd, message)
 	}
-	return content
+	if len(missingMessages) == 0 {
+		return normalizeProtoMessageOrder(content)
+	}
+	content = strings.TrimRight(content, "\n") + "\n\n" + strings.TrimSpace(strings.Join(missingMessages, "\n")) + "\n"
+	return normalizeProtoMessageOrder(content)
+}
+
+// normalizeProtoMessageOrder 按文件内 RPC 顺序整理顶层请求和响应消息，其他消息保持相对顺序。
+func normalizeProtoMessageOrder(content string) string {
+	messageOrder := protoRPCMessageOrder(content)
+	if len(messageOrder) == 0 {
+		return content
+	}
+	type messageBlock struct {
+		name          string
+		content       string
+		originalIndex int
+	}
+	matches := protoMessagePattern.FindAllStringSubmatchIndex(content, -1)
+	blocks := make([]messageBlock, 0, len(matches))
+	firstBlockStart := -1
+	lastBlockEnd := -1
+	for _, match := range matches {
+		if len(match) < 4 || protoBraceDepthAt(content, match[0]) != 0 {
+			continue
+		}
+		openOffset := strings.Index(content[match[0]:match[1]], "{")
+		if openOffset < 0 {
+			return content
+		}
+		blockEnd := findProtoBlockEnd(content, match[0]+openOffset)
+		if blockEnd < 0 {
+			return content
+		}
+		blockStart := protoDeclarationCommentStart(content, match[0])
+		if lastBlockEnd >= 0 && strings.TrimSpace(content[lastBlockEnd:blockStart]) != "" {
+			return content
+		}
+		if firstBlockStart < 0 {
+			firstBlockStart = blockStart
+		}
+		lastBlockEnd = blockEnd + 1
+		blocks = append(blocks, messageBlock{
+			name:          content[match[2]:match[3]],
+			content:       strings.Trim(content[blockStart:lastBlockEnd], "\r\n"),
+			originalIndex: len(blocks),
+		})
+	}
+	if len(blocks) < 2 {
+		return content
+	}
+	// RPC 对应的请求与响应优先按接口位置排列，实体、表单及人工消息保留在其后。
+	slices.SortStableFunc(blocks, func(a messageBlock, b messageBlock) int {
+		aOrder, aKnown := messageOrder[a.name]
+		bOrder, bKnown := messageOrder[b.name]
+		if aKnown && bKnown && aOrder != bOrder {
+			return aOrder - bOrder
+		}
+		if aKnown != bKnown {
+			if aKnown {
+				return -1
+			}
+			return 1
+		}
+		return a.originalIndex - b.originalIndex
+	})
+	prefix := strings.TrimRight(content[:firstBlockStart], " \t\r\n")
+	suffix := strings.TrimSpace(content[lastBlockEnd:])
+	var builder strings.Builder
+	if prefix != "" {
+		builder.WriteString(prefix)
+		builder.WriteString("\n\n")
+	}
+	for index, block := range blocks {
+		if index > 0 {
+			builder.WriteString("\n\n")
+		}
+		builder.WriteString(block.content)
+	}
+	if suffix != "" {
+		builder.WriteString("\n\n")
+		builder.WriteString(suffix)
+	}
+	builder.WriteString("\n")
+	return builder.String()
+}
+
+// protoRPCMessageOrder 返回由 RPC 方法名推导出的请求和响应消息顺序。
+func protoRPCMessageOrder(content string) map[string]int {
+	matches := protoRPCPattern.FindAllStringSubmatchIndex(content, -1)
+	order := make(map[string]int, len(matches)*2)
+	for index, match := range matches {
+		if len(match) < 4 {
+			continue
+		}
+		methodName := content[match[2]:match[3]]
+		requestName := methodName + "Request"
+		responseName := methodName + "Response"
+		if _, exists := order[requestName]; !exists {
+			order[requestName] = index * 2
+		}
+		if _, exists := order[responseName]; !exists {
+			order[responseName] = index*2 + 1
+		}
+	}
+	return order
+}
+
+// appendMissingProtoMessageFields 向已有 message 追加尚未声明的生成字段。
+func appendMissingProtoMessageFields(content string, messageStart, messageEnd int, candidate string) string {
+	candidateStart, candidateEnd := findProtoMessageBounds(candidate, protoMessageName(candidate))
+	if candidateStart < 0 || candidateEnd < 0 {
+		return content
+	}
+	existingFields := make(map[string]struct{})
+	for _, field := range protoMessageFields(content[messageStart+1 : messageEnd]) {
+		existingFields[field.name] = struct{}{}
+	}
+	missingFields := make([]string, 0)
+	for _, field := range protoMessageFields(candidate[candidateStart+1 : candidateEnd]) {
+		if _, exists := existingFields[field.name]; exists {
+			continue
+		}
+		missingFields = append(missingFields, field.content)
+	}
+	if len(missingFields) == 0 {
+		return content
+	}
+	body := strings.TrimRight(content[messageStart+1:messageEnd], "\r\n")
+	if strings.TrimSpace(body) != "" {
+		body += "\n\n"
+	}
+	body += strings.Join(missingFields, "\n\n") + "\n"
+	return content[:messageStart+1] + body + content[messageEnd:]
+}
+
+type protoMessageField struct {
+	name    string
+	content string
+}
+
+// protoMessageFields 返回 message 中可由生成器维护的字段声明。
+func protoMessageFields(content string) []protoMessageField {
+	matches := protoMessageFieldPattern.FindAllStringSubmatch(content, -1)
+	fields := make([]protoMessageField, 0, len(matches))
+	for _, match := range matches {
+		if len(match) < 2 {
+			continue
+		}
+		fields = append(fields, protoMessageField{name: match[1], content: "  " + strings.TrimSpace(match[0])})
+	}
+	return fields
+}
+
+// protoMessageName 返回 message 定义中的名称。
+func protoMessageName(content string) string {
+	match := protoMessagePattern.FindStringSubmatch(content)
+	if len(match) < 2 {
+		return ""
+	}
+	return match[1]
+}
+
+// findProtoMessageBounds 返回指定 message 的大括号起止位置。
+func findProtoMessageBounds(content string, messageName string) (int, int) {
+	if messageName == "" {
+		return -1, -1
+	}
+	pattern := regexp.MustCompile(`(?m)^[\t ]*message[\t ]+` + regexp.QuoteMeta(messageName) + `[\t ]*\{`)
+	location := pattern.FindStringIndex(content)
+	if location == nil {
+		return -1, -1
+	}
+	openIndex := strings.LastIndex(content[location[0]:location[1]], "{") + location[0]
+	closeIndex := findProtoBlockEnd(content, openIndex)
+	if closeIndex < 0 {
+		return -1, -1
+	}
+	return openIndex, closeIndex
 }
 
 // renderProtoRPC 渲染单个 RPC 契约。

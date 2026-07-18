@@ -178,21 +178,6 @@ func (c *renderer) newProtoCheck(tableID int64, columnName string, triggerType, 
 	}
 }
 
-// checkProtoMessageExists 检查指定 Proto 文件中是否存在 message。
-func (c *renderer) checkProtoMessageExists(protoPath string, messageName string) bool {
-	content, err := c.readRepoFile(protoPath)
-	if err != nil {
-		return false
-	}
-	matches := protoMessagePattern.FindAllStringSubmatch(string(content), -1)
-	for _, match := range matches {
-		if len(match) > 1 && match[1] == messageName {
-			return true
-		}
-	}
-	return false
-}
-
 // resolveCodeGenOutputPaths 合并本次请求路径和默认路径，并校验启用的生成目标。
 func (c *renderer) resolveCodeGenOutputPaths(table *Table, requested *adminv1.CodeGenOutputPaths) (*adminv1.CodeGenOutputPaths, error) {
 	snakeEntity := stringcase.ToSnakeCase(table.EntityName)
