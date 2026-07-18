@@ -130,7 +130,11 @@ export interface CodeGenColumnFormConfig {
   /** 是否必填 */
   required: boolean;
   /** 表单选项配置 */
-  option: CodeGenColumnOptionConfig | undefined;
+  option:
+    | CodeGenColumnOptionConfig
+    | undefined;
+  /** 树形选择是否多选 */
+  multiple: boolean;
 }
 
 /** 代码生成字段选项配置 */

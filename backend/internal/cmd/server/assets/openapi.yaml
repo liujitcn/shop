@@ -479,21 +479,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/admin.v1.PageBaseApiResponse'
-        post:
-            tags:
-                - BaseApiService
-            description: 创建base_api
-            operationId: BaseApiService_CreateBaseApi
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/admin.v1.BaseApiForm'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content: {}
     /api/v1/admin/base/api/option:
         get:
             tags:
@@ -507,22 +492,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/admin.v1.ListBaseApiResponse'
-    /api/v1/admin/base/api/{ids}:
-        delete:
-            tags:
-                - BaseApiService
-            description: 删除base_api
-            operationId: BaseApiService_DeleteBaseApi
-            parameters:
-                - name: ids
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: OK
-                    content: {}
     /api/v1/admin/base/api/{id}:
         get:
             tags:
@@ -621,50 +590,6 @@ paths:
                     application/json:
                         schema:
                             $ref: '#/components/schemas/admin.v1.SetBaseApiMcpEnabledRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content: {}
-    /api/v1/admin/base/api/{id}/status/agent-enabled:
-        put:
-            tags:
-                - BaseApiService
-            description: 设置状态
-            operationId: BaseApiService_SetBaseApiAgentEnabledStatus
-            parameters:
-                - name: id
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/admin.v1.SetBaseApiAgentEnabledStatusRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content: {}
-    /api/v1/admin/base/api/{id}/status/mcp-enabled:
-        put:
-            tags:
-                - BaseApiService
-            description: 设置状态
-            operationId: BaseApiService_SetBaseApiMcpEnabledStatus
-            parameters:
-                - name: id
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/admin.v1.SetBaseApiMcpEnabledStatusRequest'
                 required: true
             responses:
                 "200":
@@ -7367,43 +7292,6 @@ components:
                         $ref: '#/components/schemas/admin.v1.BaseApiDocSchema'
                     description: 子字段
             description: API文档Schema
-        admin.v1.BaseApiForm:
-            type: object
-            properties:
-                id:
-                    type: string
-                    description: API ID
-                mcp_enabled:
-                    type: boolean
-                    description: 是否暴露为MCP工具
-                agent_enabled:
-                    type: boolean
-                    description: 是否暴露为Agent工具
-                tool_name:
-                    type: string
-                    description: 工具名
-                tool_prompts:
-                    type: string
-                    description: 工具提示词
-                service_name:
-                    type: string
-                    description: 服务名
-                service_desc:
-                    type: string
-                    description: 服务描述
-                desc:
-                    type: string
-                    description: 描述
-                operation:
-                    type: string
-                    description: 操作方法
-                method:
-                    type: string
-                    description: 请求方式
-                path:
-                    type: string
-                    description: 请求地址
-            description: base_api表单
         admin.v1.BaseConfig:
             type: object
             properties:
@@ -8402,6 +8290,9 @@ components:
                     description: 是否必填
                 option:
                     $ref: '#/components/schemas/admin.v1.CodeGenColumnOptionConfig'
+                multiple:
+                    type: boolean
+                    description: 树形选择是否多选
             description: 代码生成字段表单录入配置
         admin.v1.CodeGenColumnListConfig:
             type: object
@@ -11690,16 +11581,6 @@ components:
                     type: boolean
                     description: 是否暴露为Agent工具
             description: API Agent启用状态设置条件
-        admin.v1.SetBaseApiAgentEnabledStatusRequest:
-            type: object
-            properties:
-                id:
-                    type: string
-                    description: base_apiID
-                status:
-                    type: boolean
-                    description: 状态
-            description: base_api状态设置条件
         admin.v1.SetBaseApiMcpEnabledRequest:
             type: object
             properties:
@@ -11710,16 +11591,6 @@ components:
                     type: boolean
                     description: 是否暴露为MCP工具
             description: API MCP启用状态设置条件
-        admin.v1.SetBaseApiMcpEnabledStatusRequest:
-            type: object
-            properties:
-                id:
-                    type: string
-                    description: base_apiID
-                status:
-                    type: boolean
-                    description: 状态
-            description: base_api状态设置条件
         admin.v1.SetBaseConfigStatusRequest:
             type: object
             properties:

@@ -236,6 +236,15 @@
       @closed="handleOptionDialogClosed"
     >
       <div v-if="optionDialog.option" class="code-gen-option-dialog">
+        <div v-if="optionDialog.formConfig" class="code-gen-popover-form__row">
+          <span class="code-gen-popover-form__label">选择模式</span>
+          <el-radio-group v-model="optionDialog.formConfig.multiple" :disabled="!canEdit">
+            <el-radio-button :label="false">单选</el-radio-button>
+            <el-tooltip content="多选仅支持 JSON 字段" :disabled="optionDialog.isJSONColumn" placement="top">
+              <el-radio-button :label="true" :disabled="!optionDialog.isJSONColumn">多选</el-radio-button>
+            </el-tooltip>
+          </el-radio-group>
+        </div>
         <div
           v-if="
             !['tree', 'switch'].includes(optionDialog.option.kind) &&
@@ -516,8 +525,10 @@ interface CodeGenOptionDialog {
   scopeLabel: string;
   columnName: string;
   component: string;
+  isJSONColumn: boolean;
   cacheKey: string;
   option: CodeGenColumnOptionConfig | null;
+  formConfig: CodeGenColumnView["form_config"] | null;
 }
 
 /** 保存前需要打开选项编辑器的字段配置问题。 */
@@ -533,8 +544,10 @@ const optionDialog = reactive<CodeGenOptionDialog>({
   scopeLabel: "查询",
   columnName: "",
   component: "",
+  isJSONColumn: false,
   cacheKey: "",
-  option: null
+  option: null,
+  formConfig: null
 });
 /** 当前生成对象 ID。 */
 const tableId = computed(() => {
@@ -678,12 +691,16 @@ function handleComponentChange(row: CodeGenColumnView, scope: CodeGenOptionScope
   const config = getCodeGenOptionContainer(row, scope);
   Object.assign(config.option, createDefaultCodeGenOptionConfig());
   syncOptionKind(config, scope);
+  if (scope === "form" && row.form_config.component !== "tree-select") row.form_config.multiple = false;
   copyFirstMatchingCodeGenOption(row, scope);
 }
 
 /** 关闭表单展示时同步关闭必填约束。 */
 function handleFormEnabledChange(row: CodeGenColumnView) {
-  if (!row.form_config.enabled) row.form_config.required = false;
+  if (!row.form_config.enabled) {
+    row.form_config.required = false;
+    row.form_config.multiple = false;
+  }
 }
 
 /** 打开查询、列表或表单自己的选项编辑弹窗。 */
@@ -694,8 +711,10 @@ async function openOptionDialog(row: CodeGenColumnView, scope: CodeGenOptionScop
   optionDialog.scopeLabel = scope === "query" ? "查询" : scope === "list" ? "列表" : "表单";
   optionDialog.columnName = row.column_name;
   optionDialog.component = config.component;
+  optionDialog.isJSONColumn = row.db_type.trim().toLowerCase() === "json";
   optionDialog.cacheKey = `${row.table_id}:${row.column_name}:${scope}`;
   optionDialog.option = config.option;
+  optionDialog.formConfig = scope === "form" && config.component === "tree-select" ? row.form_config : null;
   optionDialog.visible = true;
   await prepareOptionEditor();
 }
@@ -705,6 +724,7 @@ function handleOptionDialogClosed() {
   const row = columns.value.find(item => item.column_name === optionDialog.columnName);
   if (row) copyCodeGenOptionToEmptyMatches(row, optionDialog.scope);
   optionDialog.option = null;
+  optionDialog.formConfig = null;
 }
 
 /** 按当前选项来源准备弹窗所需数据。 */
@@ -975,6 +995,7 @@ function syncColumnOptionKinds(column: CodeGenColumnView) {
   syncOptionKind(column.query_config, "query");
   syncOptionKind(column.list_config, "list");
   syncOptionKind(column.form_config, "form");
+  if (!column.form_config.enabled || column.form_config.component !== "tree-select") column.form_config.multiple = false;
 }
 
 /** 根据当前组件自动确定选项形态，并移除不再适用的选项配置。 */

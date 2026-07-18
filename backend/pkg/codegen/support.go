@@ -311,6 +311,12 @@ func (c *renderer) renderProtoField(column *CodeGenColumn, fieldNo int32, option
 	return fmt.Sprintf("  %s%s %s = %d [(gnostic.openapi.v3.property) = {description: %q}]; // %s\n\n", prefix, protoType, column.ColumnName, fieldNo, comment, comment)
 }
 
+// renderFormTreeMultipleProtoField 渲染多选树形字段的数组契约。
+func (c *renderer) renderFormTreeMultipleProtoField(column *CodeGenColumn, fieldNo int32) string {
+	comment := DefaultString(column.ColumnComment, column.ColumnName)
+	return fmt.Sprintf("  repeated int64 %s = %d [(gnostic.openapi.v3.property) = {description: %q}]; // %s\n\n", column.ColumnName, fieldNo, comment, comment)
+}
+
 // renderQueryOptions 渲染后端分页查询条件。
 func (c *renderer) renderQueryOptions(columns []*CodeGenColumn) string {
 	var builder strings.Builder

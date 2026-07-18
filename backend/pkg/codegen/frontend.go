@@ -678,8 +678,11 @@ import TreeFilter from "@/components/TreeFilter/index.vue";`, 1)
 		requestCall = fmt.Sprintf("const data = await %s.%s({});\n  return { data: transform%sTreeNodes(data.list ?? []) };", serviceName, treeMethod.MethodName, table.EntityName)
 		if treeMethod.TargetEntityName != table.EntityName {
 			importLine := fmt.Sprintf(`import { %s } from "@/api/admin/%s";`, serviceName, stringcase.ToSnakeCase(treeMethod.TargetEntityName))
-			apiImport := fmt.Sprintf(`import { def%sService } from "%s";`, table.EntityName, frontendAPIImport)
-			content = strings.Replace(content, apiImport, apiImport+"\n"+importLine, 1)
+			// 左树与表单字段可能依赖同一个外部服务，避免重复导入同名服务实例。
+			if !strings.Contains(content, importLine) {
+				apiImport := fmt.Sprintf(`import { def%sService } from "%s";`, table.EntityName, frontendAPIImport)
+				content = strings.Replace(content, apiImport, apiImport+"\n"+importLine, 1)
+			}
 		}
 	}
 
@@ -856,6 +859,11 @@ func (c *renderer) renderFrontendFormField(column *CodeGenColumn) string {
 	}
 	option := column.FormOption
 	if option.Kind != "" && isSelectComponent(component) {
+		props := `props: { placeholder: "请选择", filterable: true, style: { width: "100%" } }`
+		// 多选树形选择使用复选框，并允许选择任意层级节点。
+		if isFormTreeMultiple(column) {
+			props = `props: { multiple: true, showCheckbox: true, checkStrictly: true, nodeKey: "value", placeholder: "请选择", filterable: true, style: { width: "100%" } }`
+		}
 		switch option.SourceType {
 		case OptionSourceDict:
 			if option.SourceValue != "" {
@@ -868,9 +876,9 @@ func (c *renderer) renderFrontendFormField(column *CodeGenColumn) string {
 				return fmt.Sprintf(`  { prop: "%s", label: "%s", component: "dict", props: { code: %q, codeType: %q } }`, column.ColumnName, label, option.SourceValue, frontendDictValueType(column))
 			}
 		case OptionSourceStatic:
-			return fmt.Sprintf(`  { prop: "%s", label: "%s", component: "%s", options: %sOptions, props: { placeholder: "请选择", filterable: true, style: { width: "100%%" } } }`, column.ColumnName, label, component, frontendOptionVar(column, "form"))
+			return fmt.Sprintf(`  { prop: "%s", label: "%s", component: "%s", options: %sOptions, %s }`, column.ColumnName, label, component, frontendOptionVar(column, "form"), props)
 		case OptionSourceTable:
-			return fmt.Sprintf(`  { prop: "%s", label: "%s", component: "%s", options: %sOptions.value, props: { placeholder: "请选择", filterable: true, style: { width: "100%%" } } }`, column.ColumnName, label, component, frontendOptionVar(column, "form"))
+			return fmt.Sprintf(`  { prop: "%s", label: "%s", component: "%s", options: %sOptions.value, %s }`, column.ColumnName, label, component, frontendOptionVar(column, "form"), props)
 		}
 	}
 	if component == "input-number" {
@@ -1466,6 +1474,13 @@ func frontendDefaultValue(column *CodeGenColumn) string {
 	if column.IsStatusField == 1 && column.StatusDefaultValue != "" {
 		return statusValueExpression(column, column.StatusDefaultValue, "1")
 	}
+	if isFormTreeMultiple(column) {
+		return "[]"
+	}
+	// 关联、字典等选择型字段未选择时不能传递数值零值。
+	if isSelectComponent(DefaultString(column.FormComponent, "input")) {
+		return "undefined"
+	}
 	if column.DefaultValue != "" {
 		if DefaultString(column.TsType, "string") == "string" {
 			return fmt.Sprintf("%q", column.DefaultValue)
@@ -1480,6 +1495,11 @@ func frontendDefaultValue(column *CodeGenColumn) string {
 	default:
 		return "\"\""
 	}
+}
+
+// isFormTreeMultiple 判断字段是否使用 JSON 存储的多选树形选择。
+func isFormTreeMultiple(column *CodeGenColumn) bool {
+	return column != nil && column.FormMultiple && column.FormComponent == "tree-select" && strings.EqualFold(column.DbType, "json")
 }
 
 // statusValueExpression 渲染状态值表达式。

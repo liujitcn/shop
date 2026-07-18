@@ -154,7 +154,7 @@ func (c *CodeGenColumnCase) SaveCodeGenColumn(ctx context.Context, req *adminv1.
 			column = newDefaultCodeGenColumn(req.GetTableId(), databaseColumn, int32(index+1))
 		}
 		normalizeCodeGenColumnConfig(column, databaseColumn)
-		if err = validateCodeGenColumnConfig(column); err != nil {
+		if err = validateCodeGenColumnConfig(column, databaseColumn); err != nil {
 			return err
 		}
 		item := c.mapper.ToEntity(column)
@@ -364,7 +364,7 @@ func normalizeCodeGenColumnConfig(column *adminv1.CodeGenColumn, item dto.CodeGe
 }
 
 // validateCodeGenColumnConfig 校验结构化字段配置的业务完整性。
-func validateCodeGenColumnConfig(column *adminv1.CodeGenColumn) error {
+func validateCodeGenColumnConfig(column *adminv1.CodeGenColumn, databaseColumn dto.CodeGenDatabaseColumn) error {
 	err := validateCodeGenOptionConfig(column.GetColumnName(), "查询", column.GetQueryConfig().GetOption())
 	if err != nil {
 		return err
@@ -377,7 +377,22 @@ func validateCodeGenColumnConfig(column *adminv1.CodeGenColumn) error {
 	if err != nil {
 		return err
 	}
+	formConfig := column.GetFormConfig()
+	// 多选树形值以 JSON 数组存储，避免数组直接写入标量字段。
+	if formConfig.GetMultiple() {
+		if !formConfig.GetEnabled() || formConfig.GetComponent() != "tree-select" || formConfig.GetOption().GetKind() != "tree" {
+			return errorsx.InvalidArgument("字段" + column.GetColumnName() + "的表单多选仅支持树形选择")
+		}
+		if !isCodeGenJSONType(databaseColumn.DataType) {
+			return errorsx.InvalidArgument("字段" + column.GetColumnName() + "的表单多选仅支持JSON字段")
+		}
+	}
 	return nil
+}
+
+// isCodeGenJSONType 判断数据库字段是否可保存多选树形值。
+func isCodeGenJSONType(dbType string) bool {
+	return strings.EqualFold(strings.TrimSpace(dbType), "json")
 }
 
 // validateCodeGenListOptionConfig 校验列表组件与选项配置是否匹配。

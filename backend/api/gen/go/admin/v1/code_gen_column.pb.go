@@ -653,6 +653,7 @@ type CodeGenColumnFormConfig struct {
 	Component     string                     `protobuf:"bytes,2,opt,name=component,proto3" json:"component,omitempty"` // 表单录入组件
 	Required      bool                       `protobuf:"varint,3,opt,name=required,proto3" json:"required,omitempty"`  // 是否必填
 	Option        *CodeGenColumnOptionConfig `protobuf:"bytes,4,opt,name=option,proto3" json:"option,omitempty"`       // 表单选项配置
+	Multiple      bool                       `protobuf:"varint,5,opt,name=multiple,proto3" json:"multiple,omitempty"`  // 树形选择是否多选
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -713,6 +714,13 @@ func (x *CodeGenColumnFormConfig) GetOption() *CodeGenColumnOptionConfig {
 		return x.Option
 	}
 	return nil
+}
+
+func (x *CodeGenColumnFormConfig) GetMultiple() bool {
+	if x != nil {
+		return x.Multiple
+	}
+	return false
 }
 
 // 代码生成字段选项配置
@@ -877,12 +885,13 @@ const file_admin_v1_code_gen_column_proto_rawDesc = "" +
 	"\x17CodeGenColumnListConfig\x125\n" +
 	"\aenabled\x18\x01 \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否在列表展示R\aenabled\x126\n" +
 	"\tcomponent\x18\x02 \x01(\tB\x18\xbaG\x15\x92\x02\x12列表展示组件R\tcomponent\x12U\n" +
-	"\x06option\x18\x03 \x01(\v2#.admin.v1.CodeGenColumnOptionConfigB\x18\xbaG\x15\x92\x02\x12列表选项配置R\x06option\"\x8f\x02\n" +
+	"\x06option\x18\x03 \x01(\v2#.admin.v1.CodeGenColumnOptionConfigB\x18\xbaG\x15\x92\x02\x12列表选项配置R\x06option\"\xcb\x02\n" +
 	"\x17CodeGenColumnFormConfig\x125\n" +
 	"\aenabled\x18\x01 \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否在表单展示R\aenabled\x126\n" +
 	"\tcomponent\x18\x02 \x01(\tB\x18\xbaG\x15\x92\x02\x12表单录入组件R\tcomponent\x12.\n" +
 	"\brequired\x18\x03 \x01(\bB\x12\xbaG\x0f\x92\x02\f是否必填R\brequired\x12U\n" +
-	"\x06option\x18\x04 \x01(\v2#.admin.v1.CodeGenColumnOptionConfigB\x18\xbaG\x15\x92\x02\x12表单选项配置R\x06option\"\xf5\x03\n" +
+	"\x06option\x18\x04 \x01(\v2#.admin.v1.CodeGenColumnOptionConfigB\x18\xbaG\x15\x92\x02\x12表单选项配置R\x06option\x12:\n" +
+	"\bmultiple\x18\x05 \x01(\bB\x1e\xbaG\x1b\x92\x02\x18树形选择是否多选R\bmultiple\"\xf5\x03\n" +
 	"\x19CodeGenColumnOptionConfig\x12,\n" +
 	"\x04kind\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12选项展示类型R\x04kind\x12<\n" +
 	"\vsource_type\x18\x02 \x01(\tB\x1b\xbaG\x18\x92\x02\x15选项数据源类型R\n" +

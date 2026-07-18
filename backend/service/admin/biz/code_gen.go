@@ -21,6 +21,7 @@ import (
 
 	"github.com/liujitcn/go-utils/stringcase"
 	"github.com/liujitcn/gorm-kit/repository"
+	"gorm.io/gen/field"
 )
 
 const (
@@ -725,8 +726,14 @@ func (c *CodeGenCase) disableStaleGeneratedStatusMenus(ctx context.Context, page
 func (c *CodeGenCase) upsertGeneratedPageMenu(ctx context.Context, spec codegen.CodeGenMenuSpec, nextMenuID *int64, menuIDEnd int64) (*models.BaseMenu, error) {
 	query := c.baseMenuCase.Query(ctx).BaseMenu
 	opts := make([]repository.QueryOption, 0, 2)
-	opts = append(opts, repository.Where(query.Type.Eq(_const.BASE_MENU_TYPE_MENU)))
-	opts = append(opts, repository.Where(query.Name.Eq(spec.Menu.Name)))
+	opts = append(opts, repository.Where(
+		query.Type.Eq(_const.BASE_MENU_TYPE_MENU),
+		field.Or(
+			query.Path.Eq(spec.Menu.Path),
+			query.Name.Eq(spec.Menu.Name),
+			query.Component.Eq(spec.Menu.Component),
+		),
+	))
 	menus, err := c.baseMenuCase.List(ctx, opts...)
 	if err != nil {
 		return nil, err
@@ -816,7 +823,7 @@ func codeGenTableToSnapshot(item *models.CodeGenTable) (*codegen.Table, error) {
 		ID:               item.ID,
 		TableName_:       item.Name,
 		TableComment:     item.Comment,
-		BusinessName:     item.BusinessName,
+		BusinessName:     codegen.DefaultString(item.Comment, item.BusinessName),
 		EntityName:       item.EntityName,
 		ModulePath:       item.ModulePath,
 		PermissionPrefix: item.PermissionPrefix,
@@ -884,6 +891,7 @@ func codeGenColumnsToSnapshots(configs []*adminv1.CodeGenColumn, databaseColumns
 			IsForm:              codegen.BoolToInt32(formConfig.GetEnabled()),
 			FormComponent:       formConfig.GetComponent(),
 			IsRequired:          codegen.BoolToInt32(formConfig.GetRequired()),
+			FormMultiple:        formConfig.GetMultiple(),
 			QueryOption:         queryOption,
 			ListOption:          listOption,
 			FormOption:          formOption,

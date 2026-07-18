@@ -243,6 +243,7 @@ const formFields = computed<ProFormField[]>(() => {
       const label = column.column_comment || column.column_name;
       const isTreeParent = pageType.value === "tree" && column.column_name === snapshot.value?.table.parent_column;
       const component = isTreeParent ? "tree-select" : resolvePreviewFormComponent(column.form_config?.component);
+      const isMultipleTreeSelect = component === "tree-select" && Boolean(column.form_config?.multiple);
       const options = isTreeParent
         ? treeParentOptions.value
         : resolveCodeGenPreviewOptions(optionMap.value, column.column_name, "form");
@@ -250,7 +251,7 @@ const formFields = computed<ProFormField[]>(() => {
         prop: column.column_name,
         label,
         component,
-        props: createPreviewFormProps(component, label, column.form_config?.option),
+        props: createPreviewFormProps(component, label, column.form_config?.option, isMultipleTreeSelect),
         options,
         checkboxLabel: component === "checkbox" ? `启用${label}` : undefined,
         slotName: component === "slot" ? "codeGenPreviewSlot" : undefined,
@@ -421,8 +422,21 @@ function resetPreviewForm(row?: CodeGenPreviewRow) {
   formDialogRef.value?.clearValidate();
   Object.keys(previewFormModel).forEach(key => delete previewFormModel[key]);
   formFields.value.forEach(field => {
-    previewFormModel[field.prop] = row ? clonePreviewValue(row[field.prop]) : createPreviewFormValue(field);
+    previewFormModel[field.prop] = row ? resolvePreviewFormValue(field, row[field.prop]) : createPreviewFormValue(field);
   });
+}
+
+/** 还原编辑态字段值，保证多选树形选择始终接收数组。 */
+function resolvePreviewFormValue(field: ProFormField, value: unknown) {
+  const props = field.props && typeof field.props !== "function" ? field.props : {};
+  if (field.component !== "tree-select" || !props.multiple || Array.isArray(value)) return clonePreviewValue(value);
+  if (typeof value !== "string") return [];
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
 }
 
 /** 提交模拟新增或编辑，并刷新当前列表布局。 */
@@ -515,7 +529,12 @@ function resolvePreviewFormComponent(component?: string): ProFormComponentType {
 }
 
 /** 创建不同 ProForm 组件在最终新增弹窗中的参数。 */
-function createPreviewFormProps(component: ProFormComponentType, label: string, option?: CodeGenColumnOptionConfig) {
+function createPreviewFormProps(
+  component: ProFormComponentType,
+  label: string,
+  option?: CodeGenColumnOptionConfig,
+  isMultipleTreeSelect = false
+) {
   const fullWidthStyle = { width: "100%" };
   switch (component) {
     case "input":
@@ -528,8 +547,16 @@ function createPreviewFormProps(component: ProFormComponentType, label: string, 
     case "segmented":
       return { block: true };
     case "select":
-    case "tree-select":
       return { placeholder: `请选择${label}`, clearable: true, filterable: true, checkStrictly: true, style: fullWidthStyle };
+    case "tree-select":
+      return {
+        placeholder: `请选择${label}`,
+        clearable: true,
+        filterable: true,
+        checkStrictly: true,
+        ...(isMultipleTreeSelect ? { multiple: true, showCheckbox: true, nodeKey: "value" } : {}),
+        style: fullWidthStyle
+      };
     case "date-picker":
       return { type: "datetime", placeholder: `请选择${label}`, style: fullWidthStyle };
     case "transfer":
@@ -577,9 +604,10 @@ function createPreviewFormValue(field: ProFormField) {
     case "segmented":
     case "select":
     case "radio-group":
-    case "tree-select":
     case "date-picker":
       return undefined;
+    case "tree-select":
+      return field.props && typeof field.props !== "function" && field.props.multiple ? [] : undefined;
     case "switch":
     case "checkbox":
       return false;

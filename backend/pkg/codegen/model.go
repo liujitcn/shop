@@ -191,6 +191,8 @@ type CodeGenColumn struct {
 	FormComponent string
 	// IsRequired 表单是否必填。
 	IsRequired int32
+	// FormMultiple 表单树形选择是否多选。
+	FormMultiple bool
 	// OptionKind 选项展示类型。
 	OptionKind string
 	// OptionSourceType 选项数据源类型。
@@ -263,6 +265,8 @@ type CodeGenColumnFormConfig struct {
 	Component string `json:"component"`
 	// Required 是否必填。
 	Required bool `json:"required"`
+	// Multiple 树形选择是否多选。
+	Multiple bool `json:"multiple"`
 }
 
 // CodeGenColumnOptionConfig 描述字段选项配置。

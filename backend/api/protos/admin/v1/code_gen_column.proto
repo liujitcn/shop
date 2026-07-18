@@ -139,6 +139,8 @@ message CodeGenColumnFormConfig {
   bool required = 3 [(gnostic.openapi.v3.property) = {description: "是否必填"}]; // 是否必填
 
   CodeGenColumnOptionConfig option = 4 [(gnostic.openapi.v3.property) = {description: "表单选项配置"}]; // 表单选项配置
+
+  bool multiple = 5 [(gnostic.openapi.v3.property) = {description: "树形选择是否多选"}]; // 树形选择是否多选
 }
 
 // 代码生成字段选项配置

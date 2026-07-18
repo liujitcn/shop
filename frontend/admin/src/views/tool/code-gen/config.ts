@@ -156,7 +156,7 @@ export function createDefaultCodeGenListConfig(): CodeGenColumnListConfig {
 
 /** 创建默认字段表单配置。 */
 export function createDefaultCodeGenFormConfig(): CodeGenColumnFormConfig {
-  return { enabled: true, component: "input", required: false, option: createDefaultCodeGenOptionConfig() };
+  return { enabled: true, component: "input", required: false, multiple: false, option: createDefaultCodeGenOptionConfig() };
 }
 
 /** 创建一份独立的字段选项配置。 */

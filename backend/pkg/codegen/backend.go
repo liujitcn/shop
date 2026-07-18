@@ -100,6 +100,19 @@ func (c *%sCase) Delete%s(ctx context.Context, ids string) error {
 	return c.DeleteByIDs(ctx, _string.ConvertStringToInt64Array(ids))
 }
 	`, pageMethod, table.BusinessName, entity, pageMethod, pageMethod, pageResponse, queryName, countQueryColumns(columns)+orderOptionCount, defaultOrderOption, c.renderQueryOptions(columns), entity, pageResponse, listField, entity, table.BusinessName, entity, entity, entity, entityVar, entityVar, entity, table.BusinessName, entity, entity, entity, entityVar, entityVar, entity, table.BusinessName, entity, entity, entity, entityVar, entityVar, entityVar, entity, table.BusinessName, entity, entity)
+	formGetAssignments := renderBackendFormMultipleGetAssignments(columns, entityVar)
+	if formGetAssignments != "" {
+		mainMethods = strings.Replace(
+			mainMethods,
+			"\treturn c.formMapper.ToDTO("+entityVar+"), nil",
+			"\tres := c.formMapper.ToDTO("+entityVar+")\n"+formGetAssignments+"\treturn res, nil",
+			1,
+		)
+	}
+	formEntityAssignments := renderBackendFormMultipleEntityAssignments(columns, entityVar)
+	if formEntityAssignments != "" {
+		mainMethods = strings.ReplaceAll(mainMethods, "\t"+entityVar+" := c.formMapper.ToEntity(req)\n", "\t"+entityVar+" := c.formMapper.ToEntity(req)\n"+formEntityAssignments)
+	}
 	if treeMethod != nil {
 		getMethodIndex := strings.Index(mainMethods, "// Get"+entity)
 		if getMethodIndex >= 0 {
@@ -157,6 +170,32 @@ func (c *%sCase) build%sTree(list []*models.%s, parentID int64) []*adminv1.%s {
 		content = strings.Replace(content, "\t_time \"github.com/liujitcn/go-utils/time\"\n", "", 1)
 	}
 	return reorderGoReceiverMethods(content, entity+"Case")
+}
+
+// renderBackendFormMultipleGetAssignments 渲染 JSON 字段回填到多选表单数组的语句。
+func renderBackendFormMultipleGetAssignments(columns []*CodeGenColumn, entityVar string) string {
+	var builder strings.Builder
+	for _, column := range columns {
+		if !isFormTreeMultiple(column) {
+			continue
+		}
+		field := modelFieldName(column.ColumnName)
+		builder.WriteString(fmt.Sprintf("\tres.%s = _string.ConvertJsonStringToInt64Array(%s.%s)\n", field, entityVar, field))
+	}
+	return builder.String()
+}
+
+// renderBackendFormMultipleEntityAssignments 渲染多选表单数组写回 JSON 字段的语句。
+func renderBackendFormMultipleEntityAssignments(columns []*CodeGenColumn, entityVar string) string {
+	var builder strings.Builder
+	for _, column := range columns {
+		if !isFormTreeMultiple(column) {
+			continue
+		}
+		field := modelFieldName(column.ColumnName)
+		builder.WriteString(fmt.Sprintf("\t%s.%s = _string.ConvertInt64ArrayToString(req.Get%s())\n", entityVar, field, field))
+	}
+	return builder.String()
 }
 
 // renderBackendServiceFile 渲染后端服务文件内容。

@@ -556,7 +556,11 @@ func (c *renderer) renderProtoMessage(table *Table, columns []*CodeGenColumn, fo
 		if form && !generatedFormIncludesColumn(column) && column.IsPrimary != 1 {
 			continue
 		}
-		builder.WriteString(c.renderProtoField(column, fieldNo, form && column.IsPrimary != 1))
+		if form && isFormTreeMultiple(column) {
+			builder.WriteString(c.renderFormTreeMultipleProtoField(column, fieldNo))
+		} else {
+			builder.WriteString(c.renderProtoField(column, fieldNo, form && column.IsPrimary != 1))
+		}
 		fieldNo++
 	}
 	if !form && table.PageType == PageTypeTree {
