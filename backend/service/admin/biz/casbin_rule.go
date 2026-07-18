@@ -16,6 +16,7 @@ import (
 // CasbinRuleCase 权限规则业务实例
 type CasbinRuleCase struct {
 	*biz.BaseCase
+	tx data.Transaction
 	*data.CasbinRuleRepository
 	baseMenuRepo   *data.BaseMenuRepository
 	baseRoleRepo   *data.BaseRoleRepository
@@ -27,6 +28,7 @@ type CasbinRuleCase struct {
 // NewCasbinRuleCase 创建权限规则业务实例
 func NewCasbinRuleCase(
 	baseCase *biz.BaseCase,
+	tx data.Transaction,
 	casbinRuleRepo *data.CasbinRuleRepository,
 	baseMenuRepo *data.BaseMenuRepository,
 	baseRoleRepo *data.BaseRoleRepository,
@@ -36,6 +38,7 @@ func NewCasbinRuleCase(
 ) (*CasbinRuleCase, error) {
 	return &CasbinRuleCase{
 		BaseCase:             baseCase,
+		tx:                   tx,
 		CasbinRuleRepository: casbinRuleRepo,
 		baseMenuRepo:         baseMenuRepo,
 		baseRoleRepo:         baseRoleRepo,
@@ -43,6 +46,53 @@ func NewCasbinRuleCase(
 		baseAPICase:          baseAPICase,
 		authzEngine:          authzEngine,
 	}, nil
+}
+
+// RebuildAllCasbinRules 按全部角色、菜单和接口重新初始化 Casbin 策略。
+func (c *CasbinRuleCase) RebuildAllCasbinRules(ctx context.Context) error {
+	baseRoleList, err := c.baseRoleRepo.List(ctx)
+	if err != nil {
+		return err
+	}
+	baseTenantList, err := c.baseTenantRepo.List(ctx)
+	if err != nil {
+		return err
+	}
+
+	menuIDSet := make(map[int64]struct{})
+	for _, item := range baseRoleList {
+		for _, menuID := range _string.ConvertJsonStringToInt64Array(item.Menus) {
+			menuIDSet[menuID] = struct{}{}
+		}
+	}
+	menuIDs := make([]int64, 0, len(menuIDSet))
+	for menuID := range menuIDSet {
+		menuIDs = append(menuIDs, menuID)
+	}
+	baseMenuList, err := c.baseMenuRepo.ListByIDs(ctx, menuIDs)
+	if err != nil {
+		return err
+	}
+	baseAPIList, err := c.baseAPICase.List(ctx)
+	if err != nil {
+		return err
+	}
+
+	casbinRuleList := buildCasbinRuleList(baseRoleList, baseTenantList, baseMenuList, baseAPIList)
+	err = c.tx.Transaction(ctx, func(ctx context.Context) error {
+		query := c.Query(ctx).CasbinRule
+		opts := make([]repository.QueryOption, 0, 1)
+		opts = append(opts, repository.Where(query.ID.Gte(0)))
+		err = c.Delete(ctx, opts...)
+		if err != nil {
+			return err
+		}
+		return c.BatchCreate(ctx, casbinRuleList)
+	})
+	if err != nil {
+		return err
+	}
+	return c.RebuildPolicyRule(ctx)
 }
 
 // RebuildCasbinRuleByMenuID 按菜单重建角色权限
@@ -64,6 +114,57 @@ func (c *CasbinRuleCase) RebuildCasbinRuleByMenuID(ctx context.Context, menuID i
 		}
 	}
 	return c.RebuildPolicyRule(ctx)
+}
+
+// buildCasbinRuleList 根据角色菜单、租户和接口关联构造去重后的 Casbin 策略。
+func buildCasbinRuleList(baseRoleList []*models.BaseRole, baseTenantList []*models.BaseTenant, baseMenuList []*models.BaseMenu, baseAPIList []*models.BaseAPI) []*models.CasbinRule {
+	tenantCodeByID := make(map[int64]string, len(baseTenantList))
+	for _, item := range baseTenantList {
+		tenantCodeByID[item.ID] = item.Code
+	}
+	menuOperationsByID := make(map[int64][]string, len(baseMenuList))
+	for _, item := range baseMenuList {
+		menuOperationsByID[item.ID] = _string.ConvertJsonStringToStringArray(item.API)
+	}
+	apiByOperation := make(map[string]*models.BaseAPI, len(baseAPIList))
+	for _, item := range baseAPIList {
+		if _, ok := apiByOperation[item.Operation]; !ok {
+			apiByOperation[item.Operation] = item
+		}
+	}
+
+	rules := make([]*models.CasbinRule, 0)
+	ruleSet := make(map[string]struct{})
+	for _, baseRole := range baseRoleList {
+		tenantCode, ok := tenantCodeByID[baseRole.TenantID]
+		// 角色所属租户不存在时，保持与 SQL 内连接一致，不生成无效策略。
+		if !ok {
+			continue
+		}
+		for _, menuID := range _string.ConvertJsonStringToInt64Array(baseRole.Menus) {
+			for _, operation := range menuOperationsByID[menuID] {
+				baseAPI, ok := apiByOperation[operation]
+				// 菜单关联的接口已失效时，保持与 SQL 内连接一致，不生成无效策略。
+				if !ok {
+					continue
+				}
+				ruleKey := tenantCode + "\x00" + baseRole.Code + "\x00" + baseAPI.Operation + "\x00" + baseAPI.Method
+				if _, ok = ruleSet[ruleKey]; ok {
+					continue
+				}
+				ruleSet[ruleKey] = struct{}{}
+				rules = append(rules, &models.CasbinRule{
+					Ptype: "p",
+					V0:    tenantCode,
+					V1:    baseRole.Code,
+					V2:    baseAPI.Operation,
+					V3:    baseAPI.Method,
+					V4:    "*",
+				})
+			}
+		}
+	}
+	return rules
 }
 
 // DeleteCasbinRuleByMenuIDs 按菜单批量删除角色权限

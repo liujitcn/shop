@@ -112,10 +112,8 @@ func (c *BaseTenantCase) OptionBaseTenant(ctx context.Context, req *adminv1.Opti
 // PageBaseTenant 分页查询租户。
 func (c *BaseTenantCase) PageBaseTenant(ctx context.Context, req *adminv1.PageBaseTenantRequest) (*adminv1.PageBaseTenantResponse, error) {
 	query := c.Query(ctx).BaseTenant
-	opts := make([]repository.QueryOption, 0, 5)
+	opts := make([]repository.QueryOption, 0, 4)
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
-	// 默认租户是系统内置租户，不在租户管理列表中展示。
-	opts = append(opts, repository.Where(query.Code.Neq(databaseGorm.DefaultTenantCode)))
 	if req.GetCode() != "" {
 		opts = append(opts, repository.Where(query.Code.Like("%"+req.GetCode()+"%")))
 	}
@@ -133,7 +131,9 @@ func (c *BaseTenantCase) PageBaseTenant(ctx context.Context, req *adminv1.PageBa
 
 	resList := make([]*adminv1.BaseTenant, 0, len(list))
 	for _, item := range list {
-		resList = append(resList, c.mapper.ToDTO(item))
+		baseTenant := c.mapper.ToDTO(item)
+		baseTenant.IsProtected = isBaseTenantProtected(item)
+		resList = append(resList, baseTenant)
 	}
 	return &adminv1.PageBaseTenantResponse{BaseTenants: resList, Total: int32(total)}, nil
 }
@@ -141,6 +141,10 @@ func (c *BaseTenantCase) PageBaseTenant(ctx context.Context, req *adminv1.PageBa
 // GetBaseTenant 获取租户。
 func (c *BaseTenantCase) GetBaseTenant(ctx context.Context, id int64) (*adminv1.BaseTenantForm, error) {
 	baseTenant, err := c.FindByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	err = validateBaseTenantManagementTarget(baseTenant)
 	if err != nil {
 		return nil, err
 	}
@@ -180,6 +184,10 @@ func (c *BaseTenantCase) UpdateBaseTenant(ctx context.Context, req *adminv1.Base
 	if err != nil {
 		return err
 	}
+	err = validateBaseTenantManagementTarget(oldBaseTenant)
+	if err != nil {
+		return err
+	}
 
 	baseTenant := c.formMapper.ToEntity(req)
 	// 更新租户时沿用数据库中的原始编码，忽略客户端传入的 code。
@@ -212,8 +220,8 @@ func (c *BaseTenantCase) DeleteBaseTenant(ctx context.Context, id string) error 
 	tenantIDs := make([]int64, 0, len(baseTenants))
 	tenantCodes := make([]string, 0, len(baseTenants))
 	for _, item := range baseTenants {
-		if item.Code == databaseGorm.DefaultTenantCode {
-			return errorsx.ProtectedResourceConflict("默认租户不能删除", "base_tenant")
+		if isBaseTenantProtected(item) {
+			return errorsx.ProtectedResourceConflict("操作租户失败，默认租户不能操作", "base_tenant")
 		}
 		tenantIDs = append(tenantIDs, item.ID)
 		tenantCodes = append(tenantCodes, item.Code)
@@ -245,13 +253,27 @@ func (c *BaseTenantCase) SetBaseTenantStatus(ctx context.Context, req *adminv1.S
 	if err != nil {
 		return err
 	}
-	if baseTenant.Code == databaseGorm.DefaultTenantCode && req.GetStatus() != _const.STATUS_ENABLE {
-		return errorsx.ProtectedResourceConflict("默认租户不能禁用", "base_tenant")
+	err = validateBaseTenantManagementTarget(baseTenant)
+	if err != nil {
+		return err
 	}
 	return c.UpdateByID(ctx, &models.BaseTenant{
 		ID:     req.GetId(),
 		Status: req.GetStatus(),
 	})
+}
+
+// validateBaseTenantManagementTarget 校验目标租户是否允许通过租户管理接口操作。
+func validateBaseTenantManagementTarget(baseTenant *models.BaseTenant) error {
+	if isBaseTenantProtected(baseTenant) {
+		return errorsx.ProtectedResourceConflict("操作租户失败，默认租户不能操作", "base_tenant")
+	}
+	return nil
+}
+
+// isBaseTenantProtected 判断租户是否禁止通过租户管理操作。
+func isBaseTenantProtected(baseTenant *models.BaseTenant) bool {
+	return baseTenant.Code == databaseGorm.DefaultTenantCode
 }
 
 // getNextBaseTenantCode 获取下一个可用租户编号。

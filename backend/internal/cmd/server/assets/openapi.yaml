@@ -7976,6 +7976,9 @@ components:
                 updated_at:
                     type: string
                     description: 更新时间
+                is_protected:
+                    type: boolean
+                    description: 是否禁止通过租户管理操作
             description: 租户
         admin.v1.BaseTenantForm:
             type: object
