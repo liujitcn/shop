@@ -85,13 +85,7 @@ func (c *CodeGenTableCase) ListCodeGenDatabaseTable(ctx context.Context) (*admin
 		usedTableNames[item.Name] = true
 	}
 	var tableInfos []dto.CodeGenDatabaseTable
-	err = c.dbClient.DB.WithContext(ctx).
-		Table("information_schema.tables").
-		Select("table_name, table_comment").
-		Where("table_schema = DATABASE()").
-		Where("table_type = ?", "BASE TABLE").
-		Order("table_name").
-		Find(&tableInfos).Error
+	tableInfos, err = c.listDatabaseTables(ctx, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -115,6 +109,21 @@ func (c *CodeGenTableCase) ListCodeGenDatabaseTable(ctx context.Context) (*admin
 		})
 	}
 	return &adminv1.ListCodeGenDatabaseTableResponse{Tables: tables}, nil
+}
+
+// listDatabaseTables 查询当前数据库的表名与表描述，可按表名缩小范围。
+func (c *CodeGenTableCase) listDatabaseTables(ctx context.Context, tableNames []string) ([]dto.CodeGenDatabaseTable, error) {
+	query := c.dbClient.DB.WithContext(ctx).
+		Table("information_schema.tables").
+		Select("table_name, table_comment").
+		Where("table_schema = DATABASE()").
+		Where("table_type = ?", "BASE TABLE")
+	if len(tableNames) > 0 {
+		query = query.Where("table_name IN ?", tableNames)
+	}
+	var tableInfos []dto.CodeGenDatabaseTable
+	err := query.Order("table_name").Find(&tableInfos).Error
+	return tableInfos, err
 }
 
 // PageCodeGenTable 查询代码生成表配置分页数据。

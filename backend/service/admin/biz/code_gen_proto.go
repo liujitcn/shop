@@ -251,8 +251,8 @@ func (c *CodeGenProtoCase) inspectCodeGenProtos(ctx context.Context, table *mode
 	columnNamesByTable := make(map[string]map[string]struct{})
 	for _, check := range checks {
 		for _, saved := range savedProtos {
-			// 只回填同一文件中同名接口的用户选择。
-			if saved.MethodName != check.GetMethodName() || saved.ProtoFilePath != check.GetProtoFilePath() {
+			// 兼容读取旧版复数方法名保存的选择，但检查结果始终输出当前单数契约名。
+			if !savedCodeGenProtoMatches(saved, check) {
 				continue
 			}
 			check.GenerateWhenMissing = saved.GenerateWhenMissing == 1
@@ -303,18 +303,17 @@ func (c *CodeGenProtoCase) inspectCodeGenProtos(ctx context.Context, table *mode
 func buildExpectedCodeGenProtos(table *models.CodeGenTable, form *adminv1.CodeGenTableForm, columns []*adminv1.CodeGenColumn) []*adminv1.CodeGenProtoCheck {
 	protoPath := defaultCodeGenProtoPath(table)
 	entity := table.EntityName
-	pluralEntity := pluralizeCodeGenEntity(entity)
 	checks := make([]*adminv1.CodeGenProtoCheck, 0, 10)
 	// 树形页面使用树接口，普通页面使用分页与平铺选项接口。
 	if table.PageType == "tree" {
 		checks = append(checks,
-			newCodeGenProtoCheck(table.ID, codeGenTriggerPageTree, codeGenAPIKindTree, entity, "Tree"+pluralEntity, protoPath),
-			newCodeGenProtoCheck(table.ID, codeGenTriggerEntityOption, codeGenAPIKindOption, entity, "Option"+pluralEntity, protoPath),
+			newCodeGenProtoCheck(table.ID, codeGenTriggerPageTree, codeGenAPIKindTree, entity, "Tree"+entity, protoPath),
+			newCodeGenProtoCheck(table.ID, codeGenTriggerEntityOption, codeGenAPIKindOption, entity, "Option"+entity, protoPath),
 		)
 	} else {
 		checks = append(checks,
-			newCodeGenProtoCheck(table.ID, codeGenTriggerCRUD, codeGenAPIKindList, entity, "Page"+pluralEntity, protoPath),
-			newCodeGenProtoCheck(table.ID, codeGenTriggerEntityOption, codeGenAPIKindOption, entity, "Option"+pluralEntity, protoPath),
+			newCodeGenProtoCheck(table.ID, codeGenTriggerCRUD, codeGenAPIKindList, entity, "Page"+entity, protoPath),
+			newCodeGenProtoCheck(table.ID, codeGenTriggerEntityOption, codeGenAPIKindOption, entity, "Option"+entity, protoPath),
 		)
 	}
 	checks = append(checks,
@@ -332,7 +331,7 @@ func buildExpectedCodeGenProtos(table *models.CodeGenTable, form *adminv1.CodeGe
 			codeGenTriggerLeftTree,
 			codeGenAPIKindTree,
 			target,
-			"Option"+pluralizeCodeGenEntity(target),
+			"Option"+target,
 			defaultTargetCodeGenProtoPath(table, target),
 		))
 	}
@@ -388,7 +387,7 @@ func buildExpectedCodeGenProtos(table *models.CodeGenTable, form *adminv1.CodeGe
 				codeGenTriggerFieldOption,
 				apiKind,
 				target,
-				"Option"+pluralizeCodeGenEntity(target),
+				"Option"+target,
 				defaultTargetCodeGenProtoPath(table, target),
 			))
 		}
@@ -518,16 +517,12 @@ func mergeCodeGenProtoConfig(apiKind string, preferred *adminv1.CodeGenProtoConf
 
 // defaultCodeGenProtoPath 返回当前实体默认 Proto 文件路径。
 func defaultCodeGenProtoPath(table *models.CodeGenTable) string {
-	// 已配置接口文件路径时保持用户选择。
-	if table.APIPath != "" {
-		return table.APIPath
-	}
 	return "backend/api/protos/admin/v1/" + stringcase.ToSnakeCase(table.EntityName) + ".proto"
 }
 
 // defaultTargetCodeGenProtoPath 返回关联实体默认 Proto 文件路径。
 func defaultTargetCodeGenProtoPath(table *models.CodeGenTable, target string) string {
-	// 关联目标就是当前实体时复用当前实体路径配置。
+	// 关联目标就是当前实体时复用当前实体默认路径。
 	if target == table.EntityName {
 		return defaultCodeGenProtoPath(table)
 	}
@@ -543,7 +538,29 @@ func codeGenProtoTargetTableName(table *models.CodeGenTable, targetEntity string
 	return stringcase.ToSnakeCase(targetEntity)
 }
 
-// pluralizeCodeGenEntity 返回项目约定的实体复数形式。
+// savedCodeGenProtoMatches 判断已保存配置是否对应当前检查项，并兼容旧版复数契约名。
+func savedCodeGenProtoMatches(saved *models.CodeGenProto, check *adminv1.CodeGenProtoCheck) bool {
+	if saved.ProtoFilePath != check.GetProtoFilePath() || saved.TargetEntityName != check.GetTargetEntityName() {
+		return false
+	}
+	if saved.MethodName == check.GetMethodName() {
+		return true
+	}
+	legacyMethodName := legacyPluralCodeGenMethodName(check.GetTargetEntityName(), check.GetMethodName())
+	return legacyMethodName != "" && saved.MethodName == legacyMethodName
+}
+
+// legacyPluralCodeGenMethodName 返回旧版 Page、Tree、Option 复数契约名。
+func legacyPluralCodeGenMethodName(entity string, methodName string) string {
+	for _, prefix := range []string{"Page", "Tree", "Option"} {
+		if methodName == prefix+entity {
+			return prefix + pluralizeCodeGenEntity(entity)
+		}
+	}
+	return ""
+}
+
+// pluralizeCodeGenEntity 返回兼容旧版配置所需的实体复数形式。
 func pluralizeCodeGenEntity(value string) string {
 	// 以 s 结尾的实体名追加 es。
 	if strings.HasSuffix(value, "s") {

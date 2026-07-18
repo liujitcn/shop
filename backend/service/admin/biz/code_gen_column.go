@@ -4,6 +4,7 @@ import (
 	"context"
 	"math"
 	"regexp"
+	"slices"
 	"strings"
 
 	adminv1 "shop/api/gen/go/admin/v1"
@@ -104,8 +105,9 @@ func (c *CodeGenColumnCase) listCodeGenColumns(ctx context.Context, tableID int6
 		return nil, err
 	}
 	query := c.Query(ctx).CodeGenColumn
-	opts := make([]repository.QueryOption, 0, 2)
+	opts := make([]repository.QueryOption, 0, 3)
 	opts = append(opts, repository.Where(query.TableID.Eq(tableID)))
+	opts = append(opts, repository.Order(query.Sort.Asc()))
 	opts = append(opts, repository.Order(query.ID.Asc()))
 	var savedColumns []*models.CodeGenColumn
 	savedColumns, err = c.List(ctx, opts...)
@@ -159,6 +161,10 @@ func (c *CodeGenColumnCase) SaveCodeGenColumn(ctx context.Context, req *adminv1.
 		item.ID = 0
 		item.TableID = req.GetTableId()
 		item.ColumnName = databaseColumn.ColumnName
+		// 未传排序值时沿用数据库字段顺序，兼容历史配置与系统字段。
+		if item.Sort <= 0 {
+			item.Sort = int32(index + 1)
+		}
 		columns = append(columns, item)
 		delete(requestColumns, databaseColumn.ColumnName)
 	}
@@ -199,7 +205,7 @@ func (c *CodeGenColumnCase) listDatabaseColumns(ctx context.Context, tableName s
 	// information_schema 没有业务生成模型，表名经白名单校验后使用参数化查询读取字段元数据。
 	err := c.dbClient.DB.WithContext(ctx).
 		Table("information_schema.columns").
-		Select("column_name, column_comment, data_type, column_type, column_key, is_nullable, extra, ordinal_position, character_maximum_length, numeric_precision, numeric_scale").
+		Select("column_name, column_comment, data_type, column_type, column_key, is_nullable, extra, ordinal_position, character_maximum_length, numeric_precision, numeric_scale, column_default").
 		Where("table_schema = DATABASE()").
 		Where("table_name = ?", tableName).
 		Order("ordinal_position").
@@ -224,10 +230,24 @@ func (c *CodeGenColumnCase) mergeCodeGenColumns(tableID int64, databaseColumns [
 			column.QueryConfig = savedColumn.GetQueryConfig()
 			column.ListConfig = savedColumn.GetListConfig()
 			column.FormConfig = savedColumn.GetFormConfig()
+			// 排序值为正时覆盖数据库默认顺序，旧配置仍按数据库字段顺序展示。
+			if savedColumn.GetSort() > 0 {
+				column.Sort = savedColumn.GetSort()
+			}
 		}
 		normalizeCodeGenColumnConfig(column, databaseColumn)
 		columns = append(columns, column)
 	}
+	// 稳定排序保证相同排序值或历史零值仍保留数据库字段顺序。
+	slices.SortStableFunc(columns, func(left *adminv1.CodeGenColumn, right *adminv1.CodeGenColumn) int {
+		if left.GetSort() < right.GetSort() {
+			return -1
+		}
+		if left.GetSort() > right.GetSort() {
+			return 1
+		}
+		return 0
+	})
 	return columns
 }
 
@@ -315,16 +335,18 @@ func normalizeCodeGenColumnConfig(column *adminv1.CodeGenColumn, item dto.CodeGe
 	// 缺失的列表配置按字段类型选择基础展示组件。
 	if column.ListConfig == nil {
 		component := "text"
-		// 状态字段默认生成可操作开关，日期字段使用日期展示。
-		if isCodeGenStatusColumn(item.ColumnName) {
+		option := &adminv1.CodeGenColumnOptionConfig{}
+		// 状态字段和 tinyint 字段默认生成可操作开关，日期字段使用日期展示。
+		if isCodeGenStatusColumn(item.ColumnName, item.ColumnType) {
 			component = "switch"
+			option = defaultCodeGenStatusOptionConfig("switch")
 		} else if isCodeGenDateTimeType(item.ColumnType) {
 			component = "date"
 		}
 		column.ListConfig = &adminv1.CodeGenColumnListConfig{
 			Enabled:   !isManagedCodeGenColumn(item.ColumnName),
 			Component: component,
-			Option:    &adminv1.CodeGenColumnOptionConfig{},
+			Option:    option,
 		}
 	}
 	// 列表选项独立保存，不能与查询或表单配置共用。
@@ -351,7 +373,7 @@ func validateCodeGenColumnConfig(column *adminv1.CodeGenColumn) error {
 	if err != nil {
 		return err
 	}
-	err = validateCodeGenOptionConfig(column.GetColumnName(), "表单", column.GetFormConfig().GetOption())
+	err = validateCodeGenFormOptionConfig(column.GetColumnName(), column.GetFormConfig())
 	if err != nil {
 		return err
 	}
@@ -372,13 +394,7 @@ func validateCodeGenListOptionConfig(columnName string, config *adminv1.CodeGenC
 		if !config.GetEnabled() {
 			return validateCodeGenOptionConfig(columnName, "列表", option)
 		}
-		if option.GetKind() != "switch" || option.GetSourceType() != "dict" || option.GetSourceValue() == "" || option.GetActiveValue() == "" || option.GetInactiveValue() == "" {
-			return errorsx.InvalidArgument("字段" + columnName + "的列表开关配置不完整")
-		}
-		if option.GetActiveValue() == option.GetInactiveValue() {
-			return errorsx.InvalidArgument("字段" + columnName + "的列表开关开启值和关闭值不能相同")
-		}
-		return nil
+		return validateCodeGenSwitchOptionConfig(columnName, "列表", option)
 	case "select":
 		if !config.GetEnabled() {
 			return validateCodeGenOptionConfig(columnName, "列表", option)
@@ -399,6 +415,37 @@ func validateCodeGenListOptionConfig(columnName string, config *adminv1.CodeGenC
 	return validateCodeGenOptionConfig(columnName, "列表", option)
 }
 
+// validateCodeGenFormOptionConfig 校验表单组件与选项配置是否匹配。
+func validateCodeGenFormOptionConfig(columnName string, config *adminv1.CodeGenColumnFormConfig) error {
+	option := config.GetOption()
+	// 未启用的表单组件不需要保留选项配置。
+	if !config.GetEnabled() {
+		return validateCodeGenOptionConfig(columnName, "表单", option)
+	}
+	// 开关必须配置字典与两个可区分的状态值。
+	if config.GetComponent() == "switch" {
+		return validateCodeGenSwitchOptionConfig(columnName, "表单", option)
+	}
+	// 字典选择组件只读取字典编码，不能使用静态数据或数据表来源。
+	if config.GetComponent() == "dict" && (option.GetKind() != "option" || option.GetSourceType() != "dict" || option.GetSourceValue() == "") {
+		return errorsx.InvalidArgument("字段" + columnName + "的表单字典选择配置不完整")
+	}
+	return validateCodeGenOptionConfig(columnName, "表单", option)
+}
+
+// validateCodeGenSwitchOptionConfig 校验列表或表单开关使用的字典和值配置。
+func validateCodeGenSwitchOptionConfig(columnName string, scope string, option *adminv1.CodeGenColumnOptionConfig) error {
+	// 开关必须绑定字典，并配置可区分的开启、关闭值。
+	if option.GetKind() != "switch" || option.GetSourceType() != "dict" || option.GetSourceValue() == "" || option.GetActiveValue() == "" || option.GetInactiveValue() == "" {
+		return errorsx.InvalidArgument("字段" + columnName + "的" + scope + "开关配置不完整")
+	}
+	// 开关两个状态值不能相同。
+	if option.GetActiveValue() == option.GetInactiveValue() {
+		return errorsx.InvalidArgument("字段" + columnName + "的" + scope + "开关开启值和关闭值不能相同")
+	}
+	return nil
+}
+
 // validateCodeGenOptionConfig 校验查询、列表或表单自己的选项配置。
 func validateCodeGenOptionConfig(columnName string, scope string, option *adminv1.CodeGenColumnOptionConfig) error {
 	// 未启用选项能力时不允许只残留部分来源字段。
@@ -408,7 +455,7 @@ func validateCodeGenOptionConfig(columnName string, scope string, option *adminv
 		}
 		return nil
 	}
-	// 开关值只允许由列表开关配置维护。
+	// 开关值只能由开关选项配置维护。
 	if option.GetKind() != "switch" && (option.GetActiveValue() != "" || option.GetInactiveValue() != "") {
 		return errorsx.InvalidArgument("字段" + columnName + "的" + scope + "选项不能配置开关值")
 	}
@@ -435,26 +482,29 @@ func validateCodeGenOptionConfig(columnName string, scope string, option *adminv
 
 // defaultCodeGenQueryConfig 创建默认查询配置。
 func defaultCodeGenQueryConfig(columnName string, dbType string) *adminv1.CodeGenColumnQueryConfig {
-	enabled := columnName == "name" || columnName == "title" || columnName == "code" || isCodeGenStatusColumn(columnName)
+	isStatus := isCodeGenStatusColumn(columnName, dbType)
+	enabled := columnName == "name" || columnName == "title" || columnName == "code" || isStatus
 	operator := "like"
 	component := "input"
+	option := &adminv1.CodeGenColumnOptionConfig{}
 	// 日期时间字段默认使用区间查询。
 	if isCodeGenDateTimeType(dbType) {
 		operator = "between"
 		component = "date-picker"
-	} else if isCodeGenBoolType(dbType) || isCodeGenNumericType(dbType) || isCodeGenStatusColumn(columnName) {
+	} else if isCodeGenBoolType(dbType) || isCodeGenNumericType(dbType) || isStatus {
 		operator = "eq"
 		component = "input-number"
 	}
 	// 布尔值和状态字段使用选项组件表达有限值集合。
-	if isCodeGenBoolType(dbType) || isCodeGenStatusColumn(columnName) {
+	if isCodeGenBoolType(dbType) || isStatus {
 		component = "select"
+		option = defaultCodeGenStatusOptionConfig("option")
 	}
 	return &adminv1.CodeGenColumnQueryConfig{
 		Enabled:   enabled,
 		Operator:  operator,
 		Component: component,
-		Option:    &adminv1.CodeGenColumnOptionConfig{},
+		Option:    option,
 	}
 }
 
@@ -464,9 +514,11 @@ func defaultCodeGenFormConfig(item dto.CodeGenDatabaseColumn) *adminv1.CodeGenCo
 	isAutoIncrement := strings.Contains(strings.ToLower(item.Extra), "auto_increment")
 	enabled := !isPrimary && !isAutoIncrement && !isManagedCodeGenColumn(item.ColumnName)
 	component := "input"
+	option := &adminv1.CodeGenColumnOptionConfig{}
 	// 表单组件根据数据库字段类型选择，优先匹配更具体的布尔和数值类型。
-	if isCodeGenStatusColumn(item.ColumnName) || isCodeGenBoolType(item.ColumnType) {
+	if isCodeGenStatusColumn(item.ColumnName, item.ColumnType) || isCodeGenBoolType(item.ColumnType) {
 		component = "switch"
+		option = defaultCodeGenStatusOptionConfig("switch")
 	} else if isCodeGenNumericType(item.ColumnType) {
 		component = "input-number"
 	} else if isCodeGenDateTimeType(item.ColumnType) {
@@ -478,8 +530,25 @@ func defaultCodeGenFormConfig(item dto.CodeGenDatabaseColumn) *adminv1.CodeGenCo
 		Enabled:   enabled,
 		Component: component,
 		Required:  enabled && item.IsNullable != "YES",
-		Option:    &adminv1.CodeGenColumnOptionConfig{},
+		Option:    option,
 	}
+}
+
+// defaultCodeGenStatusOptionConfig 创建状态字段使用的字典选项默认值。
+func defaultCodeGenStatusOptionConfig(kind string) *adminv1.CodeGenColumnOptionConfig {
+	option := &adminv1.CodeGenColumnOptionConfig{
+		Kind:        kind,
+		SourceType:  "dict",
+		SourceValue: "status",
+		LabelField:  "label",
+		ValueField:  "value",
+	}
+	// 列表和表单开关需要显式保存两个状态值，查询下拉不需要。
+	if kind == "switch" {
+		option.ActiveValue = "1"
+		option.InactiveValue = "2"
+	}
+	return option
 }
 
 // inferCodeGenGoType 推断 Go 字段类型。
@@ -531,9 +600,12 @@ func isManagedCodeGenColumn(columnName string) bool {
 	return columnName == "created_by" || columnName == "updated_by" || columnName == "created_at" || columnName == "updated_at" || columnName == "deleted_at"
 }
 
-// isCodeGenStatusColumn 判断字段是否表示状态。
-func isCodeGenStatusColumn(columnName string) bool {
-	return columnName == "status" || columnName == "state" || strings.HasSuffix(columnName, "_status") || strings.HasSuffix(columnName, "_state")
+// isCodeGenStatusColumn 判断字段是否默认按状态处理。
+func isCodeGenStatusColumn(columnName string, dbType string) bool {
+	lowerType := strings.ToLower(dbType)
+	return strings.Contains(lowerType, "tinyint") ||
+		columnName == "status" || columnName == "state" ||
+		strings.HasSuffix(columnName, "_status") || strings.HasSuffix(columnName, "_state")
 }
 
 // isCodeGenBoolType 判断数据库字段是否表示布尔值。

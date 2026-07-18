@@ -1,5 +1,6 @@
 import { EventStreamContentType, fetchEventSource, type EventSourceMessage } from "@microsoft/fetch-event-source";
 import type { SubscribeSseRequest } from "@/rpc/base/v1/sse";
+import type { CodeGenTask } from "@/rpc/admin/v1/code_gen";
 import { SseEvent, SseRefreshReason, SseRefreshTarget, SseStream } from "@/rpc/common/v1/enum";
 import { getRequestAccessToken, handleAuthExpired } from "@/utils/request";
 
@@ -22,6 +23,9 @@ export interface SseRefreshPayload {
 
 /** SSE 刷新事件处理函数。 */
 export type SseRefreshHandler = (payload: SseRefreshPayload) => void;
+
+/** 代码生成任务进度处理函数。 */
+export type CodeGenProgressHandler = (task: CodeGenTask) => void;
 
 /** 同一条 SSE 流的共享连接记录。 */
 interface SharedSseConnection {
@@ -90,12 +94,15 @@ export class SseServiceImpl {
   /** 构建 SSE 订阅地址。 */
   private buildSubscribeURL(request: SubscribeSseRequest) {
     const url = new URL(`${SSE_URL}/${request.stream}`, window.location.origin);
+    if (request.channel_id) {
+      url.searchParams.set("channel_id", request.channel_id);
+    }
     return url.toString();
   }
 
   /** 构建 SSE 共享连接键。 */
   private buildConnectionKey(request: SubscribeSseRequest) {
-    return String(request.stream);
+    return `${request.stream}:${request.channel_id ?? ""}`;
   }
 
   /** 打开基于 fetch 的 SSE 长连接。 */
@@ -171,17 +178,26 @@ export const defSseService = new SseServiceImpl();
 
 /** 订阅 SSE 页面刷新事件。 */
 export function subscribeSseRefresh(stream: SseStream, handler: SseRefreshHandler): SseStop {
-  return subscribeSseEvent(stream, SseEvent.SSE_EVENT_PAGE_REFRESH, raw => parseSseRefreshPayload(raw), handler);
+  return subscribeSseEvent({ stream }, SseEvent.SSE_EVENT_PAGE_REFRESH, raw => parseSseRefreshPayload(raw), handler);
+}
+
+/** 订阅指定代码生成任务的实时进度。 */
+export function subscribeCodeGenProgress(taskId: string, handler: CodeGenProgressHandler): SseStop {
+  return subscribeSseEvent(
+    { stream: SseStream.SSE_STREAM_ADMIN_CODE_GEN, channel_id: taskId },
+    SseEvent.SSE_EVENT_CODE_GEN_PROGRESS,
+    raw => parseCodeGenProgress(raw, taskId),
+    handler
+  );
 }
 
 /** 订阅指定 SSE 事件。 */
 export function subscribeSseEvent<T>(
-  stream: SseStream,
+  request: SubscribeSseRequest,
   event: SseEvent,
   parser: (raw: string) => T | null,
   handler: (payload: T) => void
 ): SseStop {
-  const request = { stream };
   const connection = defSseService.SubscribeSse(request);
   if (!connection) return () => undefined;
 
@@ -208,6 +224,19 @@ export function subscribeSseEvent<T>(
     }
     defSseService.ReleaseSse(request);
   };
+}
+
+/** 解析并校验代码生成任务进度负载。 */
+function parseCodeGenProgress(raw: string, taskId: string): CodeGenTask | null {
+  if (!raw) {
+    return null;
+  }
+  try {
+    const task = JSON.parse(raw) as CodeGenTask;
+    return task.task_id === taskId && Array.isArray(task.tables) ? task : null;
+  } catch {
+    return null;
+  }
 }
 
 /** 解析 SSE 刷新事件负载。 */

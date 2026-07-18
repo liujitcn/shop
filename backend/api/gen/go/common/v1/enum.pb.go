@@ -1616,6 +1616,7 @@ type SseStream int32
 const (
 	SseStream_SSE_STREAM_UNSPECIFIED     SseStream = 0 // 未指定 SSE 流
 	SseStream_SSE_STREAM_ADMIN_WORKSPACE SseStream = 1 // 管理后台工作台 SSE 流
+	SseStream_SSE_STREAM_ADMIN_CODE_GEN  SseStream = 2 // 管理后台代码生成任务 SSE 流
 )
 
 // Enum value maps for SseStream.
@@ -1623,10 +1624,12 @@ var (
 	SseStream_name = map[int32]string{
 		0: "SSE_STREAM_UNSPECIFIED",
 		1: "SSE_STREAM_ADMIN_WORKSPACE",
+		2: "SSE_STREAM_ADMIN_CODE_GEN",
 	}
 	SseStream_value = map[string]int32{
 		"SSE_STREAM_UNSPECIFIED":     0,
 		"SSE_STREAM_ADMIN_WORKSPACE": 1,
+		"SSE_STREAM_ADMIN_CODE_GEN":  2,
 	}
 )
 
@@ -1661,8 +1664,9 @@ func (SseStream) EnumDescriptor() ([]byte, []int) {
 type SseEvent int32
 
 const (
-	SseEvent_SSE_EVENT_UNSPECIFIED  SseEvent = 0 // 未指定 SSE 事件
-	SseEvent_SSE_EVENT_PAGE_REFRESH SseEvent = 1 // 页面局部刷新事件
+	SseEvent_SSE_EVENT_UNSPECIFIED       SseEvent = 0 // 未指定 SSE 事件
+	SseEvent_SSE_EVENT_PAGE_REFRESH      SseEvent = 1 // 页面局部刷新事件
+	SseEvent_SSE_EVENT_CODE_GEN_PROGRESS SseEvent = 2 // 代码生成任务进度事件
 )
 
 // Enum value maps for SseEvent.
@@ -1670,10 +1674,12 @@ var (
 	SseEvent_name = map[int32]string{
 		0: "SSE_EVENT_UNSPECIFIED",
 		1: "SSE_EVENT_PAGE_REFRESH",
+		2: "SSE_EVENT_CODE_GEN_PROGRESS",
 	}
 	SseEvent_value = map[string]int32{
-		"SSE_EVENT_UNSPECIFIED":  0,
-		"SSE_EVENT_PAGE_REFRESH": 1,
+		"SSE_EVENT_UNSPECIFIED":       0,
+		"SSE_EVENT_PAGE_REFRESH":      1,
+		"SSE_EVENT_CODE_GEN_PROGRESS": 2,
 	}
 )
 
@@ -2671,13 +2677,15 @@ const file_common_v1_enum_proto_rawDesc = "" +
 	"\aCOLLECT\x10\x04\x12\f\n" +
 	"\bADD_CART\x10\x05\x12\x10\n" +
 	"\fORDER_CREATE\x10\x06\x12\r\n" +
-	"\tORDER_PAY\x10\a*G\n" +
+	"\tORDER_PAY\x10\a*f\n" +
 	"\tSseStream\x12\x1a\n" +
 	"\x16SSE_STREAM_UNSPECIFIED\x10\x00\x12\x1e\n" +
-	"\x1aSSE_STREAM_ADMIN_WORKSPACE\x10\x01*A\n" +
+	"\x1aSSE_STREAM_ADMIN_WORKSPACE\x10\x01\x12\x1d\n" +
+	"\x19SSE_STREAM_ADMIN_CODE_GEN\x10\x02*b\n" +
 	"\bSseEvent\x12\x19\n" +
 	"\x15SSE_EVENT_UNSPECIFIED\x10\x00\x12\x1a\n" +
-	"\x16SSE_EVENT_PAGE_REFRESH\x10\x01*\xac\x02\n" +
+	"\x16SSE_EVENT_PAGE_REFRESH\x10\x01\x12\x1f\n" +
+	"\x1bSSE_EVENT_CODE_GEN_PROGRESS\x10\x02*\xac\x02\n" +
 	"\x10SseRefreshTarget\x12\"\n" +
 	"\x1eSSE_REFRESH_TARGET_UNSPECIFIED\x10\x00\x12.\n" +
 	"*SSE_REFRESH_TARGET_ADMIN_WORKSPACE_METRICS\x10\x01\x12+\n" +

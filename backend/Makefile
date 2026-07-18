@@ -5,6 +5,7 @@ IMAGE ?= backend
 TAG ?= latest
 DOCKERFILE ?= Dockerfile
 BINARY ?= bin/server
+GO_BIN_DIR ?= $(shell GOBIN=$$(go env GOBIN); if [ -n "$$GOBIN" ]; then printf '%s' "$$GOBIN"; else printf '%s/bin' "$$(go env GOPATH)"; fi)
 TS_PROTO_BIN ?= $(or \
 	$(shell command -v protoc-gen-ts_proto 2>/dev/null), \
 	$(wildcard $(CURDIR)/../frontend/admin/node_modules/.bin/protoc-gen-ts_proto), \
@@ -62,36 +63,37 @@ cli:
 # 使用 goimports 统一整理 Go 代码的 import 与格式
 fmt:
 	@echo "==> 格式化 Go 代码"
-	@find . -type f -name '*.go' -exec goimports -w {} +
+	@PATH="$(GO_BIN_DIR):$$PATH" find . -type f -name '*.go' -exec goimports -w {} +
 	@echo "==> Go 代码格式化完成"
 
 # 生成 GORM 代码
 gorm-gen:
 	@echo "==> 生成 GORM 代码"
 	@test -x "$(GEN_BIN)" || (echo "gen not found. Run make cli first." && exit 1)
-	$(GEN_BIN) -base_path=pkg/gen -source='$(GORM_GEN_SOURCE)'
+	$(GEN_BIN) -base_path=pkg/gen -source='$(GORM_GEN_SOURCE)' $(if $(strip $(GORM_TABLE)),-table='$(GORM_TABLE)')
 	@echo "==> GORM 代码生成完成"
 
 # 生成 wire 依赖注入代码
 wire:
 	@echo "==> 生成 wire 依赖注入代码"
 	@cd internal/cmd/server && \
-	wire
-	@goimports -local shop/ -w internal/cmd/server/wire.go internal/cmd/server/wire_gen.go
+		PATH="$(GO_BIN_DIR):$$PATH" wire
+	@PATH="$(GO_BIN_DIR):$$PATH" goimports -local shop/ -w internal/cmd/server/wire.go internal/cmd/server/wire_gen.go
 	@echo "==> wire 依赖注入代码生成完成"
 
 # 生成 protobuf 的 Go 代码
 api:
 	@echo "==> 生成 protobuf Go 代码"
 	@cd api && \
-	buf generate
+		PATH="$(GO_BIN_DIR):$$PATH" buf generate
+	@PATH="$(GO_BIN_DIR):$$PATH" find api/gen/go -type f -name '*.go' -exec goimports -w {} +
 	@echo "==> protobuf Go 代码生成完成"
 
 # 生成 OpenAPI v3 文档
 openapi:
 	@echo "==> 生成 OpenAPI v3 文档"
 	@cd api && \
-	buf generate --template buf.openapi.gen.yaml --exclude-path protos/conf
+		PATH="$(GO_BIN_DIR):$$PATH" buf generate --template buf.openapi.gen.yaml --exclude-path protos/conf
 	@echo "==> OpenAPI v3 文档生成完成"
 
 # 生成 TypeScript 代码
@@ -99,8 +101,8 @@ ts:
 	@echo "==> 生成 TypeScript RPC 代码"
 	@test -n "$(TS_PROTO_BIN)" || (echo "protoc-gen-ts_proto not found. Run pnpm install in frontend/admin or frontend/app, or install ts-proto globally." && exit 1)
 	@cd api && \
-	PATH="$(TS_PROTO_BIN_DIR):$$PATH" buf generate --template buf.admin.typescript.gen.yaml --exclude-path protos/conf --exclude-path protos/app && \
-	PATH="$(TS_PROTO_BIN_DIR):$$PATH" buf generate --template buf.app.typescript.gen.yaml --exclude-path protos/conf --exclude-path protos/admin
+		PATH="$(TS_PROTO_BIN_DIR):$(GO_BIN_DIR):$$PATH" buf generate --template buf.admin.typescript.gen.yaml --exclude-path protos/conf --exclude-path protos/app && \
+		PATH="$(TS_PROTO_BIN_DIR):$(GO_BIN_DIR):$$PATH" buf generate --template buf.app.typescript.gen.yaml --exclude-path protos/conf --exclude-path protos/admin
 	@echo "==> TypeScript RPC 代码生成完成"
 
 # 一键生成全部接口产物（Go 代码 + OpenAPI 文档 + TypeScript 代码）

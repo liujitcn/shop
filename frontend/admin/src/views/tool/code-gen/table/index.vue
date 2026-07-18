@@ -26,21 +26,30 @@
       @confirm="handleSubmit"
       @close="handleCloseDialog"
     />
+
+    <CodeGenProgressDialog
+      v-model="progressDialogVisible"
+      :task-id="progressTaskId"
+      @completed="handleProgressCompleted"
+      @unavailable="handleProgressUnavailable"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, reactive, ref } from "vue";
+import { computed, nextTick, onActivated, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
-import { Connection, SetUp, View } from "@element-plus/icons-vue";
+import { CirclePlus, Clock, Connection, Delete, Document, EditPen, Promotion, SetUp, View } from "@element-plus/icons-vue";
 import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@/components/ProTable/interface";
 import ProTable from "@/components/ProTable/index.vue";
 import FormDialog from "@/components/Dialog/FormDialog.vue";
 import type { ProFormField, ProFormOption } from "@/components/ProForm/interface";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { defBaseMenuService } from "@/api/admin/base_menu";
+import { defCodeGenService } from "@/api/admin/code_gen";
 import { defCodeGenColumnService } from "@/api/admin/code_gen_column";
 import { defCodeGenTableService } from "@/api/admin/code_gen_table";
+import { CodeGenTaskStatus } from "@/rpc/admin/v1/code_gen";
 import type { CodeGenDatabaseColumn } from "@/rpc/admin/v1/code_gen_column";
 import type {
   CodeGenDatabaseTable,
@@ -50,6 +59,7 @@ import type {
 } from "@/rpc/admin/v1/code_gen_table";
 import type { TreeOptionResponse_Option } from "@/rpc/common/v1/common";
 import { buildPageRequest, normalizeSelectedIds } from "@/utils/proTable";
+import CodeGenProgressDialog from "../components/CodeGenProgressDialog.vue";
 import {
   codeGenPageTypeOptions,
   codeGenStatusOptions,
@@ -66,6 +76,12 @@ defineOptions({
 /** 代码生成表配置删除入参。 */
 type CodeGenDeleteTarget = number | string | Array<number | string> | CodeGenTable | CodeGenTable[];
 
+/** 代码生成单项或批量目标。 */
+type CodeGenGenerateTarget = CodeGenTable | CodeGenTable[];
+
+const codeGenTaskStorageKey = "code-gen-progress-task-id";
+const codeGenStatusDisabled = 2;
+
 const { BUTTONS } = useAuthButtons();
 const router = useRouter();
 const proTable = ref<ProTableInstance>();
@@ -75,6 +91,10 @@ const databaseTables = ref<CodeGenDatabaseTable[]>([]);
 const databaseColumns = ref<CodeGenDatabaseColumn[]>([]);
 const leftTreeDatabaseColumns = ref<CodeGenDatabaseColumn[]>([]);
 const parentMenuOptions = ref<ProFormOption[]>([]);
+const progressTaskId = ref(typeof window === "undefined" ? "" : (window.sessionStorage.getItem(codeGenTaskStorageKey) ?? ""));
+const progressDialogVisible = ref(false);
+const progressTaskAvailable = ref(!!progressTaskId.value);
+const generating = ref(!!progressTaskId.value);
 
 const dialog = reactive({
   title: "",
@@ -263,7 +283,7 @@ const columns: ColumnProps[] = [
   {
     prop: "operation",
     label: "操作",
-    width: 440,
+    width: 600,
     fixed: "right",
     cellType: "actions",
     actions: [
@@ -284,12 +304,29 @@ const columns: ColumnProps[] = [
         onClick: scope => handleOpenProtoConfig((scope.row as CodeGenTable).id)
       },
       {
-        label: "预览",
+        label: "页面预览",
         type: "primary",
         link: true,
         icon: View,
         hidden: () => !BUTTONS.value["tool:code-gen-table:preview"],
         onClick: scope => handleOpenPreview((scope.row as CodeGenTable).id)
+      },
+      {
+        label: "代码预览",
+        type: "primary",
+        link: true,
+        icon: Document,
+        hidden: () => !BUTTONS.value["tool:code-gen-table:code-preview"],
+        onClick: scope => handleOpenCodePreview((scope.row as CodeGenTable).id)
+      },
+      {
+        label: "生成",
+        type: "success",
+        link: true,
+        icon: Promotion,
+        disabled: () => generating.value,
+        hidden: () => !BUTTONS.value["tool:code-gen-table:generate"],
+        onClick: scope => handleGenerate(scope.row as CodeGenTable)
       },
       {
         label: "编辑",
@@ -336,6 +373,21 @@ const headerActions: HeaderActionProps[] = [
     onClick: () => handleOpenDialog()
   },
   {
+    label: "批量生成",
+    type: "primary",
+    icon: Promotion,
+    hidden: () => !BUTTONS.value["tool:code-gen-table:generate"],
+    disabled: scope => generating.value || !scope.selectedList.length,
+    onClick: scope => handleGenerate(scope.selectedList as CodeGenTable[])
+  },
+  {
+    label: "最近任务",
+    icon: Clock,
+    hidden: () => !BUTTONS.value["tool:code-gen-table:generate"],
+    disabled: () => !progressTaskAvailable.value,
+    onClick: handleOpenProgress
+  },
+  {
     label: "删除",
     type: "danger",
     icon: Delete,
@@ -344,6 +396,90 @@ const headerActions: HeaderActionProps[] = [
     onClick: scope => handleDelete(scope.selectedList as CodeGenTable[])
   }
 ];
+
+/** 打开已经保存的代码生成文件预览。 */
+async function handleOpenCodePreview(tableId: number) {
+  await router.push(`/tool/code-gen/code-preview/${tableId}`);
+}
+
+/** 创建单项或批量代码生成任务。 */
+async function handleGenerate(selected: CodeGenGenerateTarget) {
+  const tables = Array.isArray(selected) ? selected : [selected];
+  if (!tables.length) {
+    ElMessage.warning("请勾选生成项");
+    return;
+  }
+  const disabledTable = tables.find(table => table.status === codeGenStatusDisabled);
+  if (disabledTable) {
+    ElMessage.warning(`代码生成表配置 ${disabledTable.name} 已停用`);
+    return;
+  }
+  const message = tables.length === 1 ? `确认生成业务表：${tables[0].name}？` : `确认按勾选顺序生成 ${tables.length} 个业务表？`;
+  try {
+    await ElMessageBox.confirm(message, "提示", {
+      confirmButtonText: "确认",
+      cancelButtonText: "取消",
+      type: "warning"
+    });
+  } catch {
+    return;
+  }
+  generating.value = true;
+  try {
+    const data = await defCodeGenService.StartCodeGenTask({
+      table_ids: tables.map(table => table.id),
+      run_commands: true,
+      output_paths: undefined
+    });
+    proTable.value?.clearSelection();
+    progressTaskId.value = data.task_id;
+    progressTaskAvailable.value = true;
+    window.sessionStorage.setItem(codeGenTaskStorageKey, data.task_id);
+    progressDialogVisible.value = true;
+  } catch (error) {
+    generating.value = false;
+    throw error;
+  }
+}
+
+/** 打开最近一次代码生成任务。 */
+function handleOpenProgress() {
+  if (progressTaskId.value) progressDialogVisible.value = true;
+}
+
+/** 恢复最近任务的运行状态。 */
+async function syncProgressTaskState() {
+  const taskId = progressTaskId.value;
+  if (!taskId) {
+    generating.value = false;
+    return;
+  }
+  try {
+    const task = await defCodeGenService.GetCodeGenTask({ task_id: taskId });
+    // 异步请求返回时可能已经启动了新任务，旧任务不能改变新任务的生成状态。
+    if (taskId !== progressTaskId.value) return;
+    generating.value =
+      task.status === CodeGenTaskStatus.CODE_GEN_TASK_STATUS_PENDING ||
+      task.status === CodeGenTaskStatus.CODE_GEN_TASK_STATUS_RUNNING;
+  } catch {
+    // 仅清理当前仍指向该任务的过期记录，避免旧请求关闭刚创建任务的进度弹窗。
+    if (taskId === progressTaskId.value) handleProgressUnavailable();
+  }
+}
+
+/** 生成任务结束后刷新列表。 */
+function handleProgressCompleted() {
+  generating.value = false;
+  refreshTable();
+}
+
+/** 清理不可恢复的最近任务。 */
+function handleProgressUnavailable() {
+  generating.value = false;
+  progressTaskId.value = "";
+  progressTaskAvailable.value = false;
+  window.sessionStorage.removeItem(codeGenTaskStorageKey);
+}
 
 /** 请求代码生成表配置列表。 */
 async function requestCodeGenTable(params: PageCodeGenTableRequest) {
@@ -565,7 +701,12 @@ function refreshTable() {
   proTable.value?.getTableList();
 }
 
-// 页面从缓存重新激活时刷新列表数据。
+// 页面从缓存重新激活时恢复最近任务状态。
+onActivated(() => {
+  void syncProgressTaskState();
+});
+
+void syncProgressTaskState();
 </script>
 
 <style scoped lang="scss">

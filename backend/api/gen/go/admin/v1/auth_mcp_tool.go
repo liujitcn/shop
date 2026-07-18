@@ -8,11 +8,10 @@ package adminv1
 
 import (
 	context "context"
+	v1 "shop/api/gen/go/common/v1"
 
 	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
-
-	v1 "shop/api/gen/go/common/v1"
 )
 
 // RegisterAuthServiceMCPTools 注册Admin用户登录认证服务的 MCP Tool。

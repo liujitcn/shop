@@ -8,6 +8,7 @@ package appv1
 
 import (
 	reflect "reflect"
+	v1 "shop/api/gen/go/common/v1"
 	sync "sync"
 	unsafe "unsafe"
 
@@ -15,8 +16,6 @@ import (
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-
-	v1 "shop/api/gen/go/common/v1"
 )
 
 const (

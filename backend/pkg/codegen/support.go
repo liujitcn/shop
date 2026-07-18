@@ -1,0 +1,835 @@
+package codegen
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"go/ast"
+	"os/exec"
+	"slices"
+	"strings"
+
+	adminv1 "shop/api/gen/go/admin/v1"
+
+	kratosErrors "github.com/go-kratos/kratos/v3/errors"
+	"github.com/liujitcn/go-utils/stringcase"
+)
+
+// --- 命令执行、源码排序与补充消息 ---
+
+// RunCommand 在后端目录执行单个固定 Make 目标及其变量。
+func RunCommand(ctx context.Context, backendDir string, target string, variables ...string) (string, error) {
+	args := append([]string{target}, variables...)
+	command := exec.CommandContext(ctx, "make", args...)
+	command.Dir = backendDir
+	output, err := command.CombinedOutput()
+	safeOutput := TruncateText(redactCodeGenCommandOutput(string(output)), CommandOutputMaxRunes)
+	if safeOutput == "" && err != nil {
+		safeOutput = err.Error()
+	}
+	return safeOutput, err
+}
+
+// CommandFailureMessage 生成适合列表展示的命令错误摘要。
+func CommandFailureMessage(target string, output string, err error) string {
+	detail := strings.Join(strings.Fields(output), " ")
+	if detail == "" {
+		detail = err.Error()
+	}
+	return "代码生成失败（make " + target + "）：" + detail
+}
+
+// NormalizeQueryOperator 统一当前支持的查询方式。
+func NormalizeQueryOperator(operator string) string {
+	switch operator {
+	case "like", "between":
+		return operator
+	default:
+		return "eq"
+	}
+}
+
+// NormalizeBusinessName 使用公共命名转换并移除常见技术表前缀。
+func NormalizeBusinessName(tableName string) string {
+	businessName := stringcase.ToSnakeCase(tableName)
+	for _, prefix := range []string{"t_", "tb_", "tbl_"} {
+		if strings.HasPrefix(businessName, prefix) && len(businessName) > len(prefix) {
+			return strings.TrimPrefix(businessName, prefix)
+		}
+	}
+	return businessName
+}
+
+// FailureRemark 提取适合保存和展示的生成错误信息。
+func FailureRemark(err error) string {
+	var structuredError *kratosErrors.Error
+	if errors.As(err, &structuredError) && structuredError.Message != "" {
+		return TruncateText(structuredError.Message, RemarkMaxRunes)
+	}
+	return TruncateText(err.Error(), RemarkMaxRunes)
+}
+
+// TruncateText 按字符数截断命令输出和数据库备注。
+func TruncateText(value string, maxRunes int) string {
+	runes := []rune(value)
+	if len(runes) <= maxRunes {
+		return value
+	}
+	return string(runes[:maxRunes])
+}
+
+// BuildProgressSteps 构建文件、菜单和命令的完整进度步骤。
+func BuildProgressSteps(files []*adminv1.CodeGenPreviewFile, syncMenus bool, runCommands bool) []*adminv1.CodeGenTaskStep {
+	stepCount := len(files)
+	if syncMenus {
+		stepCount++
+	}
+	if runCommands {
+		stepCount += 6
+	}
+	steps := make([]*adminv1.CodeGenTaskStep, 0, stepCount)
+	for i, file := range files {
+		status := adminv1.CodeGenTaskStepStatus_CODE_GEN_TASK_STEP_STATUS_PENDING
+		message := "等待生成"
+		if file.GetAction() != "create" && file.GetAction() != "update" {
+			status = adminv1.CodeGenTaskStepStatus_CODE_GEN_TASK_STEP_STATUS_SKIPPED
+			message = file.GetMessage()
+		}
+		steps = append(steps, &adminv1.CodeGenTaskStep{
+			Id:      FileStepID(i),
+			Label:   "生成文件",
+			Kind:    "file",
+			Path:    file.GetPath(),
+			Status:  status,
+			Message: message,
+		})
+	}
+	if syncMenus {
+		steps = append(steps, &adminv1.CodeGenTaskStep{
+			Id:      MenuStepID,
+			Label:   "同步菜单权限",
+			Kind:    "menu",
+			Status:  adminv1.CodeGenTaskStepStatus_CODE_GEN_TASK_STEP_STATUS_PENDING,
+			Message: "等待同步",
+		})
+	}
+	if runCommands {
+		for _, command := range []string{"gorm-gen", "api", "openapi", "ts", "wire", "fmt"} {
+			steps = append(steps, &adminv1.CodeGenTaskStep{
+				Id:      CommandStepPrefix + command,
+				Label:   "make " + command,
+				Kind:    "command",
+				Status:  adminv1.CodeGenTaskStepStatus_CODE_GEN_TASK_STEP_STATUS_PENDING,
+				Message: "等待执行",
+			})
+		}
+	}
+	return steps
+}
+
+// renderDefaultOrderOption 根据字段快照渲染默认排序，优先创建时间，其次主键。
+func renderDefaultOrderOption(columns []*CodeGenColumn) string {
+	var primaryColumn *CodeGenColumn
+	for _, column := range columns {
+		if column.ColumnName == "created_at" {
+			return "\topts = append(opts, repository.Order(query." + modelFieldName(column.ColumnName) + ".Desc()))\n"
+		}
+		if primaryColumn == nil && column.IsPrimary == 1 {
+			primaryColumn = column
+		}
+	}
+	if primaryColumn == nil {
+		return ""
+	}
+	return "\topts = append(opts, repository.Order(query." + modelFieldName(primaryColumn.ColumnName) + ".Desc()))\n"
+}
+
+// FileStepID 返回文件步骤的稳定标识。
+func FileStepID(index int) string {
+	return fmt.Sprintf("file:%d", index)
+}
+
+// defaultTargetProtoPath 返回目标实体默认 Proto 路径。
+func (c *renderer) defaultTargetProtoPath(table *Table, target string) string {
+	if target == table.EntityName {
+		return c.defaultProtoPath(table)
+	}
+	return "backend/api/protos/admin/v1/" + stringcase.ToSnakeCase(target) + ".proto"
+}
+
+// renderGeneratedProtoMessages 渲染勾选补齐接口所需 message。
+func (c *renderer) renderGeneratedProtoMessages(table *Table, columns []*CodeGenColumn, methods []*Proto, protoPath string) string {
+	var builder strings.Builder
+	for _, method := range filterProtoMethods(methods, protoPath) {
+		if method.TriggerType == TriggerCRUD || method.TriggerType == TriggerPageTree {
+			continue
+		}
+		builder.WriteString(c.renderGeneratedProtoMessage(table, columns, method))
+	}
+	return builder.String()
+}
+
+// renderPatchProtoMessages 渲染追加 RPC 时缺失的 message。
+func (c *renderer) renderPatchProtoMessages(table *Table, columns []*CodeGenColumn, method *Proto, protoPath string, scheduled map[string]struct{}) []string {
+	names := c.protoMessageNamesForMethod(table, method)
+	list := make([]string, 0, len(names))
+	for _, name := range names {
+		if _, ok := scheduled[name]; ok {
+			continue
+		}
+		if c.checkProtoMessageExists(protoPath, name) {
+			continue
+		}
+		scheduled[name] = struct{}{}
+		list = append(list, c.renderProtoMessageByName(table, columns, method, name))
+	}
+	return list
+}
+
+// protoMessageNamesForMethod 返回方法依赖的 message 名称。
+func (c *renderer) protoMessageNamesForMethod(table *Table, method *Proto) []string {
+	entity := table.EntityName
+	switch method.MethodName {
+	case "Page" + entity:
+		return []string{"Page" + entity + "Request", "Page" + entity + "Response", entity}
+	case "Get" + entity:
+		return []string{"Get" + entity + "Request", entity + "Form"}
+	case "Create" + entity:
+		return []string{"Create" + entity + "Request", entity + "Form"}
+	case "Update" + entity:
+		return []string{"Update" + entity + "Request", entity + "Form"}
+	case "Delete" + entity:
+		return []string{"Delete" + entity + "Request"}
+	default:
+		if method.APIKind == APIKindTree && method.TriggerType == TriggerPageTree {
+			return []string{method.MethodName + "Request", method.MethodName + "Response", entity}
+		}
+		return []string{method.MethodName + "Request"}
+	}
+}
+
+// renderProtoMessageByName 按名称渲染 message。
+func (c *renderer) renderProtoMessageByName(table *Table, columns []*CodeGenColumn, method *Proto, name string) string {
+	entity := table.EntityName
+	pluralEntity := pluralize(entity)
+	switch name {
+	case "Page" + entity + "Request":
+		var builder strings.Builder
+		builder.WriteString(fmt.Sprintf("// %s分页查询条件\nmessage %s {\n", table.BusinessName, name))
+		fieldNo := int32(1)
+		for _, column := range columns {
+			if !generatedRequestIncludesColumn(table, column) {
+				continue
+			}
+			builder.WriteString(c.renderQueryProtoField(column, fieldNo))
+			fieldNo++
+		}
+		builder.WriteString("  int64 page_num = 101 [(gnostic.openapi.v3.property) = {description: \"当前页码\"}]; // 当前页码\n\n")
+		builder.WriteString("  int64 page_size = 102 [(gnostic.openapi.v3.property) = {description: \"每一页的行数\"}]; // 每一页的行数\n")
+		builder.WriteString("}\n")
+		return builder.String()
+	case "Page" + entity + "Response":
+		return fmt.Sprintf("// %s分页响应\nmessage %s {\n  repeated %s %s = 1 [(gnostic.openapi.v3.property) = {description: \"%s列表\"}]; // %s列表\n\n  int32 total = 2 [(gnostic.openapi.v3.property) = {description: \"总数\"}]; // 总数\n}\n", table.BusinessName, name, entity, stringcase.ToSnakeCase(pluralEntity), table.BusinessName, table.BusinessName)
+	case "Get" + entity + "Request":
+		return fmt.Sprintf("// %s详情查询条件\nmessage %s {\n  int64 id = 1 [(gnostic.openapi.v3.property) = {description: \"%sID\"}]; // %sID\n}\n", table.BusinessName, name, table.BusinessName, table.BusinessName)
+	case "Create" + entity + "Request":
+		return fmt.Sprintf("// %s创建条件\nmessage %s {\n  %sForm %s = 1 [(gnostic.openapi.v3.property) = {description: \"%s表单\"}]; // %s表单\n}\n", table.BusinessName, name, entity, stringcase.ToSnakeCase(entity), table.BusinessName, table.BusinessName)
+	case "Update" + entity + "Request":
+		return fmt.Sprintf("// %s更新条件\nmessage %s {\n  int64 id = 1 [(gnostic.openapi.v3.property) = {description: \"%sID\"}]; // %sID\n\n  %sForm %s = 2 [(gnostic.openapi.v3.property) = {description: \"%s表单\"}]; // %s表单\n}\n", table.BusinessName, name, table.BusinessName, table.BusinessName, entity, stringcase.ToSnakeCase(entity), table.BusinessName, table.BusinessName)
+	case "Delete" + entity + "Request":
+		return fmt.Sprintf("// %s删除条件\nmessage %s {\n  string ids = 1 [(gnostic.openapi.v3.property) = {description: \"%sID列表，多个用逗号分隔\"}]; // %sID列表，多个用逗号分隔\n}\n", table.BusinessName, name, table.BusinessName, table.BusinessName)
+	case entity:
+		return c.renderProtoMessage(table, columns, false)
+	case entity + "Form":
+		return c.renderProtoMessage(table, columns, true)
+	default:
+		if method.APIKind == APIKindTree && method.TriggerType == TriggerPageTree {
+			return c.renderTreeProtoMessage(table, method, columns, name)
+		}
+		return c.renderGeneratedProtoMessage(table, columns, method)
+	}
+}
+
+// renderGeneratedProtoMessage 渲染单个补齐接口的请求 message。
+func (c *renderer) renderGeneratedProtoMessage(table *Table, columns []*CodeGenColumn, method *Proto) string {
+	businessName := codeGenProtoMethodBusinessName(table, method)
+	switch method.APIKind {
+	case APIKindOption:
+		return fmt.Sprintf("// %s下拉选择查询条件\nmessage %sRequest {}\n\n", businessName, method.MethodName)
+	case APIKindTree:
+		if method.TriggerType == TriggerEntityOption || method.TriggerType == TriggerFieldOption || method.TriggerType == TriggerLeftTree {
+			parentColumn := DefaultString(method.ParentColumn, "parent_id")
+			return fmt.Sprintf("// %s树形选择查询条件\nmessage %sRequest {\n  optional int64 %s = 1 [(gnostic.openapi.v3.property) = {description: \"父节点ID\"}]; // 父节点ID\n}\n\n", businessName, method.MethodName, parentColumn)
+		}
+		return c.renderTreeProtoMessage(table, method, columns, method.MethodName+"Request") + "\n" + c.renderTreeProtoMessage(table, method, columns, method.MethodName+"Response")
+	case APIKindStatus:
+		statusColumn := findStatusColumn(columns, method.ColumnName)
+		return fmt.Sprintf("// %s状态设置条件\nmessage %sRequest {\n  int64 id = 1 [(gnostic.openapi.v3.property) = {description: \"%sID\"}]; // %sID\n\n  %s status = 2 [(gnostic.openapi.v3.property) = {description: \"状态\"}]; // 状态\n}\n\n", table.BusinessName, method.MethodName, table.BusinessName, table.BusinessName, statusProtoType(statusColumn))
+	default:
+		return ""
+	}
+}
+
+// renderTreeProtoMessage 按消息名渲染树形列表的请求或响应，避免同一方法重复输出整组消息。
+func (c *renderer) renderTreeProtoMessage(table *Table, method *Proto, columns []*CodeGenColumn, name string) string {
+	switch name {
+	case method.MethodName + "Request":
+		var builder strings.Builder
+		builder.WriteString(fmt.Sprintf("// %s树形列表查询条件\nmessage %s {\n", table.BusinessName, name))
+		fieldNo := int32(1)
+		for _, column := range columns {
+			if !generatedRequestIncludesColumn(table, column) {
+				continue
+			}
+			builder.WriteString(c.renderQueryProtoField(column, fieldNo))
+			fieldNo++
+		}
+		builder.WriteString("}\n")
+		return builder.String()
+	case method.MethodName + "Response":
+		return fmt.Sprintf("// %s树形列表响应\nmessage %s {\n  repeated %s %s = 1 [(gnostic.openapi.v3.property) = {description: \"%s树形列表\"}]; // %s树形列表\n}\n", table.BusinessName, name, table.EntityName, stringcase.ToSnakeCase(pluralize(table.EntityName)), table.BusinessName, table.BusinessName)
+	default:
+		return ""
+	}
+}
+
+// renderQueryProtoField 渲染分页查询字段，区间查询使用数组承接起止值。
+func (c *renderer) renderQueryProtoField(column *CodeGenColumn, fieldNo int32) string {
+	if effectiveQueryOperator(column) != "between" {
+		return c.renderProtoField(column, fieldNo, true)
+	}
+	protoType := DefaultString(column.ProtoType, InferProtoType(column.DbType))
+	comment := DefaultString(column.ColumnComment, column.ColumnName)
+	return fmt.Sprintf("  repeated %s %s = %d [(gnostic.openapi.v3.property) = {description: %q}]; // %s\n\n", protoType, column.ColumnName, fieldNo, comment, comment)
+}
+
+// renderProtoField 渲染 Proto 字段。
+func (c *renderer) renderProtoField(column *CodeGenColumn, fieldNo int32, optional bool) string {
+	protoType := DefaultString(column.ProtoType, InferProtoType(column.DbType))
+	comment := DefaultString(column.ColumnComment, column.ColumnName)
+	prefix := ""
+	if optional {
+		prefix = "optional "
+	}
+	return fmt.Sprintf("  %s%s %s = %d [(gnostic.openapi.v3.property) = {description: %q}]; // %s\n\n", prefix, protoType, column.ColumnName, fieldNo, comment, comment)
+}
+
+// renderQueryOptions 渲染后端分页查询条件。
+func (c *renderer) renderQueryOptions(columns []*CodeGenColumn) string {
+	var builder strings.Builder
+	for _, column := range columns {
+		if !generatedQueryIncludesColumn(column) {
+			continue
+		}
+		modelField := modelFieldName(column.ColumnName)
+		requestField := stringcase.ToPascalCase(column.ColumnName)
+		getter := "Get" + requestField + "()"
+		switch effectiveQueryOperator(column) {
+		case "like":
+			builder.WriteString(fmt.Sprintf("\tif req.%s != \"\" {\n\t\topts = append(opts, repository.Where(query.%s.Like(\"%%\"+req.%s+\"%%\")))\n\t}\n", getter, modelField, getter))
+		case "between":
+			rangeVar := stringcase.ToCamelCase(column.ColumnName) + "Range"
+			builder.WriteString(fmt.Sprintf(`	%s := req.%s
+	// 仅在传入完整时间区间时追加范围条件。
+	if len(%s) == 2 {
+		startTime := _time.StringTimeToTime(%s[0])
+		endTime := _time.StringTimeToTime(%s[1])
+		// 开始时间可解析时追加查询下界。
+		if startTime != nil {
+			opts = append(opts, repository.Where(query.%s.Gte(*startTime)))
+		}
+		// 结束时间可解析时包含所选结束日期全天。
+		if endTime != nil {
+			opts = append(opts, repository.Where(query.%s.Lt(endTime.AddDate(0, 0, 1))))
+		}
+	}
+`, rangeVar, getter, rangeVar, rangeVar, rangeVar, modelField, modelField))
+		default:
+			builder.WriteString(fmt.Sprintf("\tif req.%s != nil {\n\t\topts = append(opts, repository.Where(query.%s.Eq(req.%s)))\n\t}\n", requestField, modelField, getter))
+		}
+	}
+	return builder.String()
+}
+
+// renderOptionBizMethod 渲染普通下拉选择业务方法。
+func (c *renderer) renderOptionBizMethod(table *Table, columns []*CodeGenColumn, method *Proto) string {
+	labelField := modelFieldName(DefaultString(method.LabelColumn, "name"))
+	valueExpr := fmt.Sprintf("int64(item.%s)", modelFieldName(DefaultString(method.ValueColumn, "id")))
+	defaultOrderOption := renderDefaultOrderOption(columns)
+	orderOptionCount := 0
+	if defaultOrderOption != "" {
+		orderOptionCount = 1
+	}
+	return fmt.Sprintf(`// %s 查询%s下拉选择。
+func (c *%sCase) %s(ctx context.Context, _ *adminv1.%sRequest) (*commonv1.SelectOptionResponse, error) {
+	query := c.Query(ctx).%s
+	opts := make([]repository.QueryOption, 0, %d)
+%s
+	list, err := c.List(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+	options := make([]*commonv1.SelectOptionResponse_Option, 0, len(list))
+	for _, item := range list {
+		options = append(options, &commonv1.SelectOptionResponse_Option{Label: fmt.Sprint(item.%s), Value: %s})
+	}
+	return &commonv1.SelectOptionResponse{List: options}, nil
+}
+
+`, method.MethodName, table.BusinessName, table.EntityName, method.MethodName, method.MethodName, table.EntityName, orderOptionCount, defaultOrderOption, labelField, valueExpr)
+}
+
+// renderTreeOptionBizMethod 渲染树形选择业务方法。
+func (c *renderer) renderTreeOptionBizMethod(table *Table, columns []*CodeGenColumn, method *Proto) string {
+	parentColumn := DefaultString(method.ParentColumn, "parent_id")
+	parentField := modelFieldName(parentColumn)
+	parentGetter := "Get" + stringcase.ToPascalCase(parentColumn) + "()"
+	labelField := modelFieldName(DefaultString(method.LabelColumn, "name"))
+	valueExpr := fmt.Sprintf("int64(item.%s)", modelFieldName(DefaultString(method.ValueColumn, "id")))
+	defaultOrderOption := renderDefaultOrderOption(columns)
+	orderOptionCount := 0
+	if defaultOrderOption != "" {
+		orderOptionCount = 1
+	}
+	return fmt.Sprintf(`// %s 查询%s树形选择。
+func (c *%sCase) %s(ctx context.Context, req *adminv1.%sRequest) (*commonv1.TreeOptionResponse, error) {
+	query := c.Query(ctx).%s
+	opts := make([]repository.QueryOption, 0, %d)
+%s
+	list, err := c.List(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &commonv1.TreeOptionResponse{List: c.build%sOption(list, req.%s)}, nil
+}
+
+// build%sOption 构建%s树形选择。
+func (c *%sCase) build%sOption(list []*models.%s, parentID int64) []*commonv1.TreeOptionResponse_Option {
+	res := make([]*commonv1.TreeOptionResponse_Option, 0)
+	for _, item := range list {
+		if int64(item.%s) != parentID {
+			continue
+		}
+		option := &commonv1.TreeOptionResponse_Option{Label: fmt.Sprint(item.%s), Value: %s}
+		option.Children = c.build%sOption(list, %s)
+		res = append(res, option)
+	}
+	return res
+}
+
+`, method.MethodName, table.BusinessName, table.EntityName, method.MethodName, method.MethodName, table.EntityName, orderOptionCount, defaultOrderOption, method.MethodName, parentGetter, method.MethodName, table.BusinessName, table.EntityName, method.MethodName, table.EntityName, parentField, labelField, valueExpr, method.MethodName, valueExpr)
+}
+
+// renderServiceMethod 渲染服务层方法。
+func (c *renderer) renderServiceMethod(table *Table, method *Proto, entityVar string, returnKind string, errorMessage string) string {
+	returnType := "(*emptypb.Empty, error)"
+	successReturn := "return new(emptypb.Empty), nil"
+	callArgs := "ctx, req"
+	switch returnKind {
+	case "page":
+		returnType = fmt.Sprintf("(*adminv1.%sResponse, error)", method.MethodName)
+		successReturn = "return res, nil"
+	case "get":
+		returnType = fmt.Sprintf("(*adminv1.%sForm, error)", table.EntityName)
+		successReturn = "return res, nil"
+		callArgs = "ctx, req.GetId()"
+	case "tree":
+		returnType = fmt.Sprintf("(*adminv1.%sResponse, error)", method.MethodName)
+		successReturn = "return res, nil"
+	case "option":
+		if method.APIKind == APIKindTree {
+			returnType = "(*commonv1.TreeOptionResponse, error)"
+		} else {
+			returnType = "(*commonv1.SelectOptionResponse, error)"
+		}
+		successReturn = "return res, nil"
+	}
+	caseCall := fmt.Sprintf("s.%sCase.%s(%s)", entityVar, method.MethodName, callArgs)
+	if method.MethodName == "Create"+table.EntityName {
+		caseCall = fmt.Sprintf("s.%sCase.%s(ctx, req.Get%s())", entityVar, method.MethodName, table.EntityName)
+	}
+	if method.MethodName == "Update"+table.EntityName {
+		caseCall = fmt.Sprintf("s.%sCase.%s(ctx, req.GetId(), req.Get%s())", entityVar, method.MethodName, table.EntityName)
+	}
+	if method.MethodName == "Delete"+table.EntityName {
+		caseCall = fmt.Sprintf("s.%sCase.%s(ctx, req.GetIds())", entityVar, method.MethodName)
+	}
+	assign := "res, err :="
+	if returnKind == "empty" {
+		assign = "err :="
+	}
+	return fmt.Sprintf(`
+// %s %s。
+func (s *%sService) %s(ctx context.Context, req *adminv1.%sRequest) %s {
+	%s %s
+	if err != nil {
+		log.Error(fmt.Sprintf("%s %%v", err))
+		return nil, errorsx.WrapInternal(err, %q)
+	}
+	%s
+}
+`, method.MethodName, errorMessage, table.EntityName, method.MethodName, method.MethodName, returnType, assign, caseCall, method.MethodName, errorMessage, successReturn)
+}
+
+// resourcePathByEntity 根据实体名推导管理端资源路径。
+func resourcePathByEntity(entity string) string {
+	return strings.ReplaceAll(stringcase.ToSnakeCase(entity), "_", "/")
+}
+
+// redactCodeGenCommandOutput 脱敏命令输出中的数据库连接和密码参数。
+func redactCodeGenCommandOutput(output string) string {
+	output = commandSourcePattern.ReplaceAllString(output, `${1}'***'`)
+	output = commandDSNPattern.ReplaceAllString(output, "***")
+	output = commandSecretPattern.ReplaceAllString(output, "${1}***")
+	return strings.TrimSpace(output)
+}
+
+// reorderGoReceiverMethods 重排指定接收者的连续方法，其他源码保持不变。
+func reorderGoReceiverMethods(content string, receiverName string) string {
+	file, fileSet, err := parseGoSource(content)
+	if err != nil {
+		return content
+	}
+	blocks := make([]CodeGenSourceMethodBlock, 0)
+	for _, declaration := range file.Decls {
+		function, ok := declaration.(*ast.FuncDecl)
+		if !ok || function.Recv == nil || len(function.Recv.List) == 0 || goReceiverName(function.Recv.List[0].Type) != receiverName {
+			continue
+		}
+		start := fileSet.Position(function.Pos()).Offset
+		if function.Doc != nil {
+			start = fileSet.Position(function.Doc.Pos()).Offset
+		}
+		end := fileSet.Position(function.End()).Offset
+		if start < 0 || end > len(content) || start >= end {
+			return content
+		}
+		blocks = append(blocks, CodeGenSourceMethodBlock{
+			Name:          function.Name.Name,
+			Content:       content[start:end],
+			Start:         start,
+			End:           end,
+			OriginalIndex: len(blocks),
+		})
+	}
+	if len(blocks) < 2 {
+		return content
+	}
+	// 只重排彼此连续的方法；中间存在变量、类型或其他声明时保留人工组织方式。
+	for i := 1; i < len(blocks); i++ {
+		if strings.TrimSpace(content[blocks[i-1].End:blocks[i].Start]) != "" {
+			return content
+		}
+	}
+	start := blocks[0].Start
+	end := blocks[len(blocks)-1].End
+	// 排序范围仅覆盖当前接收者的方法块，文件头、其他类型和包级函数不变。
+	sortCodeGenSourceMethodBlocks(blocks)
+	methodContents := make([]string, 0, len(blocks))
+	for _, block := range blocks {
+		methodContents = append(methodContents, strings.Trim(block.Content, "\r\n"))
+	}
+	return content[:start] + strings.Join(methodContents, "\n\n") + content[end:]
+}
+
+// reorderTSClassMethods 重排指定服务类的连续方法，未知扩展方法保持在固定槽位之后。
+func reorderTSClassMethods(content string, className string) string {
+	classStart := strings.Index(content, "class "+className)
+	classEnd := findTSClassEndIndex(content, className)
+	if classStart < 0 || classEnd < 0 {
+		return content
+	}
+	classContent := content[classStart : classEnd+1]
+	matches := tsClassMethodPattern.FindAllStringSubmatch(classContent, -1)
+	blocks := make([]CodeGenSourceMethodBlock, 0, len(matches))
+	searchOffset := 0
+	seen := make(map[string]struct{}, len(matches))
+	// 按源码位置逐个提取完整方法块，避免同名文本出现在方法体时定位错误。
+	for _, match := range matches {
+		methodName := match[1]
+		if _, ok := seen[methodName]; ok {
+			continue
+		}
+		seen[methodName] = struct{}{}
+		methodContent := extractTSClassMethod(classContent, methodName)
+		if methodContent == "" {
+			return content
+		}
+		startOffset := strings.Index(classContent[searchOffset:], methodContent)
+		if startOffset < 0 {
+			return content
+		}
+		startOffset += searchOffset
+		endOffset := startOffset + len(methodContent)
+		blocks = append(blocks, CodeGenSourceMethodBlock{
+			Name:          methodName,
+			Content:       methodContent,
+			Start:         classStart + startOffset,
+			End:           classStart + endOffset,
+			OriginalIndex: len(blocks),
+		})
+		searchOffset = endOffset
+	}
+	if len(blocks) < 2 {
+		return content
+	}
+	// 类字段或其他语句夹在方法之间时停止重排，避免改变类成员语义。
+	for i := 1; i < len(blocks); i++ {
+		if strings.TrimSpace(content[blocks[i-1].End:blocks[i].Start]) != "" {
+			return content
+		}
+	}
+	start := blocks[0].Start
+	end := blocks[len(blocks)-1].End
+	sortCodeGenSourceMethodBlocks(blocks)
+	methodContents := make([]string, 0, len(blocks))
+	for _, block := range blocks {
+		methodContent := strings.Trim(block.Content, "\r\n")
+		// 对缺少文档的生成方法补最小注释，已有人工注释保持原样。
+		if comment := codeGenTSMethodComment(block.Name); comment != "" && !strings.HasPrefix(strings.TrimSpace(methodContent), "/**") {
+			methodContent = "  /** " + comment + " */\n" + methodContent
+		}
+		methodContents = append(methodContents, methodContent)
+	}
+	return content[:start] + strings.Join(methodContents, "\n\n") + content[end:]
+}
+
+// sortCodeGenSourceMethodBlocks 按固定槽位排序，未知扩展方法保持原相对顺序。
+func sortCodeGenSourceMethodBlocks(blocks []CodeGenSourceMethodBlock) {
+	slices.SortStableFunc(blocks, func(a CodeGenSourceMethodBlock, b CodeGenSourceMethodBlock) int {
+		aPosition := codeGenSourceMethodPosition(a.Name)
+		bPosition := codeGenSourceMethodPosition(b.Name)
+		if aPosition != bPosition {
+			return aPosition - bPosition
+		}
+		if aPosition < 80 && a.Name != b.Name {
+			return strings.Compare(a.Name, b.Name)
+		}
+		return a.OriginalIndex - b.OriginalIndex
+	})
+}
+
+// codeGenTSMethodComment 返回固定槽位方法缺失注释时使用的简短说明。
+func codeGenTSMethodComment(methodName string) string {
+	switch codeGenSourceMethodPosition(methodName) {
+	case 10:
+		return "查询选择项"
+	case 20:
+		return "查询列表"
+	case 30:
+		return "查询详情"
+	case 40:
+		return "创建"
+	case 50:
+		return "更新"
+	case 60:
+		return "删除"
+	case 70:
+		return "设置状态"
+	default:
+		return ""
+	}
+}
+
+// codeGenSourceMethodPosition 按方法名返回生成文件中的固定槽位。
+func codeGenSourceMethodPosition(methodName string) int {
+	switch {
+	case strings.HasPrefix(methodName, "Option"):
+		return 10
+	case strings.HasPrefix(methodName, "Page"), strings.HasPrefix(methodName, "Tree"):
+		return 20
+	case strings.HasPrefix(methodName, "Get"):
+		return 30
+	case strings.HasPrefix(methodName, "Create"):
+		return 40
+	case strings.HasPrefix(methodName, "Update"):
+		return 50
+	case strings.HasPrefix(methodName, "Delete"):
+		return 60
+	case strings.HasPrefix(methodName, "Set"):
+		return 70
+	default:
+		return 80
+	}
+}
+
+// filterProtoMethods 按 Proto 文件筛选需要生成的方法。
+func filterProtoMethods(methods []*Proto, protoPath string) []*Proto {
+	list := make([]*Proto, 0, len(methods))
+	for _, method := range methods {
+		if method.GenerateWhenMissing == 1 && method.ProtoFilePath == protoPath {
+			list = append(list, method)
+		}
+	}
+	return sortCodeGenProtoMethods(list)
+}
+
+// sortCodeGenProtoMethods 按服务、固定槽位和方法名稳定排序。
+func sortCodeGenProtoMethods(methods []*Proto) []*Proto {
+	list := slices.Clone(methods)
+	slices.SortStableFunc(list, func(a *Proto, b *Proto) int {
+		if a.TargetEntityName != b.TargetEntityName {
+			return strings.Compare(a.TargetEntityName, b.TargetEntityName)
+		}
+		aPosition := codeGenProtoMethodPosition(a.APIKind, a.TriggerType, a.MethodName)
+		bPosition := codeGenProtoMethodPosition(b.APIKind, b.TriggerType, b.MethodName)
+		if aPosition != bPosition {
+			return aPosition - bPosition
+		}
+		return strings.Compare(a.MethodName, b.MethodName)
+	})
+	return list
+}
+
+// codeGenProtoMethodPosition 返回生成方法对应的固定槽位。
+func codeGenProtoMethodPosition(apiKind string, triggerType string, methodName string) int {
+	if apiKind == APIKindOption || apiKind == APIKindTree && triggerType != TriggerPageTree {
+		return 10
+	}
+	if apiKind == APIKindList || triggerType == TriggerPageTree {
+		return 20
+	}
+	if apiKind == APIKindCRUD && triggerType == TriggerCRUD {
+		switch {
+		case strings.HasPrefix(methodName, "Get"):
+			return 30
+		case strings.HasPrefix(methodName, "Create"):
+			return 40
+		case strings.HasPrefix(methodName, "Update"):
+			return 50
+		case strings.HasPrefix(methodName, "Delete"):
+			return 60
+		}
+	}
+	if apiKind == APIKindStatus {
+		return 70
+	}
+	return 80
+}
+
+// firstMethodByKind 查找指定类型和触发来源的首个方法。
+func firstMethodByKind(methods []*Proto, apiKind string, triggerType string) *Proto {
+	for _, method := range methods {
+		if method.APIKind != apiKind {
+			continue
+		}
+		if triggerType != "" && method.TriggerType != triggerType {
+			continue
+		}
+		return method
+	}
+	return nil
+}
+
+// methodsByKinds 按接口类型筛选方法列表。
+func methodsByKinds(methods []*Proto, kinds ...string) []*Proto {
+	list := make([]*Proto, 0, len(methods))
+	for _, method := range methods {
+		for _, kind := range kinds {
+			if method.APIKind == kind {
+				list = append(list, method)
+				break
+			}
+		}
+	}
+	return list
+}
+
+// missingCoreMethodNames 返回未启用的列表与 CRUD 核心方法名。
+func missingCoreMethodNames(table *Table, methods []*Proto) map[string]struct{} {
+	methodNames := protoMethodNameSet(methods)
+	entity := table.EntityName
+	candidates := []string{
+		"Page" + entity,
+		"Tree" + entity,
+		"Get" + entity,
+		"Create" + entity,
+		"Update" + entity,
+		"Delete" + entity,
+	}
+	missing := make(map[string]struct{}, len(candidates))
+	for _, methodName := range candidates {
+		if _, ok := methodNames[methodName]; !ok {
+			missing[methodName] = struct{}{}
+		}
+	}
+	return missing
+}
+
+// frontendPageMethodsComplete 判断生成前端页面所需的查询与 CRUD 接口是否完整。
+func frontendPageMethodsComplete(table *Table, methods []*Proto) bool {
+	methodNames := protoMethodNameSet(methods)
+	listMethod := "Page" + table.EntityName
+	if table.PageType == PageTypeTree {
+		listMethod = "Tree" + table.EntityName
+	}
+	for _, methodName := range []string{
+		listMethod,
+		"Get" + table.EntityName,
+		"Create" + table.EntityName,
+		"Update" + table.EntityName,
+		"Delete" + table.EntityName,
+	} {
+		if _, ok := methodNames[methodName]; !ok {
+			return false
+		}
+	}
+	return true
+}
+
+// protoMethodNameSet 构建 Proto 方法名集合。
+func protoMethodNameSet(methods []*Proto) map[string]struct{} {
+	names := make(map[string]struct{}, len(methods))
+	for _, method := range methods {
+		names[method.MethodName] = struct{}{}
+	}
+	return names
+}
+
+// currentEntityOptionMethod 查找当前实体需要生成的选择接口方法。
+func currentEntityOptionMethod(table *Table, methods []*Proto) *Proto {
+	for _, method := range methods {
+		if method.TargetEntityName == table.EntityName && method.APIKind == APIKindOption {
+			return method
+		}
+		if method.TargetEntityName == table.EntityName && method.APIKind == APIKindTree && (method.TriggerType == TriggerEntityOption || method.TriggerType == TriggerFieldOption || method.TriggerType == TriggerLeftTree) {
+			return method
+		}
+	}
+	return nil
+}
+
+// countQueryColumns 统计查询字段数量。
+func countQueryColumns(columns []*CodeGenColumn) int {
+	count := 0
+	for _, column := range columns {
+		if generatedQueryIncludesColumn(column) {
+			if effectiveQueryOperator(column) == "between" {
+				count += 2
+				continue
+			}
+			count++
+		}
+	}
+	return count
+}
+
+// effectiveQueryOperator 返回字段实际可用的查询方式，非时间字段不接受区间查询。
+func effectiveQueryOperator(column *CodeGenColumn) string {
+	operator := NormalizeQueryOperator(column.QueryOperator)
+	if operator == "between" && !isDateTimeDBType(DefaultString(column.ColumnType, column.DbType)) {
+		return "eq"
+	}
+	return operator
+}
+
+// modelFieldName 将数据库字段名转为生成模型字段名。
+func modelFieldName(columnName string) string {
+	if columnName == "id" {
+		return "ID"
+	}
+	if strings.HasSuffix(columnName, "_id") {
+		return strings.TrimSuffix(stringcase.ToPascalCase(strings.TrimSuffix(columnName, "_id")), "Id") + "ID"
+	}
+	return stringcase.ToPascalCase(columnName)
+}

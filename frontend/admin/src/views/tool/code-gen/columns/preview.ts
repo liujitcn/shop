@@ -57,14 +57,17 @@ export function createCodeGenPreviewOptionKey(columnName: string, scope: CodeGen
 export function createCodeGenPreviewOptionMap(columns: CodeGenColumn[]): CodeGenPreviewOptionMap {
   return columns.reduce<CodeGenPreviewOptionMap>((optionMap, column) => {
     const label = column.column_comment || column.column_name;
-    const statusOptions = createConfiguredStatusOptions(column);
     const configs: Array<[CodeGenPreviewScope, CodeGenColumnOptionConfig | undefined, boolean]> = [
       [
         "query",
         column.query_config?.option,
         Boolean(column.query_config?.enabled && hasPreviewOptions(column.query_config.component))
       ],
-      ["list", column.list_config?.option, Boolean(column.list_config?.enabled && column.list_config.component === "dict")],
+      [
+        "list",
+        column.list_config?.option,
+        Boolean(column.list_config?.enabled && ["switch", "select", "tree-select"].includes(column.list_config.component))
+      ],
       [
         "form",
         column.form_config?.option,
@@ -73,9 +76,7 @@ export function createCodeGenPreviewOptionMap(columns: CodeGenColumn[]): CodeGen
     ];
     configs.forEach(([scope, option, enabled]) => {
       optionMap[createCodeGenPreviewOptionKey(column.column_name, scope)] = enabled
-        ? statusOptions.length && !option?.source_type
-          ? statusOptions
-          : createCodeGenPreviewOptions(label, option)
+        ? createCodeGenPreviewOptions(label, option)
         : [];
     });
     return optionMap;
@@ -84,14 +85,16 @@ export function createCodeGenPreviewOptionMap(columns: CodeGenColumn[]): CodeGen
 
 /** 根据左树配置创建结构相符的模拟树节点。 */
 export function createCodeGenLeftTreeOptions(config?: CodeGenLeftTreeConfig): ProFormOption[] {
-  if (!config?.source_type) return [];
+  if (!config?.table_name) return [];
   const option: CodeGenColumnOptionConfig = {
     kind: "tree",
-    source_type: config.source_type,
-    source_value: config.source_value,
+    source_type: "table",
+    source_value: config.table_name,
     label_field: config.label_column,
     value_field: config.value_column,
-    parent_field: config.parent_column
+    parent_field: config.parent_column,
+    active_value: "",
+    inactive_value: ""
   };
   return createCodeGenPreviewOptions(config.label_column || "分类", option);
 }
@@ -190,6 +193,12 @@ function createCodeGenPreviewOptions(label: string, option?: CodeGenColumnOption
     const staticOptions = parseCodeGenStaticOptions(option.source_value);
     if (staticOptions.length) return staticOptions;
   }
+  if (option?.kind === "switch") {
+    return [
+      { label: "开启", value: option.active_value || "1" },
+      { label: "关闭", value: option.inactive_value || "0" }
+    ];
+  }
   const sourceLabel = option?.source_value || label;
   // 树形组件用两级节点表现最终布局，其字段名和来源标识均取当前真实配置。
   if (option?.kind === "tree") {
@@ -210,7 +219,9 @@ function createCodeGenPreviewOptions(label: string, option?: CodeGenColumnOption
 
 /** 判断组件是否需要模拟选项集合。 */
 function hasPreviewOptions(component?: string) {
-  return ["segmented", "select", "dict", "radio-group", "checkbox-group", "tree-select", "transfer"].includes(component || "");
+  return ["segmented", "switch", "select", "dict", "radio-group", "checkbox-group", "tree-select", "transfer"].includes(
+    component || ""
+  );
 }
 
 /** 解析字段配置中已经维护的静态选项和树形子节点。 */
@@ -255,20 +266,7 @@ function resolveColumnPreviewOptions(optionMap: CodeGenPreviewOptionMap, column:
     const options = resolveCodeGenPreviewOptions(optionMap, column.column_name, scope);
     if (options.length) return flattenCodeGenPreviewOptions(options);
   }
-  const statusOptions = createConfiguredStatusOptions(column);
-  if (statusOptions.length) return statusOptions;
   return [];
-}
-
-/** 根据状态配置创建查询、列表和表单共享的模拟选项。 */
-function createConfiguredStatusOptions(column: CodeGenColumn): ProFormOption[] {
-  const status = column.list_config?.status;
-  const isStatusComponent = ["status", "status-switch"].includes(column.list_config?.component || "");
-  if (!status?.enabled && !isStatusComponent) return [];
-  return [
-    { label: "启用", value: status?.enabled_value || "1" },
-    { label: "停用", value: status?.disabled_value || "0" }
-  ];
 }
 
 /** 根据数据库属性和组件配置创建单元格模拟值。 */

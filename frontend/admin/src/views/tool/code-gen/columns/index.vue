@@ -29,42 +29,67 @@
           class="code-gen-column-table"
           empty-text="暂无字段配置"
         >
-          <el-table-column label="数据库字段" min-width="260" fixed="left">
-            <template #default="{ row }">
-              <el-popover trigger="hover" placement="right-start" :width="320" :show-after="250">
-                <template #reference>
-                  <div class="code-gen-field-trigger">
-                    <span class="code-gen-field-trigger__name">{{ row.column_name }}</span>
-                  </div>
-                </template>
-                <div class="code-gen-field-popover">
-                  <div class="code-gen-field-popover__header">
-                    <strong>{{ row.column_name }}</strong>
-                    <span>{{ row.column_comment || row.column_name }}</span>
-                  </div>
-                  <div class="code-gen-field-popover__types">
-                    <div>
-                      <span>数据库</span><b>{{ row.db_type || "--" }}</b>
+          <el-table-column label="数据库字段" min-width="320" fixed="left">
+            <template #default="{ row, $index }">
+              <div class="code-gen-field-cell">
+                <el-popover trigger="hover" placement="right-start" :width="320" :show-after="250">
+                  <template #reference>
+                    <div class="code-gen-field-trigger">
+                      <span class="code-gen-field-trigger__name">{{ row.column_name }}</span>
                     </div>
-                    <div>
-                      <span>Go</span><b>{{ row.go_type || "--" }}</b>
+                  </template>
+                  <div class="code-gen-field-popover">
+                    <div class="code-gen-field-popover__header">
+                      <strong>{{ row.column_name }}</strong>
+                      <span>{{ row.column_comment || row.column_name }}</span>
                     </div>
-                    <div>
-                      <span>Proto</span><b>{{ row.proto_type || "--" }}</b>
+                    <div class="code-gen-field-popover__types">
+                      <div>
+                        <span>数据库</span><b>{{ row.db_type || "--" }}</b>
+                      </div>
+                      <div>
+                        <span>Go</span><b>{{ row.go_type || "--" }}</b>
+                      </div>
+                      <div>
+                        <span>Proto</span><b>{{ row.proto_type || "--" }}</b>
+                      </div>
+                      <div>
+                        <span>TS</span><b>{{ row.ts_type || "--" }}</b>
+                      </div>
                     </div>
-                    <div>
-                      <span>TS</span><b>{{ row.ts_type || "--" }}</b>
+                    <div class="code-gen-field-popover__flags">
+                      <el-tag v-if="row.is_primary" size="small" type="danger" effect="plain">主键</el-tag>
+                      <el-tag v-if="row.is_auto_increment" size="small" type="warning" effect="plain">自增</el-tag>
+                      <el-tag size="small" :type="row.is_nullable ? 'info' : 'success'" effect="plain">
+                        {{ row.is_nullable ? "可空" : "必填" }}
+                      </el-tag>
                     </div>
                   </div>
-                  <div class="code-gen-field-popover__flags">
-                    <el-tag v-if="row.is_primary" size="small" type="danger" effect="plain">主键</el-tag>
-                    <el-tag v-if="row.is_auto_increment" size="small" type="warning" effect="plain">自增</el-tag>
-                    <el-tag size="small" :type="row.is_nullable ? 'info' : 'success'" effect="plain">
-                      {{ row.is_nullable ? "可空" : "必填" }}
-                    </el-tag>
-                  </div>
+                </el-popover>
+                <div class="code-gen-field-order">
+                  <span class="code-gen-field-order__index">{{ $index + 1 }}</span>
+                  <el-tooltip content="上移" placement="top">
+                    <el-button
+                      circle
+                      size="small"
+                      :icon="ArrowUp"
+                      :disabled="!canEdit || $index === 0"
+                      aria-label="上移字段"
+                      @click="moveColumn($index, -1)"
+                    />
+                  </el-tooltip>
+                  <el-tooltip content="下移" placement="top">
+                    <el-button
+                      circle
+                      size="small"
+                      :icon="ArrowDown"
+                      :disabled="!canEdit || $index === columns.length - 1"
+                      aria-label="下移字段"
+                      @click="moveColumn($index, 1)"
+                    />
+                  </el-tooltip>
                 </div>
-              </el-popover>
+              </div>
             </template>
           </el-table-column>
 
@@ -210,7 +235,13 @@
       @closed="handleOptionDialogClosed"
     >
       <div v-if="optionDialog.option" class="code-gen-option-dialog">
-        <div v-if="!['tree', 'switch'].includes(optionDialog.option.kind)" class="code-gen-popover-form__row">
+        <div
+          v-if="
+            !['tree', 'switch'].includes(optionDialog.option.kind) &&
+            !(optionDialog.scope === 'form' && optionDialog.component === 'dict')
+          "
+          class="code-gen-popover-form__row"
+        >
           <span class="code-gen-popover-form__label">来源</span>
           <el-select
             v-model="optionDialog.option.source_type"
@@ -396,7 +427,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref, watch } from "vue";
-import { Delete, Document, Plus, Setting } from "@element-plus/icons-vue";
+import { ArrowDown, ArrowUp, Delete, Document, Plus, Setting } from "@element-plus/icons-vue";
 import { useRoute, useRouter } from "vue-router";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { useTabsStore } from "@/stores/modules/tabs";
@@ -455,6 +486,13 @@ const loadingDatabaseTables = ref(false);
 const loadingDatabaseColumns = reactive(new Set<string>());
 let dictionariesLoaded = false;
 let databaseTablesLoaded = false;
+
+/** 开关组件默认使用的状态字典和值。 */
+const codeGenDefaultSwitchOption = {
+  sourceValue: "status",
+  activeValue: "1",
+  inactiveValue: "2"
+};
 
 /** 字段配置页面使用的完整结构化编辑模型。 */
 type CodeGenColumnView = Omit<CodeGenColumnDTO, "query_config" | "list_config" | "form_config"> & {
@@ -555,7 +593,8 @@ async function handleQuery() {
 
 /** 同步当前页签和浏览器标题。 */
 function syncWorkspaceTitle() {
-  const title = "字段配置";
+  const tableTitle = formData.comment || formData.name;
+  const title = tableTitle ? `${tableTitle}字段配置` : "字段配置";
   tabsStore.setTabsTitle(title);
   document.title = `${title} - ${import.meta.env.VITE_GLOB_APP_TITLE}`;
 }
@@ -563,6 +602,7 @@ function syncWorkspaceTitle() {
 /** 保存字段配置。 */
 async function handleSaveColumns(showMessage = true) {
   if (!formData.id) return false;
+  syncColumnSorts();
   columns.value.forEach(syncColumnOptionKinds);
   if (columns.value.some(item => !item.column_name || !item.db_type)) {
     ElMessage.warning("字段名和数据库类型不能为空");
@@ -579,7 +619,7 @@ async function handleSaveColumns(showMessage = true) {
     code_gen_columns: columns.value.map((item, index) => ({
       ...item,
       table_id: formData.id,
-      sort: item.sort || index + 1
+      sort: index + 1
     }))
   });
   if (showMessage) ElMessage.success("保存成功");
@@ -588,6 +628,22 @@ async function handleSaveColumns(showMessage = true) {
   await router.push("/tool/code-gen");
   await tabsStore.removeTabs(currentPath, false);
   return true;
+}
+
+/** 上下移动字段，并同步查询、列表和表单共用的排列顺序。 */
+function moveColumn(index: number, offset: -1 | 1) {
+  const targetIndex = index + offset;
+  if (targetIndex < 0 || targetIndex >= columns.value.length) return;
+  const [column] = columns.value.splice(index, 1);
+  columns.value.splice(targetIndex, 0, column);
+  syncColumnSorts();
+}
+
+/** 按当前字段表格行顺序更新持久化排序值。 */
+function syncColumnSorts() {
+  columns.value.forEach((item, index) => {
+    item.sort = index + 1;
+  });
 }
 
 /** 将接口字段配置补齐为三份互不共享的选项对象。 */
@@ -907,7 +963,7 @@ function hasOptionConfig(option: CodeGenColumnOptionConfig) {
 /** 判断组件是否依赖选择数据源。 */
 function hasOptionComponent(component: string, scope: CodeGenOptionScope) {
   return (
-    (scope === "list" && component === "switch") ||
+    (scope !== "query" && component === "switch") ||
     ["segmented", "select", "dict", "radio-group", "checkbox-group", "tree-select", "transfer"].includes(component)
   );
 }
@@ -928,16 +984,29 @@ function syncOptionKind(config: CodeGenOptionContainer, scope: CodeGenOptionScop
   const kind =
     config.component === "tree-select"
       ? "tree"
-      : scope === "list" && config.component === "switch"
+      : scope !== "query" && config.component === "switch"
         ? "switch"
         : "option";
   if (kind === "tree" && config.option.source_type !== "table") {
     Object.assign(config.option, createDefaultCodeGenOptionConfig());
     config.option.source_type = "table";
   }
-  if (kind === "switch" && config.option.source_type !== "dict") {
-    Object.assign(config.option, createDefaultCodeGenOptionConfig());
-    config.option.source_type = "dict";
+  if (kind === "switch") {
+    if (config.option.source_type !== "dict") {
+      Object.assign(config.option, createDefaultCodeGenOptionConfig());
+      config.option.source_type = "dict";
+    }
+    config.option.label_field = "label";
+    config.option.value_field = "value";
+    if (!config.option.source_value) config.option.source_value = codeGenDefaultSwitchOption.sourceValue;
+    if (!config.option.active_value) config.option.active_value = codeGenDefaultSwitchOption.activeValue;
+    if (!config.option.inactive_value) config.option.inactive_value = codeGenDefaultSwitchOption.inactiveValue;
+  }
+  if (scope === "form" && config.component === "dict") {
+    if (config.option.source_type !== "dict") {
+      Object.assign(config.option, createDefaultCodeGenOptionConfig());
+      config.option.source_type = "dict";
+    }
     config.option.label_field = "label";
     config.option.value_field = "value";
   }
@@ -1042,13 +1111,41 @@ onMounted(() => {
   vertical-align: middle;
 }
 
-.code-gen-field-trigger {
+.code-gen-field-cell,
+.code-gen-field-trigger,
+.code-gen-field-order {
   display: flex;
   gap: 8px;
   align-items: center;
   min-width: 0;
+}
+
+.code-gen-field-cell {
+  justify-content: space-between;
+}
+
+.code-gen-field-trigger {
+  flex: 1;
   min-height: 28px;
   cursor: help;
+}
+
+.code-gen-field-order {
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.code-gen-field-order__index {
+  min-width: 18px;
+  font-size: 12px;
+  color: var(--admin-page-text-secondary);
+  text-align: right;
+}
+
+.code-gen-field-order .el-button {
+  width: 24px;
+  height: 24px;
+  padding: 0;
 }
 
 .code-gen-config-cell,

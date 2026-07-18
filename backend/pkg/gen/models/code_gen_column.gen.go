@@ -21,6 +21,7 @@ type CodeGenColumn struct {
 	QueryConfig   string         `gorm:"column:query_config;type:json;comment:查询条件配置JSON" json:"query_config"`                                                                                               // 查询条件配置JSON
 	ListConfig    string         `gorm:"column:list_config;type:json;comment:列表展示配置JSON" json:"list_config"`                                                                                                 // 列表展示配置JSON
 	FormConfig    string         `gorm:"column:form_config;type:json;comment:表单录入配置JSON" json:"form_config"`                                                                                                 // 表单录入配置JSON
+	Sort          int32          `gorm:"column:sort;type:int;comment:排序" json:"sort"`                                                                                                                        // 排序
 	CreatedBy     int64          `gorm:"column:created_by;type:bigint;comment:创建人ID" json:"created_by"`                                                                                                      // 创建人ID
 	UpdatedBy     int64          `gorm:"column:updated_by;type:bigint;comment:更新人ID" json:"updated_by"`                                                                                                      // 更新人ID
 	CreatedAt     time.Time      `gorm:"column:created_at;type:datetime;comment:创建时间" json:"created_at"`                                                                                                     // 创建时间

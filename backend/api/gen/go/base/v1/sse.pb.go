@@ -29,7 +29,8 @@ const (
 // SSE订阅请求参数
 type SubscribeSseRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Stream        v1.SseStream           `protobuf:"varint,1,opt,name=stream,proto3,enum=common.v1.SseStream" json:"stream,omitempty"` // SSE流
+	Stream        v1.SseStream           `protobuf:"varint,1,opt,name=stream,proto3,enum=common.v1.SseStream" json:"stream,omitempty"`    // SSE流
+	ChannelId     *string                `protobuf:"bytes,2,opt,name=channel_id,json=channelId,proto3,oneof" json:"channel_id,omitempty"` // SSE通道ID
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -71,13 +72,23 @@ func (x *SubscribeSseRequest) GetStream() v1.SseStream {
 	return v1.SseStream(0)
 }
 
+func (x *SubscribeSseRequest) GetChannelId() string {
+	if x != nil && x.ChannelId != nil {
+		return *x.ChannelId
+	}
+	return ""
+}
+
 var File_base_v1_sse_proto protoreflect.FileDescriptor
 
 const file_base_v1_sse_proto_rawDesc = "" +
 	"\n" +
-	"\x11base/v1/sse.proto\x12\abase.v1\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"Q\n" +
+	"\x11base/v1/sse.proto\x12\abase.v1\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x97\x01\n" +
 	"\x13SubscribeSseRequest\x12:\n" +
-	"\x06stream\x18\x01 \x01(\x0e2\x14.common.v1.SseStreamB\f\xbaG\t\x92\x02\x06SSE流R\x06stream2l\n" +
+	"\x06stream\x18\x01 \x01(\x0e2\x14.common.v1.SseStreamB\f\xbaG\t\x92\x02\x06SSE流R\x06stream\x125\n" +
+	"\n" +
+	"channel_id\x18\x02 \x01(\tB\x11\xbaG\x0e\x92\x02\vSSE通道IDH\x00R\tchannelId\x88\x01\x01B\r\n" +
+	"\v_channel_id2l\n" +
 	"\n" +
 	"SseService\x12^\n" +
 	"\fSubscribeSse\x12\x1c.base.v1.SubscribeSseRequest\x1a\x16.google.protobuf.Empty\"\x18\x82\xd3\xe4\x93\x02\x12\x12\x10/events/{stream}Bt\n" +
@@ -117,6 +128,7 @@ func file_base_v1_sse_proto_init() {
 	if File_base_v1_sse_proto != nil {
 		return
 	}
+	file_base_v1_sse_proto_msgTypes[0].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

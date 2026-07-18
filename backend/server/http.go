@@ -83,6 +83,7 @@ func NewHTTPServer(
 	adminv1.RegisterBaseRoleServiceHTTPServer(srv, services.adminBaseRole)
 	adminv1.RegisterBaseTenantServiceHTTPServer(srv, services.adminBaseTenant)
 	adminv1.RegisterBaseUserServiceHTTPServer(srv, services.adminBaseUser)
+	adminv1.RegisterCodeGenServiceHTTPServer(srv, services.adminCodeGen)
 	adminv1.RegisterCodeGenColumnServiceHTTPServer(srv, services.adminCodeGenColumn)
 	adminv1.RegisterCodeGenProtoServiceHTTPServer(srv, services.adminCodeGenProto)
 	adminv1.RegisterCodeGenTableServiceHTTPServer(srv, services.adminCodeGenTable)

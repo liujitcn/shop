@@ -266,7 +266,8 @@ async function handleQuery() {
  * 同步当前页签和浏览器标题。
  */
 function syncWorkspaceTitle() {
-  const title = "Proto 能力";
+  const tableTitle = formData.comment || formData.name;
+  const title = tableTitle ? `${tableTitle} Proto 能力` : "Proto 能力";
   tabsStore.setTabsTitle(title);
   document.title = `${title} - ${import.meta.env.VITE_GLOB_APP_TITLE}`;
 }

@@ -75,8 +75,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, h, nextTick, onMounted, reactive, ref, watch } from "vue";
-import { ElMessage, ElMessageBox, ElTag } from "element-plus";
+import { computed, nextTick, onMounted, reactive, ref, watch } from "vue";
+import { ElMessage, ElMessageBox } from "element-plus";
 import type { TreeInstance } from "element-plus";
 import { CirclePlus, Delete, EditPen, Search } from "@element-plus/icons-vue";
 import { useRoute } from "vue-router";
@@ -150,7 +150,9 @@ const optionMap = computed(() => createCodeGenPreviewOptionMap(snapshot.value?.c
 const leftTreeOptions = computed(() => createCodeGenLeftTreeOptions(snapshot.value?.table.left_tree_config));
 
 /** 左树标题使用当前真实来源标识。 */
-const leftTreeTitle = computed(() => snapshot.value?.table.left_tree_config?.source_value || "分类树");
+const leftTreeTitle = computed(
+  () => snapshot.value?.table.left_tree_config?.comment || snapshot.value?.table.left_tree_config?.table_name || "分类树"
+);
 
 /** 根据字段配置生成最终页面的查询项和列表列。 */
 const tableColumns = computed<ColumnProps[]>(() => {
@@ -329,53 +331,39 @@ function applyPreviewListComponent(result: ColumnProps, column: CodeGenColumn, o
     result.align = "right";
     return;
   }
-  if (component === "status-switch") {
-    const status = column.list_config?.status;
+  if (component === "switch") {
+    const option = column.list_config?.option;
+    const activeOption = options.find(item => item.value === option?.active_value);
+    const inactiveOption = options.find(item => item.value === option?.inactive_value);
     result.cellType = "status";
     result.width = 110;
     result.statusProps = {
-      activeValue: status?.enabled_value || options[0]?.value || "1",
-      inactiveValue: status?.disabled_value || options[1]?.value || "0",
-      activeText: options[0]?.label || "启用",
-      inactiveText: options[1]?.label || "停用",
+      activeValue: option?.active_value || options[0]?.value || "1",
+      inactiveValue: option?.inactive_value || options[1]?.value || "0",
+      activeText: activeOption?.label || option?.active_value || "开启",
+      inactiveText: inactiveOption?.label || option?.inactive_value || "关闭",
       onChange: () => {
         ElMessage.success("状态已更新");
       }
     };
     return;
   }
-  if (["dict", "status"].includes(component || "") || options.length) {
-    result.render = scope => renderPreviewOptionValue(scope, column.column_name, options, component === "status");
+  if (options.length) {
+    result.render = scope => renderPreviewOptionValue(scope, column.column_name, options);
   }
 }
 
 /** 渲染列表选择值，树形子选项同样可以正确匹配。 */
-function renderPreviewOptionValue(scope: RenderScope, columnName: string, options: ProFormOption[], showTag: boolean) {
+function renderPreviewOptionValue(scope: RenderScope, columnName: string, options: ProFormOption[]) {
   const flatOptions = flattenCodeGenPreviewOptions(options);
   const value = scope.row[columnName];
   const matched = flatOptions.find(option => String(option.value) === String(value));
-  const label = matched?.label || String(value ?? "--");
-  return showTag ? h(ElTag, { type: resolvePreviewTagType(value), effect: "light" }, () => label) : label;
+  return matched?.label || String(value ?? "--");
 }
 
-/** 创建状态类标签颜色。 */
-function resolvePreviewTagType(value: unknown): "success" | "warning" | "info" | "danger" {
-  const normalizedValue = String(value).toLowerCase();
-  if (["1", "true", "enable", "enabled"].includes(normalizedValue)) return "success";
-  if (["0", "false", "disable", "disabled"].includes(normalizedValue)) return "danger";
-  return Number(value) % 2 === 0 ? "warning" : "info";
-}
-
-/** 状态组件缺少显式选项时，根据当前真实状态规则补齐模拟项。 */
+/** 返回列表组件配置的模拟选项。 */
 function resolveDisplayOptions(column: CodeGenColumn) {
-  const options = resolveCodeGenPreviewOptions(optionMap.value, column.column_name, "list");
-  if (options.length && column.list_config?.option?.source_type) return options;
-  const status = column.list_config?.status;
-  if (!["status", "status-switch"].includes(column.list_config?.component || "") && !status?.enabled) return options;
-  return [
-    { label: "启用", value: status?.enabled_value || "1" },
-    { label: "停用", value: status?.disabled_value || "0" }
-  ];
+  return resolveCodeGenPreviewOptions(optionMap.value, column.column_name, "list");
 }
 
 /** 请求前端模拟列表，并复用最终页面的查询与分页交互。 */
@@ -529,6 +517,8 @@ function createPreviewFormProps(component: ProFormComponentType, label: string, 
       return { min: 0, controlsPosition: "right", style: fullWidthStyle };
     case "segmented":
       return { block: true };
+    case "switch":
+      return { activeValue: option?.active_value || "1", inactiveValue: option?.inactive_value || "2" };
     case "select":
     case "tree-select":
       return { placeholder: `请选择${label}`, clearable: true, filterable: true, checkStrictly: true, style: fullWidthStyle };
@@ -572,24 +562,10 @@ function createPreviewSearchProps(column: CodeGenColumn) {
   return props;
 }
 
-/** 创建不同组件的新增表单初始值，并优先采用字段表单配置中的默认值。 */
+/** 创建不同组件的新增表单初始值。 */
 function createPreviewFormValue(field: ProFormField, column?: CodeGenColumn) {
   const options = Array.isArray(field.options) ? flattenCodeGenPreviewOptions(field.options) : [];
   const firstValue = options[0]?.value;
-  const defaultValue = column?.form_config?.default_value ?? "";
-  // 配置了默认值时按组件需要转换成最终表单使用的数据类型。
-  if (defaultValue !== "") {
-    if (field.component === "input-number") {
-      const value = Number(defaultValue);
-      return Number.isFinite(value) ? value : defaultValue;
-    }
-    if (field.component === "switch" || field.component === "checkbox") {
-      const enabledValue = column?.list_config?.status?.enabled_value;
-      return enabledValue ? defaultValue === enabledValue : ["1", "true", "enable", "enabled"].includes(defaultValue.toLowerCase());
-    }
-    if (field.component === "date-picker") return new Date(defaultValue);
-    return defaultValue;
-  }
   switch (field.component) {
     case "input-number":
       return 1;
@@ -599,6 +575,7 @@ function createPreviewFormValue(field: ProFormField, column?: CodeGenColumn) {
     case "tree-select":
       return firstValue;
     case "switch":
+      return column?.form_config?.option?.active_value || true;
     case "checkbox":
       return true;
     case "checkbox-group":
@@ -645,7 +622,7 @@ function resolvePreviewColSpan(component: ProFormComponentType) {
 function resolvePreviewColumnWidth(column: CodeGenColumn) {
   if (["created_at", "updated_at"].includes(column.column_name) || column.list_config?.component === "date") return 180;
   if (column.list_config?.component === "image") return 120;
-  if (["status", "status-switch"].includes(column.list_config?.component || "")) return 110;
+  if (column.list_config?.component === "switch") return 110;
   return 150;
 }
 

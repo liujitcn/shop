@@ -57,6 +57,9 @@ export type SearchProps = {
   span?: number; // 搜索项所占用的列数，默认为 1 列
   offset?: number; // 搜索字段左侧偏移列数
   defaultValue?: string | number | boolean | any[] | Ref<any>; // 搜索项默认值
+  dictCode?: string; // 搜索项独立使用的字典编码
+  dictValueType?: DictValueType; // 搜索项字典值类型
+  enum?: EnumProps[] | Ref<EnumProps[]>; // 搜索项独立使用的枚举字典
   render?: (scope: SearchRenderScope) => VNode; // 自定义搜索内容渲染（tsx语法）
 } & Partial<Record<BreakPoint, Responsive>>;
 

@@ -370,6 +370,8 @@ export enum SseStream {
   SSE_STREAM_UNSPECIFIED = 0,
   /** SSE_STREAM_ADMIN_WORKSPACE - 管理后台工作台 SSE 流 */
   SSE_STREAM_ADMIN_WORKSPACE = 1,
+  /** SSE_STREAM_ADMIN_CODE_GEN - 管理后台代码生成任务 SSE 流 */
+  SSE_STREAM_ADMIN_CODE_GEN = 2,
 }
 
 /** SSE 事件枚举 */
@@ -378,6 +380,8 @@ export enum SseEvent {
   SSE_EVENT_UNSPECIFIED = 0,
   /** SSE_EVENT_PAGE_REFRESH - 页面局部刷新事件 */
   SSE_EVENT_PAGE_REFRESH = 1,
+  /** SSE_EVENT_CODE_GEN_PROGRESS - 代码生成任务进度事件 */
+  SSE_EVENT_CODE_GEN_PROGRESS = 2,
 }
 
 /** SSE 刷新目标枚举 */

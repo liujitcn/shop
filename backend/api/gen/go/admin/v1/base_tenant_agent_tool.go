@@ -8,12 +8,11 @@ package adminv1
 
 import (
 	context "context"
+	v1 "shop/api/gen/go/common/v1"
 
 	tool "github.com/cloudwego/eino/components/tool"
 	utils "github.com/cloudwego/eino/components/tool/utils"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
-
-	v1 "shop/api/gen/go/common/v1"
 )
 
 // NewBaseTenantServiceAgentTools 创建Admin租户管理服务的 Agent Tool。

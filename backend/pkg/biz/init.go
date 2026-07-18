@@ -1,6 +1,8 @@
 package biz
 
 import (
+	"shop/pkg/codegen"
+
 	"github.com/google/wire"
 	"github.com/liujitcn/kratos-kit/cache"
 	"github.com/liujitcn/kratos-kit/database/gorm"
@@ -17,6 +19,7 @@ var ProviderSet = wire.NewSet(
 	NewOrderInventoryCase,
 	NewOrderRefundResultCase,
 	NewBaseCase,
+	codegen.NewManager,
 	oss.NewOSS,
 	gorm.NewGormClient,
 	queue.NewQueue,

@@ -7,8 +7,10 @@ import (
 	"net/http"
 	"strings"
 
+	adminv1 "shop/api/gen/go/admin/v1"
 	basev1 "shop/api/gen/go/base/v1"
 	commonv1 "shop/api/gen/go/common/v1"
+	"shop/pkg/codegen"
 	_const "shop/pkg/const"
 	"shop/pkg/errorsx"
 	"shop/pkg/workspaceevent"
@@ -25,13 +27,15 @@ import (
 type SseCase struct {
 	authenticator authnEngine.Authenticator
 	sse           *sseServer.Server
+	progress      *codegen.Manager
 }
 
 // NewSseCase 创建 SSE 业务实例。
-func NewSseCase(ctx *bootstrap.Context, authenticator authnEngine.Authenticator, sse *sseServer.Server) (*SseCase, error) {
+func NewSseCase(ctx *bootstrap.Context, authenticator authnEngine.Authenticator, sse *sseServer.Server, progress *codegen.Manager) (*SseCase, error) {
 	handler := &SseCase{
 		authenticator: authenticator,
 		sse:           sse,
+		progress:      progress,
 	}
 	cfg := ctx.GetConfig()
 	// 未启用 HTTP 服务时，不创建 SSE HTTP 处理器。
@@ -50,6 +54,16 @@ func NewSseCase(ctx *bootstrap.Context, authenticator authnEngine.Authenticator,
 		})
 		return nil
 	})
+	progress.SetPublisher(func(ctx context.Context, taskID string, task *adminv1.CodeGenTask) {
+		data, err := json.Marshal(task)
+		if err != nil {
+			return
+		}
+		sse.TryPublish(ctx, sseServer.StreamID(codegen.StreamID(taskID)), &sseServer.Event{
+			Event: []byte(workspaceevent.EventID(commonv1.SseEvent_SSE_EVENT_CODE_GEN_PROGRESS)),
+			Data:  data,
+		})
+	})
 	return handler, nil
 }
 
@@ -58,11 +72,11 @@ func (h *SseCase) SubscribeSse(ctx context.Context, req *basev1.SubscribeSseRequ
 	if h == nil || h.sse == nil {
 		return nil, errorsx.Internal("SSE服务未初始化")
 	}
-	switch req.GetStream() {
-	// 当前通用 SSE 仅支持管理后台工作台刷新流。
-	case commonv1.SseStream_SSE_STREAM_ADMIN_WORKSPACE:
-	default:
+	if req.GetStream() != commonv1.SseStream_SSE_STREAM_ADMIN_WORKSPACE && req.GetStream() != commonv1.SseStream_SSE_STREAM_ADMIN_CODE_GEN {
 		return nil, errorsx.InvalidArgument("SSE流不支持")
+	}
+	if req.GetStream() == commonv1.SseStream_SSE_STREAM_ADMIN_CODE_GEN && req.GetChannelId() == "" {
+		return nil, errorsx.InvalidArgument("代码生成任务ID不能为空")
 	}
 	w, ok := kratosHTTP.ResponseWriterFromServerContext(ctx)
 	if !ok || w == nil {
@@ -73,14 +87,24 @@ func (h *SseCase) SubscribeSse(ctx context.Context, req *basev1.SubscribeSseRequ
 	if !ok || r == nil {
 		return nil, errorsx.InvalidArgument("SSE订阅仅支持HTTP访问")
 	}
-	_, authorized := h.authorizeRequest(r)
+	userToken, authorized := h.authorizeRequest(r)
 	if !authorized {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return nil, nil
 	}
 
-	h.sse.ServeStreamHTTP(w, r, sseServer.StreamID(workspaceevent.StreamID(req.GetStream())))
+	streamID := workspaceevent.StreamID(req.GetStream())
+	// 代码生成进度只允许任务创建者订阅，并按任务ID隔离事件流。
+	if req.GetStream() == commonv1.SseStream_SSE_STREAM_ADMIN_CODE_GEN {
+		if !h.progress.IsOwner(req.GetChannelId(), userToken.UserId) {
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+			http.Error(w, "forbidden", http.StatusForbidden)
+			return nil, nil
+		}
+		streamID = codegen.StreamID(req.GetChannelId())
+	}
+	h.sse.ServeStreamHTTP(w, r, sseServer.StreamID(streamID))
 	return &emptypb.Empty{}, nil
 }
 

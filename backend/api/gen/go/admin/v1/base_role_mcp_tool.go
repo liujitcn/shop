@@ -8,11 +8,10 @@ package adminv1
 
 import (
 	context "context"
+	v1 "shop/api/gen/go/common/v1"
 
 	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
-
-	v1 "shop/api/gen/go/common/v1"
 )
 
 // RegisterBaseRoleServiceMCPTools 注册Admin角色管理服务的 MCP Tool。

@@ -2,8 +2,8 @@
   <Dict
     v-if="shouldUseDictComponent"
     v-model="_searchParam[column.search?.key ?? handleProp(column.prop!)]"
-    :code="column.dictCode!"
-    :code-type="column.dictValueType ?? 'number'"
+    :code="column.search?.dictCode ?? column.dictCode!"
+    :code-type="column.search?.dictValueType ?? column.dictValueType ?? 'number'"
     :placeholder="placeholder.placeholder"
     v-bind="handleSearchProps"
     :style="handleSearchStyle"
@@ -88,7 +88,11 @@ const searchComponent = computed(() => {
  * 判断当前搜索项是否应直接使用字典组件渲染。
  */
 const shouldUseDictComponent = computed(() => {
-  return !!props.column.dictCode && props.column.search?.el === "select" && !props.column.search?.render;
+  return (
+    !!(props.column.search?.dictCode ?? props.column.dictCode) &&
+    props.column.search?.el === "select" &&
+    !props.column.search?.render
+  );
 });
 
 // 判断 fieldNames 设置 label && value && children 的 key 值
@@ -104,6 +108,8 @@ const fieldNames = computed(() => {
 const enumMap = inject("enumMap", ref(new Map()));
 
 const columnEnum = computed(() => {
+  const searchEnum = unref(props.column.search?.enum);
+  if (Array.isArray(searchEnum)) return searchEnum;
   const staticEnum = typeof props.column.enum !== "function" ? unref(props.column.enum) : undefined;
   if (Array.isArray(staticEnum) && staticEnum.length) return staticEnum;
 

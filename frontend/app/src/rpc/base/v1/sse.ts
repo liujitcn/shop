@@ -12,6 +12,8 @@ import type { Empty } from "../../google/protobuf/empty";
 export interface SubscribeSseRequest {
   /** SSE流 */
   stream: SseStream;
+  /** SSE通道ID */
+  channel_id?: string | undefined;
 }
 
 /** Base SSE服务 */
