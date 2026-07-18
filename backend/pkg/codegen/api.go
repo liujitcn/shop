@@ -37,6 +37,10 @@ func prepareGenerationWithRenderer(
 	}
 	generationTable, generationMethods := renderer.applyCodeGenOutputPaths(table, methods, outputPaths)
 	generatedMethods := renderer.generatedProtoMethods(generationTable, columns, generationMethods)
+	// 写入前校验 HTTP 映射，避免生成后才暴露为路由冲突。
+	if err = renderer.validateGeneratedProtoHTTPRoutes(generationTable, generatedMethods); err != nil {
+		return nil, err
+	}
 	return &Generation{
 		Table:            generationTable,
 		GeneratedMethods: generatedMethods,

@@ -16,6 +16,7 @@
     <CodeGenProgressDialog
       v-model="progressDialogVisible"
       :task-id="progressTaskId"
+      @update:model-value="handleProgressDialogVisibleChange"
       @completed="handleProgressCompleted"
       @unavailable="handleProgressUnavailable"
     />
@@ -41,6 +42,8 @@ defineOptions({
 });
 
 const codeGenTaskStorageKey = "code-gen-progress-task-id";
+const codeGenProgressDialogVisibleStorageKey = "code-gen-progress-dialog-visible";
+const codeGenProgressSelectedTableIdsStorageKey = "code-gen-progress-selected-table-ids";
 const codeGenStatusDisabled = 2;
 
 const route = useRoute();
@@ -50,7 +53,11 @@ const table = ref<CodeGenTableForm>();
 const files = ref<CodeGenPreviewFile[]>([]);
 const loading = ref(false);
 const progressTaskId = ref(typeof window === "undefined" ? "" : (window.sessionStorage.getItem(codeGenTaskStorageKey) ?? ""));
-const progressDialogVisible = ref(false);
+const progressDialogVisible = ref(
+  !!progressTaskId.value &&
+    typeof window !== "undefined" &&
+    window.sessionStorage.getItem(codeGenProgressDialogVisibleStorageKey) === "true"
+);
 const progressTaskAvailable = ref(!!progressTaskId.value);
 const generating = ref(!!progressTaskId.value);
 
@@ -125,7 +132,8 @@ async function handleGenerate() {
     progressTaskId.value = data.task_id;
     progressTaskAvailable.value = true;
     window.sessionStorage.setItem(codeGenTaskStorageKey, data.task_id);
-    progressDialogVisible.value = true;
+    window.sessionStorage.removeItem(codeGenProgressSelectedTableIdsStorageKey);
+    handleProgressDialogVisibleChange(true);
   } catch (error) {
     generating.value = false;
     throw error;
@@ -134,7 +142,17 @@ async function handleGenerate() {
 
 /** 打开最近一次代码生成任务。 */
 function handleOpenProgress() {
-  if (progressTaskId.value) progressDialogVisible.value = true;
+  if (progressTaskId.value) handleProgressDialogVisibleChange(true);
+}
+
+/** 同步进度弹窗可见状态，确保热更新后仅恢复任务运行期间主动打开的弹窗。 */
+function handleProgressDialogVisibleChange(visible: boolean) {
+  progressDialogVisible.value = visible;
+  if (visible) {
+    window.sessionStorage.setItem(codeGenProgressDialogVisibleStorageKey, "true");
+    return;
+  }
+  window.sessionStorage.removeItem(codeGenProgressDialogVisibleStorageKey);
 }
 
 /** 恢复最近任务的运行状态。 */
@@ -160,6 +178,8 @@ async function syncProgressTaskState() {
 /** 生成任务结束后解除当前页面生成锁定。 */
 function handleProgressCompleted() {
   generating.value = false;
+  window.sessionStorage.removeItem(codeGenProgressDialogVisibleStorageKey);
+  window.sessionStorage.removeItem(codeGenProgressSelectedTableIdsStorageKey);
 }
 
 /** 清理不可恢复的最近任务。 */
@@ -167,6 +187,8 @@ function handleProgressUnavailable() {
   generating.value = false;
   progressTaskId.value = "";
   progressTaskAvailable.value = false;
+  handleProgressDialogVisibleChange(false);
+  window.sessionStorage.removeItem(codeGenProgressSelectedTableIdsStorageKey);
   window.sessionStorage.removeItem(codeGenTaskStorageKey);
 }
 

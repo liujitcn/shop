@@ -69,6 +69,37 @@ func (c *renderer) newPatchedPreviewFile(path string, createContent string, patc
 	return &adminv1.CodeGenPreviewFile{Path: path, Action: "update", Content: patched, Exists: true, Message: "目标文件已存在，将追加缺失接口实现"}
 }
 
+// newManagedPreviewFile 为可确认归属的生成文件重渲染最新配置，其他已有文件仍走增量补丁。
+func (c *renderer) newManagedPreviewFile(path string, renderedContent string, isManaged func(string) bool, patch func(string) string) *adminv1.CodeGenPreviewFile {
+	_, pathErr := SafeRepoFilePath(path)
+	if pathErr != nil {
+		return &adminv1.CodeGenPreviewFile{Path: path, Action: "skip", Content: renderedContent, Exists: false, Message: pathErr.Error()}
+	}
+	content, err := c.readRepoFile(path)
+	// 目标文件首次生成时直接使用完整模板创建。
+	if err != nil {
+		return c.newPreviewFile(path, renderedContent)
+	}
+	originalContent := string(content)
+	// 仅在可确认归属当前实体时整体刷新，保留无法归属的手写文件。
+	if isManaged != nil && isManaged(originalContent) {
+		// 内容未变化时保留 skip，避免无意义写入。
+		if originalContent == renderedContent {
+			return &adminv1.CodeGenPreviewFile{Path: path, Action: "skip", Content: originalContent, Exists: true, Message: "生成文件已与当前配置一致"}
+		}
+		return &adminv1.CodeGenPreviewFile{Path: path, Action: "update", Content: renderedContent, Exists: true, Message: "生成文件将按当前配置重新渲染"}
+	}
+	// 页面文件没有可安全追加的片段，无法确认归属时不覆盖。
+	if patch == nil {
+		return &adminv1.CodeGenPreviewFile{Path: path, Action: "skip", Content: originalContent, Exists: true, Message: "已有文件无法确认由生成器管理，已跳过覆盖"}
+	}
+	patched := patch(originalContent)
+	if patched == originalContent {
+		return &adminv1.CodeGenPreviewFile{Path: path, Action: "skip", Content: originalContent, Exists: true, Message: "目标文件已存在，未发现需要追加的方法"}
+	}
+	return &adminv1.CodeGenPreviewFile{Path: path, Action: "update", Content: patched, Exists: true, Message: "目标文件已存在，将追加缺失接口实现"}
+}
+
 // newAdminRegistrationPreviewFiles 创建管理端服务依赖注入与传输层注册补丁。
 func (c *renderer) newAdminRegistrationPreviewFiles(table *Table, methods []*Proto) []*adminv1.CodeGenPreviewFile {
 	entities := []string{table.EntityName}
@@ -241,6 +272,15 @@ func (c *renderer) newTargetProtoPreviewFile(table *Table, columns []*CodeGenCol
 	}
 
 	originalContent := string(content)
+	// 主实体 Proto 可以完整识别时，以最新字段和接口配置整体刷新。
+	if path == c.defaultProtoPath(table) && isManagedProtoFile(originalContent, table.EntityName) {
+		renderedContent := c.renderProtoFile(table, columns, methods)
+		// 内容未变化时不写入磁盘。
+		if originalContent == renderedContent {
+			return &adminv1.CodeGenPreviewFile{Path: path, Action: "skip", Content: originalContent, Exists: true, Message: "生成Proto已与当前配置一致"}
+		}
+		return &adminv1.CodeGenPreviewFile{Path: path, Action: "update", Content: renderedContent, Exists: true, Message: "生成Proto将按当前配置重新渲染"}
+	}
 	patch := c.renderProtoPatch(table, columns, methods, path)
 	normalizedContent := normalizeProtoMessageOrder(normalizeProtoRPCOrder(dedupeProtoMessageBlocks(originalContent), methods, path))
 	if patch.Empty() {
@@ -278,6 +318,38 @@ func (c *renderer) newTargetProtoPreviewFile(table *Table, columns []*CodeGenCol
 		Exists:  true,
 		Message: "Proto文件已存在，将追加缺失接口",
 	}
+}
+
+// isManagedProtoFile 判断 Proto 是否具备当前实体的完整生成文件特征。
+func isManagedProtoFile(content string, entity string) bool {
+	return strings.Contains(content, "service "+entity+"Service {") &&
+		strings.Contains(content, "message "+entity+" {") &&
+		strings.Contains(content, "message "+entity+"Form {")
+}
+
+// isManagedBackendBizFile 判断 Go Biz 文件是否具备当前实体的生成文件特征。
+func isManagedBackendBizFile(content string, entity string) bool {
+	return strings.Contains(content, "type "+entity+"Case struct") &&
+		strings.Contains(content, "func New"+entity+"Case(")
+}
+
+// isManagedBackendServiceFile 判断 Go Service 文件是否具备当前实体的生成文件特征。
+func isManagedBackendServiceFile(content string, entity string) bool {
+	return strings.Contains(content, "type "+entity+"Service struct") &&
+		strings.Contains(content, "func New"+entity+"Service(")
+}
+
+// isManagedFrontendAPIFile 判断前端 API 文件是否具备当前实体的生成文件特征。
+func isManagedFrontendAPIFile(content string, entity string) bool {
+	return strings.Contains(content, "export class "+entity+"ServiceImpl implements "+entity+"Service") &&
+		strings.Contains(content, "def"+entity+"Service")
+}
+
+// isManagedFrontendPageFile 判断前端页面是否具备当前实体的生成页面特征。
+func isManagedFrontendPageFile(content string, entity string) bool {
+	return strings.Contains(content, "name: \""+entity+"\"") &&
+		strings.Contains(content, "const formFields = computed<ProFormField[]>") &&
+		strings.Contains(content, "request"+entity+"Table")
 }
 
 // newPreviewFile 创建预览文件并标记处理动作。
@@ -548,7 +620,7 @@ func appendServerServicesRegistration(content string, entity string) string {
 // appendHTTPServiceRegistration 向 HTTP Server 追加服务注册。
 func appendHTTPServiceRegistration(content string, entity string) string {
 	registerName := "Register" + entity + "ServiceHTTPServer"
-	if goCallNameExists(content, registerName) {
+	if goCallNameExists(content, "adminv1", registerName) {
 		return content
 	}
 	fieldName := goStructSelectorFieldName(content, "ServerServices", "admin", entity+"Service")
@@ -566,7 +638,7 @@ func appendGRPCServiceRegistration(content string, entity string) string {
 		content = insertGoFuncSelectorParameter(content, "NewGRPCServer", "admin", entity+"Service", "\t"+parameterName+" *admin."+entity+"Service,")
 	}
 	registerName := "Register" + entity + "ServiceServer"
-	if goCallNameExists(content, registerName) {
+	if goCallNameExists(content, "adminv1", registerName) {
 		return content
 	}
 	return insertGoPackageCall(content, "NewGRPCServer", "adminv1", registerName, "\tadminv1."+registerName+"(srv, "+parameterName+")")
@@ -575,7 +647,7 @@ func appendGRPCServiceRegistration(content string, entity string) string {
 // appendMCPServiceRegistration 向 MCP Server 追加服务工具注册。
 func appendMCPServiceRegistration(content string, entity string) string {
 	registerName := "Register" + entity + "ServiceMCPTools"
-	if goCallNameExists(content, registerName) {
+	if goCallNameExists(content, "adminv1", registerName) {
 		return content
 	}
 	fieldName := goStructSelectorFieldName(content, "ServerServices", "admin", entity+"Service")
@@ -841,8 +913,8 @@ func goIdentifierExists(content string, name string) bool {
 	return found
 }
 
-// goCallNameExists 判断 Go 源码是否已调用指定函数。
-func goCallNameExists(content string, name string) bool {
+// goCallNameExists 判断 Go 源码是否已调用指定包中的指定函数。
+func goCallNameExists(content string, packageName string, name string) bool {
 	file, _, err := parseGoSource(content)
 	if err != nil {
 		return false
@@ -853,16 +925,20 @@ func goCallNameExists(content string, name string) bool {
 		if !ok {
 			return true
 		}
-		callName := ""
 		switch function := call.Fun.(type) {
 		case *ast.Ident:
-			callName = function.Name
+			return true
 		case *ast.SelectorExpr:
-			callName = function.Sel.Name
-		}
-		if strings.EqualFold(callName, name) {
-			found = true
-			return false
+			identifier, ok := function.X.(*ast.Ident)
+			// 无法定位到目标包的调用不应影响当前注册函数的判定。
+			if !ok || identifier.Name != packageName {
+				return true
+			}
+			// 包名和函数名均相同才视为已完成注册。
+			if function.Sel.Name == name {
+				found = true
+				return false
+			}
 		}
 		return !found
 	})

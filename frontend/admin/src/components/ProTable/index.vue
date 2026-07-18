@@ -153,6 +153,7 @@ export interface ProTableProps {
   border?: boolean; // 是否带有纵向边框 ==> 非必传（默认为true）
   toolButton?: ("refresh" | "setting" | "search")[] | boolean; // 是否显示表格功能按钮 ==> 非必传（默认为true）
   rowKey?: string; // 行数据的 Key，用来优化 Table 的渲染，当表格数据多选时，所指定的 id ==> 非必传（默认为 id）
+  restoreSelectedRowKeys?: Array<string | number>; // 数据加载后需要恢复勾选的行 Key，仅补充选择状态，不会清空当前选择 ==> 非必传
   searchCol?: number | Record<BreakPoint, number>; // 表格搜索项 每列占比配置 ==> 非必传 { xs: 1, sm: 2, md: 2, lg: 3, xl: 4 }
 }
 
@@ -166,6 +167,7 @@ const props = withDefaults(defineProps<ProTableProps>(), {
   border: true,
   toolButton: true,
   rowKey: "id",
+  restoreSelectedRowKeys: () => [],
   searchCol: () => ({ xs: 1, sm: 2, md: 2, lg: 3, xl: 4 })
 });
 
@@ -254,6 +256,23 @@ const processTableData = computed(() => {
     pageable.value.page_size * pageable.value.page_num
   );
 });
+
+/** 数据加载完成后按传入行 Key 恢复多选状态，用于页面重建后的选择态续接。 */
+function restoreSelectedRows() {
+  if (!tableRef.value || !props.restoreSelectedRowKeys.length) return;
+  const selectedKeySet = new Set(props.restoreSelectedRowKeys.map(key => String(key)));
+  processTableData.value.forEach(row => {
+    if (selectedKeySet.has(String(row[props.rowKey]))) tableRef.value?.toggleRowSelection(row, true);
+  });
+}
+
+watch(
+  [processTableData, () => props.restoreSelectedRowKeys, () => props.rowKey],
+  () => {
+    void nextTick(restoreSelectedRows);
+  },
+  { deep: true, immediate: true }
+);
 
 // 树形表格默认折叠，并在数据变化时根据当前展开状态同步展开项
 watch(

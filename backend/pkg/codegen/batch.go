@@ -73,6 +73,36 @@ type batchFileOverlay struct {
 
 var protoHTTPRoutePattern = regexp.MustCompile(`(?m)^\s*(get|post|put|delete):\s*"([^"]+)"`)
 
+// validateGeneratedProtoHTTPRoutes 拒绝向已有 Proto 写入与其他 RPC 冲突的 HTTP 路由。
+func (c *renderer) validateGeneratedProtoHTTPRoutes(table *Table, methods []*Proto) error {
+	for _, method := range methods {
+		targetEntity := DefaultString(method.TargetEntityName, table.EntityName)
+		exists, _ := c.protoMethodExists(method.ProtoFilePath, targetEntity, method.MethodName)
+		// 已有同名 RPC 会在完整渲染或增量补丁中复用，无需重复判定路由。
+		if exists {
+			continue
+		}
+		rpcContent := c.renderProtoRPC(table, method, resourcePathByEntity(targetEntity))
+		route := protoHTTPRoutePattern.FindStringSubmatch(rpcContent)
+		// 未声明 HTTP 映射的 RPC 不参与 HTTP 路由冲突检查。
+		if len(route) != 3 {
+			continue
+		}
+		content, err := c.readRepoFile(method.ProtoFilePath)
+		// 文件尚不存在时由本次生成创建，不会与历史路由冲突。
+		if err != nil {
+			continue
+		}
+		for _, existingRoute := range protoHTTPRoutePattern.FindAllStringSubmatch(string(content), -1) {
+			// 同一 HTTP 方法与路径只能属于一个 RPC，阻止产生不可访问的新接口。
+			if len(existingRoute) == 3 && existingRoute[1] == route[1] && existingRoute[2] == route[2] {
+				return fmt.Errorf("Proto文件%s中的HTTP路由%s %s已被其他RPC使用", method.ProtoFilePath, route[1], route[2])
+			}
+		}
+	}
+	return nil
+}
+
 // PrepareBatchGeneration 在内存中预检并合并一批生成内容，不会写入工作区。
 func PrepareBatchGeneration(inputs []BatchGenerationInput) (*BatchGeneration, error) {
 	if len(inputs) == 0 {

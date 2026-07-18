@@ -280,12 +280,16 @@ func (c *renderer) buildPreviewFiles(table *Table, columns []*CodeGenColumn, met
 			seenProtoPaths[method.ProtoFilePath] = struct{}{}
 			files = append(files, c.newTargetProtoPreviewFile(table, columns, generatedMethods, method.ProtoFilePath))
 		}
-		// 主实体文件存在时只追加缺失方法，不覆盖已有业务实现。
+		// 主实体生成文件识别成功时会按最新配置整体重渲染，无法确认归属的文件仍只追加缺失方法。
 		files = append(files,
-			c.newPatchedPreviewFile(paths.GetBackendBizFilePath(), c.renderBackendBizFile(table, columns, generatedMethods), func(content string) string {
+			c.newManagedPreviewFile(paths.GetBackendBizFilePath(), c.renderBackendBizFile(table, columns, generatedMethods), func(content string) bool {
+				return isManagedBackendBizFile(content, table.EntityName)
+			}, func(content string) string {
 				return c.appendMainBizMethods(content, table, columns, generatedMethods)
 			}),
-			c.newPatchedPreviewFile(paths.GetBackendServiceFilePath(), c.renderBackendServiceFile(table, columns, generatedMethods), func(content string) string {
+			c.newManagedPreviewFile(paths.GetBackendServiceFilePath(), c.renderBackendServiceFile(table, columns, generatedMethods), func(content string) bool {
+				return isManagedBackendServiceFile(content, table.EntityName)
+			}, func(content string) string {
 				return c.appendMainServiceMethods(content, table, columns, generatedMethods)
 			}),
 		)
@@ -293,13 +297,17 @@ func (c *renderer) buildPreviewFiles(table *Table, columns []*CodeGenColumn, met
 		files = append(files, c.newAdminRegistrationPreviewFiles(table, generatedMethods)...)
 	}
 	if table.GenFrontend == 1 {
-		// 前端 API 同样只追加缺失方法，页面则要求查询和 CRUD 契约完整后才生成。
-		files = append(files, c.newPatchedPreviewFile(paths.GetFrontendApiFilePath(), c.renderFrontendAPIFile(table, columns, frontendMethods), func(content string) string {
+		// 主实体前端生成文件同样优先按最新配置重渲染，未识别文件只追加缺失方法。
+		files = append(files, c.newManagedPreviewFile(paths.GetFrontendApiFilePath(), c.renderFrontendAPIFile(table, columns, frontendMethods), func(content string) bool {
+			return isManagedFrontendAPIFile(content, table.EntityName)
+		}, func(content string) string {
 			return c.appendMainFrontendAPIMethods(content, table, columns, frontendMethods)
 		}))
 		pagePath := paths.GetFrontendPageFilePath()
 		if frontendPageMethodsComplete(table, frontendMethods) {
-			files = append(files, c.newPreviewFile(pagePath, c.renderFrontendPageFile(table, columns, frontendMethods, paths)))
+			files = append(files, c.newManagedPreviewFile(pagePath, c.renderFrontendPageFile(table, columns, frontendMethods, paths), func(content string) bool {
+				return isManagedFrontendPageFile(content, table.EntityName)
+			}, nil))
 		} else {
 			pageFile := c.newPreviewFile(pagePath, "")
 			pageFile.Action = "skip"
