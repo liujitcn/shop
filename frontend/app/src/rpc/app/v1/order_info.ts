@@ -145,6 +145,8 @@ export interface CountOrderInfoResponse_Count {
   trade_status: OrderTradeStatus;
   /** 订单退款状态 */
   refund_status: OrderRefundStatus;
+  /** 是否为可申请售后订单统计 */
+  refundable: boolean;
 }
 
 /** 订单分页查询条件 */
@@ -199,6 +201,8 @@ export interface OrderInfoResponse {
     | undefined;
   /** 支付倒计时 */
   countdown: number;
+  /** 关联门店订单 */
+  related_orders: OrderInfoResponse_RelatedOrder[];
 }
 
 /** 收货地址 */
@@ -231,6 +235,14 @@ export interface OrderInfoResponse_Logistics_Detail {
   time: string;
   /** 动态 */
   text: string;
+}
+
+/** 关联订单 */
+export interface OrderInfoResponse_RelatedOrder {
+  /** 订单ID */
+  order_id: number;
+  /** 订单编号 */
+  order_no: string;
 }
 
 /** 创建订单请求参数 */
@@ -333,6 +345,10 @@ export interface OrderGoodsStore {
   delivery_time: OrderDeliveryTime;
   /** 订单备注 */
   remark: string;
+  /** 门店订单ID */
+  order_id: number;
+  /** 门店订单编号 */
+  order_no: string;
 }
 
 /** Order信息 */

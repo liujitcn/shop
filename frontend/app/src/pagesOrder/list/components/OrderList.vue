@@ -295,10 +295,10 @@ const onRefresherRefresh = async () => {
       :key="order.is_trade ? `trade-${order.trade_id}` : `order-${order.id}`"
       class="card"
     >
-      <!-- 普通订单有门店时展示门店；交易单仅展示状态。 -->
+      <!-- 单门店订单展示门店，多门店交易单仅展示状态。 -->
       <view v-if="order.is_trade || order.order_goods_stores[0]?.store?.id" class="status">
         <navigator
-          v-if="!order.is_trade && order.order_goods_stores[0]?.store?.id"
+          v-if="order.order_goods_stores.length === 1 && order.order_goods_stores[0]?.store?.id"
           class="store-info"
           :url="tenantStoreUrl(order.order_goods_stores[0].store.id)"
           hover-class="none"

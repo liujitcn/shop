@@ -18,6 +18,7 @@ import {
   goodsDetailUrl,
   homeTabPage,
   orderCreateUrl,
+  orderDetailUrl,
   orderListUrl,
   tenantStoreUrl,
 } from '@/utils/navigation'
@@ -426,6 +427,15 @@ const onRefundSuccess = async () => {
           </navigator>
         </view>
         <view class="store-summary">
+          <navigator
+            v-if="orderData.order!.is_trade && group.order_id > 0 && group.order_no"
+            class="summary-row order-link"
+            :url="orderDetailUrl({ id: group.order_id, internal: true })"
+            hover-class="none"
+          >
+            <text>订单编号</text>
+            <text class="summary-value">{{ group.order_no }} &gt;</text>
+          </navigator>
           <view class="summary-row">
             <text>配送时间</text>
             <text>{{ getDeliveryTimeText(group.delivery_time) }}</text>
@@ -485,6 +495,17 @@ const onRefundSuccess = async () => {
               >复制</text
             >
           </view>
+          <navigator
+            v-for="relatedOrder in orderData.related_orders"
+            :key="relatedOrder.order_id"
+            class="item"
+            :url="orderDetailUrl({ id: relatedOrder.order_id, internal: true })"
+            hover-class="none"
+            open-type="redirect"
+          >
+            <text>关联订单号:</text>
+            <text class="related-order-no">{{ relatedOrder.order_no }} &gt;</text>
+          </navigator>
           <view class="item">下单时间: {{ orderData.order!.created_at }}</view>
           <view v-if="orderData.order!.payment_time" class="item"
             >支付时间: {{ orderData.order!.payment_time }}</view
@@ -863,6 +884,10 @@ page {
     text-align: right;
   }
 
+  .order-link .summary-value {
+    color: #27ba9b;
+  }
+
   .action {
     display: flex;
     flex-direction: row-reverse;
@@ -943,6 +968,12 @@ page {
       border: 1px solid #ccc;
       padding: 5rpx 10rpx;
       margin-left: 10rpx;
+    }
+
+    .related-order-no {
+      margin-left: 8rpx;
+      color: #27ba9b;
+      overflow-wrap: anywhere;
     }
   }
 }

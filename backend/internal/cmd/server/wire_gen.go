@@ -114,7 +114,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	baseMenuRepository := data.NewBaseMenuRepository(dataData)
 	authentication_Jwt := config.ParseAuthnJWT(context)
 	bizBaseAPICase := biz2.NewBaseAPICase(baseCase, baseAPIRepository, authentication_Jwt)
-	bizCasbinRuleCase, err := biz2.NewCasbinRuleCase(baseCase, casbinRuleRepository, baseMenuRepository, baseRoleRepository, baseTenantRepository, bizBaseAPICase, engine)
+	bizCasbinRuleCase, err := biz2.NewCasbinRuleCase(baseCase, transaction, casbinRuleRepository, baseMenuRepository, baseRoleRepository, baseTenantRepository, bizBaseAPICase, engine)
 	if err != nil {
 		cleanup4()
 		cleanup3()
@@ -478,7 +478,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	kratosApp, err := newApp(context, baseRoleCase, cronServer, grpcServer, httpServer)
+	kratosApp, err := newApp(context, baseRoleCase, bizCasbinRuleCase, cronServer, grpcServer, httpServer)
 	if err != nil {
 		cleanup4()
 		cleanup3()

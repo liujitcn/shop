@@ -47,9 +47,6 @@ const { BUTTONS } = useAuthButtons();
 const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 
-// 默认租户编码固定，前端作为隐藏展示后的兜底保护。
-const DEFAULT_TENANT_CODE = "0000";
-
 const dialog = reactive({
   title: "",
   visible: false
@@ -102,7 +99,7 @@ const formFields: ProFormField[] = [
 
 /** 租户表格列配置。 */
 const columns: ColumnProps[] = [
-  { type: "selection", width: 55 },
+  { type: "selection", width: 55, selectable: row => !isProtectedManagementTenant(row as BaseTenant) },
   { prop: "code", label: "租户编号", minWidth: 140, search: { el: "input", order: 1 } },
   { prop: "name", label: "租户名称", minWidth: 160, search: { el: "input", order: 2 } },
   { prop: "contact_name", label: "联系人", minWidth: 120 },
@@ -118,7 +115,7 @@ const columns: ColumnProps[] = [
       inactiveValue: Status.DISABLE,
       activeText: "启用",
       inactiveText: "禁用",
-      disabled: scope => isDefaultTenant(scope.row as BaseTenant) || !BUTTONS.value["base:tenant:status"],
+      disabled: scope => isProtectedManagementTenant(scope.row as BaseTenant) || !BUTTONS.value["base:tenant:status"],
       beforeChange: scope => handleBeforeSetStatus(scope.row as BaseTenant)
     }
   },
@@ -136,7 +133,7 @@ const columns: ColumnProps[] = [
         type: "primary",
         link: true,
         icon: EditPen,
-        hidden: scope => isDefaultTenant(scope.row as BaseTenant) || !BUTTONS.value["base:tenant:update"],
+        hidden: scope => isProtectedManagementTenant(scope.row as BaseTenant) || !BUTTONS.value["base:tenant:update"],
         params: scope => ({ tenantId: scope.row.id }),
         onClick: (scope, params) => handleOpenDialog((params?.tenantId as number | undefined) ?? (scope.row as BaseTenant).id)
       },
@@ -145,7 +142,7 @@ const columns: ColumnProps[] = [
         type: "danger",
         link: true,
         icon: Delete,
-        hidden: scope => isDefaultTenant(scope.row as BaseTenant) || !BUTTONS.value["base:tenant:delete"],
+        hidden: scope => isProtectedManagementTenant(scope.row as BaseTenant) || !BUTTONS.value["base:tenant:delete"],
         onClick: scope => handleDelete(scope.row as BaseTenant)
       }
     ]
@@ -187,10 +184,10 @@ function refreshTable() {
 }
 
 /**
- * 判断租户是否为系统默认租户。
+ * 根据后端管理保护标记判断租户是否禁止通过租户管理操作。
  */
-function isDefaultTenant(row?: BaseTenant | BaseTenantForm) {
-  return row?.code === DEFAULT_TENANT_CODE;
+function isProtectedManagementTenant(row?: BaseTenant) {
+  return Boolean(row?.is_protected);
 }
 
 /**
@@ -252,7 +249,7 @@ function handleCloseDialog() {
  * 在租户状态切换前先完成确认与接口调用。
  */
 async function handleBeforeSetStatus(row: BaseTenant) {
-  if (isDefaultTenant(row)) {
+  if (isProtectedManagementTenant(row)) {
     ElMessage.warning("默认租户不能修改状态");
     return false;
   }
@@ -283,7 +280,7 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
     : selected && typeof selected === "object"
       ? [selected as BaseTenant]
       : [];
-  if (tenantList.some(item => isDefaultTenant(item))) {
+  if (tenantList.some(isProtectedManagementTenant)) {
     ElMessage.warning("默认租户不能删除");
     return;
   }

@@ -57,11 +57,16 @@ var (
 func newApp(
 	ctx *bootstrap.Context,
 	baseRoleCase *adminbiz.BaseRoleCase,
+	casbinRuleCase *adminbiz.CasbinRuleCase,
 	cron *job.CronServer,
 	gs *grpc.Server,
 	hs *http.Server,
 ) (*kratos.App, error) {
 	err := baseRoleCase.SyncTenantRoleMenus(ctx.Context())
+	if err != nil {
+		return nil, err
+	}
+	err = casbinRuleCase.RebuildAllCasbinRules(ctx.Context())
 	if err != nil {
 		return nil, err
 	}

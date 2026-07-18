@@ -140,6 +140,8 @@ message BaseTenant {
   string created_at = 200 [(gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间
 
   string updated_at = 201 [(gnostic.openapi.v3.property) = {description: "更新时间"}]; // 更新时间
+
+  bool is_protected = 300 [(gnostic.openapi.v3.property) = {description: "是否禁止通过租户管理操作"}]; // 是否禁止通过租户管理操作
 }
 
 // 租户表单
