@@ -493,83 +493,32 @@ func removeGoReceiverMethods(content string, methodNames map[string]struct{}) st
 func appendAdminProviderRegistration(content string, entity string) string {
 	additions := make([]string, 0, 2)
 	if !goIdentifierExists(content, "New"+entity+"Case") {
-		additions = append(additions, "biz.New"+entity+"Case,")
+		additions = append(additions, "biz.New"+entity+"Case")
 	}
 	if !goIdentifierExists(content, "New"+entity+"Service") {
-		additions = append(additions, "New"+entity+"Service,")
+		additions = append(additions, "New"+entity+"Service")
 	}
-	if len(additions) == 0 {
-		return content
-	}
-	file, fileSet, err := parseGoSource(content)
-	if err != nil {
-		return content
-	}
-	offset := -1
-	for _, declaration := range file.Decls {
-		general, isGeneral := declaration.(*ast.GenDecl)
-		if !isGeneral {
-			continue
-		}
-		for _, specification := range general.Specs {
-			valueSpec, isValueSpec := specification.(*ast.ValueSpec)
-			if !isValueSpec || len(valueSpec.Names) != 1 || valueSpec.Names[0].Name != "ProviderSet" || len(valueSpec.Values) != 1 {
-				continue
-			}
-			call, isCall := valueSpec.Values[0].(*ast.CallExpr)
-			if isCall {
-				offset = fileSet.Position(call.Rparen).Offset
-			}
-		}
-	}
-	if offset < 0 {
-		return content
-	}
-	lines := make([]string, 0, len(additions))
 	for _, addition := range additions {
-		lines = append(lines, "\t"+addition)
+		content = insertGoProviderSetItem(content, addition)
 	}
-	return validGoPatch(content, insertGoLines(content, offset, strings.Join(lines, "\n")))
+	return content
 }
 
 // appendServerServicesRegistration 向 ServerServices 注册表追加服务依赖。
 func appendServerServicesRegistration(content string, entity string) string {
 	fieldName := goStructSelectorFieldName(content, "ServerServices", "admin", entity+"Service")
-	var err error
 	if fieldName == "" {
 		fieldName = stringcase.ToCamelCase("admin_" + stringcase.ToSnakeCase(entity))
-		var file *ast.File
-		var fileSet *token.FileSet
-		file, fileSet, err = parseGoSource(content)
-		if err != nil {
-			return content
-		}
-		structType := findGoStructType(file, "ServerServices")
-		if structType == nil {
-			return content
-		}
-		content = validGoPatch(content, insertGoLines(content, fileSet.Position(structType.Fields.Closing).Offset, "\t"+fieldName+" *admin."+entity+"Service"))
+		content = insertGoStructSelectorField(content, "ServerServices", "admin", entity+"Service", "\t"+fieldName+" *admin."+entity+"Service")
 	}
 
 	parameterName := goFuncSelectorParamName(content, "NewServerServices", "admin", entity+"Service")
 	if parameterName == "" {
 		parameterName = fieldName
-		var file *ast.File
-		var fileSet *token.FileSet
-		file, fileSet, err = parseGoSource(content)
-		if err != nil {
-			return content
-		}
-		function := findGoFuncDecl(file, "NewServerServices")
-		if function == nil {
-			return content
-		}
-		content = validGoPatch(content, insertGoLines(content, fileSet.Position(function.Type.Params.Closing).Offset, "\t"+parameterName+" *admin."+entity+"Service,"))
+		content = insertGoFuncSelectorParameter(content, "NewServerServices", "admin", entity+"Service", "\t"+parameterName+" *admin."+entity+"Service,")
 	}
 
-	var file *ast.File
-	var fileSet *token.FileSet
-	file, fileSet, err = parseGoSource(content)
+	file, _, err := parseGoSource(content)
 	if err != nil {
 		return content
 	}
@@ -593,8 +542,7 @@ func appendServerServicesRegistration(content string, entity string) string {
 	if servicesLiteral == nil || goCompositeKeyExists(servicesLiteral, fieldName) {
 		return content
 	}
-	patched := insertGoLines(content, fileSet.Position(servicesLiteral.Rbrace).Offset, "\t\t"+fieldName+": "+parameterName+",")
-	return validGoPatch(content, patched)
+	return insertGoCompositeLiteralField(content, "NewServerServices", "ServerServices", fieldName, "\t\t"+fieldName+": "+parameterName+",")
 }
 
 // appendHTTPServiceRegistration 向 HTTP Server 追加服务注册。
@@ -607,7 +555,7 @@ func appendHTTPServiceRegistration(content string, entity string) string {
 	if fieldName == "" {
 		fieldName = stringcase.ToCamelCase("admin_" + stringcase.ToSnakeCase(entity))
 	}
-	return insertBeforeGoFuncReturn(content, "NewHTTPServer", "\tadminv1."+registerName+"(srv, services."+fieldName+")")
+	return insertGoPackageCall(content, "NewHTTPServer", "adminv1", registerName, "\tadminv1."+registerName+"(srv, services."+fieldName+")")
 }
 
 // appendGRPCServiceRegistration 向 gRPC Server 追加服务依赖与注册。
@@ -615,21 +563,13 @@ func appendGRPCServiceRegistration(content string, entity string) string {
 	parameterName := goFuncSelectorParamName(content, "NewGRPCServer", "admin", entity+"Service")
 	if parameterName == "" {
 		parameterName = stringcase.ToCamelCase("admin_" + stringcase.ToSnakeCase(entity))
-		file, fileSet, err := parseGoSource(content)
-		if err != nil {
-			return content
-		}
-		function := findGoFuncDecl(file, "NewGRPCServer")
-		if function == nil {
-			return content
-		}
-		content = validGoPatch(content, insertGoLines(content, fileSet.Position(function.Type.Params.Closing).Offset, "\t"+parameterName+" *admin."+entity+"Service,"))
+		content = insertGoFuncSelectorParameter(content, "NewGRPCServer", "admin", entity+"Service", "\t"+parameterName+" *admin."+entity+"Service,")
 	}
 	registerName := "Register" + entity + "ServiceServer"
 	if goCallNameExists(content, registerName) {
 		return content
 	}
-	return insertBeforeGoFuncReturn(content, "NewGRPCServer", "\tadminv1."+registerName+"(srv, "+parameterName+")")
+	return insertGoPackageCall(content, "NewGRPCServer", "adminv1", registerName, "\tadminv1."+registerName+"(srv, "+parameterName+")")
 }
 
 // appendMCPServiceRegistration 向 MCP Server 追加服务工具注册。
@@ -642,16 +582,245 @@ func appendMCPServiceRegistration(content string, entity string) string {
 	if fieldName == "" {
 		fieldName = stringcase.ToCamelCase("admin_" + stringcase.ToSnakeCase(entity))
 	}
+	return insertGoPackageCall(content, "registerMCPTools", "adminv1", registerName, "\tadminv1."+registerName+"(mcpServer, services."+fieldName+")")
+}
+
+// insertGoProviderSetItem 在相同 ProviderSet 分组内按名称插入依赖提供者。
+func insertGoProviderSetItem(content string, providerName string) string {
 	file, fileSet, err := parseGoSource(content)
 	if err != nil {
 		return content
 	}
-	function := findGoFuncDecl(file, "registerMCPTools")
+	var providerSet *ast.CallExpr
+	for _, declaration := range file.Decls {
+		general, ok := declaration.(*ast.GenDecl)
+		if !ok {
+			continue
+		}
+		for _, specification := range general.Specs {
+			valueSpec, ok := specification.(*ast.ValueSpec)
+			if !ok || len(valueSpec.Names) != 1 || valueSpec.Names[0].Name != "ProviderSet" || len(valueSpec.Values) != 1 {
+				continue
+			}
+			call, ok := valueSpec.Values[0].(*ast.CallExpr)
+			if !ok {
+				continue
+			}
+			selector, ok := call.Fun.(*ast.SelectorExpr)
+			if !ok || selector.Sel.Name != "NewSet" {
+				continue
+			}
+			identifier, ok := selector.X.(*ast.Ident)
+			if ok && identifier.Name == "wire" {
+				providerSet = call
+			}
+		}
+	}
+	if providerSet == nil {
+		return content
+	}
+	isBizProvider := strings.HasPrefix(providerName, "biz.")
+	providerKey := goProviderEntitySortKey(providerName)
+	offset := fileSet.Position(providerSet.Rparen).Offset
+	for _, argument := range providerSet.Args {
+		name := goQualifiedExpressionName(argument)
+		if name == "" || strings.HasPrefix(name, "biz.") != isBizProvider {
+			continue
+		}
+		if strings.Compare(goProviderEntitySortKey(name), providerKey) > 0 {
+			offset = fileSet.Position(argument.Pos()).Offset
+			break
+		}
+		offset = fileSet.Position(argument.End()).Offset
+	}
+	return validGoPatch(content, insertGoLines(content, offset, "\t"+providerName+","))
+}
+
+// insertGoStructSelectorField 在同包类型字段中按类型名插入结构体字段。
+func insertGoStructSelectorField(content string, structName string, packageName string, typeName string, line string) string {
+	file, fileSet, err := parseGoSource(content)
+	if err != nil {
+		return content
+	}
+	structType := findGoStructType(file, structName)
+	if structType == nil {
+		return content
+	}
+	offset := fileSet.Position(structType.Fields.Closing).Offset
+	for _, field := range structType.Fields.List {
+		selector := goSelectorType(field.Type)
+		if selector == nil || selector.Sel == nil {
+			continue
+		}
+		identifier, ok := selector.X.(*ast.Ident)
+		if !ok || identifier.Name != packageName {
+			continue
+		}
+		if strings.Compare(goServiceEntitySortKey(selector.Sel.Name), goServiceEntitySortKey(typeName)) > 0 {
+			offset = fileSet.Position(field.Pos()).Offset
+			break
+		}
+		offset = fileSet.Position(field.End()).Offset
+	}
+	return validGoPatch(content, insertGoLines(content, offset, line))
+}
+
+// insertGoFuncSelectorParameter 在同包类型参数中按类型名插入函数参数。
+func insertGoFuncSelectorParameter(content string, functionName string, packageName string, typeName string, line string) string {
+	file, fileSet, err := parseGoSource(content)
+	if err != nil {
+		return content
+	}
+	function := findGoFuncDecl(file, functionName)
+	if function == nil || function.Type.Params == nil {
+		return content
+	}
+	offset := fileSet.Position(function.Type.Params.Closing).Offset
+	for _, field := range function.Type.Params.List {
+		selector := goSelectorType(field.Type)
+		if selector == nil || selector.Sel == nil {
+			continue
+		}
+		identifier, ok := selector.X.(*ast.Ident)
+		if !ok || identifier.Name != packageName {
+			continue
+		}
+		if strings.Compare(goServiceEntitySortKey(selector.Sel.Name), goServiceEntitySortKey(typeName)) > 0 {
+			offset = fileSet.Position(field.Pos()).Offset
+			break
+		}
+		offset = fileSet.Position(field.End()).Offset
+	}
+	return validGoPatch(content, insertGoLines(content, offset, line))
+}
+
+// insertGoCompositeLiteralField 在管理端字段分组内按字段名插入结构体字面量成员。
+func insertGoCompositeLiteralField(content string, functionName string, typeName string, fieldName string, line string) string {
+	file, fileSet, err := parseGoSource(content)
+	if err != nil {
+		return content
+	}
+	function := findGoFuncDecl(file, functionName)
 	if function == nil {
 		return content
 	}
-	patched := insertGoLines(content, fileSet.Position(function.Body.Rbrace).Offset, "\tadminv1."+registerName+"(mcpServer, services."+fieldName+")")
-	return validGoPatch(content, patched)
+	var literal *ast.CompositeLit
+	ast.Inspect(function.Body, func(node ast.Node) bool {
+		candidate, ok := node.(*ast.CompositeLit)
+		if !ok {
+			return true
+		}
+		identifier, ok := candidate.Type.(*ast.Ident)
+		if ok && identifier.Name == typeName {
+			literal = candidate
+			return false
+		}
+		return true
+	})
+	if literal == nil {
+		return content
+	}
+	offset := fileSet.Position(literal.Rbrace).Offset
+	for _, element := range literal.Elts {
+		keyValue, ok := element.(*ast.KeyValueExpr)
+		if !ok {
+			continue
+		}
+		identifier, ok := keyValue.Key.(*ast.Ident)
+		if !ok || !strings.HasPrefix(identifier.Name, "admin") {
+			continue
+		}
+		if strings.Compare(goServiceFieldEntitySortKey(identifier.Name), goServiceFieldEntitySortKey(fieldName)) > 0 {
+			offset = fileSet.Position(element.Pos()).Offset
+			break
+		}
+		offset = fileSet.Position(element.End()).Offset
+	}
+	return validGoPatch(content, insertGoLines(content, offset, line))
+}
+
+// insertGoPackageCall 在函数内相同包的调用分组中按函数名插入调用。
+func insertGoPackageCall(content string, functionName string, packageName string, callName string, line string) string {
+	file, fileSet, err := parseGoSource(content)
+	if err != nil {
+		return content
+	}
+	function := findGoFuncDecl(file, functionName)
+	if function == nil {
+		return content
+	}
+	offset := fileSet.Position(function.Body.Rbrace).Offset
+	for _, statement := range function.Body.List {
+		expression, ok := statement.(*ast.ExprStmt)
+		if !ok {
+			continue
+		}
+		call, ok := expression.X.(*ast.CallExpr)
+		if !ok {
+			continue
+		}
+		selector, ok := call.Fun.(*ast.SelectorExpr)
+		if !ok {
+			continue
+		}
+		identifier, ok := selector.X.(*ast.Ident)
+		if !ok || identifier.Name != packageName {
+			continue
+		}
+		if strings.Compare(goRegistrationEntitySortKey(selector.Sel.Name), goRegistrationEntitySortKey(callName)) > 0 {
+			offset = fileSet.Position(statement.Pos()).Offset
+			break
+		}
+		offset = fileSet.Position(statement.End()).Offset
+	}
+	return validGoPatch(content, insertGoLines(content, offset, line))
+}
+
+// goQualifiedExpressionName 返回简单标识符或包选择表达式的完整名称。
+func goQualifiedExpressionName(expression ast.Expr) string {
+	switch value := expression.(type) {
+	case *ast.Ident:
+		return value.Name
+	case *ast.SelectorExpr:
+		identifier, ok := value.X.(*ast.Ident)
+		if ok {
+			return identifier.Name + "." + value.Sel.Name
+		}
+	}
+	return ""
+}
+
+// goProviderEntitySortKey 返回 ProviderSet 条目对应的实体排序键。
+func goProviderEntitySortKey(providerName string) string {
+	providerName = strings.TrimPrefix(providerName, "biz.")
+	providerName = strings.TrimPrefix(providerName, "New")
+	providerName = strings.TrimSuffix(providerName, "Case")
+	providerName = strings.TrimSuffix(providerName, "Service")
+	return goEntitySortKey(providerName)
+}
+
+// goServiceEntitySortKey 返回服务类型对应的实体排序键。
+func goServiceEntitySortKey(typeName string) string {
+	return goEntitySortKey(strings.TrimSuffix(typeName, "Service"))
+}
+
+// goServiceFieldEntitySortKey 返回管理端服务字段对应的实体排序键。
+func goServiceFieldEntitySortKey(fieldName string) string {
+	return goEntitySortKey(strings.TrimPrefix(fieldName, "admin"))
+}
+
+// goRegistrationEntitySortKey 返回服务注册调用对应的实体排序键。
+func goRegistrationEntitySortKey(callName string) string {
+	callName = strings.TrimPrefix(callName, "Register")
+	for _, suffix := range []string{"ServiceHTTPServer", "ServiceMCPTools", "ServiceServer"} {
+		callName = strings.TrimSuffix(callName, suffix)
+	}
+	return goEntitySortKey(callName)
+}
+
+// goEntitySortKey 将实体名转换为与生成资源一致的 snake_case 排序键。
+func goEntitySortKey(entityName string) string {
+	return stringcase.ToSnakeCase(entityName)
 }
 
 // goIdentifierExists 判断 Go 源码是否已包含指定标识符，兼容缩写大小写差异。

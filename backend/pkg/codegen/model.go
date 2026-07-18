@@ -1,7 +1,6 @@
 package codegen
 
 import (
-	"database/sql"
 	"strings"
 	"time"
 
@@ -138,34 +137,6 @@ type TableInfo struct {
 	TableName string `gorm:"column:table_name"`
 	// TableComment 数据库表注释。
 	TableComment string `gorm:"column:table_comment"`
-}
-
-// ColumnInfo 数据库字段元数据查询结果。
-type ColumnInfo struct {
-	// ColumnName 数据库字段名。
-	ColumnName string `gorm:"column:column_name"`
-	// ColumnComment 数据库字段注释。
-	ColumnComment string `gorm:"column:column_comment"`
-	// DataType 数据库基础类型。
-	DataType string `gorm:"column:data_type"`
-	// ColumnType 数据库完整类型。
-	ColumnType string `gorm:"column:column_type"`
-	// CharacterMaximumLength 字符类型最大长度。
-	CharacterMaximumLength sql.NullInt64 `gorm:"column:character_maximum_length"`
-	// NumericPrecision 数值类型精度。
-	NumericPrecision sql.NullInt64 `gorm:"column:numeric_precision"`
-	// NumericScale 数值类型小数位数。
-	NumericScale sql.NullInt64 `gorm:"column:numeric_scale"`
-	// ColumnDefault 数据库字段默认值。
-	ColumnDefault sql.NullString `gorm:"column:column_default"`
-	// ColumnKey 数据库字段索引类型。
-	ColumnKey string `gorm:"column:column_key"`
-	// Extra 数据库字段附加属性。
-	Extra string `gorm:"column:extra"`
-	// IsNullable 数据库字段是否允许为空。
-	IsNullable string `gorm:"column:is_nullable"`
-	// OrdinalPosition 数据库字段顺序。
-	OrdinalPosition int64 `gorm:"column:ordinal_position"`
 }
 
 // CodeGenColumn 汇总数据库字段与用户保存的生成配置。

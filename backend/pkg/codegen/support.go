@@ -49,17 +49,6 @@ func NormalizeQueryOperator(operator string) string {
 	}
 }
 
-// NormalizeBusinessName 使用公共命名转换并移除常见技术表前缀。
-func NormalizeBusinessName(tableName string) string {
-	businessName := stringcase.ToSnakeCase(tableName)
-	for _, prefix := range []string{"t_", "tb_", "tbl_"} {
-		if strings.HasPrefix(businessName, prefix) && len(businessName) > len(prefix) {
-			return strings.TrimPrefix(businessName, prefix)
-		}
-	}
-	return businessName
-}
-
 // FailureRemark 提取适合保存和展示的生成错误信息。
 func FailureRemark(err error) string {
 	var structuredError *kratosErrors.Error
@@ -207,6 +196,17 @@ func (c *renderer) protoMessageNamesForMethod(table *Table, method *Proto) []str
 
 // renderProtoMessageByName 按名称渲染 message。
 func (c *renderer) renderProtoMessageByName(table *Table, columns []*CodeGenColumn, method *Proto, name string) string {
+	// Proto 字段顺序以代码生成字段配置的排序值为准，相同排序值保持原有顺序。
+	columns = slices.Clone(columns)
+	slices.SortStableFunc(columns, func(left *CodeGenColumn, right *CodeGenColumn) int {
+		if left.Sort < right.Sort {
+			return -1
+		}
+		if left.Sort > right.Sort {
+			return 1
+		}
+		return 0
+	})
 	entity := table.EntityName
 	pluralEntity := pluralize(entity)
 	switch name {

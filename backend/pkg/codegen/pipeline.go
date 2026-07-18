@@ -70,11 +70,6 @@ func IsStringColumn(column *CodeGenColumn) bool {
 	return goType == "string"
 }
 
-// ProtoMethodExists 检查指定 Proto 文件的目标服务中是否存在 RPC 方法。
-func ProtoMethodExists(protoPath string, targetEntity string, methodName string) (bool, string) {
-	return (&renderer{}).protoMethodExists(protoPath, targetEntity, methodName)
-}
-
 func (c *renderer) buildExpectedProtoChecks(table *Table, columns []*CodeGenColumn) []*ProtoCheck {
 	protoPath := c.defaultProtoPath(table)
 	entity := table.EntityName

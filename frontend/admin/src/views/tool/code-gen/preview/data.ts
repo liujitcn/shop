@@ -155,13 +155,6 @@ export function resolveCodeGenPrimaryColumn(columns: CodeGenColumn[]) {
   return columns.find(column => column.is_primary)?.column_name || "__preview_id";
 }
 
-/** 返回三种页面类型的展示名称。 */
-export function resolveCodeGenPageTypeLabel(pageType?: string) {
-  if (pageType === "tree") return "树形表格";
-  if (pageType === "left_tree") return "左树右表";
-  return "普通表格";
-}
-
 /** 返回指定字段范围的模拟选项。 */
 export function resolveCodeGenPreviewOptions(optionMap: CodeGenPreviewOptionMap, columnName: string, scope: CodeGenPreviewScope) {
   return optionMap[createCodeGenPreviewOptionKey(columnName, scope)] ?? [];

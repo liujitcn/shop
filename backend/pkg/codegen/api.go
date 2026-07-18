@@ -45,22 +45,6 @@ func prepareGenerationWithRenderer(
 	}, nil
 }
 
-// InspectProtoMethods 检查当前配置需要的 Proto 方法及其仓库状态。
-func InspectProtoMethods(table *Table, columns []*CodeGenColumn, savedMethods []*Proto) []*ProtoCheck {
-	checks := (&renderer{}).buildExpectedProtoChecks(table, columns)
-	for _, check := range checks {
-		saved := findSavedProtoMethod(savedMethods, check)
-		if saved != nil {
-			applySavedProtoMethod(check, saved)
-		}
-		check.Exists, check.Message = ProtoMethodExists(check.ProtoFilePath, check.TargetEntityName, check.MethodName)
-		if check.Exists {
-			check.GenerateWhenMissing = false
-		}
-	}
-	return checks
-}
-
 // applySavedProtoMethod 使用已保存的 Proto 配置覆盖模板推导值。
 func applySavedProtoMethod(check *ProtoCheck, saved *Proto) {
 	check.GenerateWhenMissing = saved.GenerateWhenMissing == 1

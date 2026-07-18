@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"regexp"
 	"slices"
+	"strconv"
 	"strings"
 
 	"github.com/liujitcn/go-utils/stringcase"
@@ -251,50 +252,168 @@ func protoRPCMessageOrder(content string) map[string]int {
 	return order
 }
 
-// appendMissingProtoMessageFields 向已有 message 追加尚未声明的生成字段。
+// appendMissingProtoMessageFields 按候选 message 的字段顺序补齐和整理已有字段。
 func appendMissingProtoMessageFields(content string, messageStart, messageEnd int, candidate string) string {
 	candidateStart, candidateEnd := findProtoMessageBounds(candidate, protoMessageName(candidate))
 	if candidateStart < 0 || candidateEnd < 0 {
 		return content
 	}
-	existingFields := make(map[string]struct{})
-	for _, field := range protoMessageFields(content[messageStart+1 : messageEnd]) {
-		existingFields[field.name] = struct{}{}
-	}
-	missingFields := make([]string, 0)
-	for _, field := range protoMessageFields(candidate[candidateStart+1 : candidateEnd]) {
-		if _, exists := existingFields[field.name]; exists {
-			continue
-		}
-		missingFields = append(missingFields, field.content)
-	}
-	if len(missingFields) == 0 {
+	existingBody := content[messageStart+1 : messageEnd]
+	existingFields := protoMessageFields(existingBody)
+	candidateFields := protoMessageFields(candidate[candidateStart+1 : candidateEnd])
+	// 仅重建完整字段区域，避免覆盖含有 oneof、reserved 等人工结构的 message。
+	if len(candidateFields) == 0 || !isProtoMessageFieldOnly(existingBody, existingFields) || !isProtoMessageFieldOnly(candidate[candidateStart+1:candidateEnd], candidateFields) {
 		return content
 	}
-	body := strings.TrimRight(content[messageStart+1:messageEnd], "\r\n")
-	if strings.TrimSpace(body) != "" {
-		body += "\n\n"
+	fields := mergeProtoMessageFields(existingFields, candidateFields)
+	if sameProtoMessageFieldOrder(existingFields, fields) {
+		return content
 	}
-	body += strings.Join(missingFields, "\n\n") + "\n"
+	body := renderProtoMessageFields(fields)
 	return content[:messageStart+1] + body + content[messageEnd:]
 }
 
 type protoMessageField struct {
-	name    string
-	content string
+	name        string
+	number      int
+	numberStart int
+	numberEnd   int
+	content     string
+	start       int
+	end         int
 }
 
-// protoMessageFields 返回 message 中可由生成器维护的字段声明。
+// protoMessageFields 返回 message 中可由生成器维护的字段声明和原始位置。
 func protoMessageFields(content string) []protoMessageField {
-	matches := protoMessageFieldPattern.FindAllStringSubmatch(content, -1)
+	matches := protoMessageFieldPattern.FindAllStringSubmatchIndex(content, -1)
 	fields := make([]protoMessageField, 0, len(matches))
 	for _, match := range matches {
-		if len(match) < 2 {
+		if len(match) < 6 {
 			continue
 		}
-		fields = append(fields, protoMessageField{name: match[1], content: "  " + strings.TrimSpace(match[0])})
+		number, err := strconv.Atoi(content[match[4]:match[5]])
+		if err != nil {
+			continue
+		}
+		fieldStart := match[0]
+		fieldStart = protoDeclarationCommentStart(content, fieldStart)
+		fields = append(fields, protoMessageField{
+			name:        content[match[2]:match[3]],
+			number:      number,
+			numberStart: match[4] - fieldStart,
+			numberEnd:   match[5] - fieldStart,
+			content:     strings.TrimRight(content[fieldStart:match[1]], "\r\n"),
+			start:       fieldStart,
+			end:         match[1],
+		})
 	}
 	return fields
+}
+
+// isProtoMessageFieldOnly 判断 message 内容是否只包含字段声明和字段注释。
+func isProtoMessageFieldOnly(content string, fields []protoMessageField) bool {
+	cursor := 0
+	for _, field := range fields {
+		// 字段之外存在其他结构时保留人工 message，避免代码生成覆盖其语义。
+		if strings.TrimSpace(content[cursor:field.start]) != "" {
+			return false
+		}
+		cursor = field.end
+	}
+	return strings.TrimSpace(content[cursor:]) == ""
+}
+
+// mergeProtoMessageFields 按候选字段顺序合并已有字段，并将人工扩展字段保留在末尾。
+func mergeProtoMessageFields(existingFields, candidateFields []protoMessageField) []protoMessageField {
+	existingByName := make(map[string]protoMessageField, len(existingFields))
+	for _, field := range existingFields {
+		if _, exists := existingByName[field.name]; !exists {
+			existingByName[field.name] = field
+		}
+	}
+	fields := make([]protoMessageField, 0, len(existingFields)+len(candidateFields))
+	generatedNames := make(map[string]struct{}, len(candidateFields))
+	usedNumbers := make(map[int]struct{}, len(existingFields)+len(candidateFields))
+	maxNumber := 0
+	for _, candidateField := range candidateFields {
+		generatedNames[candidateField.name] = struct{}{}
+		field, exists := existingByName[candidateField.name]
+		if !exists {
+			field = candidateField
+		}
+		field = withProtoMessageFieldNumber(field, candidateField.number)
+		fields = append(fields, field)
+		usedNumbers[field.number] = struct{}{}
+		if field.number > maxNumber {
+			maxNumber = field.number
+		}
+	}
+	for _, field := range existingFields {
+		if _, generated := generatedNames[field.name]; generated {
+			continue
+		}
+		// 人工字段排在生成字段之后；编号冲突或倒序时顺延，保持 Proto 定义有效。
+		if _, used := usedNumbers[field.number]; used || field.number <= maxNumber {
+			field = withProtoMessageFieldNumber(field, nextProtoMessageFieldNumber(usedNumbers, maxNumber+1))
+		}
+		fields = append(fields, field)
+		usedNumbers[field.number] = struct{}{}
+		if field.number > maxNumber {
+			maxNumber = field.number
+		}
+	}
+	return fields
+}
+
+// withProtoMessageFieldNumber 更新字段编号并保留字段其他声明内容。
+func withProtoMessageFieldNumber(field protoMessageField, number int) protoMessageField {
+	if field.number == number {
+		return field
+	}
+	field.content = field.content[:field.numberStart] + strconv.Itoa(number) + field.content[field.numberEnd:]
+	field.number = number
+	field.numberEnd = field.numberStart + len(strconv.Itoa(number))
+	return field
+}
+
+// nextProtoMessageFieldNumber 返回从指定编号起未被占用的字段编号。
+func nextProtoMessageFieldNumber(usedNumbers map[int]struct{}, number int) int {
+	for {
+		if _, used := usedNumbers[number]; !used {
+			return number
+		}
+		number++
+	}
+}
+
+// sameProtoMessageFieldOrder 判断已有字段是否已按目标顺序和编号排列。
+func sameProtoMessageFieldOrder(existingFields, fields []protoMessageField) bool {
+	if len(existingFields) != len(fields) {
+		return false
+	}
+	for index, field := range fields {
+		if existingFields[index].name != field.name || existingFields[index].number != field.number {
+			return false
+		}
+	}
+	return true
+}
+
+// renderProtoMessageFields 渲染字段区域，统一保留字段之间的空行。
+func renderProtoMessageFields(fields []protoMessageField) string {
+	if len(fields) == 0 {
+		return ""
+	}
+	var builder strings.Builder
+	builder.WriteString("\n")
+	for index, field := range fields {
+		if index > 0 {
+			builder.WriteString("\n\n")
+		}
+		builder.WriteString(field.content)
+	}
+	builder.WriteString("\n")
+	return builder.String()
 }
 
 // protoMessageName 返回 message 定义中的名称。

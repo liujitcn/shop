@@ -70,8 +70,8 @@ var (
 	protoRPCPattern = regexp.MustCompile(`rpc\s+([A-Za-z0-9_]+)\s*\(`)
 	// protoMessagePattern 匹配 Proto message 声明及消息名。
 	protoMessagePattern = regexp.MustCompile(`message\s+([A-Za-z0-9_]+)\s*\{`)
-	// protoMessageFieldPattern 匹配生成器维护的单行 Proto 字段声明及字段名。
-	protoMessageFieldPattern = regexp.MustCompile(`(?m)^[\t ]*(?:repeated[\t ]+|optional[\t ]+)?[A-Za-z_][A-Za-z0-9_.]*[\t ]+([A-Za-z_][A-Za-z0-9_]*)[\t ]*=[\t ]*[0-9]+[^\r\n]*;[^\r\n]*$`)
+	// protoMessageFieldPattern 匹配生成器维护的 Proto 字段声明、字段名和编号，兼容多行 OpenAPI 注解。
+	protoMessageFieldPattern = regexp.MustCompile(`(?ms)^[\t ]*(?:repeated[\t ]+|optional[\t ]+)?[A-Za-z_][A-Za-z0-9_.]*[\t ]+([A-Za-z_][A-Za-z0-9_]*)[\t ]*=[\t ]*([0-9]+).*?;[^\r\n]*$`)
 	// commandSourcePattern 匹配生成命令中的数据源参数。
 	commandSourcePattern = regexp.MustCompile(`(?i)(-source=)(?:'[^']*'|"[^"]*"|\S+)`)
 	// commandDSNPattern 匹配命令输出中的数据库连接信息。
