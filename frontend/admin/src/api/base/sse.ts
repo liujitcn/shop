@@ -1,28 +1,16 @@
 import { EventStreamContentType, fetchEventSource, type EventSourceMessage } from "@microsoft/fetch-event-source";
 import type { SubscribeSseRequest } from "@/rpc/base/v1/sse";
 import type { CodeGenTask } from "@/rpc/system/admin/v1/code_gen";
-import { SseEvent, SseRefreshReason, SseRefreshTarget, SseStream } from "@/rpc/common/v1/enum";
 import { getRequestAccessToken, handleAuthExpired } from "@/utils/request";
 
 const SSE_URL = "/events";
+/** 代码生成 SSE 流标识。 */
+const sseStreamCodeGen = "system.admin.codegen";
+/** 代码生成进度 SSE 事件标识。 */
+const sseEventCodeGenProgress = "codegen.progress";
 
 /** SSE 取消订阅函数。 */
 export type SseStop = () => void;
-
-/** SSE 刷新事件负载。 */
-export interface SseRefreshPayload {
-  /** 事件名称。 */
-  event: SseEvent;
-  /** 需要刷新的页面目标。 */
-  targets: SseRefreshTarget[];
-  /** 触发刷新原因。 */
-  reason?: SseRefreshReason;
-  /** 事件发生时间。 */
-  occurred_at: string;
-}
-
-/** SSE 刷新事件处理函数。 */
-export type SseRefreshHandler = (payload: SseRefreshPayload) => void;
 
 /** 代码生成任务进度处理函数。 */
 export type CodeGenProgressHandler = (task: CodeGenTask) => void;
@@ -176,16 +164,11 @@ export class SseServiceImpl {
 
 export const defSseService = new SseServiceImpl();
 
-/** 订阅 SSE 页面刷新事件。 */
-export function subscribeSseRefresh(stream: SseStream, handler: SseRefreshHandler): SseStop {
-  return subscribeSseEvent({ stream }, SseEvent.SSE_EVENT_PAGE_REFRESH, raw => parseSseRefreshPayload(raw), handler);
-}
-
 /** 订阅指定代码生成任务的实时进度。 */
 export function subscribeCodeGenProgress(taskId: string, handler: CodeGenProgressHandler): SseStop {
   return subscribeSseEvent(
-    { stream: SseStream.SSE_STREAM_ADMIN_CODE_GEN, channel_id: taskId },
-    SseEvent.SSE_EVENT_CODE_GEN_PROGRESS,
+    { stream: sseStreamCodeGen, channel_id: taskId },
+    sseEventCodeGenProgress,
     raw => parseCodeGenProgress(raw, taskId),
     handler
   );
@@ -194,7 +177,7 @@ export function subscribeCodeGenProgress(taskId: string, handler: CodeGenProgres
 /** 订阅指定 SSE 事件。 */
 export function subscribeSseEvent<T>(
   request: SubscribeSseRequest,
-  event: SseEvent,
+  event: string,
   parser: (raw: string) => T | null,
   handler: (payload: T) => void
 ): SseStop {
@@ -202,7 +185,7 @@ export function subscribeSseEvent<T>(
   if (!connection) return () => undefined;
 
   connection.refCount += 1;
-  const eventName = toSseEventName(event);
+  const eventName = event;
   let eventListeners = connection.listeners.get(eventName);
   if (!eventListeners) {
     eventListeners = new Set();
@@ -237,26 +220,4 @@ function parseCodeGenProgress(raw: string, taskId: string): CodeGenTask | null {
   } catch {
     return null;
   }
-}
-
-/** 解析 SSE 刷新事件负载。 */
-function parseSseRefreshPayload(raw: string): SseRefreshPayload | null {
-  if (!raw) {
-    return null;
-  }
-
-  try {
-    const payload = JSON.parse(raw) as SseRefreshPayload;
-    if (payload.event !== SseEvent.SSE_EVENT_PAGE_REFRESH || !Array.isArray(payload.targets)) {
-      return null;
-    }
-    return payload;
-  } catch {
-    return null;
-  }
-}
-
-/** 将 SSE 事件枚举转换为 EventSource 事件名称。 */
-function toSseEventName(event: SseEvent) {
-  return String(event);
 }

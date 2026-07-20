@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"strings"
 
-	_const "shop/pkg/const"
+	_const "shop/service/shop/consts"
 
-	commonv1 "shop/api/gen/go/common/v1"
+	shopcommonv1 "shop/api/gen/go/shop/common/v1"
 	shopadminv1 "shop/api/gen/go/shop/admin/v1"
 	"shop/pkg/errorsx"
 	"shop/service/shop/recommend/gorse"
@@ -353,14 +353,14 @@ func (c *RecommendGorseCase) ExportData(
 	req *shopadminv1.ExportDataRequest,
 ) (*shopadminv1.ExportDataResponse, error) {
 	// 数据类型非法时，无法确定需要导出的Gorse 推荐数据集。
-	if req.GetDataType() == commonv1.AdvanceDataType(_const.ADVANCE_DATA_TYPE_UNKNOWN) {
+	if req.GetDataType() == shopcommonv1.AdvanceDataType(_const.ADVANCE_DATA_TYPE_UNKNOWN) {
 		return nil, errorsx.InvalidArgument("导出数据类型不能为空")
 	}
 
 	var err error
 	// 不同高级调试数据类型分别走各自的 JSONL 导出逻辑。
 	switch req.GetDataType() {
-	case commonv1.AdvanceDataType(_const.ADVANCE_DATA_TYPE_USER):
+	case shopcommonv1.AdvanceDataType(_const.ADVANCE_DATA_TYPE_USER):
 		var content string
 		content, err = c.exportRecommendGorseUsers(ctx)
 		if err != nil {
@@ -370,7 +370,7 @@ func (c *RecommendGorseCase) ExportData(
 			FileName: "users.jsonl",
 			Content:  content,
 		}, nil
-	case commonv1.AdvanceDataType(_const.ADVANCE_DATA_TYPE_ITEM):
+	case shopcommonv1.AdvanceDataType(_const.ADVANCE_DATA_TYPE_ITEM):
 		var content string
 		content, err = c.exportRecommendGorseItems(ctx)
 		if err != nil {
@@ -380,7 +380,7 @@ func (c *RecommendGorseCase) ExportData(
 			FileName: "items.jsonl",
 			Content:  content,
 		}, nil
-	case commonv1.AdvanceDataType(_const.ADVANCE_DATA_TYPE_FEEDBACK):
+	case shopcommonv1.AdvanceDataType(_const.ADVANCE_DATA_TYPE_FEEDBACK):
 		var content string
 		content, err = c.exportRecommendGorseFeedback(ctx)
 		if err != nil {
@@ -401,7 +401,7 @@ func (c *RecommendGorseCase) ImportData(
 	req *shopadminv1.ImportDataRequest,
 ) (*shopadminv1.ImportDataResponse, error) {
 	// 数据类型非法时，无法确定 JSONL 应该写入哪类Gorse 推荐数据。
-	if req.GetDataType() == commonv1.AdvanceDataType(_const.ADVANCE_DATA_TYPE_UNKNOWN) {
+	if req.GetDataType() == shopcommonv1.AdvanceDataType(_const.ADVANCE_DATA_TYPE_UNKNOWN) {
 		return nil, errorsx.InvalidArgument("导入数据类型不能为空")
 	}
 	// 文件内容为空时，没有可供导入的Gorse 推荐数据行。
@@ -421,11 +421,11 @@ func (c *RecommendGorseCase) ImportData(
 	successCount := 0
 	// 不同高级调试数据类型分别按各自模型解析并导入 Gorse 推荐服务。
 	switch req.GetDataType() {
-	case commonv1.AdvanceDataType(_const.ADVANCE_DATA_TYPE_USER):
+	case shopcommonv1.AdvanceDataType(_const.ADVANCE_DATA_TYPE_USER):
 		successCount, err = c.importRecommendGorseUsers(ctx, recordList)
-	case commonv1.AdvanceDataType(_const.ADVANCE_DATA_TYPE_ITEM):
+	case shopcommonv1.AdvanceDataType(_const.ADVANCE_DATA_TYPE_ITEM):
 		successCount, err = c.importRecommendGorseItems(ctx, recordList)
-	case commonv1.AdvanceDataType(_const.ADVANCE_DATA_TYPE_FEEDBACK):
+	case shopcommonv1.AdvanceDataType(_const.ADVANCE_DATA_TYPE_FEEDBACK):
 		successCount, err = c.importRecommendGorseFeedback(ctx, recordList)
 	default:
 		return nil, errorsx.InvalidArgument("暂不支持当前导入数据类型")

@@ -6,7 +6,7 @@ import type { OptionBaseDictResponse_BaseDictItem } from "@/rpc/system/admin/v1/
 import type { ConfigResponse } from "@/rpc/shop/admin/v1/recommend_gorse";
 import type { TreeOptionResponse_Option } from "@/rpc/common/v1/common";
 
-/** Gorse 推荐下拉选项。 */
+/** 商城 Gorse 推荐下拉选项。 */
 interface GorseSelectOption {
   /** 页面显示名称。 */
   label: string;

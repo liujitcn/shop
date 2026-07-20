@@ -4,7 +4,7 @@ import (
 	"context"
 	"strconv"
 
-	_const "shop/pkg/const"
+	_const "shop/service/shop/consts"
 
 	"github.com/liujitcn/kratos-kit/auth"
 	"github.com/liujitcn/kratos-kit/auth/data"

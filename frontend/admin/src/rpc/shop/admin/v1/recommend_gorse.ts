@@ -5,8 +5,8 @@
 // source: shop/admin/v1/recommend_gorse.proto
 
 /* eslint-disable */
-import type { AdvanceDataType } from "../../../common/v1/enum";
 import type { Empty } from "../../../google/protobuf/empty";
+import type { AdvanceDataType } from "../../common/v1/enum";
 
 /** 外部推荐脚本预览请求 */
 export interface PreviewExternalRequest {

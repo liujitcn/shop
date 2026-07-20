@@ -334,21 +334,21 @@ func isBatchMergeableFile(path string) bool {
 	if strings.HasSuffix(path, ".proto") {
 		return true
 	}
-	if (strings.HasPrefix(path, "backend/service/system/admin/biz/") || strings.HasPrefix(path, "backend/service/shop/admin/biz/")) && strings.HasSuffix(path, ".go") {
-		return true
+	for _, target := range ProtoTargets() {
+		if strings.HasPrefix(path, target.BackendModuleDirectory+"/biz/") && strings.HasSuffix(path, ".go") {
+			return true
+		}
+		if strings.HasPrefix(path, target.BackendModuleDirectory+"/") && strings.HasSuffix(path, "_service.go") {
+			return true
+		}
+		if strings.HasPrefix(path, target.FrontendAPIDirectory+"/") && strings.HasSuffix(path, ".ts") {
+			return true
+		}
+		if path == target.BackendModuleDirectory+"/init.go" || path == target.ModuleRegisterPath {
+			return true
+		}
 	}
-	if (strings.HasPrefix(path, "backend/service/system/admin/") || strings.HasPrefix(path, "backend/service/shop/admin/")) && strings.HasSuffix(path, "_service.go") {
-		return true
-	}
-	if (strings.HasPrefix(path, "frontend/admin/src/api/system/admin/") || strings.HasPrefix(path, "frontend/admin/src/api/shop/admin/")) && strings.HasSuffix(path, ".ts") {
-		return true
-	}
-	switch path {
-	case "backend/service/system/admin/init.go", "backend/service/shop/admin/init.go", "backend/server/system/admin/register.go", "backend/server/shop/admin/register.go":
-		return true
-	default:
-		return false
-	}
+	return false
 }
 
 // readFile 从批次虚拟文件视图读取内容，未覆盖的路径回退到工作区。

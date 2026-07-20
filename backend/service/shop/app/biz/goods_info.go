@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"strconv"
 
-	_const "shop/pkg/const"
+	_const "shop/service/shop/consts"
 
 	"shop/pkg/biz"
 	"shop/pkg/errorsx"

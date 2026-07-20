@@ -4,8 +4,10 @@ package app
 import (
 	shopappv1 "shop/api/gen/go/shop/app/v1"
 	einoTool "shop/pkg/agent/eino/tool"
+	"shop/pkg/job"
 	host "shop/server"
 	shopapp "shop/service/shop/app"
+	shopappbiz "shop/service/shop/app/biz"
 
 	"github.com/go-kratos/kratos/v3/transport/grpc"
 	kratosHTTP "github.com/go-kratos/kratos/v3/transport/http"
@@ -32,6 +34,22 @@ type Services struct {
 }
 
 var _ host.Module = Services{}
+
+// TaskSet 汇总商城端向调度运行时贡献的任务。
+type TaskSet struct {
+	commentAuditRetry *shopappbiz.CommentAuditRetry
+	orderRefundRetry  *shopappbiz.OrderRefundRetry
+}
+
+var _ host.TaskContributor = TaskSet{}
+
+// NewTaskSet 创建商城端定时任务贡献。
+func NewTaskSet(commentAuditRetry *shopappbiz.CommentAuditRetry, orderRefundRetry *shopappbiz.OrderRefundRetry) TaskSet {
+	return TaskSet{
+		commentAuditRetry: commentAuditRetry,
+		orderRefundRetry:  orderRefundRetry,
+	}
+}
 
 // ProviderSet 汇总 shop.app.v1 传输模块依赖注入提供者。
 var ProviderSet = wire.NewSet(wire.Struct(new(Services), "*"))
@@ -89,6 +107,14 @@ func (s Services) RegisterMCP(server *mcpserver.Server) {
 	shopappv1.RegisterUserCartServiceMCPTools(mcpSrv, s.UserCart)
 	shopappv1.RegisterUserCollectServiceMCPTools(mcpSrv, s.UserCollect)
 	shopappv1.RegisterUserStoreServiceMCPTools(mcpSrv, s.UserStore)
+}
+
+// Tasks 返回商城端需要调度运行时执行的具名任务。
+func (s TaskSet) Tasks() []job.Task {
+	return []job.Task{
+		{Name: "CommentAuditRetry", Exec: s.commentAuditRetry},
+		{Name: "OrderRefundRetry", Exec: s.orderRefundRetry},
+	}
 }
 
 // AppAgentTools 创建 shop.app.v1 的商城端 AI 助手工具。

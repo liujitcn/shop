@@ -174,7 +174,7 @@ import type {
 } from "@/rpc/shop/admin/v1/comment_info";
 import { CommentStatus } from "@/rpc/shop/common/v1/enum";
 import { formatSrc } from "@/utils/utils";
-import { buildTenantStoreDisplayMap, DEFAULT_TENANT_CODE, type TenantStoreDisplayInfo } from "@/utils/tenant";
+import { buildTenantStoreDisplayMap, DEFAULT_TENANT_CODE, type TenantStoreDisplayInfo } from "@/views/shop/admin/utils/tenant";
 import DiscussionList from "../components/discussion/index.vue";
 import ReviewTimeline from "../components/review/ReviewTimeline.vue";
 

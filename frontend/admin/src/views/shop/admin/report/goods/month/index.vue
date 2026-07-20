@@ -118,7 +118,7 @@ import type { GoodsMonthReportItem, SummaryGoodsMonthReportResponse } from "@/rp
 import type { OptionTenantStoreResponse_Option } from "@/rpc/shop/admin/v1/tenant_store";
 import router from "@/routers";
 import { useUserStore } from "@/stores/modules/user";
-import { DEFAULT_TENANT_CODE, parseTenantStoreTreeValue, transformTenantStoreTreeOptions } from "@/utils/tenant";
+import { DEFAULT_TENANT_CODE, parseTenantStoreTreeValue, transformTenantStoreTreeOptions } from "@/views/shop/admin/utils/tenant";
 import { formatPrice } from "@/utils/utils";
 
 /** 月报内容面板类型。 */

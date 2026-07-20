@@ -1,4 +1,4 @@
-package flow
+package aiflow
 
 import (
 	"context"
@@ -16,18 +16,18 @@ import (
 )
 
 const (
-	adminFlowWorkspaceOverview   = string(einoWorkflow.AdminFlowWorkspaceOverview)
-	adminFlowPendingShipment     = string(einoWorkflow.AdminFlowPendingShipment)
-	adminFlowCommentReview       = string(einoWorkflow.AdminFlowCommentReview)
-	adminFlowGoodsInventoryAlert = string(einoWorkflow.AdminFlowGoodsInventoryAlert)
-	adminFlowOrderRefund         = string(einoWorkflow.AdminFlowOrderRefund)
-	adminFlowGoodsAnalytics      = string(einoWorkflow.AdminFlowGoodsAnalytics)
-	adminFlowOrderAnalytics      = string(einoWorkflow.AdminFlowOrderAnalytics)
-	adminFlowStoreAudit          = string(einoWorkflow.AdminFlowStoreAudit)
-	adminFlowRecommendDashboard  = string(einoWorkflow.AdminFlowRecommendDashboard)
-	adminFlowReputationInsight   = string(einoWorkflow.AdminFlowReputationInsight)
-	adminFlowPayBillCheck        = string(einoWorkflow.AdminFlowPayBillCheck)
-	adminFlowReportOverview      = string(einoWorkflow.AdminFlowReportOverview)
+	adminFlowWorkspaceOverview   = "workspace_overview"
+	adminFlowPendingShipment     = "pending_shipment"
+	adminFlowCommentReview       = "comment_review"
+	adminFlowGoodsInventoryAlert = "goods_inventory_alert"
+	adminFlowOrderRefund         = "order_refund"
+	adminFlowGoodsAnalytics      = "goods_analytics"
+	adminFlowOrderAnalytics      = "order_analytics"
+	adminFlowStoreAudit          = "store_audit"
+	adminFlowRecommendDashboard  = "recommend_dashboard"
+	adminFlowReputationInsight   = "reputation_insight"
+	adminFlowPayBillCheck        = "pay_bill_check"
+	adminFlowReportOverview      = "report_overview"
 )
 
 const (
@@ -78,7 +78,7 @@ const (
 	adminToolSummaryUserAnalytics    = "admin_v1_user_analytics_service_summary_user_analytics"
 )
 
-var adminFlowRegistry = einoWorkflow.MustNewAdminRegistry[*ai.Response]()
+var adminFlowRegistry = einoWorkflow.MustNewRegistry[*ai.Response](adminFlowDefinitions, "商城", "shop_admin_fixed_flow")
 
 // AdminRunner 编排管理端助手闭环流程。
 type AdminRunner struct {

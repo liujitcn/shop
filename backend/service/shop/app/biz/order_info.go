@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"time"
 
-	_const "shop/pkg/const"
+	_const "shop/service/shop/consts"
 	"shop/service/shop/config"
 
 	"shop/pkg/biz"

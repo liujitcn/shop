@@ -2,17 +2,14 @@ package biz
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
 	"net/http"
 	"strings"
 
 	basev1 "shop/api/gen/go/base/v1"
-	commonv1 "shop/api/gen/go/common/v1"
 	systemadminv1 "shop/api/gen/go/system/admin/v1"
 	_const "shop/pkg/const"
 	"shop/pkg/errorsx"
-	"shop/service/shop/workspaceevent"
+	transportSSE "shop/pkg/sse"
 	"shop/service/system/admin/codegen"
 
 	kratosHTTP "github.com/go-kratos/kratos/v3/transport/http"
@@ -27,42 +24,34 @@ import (
 type SseCase struct {
 	authenticator authnEngine.Authenticator
 	sse           *sseServer.Server
-	progress      *codegen.Manager
+	streams       *transportSSE.Registry
 }
 
 // NewSseCase 创建 SSE 业务实例。
-func NewSseCase(ctx *bootstrap.Context, authenticator authnEngine.Authenticator, sse *sseServer.Server, progress *codegen.Manager) (*SseCase, error) {
+func NewSseCase(
+	ctx *bootstrap.Context,
+	authenticator authnEngine.Authenticator,
+	sse *sseServer.Server,
+	streams *transportSSE.Registry,
+	publisher *transportSSE.Publisher,
+	progress *codegen.Manager,
+) (*SseCase, error) {
 	handler := &SseCase{
 		authenticator: authenticator,
 		sse:           sse,
-		progress:      progress,
+		streams:       streams,
 	}
 	cfg := ctx.GetConfig()
 	// 未启用 HTTP 服务时，不创建 SSE HTTP 处理器。
 	if cfg == nil || cfg.Server == nil || cfg.Server.Http == nil {
 		return handler, nil
 	}
-	workspaceevent.SetPublisher(func(ctx context.Context, payload workspaceevent.RefreshPayload) error {
-		var data []byte
-		data, err := json.Marshal(payload)
-		if err != nil {
-			return fmt.Errorf("marshal workspace refresh payload: %w", err)
-		}
-		sse.Publish(ctx, sseServer.StreamID(workspaceevent.StreamID(workspaceevent.StreamAdminWorkspace)), &sseServer.Event{
-			Event: []byte(workspaceevent.EventID(workspaceevent.EventWorkspaceRefresh)),
-			Data:  data,
-		})
-		return nil
-	})
+	err := streams.Register(codegen.NewCodeGenSSEStream(progress))
+	if err != nil {
+		return nil, err
+	}
 	progress.SetPublisher(func(ctx context.Context, taskID string, task *systemadminv1.CodeGenTask) {
-		data, err := json.Marshal(task)
-		if err != nil {
-			return
-		}
-		sse.TryPublish(ctx, sseServer.StreamID(codegen.StreamID(taskID)), &sseServer.Event{
-			Event: []byte(workspaceevent.EventID(commonv1.SseEvent_SSE_EVENT_CODE_GEN_PROGRESS)),
-			Data:  data,
-		})
+		publisher.TryPublishJSON(ctx, codegen.StreamID(taskID), codegen.SSEEventCodeGenProgress, task)
 	})
 	return handler, nil
 }
@@ -72,11 +61,8 @@ func (h *SseCase) SubscribeSse(ctx context.Context, req *basev1.SubscribeSseRequ
 	if h == nil || h.sse == nil {
 		return nil, errorsx.Internal("SSE服务未初始化")
 	}
-	if req.GetStream() != commonv1.SseStream_SSE_STREAM_ADMIN_WORKSPACE && req.GetStream() != commonv1.SseStream_SSE_STREAM_ADMIN_CODE_GEN {
+	if req.GetStream() == "" {
 		return nil, errorsx.InvalidArgument("SSE流不支持")
-	}
-	if req.GetStream() == commonv1.SseStream_SSE_STREAM_ADMIN_CODE_GEN && req.GetChannelId() == "" {
-		return nil, errorsx.InvalidArgument("代码生成任务ID不能为空")
 	}
 	w, ok := kratosHTTP.ResponseWriterFromServerContext(ctx)
 	if !ok || w == nil {
@@ -94,15 +80,12 @@ func (h *SseCase) SubscribeSse(ctx context.Context, req *basev1.SubscribeSseRequ
 		return nil, nil
 	}
 
-	streamID := workspaceevent.StreamID(req.GetStream())
-	// 代码生成进度只允许任务创建者订阅，并按任务ID隔离事件流。
-	if req.GetStream() == commonv1.SseStream_SSE_STREAM_ADMIN_CODE_GEN {
-		if !h.progress.IsOwner(req.GetChannelId(), userToken.UserId) {
-			w.Header().Set("Access-Control-Allow-Origin", "*")
-			http.Error(w, "forbidden", http.StatusForbidden)
-			return nil, nil
-		}
-		streamID = codegen.StreamID(req.GetChannelId())
+	streamID, found, err := h.streams.Resolve(req.GetStream(), req.GetChannelId(), userToken.UserId)
+	if !found {
+		return nil, errorsx.InvalidArgument("SSE流不支持")
+	}
+	if err != nil {
+		return nil, err
 	}
 	h.sse.ServeStreamHTTP(w, r, sseServer.StreamID(streamID))
 	return &emptypb.Empty{}, nil

@@ -131,7 +131,7 @@ import { UploadFilled } from "@element-plus/icons-vue";
 import type { ColumnProps } from "@/components/ProTable/interface";
 import ProTable from "@/components/ProTable/index.vue";
 import { defRecommendGorseService } from "@/api/shop/admin/recommend_gorse";
-import { AdvanceDataType } from "@/rpc/common/v1/enum";
+import { AdvanceDataType } from "@/rpc/shop/common/v1/enum";
 import { type ExportDataRequest, type ImportDataRequest } from "@/rpc/shop/admin/v1/recommend_gorse";
 import type { UploadFile, UploadInstance, UploadRawFile } from "element-plus";
 

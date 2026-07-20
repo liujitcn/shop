@@ -1,7 +1,7 @@
 package biz
 
 import (
-	_const "shop/pkg/const"
+	_const "shop/service/shop/consts"
 	"shop/pkg/errorsx"
 )
 

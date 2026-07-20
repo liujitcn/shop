@@ -57,7 +57,7 @@ import ProTable from "@/components/ProTable/index.vue";
 import type { ColumnProps, ProTableInstance } from "@/components/ProTable/interface";
 import DictLabel from "@/components/Dict/DictLabel.vue";
 import { defRecommendGorseService } from "@/api/shop/admin/recommend_gorse";
-import { buildScopedGoodsCategoryTree, useRecommendGorseStore } from "@/stores/modules/recommendGorse";
+import { buildScopedGoodsCategoryTree, useRecommendGorseStore } from "@/views/shop/admin/recommend/gorse/store";
 import { navigateTo } from "@/utils/router";
 import type { Item } from "@/rpc/shop/admin/v1/recommend_gorse";
 

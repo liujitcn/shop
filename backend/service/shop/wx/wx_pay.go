@@ -13,7 +13,7 @@ import (
 	"strings"
 	"time"
 
-	_const "shop/pkg/const"
+	_const "shop/service/shop/consts"
 
 	shopappv1 "shop/api/gen/go/shop/app/v1"
 	configv1 "shop/api/gen/go/shop/config/v1"

@@ -124,6 +124,7 @@ make gen
 - `make ts`：生成管理后台和商城端 RPC TypeScript 代码，需先在前端模块执行 `pnpm install`。
 - `make gorm-gen`：按当前数据库生成 `pkg/gen` 下的数据模型、查询对象和仓储代码。
 - `make wire`：在 `internal/cmd/server` 下生成依赖注入代码。
+- `make check-shop-boundary`：检查基础模块和通用协议未反向依赖商城模块。
 - `make gen`：生成 Go / OpenAPI / TypeScript 产物并格式化 Go 代码。
 
 生成产物不要手工修改，优先通过对应命令更新：
@@ -233,6 +234,7 @@ shop:
 | [评价与审核数据流转设计](../docs/评价与审核数据流转设计.md) | 评价、讨论、评价摘要、审核和互动数据流转。 |
 | [AI 助手设计](../docs/AI助手设计.md) | 会话、消息、工具、SSE 与商城固定流程。 |
 | [业务域目录拆分设计](../docs/Proto目录拆分设计.md) | 当前 Proto、服务端与前端的 `system` / `shop` 分域结构。 |
+| [商城模块解耦方案](../docs/商城模块解耦方案.md) | 商城可删除模块的边界、删除收尾和验收步骤。 |
 
 ## 校验
 

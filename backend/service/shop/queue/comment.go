@@ -1,7 +1,7 @@
 package queue
 
 import (
-	_const "shop/pkg/const"
+	_const "shop/service/shop/consts"
 	corequeue "shop/pkg/queue"
 )
 

@@ -16,7 +16,6 @@ import (
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 	"shop/service/base/agent/ai"
-	aiflow "shop/service/base/agent/ai/flow"
 	"shop/service/base/dto"
 
 	"github.com/go-kratos/kratos/v3/log"
@@ -222,8 +221,11 @@ func (c *AiMessageCase) RegenerateAiMessage(ctx context.Context, req *basev1.Reg
 func (c *AiMessageCase) ListAiShortcut(ctx context.Context, req *basev1.ListAiShortcutRequest) (*basev1.ListAiShortcutResponse, error) {
 	terminal := ai.NormalizeTerminal(req.GetTerminal())
 	terminalName := ai.NormalizeTerminalString(terminal)
+	if c.aiRuntime == nil {
+		return &basev1.ListAiShortcutResponse{}, nil
+	}
 	enabledTools := c.aiRuntime.EnabledToolNames(ctx, terminalName)
-	return &basev1.ListAiShortcutResponse{Shortcuts: ai.BuildShortcuts(terminal, enabledTools)}, nil
+	return &basev1.ListAiShortcutResponse{Shortcuts: c.aiRuntime.FixedFlowShortcuts(terminal, enabledTools)}, nil
 }
 
 // ListAiMessage 查询指定会话的消息列表。
@@ -498,7 +500,9 @@ func (c *AiMessageCase) generateAiReply(
 	var err error
 	var handled bool
 	var flowReply *ai.Response
-	flowReply, handled, err = aiflow.GenerateReply(ctx, c.aiRuntime, session.Terminal, content, action)
+	if c.aiRuntime != nil {
+		flowReply, handled, err = c.aiRuntime.GenerateFixedFlowReply(ctx, session.Terminal, content, action)
+	}
 	if handled {
 		// 移动端闭环流程由本地 flow 直接生成结构化回复，先透出正文让前端有流式反馈。
 		if err == nil && flowReply != nil && flowReply.Content != "" && onDelta != nil {
@@ -691,7 +695,7 @@ func (c *AiMessageCase) ensureAiActionCurrent(ctx context.Context, session *mode
 		return nil
 	}
 	if action.GetSourceMessageId() == "" && action.GetActionId() == "" && action.GetFlowVersion() == 0 {
-		if aiflow.IsEntryAction(session.Terminal, action.GetFlow(), action.GetType()) {
+		if c.aiRuntime != nil && c.aiRuntime.IsFixedFlowEntryAction(session.Terminal, action.GetFlow(), action.GetType()) {
 			return nil
 		}
 		return aiExpiredActionError("", "")

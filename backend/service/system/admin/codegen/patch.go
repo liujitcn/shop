@@ -1093,8 +1093,6 @@ func ensureGeneratedGoImports(content string, methodContent string) string {
 	}{
 		{marker: "context.", importLine: `"context"`, importPath: "context"},
 		{marker: "fmt.", importLine: `"fmt"`, importPath: "fmt"},
-		{marker: "systemadminv1.", importLine: `systemadminv1 "shop/api/gen/go/system/admin/v1"`, importPath: "shop/api/gen/go/system/admin/v1"},
-		{marker: "shopadminv1.", importLine: `shopadminv1 "shop/api/gen/go/shop/admin/v1"`, importPath: "shop/api/gen/go/shop/admin/v1"},
 		{marker: "commonv1.", importLine: `commonv1 "shop/api/gen/go/common/v1"`, importPath: "shop/api/gen/go/common/v1"},
 		{marker: "errorsx.", importLine: `"shop/pkg/errorsx"`, importPath: "shop/pkg/errorsx"},
 		{marker: "models.", importLine: `"shop/pkg/gen/models"`, importPath: "shop/pkg/gen/models"},
@@ -1104,6 +1102,17 @@ func ensureGeneratedGoImports(content string, methodContent string) string {
 		{marker: "repository.", importLine: `"github.com/liujitcn/gorm-kit/repository"`, importPath: "github.com/liujitcn/gorm-kit/repository"},
 		{marker: "log.", importLine: `"github.com/go-kratos/kratos/v3/log"`, importPath: "github.com/go-kratos/kratos/v3/log"},
 		{marker: "emptypb.", importLine: `"google.golang.org/protobuf/types/known/emptypb"`, importPath: "google.golang.org/protobuf/types/known/emptypb"},
+	}
+	for _, target := range ProtoTargets() {
+		imports = append(imports, struct {
+			marker     string
+			importLine string
+			importPath string
+		}{
+			marker:     target.GoAlias + ".",
+			importLine: target.GoAlias + ` "` + target.GoImportPath + `"`,
+			importPath: target.GoImportPath,
+		})
 	}
 	for _, item := range imports {
 		if strings.Contains(methodContent, item.marker) && !strings.Contains(content, `"`+item.importPath+`"`) {

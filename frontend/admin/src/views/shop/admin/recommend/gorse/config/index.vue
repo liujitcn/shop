@@ -40,7 +40,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from "vue";
 import { ElMessage } from "element-plus";
-import { useRecommendGorseStore } from "@/stores/modules/recommendGorse";
+import { useRecommendGorseStore } from "@/views/shop/admin/recommend/gorse/store";
 
 defineOptions({
   name: "GorseConfig"

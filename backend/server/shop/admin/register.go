@@ -4,8 +4,11 @@ package admin
 import (
 	shopadminv1 "shop/api/gen/go/shop/admin/v1"
 	einoTool "shop/pkg/agent/eino/tool"
+	"shop/pkg/job"
 	host "shop/server"
 	shopadmin "shop/service/shop/admin"
+	shopadminbiz "shop/service/shop/admin/biz"
+	"shop/service/shop/recommend"
 
 	"github.com/go-kratos/kratos/v3/transport/grpc"
 	kratosHTTP "github.com/go-kratos/kratos/v3/transport/http"
@@ -39,6 +42,31 @@ type Services struct {
 }
 
 var _ host.Module = Services{}
+
+// TaskSet 汇总商城管理端向调度运行时贡献的任务。
+type TaskSet struct {
+	tradeBill     *shopadminbiz.TradeBill
+	orderStatDay  *shopadminbiz.OrderStatDay
+	goodsStatDay  *shopadminbiz.GoodsStatDay
+	recommendSync *recommend.RecommendSync
+}
+
+var _ host.TaskContributor = TaskSet{}
+
+// NewTaskSet 创建商城管理端定时任务贡献。
+func NewTaskSet(
+	tradeBill *shopadminbiz.TradeBill,
+	orderStatDay *shopadminbiz.OrderStatDay,
+	goodsStatDay *shopadminbiz.GoodsStatDay,
+	recommendSync *recommend.RecommendSync,
+) TaskSet {
+	return TaskSet{
+		tradeBill:     tradeBill,
+		orderStatDay:  orderStatDay,
+		goodsStatDay:  goodsStatDay,
+		recommendSync: recommendSync,
+	}
+}
 
 // ProviderSet 汇总 shop.admin.v1 传输模块依赖注入提供者。
 var ProviderSet = wire.NewSet(wire.Struct(new(Services), "*"))
@@ -117,6 +145,16 @@ func (s Services) RegisterMCP(server *mcpserver.Server) {
 	shopadminv1.RegisterUserAnalyticsServiceMCPTools(mcpSrv, s.UserAnalytics)
 	shopadminv1.RegisterUserStoreServiceMCPTools(mcpSrv, s.UserStore)
 	shopadminv1.RegisterWorkspaceServiceMCPTools(mcpSrv, s.Workspace)
+}
+
+// Tasks 返回商城管理端需要调度运行时执行的具名任务。
+func (s TaskSet) Tasks() []job.Task {
+	return []job.Task{
+		{Name: "TradeBill", Exec: s.tradeBill},
+		{Name: "OrderStatDay", Exec: s.orderStatDay},
+		{Name: "GoodsStatDay", Exec: s.goodsStatDay},
+		{Name: "RecommendSync", Exec: s.recommendSync},
+	}
 }
 
 // AdminAgentTools 创建 shop.admin.v1 的管理端 AI 助手工具。

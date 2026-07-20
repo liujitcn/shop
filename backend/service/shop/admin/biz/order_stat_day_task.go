@@ -8,7 +8,7 @@ import (
 
 	shopappv1 "shop/api/gen/go/shop/app/v1"
 
-	_const "shop/pkg/const"
+	_const "shop/service/shop/consts"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 	"shop/pkg/job"

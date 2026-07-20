@@ -15,10 +15,10 @@ import (
 	"shop/pkg/biz"
 	_const "shop/pkg/const"
 	"shop/pkg/errorsx"
+	"shop/pkg/event"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 	"shop/service/base/utils"
-	"shop/service/shop/queue"
 )
 
 // BaseUserCase 用户业务实例
@@ -30,6 +30,7 @@ type BaseUserCase struct {
 	baseRoleCase  *BaseRoleCase
 	baseDeptCase  *BaseDeptCase
 	baseMenuCase  *BaseMenuCase
+	userEvents    *event.UserEvents
 	formMapper    *mapper.CopierMapper[systemadminv1.BaseUserForm, models.BaseUser]
 	mapper        *mapper.CopierMapper[systemadminv1.BaseUser, models.BaseUser]
 }
@@ -43,6 +44,7 @@ func NewBaseUserCase(
 	baseRoleCase *BaseRoleCase,
 	baseDeptCase *BaseDeptCase,
 	baseMenuCase *BaseMenuCase,
+	userEvents *event.UserEvents,
 ) *BaseUserCase {
 	return &BaseUserCase{
 		BaseCase:           baseCase,
@@ -52,6 +54,7 @@ func NewBaseUserCase(
 		baseRoleCase:       baseRoleCase,
 		baseDeptCase:       baseDeptCase,
 		baseMenuCase:       baseMenuCase,
+		userEvents:         userEvents,
 		formMapper:         mapper.NewCopierMapper[systemadminv1.BaseUserForm, models.BaseUser](),
 		mapper:             mapper.NewCopierMapper[systemadminv1.BaseUser, models.BaseUser](),
 	}
@@ -277,8 +280,8 @@ func (c *BaseUserCase) CreateBaseUser(ctx context.Context, req *systemadminv1.Ba
 		}
 		return err
 	}
-	// 用户写库成功后，再异步同步用户画像到推荐系统。
-	queue.DispatchRecommendSyncBaseUser(baseUser.ID)
+	// 用户写库成功后，通知已装配模块处理用户资料变更。
+	c.userEvents.PublishUserChanged(baseUser.ID)
 	return nil
 }
 
@@ -328,8 +331,8 @@ func (c *BaseUserCase) UpdateBaseUser(ctx context.Context, req *systemadminv1.Ba
 		}
 		return err
 	}
-	// 用户更新成功后，再按最新数据库快照同步到推荐系统。
-	queue.DispatchRecommendSyncBaseUser(baseUser.ID)
+	// 用户更新成功后，通知已装配模块处理用户资料变更。
+	c.userEvents.PublishUserChanged(baseUser.ID)
 	return nil
 }
 
@@ -360,8 +363,8 @@ func (c *BaseUserCase) DeleteBaseUser(ctx context.Context, id string) error {
 	if err != nil {
 		return err
 	}
-	// 用户删除成功后，再异步清理推荐系统中的用户主体。
-	queue.DispatchRecommendDeleteBaseUser(visibleIDs)
+	// 用户删除成功后，通知已装配模块清理关联用户数据。
+	c.userEvents.PublishUsersDeleted(visibleIDs)
 	return nil
 }
 
@@ -380,8 +383,8 @@ func (c *BaseUserCase) SetBaseUserStatus(ctx context.Context, req *systemadminv1
 	if err != nil {
 		return err
 	}
-	// 用户状态变更成功后，再同步最新状态到推荐系统。
-	queue.DispatchRecommendSyncBaseUser(baseUser.ID)
+	// 用户状态变更成功后，通知已装配模块处理用户资料变更。
+	c.userEvents.PublishUserChanged(baseUser.ID)
 	return nil
 }
 

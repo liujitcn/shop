@@ -7085,12 +7085,7 @@ paths:
                   in: path
                   required: true
                   schema:
-                    enum:
-                        - SSE_STREAM_UNSPECIFIED
-                        - SSE_STREAM_ADMIN_WORKSPACE
-                        - SSE_STREAM_ADMIN_CODE_GEN
                     type: string
-                    format: enum
                 - name: channel_id
                   in: query
                   schema:

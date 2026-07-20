@@ -44,7 +44,7 @@ import { ElMessage } from "element-plus";
 import ProTable from "@/components/ProTable/index.vue";
 import type { ColumnProps, ProTableInstance } from "@/components/ProTable/interface";
 import { defRecommendGorseService } from "@/api/shop/admin/recommend_gorse";
-import { useRecommendGorseStore } from "@/stores/modules/recommendGorse";
+import { useRecommendGorseStore } from "@/views/shop/admin/recommend/gorse/store";
 import { navigateTo } from "@/utils/router";
 import type { Feedback, Item } from "@/rpc/shop/admin/v1/recommend_gorse";
 

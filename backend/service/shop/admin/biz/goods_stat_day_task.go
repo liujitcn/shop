@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	_const "shop/pkg/const"
+	_const "shop/service/shop/consts"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 	"shop/pkg/job"

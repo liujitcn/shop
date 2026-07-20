@@ -1,5 +1,5 @@
 # Makefile 常用目标：初始化工具、生成代码、格式化代码、启动服务
-.PHONY: help init plugin cli fmt gorm-gen wire api openapi ts gen run build docker-build
+.PHONY: help init plugin cli fmt gorm-gen wire api openapi ts gen check-shop-boundary run build docker-build
 
 IMAGE ?= backend
 TAG ?= latest
@@ -108,6 +108,10 @@ ts:
 # 一键生成全部接口产物（Go 代码 + OpenAPI 文档 + TypeScript 代码）
 gen: api openapi ts gorm-gen wire fmt
 	@echo "==> 全部接口产物生成完成"
+
+# 检查基础模块未反向依赖商城模块
+check-shop-boundary:
+	@bash scripts/check_shop_boundary.sh
 
 # 启动应用
 run: api openapi

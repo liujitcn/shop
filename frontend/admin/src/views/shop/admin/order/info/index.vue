@@ -275,7 +275,7 @@ import {
   parseTenantStoreTreeValue,
   transformTenantStoreTreeOptions,
   type TenantStoreDisplayInfo
-} from "@/utils/tenant";
+} from "@/views/shop/admin/utils/tenant";
 
 defineOptions({
   name: "OrderInfo",

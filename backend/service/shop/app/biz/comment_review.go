@@ -5,7 +5,7 @@ import (
 
 	shopadminv1 "shop/api/gen/go/shop/admin/v1"
 	"shop/pkg/biz"
-	_const "shop/pkg/const"
+	_const "shop/service/shop/consts"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 

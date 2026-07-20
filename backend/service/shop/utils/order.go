@@ -1,6 +1,6 @@
 package utils
 
-import _const "shop/pkg/const"
+import _const "shop/service/shop/consts"
 
 // PaidTradeStatuses 返回已完成支付口径的交易单状态集合。
 func PaidTradeStatuses() []int32 {

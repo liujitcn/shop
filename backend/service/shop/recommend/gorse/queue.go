@@ -8,7 +8,7 @@ import (
 
 	shopcommonv1 "shop/api/gen/go/shop/common/v1"
 
-	_const "shop/pkg/const"
+	_const "shop/service/shop/consts"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 	"shop/pkg/queue"

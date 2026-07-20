@@ -7,7 +7,7 @@ import (
 
 	shopcommonv1 "shop/api/gen/go/shop/common/v1"
 
-	_const "shop/pkg/const"
+	_const "shop/service/shop/consts"
 
 	shopadminv1 "shop/api/gen/go/shop/admin/v1"
 	"shop/service/shop/admin/utils"

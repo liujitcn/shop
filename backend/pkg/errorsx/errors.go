@@ -3,8 +3,6 @@ package errorsx
 import (
 	stderrs "errors"
 
-	_const "shop/pkg/const"
-
 	commonv1 "shop/api/gen/go/common/v1"
 
 	kratosErrors "github.com/go-kratos/kratos/v3/errors"
@@ -40,32 +38,32 @@ const (
 
 // InvalidArgument 构造请求参数错误。
 func InvalidArgument(message string) *kratosErrors.Error {
-	return kratosErrors.New(400, commonv1.ErrorReason(_const.ERROR_REASON_INVALID_ARGUMENT).String(), message)
+	return kratosErrors.New(400, commonv1.ErrorReason_INVALID_ARGUMENT.String(), message)
 }
 
 // Unauthenticated 构造认证失败错误。
 func Unauthenticated(message string) *kratosErrors.Error {
-	return kratosErrors.New(401, commonv1.ErrorReason(_const.ERROR_REASON_UNAUTHENTICATED).String(), message)
+	return kratosErrors.New(401, commonv1.ErrorReason_UNAUTHENTICATED.String(), message)
 }
 
 // PermissionDenied 构造权限不足错误。
 func PermissionDenied(message string) *kratosErrors.Error {
-	return kratosErrors.New(403, commonv1.ErrorReason(_const.ERROR_REASON_PERMISSION_DENIED).String(), message)
+	return kratosErrors.New(403, commonv1.ErrorReason_PERMISSION_DENIED.String(), message)
 }
 
 // ResourceNotFound 构造资源不存在错误。
 func ResourceNotFound(message string) *kratosErrors.Error {
-	return kratosErrors.New(404, commonv1.ErrorReason(_const.ERROR_REASON_RESOURCE_NOT_FOUND).String(), message)
+	return kratosErrors.New(404, commonv1.ErrorReason_RESOURCE_NOT_FOUND.String(), message)
 }
 
 // Conflict 构造状态冲突错误。
 func Conflict(message string) *kratosErrors.Error {
-	return kratosErrors.New(409, commonv1.ErrorReason(_const.ERROR_REASON_CONFLICT).String(), message)
+	return kratosErrors.New(409, commonv1.ErrorReason_CONFLICT.String(), message)
 }
 
 // Internal 构造内部错误。
 func Internal(message string) *kratosErrors.Error {
-	return kratosErrors.New(500, commonv1.ErrorReason(_const.ERROR_REASON_INTERNAL_ERROR).String(), message)
+	return kratosErrors.New(500, commonv1.ErrorReason_INTERNAL_ERROR.String(), message)
 }
 
 // UniqueConflict 构造唯一约束冲突错误。

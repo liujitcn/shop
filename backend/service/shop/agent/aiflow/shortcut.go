@@ -1,6 +1,14 @@
-package ai
+package aiflow
 
-import basev1 "shop/api/gen/go/base/v1"
+import (
+	basev1 "shop/api/gen/go/base/v1"
+	"shop/service/base/agent/ai"
+)
+
+const (
+	terminalApp   = ai.TerminalApp
+	terminalAdmin = ai.TerminalAdmin
+)
 
 const (
 	shortcutFlowShopping       = "shopping"
@@ -100,7 +108,7 @@ var shortcutCatalog = []shortcutItem{
 		key:      "recommend_goods",
 		title:    "帮我推荐商品",
 		prompt:   "帮我推荐商品",
-		terminal: TerminalApp,
+		terminal: terminalApp,
 		sort:     10,
 		action: shortcutAction{
 			flow: shortcutFlowShopping,
@@ -122,7 +130,7 @@ var shortcutCatalog = []shortcutItem{
 		key:      "hot_goods",
 		title:    "帮我找热销商品",
 		prompt:   "帮我找热销商品",
-		terminal: TerminalApp,
+		terminal: terminalApp,
 		sort:     20,
 		action: shortcutAction{
 			flow: shortcutFlowShopping,
@@ -144,7 +152,7 @@ var shortcutCatalog = []shortcutItem{
 		key:      "pending_payment",
 		title:    "查看待付款订单",
 		prompt:   "查看待付款订单",
-		terminal: TerminalApp,
+		terminal: terminalApp,
 		sort:     30,
 		action: shortcutAction{
 			flow: shortcutFlowPendingPayment,
@@ -161,7 +169,7 @@ var shortcutCatalog = []shortcutItem{
 		key:      "recent_order",
 		title:    "查询最近订单",
 		prompt:   "查询最近订单",
-		terminal: TerminalApp,
+		terminal: terminalApp,
 		sort:     40,
 		action: shortcutAction{
 			flow: shortcutFlowOrderLogistics,
@@ -177,7 +185,7 @@ var shortcutCatalog = []shortcutItem{
 		key:      "order_logistics",
 		title:    "我的物流到哪了",
 		prompt:   "我的物流到哪了",
-		terminal: TerminalApp,
+		terminal: terminalApp,
 		sort:     50,
 		action: shortcutAction{
 			flow: shortcutFlowOrderLogistics,
@@ -193,7 +201,7 @@ var shortcutCatalog = []shortcutItem{
 		key:      "pending_review",
 		title:    "收到商品后怎么评价",
 		prompt:   "收到商品后怎么评价",
-		terminal: TerminalApp,
+		terminal: terminalApp,
 		sort:     60,
 		action: shortcutAction{
 			flow: shortcutFlowPendingReview,
@@ -209,7 +217,7 @@ var shortcutCatalog = []shortcutItem{
 		key:      "user_cart",
 		title:    "看看购物车里有什么",
 		prompt:   "看看购物车里有什么",
-		terminal: TerminalApp,
+		terminal: terminalApp,
 		sort:     70,
 		action: shortcutAction{
 			flow: shortcutFlowUserCart,
@@ -224,7 +232,7 @@ var shortcutCatalog = []shortcutItem{
 		key:      "user_collect",
 		title:    "查看我的收藏商品",
 		prompt:   "查看我的收藏商品",
-		terminal: TerminalApp,
+		terminal: terminalApp,
 		sort:     80,
 		action: shortcutAction{
 			flow: shortcutFlowUserCollect,
@@ -239,7 +247,7 @@ var shortcutCatalog = []shortcutItem{
 		key:      "user_address",
 		title:    "管理我的收货地址",
 		prompt:   "管理我的收货地址",
-		terminal: TerminalApp,
+		terminal: terminalApp,
 		sort:     90,
 		action: shortcutAction{
 			flow: shortcutFlowUserAddress,
@@ -256,7 +264,7 @@ var shortcutCatalog = []shortcutItem{
 		key:      "user_profile",
 		title:    "查看我的个人资料",
 		prompt:   "查看我的个人资料",
-		terminal: TerminalApp,
+		terminal: terminalApp,
 		sort:     100,
 		action: shortcutAction{
 			flow: shortcutFlowUserProfile,
@@ -271,7 +279,7 @@ var shortcutCatalog = []shortcutItem{
 		key:      "user_store",
 		title:    "查看我的门店入驻",
 		prompt:   "查看我的门店入驻",
-		terminal: TerminalApp,
+		terminal: terminalApp,
 		sort:     110,
 		action: shortcutAction{
 			flow: shortcutFlowUserStore,
@@ -286,7 +294,7 @@ var shortcutCatalog = []shortcutItem{
 		key:      "goods_category",
 		title:    "按分类逛商品",
 		prompt:   "按分类逛商品",
-		terminal: TerminalApp,
+		terminal: terminalApp,
 		sort:     120,
 		action: shortcutAction{
 			flow: shortcutFlowGoodsCategory,
@@ -301,7 +309,7 @@ var shortcutCatalog = []shortcutItem{
 		key:      "shop_hot",
 		title:    "看看热门专区",
 		prompt:   "看看热门专区",
-		terminal: TerminalApp,
+		terminal: terminalApp,
 		sort:     130,
 		action: shortcutAction{
 			flow: shortcutFlowShopHot,
@@ -318,7 +326,7 @@ var shortcutCatalog = []shortcutItem{
 		key:      "shop_service",
 		title:    "商城服务说明有哪些",
 		prompt:   "商城服务说明有哪些",
-		terminal: TerminalApp,
+		terminal: terminalApp,
 		sort:     140,
 		action: shortcutAction{
 			flow: shortcutFlowShopService,
@@ -334,7 +342,7 @@ var shortcutCatalog = []shortcutItem{
 		key:      "admin_workspace_overview",
 		title:    "经营总览",
 		prompt:   "查看经营总览",
-		terminal: TerminalAdmin,
+		terminal: terminalAdmin,
 		sort:     10,
 		group:    "订单运营",
 		action: shortcutAction{
@@ -350,7 +358,7 @@ var shortcutCatalog = []shortcutItem{
 		key:      "admin_pending_shipment",
 		title:    "待发货订单",
 		prompt:   "查看待发货订单",
-		terminal: TerminalAdmin,
+		terminal: terminalAdmin,
 		sort:     20,
 		group:    "订单运营",
 		action: shortcutAction{
@@ -366,7 +374,7 @@ var shortcutCatalog = []shortcutItem{
 		key:      "admin_comment_review",
 		title:    "评价审核",
 		prompt:   "查看待审核评价",
-		terminal: TerminalAdmin,
+		terminal: terminalAdmin,
 		sort:     30,
 		group:    "商品运营",
 		action: shortcutAction{
@@ -382,7 +390,7 @@ var shortcutCatalog = []shortcutItem{
 		key:      "admin_goods_inventory_alert",
 		title:    "库存预警",
 		prompt:   "查看库存预警商品",
-		terminal: TerminalAdmin,
+		terminal: terminalAdmin,
 		sort:     40,
 		group:    "商品运营",
 		action: shortcutAction{
@@ -398,7 +406,7 @@ var shortcutCatalog = []shortcutItem{
 		key:      "admin_order_refund",
 		title:    "退款记录",
 		prompt:   "查看退款记录",
-		terminal: TerminalAdmin,
+		terminal: terminalAdmin,
 		sort:     50,
 		group:    "订单运营",
 		action: shortcutAction{
@@ -414,7 +422,7 @@ var shortcutCatalog = []shortcutItem{
 		key:      "admin_goods_analytics",
 		title:    "商品分析",
 		prompt:   "查看商品分析",
-		terminal: TerminalAdmin,
+		terminal: terminalAdmin,
 		sort:     60,
 		group:    "商品运营",
 		action: shortcutAction{
@@ -430,7 +438,7 @@ var shortcutCatalog = []shortcutItem{
 		key:      "admin_order_analytics",
 		title:    "订单分析",
 		prompt:   "查看订单分析",
-		terminal: TerminalAdmin,
+		terminal: terminalAdmin,
 		sort:     70,
 		group:    "订单运营",
 		action: shortcutAction{
@@ -446,7 +454,7 @@ var shortcutCatalog = []shortcutItem{
 		key:      "admin_store_audit",
 		title:    "门店审核",
 		prompt:   "查看待审核门店",
-		terminal: TerminalAdmin,
+		terminal: terminalAdmin,
 		sort:     80,
 		group:    "商品运营",
 		action: shortcutAction{
@@ -462,7 +470,7 @@ var shortcutCatalog = []shortcutItem{
 		key:      "admin_recommend_dashboard",
 		title:    "推荐看板",
 		prompt:   "查看推荐效果看板",
-		terminal: TerminalAdmin,
+		terminal: terminalAdmin,
 		sort:     90,
 		group:    "数据分析",
 		action: shortcutAction{
@@ -478,7 +486,7 @@ var shortcutCatalog = []shortcutItem{
 		key:      "admin_reputation_insight",
 		title:    "口碑洞察",
 		prompt:   "查看口碑洞察",
-		terminal: TerminalAdmin,
+		terminal: terminalAdmin,
 		sort:     100,
 		group:    "数据分析",
 		action: shortcutAction{
@@ -494,7 +502,7 @@ var shortcutCatalog = []shortcutItem{
 		key:      "admin_pay_bill_check",
 		title:    "对账检查",
 		prompt:   "查看对账异常",
-		terminal: TerminalAdmin,
+		terminal: terminalAdmin,
 		sort:     110,
 		group:    "系统管理",
 		action: shortcutAction{
@@ -510,7 +518,7 @@ var shortcutCatalog = []shortcutItem{
 		key:      "admin_report_overview",
 		title:    "经营报表",
 		prompt:   "查看经营报表",
-		terminal: TerminalAdmin,
+		terminal: terminalAdmin,
 		sort:     120,
 		group:    "数据分析",
 		action: shortcutAction{

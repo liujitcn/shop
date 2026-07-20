@@ -8,7 +8,7 @@ package adminv1
 
 import (
 	reflect "reflect"
-	v1 "shop/api/gen/go/common/v1"
+	v1 "shop/api/gen/go/shop/common/v1"
 	sync "sync"
 	unsafe "unsafe"
 
@@ -241,7 +241,7 @@ func (x *PreviewRankerPromptResponse) GetDocuments() []string {
 // Gorse 推荐导出数据查询条件
 type ExportDataRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	DataType      v1.AdvanceDataType     `protobuf:"varint,1,opt,name=data_type,json=dataType,proto3,enum=common.v1.AdvanceDataType" json:"data_type,omitempty"` // 数据类型：枚举【AdvanceDataType】
+	DataType      v1.AdvanceDataType     `protobuf:"varint,1,opt,name=data_type,json=dataType,proto3,enum=shop.common.v1.AdvanceDataType" json:"data_type,omitempty"` // 数据类型：枚举【AdvanceDataType】
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -339,9 +339,9 @@ func (x *ExportDataResponse) GetContent() string {
 // Gorse 推荐导入数据请求
 type ImportDataRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	DataType      v1.AdvanceDataType     `protobuf:"varint,1,opt,name=data_type,json=dataType,proto3,enum=common.v1.AdvanceDataType" json:"data_type,omitempty"` // 数据类型：枚举【AdvanceDataType】
-	FileName      string                 `protobuf:"bytes,2,opt,name=file_name,json=fileName,proto3" json:"file_name,omitempty"`                                 // 文件名
-	Content       string                 `protobuf:"bytes,3,opt,name=content,proto3" json:"content,omitempty"`                                                   // JSONL文件内容
+	DataType      v1.AdvanceDataType     `protobuf:"varint,1,opt,name=data_type,json=dataType,proto3,enum=shop.common.v1.AdvanceDataType" json:"data_type,omitempty"` // 数据类型：枚举【AdvanceDataType】
+	FileName      string                 `protobuf:"bytes,2,opt,name=file_name,json=fileName,proto3" json:"file_name,omitempty"`                                      // 文件名
+	Content       string                 `protobuf:"bytes,3,opt,name=content,proto3" json:"content,omitempty"`                                                        // JSONL文件内容
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -4333,7 +4333,7 @@ var File_shop_admin_v1_recommend_gorse_proto protoreflect.FileDescriptor
 
 const file_shop_admin_v1_recommend_gorse_proto_rawDesc = "" +
 	"\n" +
-	"#shop/admin/v1/recommend_gorse.proto\x12\rshop.admin.v1\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"w\n" +
+	"#shop/admin/v1/recommend_gorse.proto\x12\rshop.admin.v1\x1a\x19shop/common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"w\n" +
 	"\x16PreviewExternalRequest\x12+\n" +
 	"\auser_id\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户编号R\x06userId\x120\n" +
 	"\x06script\x18\x02 \x01(\tB\x18\xbaG\x15\x92\x02\x12外部推荐脚本R\x06script\"O\n" +
@@ -4345,14 +4345,14 @@ const file_shop_admin_v1_recommend_gorse_proto_rawDesc = "" +
 	"\x11document_template\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f文档模板R\x10documentTemplate\"\x85\x01\n" +
 	"\x1bPreviewRankerPromptResponse\x12+\n" +
 	"\x05query\x18\x01 \x01(\tB\x15\xbaG\x12\x92\x02\x0f查询提示词R\x05query\x129\n" +
-	"\tdocuments\x18\x02 \x03(\tB\x1b\xbaG\x18\x92\x02\x15文档提示词列表R\tdocuments\"~\n" +
-	"\x11ExportDataRequest\x12i\n" +
-	"\tdata_type\x18\x01 \x01(\x0e2\x1a.common.v1.AdvanceDataTypeB0\xbaG-\x92\x02*数据类型：枚举【AdvanceDataType】R\bdataType\"u\n" +
+	"\tdocuments\x18\x02 \x03(\tB\x1b\xbaG\x18\x92\x02\x15文档提示词列表R\tdocuments\"\x83\x01\n" +
+	"\x11ExportDataRequest\x12n\n" +
+	"\tdata_type\x18\x01 \x01(\x0e2\x1f.shop.common.v1.AdvanceDataTypeB0\xbaG-\x92\x02*数据类型：枚举【AdvanceDataType】R\bdataType\"u\n" +
 	"\x12ExportDataResponse\x12,\n" +
 	"\tfile_name\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t文件名R\bfileName\x121\n" +
-	"\acontent\x18\x02 \x01(\tB\x17\xbaG\x14\x92\x02\x11JSONL文件内容R\acontent\"\xdf\x01\n" +
-	"\x11ImportDataRequest\x12i\n" +
-	"\tdata_type\x18\x01 \x01(\x0e2\x1a.common.v1.AdvanceDataTypeB0\xbaG-\x92\x02*数据类型：枚举【AdvanceDataType】R\bdataType\x12,\n" +
+	"\acontent\x18\x02 \x01(\tB\x17\xbaG\x14\x92\x02\x11JSONL文件内容R\acontent\"\xe4\x01\n" +
+	"\x11ImportDataRequest\x12n\n" +
+	"\tdata_type\x18\x01 \x01(\x0e2\x1f.shop.common.v1.AdvanceDataTypeB0\xbaG-\x92\x02*数据类型：枚举【AdvanceDataType】R\bdataType\x12,\n" +
 	"\tfile_name\x18\x02 \x01(\tB\x0f\xbaG\f\x92\x02\t文件名R\bfileName\x121\n" +
 	"\acontent\x18\x03 \x01(\tB\x17\xbaG\x14\x92\x02\x11JSONL文件内容R\acontent\"S\n" +
 	"\x12ImportDataResponse\x12=\n" +
@@ -4764,12 +4764,12 @@ var file_shop_admin_v1_recommend_gorse_proto_goTypes = []any{
 	(*ConfigResponse_Blob_S3)(nil),                      // 64: shop.admin.v1.ConfigResponse.Blob.S3
 	(*ConfigResponse_Blob_Gcs)(nil),                     // 65: shop.admin.v1.ConfigResponse.Blob.Gcs
 	(*ConfigResponse_Blob_Azure)(nil),                   // 66: shop.admin.v1.ConfigResponse.Blob.Azure
-	(v1.AdvanceDataType)(0),                             // 67: common.v1.AdvanceDataType
+	(v1.AdvanceDataType)(0),                             // 67: shop.common.v1.AdvanceDataType
 	(*emptypb.Empty)(nil),                               // 68: google.protobuf.Empty
 }
 var file_shop_admin_v1_recommend_gorse_proto_depIdxs = []int32{
-	67, // 0: shop.admin.v1.ExportDataRequest.data_type:type_name -> common.v1.AdvanceDataType
-	67, // 1: shop.admin.v1.ImportDataRequest.data_type:type_name -> common.v1.AdvanceDataType
+	67, // 0: shop.admin.v1.ExportDataRequest.data_type:type_name -> shop.common.v1.AdvanceDataType
+	67, // 1: shop.admin.v1.ImportDataRequest.data_type:type_name -> shop.common.v1.AdvanceDataType
 	34, // 2: shop.admin.v1.ListDashboardItemResponse.items:type_name -> shop.admin.v1.Item
 	14, // 3: shop.admin.v1.TimeSeriesResponse.points:type_name -> shop.admin.v1.TimeSeriesPoint
 	21, // 4: shop.admin.v1.ListTaskResponse.tasks:type_name -> shop.admin.v1.Task

@@ -18,9 +18,9 @@ import (
 	"shop/pkg/biz"
 	_const "shop/pkg/const"
 	"shop/pkg/errorsx"
+	"shop/pkg/event"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
-	"shop/service/shop/queue"
 
 	kratosErrors "github.com/go-kratos/kratos/v3/errors"
 	kratosHTTP "github.com/go-kratos/kratos/v3/transport/http"
@@ -46,6 +46,7 @@ type OauthCase struct {
 	baseThirdAccountCase *BaseThirdAccountCase
 	baseUserCase         *BaseUserCase
 	loginCase            *LoginCase
+	userEvents           *event.UserEvents
 }
 
 // oauthLoginTicketPayload 表示三方登录一次性票据缓存的令牌信息。
@@ -64,6 +65,7 @@ func NewOauthCase(
 	baseThirdAccountCase *BaseThirdAccountCase,
 	baseUserCase *BaseUserCase,
 	loginCase *LoginCase,
+	userEvents *event.UserEvents,
 ) *OauthCase {
 	return &OauthCase{
 		BaseCase:             baseCase,
@@ -72,6 +74,7 @@ func NewOauthCase(
 		baseThirdAccountCase: baseThirdAccountCase,
 		baseUserCase:         baseUserCase,
 		loginCase:            loginCase,
+		userEvents:           userEvents,
 	}
 }
 
@@ -277,7 +280,7 @@ func (c *OauthCase) CreateOauthSession(ctx context.Context, req *basev1.CreateOa
 	if err != nil {
 		return nil, err
 	}
-	queue.DispatchRecommendSyncBaseUser(user.ID)
+	c.userEvents.PublishUserChanged(user.ID)
 	return &basev1.CreateOauthSessionResponse{
 		AccessToken:  loginRes.GetAccessToken(),
 		RefreshToken: loginRes.GetRefreshToken(),

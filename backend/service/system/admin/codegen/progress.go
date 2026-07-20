@@ -6,14 +6,22 @@ import (
 	"sync"
 	"time"
 
-	commonv1 "shop/api/gen/go/common/v1"
 	systemadminv1 "shop/api/gen/go/system/admin/v1"
+	"shop/pkg/errorsx"
+	transportSSE "shop/pkg/sse"
 
 	"github.com/google/uuid"
 	"google.golang.org/protobuf/proto"
 )
 
-const taskRetention = 10 * time.Minute
+const (
+	// taskRetention 表示已完成代码生成任务的内存保留时间。
+	taskRetention = 10 * time.Minute
+	// SSEStreamCodeGen 表示管理后台代码生成 SSE 流。
+	SSEStreamCodeGen = "system.admin.codegen"
+	// SSEEventCodeGenProgress 表示代码生成任务进度事件。
+	SSEEventCodeGenProgress = "codegen.progress"
+)
 
 // Publisher 将最新任务快照推送给订阅者。
 type Publisher func(context.Context, string, *systemadminv1.CodeGenTask)
@@ -36,9 +44,37 @@ func NewManager() *Manager {
 	return &Manager{tasks: make(map[string]*taskEntry)}
 }
 
+// CodeGenSSEStream 解析代码生成任务 SSE 订阅请求。
+type CodeGenSSEStream struct {
+	manager *Manager
+}
+
+var _ transportSSE.Stream = (*CodeGenSSEStream)(nil)
+
+// NewCodeGenSSEStream 创建代码生成任务 SSE 流声明。
+func NewCodeGenSSEStream(manager *Manager) *CodeGenSSEStream {
+	return &CodeGenSSEStream{manager: manager}
+}
+
+// ID 返回代码生成 SSE 流标识。
+func (s *CodeGenSSEStream) ID() string {
+	return SSEStreamCodeGen
+}
+
+// Resolve 校验任务归属后返回隔离的传输流标识。
+func (s *CodeGenSSEStream) Resolve(channelID string, userID int64) (string, error) {
+	if channelID == "" {
+		return "", errorsx.InvalidArgument("代码生成任务ID不能为空")
+	}
+	if !s.manager.IsOwner(channelID, userID) {
+		return "", errorsx.PermissionDenied("无权订阅代码生成任务")
+	}
+	return StreamID(channelID), nil
+}
+
 // StreamID 返回指定代码生成任务的 SSE 流标识。
 func StreamID(taskID string) string {
-	return fmt.Sprintf("%d:%s", commonv1.SseStream_SSE_STREAM_ADMIN_CODE_GEN, taskID)
+	return fmt.Sprintf("%s:%s", SSEStreamCodeGen, taskID)
 }
 
 // SetPublisher 设置任务快照发布方法。

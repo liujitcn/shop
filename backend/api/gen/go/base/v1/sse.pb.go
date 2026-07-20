@@ -8,7 +8,6 @@ package basev1
 
 import (
 	reflect "reflect"
-	v1 "shop/api/gen/go/common/v1"
 	sync "sync"
 	unsafe "unsafe"
 
@@ -29,7 +28,7 @@ const (
 // SSE订阅请求参数
 type SubscribeSseRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Stream        v1.SseStream           `protobuf:"varint,1,opt,name=stream,proto3,enum=common.v1.SseStream" json:"stream,omitempty"`    // SSE流
+	Stream        string                 `protobuf:"bytes,1,opt,name=stream,proto3" json:"stream,omitempty"`                              // SSE流标识
 	ChannelId     *string                `protobuf:"bytes,2,opt,name=channel_id,json=channelId,proto3,oneof" json:"channel_id,omitempty"` // SSE通道ID
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -65,11 +64,11 @@ func (*SubscribeSseRequest) Descriptor() ([]byte, []int) {
 	return file_base_v1_sse_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *SubscribeSseRequest) GetStream() v1.SseStream {
+func (x *SubscribeSseRequest) GetStream() string {
 	if x != nil {
 		return x.Stream
 	}
-	return v1.SseStream(0)
+	return ""
 }
 
 func (x *SubscribeSseRequest) GetChannelId() string {
@@ -83,9 +82,9 @@ var File_base_v1_sse_proto protoreflect.FileDescriptor
 
 const file_base_v1_sse_proto_rawDesc = "" +
 	"\n" +
-	"\x11base/v1/sse.proto\x12\abase.v1\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x97\x01\n" +
-	"\x13SubscribeSseRequest\x12:\n" +
-	"\x06stream\x18\x01 \x01(\x0e2\x14.common.v1.SseStreamB\f\xbaG\t\x92\x02\x06SSE流R\x06stream\x125\n" +
+	"\x11base/v1/sse.proto\x12\abase.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x87\x01\n" +
+	"\x13SubscribeSseRequest\x12*\n" +
+	"\x06stream\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\fSSE流标识R\x06stream\x125\n" +
 	"\n" +
 	"channel_id\x18\x02 \x01(\tB\x11\xbaG\x0e\x92\x02\vSSE通道IDH\x00R\tchannelId\x88\x01\x01B\r\n" +
 	"\v_channel_id2l\n" +
@@ -109,18 +108,16 @@ func file_base_v1_sse_proto_rawDescGZIP() []byte {
 var file_base_v1_sse_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
 var file_base_v1_sse_proto_goTypes = []any{
 	(*SubscribeSseRequest)(nil), // 0: base.v1.SubscribeSseRequest
-	(v1.SseStream)(0),           // 1: common.v1.SseStream
-	(*emptypb.Empty)(nil),       // 2: google.protobuf.Empty
+	(*emptypb.Empty)(nil),       // 1: google.protobuf.Empty
 }
 var file_base_v1_sse_proto_depIdxs = []int32{
-	1, // 0: base.v1.SubscribeSseRequest.stream:type_name -> common.v1.SseStream
-	0, // 1: base.v1.SseService.SubscribeSse:input_type -> base.v1.SubscribeSseRequest
-	2, // 2: base.v1.SseService.SubscribeSse:output_type -> google.protobuf.Empty
-	2, // [2:3] is the sub-list for method output_type
-	1, // [1:2] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	0, // 0: base.v1.SseService.SubscribeSse:input_type -> base.v1.SubscribeSseRequest
+	1, // 1: base.v1.SseService.SubscribeSse:output_type -> google.protobuf.Empty
+	1, // [1:2] is the sub-list for method output_type
+	0, // [0:1] is the sub-list for method input_type
+	0, // [0:0] is the sub-list for extension type_name
+	0, // [0:0] is the sub-list for extension extendee
+	0, // [0:0] is the sub-list for field type_name
 }
 
 func init() { file_base_v1_sse_proto_init() }

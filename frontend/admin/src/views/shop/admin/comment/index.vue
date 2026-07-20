@@ -93,7 +93,7 @@ import {
   parseTenantStoreTreeValue,
   transformTenantStoreTreeOptions,
   type TenantStoreDisplayInfo
-} from "@/utils/tenant";
+} from "@/views/shop/admin/utils/tenant";
 
 /** 评论审核确认弹窗状态。 */
 type ApproveDialogState = {

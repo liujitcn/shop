@@ -75,11 +75,11 @@ type Response struct {
 	Fallback bool `json:"fallback"`
 	// FallbackReason 记录触发降级的底层错误信息，仅用于排障和后台展示。
 	FallbackReason string `json:"fallbackReason"`
-	// Flow 记录本次回复所属的移动端闭环流程。
+	// Flow 记录本次回复所属的模块固定流程。
 	Flow string `json:"flow"`
 	// Step 记录本次回复所属的流程步骤。
 	Step string `json:"step"`
-	// BlocksJSON 记录移动端结构化内容 JSON。
+	// BlocksJSON 记录模块定义的结构化内容 JSON。
 	BlocksJSON string `json:"blocksJson"`
 }
 

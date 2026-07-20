@@ -181,274 +181,6 @@ func (PasswordCryptoScene) EnumDescriptor() ([]byte, []int) {
 	return file_common_v1_enum_proto_rawDescGZIP(), []int{2}
 }
 
-// SSE 流枚举
-type SseStream int32
-
-const (
-	SseStream_SSE_STREAM_UNSPECIFIED     SseStream = 0 // 未指定 SSE 流
-	SseStream_SSE_STREAM_ADMIN_WORKSPACE SseStream = 1 // 管理后台工作台 SSE 流
-	SseStream_SSE_STREAM_ADMIN_CODE_GEN  SseStream = 2 // 管理后台代码生成任务 SSE 流
-)
-
-// Enum value maps for SseStream.
-var (
-	SseStream_name = map[int32]string{
-		0: "SSE_STREAM_UNSPECIFIED",
-		1: "SSE_STREAM_ADMIN_WORKSPACE",
-		2: "SSE_STREAM_ADMIN_CODE_GEN",
-	}
-	SseStream_value = map[string]int32{
-		"SSE_STREAM_UNSPECIFIED":     0,
-		"SSE_STREAM_ADMIN_WORKSPACE": 1,
-		"SSE_STREAM_ADMIN_CODE_GEN":  2,
-	}
-)
-
-func (x SseStream) Enum() *SseStream {
-	p := new(SseStream)
-	*p = x
-	return p
-}
-
-func (x SseStream) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (SseStream) Descriptor() protoreflect.EnumDescriptor {
-	return file_common_v1_enum_proto_enumTypes[3].Descriptor()
-}
-
-func (SseStream) Type() protoreflect.EnumType {
-	return &file_common_v1_enum_proto_enumTypes[3]
-}
-
-func (x SseStream) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use SseStream.Descriptor instead.
-func (SseStream) EnumDescriptor() ([]byte, []int) {
-	return file_common_v1_enum_proto_rawDescGZIP(), []int{3}
-}
-
-// SSE 事件枚举
-type SseEvent int32
-
-const (
-	SseEvent_SSE_EVENT_UNSPECIFIED       SseEvent = 0 // 未指定 SSE 事件
-	SseEvent_SSE_EVENT_PAGE_REFRESH      SseEvent = 1 // 页面局部刷新事件
-	SseEvent_SSE_EVENT_CODE_GEN_PROGRESS SseEvent = 2 // 代码生成任务进度事件
-)
-
-// Enum value maps for SseEvent.
-var (
-	SseEvent_name = map[int32]string{
-		0: "SSE_EVENT_UNSPECIFIED",
-		1: "SSE_EVENT_PAGE_REFRESH",
-		2: "SSE_EVENT_CODE_GEN_PROGRESS",
-	}
-	SseEvent_value = map[string]int32{
-		"SSE_EVENT_UNSPECIFIED":       0,
-		"SSE_EVENT_PAGE_REFRESH":      1,
-		"SSE_EVENT_CODE_GEN_PROGRESS": 2,
-	}
-)
-
-func (x SseEvent) Enum() *SseEvent {
-	p := new(SseEvent)
-	*p = x
-	return p
-}
-
-func (x SseEvent) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (SseEvent) Descriptor() protoreflect.EnumDescriptor {
-	return file_common_v1_enum_proto_enumTypes[4].Descriptor()
-}
-
-func (SseEvent) Type() protoreflect.EnumType {
-	return &file_common_v1_enum_proto_enumTypes[4]
-}
-
-func (x SseEvent) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use SseEvent.Descriptor instead.
-func (SseEvent) EnumDescriptor() ([]byte, []int) {
-	return file_common_v1_enum_proto_rawDescGZIP(), []int{4}
-}
-
-// SSE 刷新目标枚举
-type SseRefreshTarget int32
-
-const (
-	SseRefreshTarget_SSE_REFRESH_TARGET_UNSPECIFIED                      SseRefreshTarget = 0 // 未指定 SSE 刷新目标
-	SseRefreshTarget_SSE_REFRESH_TARGET_ADMIN_WORKSPACE_METRICS          SseRefreshTarget = 1 // 管理后台工作台顶部指标区域
-	SseRefreshTarget_SSE_REFRESH_TARGET_ADMIN_WORKSPACE_TODO             SseRefreshTarget = 2 // 管理后台工作台待处理事项区域
-	SseRefreshTarget_SSE_REFRESH_TARGET_ADMIN_WORKSPACE_RISK             SseRefreshTarget = 3 // 管理后台工作台风险提醒区域
-	SseRefreshTarget_SSE_REFRESH_TARGET_ADMIN_WORKSPACE_REPUTATION       SseRefreshTarget = 4 // 管理后台工作台口碑洞察区域
-	SseRefreshTarget_SSE_REFRESH_TARGET_ADMIN_WORKSPACE_PENDING_COMMENTS SseRefreshTarget = 5 // 管理后台工作台待审核评价区域
-)
-
-// Enum value maps for SseRefreshTarget.
-var (
-	SseRefreshTarget_name = map[int32]string{
-		0: "SSE_REFRESH_TARGET_UNSPECIFIED",
-		1: "SSE_REFRESH_TARGET_ADMIN_WORKSPACE_METRICS",
-		2: "SSE_REFRESH_TARGET_ADMIN_WORKSPACE_TODO",
-		3: "SSE_REFRESH_TARGET_ADMIN_WORKSPACE_RISK",
-		4: "SSE_REFRESH_TARGET_ADMIN_WORKSPACE_REPUTATION",
-		5: "SSE_REFRESH_TARGET_ADMIN_WORKSPACE_PENDING_COMMENTS",
-	}
-	SseRefreshTarget_value = map[string]int32{
-		"SSE_REFRESH_TARGET_UNSPECIFIED":                      0,
-		"SSE_REFRESH_TARGET_ADMIN_WORKSPACE_METRICS":          1,
-		"SSE_REFRESH_TARGET_ADMIN_WORKSPACE_TODO":             2,
-		"SSE_REFRESH_TARGET_ADMIN_WORKSPACE_RISK":             3,
-		"SSE_REFRESH_TARGET_ADMIN_WORKSPACE_REPUTATION":       4,
-		"SSE_REFRESH_TARGET_ADMIN_WORKSPACE_PENDING_COMMENTS": 5,
-	}
-)
-
-func (x SseRefreshTarget) Enum() *SseRefreshTarget {
-	p := new(SseRefreshTarget)
-	*p = x
-	return p
-}
-
-func (x SseRefreshTarget) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (SseRefreshTarget) Descriptor() protoreflect.EnumDescriptor {
-	return file_common_v1_enum_proto_enumTypes[5].Descriptor()
-}
-
-func (SseRefreshTarget) Type() protoreflect.EnumType {
-	return &file_common_v1_enum_proto_enumTypes[5]
-}
-
-func (x SseRefreshTarget) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use SseRefreshTarget.Descriptor instead.
-func (SseRefreshTarget) EnumDescriptor() ([]byte, []int) {
-	return file_common_v1_enum_proto_rawDescGZIP(), []int{5}
-}
-
-// SSE 刷新原因枚举
-type SseRefreshReason int32
-
-const (
-	SseRefreshReason_SSE_REFRESH_REASON_UNSPECIFIED      SseRefreshReason = 0 // 未指定 SSE 刷新原因
-	SseRefreshReason_SSE_REFRESH_REASON_ORDER_CHANGED    SseRefreshReason = 1 // 订单状态或金额口径发生变化
-	SseRefreshReason_SSE_REFRESH_REASON_GOODS_CHANGED    SseRefreshReason = 2 // 商品、SKU、库存或价格口径发生变化
-	SseRefreshReason_SSE_REFRESH_REASON_COMMENT_CHANGED  SseRefreshReason = 3 // 评价或评价讨论口径发生变化
-	SseRefreshReason_SSE_REFRESH_REASON_PAY_BILL_CHECKED SseRefreshReason = 4 // 支付账单对账结果发生变化
-)
-
-// Enum value maps for SseRefreshReason.
-var (
-	SseRefreshReason_name = map[int32]string{
-		0: "SSE_REFRESH_REASON_UNSPECIFIED",
-		1: "SSE_REFRESH_REASON_ORDER_CHANGED",
-		2: "SSE_REFRESH_REASON_GOODS_CHANGED",
-		3: "SSE_REFRESH_REASON_COMMENT_CHANGED",
-		4: "SSE_REFRESH_REASON_PAY_BILL_CHECKED",
-	}
-	SseRefreshReason_value = map[string]int32{
-		"SSE_REFRESH_REASON_UNSPECIFIED":      0,
-		"SSE_REFRESH_REASON_ORDER_CHANGED":    1,
-		"SSE_REFRESH_REASON_GOODS_CHANGED":    2,
-		"SSE_REFRESH_REASON_COMMENT_CHANGED":  3,
-		"SSE_REFRESH_REASON_PAY_BILL_CHECKED": 4,
-	}
-)
-
-func (x SseRefreshReason) Enum() *SseRefreshReason {
-	p := new(SseRefreshReason)
-	*p = x
-	return p
-}
-
-func (x SseRefreshReason) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (SseRefreshReason) Descriptor() protoreflect.EnumDescriptor {
-	return file_common_v1_enum_proto_enumTypes[6].Descriptor()
-}
-
-func (SseRefreshReason) Type() protoreflect.EnumType {
-	return &file_common_v1_enum_proto_enumTypes[6]
-}
-
-func (x SseRefreshReason) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use SseRefreshReason.Descriptor instead.
-func (SseRefreshReason) EnumDescriptor() ([]byte, []int) {
-	return file_common_v1_enum_proto_rawDescGZIP(), []int{6}
-}
-
-// Gorse 推荐高级调试数据类型
-type AdvanceDataType int32
-
-const (
-	AdvanceDataType_UNKNOWN_RRADT  AdvanceDataType = 0 // 未知数据类型
-	AdvanceDataType_USER_RRADT     AdvanceDataType = 1 // 用户数据
-	AdvanceDataType_ITEM_RRADT     AdvanceDataType = 2 // 商品数据
-	AdvanceDataType_FEEDBACK_RRADT AdvanceDataType = 3 // 反馈数据
-)
-
-// Enum value maps for AdvanceDataType.
-var (
-	AdvanceDataType_name = map[int32]string{
-		0: "UNKNOWN_RRADT",
-		1: "USER_RRADT",
-		2: "ITEM_RRADT",
-		3: "FEEDBACK_RRADT",
-	}
-	AdvanceDataType_value = map[string]int32{
-		"UNKNOWN_RRADT":  0,
-		"USER_RRADT":     1,
-		"ITEM_RRADT":     2,
-		"FEEDBACK_RRADT": 3,
-	}
-)
-
-func (x AdvanceDataType) Enum() *AdvanceDataType {
-	p := new(AdvanceDataType)
-	*p = x
-	return p
-}
-
-func (x AdvanceDataType) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (AdvanceDataType) Descriptor() protoreflect.EnumDescriptor {
-	return file_common_v1_enum_proto_enumTypes[7].Descriptor()
-}
-
-func (AdvanceDataType) Type() protoreflect.EnumType {
-	return &file_common_v1_enum_proto_enumTypes[7]
-}
-
-func (x AdvanceDataType) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use AdvanceDataType.Descriptor instead.
-func (AdvanceDataType) EnumDescriptor() ([]byte, []int) {
-	return file_common_v1_enum_proto_rawDescGZIP(), []int{7}
-}
-
 // AI 助手消息状态
 type AiMessageStatus int32
 
@@ -486,11 +218,11 @@ func (x AiMessageStatus) String() string {
 }
 
 func (AiMessageStatus) Descriptor() protoreflect.EnumDescriptor {
-	return file_common_v1_enum_proto_enumTypes[8].Descriptor()
+	return file_common_v1_enum_proto_enumTypes[3].Descriptor()
 }
 
 func (AiMessageStatus) Type() protoreflect.EnumType {
-	return &file_common_v1_enum_proto_enumTypes[8]
+	return &file_common_v1_enum_proto_enumTypes[3]
 }
 
 func (x AiMessageStatus) Number() protoreflect.EnumNumber {
@@ -499,7 +231,7 @@ func (x AiMessageStatus) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use AiMessageStatus.Descriptor instead.
 func (AiMessageStatus) EnumDescriptor() ([]byte, []int) {
-	return file_common_v1_enum_proto_rawDescGZIP(), []int{8}
+	return file_common_v1_enum_proto_rawDescGZIP(), []int{3}
 }
 
 // 支付通知资源类型
@@ -533,11 +265,11 @@ func (x ResourceType) String() string {
 }
 
 func (ResourceType) Descriptor() protoreflect.EnumDescriptor {
-	return file_common_v1_enum_proto_enumTypes[9].Descriptor()
+	return file_common_v1_enum_proto_enumTypes[4].Descriptor()
 }
 
 func (ResourceType) Type() protoreflect.EnumType {
-	return &file_common_v1_enum_proto_enumTypes[9]
+	return &file_common_v1_enum_proto_enumTypes[4]
 }
 
 func (x ResourceType) Number() protoreflect.EnumNumber {
@@ -546,7 +278,7 @@ func (x ResourceType) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ResourceType.Descriptor instead.
 func (ResourceType) EnumDescriptor() ([]byte, []int) {
-	return file_common_v1_enum_proto_rawDescGZIP(), []int{9}
+	return file_common_v1_enum_proto_rawDescGZIP(), []int{4}
 }
 
 // 终端类型
@@ -583,11 +315,11 @@ func (x Terminal) String() string {
 }
 
 func (Terminal) Descriptor() protoreflect.EnumDescriptor {
-	return file_common_v1_enum_proto_enumTypes[10].Descriptor()
+	return file_common_v1_enum_proto_enumTypes[5].Descriptor()
 }
 
 func (Terminal) Type() protoreflect.EnumType {
-	return &file_common_v1_enum_proto_enumTypes[10]
+	return &file_common_v1_enum_proto_enumTypes[5]
 }
 
 func (x Terminal) Number() protoreflect.EnumNumber {
@@ -596,7 +328,7 @@ func (x Terminal) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use Terminal.Descriptor instead.
 func (Terminal) EnumDescriptor() ([]byte, []int) {
-	return file_common_v1_enum_proto_rawDescGZIP(), []int{10}
+	return file_common_v1_enum_proto_rawDescGZIP(), []int{5}
 }
 
 var File_common_v1_enum_proto protoreflect.FileDescriptor
@@ -620,35 +352,7 @@ const file_common_v1_enum_proto_rawDesc = "" +
 	"\x05LOGIN\x10\x01\x12\x14\n" +
 	"\x10CREATE_BASE_USER\x10\x02\x12\x1c\n" +
 	"\x18RESET_BASE_USER_PASSWORD\x10\x03\x12\x18\n" +
-	"\x14UPDATE_USER_PASSWORD\x10\x04*f\n" +
-	"\tSseStream\x12\x1a\n" +
-	"\x16SSE_STREAM_UNSPECIFIED\x10\x00\x12\x1e\n" +
-	"\x1aSSE_STREAM_ADMIN_WORKSPACE\x10\x01\x12\x1d\n" +
-	"\x19SSE_STREAM_ADMIN_CODE_GEN\x10\x02*b\n" +
-	"\bSseEvent\x12\x19\n" +
-	"\x15SSE_EVENT_UNSPECIFIED\x10\x00\x12\x1a\n" +
-	"\x16SSE_EVENT_PAGE_REFRESH\x10\x01\x12\x1f\n" +
-	"\x1bSSE_EVENT_CODE_GEN_PROGRESS\x10\x02*\xac\x02\n" +
-	"\x10SseRefreshTarget\x12\"\n" +
-	"\x1eSSE_REFRESH_TARGET_UNSPECIFIED\x10\x00\x12.\n" +
-	"*SSE_REFRESH_TARGET_ADMIN_WORKSPACE_METRICS\x10\x01\x12+\n" +
-	"'SSE_REFRESH_TARGET_ADMIN_WORKSPACE_TODO\x10\x02\x12+\n" +
-	"'SSE_REFRESH_TARGET_ADMIN_WORKSPACE_RISK\x10\x03\x121\n" +
-	"-SSE_REFRESH_TARGET_ADMIN_WORKSPACE_REPUTATION\x10\x04\x127\n" +
-	"3SSE_REFRESH_TARGET_ADMIN_WORKSPACE_PENDING_COMMENTS\x10\x05*\xd3\x01\n" +
-	"\x10SseRefreshReason\x12\"\n" +
-	"\x1eSSE_REFRESH_REASON_UNSPECIFIED\x10\x00\x12$\n" +
-	" SSE_REFRESH_REASON_ORDER_CHANGED\x10\x01\x12$\n" +
-	" SSE_REFRESH_REASON_GOODS_CHANGED\x10\x02\x12&\n" +
-	"\"SSE_REFRESH_REASON_COMMENT_CHANGED\x10\x03\x12'\n" +
-	"#SSE_REFRESH_REASON_PAY_BILL_CHECKED\x10\x04*X\n" +
-	"\x0fAdvanceDataType\x12\x11\n" +
-	"\rUNKNOWN_RRADT\x10\x00\x12\x0e\n" +
-	"\n" +
-	"USER_RRADT\x10\x01\x12\x0e\n" +
-	"\n" +
-	"ITEM_RRADT\x10\x02\x12\x12\n" +
-	"\x0eFEEDBACK_RRADT\x10\x03*[\n" +
+	"\x14UPDATE_USER_PASSWORD\x10\x04*[\n" +
 	"\x0fAiMessageStatus\x12\x10\n" +
 	"\fUNKNOWN_AAMS\x10\x00\x12\x13\n" +
 	"\x0fGENERATING_AAMS\x10\x01\x12\x10\n" +
@@ -677,19 +381,14 @@ func file_common_v1_enum_proto_rawDescGZIP() []byte {
 	return file_common_v1_enum_proto_rawDescData
 }
 
-var file_common_v1_enum_proto_enumTypes = make([]protoimpl.EnumInfo, 11)
+var file_common_v1_enum_proto_enumTypes = make([]protoimpl.EnumInfo, 6)
 var file_common_v1_enum_proto_goTypes = []any{
 	(Status)(0),              // 0: common.v1.Status
 	(BaseConfigSite)(0),      // 1: common.v1.BaseConfigSite
 	(PasswordCryptoScene)(0), // 2: common.v1.PasswordCryptoScene
-	(SseStream)(0),           // 3: common.v1.SseStream
-	(SseEvent)(0),            // 4: common.v1.SseEvent
-	(SseRefreshTarget)(0),    // 5: common.v1.SseRefreshTarget
-	(SseRefreshReason)(0),    // 6: common.v1.SseRefreshReason
-	(AdvanceDataType)(0),     // 7: common.v1.AdvanceDataType
-	(AiMessageStatus)(0),     // 8: common.v1.AiMessageStatus
-	(ResourceType)(0),        // 9: common.v1.ResourceType
-	(Terminal)(0),            // 10: common.v1.Terminal
+	(AiMessageStatus)(0),     // 3: common.v1.AiMessageStatus
+	(ResourceType)(0),        // 4: common.v1.ResourceType
+	(Terminal)(0),            // 5: common.v1.Terminal
 }
 var file_common_v1_enum_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
@@ -709,7 +408,7 @@ func file_common_v1_enum_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_common_v1_enum_proto_rawDesc), len(file_common_v1_enum_proto_rawDesc)),
-			NumEnums:      11,
+			NumEnums:      6,
 			NumMessages:   0,
 			NumExtensions: 0,
 			NumServices:   0,

@@ -15,7 +15,7 @@ import (
 	shopappv1 "shop/api/gen/go/shop/app/v1"
 
 	shopadminv1 "shop/api/gen/go/shop/admin/v1"
-	_const "shop/pkg/const"
+	_const "shop/service/shop/consts"
 	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"

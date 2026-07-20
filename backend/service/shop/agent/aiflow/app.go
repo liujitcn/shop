@@ -1,4 +1,4 @@
-package flow
+package aiflow
 
 import (
 	"context"
@@ -17,18 +17,18 @@ import (
 )
 
 const (
-	aiFlowShopping       = string(einoWorkflow.FlowShopping)
-	aiFlowPendingPayment = string(einoWorkflow.FlowPendingPayment)
-	aiFlowPendingReview  = string(einoWorkflow.FlowPendingReview)
-	aiFlowOrderLogistics = string(einoWorkflow.FlowOrderLogistics)
-	aiFlowUserCart       = string(einoWorkflow.FlowUserCart)
-	aiFlowUserCollect    = string(einoWorkflow.FlowUserCollect)
-	aiFlowUserAddress    = string(einoWorkflow.FlowUserAddress)
-	aiFlowUserProfile    = string(einoWorkflow.FlowUserProfile)
-	aiFlowUserStore      = string(einoWorkflow.FlowUserStore)
-	aiFlowGoodsCategory  = string(einoWorkflow.FlowGoodsCategory)
-	aiFlowShopHot        = string(einoWorkflow.FlowShopHot)
-	aiFlowShopService    = string(einoWorkflow.FlowShopService)
+	aiFlowShopping       = "shopping"
+	aiFlowPendingPayment = "pending_payment"
+	aiFlowPendingReview  = "pending_review"
+	aiFlowOrderLogistics = "order_logistics"
+	aiFlowUserCart       = "user_cart"
+	aiFlowUserCollect    = "user_collect"
+	aiFlowUserAddress    = "user_address"
+	aiFlowUserProfile    = "user_profile"
+	aiFlowUserStore      = "user_store"
+	aiFlowGoodsCategory  = "goods_category"
+	aiFlowShopHot        = "shop_hot"
+	aiFlowShopService    = "shop_service"
 
 	aiToolGetUserProfile     = "app_v1_auth_service_get_user_profile"
 	aiToolRecommendGoods     = "app_v1_recommend_service_recommend_goods"
@@ -56,7 +56,7 @@ const (
 	aiToolH5Pay              = "app_v1_pay_service_h5_pay"
 )
 
-var aiFlowRegistry = einoWorkflow.MustNewAppRegistry[*ai.Response]()
+var aiFlowRegistry = einoWorkflow.MustNewRegistry[*ai.Response](appFlowDefinitions, "商城", "shop_app_fixed_flow")
 
 // Runner 编排移动端助手闭环流程。
 type Runner struct {
@@ -1183,7 +1183,7 @@ func openAiFlowActionType(flow string) string {
 	if actionType := aiFlowRegistry.EntryAction(einoWorkflow.FlowName(flow)); actionType != "" {
 		return actionType
 	}
-	return aiFlowRegistry.EntryAction(einoWorkflow.FlowShopping)
+	return aiFlowRegistry.EntryAction(einoWorkflow.FlowName(aiFlowShopping))
 }
 
 // parseAiActionPayload 解析前端动作负载。

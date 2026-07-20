@@ -177,7 +177,7 @@ import { defTenantStoreService } from "@/api/shop/admin/tenant_store";
 import { useTabsStore } from "@/stores/modules/tabs";
 import { useUserStore } from "@/stores/modules/user";
 import { formatPrice } from "@/utils/utils";
-import { buildTenantStoreDisplayMap, DEFAULT_TENANT_CODE, type TenantStoreDisplayInfo } from "@/utils/tenant";
+import { buildTenantStoreDisplayMap, DEFAULT_TENANT_CODE, type TenantStoreDisplayInfo } from "@/views/shop/admin/utils/tenant";
 
 defineOptions({
   name: "OrderDetail",

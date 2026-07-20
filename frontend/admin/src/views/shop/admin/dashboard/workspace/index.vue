@@ -177,7 +177,7 @@ import { useRouter, type RouteLocationRaw } from "vue-router";
 import { ElButton, ElLink, ElRate } from "element-plus";
 import type { ColumnProps, EnumProps, RenderScope } from "@/components/ProTable/interface";
 import ProTable from "@/components/ProTable/index.vue";
-import { defWorkspaceService } from "@/api/shop/admin/workspace";
+import { defWorkspaceService, subscribeWorkspaceSseRefresh } from "@/api/shop/admin/workspace";
 import { defTenantStoreService } from "@/api/shop/admin/tenant_store";
 import type {
   SummaryWorkspaceMetricsResponse,
@@ -187,7 +187,7 @@ import type {
   WorkspacePendingComment
 } from "@/rpc/shop/admin/v1/workspace";
 import { useUserStore } from "@/stores/modules/user";
-import { SseRefreshTarget, SseStream } from "@/rpc/common/v1/enum";
+import { SseRefreshTarget } from "@/rpc/shop/common/v1/enum";
 import {
   CommentStatus,
   GoodsStatus,
@@ -198,8 +198,8 @@ import {
 import type { OptionTenantStoreResponse_Option } from "@/rpc/shop/admin/v1/tenant_store";
 import { navigateTo } from "@/utils/router";
 import { formatPrice } from "@/utils/utils";
-import { DEFAULT_TENANT_CODE, parseTenantStoreTreeValue, transformTenantStoreTreeOptions } from "@/utils/tenant";
-import { subscribeSseRefresh, type SseStop } from "@/api/base/sse";
+import { DEFAULT_TENANT_CODE, parseTenantStoreTreeValue, transformTenantStoreTreeOptions } from "@/views/shop/admin/utils/tenant";
+import type { SseStop } from "@/api/base/sse";
 import defaultAvatar from "@/assets/images/avatar.png";
 
 /** 工作台指标卡片。 */
@@ -771,7 +771,7 @@ function normalizeRefreshTargets(targets: SseRefreshTarget[]) {
 
 /** 订阅工作台刷新事件。 */
 function startWorkspaceSse() {
-  stopWorkspaceSse = subscribeSseRefresh(SseStream.SSE_STREAM_ADMIN_WORKSPACE, payload => {
+  stopWorkspaceSse = subscribeWorkspaceSseRefresh(payload => {
     queueWorkspaceRefresh(payload.targets.filter(isWorkspaceRefreshTarget));
   });
 }

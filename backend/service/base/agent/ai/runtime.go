@@ -25,10 +25,10 @@ const (
 
 const aiInstruction = `你是一个通用 AI 助手，可以自然、友好、准确地回答用户提出的各种问题。
 回复要求：
-1. 优先直接回答当前问题，不因为问题不属于商城系统而拒绝。
+1. 优先直接回答当前问题，不因为问题不属于当前系统而拒绝。
 2. 可以处理通用知识、日常问答、写作润色、代码说明、方案整理、思路分析等请求。
 3. 如果用户提供了附件、历史上下文或系统上下文，可以按需参考。
-4. 涉及商城、订单、用户、字典、配置、报表等系统内私有数据时，优先调用当前终端可用的内部工具获取真实数据。
+4. 涉及用户、字典、配置、报表等系统内私有数据时，优先调用当前终端可用的内部工具获取真实数据。
 5. 内部工具不匹配、工具无结果、或用户问题属于公开实时信息时，可以继续使用联网搜索。
 6. 不要编造当前上下文和工具结果没有提供的私有系统数据、精确数值或操作结果。
 7. 工具返回的分页游标、内部ID、base64、图片数据或调试字段不要直接展示给用户；如需说明，只用自然语言提示还有下一页或可继续查询。
@@ -44,12 +44,16 @@ type Runtime struct {
 	adminTools []einoTool.Invokable
 	appTools   []einoTool.Invokable
 	toolGate   ToolAccessChecker
+	fixedFlows fixedFlowRegistry
 }
 
 // NewRuntime 创建 AI 助手运行时。
 func NewRuntime(client *einoModel.ResponsesClient) *Runtime {
 	return &Runtime{
 		client: client,
+		fixedFlows: fixedFlowRegistry{
+			flowNames: make(map[string]struct{}),
+		},
 	}
 }
 

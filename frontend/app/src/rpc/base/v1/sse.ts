@@ -5,13 +5,12 @@
 // source: base/v1/sse.proto
 
 /* eslint-disable */
-import type { SseStream } from "../../common/v1/enum";
 import type { Empty } from "../../google/protobuf/empty";
 
 /** SSE订阅请求参数 */
 export interface SubscribeSseRequest {
-  /** SSE流 */
-  stream: SseStream;
+  /** SSE流标识 */
+  stream: string;
   /** SSE通道ID */
   channel_id?: string | undefined;
 }

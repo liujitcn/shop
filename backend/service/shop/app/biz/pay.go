@@ -9,7 +9,7 @@ import (
 	"time"
 
 	shopappv1 "shop/api/gen/go/shop/app/v1"
-	_const "shop/pkg/const"
+	_const "shop/service/shop/consts"
 	"shop/pkg/errorsx"
 	"shop/service/shop/config"
 	"shop/service/shop/queue"

@@ -1,8 +1,11 @@
 package codegen
 
 import (
+	"fmt"
 	"path/filepath"
+	"sort"
 	"strings"
+	"sync"
 	"time"
 
 	"shop/pkg/gen/models"
@@ -30,36 +33,105 @@ type ProtoTarget struct {
 	FrontendPageDirectory  string // 前端页面目录
 }
 
+// TargetRegistry 保存已由组合根启用的代码生成目标。
+type TargetRegistry struct {
+	mu      sync.RWMutex
+	targets map[string]ProtoTarget
+}
+
+var defaultTargetRegistry = NewTargetRegistry()
+
+// NewTargetRegistry 创建只包含基础系统目标的代码生成目标注册表。
+func NewTargetRegistry() *TargetRegistry {
+	registry := &TargetRegistry{targets: make(map[string]ProtoTarget)}
+	registry.targets[DefaultProtoDirectory] = systemAdminProtoTarget()
+	return registry
+}
+
+// Register 注册模块代码生成目标，并拒绝重复目录。
+func (r *TargetRegistry) Register(target ProtoTarget) error {
+	if r == nil {
+		return fmt.Errorf("代码生成目标注册表未初始化")
+	}
+	target.Directory = filepath.ToSlash(filepath.Clean(target.Directory))
+	if target.Directory == "." || target.Directory == "" {
+		return fmt.Errorf("代码生成目标目录不能为空")
+	}
+	if target.PackageName == "" || target.GoAlias == "" || target.GoImportPath == "" {
+		return fmt.Errorf("代码生成目标配置不完整: %s", target.Directory)
+	}
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if _, exists := r.targets[target.Directory]; exists {
+		return fmt.Errorf("代码生成目标目录重复: %s", target.Directory)
+	}
+	r.targets[target.Directory] = target
+	return nil
+}
+
+// TargetByDirectory 根据 Proto 目录查询已启用代码生成目标。
+func (r *TargetRegistry) TargetByDirectory(directory string) (ProtoTarget, bool) {
+	if r == nil {
+		return ProtoTarget{}, false
+	}
+	directory = filepath.ToSlash(filepath.Clean(directory))
+	r.mu.RLock()
+	target, exists := r.targets[directory]
+	r.mu.RUnlock()
+	return target, exists
+}
+
+// Targets 返回已启用代码生成目标的稳定快照。
+func (r *TargetRegistry) Targets() []ProtoTarget {
+	if r == nil {
+		return nil
+	}
+	r.mu.RLock()
+	targets := make([]ProtoTarget, 0, len(r.targets))
+	for _, target := range r.targets {
+		targets = append(targets, target)
+	}
+	r.mu.RUnlock()
+	sort.Slice(targets, func(i int, j int) bool {
+		return targets[i].Directory < targets[j].Directory
+	})
+	return targets
+}
+
+// TargetRegistration 表示模块代码生成目标已在组合根注册。
+type TargetRegistration struct{}
+
+// RegisterProtoTarget 将模块目标显式注册到当前进程的代码生成器。
+func RegisterProtoTarget(target ProtoTarget) (TargetRegistration, error) {
+	err := defaultTargetRegistry.Register(target)
+	if err != nil {
+		return TargetRegistration{}, err
+	}
+	return TargetRegistration{}, nil
+}
+
+// ProtoTargets 返回当前进程可用的全部代码生成目标。
+func ProtoTargets() []ProtoTarget {
+	return defaultTargetRegistry.Targets()
+}
+
 // ProtoTargetByDirectory 根据 Proto 目录返回生成器支持的目标分组。
 func ProtoTargetByDirectory(directory string) (ProtoTarget, bool) {
-	directory = filepath.ToSlash(filepath.Clean(directory))
-	switch directory {
-	case "system/admin/v1":
-		return ProtoTarget{
-			Directory:              directory,
-			PackageName:            "system.admin.v1",
-			GoAlias:                "systemadminv1",
-			GoImportPath:           "shop/api/gen/go/system/admin/v1",
-			ServiceImportAlias:     "systemadmin",
-			BackendModuleDirectory: "backend/service/system/admin",
-			ModuleRegisterPath:     "backend/server/system/admin/register.go",
-			FrontendAPIDirectory:   "frontend/admin/src/api/system/admin",
-			FrontendPageDirectory:  "frontend/admin/src/views/system/admin",
-		}, true
-	case "shop/admin/v1":
-		return ProtoTarget{
-			Directory:              directory,
-			PackageName:            "shop.admin.v1",
-			GoAlias:                "shopadminv1",
-			GoImportPath:           "shop/api/gen/go/shop/admin/v1",
-			ServiceImportAlias:     "shopadmin",
-			BackendModuleDirectory: "backend/service/shop/admin",
-			ModuleRegisterPath:     "backend/server/shop/admin/register.go",
-			FrontendAPIDirectory:   "frontend/admin/src/api/shop/admin",
-			FrontendPageDirectory:  "frontend/admin/src/views/shop/admin",
-		}, true
-	default:
-		return ProtoTarget{}, false
+	return defaultTargetRegistry.TargetByDirectory(directory)
+}
+
+// systemAdminProtoTarget 返回基础系统代码生成目标。
+func systemAdminProtoTarget() ProtoTarget {
+	return ProtoTarget{
+		Directory:              DefaultProtoDirectory,
+		PackageName:            "system.admin.v1",
+		GoAlias:                "systemadminv1",
+		GoImportPath:           "shop/api/gen/go/system/admin/v1",
+		ServiceImportAlias:     "systemadmin",
+		BackendModuleDirectory: "backend/service/system/admin",
+		ModuleRegisterPath:     "backend/server/system/admin/register.go",
+		FrontendAPIDirectory:   "frontend/admin/src/api/system/admin",
+		FrontendPageDirectory:  "frontend/admin/src/views/system/admin",
 	}
 }
 

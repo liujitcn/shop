@@ -36,7 +36,7 @@ import { ElMessage } from "element-plus";
 import ECharts from "@/components/ECharts/index.vue";
 import type { ECOption } from "@/components/ECharts/config";
 import { defRecommendGorseService } from "@/api/shop/admin/recommend_gorse";
-import { useRecommendGorseStore } from "@/stores/modules/recommendGorse";
+import { useRecommendGorseStore } from "@/views/shop/admin/recommend/gorse/store";
 import type { TimeSeriesPoint } from "@/rpc/shop/admin/v1/recommend_gorse";
 
 const recommendGorseStore = useRecommendGorseStore();

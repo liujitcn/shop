@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"time"
 
-	_const "shop/pkg/const"
+	_const "shop/service/shop/consts"
 
 	commonv1 "shop/api/gen/go/common/v1"
 	shopadminv1 "shop/api/gen/go/shop/admin/v1"

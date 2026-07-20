@@ -82,7 +82,7 @@ import type { ColumnProps } from "@/components/ProTable/interface";
 import DictLabel from "@/components/Dict/DictLabel.vue";
 import { defRecommendGorseService } from "@/api/shop/admin/recommend_gorse";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
-import { useRecommendGorseStore } from "@/stores/modules/recommendGorse";
+import { useRecommendGorseStore } from "@/views/shop/admin/recommend/gorse/store";
 import { navigateTo } from "@/utils/router";
 import type { Item } from "@/rpc/shop/admin/v1/recommend_gorse";
 

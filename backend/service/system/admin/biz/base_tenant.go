@@ -16,10 +16,10 @@ import (
 	"shop/pkg/biz"
 	_const "shop/pkg/const"
 	"shop/pkg/errorsx"
+	"shop/pkg/event"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 	"shop/service/base/utils"
-	"shop/service/shop/queue"
 )
 
 const (
@@ -47,6 +47,7 @@ type BaseTenantCase struct {
 	commentInfoRepo *data.CommentInfoRepository
 	casbinRuleRepo  *data.CasbinRuleRepository
 	casbinRuleCase  *CasbinRuleCase
+	userEvents      *event.UserEvents
 	formMapper      *mapper.CopierMapper[systemadminv1.BaseTenantForm, models.BaseTenant]
 	mapper          *mapper.CopierMapper[systemadminv1.BaseTenant, models.BaseTenant]
 }
@@ -65,6 +66,7 @@ func NewBaseTenantCase(
 	commentInfoRepo *data.CommentInfoRepository,
 	casbinRuleRepo *data.CasbinRuleRepository,
 	casbinRuleCase *CasbinRuleCase,
+	userEvents *event.UserEvents,
 ) *BaseTenantCase {
 	return &BaseTenantCase{
 		BaseCase:             baseCase,
@@ -79,6 +81,7 @@ func NewBaseTenantCase(
 		commentInfoRepo:      commentInfoRepo,
 		casbinRuleRepo:       casbinRuleRepo,
 		casbinRuleCase:       casbinRuleCase,
+		userEvents:           userEvents,
 		formMapper:           mapper.NewCopierMapper[systemadminv1.BaseTenantForm, models.BaseTenant](),
 		mapper:               mapper.NewCopierMapper[systemadminv1.BaseTenant, models.BaseTenant](),
 	}
@@ -242,8 +245,8 @@ func (c *BaseTenantCase) DeleteBaseTenant(ctx context.Context, id string) error 
 	if err != nil {
 		return err
 	}
-	// 数据库事务提交后，异步清理推荐系统中的租户用户主体。
-	queue.DispatchRecommendDeleteBaseUser(deletedUserIDs)
+	// 数据库事务提交后，通知已装配模块清理租户关联用户数据。
+	c.userEvents.PublishUsersDeleted(deletedUserIDs)
 	return c.RebuildPolicyRule(ctx)
 }
 

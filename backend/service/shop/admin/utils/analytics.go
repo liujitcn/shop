@@ -3,7 +3,7 @@ package utils
 import (
 	"time"
 
-	_const "shop/pkg/const"
+	_const "shop/service/shop/consts"
 
 	commonv1 "shop/api/gen/go/common/v1"
 

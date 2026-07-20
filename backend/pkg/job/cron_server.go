@@ -20,15 +20,15 @@ import (
 type CronServer struct {
 	*cronTransport.Server
 	baseJobRepo *data.BaseJobRepository
-	task        map[string]TaskExec
+	registry    *Registry
 }
 
 // NewCronServer 创建定时任务服务实例。
-func NewCronServer(baseJobRepo *data.BaseJobRepository, task map[string]TaskExec) *CronServer {
+func NewCronServer(baseJobRepo *data.BaseJobRepository, registry *Registry) *CronServer {
 	return &CronServer{
 		Server:      cronTransport.NewServer(cronTransport.WithEnableKeepAlive(false)),
 		baseJobRepo: baseJobRepo,
-		task:        task,
+		registry:    registry,
 	}
 }
 
@@ -219,7 +219,7 @@ func (c *CronServer) lookupTaskExec(invokeTarget string) (TaskExec, error) {
 		return nil, errorsx.ResourceNotFound("调用目标不存在")
 	}
 
-	invokeTargetExec, ok := c.task[invokeTarget]
+	invokeTargetExec, ok := c.registry.Lookup(invokeTarget)
 	// 调用目标未注册时，直接返回明确错误。
 	if !ok || invokeTargetExec == nil {
 		return nil, errorsx.ResourceNotFound("调用目标不存在")

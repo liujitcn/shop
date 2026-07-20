@@ -262,7 +262,7 @@ import { useTabsStore } from "@/stores/modules/tabs";
 import { formatPrice } from "@/utils/utils";
 import { buildPageRequest } from "@/utils/proTable";
 import { navigateTo } from "@/utils/router";
-import { buildTenantStoreDisplayMap, DEFAULT_TENANT_CODE, type TenantStoreDisplayInfo } from "@/utils/tenant";
+import { buildTenantStoreDisplayMap, DEFAULT_TENANT_CODE, type TenantStoreDisplayInfo } from "@/views/shop/admin/utils/tenant";
 
 defineOptions({
   name: "GoodsDetail",

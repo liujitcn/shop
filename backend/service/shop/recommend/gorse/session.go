@@ -7,7 +7,7 @@ import (
 
 	shopcommonv1 "shop/api/gen/go/shop/common/v1"
 
-	_const "shop/pkg/const"
+	_const "shop/service/shop/consts"
 
 	client "github.com/gorse-io/gorse-go"
 )

@@ -6,7 +6,7 @@ import (
 
 // NormalizeTerminal 将 proto 终端枚举转换为数据库使用的整型值。
 func NormalizeTerminal(terminal commonv1.Terminal) int32 {
-	// 当前 AI 助手默认服务管理端，只有明确传商城端时才写入 app 终端。
+	// 当前 AI 助手默认服务管理端，只有明确传应用端时才写入 app 终端。
 	switch terminal {
 	case commonv1.Terminal_TERMINAL_APP:
 		return TerminalApp

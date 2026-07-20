@@ -5,7 +5,7 @@ import (
 	"errors"
 	"sort"
 
-	_const "shop/pkg/const"
+	_const "shop/service/shop/consts"
 
 	shopappv1 "shop/api/gen/go/shop/app/v1"
 	"shop/pkg/biz"

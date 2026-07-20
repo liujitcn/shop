@@ -3,7 +3,7 @@ package queue
 import (
 	"sync/atomic"
 
-	_const "shop/pkg/const"
+	_const "shop/service/shop/consts"
 	"shop/pkg/gen/models"
 	corequeue "shop/pkg/queue"
 )

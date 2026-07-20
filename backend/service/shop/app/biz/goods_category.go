@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 
-	_const "shop/pkg/const"
+	_const "shop/service/shop/consts"
 
 	"shop/pkg/biz"
 	"shop/pkg/gen/data"

@@ -10,8 +10,8 @@ import (
 
 	"shop/pkg/biz"
 	"shop/pkg/errorsx"
+	"shop/pkg/event"
 	"shop/pkg/gen/models"
-	"shop/service/shop/queue"
 
 	systemappv1 "shop/api/gen/go/system/app/v1"
 	"shop/service/system/app/utils"
@@ -33,6 +33,7 @@ type AuthCase struct {
 	*biz.BaseCase
 	baseUserCase  *BaseUserCase
 	oauthManager  *kitOauth.Manager
+	userEvents    *event.UserEvents
 	profileMapper *mapper.CopierMapper[
 		systemappv1.UserProfileForm,
 		models.BaseUser,
@@ -44,11 +45,13 @@ func NewAuthCase(
 	baseCase *biz.BaseCase,
 	baseUserCase *BaseUserCase,
 	oauthManager *kitOauth.Manager,
+	userEvents *event.UserEvents,
 ) *AuthCase {
 	return &AuthCase{
 		BaseCase:     baseCase,
 		baseUserCase: baseUserCase,
 		oauthManager: oauthManager,
+		userEvents:   userEvents,
 		profileMapper: mapper.NewCopierMapper[
 			systemappv1.UserProfileForm,
 			models.BaseUser,
@@ -102,8 +105,8 @@ func (c *AuthCase) UpdateUserProfile(ctx context.Context, req *systemappv1.UserP
 	if err = c.baseUserCase.UpdateByID(ctx, baseUser); err != nil {
 		return errorsx.Internal("修改个人中心用户信息失败").WithCause(err)
 	}
-	// 用户资料写库成功后，再异步同步最新画像到推荐系统。
-	queue.DispatchRecommendSyncBaseUser(authInfo.UserId)
+	// 用户资料写库成功后，通知已装配模块处理用户资料变更。
+	c.userEvents.PublishUserChanged(authInfo.UserId)
 
 	// 删除被替换的旧头像文件
 	oss := sdk.Runtime.GetOSS()
@@ -191,8 +194,8 @@ func (c *AuthCase) BindUserPhone(ctx context.Context, req *systemappv1.BindUserP
 	if err = c.baseUserCase.UpdateByID(ctx, user); err != nil {
 		return nil, errorsx.Internal("手机号授权失败").WithCause(err)
 	}
-	// 手机号绑定成功后，再异步同步最新用户画像到推荐系统。
-	queue.DispatchRecommendSyncBaseUser(authInfo.UserId)
+	// 手机号绑定成功后，通知已装配模块处理用户资料变更。
+	c.userEvents.PublishUserChanged(authInfo.UserId)
 
 	return &systemappv1.BindUserPhoneResponse{
 		Phone: _string.DesensitizePhone(user.Phone),

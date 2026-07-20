@@ -115,7 +115,7 @@ import type { SelectOptionResponse_Option } from "@/rpc/common/v1/common";
 import { TenantStoreStatus } from "@/rpc/shop/common/v1/enum";
 import { buildPageRequest, normalizeSelectedIds } from "@/utils/proTable";
 import { useUserStore } from "@/stores/modules/user";
-import { DEFAULT_TENANT_CODE, requestTenantOptions } from "@/utils/tenant";
+import { DEFAULT_TENANT_CODE, requestTenantOptions } from "@/views/shop/admin/utils/tenant";
 
 defineOptions({
   name: "TenantStore",

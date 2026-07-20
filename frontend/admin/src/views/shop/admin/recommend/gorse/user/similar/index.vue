@@ -44,7 +44,7 @@ import DictLabel from "@/components/Dict/DictLabel.vue";
 import { defBaseDeptService } from "@/api/system/admin/base_dept";
 import { defBaseRoleService } from "@/api/system/admin/base_role";
 import { defRecommendGorseService } from "@/api/shop/admin/recommend_gorse";
-import { useRecommendGorseStore } from "@/stores/modules/recommendGorse";
+import { useRecommendGorseStore } from "@/views/shop/admin/recommend/gorse/store";
 import { navigateTo } from "@/utils/router";
 import type { UserResponse } from "@/rpc/shop/admin/v1/recommend_gorse";
 import type { TreeOptionResponse_Option } from "@/rpc/common/v1/common";

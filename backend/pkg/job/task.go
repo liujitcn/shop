@@ -1,32 +1,65 @@
 package job
 
-import "reflect"
+import (
+	"fmt"
+	"sync"
+)
 
 // TaskExec 定义定时任务执行器接口。
 type TaskExec interface {
 	Exec(arg map[string]string) ([]string, error)
 }
 
-// NewTaskList 创建定时任务执行器映射。
-func NewTaskList(tasks ...TaskExec) map[string]TaskExec {
-	taskMap := make(map[string]TaskExec, len(tasks))
-	for _, task := range tasks {
-		registerTask(taskMap, task)
-	}
-	return taskMap
+// Task 表示模块向调度运行时贡献的具名任务。
+type Task struct {
+	Name string
+	Exec TaskExec
 }
 
-// registerTask 注册单个定时任务执行器。
-func registerTask(taskMap map[string]TaskExec, exec TaskExec) {
-	t := reflect.TypeOf(exec)
-	// 非结构体指针执行器不符合任务注册约定，直接跳过。
-	if t == nil || t.Kind() != reflect.Ptr {
-		return
+// Registry 保存已装配模块贡献的定时任务执行器。
+type Registry struct {
+	mu    sync.RWMutex
+	tasks map[string]TaskExec
+}
+
+// NewRegistry 创建空的定时任务注册表。
+func NewRegistry() *Registry {
+	return &Registry{
+		tasks: make(map[string]TaskExec),
 	}
-	t = t.Elem()
-	// 只有结构体指针才允许使用结构体名称作为任务注册名。
-	if t.Kind() != reflect.Struct {
-		return
+}
+
+// Register 注册一组具名任务，并拒绝重复或不完整的任务贡献。
+func (r *Registry) Register(tasks ...Task) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	registered := make(map[string]struct{}, len(tasks))
+	for _, task := range tasks {
+		if task.Name == "" {
+			return fmt.Errorf("定时任务名称不能为空")
+		}
+		if task.Exec == nil {
+			return fmt.Errorf("定时任务执行器不能为空: %s", task.Name)
+		}
+		if _, exists := r.tasks[task.Name]; exists {
+			return fmt.Errorf("定时任务名称重复: %s", task.Name)
+		}
+		if _, exists := registered[task.Name]; exists {
+			return fmt.Errorf("定时任务名称重复: %s", task.Name)
+		}
+		registered[task.Name] = struct{}{}
 	}
-	taskMap[t.Name()] = exec
+	for _, task := range tasks {
+		r.tasks[task.Name] = task.Exec
+	}
+	return nil
+}
+
+// Lookup 按名称查询已注册的任务执行器。
+func (r *Registry) Lookup(name string) (TaskExec, bool) {
+	r.mu.RLock()
+	exec, exists := r.tasks[name]
+	r.mu.RUnlock()
+	return exec, exists
 }

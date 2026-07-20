@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package shop.admin.v1;
 
-import "common/v1/enum.proto";
+import "shop/common/v1/enum.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
@@ -203,7 +203,7 @@ message PreviewRankerPromptResponse {
 
 // Gorse 推荐导出数据查询条件
 message ExportDataRequest {
-  .common.v1.AdvanceDataType data_type = 1 [(gnostic.openapi.v3.property) = {description: "数据类型：枚举【AdvanceDataType】"}]; // 数据类型：枚举【AdvanceDataType】
+  .shop.common.v1.AdvanceDataType data_type = 1 [(gnostic.openapi.v3.property) = {description: "数据类型：枚举【AdvanceDataType】"}]; // 数据类型：枚举【AdvanceDataType】
 }
 
 // Gorse 推荐导出数据响应
@@ -215,7 +215,7 @@ message ExportDataResponse {
 
 // Gorse 推荐导入数据请求
 message ImportDataRequest {
-  .common.v1.AdvanceDataType data_type = 1 [(gnostic.openapi.v3.property) = {description: "数据类型：枚举【AdvanceDataType】"}]; // 数据类型：枚举【AdvanceDataType】
+  .shop.common.v1.AdvanceDataType data_type = 1 [(gnostic.openapi.v3.property) = {description: "数据类型：枚举【AdvanceDataType】"}]; // 数据类型：枚举【AdvanceDataType】
 
   string file_name = 2 [(gnostic.openapi.v3.property) = {description: "文件名"}]; // 文件名
 
