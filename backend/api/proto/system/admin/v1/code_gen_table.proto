@@ -1,0 +1,234 @@
+syntax = "proto3";
+
+package system.admin.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+// Admin代码生成表配置服务
+service CodeGenTableService {
+  // 查询数据库表列表
+  rpc ListCodeGenDatabaseTable(ListCodeGenDatabaseTableRequest) returns (ListCodeGenDatabaseTableResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/code-gen/database/table"
+    };
+  }
+
+  // 查询Proto目录列表
+  rpc ListCodeGenProtoDirectory(ListCodeGenProtoDirectoryRequest) returns (ListCodeGenProtoDirectoryResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/code-gen/proto/directory"
+    };
+  }
+
+  // 分页查询代码生成表配置
+  rpc PageCodeGenTable(PageCodeGenTableRequest) returns (PageCodeGenTableResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/code-gen/table"
+    };
+  }
+
+  // 查询代码生成表配置
+  rpc GetCodeGenTable(GetCodeGenTableRequest) returns (CodeGenTableForm) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/code-gen/table/{id}"
+    };
+  }
+
+  // 创建代码生成表配置
+  rpc CreateCodeGenTable(CreateCodeGenTableRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/api/v1/admin/code-gen/table"
+      body: "code_gen_table"
+    };
+  }
+
+  // 更新代码生成表配置
+  rpc UpdateCodeGenTable(UpdateCodeGenTableRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/v1/admin/code-gen/table/{id}"
+      body: "code_gen_table"
+    };
+  }
+
+  // 删除代码生成表配置
+  rpc DeleteCodeGenTable(DeleteCodeGenTableRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/api/v1/admin/code-gen/table/{ids}"
+    };
+  }
+}
+
+// 数据库表列表查询条件
+message ListCodeGenDatabaseTableRequest {}
+
+// 数据库表列表响应
+message ListCodeGenDatabaseTableResponse {
+  repeated CodeGenDatabaseTable tables = 1 [(gnostic.openapi.v3.property) = {description: "数据库表列表"}]; // 数据库表列表
+}
+
+// Proto目录列表查询条件
+message ListCodeGenProtoDirectoryRequest {}
+
+// Proto目录列表查询响应
+message ListCodeGenProtoDirectoryResponse {
+  repeated CodeGenProtoDirectory directories = 1 [(gnostic.openapi.v3.property) = {description: "Proto目录列表"}]; // Proto目录列表
+}
+
+// 代码生成表配置分页查询条件
+message PageCodeGenTableRequest {
+  optional string name = 1 [(gnostic.openapi.v3.property) = {description: "业务表名"}]; // 业务表名
+
+  optional string business_name = 2 [(gnostic.openapi.v3.property) = {description: "业务名"}]; // 业务名
+
+  optional string module_path = 3 [(gnostic.openapi.v3.property) = {description: "模块路径"}]; // 模块路径
+
+  optional string page_type = 4 [(gnostic.openapi.v3.property) = {description: "页面类型"}]; // 页面类型
+
+  optional int32 status = 5 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
+
+  int64 page_num = 101 [(gnostic.openapi.v3.property) = {
+    description: "当前页码"
+    default: {number: 1}
+  }]; // 当前页码
+
+  int64 page_size = 102 [(gnostic.openapi.v3.property) = {
+    description: "每一页的行数"
+    default: {number: 10}
+  }]; // 每一页的行数
+}
+
+// 代码生成表配置分页响应
+message PageCodeGenTableResponse {
+  repeated CodeGenTable code_gen_tables = 1 [(gnostic.openapi.v3.property) = {description: "代码生成表配置列表"}]; // 代码生成表配置列表
+
+  int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
+}
+
+// 代码生成表配置详情查询条件
+message GetCodeGenTableRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "主键ID"}]; // 主键ID
+}
+
+// 代码生成表配置创建条件
+message CreateCodeGenTableRequest {
+  CodeGenTableForm code_gen_table = 1 [(gnostic.openapi.v3.property) = {description: "代码生成表配置表单"}]; // 代码生成表配置表单
+}
+
+// 代码生成表配置更新条件
+message UpdateCodeGenTableRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "主键ID"}]; // 主键ID
+
+  CodeGenTableForm code_gen_table = 2 [(gnostic.openapi.v3.property) = {description: "代码生成表配置表单"}]; // 代码生成表配置表单
+}
+
+// 代码生成表配置删除条件
+message DeleteCodeGenTableRequest {
+  string ids = 1 [(gnostic.openapi.v3.property) = {description: "代码生成表配置ID列表，多个用逗号分隔"}]; // 代码生成表配置ID列表，多个用逗号分隔
+}
+
+// 数据库表元数据
+message CodeGenDatabaseTable {
+  string name = 1 [(gnostic.openapi.v3.property) = {description: "数据库表名"}]; // 数据库表名
+
+  string comment = 2 [(gnostic.openapi.v3.property) = {description: "业务表描述"}]; // 业务表描述
+
+  bool disabled = 3 [(gnostic.openapi.v3.property) = {description: "是否已被选择"}]; // 是否已被选择
+
+  string business_name = 4 [(gnostic.openapi.v3.property) = {description: "默认业务名"}]; // 默认业务名
+
+  string entity_name = 5 [(gnostic.openapi.v3.property) = {description: "默认实体名"}]; // 默认实体名
+
+  string module_path = 6 [(gnostic.openapi.v3.property) = {description: "默认模块路径"}]; // 默认模块路径
+
+  string api_path = 7 [(gnostic.openapi.v3.property) = {description: "默认Proto目录"}]; // 默认Proto目录
+
+  string permission_prefix = 8 [(gnostic.openapi.v3.property) = {description: "默认权限前缀"}]; // 默认权限前缀
+}
+
+// Proto目录
+message CodeGenProtoDirectory {
+  string path = 1 [(gnostic.openapi.v3.property) = {description: "相对Proto根目录的目录路径"}]; // 相对Proto根目录的目录路径
+}
+
+// 代码生成表配置
+message CodeGenTable {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "主键ID"}]; // 主键ID
+
+  string name = 2 [(gnostic.openapi.v3.property) = {description: "业务表名"}]; // 业务表名
+
+  string comment = 3 [(gnostic.openapi.v3.property) = {description: "业务表描述"}]; // 业务表描述
+
+  string business_name = 4 [(gnostic.openapi.v3.property) = {description: "业务名"}]; // 业务名
+
+  string entity_name = 5 [(gnostic.openapi.v3.property) = {description: "实体名"}]; // 实体名
+
+  string module_path = 6 [(gnostic.openapi.v3.property) = {description: "模块路径"}]; // 模块路径
+
+  string api_path = 7 [(gnostic.openapi.v3.property) = {description: "Proto目录"}]; // Proto目录
+
+  string page_type = 8 [(gnostic.openapi.v3.property) = {description: "页面类型"}]; // 页面类型
+
+  int32 status = 9 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
+
+  string remark = 10 [(gnostic.openapi.v3.property) = {description: "备注"}]; // 备注
+
+  string created_at = 11 [(gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间
+
+  string updated_at = 12 [(gnostic.openapi.v3.property) = {description: "更新时间"}]; // 更新时间
+}
+
+// 代码生成表配置表单
+message CodeGenTableForm {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "主键ID"}]; // 主键ID
+
+  string name = 2 [(gnostic.openapi.v3.property) = {description: "业务表名"}]; // 业务表名
+
+  string comment = 3 [(gnostic.openapi.v3.property) = {description: "业务表描述"}]; // 业务表描述
+
+  string business_name = 4 [(gnostic.openapi.v3.property) = {description: "业务名"}]; // 业务名
+
+  string entity_name = 5 [(gnostic.openapi.v3.property) = {description: "实体名"}]; // 实体名
+
+  string module_path = 6 [(gnostic.openapi.v3.property) = {description: "模块路径"}]; // 模块路径
+
+  string api_path = 7 [(gnostic.openapi.v3.property) = {description: "Proto目录"}]; // Proto目录
+
+  string permission_prefix = 8 [(gnostic.openapi.v3.property) = {description: "权限标识前缀"}]; // 权限标识前缀
+
+  int64 parent_menu_id = 9 [(gnostic.openapi.v3.property) = {description: "父级菜单ID"}]; // 父级菜单ID
+
+  string page_type = 10 [(gnostic.openapi.v3.property) = {description: "页面类型：normal普通表格 tree树形表格 left_tree左树右表"}]; // 页面类型：normal普通表格 tree树形表格 left_tree左树右表
+
+  string parent_column = 11 [(gnostic.openapi.v3.property) = {description: "树形表格父节点字段"}]; // 树形表格父节点字段
+
+  string tree_label_column = 12 [(gnostic.openapi.v3.property) = {description: "树节点显示字段"}]; // 树节点显示字段
+
+  CodeGenLeftTreeConfig left_tree_config = 13 [(gnostic.openapi.v3.property) = {description: "左树配置"}]; // 左树配置
+
+  bool gen_backend = 14 [(gnostic.openapi.v3.property) = {description: "是否生成后端"}]; // 是否生成后端
+
+  bool gen_frontend = 15 [(gnostic.openapi.v3.property) = {description: "是否生成前端"}]; // 是否生成前端
+
+  bool gen_sql = 16 [(gnostic.openapi.v3.property) = {description: "是否生成建表SQL"}]; // 是否生成建表SQL
+
+  int32 status = 17 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
+
+  string remark = 18 [(gnostic.openapi.v3.property) = {description: "备注"}]; // 备注
+}
+
+// 左树右表页面配置
+message CodeGenLeftTreeConfig {
+  string table_name = 1 [(gnostic.openapi.v3.property) = {description: "左树数据表名"}]; // 左树数据表名
+
+  string filter_column = 2 [(gnostic.openapi.v3.property) = {description: "左树筛选当前表字段"}]; // 左树筛选当前表字段
+
+  string parent_column = 3 [(gnostic.openapi.v3.property) = {description: "左树父节点字段"}]; // 左树父节点字段
+
+  string label_column = 4 [(gnostic.openapi.v3.property) = {description: "左树显示字段"}]; // 左树显示字段
+
+  string value_column = 5 [(gnostic.openapi.v3.property) = {description: "左树值字段"}]; // 左树值字段
+
+  string comment = 6 [(gnostic.openapi.v3.property) = {description: "左树描述"}]; // 左树描述
+}

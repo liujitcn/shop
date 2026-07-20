@@ -30,18 +30,9 @@ frontend/admin
 
 ## 页面模块
 
-- `views/base`：用户、角色、部门、菜单、字典、配置、日志、定时任务、API 管理等系统管理。
-- `views/dashboard`：工作台与分析页。
-- `views/ai`：AI助手等 AI 能力页面。
-- `views/goods`：商品分类、商品信息、属性、SKU。
-- `views/shop`：租户门店管理、轮播图、商城服务、热门推荐。
-- `views/order`：订单管理。
-- `views/comment`：评价审核、评价详情、讨论审核。
-- `views/report`：商品月报、订单月报。
-- `views/pay`：交易账单。
-- `views/recommend`：推荐请求、热门推荐、Gorse 推荐概览、任务、用户、商品、相似内容、反馈、高级调试、推荐编排、推荐配置。
-- `views/tool`：开发工具页面，包含代码生成表、字段和 Proto 配置，以及代码预览、单项或批量生成和任务进度。
-- `views/user`：用户相关历史页面。
+- `views/base`：登录、AI 助手等 `base.v1` 公共能力页面。
+- `views/system/admin`：用户、角色、部门、菜单、字典、配置、日志、定时任务、API 管理、个人中心和代码生成等 `system.admin.v1` 管理能力页面。
+- `views/shop/admin`：工作台、数据分析、商品、店铺、订单、评价、支付、报表、推荐和门店审核等 `shop.admin.v1` 商城运营页面。
 - `views/migration/pending`：动态菜单组件无法匹配时的统一降级提示页。
 
 订单列表以门店子订单为操作单位：默认租户可查询全部数据并使用租户/门店树筛选，普通租户只查询自身数据并使用门店下拉筛选。工作台、订单分析、商品分析、订单月报和商品月报支持相同的租户/门店筛选；订单分析和订单报表在默认租户无筛选时按交易统计，选定租户/门店后切换为门店子订单口径。
@@ -145,34 +136,36 @@ pnpm preview
 src/rpc
 ```
 
-这些文件由后端目录的 `make ts` 生成。新增或调整接口时，应优先修改后端 `backend/api/protos`，再执行生成命令，不要在 `src/rpc` 中手写等价类型。
+这些文件由后端目录的 `make ts` 生成。新增或调整接口时，应优先修改后端 `backend/api/proto/{base,common,shop,system}`，再执行生成命令，不要在 `src/rpc` 中手写等价类型；管理端业务类型分别位于 `src/rpc/system/admin/v1` 与 `src/rpc/shop/admin/v1`。
 
 业务页面可以按现有模式在 `src/api` 中封装接口调用，也可以直接复用生成的 RPC 客户端，具体以当前页面风格为准。
 
+管理端 API 目录与 proto 包保持一致：`src/api/base` 对应 `base.v1`，`src/api/system/admin` 对应 `system.admin.v1`，`src/api/shop/admin` 对应 `shop.admin.v1`。
+
 代码生成表配置页面使用独立接口封装：
 
-- `src/api/admin/code_gen.ts`：封装代码预览、启动生成任务和查询进度接口。
-- `src/api/admin/code_gen_table.ts`：数据库表选项及表配置 CRUD。
-- `src/api/admin/code_gen_column.ts`：数据库字段元数据及字段配置查询、保存。
-- `src/api/admin/code_gen_proto.ts`：Proto 接口检查与配置保存。
-- `src/views/tool/code-gen/table/index.vue`：基于 `ProTable + FormDialog + ProForm` 的表配置入口；选择业务表后默认使用存在的 `parent_id`、`name` 作为树父字段和显示字段，选择左树数据表后默认使用存在的 `parent_id`、`name`、`id` 作为左树父字段、显示字段和值字段。选择业务表或左树数据表后会自动带出对应数据库表描述，两个描述均可继续修改；重新选择数据表时使用新表描述覆盖。
-- `src/views/tool/code-gen/columns/index.vue`：结构化字段配置页面，字段配置接口不返回数据库主键和 `deleted_at`；页面完整展示其余数据库字段注释并允许单独修改字段描述，可在数据库字段列中通过上下移动调整共用排序。查询、列表和表单分别维护自己的选项数据源，并按该排序生成和预览；相同组件会将完整选项一次性复刻到尚未配置的范围，复刻后允许独立修改，组件切回相同类型时重新复刻；选项形态由组件自动确定，表单组件范围与 `ProForm` 保持一致。列表组件固定为文本、开关、下拉、树形、图片、金额、日期；列表和表单开关默认使用 `status` 字典及 `1`、`2` 作为开启、关闭值，均可在选项中独立修改；下拉支持静态数据、字典和数据表来源，选择数据表且存在对应列时默认使用 `name`、`id` 作为 Label 字段、Value 字段；表单字典选择固定使用字典来源，并按字段类型生成对应的字典值类型；树形固定使用数据表来源，并在所选表存在对应列时默认使用 `parent_id`、`name`、`id` 作为树父字段、树显示字段、树值字段。表单树形选择默认单选，JSON 字段可在选项弹窗切换为多选；多选页面使用复选框并提交 ID 数组。
-- `src/views/tool/code-gen/preview/index.vue`：从代码生成列表进入的独立完整页面预览，读取已经保存的表、字段、Proto 和字典配置，按普通表格、树形表格、左树右表三种类型渲染最终页面形态；三种表格统一使用自适应最小列宽，列少时自动铺满且不显示横向滚动条，列多时在表格内显示横向滚动条并固定操作列。左树右表预览复用用户管理的 `TreeFilter`，标题优先使用保存的左树描述，旧配置缺少描述时使用左树数据表描述补齐，并保持搜索、重置、展开、折叠和选中交互一致。开关使用配置的字典开启值、关闭值及标签，其他数据表选项在前端模拟。新增、编辑、删除按钮仅在对应 Proto 接口已存在或已勾选生成时展示，更新和删除接口都不可用时不生成操作列。模拟数据辅助逻辑位于同目录 `data.ts`，隐藏动态路由由 `sql/default-data.sql` 注册。
-- `src/views/tool/code-gen/code-preview/index.vue`：从代码生成列表进入的独立代码预览页面，按当前项目固定路径加载生成文件，支持直接启动生成任务和查看最近进度；隐藏动态路由由 `sql/default-data.sql` 注册。
-- `src/views/tool/code-gen/components/CodePreviewPane.vue`：在独立代码预览页面中展示本次生成文件、增量动作和源码内容。
-- `src/views/tool/code-gen/components/CodeGenProgressDialog.vue`：按任务和业务表展示文件、菜单、生成命令进度，通过 SSE 实时更新，并以三秒轮询兜底；最近任务 ID 保存在当前会话中用于页面恢复。
-- `src/views/tool/code-gen/proto/index.vue`：Proto 接口检查与生成选择页面；表格合并展示接口信息、目标位置和检查状态。只有缺失接口勾选生成且接口类型为选项、树形或状态时，才在复选框后展示配置入口，并按接口类型固定显示所需字段；接口字段按目标实体对应的数据库表元数据加载和校验，不复用已过滤的字段配置接口结果。
+- `src/api/system/admin/code_gen.ts`：封装代码预览、启动生成任务和查询进度接口。
+- `src/api/system/admin/code_gen_table.ts`：数据库表选项及表配置 CRUD。
+- `src/api/system/admin/code_gen_column.ts`：数据库字段元数据及字段配置查询、保存。
+- `src/api/system/admin/code_gen_proto.ts`：Proto 接口检查与配置保存。
+- `src/views/system/admin/tool/code-gen/table/index.vue`：基于 `ProTable + FormDialog + ProForm` 的表配置入口；选择业务表后默认使用存在的 `parent_id`、`name` 作为树父字段和显示字段，选择左树数据表后默认使用存在的 `parent_id`、`name`、`id` 作为左树父字段、显示字段和值字段。选择业务表或左树数据表后会自动带出对应数据库表描述，两个描述均可继续修改；重新选择数据表时使用新表描述覆盖。
+- `src/views/system/admin/tool/code-gen/columns/index.vue`：结构化字段配置页面，字段配置接口不返回数据库主键和 `deleted_at`；页面完整展示其余数据库字段注释并允许单独修改字段描述，可在数据库字段列中通过上下移动调整共用排序。查询、列表和表单分别维护自己的选项数据源，并按该排序生成和预览；相同组件会将完整选项一次性复刻到尚未配置的范围，复刻后允许独立修改，组件切回相同类型时重新复刻；选项形态由组件自动确定，表单组件范围与 `ProForm` 保持一致。列表组件固定为文本、开关、下拉、树形、图片、金额、日期；列表和表单开关默认使用 `status` 字典及 `1`、`2` 作为开启、关闭值，均可在选项中独立修改；下拉支持静态数据、字典和数据表来源，选择数据表且存在对应列时默认使用 `name`、`id` 作为 Label 字段、Value 字段；表单字典选择固定使用字典来源，并按字段类型生成对应的字典值类型；树形固定使用数据表来源，并在所选表存在对应列时默认使用 `parent_id`、`name`、`id` 作为树父字段、树显示字段、树值字段。表单树形选择默认单选，JSON 字段可在选项弹窗切换为多选；多选页面使用复选框并提交 ID 数组。
+- `src/views/system/admin/tool/code-gen/preview/index.vue`：从代码生成列表进入的独立完整页面预览，读取已经保存的表、字段、Proto 和字典配置，按普通表格、树形表格、左树右表三种类型渲染最终页面形态；三种表格统一使用自适应最小列宽，列少时自动铺满且不显示横向滚动条，列多时在表格内显示横向滚动条并固定操作列。左树右表预览复用用户管理的 `TreeFilter`，标题优先使用保存的左树描述，旧配置缺少描述时使用左树数据表描述补齐，并保持搜索、重置、展开、折叠和选中交互一致。开关使用配置的字典开启值、关闭值及标签，其他数据表选项在前端模拟。新增、编辑、删除按钮仅在对应 Proto 接口已存在或已勾选生成时展示，更新和删除接口都不可用时不生成操作列。模拟数据辅助逻辑位于同目录 `data.ts`，隐藏动态路由由 `sql/default-data.sql` 注册。
+- `src/views/system/admin/tool/code-gen/code-preview/index.vue`：从代码生成列表进入的独立代码预览页面，按当前项目固定路径加载生成文件，支持直接启动生成任务和查看最近进度；隐藏动态路由由 `sql/default-data.sql` 注册。
+- `src/views/system/admin/tool/code-gen/components/CodePreviewPane.vue`：在独立代码预览页面中展示本次生成文件、增量动作和源码内容。
+- `src/views/system/admin/tool/code-gen/components/CodeGenProgressDialog.vue`：按任务和业务表展示文件、菜单、生成命令进度，通过 SSE 实时更新，并以三秒轮询兜底；最近任务 ID 保存在当前会话中用于页面恢复。
+- `src/views/system/admin/tool/code-gen/proto/index.vue`：Proto 接口检查与生成选择页面；表格合并展示接口信息、目标位置和检查状态。只有缺失接口勾选生成且接口类型为选项、树形或状态时，才在复选框后展示配置入口，并按接口类型固定显示所需字段；接口字段按目标实体对应的数据库表元数据加载和校验，不复用已过滤的字段配置接口结果。
 
 当前管理后台 AI助手会复用：
 
-- `src/api/base/ai_assistant_session.ts`：助手会话查询、创建、重命名和删除接口封装。
-- `src/api/base/ai_assistant_message.ts`：助手消息查询和流式发送接口封装。
-- `src/views/ai/assistant`：基于 `vue-element-plus-x` 组件能力封装的当前系统专用 AI助手页面。
-- `src/views/ai/assistant/index.vue`：隐藏的 AI助手页面入口，默认由顶部导航工具栏最左侧图标触发。
+- `src/api/base/ai_session.ts`：助手会话查询、创建、重命名和删除接口封装。
+- `src/api/base/ai_message.ts`：助手消息查询和流式发送接口封装。
+- `src/views/base/ai`：基于 `vue-element-plus-x` 组件能力封装的当前系统专用 AI助手页面。
+- `src/views/base/ai/index.vue`：隐藏的 AI助手页面入口，默认由顶部导航工具栏最左侧图标触发。
 
 当前助手页实现说明：
 
-- 当前 `vue-element-plus-x` 通过 `file:./vendor/vue-element-plus-x` 引用本地最新源码包；业务代码仍统一从 `vue-element-plus-x` 导入，后续切回官方 npm tag 时不需要调整页面 import。
+- 当前 `vue-element-plus-x` 通过 `package.json` 与 pnpm lockfile 中锁定的 npm 依赖提供；业务代码统一从 `vue-element-plus-x` 导入。
 - 会话列表、消息流、输入器、附件区和 Markdown 回复分别复用 `Conversations`、`BubbleList`、`Sender`、`Attachments`、`XMarkdown`。
 - 附件发送会透传 `id/name/size/url/mime_type`，用于后端读取真实文件内容参与模型推理。
 - 输入器支持点击回形针选择附件、直接粘贴文件和浏览器语音输入；当前限制最多 6 个附件，单个附件不超过 20MB。
@@ -203,6 +196,8 @@ src/rpc
 | [统计数据流转设计](../../docs/统计数据流转设计.md)             | 工作台、订单 / 商品 / 用户分析和报表数据来源。             |
 | [订单数据流转设计](../../docs/订单数据流转设计.md)             | 后台订单查询、退款、发货与订单状态边界。                   |
 | [评价与审核数据流转设计](../../docs/评价与审核数据流转设计.md) | 评价、讨论、评价摘要审核和前台可见性规则。                 |
+| [AI 助手设计](../../docs/AI助手设计.md)                     | 会话、消息、工具调用、SSE 和管理端/商城端差异。             |
+| [Gorse 推荐服务管理平台功能设计](docs/gorse-recommend-design.md) | 已有推荐运营页面与后续演进边界。                       |
 
 ## 校验
 

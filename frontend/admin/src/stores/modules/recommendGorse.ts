@@ -1,9 +1,9 @@
 import { defineStore } from "pinia";
-import { defGoodsCategoryService } from "@/api/admin/goods_category";
-import { defRecommendGorseService } from "@/api/admin/recommend_gorse";
+import { defGoodsCategoryService } from "@/api/shop/admin/goods_category";
+import { defRecommendGorseService } from "@/api/shop/admin/recommend_gorse";
 import { useDictStoreHook } from "@/stores/modules/dict";
-import type { OptionBaseDictResponse_BaseDictItem } from "@/rpc/admin/v1/base_dict";
-import type { ConfigResponse } from "@/rpc/admin/v1/recommend_gorse";
+import type { OptionBaseDictResponse_BaseDictItem } from "@/rpc/system/admin/v1/base_dict";
+import type { ConfigResponse } from "@/rpc/shop/admin/v1/recommend_gorse";
 import type { TreeOptionResponse_Option } from "@/rpc/common/v1/common";
 
 /** Gorse 推荐下拉选项。 */

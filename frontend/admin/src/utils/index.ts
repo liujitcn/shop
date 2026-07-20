@@ -1,5 +1,5 @@
 import { isArray } from "@/utils/is";
-import type { RouteItem, RouteMeta } from "@/rpc/admin/v1/auth";
+import type { RouteItem, RouteMeta } from "@/rpc/system/admin/v1/auth";
 
 const mode = import.meta.env.VITE_ROUTER_MODE;
 

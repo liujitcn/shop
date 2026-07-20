@@ -1,8 +1,8 @@
 import { defineStore } from "pinia";
-import { defAuthService } from "@/api/admin/auth";
+import { defAuthService } from "@/api/system/admin/auth";
 import { AuthState } from "@/stores/interface";
 import { getFlatMenuList, getShowMenuList, getAllBreadcrumbList, isExternalPath } from "@/utils";
-import type { RouteItem } from "@/rpc/admin/v1/auth";
+import type { RouteItem } from "@/rpc/system/admin/v1/auth";
 
 const GLOBAL_AUTH_BUTTON_KEY = "__global__";
 

@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { defUserAddressService } from '@/api/app/user_address'
+import { defUserAddressService } from '@/api/shop/app/user_address'
 import { onLoad } from '@dcloudio/uni-app'
 import { ref } from 'vue'
-import { defBaseAreaService } from '@/api/app/base_area'
+import { defBaseAreaService } from '@/api/system/app/base_area'
 import type { AppTreeOptionResponse_Option } from '@/rpc/common/v1/common'
-import type { UserAddressForm } from '@/rpc/app/v1/user_address'
+import type { UserAddressForm } from '@/rpc/shop/app/v1/user_address'
 // 表单数据
 const form = ref<UserAddressForm>({
   /** 用户地址ID */

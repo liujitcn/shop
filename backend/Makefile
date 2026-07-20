@@ -93,7 +93,7 @@ api:
 openapi:
 	@echo "==> 生成 OpenAPI v3 文档"
 	@cd api && \
-		PATH="$(GO_BIN_DIR):$$PATH" buf generate --template buf.openapi.gen.yaml --exclude-path protos/conf
+		PATH="$(GO_BIN_DIR):$$PATH" buf generate --template buf.openapi.gen.yaml
 	@echo "==> OpenAPI v3 文档生成完成"
 
 # 生成 TypeScript 代码
@@ -101,8 +101,8 @@ ts:
 	@echo "==> 生成 TypeScript RPC 代码"
 	@test -n "$(TS_PROTO_BIN)" || (echo "protoc-gen-ts_proto not found. Run pnpm install in frontend/admin or frontend/app, or install ts-proto globally." && exit 1)
 	@cd api && \
-		PATH="$(TS_PROTO_BIN_DIR):$(GO_BIN_DIR):$$PATH" buf generate --template buf.admin.typescript.gen.yaml --exclude-path protos/conf --exclude-path protos/app && \
-		PATH="$(TS_PROTO_BIN_DIR):$(GO_BIN_DIR):$$PATH" buf generate --template buf.app.typescript.gen.yaml --exclude-path protos/conf --exclude-path protos/admin
+		PATH="$(TS_PROTO_BIN_DIR):$(GO_BIN_DIR):$$PATH" buf generate --template buf.admin.typescript.gen.yaml --exclude-path proto/shop/app --exclude-path proto/system/app && \
+		PATH="$(TS_PROTO_BIN_DIR):$(GO_BIN_DIR):$$PATH" buf generate --template buf.app.typescript.gen.yaml --exclude-path proto/shop/admin --exclude-path proto/system/admin
 	@echo "==> TypeScript RPC 代码生成完成"
 
 # 一键生成全部接口产物（Go 代码 + OpenAPI 文档 + TypeScript 代码）

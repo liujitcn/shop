@@ -20,20 +20,28 @@ flowchart LR
   UserMessage["用户消息"] --> MessageAPI["AI 助手消息接口"]
   Composer --> MessageAPI
   MessageAPI --> Stream["流式回复"]
-  Stream --> AssistantMessage["助手消息"]
-  AssistantMessage --> Blocks["结构化流程块"]
+  Stream --> AiMessage["助手消息"]
+  AiMessage --> Blocks["结构化流程块"]
   Blocks --> Action["流程动作"]
   Action --> MessageAPI
 ~~~
 
-- 快捷入口来自 ListAiAssistantShortcut，按终端过滤后返回。
+- 快捷入口来自 ListAiShortcut，按终端过滤后返回。
 - 前端点击快捷入口时，发送 text + action，不在端侧伪造业务结果。
 - 助手消息可以包含 Markdown、工具调用摘要、附件和结构化流程块。
 - 结构化流程动作继续通过消息接口提交，保证流程上下文在会话内闭环。
 
+## 后端契约与运行时
+
+AI 公共接口位于 `backend/api/proto/base/v1/ai_session.proto` 与 `ai_message.proto`，路径前缀为 `/api/v1/base/ai`：会话、快捷入口和消息列表由 `AiService` 提供，发送、删除、重试和重新生成由 `AiMessageService` 提供。发送消息使用会话级 SSE 响应；它不占用工作台通用 `/events` 流。
+
+会话与消息分别持久化为 `ai_session`、`ai_message`。每轮消息保存输入、输出、附件、工具调用、Token、首 Token 耗时、总耗时和生成状态。失败消息可重试，成功输出可重新生成，任意锚点消息可创建持久化分支会话。
+
+后端运行时位于 `service/base/agent/ai`，Eino 适配层位于 `pkg/agent/eino`。运行时按终端和 `agent_enabled` 挑选生成工具，再通过同一进程内服务实例执行；MCP 是否暴露由独立的 `mcp_enabled` 控制。公开实时信息可使用 Responses 的联网搜索工具，评价审核和摘要仍使用独立的结构化模型调用链。
+
 ## 管理后台设计
 
-管理后台入口位于 frontend/admin/src/views/ai/assistant，主要组件包括：
+管理后台入口位于 frontend/admin/src/views/base/ai/chat，主要组件包括：
 
 | 组件 | 职责 |
 | --- | --- |
@@ -65,11 +73,11 @@ flowchart TB
 - 快捷操作是否展示由“快捷入口加载中或已有可用入口”决定，不依赖当前会话是否为空。
 - 空态面板使用两列网格，突出“从常用工作流开始”。
 - 会话中使用紧凑横向滚动条，降低占屏高度，同时保持随时可触达。
-- 点击快捷操作复用普通发送链路，统一调用 handleShortcutClick 并补齐 AiAssistantAction。
+- 点击快捷操作复用普通发送链路，统一调用 handleShortcutClick 并补齐 AiAction。
 
 ## 商城端设计
 
-商城端入口位于 frontend/app/src/pagesMember/ai-assistant，面向 H5 和小程序端：
+商城端入口位于 frontend/app/src/pagesMember/ai，面向 H5 和小程序端：
 
 | 组件 | 职责 |
 | --- | --- |
@@ -108,13 +116,15 @@ flowchart TB
 
 | 数据 | 来源 | 端侧处理 |
 | --- | --- | --- |
-| 快捷入口 | ListAiAssistantShortcut | 按 sort 排序，过滤无 key 且无标题 / prompt 的异常项 |
-| 会话列表 | ListAiAssistantSession | 支持创建、切换、搜索、重命名、删除 |
-| 消息列表 | ListAiAssistantMessage | 按当前会话缓存，切换会话时加载 |
+| 快捷入口 | ListAiShortcut | 按 sort 排序，过滤无 key 且无标题 / prompt 的异常项 |
+| 会话列表 | ListAiSession | 支持创建、切换、搜索、重命名、删除 |
+| 消息列表 | ListAiMessage | 按当前会话缓存，切换会话时加载 |
 | 流式回复 | 消息流接口 | 合并增量，维护生成态和失败态 |
 | 流程动作 | 助手消息 blocks | 点击后携带 action 回传消息接口 |
 
 快捷入口的展示状态只和快捷入口数据有关，不应绑定 messages.length === 0。空态和会话中可以使用不同视觉密度，但必须复用同一批终端快捷入口和同一套发送链路。
+
+流程动作必须回传 `source_message_id`、`action_id`、`flow_version`。服务端只接受当前会话最新成功消息的 `blocks_json` 中仍然存在的动作，阻止历史消息中的表单、支付或订单操作被重复执行。
 
 ## 维护与验证
 

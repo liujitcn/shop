@@ -5,12 +5,12 @@
 package models
 
 // TableComment 返回表注释。
-func (*AiAssistantMessage) TableComment() string {
+func (*AiMessage) TableComment() string {
 	return "AI助手消息表"
 }
 
 // TableComment 返回表注释。
-func (*AiAssistantSession) TableComment() string {
+func (*AiSession) TableComment() string {
 	return "AI助手会话表"
 }
 
@@ -87,6 +87,21 @@ func (*BaseUser) TableComment() string {
 // TableComment 返回表注释。
 func (*CasbinRule) TableComment() string {
 	return "Casbin权限信息"
+}
+
+// TableComment 返回表注释。
+func (*CodeGenBaseDept) TableComment() string {
+	return "部门信息"
+}
+
+// TableComment 返回表注释。
+func (*CodeGenBaseRole) TableComment() string {
+	return "角色信息"
+}
+
+// TableComment 返回表注释。
+func (*CodeGenBaseUser) TableComment() string {
+	return "用户信息"
 }
 
 // TableComment 返回表注释。

@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
-import { defCommentService } from '@/api/app/comment'
-import { defBaseDictService } from '@/api/app/base_dict'
-import type { CommentItem, PendingCommentGoodsItem } from '@/rpc/app/v1/comment'
-import type { BaseDictForm_DictItem } from '@/rpc/app/v1/base_dict'
+import { defCommentInfoService } from '@/api/shop/app/comment'
+import { defBaseDictService } from '@/api/system/app/base_dict'
+import type { CommentItem, PendingCommentGoodsItem } from '@/rpc/shop/app/v1/comment'
+import type { BaseDictForm_DictItem } from '@/rpc/system/app/v1/base_dict'
 import { formatSrc } from '@/utils'
 import { orderCommentWriteUrl } from '@/utils/navigation'
 
@@ -95,7 +95,7 @@ const onQuickPraise = async (item: PendingCommentItem, score: number) => {
 
   quickSubmittingId.value = item.id
   try {
-    await defCommentService.CreateComment({
+    await defCommentInfoService.CreateComment({
       order_id: item.order_id,
       goods_id: item.goods_id,
       sku_code: item.sku_code,
@@ -156,7 +156,7 @@ const loadPendingCommentList = async (reset: boolean) => {
 
   const nextPageNum = reset ? 1 : pendingPageNum.value + 1
   try {
-    const res = await defCommentService.PagePendingCommentGoods({
+    const res = await defCommentInfoService.PagePendingCommentGoods({
       page_num: nextPageNum,
       page_size,
     })
@@ -190,7 +190,7 @@ const loadMyCommentList = async (reset: boolean) => {
 
   const nextPageNum = reset ? 1 : donePageNum.value + 1
   try {
-    const res = await defCommentService.PageMyComment({
+    const res = await defCommentInfoService.PageMyComment({
       page_num: nextPageNum,
       page_size,
     })
@@ -261,7 +261,7 @@ const onDeleteComment = (item: DoneCommentItem) => {
       }
 
       deletingCommentId.value = item.id
-      void defCommentService
+      void defCommentInfoService
         .DeleteComment({ id: item.id })
         .then(async () => {
           void uni.showToast({

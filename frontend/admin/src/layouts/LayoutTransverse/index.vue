@@ -39,7 +39,7 @@ import { computed } from "vue";
 import { useAuthStore } from "@/stores/modules/auth";
 import { useConfigStore } from "@/stores/modules/config";
 import { useRoute, useRouter } from "vue-router";
-import type { RouteItem } from "@/rpc/admin/v1/auth";
+import type { RouteItem } from "@/rpc/system/admin/v1/auth";
 import { getRouteMetaIcon, getRouteMetaTitle, isExternalPath } from "@/utils";
 import Main from "@/layouts/components/Main/index.vue";
 import ToolBarRight from "@/layouts/components/Header/ToolBarRight.vue";

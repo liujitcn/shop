@@ -5,12 +5,11 @@ import (
 	"encoding/json"
 	"fmt"
 
-	adminv1 "shop/api/gen/go/admin/v1"
+	systemadminv1 "shop/api/gen/go/system/admin/v1"
 	_const "shop/pkg/const"
 	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
-	"shop/pkg/job/task"
 
 	"github.com/go-kratos/kratos/v3/log"
 	cronTransport "github.com/liujitcn/kratos-kit/transport/cron"
@@ -21,11 +20,11 @@ import (
 type CronServer struct {
 	*cronTransport.Server
 	baseJobRepo *data.BaseJobRepository
-	task        map[string]task.TaskExec
+	task        map[string]TaskExec
 }
 
 // NewCronServer 创建定时任务服务实例。
-func NewCronServer(baseJobRepo *data.BaseJobRepository, task map[string]task.TaskExec) *CronServer {
+func NewCronServer(baseJobRepo *data.BaseJobRepository, task map[string]TaskExec) *CronServer {
 	return &CronServer{
 		Server:      cronTransport.NewServer(cronTransport.WithEnableKeepAlive(false)),
 		baseJobRepo: baseJobRepo,
@@ -214,7 +213,7 @@ func (c *CronServer) reloadJobs(ctx context.Context) error {
 }
 
 // lookupTaskExec 按调用目标名称查找任务执行器。
-func (c *CronServer) lookupTaskExec(invokeTarget string) (task.TaskExec, error) {
+func (c *CronServer) lookupTaskExec(invokeTarget string) (TaskExec, error) {
 	// 调用目标为空时，无法定位实际任务实现。
 	if invokeTarget == "" {
 		return nil, errorsx.ResourceNotFound("调用目标不存在")
@@ -246,7 +245,7 @@ func parseJobArgs(rawArgs string) (map[string]string, error) {
 		return map[string]string{}, nil
 	}
 
-	args := make([]*adminv1.BaseJobArgs, 0)
+	args := make([]*systemadminv1.BaseJobArgs, 0)
 	err := json.Unmarshal([]byte(rawArgs), &args)
 	if err != nil {
 		return nil, err

@@ -1,8 +1,6 @@
 package biz
 
 import (
-	"shop/pkg/codegen"
-
 	"github.com/google/wire"
 	"github.com/liujitcn/kratos-kit/cache"
 	"github.com/liujitcn/kratos-kit/database/gorm"
@@ -15,11 +13,9 @@ import (
 // ProviderSet 汇总业务层依赖注入提供者。
 var ProviderSet = wire.NewSet(
 	NewBaseAPICase,
+	NewBaseTenantCase,
 	NewCasbinRuleCase,
-	NewOrderInventoryCase,
-	NewOrderRefundResultCase,
 	NewBaseCase,
-	codegen.NewManager,
 	oss.NewOSS,
 	gorm.NewGormClient,
 	queue.NewQueue,

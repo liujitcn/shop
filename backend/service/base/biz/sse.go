@@ -7,13 +7,13 @@ import (
 	"net/http"
 	"strings"
 
-	adminv1 "shop/api/gen/go/admin/v1"
 	basev1 "shop/api/gen/go/base/v1"
 	commonv1 "shop/api/gen/go/common/v1"
-	"shop/pkg/codegen"
+	systemadminv1 "shop/api/gen/go/system/admin/v1"
 	_const "shop/pkg/const"
 	"shop/pkg/errorsx"
-	"shop/pkg/workspaceevent"
+	"shop/service/shop/workspaceevent"
+	"shop/service/system/admin/codegen"
 
 	kratosHTTP "github.com/go-kratos/kratos/v3/transport/http"
 	authnEngine "github.com/liujitcn/kratos-kit/auth/authn/engine"
@@ -54,7 +54,7 @@ func NewSseCase(ctx *bootstrap.Context, authenticator authnEngine.Authenticator,
 		})
 		return nil
 	})
-	progress.SetPublisher(func(ctx context.Context, taskID string, task *adminv1.CodeGenTask) {
+	progress.SetPublisher(func(ctx context.Context, taskID string, task *systemadminv1.CodeGenTask) {
 		data, err := json.Marshal(task)
 		if err != nil {
 			return

@@ -1,0 +1,50 @@
+package biz
+
+import (
+	"context"
+	"errors"
+
+	shopadminv1 "shop/api/gen/go/shop/admin/v1"
+	"shop/pkg/biz"
+	"shop/pkg/gen/data"
+	"shop/pkg/gen/models"
+
+	"github.com/liujitcn/go-utils/mapper"
+	_string "github.com/liujitcn/go-utils/string"
+	"github.com/liujitcn/gorm-kit/repository"
+	"gorm.io/gorm"
+)
+
+// OrderAddressCase 订单地址业务实例
+type OrderAddressCase struct {
+	*biz.BaseCase
+	*data.OrderAddressRepository
+	mapper *mapper.CopierMapper[shopadminv1.OrderAddress, models.OrderAddress]
+}
+
+// NewOrderAddressCase 创建订单地址业务实例
+func NewOrderAddressCase(baseCase *biz.BaseCase, orderAddressRepo *data.OrderAddressRepository) *OrderAddressCase {
+	return &OrderAddressCase{
+		BaseCase:               baseCase,
+		OrderAddressRepository: orderAddressRepo,
+		mapper:                 mapper.NewCopierMapper[shopadminv1.OrderAddress, models.OrderAddress](),
+	}
+}
+
+// FindFromByTradeID 按交易单查询收货地址快照。
+func (c *OrderAddressCase) FindFromByTradeID(ctx context.Context, tradeID int64) (*shopadminv1.OrderAddress, error) {
+	query := c.Query(ctx).OrderAddress
+	opts := make([]repository.QueryOption, 0, 1)
+	opts = append(opts, repository.Where(query.TradeID.Eq(tradeID)))
+	item, err := c.Find(ctx, opts...)
+	if err != nil {
+		// 订单未记录地址信息时返回空对象，保持详情主体信息可展示。
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return &shopadminv1.OrderAddress{}, nil
+		}
+		return nil, err
+	}
+	orderAddress := c.mapper.ToDTO(item)
+	orderAddress.Address = _string.ConvertJsonStringToStringArray(item.Address)
+	return orderAddress, nil
+}

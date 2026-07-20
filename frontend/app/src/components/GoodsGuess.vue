@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { defRecommendService } from '@/api/app/recommend'
+import { defRecommendService } from '@/api/shop/app/recommend'
 import { useRecommendStore } from '@/stores'
 import { formatPrice, formatSrc } from '@/utils'
 import { computed, getCurrentInstance, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
-import type { GoodsInfo } from '@/rpc/app/v1/goods_info'
+import type { GoodsInfo } from '@/rpc/shop/app/v1/goods_info'
 import type {
   RecommendEventItem,
   RecommendGoodsRequest,
   RecommendGoodsResponse,
-} from '@/rpc/app/v1/recommend'
-import { RecommendEventType, RecommendScene } from '@/rpc/common/v1/enum'
+} from '@/rpc/shop/app/v1/recommend'
+import { RecommendEventType, RecommendScene } from '@/rpc/shop/common/v1/enum'
 import { goodsDetailUrl } from '@/utils/navigation'
 
 /** 猜你喜欢商品项，携带推荐上下文用于曝光和点击上报。 */

@@ -23,59 +23,6 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// 评价摘要内容项
-type CommentSummaryContentItem struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Label         string                 `protobuf:"bytes,1,opt,name=label,proto3" json:"label,omitempty"`     // 摘要标签
-	Content       string                 `protobuf:"bytes,2,opt,name=content,proto3" json:"content,omitempty"` // 摘要内容
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *CommentSummaryContentItem) Reset() {
-	*x = CommentSummaryContentItem{}
-	mi := &file_common_v1_common_proto_msgTypes[0]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *CommentSummaryContentItem) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*CommentSummaryContentItem) ProtoMessage() {}
-
-func (x *CommentSummaryContentItem) ProtoReflect() protoreflect.Message {
-	mi := &file_common_v1_common_proto_msgTypes[0]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use CommentSummaryContentItem.ProtoReflect.Descriptor instead.
-func (*CommentSummaryContentItem) Descriptor() ([]byte, []int) {
-	return file_common_v1_common_proto_rawDescGZIP(), []int{0}
-}
-
-func (x *CommentSummaryContentItem) GetLabel() string {
-	if x != nil {
-		return x.Label
-	}
-	return ""
-}
-
-func (x *CommentSummaryContentItem) GetContent() string {
-	if x != nil {
-		return x.Content
-	}
-	return ""
-}
-
 // 状态设置请求参数
 type SetStatusRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -87,7 +34,7 @@ type SetStatusRequest struct {
 
 func (x *SetStatusRequest) Reset() {
 	*x = SetStatusRequest{}
-	mi := &file_common_v1_common_proto_msgTypes[1]
+	mi := &file_common_v1_common_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -99,7 +46,7 @@ func (x *SetStatusRequest) String() string {
 func (*SetStatusRequest) ProtoMessage() {}
 
 func (x *SetStatusRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_common_v1_common_proto_msgTypes[1]
+	mi := &file_common_v1_common_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -112,7 +59,7 @@ func (x *SetStatusRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetStatusRequest.ProtoReflect.Descriptor instead.
 func (*SetStatusRequest) Descriptor() ([]byte, []int) {
-	return file_common_v1_common_proto_rawDescGZIP(), []int{1}
+	return file_common_v1_common_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *SetStatusRequest) GetId() int64 {
@@ -139,7 +86,7 @@ type TreeOptionResponse struct {
 
 func (x *TreeOptionResponse) Reset() {
 	*x = TreeOptionResponse{}
-	mi := &file_common_v1_common_proto_msgTypes[2]
+	mi := &file_common_v1_common_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -151,7 +98,7 @@ func (x *TreeOptionResponse) String() string {
 func (*TreeOptionResponse) ProtoMessage() {}
 
 func (x *TreeOptionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_common_v1_common_proto_msgTypes[2]
+	mi := &file_common_v1_common_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -164,7 +111,7 @@ func (x *TreeOptionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TreeOptionResponse.ProtoReflect.Descriptor instead.
 func (*TreeOptionResponse) Descriptor() ([]byte, []int) {
-	return file_common_v1_common_proto_rawDescGZIP(), []int{2}
+	return file_common_v1_common_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *TreeOptionResponse) GetList() []*TreeOptionResponse_Option {
@@ -184,7 +131,7 @@ type SelectOptionResponse struct {
 
 func (x *SelectOptionResponse) Reset() {
 	*x = SelectOptionResponse{}
-	mi := &file_common_v1_common_proto_msgTypes[3]
+	mi := &file_common_v1_common_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -196,7 +143,7 @@ func (x *SelectOptionResponse) String() string {
 func (*SelectOptionResponse) ProtoMessage() {}
 
 func (x *SelectOptionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_common_v1_common_proto_msgTypes[3]
+	mi := &file_common_v1_common_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -209,7 +156,7 @@ func (x *SelectOptionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SelectOptionResponse.ProtoReflect.Descriptor instead.
 func (*SelectOptionResponse) Descriptor() ([]byte, []int) {
-	return file_common_v1_common_proto_rawDescGZIP(), []int{3}
+	return file_common_v1_common_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *SelectOptionResponse) GetList() []*SelectOptionResponse_Option {
@@ -229,7 +176,7 @@ type AppTreeOptionResponse struct {
 
 func (x *AppTreeOptionResponse) Reset() {
 	*x = AppTreeOptionResponse{}
-	mi := &file_common_v1_common_proto_msgTypes[4]
+	mi := &file_common_v1_common_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -241,7 +188,7 @@ func (x *AppTreeOptionResponse) String() string {
 func (*AppTreeOptionResponse) ProtoMessage() {}
 
 func (x *AppTreeOptionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_common_v1_common_proto_msgTypes[4]
+	mi := &file_common_v1_common_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -254,7 +201,7 @@ func (x *AppTreeOptionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AppTreeOptionResponse.ProtoReflect.Descriptor instead.
 func (*AppTreeOptionResponse) Descriptor() ([]byte, []int) {
-	return file_common_v1_common_proto_rawDescGZIP(), []int{4}
+	return file_common_v1_common_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *AppTreeOptionResponse) GetList() []*AppTreeOptionResponse_Option {
@@ -277,7 +224,7 @@ type TreeOptionResponse_Option struct {
 
 func (x *TreeOptionResponse_Option) Reset() {
 	*x = TreeOptionResponse_Option{}
-	mi := &file_common_v1_common_proto_msgTypes[5]
+	mi := &file_common_v1_common_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -289,7 +236,7 @@ func (x *TreeOptionResponse_Option) String() string {
 func (*TreeOptionResponse_Option) ProtoMessage() {}
 
 func (x *TreeOptionResponse_Option) ProtoReflect() protoreflect.Message {
-	mi := &file_common_v1_common_proto_msgTypes[5]
+	mi := &file_common_v1_common_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -302,7 +249,7 @@ func (x *TreeOptionResponse_Option) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TreeOptionResponse_Option.ProtoReflect.Descriptor instead.
 func (*TreeOptionResponse_Option) Descriptor() ([]byte, []int) {
-	return file_common_v1_common_proto_rawDescGZIP(), []int{2, 0}
+	return file_common_v1_common_proto_rawDescGZIP(), []int{1, 0}
 }
 
 func (x *TreeOptionResponse_Option) GetLabel() string {
@@ -345,7 +292,7 @@ type SelectOptionResponse_Option struct {
 
 func (x *SelectOptionResponse_Option) Reset() {
 	*x = SelectOptionResponse_Option{}
-	mi := &file_common_v1_common_proto_msgTypes[6]
+	mi := &file_common_v1_common_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -357,7 +304,7 @@ func (x *SelectOptionResponse_Option) String() string {
 func (*SelectOptionResponse_Option) ProtoMessage() {}
 
 func (x *SelectOptionResponse_Option) ProtoReflect() protoreflect.Message {
-	mi := &file_common_v1_common_proto_msgTypes[6]
+	mi := &file_common_v1_common_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -370,7 +317,7 @@ func (x *SelectOptionResponse_Option) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SelectOptionResponse_Option.ProtoReflect.Descriptor instead.
 func (*SelectOptionResponse_Option) Descriptor() ([]byte, []int) {
-	return file_common_v1_common_proto_rawDescGZIP(), []int{3, 0}
+	return file_common_v1_common_proto_rawDescGZIP(), []int{2, 0}
 }
 
 func (x *SelectOptionResponse_Option) GetLabel() string {
@@ -408,7 +355,7 @@ type AppTreeOptionResponse_Option struct {
 
 func (x *AppTreeOptionResponse_Option) Reset() {
 	*x = AppTreeOptionResponse_Option{}
-	mi := &file_common_v1_common_proto_msgTypes[7]
+	mi := &file_common_v1_common_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -420,7 +367,7 @@ func (x *AppTreeOptionResponse_Option) String() string {
 func (*AppTreeOptionResponse_Option) ProtoMessage() {}
 
 func (x *AppTreeOptionResponse_Option) ProtoReflect() protoreflect.Message {
-	mi := &file_common_v1_common_proto_msgTypes[7]
+	mi := &file_common_v1_common_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -433,7 +380,7 @@ func (x *AppTreeOptionResponse_Option) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AppTreeOptionResponse_Option.ProtoReflect.Descriptor instead.
 func (*AppTreeOptionResponse_Option) Descriptor() ([]byte, []int) {
-	return file_common_v1_common_proto_rawDescGZIP(), []int{4, 0}
+	return file_common_v1_common_proto_rawDescGZIP(), []int{3, 0}
 }
 
 func (x *AppTreeOptionResponse_Option) GetValue() string {
@@ -475,10 +422,7 @@ var File_common_v1_common_proto protoreflect.FileDescriptor
 
 const file_common_v1_common_proto_rawDesc = "" +
 	"\n" +
-	"\x16common/v1/common.proto\x12\tcommon.v1\x1a$gnostic/openapi/v3/annotations.proto\"s\n" +
-	"\x19CommentSummaryContentItem\x12(\n" +
-	"\x05label\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f摘要标签R\x05label\x12,\n" +
-	"\acontent\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f摘要内容R\acontent\"X\n" +
+	"\x16common/v1/common.proto\x12\tcommon.v1\x1a$gnostic/openapi/v3/annotations.proto\"X\n" +
 	"\x10SetStatusRequest\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键idR\x02id\x12$\n" +
 	"\x06status\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\"\xc1\x02\n" +
@@ -518,23 +462,22 @@ func file_common_v1_common_proto_rawDescGZIP() []byte {
 	return file_common_v1_common_proto_rawDescData
 }
 
-var file_common_v1_common_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_common_v1_common_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_common_v1_common_proto_goTypes = []any{
-	(*CommentSummaryContentItem)(nil),    // 0: common.v1.CommentSummaryContentItem
-	(*SetStatusRequest)(nil),             // 1: common.v1.SetStatusRequest
-	(*TreeOptionResponse)(nil),           // 2: common.v1.TreeOptionResponse
-	(*SelectOptionResponse)(nil),         // 3: common.v1.SelectOptionResponse
-	(*AppTreeOptionResponse)(nil),        // 4: common.v1.AppTreeOptionResponse
-	(*TreeOptionResponse_Option)(nil),    // 5: common.v1.TreeOptionResponse.Option
-	(*SelectOptionResponse_Option)(nil),  // 6: common.v1.SelectOptionResponse.Option
-	(*AppTreeOptionResponse_Option)(nil), // 7: common.v1.AppTreeOptionResponse.Option
+	(*SetStatusRequest)(nil),             // 0: common.v1.SetStatusRequest
+	(*TreeOptionResponse)(nil),           // 1: common.v1.TreeOptionResponse
+	(*SelectOptionResponse)(nil),         // 2: common.v1.SelectOptionResponse
+	(*AppTreeOptionResponse)(nil),        // 3: common.v1.AppTreeOptionResponse
+	(*TreeOptionResponse_Option)(nil),    // 4: common.v1.TreeOptionResponse.Option
+	(*SelectOptionResponse_Option)(nil),  // 5: common.v1.SelectOptionResponse.Option
+	(*AppTreeOptionResponse_Option)(nil), // 6: common.v1.AppTreeOptionResponse.Option
 }
 var file_common_v1_common_proto_depIdxs = []int32{
-	5, // 0: common.v1.TreeOptionResponse.list:type_name -> common.v1.TreeOptionResponse.Option
-	6, // 1: common.v1.SelectOptionResponse.list:type_name -> common.v1.SelectOptionResponse.Option
-	7, // 2: common.v1.AppTreeOptionResponse.list:type_name -> common.v1.AppTreeOptionResponse.Option
-	5, // 3: common.v1.TreeOptionResponse.Option.children:type_name -> common.v1.TreeOptionResponse.Option
-	7, // 4: common.v1.AppTreeOptionResponse.Option.children:type_name -> common.v1.AppTreeOptionResponse.Option
+	4, // 0: common.v1.TreeOptionResponse.list:type_name -> common.v1.TreeOptionResponse.Option
+	5, // 1: common.v1.SelectOptionResponse.list:type_name -> common.v1.SelectOptionResponse.Option
+	6, // 2: common.v1.AppTreeOptionResponse.list:type_name -> common.v1.AppTreeOptionResponse.Option
+	4, // 3: common.v1.TreeOptionResponse.Option.children:type_name -> common.v1.TreeOptionResponse.Option
+	6, // 4: common.v1.AppTreeOptionResponse.Option.children:type_name -> common.v1.AppTreeOptionResponse.Option
 	5, // [5:5] is the sub-list for method output_type
 	5, // [5:5] is the sub-list for method input_type
 	5, // [5:5] is the sub-list for extension type_name
@@ -553,7 +496,7 @@ func file_common_v1_common_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_common_v1_common_proto_rawDesc), len(file_common_v1_common_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   8,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defOrderService } from '@/api/app/order_info.ts'
+import { defOrderService } from '@/api/shop/app/order_info.ts'
 import { useAddressStore, useUserStore } from '@/stores'
 import type {
   ConfirmOrderInfoResponse,
@@ -10,21 +10,21 @@ import type {
   RepurchaseOrderInfoResponse,
   CreateOrderInfoGoods,
   CreateOrderInfoResponse,
-} from '@/rpc/app/v1/order_info'
-import type { BaseDictForm_DictItem } from '@/rpc/app/v1/base_dict'
-import type { RecommendContext } from '@/rpc/app/v1/recommend'
+} from '@/rpc/shop/app/v1/order_info'
+import type { BaseDictForm_DictItem } from '@/rpc/system/app/v1/base_dict'
+import type { RecommendContext } from '@/rpc/shop/app/v1/recommend'
 import { onLoad } from '@dcloudio/uni-app'
 import { computed, reactive, ref } from 'vue'
-import type { UserAddress } from '@/rpc/app/v1/user_address'
-import { defUserAddressService } from '@/api/app/user_address'
-import { defBaseDictService } from '@/api/app/base_dict'
+import type { UserAddress } from '@/rpc/shop/app/v1/user_address'
+import { defUserAddressService } from '@/api/shop/app/user_address'
+import { defBaseDictService } from '@/api/system/app/base_dict'
 import { formatSrc, formatPrice } from '@/utils'
 import {
   OrderPayChannel,
   OrderPayType,
   OrderTradeStatus,
   RecommendScene,
-} from '@/rpc/common/v1/enum'
+} from '@/rpc/shop/common/v1/enum'
 import {
   goodsDetailUrl,
   orderDetailUrl,

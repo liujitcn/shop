@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { defCommentService } from '@/api/app/comment'
-import type { CommentItem, CommentTagItem } from '@/rpc/app/v1/comment'
+import { defCommentInfoService } from '@/api/shop/app/comment'
+import type { CommentItem, CommentTagItem } from '@/rpc/shop/app/v1/comment'
 import { formatSrc } from '@/utils'
 import { goodsCommentListUrl } from '@/utils/navigation'
 import avatarImage from '@/static/images/avatar.png'
@@ -57,7 +57,7 @@ const loadOverview = async () => {
   }
   isLoading.value = true
   try {
-    const res = await defCommentService.GoodsCommentOverview({
+    const res = await defCommentInfoService.GoodsCommentOverview({
       goods_id: props.goods_id,
       preview_limit: 2,
     })
@@ -66,7 +66,7 @@ const loadOverview = async () => {
     recentGoodRateText.value = `${res.recent_good_rate || 0}%`
     commentSummaryContent.value = res.comment_summary?.content?.[0]?.content || ''
     previewList.value = res.preview_comments || []
-    const tagRes = await defCommentService.GoodsCommentTag({
+    const tagRes = await defCommentInfoService.GoodsCommentTag({
       goods_id: props.goods_id,
       limit: COMMENT_TAG_LIMIT,
     })

@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import type { InputNumberBoxEvent } from '@/components/input-number-box/input-number-box'
 import { useGuessList } from '@/composables'
-import { defUserCartService } from '@/api/app/user_cart'
-import type { UserCart, UserCartStore } from '@/rpc/app/v1/user_cart'
+import { defUserCartService } from '@/api/shop/app/user_cart'
+import type { UserCart, UserCartStore } from '@/rpc/shop/app/v1/user_cart'
 import { useUserStore } from '@/stores'
 import { onShow } from '@dcloudio/uni-app'
 import { computed, ref } from 'vue'
 import { formatSrc, formatPrice } from '@/utils'
-import { RecommendScene } from '@/rpc/common/v1/enum'
+import { RecommendScene } from '@/rpc/shop/common/v1/enum'
 import {
   goodsDetailUrl,
   navigateToLogin,

@@ -14,7 +14,7 @@ import (
 	basev1 "shop/api/gen/go/base/v1"
 	commonv1 "shop/api/gen/go/common/v1"
 	"shop/pkg/gen/models"
-	"shop/pkg/utils"
+	"shop/service/base/utils"
 
 	"github.com/liujitcn/go-utils/crypto"
 	"github.com/liujitcn/go-utils/id"

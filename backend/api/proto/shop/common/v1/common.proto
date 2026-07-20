@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package shop.common.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+
+// 评价摘要内容项
+message CommentSummaryContentItem {
+  string label = 1 [(gnostic.openapi.v3.property) = {description: "摘要标签"}]; // 摘要标签
+
+  string content = 2 [(gnostic.openapi.v3.property) = {description: "摘要内容"}]; // 摘要内容
+}

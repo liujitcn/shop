@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ShopService } from '@/rpc/app/v1/shop_service'
+import type { ShopService } from '@/rpc/shop/app/v1/shop_service'
 // 定义 props 接收
 defineProps<{
   list: ShopService[]

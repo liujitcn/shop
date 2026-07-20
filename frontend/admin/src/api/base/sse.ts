@@ -1,6 +1,6 @@
 import { EventStreamContentType, fetchEventSource, type EventSourceMessage } from "@microsoft/fetch-event-source";
 import type { SubscribeSseRequest } from "@/rpc/base/v1/sse";
-import type { CodeGenTask } from "@/rpc/admin/v1/code_gen";
+import type { CodeGenTask } from "@/rpc/system/admin/v1/code_gen";
 import { SseEvent, SseRefreshReason, SseRefreshTarget, SseStream } from "@/rpc/common/v1/enum";
 import { getRequestAccessToken, handleAuthExpired } from "@/utils/request";
 

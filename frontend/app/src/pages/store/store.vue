@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { defGoodsInfoService } from '@/api/app/goods_info'
-import { defTenantStoreService } from '@/api/app/tenant_store'
-import type { GoodsInfo } from '@/rpc/app/v1/goods_info'
-import type { TenantStore } from '@/rpc/app/v1/tenant_store'
+import { defGoodsInfoService } from '@/api/shop/app/goods_info'
+import { defTenantStoreService } from '@/api/shop/app/tenant_store'
+import type { GoodsInfo } from '@/rpc/shop/app/v1/goods_info'
+import type { TenantStore } from '@/rpc/shop/app/v1/tenant_store'
 import { formatPrice, formatSrc } from '@/utils'
 import { goodsDetailUrl, homeTabPage } from '@/utils/navigation'
 import { onLoad } from '@dcloudio/uni-app'

@@ -1,4 +1,4 @@
-import type { UserAddress } from '@/rpc/app/v1/user_address'
+import type { UserAddress } from '@/rpc/shop/app/v1/user_address'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 

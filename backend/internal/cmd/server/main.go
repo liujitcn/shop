@@ -2,10 +2,10 @@ package main
 
 import (
 	"context"
-	configv1 "shop/api/gen/go/config/v1"
-	"shop/pkg/config"
+
+	configv1 "shop/api/gen/go/shop/config/v1"
 	"shop/pkg/job"
-	adminbiz "shop/service/admin/biz"
+	"shop/service/shop/config"
 
 	bootstrapConfigv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 
@@ -56,21 +56,10 @@ var (
 // newApp 组装应用实例并挂载定时任务、GRPC 与 HTTP 服务。
 func newApp(
 	ctx *bootstrap.Context,
-	baseRoleCase *adminbiz.BaseRoleCase,
-	casbinRuleCase *adminbiz.CasbinRuleCase,
 	cron *job.CronServer,
 	gs *grpc.Server,
 	hs *http.Server,
-) (*kratos.App, error) {
-	err := baseRoleCase.SyncTenantRoleMenus(ctx.Context())
-	if err != nil {
-		return nil, err
-	}
-	err = casbinRuleCase.RebuildAllCasbinRules(ctx.Context())
-	if err != nil {
-		return nil, err
-	}
-
+) *kratos.App {
 	servers := make([]kratosTransport.Server, 0, 3)
 	if cron != nil {
 		servers = append(servers, cron)
@@ -81,7 +70,7 @@ func newApp(
 	if hs != nil {
 		servers = append(servers, hs)
 	}
-	return bootstrap.NewApp(ctx, servers...), nil
+	return bootstrap.NewApp(ctx, servers...)
 }
 
 // main 作为服务启动入口，负责执行应用启动并在失败时中止进程。

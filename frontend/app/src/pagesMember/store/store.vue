@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import { defUserStoreService } from '@/api/app/user_store'
+import { defUserStoreService } from '@/api/shop/app/user_store'
 import { onLoad } from '@dcloudio/uni-app'
 import { computed, ref } from 'vue'
-import { defBaseAreaService } from '@/api/app/base_area'
+import { defBaseAreaService } from '@/api/system/app/base_area'
 import type { FileInfo } from '@/rpc/base/v1/file'
 import type { AppTreeOptionResponse_Option } from '@/rpc/common/v1/common'
-import { Status, UserStoreStatus } from '@/rpc/common/v1/enum'
-import type { UserStore, UserStoreForm } from '@/rpc/app/v1/user_store'
+import { Status } from '@/rpc/common/v1/enum'
+import { UserStoreStatus } from '@/rpc/shop/common/v1/enum'
+import type { UserStore, UserStoreForm } from '@/rpc/shop/app/v1/user_store'
 import { getFileInfo, multiUploadFile, uploadFileList } from '@/utils/file.ts'
 
 const imageStyles = {

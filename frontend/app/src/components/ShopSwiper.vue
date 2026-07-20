@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { ShopBanner } from '@/rpc/app/v1/shop_banner'
+import type { ShopBanner } from '@/rpc/shop/app/v1/shop_banner'
 import { ref } from 'vue'
 import { formatSrc } from '@/utils'
-import { ShopBannerType } from '@/rpc/common/v1/enum.ts'
+import { ShopBannerType } from '@/rpc/shop/common/v1/enum.ts'
 
 const activeIndex = ref(0)
 

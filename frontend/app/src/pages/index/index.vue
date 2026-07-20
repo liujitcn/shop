@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { defGoodsCategoryService } from '@/api/app/goods_category'
-import { defShopBannerService } from '@/api/app/shop_banner'
-import { defShopHotService } from '@/api/app/shop_hot'
-import type { ShopBanner } from '@/rpc/app/v1/shop_banner'
-import type { GoodsCategory } from '@/rpc/app/v1/goods_category'
-import type { ShopHot } from '@/rpc/app/v1/shop_hot'
+import { defGoodsCategoryService } from '@/api/shop/app/goods_category'
+import { defShopBannerService } from '@/api/shop/app/shop_banner'
+import { defShopHotService } from '@/api/shop/app/shop_hot'
+import type { ShopBanner } from '@/rpc/shop/app/v1/shop_banner'
+import type { GoodsCategory } from '@/rpc/shop/app/v1/goods_category'
+import type { ShopHot } from '@/rpc/shop/app/v1/shop_hot'
 import { onLoad, onShow } from '@dcloudio/uni-app'
 import { computed, ref } from 'vue'
 import CustomNavbar from './components/CustomNavbar.vue'
@@ -13,7 +13,7 @@ import HotPanel from './components/HotPanel.vue'
 import PageSkeleton from './components/PageSkeleton.vue'
 import { useGuessList } from '@/composables'
 import { useSettingStore } from '@/stores'
-import { RecommendScene, ShopBannerSite } from '@/rpc/common/v1/enum'
+import { RecommendScene, ShopBannerSite } from '@/rpc/shop/common/v1/enum'
 
 const settingStore = useSettingStore()
 // 获取轮播图数据

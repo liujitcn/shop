@@ -99,7 +99,7 @@ func (r *Runner) Run(ctx context.Context, request Request) (*Result, error) {
 	}
 	// ADK 事件全部消费后仍没有助手消息，说明模型没有产出可落库的最终回复。
 	if messageValue == nil {
-		return nil, fmt.Errorf("ai assistant response is empty")
+		return nil, fmt.Errorf("ai ai response is empty")
 	}
 	token := recorder.TotalToken()
 	// 部分模型或中间件链路不会触发统计回调，此时直接从最终消息上兜底提取 token。
@@ -174,7 +174,7 @@ func consumeEvents(iter *einoadk.AsyncIterator[*einoadk.TypedAgentEvent[*schema.
 		}
 		// 非流式事件也可能携带助手文本；只有尚未通过 chunk 透传过文本时才推给前端，避免 SSE 重复显示最终消息。
 		if stream && onDelta != nil && streamText.Len() == 0 && messageOutput.AgenticRole == schema.AgenticRoleTypeAssistant && !hasToolCall(currentMessage) {
-			if text := message.AssistantTextOnly(currentMessage); text != "" {
+			if text := message.AITextOnly(currentMessage); text != "" {
 				streamText.WriteString(text)
 				onDelta(text)
 			}
@@ -186,7 +186,7 @@ func consumeEvents(iter *einoadk.AsyncIterator[*einoadk.TypedAgentEvent[*schema.
 	}
 	// 个别流式模型只返回 chunk，没有最终 message 事件，此时用已透传文本拼出最终回复。
 	if finalMessage == nil && streamText.Len() > 0 {
-		finalMessage = message.AssistantText(streamText.String())
+		finalMessage = message.AIText(streamText.String())
 	}
 	return finalMessage, nil
 }
@@ -223,7 +223,7 @@ func consumeMessageStream(
 		if !stream || onDelta == nil || chunk.Role != schema.AgenticRoleTypeAssistant || hasToolCall(chunk) {
 			continue
 		}
-		text := message.AssistantTextOnly(chunk)
+		text := message.AITextOnly(chunk)
 		// 空文本 chunk 可能只携带元数据或服务端工具事件，不能作为用户可见增量。
 		if text == "" {
 			continue

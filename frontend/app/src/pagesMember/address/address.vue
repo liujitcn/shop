@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { defUserAddressService } from '@/api/app/user_address'
+import { defUserAddressService } from '@/api/shop/app/user_address'
 import { useAddressStore } from '@/stores'
-import type { UserAddress } from '@/rpc/app/v1/user_address'
+import type { UserAddress } from '@/rpc/shop/app/v1/user_address'
 import { onShow } from '@dcloudio/uni-app'
 import { ref } from 'vue'
 

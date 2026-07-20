@@ -4,7 +4,7 @@ import { RouteRecordRaw } from "vue-router";
 import { ElNotification } from "element-plus";
 import { useUserStore } from "@/stores/modules/user";
 import { useAuthStore } from "@/stores/modules/auth";
-import type { RouteItem } from "@/rpc/admin/v1/auth";
+import type { RouteItem } from "@/rpc/system/admin/v1/auth";
 import { getRouteMetaFull } from "@/utils";
 
 // 引入 views 文件夹下所有 vue 文件
@@ -81,7 +81,7 @@ function buildResolvedRouteItems(menuList: RouteItem[], parentPath = ""): Resolv
 }
 
 /**
- * 规范化组件路径，兼容不同返回形式。
+ * 规范化组件路径，移除源码目录和扩展名以匹配任意业务目录。
  */
 function normalizeComponentPath(component?: string) {
   if (!component) return "";

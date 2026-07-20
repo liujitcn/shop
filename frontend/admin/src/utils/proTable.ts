@@ -1,5 +1,5 @@
 import type { EnumProps } from "@/components/ProTable/interface";
-import type { OptionBaseDictResponse_BaseDictItem } from "@/rpc/admin/v1/base_dict";
+import type { OptionBaseDictResponse_BaseDictItem } from "@/rpc/system/admin/v1/base_dict";
 import { useDictStoreHook } from "@/stores/modules/dict";
 
 /** 字典值输出给表格枚举时的目标类型。 */

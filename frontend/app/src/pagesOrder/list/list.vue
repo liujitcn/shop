@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import OrderList from './components/OrderList.vue'
-import { OrderInfoStatus, OrderTradeStatus } from '@/rpc/common/v1/enum.ts'
+import { OrderInfoStatus, OrderTradeStatus } from '@/rpc/shop/common/v1/enum.ts'
 import { useUserStore } from '@/stores'
 import { navigateToLogin } from '@/utils/navigation'
 import type { OrderListFilter } from '@/utils/order'

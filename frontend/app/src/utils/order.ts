@@ -1,5 +1,5 @@
-import type { OrderInfo, PageOrderInfoRequest } from '@/rpc/app/v1/order_info'
-import { OrderInfoStatus, OrderRefundStatus, OrderTradeStatus } from '@/rpc/common/v1/enum'
+import type { OrderInfo, PageOrderInfoRequest } from '@/rpc/shop/app/v1/order_info'
+import { OrderInfoStatus, OrderRefundStatus, OrderTradeStatus } from '@/rpc/shop/common/v1/enum'
 
 /** 商城端订单列表支持的后端筛选条件。 */
 export type OrderListFilter = Pick<

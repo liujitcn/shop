@@ -54,7 +54,7 @@ import { useRoute, useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/modules/auth";
 import { useConfigStore } from "@/stores/modules/config";
 import { useGlobalStore } from "@/stores/modules/global";
-import type { RouteItem } from "@/rpc/admin/v1/auth";
+import type { RouteItem } from "@/rpc/system/admin/v1/auth";
 import { getRouteMetaIcon, getRouteMetaTitle, isExternalPath } from "@/utils";
 import Main from "@/layouts/components/Main/index.vue";
 import ToolBarLeft from "@/layouts/components/Header/ToolBarLeft.vue";

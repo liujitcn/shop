@@ -1,8 +1,8 @@
 import { defineStore } from "pinia";
-import { defAuthService } from "@/api/admin/auth";
+import { defAuthService } from "@/api/system/admin/auth";
 import { defLoginService } from "@/api/base/login";
 import type { LoginRequest } from "@/rpc/base/v1/login";
-import type { UserInfoForm } from "@/rpc/admin/v1/auth";
+import type { UserInfoForm } from "@/rpc/system/admin/v1/auth";
 import { UserState } from "@/stores/interface";
 import piniaPersistConfig from "@/stores/helper/persist";
 import { useDictStoreHook } from "@/stores/modules/dict";

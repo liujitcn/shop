@@ -22,7 +22,7 @@
 
 <script setup lang="ts">
 import { useRouter } from "vue-router";
-import type { RouteItem } from "@/rpc/admin/v1/auth";
+import type { RouteItem } from "@/rpc/system/admin/v1/auth";
 import { getRouteMetaAlwaysShow, getRouteMetaHidden, getRouteMetaIcon, getRouteMetaTitle, isExternalPath } from "@/utils";
 
 defineProps<{ menuList: RouteItem[] }>();

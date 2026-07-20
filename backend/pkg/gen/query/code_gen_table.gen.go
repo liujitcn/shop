@@ -33,6 +33,7 @@ func newCodeGenTable(db *gorm.DB, opts ...gen.DOOption) codeGenTable {
 	_codeGenTable.BusinessName = field.NewString(tableName, "business_name")
 	_codeGenTable.EntityName = field.NewString(tableName, "entity_name")
 	_codeGenTable.ModulePath = field.NewString(tableName, "module_path")
+	_codeGenTable.APIPath = field.NewString(tableName, "api_path")
 	_codeGenTable.PermissionPrefix = field.NewString(tableName, "permission_prefix")
 	_codeGenTable.ParentMenuID = field.NewInt64(tableName, "parent_menu_id")
 	_codeGenTable.PageType = field.NewString(tableName, "page_type")
@@ -66,6 +67,7 @@ type codeGenTable struct {
 	BusinessName     field.String // 业务名
 	EntityName       field.String // 实体名
 	ModulePath       field.String // 模块路径
+	APIPath          field.String // Proto目录
 	PermissionPrefix field.String // 权限标识前缀
 	ParentMenuID     field.Int64  // 父级菜单ID
 	PageType         field.String // 页面类型：normal普通表格 tree树形表格 left_tree左树右表
@@ -104,6 +106,7 @@ func (c *codeGenTable) updateTableName(table string) *codeGenTable {
 	c.BusinessName = field.NewString(table, "business_name")
 	c.EntityName = field.NewString(table, "entity_name")
 	c.ModulePath = field.NewString(table, "module_path")
+	c.APIPath = field.NewString(table, "api_path")
 	c.PermissionPrefix = field.NewString(table, "permission_prefix")
 	c.ParentMenuID = field.NewInt64(table, "parent_menu_id")
 	c.PageType = field.NewString(table, "page_type")
@@ -148,13 +151,14 @@ func (c *codeGenTable) GetFieldByName(fieldName string) (field.OrderExpr, bool) 
 }
 
 func (c *codeGenTable) fillFieldMap() {
-	c.fieldMap = make(map[string]field.Expr, 22)
+	c.fieldMap = make(map[string]field.Expr, 23)
 	c.fieldMap["id"] = c.ID
 	c.fieldMap["name"] = c.Name
 	c.fieldMap["comment"] = c.Comment
 	c.fieldMap["business_name"] = c.BusinessName
 	c.fieldMap["entity_name"] = c.EntityName
 	c.fieldMap["module_path"] = c.ModulePath
+	c.fieldMap["api_path"] = c.APIPath
 	c.fieldMap["permission_prefix"] = c.PermissionPrefix
 	c.fieldMap["parent_menu_id"] = c.ParentMenuID
 	c.fieldMap["page_type"] = c.PageType

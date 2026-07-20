@@ -5,10 +5,10 @@ import (
 	"strings"
 	"time"
 
-	"shop/pkg/job/task"
+	systemcommonv1 "shop/api/gen/go/system/common/v1"
+
 	"shop/pkg/queue"
 
-	commonv1 "shop/api/gen/go/common/v1"
 	_const "shop/pkg/const"
 	"shop/pkg/gen/models"
 
@@ -19,8 +19,8 @@ import (
 type ExecJob struct {
 	JobID        int64             // 任务ID
 	Args         map[string]string // 任务参数
-	InvokeTarget task.TaskExec
-	Status       commonv1.BaseJobLogStatus
+	InvokeTarget TaskExec
+	Status       systemcommonv1.BaseJobLogStatus
 	ErrMsg       string
 }
 
@@ -40,10 +40,10 @@ func (e *ExecJob) Execute() (err error) {
 		}
 
 		if err != nil {
-			e.Status = commonv1.BaseJobLogStatus(_const.BASE_JOB_LOG_STATUS_FAIL)
+			e.Status = systemcommonv1.BaseJobLogStatus(_const.BASE_JOB_LOG_STATUS_FAIL)
 			e.ErrMsg = err.Error()
 		} else {
-			e.Status = commonv1.BaseJobLogStatus(_const.BASE_JOB_LOG_STATUS_SUCCESS)
+			e.Status = systemcommonv1.BaseJobLogStatus(_const.BASE_JOB_LOG_STATUS_SUCCESS)
 			e.ErrMsg = ""
 		}
 		baseJobLog.Output = strings.Join(ret, "<br/>")

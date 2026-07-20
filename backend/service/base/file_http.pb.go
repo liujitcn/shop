@@ -6,10 +6,11 @@ import (
 	"io"
 	"mime/multipart"
 	"path"
-	_const "shop/pkg/const"
 	"strconv"
 	"strings"
 	"time"
+
+	_const "shop/pkg/const"
 
 	basev1 "shop/api/gen/go/base/v1"
 

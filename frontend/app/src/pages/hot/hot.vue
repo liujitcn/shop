@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { defShopHotService } from '@/api/app/shop_hot'
-import type { ShopHotItem } from '@/rpc/app/v1/shop_hot'
-import type { GoodsInfo } from '@/rpc/app/v1/goods_info'
+import { defShopHotService } from '@/api/shop/app/shop_hot'
+import type { ShopHotItem } from '@/rpc/shop/app/v1/shop_hot'
+import type { GoodsInfo } from '@/rpc/shop/app/v1/goods_info'
 import { onLoad } from '@dcloudio/uni-app'
 import { ref } from 'vue'
 import { formatSrc, formatPrice } from '@/utils'

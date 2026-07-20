@@ -1,5 +1,5 @@
-import type { RouteItem, UserInfoForm } from "@/rpc/admin/v1/auth";
-import type { OptionBaseDictResponse_BaseDictItem } from "@/rpc/admin/v1/base_dict";
+import type { RouteItem, UserInfoForm } from "@/rpc/system/admin/v1/auth";
+import type { OptionBaseDictResponse_BaseDictItem } from "@/rpc/system/admin/v1/base_dict";
 
 /** 后台整体布局模式。 */
 export type LayoutType = "vertical" | "classic" | "transverse" | "columns";

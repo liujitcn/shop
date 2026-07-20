@@ -6,11 +6,12 @@ import (
 	"fmt"
 	"log/slog"
 	"net/url"
+	"strings"
+	"time"
+
 	basev1 "shop/api/gen/go/base/v1"
 	"shop/pkg/gen/data"
 	"shop/pkg/queue"
-	"strings"
-	"time"
 
 	_const "shop/pkg/const"
 	"shop/pkg/gen/models"

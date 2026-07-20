@@ -6,14 +6,6 @@
 
 /* eslint-disable */
 
-/** 评价摘要内容项 */
-export interface CommentSummaryContentItem {
-  /** 摘要标签 */
-  label: string;
-  /** 摘要内容 */
-  content: string;
-}
-
 /** 状态设置请求参数 */
 export interface SetStatusRequest {
   /** 主键id */

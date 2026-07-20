@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { GoodsInfo } from '@/rpc/app/v1/goods_info'
+import type { GoodsInfo } from '@/rpc/shop/app/v1/goods_info'
 import { ref } from 'vue'
 import { formatPrice, formatSrc } from '@/utils'
 import { goodsDetailUrl } from '@/utils/navigation'

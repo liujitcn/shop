@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { onLoad, onUnload } from '@dcloudio/uni-app'
-import { defOrderService } from '@/api/app/order_info'
+import { defOrderService } from '@/api/shop/app/order_info'
 import { useGuessList } from '@/composables'
-import type { OrderInfoResponse } from '@/rpc/app/v1/order_info'
-import { OrderPayType, OrderTradeStatus, RecommendScene } from '@/rpc/common/v1/enum'
+import type { OrderInfoResponse } from '@/rpc/shop/app/v1/order_info'
+import { OrderPayType, OrderTradeStatus, RecommendScene } from '@/rpc/shop/common/v1/enum'
 import { homeTabPage, orderDetailUrl } from '@/utils/navigation'
 
 // 获取页面参数

@@ -12,7 +12,7 @@
 frontend/app
 ├── public                 # H5 静态资源
 ├── src
-│   ├── api                # app / base 接口 service 封装
+│   ├── api                # base、system/app、shop/app 接口 service 封装
 │   ├── components         # 通用组件与 SKU 等业务组件
 │   ├── composables        # 组合式逻辑
 │   ├── pages              # 主包页面
@@ -47,7 +47,7 @@ frontend/app
 
 会员分包 `src/pagesMember`：
 
-- 设置、个人信息、收货地址、收藏、门店认证。
+- 设置、个人信息、收货地址、收藏、门店认证、AI 助手。
 
 订单分包 `src/pagesOrder`：
 
@@ -160,10 +160,11 @@ pnpm lint
 ## 接口、状态与生成代码
 
 - 业务接口统一通过 `src/api` 下的 service 发起，不要在页面里直接手写 `uni.request`。
+- API 目录与 proto 包对应：`src/api/base` 对应 `base.v1`，`src/api/system/app` 对应 `system.app.v1`，`src/api/shop/app` 对应 `shop.app.v1`；创建订单等下单能力由 `src/api/shop/app/order_info.ts` 提供。
 - 通用请求、鉴权、刷新 token、错误提示逻辑集中在 `src/utils/http.ts`。
 - Token 读写统一走 `src/utils/auth.ts`。
 - 全局共享状态放在 `src/stores/modules`，并通过 `src/stores/index.ts` 汇总。
-- 后端 proto 生成的 RPC 代码位于 `src/rpc`，由后端 `make ts` 生成，不手工维护等价类型。
+- 后端 proto 生成的 RPC 代码位于 `src/rpc`，由后端 `make ts` 生成，不手工维护等价类型；商城端业务类型分别位于 `src/rpc/system/app/v1` 与 `src/rpc/shop/app/v1`。
 - `src/rpc` 属于生成产物，ESLint 配置默认忽略该目录；协议或生成结果变化应回到后端生成链路处理。
 
 ## 多端兼容
@@ -181,6 +182,7 @@ pnpm lint
 | [订单数据流转设计](../../docs/订单数据流转设计.md) | 确认单、下单、支付、退款、收货、评价和删除流程。 |
 | [推荐数据流转设计](../../docs/推荐数据流转设计.md) | 匿名 ID、推荐请求、曝光点击、收藏加购和交易事件回写。 |
 | [评价与审核数据流转设计](../../docs/评价与审核数据流转设计.md) | 前台评价展示、写评价、讨论、互动和审核可见性。 |
+| [AI 助手设计](../../docs/AI助手设计.md) | 商城 AI 助手会话、结构化流程卡片和 SSE 消费。 |
 
 ## 校验
 

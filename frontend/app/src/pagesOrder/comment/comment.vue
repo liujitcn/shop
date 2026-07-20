@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { defCommentService } from '@/api/app/comment'
+import { defCommentInfoService } from '@/api/shop/app/comment'
 import { uploadFileList } from '@/utils/file'
 
 const COMMENT_CENTER_DONE_PAGE = '/pagesOrder/comment/center?tab=done'
@@ -90,7 +90,7 @@ const onPublish = async () => {
 
   isSubmitting.value = true
   try {
-    await defCommentService.CreateComment({
+    await defCommentInfoService.CreateComment({
       order_id: routeOrderId.value,
       goods_id: routeGoodsId.value,
       sku_code: String(query.sku_code || '').trim(),

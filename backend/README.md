@@ -7,14 +7,14 @@
 ```text
 backend
 ├── api
-│   ├── protos          # admin / app / base / common / conf proto 契约
+│   ├── proto           # base、common、system、shop 四个业务域的 proto 契约
 │   └── gen/go          # proto 生成的 Go 代码
 ├── configs             # 服务运行配置
 ├── data                # 本地 OSS、日志、前端构建产物
 ├── internal/cmd/server # 实际启动入口、Wire 入口、内嵌 OpenAPI
-├── pkg                 # 公共能力、生成模型、队列、任务、推荐、微信支付
-├── server              # HTTP / gRPC Server 装配
-└── service             # admin / app / base 业务服务
+├── pkg                 # 系统配置、公共能力、生成模型、队列、任务、推荐、微信支付
+├── server              # base、system、shop 的 HTTP / gRPC / MCP 装配
+└── service             # base、system、shop 业务服务与领域用例
 ```
 
 ## 环境要求
@@ -36,7 +36,7 @@ backend
 | `configs/oauth.yaml`、`configs/oauth_local.yaml` | 三方登录与微信小程序 OAuth Provider 默认示例及本地应用密钥、回调地址与授权范围配置。 |
 | `configs/configs.yaml` | 通用业务配置。 |
 | `configs/configs_local.yaml` | 本地微信支付、推荐等业务配置。 |
-| `configs/ai.yaml`、`configs/local.yaml` | 大模型默认配置与本地覆盖配置。 |
+| `configs/ai.yaml`、`configs/ai_local.yaml` | 大模型默认配置与本地覆盖配置。 |
 | `configs/logger.yaml`、`trace.yaml`、`pprof.yaml`、`registry.yaml` | 日志、链路追踪、性能分析、注册中心相关配置。 |
 
 默认数据库连接在 `configs/data.yaml`：
@@ -95,7 +95,7 @@ mysql -uroot -p shop_test < sql/shop.sql
 - `super / 112233`
 - `admin / 112233`
 
-管理后台登录页不默认填充租户编码，需要用户手动输入；默认租户编码为 `0000`。`sql/default-data.sql` 维护默认租户、接口、菜单、固定角色、用户和统计表结构升级段；默认角色固定为 `super(1)`、`tenant(2)`、`admin(3)`、`user(4)`、`guest(5)`。角色列表展示 `super` 和各租户的 `tenant` 内置角色；`super`、普通租户自己的 `tenant` 及其他租户的 `tenant` 禁止操作，默认租户自己的 `tenant` 权限模板允许编辑、删除、分配权限和启用/禁用。模板软删除后，默认租户可重新创建 `code=tenant` 的角色以恢复原记录，并将菜单重新同步到普通租户副本。默认租户为普通租户的自定义角色分配权限时，以目标租户的 `tenant` 角色作为权限上限。后端每次启动会将默认租户的 `tenant` 角色菜单同步到所有普通租户，再按所有角色的菜单和接口关系重建租户化 Casbin 策略，策略动作使用真实 HTTP Method。用户账号创建后禁止通过用户管理修改；绑定 `super` 或 `tenant` 内置角色的管理员账号禁止通过用户管理执行详情读取、编辑、删除、状态切换和重置密码，只能登录后通过个人中心维护自身资料、手机号和密码。用户与角色分页响应统一通过末位字段 `is_protected = 300` 提供管理保护标记，前端不再自行推断；角色和用户批量删除均要求请求中的全部 ID 可见且允许操作。受保护资源操作统一返回 `409 CONFLICT`。存量库升级统计租户字段后，需要按历史统计日期重跑 `GoodsStatDay` 和 `OrderStatDay` 任务。
+管理后台登录页不默认填充租户编码，需要用户手动输入；默认租户编码为 `0000`。`sql/default-data.sql` 维护默认租户、菜单、固定角色、用户和统计表结构升级段；后端启动时使用 GORM 执行 `TRUNCATE` 清空 `base_api`、`casbin_rule` 并重置自增 ID，根据当前 OpenAPI 重新生成接口元数据，再将默认租户的 `tenant` 角色菜单同步到所有普通租户，并按所有角色的菜单和接口关系重建租户化 Casbin 策略，策略动作使用真实 HTTP Method。默认角色固定为 `super(1)`、`tenant(2)`、`admin(3)`、`user(4)`、`guest(5)`。角色列表展示 `super` 和各租户的 `tenant` 内置角色；`super`、普通租户自己的 `tenant` 及其他租户的 `tenant` 禁止操作，默认租户自己的 `tenant` 权限模板允许编辑、删除、分配权限和启用/禁用。模板软删除后，默认租户可重新创建 `code=tenant` 的角色以恢复原记录，并将菜单重新同步到普通租户副本。默认租户为普通租户的自定义角色分配权限时，以目标租户的 `tenant` 角色作为权限上限。用户账号创建后禁止通过用户管理修改；绑定 `super` 或 `tenant` 内置角色的管理员账号禁止通过用户管理执行详情读取、编辑、删除、状态切换和重置密码，只能登录后通过个人中心维护自身资料、手机号和密码。用户与角色分页响应统一通过末位字段 `is_protected = 300` 提供管理保护标记，前端不再自行推断；角色和用户批量删除均要求请求中的全部 ID 可见且允许操作。受保护资源操作统一返回 `409 CONFLICT`。存量库升级统计租户字段后，需要按历史统计日期重跑 `GoodsStatDay` 和 `OrderStatDay` 任务。
 
 订单链路使用 `order_trade` 聚合整笔支付和取消，`order_info` 按门店独立履约和退款；单门店与多门店走同一创建流程。`OrderStatDay` 分别按支付成功、交易创建、取消创建和退款成功时间汇总事实，`OrderRefundRetry` 定时补查结果不确定的微信退款。
 
@@ -119,7 +119,7 @@ make gen
 
 - `make init`：安装 Go / proto / buf / wire / goimports 等开发工具。
 - `make fmt`：使用 `goimports` 格式化 Go 文件。
-- `make api`：根据 `api/protos` 生成 Go 接口代码到 `api/gen/go`，并整理生成文件的导入。
+- `make api`：根据 `api/proto/{base,common,shop,system}` 生成 Go 接口代码到 `api/gen/go`，并整理生成文件的导入。
 - `make openapi`：生成 OpenAPI 文档到 `internal/cmd/server/assets/openapi.yaml`。
 - `make ts`：生成管理后台和商城端 RPC TypeScript 代码，需先在前端模块执行 `pnpm install`。
 - `make gorm-gen`：按当前数据库生成 `pkg/gen` 下的数据模型、查询对象和仓储代码。
@@ -134,19 +134,19 @@ make gen
 - `../frontend/admin/src/rpc`
 - `../frontend/app/src/rpc`
 
-当前 `base` 公共接口内已包含 AI 助手接口，路径前缀为 `/api/v1/base/ai/assistant`。会话与消息会持久化到 `ai_assistant_session`、`ai_assistant_message` 两张表；对话主链已经切到 `github.com/cloudwego/eino` 的消息与模型接口，并明确使用以下能力：
+当前 `base` 公共接口内已包含 AI 助手接口，路径前缀为 `/api/v1/base/ai`。会话与消息会持久化到 `ai_session`、`ai_message` 两张表；对话主链已经切到 `github.com/cloudwego/eino` 的消息与模型接口，并明确使用以下能力：
 
 - `context`：每轮调用会把当前终端、用户名称、会话标题、摘要和历史消息组装为 Eino 消息列表。
-- `tools`：AI 助手启动时会注册 `api/gen/go` 下已生成的 admin / app Agent 工具，并从当前终端可用工具中挑选相关内部 function tool，在需要时执行工具调用后回填结果；消息完成后会保存工具名称、状态、原始入参与原始出参，便于后台排查。
+- `tools`：AI 助手启动时会注册 `api/gen/go` 下已生成的 `system` / `shop` Admin、App Agent 工具，并从当前终端可用工具中挑选相关内部 function tool，在需要时执行工具调用后回填结果；消息完成后会保存工具名称、状态、原始入参与原始出参，便于后台排查。
 - `web search`：AI 助手仍保留 Responses Provider 默认启用的 `web_search` 工具，用于补充公开实时信息。
 - `prompts`：AI 助手标准提示词内置在代码中，并结合当前会话上下文渲染为系统消息。
-- `shortcuts`：`/api/v1/base/ai/assistant/shortcut` 按 `terminal` 和当前实际启用的 Agent 工具一次性返回快捷入口，前端只做本地切换展示，不再维护固定快捷问题数组。
-- `direct stream`：管理端 AI 助手通过 `/api/v1/base/ai/assistant/session/{sessionId}/message` 直连 SSE 推送增量文本，发送接口会在完成事件中返回本轮消息，避免占用工作台共用 `/events` 流。
+- `shortcuts`：`/api/v1/base/ai/shortcut` 按 `terminal` 和当前实际启用的 Agent 工具一次性返回快捷入口，前端只做本地切换展示，不再维护固定快捷问题数组。
+- `direct stream`：管理端 AI 助手通过 `/api/v1/base/ai/session/{sessionId}/message` 直连 SSE 推送增量文本，发送接口会在完成事件中返回本轮消息，避免占用工作台共用 `/events` 流。
 - `message status`：每轮消息使用 `GENERATING / SUCCESS / FAILED` 表达生成中、成功和失败状态，删除统一通过 `deleted_at` 逻辑删除。失败消息可通过 `/retry` 基于同一轮输入重新发送；助手输出可通过 `/regeneration` 基于同一轮输入重新生成；单轮消息删除会持久化到后端，回复完成后会同步刷新会话 `updated_at`。
 - `flow action state`：商城端闭环流程生成的按钮、表单和卡片动作会写入 `source_message_id`、`action_id` 与 `flow_version`，后端只接受来自当前会话最新成功消息且仍存在于 `blocks_json` 的动作，防止历史消息里的上一步操作被重复触发。
-- `branch session`：`/api/v1/base/ai/assistant/session/{sourceSessionId}/branch` 会复制锚点之前的成功消息，创建新的持久化分支会话。
+- `branch session`：`/api/v1/base/ai/session/{sourceSessionId}/branch` 会复制锚点之前的成功消息，创建新的持久化分支会话。
 
-其中 `ai_assistant_session.terminal` 已统一为终端枚举整型字段：`1` 表示商城端，`2` 表示管理端；对应的 proto 字段使用 `common.v1.Terminal`。
+其中 `ai_session.terminal` 已统一为终端枚举整型字段：`1` 表示商城端，`2` 表示管理端；对应的 proto 字段使用 `common.v1.Terminal`。
 
 消息结构按一轮一条记录返回：`input_content` 保存输入类型与正文，`output_content` 保存输出类型、正文、回复来源、模型名、是否降级和降级原因，`attachments` 保存附件列表，`tools` 保存本轮实际使用的工具列表及工具原始请求/响应，`token` 保存模型真实输入、输出、缓存和总 Token 统计，`first_token_ms` 与 `duration_ms` 分别保存首 Token 耗时和总耗时。管理端附件会先走 `/api/v1/base/file/multi` 上传到 OSS，再由 AI 助手在服务端读取图片附件字节作为多模态视觉输入，文本、JSON、XML、CSV 类附件内容会直接拼入当前用户消息供模型参考。
 
@@ -216,9 +216,9 @@ shop:
 
 推荐查询会优先使用已启用的 Gorse 责任链；Gorse 调用失败或未命中商品时，自动回退到本地推荐策略，避免推荐位因远端冷启动或暂时不可用而返回空结果。推荐与评价异步消费者统一设置 60 秒超时，防止外部服务长期无响应时占用消费协程。
 
-大模型默认配置在 `configs/ai.yaml` 的顶层 `ai.model` 下，本地覆盖配置放在 `configs/local.yaml`。评价审核、摘要和 AI 助手的标准提示词内置在代码中，不再通过商城配置覆盖。默认未配置有效密钥和模型时不会启用相关能力。评价图片审核会将本地 `/shop/*` 图片读取为多模态图片字节传给模型，避免把相对路径直接作为远端 `image_url` 使用；AI 助手会读取已上传附件中的图片字节作为视觉输入，文本类内容会拼入用户消息供模型参考。AI 助手的实时公开问题会由 OpenAI Responses API 的内置联网搜索工具补充上下文，评价审核和摘要不会启用联网搜索。评价审核和摘要使用 OpenAI 兼容 Chat Completions API，AI 助手使用 Responses API。`modelName`、`maxTokens`、`temperature`、`timeoutSeconds`、`maxRetries` 会传给对应模型接口；评论 Chat Completions 会省略 `temperature`，避免触发部分模型固定采样参数限制。模型判定不通过时必须返回具体违规类别、命中文本片段或图片序号和判定依据，缺少具体原因时会记录为审核异常等待人工复核。
+大模型默认配置在 `configs/ai.yaml` 的顶层 `ai.model` 下，本地覆盖配置放在 `configs/ai_local.yaml`。评价审核、摘要和 AI 助手的标准提示词内置在代码中，不再通过商城配置覆盖。默认未配置有效密钥和模型时不会启用相关能力。评价图片审核会将本地 `/shop/*` 图片读取为多模态图片字节传给模型，避免把相对路径直接作为远端 `image_url` 使用；AI 助手会读取已上传附件中的图片字节作为视觉输入，文本类内容会拼入用户消息供模型参考。AI 助手的实时公开问题会由 OpenAI Responses API 的内置联网搜索工具补充上下文，评价审核和摘要不会启用联网搜索。评价审核和摘要使用 OpenAI 兼容 Chat Completions API，AI 助手使用 Responses API。`modelName`、`maxTokens`、`temperature`、`timeoutSeconds`、`maxRetries` 会传给对应模型接口；评论 Chat Completions 会省略 `temperature`，避免触发部分模型固定采样参数限制。模型判定不通过时必须返回具体违规类别、命中文本片段或图片序号和判定依据，缺少具体原因时会记录为审核异常等待人工复核。
 
-`pkg/agent/provider` 只负责读取 `ai.model` 并调用 `github.com/liujitcn/kratos-kit/ai/eino` 装配评论 Chat 模型和 AI 助手 Responses 模型。
+`pkg/agent/eino/model` 负责读取 `ai.model` 并调用 `github.com/liujitcn/kratos-kit/ai/eino` 装配评论 Chat 模型和 AI 助手 Responses 模型；业务运行时分别位于 `service/base/agent/ai` 和评价审核相关服务。
 
 ## 设计文档
 
@@ -231,6 +231,8 @@ shop:
 | [推荐数据流转设计](../docs/推荐数据流转设计.md) | 匿名 ID、推荐请求、推荐事件、业务事实回写和同步任务。 |
 | [统计数据流转设计](../docs/统计数据流转设计.md) | 订单日统计、商品日统计、交易账单和后台分析口径。 |
 | [评价与审核数据流转设计](../docs/评价与审核数据流转设计.md) | 评价、讨论、评价摘要、审核和互动数据流转。 |
+| [AI 助手设计](../docs/AI助手设计.md) | 会话、消息、工具、SSE 与商城固定流程。 |
+| [业务域目录拆分设计](../docs/Proto目录拆分设计.md) | 当前 Proto、服务端与前端的 `system` / `shop` 分域结构。 |
 
 ## 校验
 

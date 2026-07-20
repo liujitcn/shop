@@ -36,7 +36,7 @@
 - 若新增业务同时涉及菜单、接口权限、表结构变更，以上脚本内容必须在同一次开发中一并完成，禁止拆成“代码已支持，但库表/API/菜单初始化后补”。
 - 新表落库后，再继续执行：
   1. 更新或生成 `pkg/gen/query` 等数据库访问代码。
-  2. 定义或更新 `api/protos` 下的接口契约。
+  2. 定义或更新 `api/proto` 下的接口契约。
   3. 生成 `api/gen` 与前端 `src/rpc` 相关类型。
   4. 实现 `service/biz` 逻辑与前端页面。
 - 若当前需求不引入新表，则从上述流程的“接口契约定义”步骤开始，不额外执行建表动作。
@@ -115,11 +115,11 @@
 
 ## Proto 契约补充约定
 - Proto 契约通用命名规则以 `.codex` 为主，本节仅保留当前项目补充约束。
-- proto package 必须带版本号，按终端或模块分层命名，例如 `admin.v1`、`app.v1`、`base.v1`、`common.v1`。
-- proto 文件目录必须与 package 对齐，版本号必须落到目录层级，例如 `api/protos/admin/v1/base_api.proto` 对应 `package admin.v1;`。
-- 当前项目内部 proto package 不加 `shop` 前缀；禁止新增 `shop.admin.v1`、`shop.app.v1`、`shop.base.v1`、`shop.common.v1`、`shop.conf.v1` 这类历史/已废弃写法。
-- Go 生成包 import 必须使用真实包名别名：`adminv1`、`appv1`、`basev1`、`commonv1`、`confv1`；生成 import path 必须带 `/v1`，禁止退回不带版本层级的历史路径。
-- 前端 TS 生成类型与业务 import 必须带 `/v1/` 目录层级，例如 `@/rpc/admin/v1/auth`、`@/rpc/app/v1/auth`、`@/rpc/base/v1/login`、`@/rpc/common/v1/enum`；禁止新增 `@/rpc/admin/auth` 这类历史/已废弃路径。
+- proto package 必须带版本号，按终端或模块分层命名，例如 `system.admin.v1`、`shop.admin.v1`、`system.app.v1`、`shop.app.v1`、`base.v1`、`common.v1`。
+- proto 文件目录必须与 package 对齐，版本号必须落到目录层级，例如 `api/proto/shop/admin/v1/goods_info.proto` 对应 `package shop.admin.v1;`。
+- 系统与商城 proto package 必须分别使用 `system`、`shop` 前缀；禁止新增未分组的 `admin.v1`、`app.v1`，以及不符合当前分层的 `shop.base.v1`、`shop.conf.v1` 等写法。
+- Go 生成包 import 必须使用真实包名别名：`systemadminv1`、`shopadminv1`、`systemappv1`、`shopappv1`、`basev1`、`commonv1`；生成 import path 必须带 `/v1`，禁止退回不带版本层级的历史路径。
+- 前端 TS 生成类型与业务 import 必须带 `/v1/` 目录层级，例如 `@/rpc/system/admin/v1/auth`、`@/rpc/shop/admin/v1/goods_info`、`@/rpc/system/app/v1/auth`、`@/rpc/shop/app/v1/goods_info`；禁止新增缺少模块分组或版本层级的历史路径。
 - 修改或新增 proto 时，必须同步检查 `api/gen`、后端 service/biz、前端 RPC 类型与调用处、OpenAPI、`sql/default-data.sql` 中的接口权限数据是否需要更新。
 
 ## HTTP 接口命名规范

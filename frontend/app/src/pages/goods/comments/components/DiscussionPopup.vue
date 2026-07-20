@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from 'vue'
-import { defCommentService } from '@/api/app/comment'
-import type { CommentDiscussionItem } from '@/rpc/app/v1/comment'
-import { CommentReactionTargetType, CommentReactionType } from '@/rpc/common/v1/enum'
+import { defCommentInfoService } from '@/api/shop/app/comment'
+import type { CommentDiscussionItem } from '@/rpc/shop/app/v1/comment'
+import { CommentReactionTargetType, CommentReactionType } from '@/rpc/shop/common/v1/enum'
 import { formatSrc } from '@/utils'
 import { navigateToLogin } from '@/utils/navigation'
 import { useUserStore } from '@/stores'
@@ -122,7 +122,7 @@ const loadDiscussionData = async (reset: boolean) => {
 
   const nextPageNum = reset ? 1 : currentPageNum.value + 1
   try {
-    const res = await defCommentService.PageCommentDiscussion({
+    const res = await defCommentInfoService.PageCommentDiscussion({
       comment_id: currentReviewId.value,
       page_num: nextPageNum,
       page_size: pageSize,
@@ -221,7 +221,7 @@ const onSubmitDiscussion = async () => {
 
   isSubmitting.value = true
   try {
-    const res = await defCommentService.CreateCommentDiscussion({
+    const res = await defCommentInfoService.CreateCommentDiscussion({
       comment_id: currentReviewId.value,
       content,
       parent_id: replyParentDiscussionId.value || 0,
@@ -252,7 +252,7 @@ const onToggleLike = async (item: CommentDiscussionItem) => {
     return
   }
 
-  const res = await defCommentService.SaveCommentReaction({
+  const res = await defCommentInfoService.SaveCommentReaction({
     target_type: CommentReactionTargetType.DISCUSSION,
     target_id: item.id,
     reaction_type: CommentReactionType.LIKE,

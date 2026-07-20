@@ -1,5 +1,9 @@
-import { RecommendScene } from '@/rpc/common/v1/enum'
-import type { OrderInfoStatus, OrderRefundStatus, OrderTradeStatus } from '@/rpc/common/v1/enum'
+import { RecommendScene } from '@/rpc/shop/common/v1/enum'
+import type {
+  OrderInfoStatus,
+  OrderRefundStatus,
+  OrderTradeStatus,
+} from '@/rpc/shop/common/v1/enum'
 
 /** 路由 query 支持的值类型。 */
 type QueryValue = string | number | boolean | null | undefined

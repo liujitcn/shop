@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { defBaseDictService } from '@/api/app/base_dict'
-import { defOrderService } from '@/api/app/order_info'
-import type { BaseDictForm_DictItem } from '@/rpc/app/v1/base_dict'
-import type { OrderInfo } from '@/rpc/app/v1/order_info'
+import { defBaseDictService } from '@/api/system/app/base_dict'
+import { defOrderService } from '@/api/shop/app/order_info'
+import type { BaseDictForm_DictItem } from '@/rpc/system/app/v1/base_dict'
+import type { OrderInfo } from '@/rpc/shop/app/v1/order_info'
 
 /** 退款弹窗只需要订单编号，避免弹窗依赖完整订单结构。 */
 type RefundOrderTarget = Pick<OrderInfo, 'id'>

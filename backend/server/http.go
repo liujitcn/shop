@@ -7,14 +7,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	adminv1 "shop/api/gen/go/admin/v1"
-	appv1 "shop/api/gen/go/app/v1"
-	basev1 "shop/api/gen/go/base/v1"
 	"shop/internal/cmd/server/assets"
 	"shop/pkg/gen/data"
 	appMiddleware "shop/pkg/middleware"
 	"shop/pkg/middleware/logging"
-	"shop/service/base"
 
 	bootstrapConfigv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 
@@ -53,13 +49,13 @@ func NewHTTPMiddleware(
 	return ms
 }
 
-// NewHTTPServer 创建 HTTP Server 并注册后端与前端静态路由。
+// NewHTTPServer 创建 HTTP Server 并注册已启用业务模块与前端静态路由。
 func NewHTTPServer(
 	ctx *bootstrap.Context,
 	middlewares HTTPMiddlewares,
-	services *ServerServices,
-	mcpSvc *base.McpService,
-	sseSvc *base.SseService,
+	modules Modules,
+	_ MCPToolsReady,
+	_ AgentToolsReady,
 ) (*kratosHTTP.Server, error) {
 	cfg := ctx.GetConfig()
 	// 未启用 HTTP 配置时，跳过 HTTP 服务创建。
@@ -72,74 +68,7 @@ func NewHTTPServer(
 		return nil, err
 	}
 
-	adminv1.RegisterAuthServiceHTTPServer(srv, services.adminAuth)
-	adminv1.RegisterBaseApiServiceHTTPServer(srv, services.adminBaseAPI)
-	adminv1.RegisterBaseConfigServiceHTTPServer(srv, services.adminBaseConfig)
-	adminv1.RegisterBaseDeptServiceHTTPServer(srv, services.adminBaseDept)
-	adminv1.RegisterBaseDictServiceHTTPServer(srv, services.adminBaseDict)
-	adminv1.RegisterBaseJobServiceHTTPServer(srv, services.adminBaseJob)
-	adminv1.RegisterBaseLogServiceHTTPServer(srv, services.adminBaseLog)
-	adminv1.RegisterBaseMenuServiceHTTPServer(srv, services.adminBaseMenu)
-	adminv1.RegisterBaseRoleServiceHTTPServer(srv, services.adminBaseRole)
-	adminv1.RegisterBaseTenantServiceHTTPServer(srv, services.adminBaseTenant)
-	adminv1.RegisterBaseUserServiceHTTPServer(srv, services.adminBaseUser)
-	adminv1.RegisterCodeGenServiceHTTPServer(srv, services.adminCodeGen)
-	adminv1.RegisterCodeGenColumnServiceHTTPServer(srv, services.adminCodeGenColumn)
-	adminv1.RegisterCodeGenProtoServiceHTTPServer(srv, services.adminCodeGenProto)
-	adminv1.RegisterCodeGenTableServiceHTTPServer(srv, services.adminCodeGenTable)
-	adminv1.RegisterCommentInfoServiceHTTPServer(srv, services.adminCommentInfo)
-	adminv1.RegisterTenantStoreServiceHTTPServer(srv, services.adminTenantStore)
-	adminv1.RegisterGoodsAnalyticsServiceHTTPServer(srv, services.adminGoodsAnalytics)
-	adminv1.RegisterGoodsReportServiceHTTPServer(srv, services.adminGoodsReport)
-	adminv1.RegisterGoodsCategoryServiceHTTPServer(srv, services.adminGoodsCategory)
-	adminv1.RegisterGoodsPropServiceHTTPServer(srv, services.adminGoodsProp)
-	adminv1.RegisterGoodsInfoServiceHTTPServer(srv, services.adminGoods)
-	adminv1.RegisterGoodsSkuServiceHTTPServer(srv, services.adminGoodsSKU)
-	adminv1.RegisterGoodsSpecServiceHTTPServer(srv, services.adminGoodsSpec)
-	adminv1.RegisterOrderAnalyticsServiceHTTPServer(srv, services.adminOrderAnalytics)
-	adminv1.RegisterOrderReportServiceHTTPServer(srv, services.adminOrderReport)
-	adminv1.RegisterOrderInfoServiceHTTPServer(srv, services.adminOrder)
-	adminv1.RegisterPayBillServiceHTTPServer(srv, services.adminPayBill)
-	adminv1.RegisterRecommendRequestServiceHTTPServer(srv, services.adminRecommendRequest)
-	adminv1.RegisterRecommendGorseServiceHTTPServer(srv, services.adminRecommendGorse)
-	adminv1.RegisterShopBannerServiceHTTPServer(srv, services.adminShopBanner)
-	adminv1.RegisterShopHotServiceHTTPServer(srv, services.adminShopHot)
-	adminv1.RegisterShopServiceServiceHTTPServer(srv, services.adminShopService)
-	adminv1.RegisterUserAnalyticsServiceHTTPServer(srv, services.adminUserAnalytics)
-	adminv1.RegisterUserStoreServiceHTTPServer(srv, services.adminUserStore)
-	adminv1.RegisterWorkspaceServiceHTTPServer(srv, services.adminWorkspace)
-
-	appv1.RegisterAuthServiceHTTPServer(srv, services.appAuth)
-	appv1.RegisterBaseAreaServiceHTTPServer(srv, services.appBaseArea)
-	appv1.RegisterBaseDictServiceHTTPServer(srv, services.appBaseDict)
-	appv1.RegisterCommentServiceHTTPServer(srv, services.appComment)
-	appv1.RegisterGoodsCategoryServiceHTTPServer(srv, services.appGoodsCategory)
-	appv1.RegisterGoodsInfoServiceHTTPServer(srv, services.appGoods)
-	appv1.RegisterTenantStoreServiceHTTPServer(srv, services.appTenantStore)
-	appv1.RegisterOrderInfoServiceHTTPServer(srv, services.appOrder)
-	appv1.RegisterPayServiceHTTPServer(srv, services.appPay)
-	appv1.RegisterRecommendServiceHTTPServer(srv, services.appRecommend)
-	appv1.RegisterShopBannerServiceHTTPServer(srv, services.appShopBanner)
-	appv1.RegisterShopHotServiceHTTPServer(srv, services.appShopHot)
-	appv1.RegisterShopServiceServiceHTTPServer(srv, services.appShopService)
-	appv1.RegisterUserAddressServiceHTTPServer(srv, services.appUserAddress)
-	appv1.RegisterUserCartServiceHTTPServer(srv, services.appUserCart)
-	appv1.RegisterUserCollectServiceHTTPServer(srv, services.appUserCollect)
-	appv1.RegisterUserStoreServiceHTTPServer(srv, services.appUserStore)
-
-	basev1.RegisterAiAssistantServiceHTTPServer(srv, services.aiAssistant)
-	// AI 助手消息发送使用直连 SSE，避免占用工作台共用 /events 流。
-	base.RegisterAiAssistantMessageServiceHTTPServer(srv, services.aiAssistantMessage)
-	basev1.RegisterConfigServiceHTTPServer(srv, services.config)
-	// 文件上传需要兼容 uni.uploadFile 的 multipart/form-data 请求，使用自定义 HTTP 适配器。
-	base.RegisterFileServiceHTTPServer(srv, services.file)
-	basev1.RegisterLoginServiceHTTPServer(srv, services.login)
-	basev1.RegisterOauthServiceHTTPServer(srv, services.oauth)
-	// MCP 需要保留 Streamable HTTP 的原始请求体和流式响应，使用自定义 HTTP 适配器。
-	base.RegisterMcpServiceHTTPServer(srv, mcpSvc)
-
-	// SSE 需要直接写入事件流响应，使用自定义 HTTP 适配器避免默认 JSON 响应。
-	base.RegisterSseServiceHTTPServer(srv, sseSvc)
+	modules.RegisterHTTP(srv)
 
 	ossRootDirectory := "./data"
 	// 配置了本地 OSS 根目录时，优先使用配置值覆盖默认目录。

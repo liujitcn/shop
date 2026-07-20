@@ -4,7 +4,7 @@
 
 这个目录的目标有三个：
 
-1. 收拢 Eino 原生 import，避免 `assistant`、`comment`、`server` 等业务包直接感知第三方框架细节。
+1. 收拢 Eino 原生 import，避免 `ai`、`comment`、`server` 等业务包直接感知第三方框架细节。
 2. 按组件能力分包，让“模型调用、消息转换、工具执行、运行循环、统计记录、固定流程”各有清晰边界。
 3. 给后续接入其他 Agent 框架预留形态：可以按同样能力边界新增平行适配层，而不是继续把框架代码散落到业务运行时里。
 
@@ -22,44 +22,44 @@
 | 6 | `adk` | `runner.go` | AI 助手主循环：如何创建 ChatModelAgent、挂中间件、消费事件流、回传 SSE 文本。 |
 | 7 | `structured` | `runner.go`、`prompt.go`、`part.go` | 评论审核/摘要这类结构化任务如何组 Schema Prompt、发起模型调用并解析 JSON。 |
 | 8 | `workflow` | `flow.go` | 商城端购物、待支付、待评价、物流这些固定流程如何通过 Eino Workflow/Graph 路由并执行。 |
-| 9 | 上层调用方 | `assistant`、`comment`、`assistant/flow` | 业务包如何只保留业务协议、提示词、会话和响应结构，把 Eino 能力交给本目录。 |
+| 9 | 上层调用方 | `service/base/agent/ai`、`service/base/agent/ai/flow`、`service/shop/app/agent/comment` | 业务包如何只保留业务协议、提示词、会话和响应结构，把 Eino 能力交给本目录。 |
 
 ## 主链路
 
 ### AI 助手对话链路
 
-1. `assistant.Runtime` 负责读取会话、历史消息、附件、工具开关和前端 SSE 协议。
-2. `assistant.Runtime` 使用 `message` 构造 Eino 可消费的 `AgenticMessage`。
-3. `assistant.Runtime.toolInfos` 先按业务策略选出本轮候选工具。
+1. `service/base/agent/ai.Runtime` 负责读取会话、历史消息、附件、工具开关和前端 SSE 协议。
+2. `ai.Runtime` 使用 `message` 构造 Eino 可消费的 `AgenticMessage`。
+3. `ai.Runtime.toolInfos` 先按终端、工具启用状态和业务策略选出本轮候选工具。
 4. `adk.Runner` 创建 Eino ADK `ChatModelAgent`，把模型、工具池和中间件挂进去。
 5. `middleware.ToolFilterHandler` 在模型调用前做最终工具裁剪，保证模型只看到本轮允许的工具。
 6. `middleware.ResponsesServerToolHandler` 给模型调用注入 Responses 服务端工具选项，并记录服务端工具事件。
 7. `adk.Runner` 通过 `adk.WithCallbacks(callback.NewHandler())` 接入 Eino 原生 Callback，模型耗时、Token、错误和服务端工具写入 `callback.Recorder`。
 8. `middleware.ToolMetricsHandler` 把工具耗时、输入、输出和错误写入 `callback.Recorder`。
-9. `adk.Runner` 消费 ADK 事件流，把可见文本增量透传给 `assistant.Runtime` 的 SSE 回调。
-10. `assistant.Runtime` 把最终消息、Token 和工具记录转换回现有前端协议。
+9. `adk.Runner` 消费 ADK 事件流，把可见文本增量透传给 `ai.Runtime` 的 SSE 回调。
+10. `ai.Runtime` 把最终消息、Token 和工具记录转换回现有前端协议。
 
 ### 工具直接调用链路
 
 1. 前端或运行时拿到模型输出中的工具调用。
-2. `assistant.Runtime.InvokeTool` 把工具名和 JSON 参数传给 `tool.ExecuteCall`。
+2. `ai.Runtime.InvokeTool` 把工具名和 JSON 参数传给 `tool.ExecuteCall`。
 3. `tool.ExecuteCall` 校验工具是否在本轮启用列表中，再调用生成工具或手写工具的 `InvokableRun`。
 4. 成功结果原样作为工具输出；失败结果统一走 `middleware.MarshalToolError`，输出稳定 JSON。
 5. 调用方继续沿用当前会话、消息、SSE 和工具记录协议。
 
 ### 评论结构化链路
 
-1. `comment.Runtime` 只组织评价审核、摘要等业务输入和提示词。
+1. `service/shop/app/agent/comment.Runtime` 只组织评价审核、摘要等业务输入和提示词。
 2. `structured.Runner` 使用 `structured.Part` 拼多模态输入，使用 `structured.SchemaPrompt` 生成结构化输出约束。
 3. `model.ChatClient` 发起模型请求。
 4. `structured.DecodeContent` 从模型返回中提取 JSON 并反序列化到业务结构体。
 
-### 商城固定流程链路
+### 终端固定流程链路
 
-1. `assistant/flow` 读取 `workflow.MustNewAppRegistry[*assistant.Response]()`。
+1. `service/base/agent/ai/flow` 分别读取 `workflow.MustNewAppRegistry[*ai.Response]()` 与 `MustNewAdminRegistry[*ai.Response]()`。
 2. `workflow.Registry` 内部编译 `compose.Workflow`，`Lookup` 用于查询动作所属流程、步骤和入口定义。
 3. `workflow.Registry` 同时编译 `compose.Graph`，`Run` 会先按 `flow + action_type` 走 Graph 分支，输出命中的动作元信息。
-4. `assistant/flow.Runner.ExecuteWorkflowAction` 作为 typed handler 执行业务步骤：推荐商品、选规格、确认订单、支付、评价、物流等。
+4. App 与 Admin Runner 分别作为 typed handler 执行商城或后台流程：推荐商品、选规格、确认订单、支付、评价、物流，以及待发货、门店审核、退款、分析等。
 5. 前端列表里的每个按钮都会带自己的 `flow + action_type + payload`，例如商品 ID、SKU、订单 ID 或待评价商品信息。Graph 先按 `flow + action_type` 路由，handler 再只使用本次按钮 payload，因此用户从列表中选择不同项时，后续流程是独立上下文，不会共享同一份状态。
 
 ## 子包说明
@@ -83,7 +83,7 @@
 - `tool.go` 放工具相关中间件：工具定义筛选、工具执行耗时记录、工具错误记录。
 - `error.go` 放工具错误 JSON 的稳定输出，保证 ADK 工具调用和直接工具调用使用同一错误格式。
 
-后续新增“工具黑白名单、模型降级、工具熔断、审计采样”等横切能力时，优先放在这里，不继续堆到 `assistant/runtime.go`。
+后续新增“工具黑白名单、模型降级、工具熔断、审计采样”等横切能力时，优先放在这里，不继续堆到 `ai/runtime.go`。
 
 ### `callback`
 
@@ -96,16 +96,17 @@
 - `RecordServerTools` 记录 Responses 服务端工具，例如联网搜索。
 - `TotalToken` 汇总多次模型调用的 token，用于回填现有助手协议。
 
-它只记录事实，不决定前端如何展示。展示字段仍由 `assistant.Runtime` 转换成当前协议。
+它只记录事实，不决定前端如何展示。展示字段仍由 `ai.Runtime` 转换成当前协议。
 
 ### `workflow`
 
-`workflow` 是商城端固定流程的 Eino Workflow/Graph 适配层，核心文件是 `flow.go`。
+`workflow` 是管理后台和商城端固定流程的 Eino Workflow/Graph 适配层，核心文件是 `flow.go`。
 
 - `FlowShopping`：推荐、选规格、确认订单、支付。
 - `FlowPendingPayment`：待支付订单和继续支付。
 - `FlowPendingReview`：待评价列表、评价表单、提交评价。
 - `FlowOrderLogistics`：订单物流、订单详情、确认收货。
+- `AdminFlow*`：工作台、待发货、评价审核、库存预警、退款、门店审核、推荐与统计等后台流程。
 
 `NewAppRegistry` 会编译两条 Eino 编排：
 
@@ -178,15 +179,15 @@
 后续如果接入其他 Agent 框架，建议沿用当前能力边界，而不是让业务包直接 import 新框架：
 
 1. 新增平行适配目录，例如 `pkg/agent/{new_framework}`。
-2. 保持 `model`、`message`、`tool`、`callback`、`middleware`、`workflow` 这些能力边界，不把横切能力塞回 `assistant.Runtime`。
+2. 保持 `model`、`message`、`tool`、`callback`、`middleware`、`workflow` 这些能力边界，不把横切能力塞回 `ai.Runtime`。
 3. 先替换运行器入口，再逐步迁移模型选项、工具协议和统计记录。
 4. 业务包继续只表达业务协议：会话、消息、SSE、工具记录、审核摘要、固定流程入口。
 5. 如果新框架有 Graph/Workflow 引擎，优先接到 `workflow` 的流程定义后面，不直接改前端动作协议。
 
 ## 使用边界
 
-- `assistant` 负责 AI 助手业务运行时、会话消息、工具候选策略、SSE 和前端需要的响应结构。
-- `comment` 负责评价审核和摘要业务逻辑，不直接承担模型结构化输出细节。
+- `service/base/agent/ai` 负责 AI 助手业务运行时、会话消息、工具候选策略、SSE 和前端需要的响应结构。
+- `service/shop/app/agent/comment` 负责评价审核和摘要业务逻辑，不直接承担模型结构化输出细节。
 - `server` 负责注册生成工具并交给运行时，不承担 Agent 编排。
 - `pkg/agent/eino` 负责 Eino 适配能力，不写具体业务提示词和业务决策。
 - Eino 原生 import 应尽量只出现在 `pkg/agent/eino` 和 `api/gen/*_agent_tool.go` 生成产物中。业务包如需模型、工具、结构化输出或固定流程能力，应通过本目录的项目内门面调用。

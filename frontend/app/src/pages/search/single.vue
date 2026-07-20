@@ -1,9 +1,13 @@
 <script setup lang="ts">
-import { defGoodsInfoService } from '@/api/app/goods_info'
+import { defGoodsInfoService } from '@/api/shop/app/goods_info'
 import { SkuMode, useGoodsPurchase } from '@/composables'
 import { goodsDetailUrl, homeTabPage } from '@/utils/navigation'
-import type { GoodsInfo, GoodsInfoResponse, PageGoodsInfoRequest } from '@/rpc/app/v1/goods_info'
-import { RecommendScene } from '@/rpc/common/v1/enum'
+import type {
+  GoodsInfo,
+  GoodsInfoResponse,
+  PageGoodsInfoRequest,
+} from '@/rpc/shop/app/v1/goods_info'
+import { RecommendScene } from '@/rpc/shop/common/v1/enum'
 import { onLoad } from '@dcloudio/uni-app'
 import { computed, ref } from 'vue'
 

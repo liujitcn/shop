@@ -15,8 +15,8 @@ import (
 
 func init() {
 	databaseGorm.RegisterMigrateModels(
-		new(models.AiAssistantMessage),
-		new(models.AiAssistantSession),
+		new(models.AiMessage),
+		new(models.AiSession),
 		new(models.BaseAPI),
 		new(models.BaseArea),
 		new(models.BaseConfig),
@@ -32,6 +32,9 @@ func init() {
 		new(models.BaseThirdAccount),
 		new(models.BaseUser),
 		new(models.CasbinRule),
+		new(models.CodeGenBaseDept),
+		new(models.CodeGenBaseRole),
+		new(models.CodeGenBaseUser),
 		new(models.CodeGenColumn),
 		new(models.CodeGenProto),
 		new(models.CodeGenTable),

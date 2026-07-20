@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { defAuthService } from '@/api/app/auth'
+import { defAuthService } from '@/api/system/app/auth'
 import { useUserStore } from '@/stores'
-import type { UserProfileForm } from '@/rpc/app/v1/auth'
+import type { UserProfileForm } from '@/rpc/system/app/v1/auth'
 import { onLoad } from '@dcloudio/uni-app'
 import { ref } from 'vue'
-import type { BaseDictForm_DictItem } from '@/rpc/app/v1/base_dict'
-import { defBaseDictService } from '@/api/app/base_dict'
+import type { BaseDictForm_DictItem } from '@/rpc/system/app/v1/base_dict'
+import { defBaseDictService } from '@/api/system/app/base_dict'
 import { formatSrc } from '@/utils'
 import { navigateToLogin } from '@/utils/navigation'
 

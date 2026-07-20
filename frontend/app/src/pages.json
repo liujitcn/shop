@@ -158,7 +158,7 @@
           }
         },
         {
-          "path": "ai-assistant/index",
+          "path": "ai/index",
           "style": {
             "navigationStyle": "custom",
             "navigationBarTitleText": "AI 助手"

@@ -20,6 +20,7 @@ type CodeGenTable struct {
 	BusinessName     string         `gorm:"column:business_name;type:varchar(64);comment:业务名" json:"business_name"`                                      // 业务名
 	EntityName       string         `gorm:"column:entity_name;type:varchar(64);comment:实体名" json:"entity_name"`                                          // 实体名
 	ModulePath       string         `gorm:"column:module_path;type:varchar(128);comment:模块路径" json:"module_path"`                                        // 模块路径
+	APIPath          string         `gorm:"column:api_path;type:varchar(255);comment:Proto目录" json:"api_path"`                                           // Proto目录
 	PermissionPrefix string         `gorm:"column:permission_prefix;type:varchar(128);comment:权限标识前缀" json:"permission_prefix"`                          // 权限标识前缀
 	ParentMenuID     int64          `gorm:"column:parent_menu_id;type:bigint;comment:父级菜单ID" json:"parent_menu_id"`                                      // 父级菜单ID
 	PageType         string         `gorm:"column:page_type;type:varchar(32);comment:页面类型：normal普通表格 tree树形表格 left_tree左树右表" json:"page_type"`           // 页面类型：normal普通表格 tree树形表格 left_tree左树右表

@@ -1,20 +1,20 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
-import { defCommentService } from '@/api/app/comment'
+import { defCommentInfoService } from '@/api/shop/app/comment'
 import type {
   CommentSummary,
   CommentFilterItem,
   CommentItem,
   CommentTagItem,
   CommentTextSegment,
-} from '@/rpc/app/v1/comment'
+} from '@/rpc/shop/app/v1/comment'
 import {
   CommentFilterType,
   CommentReactionTargetType,
   CommentReactionType,
   CommentSortType,
-} from '@/rpc/common/v1/enum'
+} from '@/rpc/shop/common/v1/enum'
 import { formatSrc } from '@/utils'
 import { navigateToLogin } from '@/utils/navigation'
 import { useUserStore } from '@/stores'
@@ -159,7 +159,7 @@ const loadCommentData = async (reset: boolean) => {
   const nextPageNum = reset ? 1 : currentPageNum.value + 1
   try {
     const [res, tagRes] = await Promise.all([
-      defCommentService.PageGoodsComment({
+      defCommentInfoService.PageGoodsComment({
         goods_id: goodsId,
         sku_code: props.sku_code || '',
         filter_type: selectedFilter.value.filter_type,
@@ -170,7 +170,7 @@ const loadCommentData = async (reset: boolean) => {
         page_size: pageSize,
       }),
       reset
-        ? defCommentService.GoodsCommentTag({
+        ? defCommentInfoService.GoodsCommentTag({
             goods_id: goodsId,
             limit: COMMENT_TAG_LIMIT,
           })
@@ -393,7 +393,7 @@ const onSaveSummaryReaction = async (reaction_type: CommentReactionType) => {
   }
 
   const active = !isSummaryReactionActive(reaction_type)
-  const res = await defCommentService.SaveCommentReaction({
+  const res = await defCommentInfoService.SaveCommentReaction({
     target_type: CommentReactionTargetType.SUMMARY,
     target_id: commentSummary.value.id,
     reaction_type,
@@ -414,7 +414,7 @@ const onSaveReviewReaction = async (item: CommentItem, reaction_type: CommentRea
   }
 
   const active = !isReviewReactionActive(item, reaction_type)
-  const res = await defCommentService.SaveCommentReaction({
+  const res = await defCommentInfoService.SaveCommentReaction({
     target_type: CommentReactionTargetType.COMMENT,
     target_id: item.id,
     reaction_type,

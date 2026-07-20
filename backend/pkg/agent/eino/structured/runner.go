@@ -62,7 +62,7 @@ func (r *Runner) Generate(ctx context.Context, instruction string, parts []*Part
 		return fmt.Errorf("agent structured response is empty")
 	}
 
-	content := message.AssistantTextOnly(response)
+	content := message.AITextOnly(response)
 	// 模型未返回 JSON 文本时，直接返回错误供调用方重试或降级。
 	if content == "" {
 		return fmt.Errorf("agent structured response content is empty")

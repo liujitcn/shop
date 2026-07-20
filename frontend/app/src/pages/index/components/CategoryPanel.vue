@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { GoodsCategory } from '@/rpc/app/v1/goods_category'
+import type { GoodsCategory } from '@/rpc/shop/app/v1/goods_category'
 import { formatSrc } from '@/utils'
 import { computed } from 'vue'
 import { navigateToSearch } from '@/utils/navigation'

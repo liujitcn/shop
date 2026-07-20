@@ -43,8 +43,8 @@ func UserText(content string) *AgenticMessage {
 	return schema.UserAgenticMessage(content)
 }
 
-// AssistantText 创建助手文本消息。
-func AssistantText(content string) *AgenticMessage {
+// AIText 创建助手文本消息。
+func AIText(content string) *AgenticMessage {
 	return &schema.AgenticMessage{
 		Role: schema.AgenticRoleTypeAssistant,
 		ContentBlocks: []*schema.ContentBlock{
@@ -57,8 +57,8 @@ func AssistantText(content string) *AgenticMessage {
 func TextByRole(role string, content string) *AgenticMessage {
 	// 历史消息角色需要还原到模型角色，未知角色按用户消息兼容旧数据。
 	switch strings.ToLower(role) {
-	case "assistant":
-		return AssistantText(content)
+	case "ai":
+		return AIText(content)
 	case "system":
 		return SystemText(content)
 	default:
@@ -162,8 +162,8 @@ func Text(value *AgenticMessage) string {
 	return strings.Join(parts, "\n")
 }
 
-// AssistantTextOnly 提取助手消息中的文本内容。
-func AssistantTextOnly(value *AgenticMessage) string {
+// AITextOnly 提取助手消息中的文本内容。
+func AITextOnly(value *AgenticMessage) string {
 	// 仅提取助手输出，工具结果和用户输入不应混入最终回复。
 	if value == nil {
 		return ""

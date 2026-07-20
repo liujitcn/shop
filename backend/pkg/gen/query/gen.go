@@ -18,8 +18,8 @@ import (
 func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 	return &Query{
 		db:                   db,
-		AiAssistantMessage:   newAiAssistantMessage(db, opts...),
-		AiAssistantSession:   newAiAssistantSession(db, opts...),
+		AiMessage:            newAiMessage(db, opts...),
+		AiSession:            newAiSession(db, opts...),
 		BaseAPI:              newBaseAPI(db, opts...),
 		BaseArea:             newBaseArea(db, opts...),
 		BaseConfig:           newBaseConfig(db, opts...),
@@ -35,6 +35,9 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		BaseThirdAccount:     newBaseThirdAccount(db, opts...),
 		BaseUser:             newBaseUser(db, opts...),
 		CasbinRule:           newCasbinRule(db, opts...),
+		CodeGenBaseDept:      newCodeGenBaseDept(db, opts...),
+		CodeGenBaseRole:      newCodeGenBaseRole(db, opts...),
+		CodeGenBaseUser:      newCodeGenBaseUser(db, opts...),
 		CodeGenColumn:        newCodeGenColumn(db, opts...),
 		CodeGenProto:         newCodeGenProto(db, opts...),
 		CodeGenTable:         newCodeGenTable(db, opts...),
@@ -78,8 +81,8 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 
 type Query struct {
 	db                   *gorm.DB
-	AiAssistantMessage   aiAssistantMessage
-	AiAssistantSession   aiAssistantSession
+	AiMessage            aiMessage
+	AiSession            aiSession
 	BaseAPI              baseAPI
 	BaseArea             baseArea
 	BaseConfig           baseConfig
@@ -95,6 +98,9 @@ type Query struct {
 	BaseThirdAccount     baseThirdAccount
 	BaseUser             baseUser
 	CasbinRule           casbinRule
+	CodeGenBaseDept      codeGenBaseDept
+	CodeGenBaseRole      codeGenBaseRole
+	CodeGenBaseUser      codeGenBaseUser
 	CodeGenColumn        codeGenColumn
 	CodeGenProto         codeGenProto
 	CodeGenTable         codeGenTable
@@ -140,8 +146,8 @@ func (q *Query) Available() bool { return q.db != nil }
 func (q *Query) clone(db *gorm.DB) *Query {
 	return &Query{
 		db:                   db,
-		AiAssistantMessage:   q.AiAssistantMessage.clone(db),
-		AiAssistantSession:   q.AiAssistantSession.clone(db),
+		AiMessage:            q.AiMessage.clone(db),
+		AiSession:            q.AiSession.clone(db),
 		BaseAPI:              q.BaseAPI.clone(db),
 		BaseArea:             q.BaseArea.clone(db),
 		BaseConfig:           q.BaseConfig.clone(db),
@@ -157,6 +163,9 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		BaseThirdAccount:     q.BaseThirdAccount.clone(db),
 		BaseUser:             q.BaseUser.clone(db),
 		CasbinRule:           q.CasbinRule.clone(db),
+		CodeGenBaseDept:      q.CodeGenBaseDept.clone(db),
+		CodeGenBaseRole:      q.CodeGenBaseRole.clone(db),
+		CodeGenBaseUser:      q.CodeGenBaseUser.clone(db),
 		CodeGenColumn:        q.CodeGenColumn.clone(db),
 		CodeGenProto:         q.CodeGenProto.clone(db),
 		CodeGenTable:         q.CodeGenTable.clone(db),
@@ -209,8 +218,8 @@ func (q *Query) WriteDB() *Query {
 func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 	return &Query{
 		db:                   db,
-		AiAssistantMessage:   q.AiAssistantMessage.replaceDB(db),
-		AiAssistantSession:   q.AiAssistantSession.replaceDB(db),
+		AiMessage:            q.AiMessage.replaceDB(db),
+		AiSession:            q.AiSession.replaceDB(db),
 		BaseAPI:              q.BaseAPI.replaceDB(db),
 		BaseArea:             q.BaseArea.replaceDB(db),
 		BaseConfig:           q.BaseConfig.replaceDB(db),
@@ -226,6 +235,9 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		BaseThirdAccount:     q.BaseThirdAccount.replaceDB(db),
 		BaseUser:             q.BaseUser.replaceDB(db),
 		CasbinRule:           q.CasbinRule.replaceDB(db),
+		CodeGenBaseDept:      q.CodeGenBaseDept.replaceDB(db),
+		CodeGenBaseRole:      q.CodeGenBaseRole.replaceDB(db),
+		CodeGenBaseUser:      q.CodeGenBaseUser.replaceDB(db),
 		CodeGenColumn:        q.CodeGenColumn.replaceDB(db),
 		CodeGenProto:         q.CodeGenProto.replaceDB(db),
 		CodeGenTable:         q.CodeGenTable.replaceDB(db),
@@ -268,8 +280,8 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 }
 
 type queryCtx struct {
-	AiAssistantMessage   *aiAssistantMessageDo
-	AiAssistantSession   *aiAssistantSessionDo
+	AiMessage            *aiMessageDo
+	AiSession            *aiSessionDo
 	BaseAPI              *baseAPIDo
 	BaseArea             *baseAreaDo
 	BaseConfig           *baseConfigDo
@@ -285,6 +297,9 @@ type queryCtx struct {
 	BaseThirdAccount     *baseThirdAccountDo
 	BaseUser             *baseUserDo
 	CasbinRule           *casbinRuleDo
+	CodeGenBaseDept      *codeGenBaseDeptDo
+	CodeGenBaseRole      *codeGenBaseRoleDo
+	CodeGenBaseUser      *codeGenBaseUserDo
 	CodeGenColumn        *codeGenColumnDo
 	CodeGenProto         *codeGenProtoDo
 	CodeGenTable         *codeGenTableDo
@@ -327,8 +342,8 @@ type queryCtx struct {
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
 	return &queryCtx{
-		AiAssistantMessage:   q.AiAssistantMessage.WithContext(ctx),
-		AiAssistantSession:   q.AiAssistantSession.WithContext(ctx),
+		AiMessage:            q.AiMessage.WithContext(ctx),
+		AiSession:            q.AiSession.WithContext(ctx),
 		BaseAPI:              q.BaseAPI.WithContext(ctx),
 		BaseArea:             q.BaseArea.WithContext(ctx),
 		BaseConfig:           q.BaseConfig.WithContext(ctx),
@@ -344,6 +359,9 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		BaseThirdAccount:     q.BaseThirdAccount.WithContext(ctx),
 		BaseUser:             q.BaseUser.WithContext(ctx),
 		CasbinRule:           q.CasbinRule.WithContext(ctx),
+		CodeGenBaseDept:      q.CodeGenBaseDept.WithContext(ctx),
+		CodeGenBaseRole:      q.CodeGenBaseRole.WithContext(ctx),
+		CodeGenBaseUser:      q.CodeGenBaseUser.WithContext(ctx),
 		CodeGenColumn:        q.CodeGenColumn.WithContext(ctx),
 		CodeGenProto:         q.CodeGenProto.WithContext(ctx),
 		CodeGenTable:         q.CodeGenTable.WithContext(ctx),

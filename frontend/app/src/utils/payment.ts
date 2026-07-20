@@ -1,4 +1,4 @@
-import { defPayService } from '@/api/app/pay'
+import { defPayService } from '@/api/shop/app/pay'
 import { appendOrderPaymentRedirectUrl, redirectToOrderPayment } from '@/utils/navigation'
 
 /** 按当前运行平台发起微信支付，并在支付完成后进入对应交易的结果页。 */

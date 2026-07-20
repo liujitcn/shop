@@ -2,18 +2,18 @@
 import { useGuessList } from '@/composables'
 import { useUserStore } from '@/stores'
 import { onShow } from '@dcloudio/uni-app'
-import { defOrderService } from '@/api/app/order_info.ts'
-import { defCommentService } from '@/api/app/comment'
+import { defOrderService } from '@/api/shop/app/order_info.ts'
+import { defCommentInfoService } from '@/api/shop/app/comment'
 import { computed, ref } from 'vue'
 import { formatSrc } from '@/utils'
 import { navigateToLogin, orderListUrl } from '@/utils/navigation'
-import { OrderInfoStatus, OrderTradeStatus, RecommendScene } from '@/rpc/common/v1/enum'
+import { OrderInfoStatus, OrderTradeStatus, RecommendScene } from '@/rpc/shop/common/v1/enum'
 import type { OrderListFilter } from '@/utils/order'
 // 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync()
 const COMMENT_CENTER_PENDING_PAGE = '/pagesOrder/comment/center?tab=pending'
 const AFTERSALE_APPLY_PAGE = '/pagesOrder/aftersale/aftersale?tab=apply'
-const AI_ASSISTANT_PAGE = '/pagesMember/ai-assistant/index'
+const AI_PAGE = '/pagesMember/ai/index'
 
 /** 我的页面订单入口展示项。 */
 type OrderCountEntry = {
@@ -83,7 +83,7 @@ const getOrderData = async () => {
 
   const [orderResponse, pendingCommentResponse] = await Promise.all([
     defOrderService.CountOrderInfo({}),
-    defCommentService.PagePendingCommentGoods({ page_num: 1, page_size: 1 }),
+    defCommentInfoService.PagePendingCommentGoods({ page_num: 1, page_size: 1 }),
   ])
   if (!canLoadOrderData()) {
     return
@@ -120,13 +120,13 @@ const getOrderEntryUrl = (entry: OrderCountEntry) => {
 }
 
 /** 打开移动端 AI 助手静态页，未登录时先进入登录流程。 */
-const navigateToAiAssistant = () => {
+const navigateToAi = () => {
   if (!userStore.ensureAuthenticated()) {
     navigateToLogin()
     return
   }
   uni.navigateTo({
-    url: AI_ASSISTANT_PAGE,
+    url: AI_PAGE,
   })
 }
 
@@ -222,13 +222,13 @@ onShow(() => {
       </view>
     </view>
     <!-- AI 助手入口 -->
-    <view class="ai-assistant-entry" @tap="navigateToAiAssistant">
-      <view class="ai-assistant-entry__icon">AI</view>
-      <view class="ai-assistant-entry__content">
-        <view class="ai-assistant-entry__title">商城 AI 助手</view>
-        <view class="ai-assistant-entry__desc">帮你找商品、查订单、看售后和整理推荐</view>
+    <view class="ai-entry" @tap="navigateToAi">
+      <view class="ai-entry__icon">AI</view>
+      <view class="ai-entry__content">
+        <view class="ai-entry__title">商城 AI 助手</view>
+        <view class="ai-entry__desc">帮你找商品、查订单、看售后和整理推荐</view>
       </view>
-      <view class="ai-assistant-entry__action">去提问</view>
+      <view class="ai-entry__action">去提问</view>
     </view>
     <!-- 猜你喜欢 -->
     <view class="guess">
@@ -245,7 +245,7 @@ page {
 }
 
 /* AI 助手入口 */
-.ai-assistant-entry {
+.ai-entry {
   position: relative;
   z-index: 99;
   display: flex;
@@ -257,7 +257,7 @@ page {
   box-shadow: 0 4rpx 6rpx rgba(240, 240, 240, 0.6);
 }
 
-.ai-assistant-entry__icon {
+.ai-entry__icon {
   flex-shrink: 0;
   width: 92rpx;
   height: 92rpx;
@@ -270,20 +270,20 @@ page {
   background-color: #27ba9b;
 }
 
-.ai-assistant-entry__content {
+.ai-entry__content {
   flex: 1;
   min-width: 0;
   margin-left: 18rpx;
 }
 
-.ai-assistant-entry__title {
+.ai-entry__title {
   color: #1e1e1e;
   font-size: 30rpx;
   font-weight: 600;
   line-height: 40rpx;
 }
 
-.ai-assistant-entry__desc {
+.ai-entry__desc {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -293,7 +293,7 @@ page {
   line-height: 32rpx;
 }
 
-.ai-assistant-entry__action {
+.ai-entry__action {
   flex-shrink: 0;
   margin-left: 16rpx;
   padding: 10rpx 18rpx;

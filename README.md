@@ -18,11 +18,12 @@
 | 分类 | 文档 |
 | --- | --- |
 | 总体设计 | [系统总体设计](docs/系统总体设计.md) |
-| 模块设计 | [后端服务设计](docs/后端服务设计.md)、[管理后台设计](docs/管理后台设计.md)、[商城端设计](docs/商城端设计.md)、[数据库与初始化数据设计](docs/数据库与初始化数据设计.md)、[租户体系改造说明](docs/租户体系改造说明.md) |
+| 模块设计 | [后端服务设计](docs/后端服务设计.md)、[管理后台设计](docs/管理后台设计.md)、[商城端设计](docs/商城端设计.md)、[数据库与初始化数据设计](docs/数据库与初始化数据设计.md)、[租户与门店体系设计](docs/租户与门店体系设计.md) |
 | 订单链路 | [订单数据流转设计](docs/订单数据流转设计.md) |
 | 推荐链路 | [推荐系统设计](docs/推荐系统设计.md)、[推荐数据流转设计](docs/推荐数据流转设计.md) |
 | 统计报表 | [统计数据流转设计](docs/统计数据流转设计.md) |
 | 评价审核 | [评价与审核数据流转设计](docs/评价与审核数据流转设计.md) |
+| 智能与契约 | [AI 助手设计](docs/AI助手设计.md)、[业务域目录拆分设计](docs/Proto目录拆分设计.md) |
 
 ## 仓库结构
 
@@ -42,9 +43,9 @@
 
 推荐按以下顺序启动，具体命令见模块文档：
 
-1. 创建 `shop_test` 数据库，首次启动后端完成自动建表，然后停止后端。
-2. 依次导入 `sql/default-data.sql`、`sql/base_area.sql`，演示数据可继续导入 `sql/shop.sql`。
-3. 重新启动 [后端服务](backend/README.md)。后端会根据全部角色、菜单与接口重新生成权限策略，默认 HTTP 地址为 `http://localhost:7001`。
+1. 创建 `shop_test` 数据库，首次启动后端完成当前模型的自动迁移，然后停止后端。
+2. 在仓库根目录依次导入 `sql/default-data.sql`、`sql/base_area.sql`；需要演示商品、分类、轮播和商城服务时再导入 `sql/shop.sql`。
+3. 重新启动 [后端服务](backend/README.md)。后端会从内置 OpenAPI 重建接口元数据和角色权限策略，默认 HTTP 地址为 `http://localhost:7001`。
 4. 启动 [管理后台](frontend/admin/README.md)，默认地址为 `http://localhost:8848`。
 5. 启动 [商城端](frontend/app/README.md)，H5 默认地址为 `http://localhost:5002`，微信小程序需用微信开发者工具导入构建目录。
 6. 需要 Gorse 推荐联调时，再启动 [gorse](gorse/README.md)。
@@ -58,7 +59,8 @@
 
 ## 共享说明
 
-- 初始化 SQL 位于 `sql`：默认租户、菜单、固定角色和接口元数据维护在 `default-data.sql`；角色接口权限策略由后端每次启动时根据角色菜单和接口数据重新生成。
+- 接口契约位于 `backend/api/proto`，按 `base`、`common`、`system`、`shop` 分域；后端服务、前端 API 和生成 RPC 类型使用相同分层。
+- 初始化 SQL 位于 `sql`：`default-data.sql` 维护默认租户、菜单和固定角色；后端每次启动使用 GORM 清空 `base_api`、`casbin_rule` 并重置自增 ID，根据当前 OpenAPI 重新生成接口元数据，再按角色菜单和接口数据重建权限策略。
 - 默认角色固定为 `super(1)`、`tenant(2)`、`admin(3)`、`user(4)`、`guest(5)`；`tenant` 角色用于租户管理员，不能在角色管理中修改。
 - Casbin 策略使用租户化字段，并按真实 HTTP Method 根据所有角色的菜单权限生成。
 - 后端会托管 `backend/data/admin` 与 `backend/data/app` 下的前端构建产物，分别对应 `/admin` 和 `/app`。

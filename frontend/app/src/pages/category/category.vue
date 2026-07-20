@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { defGoodsCategoryService } from '@/api/app/goods_category'
-import { defShopBannerService } from '@/api/app/shop_banner'
+import { defGoodsCategoryService } from '@/api/shop/app/goods_category'
+import { defShopBannerService } from '@/api/shop/app/shop_banner'
 import { onLoad } from '@dcloudio/uni-app'
 import { ref } from 'vue'
 import PageSkeleton from './components/PageSkeleton.vue'
-import type { ShopBanner } from '@/rpc/app/v1/shop_banner'
-import type { GoodsCategory } from '@/rpc/app/v1/goods_category'
+import type { ShopBanner } from '@/rpc/shop/app/v1/shop_banner'
+import type { GoodsCategory } from '@/rpc/shop/app/v1/goods_category'
 import { formatSrc, formatPrice } from '@/utils'
-import { ShopBannerSite } from '@/rpc/common/v1/enum.ts'
+import { ShopBannerSite } from '@/rpc/shop/common/v1/enum.ts'
 import { goodsDetailUrl, searchPageUrl } from '@/utils/navigation'
 
 // 获取轮播图数据

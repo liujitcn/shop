@@ -1,0 +1,71 @@
+package admin
+
+import (
+	"shop/service/shop/admin/biz"
+
+	"github.com/google/wire"
+)
+
+// ProviderSet 汇总管理端服务依赖注入提供者。
+var ProviderSet = wire.NewSet(
+
+	biz.NewCommentSummaryCase,
+	biz.NewCommentDiscussionCase,
+	biz.NewCommentReviewCase,
+	biz.NewCommentTagCase,
+	biz.NewCommentInfoCase,
+	biz.NewTenantStoreCase,
+	biz.NewGoodsInfoCase,
+	biz.NewGoodsAnalyticsCase,
+	biz.NewGoodsReportCase,
+	biz.NewGoodsCategoryCase,
+	biz.NewGoodsPropCase,
+	biz.NewGoodsSKUCase,
+	biz.NewGoodsSpecCase,
+	biz.NewOrderInfoCase,
+	biz.NewOrderAnalyticsCase,
+	biz.NewOrderAddressCase,
+	biz.NewOrderCancelCase,
+	biz.NewOrderGoodsCase,
+	biz.NewOrderLogisticsCase,
+	biz.NewOrderPaymentCase,
+	biz.NewOrderReportCase,
+	biz.NewOrderRefundCase,
+	biz.NewPayBillCase,
+	biz.NewRecommendEventCase,
+	biz.NewRecommendRequestItemCase,
+	biz.NewRecommendRequestCase,
+	biz.NewRecommendGorseCase,
+	biz.NewShopBannerCase,
+	biz.NewShopHotCase,
+	biz.NewShopHotItemCase,
+	biz.NewShopServiceCase,
+	biz.NewUserAnalyticsCase,
+	biz.NewUserStoreCase,
+	biz.NewWorkspaceCase,
+	biz.NewTradeBill,
+	biz.NewOrderStatDay,
+	biz.NewGoodsStatDay,
+
+	NewCommentInfoService,
+	NewTenantStoreService,
+	NewGoodsAnalyticsService,
+	NewGoodsReportService,
+	NewGoodsCategoryService,
+	NewGoodsPropService,
+	NewGoodsInfoService,
+	NewGoodsSkuService,
+	NewGoodsSpecService,
+	NewOrderAnalyticsService,
+	NewOrderReportService,
+	NewOrderInfoService,
+	NewPayBillService,
+	NewRecommendRequestService,
+	NewRecommendGorseService,
+	NewShopBannerService,
+	NewShopHotService,
+	NewShopServiceService,
+	NewUserAnalyticsService,
+	NewUserStoreService,
+	NewWorkspaceService,
+)

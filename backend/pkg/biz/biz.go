@@ -2,10 +2,11 @@ package biz
 
 import (
 	"context"
-	"shop/internal/cmd/server/assets"
-	"shop/pkg/errorsx"
 	"sync"
 	"time"
+
+	"shop/internal/cmd/server/assets"
+	"shop/pkg/errorsx"
 
 	_const "shop/pkg/const"
 
@@ -27,6 +28,7 @@ type BaseCase struct {
 	queue          queue.Queue
 	casbinRuleCase *CasbinRuleCase
 	baseAPICase    *BaseAPICase
+	baseTenantCase *BaseTenantCase
 	quitChan       chan struct{} //退出Chan
 	closeOnce      sync.Once
 	taskTimer      *time.Timer
@@ -42,6 +44,7 @@ func NewBaseCase(
 	pprof pprof.Pprof,
 	casbinRuleCase *CasbinRuleCase,
 	baseAPICase *BaseAPICase,
+	baseTenantCase *BaseTenantCase,
 ) (*BaseCase, func(), error) {
 
 	// 设置全局变量
@@ -61,6 +64,7 @@ func NewBaseCase(
 		queue:          queue,
 		casbinRuleCase: casbinRuleCase,
 		baseAPICase:    baseAPICase,
+		baseTenantCase: baseTenantCase,
 		quitChan:       make(chan struct{}),
 		closeOnce:      sync.Once{},
 		taskTimer:      nil,
@@ -96,9 +100,13 @@ func NewBaseCase(
 	if err != nil {
 		return nil, cleanup, err
 	}
-
-	// 加载 casbin
-	err = s.RebuildPolicyRule(ctx.Context())
+	// API 数据就绪后，先将默认租户管理员角色菜单同步到普通租户副本。
+	err = s.baseTenantCase.SyncTenantRoleMenus(ctx.Context())
+	if err != nil {
+		return nil, cleanup, err
+	}
+	// 菜单和 API 数据均已就绪后，全量重建数据库规则并加载 Casbin 内存策略。
+	err = s.casbinRuleCase.RebuildAllCasbinRules(ctx.Context())
 	if err != nil {
 		return nil, cleanup, err
 	}

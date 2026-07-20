@@ -1,6 +1,6 @@
 import type { EnumProps } from "@/components/ProTable/interface";
-import { defBaseTenantService } from "@/api/admin/base_tenant";
-import type { OptionTenantStoreResponse_Option, TreeTenantStoreResponse_Option } from "@/rpc/admin/v1/tenant_store";
+import { defBaseTenantService } from "@/api/system/admin/base_tenant";
+import type { OptionTenantStoreResponse_Option, TreeTenantStoreResponse_Option } from "@/rpc/shop/admin/v1/tenant_store";
 
 /** 默认租户编码。 */
 export const DEFAULT_TENANT_CODE = "0000";

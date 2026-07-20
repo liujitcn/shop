@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package shop.app.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+
+// App租户门店服务
+service TenantStoreService {
+  // 查询租户门店首页
+  rpc GetTenantStore(GetTenantStoreRequest) returns (TenantStore) {
+    option (google.api.http) = {
+      get: "/api/v1/app/tenant/store/{id}"
+    };
+  }
+}
+
+// 租户门店详情查询条件
+message GetTenantStoreRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "门店ID"}]; // 门店ID
+}
+
+// 租户门店
+message TenantStore {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "门店ID"}]; // 门店ID
+
+  string name = 2 [(gnostic.openapi.v3.property) = {description: "门店名称"}]; // 门店名称
+
+  string logo = 3 [(gnostic.openapi.v3.property) = {description: "门店LOGO"}]; // 门店LOGO
+
+  string cover = 4 [(gnostic.openapi.v3.property) = {description: "门店封面"}]; // 门店封面
+
+  string intro = 5 [(gnostic.openapi.v3.property) = {description: "门店简介"}]; // 门店简介
+
+  string notice = 6 [(gnostic.openapi.v3.property) = {description: "门店公告"}]; // 门店公告
+}

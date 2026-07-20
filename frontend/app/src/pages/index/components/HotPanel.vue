@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ShopHot } from '@/rpc/app/v1/shop_hot'
+import type { ShopHot } from '@/rpc/shop/app/v1/shop_hot'
 import { formatSrc } from '@/utils'
 
 // 定义 props 接收数据
