@@ -39,7 +39,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onActivated, reactive, ref } from "vue";
+import { computed, nextTick, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import { CirclePlus, Clock, Connection, Delete, Document, EditPen, Promotion, SetUp, View } from "@element-plus/icons-vue";
 import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@/components/ProTable/interface";
@@ -51,7 +51,6 @@ import { defBaseMenuService } from "@/api/system/admin/base_menu";
 import { defCodeGenService } from "@/api/system/admin/code_gen";
 import { defCodeGenColumnService } from "@/api/system/admin/code_gen_column";
 import { defCodeGenTableService } from "@/api/system/admin/code_gen_table";
-import { CodeGenTaskStatus } from "@/rpc/system/admin/v1/code_gen";
 import type { CodeGenDatabaseColumn } from "@/rpc/system/admin/v1/code_gen_column";
 import type {
   CodeGenDatabaseTable,
@@ -541,26 +540,6 @@ function handleProgressDialogVisibleChange(visible: boolean) {
   window.sessionStorage.removeItem(codeGenProgressDialogVisibleStorageKey);
 }
 
-/** 恢复最近任务的运行状态。 */
-async function syncProgressTaskState() {
-  const taskId = progressTaskId.value;
-  if (!taskId) {
-    generating.value = false;
-    return;
-  }
-  try {
-    const task = await defCodeGenService.GetCodeGenTask({ task_id: taskId });
-    // 异步请求返回时可能已经启动了新任务，旧任务不能改变新任务的生成状态。
-    if (taskId !== progressTaskId.value) return;
-    generating.value =
-      task.status === CodeGenTaskStatus.CODE_GEN_TASK_STATUS_PENDING ||
-      task.status === CodeGenTaskStatus.CODE_GEN_TASK_STATUS_RUNNING;
-  } catch {
-    // 仅清理当前仍指向该任务的过期记录，避免旧请求关闭刚创建任务的进度弹窗。
-    if (taskId === progressTaskId.value) handleProgressUnavailable();
-  }
-}
-
 /** 生成任务结束后刷新列表。 */
 function handleProgressCompleted() {
   generating.value = false;
@@ -818,12 +797,6 @@ function refreshTable() {
   proTable.value?.getTableList();
 }
 
-// 页面从缓存重新激活时恢复最近任务状态。
-onActivated(() => {
-  void syncProgressTaskState();
-});
-
-void syncProgressTaskState();
 </script>
 
 <style scoped lang="scss">

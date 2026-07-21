@@ -95,7 +95,7 @@ func (c *CodeGenCase) GetCodeGenTask(ctx context.Context, taskID string) (*syste
 	}
 	task, ok := c.progressManager.Snapshot(taskID, authInfo.UserId)
 	if !ok {
-		return nil, errorsx.ResourceNotFound("代码生成任务不存在或已过期")
+		return &systemadminv1.CodeGenTask{}, nil
 	}
 	return task, nil
 }

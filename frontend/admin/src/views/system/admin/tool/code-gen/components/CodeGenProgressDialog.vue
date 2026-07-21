@@ -133,6 +133,10 @@ async function loadTask(silent = false, taskId = props.taskId) {
   try {
     const latest = await defCodeGenService.GetCodeGenTask({ task_id: taskId });
     if (taskId !== props.taskId) return;
+    if (!latest.task_id) {
+      markUnavailable();
+      return;
+    }
     applyTask(latest);
     errorMessage.value = "";
   } catch {

@@ -153,7 +153,7 @@ src/rpc
 - `src/views/system/admin/tool/code-gen/preview/index.vue`：从代码生成列表进入的独立完整页面预览，读取已经保存的表、字段、Proto 和字典配置，按普通表格、树形表格、左树右表三种类型渲染最终页面形态；三种表格统一使用自适应最小列宽，列少时自动铺满且不显示横向滚动条，列多时在表格内显示横向滚动条并固定操作列。左树右表预览复用用户管理的 `TreeFilter`，标题优先使用保存的左树描述，旧配置缺少描述时使用左树数据表描述补齐，并保持搜索、重置、展开、折叠和选中交互一致。开关使用配置的字典开启值、关闭值及标签，其他数据表选项在前端模拟。新增、编辑、删除按钮仅在对应 Proto 接口已存在或已勾选生成时展示，更新和删除接口都不可用时不生成操作列。模拟数据辅助逻辑位于同目录 `data.ts`，隐藏动态路由由 `sql/default-data.sql` 注册。
 - `src/views/system/admin/tool/code-gen/code-preview/index.vue`：从代码生成列表进入的独立代码预览页面，按当前项目固定路径加载生成文件，支持直接启动生成任务和查看最近进度；隐藏动态路由由 `sql/default-data.sql` 注册。
 - `src/views/system/admin/tool/code-gen/components/CodePreviewPane.vue`：在独立代码预览页面中展示本次生成文件、增量动作和源码内容。
-- `src/views/system/admin/tool/code-gen/components/CodeGenProgressDialog.vue`：按任务和业务表展示文件、菜单、生成命令进度，通过 SSE 实时更新，并以三秒轮询兜底；最近任务 ID 保存在当前会话中用于页面恢复。
+- `src/views/system/admin/tool/code-gen/components/CodeGenProgressDialog.vue`：按任务和业务表展示文件、菜单、生成命令进度，通过 SSE 实时更新，并以三秒轮询兜底；最近任务 ID 保存在当前会话中用于页面恢复，后端重启或任务过期时会自动清理记录且不展示无效任务。
 - `src/views/system/admin/tool/code-gen/proto/index.vue`：Proto 接口检查与生成选择页面；表格合并展示接口信息、目标位置和检查状态，并将多行内容统一与列标题居中对齐。只有缺失接口勾选生成且接口类型为选项、树形或状态时，才在复选框后展示配置入口，并按接口类型固定显示所需字段；接口字段按目标实体对应的数据库表元数据加载和校验，不复用已过滤的字段配置接口结果。
 
 当前管理后台 AI助手会复用：

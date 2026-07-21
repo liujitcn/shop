@@ -25,14 +25,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import { Clock, Promotion } from "@element-plus/icons-vue";
 import { useRoute } from "vue-router";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { useTabsStore } from "@/stores/modules/tabs";
 import { defCodeGenService } from "@/api/system/admin/code_gen";
 import { defCodeGenTableService } from "@/api/system/admin/code_gen_table";
-import { CodeGenTaskStatus, type CodeGenPreviewFile } from "@/rpc/system/admin/v1/code_gen";
+import type { CodeGenPreviewFile } from "@/rpc/system/admin/v1/code_gen";
 import type { CodeGenTableForm } from "@/rpc/system/admin/v1/code_gen_table";
 import CodeGenProgressDialog from "../components/CodeGenProgressDialog.vue";
 import CodePreviewPane from "../components/CodePreviewPane.vue";
@@ -162,26 +162,6 @@ function handleProgressDialogVisibleChange(visible: boolean) {
   window.sessionStorage.removeItem(codeGenProgressDialogVisibleStorageKey);
 }
 
-/** 恢复最近任务的运行状态。 */
-async function syncProgressTaskState() {
-  const taskId = progressTaskId.value;
-  if (!taskId) {
-    generating.value = false;
-    return;
-  }
-  try {
-    const task = await defCodeGenService.GetCodeGenTask({ task_id: taskId });
-    // 异步请求返回时可能已经启动了新任务，旧任务不能改变新任务的生成状态。
-    if (taskId !== progressTaskId.value) return;
-    generating.value =
-      task.status === CodeGenTaskStatus.CODE_GEN_TASK_STATUS_PENDING ||
-      task.status === CodeGenTaskStatus.CODE_GEN_TASK_STATUS_RUNNING;
-  } catch {
-    // 仅清理当前仍指向该任务的过期记录，避免旧请求关闭刚创建任务的进度弹窗。
-    if (taskId === progressTaskId.value) handleProgressUnavailable();
-  }
-}
-
 /** 生成任务结束后解除当前页面生成锁定。 */
 function handleProgressCompleted() {
   generating.value = false;
@@ -199,9 +179,6 @@ function handleProgressUnavailable() {
   window.sessionStorage.removeItem(codeGenTaskStorageKey);
 }
 
-onMounted(() => {
-  void syncProgressTaskState();
-});
 </script>
 
 <style scoped lang="scss">
