@@ -124,7 +124,7 @@ make gen
 - `make ts`：生成管理后台和商城端 RPC TypeScript 代码，需先在前端模块执行 `pnpm install`。
 - `make gorm-gen`：按当前数据库生成 `pkg/gen` 下的数据模型、查询对象和仓储代码。
 - `make wire`：在 `internal/cmd/server` 下生成依赖注入代码。
-- `make check-shop-boundary`：检查基础模块和通用协议未反向依赖商城模块。
+- `make check-boundary`（仓库根目录执行）：检查基础模块与通用协议未反向依赖业务模块（shop 等，按 `service/` 目录自动发现）。
 - `make gen`：生成 Go / OpenAPI / TypeScript 产物并格式化 Go 代码。
 
 生成产物不要手工修改，优先通过对应命令更新：
