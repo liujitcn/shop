@@ -9,6 +9,7 @@ import (
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repository"
 	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
+	"gorm.io/gorm/clause"
 
 	commonv1 "shop/api/gen/go/common/v1"
 	systemadminv1 "shop/api/gen/go/system/admin/v1"
@@ -17,6 +18,11 @@ import (
 	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
+)
+
+const (
+	baseMenuChildSequenceMax int64 = 99
+	baseMenuMaxLevel               = 4
 )
 
 // BaseMenuCase 菜单业务实例
@@ -57,32 +63,6 @@ func NewBaseMenuCase(
 	}
 }
 
-// TreeBaseMenu 查询菜单树
-func (c *BaseMenuCase) TreeBaseMenu(ctx context.Context) (*systemadminv1.TreeBaseMenuResponse, error) {
-	query := c.Query(ctx).BaseMenu
-	opts := make([]repository.QueryOption, 0, 3)
-	opts = append(opts, repository.Order(query.Sort.Asc()))
-	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
-	allowedMenuIDs, isSuperRole, err := c.listAssignableMenuIDs(ctx, 0)
-	if err != nil {
-		return nil, err
-	}
-	// 非超级管理员没有菜单权限时，菜单管理页直接返回空树。
-	if !isSuperRole && len(allowedMenuIDs) == 0 {
-		return &systemadminv1.TreeBaseMenuResponse{}, nil
-	}
-	// 非超级管理员只能看到当前角色已经拥有的菜单上限。
-	if !isSuperRole {
-		opts = append(opts, repository.Where(query.ID.In(allowedMenuIDs...)))
-	}
-	var list []*models.BaseMenu
-	list, err = c.List(ctx, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return &systemadminv1.TreeBaseMenuResponse{BaseMenus: c.buildBaseMenuTree(list, 0)}, nil
-}
-
 // OptionBaseMenu 查询菜单选项
 func (c *BaseMenuCase) OptionBaseMenu(ctx context.Context, req *systemadminv1.OptionBaseMenuRequest) (*commonv1.TreeOptionResponse, error) {
 	query := c.Query(ctx).BaseMenu
@@ -109,6 +89,32 @@ func (c *BaseMenuCase) OptionBaseMenu(ctx context.Context, req *systemadminv1.Op
 	return &commonv1.TreeOptionResponse{List: c.buildBaseMenuOption(list, req.GetParentId())}, nil
 }
 
+// TreeBaseMenu 查询菜单树
+func (c *BaseMenuCase) TreeBaseMenu(ctx context.Context) (*systemadminv1.TreeBaseMenuResponse, error) {
+	query := c.Query(ctx).BaseMenu
+	opts := make([]repository.QueryOption, 0, 3)
+	opts = append(opts, repository.Order(query.Sort.Asc()))
+	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
+	allowedMenuIDs, isSuperRole, err := c.listAssignableMenuIDs(ctx, 0)
+	if err != nil {
+		return nil, err
+	}
+	// 非超级管理员没有菜单权限时，菜单管理页直接返回空树。
+	if !isSuperRole && len(allowedMenuIDs) == 0 {
+		return &systemadminv1.TreeBaseMenuResponse{}, nil
+	}
+	// 非超级管理员只能看到当前角色已经拥有的菜单上限。
+	if !isSuperRole {
+		opts = append(opts, repository.Where(query.ID.In(allowedMenuIDs...)))
+	}
+	var list []*models.BaseMenu
+	list, err = c.List(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &systemadminv1.TreeBaseMenuResponse{BaseMenus: c.buildBaseMenuTree(list, 0)}, nil
+}
+
 // GetBaseMenu 获取菜单
 func (c *BaseMenuCase) GetBaseMenu(ctx context.Context, id int64) (*systemadminv1.BaseMenuForm, error) {
 	baseMenu, err := c.FindByID(ctx, id)
@@ -121,6 +127,21 @@ func (c *BaseMenuCase) GetBaseMenu(ctx context.Context, id int64) (*systemadminv
 // CreateBaseMenu 创建菜单
 func (c *BaseMenuCase) CreateBaseMenu(ctx context.Context, req *systemadminv1.BaseMenuForm) error {
 	baseMenu := c.formMapper.ToEntity(req)
+	return c.tx.Transaction(ctx, func(ctx context.Context) error {
+		return c.createBaseMenu(ctx, baseMenu)
+	})
+}
+
+// createBaseMenu 校验父级并按层级编号规则创建菜单。
+func (c *BaseMenuCase) createBaseMenu(ctx context.Context, baseMenu *models.BaseMenu) error {
+	if baseMenu.ParentID <= 0 {
+		return errorsx.InvalidArgument("新增菜单必须选择上级菜单")
+	}
+	menuID, err := c.allocateBaseMenuID(ctx, baseMenu.ParentID, baseMenu.Type)
+	if err != nil {
+		return err
+	}
+	baseMenu.ID = menuID
 	return c.Create(ctx, baseMenu)
 }
 
@@ -128,8 +149,31 @@ func (c *BaseMenuCase) CreateBaseMenu(ctx context.Context, req *systemadminv1.Ba
 func (c *BaseMenuCase) UpdateBaseMenu(ctx context.Context, req *systemadminv1.BaseMenuForm) error {
 	baseMenu := c.formMapper.ToEntity(req)
 	return c.tx.Transaction(ctx, func(ctx context.Context) error {
-		err := c.UpdateByID(ctx, baseMenu)
+		currentMenu, err := c.FindByID(ctx, req.GetId())
 		if err != nil {
+			return err
+		}
+		// 一级菜单属于初始化固定资源，只允许修改展示配置，不能改变编号、父级和类型。
+		if currentMenu.ParentID == 0 {
+			if req.GetParentId() != 0 || req.GetType() != systemcommonv1.BaseMenuType_FOLDER {
+				return errorsx.ProtectedResourceConflict("一级菜单的父级和类型不允许修改", "base_menu")
+			}
+		} else {
+			if req.ParentId != nil && req.GetParentId() != currentMenu.ParentID {
+				return errorsx.ProtectedResourceConflict("菜单创建后不允许更换父级", "base_menu")
+			}
+			var parentMenu *models.BaseMenu
+			parentMenu, err = c.FindByID(ctx, currentMenu.ParentID)
+			if err != nil {
+				return errorsx.Internal("查询父级菜单失败").WithCause(err)
+			}
+			if err = validateBaseMenuChild(parentMenu, int32(req.GetType())); err != nil {
+				return err
+			}
+		}
+		baseMenu.ID = currentMenu.ID
+		baseMenu.ParentID = currentMenu.ParentID
+		if err = c.UpdateByID(ctx, baseMenu); err != nil {
 			return err
 		}
 		return c.casbinRuleCase.RebuildCasbinRuleByMenuID(ctx, baseMenu.ID)
@@ -159,6 +203,40 @@ func (c *BaseMenuCase) DeleteBaseMenu(ctx context.Context, id string) error {
 		}
 		return c.casbinRuleCase.DeleteCasbinRuleByMenuIDs(ctx, ids)
 	})
+}
+
+// allocateBaseMenuID 锁定父节点后，从当前层级的01到99中分配首个可用菜单编号。
+func (c *BaseMenuCase) allocateBaseMenuID(ctx context.Context, parentID int64, menuType int32) (int64, error) {
+	query := c.Query(ctx).BaseMenu
+	opts := make([]repository.QueryOption, 0, 2)
+	opts = append(opts, repository.Where(query.ID.Eq(parentID)))
+	opts = append(opts, repository.Clauses(clause.Locking{Strength: "UPDATE"}))
+	parentMenu, err := c.Find(ctx, opts...)
+	if err != nil {
+		return 0, errorsx.InvalidArgument("父级菜单不存在").WithCause(err)
+	}
+	if err = validateBaseMenuChild(parentMenu, menuType); err != nil {
+		return 0, err
+	}
+
+	opts = make([]repository.QueryOption, 0, 2)
+	opts = append(opts, repository.Unscoped())
+	opts = append(opts, repository.Where(query.ParentID.Eq(parentID)))
+	children, err := c.List(ctx, opts...)
+	if err != nil {
+		return 0, err
+	}
+	usedIDs := make(map[int64]struct{}, len(children))
+	for _, child := range children {
+		usedIDs[child.ID] = struct{}{}
+	}
+	for sequence := int64(1); sequence <= baseMenuChildSequenceMax; sequence++ {
+		menuID := parentID*100 + sequence
+		if _, exists := usedIDs[menuID]; !exists {
+			return menuID, nil
+		}
+	}
+	return 0, errorsx.StateConflict("当前父级菜单的子编号01-99已用完", "base_menu", "range_exhausted", "available_id")
 }
 
 // SetBaseMenuStatus 设置菜单状态
@@ -306,4 +384,51 @@ func (c *BaseMenuCase) buildBaseMenuOption(menuList []*models.BaseMenu, parentID
 		res = append(res, menu)
 	}
 	return res
+}
+
+// validateBaseMenuChild 校验父节点能否承载指定类型的下级菜单。
+func validateBaseMenuChild(parentMenu *models.BaseMenu, menuType int32) error {
+	if parentMenu.Type == _const.BASE_MENU_TYPE_BUTTON || parentMenu.Type == _const.BASE_MENU_TYPE_EXT_LINK {
+		return errorsx.InvalidArgument("按钮或外链不能作为父级菜单")
+	}
+	parentLevel := baseMenuIDLevel(parentMenu.ID)
+	if parentLevel == 0 || parentLevel >= baseMenuMaxLevel {
+		return errorsx.InvalidArgument("父级菜单ID不符合三级菜单编号规则")
+	}
+	if parentLevel <= 2 && parentMenu.Type != _const.BASE_MENU_TYPE_FOLDER {
+		return errorsx.InvalidArgument("一级和二级父节点必须是目录")
+	}
+	if parentLevel == 3 && parentMenu.Type != _const.BASE_MENU_TYPE_MENU {
+		return errorsx.InvalidArgument("三级父节点必须是菜单")
+	}
+	if menuType != _const.BASE_MENU_TYPE_FOLDER && menuType != _const.BASE_MENU_TYPE_MENU && menuType != _const.BASE_MENU_TYPE_BUTTON && menuType != _const.BASE_MENU_TYPE_EXT_LINK {
+		return errorsx.InvalidArgument("菜单类型无效")
+	}
+	// 一级下固定为二级目录，二级目录下固定为三级页面，页面下固定为四级按钮。
+	if parentLevel == 1 && menuType != _const.BASE_MENU_TYPE_FOLDER {
+		return errorsx.InvalidArgument("一级菜单下只能创建二级目录")
+	}
+	if parentLevel == 2 && menuType != _const.BASE_MENU_TYPE_MENU && menuType != _const.BASE_MENU_TYPE_EXT_LINK {
+		return errorsx.InvalidArgument("二级目录下只能创建三级菜单或外链")
+	}
+	if parentLevel == 3 && menuType != _const.BASE_MENU_TYPE_BUTTON {
+		return errorsx.InvalidArgument("三级菜单下只能创建按钮")
+	}
+	return nil
+}
+
+// baseMenuIDLevel 根据三、五、七、九位编号识别菜单层级。
+func baseMenuIDLevel(menuID int64) int {
+	switch {
+	case menuID >= 100 && menuID <= 999:
+		return 1
+	case menuID >= 10000 && menuID <= 99999:
+		return 2
+	case menuID >= 1000000 && menuID <= 9999999:
+		return 3
+	case menuID >= 100000000 && menuID <= 999999999:
+		return 4
+	default:
+		return 0
+	}
 }

@@ -101,7 +101,6 @@ func (c *BaseTenantCase) OptionBaseTenant(ctx context.Context, req *systemadminv
 	if err != nil {
 		return nil, err
 	}
-
 	options := make([]*commonv1.SelectOptionResponse_Option, 0, len(list))
 	for _, item := range list {
 		options = append(options, &commonv1.SelectOptionResponse_Option{

@@ -209,7 +209,7 @@ func (c *renderer) renderFrontendAPIFile(table *Table, columns []*CodeGenColumn,
 		}
 		methodsBuilder.WriteString(fmt.Sprintf(`
   /** %s */
-  %s(request: %sRequest): Promise<%s> {
+  %s(request?: %sRequest): Promise<%s> {
     return service<%sRequest, %s>({
       url: %s + "/option",
       method: "get",
@@ -317,19 +317,33 @@ func (c *renderer) renderExternalTargetFrontendAPIFile(table *Table, methods []*
 	})
 }
 
-// appendExternalTargetFrontendAPIMethods 替换已有前端 API 文件的外部目标固定选项方法。
+// appendExternalTargetFrontendAPIMethods 仅补齐已有前端 API 文件缺失的外部目标选项方法。
 func (c *renderer) appendExternalTargetFrontendAPIMethods(content string, table *Table, methods []*Proto) string {
 	className := table.EntityName + "ServiceImpl"
-	if findTSClassEndIndex(content, className) < 0 {
+	existingBlocks, _, _, ok := tsClassMethodBlocks(content, className)
+	if !ok {
 		return content
 	}
-	typeNames := make([]string, 0, len(methods))
+	existingMethodNames := make(map[string]struct{}, len(existingBlocks))
+	for _, block := range existingBlocks {
+		existingMethodNames[block.Name] = struct{}{}
+	}
+	missingMethods := make([]*Proto, 0, len(methods))
 	for _, method := range methods {
+		if _, exists := existingMethodNames[method.MethodName]; !exists {
+			missingMethods = append(missingMethods, method)
+		}
+	}
+	if len(missingMethods) == 0 {
+		return content
+	}
+	typeNames := make([]string, 0, len(missingMethods))
+	for _, method := range missingMethods {
 		typeNames = append(typeNames, method.MethodName+"Request")
 	}
 	content = ensureTSNamedTypeNames(content, frontendRPCImportPath(c.defaultProtoPath(table)), typeNames)
-	content = ensureTSCommonOptionImport(content, methods)
-	return mergeGeneratedTSClassMethods(content, c.renderExternalTargetFrontendAPIFile(table, methods), className)
+	content = ensureTSCommonOptionImport(content, missingMethods)
+	return mergeGeneratedTSClassMethods(content, c.renderExternalTargetFrontendAPIFile(table, missingMethods), className)
 }
 
 // renderExternalTargetFrontendAPIMethods 渲染外部目标实体选项 API 方法。
@@ -345,7 +359,7 @@ func (c *renderer) renderExternalTargetFrontendAPIMethods(table *Table, methods 
 		}
 		builder.WriteString(fmt.Sprintf(`
   /** %s */
-  %s(request: %sRequest): Promise<%s> {
+  %s(request?: %sRequest): Promise<%s> {
     return service<%sRequest, %s>({
       url: %s + "/option",
       method: "get",
@@ -378,6 +392,11 @@ func (c *renderer) renderFrontendPageFile(table *Table, columns []*CodeGenColumn
 	frontendRPCImport := frontendRPCImportPath(paths.GetProtoFilePath())
 	listField := stringcase.ToSnakeCase(pluralEntity)
 	statusTypeImport := renderFrontendStatusTypeImports(columns, methods)
+	formStateType := renderFrontendFormStateType(table, columns)
+	formDataType := entity + "Form"
+	if formStateType != "" {
+		formDataType = entity + "FormState"
+	}
 	proFormTypeImport := "ProFormField"
 	for _, column := range columns {
 		hasTypedOptions := false
@@ -416,13 +435,14 @@ defineOptions({
 const { BUTTONS } = useAuthButtons();
 const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
+%s
 
 const dialog = reactive({
   title: "",
   visible: false
 });
 
-const formData = reactive<%sForm>({
+const formData = reactive<%s>({
 %s
 });
 
@@ -533,11 +553,12 @@ function handleSubmit() {
   formDialogRef.value?.validate()?.then(valid => {
     if (!valid) return;
 
-    const request = formData.id
-      ? def%sService.Update%s({ id: formData.id, %s: formData })
-      : def%sService.Create%s({ %s: formData });
+    const payload = formData as %sForm;
+    const request = payload.id
+      ? def%sService.Update%s({ id: payload.id, %s: payload })
+      : def%sService.Create%s({ %s: payload });
     request.then(() => {
-      ElMessage.success(formData.id ? "修改%s成功" : "新增%s成功");
+      ElMessage.success(payload.id ? "修改%s成功" : "新增%s成功");
       handleCloseDialog();
       refreshTable();
     });
@@ -587,7 +608,7 @@ function handleCloseDialog() {
   resetForm();
 }
 </script>
-	`, renderFrontendDateImport(columns), proFormTypeImport, entity, frontendAPIImport, c.renderFrontendOptionImports(table, columns, methods), entity, entity, entity, statusTypeImport, frontendRPCImport, c.renderFrontendEnumImports(columns), entity, entity, c.renderFrontendFormDefaults(columns), c.renderFrontendRules(columns), c.renderFrontendStatusOptions(columns)+c.renderFrontendOptionState(columns, methods), table.BusinessName, c.renderFrontendFormFields(columns), table.BusinessName, c.renderFrontendColumns(table, columns, methods), PermissionPrefix(table), entity, PermissionPrefix(table), entity, table.BusinessName, PermissionPrefix(table), PermissionPrefix(table), entity, "", table.BusinessName, entity, entity, entity, entity, listField, listField, table.BusinessName, table.BusinessName, c.renderFrontendResetForm(columns), table.BusinessName, c.renderFrontendLoadOptionsCall(columns, methods), table.BusinessName, table.BusinessName, entity, entity, table.BusinessName, entity, entity, snakeEntity, entity, entity, snakeEntity, table.BusinessName, table.BusinessName, c.renderFrontendStatusHandlers(table, columns, methods), table.BusinessName, entity, entity, entity, entity, table.BusinessName, table.BusinessName, entity, entity, table.BusinessName, table.BusinessName, table.BusinessName)
+	`, renderFrontendDateImport(columns), proFormTypeImport, entity, frontendAPIImport, c.renderFrontendOptionImports(table, columns, methods), entity, entity, entity, statusTypeImport, frontendRPCImport, c.renderFrontendEnumImports(columns), entity, formStateType, formDataType, c.renderFrontendFormDefaults(columns), c.renderFrontendRules(columns), c.renderFrontendStatusOptions(columns)+c.renderFrontendOptionState(columns, methods), table.BusinessName, c.renderFrontendFormFields(columns), table.BusinessName, c.renderFrontendColumns(table, columns, methods), PermissionPrefix(table), entity, PermissionPrefix(table), entity, table.BusinessName, PermissionPrefix(table), PermissionPrefix(table), entity, "", table.BusinessName, entity, entity, entity, entity, listField, listField, table.BusinessName, table.BusinessName, c.renderFrontendResetForm(columns), table.BusinessName, c.renderFrontendLoadOptionsCall(columns, methods), table.BusinessName, table.BusinessName, entity, entity, table.BusinessName, entity, entity, entity, snakeEntity, entity, entity, snakeEntity, table.BusinessName, table.BusinessName, c.renderFrontendStatusHandlers(table, columns, methods), table.BusinessName, entity, entity, entity, entity, table.BusinessName, table.BusinessName, entity, entity, table.BusinessName, table.BusinessName, table.BusinessName)
 	content := renderTemplate("frontend_page.tmpl", frontendPageTemplateData{Entity: entity, BusinessName: table.BusinessName, Script: script})
 	return c.applyFrontendPageType(content, table, methods, frontendAPIImport)
 }
@@ -660,9 +681,9 @@ import TreeFilter from "@/components/TreeFilter/index.vue";`, 1)
 	requestCall := "return { data: [] };"
 	if treeMethod != nil {
 		serviceName = "def" + treeMethod.TargetEntityName + "Service"
-		requestCall = fmt.Sprintf("const data = await %s.%s({});\n  return { data: transform%sTreeNodes(data.list ?? []) };", serviceName, treeMethod.MethodName, table.EntityName)
+		requestCall = fmt.Sprintf("const data = await %s.%s({} as Parameters<typeof %s.%s>[0]);\n  return { data: transform%sTreeNodes(data.list ?? []) };", serviceName, treeMethod.MethodName, serviceName, treeMethod.MethodName, table.EntityName)
 		if treeMethod.TargetEntityName != table.EntityName {
-			importLine := fmt.Sprintf(`import { %s } from "@/api/admin/%s";`, serviceName, stringcase.ToSnakeCase(treeMethod.TargetEntityName))
+			importLine := fmt.Sprintf(`import { %s } from %q;`, serviceName, frontendAPIImportPathForMethod(treeMethod))
 			// 左树与表单字段可能依赖同一个外部服务，避免重复导入同名服务实例。
 			if !strings.Contains(content, importLine) {
 				apiImport := fmt.Sprintf(`import { def%sService } from "%s";`, table.EntityName, frontendAPIImport)
@@ -763,6 +784,26 @@ func (c *renderer) renderFrontendColumns(table *Table, columns []*CodeGenColumn,
 		list = append(list, renderFrontendColumn(table.EntityName, column, findStatusMethodForColumn(column, methods), statusColumnCount))
 	}
 	return strings.Join(list, ",\n") + ","
+}
+
+// renderFrontendFormStateType 渲染允许选择型字段暂未选择的表单编辑状态类型。
+func renderFrontendFormStateType(table *Table, columns []*CodeGenColumn) string {
+	optionalFields := make([]string, 0)
+	for _, column := range columns {
+		if (!generatedFormIncludesColumn(column) && column.IsPrimary != 1) || frontendDefaultValue(column) != "undefined" {
+			continue
+		}
+		optionalFields = append(optionalFields, fmt.Sprintf("%q", column.ColumnName))
+	}
+	if len(optionalFields) == 0 {
+		return ""
+	}
+
+	entity := table.EntityName
+	fieldUnion := strings.Join(optionalFields, " | ")
+	return fmt.Sprintf(`/** %sFormState 表示%s表单编辑状态，选择型字段填写前允许为空。 */
+type %sFormState = Omit<%sForm, %s> & Partial<Pick<%sForm, %s>>;
+`, entity, table.BusinessName, entity, entity, fieldUnion, entity, fieldUnion)
 }
 
 // renderFrontendFormDefaults 渲染表单默认值。
@@ -928,7 +969,7 @@ func (c *renderer) renderFrontendOptionState(columns []*CodeGenColumn, methods [
 			}
 			variable := frontendOptionVar(column, scope.name)
 			serviceName := "def" + method.TargetEntityName + "Service"
-			builder.WriteString(fmt.Sprintf("  const %sResponse = await %s.%s({});\n", variable, serviceName, method.MethodName))
+			builder.WriteString(fmt.Sprintf("  const %sResponse = await %s.%s({} as Parameters<typeof %s.%s>[0]);\n", variable, serviceName, method.MethodName, serviceName, method.MethodName))
 			builder.WriteString(fmt.Sprintf("  %sOptions.value = (%sResponse.list ?? []) as ProFormOption[];\n", variable, variable))
 		}
 	}
@@ -953,7 +994,7 @@ func (c *renderer) renderFrontendOptionImports(table *Table, columns []*CodeGenC
 				continue
 			}
 			seen[method.TargetEntityName] = struct{}{}
-			imports = append(imports, fmt.Sprintf("import { def%sService } from \"@/api/admin/%s\";", method.TargetEntityName, stringcase.ToSnakeCase(method.TargetEntityName)))
+			imports = append(imports, fmt.Sprintf("import { def%sService } from %q;", method.TargetEntityName, frontendAPIImportPathForMethod(method)))
 		}
 	}
 	return strings.Join(imports, "\n")
@@ -1090,6 +1131,17 @@ func validateCodeGenOutputPathLayout(target ProtoTarget, paths *systemadminv1.Co
 func frontendRPCImportPath(protoPath string) string {
 	relativePath := strings.TrimPrefix(protoPath, "backend/api/proto/")
 	return "@/rpc/" + strings.TrimSuffix(relativePath, filepath.Ext(relativePath))
+}
+
+// frontendAPIImportPathForMethod 根据接口所属 Proto 目标推导前端 API 导入路径。
+func frontendAPIImportPathForMethod(method *Proto) string {
+	protoDirectory := strings.TrimPrefix(filepath.ToSlash(filepath.Dir(method.ProtoFilePath)), ProtoRootPath+"/")
+	target, ok := ProtoTargetByDirectory(protoDirectory)
+	if !ok {
+		target, _ = ProtoTargetByDirectory(DefaultProtoDirectory)
+	}
+	apiPath := strings.TrimPrefix(target.FrontendAPIFilePath(method.TargetEntityName), "frontend/admin/src/")
+	return "@/" + strings.TrimSuffix(apiPath, filepath.Ext(apiPath))
 }
 
 // repoRoot 返回仓库根目录。

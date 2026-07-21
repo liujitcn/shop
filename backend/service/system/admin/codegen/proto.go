@@ -1038,8 +1038,27 @@ func ensureGoImport(content string, importLine string) string {
 
 // ensureTSNamedTypeNames 确保 TS 文件从指定模块导入类型集合。
 func ensureTSNamedTypeNames(content string, importPath string, typeNames []string) string {
-	missing := make([]string, 0, len(typeNames))
+	pattern := regexp.MustCompile(`(?ms)import\s+(?:type\s+)?\{([^}]*)\}\s+from\s+"` + regexp.QuoteMeta(importPath) + `";`)
+	matches := pattern.FindAllStringSubmatchIndex(content, -1)
+	names := make([]string, 0, len(typeNames))
 	seen := make(map[string]struct{}, len(typeNames))
+	for _, match := range matches {
+		if len(match) < 4 {
+			continue
+		}
+		for _, item := range strings.Split(content[match[2]:match[3]], ",") {
+			name := strings.TrimSpace(strings.TrimPrefix(strings.TrimSpace(item), "type "))
+			if name == "" {
+				continue
+			}
+			key := strings.Fields(name)[0]
+			if _, ok := seen[key]; ok {
+				continue
+			}
+			seen[key] = struct{}{}
+			names = append(names, name)
+		}
+	}
 	for _, typeName := range typeNames {
 		if typeName == "" {
 			continue
@@ -1048,19 +1067,31 @@ func ensureTSNamedTypeNames(content string, importPath string, typeNames []strin
 			continue
 		}
 		seen[typeName] = struct{}{}
-		if strings.Contains(content, "type "+typeName) {
-			continue
-		}
-		missing = append(missing, "  type "+typeName)
+		names = append(names, typeName)
 	}
-	if len(missing) == 0 {
+	if len(names) == 0 {
 		return content
 	}
-	fromLine := "\n} from \"" + importPath + "\";"
-	if !strings.Contains(content, fromLine) {
-		return "import {\n" + strings.Join(missing, ",\n") + "\n} from \"" + importPath + "\";\n" + content
+	slices.Sort(names)
+	imports := make([]string, 0, len(names))
+	for _, name := range names {
+		imports = append(imports, "  type "+name)
 	}
-	return strings.Replace(content, fromLine, ",\n"+strings.Join(missing, ",\n")+fromLine, 1)
+	declaration := "import {\n" + strings.Join(imports, ",\n") + "\n} from \"" + importPath + "\";"
+	if len(matches) == 0 {
+		return declaration + "\n" + content
+	}
+	var builder strings.Builder
+	lastIndex := 0
+	for index, match := range matches {
+		builder.WriteString(content[lastIndex:match[0]])
+		if index == 0 {
+			builder.WriteString(declaration)
+		}
+		lastIndex = match[1]
+	}
+	builder.WriteString(content[lastIndex:])
+	return builder.String()
 }
 
 // ensureTSCommonOptionImport 确保 TS 文件只导入方法实际使用的选项响应类型。

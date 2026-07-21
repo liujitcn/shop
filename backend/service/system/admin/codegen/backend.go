@@ -211,14 +211,24 @@ func (c *renderer) renderBackendServiceFile(table *Table, columns []*CodeGenColu
 	return reorderGoReceiverMethods(removeGoReceiverMethods(content, missingCoreMethodNames(table, methods)), entity+"Service")
 }
 
-// appendExternalTargetBizMethods 替换已有业务文件的外部目标固定选项方法。
+// appendExternalTargetBizMethods 仅补齐已有业务文件缺失的外部目标选项方法。
 func (c *renderer) appendExternalTargetBizMethods(content string, table *Table, methods []*Proto) string {
-	candidate := c.renderExternalTargetBizFile(table, methods)
 	generatedReceiver := table.EntityName + "Case"
 	existingReceiver := goReceiverType(content, "Case")
 	if existingReceiver == "" {
 		return content
 	}
+	existingMethodNames := goReceiverMethodNames(content, existingReceiver)
+	missingMethods := make([]*Proto, 0, len(methods))
+	for _, method := range methods {
+		if _, exists := existingMethodNames[method.MethodName]; !exists {
+			missingMethods = append(missingMethods, method)
+		}
+	}
+	if len(missingMethods) == 0 {
+		return content
+	}
+	candidate := c.renderExternalTargetBizFile(table, missingMethods)
 	methodNames := goReceiverMethodNames(candidate, generatedReceiver)
 	methodContent := strings.Join(extractGoMethods(candidate, methodNames), "\n\n")
 	if methodContent == "" {
@@ -266,14 +276,24 @@ func (c *renderer) renderExternalTargetBizMethods(table *Table, methods []*Proto
 	return builder.String()
 }
 
-// appendExternalTargetServiceMethods 替换已有服务文件的外部目标固定选项方法。
+// appendExternalTargetServiceMethods 仅补齐已有服务文件缺失的外部目标选项方法。
 func (c *renderer) appendExternalTargetServiceMethods(content string, table *Table, methods []*Proto) string {
-	candidate := c.renderExternalTargetServiceFile(table, methods)
 	generatedReceiver := table.EntityName + "Service"
 	existingReceiver := goReceiverType(content, "Service")
 	if existingReceiver == "" {
 		return content
 	}
+	existingMethodNames := goReceiverMethodNames(content, existingReceiver)
+	missingMethods := make([]*Proto, 0, len(methods))
+	for _, method := range methods {
+		if _, exists := existingMethodNames[method.MethodName]; !exists {
+			missingMethods = append(missingMethods, method)
+		}
+	}
+	if len(missingMethods) == 0 {
+		return content
+	}
+	candidate := c.renderExternalTargetServiceFile(table, missingMethods)
 	methodNames := goReceiverMethodNames(candidate, generatedReceiver)
 	methodContent := strings.Join(extractGoMethods(candidate, methodNames), "\n\n")
 	if methodContent == "" {

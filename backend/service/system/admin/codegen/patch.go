@@ -13,6 +13,8 @@ import (
 	"github.com/liujitcn/go-utils/stringcase"
 )
 
+const unmanagedFrontendPageMessage = "已有文件无法确认由生成器管理，已跳过覆盖"
+
 // --- 已有源码的增量分析与补丁 ---
 
 // newExternalTargetBackendPreviewFiles 创建外部选项目标的后端补齐文件。
@@ -92,7 +94,7 @@ func (c *renderer) newManagedPreviewFile(path string, renderedContent string, is
 		return &systemadminv1.CodeGenPreviewFile{Path: path, Action: "update", Content: renderedContent, Exists: true, Message: "生成文件将按当前配置重新渲染"}
 	}
 	// 页面文件没有可安全追加的片段，无法确认归属时不覆盖。
-	return &systemadminv1.CodeGenPreviewFile{Path: path, Action: "skip", Content: originalContent, Exists: true, Message: "已有文件无法确认由生成器管理，已跳过覆盖"}
+	return &systemadminv1.CodeGenPreviewFile{Path: path, Action: "skip", Content: originalContent, Exists: true, Message: unmanagedFrontendPageMessage}
 }
 
 // newAdminRegistrationPreviewFiles 创建管理端业务模块依赖注入与传输层注册补丁。

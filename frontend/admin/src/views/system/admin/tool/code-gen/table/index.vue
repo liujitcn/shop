@@ -209,7 +209,7 @@ const formFields = computed<ProFormField[]>(() => [
     label: "父级菜单",
     component: "tree-select",
     options: parentMenuOptions.value,
-    labelTooltip: "指定生成页面菜单挂载到哪个目录或菜单。仅当同时生成前端、开启“生成SQL”且页面接口完整时，生成流程才会同步菜单和按钮权限。",
+    labelTooltip: "选择五位编号的二级目录作为挂载点。仅当同时生成前端、开启“生成SQL”且页面接口完整时，生成流程才会同步三级菜单和四级按钮权限。",
     props: {
       placeholder: "请选择生成页面挂载菜单",
       clearable: true,
@@ -753,7 +753,7 @@ function convertMenuOptions(options: TreeOptionResponse_Option[]): ProFormOption
   return options.map(item => ({
     label: item.label,
     value: item.value,
-    disabled: item.disabled,
+    disabled: item.disabled || item.value < 10000 || item.value > 99999,
     children: convertMenuOptions(item.children ?? [])
   }));
 }

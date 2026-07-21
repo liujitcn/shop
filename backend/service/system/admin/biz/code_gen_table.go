@@ -278,9 +278,8 @@ func (c *CodeGenTableCase) codeGenTableFormToModel(ctx context.Context, currentI
 	if err != nil {
 		return nil, errorsx.InvalidArgument("父级菜单不存在").WithCause(err)
 	}
-	// 生成页面只能挂载到目录或普通菜单节点。
-	if menu.Type != _const.BASE_MENU_TYPE_FOLDER && menu.Type != _const.BASE_MENU_TYPE_MENU {
-		return nil, errorsx.InvalidArgument("父级菜单只能选择目录或菜单")
+	if err = validateBaseMenuChild(menu, _const.BASE_MENU_TYPE_MENU); err != nil {
+		return nil, err
 	}
 	query := c.Query(ctx).CodeGenTable
 	opts := make([]repository.QueryOption, 0, 2)

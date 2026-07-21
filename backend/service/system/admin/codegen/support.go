@@ -353,12 +353,14 @@ func (c *renderer) renderOptionBizMethod(table *Table, columns []*CodeGenColumn,
 	valueExpr := fmt.Sprintf("int64(item.%s)", modelFieldName(DefaultString(method.ValueColumn, "id")))
 	defaultOrderOption := renderDefaultOrderOption(columns)
 	orderOptionCount := 0
+	queryDeclaration := ""
 	if defaultOrderOption != "" {
 		orderOptionCount = 1
+		queryDeclaration = fmt.Sprintf("\tquery := c.Query(ctx).%s\n", table.EntityName)
 	}
 	return fmt.Sprintf(`// %s 查询%s下拉选择。
 func (c *%sCase) %s(ctx context.Context, _ *systemadminv1.%sRequest) (*commonv1.SelectOptionResponse, error) {
-	query := c.Query(ctx).%s
+%s
 	opts := make([]repository.QueryOption, 0, %d)
 %s
 	list, err := c.List(ctx, opts...)
@@ -372,7 +374,7 @@ func (c *%sCase) %s(ctx context.Context, _ *systemadminv1.%sRequest) (*commonv1.
 	return &commonv1.SelectOptionResponse{List: options}, nil
 }
 
-`, method.MethodName, table.BusinessName, table.EntityName, method.MethodName, method.MethodName, table.EntityName, orderOptionCount, defaultOrderOption, labelField, valueExpr)
+`, method.MethodName, table.BusinessName, table.EntityName, method.MethodName, method.MethodName, queryDeclaration, orderOptionCount, defaultOrderOption, labelField, valueExpr)
 }
 
 // renderTreeOptionBizMethod 渲染树形选择业务方法。
@@ -384,12 +386,14 @@ func (c *renderer) renderTreeOptionBizMethod(table *Table, columns []*CodeGenCol
 	valueExpr := fmt.Sprintf("int64(item.%s)", modelFieldName(DefaultString(method.ValueColumn, "id")))
 	defaultOrderOption := renderDefaultOrderOption(columns)
 	orderOptionCount := 0
+	queryDeclaration := ""
 	if defaultOrderOption != "" {
 		orderOptionCount = 1
+		queryDeclaration = fmt.Sprintf("\tquery := c.Query(ctx).%s\n", table.EntityName)
 	}
 	return fmt.Sprintf(`// %s 查询%s树形选择。
 func (c *%sCase) %s(ctx context.Context, req *systemadminv1.%sRequest) (*commonv1.TreeOptionResponse, error) {
-	query := c.Query(ctx).%s
+%s
 	opts := make([]repository.QueryOption, 0, %d)
 %s
 	list, err := c.List(ctx, opts...)
@@ -413,7 +417,7 @@ func (c *%sCase) build%sOption(list []*models.%s, parentID int64) []*commonv1.Tr
 	return res
 }
 
-`, method.MethodName, table.BusinessName, table.EntityName, method.MethodName, method.MethodName, table.EntityName, orderOptionCount, defaultOrderOption, method.MethodName, parentGetter, method.MethodName, table.BusinessName, table.EntityName, method.MethodName, table.EntityName, parentField, labelField, valueExpr, method.MethodName, valueExpr)
+`, method.MethodName, table.BusinessName, table.EntityName, method.MethodName, method.MethodName, queryDeclaration, orderOptionCount, defaultOrderOption, method.MethodName, parentGetter, method.MethodName, table.BusinessName, table.EntityName, method.MethodName, table.EntityName, parentField, labelField, valueExpr, method.MethodName, valueExpr)
 }
 
 // renderServiceMethod 渲染服务层方法。
@@ -459,7 +463,7 @@ func (c *renderer) renderServiceMethod(table *Table, method *Proto, entityVar st
 func (s *%sService) %s(ctx context.Context, req *systemadminv1.%sRequest) %s {
 	%s %s
 	if err != nil {
-		log.Errorf("%s %%v", err)
+		log.Error(%q, "error", err)
 		return nil, errorsx.WrapInternal(err, %q)
 	}
 	%s

@@ -45,7 +45,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, h, reactive, ref, resolveComponent, resolveDynamicComponent } from "vue";
+import { computed, h, reactive, ref, resolveComponent, resolveDynamicComponent, watch } from "vue";
 import { ElIcon, ElTag, type FormRules } from "element-plus";
 import ProTable from "@/components/ProTable/index.vue";
 import FormDialog from "@/components/Dialog/FormDialog.vue";
@@ -133,6 +133,40 @@ const menuTypeOptions: ProFormOption[] = [
   { label: "按钮", value: BaseMenuType.BUTTON },
   { label: "外链", value: BaseMenuType.EXT_LINK }
 ];
+
+/** 根据三、五、七、九位编号识别菜单层级。 */
+function getMenuLevel(menuId: number) {
+  if (menuId >= 100 && menuId <= 999) return 1;
+  if (menuId >= 10000 && menuId <= 99999) return 2;
+  if (menuId >= 1000000 && menuId <= 9999999) return 3;
+  if (menuId >= 100000000 && menuId <= 999999999) return 4;
+  return 0;
+}
+
+/** 判断当前菜单是否还能继续新增下级节点。 */
+function canCreateChild(menu: BaseMenu) {
+  const level = getMenuLevel(menu.id);
+  return level > 0 && level < 4 && menu.type !== BaseMenuType.BUTTON && menu.type !== BaseMenuType.EXT_LINK;
+}
+
+/** 根据父级层级限制可创建的菜单类型。 */
+const availableMenuTypeOptions = computed(() => {
+  const parentLevel = getMenuLevel(formData.parent_id ?? 0);
+
+  if (parentLevel === 1) return menuTypeOptions.filter(item => item.value === BaseMenuType.FOLDER);
+  if (parentLevel === 2)
+    return menuTypeOptions.filter(item => item.value === BaseMenuType.MENU || item.value === BaseMenuType.EXT_LINK);
+  if (parentLevel === 3) return menuTypeOptions.filter(item => item.value === BaseMenuType.BUTTON);
+  return [];
+});
+
+watch(
+  () => formData.parent_id,
+  () => {
+    if (formData.id > 0 || availableMenuTypeOptions.value.some(item => item.value === formData.type)) return;
+    formData.type = (availableMenuTypeOptions.value[0]?.value as BaseMenuType) ?? BaseMenuType.UNKNOWN_MT;
+  }
+);
 
 const statusOptions: ProFormOption[] = [
   { label: "启用", value: Status.ENABLE },
@@ -224,7 +258,7 @@ const columns = computed<ColumnProps[]>(() => [
         type: "primary",
         link: true,
         icon: CirclePlus,
-        hidden: () => !BUTTONS.value["base:menu:create"],
+        hidden: scope => !BUTTONS.value["base:menu:create"] || !canCreateChild(scope.row as BaseMenu),
         onClick: scope => handleOpenDialog((scope.row as BaseMenu).id)
       },
       {
@@ -249,13 +283,6 @@ const columns = computed<ColumnProps[]>(() => [
 
 /** 菜单表格顶部按钮配置。 */
 const headerActions = computed<HeaderActionProps[]>(() => [
-  {
-    label: "新增",
-    type: "success",
-    icon: CirclePlus,
-    hidden: () => !BUTTONS.value["base:menu:create"],
-    onClick: () => handleOpenDialog()
-  },
   {
     label: "删除",
     type: "danger",
@@ -282,20 +309,24 @@ const formFields = computed<ProFormField[]>(() => [
     label: "上级菜单",
     component: "tree-select",
     options: menuOptions.value as unknown as ProFormOption[],
-    props: {
+    props: model => ({
       nodeKey: "value",
       props: { label: "label", children: "children" },
       checkStrictly: true,
       clearable: false,
       filterable: true,
+      disabled: model.id > 0,
       style: { width: "100%" }
-    }
+    })
   },
   {
     prop: "type",
     label: "菜单类型",
     component: "radio-group",
-    options: menuTypeOptions
+    options: availableMenuTypeOptions.value,
+    props: model => ({
+      disabled: model.id > 0 && model.parent_id === 0
+    })
   },
   {
     prop: "meta.title",
@@ -628,16 +659,9 @@ function resetForm(data?: Partial<BaseMenuForm>) {
   Object.assign(formData, normalizeMenuForm(data));
 }
 
-/** 构建带顶级菜单节点的菜单树选项。 */
+/** 构建可选父级菜单树，一级菜单只能从初始化数据产生。 */
 function buildMenuOptions(options: TreeOptionResponse_Option[] = []) {
-  return [
-    {
-      value: 0,
-      label: "顶级菜单",
-      disabled: false,
-      children: options
-    }
-  ];
+  return options;
 }
 
 /** 根据菜单类型清理无效字段，避免提交脏数据。 */

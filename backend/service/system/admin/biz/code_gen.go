@@ -24,11 +24,6 @@ import (
 	"gorm.io/gen/field"
 )
 
-const (
-	codeGenGeneratedMenuIDReservation int64 = 20
-	codeGenGeneratedMenuIDMax         int64 = 9999
-)
-
 var codeGenGenerationProcessLock sync.Mutex
 
 // codeGenProgressReporter 将单个生成对象的执行步骤写入内存任务。
@@ -597,68 +592,32 @@ func (c *CodeGenCase) optionTargetColumns(ctx context.Context, table *codegen.Ta
 
 // validateCodeGenParentMenu 校验生成页面的父级菜单节点。
 func (c *CodeGenCase) validateCodeGenParentMenu(ctx context.Context, parentMenuID int64) error {
-	if parentMenuID < 0 {
-		return errorsx.InvalidArgument("父级菜单ID不能小于0")
-	}
-	// 未选择父级菜单时，默认将生成菜单挂载到根节点。
-	if parentMenuID == 0 {
-		return nil
+	if parentMenuID <= 0 {
+		return errorsx.InvalidArgument("代码生成必须选择固定一级菜单下的父级菜单")
 	}
 	menu, err := c.baseMenuCase.FindByID(ctx, parentMenuID)
 	if err != nil {
 		return errorsx.InvalidArgument("父级菜单不存在").WithCause(err)
 	}
-	// 生成页面只能挂载到目录或普通菜单节点。
-	if menu.Type != _const.BASE_MENU_TYPE_FOLDER && menu.Type != _const.BASE_MENU_TYPE_MENU {
-		return errorsx.InvalidArgument("父级菜单只能选择目录或菜单")
-	}
-	return nil
+	return validateBaseMenuChild(menu, _const.BASE_MENU_TYPE_MENU)
 }
 
 // syncGeneratedMenus 幂等同步生成页面及按钮权限菜单。
 func (c *CodeGenCase) syncGeneratedMenus(ctx context.Context, table *codegen.Table, columns []*codegen.CodeGenColumn, methods []*codegen.Proto, resourcePath string) error {
 	pageSpec, buttonSpecs := codegen.MenuSpecs(table, columns, methods, resourcePath, table.TableComment)
 	return c.tx.Transaction(ctx, func(ctx context.Context) error {
-		nextMenuID, menuIDEnd, err := c.findNextGeneratedMenuID(ctx, table.ParentMenuID)
-		if err != nil {
-			return err
-		}
-		pageMenu, err := c.upsertGeneratedPageMenu(ctx, pageSpec, &nextMenuID, menuIDEnd)
+		pageMenu, err := c.upsertGeneratedPageMenu(ctx, pageSpec)
 		if err != nil {
 			return err
 		}
 		for _, buttonSpec := range buttonSpecs {
 			buttonSpec.Menu.ParentID = pageMenu.ID
-			if err = c.upsertGeneratedButtonMenu(ctx, buttonSpec, &nextMenuID, menuIDEnd); err != nil {
+			if err = c.upsertGeneratedButtonMenu(ctx, buttonSpec); err != nil {
 				return err
 			}
 		}
 		return c.disableStaleGeneratedStatusMenus(ctx, pageMenu.ID, table, buttonSpecs)
 	})
-}
-
-// findNextGeneratedMenuID 查询当前父级菜单直接子节点中的最大 ID，并计算下一个生成菜单 ID。
-func (c *CodeGenCase) findNextGeneratedMenuID(ctx context.Context, parentMenuID int64) (int64, int64, error) {
-	query := c.baseMenuCase.Query(ctx).BaseMenu
-	opts := make([]repository.QueryOption, 0, 2)
-	opts = append(opts, repository.Unscoped())
-	opts = append(opts, repository.Where(query.ParentID.Eq(parentMenuID)))
-	menus, err := c.baseMenuCase.List(ctx, opts...)
-	if err != nil {
-		return 0, 0, err
-	}
-	maxMenuID := parentMenuID
-	for _, menu := range menus {
-		// 当前节点直接子菜单中的最大 ID 决定新页面的预留起始位置。
-		if menu.ID > maxMenuID {
-			maxMenuID = menu.ID
-		}
-	}
-	// 菜单 ID 仅允许使用四位及以下编号，超出后不再扩展到五位区间。
-	if maxMenuID > codeGenGeneratedMenuIDMax {
-		return 0, 0, errorsx.StateConflict("当前父级菜单的子菜单ID已超过四位数上限", "base_menu", "id_overflow", "four_digit_id")
-	}
-	return maxMenuID + codeGenGeneratedMenuIDReservation, generatedMenuIDRangeEnd(maxMenuID), nil
 }
 
 // disableStaleGeneratedStatusMenus 停用本轮不再需要的状态按钮权限。
@@ -698,7 +657,7 @@ func (c *CodeGenCase) disableStaleGeneratedStatusMenus(ctx context.Context, page
 }
 
 // upsertGeneratedPageMenu 创建或更新生成页面菜单。
-func (c *CodeGenCase) upsertGeneratedPageMenu(ctx context.Context, spec codegen.CodeGenMenuSpec, nextMenuID *int64, menuIDEnd int64) (*models.BaseMenu, error) {
+func (c *CodeGenCase) upsertGeneratedPageMenu(ctx context.Context, spec codegen.CodeGenMenuSpec) (*models.BaseMenu, error) {
 	query := c.baseMenuCase.Query(ctx).BaseMenu
 	opts := make([]repository.QueryOption, 0, 2)
 	opts = append(opts, repository.Where(
@@ -714,16 +673,13 @@ func (c *CodeGenCase) upsertGeneratedPageMenu(ctx context.Context, spec codegen.
 		return nil, err
 	}
 	if len(menus) == 0 {
-		var menuID int64
-		menuID, err = allocateGeneratedMenuID(nextMenuID, menuIDEnd)
-		if err != nil {
-			return nil, err
-		}
-		spec.Menu.ID = menuID
-		if err = c.baseMenuCase.Create(ctx, spec.Menu); err != nil {
+		if err = c.baseMenuCase.createBaseMenu(ctx, spec.Menu); err != nil {
 			return nil, err
 		}
 		return spec.Menu, nil
+	}
+	if menus[0].ParentID != spec.Menu.ParentID {
+		return nil, errorsx.StateConflict("已生成菜单不能更换父级，请先删除原菜单后重新生成", "base_menu", fmt.Sprint(menus[0].ParentID), fmt.Sprint(spec.Menu.ParentID))
 	}
 	spec.Menu.ID = menus[0].ID
 	if err = c.baseMenuCase.UpdateByID(ctx, spec.Menu); err != nil {
@@ -736,7 +692,7 @@ func (c *CodeGenCase) upsertGeneratedPageMenu(ctx context.Context, spec codegen.
 }
 
 // upsertGeneratedButtonMenu 创建或更新生成按钮权限菜单。
-func (c *CodeGenCase) upsertGeneratedButtonMenu(ctx context.Context, spec codegen.CodeGenMenuSpec, nextMenuID *int64, menuIDEnd int64) error {
+func (c *CodeGenCase) upsertGeneratedButtonMenu(ctx context.Context, spec codegen.CodeGenMenuSpec) error {
 	query := c.baseMenuCase.Query(ctx).BaseMenu
 	opts := make([]repository.QueryOption, 0, 2)
 	opts = append(opts, repository.Where(query.ParentID.Eq(spec.Menu.ParentID)))
@@ -755,13 +711,7 @@ func (c *CodeGenCase) upsertGeneratedButtonMenu(ctx context.Context, spec codege
 		}
 		return c.baseMenuCase.casbinRuleCase.RebuildCasbinRuleByMenuID(ctx, spec.Menu.ID)
 	}
-	var menuID int64
-	menuID, err = allocateGeneratedMenuID(nextMenuID, menuIDEnd)
-	if err != nil {
-		return err
-	}
-	spec.Menu.ID = menuID
-	return c.baseMenuCase.Create(ctx, spec.Menu)
+	return c.baseMenuCase.createBaseMenu(ctx, spec.Menu)
 }
 
 // updateStep 更新当前生成对象的单个执行步骤。
@@ -770,31 +720,6 @@ func (r *codeGenProgressReporter) updateStep(ctx context.Context, stepID string,
 		return
 	}
 	r.manager.UpdateStep(ctx, r.taskID, r.tableID, stepID, status, message, output)
-}
-
-// generatedMenuIDRangeEnd 根据当前最大菜单 ID 的位数计算本级菜单编号区间上限。
-func generatedMenuIDRangeEnd(maxMenuID int64) int64 {
-	// 根节点尚无子菜单时，从两位菜单 ID 区间开始分配。
-	if maxMenuID == 0 {
-		return 99
-	}
-	rangeSize := int64(10)
-	// 区间按最大 ID 的最高位划分，例如 100 对应 100-199。
-	for maxMenuID/rangeSize >= 10 {
-		rangeSize *= 10
-	}
-	return (maxMenuID/rangeSize+1)*rangeSize - 1
-}
-
-// allocateGeneratedMenuID 分配本轮新建菜单的 ID，并校验不会越过父级菜单的编号区间。
-func allocateGeneratedMenuID(nextMenuID *int64, menuIDEnd int64) (int64, error) {
-	// 到达下一父级菜单区间时，终止生成并由事务回滚已创建菜单。
-	if *nextMenuID > menuIDEnd {
-		return 0, errorsx.StateConflict(fmt.Sprintf("菜单ID已达到区间上限%d，不能继续生成", menuIDEnd), "base_menu", "range_exhausted", "available_id")
-	}
-	menuID := *nextMenuID
-	*nextMenuID++
-	return menuID, nil
 }
 
 // codeGenTableToSnapshot 将现有表配置转换为生成器只读快照。
