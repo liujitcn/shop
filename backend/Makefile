@@ -1,5 +1,5 @@
 # Makefile 常用目标：初始化工具、生成代码、格式化代码、启动服务
-.PHONY: help init plugin cli fmt gorm-gen wire api openapi ts gen run build docker-build
+.PHONY: help init plugin cli fmt lint gorm-gen wire api openapi ts gen run build docker-build
 
 IMAGE ?= backend
 TAG ?= latest
@@ -65,6 +65,12 @@ fmt:
 	@echo "==> 格式化 Go 代码"
 	@PATH="$(GO_BIN_DIR):$$PATH" find . -type f -name '*.go' -exec goimports -w {} +
 	@echo "==> Go 代码格式化完成"
+
+# 运行 golangci-lint 静态检查（含禁止手写 SQL 检查）
+lint:
+	@echo "==> 运行 golangci-lint 静态检查"
+	@PATH="$(GO_BIN_DIR):$$PATH" golangci-lint run ./...
+	@echo "==> golangci-lint 静态检查完成"
 
 # 生成 GORM 代码
 gorm-gen:

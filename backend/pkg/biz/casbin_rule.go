@@ -86,7 +86,7 @@ func (c *CasbinRuleCase) RebuildAllCasbinRules(ctx context.Context) error {
 	casbinRuleList := buildCasbinRuleList(baseRoleList, baseTenantList, baseMenuList, baseAPIList)
 	query := c.Query(ctx).CasbinRule
 	// 策略完全根据当前角色、菜单和接口重建，清空表并重置自增 ID 后重新生成。
-	if err = query.WithContext(ctx).UnderlyingDB().Exec("TRUNCATE TABLE `casbin_rule`").Error; err != nil {
+	if err = query.WithContext(ctx).UnderlyingDB().Exec("TRUNCATE TABLE `casbin_rule`").Error; err != nil { //nolint:forbidigo // TRUNCATE 重置自增 ID，gorm/gen 无法表达
 		return err
 	}
 	err = c.tx.Transaction(ctx, func(ctx context.Context) error {

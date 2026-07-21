@@ -164,7 +164,7 @@ func (c *BaseAPICase) openAPIDataToBaseAPI(openAPIData []byte) ([]*models.BaseAP
 func (c *BaseAPICase) batchCreateBaseAPI(ctx context.Context, apis []*models.BaseAPI) error {
 	query := c.Query(ctx).BaseAPI
 	// 接口定义完全以当前 OpenAPI 为准，清空表并重置自增 ID 后重新生成。
-	if err := query.WithContext(ctx).UnderlyingDB().Exec("TRUNCATE TABLE `base_api`").Error; err != nil {
+	if err := query.WithContext(ctx).UnderlyingDB().Exec("TRUNCATE TABLE `base_api`").Error; err != nil { //nolint:forbidigo // TRUNCATE 重置自增 ID，gorm/gen 无法表达
 		return err
 	}
 	return c.BatchCreate(ctx, apis)
