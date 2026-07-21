@@ -61,11 +61,6 @@ func NewResponsesClient(modelCfg *bootstrapConfigv1.AI_Model) *ResponsesClient {
 	return client
 }
 
-// Enabled 判断聊天模型客户端是否可用。
-func (c *ChatClient) Enabled() bool {
-	return c != nil && c.AgenticModel != nil
-}
-
 // ResponsesClient 表示 AI 助手专用 Responses 模型客户端。
 type ResponsesClient struct {
 	componentsModel.AgenticModel

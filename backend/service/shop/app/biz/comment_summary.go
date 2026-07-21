@@ -46,16 +46,6 @@ func NewCommentSummaryCase(
 	}
 }
 
-// GoodsCommentOverview 查询商品详情评价摘要卡片。
-func (c *CommentSummaryCase) GoodsCommentOverview(ctx context.Context, goodsID, userID int64) (*shopappv1.CommentSummary, error) {
-	return c.buildCardByGoodsIDAndScene(ctx, goodsID, _const.COMMENT_SUMMARY_SCENE_OVERVIEW, userID)
-}
-
-// PageGoodsComment 查询评价列表摘要卡片。
-func (c *CommentSummaryCase) PageGoodsComment(ctx context.Context, goodsID, userID int64) (*shopappv1.CommentSummary, error) {
-	return c.buildCardByGoodsIDAndScene(ctx, goodsID, _const.COMMENT_SUMMARY_SCENE_LIST, userID)
-}
-
 // FindByID 按编号查询评价摘要记录。
 func (c *CommentSummaryCase) FindByID(ctx context.Context, summaryID int64) (*models.CommentSummary, error) {
 	query := c.Query(ctx).CommentSummary

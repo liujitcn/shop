@@ -17,15 +17,10 @@ func NewUserReceiver(recommend *Recommend) *UserReceiver {
 	return &UserReceiver{recommend: recommend}
 }
 
-// Enabled 判断当前登录用户Gorse 推荐接收器是否可用。
-func (r *UserReceiver) Enabled() bool {
-	return r.recommend.Enabled()
-}
-
 // ListGoodsIDs 查询当前用户前 N 条原始推荐商品编号。
 func (r *UserReceiver) ListGoodsIDs(ctx context.Context, actor *dto.RecommendActor, limit int64) ([]int64, bool, error) {
 	// 客户端未启用、推荐主体无效或主体不是登录用户时，直接返回空推荐结果。
-	if !r.Enabled() || !actor.IsValid() {
+	if !r.recommend.Enabled() || !actor.IsValid() {
 		return []int64{}, false, nil
 	}
 	// 匿名主体不走用户维度的推荐系统推荐。

@@ -38,11 +38,6 @@ func NewChainReceiver(
 	}
 }
 
-// Enabled 判断当前本地推荐责任链接收器是否可用。
-func (r *ChainReceiver) Enabled() bool {
-	return r != nil && r.recommend != nil && r.recommend.Enabled()
-}
-
 // ExecutePlan 按场景执行单一的本地推荐策略。
 func (r *ChainReceiver) ExecutePlan(
 	ctx context.Context,
@@ -58,7 +53,7 @@ func (r *ChainReceiver) ExecutePlan(
 		Trace:    make([]*dto.GoodsTrace, 0),
 	}
 	// 本地推荐链路未启用时，直接返回空结果。
-	if !r.Enabled() {
+	if r == nil || r.recommend == nil || !r.recommend.Enabled() {
 		return result, nil
 	}
 	// 页码或每页条数非法时，直接返回空结果。

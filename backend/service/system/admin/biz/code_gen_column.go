@@ -383,16 +383,11 @@ func validateCodeGenColumnConfig(column *systemadminv1.CodeGenColumn, databaseCo
 		if !formConfig.GetEnabled() || formConfig.GetComponent() != "tree-select" || formConfig.GetOption().GetKind() != "tree" {
 			return errorsx.InvalidArgument("字段" + column.GetColumnName() + "的表单多选仅支持树形选择")
 		}
-		if !isCodeGenJSONType(databaseColumn.DataType) {
+		if !strings.EqualFold(strings.TrimSpace(databaseColumn.DataType), "json") {
 			return errorsx.InvalidArgument("字段" + column.GetColumnName() + "的表单多选仅支持JSON字段")
 		}
 	}
 	return nil
-}
-
-// isCodeGenJSONType 判断数据库字段是否可保存多选树形值。
-func isCodeGenJSONType(dbType string) bool {
-	return strings.EqualFold(strings.TrimSpace(dbType), "json")
 }
 
 // validateCodeGenListOptionConfig 校验列表组件与选项配置是否匹配。

@@ -345,7 +345,7 @@ func buildExpectedCodeGenProtos(table *models.CodeGenTable, form *systemadminv1.
 				codeGenTriggerFieldStatus,
 				codeGenAPIKindStatus,
 				entity,
-				codeGenStatusMethodName(entity, column.GetColumnName()),
+				"Set"+entity+stringcase.ToPascalCase(column.GetColumnName()),
 				protoPath,
 			))
 		}
@@ -564,11 +564,6 @@ func pluralizeCodeGenEntity(value string) string {
 		return strings.TrimSuffix(value, "y") + "ies"
 	}
 	return value + "s"
-}
-
-// codeGenStatusMethodName 按 Set{Entity}{FieldPascalCase} 生成字段设置方法名。
-func codeGenStatusMethodName(entity string, columnName string) string {
-	return "Set" + entity + stringcase.ToPascalCase(columnName)
 }
 
 // codeGenProtoKey 返回 Proto 接口配置稳定键。

@@ -1120,11 +1120,6 @@ func repoRoot() string {
 	return wd
 }
 
-// isManagedAuditColumn 判断字段是否由基础设施自动维护、默认无需人工配置。
-func isManagedAuditColumn(columnName string) bool {
-	return columnName == "created_by" || columnName == "updated_by" || columnName == "created_at" || columnName == "updated_at" || columnName == "deleted_at"
-}
-
 // pluralize 生成项目常用复数方法名。
 func pluralize(value string) string {
 	if strings.HasSuffix(value, "s") {
@@ -1169,11 +1164,6 @@ func statusProtoType(column *CodeGenColumn) string {
 		return "int32"
 	}
 	return DefaultString(column.ProtoType, InferProtoType(column.DbType))
-}
-
-// statusMethodNameForColumn 按 Set{Entity}{FieldPascalCase} 生成字段设置方法名。
-func statusMethodNameForColumn(table *Table, column *CodeGenColumn) string {
-	return "Set" + table.EntityName + stringcase.ToPascalCase(column.ColumnName)
 }
 
 // statusResourcePath 返回状态接口对应的 HTTP 子资源路径。

@@ -322,7 +322,7 @@ func operationProtoPackages(path string, operation *Operation) map[string]struct
 func collectSchemaProtoPackages(path string, schema Schema, packages map[string]struct{}) {
 	packageName := protoPackageFromSchemaRef(schema.Ref)
 	// schema 引用的包与当前 HTTP 终端一致时，才能作为服务所属包名候选。
-	if packageName != "" && packageMatchesTerminal(packageName, openAPITerminal(path)) {
+	if packageName != "" && protoPackageTerminal(packageName) == openAPITerminal(path) {
 		packages[packageName] = struct{}{}
 	}
 	for _, property := range schema.Properties {
@@ -361,11 +361,6 @@ func protoPackageFromSchemaRef(ref string) string {
 // 除 v1 外，也兼容 v2、v1beta1 等版本命名；只要 v 后首字符为数字，即可作为包名边界。
 func isProtoPackageVersion(value string) bool {
 	return len(value) > 1 && value[0] == 'v' && value[1] >= '0' && value[1] <= '9'
-}
-
-// packageMatchesTerminal 判断 protobuf 包是否属于当前 HTTP 终端。
-func packageMatchesTerminal(packageName, terminal string) bool {
-	return protoPackageTerminal(packageName) == terminal
 }
 
 // protoPackageTerminal 返回 protobuf 包版本段前的终端名称。

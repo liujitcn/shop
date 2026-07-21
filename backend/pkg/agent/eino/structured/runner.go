@@ -40,7 +40,7 @@ func DecodeContent(content string, out any) error {
 
 // Enabled 判断结构化输出运行器是否可用。
 func (r *Runner) Enabled() bool {
-	return r != nil && r.client != nil && r.client.Enabled()
+	return r != nil && r.client != nil && r.client.AgenticModel != nil
 }
 
 // Model 返回结构化输出当前使用的模型名称。

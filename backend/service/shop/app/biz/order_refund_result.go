@@ -64,7 +64,7 @@ func (c *OrderRefundResultCase) Apply(ctx context.Context, orderTrade *models.Or
 	if err != nil {
 		return false, err
 	}
-	if !shouldApplyOrderRefundResult(orderRefund.RefundState, refundResource.GetRefundStatus()) {
+	if !slices.Contains(orderRefundResultSourceStates(refundResource.GetRefundStatus()), orderRefund.RefundState) {
 		return false, nil
 	}
 
@@ -271,11 +271,6 @@ func validateOrderRefundResult(orderTrade *models.OrderTrade, orderRefund *model
 		return errorsx.Internal("退款结果金额与本地退款申请不一致")
 	}
 	return nil
-}
-
-// shouldApplyOrderRefundResult 判断退款结果是否仍可从当前本地状态向前推进。
-func shouldApplyOrderRefundResult(current string, next shopappv1.RefundResource_RefundStatus) bool {
-	return slices.Contains(orderRefundResultSourceStates(next), current)
 }
 
 // orderRefundResultSourceStates 返回指定渠道结果允许覆盖的本地退款状态。

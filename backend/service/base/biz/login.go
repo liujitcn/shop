@@ -137,7 +137,7 @@ func (c *LoginCase) Logout(ctx context.Context, req *basev1.LogoutRequest) error
 		return errorsx.Internal("退出登录失败").WithCause(err)
 	}
 	if refreshToken != "" {
-		err = c.deleteRefreshTokenAuth(refreshToken)
+		err = c.Cache.Del(refreshTokenAuthKey(refreshToken))
 		if err != nil {
 			return errorsx.Internal("退出登录失败").WithCause(err)
 		}
@@ -331,11 +331,6 @@ func (c *LoginCase) getAuthInfoByRefreshToken(refreshToken string) (*authData.Us
 		return nil, errorsx.Unauthenticated("刷新认证令牌失败")
 	}
 	return authInfo, nil
-}
-
-// deleteRefreshTokenAuth 删除刷新令牌关联的认证信息。
-func (c *LoginCase) deleteRefreshTokenAuth(refreshToken string) error {
-	return c.Cache.Del(refreshTokenAuthKey(refreshToken))
 }
 
 // verifyLoginCaptcha 校验登录请求携带的验证码或行为验证码令牌。

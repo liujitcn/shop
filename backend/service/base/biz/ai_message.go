@@ -269,7 +269,7 @@ func (c *AiMessageCase) ToolConfigs(ctx context.Context, terminal string, names 
 	}
 	filteredNames := make([]string, 0, len(names))
 	for _, name := range names {
-		if !matchAgentToolPrefix(terminal, name) {
+		if name == "" || terminal != "" && !strings.HasPrefix(name, terminal+"_") && !strings.HasPrefix(name, "base_") {
 			continue
 		}
 		filteredNames = append(filteredNames, name)
@@ -947,11 +947,6 @@ func aiActionInt64Value(value any) int64 {
 	default:
 		return 0
 	}
-}
-
-// matchAgentToolPrefix 判断工具名是否属于当前终端或公共 Base 工具。
-func matchAgentToolPrefix(terminal, toolName string) bool {
-	return toolName != "" && (terminal == "" || strings.HasPrefix(toolName, terminal+"_") || strings.HasPrefix(toolName, "base_"))
 }
 
 // toAiInputContent 转换输入内容 JSON 为接口对象。

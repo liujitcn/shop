@@ -47,7 +47,7 @@ func EntityOptionColumns(table *Table, columns []*CodeGenColumn) (string, string
 		}
 	}
 	for _, column := range columns {
-		if IsStringColumn(column) && !isManagedAuditColumn(column.ColumnName) {
+		if IsStringColumn(column) && column.ColumnName != "created_by" && column.ColumnName != "updated_by" && column.ColumnName != "created_at" && column.ColumnName != "updated_at" && column.ColumnName != "deleted_at" {
 			return parentColumn, column.ColumnName, valueColumn
 		}
 	}
@@ -110,7 +110,7 @@ func (c *renderer) buildExpectedProtoChecks(table *Table, columns []*CodeGenColu
 					TriggerFieldStatus,
 					APIKindStatus,
 					entity,
-					statusMethodNameForColumn(table, column),
+					"Set"+table.EntityName+stringcase.ToPascalCase(column.ColumnName),
 					protoPath,
 					"",
 					"",
@@ -169,7 +169,7 @@ func (c *renderer) resolveCodeGenOutputPaths(table *Table, requested *systemadmi
 		BackendBizFilePath:     target.BackendBizFilePath(snakeEntity),
 		BackendServiceFilePath: target.BackendServiceFilePath(snakeEntity),
 		FrontendApiFilePath:    target.FrontendAPIFilePath(snakeEntity),
-		FrontendPageFilePath:   target.FrontendPageFilePath(c.frontendResourcePath(table)),
+		FrontendPageFilePath:   filepath.ToSlash(filepath.Join(target.FrontendPageDirectory, c.frontendResourcePath(table), "index.vue")),
 		SqlFilePath:            "sql/generated/" + table.TableName_ + ".sql",
 	}
 	// 请求只覆盖显式填写的字段，空值继续使用默认路径。

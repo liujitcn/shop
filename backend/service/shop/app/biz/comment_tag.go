@@ -11,7 +11,6 @@ import (
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 
-	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repository"
 	"gorm.io/gorm"
 )
@@ -237,9 +236,4 @@ func cleanCommentTagNames(tagNames []string) []string {
 		}
 	}
 	return cleanNames
-}
-
-// jsonStringTagNames 将标签名称转为 JSON 数组字符串。
-func jsonStringTagNames(tagNames []string) string {
-	return _string.ConvertAnyToJsonString(cleanCommentTagNames(tagNames))
 }

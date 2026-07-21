@@ -156,19 +156,9 @@ func (t ProtoTarget) FrontendAPIFilePath(entityName string) string {
 	return filepath.ToSlash(filepath.Join(t.FrontendAPIDirectory, stringcase.ToSnakeCase(entityName)+".ts"))
 }
 
-// FrontendPageFilePath 返回目标分组内的前端页面文件路径。
-func (t ProtoTarget) FrontendPageFilePath(resourcePath string) string {
-	return filepath.ToSlash(filepath.Join(t.FrontendPageDirectory, resourcePath, "index.vue"))
-}
-
 // BackendBizImportPath 返回目标分组 Biz 包的 Go 导入路径。
 func (t ProtoTarget) BackendBizImportPath() string {
 	return "shop/" + strings.TrimPrefix(filepath.ToSlash(filepath.Join(t.BackendModuleDirectory, "biz")), "backend/")
-}
-
-// Empty 判断补丁内容是否为空。
-func (p CodeGenProtoPatch) Empty() bool {
-	return len(p.ServiceNames) == 0 && len(p.Messages) == 0
 }
 
 // Table 描述一次代码生成所需的表配置快照。

@@ -8,6 +8,7 @@ import (
 	"path"
 	"strings"
 
+	"shop/pkg/agent/eino/message"
 	einoStructured "shop/pkg/agent/eino/structured"
 )
 
@@ -83,10 +84,10 @@ func (r *Runtime) ReviewComment(ctx context.Context, req ReviewRequest) (*Review
 		parts = append(parts, einoStructured.TextPart("标签生成规则：tags 必须优先从 existingTags 中选择并原样返回；只有评价语义确实无法归入任何已有标签时，才允许生成新的短标签。"))
 	}
 	for _, imageURL := range imageURLs {
-		parts = append(parts, einoStructured.ImageURLPart(imageURL))
+		parts = append(parts, message.ImageURLPart(imageURL))
 	}
 	for _, image := range imageData {
-		parts = append(parts, einoStructured.ImageDataPart(image.Bytes, reviewImageDataMIMEType(image.MIMEType, image.Name)))
+		parts = append(parts, message.ImageDataPart(image.Bytes, reviewImageDataMIMEType(image.MIMEType, image.Name)))
 	}
 
 	var outputSchema *einoStructured.Schema

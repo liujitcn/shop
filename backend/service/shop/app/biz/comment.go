@@ -121,7 +121,7 @@ func (c *CommentCase) GoodsCommentOverview(ctx context.Context, req *shopappv1.G
 	}
 
 	var commentSummary *shopappv1.CommentSummary
-	commentSummary, err = c.commentSummaryCase.GoodsCommentOverview(ctx, req.GetGoodsId(), userID)
+	commentSummary, err = c.commentSummaryCase.buildCardByGoodsIDAndScene(ctx, req.GetGoodsId(), _const.COMMENT_SUMMARY_SCENE_OVERVIEW, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -180,7 +180,7 @@ func (c *CommentCase) PageGoodsComment(ctx context.Context, req *shopappv1.PageG
 		return nil, err
 	}
 	var commentSummary *shopappv1.CommentSummary
-	commentSummary, err = c.commentSummaryCase.PageGoodsComment(ctx, req.GetGoodsId(), userID)
+	commentSummary, err = c.commentSummaryCase.buildCardByGoodsIDAndScene(ctx, req.GetGoodsId(), _const.COMMENT_SUMMARY_SCENE_LIST, userID)
 	if err != nil {
 		return nil, err
 	}

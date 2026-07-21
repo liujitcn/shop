@@ -77,7 +77,7 @@ func (c *CommentReviewCase) createAIReview(ctx context.Context, tenantID, tenant
 		TargetID:      targetID,
 		Type:          _const.COMMENT_REVIEW_TYPE_AI,
 		Status:        status,
-		Tags:          jsonStringTagNames(tags),
+		Tags:          _string.ConvertAnyToJsonString(cleanCommentTagNames(tags)),
 		OperatorID:    0,
 		OperatorName:  operatorName,
 		Reason:        reason,

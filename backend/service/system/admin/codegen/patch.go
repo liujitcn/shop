@@ -285,7 +285,7 @@ func (c *renderer) newTargetProtoPreviewFile(table *Table, columns []*CodeGenCol
 	}
 	patch := c.renderProtoPatch(table, columns, methods, path)
 	normalizedContent := normalizeProtoMessageOrder(normalizeProtoRPCOrder(dedupeProtoMessageBlocks(originalContent), methods, path))
-	if patch.Empty() {
+	if len(patch.ServiceNames) == 0 && len(patch.Messages) == 0 {
 		if normalizedContent != originalContent {
 			return &systemadminv1.CodeGenPreviewFile{
 				Path:    path,
