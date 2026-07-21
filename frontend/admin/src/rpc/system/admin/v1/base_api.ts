@@ -5,10 +5,19 @@
 // source: system/admin/v1/base_api.proto
 
 /* eslint-disable */
+import type { Status } from "../../../common/v1/enum";
 import type { Empty } from "../../../google/protobuf/empty";
 
 /** API分页查询条件 */
 export interface PageBaseApiRequest {
+  /** 工具名 */
+  tool_name?:
+    | string
+    | undefined;
+  /** Agent/MCP工具提示词搜索关键字 */
+  tool_prompt?:
+    | string
+    | undefined;
   /** 服务名 */
   service_name?:
     | string
@@ -33,21 +42,13 @@ export interface PageBaseApiRequest {
   path?:
     | string
     | undefined;
-  /** 是否暴露为MCP工具 */
-  mcp_enabled?:
-    | boolean
+  /** MCP工具状态：枚举【Status】 */
+  mcp_status?:
+    | Status
     | undefined;
-  /** 是否暴露为Agent工具 */
-  agent_enabled?:
-    | boolean
-    | undefined;
-  /** 工具名 */
-  tool_name?:
-    | string
-    | undefined;
-  /** Agent/MCP工具提示词搜索关键字 */
-  tool_prompt?:
-    | string
+  /** Agent工具状态：枚举【Status】 */
+  agent_status?:
+    | Status
     | undefined;
   /** 页码 */
   page_num: number;
@@ -75,32 +76,32 @@ export interface GetBaseApiDocRequest {
   id: number;
 }
 
-/** API MCP启用状态设置条件 */
-export interface SetBaseApiMcpEnabledRequest {
+/** API MCP工具状态设置条件 */
+export interface SetBaseApiMcpStatusRequest {
   /** API ID */
   id: number;
-  /** 是否暴露为MCP工具 */
-  mcp_enabled: boolean;
+  /** MCP工具状态：枚举【Status】 */
+  mcp_status: Status;
 }
 
-/** API Agent启用状态设置条件 */
-export interface SetBaseApiAgentEnabledRequest {
+/** API Agent工具状态设置条件 */
+export interface SetBaseApiAgentStatusRequest {
   /** API ID */
   id: number;
-  /** 是否暴露为Agent工具 */
-  agent_enabled: boolean;
+  /** Agent工具状态：枚举【Status】 */
+  agent_status: Status;
 }
 
 /** API更新条件 */
 export interface UpdateBaseApiRequest {
   /** API ID */
   id: number;
-  /** 是否暴露为MCP工具 */
-  mcp_enabled: boolean;
-  /** 是否暴露为Agent工具 */
-  agent_enabled: boolean;
   /** Agent/MCP工具提示词 */
   tool_prompts: string[];
+  /** MCP工具状态：枚举【Status】 */
+  mcp_status: Status;
+  /** Agent工具状态：枚举【Status】 */
+  agent_status: Status;
 }
 
 /** API列表查询条件 */
@@ -117,6 +118,10 @@ export interface ListBaseApiResponse {
 export interface BaseApi {
   /** API ID */
   id: number;
+  /** 工具名 */
+  tool_name: string;
+  /** Agent/MCP工具提示词 */
+  tool_prompts: string[];
   /** 服务名 */
   service_name: string;
   /** 服务描述 */
@@ -129,14 +134,10 @@ export interface BaseApi {
   method: string;
   /** 请求地址 */
   path: string;
-  /** 是否暴露为MCP工具 */
-  mcp_enabled: boolean;
-  /** 是否暴露为Agent工具 */
-  agent_enabled: boolean;
-  /** 工具名 */
-  tool_name: string;
-  /** Agent/MCP工具提示词 */
-  tool_prompts: string[];
+  /** MCP工具状态：枚举【Status】 */
+  mcp_status: Status;
+  /** Agent工具状态：枚举【Status】 */
+  agent_status: Status;
 }
 
 /** API文档 */
@@ -201,10 +202,10 @@ export interface BaseApiService {
   GetBaseApi(request: GetBaseApiRequest): Promise<BaseApi>;
   /** 查询API文档 */
   GetBaseApiDoc(request: GetBaseApiDocRequest): Promise<BaseApiDoc>;
-  /** 设置API MCP启用状态 */
-  SetBaseApiMcpEnabled(request: SetBaseApiMcpEnabledRequest): Promise<Empty>;
-  /** 设置API Agent启用状态 */
-  SetBaseApiAgentEnabled(request: SetBaseApiAgentEnabledRequest): Promise<Empty>;
+  /** 设置API MCP工具状态 */
+  SetBaseApiMcpStatus(request: SetBaseApiMcpStatusRequest): Promise<Empty>;
+  /** 设置API Agent工具状态 */
+  SetBaseApiAgentStatus(request: SetBaseApiAgentStatusRequest): Promise<Empty>;
   /** 更新API配置 */
   UpdateBaseApi(request: UpdateBaseApiRequest): Promise<Empty>;
 }

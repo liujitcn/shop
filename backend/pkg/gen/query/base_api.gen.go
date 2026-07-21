@@ -28,8 +28,6 @@ func newBaseAPI(db *gorm.DB, opts ...gen.DOOption) baseAPI {
 	tableName := _baseAPI.baseAPIDo.TableName()
 	_baseAPI.ALL = field.NewAsterisk(tableName)
 	_baseAPI.ID = field.NewInt64(tableName, "id")
-	_baseAPI.McpEnabled = field.NewBool(tableName, "mcp_enabled")
-	_baseAPI.AgentEnabled = field.NewBool(tableName, "agent_enabled")
 	_baseAPI.ToolName = field.NewString(tableName, "tool_name")
 	_baseAPI.ToolPrompts = field.NewString(tableName, "tool_prompts")
 	_baseAPI.ServiceName = field.NewString(tableName, "service_name")
@@ -38,6 +36,8 @@ func newBaseAPI(db *gorm.DB, opts ...gen.DOOption) baseAPI {
 	_baseAPI.Operation = field.NewString(tableName, "operation")
 	_baseAPI.Method = field.NewString(tableName, "method")
 	_baseAPI.Path = field.NewString(tableName, "path")
+	_baseAPI.McpStatus = field.NewInt32(tableName, "mcp_status")
+	_baseAPI.AgentStatus = field.NewInt32(tableName, "agent_status")
 	_baseAPI.DeletedAt = field.NewField(tableName, "deleted_at")
 
 	_baseAPI.fillFieldMap()
@@ -49,19 +49,19 @@ func newBaseAPI(db *gorm.DB, opts ...gen.DOOption) baseAPI {
 type baseAPI struct {
 	baseAPIDo baseAPIDo
 
-	ALL          field.Asterisk
-	ID           field.Int64  // API ID
-	McpEnabled   field.Bool   // 是否暴露为MCP工具
-	AgentEnabled field.Bool   // 是否暴露为Agent工具
-	ToolName     field.String // 工具名
-	ToolPrompts  field.String // 工具提示词
-	ServiceName  field.String // 服务名
-	ServiceDesc  field.String // 服务描述
-	Desc         field.String // 描述
-	Operation    field.String // 操作方法
-	Method       field.String // 请求方式
-	Path         field.String // 请求地址
-	DeletedAt    field.Field  // 删除时间
+	ALL         field.Asterisk
+	ID          field.Int64  // API ID
+	ToolName    field.String // 工具名
+	ToolPrompts field.String // 工具提示词
+	ServiceName field.String // 服务名
+	ServiceDesc field.String // 服务描述
+	Desc        field.String // 描述
+	Operation   field.String // 操作方法
+	Method      field.String // 请求方式
+	Path        field.String // 请求地址
+	McpStatus   field.Int32  // MCP工具状态：枚举【Status】
+	AgentStatus field.Int32  // Agent工具状态：枚举【Status】
+	DeletedAt   field.Field  // 删除时间
 
 	fieldMap map[string]field.Expr
 }
@@ -79,8 +79,6 @@ func (b baseAPI) As(alias string) *baseAPI {
 func (b *baseAPI) updateTableName(table string) *baseAPI {
 	b.ALL = field.NewAsterisk(table)
 	b.ID = field.NewInt64(table, "id")
-	b.McpEnabled = field.NewBool(table, "mcp_enabled")
-	b.AgentEnabled = field.NewBool(table, "agent_enabled")
 	b.ToolName = field.NewString(table, "tool_name")
 	b.ToolPrompts = field.NewString(table, "tool_prompts")
 	b.ServiceName = field.NewString(table, "service_name")
@@ -89,6 +87,8 @@ func (b *baseAPI) updateTableName(table string) *baseAPI {
 	b.Operation = field.NewString(table, "operation")
 	b.Method = field.NewString(table, "method")
 	b.Path = field.NewString(table, "path")
+	b.McpStatus = field.NewInt32(table, "mcp_status")
+	b.AgentStatus = field.NewInt32(table, "agent_status")
 	b.DeletedAt = field.NewField(table, "deleted_at")
 
 	b.fillFieldMap()
@@ -116,8 +116,6 @@ func (b *baseAPI) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 func (b *baseAPI) fillFieldMap() {
 	b.fieldMap = make(map[string]field.Expr, 12)
 	b.fieldMap["id"] = b.ID
-	b.fieldMap["mcp_enabled"] = b.McpEnabled
-	b.fieldMap["agent_enabled"] = b.AgentEnabled
 	b.fieldMap["tool_name"] = b.ToolName
 	b.fieldMap["tool_prompts"] = b.ToolPrompts
 	b.fieldMap["service_name"] = b.ServiceName
@@ -126,6 +124,8 @@ func (b *baseAPI) fillFieldMap() {
 	b.fieldMap["operation"] = b.Operation
 	b.fieldMap["method"] = b.Method
 	b.fieldMap["path"] = b.Path
+	b.fieldMap["mcp_status"] = b.McpStatus
+	b.fieldMap["agent_status"] = b.AgentStatus
 	b.fieldMap["deleted_at"] = b.DeletedAt
 }
 

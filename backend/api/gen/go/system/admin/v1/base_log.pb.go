@@ -27,11 +27,11 @@ const (
 // 日志分页查询条件
 type PageBaseLogRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	RequestTime   []string               `protobuf:"bytes,3,rep,name=request_time,json=requestTime,proto3" json:"request_time,omitempty"`      // 请求时间
-	Operation     string                 `protobuf:"bytes,5,opt,name=operation,proto3" json:"operation,omitempty"`                             // 操作方法
-	StatusCode    *int32                 `protobuf:"varint,14,opt,name=status_code,json=statusCode,proto3,oneof" json:"status_code,omitempty"` // 状态码
-	PageNum       int64                  `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`               // 当前页码
-	PageSize      int64                  `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`            // 每一页的行数
+	RequestTime   []string               `protobuf:"bytes,1,rep,name=request_time,json=requestTime,proto3" json:"request_time,omitempty"`     // 请求时间
+	Operation     string                 `protobuf:"bytes,2,opt,name=operation,proto3" json:"operation,omitempty"`                            // 操作方法
+	StatusCode    *int32                 `protobuf:"varint,3,opt,name=status_code,json=statusCode,proto3,oneof" json:"status_code,omitempty"` // 状态码
+	PageNum       int64                  `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`              // 当前页码
+	PageSize      int64                  `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`           // 每一页的行数
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -202,32 +202,32 @@ func (x *GetBaseLogRequest) GetId() int64 {
 // 日志
 type BaseLog struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
-	Id             int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                // 日志ID
-	RequestId      string                 `protobuf:"bytes,2,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`                  // 请求ID
-	RequestTime    string                 `protobuf:"bytes,3,opt,name=request_time,json=requestTime,proto3" json:"request_time,omitempty"`            // 请求时间
-	Method         string                 `protobuf:"bytes,4,opt,name=method,proto3" json:"method,omitempty"`                                         // 请求方法
-	Operation      string                 `protobuf:"bytes,5,opt,name=operation,proto3" json:"operation,omitempty"`                                   // 操作方法
-	Path           string                 `protobuf:"bytes,6,opt,name=path,proto3" json:"path,omitempty"`                                             // 请求路径
-	Referer        string                 `protobuf:"bytes,7,opt,name=referer,proto3" json:"referer,omitempty"`                                       // 请求源
-	RequestUri     string                 `protobuf:"bytes,8,opt,name=request_uri,json=requestUri,proto3" json:"request_uri,omitempty"`               // 请求URI
-	RequestHeader  string                 `protobuf:"bytes,9,opt,name=request_header,json=requestHeader,proto3" json:"request_header,omitempty"`      // 请求头
-	RequestBody    string                 `protobuf:"bytes,10,opt,name=request_body,json=requestBody,proto3" json:"request_body,omitempty"`           // 请求体
-	Response       string                 `protobuf:"bytes,11,opt,name=response,proto3" json:"response,omitempty"`                                    // 响应信息
-	CostTime       string                 `protobuf:"bytes,12,opt,name=cost_time,json=costTime,proto3" json:"cost_time,omitempty"`                    // 操作耗时
-	Success        bool                   `protobuf:"varint,13,opt,name=success,proto3" json:"success,omitempty"`                                     // 操作是否成功
-	StatusCode     int32                  `protobuf:"varint,14,opt,name=status_code,json=statusCode,proto3" json:"status_code,omitempty"`             // 状态码
-	Reason         string                 `protobuf:"bytes,15,opt,name=reason,proto3" json:"reason,omitempty"`                                        // 操作失败原因
-	Location       string                 `protobuf:"bytes,16,opt,name=location,proto3" json:"location,omitempty"`                                    // 操作地理位置
-	UserId         int64                  `protobuf:"varint,100,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`                        // 操作者用户ID
-	UserName       string                 `protobuf:"bytes,101,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`                   // 操作者账号名
-	ClientIp       string                 `protobuf:"bytes,102,opt,name=client_ip,json=clientIp,proto3" json:"client_ip,omitempty"`                   // 操作者IP
-	UserAgent      string                 `protobuf:"bytes,200,opt,name=user_agent,json=userAgent,proto3" json:"user_agent,omitempty"`                // 浏览器的用户代理信息
-	BrowserName    string                 `protobuf:"bytes,201,opt,name=browser_name,json=browserName,proto3" json:"browser_name,omitempty"`          // 浏览器名称
-	BrowserVersion string                 `protobuf:"bytes,202,opt,name=browser_version,json=browserVersion,proto3" json:"browser_version,omitempty"` // 浏览器版本
-	ClientId       string                 `protobuf:"bytes,300,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`                   // 客户端ID
-	ClientName     string                 `protobuf:"bytes,301,opt,name=client_name,json=clientName,proto3" json:"client_name,omitempty"`             // 客户端名称
-	OsName         string                 `protobuf:"bytes,302,opt,name=os_name,json=osName,proto3" json:"os_name,omitempty"`                         // 操作系统名称
-	OsVersion      string                 `protobuf:"bytes,303,opt,name=os_version,json=osVersion,proto3" json:"os_version,omitempty"`                // 操作系统版本
+	Id             int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                               // 日志ID
+	RequestId      string                 `protobuf:"bytes,2,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`                 // 请求ID
+	RequestTime    string                 `protobuf:"bytes,3,opt,name=request_time,json=requestTime,proto3" json:"request_time,omitempty"`           // 请求时间
+	Method         string                 `protobuf:"bytes,4,opt,name=method,proto3" json:"method,omitempty"`                                        // 请求方法
+	Operation      string                 `protobuf:"bytes,5,opt,name=operation,proto3" json:"operation,omitempty"`                                  // 操作方法
+	Path           string                 `protobuf:"bytes,6,opt,name=path,proto3" json:"path,omitempty"`                                            // 请求路径
+	Referer        string                 `protobuf:"bytes,7,opt,name=referer,proto3" json:"referer,omitempty"`                                      // 请求源
+	RequestUri     string                 `protobuf:"bytes,8,opt,name=request_uri,json=requestUri,proto3" json:"request_uri,omitempty"`              // 请求URI
+	RequestBody    string                 `protobuf:"bytes,9,opt,name=request_body,json=requestBody,proto3" json:"request_body,omitempty"`           // 请求体
+	RequestHeader  string                 `protobuf:"bytes,10,opt,name=request_header,json=requestHeader,proto3" json:"request_header,omitempty"`    // 请求头
+	Response       string                 `protobuf:"bytes,11,opt,name=response,proto3" json:"response,omitempty"`                                   // 响应信息
+	CostTime       string                 `protobuf:"bytes,12,opt,name=cost_time,json=costTime,proto3" json:"cost_time,omitempty"`                   // 操作耗时
+	IsSuccess      bool                   `protobuf:"varint,13,opt,name=is_success,json=isSuccess,proto3" json:"is_success,omitempty"`               // 操作是否成功
+	StatusCode     int32                  `protobuf:"varint,14,opt,name=status_code,json=statusCode,proto3" json:"status_code,omitempty"`            // 状态码
+	Reason         string                 `protobuf:"bytes,15,opt,name=reason,proto3" json:"reason,omitempty"`                                       // 操作失败原因
+	Location       string                 `protobuf:"bytes,16,opt,name=location,proto3" json:"location,omitempty"`                                   // 操作地理位置
+	UserId         int64                  `protobuf:"varint,17,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`                        // 操作者用户ID
+	UserName       string                 `protobuf:"bytes,18,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`                   // 操作者账号名
+	ClientIp       string                 `protobuf:"bytes,19,opt,name=client_ip,json=clientIp,proto3" json:"client_ip,omitempty"`                   // 操作者IP
+	UserAgent      string                 `protobuf:"bytes,20,opt,name=user_agent,json=userAgent,proto3" json:"user_agent,omitempty"`                // 浏览器的用户代理信息
+	BrowserName    string                 `protobuf:"bytes,21,opt,name=browser_name,json=browserName,proto3" json:"browser_name,omitempty"`          // 浏览器名称
+	BrowserVersion string                 `protobuf:"bytes,22,opt,name=browser_version,json=browserVersion,proto3" json:"browser_version,omitempty"` // 浏览器版本
+	ClientId       string                 `protobuf:"bytes,23,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`                   // 客户端ID
+	ClientName     string                 `protobuf:"bytes,24,opt,name=client_name,json=clientName,proto3" json:"client_name,omitempty"`             // 客户端名称
+	OsName         string                 `protobuf:"bytes,25,opt,name=os_name,json=osName,proto3" json:"os_name,omitempty"`                         // 操作系统名称
+	OsVersion      string                 `protobuf:"bytes,26,opt,name=os_version,json=osVersion,proto3" json:"os_version,omitempty"`                // 操作系统版本
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -318,16 +318,16 @@ func (x *BaseLog) GetRequestUri() string {
 	return ""
 }
 
-func (x *BaseLog) GetRequestHeader() string {
+func (x *BaseLog) GetRequestBody() string {
 	if x != nil {
-		return x.RequestHeader
+		return x.RequestBody
 	}
 	return ""
 }
 
-func (x *BaseLog) GetRequestBody() string {
+func (x *BaseLog) GetRequestHeader() string {
 	if x != nil {
-		return x.RequestBody
+		return x.RequestHeader
 	}
 	return ""
 }
@@ -346,9 +346,9 @@ func (x *BaseLog) GetCostTime() string {
 	return ""
 }
 
-func (x *BaseLog) GetSuccess() bool {
+func (x *BaseLog) GetIsSuccess() bool {
 	if x != nil {
-		return x.Success
+		return x.IsSuccess
 	}
 	return false
 }
@@ -450,9 +450,9 @@ const file_system_admin_v1_base_log_proto_rawDesc = "" +
 	"\n" +
 	"\x1esystem/admin/v1/base_log.proto\x12\x0fsystem.admin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\xc2\x02\n" +
 	"\x12PageBaseLogRequest\x125\n" +
-	"\frequest_time\x18\x03 \x03(\tB\x12\xbaG\x0f\x92\x02\f请求时间R\vrequestTime\x120\n" +
-	"\toperation\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\f操作方法R\toperation\x125\n" +
-	"\vstatus_code\x18\x0e \x01(\x05B\x0f\xbaG\f\x92\x02\t状态码H\x00R\n" +
+	"\frequest_time\x18\x01 \x03(\tB\x12\xbaG\x0f\x92\x02\f请求时间R\vrequestTime\x120\n" +
+	"\toperation\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f操作方法R\toperation\x125\n" +
+	"\vstatus_code\x18\x03 \x01(\x05B\x0f\xbaG\f\x92\x02\t状态码H\x00R\n" +
 	"statusCode\x88\x01\x01\x129\n" +
 	"\bpage_num\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12A\n" +
 	"\tpage_size\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSizeB\x0e\n" +
@@ -461,7 +461,7 @@ const file_system_admin_v1_base_log_proto_rawDesc = "" +
 	"\tbase_logs\x18\x01 \x03(\v2\x18.system.admin.v1.BaseLogB\x12\xbaG\x0f\x92\x02\f分页数据R\bbaseLogs\x12\"\n" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"3\n" +
 	"\x11GetBaseLogRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b日志IDR\x02id\"\xc0\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b日志IDR\x02id\"\xbe\n" +
 	"\n" +
 	"\aBaseLog\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b日志IDR\x02id\x12-\n" +
@@ -473,30 +473,31 @@ const file_system_admin_v1_base_log_proto_rawDesc = "" +
 	"\x04path\x18\x06 \x01(\tB\x12\xbaG\x0f\x92\x02\f请求路径R\x04path\x12)\n" +
 	"\areferer\x18\a \x01(\tB\x0f\xbaG\f\x92\x02\t请求源R\areferer\x120\n" +
 	"\vrequest_uri\x18\b \x01(\tB\x0f\xbaG\f\x92\x02\t请求URIR\n" +
-	"requestUri\x126\n" +
-	"\x0erequest_header\x18\t \x01(\tB\x0f\xbaG\f\x92\x02\t请求头R\rrequestHeader\x122\n" +
-	"\frequest_body\x18\n" +
-	" \x01(\tB\x0f\xbaG\f\x92\x02\t请求体R\vrequestBody\x12.\n" +
+	"requestUri\x122\n" +
+	"\frequest_body\x18\t \x01(\tB\x0f\xbaG\f\x92\x02\t请求体R\vrequestBody\x126\n" +
+	"\x0erequest_header\x18\n" +
+	" \x01(\tB\x0f\xbaG\f\x92\x02\t请求头R\rrequestHeader\x12.\n" +
 	"\bresponse\x18\v \x01(\tB\x12\xbaG\x0f\x92\x02\f响应信息R\bresponse\x12/\n" +
-	"\tcost_time\x18\f \x01(\tB\x12\xbaG\x0f\x92\x02\f操作耗时R\bcostTime\x122\n" +
-	"\asuccess\x18\r \x01(\bB\x18\xbaG\x15\x92\x02\x12操作是否成功R\asuccess\x120\n" +
+	"\tcost_time\x18\f \x01(\tB\x12\xbaG\x0f\x92\x02\f操作耗时R\bcostTime\x127\n" +
+	"\n" +
+	"is_success\x18\r \x01(\bB\x18\xbaG\x15\x92\x02\x12操作是否成功R\tisSuccess\x120\n" +
 	"\vstatus_code\x18\x0e \x01(\x05B\x0f\xbaG\f\x92\x02\t状态码R\n" +
 	"statusCode\x120\n" +
 	"\x06reason\x18\x0f \x01(\tB\x18\xbaG\x15\x92\x02\x12操作失败原因R\x06reason\x124\n" +
 	"\blocation\x18\x10 \x01(\tB\x18\xbaG\x15\x92\x02\x12操作地理位置R\blocation\x120\n" +
-	"\auser_id\x18d \x01(\x03B\x17\xbaG\x14\x92\x02\x11操作者用户IDR\x06userId\x125\n" +
-	"\tuser_name\x18e \x01(\tB\x18\xbaG\x15\x92\x02\x12操作者账号名R\buserName\x12.\n" +
-	"\tclient_ip\x18f \x01(\tB\x11\xbaG\x0e\x92\x02\v操作者IPR\bclientIp\x12D\n" +
+	"\auser_id\x18\x11 \x01(\x03B\x17\xbaG\x14\x92\x02\x11操作者用户IDR\x06userId\x125\n" +
+	"\tuser_name\x18\x12 \x01(\tB\x18\xbaG\x15\x92\x02\x12操作者账号名R\buserName\x12.\n" +
+	"\tclient_ip\x18\x13 \x01(\tB\x11\xbaG\x0e\x92\x02\v操作者IPR\bclientIp\x12C\n" +
 	"\n" +
-	"user_agent\x18\xc8\x01 \x01(\tB$\xbaG!\x92\x02\x1e浏览器的用户代理信息R\tuserAgent\x129\n" +
-	"\fbrowser_name\x18\xc9\x01 \x01(\tB\x15\xbaG\x12\x92\x02\x0f浏览器名称R\vbrowserName\x12?\n" +
-	"\x0fbrowser_version\x18\xca\x01 \x01(\tB\x15\xbaG\x12\x92\x02\x0f浏览器版本R\x0ebrowserVersion\x12/\n" +
-	"\tclient_id\x18\xac\x02 \x01(\tB\x11\xbaG\x0e\x92\x02\v客户端IDR\bclientId\x127\n" +
-	"\vclient_name\x18\xad\x02 \x01(\tB\x15\xbaG\x12\x92\x02\x0f客户端名称R\n" +
-	"clientName\x122\n" +
-	"\aos_name\x18\xae\x02 \x01(\tB\x18\xbaG\x15\x92\x02\x12操作系统名称R\x06osName\x128\n" +
+	"user_agent\x18\x14 \x01(\tB$\xbaG!\x92\x02\x1e浏览器的用户代理信息R\tuserAgent\x128\n" +
+	"\fbrowser_name\x18\x15 \x01(\tB\x15\xbaG\x12\x92\x02\x0f浏览器名称R\vbrowserName\x12>\n" +
+	"\x0fbrowser_version\x18\x16 \x01(\tB\x15\xbaG\x12\x92\x02\x0f浏览器版本R\x0ebrowserVersion\x12.\n" +
+	"\tclient_id\x18\x17 \x01(\tB\x11\xbaG\x0e\x92\x02\v客户端IDR\bclientId\x126\n" +
+	"\vclient_name\x18\x18 \x01(\tB\x15\xbaG\x12\x92\x02\x0f客户端名称R\n" +
+	"clientName\x121\n" +
+	"\aos_name\x18\x19 \x01(\tB\x18\xbaG\x15\x92\x02\x12操作系统名称R\x06osName\x127\n" +
 	"\n" +
-	"os_version\x18\xaf\x02 \x01(\tB\x18\xbaG\x15\x92\x02\x12操作系统版本R\tosVersion2\xfb\x01\n" +
+	"os_version\x18\x1a \x01(\tB\x18\xbaG\x15\x92\x02\x12操作系统版本R\tosVersion2\xfb\x01\n" +
 	"\x0eBaseLogService\x12x\n" +
 	"\vPageBaseLog\x12#.system.admin.v1.PageBaseLogRequest\x1a$.system.admin.v1.PageBaseLogResponse\"\x1e\x82\xd3\xe4\x93\x02\x18\x12\x16/api/v1/admin/base/log\x12o\n" +
 	"\n" +

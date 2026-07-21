@@ -327,7 +327,7 @@ func (r *Runtime) buildMessages(ctx context.Context, input RuntimeInput) []*eino
 	return messages
 }
 
-// enabledToolInfos 按 base_api.agent_enabled 过滤当前终端可暴露给 Agent 的工具。
+// enabledToolInfos 按 base_api.agent_status 过滤当前终端可暴露给 Agent 的工具。
 func (r *Runtime) enabledToolInfos(ctx context.Context, input RuntimeInput, infos []*einoTool.Info) []*einoTool.Info {
 	if len(infos) == 0 || r == nil || r.toolGate == nil {
 		return infos

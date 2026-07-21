@@ -5,12 +5,6 @@
 
     <el-drawer v-model="detailDrawer.visible" title="API 详情" size="70%" @close="handleCloseDetail">
       <el-descriptions v-if="detailData" :column="1" border>
-        <el-descriptions-item label="服务名">{{ detailData.service_name }}</el-descriptions-item>
-        <el-descriptions-item label="服务描述">{{ detailData.service_desc }}</el-descriptions-item>
-        <el-descriptions-item label="描述">{{ detailData.desc }}</el-descriptions-item>
-        <el-descriptions-item label="操作方法">{{ detailData.operation }}</el-descriptions-item>
-        <el-descriptions-item label="请求方法">{{ detailData.method }}</el-descriptions-item>
-        <el-descriptions-item label="请求地址">{{ detailData.path }}</el-descriptions-item>
         <el-descriptions-item label="工具名">{{ detailData.tool_name }}</el-descriptions-item>
         <el-descriptions-item label="工具提示词">
           <div class="tool-prompts">
@@ -18,8 +12,14 @@
             <span v-if="!detailToolPrompts.length">--</span>
           </div>
         </el-descriptions-item>
-        <el-descriptions-item label="MCP工具">{{ detailData.mcp_enabled ? "启用" : "禁用" }}</el-descriptions-item>
-        <el-descriptions-item label="Agent工具">{{ detailData.agent_enabled ? "启用" : "禁用" }}</el-descriptions-item>
+        <el-descriptions-item label="服务名">{{ detailData.service_name }}</el-descriptions-item>
+        <el-descriptions-item label="服务描述">{{ detailData.service_desc }}</el-descriptions-item>
+        <el-descriptions-item label="描述">{{ detailData.desc }}</el-descriptions-item>
+        <el-descriptions-item label="操作方法">{{ detailData.operation }}</el-descriptions-item>
+        <el-descriptions-item label="请求方法">{{ detailData.method }}</el-descriptions-item>
+        <el-descriptions-item label="请求地址">{{ detailData.path }}</el-descriptions-item>
+        <el-descriptions-item label="MCP工具">{{ formatStatus(detailData.mcp_status) }}</el-descriptions-item>
+        <el-descriptions-item label="Agent工具">{{ formatStatus(detailData.agent_status) }}</el-descriptions-item>
       </el-descriptions>
 
       <div v-if="detailDoc" class="api-doc">
@@ -118,6 +118,7 @@ import FormDialog from "@/components/Dialog/FormDialog.vue";
 import type { ProFormField } from "@/components/ProForm/interface";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { defBaseApiService } from "@/api/system/admin/base_api";
+import { Status } from "@/rpc/common/v1/enum";
 import type { BaseApi, BaseApiDoc, BaseApiDocResponse, BaseApiDocSchema, PageBaseApiRequest } from "@/rpc/system/admin/v1/base_api";
 import { buildPageRequest } from "@/utils/proTable";
 
@@ -142,16 +143,10 @@ const editDialog = reactive({
 
 const editForm = reactive({
   id: 0,
-  service_name: "",
-  service_desc: "",
-  desc: "",
-  operation: "",
-  method: "",
-  path: "",
   tool_name: "",
-  mcp_enabled: false,
-  agent_enabled: false,
-  tool_prompts: [] as string[]
+  tool_prompts: [] as string[],
+  mcp_status: Status.ENABLE,
+  agent_status: Status.ENABLE
 });
 
 const requestBodyRows = computed(() => schemaRows(detailDoc.value?.request_body));
@@ -164,80 +159,38 @@ const detailToolPrompts = computed(() => detailData.value?.tool_prompts ?? []);
 /** API 编辑表单字段配置。 */
 const editFields: ProFormField[] = [
   {
-    prop: "service_name",
-    label: "服务名",
-    component: "input",
-    props: { disabled: true }
-  },
-  {
-    prop: "service_desc",
-    label: "服务描述",
-    component: "input",
-    props: { disabled: true }
-  },
-  {
-    prop: "desc",
-    label: "描述",
-    component: "input",
-    props: { disabled: true }
-  },
-  {
-    prop: "operation",
-    label: "操作方法",
-    component: "input",
-    props: { disabled: true }
-  },
-  {
-    prop: "method",
-    label: "请求方法",
-    component: "input",
-    props: { disabled: true }
-  },
-  {
-    prop: "path",
-    label: "请求地址",
-    component: "input",
-    props: { disabled: true }
-  },
-  {
     prop: "tool_name",
     label: "工具名",
     component: "input",
     props: { disabled: true }
   },
   {
-    prop: "mcp_enabled",
-    label: "MCP工具",
-    component: "switch",
-    props: { activeText: "启用", inactiveText: "禁用" }
-  },
-  {
-    prop: "agent_enabled",
-    label: "Agent工具",
-    component: "switch",
-    props: { activeText: "启用", inactiveText: "禁用" }
-  },
-  {
     prop: "tool_prompts",
     label: "工具提示词",
     component: "dynamic-list",
     props: { inputProps: { placeholder: "请输入工具提示词" } }
+  },
+  {
+    prop: "mcp_status",
+    label: "MCP工具状态",
+    component: "switch",
+    props: { activeValue: Status.ENABLE, inactiveValue: Status.DISABLE, activeText: "启用", inactiveText: "禁用" }
+  },
+  {
+    prop: "agent_status",
+    label: "Agent工具状态",
+    component: "switch",
+    props: { activeValue: Status.ENABLE, inactiveValue: Status.DISABLE, activeText: "启用", inactiveText: "禁用" }
   }
 ];
 
-const enabledOptions = [
-  { label: "启用", value: true },
-  { label: "禁用", value: false }
+const statusOptions = [
+  { label: "启用", value: Status.ENABLE },
+  { label: "禁用", value: Status.DISABLE }
 ];
 
 /** API 表格列配置。 */
 const columns: ColumnProps[] = [
-  { prop: "service_name", label: "服务名", minWidth: 180, search: { el: "input" } },
-  { prop: "service_desc", label: "服务描述", minWidth: 180, search: { el: "input" } },
-  { prop: "desc", label: "描述", minWidth: 180, search: { el: "input" } },
-  { prop: "operation", label: "操作方法", minWidth: 260, search: { el: "input" } },
-  { prop: "method", label: "请求方法", width: 110, search: { el: "input" } },
-  { prop: "path", label: "请求地址", minWidth: 260, search: { el: "input" } },
   { prop: "tool_name", label: "工具名", minWidth: 260, search: { el: "input" } },
   {
     prop: "tool_prompts",
@@ -246,36 +199,42 @@ const columns: ColumnProps[] = [
     search: { el: "input", key: "tool_prompt" },
     render: scope => formatToolPrompts((scope.row as BaseApi).tool_prompts)
   },
+  { prop: "service_name", label: "服务名", minWidth: 180, search: { el: "input" } },
+  { prop: "service_desc", label: "服务描述", minWidth: 180, search: { el: "input" } },
+  { prop: "desc", label: "描述", minWidth: 180, search: { el: "input" } },
+  { prop: "operation", label: "操作方法", minWidth: 260, search: { el: "input" } },
+  { prop: "method", label: "请求方法", width: 110, search: { el: "input" } },
+  { prop: "path", label: "请求地址", minWidth: 260, search: { el: "input" } },
   {
-    prop: "mcp_enabled",
-    label: "MCP工具",
+    prop: "mcp_status",
+    label: "MCP工具状态",
     width: 120,
-    enum: enabledOptions,
+    enum: statusOptions,
     search: { el: "select" },
     cellType: "status",
     statusProps: {
-      activeValue: true,
-      inactiveValue: false,
+      activeValue: Status.ENABLE,
+      inactiveValue: Status.DISABLE,
       activeText: "启用",
       inactiveText: "禁用",
-      disabled: () => !BUTTONS.value["base:api:mcp-enabled"],
-      beforeChange: scope => handleBeforeSetMcpEnabled(scope.row as BaseApi)
+      disabled: () => !BUTTONS.value["base:api:mcp-status"],
+      beforeChange: scope => handleBeforeSetMcpStatus(scope.row as BaseApi)
     }
   },
   {
-    prop: "agent_enabled",
-    label: "Agent工具",
+    prop: "agent_status",
+    label: "Agent工具状态",
     width: 130,
-    enum: enabledOptions,
+    enum: statusOptions,
     search: { el: "select" },
     cellType: "status",
     statusProps: {
-      activeValue: true,
-      inactiveValue: false,
+      activeValue: Status.ENABLE,
+      inactiveValue: Status.DISABLE,
       activeText: "启用",
       inactiveText: "禁用",
-      disabled: () => !BUTTONS.value["base:api:agent-enabled"],
-      beforeChange: scope => handleBeforeSetAgentEnabled(scope.row as BaseApi)
+      disabled: () => !BUTTONS.value["base:api:agent-status"],
+      beforeChange: scope => handleBeforeSetAgentStatus(scope.row as BaseApi)
     }
   },
   {
@@ -329,6 +288,15 @@ function formatToolPrompts(prompts: string[]) {
 }
 
 /**
+ * 格式化 API 工具状态。
+ */
+function formatStatus(status: Status) {
+  if (status === Status.ENABLE) return "启用";
+  if (status === Status.DISABLE) return "禁用";
+  return "未知";
+}
+
+/**
  * 打开 API 详情抽屉。
  */
 async function handleOpenDetail(apiId: number) {
@@ -355,16 +323,10 @@ function handleCloseDetail() {
  */
 function handleOpenEditDialog(row: BaseApi) {
   editForm.id = row.id;
-  editForm.service_name = row.service_name;
-  editForm.service_desc = row.service_desc;
-  editForm.desc = row.desc;
-  editForm.operation = row.operation;
-  editForm.method = row.method;
-  editForm.path = row.path;
   editForm.tool_name = row.tool_name;
-  editForm.mcp_enabled = row.mcp_enabled;
-  editForm.agent_enabled = row.agent_enabled;
   editForm.tool_prompts = [...(row.tool_prompts ?? [])];
+  editForm.mcp_status = row.mcp_status;
+  editForm.agent_status = row.agent_status;
   editDialog.visible = true;
 }
 
@@ -374,16 +336,10 @@ function handleOpenEditDialog(row: BaseApi) {
 function handleCloseEditDialog() {
   editDialog.visible = false;
   editForm.id = 0;
-  editForm.service_name = "";
-  editForm.service_desc = "";
-  editForm.desc = "";
-  editForm.operation = "";
-  editForm.method = "";
-  editForm.path = "";
   editForm.tool_name = "";
-  editForm.mcp_enabled = false;
-  editForm.agent_enabled = false;
   editForm.tool_prompts = [];
+  editForm.mcp_status = Status.ENABLE;
+  editForm.agent_status = Status.ENABLE;
   editDialogRef.value?.clearValidate();
 }
 
@@ -394,9 +350,9 @@ async function handleSubmitEdit() {
   await editDialogRef.value?.validate();
   await defBaseApiService.UpdateBaseApi({
     id: editForm.id,
-    mcp_enabled: editForm.mcp_enabled,
-    agent_enabled: editForm.agent_enabled,
-    tool_prompts: editForm.tool_prompts.filter(Boolean)
+    tool_prompts: editForm.tool_prompts.filter(Boolean),
+    mcp_status: editForm.mcp_status,
+    agent_status: editForm.agent_status
   });
   ElMessage.success("保存成功");
   handleCloseEditDialog();
@@ -430,11 +386,11 @@ function formatSchemaType(schema: BaseApiDocSchema) {
 }
 
 /**
- * MCP 启用状态切换前进行二次确认，并调用启用状态接口完成持久化。
+ * MCP 工具状态切换前进行二次确认，并调用状态接口完成持久化。
  */
-async function handleBeforeSetMcpEnabled(row: BaseApi) {
-  const nextEnabled = !row.mcp_enabled;
-  const text = nextEnabled ? "启用" : "禁用";
+async function handleBeforeSetMcpStatus(row: BaseApi) {
+  const nextStatus = row.mcp_status === Status.ENABLE ? Status.DISABLE : Status.ENABLE;
+  const text = nextStatus === Status.ENABLE ? "启用" : "禁用";
   const apiName = row.desc || row.operation || `ID:${row.id}`;
   try {
     await ElMessageBox.confirm(`是否确定${text}该 API 的 MCP 工具能力？\nAPI：${apiName}`, "提示", {
@@ -442,7 +398,7 @@ async function handleBeforeSetMcpEnabled(row: BaseApi) {
       cancelButtonText: "取消",
       type: "warning"
     });
-    await defBaseApiService.SetBaseApiMcpEnabled({ id: row.id, mcp_enabled: nextEnabled });
+    await defBaseApiService.SetBaseApiMcpStatus({ id: row.id, mcp_status: nextStatus });
     ElMessage.success(`${text}成功`);
     refreshTable();
     return true;
@@ -452,11 +408,11 @@ async function handleBeforeSetMcpEnabled(row: BaseApi) {
 }
 
 /**
- * Agent 启用状态切换前进行二次确认，并调用启用状态接口完成持久化。
+ * Agent 工具状态切换前进行二次确认，并调用状态接口完成持久化。
  */
-async function handleBeforeSetAgentEnabled(row: BaseApi) {
-  const nextEnabled = !row.agent_enabled;
-  const text = nextEnabled ? "启用" : "禁用";
+async function handleBeforeSetAgentStatus(row: BaseApi) {
+  const nextStatus = row.agent_status === Status.ENABLE ? Status.DISABLE : Status.ENABLE;
+  const text = nextStatus === Status.ENABLE ? "启用" : "禁用";
   const apiName = row.desc || row.operation || `ID:${row.id}`;
   try {
     await ElMessageBox.confirm(`是否确定${text}该 API 的 Agent 工具能力？\nAPI：${apiName}`, "提示", {
@@ -464,7 +420,7 @@ async function handleBeforeSetAgentEnabled(row: BaseApi) {
       cancelButtonText: "取消",
       type: "warning"
     });
-    await defBaseApiService.SetBaseApiAgentEnabled({ id: row.id, agent_enabled: nextEnabled });
+    await defBaseApiService.SetBaseApiAgentStatus({ id: row.id, agent_status: nextStatus });
     ElMessage.success(`${text}成功`);
     refreshTable();
     return true;

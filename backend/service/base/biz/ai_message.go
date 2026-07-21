@@ -278,7 +278,7 @@ func (c *AiMessageCase) ToolConfigs(ctx context.Context, terminal string, names 
 	promptsByName := make(map[string][]string, len(filteredNames))
 	for _, item := range list {
 		totalByName[item.ToolName]++
-		if item.AgentEnabled {
+		if item.AgentStatus == int32(commonv1.Status_ENABLE) {
 			enabledByName[item.ToolName]++
 		}
 		if len(promptsByName[item.ToolName]) == 0 {

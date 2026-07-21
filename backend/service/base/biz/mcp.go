@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	basev1 "shop/api/gen/go/base/v1"
+	commonv1 "shop/api/gen/go/common/v1"
 	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
@@ -209,7 +210,7 @@ func (h *McpCase) findEnabledBaseAPI(ctx context.Context, req mcp.Request, toolN
 	}
 	query := h.baseAPIRepo.Query(ctx).BaseAPI
 	opts := make([]repository.QueryOption, 0, 3)
-	opts = append(opts, repository.Where(query.McpEnabled.Is(true)))
+	opts = append(opts, repository.Where(query.McpStatus.Eq(int32(commonv1.Status_ENABLE))))
 	opts = append(opts, repository.Where(query.ToolName.Eq(toolName)))
 	opts = append(opts, repository.Limit(1))
 	list, err := h.baseAPIRepo.List(ctx, opts...)

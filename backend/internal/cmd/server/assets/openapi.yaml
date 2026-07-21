@@ -424,6 +424,14 @@ paths:
             description: 分页查询API列表
             operationId: BaseApiService_PageBaseApi
             parameters:
+                - name: tool_name
+                  in: query
+                  schema:
+                    type: string
+                - name: tool_prompt
+                  in: query
+                  schema:
+                    type: string
                 - name: service_name
                   in: query
                   schema:
@@ -448,22 +456,24 @@ paths:
                   in: query
                   schema:
                     type: string
-                - name: mcp_enabled
+                - name: mcp_status
                   in: query
                   schema:
-                    type: boolean
-                - name: agent_enabled
-                  in: query
-                  schema:
-                    type: boolean
-                - name: tool_name
-                  in: query
-                  schema:
+                    enum:
+                        - UNKNOWN
+                        - ENABLE
+                        - DISABLE
                     type: string
-                - name: tool_prompt
+                    format: enum
+                - name: agent_status
                   in: query
                   schema:
+                    enum:
+                        - UNKNOWN
+                        - ENABLE
+                        - DISABLE
                     type: string
+                    format: enum
                 - name: page_num
                   in: query
                   schema:
@@ -532,12 +542,12 @@ paths:
                 "200":
                     description: OK
                     content: {}
-    /api/v1/admin/base/api/{id}/agent-enabled:
+    /api/v1/admin/base/api/{id}/agent-status:
         put:
             tags:
                 - BaseApiService
-            description: 设置API Agent启用状态
-            operationId: BaseApiService_SetBaseApiAgentEnabled
+            description: 设置API Agent工具状态
+            operationId: BaseApiService_SetBaseApiAgentStatus
             parameters:
                 - name: id
                   in: path
@@ -548,7 +558,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/system.admin.v1.SetBaseApiAgentEnabledRequest'
+                            $ref: '#/components/schemas/system.admin.v1.SetBaseApiAgentStatusRequest'
                 required: true
             responses:
                 "200":
@@ -573,12 +583,12 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/system.admin.v1.BaseApiDoc'
-    /api/v1/admin/base/api/{id}/mcp-enabled:
+    /api/v1/admin/base/api/{id}/mcp-status:
         put:
             tags:
                 - BaseApiService
-            description: 设置API MCP启用状态
-            operationId: BaseApiService_SetBaseApiMcpEnabled
+            description: 设置API MCP工具状态
+            operationId: BaseApiService_SetBaseApiMcpStatus
             parameters:
                 - name: id
                   in: path
@@ -589,7 +599,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/system.admin.v1.SetBaseApiMcpEnabledRequest'
+                            $ref: '#/components/schemas/system.admin.v1.SetBaseApiMcpStatusRequest'
                 required: true
             responses:
                 "200":
@@ -13518,6 +13528,14 @@ components:
                 id:
                     type: string
                     description: API ID
+                tool_name:
+                    type: string
+                    description: 工具名
+                tool_prompts:
+                    type: array
+                    items:
+                        type: string
+                    description: Agent/MCP工具提示词，作为工具描述覆盖、候选命中和目录展示依据
                 service_name:
                     type: string
                     description: 服务名
@@ -13536,20 +13554,22 @@ components:
                 path:
                     type: string
                     description: 请求地址
-                mcp_enabled:
-                    type: boolean
-                    description: 是否暴露为MCP工具
-                agent_enabled:
-                    type: boolean
-                    description: 是否暴露为Agent工具
-                tool_name:
+                mcp_status:
+                    enum:
+                        - UNKNOWN
+                        - ENABLE
+                        - DISABLE
                     type: string
-                    description: 工具名
-                tool_prompts:
-                    type: array
-                    items:
-                        type: string
-                    description: Agent/MCP工具提示词，作为工具描述覆盖、候选命中和目录展示依据
+                    description: MCP工具状态：枚举【Status】
+                    format: enum
+                agent_status:
+                    enum:
+                        - UNKNOWN
+                        - ENABLE
+                        - DISABLE
+                    type: string
+                    description: Agent工具状态：枚举【Status】
+                    format: enum
             description: API
         system.admin.v1.BaseApiDoc:
             type: object
@@ -14046,19 +14066,19 @@ components:
                 request_uri:
                     type: string
                     description: 请求URI
-                request_header:
-                    type: string
-                    description: 请求头
                 request_body:
                     type: string
                     description: 请求体
+                request_header:
+                    type: string
+                    description: 请求头
                 response:
                     type: string
                     description: 响应信息
                 cost_time:
                     type: string
                     description: 操作耗时
-                success:
+                is_success:
                     type: boolean
                     description: 操作是否成功
                 status_code:
@@ -15428,26 +15448,36 @@ components:
                     type: string
                     description: 手机号
             description: 发送手机号验证码请求参数
-        system.admin.v1.SetBaseApiAgentEnabledRequest:
+        system.admin.v1.SetBaseApiAgentStatusRequest:
             type: object
             properties:
                 id:
                     type: string
                     description: API ID
-                agent_enabled:
-                    type: boolean
-                    description: 是否暴露为Agent工具
-            description: API Agent启用状态设置条件
-        system.admin.v1.SetBaseApiMcpEnabledRequest:
+                agent_status:
+                    enum:
+                        - UNKNOWN
+                        - ENABLE
+                        - DISABLE
+                    type: string
+                    description: Agent工具状态：枚举【Status】
+                    format: enum
+            description: API Agent工具状态设置条件
+        system.admin.v1.SetBaseApiMcpStatusRequest:
             type: object
             properties:
                 id:
                     type: string
                     description: API ID
-                mcp_enabled:
-                    type: boolean
-                    description: 是否暴露为MCP工具
-            description: API MCP启用状态设置条件
+                mcp_status:
+                    enum:
+                        - UNKNOWN
+                        - ENABLE
+                        - DISABLE
+                    type: string
+                    description: MCP工具状态：枚举【Status】
+                    format: enum
+            description: API MCP工具状态设置条件
         system.admin.v1.SetBaseConfigStatusRequest:
             type: object
             properties:
@@ -15620,17 +15650,27 @@ components:
                 id:
                     type: string
                     description: API ID
-                mcp_enabled:
-                    type: boolean
-                    description: 是否暴露为MCP工具
-                agent_enabled:
-                    type: boolean
-                    description: 是否暴露为Agent工具
                 tool_prompts:
                     type: array
                     items:
                         type: string
                     description: Agent/MCP工具提示词，作为工具描述覆盖、候选命中和目录展示依据
+                mcp_status:
+                    enum:
+                        - UNKNOWN
+                        - ENABLE
+                        - DISABLE
+                    type: string
+                    description: MCP工具状态：枚举【Status】
+                    format: enum
+                agent_status:
+                    enum:
+                        - UNKNOWN
+                        - ENABLE
+                        - DISABLE
+                    type: string
+                    description: Agent工具状态：枚举【Status】
+                    format: enum
             description: API更新条件
         system.admin.v1.UserInfoForm:
             type: object

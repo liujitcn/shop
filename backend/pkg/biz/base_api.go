@@ -7,6 +7,7 @@ import (
 	"sort"
 	"strings"
 
+	commonv1 "shop/api/gen/go/common/v1"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 
@@ -443,15 +444,15 @@ func parseOperation(path, method string, op *Operation, tagsMap map[string]strin
 	}
 
 	baseAPI := &models.BaseAPI{
-		McpEnabled:   true,
-		AgentEnabled: true,
-		ToolName:     kitutils.ToolNameFromRPCPath(operation),
-		ServiceName:  serviceName,
-		ServiceDesc:  serviceDesc,
-		Desc:         operationDescription(op),
-		Operation:    operation,
-		Method:       method,
-		Path:         path,
+		ToolName:    kitutils.ToolNameFromRPCPath(operation),
+		ServiceName: serviceName,
+		ServiceDesc: serviceDesc,
+		Desc:        operationDescription(op),
+		Operation:   operation,
+		Method:      method,
+		Path:        path,
+		McpStatus:   int32(commonv1.Status_ENABLE),
+		AgentStatus: int32(commonv1.Status_ENABLE),
 	}
 	baseAPI.ToolPrompts = encodeToolPrompts(defaultToolPrompts(baseAPI.ToolName, baseAPI.ServiceName, baseAPI.ServiceDesc, baseAPI.Desc, baseAPI.Operation, baseAPI.Method, baseAPI.Path))
 	return baseAPI, nil

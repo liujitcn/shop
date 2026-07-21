@@ -69,23 +69,23 @@ func (s *BaseApiService) GetBaseApiDoc(ctx context.Context, req *systemadminv1.G
 	return baseAPIDoc, nil
 }
 
-// SetBaseApiMcpEnabled 设置API MCP启用状态
-func (s *BaseApiService) SetBaseApiMcpEnabled(ctx context.Context, req *systemadminv1.SetBaseApiMcpEnabledRequest) (*emptypb.Empty, error) {
-	err := s.baseAPICase.SetBaseAPIMcpEnabled(ctx, req)
+// SetBaseApiMcpStatus 设置API MCP工具状态
+func (s *BaseApiService) SetBaseApiMcpStatus(ctx context.Context, req *systemadminv1.SetBaseApiMcpStatusRequest) (*emptypb.Empty, error) {
+	err := s.baseAPICase.SetBaseAPIMcpStatus(ctx, req)
 	if err != nil {
-		log.Error(fmt.Sprintf("SetBaseApiMcpEnabled %v", err))
-		return nil, errorsx.WrapInternal(err, "设置API MCP启用状态失败")
+		log.Error(fmt.Sprintf("SetBaseApiMcpStatus %v", err))
+		return nil, errorsx.WrapInternal(err, "设置API MCP工具状态失败")
 	}
 
 	return &emptypb.Empty{}, nil
 }
 
-// SetBaseApiAgentEnabled 设置API Agent启用状态
-func (s *BaseApiService) SetBaseApiAgentEnabled(ctx context.Context, req *systemadminv1.SetBaseApiAgentEnabledRequest) (*emptypb.Empty, error) {
-	err := s.baseAPICase.SetBaseAPIAgentEnabled(ctx, req)
+// SetBaseApiAgentStatus 设置API Agent工具状态
+func (s *BaseApiService) SetBaseApiAgentStatus(ctx context.Context, req *systemadminv1.SetBaseApiAgentStatusRequest) (*emptypb.Empty, error) {
+	err := s.baseAPICase.SetBaseAPIAgentStatus(ctx, req)
 	if err != nil {
-		log.Error(fmt.Sprintf("SetBaseApiAgentEnabled %v", err))
-		return nil, errorsx.WrapInternal(err, "设置API Agent启用状态失败")
+		log.Error(fmt.Sprintf("SetBaseApiAgentStatus %v", err))
+		return nil, errorsx.WrapInternal(err, "设置API Agent工具状态失败")
 	}
 
 	return &emptypb.Empty{}, nil

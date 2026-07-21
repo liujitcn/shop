@@ -54,16 +54,16 @@ export interface BaseLog {
   referer: string;
   /** 请求URI */
   request_uri: string;
-  /** 请求头 */
-  request_header: string;
   /** 请求体 */
   request_body: string;
+  /** 请求头 */
+  request_header: string;
   /** 响应信息 */
   response: string;
   /** 操作耗时 */
   cost_time: string;
   /** 操作是否成功 */
-  success: boolean;
+  is_success: boolean;
   /** 状态码 */
   status_code: number;
   /** 操作失败原因 */

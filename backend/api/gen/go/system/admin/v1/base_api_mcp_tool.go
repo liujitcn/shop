@@ -19,8 +19,8 @@ func RegisterBaseApiServiceMCPTools(mcpServer *mcp.Server, baseApiServiceServer 
 	RegisterBaseApiServiceListBaseApiMCPTool(mcpServer, baseApiServiceServer)
 	RegisterBaseApiServiceGetBaseApiMCPTool(mcpServer, baseApiServiceServer)
 	RegisterBaseApiServiceGetBaseApiDocMCPTool(mcpServer, baseApiServiceServer)
-	RegisterBaseApiServiceSetBaseApiMcpEnabledMCPTool(mcpServer, baseApiServiceServer)
-	RegisterBaseApiServiceSetBaseApiAgentEnabledMCPTool(mcpServer, baseApiServiceServer)
+	RegisterBaseApiServiceSetBaseApiMcpStatusMCPTool(mcpServer, baseApiServiceServer)
+	RegisterBaseApiServiceSetBaseApiAgentStatusMCPTool(mcpServer, baseApiServiceServer)
 	RegisterBaseApiServiceUpdateBaseApiMCPTool(mcpServer, baseApiServiceServer)
 }
 
@@ -108,19 +108,19 @@ func RegisterBaseApiServiceGetBaseApiDocMCPTool(mcpServer *mcp.Server, baseApiSe
 	)
 }
 
-// RegisterBaseApiServiceSetBaseApiMcpEnabledMCPTool 注册设置API MCP启用状态的 MCP Tool。
-func RegisterBaseApiServiceSetBaseApiMcpEnabledMCPTool(mcpServer *mcp.Server, baseApiServiceServer BaseApiServiceServer) {
-	mcp.AddTool[*SetBaseApiMcpEnabledRequest, *emptypb.Empty](
+// RegisterBaseApiServiceSetBaseApiMcpStatusMCPTool 注册设置API MCP工具状态的 MCP Tool。
+func RegisterBaseApiServiceSetBaseApiMcpStatusMCPTool(mcpServer *mcp.Server, baseApiServiceServer BaseApiServiceServer) {
+	mcp.AddTool[*SetBaseApiMcpStatusRequest, *emptypb.Empty](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "system_admin_v1_base_api_service_set_base_api_mcp_enabled",
-			Description: "设置API MCP启用状态",
+			Name:        "system_admin_v1_base_api_service_set_base_api_mcp_status",
+			Description: "设置API MCP工具状态",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *SetBaseApiMcpEnabledRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *SetBaseApiMcpStatusRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
 			if input == nil {
-				input = &SetBaseApiMcpEnabledRequest{}
+				input = &SetBaseApiMcpStatusRequest{}
 			}
-			reply, err := baseApiServiceServer.SetBaseApiMcpEnabled(ctx, input)
+			reply, err := baseApiServiceServer.SetBaseApiMcpStatus(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -129,19 +129,19 @@ func RegisterBaseApiServiceSetBaseApiMcpEnabledMCPTool(mcpServer *mcp.Server, ba
 	)
 }
 
-// RegisterBaseApiServiceSetBaseApiAgentEnabledMCPTool 注册设置API Agent启用状态的 MCP Tool。
-func RegisterBaseApiServiceSetBaseApiAgentEnabledMCPTool(mcpServer *mcp.Server, baseApiServiceServer BaseApiServiceServer) {
-	mcp.AddTool[*SetBaseApiAgentEnabledRequest, *emptypb.Empty](
+// RegisterBaseApiServiceSetBaseApiAgentStatusMCPTool 注册设置API Agent工具状态的 MCP Tool。
+func RegisterBaseApiServiceSetBaseApiAgentStatusMCPTool(mcpServer *mcp.Server, baseApiServiceServer BaseApiServiceServer) {
+	mcp.AddTool[*SetBaseApiAgentStatusRequest, *emptypb.Empty](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "system_admin_v1_base_api_service_set_base_api_agent_enabled",
-			Description: "设置API Agent启用状态",
+			Name:        "system_admin_v1_base_api_service_set_base_api_agent_status",
+			Description: "设置API Agent工具状态",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *SetBaseApiAgentEnabledRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *SetBaseApiAgentStatusRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
 			if input == nil {
-				input = &SetBaseApiAgentEnabledRequest{}
+				input = &SetBaseApiAgentStatusRequest{}
 			}
-			reply, err := baseApiServiceServer.SetBaseApiAgentEnabled(ctx, input)
+			reply, err := baseApiServiceServer.SetBaseApiAgentStatus(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

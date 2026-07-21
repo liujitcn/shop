@@ -155,9 +155,9 @@ AI 助手默认通过 `github.com/liujitcn/kratos-kit/ai/eino` 创建 OpenAI Res
 
 ## MCP 工具暴露
 
-后端通过 `protoc-gen-go-mcp-tool` 生成 MCP 工具注册代码，服务启动时按本地服务实例注册工具。`base_api` 表保存接口元数据、`tool_name`、`tool_prompts`、`mcp_enabled` 和 `agent_enabled` 开关；`tool_prompts` 是 JSON 数组，默认由接口 `service_desc` 与 `desc` 组合生成多条工具提示词，会作为 MCP 工具和 Agent 工具的运行时描述与命中依据。管理后台的“系统管理 / API 管理”页面可查看、搜索工具名与工具提示词，可在列表中分别切换接口是否暴露为 MCP 工具或 Agent 工具，也可以通过编辑弹窗统一维护 MCP 启用状态、Agent 启用状态和工具提示词。
+后端通过 `protoc-gen-go-mcp-tool` 生成 MCP 工具注册代码，服务启动时按本地服务实例注册工具。`base_api` 表保存接口元数据、`tool_name`、`tool_prompts`、`mcp_status` 和 `agent_status` 状态；`tool_prompts` 是 JSON 数组，默认由接口 `service_desc` 与 `desc` 组合生成多条工具提示词，会作为 MCP 工具和 Agent 工具的运行时描述与命中依据。管理后台的“系统管理 / API 管理”页面可查看、搜索工具名与工具提示词，可在列表中分别切换 MCP 工具或 Agent 工具状态，也可以通过编辑弹窗统一维护两个工具状态和工具提示词。
 
-MCP 工具调用时会按工具名查询 `base_api.tool_name`，再检查 `mcp_enabled` 和当前终端归属；未启用或不属于当前终端时不会执行。MCP 工具列表会用 `base_api.tool_prompts` 合并后的文本覆盖生成描述。Agent 工具仍会完整注册加载，候选工具筛选和实际执行前按 `agent_enabled` 过滤，并用 `base_api.tool_prompts` 覆盖候选工具和工具目录里的生成描述；工具目录查询会展示当前终端完整注册工具名，并明确区别于本轮候选工具。商城端 AI 助手启动时会加载大部分 App 端生成工具，排除登录授权、支付回调等不适合由助手主动调用的敏感接口，并将每轮模型候选工具上限提升到 6 个；快捷入口覆盖推荐商品、待付款、评价、物流、购物车、收藏、收货地址、个人资料、门店入驻、商品分类、热门专区和商城服务说明等流程。工具调用链路直接走当前进程内服务实例，不再转发 HTTP，也不再依赖 `input_schema`、`arg_mapping`、`output_schema`。
+MCP 工具调用时会按工具名查询 `base_api.tool_name`，再检查 `mcp_status` 是否为启用状态以及当前终端归属；未启用或不属于当前终端时不会执行。MCP 工具列表会用 `base_api.tool_prompts` 合并后的文本覆盖生成描述。Agent 工具仍会完整注册加载，候选工具筛选和实际执行前按 `agent_status` 是否为启用状态过滤，并用 `base_api.tool_prompts` 覆盖候选工具和工具目录里的生成描述；工具目录查询会展示当前终端完整注册工具名，并明确区别于本轮候选工具。商城端 AI 助手启动时会加载大部分 App 端生成工具，排除登录授权、支付回调等不适合由助手主动调用的敏感接口，并将每轮模型候选工具上限提升到 6 个；快捷入口覆盖推荐商品、待付款、评价、物流、购物车、收藏、收货地址、个人资料、门店入驻、商品分类、热门专区和商城服务说明等流程。工具调用链路直接走当前进程内服务实例，不再转发 HTTP，也不再依赖 `input_schema`、`arg_mapping`、`output_schema`。
 
 当前后端会按 `server.mcp.transport: TRANSPORT_IN_PROCESS` 把 Streamable HTTP MCP 处理器挂载到现有 HTTP 服务，并通过 `/mcp/{terminal}` 按服务关键字过滤工具。例如 `server.http.addr = :7001` 时，管理端 MCP 地址为 `http://127.0.0.1:7001/mcp/admin`。
 
@@ -169,7 +169,7 @@ MCP 工具调用时会按工具名查询 `base_api.tool_name`，再检查 `mcp_e
 - `CodeGenColumnService`：数据库字段元数据查询、字段配置查询和保存。
 - `CodeGenProtoService`：按表与字段配置检查所需 Proto 接口，并保存缺失接口的生成选择。
 
-数据库表与字段选项固定读取当前连接库的 `information_schema`，不接受客户端传入 SQL 片段。字段配置持久化在 `code_gen_column`：查询、列表、表单分别维护自己的选项配置，并使用 `sort` 字段作为三类页面元素的共用顺序；字段名为 `status`、`state`、后缀为 `_status`、`_state` 或数据库类型为 `tinyint` 时，默认按状态字段处理，查询使用 `status` 字典下拉，列表和表单使用开关，并在各自选项中保存 `status` 字典、开启值 `1` 和关闭值 `2`；后端根据已启用的列表开关自动推导设置状态 Proto 接口，方法名直接使用实际字段名，例如 `status` 生成 `SetBaseDeptStatus`，`mcp_enabled` 生成 `SetBaseApiMcpEnabled`。表单树形选择默认单选；仅 JSON 字段可配置多选，生成的表单契约使用 `repeated int64` 并在业务层与 JSON 数组双向转换。字段配置查询接口不返回数据库主键和 `deleted_at`，内部 Proto 推导仍使用完整字段集合。这些配置在 Proto 中定义为结构化消息，并通过 mapper 与数据库 JSON 列双向转换。Proto 接口配置持久化在 `code_gen_proto`，不同接口类型的可变字段统一保存在 `config` JSON 列：`option` 使用显示字段和值字段，`tree` 额外使用父节点字段，`status` 使用状态字段，`crud` 与 `list` 不需要类型配置；只有勾选缺失时生成的接口才校验配置。检查结果会读取仓库内目标 Proto 文件判断 RPC 是否存在。
+数据库表与字段选项固定读取当前连接库的 `information_schema`，不接受客户端传入 SQL 片段。字段配置持久化在 `code_gen_column`：查询、列表、表单分别维护自己的选项配置，并使用 `sort` 字段作为三类页面元素的共用顺序；字段名为 `status`、`state`、后缀为 `_status`、`_state` 或数据库类型为 `tinyint` 时，默认按状态字段处理，查询使用 `status` 字典下拉，列表和表单使用开关，并在各自选项中保存 `status` 字典、开启值 `1` 和关闭值 `2`；后端根据已启用的列表开关自动推导设置状态 Proto 接口，方法名直接使用实际字段名，例如 `status` 生成 `SetBaseDeptStatus`，`mcp_status` 生成 `SetBaseApiMcpStatus`。表单树形选择默认单选；仅 JSON 字段可配置多选，生成的表单契约使用 `repeated int64` 并在业务层与 JSON 数组双向转换。字段配置查询接口不返回数据库主键和 `deleted_at`，内部 Proto 推导仍使用完整字段集合。这些配置在 Proto 中定义为结构化消息，并通过 mapper 与数据库 JSON 列双向转换。Proto 接口配置持久化在 `code_gen_proto`，不同接口类型的可变字段统一保存在 `config` JSON 列：`option` 使用显示字段和值字段，`tree` 额外使用父节点字段，`status` 使用状态字段，`crud` 与 `list` 不需要类型配置；只有勾选缺失时生成的接口才校验配置。检查结果会读取仓库内目标 Proto 文件判断 RPC 是否存在。
 
 `CodeGenService` 与 `CodeGenCase` 在只读加载上述现有配置后提供代码预览、单项或批量生成和任务进度查询。预览可临时覆盖本次单项任务的仓库内输出路径，但不会回写配置；批量任务按各表默认路径串行写入，使用服务当前生效的数据源逐表生成 GORM 代码，并在整批末尾只执行一次接口产物、Wire 和格式化命令。生成任务保存在进程内并按用户隔离，通过任务 ID 的 SSE 通道推送实时进度，同时支持查询接口轮询恢复。生成流程不会修改代码生成表的状态或备注；启用菜单同步且前端页面所需 RPC 完整时，只同步目标业务页面及实际存在的按钮接口权限。
 

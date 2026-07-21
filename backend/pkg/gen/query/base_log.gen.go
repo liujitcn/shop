@@ -39,7 +39,7 @@ func newBaseLog(db *gorm.DB, opts ...gen.DOOption) baseLog {
 	_baseLog.RequestHeader = field.NewString(tableName, "request_header")
 	_baseLog.Response = field.NewString(tableName, "response")
 	_baseLog.CostTime = field.NewInt64(tableName, "cost_time")
-	_baseLog.Success = field.NewBool(tableName, "success")
+	_baseLog.IsSuccess = field.NewBool(tableName, "is_success")
 	_baseLog.StatusCode = field.NewInt32(tableName, "status_code")
 	_baseLog.Reason = field.NewString(tableName, "reason")
 	_baseLog.Location = field.NewString(tableName, "location")
@@ -77,7 +77,7 @@ type baseLog struct {
 	RequestHeader  field.String // 请求头
 	Response       field.String // 响应信息
 	CostTime       field.Int64  // 操作耗时
-	Success        field.Bool   // 操作成功
+	IsSuccess      field.Bool   // 操作成功
 	StatusCode     field.Int32  // 状态码
 	Reason         field.String // 操作失败原因
 	Location       field.String // 操作地理位置
@@ -120,7 +120,7 @@ func (b *baseLog) updateTableName(table string) *baseLog {
 	b.RequestHeader = field.NewString(table, "request_header")
 	b.Response = field.NewString(table, "response")
 	b.CostTime = field.NewInt64(table, "cost_time")
-	b.Success = field.NewBool(table, "success")
+	b.IsSuccess = field.NewBool(table, "is_success")
 	b.StatusCode = field.NewInt32(table, "status_code")
 	b.Reason = field.NewString(table, "reason")
 	b.Location = field.NewString(table, "location")
@@ -172,7 +172,7 @@ func (b *baseLog) fillFieldMap() {
 	b.fieldMap["request_header"] = b.RequestHeader
 	b.fieldMap["response"] = b.Response
 	b.fieldMap["cost_time"] = b.CostTime
-	b.fieldMap["success"] = b.Success
+	b.fieldMap["is_success"] = b.IsSuccess
 	b.fieldMap["status_code"] = b.StatusCode
 	b.fieldMap["reason"] = b.Reason
 	b.fieldMap["location"] = b.Location

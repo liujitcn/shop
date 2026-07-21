@@ -6,8 +6,8 @@
       <div class="detail-container">
         <el-descriptions title="基础信息" border :column="2">
           <el-descriptions-item label="操作结果">
-            <el-tag :type="detail.success ? 'success' : 'danger'" effect="light">
-              {{ detail.success ? "成功" : "失败" }}
+            <el-tag :type="detail.is_success ? 'success' : 'danger'" effect="light">
+              {{ detail.is_success ? "成功" : "失败" }}
             </el-tag>
           </el-descriptions-item>
           <el-descriptions-item label="状态码">
@@ -60,7 +60,7 @@
           <el-descriptions-item label="User Agent" :span="2">{{ detail.user_agent || "--" }}</el-descriptions-item>
         </el-descriptions>
 
-        <el-alert v-if="!detail.success" title="失败原因" type="error" :description="detail.reason" class="mt-4" show-icon />
+        <el-alert v-if="!detail.is_success" title="失败原因" type="error" :description="detail.reason" class="mt-4" show-icon />
       </div>
 
       <template #footer>
@@ -130,7 +130,7 @@ function createDefaultDetail(): BaseLog {
     /** 操作耗时 */
     cost_time: "",
     /** 操作是否成功 */
-    success: false,
+    is_success: false,
     /** 状态码 */
     status_code: 0,
     /** 操作失败原因 */
@@ -184,7 +184,7 @@ function normalizeNumber(value: unknown): number {
 function normalizeDetail(data: BaseLog): BaseLog {
   return {
     ...data,
-    success: normalizeBoolean((data as BaseLog & { success?: unknown }).success),
+    is_success: normalizeBoolean((data as BaseLog & { is_success?: unknown }).is_success),
     status_code: normalizeNumber(data.status_code)
   };
 }

@@ -23,8 +23,8 @@ const OperationBaseApiServiceGetBaseApi = "/system.admin.v1.BaseApiService/GetBa
 const OperationBaseApiServiceGetBaseApiDoc = "/system.admin.v1.BaseApiService/GetBaseApiDoc"
 const OperationBaseApiServiceListBaseApi = "/system.admin.v1.BaseApiService/ListBaseApi"
 const OperationBaseApiServicePageBaseApi = "/system.admin.v1.BaseApiService/PageBaseApi"
-const OperationBaseApiServiceSetBaseApiAgentEnabled = "/system.admin.v1.BaseApiService/SetBaseApiAgentEnabled"
-const OperationBaseApiServiceSetBaseApiMcpEnabled = "/system.admin.v1.BaseApiService/SetBaseApiMcpEnabled"
+const OperationBaseApiServiceSetBaseApiAgentStatus = "/system.admin.v1.BaseApiService/SetBaseApiAgentStatus"
+const OperationBaseApiServiceSetBaseApiMcpStatus = "/system.admin.v1.BaseApiService/SetBaseApiMcpStatus"
 const OperationBaseApiServiceUpdateBaseApi = "/system.admin.v1.BaseApiService/UpdateBaseApi"
 
 type BaseApiServiceHTTPServer interface {
@@ -36,10 +36,10 @@ type BaseApiServiceHTTPServer interface {
 	ListBaseApi(context.Context, *ListBaseApiRequest) (*ListBaseApiResponse, error)
 	// PageBaseApi 分页查询API列表
 	PageBaseApi(context.Context, *PageBaseApiRequest) (*PageBaseApiResponse, error)
-	// SetBaseApiAgentEnabled 设置API Agent启用状态
-	SetBaseApiAgentEnabled(context.Context, *SetBaseApiAgentEnabledRequest) (*emptypb.Empty, error)
-	// SetBaseApiMcpEnabled 设置API MCP启用状态
-	SetBaseApiMcpEnabled(context.Context, *SetBaseApiMcpEnabledRequest) (*emptypb.Empty, error)
+	// SetBaseApiAgentStatus 设置API Agent工具状态
+	SetBaseApiAgentStatus(context.Context, *SetBaseApiAgentStatusRequest) (*emptypb.Empty, error)
+	// SetBaseApiMcpStatus 设置API MCP工具状态
+	SetBaseApiMcpStatus(context.Context, *SetBaseApiMcpStatusRequest) (*emptypb.Empty, error)
 	// UpdateBaseApi 更新API配置
 	UpdateBaseApi(context.Context, *UpdateBaseApiRequest) (*emptypb.Empty, error)
 }
@@ -50,8 +50,8 @@ func RegisterBaseApiServiceHTTPServer(s *http.Server, srv BaseApiServiceHTTPServ
 	r.Handle("GET", "/api/v1/admin/base/api/option", _BaseApiService_ListBaseApi0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/base/api/{id}", _BaseApiService_GetBaseApi0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/base/api/{id}/doc", _BaseApiService_GetBaseApiDoc0_HTTP_Handler(srv))
-	r.Handle("PUT", "/api/v1/admin/base/api/{id}/mcp-enabled", _BaseApiService_SetBaseApiMcpEnabled0_HTTP_Handler(srv))
-	r.Handle("PUT", "/api/v1/admin/base/api/{id}/agent-enabled", _BaseApiService_SetBaseApiAgentEnabled0_HTTP_Handler(srv))
+	r.Handle("PUT", "/api/v1/admin/base/api/{id}/mcp-status", _BaseApiService_SetBaseApiMcpStatus0_HTTP_Handler(srv))
+	r.Handle("PUT", "/api/v1/admin/base/api/{id}/agent-status", _BaseApiService_SetBaseApiAgentStatus0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/base/api/{id}", _BaseApiService_UpdateBaseApi0_HTTP_Handler(srv))
 }
 
@@ -137,18 +137,18 @@ func _BaseApiService_GetBaseApiDoc0_HTTP_Handler(srv BaseApiServiceHTTPServer) f
 	}
 }
 
-func _BaseApiService_SetBaseApiMcpEnabled0_HTTP_Handler(srv BaseApiServiceHTTPServer) func(ctx http.Context) error {
+func _BaseApiService_SetBaseApiMcpStatus0_HTTP_Handler(srv BaseApiServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in SetBaseApiMcpEnabledRequest
+		var in SetBaseApiMcpStatusRequest
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
 		if err := ctx.BindVars(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationBaseApiServiceSetBaseApiMcpEnabled)
+		http.SetOperation(ctx, OperationBaseApiServiceSetBaseApiMcpStatus)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.SetBaseApiMcpEnabled(ctx, req.(*SetBaseApiMcpEnabledRequest))
+			return srv.SetBaseApiMcpStatus(ctx, req.(*SetBaseApiMcpStatusRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -159,18 +159,18 @@ func _BaseApiService_SetBaseApiMcpEnabled0_HTTP_Handler(srv BaseApiServiceHTTPSe
 	}
 }
 
-func _BaseApiService_SetBaseApiAgentEnabled0_HTTP_Handler(srv BaseApiServiceHTTPServer) func(ctx http.Context) error {
+func _BaseApiService_SetBaseApiAgentStatus0_HTTP_Handler(srv BaseApiServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in SetBaseApiAgentEnabledRequest
+		var in SetBaseApiAgentStatusRequest
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
 		if err := ctx.BindVars(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationBaseApiServiceSetBaseApiAgentEnabled)
+		http.SetOperation(ctx, OperationBaseApiServiceSetBaseApiAgentStatus)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.SetBaseApiAgentEnabled(ctx, req.(*SetBaseApiAgentEnabledRequest))
+			return srv.SetBaseApiAgentStatus(ctx, req.(*SetBaseApiAgentStatusRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -212,10 +212,10 @@ type BaseApiServiceHTTPClient interface {
 	ListBaseApi(ctx context.Context, req *ListBaseApiRequest, opts ...http.CallOption) (rsp *ListBaseApiResponse, err error)
 	// PageBaseApi 分页查询API列表
 	PageBaseApi(ctx context.Context, req *PageBaseApiRequest, opts ...http.CallOption) (rsp *PageBaseApiResponse, err error)
-	// SetBaseApiAgentEnabled 设置API Agent启用状态
-	SetBaseApiAgentEnabled(ctx context.Context, req *SetBaseApiAgentEnabledRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
-	// SetBaseApiMcpEnabled 设置API MCP启用状态
-	SetBaseApiMcpEnabled(ctx context.Context, req *SetBaseApiMcpEnabledRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	// SetBaseApiAgentStatus 设置API Agent工具状态
+	SetBaseApiAgentStatus(ctx context.Context, req *SetBaseApiAgentStatusRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	// SetBaseApiMcpStatus 设置API MCP工具状态
+	SetBaseApiMcpStatus(ctx context.Context, req *SetBaseApiMcpStatusRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// UpdateBaseApi 更新API配置
 	UpdateBaseApi(ctx context.Context, req *UpdateBaseApiRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 }
@@ -296,15 +296,15 @@ func (c *BaseApiServiceHTTPClientImpl) PageBaseApi(ctx context.Context, in *Page
 	return &out, nil
 }
 
-// SetBaseApiAgentEnabled 设置API Agent启用状态
-func (c *BaseApiServiceHTTPClientImpl) SetBaseApiAgentEnabled(ctx context.Context, in *SetBaseApiAgentEnabledRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
+// SetBaseApiAgentStatus 设置API Agent工具状态
+func (c *BaseApiServiceHTTPClientImpl) SetBaseApiAgentStatus(ctx context.Context, in *SetBaseApiAgentStatusRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
-	pattern := "/api/v1/admin/base/api/{id}/agent-enabled"
+	pattern := "/api/v1/admin/base/api/{id}/agent-status"
 	path := http.BuildPath(pattern, in)
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
 		http.ContentType("application/protojson"),
-		http.Operation(OperationBaseApiServiceSetBaseApiAgentEnabled),
+		http.Operation(OperationBaseApiServiceSetBaseApiAgentStatus),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "PUT", path, in, &out, opts...)
@@ -314,15 +314,15 @@ func (c *BaseApiServiceHTTPClientImpl) SetBaseApiAgentEnabled(ctx context.Contex
 	return &out, nil
 }
 
-// SetBaseApiMcpEnabled 设置API MCP启用状态
-func (c *BaseApiServiceHTTPClientImpl) SetBaseApiMcpEnabled(ctx context.Context, in *SetBaseApiMcpEnabledRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
+// SetBaseApiMcpStatus 设置API MCP工具状态
+func (c *BaseApiServiceHTTPClientImpl) SetBaseApiMcpStatus(ctx context.Context, in *SetBaseApiMcpStatusRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
-	pattern := "/api/v1/admin/base/api/{id}/mcp-enabled"
+	pattern := "/api/v1/admin/base/api/{id}/mcp-status"
 	path := http.BuildPath(pattern, in)
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
 		http.ContentType("application/protojson"),
-		http.Operation(OperationBaseApiServiceSetBaseApiMcpEnabled),
+		http.Operation(OperationBaseApiServiceSetBaseApiMcpStatus),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "PUT", path, in, &out, opts...)

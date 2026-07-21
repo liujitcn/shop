@@ -9,8 +9,8 @@ import {
   type ListBaseApiResponse,
   type PageBaseApiRequest,
   type PageBaseApiResponse,
-  type SetBaseApiAgentEnabledRequest,
-  type SetBaseApiMcpEnabledRequest,
+  type SetBaseApiAgentStatusRequest,
+  type SetBaseApiMcpStatusRequest,
   type UpdateBaseApiRequest
 } from "@/rpc/system/admin/v1/base_api";
 import type { Empty } from "@/rpc/google/protobuf/empty";
@@ -53,19 +53,19 @@ export class BaseApiServiceImpl implements BaseApiService {
     });
   }
 
-  /** 设置API是否暴露为MCP工具 */
-  SetBaseApiMcpEnabled(request: SetBaseApiMcpEnabledRequest): Promise<Empty> {
-    return service<SetBaseApiMcpEnabledRequest, Empty>({
-      url: `${BASE_API_URL}/${request.id}/mcp-enabled`,
+  /** 设置API MCP工具状态 */
+  SetBaseApiMcpStatus(request: SetBaseApiMcpStatusRequest): Promise<Empty> {
+    return service<SetBaseApiMcpStatusRequest, Empty>({
+      url: `${BASE_API_URL}/${request.id}/mcp-status`,
       method: "put",
       data: request
     });
   }
 
-  /** 设置API是否暴露为Agent工具 */
-  SetBaseApiAgentEnabled(request: SetBaseApiAgentEnabledRequest): Promise<Empty> {
-    return service<SetBaseApiAgentEnabledRequest, Empty>({
-      url: `${BASE_API_URL}/${request.id}/agent-enabled`,
+  /** 设置API Agent工具状态 */
+  SetBaseApiAgentStatus(request: SetBaseApiAgentStatusRequest): Promise<Empty> {
+    return service<SetBaseApiAgentStatusRequest, Empty>({
+      url: `${BASE_API_URL}/${request.id}/agent-status`,
       method: "put",
       data: request
     });

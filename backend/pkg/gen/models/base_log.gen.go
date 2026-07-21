@@ -26,7 +26,7 @@ type BaseLog struct {
 	RequestHeader  string         `gorm:"column:request_header;type:text;comment:请求头" json:"request_header"`                                                      // 请求头
 	Response       string         `gorm:"column:response;type:text;comment:响应信息" json:"response"`                                                                 // 响应信息
 	CostTime       int64          `gorm:"column:cost_time;type:bigint;not null;comment:操作耗时" json:"cost_time"`                                                    // 操作耗时
-	Success        bool           `gorm:"column:success;type:tinyint(1);not null;comment:操作成功" json:"success"`                                                    // 操作成功
+	IsSuccess      bool           `gorm:"column:is_success;type:tinyint(1);not null;comment:操作成功" json:"is_success"`                                              // 操作成功
 	StatusCode     int32          `gorm:"column:status_code;type:int;not null;comment:状态码" json:"status_code"`                                                    // 状态码
 	Reason         string         `gorm:"column:reason;type:text;comment:操作失败原因" json:"reason"`                                                                   // 操作失败原因
 	Location       string         `gorm:"column:location;type:varchar(255);comment:操作地理位置" json:"location"`                                                       // 操作地理位置

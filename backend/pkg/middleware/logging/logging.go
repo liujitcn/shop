@@ -143,7 +143,7 @@ func Server(_ *slog.Logger,
 				}
 			}
 			reply, err = handler(ctx, req)
-			baseLog.Success = err == nil
+			baseLog.IsSuccess = err == nil
 			// 当前错误可转换为 Kratos 标准错误时，补充业务错误码和原因。
 			if se := errors.FromError(err); se != nil {
 				baseLog.StatusCode = se.Code
