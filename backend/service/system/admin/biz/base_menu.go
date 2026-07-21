@@ -171,10 +171,20 @@ func (c *BaseMenuCase) UpdateBaseMenu(ctx context.Context, req *systemadminv1.Ba
 func (c *BaseMenuCase) DeleteBaseMenu(ctx context.Context, id string) error {
 	ids := _string.ConvertStringToInt64Array(id)
 	query := c.Query(ctx).BaseMenu
+	var err error
 	for _, menuID := range ids {
+		var menu *models.BaseMenu
+		menu, err = c.FindByID(ctx, menuID)
+		if err != nil {
+			return err
+		}
+		if menu.ParentID == 0 {
+			return errorsx.ProtectedResourceConflict("一级菜单不允许删除", "base_menu")
+		}
 		opts := make([]repository.QueryOption, 0, 1)
 		opts = append(opts, repository.Where(query.ParentID.Eq(menuID)))
-		count, err := c.Count(ctx, opts...)
+		var count int64
+		count, err = c.Count(ctx, opts...)
 		if err != nil {
 			return err
 		}
@@ -184,9 +194,8 @@ func (c *BaseMenuCase) DeleteBaseMenu(ctx context.Context, id string) error {
 		}
 	}
 	return c.tx.Transaction(ctx, func(ctx context.Context) error {
-		deleteErr := c.DeleteByIDs(ctx, ids)
-		if deleteErr != nil {
-			return deleteErr
+		if err = c.DeleteByIDs(ctx, ids); err != nil {
+			return err
 		}
 		return c.casbinRuleCase.DeleteCasbinRuleByMenuIDs(ctx, ids)
 	})
@@ -393,28 +402,30 @@ func validateBaseMenuChild(parentMenu *models.BaseMenu, menuType int32) error {
 	}
 	parentLevel := baseMenuIDLevel(parentMenu.ID)
 	if parentLevel == 0 || parentLevel >= baseMenuMaxLevel {
-		return errorsx.InvalidArgument("父级菜单ID不符合三级菜单编号规则")
-	}
-	if parentLevel <= 2 && parentMenu.Type != _const.BASE_MENU_TYPE_FOLDER {
-		return errorsx.InvalidArgument("一级和二级父节点必须是目录")
-	}
-	if parentLevel == 3 && parentMenu.Type != _const.BASE_MENU_TYPE_MENU {
-		return errorsx.InvalidArgument("三级父节点必须是菜单")
+		return errorsx.InvalidArgument("父级菜单ID不符合菜单编号层级规则")
 	}
 	if menuType != _const.BASE_MENU_TYPE_FOLDER && menuType != _const.BASE_MENU_TYPE_MENU && menuType != _const.BASE_MENU_TYPE_BUTTON && menuType != _const.BASE_MENU_TYPE_EXT_LINK {
 		return errorsx.InvalidArgument("菜单类型无效")
 	}
-	// 一级下固定为二级目录，二级目录下固定为三级页面，页面下固定为四级按钮。
-	if parentLevel == 1 && menuType != _const.BASE_MENU_TYPE_FOLDER {
-		return errorsx.InvalidArgument("一级菜单下只能创建二级目录")
+	if parentMenu.Type == _const.BASE_MENU_TYPE_FOLDER && parentLevel == 1 {
+		if menuType == _const.BASE_MENU_TYPE_FOLDER || menuType == _const.BASE_MENU_TYPE_MENU || menuType == _const.BASE_MENU_TYPE_EXT_LINK {
+			return nil
+		}
+		return errorsx.InvalidArgument("一级目录下只能创建目录、菜单或外链")
 	}
-	if parentLevel == 2 && menuType != _const.BASE_MENU_TYPE_MENU && menuType != _const.BASE_MENU_TYPE_EXT_LINK {
+	if parentMenu.Type == _const.BASE_MENU_TYPE_FOLDER && parentLevel == 2 {
+		if menuType == _const.BASE_MENU_TYPE_MENU || menuType == _const.BASE_MENU_TYPE_EXT_LINK {
+			return nil
+		}
 		return errorsx.InvalidArgument("二级目录下只能创建三级菜单或外链")
 	}
-	if parentLevel == 3 && menuType != _const.BASE_MENU_TYPE_BUTTON {
-		return errorsx.InvalidArgument("三级菜单下只能创建按钮")
+	if parentMenu.Type == _const.BASE_MENU_TYPE_MENU && (parentLevel == 2 || parentLevel == 3) {
+		if menuType == _const.BASE_MENU_TYPE_BUTTON {
+			return nil
+		}
+		return errorsx.InvalidArgument("页面菜单下只能创建按钮")
 	}
-	return nil
+	return errorsx.InvalidArgument("父级菜单类型与层级不匹配")
 }
 
 // baseMenuIDLevel 根据三、五、七、九位编号识别菜单层级。

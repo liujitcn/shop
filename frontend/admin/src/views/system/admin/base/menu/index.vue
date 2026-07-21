@@ -57,7 +57,6 @@ import { defBaseApiService } from "@/api/system/admin/base_api";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
 import type { BaseApi } from "@/rpc/system/admin/v1/base_api";
 import type { BaseMenu, BaseMenuForm, BaseMenuMeta } from "@/rpc/system/admin/v1/base_menu";
-import type { TreeOptionResponse_Option } from "@/rpc/common/v1/common";
 import { Status } from "@/rpc/common/v1/enum";
 import { BaseMenuType } from "@/rpc/system/common/v1/enum";
 import { normalizeSelectedIds } from "@/utils/proTable";
@@ -78,12 +77,15 @@ type MenuFormState = Omit<BaseMenuForm, "meta"> & {
 const { BUTTONS } = useAuthButtons();
 const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
-const menuOptions = ref<TreeOptionResponse_Option[]>([]);
+const menuOptions = ref<ProFormOption[]>([]);
+const parentMenuTypeMap = ref(new Map<number, BaseMenuType>());
 const apiList = ref<BaseApi[]>([]);
 
 const dialog = reactive({
   title: "",
-  visible: false
+  visible: false,
+  parentType: BaseMenuType.UNKNOWN_MT,
+  parentLocked: true
 });
 
 /** 创建默认菜单元信息。 */
@@ -146,23 +148,31 @@ function getMenuLevel(menuId: number) {
 /** 判断当前菜单是否还能继续新增下级节点。 */
 function canCreateChild(menu: BaseMenu) {
   const level = getMenuLevel(menu.id);
-  return level > 0 && level < 4 && menu.type !== BaseMenuType.BUTTON && menu.type !== BaseMenuType.EXT_LINK;
+  if (menu.type === BaseMenuType.FOLDER) return level === 1 || level === 2;
+  if (menu.type === BaseMenuType.MENU) return level === 2 || level === 3;
+  return false;
 }
 
 /** 根据父级层级限制可创建的菜单类型。 */
 const availableMenuTypeOptions = computed(() => {
   const parentLevel = getMenuLevel(formData.parent_id ?? 0);
 
-  if (parentLevel === 1) return menuTypeOptions.filter(item => item.value === BaseMenuType.FOLDER);
-  if (parentLevel === 2)
+  if (formData.id > 0 && parentLevel === 0) return menuTypeOptions.filter(item => item.value === BaseMenuType.FOLDER);
+  if (dialog.parentType === BaseMenuType.FOLDER && parentLevel === 1)
+    return menuTypeOptions.filter(
+      item => item.value === BaseMenuType.FOLDER || item.value === BaseMenuType.MENU || item.value === BaseMenuType.EXT_LINK
+    );
+  if (dialog.parentType === BaseMenuType.FOLDER && parentLevel === 2)
     return menuTypeOptions.filter(item => item.value === BaseMenuType.MENU || item.value === BaseMenuType.EXT_LINK);
-  if (parentLevel === 3) return menuTypeOptions.filter(item => item.value === BaseMenuType.BUTTON);
+  if (dialog.parentType === BaseMenuType.MENU && (parentLevel === 2 || parentLevel === 3))
+    return menuTypeOptions.filter(item => item.value === BaseMenuType.BUTTON);
   return [];
 });
 
 watch(
   () => formData.parent_id,
   () => {
+    dialog.parentType = parentMenuTypeMap.value.get(formData.parent_id ?? 0) ?? BaseMenuType.UNKNOWN_MT;
     if (formData.id > 0 || availableMenuTypeOptions.value.some(item => item.value === formData.type)) return;
     formData.type = (availableMenuTypeOptions.value[0]?.value as BaseMenuType) ?? BaseMenuType.UNKNOWN_MT;
   }
@@ -202,7 +212,7 @@ function renderHiddenCell(scope: RenderScope<BaseMenu>) {
 
 /** 菜单表格列配置。 */
 const columns = computed<ColumnProps[]>(() => [
-  { type: "selection", width: 55 },
+  { type: "selection", width: 55, selectable: row => (row as BaseMenu).parent_id !== 0 },
   {
     prop: "meta.title",
     label: "菜单名称",
@@ -259,7 +269,7 @@ const columns = computed<ColumnProps[]>(() => [
         link: true,
         icon: CirclePlus,
         hidden: scope => !BUTTONS.value["base:menu:create"] || !canCreateChild(scope.row as BaseMenu),
-        onClick: scope => handleOpenDialog((scope.row as BaseMenu).id)
+        onClick: scope => handleOpenDialog(scope.row as BaseMenu)
       },
       {
         label: "编辑",
@@ -267,14 +277,14 @@ const columns = computed<ColumnProps[]>(() => [
         link: true,
         icon: EditPen,
         hidden: () => !BUTTONS.value["base:menu:update"],
-        onClick: scope => handleOpenDialog(0, (scope.row as BaseMenu).id)
+        onClick: scope => handleOpenDialog(undefined, (scope.row as BaseMenu).id)
       },
       {
         label: "删除",
         type: "danger",
         link: true,
         icon: Delete,
-        hidden: () => !BUTTONS.value["base:menu:delete"],
+        hidden: scope => !BUTTONS.value["base:menu:delete"] || (scope.row as BaseMenu).parent_id === 0,
         onClick: scope => handleDeleteMenu(scope.row as BaseMenu)
       }
     ]
@@ -283,6 +293,13 @@ const columns = computed<ColumnProps[]>(() => [
 
 /** 菜单表格顶部按钮配置。 */
 const headerActions = computed<HeaderActionProps[]>(() => [
+  {
+    label: "新增",
+    type: "success",
+    icon: CirclePlus,
+    hidden: () => !BUTTONS.value["base:menu:create"],
+    onClick: () => handleOpenDialog()
+  },
   {
     label: "删除",
     type: "danger",
@@ -308,14 +325,14 @@ const formFields = computed<ProFormField[]>(() => [
     prop: "parent_id",
     label: "上级菜单",
     component: "tree-select",
-    options: menuOptions.value as unknown as ProFormOption[],
-    props: model => ({
+    options: menuOptions.value,
+    props: () => ({
       nodeKey: "value",
       props: { label: "label", children: "children" },
       checkStrictly: true,
       clearable: false,
       filterable: true,
-      disabled: model.id > 0,
+      disabled: dialog.parentLocked,
       style: { width: "100%" }
     })
   },
@@ -511,7 +528,7 @@ const formFields = computed<ProFormField[]>(() => [
 ]);
 
 const rules = computed<FormRules>(() => ({
-  parent_id: [{ required: true, message: "请选择上级菜单", trigger: "change" }],
+  parent_id: [{ required: true, type: "number", min: 1, message: "请选择上级菜单", trigger: "change" }],
   type: [{ required: true, message: "请选择菜单类型", trigger: "change" }],
   "meta.title": [
     {
@@ -659,8 +676,22 @@ function resetForm(data?: Partial<BaseMenuForm>) {
   Object.assign(formData, normalizeMenuForm(data));
 }
 
-/** 构建可选父级菜单树，一级菜单只能从初始化数据产生。 */
-function buildMenuOptions(options: TreeOptionResponse_Option[] = []) {
+/** 构建可选父级菜单树，并记录父节点类型用于约束下级菜单类型。 */
+function buildMenuOptions(menuList: BaseMenu[] = []) {
+  const typeMap = new Map<number, BaseMenuType>();
+  const convert = (list: BaseMenu[]): ProFormOption[] =>
+    list
+      .filter(item => item.type === BaseMenuType.FOLDER || item.type === BaseMenuType.MENU)
+      .map(item => {
+        typeMap.set(item.id, item.type);
+        return {
+          label: item.meta?.title || item.name || item.path,
+          value: item.id,
+          children: convert(item.children ?? [])
+        };
+      });
+  const options = convert(menuList);
+  parentMenuTypeMap.value = typeMap;
   return options;
 }
 
@@ -708,8 +739,8 @@ function buildSubmitPayload(): BaseMenuForm {
 
 /** 加载菜单树选项和 API 列表，确保弹窗打开时相关数据已可用。 */
 async function loadDialogResources() {
-  const [menuData, apiData] = await Promise.all([defBaseMenuService.OptionBaseMenu({}), defBaseApiService.ListBaseApi({})]);
-  menuOptions.value = buildMenuOptions(menuData.list ?? []);
+  const [menuData, apiData] = await Promise.all([defBaseMenuService.TreeBaseMenu({}), defBaseApiService.ListBaseApi({})]);
+  menuOptions.value = buildMenuOptions(menuData.base_menus ?? []);
   apiList.value = apiData.base_apis ?? [];
 }
 
@@ -760,11 +791,13 @@ function refreshTable() {
 
 /**
  * 打开菜单弹窗。
- * parent_id 为新增时的父节点 ID，menuId 为编辑时的菜单 ID。
+ * parentMenu 为新增时的固定父节点，menuId 为编辑时的菜单 ID。
  */
-async function handleOpenDialog(parent_id = 0, menuId?: number) {
+async function handleOpenDialog(parentMenu?: BaseMenu, menuId?: number) {
   await loadDialogResources();
-  resetForm(menuId ? undefined : { parent_id });
+  dialog.parentLocked = Boolean(parentMenu || menuId);
+  dialog.parentType = parentMenu?.type ?? BaseMenuType.UNKNOWN_MT;
+  resetForm(menuId ? undefined : { parent_id: parentMenu?.id ?? 0 });
   dialog.visible = true;
 
   if (menuId) {
@@ -798,6 +831,8 @@ async function handleSubmit() {
 /** 关闭菜单弹窗并显式重置表单与校验状态。 */
 function handleCloseDialog() {
   dialog.visible = false;
+  dialog.parentType = BaseMenuType.UNKNOWN_MT;
+  dialog.parentLocked = true;
   resetForm();
 }
 
@@ -832,6 +867,10 @@ function handleDeleteMenu(selected?: number | string | Array<number | string> | 
     : selected && typeof selected === "object"
       ? [selected as BaseMenu]
       : [];
+  if (menuList.some(item => item.parent_id === 0)) {
+    ElMessage.warning("一级菜单不允许删除");
+    return;
+  }
   const menuIds = (
     menuList.length ? menuList.map(item => item.id) : normalizeSelectedIds(selected as number | string | Array<number | string>)
   ).join(",");

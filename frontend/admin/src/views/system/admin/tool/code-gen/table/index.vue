@@ -59,7 +59,8 @@ import type {
   CodeGenTableForm,
   PageCodeGenTableRequest
 } from "@/rpc/system/admin/v1/code_gen_table";
-import type { TreeOptionResponse_Option } from "@/rpc/common/v1/common";
+import type { BaseMenu } from "@/rpc/system/admin/v1/base_menu";
+import { BaseMenuType } from "@/rpc/system/common/v1/enum";
 import { buildPageRequest, normalizeSelectedIds } from "@/utils/proTable";
 import CodeGenProgressDialog from "../components/CodeGenProgressDialog.vue";
 import {
@@ -208,7 +209,8 @@ const formFields = computed<ProFormField[]>(() => [
     label: "父级菜单",
     component: "tree-select",
     options: parentMenuOptions.value,
-    labelTooltip: "选择五位编号的二级目录作为挂载点。仅当同时生成前端、开启“生成SQL”且页面接口完整时，生成流程才会同步三级菜单和四级按钮权限。",
+    labelTooltip:
+      "选择一级模块目录或二级业务目录作为挂载点。仅当同时生成前端、开启“生成SQL”且页面接口完整时，生成流程才会同步页面菜单和按钮权限。",
     props: {
       placeholder: "请选择生成页面挂载菜单",
       clearable: true,
@@ -585,11 +587,11 @@ async function handleOpenDialog(tableId?: number) {
   resetForm();
   const [tableData, menuData, protoDirectoryData] = await Promise.all([
     defCodeGenTableService.ListCodeGenDatabaseTable({}),
-    defBaseMenuService.OptionBaseMenu({}),
+    defBaseMenuService.TreeBaseMenu({}),
     defCodeGenTableService.ListCodeGenProtoDirectory({})
   ]);
   databaseTables.value = tableData.tables ?? [];
-  parentMenuOptions.value = convertMenuOptions(menuData.list ?? []);
+  parentMenuOptions.value = convertMenuOptions(menuData.base_menus ?? []);
   protoDirectories.value = protoDirectoryData.directories ?? [];
   if (tableId) {
     const detail = await defCodeGenTableService.GetCodeGenTable({ id: tableId });
@@ -728,13 +730,15 @@ function resolveDefaultColumn(columns: CodeGenDatabaseColumn[], columnName: stri
 }
 
 /** 转换菜单树为 ProForm 树形选择项。 */
-function convertMenuOptions(options: TreeOptionResponse_Option[]): ProFormOption[] {
-  return options.map(item => ({
-    label: item.label,
-    value: item.value,
-    disabled: item.disabled || item.value < 10000 || item.value > 99999,
-    children: convertMenuOptions(item.children ?? [])
-  }));
+function convertMenuOptions(options: BaseMenu[]): ProFormOption[] {
+  return options
+    .filter(item => item.type === BaseMenuType.FOLDER)
+    .map(item => ({
+      label: item.meta?.title || item.name || item.path,
+      value: item.id,
+      disabled: item.id < 100 || item.id > 99999,
+      children: convertMenuOptions(item.children ?? [])
+    }));
 }
 
 /** 清理当前业务表已不存在的字段配置。 */
