@@ -26,29 +26,27 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// 外部推荐脚本预览请求
-type PreviewExternalRequest struct {
+// Gorse 推荐分类查询条件
+type OptionCategoryRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"` // 用户编号
-	Script        string                 `protobuf:"bytes,2,opt,name=script,proto3" json:"script,omitempty"`               // 外部推荐脚本
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *PreviewExternalRequest) Reset() {
-	*x = PreviewExternalRequest{}
+func (x *OptionCategoryRequest) Reset() {
+	*x = OptionCategoryRequest{}
 	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PreviewExternalRequest) String() string {
+func (x *OptionCategoryRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PreviewExternalRequest) ProtoMessage() {}
+func (*OptionCategoryRequest) ProtoMessage() {}
 
-func (x *PreviewExternalRequest) ProtoReflect() protoreflect.Message {
+func (x *OptionCategoryRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -60,47 +58,33 @@ func (x *PreviewExternalRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PreviewExternalRequest.ProtoReflect.Descriptor instead.
-func (*PreviewExternalRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use OptionCategoryRequest.ProtoReflect.Descriptor instead.
+func (*OptionCategoryRequest) Descriptor() ([]byte, []int) {
 	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *PreviewExternalRequest) GetUserId() string {
-	if x != nil {
-		return x.UserId
-	}
-	return ""
-}
-
-func (x *PreviewExternalRequest) GetScript() string {
-	if x != nil {
-		return x.Script
-	}
-	return ""
-}
-
-// 外部推荐脚本预览响应
-type PreviewExternalResponse struct {
+// Gorse 推荐分类响应
+type OptionCategoryResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Items         []string               `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"` // 推荐商品编号列表
+	Categories    []string               `protobuf:"bytes,1,rep,name=categories,proto3" json:"categories,omitempty"` // 分类列表
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *PreviewExternalResponse) Reset() {
-	*x = PreviewExternalResponse{}
+func (x *OptionCategoryResponse) Reset() {
+	*x = OptionCategoryResponse{}
 	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PreviewExternalResponse) String() string {
+func (x *OptionCategoryResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PreviewExternalResponse) ProtoMessage() {}
+func (*OptionCategoryResponse) ProtoMessage() {}
 
-func (x *PreviewExternalResponse) ProtoReflect() protoreflect.Message {
+func (x *OptionCategoryResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -112,154 +96,147 @@ func (x *PreviewExternalResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PreviewExternalResponse.ProtoReflect.Descriptor instead.
-func (*PreviewExternalResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use OptionCategoryResponse.ProtoReflect.Descriptor instead.
+func (*OptionCategoryResponse) Descriptor() ([]byte, []int) {
 	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *PreviewExternalResponse) GetItems() []string {
+func (x *OptionCategoryResponse) GetCategories() []string {
+	if x != nil {
+		return x.Categories
+	}
+	return nil
+}
+
+// Gorse 推荐商品列表查询条件
+type PageItemRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Cursor        string                 `protobuf:"bytes,1,opt,name=cursor,proto3" json:"cursor,omitempty"` // 分页游标
+	N             int32                  `protobuf:"varint,2,opt,name=n,proto3" json:"n,omitempty"`          // 查询数量
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PageItemRequest) Reset() {
+	*x = PageItemRequest{}
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PageItemRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PageItemRequest) ProtoMessage() {}
+
+func (x *PageItemRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PageItemRequest.ProtoReflect.Descriptor instead.
+func (*PageItemRequest) Descriptor() ([]byte, []int) {
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *PageItemRequest) GetCursor() string {
+	if x != nil {
+		return x.Cursor
+	}
+	return ""
+}
+
+func (x *PageItemRequest) GetN() int32 {
+	if x != nil {
+		return x.N
+	}
+	return 0
+}
+
+// Gorse 推荐商品分页响应
+type PageItemResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Cursor        string                 `protobuf:"bytes,1,opt,name=cursor,json=Cursor,proto3" json:"cursor,omitempty"` // 下一页游标
+	Items         []*Item                `protobuf:"bytes,2,rep,name=items,json=Items,proto3" json:"items,omitempty"`    // 商品列表
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PageItemResponse) Reset() {
+	*x = PageItemResponse{}
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PageItemResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PageItemResponse) ProtoMessage() {}
+
+func (x *PageItemResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PageItemResponse.ProtoReflect.Descriptor instead.
+func (*PageItemResponse) Descriptor() ([]byte, []int) {
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *PageItemResponse) GetCursor() string {
+	if x != nil {
+		return x.Cursor
+	}
+	return ""
+}
+
+func (x *PageItemResponse) GetItems() []*Item {
 	if x != nil {
 		return x.Items
 	}
 	return nil
 }
 
-// 排序提示词预览请求
-type PreviewRankerPromptRequest struct {
-	state            protoimpl.MessageState `protogen:"open.v1"`
-	UserId           string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`                               // 用户编号
-	QueryTemplate    string                 `protobuf:"bytes,2,opt,name=query_template,json=queryTemplate,proto3" json:"query_template,omitempty"`          // 查询模板
-	DocumentTemplate string                 `protobuf:"bytes,3,opt,name=document_template,json=documentTemplate,proto3" json:"document_template,omitempty"` // 文档模板
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
-}
-
-func (x *PreviewRankerPromptRequest) Reset() {
-	*x = PreviewRankerPromptRequest{}
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[2]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PreviewRankerPromptRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PreviewRankerPromptRequest) ProtoMessage() {}
-
-func (x *PreviewRankerPromptRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[2]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use PreviewRankerPromptRequest.ProtoReflect.Descriptor instead.
-func (*PreviewRankerPromptRequest) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{2}
-}
-
-func (x *PreviewRankerPromptRequest) GetUserId() string {
-	if x != nil {
-		return x.UserId
-	}
-	return ""
-}
-
-func (x *PreviewRankerPromptRequest) GetQueryTemplate() string {
-	if x != nil {
-		return x.QueryTemplate
-	}
-	return ""
-}
-
-func (x *PreviewRankerPromptRequest) GetDocumentTemplate() string {
-	if x != nil {
-		return x.DocumentTemplate
-	}
-	return ""
-}
-
-// 排序提示词预览响应
-type PreviewRankerPromptResponse struct {
+// Gorse 推荐用户列表查询条件
+type PageUserRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Query         string                 `protobuf:"bytes,1,opt,name=query,proto3" json:"query,omitempty"`         // 查询提示词
-	Documents     []string               `protobuf:"bytes,2,rep,name=documents,proto3" json:"documents,omitempty"` // 文档提示词列表
+	Cursor        string                 `protobuf:"bytes,1,opt,name=cursor,proto3" json:"cursor,omitempty"` // 分页游标
+	N             int32                  `protobuf:"varint,2,opt,name=n,proto3" json:"n,omitempty"`          // 查询数量
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *PreviewRankerPromptResponse) Reset() {
-	*x = PreviewRankerPromptResponse{}
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[3]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PreviewRankerPromptResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PreviewRankerPromptResponse) ProtoMessage() {}
-
-func (x *PreviewRankerPromptResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[3]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use PreviewRankerPromptResponse.ProtoReflect.Descriptor instead.
-func (*PreviewRankerPromptResponse) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *PreviewRankerPromptResponse) GetQuery() string {
-	if x != nil {
-		return x.Query
-	}
-	return ""
-}
-
-func (x *PreviewRankerPromptResponse) GetDocuments() []string {
-	if x != nil {
-		return x.Documents
-	}
-	return nil
-}
-
-// Gorse 推荐导出数据查询条件
-type ExportDataRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	DataType      v1.AdvanceDataType     `protobuf:"varint,1,opt,name=data_type,json=dataType,proto3,enum=shop.common.v1.AdvanceDataType" json:"data_type,omitempty"` // 数据类型：枚举【AdvanceDataType】
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ExportDataRequest) Reset() {
-	*x = ExportDataRequest{}
+func (x *PageUserRequest) Reset() {
+	*x = PageUserRequest{}
 	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ExportDataRequest) String() string {
+func (x *PageUserRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ExportDataRequest) ProtoMessage() {}
+func (*PageUserRequest) ProtoMessage() {}
 
-func (x *ExportDataRequest) ProtoReflect() protoreflect.Message {
+func (x *PageUserRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -271,202 +248,49 @@ func (x *ExportDataRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ExportDataRequest.ProtoReflect.Descriptor instead.
-func (*ExportDataRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use PageUserRequest.ProtoReflect.Descriptor instead.
+func (*PageUserRequest) Descriptor() ([]byte, []int) {
 	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *ExportDataRequest) GetDataType() v1.AdvanceDataType {
+func (x *PageUserRequest) GetCursor() string {
 	if x != nil {
-		return x.DataType
-	}
-	return v1.AdvanceDataType(0)
-}
-
-// Gorse 推荐导出数据响应
-type ExportDataResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	FileName      string                 `protobuf:"bytes,1,opt,name=file_name,json=fileName,proto3" json:"file_name,omitempty"` // 文件名
-	Content       string                 `protobuf:"bytes,2,opt,name=content,proto3" json:"content,omitempty"`                   // JSONL文件内容
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ExportDataResponse) Reset() {
-	*x = ExportDataResponse{}
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[5]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ExportDataResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ExportDataResponse) ProtoMessage() {}
-
-func (x *ExportDataResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[5]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ExportDataResponse.ProtoReflect.Descriptor instead.
-func (*ExportDataResponse) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{5}
-}
-
-func (x *ExportDataResponse) GetFileName() string {
-	if x != nil {
-		return x.FileName
+		return x.Cursor
 	}
 	return ""
 }
 
-func (x *ExportDataResponse) GetContent() string {
+func (x *PageUserRequest) GetN() int32 {
 	if x != nil {
-		return x.Content
-	}
-	return ""
-}
-
-// Gorse 推荐导入数据请求
-type ImportDataRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	DataType      v1.AdvanceDataType     `protobuf:"varint,1,opt,name=data_type,json=dataType,proto3,enum=shop.common.v1.AdvanceDataType" json:"data_type,omitempty"` // 数据类型：枚举【AdvanceDataType】
-	FileName      string                 `protobuf:"bytes,2,opt,name=file_name,json=fileName,proto3" json:"file_name,omitempty"`                                      // 文件名
-	Content       string                 `protobuf:"bytes,3,opt,name=content,proto3" json:"content,omitempty"`                                                        // JSONL文件内容
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ImportDataRequest) Reset() {
-	*x = ImportDataRequest{}
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[6]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ImportDataRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ImportDataRequest) ProtoMessage() {}
-
-func (x *ImportDataRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[6]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ImportDataRequest.ProtoReflect.Descriptor instead.
-func (*ImportDataRequest) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{6}
-}
-
-func (x *ImportDataRequest) GetDataType() v1.AdvanceDataType {
-	if x != nil {
-		return x.DataType
-	}
-	return v1.AdvanceDataType(0)
-}
-
-func (x *ImportDataRequest) GetFileName() string {
-	if x != nil {
-		return x.FileName
-	}
-	return ""
-}
-
-func (x *ImportDataRequest) GetContent() string {
-	if x != nil {
-		return x.Content
-	}
-	return ""
-}
-
-// Gorse 推荐导入数据响应
-type ImportDataResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	SuccessCount  int32                  `protobuf:"varint,1,opt,name=success_count,json=successCount,proto3" json:"success_count,omitempty"` // 成功导入数量
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ImportDataResponse) Reset() {
-	*x = ImportDataResponse{}
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[7]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ImportDataResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ImportDataResponse) ProtoMessage() {}
-
-func (x *ImportDataResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[7]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ImportDataResponse.ProtoReflect.Descriptor instead.
-func (*ImportDataResponse) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{7}
-}
-
-func (x *ImportDataResponse) GetSuccessCount() int32 {
-	if x != nil {
-		return x.SuccessCount
+		return x.N
 	}
 	return 0
 }
 
-// Gorse 推荐名称查询条件
-type GetTimeSeriesRequest struct {
+// Gorse 推荐用户分页响应
+type PageUserResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`   // 名称
-	Begin         string                 `protobuf:"bytes,2,opt,name=begin,proto3" json:"begin,omitempty"` // 开始时间
-	End           string                 `protobuf:"bytes,3,opt,name=end,proto3" json:"end,omitempty"`     // 结束时间
+	Cursor        string                 `protobuf:"bytes,1,opt,name=cursor,json=Cursor,proto3" json:"cursor,omitempty"` // 下一页游标
+	Users         []*UserResponse        `protobuf:"bytes,2,rep,name=users,json=Users,proto3" json:"users,omitempty"`    // 用户列表
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *GetTimeSeriesRequest) Reset() {
-	*x = GetTimeSeriesRequest{}
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[8]
+func (x *PageUserResponse) Reset() {
+	*x = PageUserResponse{}
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GetTimeSeriesRequest) String() string {
+func (x *PageUserResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GetTimeSeriesRequest) ProtoMessage() {}
+func (*PageUserResponse) ProtoMessage() {}
 
-func (x *GetTimeSeriesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[8]
+func (x *PageUserResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -477,30 +301,23 @@ func (x *GetTimeSeriesRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GetTimeSeriesRequest.ProtoReflect.Descriptor instead.
-func (*GetTimeSeriesRequest) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{8}
+// Deprecated: Use PageUserResponse.ProtoReflect.Descriptor instead.
+func (*PageUserResponse) Descriptor() ([]byte, []int) {
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{5}
 }
 
-func (x *GetTimeSeriesRequest) GetName() string {
+func (x *PageUserResponse) GetCursor() string {
 	if x != nil {
-		return x.Name
+		return x.Cursor
 	}
 	return ""
 }
 
-func (x *GetTimeSeriesRequest) GetBegin() string {
+func (x *PageUserResponse) GetUsers() []*UserResponse {
 	if x != nil {
-		return x.Begin
+		return x.Users
 	}
-	return ""
-}
-
-func (x *GetTimeSeriesRequest) GetEnd() string {
-	if x != nil {
-		return x.End
-	}
-	return ""
+	return nil
 }
 
 // Gorse 推荐仪表盘推荐商品查询条件
@@ -515,7 +332,7 @@ type ListDashboardItemRequest struct {
 
 func (x *ListDashboardItemRequest) Reset() {
 	*x = ListDashboardItemRequest{}
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[9]
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -527,7 +344,7 @@ func (x *ListDashboardItemRequest) String() string {
 func (*ListDashboardItemRequest) ProtoMessage() {}
 
 func (x *ListDashboardItemRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[9]
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -540,7 +357,7 @@ func (x *ListDashboardItemRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListDashboardItemRequest.ProtoReflect.Descriptor instead.
 func (*ListDashboardItemRequest) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{9}
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *ListDashboardItemRequest) GetRecommender() string {
@@ -564,88 +381,6 @@ func (x *ListDashboardItemRequest) GetEnd() int32 {
 	return 0
 }
 
-// Gorse 推荐分类查询条件
-type OptionCategoryRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *OptionCategoryRequest) Reset() {
-	*x = OptionCategoryRequest{}
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[10]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *OptionCategoryRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*OptionCategoryRequest) ProtoMessage() {}
-
-func (x *OptionCategoryRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[10]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use OptionCategoryRequest.ProtoReflect.Descriptor instead.
-func (*OptionCategoryRequest) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{10}
-}
-
-// Gorse 推荐分类响应
-type OptionCategoryResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Categories    []string               `protobuf:"bytes,1,rep,name=categories,proto3" json:"categories,omitempty"` // 分类列表
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *OptionCategoryResponse) Reset() {
-	*x = OptionCategoryResponse{}
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[11]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *OptionCategoryResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*OptionCategoryResponse) ProtoMessage() {}
-
-func (x *OptionCategoryResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[11]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use OptionCategoryResponse.ProtoReflect.Descriptor instead.
-func (*OptionCategoryResponse) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{11}
-}
-
-func (x *OptionCategoryResponse) GetCategories() []string {
-	if x != nil {
-		return x.Categories
-	}
-	return nil
-}
-
 // Gorse 推荐仪表盘推荐商品响应
 type ListDashboardItemResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -657,7 +392,7 @@ type ListDashboardItemResponse struct {
 
 func (x *ListDashboardItemResponse) Reset() {
 	*x = ListDashboardItemResponse{}
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[12]
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -669,7 +404,7 @@ func (x *ListDashboardItemResponse) String() string {
 func (*ListDashboardItemResponse) ProtoMessage() {}
 
 func (x *ListDashboardItemResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[12]
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -682,7 +417,7 @@ func (x *ListDashboardItemResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListDashboardItemResponse.ProtoReflect.Descriptor instead.
 func (*ListDashboardItemResponse) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{12}
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *ListDashboardItemResponse) GetItems() []*Item {
@@ -699,372 +434,6 @@ func (x *ListDashboardItemResponse) GetLastModified() string {
 	return ""
 }
 
-// Gorse 推荐时间序列响应
-type TimeSeriesResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Points        []*TimeSeriesPoint     `protobuf:"bytes,1,rep,name=points,json=Points,proto3" json:"points,omitempty"` // 时间序列点列表
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *TimeSeriesResponse) Reset() {
-	*x = TimeSeriesResponse{}
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[13]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *TimeSeriesResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*TimeSeriesResponse) ProtoMessage() {}
-
-func (x *TimeSeriesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[13]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use TimeSeriesResponse.ProtoReflect.Descriptor instead.
-func (*TimeSeriesResponse) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{13}
-}
-
-func (x *TimeSeriesResponse) GetPoints() []*TimeSeriesPoint {
-	if x != nil {
-		return x.Points
-	}
-	return nil
-}
-
-// Gorse 推荐时间序列点
-type TimeSeriesPoint struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Name          string                 `protobuf:"bytes,1,opt,name=name,json=Name,proto3" json:"name,omitempty"`                // 名称
-	Timestamp     string                 `protobuf:"bytes,2,opt,name=timestamp,json=Timestamp,proto3" json:"timestamp,omitempty"` // 时间
-	Value         float64                `protobuf:"fixed64,3,opt,name=value,json=Value,proto3" json:"value,omitempty"`           // 数值
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *TimeSeriesPoint) Reset() {
-	*x = TimeSeriesPoint{}
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[14]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *TimeSeriesPoint) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*TimeSeriesPoint) ProtoMessage() {}
-
-func (x *TimeSeriesPoint) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[14]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use TimeSeriesPoint.ProtoReflect.Descriptor instead.
-func (*TimeSeriesPoint) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{14}
-}
-
-func (x *TimeSeriesPoint) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
-}
-
-func (x *TimeSeriesPoint) GetTimestamp() string {
-	if x != nil {
-		return x.Timestamp
-	}
-	return ""
-}
-
-func (x *TimeSeriesPoint) GetValue() float64 {
-	if x != nil {
-		return x.Value
-	}
-	return 0
-}
-
-// Gorse 推荐相似用户查询条件
-type GetUserSimilarRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`                   // 用户编号
-	Recommender   string                 `protobuf:"bytes,2,opt,name=recommender,proto3" json:"recommender,omitempty"` // 推荐器名称
-	Category      string                 `protobuf:"bytes,3,opt,name=category,proto3" json:"category,omitempty"`       // 分类
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetUserSimilarRequest) Reset() {
-	*x = GetUserSimilarRequest{}
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[15]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetUserSimilarRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetUserSimilarRequest) ProtoMessage() {}
-
-func (x *GetUserSimilarRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[15]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetUserSimilarRequest.ProtoReflect.Descriptor instead.
-func (*GetUserSimilarRequest) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{15}
-}
-
-func (x *GetUserSimilarRequest) GetId() string {
-	if x != nil {
-		return x.Id
-	}
-	return ""
-}
-
-func (x *GetUserSimilarRequest) GetRecommender() string {
-	if x != nil {
-		return x.Recommender
-	}
-	return ""
-}
-
-func (x *GetUserSimilarRequest) GetCategory() string {
-	if x != nil {
-		return x.Category
-	}
-	return ""
-}
-
-// Gorse 推荐相似商品查询条件
-type GetItemSimilarRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`                   // 商品编号
-	Recommender   string                 `protobuf:"bytes,2,opt,name=recommender,proto3" json:"recommender,omitempty"` // 推荐器名称
-	Category      string                 `protobuf:"bytes,3,opt,name=category,proto3" json:"category,omitempty"`       // 分类
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetItemSimilarRequest) Reset() {
-	*x = GetItemSimilarRequest{}
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[16]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetItemSimilarRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetItemSimilarRequest) ProtoMessage() {}
-
-func (x *GetItemSimilarRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[16]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetItemSimilarRequest.ProtoReflect.Descriptor instead.
-func (*GetItemSimilarRequest) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{16}
-}
-
-func (x *GetItemSimilarRequest) GetId() string {
-	if x != nil {
-		return x.Id
-	}
-	return ""
-}
-
-func (x *GetItemSimilarRequest) GetRecommender() string {
-	if x != nil {
-		return x.Recommender
-	}
-	return ""
-}
-
-func (x *GetItemSimilarRequest) GetCategory() string {
-	if x != nil {
-		return x.Category
-	}
-	return ""
-}
-
-// Gorse 推荐用户反馈查询条件
-type GetUserFeedbackRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`                       // 用户编号
-	FeedbackType  string                 `protobuf:"bytes,2,opt,name=feedback_type,proto3" json:"feedback_type,omitempty"` // 反馈类型
-	Offset        int32                  `protobuf:"varint,3,opt,name=offset,proto3" json:"offset,omitempty"`              // 偏移量
-	N             int32                  `protobuf:"varint,4,opt,name=n,proto3" json:"n,omitempty"`                        // 查询数量
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetUserFeedbackRequest) Reset() {
-	*x = GetUserFeedbackRequest{}
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[17]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetUserFeedbackRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetUserFeedbackRequest) ProtoMessage() {}
-
-func (x *GetUserFeedbackRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[17]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetUserFeedbackRequest.ProtoReflect.Descriptor instead.
-func (*GetUserFeedbackRequest) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{17}
-}
-
-func (x *GetUserFeedbackRequest) GetId() string {
-	if x != nil {
-		return x.Id
-	}
-	return ""
-}
-
-func (x *GetUserFeedbackRequest) GetFeedbackType() string {
-	if x != nil {
-		return x.FeedbackType
-	}
-	return ""
-}
-
-func (x *GetUserFeedbackRequest) GetOffset() int32 {
-	if x != nil {
-		return x.Offset
-	}
-	return 0
-}
-
-func (x *GetUserFeedbackRequest) GetN() int32 {
-	if x != nil {
-		return x.N
-	}
-	return 0
-}
-
-// Gorse 推荐用户推荐查询条件
-type GetUserRecommendRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`                   // 用户编号
-	Recommender   string                 `protobuf:"bytes,2,opt,name=recommender,proto3" json:"recommender,omitempty"` // 推荐器名称
-	Category      string                 `protobuf:"bytes,3,opt,name=category,proto3" json:"category,omitempty"`       // 分类
-	N             int32                  `protobuf:"varint,4,opt,name=n,proto3" json:"n,omitempty"`                    // 查询数量
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetUserRecommendRequest) Reset() {
-	*x = GetUserRecommendRequest{}
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[18]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetUserRecommendRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetUserRecommendRequest) ProtoMessage() {}
-
-func (x *GetUserRecommendRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[18]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetUserRecommendRequest.ProtoReflect.Descriptor instead.
-func (*GetUserRecommendRequest) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{18}
-}
-
-func (x *GetUserRecommendRequest) GetId() string {
-	if x != nil {
-		return x.Id
-	}
-	return ""
-}
-
-func (x *GetUserRecommendRequest) GetRecommender() string {
-	if x != nil {
-		return x.Recommender
-	}
-	return ""
-}
-
-func (x *GetUserRecommendRequest) GetCategory() string {
-	if x != nil {
-		return x.Category
-	}
-	return ""
-}
-
-func (x *GetUserRecommendRequest) GetN() int32 {
-	if x != nil {
-		return x.N
-	}
-	return 0
-}
-
 // Gorse 推荐任务状态查询条件
 type ListTaskRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -1074,7 +443,7 @@ type ListTaskRequest struct {
 
 func (x *ListTaskRequest) Reset() {
 	*x = ListTaskRequest{}
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[19]
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1086,7 +455,7 @@ func (x *ListTaskRequest) String() string {
 func (*ListTaskRequest) ProtoMessage() {}
 
 func (x *ListTaskRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[19]
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1099,7 +468,7 @@ func (x *ListTaskRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListTaskRequest.ProtoReflect.Descriptor instead.
 func (*ListTaskRequest) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{19}
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{8}
 }
 
 // Gorse 推荐任务状态响应
@@ -1112,7 +481,7 @@ type ListTaskResponse struct {
 
 func (x *ListTaskResponse) Reset() {
 	*x = ListTaskResponse{}
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[20]
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1124,7 +493,7 @@ func (x *ListTaskResponse) String() string {
 func (*ListTaskResponse) ProtoMessage() {}
 
 func (x *ListTaskResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[20]
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1137,7 +506,7 @@ func (x *ListTaskResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListTaskResponse.ProtoReflect.Descriptor instead.
 func (*ListTaskResponse) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{20}
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *ListTaskResponse) GetTasks() []*Task {
@@ -1145,1043 +514,6 @@ func (x *ListTaskResponse) GetTasks() []*Task {
 		return x.Tasks
 	}
 	return nil
-}
-
-// Gorse 推荐任务状态
-type Task struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Tracer        string                 `protobuf:"bytes,1,opt,name=tracer,json=Tracer,proto3" json:"tracer,omitempty"`               // 执行节点
-	Name          string                 `protobuf:"bytes,2,opt,name=name,json=Name,proto3" json:"name,omitempty"`                     // 任务名称
-	Status        string                 `protobuf:"bytes,3,opt,name=status,json=Status,proto3" json:"status,omitempty"`               // 任务状态
-	Error         string                 `protobuf:"bytes,4,opt,name=error,json=Error,proto3" json:"error,omitempty"`                  // 错误信息
-	Count         int64                  `protobuf:"varint,5,opt,name=count,json=Count,proto3" json:"count,omitempty"`                 // 当前进度
-	Total         int64                  `protobuf:"varint,6,opt,name=total,json=Total,proto3" json:"total,omitempty"`                 // 总进度
-	StartTime     string                 `protobuf:"bytes,7,opt,name=start_time,json=StartTime,proto3" json:"start_time,omitempty"`    // 开始时间
-	FinishTime    string                 `protobuf:"bytes,8,opt,name=finish_time,json=FinishTime,proto3" json:"finish_time,omitempty"` // 结束时间
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *Task) Reset() {
-	*x = Task{}
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[21]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *Task) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*Task) ProtoMessage() {}
-
-func (x *Task) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[21]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use Task.ProtoReflect.Descriptor instead.
-func (*Task) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{21}
-}
-
-func (x *Task) GetTracer() string {
-	if x != nil {
-		return x.Tracer
-	}
-	return ""
-}
-
-func (x *Task) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
-}
-
-func (x *Task) GetStatus() string {
-	if x != nil {
-		return x.Status
-	}
-	return ""
-}
-
-func (x *Task) GetError() string {
-	if x != nil {
-		return x.Error
-	}
-	return ""
-}
-
-func (x *Task) GetCount() int64 {
-	if x != nil {
-		return x.Count
-	}
-	return 0
-}
-
-func (x *Task) GetTotal() int64 {
-	if x != nil {
-		return x.Total
-	}
-	return 0
-}
-
-func (x *Task) GetStartTime() string {
-	if x != nil {
-		return x.StartTime
-	}
-	return ""
-}
-
-func (x *Task) GetFinishTime() string {
-	if x != nil {
-		return x.FinishTime
-	}
-	return ""
-}
-
-// Gorse 推荐用户列表查询条件
-type PageUserRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Cursor        string                 `protobuf:"bytes,1,opt,name=cursor,proto3" json:"cursor,omitempty"` // 分页游标
-	N             int32                  `protobuf:"varint,2,opt,name=n,proto3" json:"n,omitempty"`          // 查询数量
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *PageUserRequest) Reset() {
-	*x = PageUserRequest{}
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[22]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PageUserRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PageUserRequest) ProtoMessage() {}
-
-func (x *PageUserRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[22]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use PageUserRequest.ProtoReflect.Descriptor instead.
-func (*PageUserRequest) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{22}
-}
-
-func (x *PageUserRequest) GetCursor() string {
-	if x != nil {
-		return x.Cursor
-	}
-	return ""
-}
-
-func (x *PageUserRequest) GetN() int32 {
-	if x != nil {
-		return x.N
-	}
-	return 0
-}
-
-// Gorse 推荐用户查询条件
-type GetUserRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"` // 用户编号
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetUserRequest) Reset() {
-	*x = GetUserRequest{}
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[23]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetUserRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetUserRequest) ProtoMessage() {}
-
-func (x *GetUserRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[23]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetUserRequest.ProtoReflect.Descriptor instead.
-func (*GetUserRequest) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{23}
-}
-
-func (x *GetUserRequest) GetId() string {
-	if x != nil {
-		return x.Id
-	}
-	return ""
-}
-
-// Gorse 推荐用户删除条件
-type DeleteUserRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"` // 用户编号
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *DeleteUserRequest) Reset() {
-	*x = DeleteUserRequest{}
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[24]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *DeleteUserRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*DeleteUserRequest) ProtoMessage() {}
-
-func (x *DeleteUserRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[24]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use DeleteUserRequest.ProtoReflect.Descriptor instead.
-func (*DeleteUserRequest) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{24}
-}
-
-func (x *DeleteUserRequest) GetId() string {
-	if x != nil {
-		return x.Id
-	}
-	return ""
-}
-
-// Gorse 推荐用户分页响应
-type PageUserResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Cursor        string                 `protobuf:"bytes,1,opt,name=cursor,json=Cursor,proto3" json:"cursor,omitempty"` // 下一页游标
-	Users         []*UserResponse        `protobuf:"bytes,2,rep,name=users,json=Users,proto3" json:"users,omitempty"`    // 用户列表
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *PageUserResponse) Reset() {
-	*x = PageUserResponse{}
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[25]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PageUserResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PageUserResponse) ProtoMessage() {}
-
-func (x *PageUserResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[25]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use PageUserResponse.ProtoReflect.Descriptor instead.
-func (*PageUserResponse) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{25}
-}
-
-func (x *PageUserResponse) GetCursor() string {
-	if x != nil {
-		return x.Cursor
-	}
-	return ""
-}
-
-func (x *PageUserResponse) GetUsers() []*UserResponse {
-	if x != nil {
-		return x.Users
-	}
-	return nil
-}
-
-// Gorse 推荐相似用户响应
-type UserSimilarResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Users         []*UserResponse        `protobuf:"bytes,1,rep,name=users,json=Users,proto3" json:"users,omitempty"` // 相似用户列表
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *UserSimilarResponse) Reset() {
-	*x = UserSimilarResponse{}
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[26]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *UserSimilarResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*UserSimilarResponse) ProtoMessage() {}
-
-func (x *UserSimilarResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[26]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use UserSimilarResponse.ProtoReflect.Descriptor instead.
-func (*UserSimilarResponse) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{26}
-}
-
-func (x *UserSimilarResponse) GetUsers() []*UserResponse {
-	if x != nil {
-		return x.Users
-	}
-	return nil
-}
-
-// Gorse 推荐用户
-type UserResponse struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	UserId         string                 `protobuf:"bytes,1,opt,name=user_id,json=UserId,proto3" json:"user_id,omitempty"`                           // 用户编号
-	Labels         *UserLabel             `protobuf:"bytes,2,opt,name=labels,json=Labels,proto3" json:"labels,omitempty"`                             // 标签信息
-	Comment        string                 `protobuf:"bytes,3,opt,name=comment,json=Comment,proto3" json:"comment,omitempty"`                          // 备注
-	LastActiveTime string                 `protobuf:"bytes,4,opt,name=last_active_time,json=LastActiveTime,proto3" json:"last_active_time,omitempty"` // 最后活跃时间
-	LastUpdateTime string                 `protobuf:"bytes,5,opt,name=last_update_time,json=LastUpdateTime,proto3" json:"last_update_time,omitempty"` // 最后更新时间
-	Score          float64                `protobuf:"fixed64,6,opt,name=score,json=Score,proto3" json:"score,omitempty"`                              // 分数
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
-}
-
-func (x *UserResponse) Reset() {
-	*x = UserResponse{}
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[27]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *UserResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*UserResponse) ProtoMessage() {}
-
-func (x *UserResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[27]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use UserResponse.ProtoReflect.Descriptor instead.
-func (*UserResponse) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{27}
-}
-
-func (x *UserResponse) GetUserId() string {
-	if x != nil {
-		return x.UserId
-	}
-	return ""
-}
-
-func (x *UserResponse) GetLabels() *UserLabel {
-	if x != nil {
-		return x.Labels
-	}
-	return nil
-}
-
-func (x *UserResponse) GetComment() string {
-	if x != nil {
-		return x.Comment
-	}
-	return ""
-}
-
-func (x *UserResponse) GetLastActiveTime() string {
-	if x != nil {
-		return x.LastActiveTime
-	}
-	return ""
-}
-
-func (x *UserResponse) GetLastUpdateTime() string {
-	if x != nil {
-		return x.LastUpdateTime
-	}
-	return ""
-}
-
-func (x *UserResponse) GetScore() float64 {
-	if x != nil {
-		return x.Score
-	}
-	return 0
-}
-
-// Gorse 推荐用户标签信息
-type UserLabel struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	DeptId        int64                  `protobuf:"varint,1,opt,name=dept_id,proto3" json:"dept_id,omitempty"` // 部门编号
-	Gender        int32                  `protobuf:"varint,2,opt,name=gender,proto3" json:"gender,omitempty"`   // 性别
-	RoleId        int64                  `protobuf:"varint,3,opt,name=role_id,proto3" json:"role_id,omitempty"` // 角色编号
-	Status        int32                  `protobuf:"varint,4,opt,name=status,proto3" json:"status,omitempty"`   // 状态
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *UserLabel) Reset() {
-	*x = UserLabel{}
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[28]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *UserLabel) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*UserLabel) ProtoMessage() {}
-
-func (x *UserLabel) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[28]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use UserLabel.ProtoReflect.Descriptor instead.
-func (*UserLabel) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{28}
-}
-
-func (x *UserLabel) GetDeptId() int64 {
-	if x != nil {
-		return x.DeptId
-	}
-	return 0
-}
-
-func (x *UserLabel) GetGender() int32 {
-	if x != nil {
-		return x.Gender
-	}
-	return 0
-}
-
-func (x *UserLabel) GetRoleId() int64 {
-	if x != nil {
-		return x.RoleId
-	}
-	return 0
-}
-
-func (x *UserLabel) GetStatus() int32 {
-	if x != nil {
-		return x.Status
-	}
-	return 0
-}
-
-// Gorse 推荐商品列表查询条件
-type PageItemRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Cursor        string                 `protobuf:"bytes,1,opt,name=cursor,proto3" json:"cursor,omitempty"` // 分页游标
-	N             int32                  `protobuf:"varint,2,opt,name=n,proto3" json:"n,omitempty"`          // 查询数量
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *PageItemRequest) Reset() {
-	*x = PageItemRequest{}
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[29]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PageItemRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PageItemRequest) ProtoMessage() {}
-
-func (x *PageItemRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[29]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use PageItemRequest.ProtoReflect.Descriptor instead.
-func (*PageItemRequest) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{29}
-}
-
-func (x *PageItemRequest) GetCursor() string {
-	if x != nil {
-		return x.Cursor
-	}
-	return ""
-}
-
-func (x *PageItemRequest) GetN() int32 {
-	if x != nil {
-		return x.N
-	}
-	return 0
-}
-
-// Gorse 推荐商品查询条件
-type GetItemRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"` // 商品编号
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetItemRequest) Reset() {
-	*x = GetItemRequest{}
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[30]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetItemRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetItemRequest) ProtoMessage() {}
-
-func (x *GetItemRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[30]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetItemRequest.ProtoReflect.Descriptor instead.
-func (*GetItemRequest) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{30}
-}
-
-func (x *GetItemRequest) GetId() string {
-	if x != nil {
-		return x.Id
-	}
-	return ""
-}
-
-// Gorse 推荐商品删除条件
-type DeleteItemRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"` // 商品编号
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *DeleteItemRequest) Reset() {
-	*x = DeleteItemRequest{}
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[31]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *DeleteItemRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*DeleteItemRequest) ProtoMessage() {}
-
-func (x *DeleteItemRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[31]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use DeleteItemRequest.ProtoReflect.Descriptor instead.
-func (*DeleteItemRequest) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{31}
-}
-
-func (x *DeleteItemRequest) GetId() string {
-	if x != nil {
-		return x.Id
-	}
-	return ""
-}
-
-// Gorse 推荐商品分页响应
-type PageItemResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Cursor        string                 `protobuf:"bytes,1,opt,name=cursor,json=Cursor,proto3" json:"cursor,omitempty"` // 下一页游标
-	Items         []*Item                `protobuf:"bytes,2,rep,name=items,json=Items,proto3" json:"items,omitempty"`    // 商品列表
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *PageItemResponse) Reset() {
-	*x = PageItemResponse{}
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[32]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PageItemResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PageItemResponse) ProtoMessage() {}
-
-func (x *PageItemResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[32]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use PageItemResponse.ProtoReflect.Descriptor instead.
-func (*PageItemResponse) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{32}
-}
-
-func (x *PageItemResponse) GetCursor() string {
-	if x != nil {
-		return x.Cursor
-	}
-	return ""
-}
-
-func (x *PageItemResponse) GetItems() []*Item {
-	if x != nil {
-		return x.Items
-	}
-	return nil
-}
-
-// Gorse 推荐商品列表响应
-type ItemListResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Items         []*Item                `protobuf:"bytes,1,rep,name=items,json=Items,proto3" json:"items,omitempty"` // 商品列表
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ItemListResponse) Reset() {
-	*x = ItemListResponse{}
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[33]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ItemListResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ItemListResponse) ProtoMessage() {}
-
-func (x *ItemListResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[33]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ItemListResponse.ProtoReflect.Descriptor instead.
-func (*ItemListResponse) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{33}
-}
-
-func (x *ItemListResponse) GetItems() []*Item {
-	if x != nil {
-		return x.Items
-	}
-	return nil
-}
-
-// Gorse 推荐商品
-type Item struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ItemId        string                 `protobuf:"bytes,1,opt,name=item_id,json=ItemId,proto3" json:"item_id,omitempty"`           // 商品编号
-	IsHidden      bool                   `protobuf:"varint,2,opt,name=is_hidden,json=IsHidden,proto3" json:"is_hidden,omitempty"`    // 是否隐藏
-	Categories    []string               `protobuf:"bytes,3,rep,name=categories,json=Categories,proto3" json:"categories,omitempty"` // 分类列表
-	Timestamp     string                 `protobuf:"bytes,4,opt,name=timestamp,json=Timestamp,proto3" json:"timestamp,omitempty"`    // 时间
-	Labels        *ItemLabel             `protobuf:"bytes,5,opt,name=labels,json=Labels,proto3" json:"labels,omitempty"`             // 标签信息
-	Comment       string                 `protobuf:"bytes,6,opt,name=comment,json=Comment,proto3" json:"comment,omitempty"`          // 备注
-	Score         float64                `protobuf:"fixed64,7,opt,name=score,json=Score,proto3" json:"score,omitempty"`              // 分数
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *Item) Reset() {
-	*x = Item{}
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[34]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *Item) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*Item) ProtoMessage() {}
-
-func (x *Item) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[34]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use Item.ProtoReflect.Descriptor instead.
-func (*Item) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{34}
-}
-
-func (x *Item) GetItemId() string {
-	if x != nil {
-		return x.ItemId
-	}
-	return ""
-}
-
-func (x *Item) GetIsHidden() bool {
-	if x != nil {
-		return x.IsHidden
-	}
-	return false
-}
-
-func (x *Item) GetCategories() []string {
-	if x != nil {
-		return x.Categories
-	}
-	return nil
-}
-
-func (x *Item) GetTimestamp() string {
-	if x != nil {
-		return x.Timestamp
-	}
-	return ""
-}
-
-func (x *Item) GetLabels() *ItemLabel {
-	if x != nil {
-		return x.Labels
-	}
-	return nil
-}
-
-func (x *Item) GetComment() string {
-	if x != nil {
-		return x.Comment
-	}
-	return ""
-}
-
-func (x *Item) GetScore() float64 {
-	if x != nil {
-		return x.Score
-	}
-	return 0
-}
-
-// Gorse 推荐商品标签信息
-type ItemLabel struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Desc          string                 `protobuf:"bytes,1,opt,name=desc,proto3" json:"desc,omitempty"`                      // 商品描述
-	DiscountPrice int64                  `protobuf:"varint,2,opt,name=discount_price,proto3" json:"discount_price,omitempty"` // 折扣价
-	Inventory     int64                  `protobuf:"varint,4,opt,name=inventory,proto3" json:"inventory,omitempty"`           // 库存
-	Price         int64                  `protobuf:"varint,5,opt,name=price,proto3" json:"price,omitempty"`                   // 原价
-	Status        int32                  `protobuf:"varint,6,opt,name=status,proto3" json:"status,omitempty"`                 // 状态
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ItemLabel) Reset() {
-	*x = ItemLabel{}
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[35]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ItemLabel) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ItemLabel) ProtoMessage() {}
-
-func (x *ItemLabel) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[35]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ItemLabel.ProtoReflect.Descriptor instead.
-func (*ItemLabel) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{35}
-}
-
-func (x *ItemLabel) GetDesc() string {
-	if x != nil {
-		return x.Desc
-	}
-	return ""
-}
-
-func (x *ItemLabel) GetDiscountPrice() int64 {
-	if x != nil {
-		return x.DiscountPrice
-	}
-	return 0
-}
-
-func (x *ItemLabel) GetInventory() int64 {
-	if x != nil {
-		return x.Inventory
-	}
-	return 0
-}
-
-func (x *ItemLabel) GetPrice() int64 {
-	if x != nil {
-		return x.Price
-	}
-	return 0
-}
-
-func (x *ItemLabel) GetStatus() int32 {
-	if x != nil {
-		return x.Status
-	}
-	return 0
-}
-
-// Gorse 推荐反馈响应
-type FeedbackResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Feedback      []*Feedback            `protobuf:"bytes,1,rep,name=feedback,json=Feedback,proto3" json:"feedback,omitempty"` // 反馈列表
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *FeedbackResponse) Reset() {
-	*x = FeedbackResponse{}
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[36]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *FeedbackResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*FeedbackResponse) ProtoMessage() {}
-
-func (x *FeedbackResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[36]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use FeedbackResponse.ProtoReflect.Descriptor instead.
-func (*FeedbackResponse) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{36}
-}
-
-func (x *FeedbackResponse) GetFeedback() []*Feedback {
-	if x != nil {
-		return x.Feedback
-	}
-	return nil
-}
-
-// Gorse 推荐反馈
-type Feedback struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	FeedbackType  string                 `protobuf:"bytes,1,opt,name=feedback_type,json=FeedbackType,proto3" json:"feedback_type,omitempty"` // 反馈类型
-	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=UserId,proto3" json:"user_id,omitempty"`                   // 用户编号
-	Item          *Item                  `protobuf:"bytes,3,opt,name=item,json=Item,proto3" json:"item,omitempty"`                           // 反馈商品
-	Value         float64                `protobuf:"fixed64,4,opt,name=value,json=Value,proto3" json:"value,omitempty"`                      // 反馈值
-	Timestamp     string                 `protobuf:"bytes,5,opt,name=timestamp,json=Timestamp,proto3" json:"timestamp,omitempty"`            // 时间
-	Comment       string                 `protobuf:"bytes,6,opt,name=comment,json=Comment,proto3" json:"comment,omitempty"`                  // 备注
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *Feedback) Reset() {
-	*x = Feedback{}
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[37]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *Feedback) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*Feedback) ProtoMessage() {}
-
-func (x *Feedback) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[37]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use Feedback.ProtoReflect.Descriptor instead.
-func (*Feedback) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{37}
-}
-
-func (x *Feedback) GetFeedbackType() string {
-	if x != nil {
-		return x.FeedbackType
-	}
-	return ""
-}
-
-func (x *Feedback) GetUserId() string {
-	if x != nil {
-		return x.UserId
-	}
-	return ""
-}
-
-func (x *Feedback) GetItem() *Item {
-	if x != nil {
-		return x.Item
-	}
-	return nil
-}
-
-func (x *Feedback) GetValue() float64 {
-	if x != nil {
-		return x.Value
-	}
-	return 0
-}
-
-func (x *Feedback) GetTimestamp() string {
-	if x != nil {
-		return x.Timestamp
-	}
-	return ""
-}
-
-func (x *Feedback) GetComment() string {
-	if x != nil {
-		return x.Comment
-	}
-	return ""
 }
 
 // Gorse 推荐配置查询条件
@@ -2193,7 +525,7 @@ type GetConfigRequest struct {
 
 func (x *GetConfigRequest) Reset() {
 	*x = GetConfigRequest{}
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[38]
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2205,7 +537,7 @@ func (x *GetConfigRequest) String() string {
 func (*GetConfigRequest) ProtoMessage() {}
 
 func (x *GetConfigRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[38]
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2218,89 +550,7 @@ func (x *GetConfigRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetConfigRequest.ProtoReflect.Descriptor instead.
 func (*GetConfigRequest) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{38}
-}
-
-// Gorse 推荐配置保存条件
-type SaveConfigRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Config        *ConfigResponse        `protobuf:"bytes,1,opt,name=config,proto3" json:"config,omitempty"` // Gorse 推荐配置
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *SaveConfigRequest) Reset() {
-	*x = SaveConfigRequest{}
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[39]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *SaveConfigRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*SaveConfigRequest) ProtoMessage() {}
-
-func (x *SaveConfigRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[39]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use SaveConfigRequest.ProtoReflect.Descriptor instead.
-func (*SaveConfigRequest) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{39}
-}
-
-func (x *SaveConfigRequest) GetConfig() *ConfigResponse {
-	if x != nil {
-		return x.Config
-	}
-	return nil
-}
-
-// Gorse 推荐配置重置条件
-type ResetConfigRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ResetConfigRequest) Reset() {
-	*x = ResetConfigRequest{}
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[40]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ResetConfigRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ResetConfigRequest) ProtoMessage() {}
-
-func (x *ResetConfigRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[40]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ResetConfigRequest.ProtoReflect.Descriptor instead.
-func (*ResetConfigRequest) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{40}
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{10}
 }
 
 // Gorse 推荐配置响应
@@ -2320,7 +570,7 @@ type ConfigResponse struct {
 
 func (x *ConfigResponse) Reset() {
 	*x = ConfigResponse{}
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[41]
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2332,7 +582,7 @@ func (x *ConfigResponse) String() string {
 func (*ConfigResponse) ProtoMessage() {}
 
 func (x *ConfigResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[41]
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2345,7 +595,7 @@ func (x *ConfigResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConfigResponse.ProtoReflect.Descriptor instead.
 func (*ConfigResponse) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{41}
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *ConfigResponse) GetDatabase() *ConfigResponse_Database {
@@ -2404,6 +654,1756 @@ func (x *ConfigResponse) GetOpenai() *ConfigResponse_Openai {
 	return nil
 }
 
+// Gorse 推荐商品查询条件
+type GetItemRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"` // 商品编号
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetItemRequest) Reset() {
+	*x = GetItemRequest{}
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetItemRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetItemRequest) ProtoMessage() {}
+
+func (x *GetItemRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetItemRequest.ProtoReflect.Descriptor instead.
+func (*GetItemRequest) Descriptor() ([]byte, []int) {
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *GetItemRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+// Gorse 推荐商品
+type Item struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ItemId        string                 `protobuf:"bytes,1,opt,name=item_id,json=ItemId,proto3" json:"item_id,omitempty"`           // 商品编号
+	IsHidden      bool                   `protobuf:"varint,2,opt,name=is_hidden,json=IsHidden,proto3" json:"is_hidden,omitempty"`    // 是否隐藏
+	Categories    []string               `protobuf:"bytes,3,rep,name=categories,json=Categories,proto3" json:"categories,omitempty"` // 分类列表
+	Timestamp     string                 `protobuf:"bytes,4,opt,name=timestamp,json=Timestamp,proto3" json:"timestamp,omitempty"`    // 时间
+	Labels        *ItemLabel             `protobuf:"bytes,5,opt,name=labels,json=Labels,proto3" json:"labels,omitempty"`             // 标签信息
+	Comment       string                 `protobuf:"bytes,6,opt,name=comment,json=Comment,proto3" json:"comment,omitempty"`          // 备注
+	Score         float64                `protobuf:"fixed64,7,opt,name=score,json=Score,proto3" json:"score,omitempty"`              // 分数
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Item) Reset() {
+	*x = Item{}
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Item) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Item) ProtoMessage() {}
+
+func (x *Item) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Item.ProtoReflect.Descriptor instead.
+func (*Item) Descriptor() ([]byte, []int) {
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *Item) GetItemId() string {
+	if x != nil {
+		return x.ItemId
+	}
+	return ""
+}
+
+func (x *Item) GetIsHidden() bool {
+	if x != nil {
+		return x.IsHidden
+	}
+	return false
+}
+
+func (x *Item) GetCategories() []string {
+	if x != nil {
+		return x.Categories
+	}
+	return nil
+}
+
+func (x *Item) GetTimestamp() string {
+	if x != nil {
+		return x.Timestamp
+	}
+	return ""
+}
+
+func (x *Item) GetLabels() *ItemLabel {
+	if x != nil {
+		return x.Labels
+	}
+	return nil
+}
+
+func (x *Item) GetComment() string {
+	if x != nil {
+		return x.Comment
+	}
+	return ""
+}
+
+func (x *Item) GetScore() float64 {
+	if x != nil {
+		return x.Score
+	}
+	return 0
+}
+
+// Gorse 推荐相似商品查询条件
+type GetItemSimilarRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`                   // 商品编号
+	Recommender   string                 `protobuf:"bytes,2,opt,name=recommender,proto3" json:"recommender,omitempty"` // 推荐器名称
+	Category      string                 `protobuf:"bytes,3,opt,name=category,proto3" json:"category,omitempty"`       // 分类
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetItemSimilarRequest) Reset() {
+	*x = GetItemSimilarRequest{}
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetItemSimilarRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetItemSimilarRequest) ProtoMessage() {}
+
+func (x *GetItemSimilarRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetItemSimilarRequest.ProtoReflect.Descriptor instead.
+func (*GetItemSimilarRequest) Descriptor() ([]byte, []int) {
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *GetItemSimilarRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *GetItemSimilarRequest) GetRecommender() string {
+	if x != nil {
+		return x.Recommender
+	}
+	return ""
+}
+
+func (x *GetItemSimilarRequest) GetCategory() string {
+	if x != nil {
+		return x.Category
+	}
+	return ""
+}
+
+// Gorse 推荐商品列表响应
+type ItemListResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Items         []*Item                `protobuf:"bytes,1,rep,name=items,json=Items,proto3" json:"items,omitempty"` // 商品列表
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ItemListResponse) Reset() {
+	*x = ItemListResponse{}
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ItemListResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ItemListResponse) ProtoMessage() {}
+
+func (x *ItemListResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ItemListResponse.ProtoReflect.Descriptor instead.
+func (*ItemListResponse) Descriptor() ([]byte, []int) {
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *ItemListResponse) GetItems() []*Item {
+	if x != nil {
+		return x.Items
+	}
+	return nil
+}
+
+// Gorse 推荐名称查询条件
+type GetTimeSeriesRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`   // 名称
+	Begin         string                 `protobuf:"bytes,2,opt,name=begin,proto3" json:"begin,omitempty"` // 开始时间
+	End           string                 `protobuf:"bytes,3,opt,name=end,proto3" json:"end,omitempty"`     // 结束时间
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetTimeSeriesRequest) Reset() {
+	*x = GetTimeSeriesRequest{}
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetTimeSeriesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetTimeSeriesRequest) ProtoMessage() {}
+
+func (x *GetTimeSeriesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetTimeSeriesRequest.ProtoReflect.Descriptor instead.
+func (*GetTimeSeriesRequest) Descriptor() ([]byte, []int) {
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *GetTimeSeriesRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *GetTimeSeriesRequest) GetBegin() string {
+	if x != nil {
+		return x.Begin
+	}
+	return ""
+}
+
+func (x *GetTimeSeriesRequest) GetEnd() string {
+	if x != nil {
+		return x.End
+	}
+	return ""
+}
+
+// Gorse 推荐时间序列响应
+type TimeSeriesResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Points        []*TimeSeriesPoint     `protobuf:"bytes,1,rep,name=points,json=Points,proto3" json:"points,omitempty"` // 时间序列点列表
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TimeSeriesResponse) Reset() {
+	*x = TimeSeriesResponse{}
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TimeSeriesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TimeSeriesResponse) ProtoMessage() {}
+
+func (x *TimeSeriesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TimeSeriesResponse.ProtoReflect.Descriptor instead.
+func (*TimeSeriesResponse) Descriptor() ([]byte, []int) {
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *TimeSeriesResponse) GetPoints() []*TimeSeriesPoint {
+	if x != nil {
+		return x.Points
+	}
+	return nil
+}
+
+// Gorse 推荐用户查询条件
+type GetUserRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"` // 用户编号
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetUserRequest) Reset() {
+	*x = GetUserRequest{}
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetUserRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetUserRequest) ProtoMessage() {}
+
+func (x *GetUserRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetUserRequest.ProtoReflect.Descriptor instead.
+func (*GetUserRequest) Descriptor() ([]byte, []int) {
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *GetUserRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+// Gorse 推荐用户
+type UserResponse struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	UserId         string                 `protobuf:"bytes,1,opt,name=user_id,json=UserId,proto3" json:"user_id,omitempty"`                           // 用户编号
+	Labels         *UserLabel             `protobuf:"bytes,2,opt,name=labels,json=Labels,proto3" json:"labels,omitempty"`                             // 标签信息
+	Comment        string                 `protobuf:"bytes,3,opt,name=comment,json=Comment,proto3" json:"comment,omitempty"`                          // 备注
+	LastActiveTime string                 `protobuf:"bytes,4,opt,name=last_active_time,json=LastActiveTime,proto3" json:"last_active_time,omitempty"` // 最后活跃时间
+	LastUpdateTime string                 `protobuf:"bytes,5,opt,name=last_update_time,json=LastUpdateTime,proto3" json:"last_update_time,omitempty"` // 最后更新时间
+	Score          float64                `protobuf:"fixed64,6,opt,name=score,json=Score,proto3" json:"score,omitempty"`                              // 分数
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *UserResponse) Reset() {
+	*x = UserResponse{}
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UserResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UserResponse) ProtoMessage() {}
+
+func (x *UserResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UserResponse.ProtoReflect.Descriptor instead.
+func (*UserResponse) Descriptor() ([]byte, []int) {
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *UserResponse) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *UserResponse) GetLabels() *UserLabel {
+	if x != nil {
+		return x.Labels
+	}
+	return nil
+}
+
+func (x *UserResponse) GetComment() string {
+	if x != nil {
+		return x.Comment
+	}
+	return ""
+}
+
+func (x *UserResponse) GetLastActiveTime() string {
+	if x != nil {
+		return x.LastActiveTime
+	}
+	return ""
+}
+
+func (x *UserResponse) GetLastUpdateTime() string {
+	if x != nil {
+		return x.LastUpdateTime
+	}
+	return ""
+}
+
+func (x *UserResponse) GetScore() float64 {
+	if x != nil {
+		return x.Score
+	}
+	return 0
+}
+
+// Gorse 推荐用户反馈查询条件
+type GetUserFeedbackRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`                       // 用户编号
+	FeedbackType  string                 `protobuf:"bytes,2,opt,name=feedback_type,proto3" json:"feedback_type,omitempty"` // 反馈类型
+	Offset        int32                  `protobuf:"varint,3,opt,name=offset,proto3" json:"offset,omitempty"`              // 偏移量
+	N             int32                  `protobuf:"varint,4,opt,name=n,proto3" json:"n,omitempty"`                        // 查询数量
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetUserFeedbackRequest) Reset() {
+	*x = GetUserFeedbackRequest{}
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetUserFeedbackRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetUserFeedbackRequest) ProtoMessage() {}
+
+func (x *GetUserFeedbackRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetUserFeedbackRequest.ProtoReflect.Descriptor instead.
+func (*GetUserFeedbackRequest) Descriptor() ([]byte, []int) {
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *GetUserFeedbackRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *GetUserFeedbackRequest) GetFeedbackType() string {
+	if x != nil {
+		return x.FeedbackType
+	}
+	return ""
+}
+
+func (x *GetUserFeedbackRequest) GetOffset() int32 {
+	if x != nil {
+		return x.Offset
+	}
+	return 0
+}
+
+func (x *GetUserFeedbackRequest) GetN() int32 {
+	if x != nil {
+		return x.N
+	}
+	return 0
+}
+
+// Gorse 推荐反馈响应
+type FeedbackResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Feedback      []*Feedback            `protobuf:"bytes,1,rep,name=feedback,json=Feedback,proto3" json:"feedback,omitempty"` // 反馈列表
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *FeedbackResponse) Reset() {
+	*x = FeedbackResponse{}
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FeedbackResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FeedbackResponse) ProtoMessage() {}
+
+func (x *FeedbackResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FeedbackResponse.ProtoReflect.Descriptor instead.
+func (*FeedbackResponse) Descriptor() ([]byte, []int) {
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *FeedbackResponse) GetFeedback() []*Feedback {
+	if x != nil {
+		return x.Feedback
+	}
+	return nil
+}
+
+// Gorse 推荐用户推荐查询条件
+type GetUserRecommendRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`                   // 用户编号
+	Recommender   string                 `protobuf:"bytes,2,opt,name=recommender,proto3" json:"recommender,omitempty"` // 推荐器名称
+	Category      string                 `protobuf:"bytes,3,opt,name=category,proto3" json:"category,omitempty"`       // 分类
+	N             int32                  `protobuf:"varint,4,opt,name=n,proto3" json:"n,omitempty"`                    // 查询数量
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetUserRecommendRequest) Reset() {
+	*x = GetUserRecommendRequest{}
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetUserRecommendRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetUserRecommendRequest) ProtoMessage() {}
+
+func (x *GetUserRecommendRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetUserRecommendRequest.ProtoReflect.Descriptor instead.
+func (*GetUserRecommendRequest) Descriptor() ([]byte, []int) {
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *GetUserRecommendRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *GetUserRecommendRequest) GetRecommender() string {
+	if x != nil {
+		return x.Recommender
+	}
+	return ""
+}
+
+func (x *GetUserRecommendRequest) GetCategory() string {
+	if x != nil {
+		return x.Category
+	}
+	return ""
+}
+
+func (x *GetUserRecommendRequest) GetN() int32 {
+	if x != nil {
+		return x.N
+	}
+	return 0
+}
+
+// Gorse 推荐相似用户查询条件
+type GetUserSimilarRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`                   // 用户编号
+	Recommender   string                 `protobuf:"bytes,2,opt,name=recommender,proto3" json:"recommender,omitempty"` // 推荐器名称
+	Category      string                 `protobuf:"bytes,3,opt,name=category,proto3" json:"category,omitempty"`       // 分类
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetUserSimilarRequest) Reset() {
+	*x = GetUserSimilarRequest{}
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[23]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetUserSimilarRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetUserSimilarRequest) ProtoMessage() {}
+
+func (x *GetUserSimilarRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[23]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetUserSimilarRequest.ProtoReflect.Descriptor instead.
+func (*GetUserSimilarRequest) Descriptor() ([]byte, []int) {
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{23}
+}
+
+func (x *GetUserSimilarRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *GetUserSimilarRequest) GetRecommender() string {
+	if x != nil {
+		return x.Recommender
+	}
+	return ""
+}
+
+func (x *GetUserSimilarRequest) GetCategory() string {
+	if x != nil {
+		return x.Category
+	}
+	return ""
+}
+
+// Gorse 推荐相似用户响应
+type UserSimilarResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Users         []*UserResponse        `protobuf:"bytes,1,rep,name=users,json=Users,proto3" json:"users,omitempty"` // 相似用户列表
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UserSimilarResponse) Reset() {
+	*x = UserSimilarResponse{}
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[24]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UserSimilarResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UserSimilarResponse) ProtoMessage() {}
+
+func (x *UserSimilarResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[24]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UserSimilarResponse.ProtoReflect.Descriptor instead.
+func (*UserSimilarResponse) Descriptor() ([]byte, []int) {
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{24}
+}
+
+func (x *UserSimilarResponse) GetUsers() []*UserResponse {
+	if x != nil {
+		return x.Users
+	}
+	return nil
+}
+
+// Gorse 推荐商品删除条件
+type DeleteItemRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"` // 商品编号
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteItemRequest) Reset() {
+	*x = DeleteItemRequest{}
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[25]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteItemRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteItemRequest) ProtoMessage() {}
+
+func (x *DeleteItemRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[25]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteItemRequest.ProtoReflect.Descriptor instead.
+func (*DeleteItemRequest) Descriptor() ([]byte, []int) {
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{25}
+}
+
+func (x *DeleteItemRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+// Gorse 推荐用户删除条件
+type DeleteUserRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"` // 用户编号
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteUserRequest) Reset() {
+	*x = DeleteUserRequest{}
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[26]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteUserRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteUserRequest) ProtoMessage() {}
+
+func (x *DeleteUserRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[26]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteUserRequest.ProtoReflect.Descriptor instead.
+func (*DeleteUserRequest) Descriptor() ([]byte, []int) {
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{26}
+}
+
+func (x *DeleteUserRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+// Gorse 推荐导出数据查询条件
+type ExportDataRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	DataType      v1.AdvanceDataType     `protobuf:"varint,1,opt,name=data_type,json=dataType,proto3,enum=shop.common.v1.AdvanceDataType" json:"data_type,omitempty"` // 数据类型：枚举【AdvanceDataType】
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ExportDataRequest) Reset() {
+	*x = ExportDataRequest{}
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[27]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ExportDataRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ExportDataRequest) ProtoMessage() {}
+
+func (x *ExportDataRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[27]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ExportDataRequest.ProtoReflect.Descriptor instead.
+func (*ExportDataRequest) Descriptor() ([]byte, []int) {
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{27}
+}
+
+func (x *ExportDataRequest) GetDataType() v1.AdvanceDataType {
+	if x != nil {
+		return x.DataType
+	}
+	return v1.AdvanceDataType(0)
+}
+
+// Gorse 推荐导出数据响应
+type ExportDataResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	FileName      string                 `protobuf:"bytes,1,opt,name=file_name,json=fileName,proto3" json:"file_name,omitempty"` // 文件名
+	Content       string                 `protobuf:"bytes,2,opt,name=content,proto3" json:"content,omitempty"`                   // JSONL文件内容
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ExportDataResponse) Reset() {
+	*x = ExportDataResponse{}
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[28]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ExportDataResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ExportDataResponse) ProtoMessage() {}
+
+func (x *ExportDataResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[28]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ExportDataResponse.ProtoReflect.Descriptor instead.
+func (*ExportDataResponse) Descriptor() ([]byte, []int) {
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{28}
+}
+
+func (x *ExportDataResponse) GetFileName() string {
+	if x != nil {
+		return x.FileName
+	}
+	return ""
+}
+
+func (x *ExportDataResponse) GetContent() string {
+	if x != nil {
+		return x.Content
+	}
+	return ""
+}
+
+// Gorse 推荐导入数据请求
+type ImportDataRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	DataType      v1.AdvanceDataType     `protobuf:"varint,1,opt,name=data_type,json=dataType,proto3,enum=shop.common.v1.AdvanceDataType" json:"data_type,omitempty"` // 数据类型：枚举【AdvanceDataType】
+	FileName      string                 `protobuf:"bytes,2,opt,name=file_name,json=fileName,proto3" json:"file_name,omitempty"`                                      // 文件名
+	Content       string                 `protobuf:"bytes,3,opt,name=content,proto3" json:"content,omitempty"`                                                        // JSONL文件内容
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ImportDataRequest) Reset() {
+	*x = ImportDataRequest{}
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[29]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ImportDataRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ImportDataRequest) ProtoMessage() {}
+
+func (x *ImportDataRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[29]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ImportDataRequest.ProtoReflect.Descriptor instead.
+func (*ImportDataRequest) Descriptor() ([]byte, []int) {
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{29}
+}
+
+func (x *ImportDataRequest) GetDataType() v1.AdvanceDataType {
+	if x != nil {
+		return x.DataType
+	}
+	return v1.AdvanceDataType(0)
+}
+
+func (x *ImportDataRequest) GetFileName() string {
+	if x != nil {
+		return x.FileName
+	}
+	return ""
+}
+
+func (x *ImportDataRequest) GetContent() string {
+	if x != nil {
+		return x.Content
+	}
+	return ""
+}
+
+// Gorse 推荐导入数据响应
+type ImportDataResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	SuccessCount  int32                  `protobuf:"varint,1,opt,name=success_count,json=successCount,proto3" json:"success_count,omitempty"` // 成功导入数量
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ImportDataResponse) Reset() {
+	*x = ImportDataResponse{}
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[30]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ImportDataResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ImportDataResponse) ProtoMessage() {}
+
+func (x *ImportDataResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[30]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ImportDataResponse.ProtoReflect.Descriptor instead.
+func (*ImportDataResponse) Descriptor() ([]byte, []int) {
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{30}
+}
+
+func (x *ImportDataResponse) GetSuccessCount() int32 {
+	if x != nil {
+		return x.SuccessCount
+	}
+	return 0
+}
+
+// Gorse 推荐配置保存条件
+type SaveConfigRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Config        *ConfigResponse        `protobuf:"bytes,1,opt,name=config,proto3" json:"config,omitempty"` // Gorse 推荐配置
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SaveConfigRequest) Reset() {
+	*x = SaveConfigRequest{}
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[31]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SaveConfigRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SaveConfigRequest) ProtoMessage() {}
+
+func (x *SaveConfigRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[31]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SaveConfigRequest.ProtoReflect.Descriptor instead.
+func (*SaveConfigRequest) Descriptor() ([]byte, []int) {
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{31}
+}
+
+func (x *SaveConfigRequest) GetConfig() *ConfigResponse {
+	if x != nil {
+		return x.Config
+	}
+	return nil
+}
+
+// Gorse 推荐配置重置条件
+type ResetConfigRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ResetConfigRequest) Reset() {
+	*x = ResetConfigRequest{}
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[32]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ResetConfigRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ResetConfigRequest) ProtoMessage() {}
+
+func (x *ResetConfigRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[32]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ResetConfigRequest.ProtoReflect.Descriptor instead.
+func (*ResetConfigRequest) Descriptor() ([]byte, []int) {
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{32}
+}
+
+// 外部推荐脚本预览请求
+type PreviewExternalRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"` // 用户编号
+	Script        string                 `protobuf:"bytes,2,opt,name=script,proto3" json:"script,omitempty"`               // 外部推荐脚本
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PreviewExternalRequest) Reset() {
+	*x = PreviewExternalRequest{}
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[33]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PreviewExternalRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PreviewExternalRequest) ProtoMessage() {}
+
+func (x *PreviewExternalRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[33]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PreviewExternalRequest.ProtoReflect.Descriptor instead.
+func (*PreviewExternalRequest) Descriptor() ([]byte, []int) {
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{33}
+}
+
+func (x *PreviewExternalRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *PreviewExternalRequest) GetScript() string {
+	if x != nil {
+		return x.Script
+	}
+	return ""
+}
+
+// 外部推荐脚本预览响应
+type PreviewExternalResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Items         []string               `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"` // 推荐商品编号列表
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PreviewExternalResponse) Reset() {
+	*x = PreviewExternalResponse{}
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[34]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PreviewExternalResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PreviewExternalResponse) ProtoMessage() {}
+
+func (x *PreviewExternalResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[34]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PreviewExternalResponse.ProtoReflect.Descriptor instead.
+func (*PreviewExternalResponse) Descriptor() ([]byte, []int) {
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{34}
+}
+
+func (x *PreviewExternalResponse) GetItems() []string {
+	if x != nil {
+		return x.Items
+	}
+	return nil
+}
+
+// 排序提示词预览请求
+type PreviewRankerPromptRequest struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	UserId           string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`                               // 用户编号
+	QueryTemplate    string                 `protobuf:"bytes,2,opt,name=query_template,json=queryTemplate,proto3" json:"query_template,omitempty"`          // 查询模板
+	DocumentTemplate string                 `protobuf:"bytes,3,opt,name=document_template,json=documentTemplate,proto3" json:"document_template,omitempty"` // 文档模板
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *PreviewRankerPromptRequest) Reset() {
+	*x = PreviewRankerPromptRequest{}
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[35]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PreviewRankerPromptRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PreviewRankerPromptRequest) ProtoMessage() {}
+
+func (x *PreviewRankerPromptRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[35]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PreviewRankerPromptRequest.ProtoReflect.Descriptor instead.
+func (*PreviewRankerPromptRequest) Descriptor() ([]byte, []int) {
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{35}
+}
+
+func (x *PreviewRankerPromptRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *PreviewRankerPromptRequest) GetQueryTemplate() string {
+	if x != nil {
+		return x.QueryTemplate
+	}
+	return ""
+}
+
+func (x *PreviewRankerPromptRequest) GetDocumentTemplate() string {
+	if x != nil {
+		return x.DocumentTemplate
+	}
+	return ""
+}
+
+// 排序提示词预览响应
+type PreviewRankerPromptResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Query         string                 `protobuf:"bytes,1,opt,name=query,proto3" json:"query,omitempty"`         // 查询提示词
+	Documents     []string               `protobuf:"bytes,2,rep,name=documents,proto3" json:"documents,omitempty"` // 文档提示词列表
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PreviewRankerPromptResponse) Reset() {
+	*x = PreviewRankerPromptResponse{}
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[36]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PreviewRankerPromptResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PreviewRankerPromptResponse) ProtoMessage() {}
+
+func (x *PreviewRankerPromptResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[36]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PreviewRankerPromptResponse.ProtoReflect.Descriptor instead.
+func (*PreviewRankerPromptResponse) Descriptor() ([]byte, []int) {
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{36}
+}
+
+func (x *PreviewRankerPromptResponse) GetQuery() string {
+	if x != nil {
+		return x.Query
+	}
+	return ""
+}
+
+func (x *PreviewRankerPromptResponse) GetDocuments() []string {
+	if x != nil {
+		return x.Documents
+	}
+	return nil
+}
+
+// Gorse 推荐时间序列点
+type TimeSeriesPoint struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,json=Name,proto3" json:"name,omitempty"`                // 名称
+	Timestamp     string                 `protobuf:"bytes,2,opt,name=timestamp,json=Timestamp,proto3" json:"timestamp,omitempty"` // 时间
+	Value         float64                `protobuf:"fixed64,3,opt,name=value,json=Value,proto3" json:"value,omitempty"`           // 数值
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TimeSeriesPoint) Reset() {
+	*x = TimeSeriesPoint{}
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[37]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TimeSeriesPoint) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TimeSeriesPoint) ProtoMessage() {}
+
+func (x *TimeSeriesPoint) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[37]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TimeSeriesPoint.ProtoReflect.Descriptor instead.
+func (*TimeSeriesPoint) Descriptor() ([]byte, []int) {
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{37}
+}
+
+func (x *TimeSeriesPoint) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *TimeSeriesPoint) GetTimestamp() string {
+	if x != nil {
+		return x.Timestamp
+	}
+	return ""
+}
+
+func (x *TimeSeriesPoint) GetValue() float64 {
+	if x != nil {
+		return x.Value
+	}
+	return 0
+}
+
+// Gorse 推荐任务状态
+type Task struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Tracer        string                 `protobuf:"bytes,1,opt,name=tracer,json=Tracer,proto3" json:"tracer,omitempty"`               // 执行节点
+	Name          string                 `protobuf:"bytes,2,opt,name=name,json=Name,proto3" json:"name,omitempty"`                     // 任务名称
+	Status        string                 `protobuf:"bytes,3,opt,name=status,json=Status,proto3" json:"status,omitempty"`               // 任务状态
+	Error         string                 `protobuf:"bytes,4,opt,name=error,json=Error,proto3" json:"error,omitempty"`                  // 错误信息
+	Count         int64                  `protobuf:"varint,5,opt,name=count,json=Count,proto3" json:"count,omitempty"`                 // 当前进度
+	Total         int64                  `protobuf:"varint,6,opt,name=total,json=Total,proto3" json:"total,omitempty"`                 // 总进度
+	StartTime     string                 `protobuf:"bytes,7,opt,name=start_time,json=StartTime,proto3" json:"start_time,omitempty"`    // 开始时间
+	FinishTime    string                 `protobuf:"bytes,8,opt,name=finish_time,json=FinishTime,proto3" json:"finish_time,omitempty"` // 结束时间
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Task) Reset() {
+	*x = Task{}
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[38]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Task) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Task) ProtoMessage() {}
+
+func (x *Task) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[38]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Task.ProtoReflect.Descriptor instead.
+func (*Task) Descriptor() ([]byte, []int) {
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{38}
+}
+
+func (x *Task) GetTracer() string {
+	if x != nil {
+		return x.Tracer
+	}
+	return ""
+}
+
+func (x *Task) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *Task) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *Task) GetError() string {
+	if x != nil {
+		return x.Error
+	}
+	return ""
+}
+
+func (x *Task) GetCount() int64 {
+	if x != nil {
+		return x.Count
+	}
+	return 0
+}
+
+func (x *Task) GetTotal() int64 {
+	if x != nil {
+		return x.Total
+	}
+	return 0
+}
+
+func (x *Task) GetStartTime() string {
+	if x != nil {
+		return x.StartTime
+	}
+	return ""
+}
+
+func (x *Task) GetFinishTime() string {
+	if x != nil {
+		return x.FinishTime
+	}
+	return ""
+}
+
+// Gorse 推荐用户标签信息
+type UserLabel struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	DeptId        int64                  `protobuf:"varint,1,opt,name=dept_id,proto3" json:"dept_id,omitempty"` // 部门编号
+	Gender        int32                  `protobuf:"varint,2,opt,name=gender,proto3" json:"gender,omitempty"`   // 性别
+	RoleId        int64                  `protobuf:"varint,3,opt,name=role_id,proto3" json:"role_id,omitempty"` // 角色编号
+	Status        int32                  `protobuf:"varint,4,opt,name=status,proto3" json:"status,omitempty"`   // 状态
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UserLabel) Reset() {
+	*x = UserLabel{}
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[39]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UserLabel) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UserLabel) ProtoMessage() {}
+
+func (x *UserLabel) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[39]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UserLabel.ProtoReflect.Descriptor instead.
+func (*UserLabel) Descriptor() ([]byte, []int) {
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{39}
+}
+
+func (x *UserLabel) GetDeptId() int64 {
+	if x != nil {
+		return x.DeptId
+	}
+	return 0
+}
+
+func (x *UserLabel) GetGender() int32 {
+	if x != nil {
+		return x.Gender
+	}
+	return 0
+}
+
+func (x *UserLabel) GetRoleId() int64 {
+	if x != nil {
+		return x.RoleId
+	}
+	return 0
+}
+
+func (x *UserLabel) GetStatus() int32 {
+	if x != nil {
+		return x.Status
+	}
+	return 0
+}
+
+// Gorse 推荐商品标签信息
+type ItemLabel struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Desc          string                 `protobuf:"bytes,1,opt,name=desc,proto3" json:"desc,omitempty"`                      // 商品描述
+	DiscountPrice int64                  `protobuf:"varint,2,opt,name=discount_price,proto3" json:"discount_price,omitempty"` // 折扣价
+	Inventory     int64                  `protobuf:"varint,4,opt,name=inventory,proto3" json:"inventory,omitempty"`           // 库存
+	Price         int64                  `protobuf:"varint,5,opt,name=price,proto3" json:"price,omitempty"`                   // 原价
+	Status        int32                  `protobuf:"varint,6,opt,name=status,proto3" json:"status,omitempty"`                 // 状态
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ItemLabel) Reset() {
+	*x = ItemLabel{}
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[40]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ItemLabel) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ItemLabel) ProtoMessage() {}
+
+func (x *ItemLabel) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[40]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ItemLabel.ProtoReflect.Descriptor instead.
+func (*ItemLabel) Descriptor() ([]byte, []int) {
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{40}
+}
+
+func (x *ItemLabel) GetDesc() string {
+	if x != nil {
+		return x.Desc
+	}
+	return ""
+}
+
+func (x *ItemLabel) GetDiscountPrice() int64 {
+	if x != nil {
+		return x.DiscountPrice
+	}
+	return 0
+}
+
+func (x *ItemLabel) GetInventory() int64 {
+	if x != nil {
+		return x.Inventory
+	}
+	return 0
+}
+
+func (x *ItemLabel) GetPrice() int64 {
+	if x != nil {
+		return x.Price
+	}
+	return 0
+}
+
+func (x *ItemLabel) GetStatus() int32 {
+	if x != nil {
+		return x.Status
+	}
+	return 0
+}
+
+// Gorse 推荐反馈
+type Feedback struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	FeedbackType  string                 `protobuf:"bytes,1,opt,name=feedback_type,json=FeedbackType,proto3" json:"feedback_type,omitempty"` // 反馈类型
+	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=UserId,proto3" json:"user_id,omitempty"`                   // 用户编号
+	Item          *Item                  `protobuf:"bytes,3,opt,name=item,json=Item,proto3" json:"item,omitempty"`                           // 反馈商品
+	Value         float64                `protobuf:"fixed64,4,opt,name=value,json=Value,proto3" json:"value,omitempty"`                      // 反馈值
+	Timestamp     string                 `protobuf:"bytes,5,opt,name=timestamp,json=Timestamp,proto3" json:"timestamp,omitempty"`            // 时间
+	Comment       string                 `protobuf:"bytes,6,opt,name=comment,json=Comment,proto3" json:"comment,omitempty"`                  // 备注
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Feedback) Reset() {
+	*x = Feedback{}
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[41]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Feedback) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Feedback) ProtoMessage() {}
+
+func (x *Feedback) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_admin_v1_recommend_gorse_proto_msgTypes[41]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Feedback.ProtoReflect.Descriptor instead.
+func (*Feedback) Descriptor() ([]byte, []int) {
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{41}
+}
+
+func (x *Feedback) GetFeedbackType() string {
+	if x != nil {
+		return x.FeedbackType
+	}
+	return ""
+}
+
+func (x *Feedback) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *Feedback) GetItem() *Item {
+	if x != nil {
+		return x.Item
+	}
+	return nil
+}
+
+func (x *Feedback) GetValue() float64 {
+	if x != nil {
+		return x.Value
+	}
+	return 0
+}
+
+func (x *Feedback) GetTimestamp() string {
+	if x != nil {
+		return x.Timestamp
+	}
+	return ""
+}
+
+func (x *Feedback) GetComment() string {
+	if x != nil {
+		return x.Comment
+	}
+	return ""
+}
+
 // Gorse 推荐数据库配置
 type ConfigResponse_Database struct {
 	state            protoimpl.MessageState            `protogen:"open.v1"`
@@ -2446,7 +2446,7 @@ func (x *ConfigResponse_Database) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConfigResponse_Database.ProtoReflect.Descriptor instead.
 func (*ConfigResponse_Database) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{41, 0}
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{11, 0}
 }
 
 func (x *ConfigResponse_Database) GetDataStore() string {
@@ -2555,7 +2555,7 @@ func (x *ConfigResponse_Master) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConfigResponse_Master.ProtoReflect.Descriptor instead.
 func (*ConfigResponse_Master) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{41, 1}
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{11, 1}
 }
 
 func (x *ConfigResponse_Master) GetHost() string {
@@ -2710,7 +2710,7 @@ func (x *ConfigResponse_Server) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConfigResponse_Server.ProtoReflect.Descriptor instead.
 func (*ConfigResponse_Server) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{41, 2}
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{11, 2}
 }
 
 func (x *ConfigResponse_Server) GetDefaultN() int32 {
@@ -2802,7 +2802,7 @@ func (x *ConfigResponse_Recommend) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConfigResponse_Recommend.ProtoReflect.Descriptor instead.
 func (*ConfigResponse_Recommend) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{41, 3}
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{11, 3}
 }
 
 func (x *ConfigResponse_Recommend) GetCacheSize() int32 {
@@ -2934,7 +2934,7 @@ func (x *ConfigResponse_Blob) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConfigResponse_Blob.ProtoReflect.Descriptor instead.
 func (*ConfigResponse_Blob) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{41, 4}
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{11, 4}
 }
 
 func (x *ConfigResponse_Blob) GetUri() string {
@@ -3004,7 +3004,7 @@ func (x *ConfigResponse_Tracing) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConfigResponse_Tracing.ProtoReflect.Descriptor instead.
 func (*ConfigResponse_Tracing) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{41, 5}
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{11, 5}
 }
 
 func (x *ConfigResponse_Tracing) GetEnableTracing() bool {
@@ -3081,7 +3081,7 @@ func (x *ConfigResponse_Oidc) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConfigResponse_Oidc.ProtoReflect.Descriptor instead.
 func (*ConfigResponse_Oidc) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{41, 6}
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{11, 6}
 }
 
 func (x *ConfigResponse_Oidc) GetEnable() bool {
@@ -3163,7 +3163,7 @@ func (x *ConfigResponse_Openai) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConfigResponse_Openai.ProtoReflect.Descriptor instead.
 func (*ConfigResponse_Openai) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{41, 7}
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{11, 7}
 }
 
 func (x *ConfigResponse_Openai) GetBaseUrl() string {
@@ -3274,7 +3274,7 @@ func (x *ConfigResponse_Database_Mysql) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConfigResponse_Database_Mysql.ProtoReflect.Descriptor instead.
 func (*ConfigResponse_Database_Mysql) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{41, 0, 0}
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{11, 0, 0}
 }
 
 func (x *ConfigResponse_Database_Mysql) GetIsolationLevel() string {
@@ -3342,7 +3342,7 @@ func (x *ConfigResponse_Database_Postgres) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConfigResponse_Database_Postgres.ProtoReflect.Descriptor instead.
 func (*ConfigResponse_Database_Postgres) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{41, 0, 1}
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{11, 0, 1}
 }
 
 func (x *ConfigResponse_Database_Postgres) GetMaxOpenConns() int32 {
@@ -3401,7 +3401,7 @@ func (x *ConfigResponse_Database_Redis) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConfigResponse_Database_Redis.ProtoReflect.Descriptor instead.
 func (*ConfigResponse_Database_Redis) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{41, 0, 2}
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{11, 0, 2}
 }
 
 func (x *ConfigResponse_Database_Redis) GetMaxSearchResults() int32 {
@@ -3450,7 +3450,7 @@ func (x *ConfigResponse_Recommend_DataSource) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use ConfigResponse_Recommend_DataSource.ProtoReflect.Descriptor instead.
 func (*ConfigResponse_Recommend_DataSource) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{41, 3, 0}
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{11, 3, 0}
 }
 
 func (x *ConfigResponse_Recommend_DataSource) GetPositiveFeedbackTypes() []string {
@@ -3525,7 +3525,7 @@ func (x *ConfigResponse_Recommend_NonPersonalized) ProtoReflect() protoreflect.M
 
 // Deprecated: Use ConfigResponse_Recommend_NonPersonalized.ProtoReflect.Descriptor instead.
 func (*ConfigResponse_Recommend_NonPersonalized) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{41, 3, 1}
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{11, 3, 1}
 }
 
 func (x *ConfigResponse_Recommend_NonPersonalized) GetName() string {
@@ -3587,7 +3587,7 @@ func (x *ConfigResponse_Recommend_ItemToItem) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use ConfigResponse_Recommend_ItemToItem.ProtoReflect.Descriptor instead.
 func (*ConfigResponse_Recommend_ItemToItem) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{41, 3, 2}
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{11, 3, 2}
 }
 
 func (x *ConfigResponse_Recommend_ItemToItem) GetName() string {
@@ -3655,7 +3655,7 @@ func (x *ConfigResponse_Recommend_UserToUser) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use ConfigResponse_Recommend_UserToUser.ProtoReflect.Descriptor instead.
 func (*ConfigResponse_Recommend_UserToUser) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{41, 3, 3}
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{11, 3, 3}
 }
 
 func (x *ConfigResponse_Recommend_UserToUser) GetName() string {
@@ -3715,7 +3715,7 @@ func (x *ConfigResponse_Recommend_External) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use ConfigResponse_Recommend_External.ProtoReflect.Descriptor instead.
 func (*ConfigResponse_Recommend_External) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{41, 3, 4}
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{11, 3, 4}
 }
 
 func (x *ConfigResponse_Recommend_External) GetName() string {
@@ -3772,7 +3772,7 @@ func (x *ConfigResponse_Recommend_Collaborative) ProtoReflect() protoreflect.Mes
 
 // Deprecated: Use ConfigResponse_Recommend_Collaborative.ProtoReflect.Descriptor instead.
 func (*ConfigResponse_Recommend_Collaborative) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{41, 3, 5}
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{11, 3, 5}
 }
 
 func (x *ConfigResponse_Recommend_Collaborative) GetType() string {
@@ -3852,7 +3852,7 @@ func (x *ConfigResponse_Recommend_EarlyStopping) ProtoReflect() protoreflect.Mes
 
 // Deprecated: Use ConfigResponse_Recommend_EarlyStopping.ProtoReflect.Descriptor instead.
 func (*ConfigResponse_Recommend_EarlyStopping) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{41, 3, 6}
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{11, 3, 6}
 }
 
 func (x *ConfigResponse_Recommend_EarlyStopping) GetPatience() int32 {
@@ -3899,7 +3899,7 @@ func (x *ConfigResponse_Recommend_Replacement) ProtoReflect() protoreflect.Messa
 
 // Deprecated: Use ConfigResponse_Recommend_Replacement.ProtoReflect.Descriptor instead.
 func (*ConfigResponse_Recommend_Replacement) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{41, 3, 7}
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{11, 3, 7}
 }
 
 func (x *ConfigResponse_Recommend_Replacement) GetEnableReplacement() bool {
@@ -3968,7 +3968,7 @@ func (x *ConfigResponse_Recommend_Ranker) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConfigResponse_Recommend_Ranker.ProtoReflect.Descriptor instead.
 func (*ConfigResponse_Recommend_Ranker) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{41, 3, 8}
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{11, 3, 8}
 }
 
 func (x *ConfigResponse_Recommend_Ranker) GetType() string {
@@ -4083,7 +4083,7 @@ func (x *ConfigResponse_Recommend_Fallback) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use ConfigResponse_Recommend_Fallback.ProtoReflect.Descriptor instead.
 func (*ConfigResponse_Recommend_Fallback) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{41, 3, 9}
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{11, 3, 9}
 }
 
 func (x *ConfigResponse_Recommend_Fallback) GetRecommenders() []string {
@@ -4130,7 +4130,7 @@ func (x *ConfigResponse_Recommend_Ranker_RerankerApi) ProtoReflect() protoreflec
 
 // Deprecated: Use ConfigResponse_Recommend_Ranker_RerankerApi.ProtoReflect.Descriptor instead.
 func (*ConfigResponse_Recommend_Ranker_RerankerApi) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{41, 3, 8, 0}
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{11, 3, 8, 0}
 }
 
 func (x *ConfigResponse_Recommend_Ranker_RerankerApi) GetAuthToken() string {
@@ -4191,7 +4191,7 @@ func (x *ConfigResponse_Blob_S3) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConfigResponse_Blob_S3.ProtoReflect.Descriptor instead.
 func (*ConfigResponse_Blob_S3) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{41, 4, 0}
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{11, 4, 0}
 }
 
 func (x *ConfigResponse_Blob_S3) GetEndpoint() string {
@@ -4250,7 +4250,7 @@ func (x *ConfigResponse_Blob_Gcs) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConfigResponse_Blob_Gcs.ProtoReflect.Descriptor instead.
 func (*ConfigResponse_Blob_Gcs) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{41, 4, 1}
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{11, 4, 1}
 }
 
 func (x *ConfigResponse_Blob_Gcs) GetCredentialsFile() string {
@@ -4298,7 +4298,7 @@ func (x *ConfigResponse_Blob_Azure) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConfigResponse_Blob_Azure.ProtoReflect.Descriptor instead.
 func (*ConfigResponse_Blob_Azure) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{41, 4, 2}
+	return file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP(), []int{11, 4, 2}
 }
 
 func (x *ConfigResponse_Blob_Azure) GetEndpoint() string {
@@ -4333,149 +4333,35 @@ var File_shop_admin_v1_recommend_gorse_proto protoreflect.FileDescriptor
 
 const file_shop_admin_v1_recommend_gorse_proto_rawDesc = "" +
 	"\n" +
-	"#shop/admin/v1/recommend_gorse.proto\x12\rshop.admin.v1\x1a\x19shop/common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"w\n" +
-	"\x16PreviewExternalRequest\x12+\n" +
-	"\auser_id\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户编号R\x06userId\x120\n" +
-	"\x06script\x18\x02 \x01(\tB\x18\xbaG\x15\x92\x02\x12外部推荐脚本R\x06script\"O\n" +
-	"\x17PreviewExternalResponse\x124\n" +
-	"\x05items\x18\x01 \x03(\tB\x1e\xbaG\x1b\x92\x02\x18推荐商品编号列表R\x05items\"\xc5\x01\n" +
-	"\x1aPreviewRankerPromptRequest\x12+\n" +
-	"\auser_id\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户编号R\x06userId\x129\n" +
-	"\x0equery_template\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f查询模板R\rqueryTemplate\x12?\n" +
-	"\x11document_template\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f文档模板R\x10documentTemplate\"\x85\x01\n" +
-	"\x1bPreviewRankerPromptResponse\x12+\n" +
-	"\x05query\x18\x01 \x01(\tB\x15\xbaG\x12\x92\x02\x0f查询提示词R\x05query\x129\n" +
-	"\tdocuments\x18\x02 \x03(\tB\x1b\xbaG\x18\x92\x02\x15文档提示词列表R\tdocuments\"\x83\x01\n" +
-	"\x11ExportDataRequest\x12n\n" +
-	"\tdata_type\x18\x01 \x01(\x0e2\x1f.shop.common.v1.AdvanceDataTypeB0\xbaG-\x92\x02*数据类型：枚举【AdvanceDataType】R\bdataType\"u\n" +
-	"\x12ExportDataResponse\x12,\n" +
-	"\tfile_name\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t文件名R\bfileName\x121\n" +
-	"\acontent\x18\x02 \x01(\tB\x17\xbaG\x14\x92\x02\x11JSONL文件内容R\acontent\"\xe4\x01\n" +
-	"\x11ImportDataRequest\x12n\n" +
-	"\tdata_type\x18\x01 \x01(\x0e2\x1f.shop.common.v1.AdvanceDataTypeB0\xbaG-\x92\x02*数据类型：枚举【AdvanceDataType】R\bdataType\x12,\n" +
-	"\tfile_name\x18\x02 \x01(\tB\x0f\xbaG\f\x92\x02\t文件名R\bfileName\x121\n" +
-	"\acontent\x18\x03 \x01(\tB\x17\xbaG\x14\x92\x02\x11JSONL文件内容R\acontent\"S\n" +
-	"\x12ImportDataResponse\x12=\n" +
-	"\rsuccess_count\x18\x01 \x01(\x05B\x18\xbaG\x15\x92\x02\x12成功导入数量R\fsuccessCount\"\x88\x01\n" +
-	"\x14GetTimeSeriesRequest\x12 \n" +
-	"\x04name\x18\x01 \x01(\tB\f\xbaG\t\x92\x02\x06名称R\x04name\x12(\n" +
-	"\x05begin\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f开始时间R\x05begin\x12$\n" +
-	"\x03end\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f结束时间R\x03end\"\xa3\x01\n" +
-	"\x18ListDashboardItemRequest\x127\n" +
-	"\vrecommender\x18\x01 \x01(\tB\x15\xbaG\x12\x92\x02\x0f推荐器名称R\vrecommender\x12(\n" +
-	"\bcategory\x18\x02 \x01(\tB\f\xbaG\t\x92\x02\x06分类R\bcategory\x12$\n" +
-	"\x03end\x18\x03 \x01(\x05B\x12\xbaG\x0f\x92\x02\f结束位置R\x03end\"\x17\n" +
+	"#shop/admin/v1/recommend_gorse.proto\x12\rshop.admin.v1\x1a\x19shop/common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x17\n" +
 	"\x15OptionCategoryRequest\"L\n" +
 	"\x16OptionCategoryResponse\x122\n" +
 	"\n" +
 	"categories\x18\x01 \x03(\tB\x12\xbaG\x0f\x92\x02\f分类列表R\n" +
-	"categories\"\x99\x01\n" +
-	"\x19ListDashboardItemResponse\x12=\n" +
-	"\x05items\x18\x01 \x03(\v2\x13.shop.admin.v1.ItemB\x12\xbaG\x0f\x92\x02\f商品列表R\x05Items\x12=\n" +
-	"\rlast_modified\x18\x02 \x01(\tB\x18\xbaG\x15\x92\x02\x12最后更新时间R\fLastModified\"i\n" +
-	"\x12TimeSeriesResponse\x12S\n" +
-	"\x06points\x18\x01 \x03(\v2\x1e.shop.admin.v1.TimeSeriesPointB\x1b\xbaG\x18\x92\x02\x15时间序列点列表R\x06Points\"\x83\x01\n" +
-	"\x0fTimeSeriesPoint\x12 \n" +
-	"\x04name\x18\x01 \x01(\tB\f\xbaG\t\x92\x02\x06名称R\x04Name\x12*\n" +
-	"\ttimestamp\x18\x02 \x01(\tB\f\xbaG\t\x92\x02\x06时间R\tTimestamp\x12\"\n" +
-	"\x05value\x18\x03 \x01(\x01B\f\xbaG\t\x92\x02\x06数值R\x05Value\"\x9e\x01\n" +
-	"\x15GetUserSimilarRequest\x12\"\n" +
-	"\x02id\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户编号R\x02id\x127\n" +
-	"\vrecommender\x18\x02 \x01(\tB\x15\xbaG\x12\x92\x02\x0f推荐器名称R\vrecommender\x12(\n" +
-	"\bcategory\x18\x03 \x01(\tB\f\xbaG\t\x92\x02\x06分类R\bcategory\"\x9e\x01\n" +
-	"\x15GetItemSimilarRequest\x12\"\n" +
-	"\x02id\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f商品编号R\x02id\x127\n" +
-	"\vrecommender\x18\x02 \x01(\tB\x15\xbaG\x12\x92\x02\x0f推荐器名称R\vrecommender\x12(\n" +
-	"\bcategory\x18\x03 \x01(\tB\f\xbaG\t\x92\x02\x06分类R\bcategory\"\xc1\x01\n" +
-	"\x16GetUserFeedbackRequest\x12\"\n" +
-	"\x02id\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户编号R\x02id\x128\n" +
-	"\rfeedback_type\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f反馈类型R\rfeedback_type\x12'\n" +
-	"\x06offset\x18\x03 \x01(\x05B\x0f\xbaG\f\x92\x02\t偏移量R\x06offset\x12 \n" +
-	"\x01n\x18\x04 \x01(\x05B\x12\xbaG\x0f\x92\x02\f查询数量R\x01n\"\xc2\x01\n" +
-	"\x17GetUserRecommendRequest\x12\"\n" +
-	"\x02id\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户编号R\x02id\x127\n" +
-	"\vrecommender\x18\x02 \x01(\tB\x15\xbaG\x12\x92\x02\x0f推荐器名称R\vrecommender\x12(\n" +
-	"\bcategory\x18\x03 \x01(\tB\f\xbaG\t\x92\x02\x06分类R\bcategory\x12 \n" +
-	"\x01n\x18\x04 \x01(\x05B\x12\xbaG\x0f\x92\x02\f查询数量R\x01n\"\x11\n" +
-	"\x0fListTaskRequest\"W\n" +
-	"\x10ListTaskResponse\x12C\n" +
-	"\x05tasks\x18\x01 \x03(\v2\x13.shop.admin.v1.TaskB\x18\xbaG\x15\x92\x02\x12任务状态列表R\x05Tasks\"\xe9\x02\n" +
-	"\x04Task\x12*\n" +
-	"\x06tracer\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f执行节点R\x06Tracer\x12&\n" +
-	"\x04name\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f任务名称R\x04Name\x12*\n" +
-	"\x06status\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f任务状态R\x06Status\x12(\n" +
-	"\x05error\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f错误信息R\x05Error\x12(\n" +
-	"\x05count\x18\x05 \x01(\x03B\x12\xbaG\x0f\x92\x02\f当前进度R\x05Count\x12%\n" +
-	"\x05total\x18\x06 \x01(\x03B\x0f\xbaG\f\x92\x02\t总进度R\x05Total\x121\n" +
-	"\n" +
-	"start_time\x18\a \x01(\tB\x12\xbaG\x0f\x92\x02\f开始时间R\tStartTime\x123\n" +
-	"\vfinish_time\x18\b \x01(\tB\x12\xbaG\x0f\x92\x02\f结束时间R\n" +
-	"FinishTime\"_\n" +
-	"\x0fPageUserRequest\x12*\n" +
-	"\x06cursor\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f分页游标R\x06cursor\x12 \n" +
-	"\x01n\x18\x02 \x01(\x05B\x12\xbaG\x0f\x92\x02\f查询数量R\x01n\"4\n" +
-	"\x0eGetUserRequest\x12\"\n" +
-	"\x02id\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户编号R\x02id\"7\n" +
-	"\x11DeleteUserRequest\x12\"\n" +
-	"\x02id\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户编号R\x02id\"\x88\x01\n" +
-	"\x10PageUserResponse\x12-\n" +
-	"\x06cursor\x18\x01 \x01(\tB\x15\xbaG\x12\x92\x02\x0f下一页游标R\x06Cursor\x12E\n" +
-	"\x05users\x18\x02 \x03(\v2\x1b.shop.admin.v1.UserResponseB\x12\xbaG\x0f\x92\x02\f用户列表R\x05Users\"b\n" +
-	"\x13UserSimilarResponse\x12K\n" +
-	"\x05users\x18\x01 \x03(\v2\x1b.shop.admin.v1.UserResponseB\x18\xbaG\x15\x92\x02\x12相似用户列表R\x05Users\"\xd5\x02\n" +
-	"\fUserResponse\x12+\n" +
-	"\auser_id\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户编号R\x06UserId\x12D\n" +
-	"\x06labels\x18\x02 \x01(\v2\x18.shop.admin.v1.UserLabelB\x12\xbaG\x0f\x92\x02\f标签信息R\x06Labels\x12&\n" +
-	"\acomment\x18\x03 \x01(\tB\f\xbaG\t\x92\x02\x06备注R\aComment\x12B\n" +
-	"\x10last_active_time\x18\x04 \x01(\tB\x18\xbaG\x15\x92\x02\x12最后活跃时间R\x0eLastActiveTime\x12B\n" +
-	"\x10last_update_time\x18\x05 \x01(\tB\x18\xbaG\x15\x92\x02\x12最后更新时间R\x0eLastUpdateTime\x12\"\n" +
-	"\x05score\x18\x06 \x01(\x01B\f\xbaG\t\x92\x02\x06分数R\x05Score\"\xb3\x01\n" +
-	"\tUserLabel\x12,\n" +
-	"\adept_id\x18\x01 \x01(\x03B\x12\xbaG\x0f\x92\x02\f部门编号R\adept_id\x12$\n" +
-	"\x06gender\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06性别R\x06gender\x12,\n" +
-	"\arole_id\x18\x03 \x01(\x03B\x12\xbaG\x0f\x92\x02\f角色编号R\arole_id\x12$\n" +
-	"\x06status\x18\x04 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\"_\n" +
+	"categories\"_\n" +
 	"\x0fPageItemRequest\x12*\n" +
 	"\x06cursor\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f分页游标R\x06cursor\x12 \n" +
-	"\x01n\x18\x02 \x01(\x05B\x12\xbaG\x0f\x92\x02\f查询数量R\x01n\"4\n" +
-	"\x0eGetItemRequest\x12\"\n" +
-	"\x02id\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f商品编号R\x02id\"7\n" +
-	"\x11DeleteItemRequest\x12\"\n" +
-	"\x02id\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f商品编号R\x02id\"\x80\x01\n" +
+	"\x01n\x18\x02 \x01(\x05B\x12\xbaG\x0f\x92\x02\f查询数量R\x01n\"\x80\x01\n" +
 	"\x10PageItemResponse\x12-\n" +
 	"\x06cursor\x18\x01 \x01(\tB\x15\xbaG\x12\x92\x02\x0f下一页游标R\x06Cursor\x12=\n" +
-	"\x05items\x18\x02 \x03(\v2\x13.shop.admin.v1.ItemB\x12\xbaG\x0f\x92\x02\f商品列表R\x05Items\"Q\n" +
-	"\x10ItemListResponse\x12=\n" +
-	"\x05items\x18\x01 \x03(\v2\x13.shop.admin.v1.ItemB\x12\xbaG\x0f\x92\x02\f商品列表R\x05Items\"\xd6\x02\n" +
-	"\x04Item\x12+\n" +
-	"\aitem_id\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f商品编号R\x06ItemId\x12/\n" +
-	"\tis_hidden\x18\x02 \x01(\bB\x12\xbaG\x0f\x92\x02\f是否隐藏R\bIsHidden\x122\n" +
-	"\n" +
-	"categories\x18\x03 \x03(\tB\x12\xbaG\x0f\x92\x02\f分类列表R\n" +
-	"Categories\x12*\n" +
-	"\ttimestamp\x18\x04 \x01(\tB\f\xbaG\t\x92\x02\x06时间R\tTimestamp\x12D\n" +
-	"\x06labels\x18\x05 \x01(\v2\x18.shop.admin.v1.ItemLabelB\x12\xbaG\x0f\x92\x02\f标签信息R\x06Labels\x12&\n" +
-	"\acomment\x18\x06 \x01(\tB\f\xbaG\t\x92\x02\x06备注R\aComment\x12\"\n" +
-	"\x05score\x18\a \x01(\x01B\f\xbaG\t\x92\x02\x06分数R\x05Score\"\xe2\x01\n" +
-	"\tItemLabel\x12&\n" +
-	"\x04desc\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f商品描述R\x04desc\x127\n" +
-	"\x0ediscount_price\x18\x02 \x01(\x03B\x0f\xbaG\f\x92\x02\t折扣价R\x0ediscount_price\x12*\n" +
-	"\tinventory\x18\x04 \x01(\x03B\f\xbaG\t\x92\x02\x06库存R\tinventory\x12\"\n" +
-	"\x05price\x18\x05 \x01(\x03B\f\xbaG\t\x92\x02\x06原价R\x05price\x12$\n" +
-	"\x06status\x18\x06 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\"[\n" +
-	"\x10FeedbackResponse\x12G\n" +
-	"\bfeedback\x18\x01 \x03(\v2\x17.shop.admin.v1.FeedbackB\x12\xbaG\x0f\x92\x02\f反馈列表R\bFeedback\"\xa8\x02\n" +
-	"\bFeedback\x127\n" +
-	"\rfeedback_type\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f反馈类型R\fFeedbackType\x12+\n" +
-	"\auser_id\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户编号R\x06UserId\x12;\n" +
-	"\x04item\x18\x03 \x01(\v2\x13.shop.admin.v1.ItemB\x12\xbaG\x0f\x92\x02\f反馈商品R\x04Item\x12%\n" +
-	"\x05value\x18\x04 \x01(\x01B\x0f\xbaG\f\x92\x02\t反馈值R\x05Value\x12*\n" +
-	"\ttimestamp\x18\x05 \x01(\tB\f\xbaG\t\x92\x02\x06时间R\tTimestamp\x12&\n" +
-	"\acomment\x18\x06 \x01(\tB\f\xbaG\t\x92\x02\x06备注R\aComment\"\x12\n" +
-	"\x10GetConfigRequest\"d\n" +
-	"\x11SaveConfigRequest\x12O\n" +
-	"\x06config\x18\x01 \x01(\v2\x1d.shop.admin.v1.ConfigResponseB\x18\xbaG\x15\x92\x02\x12Gorse 推荐配置R\x06config\"\x14\n" +
-	"\x12ResetConfigRequest\"\xf0J\n" +
+	"\x05items\x18\x02 \x03(\v2\x13.shop.admin.v1.ItemB\x12\xbaG\x0f\x92\x02\f商品列表R\x05Items\"_\n" +
+	"\x0fPageUserRequest\x12*\n" +
+	"\x06cursor\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f分页游标R\x06cursor\x12 \n" +
+	"\x01n\x18\x02 \x01(\x05B\x12\xbaG\x0f\x92\x02\f查询数量R\x01n\"\x88\x01\n" +
+	"\x10PageUserResponse\x12-\n" +
+	"\x06cursor\x18\x01 \x01(\tB\x15\xbaG\x12\x92\x02\x0f下一页游标R\x06Cursor\x12E\n" +
+	"\x05users\x18\x02 \x03(\v2\x1b.shop.admin.v1.UserResponseB\x12\xbaG\x0f\x92\x02\f用户列表R\x05Users\"\xa3\x01\n" +
+	"\x18ListDashboardItemRequest\x127\n" +
+	"\vrecommender\x18\x01 \x01(\tB\x15\xbaG\x12\x92\x02\x0f推荐器名称R\vrecommender\x12(\n" +
+	"\bcategory\x18\x02 \x01(\tB\f\xbaG\t\x92\x02\x06分类R\bcategory\x12$\n" +
+	"\x03end\x18\x03 \x01(\x05B\x12\xbaG\x0f\x92\x02\f结束位置R\x03end\"\x99\x01\n" +
+	"\x19ListDashboardItemResponse\x12=\n" +
+	"\x05items\x18\x01 \x03(\v2\x13.shop.admin.v1.ItemB\x12\xbaG\x0f\x92\x02\f商品列表R\x05Items\x12=\n" +
+	"\rlast_modified\x18\x02 \x01(\tB\x18\xbaG\x15\x92\x02\x12最后更新时间R\fLastModified\"\x11\n" +
+	"\x0fListTaskRequest\"W\n" +
+	"\x10ListTaskResponse\x12C\n" +
+	"\x05tasks\x18\x01 \x03(\v2\x13.shop.admin.v1.TaskB\x18\xbaG\x15\x92\x02\x12任务状态列表R\x05Tasks\"\x12\n" +
+	"\x10GetConfigRequest\"\xf0J\n" +
 	"\x0eConfigResponse\x12Y\n" +
 	"\bdatabase\x18\x01 \x01(\v2&.shop.admin.v1.ConfigResponse.DatabaseB\x15\xbaG\x12\x92\x02\x0f数据库配置R\bdatabase\x12S\n" +
 	"\x06master\x18\x02 \x01(\v2$.shop.admin.v1.ConfigResponse.MasterB\x15\xbaG\x12\x92\x02\x0f主节点配置R\x06master\x12P\n" +
@@ -4653,29 +4539,143 @@ const file_shop_admin_v1_recommend_gorse_proto_rawDesc = "" +
 	"\rembedding_rpm\x18\b \x01(\x05B!\xbaG\x1e\x92\x02\x1bEmbedding每分钟请求数R\rembedding_rpm\x12F\n" +
 	"\rembedding_tpm\x18\t \x01(\x05B \xbaG\x1d\x92\x02\x1aEmbedding每分钟Token数R\rembedding_tpm\x12.\n" +
 	"\blog_file\x18\n" +
-	" \x01(\tB\x12\xbaG\x0f\x92\x02\f日志文件R\blog_file2\xbc\x16\n" +
-	"\x15RecommendGorseService\x12\x90\x01\n" +
-	"\rGetTimeSeries\x12#.shop.admin.v1.GetTimeSeriesRequest\x1a!.shop.admin.v1.TimeSeriesResponse\"7\x82\xd3\xe4\x93\x021\x12//api/v1/admin/recommend/gorse/timeseries/{name}\x12\x94\x01\n" +
-	"\x0eOptionCategory\x12$.shop.admin.v1.OptionCategoryRequest\x1a%.shop.admin.v1.OptionCategoryResponse\"5\x82\xd3\xe4\x93\x02/\x12-/api/v1/admin/recommend/gorse/category/option\x12\x97\x01\n" +
+	" \x01(\tB\x12\xbaG\x0f\x92\x02\f日志文件R\blog_file\"4\n" +
+	"\x0eGetItemRequest\x12\"\n" +
+	"\x02id\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f商品编号R\x02id\"\xd6\x02\n" +
+	"\x04Item\x12+\n" +
+	"\aitem_id\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f商品编号R\x06ItemId\x12/\n" +
+	"\tis_hidden\x18\x02 \x01(\bB\x12\xbaG\x0f\x92\x02\f是否隐藏R\bIsHidden\x122\n" +
+	"\n" +
+	"categories\x18\x03 \x03(\tB\x12\xbaG\x0f\x92\x02\f分类列表R\n" +
+	"Categories\x12*\n" +
+	"\ttimestamp\x18\x04 \x01(\tB\f\xbaG\t\x92\x02\x06时间R\tTimestamp\x12D\n" +
+	"\x06labels\x18\x05 \x01(\v2\x18.shop.admin.v1.ItemLabelB\x12\xbaG\x0f\x92\x02\f标签信息R\x06Labels\x12&\n" +
+	"\acomment\x18\x06 \x01(\tB\f\xbaG\t\x92\x02\x06备注R\aComment\x12\"\n" +
+	"\x05score\x18\a \x01(\x01B\f\xbaG\t\x92\x02\x06分数R\x05Score\"\x9e\x01\n" +
+	"\x15GetItemSimilarRequest\x12\"\n" +
+	"\x02id\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f商品编号R\x02id\x127\n" +
+	"\vrecommender\x18\x02 \x01(\tB\x15\xbaG\x12\x92\x02\x0f推荐器名称R\vrecommender\x12(\n" +
+	"\bcategory\x18\x03 \x01(\tB\f\xbaG\t\x92\x02\x06分类R\bcategory\"Q\n" +
+	"\x10ItemListResponse\x12=\n" +
+	"\x05items\x18\x01 \x03(\v2\x13.shop.admin.v1.ItemB\x12\xbaG\x0f\x92\x02\f商品列表R\x05Items\"\x88\x01\n" +
+	"\x14GetTimeSeriesRequest\x12 \n" +
+	"\x04name\x18\x01 \x01(\tB\f\xbaG\t\x92\x02\x06名称R\x04name\x12(\n" +
+	"\x05begin\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f开始时间R\x05begin\x12$\n" +
+	"\x03end\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f结束时间R\x03end\"i\n" +
+	"\x12TimeSeriesResponse\x12S\n" +
+	"\x06points\x18\x01 \x03(\v2\x1e.shop.admin.v1.TimeSeriesPointB\x1b\xbaG\x18\x92\x02\x15时间序列点列表R\x06Points\"4\n" +
+	"\x0eGetUserRequest\x12\"\n" +
+	"\x02id\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户编号R\x02id\"\xd5\x02\n" +
+	"\fUserResponse\x12+\n" +
+	"\auser_id\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户编号R\x06UserId\x12D\n" +
+	"\x06labels\x18\x02 \x01(\v2\x18.shop.admin.v1.UserLabelB\x12\xbaG\x0f\x92\x02\f标签信息R\x06Labels\x12&\n" +
+	"\acomment\x18\x03 \x01(\tB\f\xbaG\t\x92\x02\x06备注R\aComment\x12B\n" +
+	"\x10last_active_time\x18\x04 \x01(\tB\x18\xbaG\x15\x92\x02\x12最后活跃时间R\x0eLastActiveTime\x12B\n" +
+	"\x10last_update_time\x18\x05 \x01(\tB\x18\xbaG\x15\x92\x02\x12最后更新时间R\x0eLastUpdateTime\x12\"\n" +
+	"\x05score\x18\x06 \x01(\x01B\f\xbaG\t\x92\x02\x06分数R\x05Score\"\xc1\x01\n" +
+	"\x16GetUserFeedbackRequest\x12\"\n" +
+	"\x02id\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户编号R\x02id\x128\n" +
+	"\rfeedback_type\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f反馈类型R\rfeedback_type\x12'\n" +
+	"\x06offset\x18\x03 \x01(\x05B\x0f\xbaG\f\x92\x02\t偏移量R\x06offset\x12 \n" +
+	"\x01n\x18\x04 \x01(\x05B\x12\xbaG\x0f\x92\x02\f查询数量R\x01n\"[\n" +
+	"\x10FeedbackResponse\x12G\n" +
+	"\bfeedback\x18\x01 \x03(\v2\x17.shop.admin.v1.FeedbackB\x12\xbaG\x0f\x92\x02\f反馈列表R\bFeedback\"\xc2\x01\n" +
+	"\x17GetUserRecommendRequest\x12\"\n" +
+	"\x02id\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户编号R\x02id\x127\n" +
+	"\vrecommender\x18\x02 \x01(\tB\x15\xbaG\x12\x92\x02\x0f推荐器名称R\vrecommender\x12(\n" +
+	"\bcategory\x18\x03 \x01(\tB\f\xbaG\t\x92\x02\x06分类R\bcategory\x12 \n" +
+	"\x01n\x18\x04 \x01(\x05B\x12\xbaG\x0f\x92\x02\f查询数量R\x01n\"\x9e\x01\n" +
+	"\x15GetUserSimilarRequest\x12\"\n" +
+	"\x02id\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户编号R\x02id\x127\n" +
+	"\vrecommender\x18\x02 \x01(\tB\x15\xbaG\x12\x92\x02\x0f推荐器名称R\vrecommender\x12(\n" +
+	"\bcategory\x18\x03 \x01(\tB\f\xbaG\t\x92\x02\x06分类R\bcategory\"b\n" +
+	"\x13UserSimilarResponse\x12K\n" +
+	"\x05users\x18\x01 \x03(\v2\x1b.shop.admin.v1.UserResponseB\x18\xbaG\x15\x92\x02\x12相似用户列表R\x05Users\"7\n" +
+	"\x11DeleteItemRequest\x12\"\n" +
+	"\x02id\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f商品编号R\x02id\"7\n" +
+	"\x11DeleteUserRequest\x12\"\n" +
+	"\x02id\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户编号R\x02id\"\x83\x01\n" +
+	"\x11ExportDataRequest\x12n\n" +
+	"\tdata_type\x18\x01 \x01(\x0e2\x1f.shop.common.v1.AdvanceDataTypeB0\xbaG-\x92\x02*数据类型：枚举【AdvanceDataType】R\bdataType\"u\n" +
+	"\x12ExportDataResponse\x12,\n" +
+	"\tfile_name\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t文件名R\bfileName\x121\n" +
+	"\acontent\x18\x02 \x01(\tB\x17\xbaG\x14\x92\x02\x11JSONL文件内容R\acontent\"\xe4\x01\n" +
+	"\x11ImportDataRequest\x12n\n" +
+	"\tdata_type\x18\x01 \x01(\x0e2\x1f.shop.common.v1.AdvanceDataTypeB0\xbaG-\x92\x02*数据类型：枚举【AdvanceDataType】R\bdataType\x12,\n" +
+	"\tfile_name\x18\x02 \x01(\tB\x0f\xbaG\f\x92\x02\t文件名R\bfileName\x121\n" +
+	"\acontent\x18\x03 \x01(\tB\x17\xbaG\x14\x92\x02\x11JSONL文件内容R\acontent\"S\n" +
+	"\x12ImportDataResponse\x12=\n" +
+	"\rsuccess_count\x18\x01 \x01(\x05B\x18\xbaG\x15\x92\x02\x12成功导入数量R\fsuccessCount\"d\n" +
+	"\x11SaveConfigRequest\x12O\n" +
+	"\x06config\x18\x01 \x01(\v2\x1d.shop.admin.v1.ConfigResponseB\x18\xbaG\x15\x92\x02\x12Gorse 推荐配置R\x06config\"\x14\n" +
+	"\x12ResetConfigRequest\"w\n" +
+	"\x16PreviewExternalRequest\x12+\n" +
+	"\auser_id\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户编号R\x06userId\x120\n" +
+	"\x06script\x18\x02 \x01(\tB\x18\xbaG\x15\x92\x02\x12外部推荐脚本R\x06script\"O\n" +
+	"\x17PreviewExternalResponse\x124\n" +
+	"\x05items\x18\x01 \x03(\tB\x1e\xbaG\x1b\x92\x02\x18推荐商品编号列表R\x05items\"\xc5\x01\n" +
+	"\x1aPreviewRankerPromptRequest\x12+\n" +
+	"\auser_id\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户编号R\x06userId\x129\n" +
+	"\x0equery_template\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f查询模板R\rqueryTemplate\x12?\n" +
+	"\x11document_template\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f文档模板R\x10documentTemplate\"\x85\x01\n" +
+	"\x1bPreviewRankerPromptResponse\x12+\n" +
+	"\x05query\x18\x01 \x01(\tB\x15\xbaG\x12\x92\x02\x0f查询提示词R\x05query\x129\n" +
+	"\tdocuments\x18\x02 \x03(\tB\x1b\xbaG\x18\x92\x02\x15文档提示词列表R\tdocuments\"\x83\x01\n" +
+	"\x0fTimeSeriesPoint\x12 \n" +
+	"\x04name\x18\x01 \x01(\tB\f\xbaG\t\x92\x02\x06名称R\x04Name\x12*\n" +
+	"\ttimestamp\x18\x02 \x01(\tB\f\xbaG\t\x92\x02\x06时间R\tTimestamp\x12\"\n" +
+	"\x05value\x18\x03 \x01(\x01B\f\xbaG\t\x92\x02\x06数值R\x05Value\"\xe9\x02\n" +
+	"\x04Task\x12*\n" +
+	"\x06tracer\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f执行节点R\x06Tracer\x12&\n" +
+	"\x04name\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f任务名称R\x04Name\x12*\n" +
+	"\x06status\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f任务状态R\x06Status\x12(\n" +
+	"\x05error\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f错误信息R\x05Error\x12(\n" +
+	"\x05count\x18\x05 \x01(\x03B\x12\xbaG\x0f\x92\x02\f当前进度R\x05Count\x12%\n" +
+	"\x05total\x18\x06 \x01(\x03B\x0f\xbaG\f\x92\x02\t总进度R\x05Total\x121\n" +
+	"\n" +
+	"start_time\x18\a \x01(\tB\x12\xbaG\x0f\x92\x02\f开始时间R\tStartTime\x123\n" +
+	"\vfinish_time\x18\b \x01(\tB\x12\xbaG\x0f\x92\x02\f结束时间R\n" +
+	"FinishTime\"\xb3\x01\n" +
+	"\tUserLabel\x12,\n" +
+	"\adept_id\x18\x01 \x01(\x03B\x12\xbaG\x0f\x92\x02\f部门编号R\adept_id\x12$\n" +
+	"\x06gender\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06性别R\x06gender\x12,\n" +
+	"\arole_id\x18\x03 \x01(\x03B\x12\xbaG\x0f\x92\x02\f角色编号R\arole_id\x12$\n" +
+	"\x06status\x18\x04 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\"\xe2\x01\n" +
+	"\tItemLabel\x12&\n" +
+	"\x04desc\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f商品描述R\x04desc\x127\n" +
+	"\x0ediscount_price\x18\x02 \x01(\x03B\x0f\xbaG\f\x92\x02\t折扣价R\x0ediscount_price\x12*\n" +
+	"\tinventory\x18\x04 \x01(\x03B\f\xbaG\t\x92\x02\x06库存R\tinventory\x12\"\n" +
+	"\x05price\x18\x05 \x01(\x03B\f\xbaG\t\x92\x02\x06原价R\x05price\x12$\n" +
+	"\x06status\x18\x06 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\"\xa8\x02\n" +
+	"\bFeedback\x127\n" +
+	"\rfeedback_type\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f反馈类型R\fFeedbackType\x12+\n" +
+	"\auser_id\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户编号R\x06UserId\x12;\n" +
+	"\x04item\x18\x03 \x01(\v2\x13.shop.admin.v1.ItemB\x12\xbaG\x0f\x92\x02\f反馈商品R\x04Item\x12%\n" +
+	"\x05value\x18\x04 \x01(\x01B\x0f\xbaG\f\x92\x02\t反馈值R\x05Value\x12*\n" +
+	"\ttimestamp\x18\x05 \x01(\tB\f\xbaG\t\x92\x02\x06时间R\tTimestamp\x12&\n" +
+	"\acomment\x18\x06 \x01(\tB\f\xbaG\t\x92\x02\x06备注R\aComment2\xbc\x16\n" +
+	"\x15RecommendGorseService\x12\x94\x01\n" +
+	"\x0eOptionCategory\x12$.shop.admin.v1.OptionCategoryRequest\x1a%.shop.admin.v1.OptionCategoryResponse\"5\x82\xd3\xe4\x93\x02/\x12-/api/v1/admin/recommend/gorse/category/option\x12w\n" +
+	"\bPageItem\x12\x1e.shop.admin.v1.PageItemRequest\x1a\x1f.shop.admin.v1.PageItemResponse\"*\x82\xd3\xe4\x93\x02$\x12\"/api/v1/admin/recommend/gorse/item\x12w\n" +
+	"\bPageUser\x12\x1e.shop.admin.v1.PageUserRequest\x1a\x1f.shop.admin.v1.PageUserResponse\"*\x82\xd3\xe4\x93\x02$\x12\"/api/v1/admin/recommend/gorse/user\x12\x97\x01\n" +
 	"\x11ListDashboardItem\x12'.shop.admin.v1.ListDashboardItemRequest\x1a(.shop.admin.v1.ListDashboardItemResponse\"/\x82\xd3\xe4\x93\x02)\x12'/api/v1/admin/recommend/gorse/dashboard\x12w\n" +
-	"\bListTask\x12\x1e.shop.admin.v1.ListTaskRequest\x1a\x1f.shop.admin.v1.ListTaskResponse\"*\x82\xd3\xe4\x93\x02$\x12\"/api/v1/admin/recommend/gorse/task\x12w\n" +
-	"\bPageUser\x12\x1e.shop.admin.v1.PageUserRequest\x1a\x1f.shop.admin.v1.PageUserResponse\"*\x82\xd3\xe4\x93\x02$\x12\"/api/v1/admin/recommend/gorse/user\x12v\n" +
-	"\aGetUser\x12\x1d.shop.admin.v1.GetUserRequest\x1a\x1b.shop.admin.v1.UserResponse\"/\x82\xd3\xe4\x93\x02)\x12'/api/v1/admin/recommend/gorse/user/{id}\x12w\n" +
-	"\n" +
-	"DeleteUser\x12 .shop.admin.v1.DeleteUserRequest\x1a\x16.google.protobuf.Empty\"/\x82\xd3\xe4\x93\x02)*'/api/v1/admin/recommend/gorse/user/{id}\x12\x93\x01\n" +
-	"\x0eGetUserSimilar\x12$.shop.admin.v1.GetUserSimilarRequest\x1a\".shop.admin.v1.UserSimilarResponse\"7\x82\xd3\xe4\x93\x021\x12//api/v1/admin/recommend/gorse/user/{id}/similar\x12\x93\x01\n" +
+	"\bListTask\x12\x1e.shop.admin.v1.ListTaskRequest\x1a\x1f.shop.admin.v1.ListTaskResponse\"*\x82\xd3\xe4\x93\x02$\x12\"/api/v1/admin/recommend/gorse/task\x12y\n" +
+	"\tGetConfig\x12\x1f.shop.admin.v1.GetConfigRequest\x1a\x1d.shop.admin.v1.ConfigResponse\",\x82\xd3\xe4\x93\x02&\x12$/api/v1/admin/recommend/gorse/config\x12n\n" +
+	"\aGetItem\x12\x1d.shop.admin.v1.GetItemRequest\x1a\x13.shop.admin.v1.Item\"/\x82\xd3\xe4\x93\x02)\x12'/api/v1/admin/recommend/gorse/item/{id}\x12\x90\x01\n" +
+	"\x0eGetItemSimilar\x12$.shop.admin.v1.GetItemSimilarRequest\x1a\x1f.shop.admin.v1.ItemListResponse\"7\x82\xd3\xe4\x93\x021\x12//api/v1/admin/recommend/gorse/item/{id}/similar\x12\x90\x01\n" +
+	"\rGetTimeSeries\x12#.shop.admin.v1.GetTimeSeriesRequest\x1a!.shop.admin.v1.TimeSeriesResponse\"7\x82\xd3\xe4\x93\x021\x12//api/v1/admin/recommend/gorse/timeseries/{name}\x12v\n" +
+	"\aGetUser\x12\x1d.shop.admin.v1.GetUserRequest\x1a\x1b.shop.admin.v1.UserResponse\"/\x82\xd3\xe4\x93\x02)\x12'/api/v1/admin/recommend/gorse/user/{id}\x12\x93\x01\n" +
 	"\x0fGetUserFeedback\x12%.shop.admin.v1.GetUserFeedbackRequest\x1a\x1f.shop.admin.v1.FeedbackResponse\"8\x82\xd3\xe4\x93\x022\x120/api/v1/admin/recommend/gorse/user/{id}/feedback\x12\x96\x01\n" +
-	"\x10GetUserRecommend\x12&.shop.admin.v1.GetUserRecommendRequest\x1a\x1f.shop.admin.v1.ItemListResponse\"9\x82\xd3\xe4\x93\x023\x121/api/v1/admin/recommend/gorse/user/{id}/recommend\x12w\n" +
-	"\bPageItem\x12\x1e.shop.admin.v1.PageItemRequest\x1a\x1f.shop.admin.v1.PageItemResponse\"*\x82\xd3\xe4\x93\x02$\x12\"/api/v1/admin/recommend/gorse/item\x12n\n" +
-	"\aGetItem\x12\x1d.shop.admin.v1.GetItemRequest\x1a\x13.shop.admin.v1.Item\"/\x82\xd3\xe4\x93\x02)\x12'/api/v1/admin/recommend/gorse/item/{id}\x12w\n" +
+	"\x10GetUserRecommend\x12&.shop.admin.v1.GetUserRecommendRequest\x1a\x1f.shop.admin.v1.ItemListResponse\"9\x82\xd3\xe4\x93\x023\x121/api/v1/admin/recommend/gorse/user/{id}/recommend\x12\x93\x01\n" +
+	"\x0eGetUserSimilar\x12$.shop.admin.v1.GetUserSimilarRequest\x1a\".shop.admin.v1.UserSimilarResponse\"7\x82\xd3\xe4\x93\x021\x12//api/v1/admin/recommend/gorse/user/{id}/similar\x12w\n" +
 	"\n" +
-	"DeleteItem\x12 .shop.admin.v1.DeleteItemRequest\x1a\x16.google.protobuf.Empty\"/\x82\xd3\xe4\x93\x02)*'/api/v1/admin/recommend/gorse/item/{id}\x12\x90\x01\n" +
-	"\x0eGetItemSimilar\x12$.shop.admin.v1.GetItemSimilarRequest\x1a\x1f.shop.admin.v1.ItemListResponse\"7\x82\xd3\xe4\x93\x021\x12//api/v1/admin/recommend/gorse/item/{id}/similar\x12\x7f\n" +
+	"DeleteItem\x12 .shop.admin.v1.DeleteItemRequest\x1a\x16.google.protobuf.Empty\"/\x82\xd3\xe4\x93\x02)*'/api/v1/admin/recommend/gorse/item/{id}\x12w\n" +
+	"\n" +
+	"DeleteUser\x12 .shop.admin.v1.DeleteUserRequest\x1a\x16.google.protobuf.Empty\"/\x82\xd3\xe4\x93\x02)*'/api/v1/admin/recommend/gorse/user/{id}\x12\x7f\n" +
 	"\n" +
 	"ExportData\x12 .shop.admin.v1.ExportDataRequest\x1a!.shop.admin.v1.ExportDataResponse\",\x82\xd3\xe4\x93\x02&\x12$/api/v1/admin/recommend/gorse/export\x12\x82\x01\n" +
 	"\n" +
-	"ImportData\x12 .shop.admin.v1.ImportDataRequest\x1a!.shop.admin.v1.ImportDataResponse\"/\x82\xd3\xe4\x93\x02):\x01*\"$/api/v1/admin/recommend/gorse/import\x12y\n" +
-	"\tGetConfig\x12\x1f.shop.admin.v1.GetConfigRequest\x1a\x1d.shop.admin.v1.ConfigResponse\",\x82\xd3\xe4\x93\x02&\x12$/api/v1/admin/recommend/gorse/config\x12\x83\x01\n" +
+	"ImportData\x12 .shop.admin.v1.ImportDataRequest\x1a!.shop.admin.v1.ImportDataResponse\"/\x82\xd3\xe4\x93\x02):\x01*\"$/api/v1/admin/recommend/gorse/import\x12\x83\x01\n" +
 	"\n" +
 	"SaveConfig\x12 .shop.admin.v1.SaveConfigRequest\x1a\x1d.shop.admin.v1.ConfigResponse\"4\x82\xd3\xe4\x93\x02.:\x06config\"$/api/v1/admin/recommend/gorse/config\x12v\n" +
 	"\vResetConfig\x12!.shop.admin.v1.ResetConfigRequest\x1a\x16.google.protobuf.Empty\",\x82\xd3\xe4\x93\x02&*$/api/v1/admin/recommend/gorse/config\x12\x9b\x01\n" +
@@ -4697,48 +4697,48 @@ func file_shop_admin_v1_recommend_gorse_proto_rawDescGZIP() []byte {
 
 var file_shop_admin_v1_recommend_gorse_proto_msgTypes = make([]protoimpl.MessageInfo, 67)
 var file_shop_admin_v1_recommend_gorse_proto_goTypes = []any{
-	(*PreviewExternalRequest)(nil),                      // 0: shop.admin.v1.PreviewExternalRequest
-	(*PreviewExternalResponse)(nil),                     // 1: shop.admin.v1.PreviewExternalResponse
-	(*PreviewRankerPromptRequest)(nil),                  // 2: shop.admin.v1.PreviewRankerPromptRequest
-	(*PreviewRankerPromptResponse)(nil),                 // 3: shop.admin.v1.PreviewRankerPromptResponse
-	(*ExportDataRequest)(nil),                           // 4: shop.admin.v1.ExportDataRequest
-	(*ExportDataResponse)(nil),                          // 5: shop.admin.v1.ExportDataResponse
-	(*ImportDataRequest)(nil),                           // 6: shop.admin.v1.ImportDataRequest
-	(*ImportDataResponse)(nil),                          // 7: shop.admin.v1.ImportDataResponse
-	(*GetTimeSeriesRequest)(nil),                        // 8: shop.admin.v1.GetTimeSeriesRequest
-	(*ListDashboardItemRequest)(nil),                    // 9: shop.admin.v1.ListDashboardItemRequest
-	(*OptionCategoryRequest)(nil),                       // 10: shop.admin.v1.OptionCategoryRequest
-	(*OptionCategoryResponse)(nil),                      // 11: shop.admin.v1.OptionCategoryResponse
-	(*ListDashboardItemResponse)(nil),                   // 12: shop.admin.v1.ListDashboardItemResponse
-	(*TimeSeriesResponse)(nil),                          // 13: shop.admin.v1.TimeSeriesResponse
-	(*TimeSeriesPoint)(nil),                             // 14: shop.admin.v1.TimeSeriesPoint
-	(*GetUserSimilarRequest)(nil),                       // 15: shop.admin.v1.GetUserSimilarRequest
-	(*GetItemSimilarRequest)(nil),                       // 16: shop.admin.v1.GetItemSimilarRequest
-	(*GetUserFeedbackRequest)(nil),                      // 17: shop.admin.v1.GetUserFeedbackRequest
-	(*GetUserRecommendRequest)(nil),                     // 18: shop.admin.v1.GetUserRecommendRequest
-	(*ListTaskRequest)(nil),                             // 19: shop.admin.v1.ListTaskRequest
-	(*ListTaskResponse)(nil),                            // 20: shop.admin.v1.ListTaskResponse
-	(*Task)(nil),                                        // 21: shop.admin.v1.Task
-	(*PageUserRequest)(nil),                             // 22: shop.admin.v1.PageUserRequest
-	(*GetUserRequest)(nil),                              // 23: shop.admin.v1.GetUserRequest
-	(*DeleteUserRequest)(nil),                           // 24: shop.admin.v1.DeleteUserRequest
-	(*PageUserResponse)(nil),                            // 25: shop.admin.v1.PageUserResponse
-	(*UserSimilarResponse)(nil),                         // 26: shop.admin.v1.UserSimilarResponse
-	(*UserResponse)(nil),                                // 27: shop.admin.v1.UserResponse
-	(*UserLabel)(nil),                                   // 28: shop.admin.v1.UserLabel
-	(*PageItemRequest)(nil),                             // 29: shop.admin.v1.PageItemRequest
-	(*GetItemRequest)(nil),                              // 30: shop.admin.v1.GetItemRequest
-	(*DeleteItemRequest)(nil),                           // 31: shop.admin.v1.DeleteItemRequest
-	(*PageItemResponse)(nil),                            // 32: shop.admin.v1.PageItemResponse
-	(*ItemListResponse)(nil),                            // 33: shop.admin.v1.ItemListResponse
-	(*Item)(nil),                                        // 34: shop.admin.v1.Item
-	(*ItemLabel)(nil),                                   // 35: shop.admin.v1.ItemLabel
-	(*FeedbackResponse)(nil),                            // 36: shop.admin.v1.FeedbackResponse
-	(*Feedback)(nil),                                    // 37: shop.admin.v1.Feedback
-	(*GetConfigRequest)(nil),                            // 38: shop.admin.v1.GetConfigRequest
-	(*SaveConfigRequest)(nil),                           // 39: shop.admin.v1.SaveConfigRequest
-	(*ResetConfigRequest)(nil),                          // 40: shop.admin.v1.ResetConfigRequest
-	(*ConfigResponse)(nil),                              // 41: shop.admin.v1.ConfigResponse
+	(*OptionCategoryRequest)(nil),                       // 0: shop.admin.v1.OptionCategoryRequest
+	(*OptionCategoryResponse)(nil),                      // 1: shop.admin.v1.OptionCategoryResponse
+	(*PageItemRequest)(nil),                             // 2: shop.admin.v1.PageItemRequest
+	(*PageItemResponse)(nil),                            // 3: shop.admin.v1.PageItemResponse
+	(*PageUserRequest)(nil),                             // 4: shop.admin.v1.PageUserRequest
+	(*PageUserResponse)(nil),                            // 5: shop.admin.v1.PageUserResponse
+	(*ListDashboardItemRequest)(nil),                    // 6: shop.admin.v1.ListDashboardItemRequest
+	(*ListDashboardItemResponse)(nil),                   // 7: shop.admin.v1.ListDashboardItemResponse
+	(*ListTaskRequest)(nil),                             // 8: shop.admin.v1.ListTaskRequest
+	(*ListTaskResponse)(nil),                            // 9: shop.admin.v1.ListTaskResponse
+	(*GetConfigRequest)(nil),                            // 10: shop.admin.v1.GetConfigRequest
+	(*ConfigResponse)(nil),                              // 11: shop.admin.v1.ConfigResponse
+	(*GetItemRequest)(nil),                              // 12: shop.admin.v1.GetItemRequest
+	(*Item)(nil),                                        // 13: shop.admin.v1.Item
+	(*GetItemSimilarRequest)(nil),                       // 14: shop.admin.v1.GetItemSimilarRequest
+	(*ItemListResponse)(nil),                            // 15: shop.admin.v1.ItemListResponse
+	(*GetTimeSeriesRequest)(nil),                        // 16: shop.admin.v1.GetTimeSeriesRequest
+	(*TimeSeriesResponse)(nil),                          // 17: shop.admin.v1.TimeSeriesResponse
+	(*GetUserRequest)(nil),                              // 18: shop.admin.v1.GetUserRequest
+	(*UserResponse)(nil),                                // 19: shop.admin.v1.UserResponse
+	(*GetUserFeedbackRequest)(nil),                      // 20: shop.admin.v1.GetUserFeedbackRequest
+	(*FeedbackResponse)(nil),                            // 21: shop.admin.v1.FeedbackResponse
+	(*GetUserRecommendRequest)(nil),                     // 22: shop.admin.v1.GetUserRecommendRequest
+	(*GetUserSimilarRequest)(nil),                       // 23: shop.admin.v1.GetUserSimilarRequest
+	(*UserSimilarResponse)(nil),                         // 24: shop.admin.v1.UserSimilarResponse
+	(*DeleteItemRequest)(nil),                           // 25: shop.admin.v1.DeleteItemRequest
+	(*DeleteUserRequest)(nil),                           // 26: shop.admin.v1.DeleteUserRequest
+	(*ExportDataRequest)(nil),                           // 27: shop.admin.v1.ExportDataRequest
+	(*ExportDataResponse)(nil),                          // 28: shop.admin.v1.ExportDataResponse
+	(*ImportDataRequest)(nil),                           // 29: shop.admin.v1.ImportDataRequest
+	(*ImportDataResponse)(nil),                          // 30: shop.admin.v1.ImportDataResponse
+	(*SaveConfigRequest)(nil),                           // 31: shop.admin.v1.SaveConfigRequest
+	(*ResetConfigRequest)(nil),                          // 32: shop.admin.v1.ResetConfigRequest
+	(*PreviewExternalRequest)(nil),                      // 33: shop.admin.v1.PreviewExternalRequest
+	(*PreviewExternalResponse)(nil),                     // 34: shop.admin.v1.PreviewExternalResponse
+	(*PreviewRankerPromptRequest)(nil),                  // 35: shop.admin.v1.PreviewRankerPromptRequest
+	(*PreviewRankerPromptResponse)(nil),                 // 36: shop.admin.v1.PreviewRankerPromptResponse
+	(*TimeSeriesPoint)(nil),                             // 37: shop.admin.v1.TimeSeriesPoint
+	(*Task)(nil),                                        // 38: shop.admin.v1.Task
+	(*UserLabel)(nil),                                   // 39: shop.admin.v1.UserLabel
+	(*ItemLabel)(nil),                                   // 40: shop.admin.v1.ItemLabel
+	(*Feedback)(nil),                                    // 41: shop.admin.v1.Feedback
 	(*ConfigResponse_Database)(nil),                     // 42: shop.admin.v1.ConfigResponse.Database
 	(*ConfigResponse_Master)(nil),                       // 43: shop.admin.v1.ConfigResponse.Master
 	(*ConfigResponse_Server)(nil),                       // 44: shop.admin.v1.ConfigResponse.Server
@@ -4768,28 +4768,28 @@ var file_shop_admin_v1_recommend_gorse_proto_goTypes = []any{
 	(*emptypb.Empty)(nil),                               // 68: google.protobuf.Empty
 }
 var file_shop_admin_v1_recommend_gorse_proto_depIdxs = []int32{
-	67, // 0: shop.admin.v1.ExportDataRequest.data_type:type_name -> shop.common.v1.AdvanceDataType
-	67, // 1: shop.admin.v1.ImportDataRequest.data_type:type_name -> shop.common.v1.AdvanceDataType
-	34, // 2: shop.admin.v1.ListDashboardItemResponse.items:type_name -> shop.admin.v1.Item
-	14, // 3: shop.admin.v1.TimeSeriesResponse.points:type_name -> shop.admin.v1.TimeSeriesPoint
-	21, // 4: shop.admin.v1.ListTaskResponse.tasks:type_name -> shop.admin.v1.Task
-	27, // 5: shop.admin.v1.PageUserResponse.users:type_name -> shop.admin.v1.UserResponse
-	27, // 6: shop.admin.v1.UserSimilarResponse.users:type_name -> shop.admin.v1.UserResponse
-	28, // 7: shop.admin.v1.UserResponse.labels:type_name -> shop.admin.v1.UserLabel
-	34, // 8: shop.admin.v1.PageItemResponse.items:type_name -> shop.admin.v1.Item
-	34, // 9: shop.admin.v1.ItemListResponse.items:type_name -> shop.admin.v1.Item
-	35, // 10: shop.admin.v1.Item.labels:type_name -> shop.admin.v1.ItemLabel
-	37, // 11: shop.admin.v1.FeedbackResponse.feedback:type_name -> shop.admin.v1.Feedback
-	34, // 12: shop.admin.v1.Feedback.item:type_name -> shop.admin.v1.Item
-	41, // 13: shop.admin.v1.SaveConfigRequest.config:type_name -> shop.admin.v1.ConfigResponse
-	42, // 14: shop.admin.v1.ConfigResponse.database:type_name -> shop.admin.v1.ConfigResponse.Database
-	43, // 15: shop.admin.v1.ConfigResponse.master:type_name -> shop.admin.v1.ConfigResponse.Master
-	44, // 16: shop.admin.v1.ConfigResponse.server:type_name -> shop.admin.v1.ConfigResponse.Server
-	45, // 17: shop.admin.v1.ConfigResponse.recommend:type_name -> shop.admin.v1.ConfigResponse.Recommend
-	46, // 18: shop.admin.v1.ConfigResponse.blob:type_name -> shop.admin.v1.ConfigResponse.Blob
-	47, // 19: shop.admin.v1.ConfigResponse.tracing:type_name -> shop.admin.v1.ConfigResponse.Tracing
-	48, // 20: shop.admin.v1.ConfigResponse.oidc:type_name -> shop.admin.v1.ConfigResponse.Oidc
-	49, // 21: shop.admin.v1.ConfigResponse.openai:type_name -> shop.admin.v1.ConfigResponse.Openai
+	13, // 0: shop.admin.v1.PageItemResponse.items:type_name -> shop.admin.v1.Item
+	19, // 1: shop.admin.v1.PageUserResponse.users:type_name -> shop.admin.v1.UserResponse
+	13, // 2: shop.admin.v1.ListDashboardItemResponse.items:type_name -> shop.admin.v1.Item
+	38, // 3: shop.admin.v1.ListTaskResponse.tasks:type_name -> shop.admin.v1.Task
+	42, // 4: shop.admin.v1.ConfigResponse.database:type_name -> shop.admin.v1.ConfigResponse.Database
+	43, // 5: shop.admin.v1.ConfigResponse.master:type_name -> shop.admin.v1.ConfigResponse.Master
+	44, // 6: shop.admin.v1.ConfigResponse.server:type_name -> shop.admin.v1.ConfigResponse.Server
+	45, // 7: shop.admin.v1.ConfigResponse.recommend:type_name -> shop.admin.v1.ConfigResponse.Recommend
+	46, // 8: shop.admin.v1.ConfigResponse.blob:type_name -> shop.admin.v1.ConfigResponse.Blob
+	47, // 9: shop.admin.v1.ConfigResponse.tracing:type_name -> shop.admin.v1.ConfigResponse.Tracing
+	48, // 10: shop.admin.v1.ConfigResponse.oidc:type_name -> shop.admin.v1.ConfigResponse.Oidc
+	49, // 11: shop.admin.v1.ConfigResponse.openai:type_name -> shop.admin.v1.ConfigResponse.Openai
+	40, // 12: shop.admin.v1.Item.labels:type_name -> shop.admin.v1.ItemLabel
+	13, // 13: shop.admin.v1.ItemListResponse.items:type_name -> shop.admin.v1.Item
+	37, // 14: shop.admin.v1.TimeSeriesResponse.points:type_name -> shop.admin.v1.TimeSeriesPoint
+	39, // 15: shop.admin.v1.UserResponse.labels:type_name -> shop.admin.v1.UserLabel
+	41, // 16: shop.admin.v1.FeedbackResponse.feedback:type_name -> shop.admin.v1.Feedback
+	19, // 17: shop.admin.v1.UserSimilarResponse.users:type_name -> shop.admin.v1.UserResponse
+	67, // 18: shop.admin.v1.ExportDataRequest.data_type:type_name -> shop.common.v1.AdvanceDataType
+	67, // 19: shop.admin.v1.ImportDataRequest.data_type:type_name -> shop.common.v1.AdvanceDataType
+	11, // 20: shop.admin.v1.SaveConfigRequest.config:type_name -> shop.admin.v1.ConfigResponse
+	13, // 21: shop.admin.v1.Feedback.item:type_name -> shop.admin.v1.Item
 	50, // 22: shop.admin.v1.ConfigResponse.Database.mysql:type_name -> shop.admin.v1.ConfigResponse.Database.Mysql
 	51, // 23: shop.admin.v1.ConfigResponse.Database.postgres:type_name -> shop.admin.v1.ConfigResponse.Database.Postgres
 	52, // 24: shop.admin.v1.ConfigResponse.Database.redis:type_name -> shop.admin.v1.ConfigResponse.Database.Redis
@@ -4808,48 +4808,48 @@ var file_shop_admin_v1_recommend_gorse_proto_depIdxs = []int32{
 	59, // 37: shop.admin.v1.ConfigResponse.Recommend.Collaborative.early_stopping:type_name -> shop.admin.v1.ConfigResponse.Recommend.EarlyStopping
 	59, // 38: shop.admin.v1.ConfigResponse.Recommend.Ranker.early_stopping:type_name -> shop.admin.v1.ConfigResponse.Recommend.EarlyStopping
 	63, // 39: shop.admin.v1.ConfigResponse.Recommend.Ranker.reranker_api:type_name -> shop.admin.v1.ConfigResponse.Recommend.Ranker.RerankerApi
-	8,  // 40: shop.admin.v1.RecommendGorseService.GetTimeSeries:input_type -> shop.admin.v1.GetTimeSeriesRequest
-	10, // 41: shop.admin.v1.RecommendGorseService.OptionCategory:input_type -> shop.admin.v1.OptionCategoryRequest
-	9,  // 42: shop.admin.v1.RecommendGorseService.ListDashboardItem:input_type -> shop.admin.v1.ListDashboardItemRequest
-	19, // 43: shop.admin.v1.RecommendGorseService.ListTask:input_type -> shop.admin.v1.ListTaskRequest
-	22, // 44: shop.admin.v1.RecommendGorseService.PageUser:input_type -> shop.admin.v1.PageUserRequest
-	23, // 45: shop.admin.v1.RecommendGorseService.GetUser:input_type -> shop.admin.v1.GetUserRequest
-	24, // 46: shop.admin.v1.RecommendGorseService.DeleteUser:input_type -> shop.admin.v1.DeleteUserRequest
-	15, // 47: shop.admin.v1.RecommendGorseService.GetUserSimilar:input_type -> shop.admin.v1.GetUserSimilarRequest
-	17, // 48: shop.admin.v1.RecommendGorseService.GetUserFeedback:input_type -> shop.admin.v1.GetUserFeedbackRequest
-	18, // 49: shop.admin.v1.RecommendGorseService.GetUserRecommend:input_type -> shop.admin.v1.GetUserRecommendRequest
-	29, // 50: shop.admin.v1.RecommendGorseService.PageItem:input_type -> shop.admin.v1.PageItemRequest
-	30, // 51: shop.admin.v1.RecommendGorseService.GetItem:input_type -> shop.admin.v1.GetItemRequest
-	31, // 52: shop.admin.v1.RecommendGorseService.DeleteItem:input_type -> shop.admin.v1.DeleteItemRequest
-	16, // 53: shop.admin.v1.RecommendGorseService.GetItemSimilar:input_type -> shop.admin.v1.GetItemSimilarRequest
-	4,  // 54: shop.admin.v1.RecommendGorseService.ExportData:input_type -> shop.admin.v1.ExportDataRequest
-	6,  // 55: shop.admin.v1.RecommendGorseService.ImportData:input_type -> shop.admin.v1.ImportDataRequest
-	38, // 56: shop.admin.v1.RecommendGorseService.GetConfig:input_type -> shop.admin.v1.GetConfigRequest
-	39, // 57: shop.admin.v1.RecommendGorseService.SaveConfig:input_type -> shop.admin.v1.SaveConfigRequest
-	40, // 58: shop.admin.v1.RecommendGorseService.ResetConfig:input_type -> shop.admin.v1.ResetConfigRequest
-	0,  // 59: shop.admin.v1.RecommendGorseService.PreviewExternal:input_type -> shop.admin.v1.PreviewExternalRequest
-	2,  // 60: shop.admin.v1.RecommendGorseService.PreviewRankerPrompt:input_type -> shop.admin.v1.PreviewRankerPromptRequest
-	13, // 61: shop.admin.v1.RecommendGorseService.GetTimeSeries:output_type -> shop.admin.v1.TimeSeriesResponse
-	11, // 62: shop.admin.v1.RecommendGorseService.OptionCategory:output_type -> shop.admin.v1.OptionCategoryResponse
-	12, // 63: shop.admin.v1.RecommendGorseService.ListDashboardItem:output_type -> shop.admin.v1.ListDashboardItemResponse
-	20, // 64: shop.admin.v1.RecommendGorseService.ListTask:output_type -> shop.admin.v1.ListTaskResponse
-	25, // 65: shop.admin.v1.RecommendGorseService.PageUser:output_type -> shop.admin.v1.PageUserResponse
-	27, // 66: shop.admin.v1.RecommendGorseService.GetUser:output_type -> shop.admin.v1.UserResponse
-	68, // 67: shop.admin.v1.RecommendGorseService.DeleteUser:output_type -> google.protobuf.Empty
-	26, // 68: shop.admin.v1.RecommendGorseService.GetUserSimilar:output_type -> shop.admin.v1.UserSimilarResponse
-	36, // 69: shop.admin.v1.RecommendGorseService.GetUserFeedback:output_type -> shop.admin.v1.FeedbackResponse
-	33, // 70: shop.admin.v1.RecommendGorseService.GetUserRecommend:output_type -> shop.admin.v1.ItemListResponse
-	32, // 71: shop.admin.v1.RecommendGorseService.PageItem:output_type -> shop.admin.v1.PageItemResponse
-	34, // 72: shop.admin.v1.RecommendGorseService.GetItem:output_type -> shop.admin.v1.Item
-	68, // 73: shop.admin.v1.RecommendGorseService.DeleteItem:output_type -> google.protobuf.Empty
-	33, // 74: shop.admin.v1.RecommendGorseService.GetItemSimilar:output_type -> shop.admin.v1.ItemListResponse
-	5,  // 75: shop.admin.v1.RecommendGorseService.ExportData:output_type -> shop.admin.v1.ExportDataResponse
-	7,  // 76: shop.admin.v1.RecommendGorseService.ImportData:output_type -> shop.admin.v1.ImportDataResponse
-	41, // 77: shop.admin.v1.RecommendGorseService.GetConfig:output_type -> shop.admin.v1.ConfigResponse
-	41, // 78: shop.admin.v1.RecommendGorseService.SaveConfig:output_type -> shop.admin.v1.ConfigResponse
+	0,  // 40: shop.admin.v1.RecommendGorseService.OptionCategory:input_type -> shop.admin.v1.OptionCategoryRequest
+	2,  // 41: shop.admin.v1.RecommendGorseService.PageItem:input_type -> shop.admin.v1.PageItemRequest
+	4,  // 42: shop.admin.v1.RecommendGorseService.PageUser:input_type -> shop.admin.v1.PageUserRequest
+	6,  // 43: shop.admin.v1.RecommendGorseService.ListDashboardItem:input_type -> shop.admin.v1.ListDashboardItemRequest
+	8,  // 44: shop.admin.v1.RecommendGorseService.ListTask:input_type -> shop.admin.v1.ListTaskRequest
+	10, // 45: shop.admin.v1.RecommendGorseService.GetConfig:input_type -> shop.admin.v1.GetConfigRequest
+	12, // 46: shop.admin.v1.RecommendGorseService.GetItem:input_type -> shop.admin.v1.GetItemRequest
+	14, // 47: shop.admin.v1.RecommendGorseService.GetItemSimilar:input_type -> shop.admin.v1.GetItemSimilarRequest
+	16, // 48: shop.admin.v1.RecommendGorseService.GetTimeSeries:input_type -> shop.admin.v1.GetTimeSeriesRequest
+	18, // 49: shop.admin.v1.RecommendGorseService.GetUser:input_type -> shop.admin.v1.GetUserRequest
+	20, // 50: shop.admin.v1.RecommendGorseService.GetUserFeedback:input_type -> shop.admin.v1.GetUserFeedbackRequest
+	22, // 51: shop.admin.v1.RecommendGorseService.GetUserRecommend:input_type -> shop.admin.v1.GetUserRecommendRequest
+	23, // 52: shop.admin.v1.RecommendGorseService.GetUserSimilar:input_type -> shop.admin.v1.GetUserSimilarRequest
+	25, // 53: shop.admin.v1.RecommendGorseService.DeleteItem:input_type -> shop.admin.v1.DeleteItemRequest
+	26, // 54: shop.admin.v1.RecommendGorseService.DeleteUser:input_type -> shop.admin.v1.DeleteUserRequest
+	27, // 55: shop.admin.v1.RecommendGorseService.ExportData:input_type -> shop.admin.v1.ExportDataRequest
+	29, // 56: shop.admin.v1.RecommendGorseService.ImportData:input_type -> shop.admin.v1.ImportDataRequest
+	31, // 57: shop.admin.v1.RecommendGorseService.SaveConfig:input_type -> shop.admin.v1.SaveConfigRequest
+	32, // 58: shop.admin.v1.RecommendGorseService.ResetConfig:input_type -> shop.admin.v1.ResetConfigRequest
+	33, // 59: shop.admin.v1.RecommendGorseService.PreviewExternal:input_type -> shop.admin.v1.PreviewExternalRequest
+	35, // 60: shop.admin.v1.RecommendGorseService.PreviewRankerPrompt:input_type -> shop.admin.v1.PreviewRankerPromptRequest
+	1,  // 61: shop.admin.v1.RecommendGorseService.OptionCategory:output_type -> shop.admin.v1.OptionCategoryResponse
+	3,  // 62: shop.admin.v1.RecommendGorseService.PageItem:output_type -> shop.admin.v1.PageItemResponse
+	5,  // 63: shop.admin.v1.RecommendGorseService.PageUser:output_type -> shop.admin.v1.PageUserResponse
+	7,  // 64: shop.admin.v1.RecommendGorseService.ListDashboardItem:output_type -> shop.admin.v1.ListDashboardItemResponse
+	9,  // 65: shop.admin.v1.RecommendGorseService.ListTask:output_type -> shop.admin.v1.ListTaskResponse
+	11, // 66: shop.admin.v1.RecommendGorseService.GetConfig:output_type -> shop.admin.v1.ConfigResponse
+	13, // 67: shop.admin.v1.RecommendGorseService.GetItem:output_type -> shop.admin.v1.Item
+	15, // 68: shop.admin.v1.RecommendGorseService.GetItemSimilar:output_type -> shop.admin.v1.ItemListResponse
+	17, // 69: shop.admin.v1.RecommendGorseService.GetTimeSeries:output_type -> shop.admin.v1.TimeSeriesResponse
+	19, // 70: shop.admin.v1.RecommendGorseService.GetUser:output_type -> shop.admin.v1.UserResponse
+	21, // 71: shop.admin.v1.RecommendGorseService.GetUserFeedback:output_type -> shop.admin.v1.FeedbackResponse
+	15, // 72: shop.admin.v1.RecommendGorseService.GetUserRecommend:output_type -> shop.admin.v1.ItemListResponse
+	24, // 73: shop.admin.v1.RecommendGorseService.GetUserSimilar:output_type -> shop.admin.v1.UserSimilarResponse
+	68, // 74: shop.admin.v1.RecommendGorseService.DeleteItem:output_type -> google.protobuf.Empty
+	68, // 75: shop.admin.v1.RecommendGorseService.DeleteUser:output_type -> google.protobuf.Empty
+	28, // 76: shop.admin.v1.RecommendGorseService.ExportData:output_type -> shop.admin.v1.ExportDataResponse
+	30, // 77: shop.admin.v1.RecommendGorseService.ImportData:output_type -> shop.admin.v1.ImportDataResponse
+	11, // 78: shop.admin.v1.RecommendGorseService.SaveConfig:output_type -> shop.admin.v1.ConfigResponse
 	68, // 79: shop.admin.v1.RecommendGorseService.ResetConfig:output_type -> google.protobuf.Empty
-	1,  // 80: shop.admin.v1.RecommendGorseService.PreviewExternal:output_type -> shop.admin.v1.PreviewExternalResponse
-	3,  // 81: shop.admin.v1.RecommendGorseService.PreviewRankerPrompt:output_type -> shop.admin.v1.PreviewRankerPromptResponse
+	34, // 80: shop.admin.v1.RecommendGorseService.PreviewExternal:output_type -> shop.admin.v1.PreviewExternalResponse
+	36, // 81: shop.admin.v1.RecommendGorseService.PreviewRankerPrompt:output_type -> shop.admin.v1.PreviewRankerPromptResponse
 	61, // [61:82] is the sub-list for method output_type
 	40, // [40:61] is the sub-list for method input_type
 	40, // [40:40] is the sub-list for extension type_name

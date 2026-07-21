@@ -18,12 +18,6 @@ import (
 func NewUserCartServiceAgentTools(userCartServiceServer UserCartServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error
-	var countUserCartTool tool.InvokableTool
-	countUserCartTool, err = NewUserCartServiceCountUserCartAgentTool(userCartServiceServer)
-	if err != nil {
-		return nil, err
-	}
-	ts = append(ts, countUserCartTool)
 	var listUserCartTool tool.InvokableTool
 	listUserCartTool, err = NewUserCartServiceListUserCartAgentTool(userCartServiceServer)
 	if err != nil {
@@ -36,12 +30,6 @@ func NewUserCartServiceAgentTools(userCartServiceServer UserCartServiceServer) (
 		return nil, err
 	}
 	ts = append(ts, createUserCartTool)
-	var setUserCartSelectionTool tool.InvokableTool
-	setUserCartSelectionTool, err = NewUserCartServiceSetUserCartSelectionAgentTool(userCartServiceServer)
-	if err != nil {
-		return nil, err
-	}
-	ts = append(ts, setUserCartSelectionTool)
 	var updateUserCartTool tool.InvokableTool
 	updateUserCartTool, err = NewUserCartServiceUpdateUserCartAgentTool(userCartServiceServer)
 	if err != nil {
@@ -54,27 +42,25 @@ func NewUserCartServiceAgentTools(userCartServiceServer UserCartServiceServer) (
 		return nil, err
 	}
 	ts = append(ts, deleteUserCartTool)
+	var setUserCartSelectionTool tool.InvokableTool
+	setUserCartSelectionTool, err = NewUserCartServiceSetUserCartSelectionAgentTool(userCartServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, setUserCartSelectionTool)
 	var setUserCartStatusTool tool.InvokableTool
 	setUserCartStatusTool, err = NewUserCartServiceSetUserCartStatusAgentTool(userCartServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, setUserCartStatusTool)
+	var countUserCartTool tool.InvokableTool
+	countUserCartTool, err = NewUserCartServiceCountUserCartAgentTool(userCartServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, countUserCartTool)
 	return ts, nil
-}
-
-// NewUserCartServiceCountUserCartAgentTool 创建查询用户购物车数量的 Agent Tool。
-func NewUserCartServiceCountUserCartAgentTool(userCartServiceServer UserCartServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*CountUserCartRequest, *CountUserCartResponse](
-		"shop_app_v1_user_cart_service_count_user_cart",
-		"查询用户购物车数量",
-		func(ctx context.Context, req *CountUserCartRequest) (*CountUserCartResponse, error) {
-			if req == nil {
-				req = &CountUserCartRequest{}
-			}
-			return userCartServiceServer.CountUserCart(ctx, req)
-		},
-	)
 }
 
 // NewUserCartServiceListUserCartAgentTool 创建查询用户购物车列表的 Agent Tool。
@@ -101,20 +87,6 @@ func NewUserCartServiceCreateUserCartAgentTool(userCartServiceServer UserCartSer
 				req = &CreateUserCartRequest{}
 			}
 			return userCartServiceServer.CreateUserCart(ctx, req)
-		},
-	)
-}
-
-// NewUserCartServiceSetUserCartSelectionAgentTool 创建设置全选的 Agent Tool。
-func NewUserCartServiceSetUserCartSelectionAgentTool(userCartServiceServer UserCartServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*SetUserCartSelectionRequest, *emptypb.Empty](
-		"shop_app_v1_user_cart_service_set_user_cart_selection",
-		"设置全选",
-		func(ctx context.Context, req *SetUserCartSelectionRequest) (*emptypb.Empty, error) {
-			if req == nil {
-				req = &SetUserCartSelectionRequest{}
-			}
-			return userCartServiceServer.SetUserCartSelection(ctx, req)
 		},
 	)
 }
@@ -147,6 +119,20 @@ func NewUserCartServiceDeleteUserCartAgentTool(userCartServiceServer UserCartSer
 	)
 }
 
+// NewUserCartServiceSetUserCartSelectionAgentTool 创建设置全选的 Agent Tool。
+func NewUserCartServiceSetUserCartSelectionAgentTool(userCartServiceServer UserCartServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*SetUserCartSelectionRequest, *emptypb.Empty](
+		"shop_app_v1_user_cart_service_set_user_cart_selection",
+		"设置全选",
+		func(ctx context.Context, req *SetUserCartSelectionRequest) (*emptypb.Empty, error) {
+			if req == nil {
+				req = &SetUserCartSelectionRequest{}
+			}
+			return userCartServiceServer.SetUserCartSelection(ctx, req)
+		},
+	)
+}
+
 // NewUserCartServiceSetUserCartStatusAgentTool 创建设置状态的 Agent Tool。
 func NewUserCartServiceSetUserCartStatusAgentTool(userCartServiceServer UserCartServiceServer) (tool.InvokableTool, error) {
 	return utils.InferTool[*SetUserCartStatusRequest, *emptypb.Empty](
@@ -157,6 +143,20 @@ func NewUserCartServiceSetUserCartStatusAgentTool(userCartServiceServer UserCart
 				req = &SetUserCartStatusRequest{}
 			}
 			return userCartServiceServer.SetUserCartStatus(ctx, req)
+		},
+	)
+}
+
+// NewUserCartServiceCountUserCartAgentTool 创建查询用户购物车数量的 Agent Tool。
+func NewUserCartServiceCountUserCartAgentTool(userCartServiceServer UserCartServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*CountUserCartRequest, *CountUserCartResponse](
+		"shop_app_v1_user_cart_service_count_user_cart",
+		"查询用户购物车数量",
+		func(ctx context.Context, req *CountUserCartRequest) (*CountUserCartResponse, error) {
+			if req == nil {
+				req = &CountUserCartRequest{}
+			}
+			return userCartServiceServer.CountUserCart(ctx, req)
 		},
 	)
 }

@@ -75,6 +75,37 @@ func NewCodeGenTableCase(
 	}
 }
 
+// PageCodeGenTable 查询代码生成表配置分页数据。
+func (c *CodeGenTableCase) PageCodeGenTable(ctx context.Context, req *systemadminv1.PageCodeGenTableRequest) (*systemadminv1.PageCodeGenTableResponse, error) {
+	query := c.Query(ctx).CodeGenTable
+	opts := make([]repository.QueryOption, 0, 6)
+	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
+	if req.Name != nil {
+		opts = append(opts, repository.Where(query.Name.Like("%"+req.GetName()+"%")))
+	}
+	if req.BusinessName != nil {
+		opts = append(opts, repository.Where(query.BusinessName.Like("%"+req.GetBusinessName()+"%")))
+	}
+	if req.ModulePath != nil {
+		opts = append(opts, repository.Where(query.ModulePath.Like("%"+req.GetModulePath()+"%")))
+	}
+	if req.PageType != nil {
+		opts = append(opts, repository.Where(query.PageType.Eq(req.GetPageType())))
+	}
+	if req.Status != nil {
+		opts = append(opts, repository.Where(query.Status.Eq(req.GetStatus())))
+	}
+	list, total, err := c.Page(ctx, req.GetPageNum(), req.GetPageSize(), opts...)
+	if err != nil {
+		return nil, err
+	}
+	codeGenTables := make([]*systemadminv1.CodeGenTable, 0, len(list))
+	for _, item := range list {
+		codeGenTables = append(codeGenTables, c.mapper.ToDTO(item))
+	}
+	return &systemadminv1.PageCodeGenTableResponse{CodeGenTables: codeGenTables, Total: int32(total)}, nil
+}
+
 // ListCodeGenDatabaseTable 查询当前数据库表元数据。
 func (c *CodeGenTableCase) ListCodeGenDatabaseTable(ctx context.Context) (*systemadminv1.ListCodeGenDatabaseTableResponse, error) {
 	query := c.Query(ctx).CodeGenTable
@@ -127,37 +158,6 @@ func (c *CodeGenTableCase) ListCodeGenProtoDirectory(_ context.Context) (*system
 		items = append(items, &systemadminv1.CodeGenProtoDirectory{Path: directory})
 	}
 	return &systemadminv1.ListCodeGenProtoDirectoryResponse{Directories: items}, nil
-}
-
-// PageCodeGenTable 查询代码生成表配置分页数据。
-func (c *CodeGenTableCase) PageCodeGenTable(ctx context.Context, req *systemadminv1.PageCodeGenTableRequest) (*systemadminv1.PageCodeGenTableResponse, error) {
-	query := c.Query(ctx).CodeGenTable
-	opts := make([]repository.QueryOption, 0, 6)
-	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
-	if req.Name != nil {
-		opts = append(opts, repository.Where(query.Name.Like("%"+req.GetName()+"%")))
-	}
-	if req.BusinessName != nil {
-		opts = append(opts, repository.Where(query.BusinessName.Like("%"+req.GetBusinessName()+"%")))
-	}
-	if req.ModulePath != nil {
-		opts = append(opts, repository.Where(query.ModulePath.Like("%"+req.GetModulePath()+"%")))
-	}
-	if req.PageType != nil {
-		opts = append(opts, repository.Where(query.PageType.Eq(req.GetPageType())))
-	}
-	if req.Status != nil {
-		opts = append(opts, repository.Where(query.Status.Eq(req.GetStatus())))
-	}
-	list, total, err := c.Page(ctx, req.GetPageNum(), req.GetPageSize(), opts...)
-	if err != nil {
-		return nil, err
-	}
-	codeGenTables := make([]*systemadminv1.CodeGenTable, 0, len(list))
-	for _, item := range list {
-		codeGenTables = append(codeGenTables, c.mapper.ToDTO(item))
-	}
-	return &systemadminv1.PageCodeGenTableResponse{CodeGenTables: codeGenTables, Total: int32(total)}, nil
 }
 
 // GetCodeGenTable 查询代码生成表配置。

@@ -29,6 +29,16 @@ func NewOauthService(oauthCase *biz.OauthCase) *OauthService {
 	}
 }
 
+// ListOauthBinding 查询个人中心三方账号绑定列表。
+func (s *OauthService) ListOauthBinding(ctx context.Context, req *basev1.ListOauthBindingRequest) (*basev1.ListOauthBindingResponse, error) {
+	res, err := s.oauthCase.ListOauthBinding(ctx, req)
+	if err != nil {
+		log.Error(fmt.Sprintf("ListOauthBinding %v", err))
+		return nil, errorsx.WrapInternal(err, "查询三方账号绑定失败")
+	}
+	return res, nil
+}
+
 // ListOauthProvider 查询三方登录方式。
 func (s *OauthService) ListOauthProvider(ctx context.Context, req *basev1.ListOauthProviderRequest) (*basev1.ListOauthProviderResponse, error) {
 	res, err := s.oauthCase.ListOauthProvider(ctx, req)
@@ -45,6 +55,26 @@ func (s *OauthService) CreateOauthAuthorization(ctx context.Context, req *basev1
 	if err != nil {
 		log.Error(fmt.Sprintf("CreateOauthAuthorization %v", err))
 		return nil, errorsx.WrapInternal(err, "创建三方登录授权失败")
+	}
+	return res, nil
+}
+
+// CreateOauthBindingAuthorization 创建个人中心三方账号绑定授权地址。
+func (s *OauthService) CreateOauthBindingAuthorization(ctx context.Context, req *basev1.CreateOauthBindingAuthorizationRequest) (*basev1.CreateOauthBindingAuthorizationResponse, error) {
+	res, err := s.oauthCase.CreateOauthBindingAuthorization(ctx, req)
+	if err != nil {
+		log.Error(fmt.Sprintf("CreateOauthBindingAuthorization %v", err))
+		return nil, errorsx.WrapInternal(err, "创建三方账号绑定授权失败")
+	}
+	return res, nil
+}
+
+// CreateOauthSession 创建三方登录会话。
+func (s *OauthService) CreateOauthSession(ctx context.Context, req *basev1.CreateOauthSessionRequest) (*basev1.CreateOauthSessionResponse, error) {
+	res, err := s.oauthCase.CreateOauthSession(ctx, req)
+	if err != nil {
+		log.Error(fmt.Sprintf("CreateOauthSession %v", err))
+		return nil, errorsx.WrapInternal(err, "创建三方登录会话失败")
 	}
 	return res, nil
 }
@@ -68,36 +98,6 @@ func (s *OauthService) ExchangeOauthTicket(ctx context.Context, req *basev1.Exch
 	if err != nil {
 		log.Error(fmt.Sprintf("ExchangeOauthTicket %v", err))
 		return nil, errorsx.WrapInternal(err, "兑换三方登录票据失败")
-	}
-	return res, nil
-}
-
-// CreateOauthSession 创建三方登录会话。
-func (s *OauthService) CreateOauthSession(ctx context.Context, req *basev1.CreateOauthSessionRequest) (*basev1.CreateOauthSessionResponse, error) {
-	res, err := s.oauthCase.CreateOauthSession(ctx, req)
-	if err != nil {
-		log.Error(fmt.Sprintf("CreateOauthSession %v", err))
-		return nil, errorsx.WrapInternal(err, "创建三方登录会话失败")
-	}
-	return res, nil
-}
-
-// ListOauthBinding 查询个人中心三方账号绑定列表。
-func (s *OauthService) ListOauthBinding(ctx context.Context, req *basev1.ListOauthBindingRequest) (*basev1.ListOauthBindingResponse, error) {
-	res, err := s.oauthCase.ListOauthBinding(ctx, req)
-	if err != nil {
-		log.Error(fmt.Sprintf("ListOauthBinding %v", err))
-		return nil, errorsx.WrapInternal(err, "查询三方账号绑定失败")
-	}
-	return res, nil
-}
-
-// CreateOauthBindingAuthorization 创建个人中心三方账号绑定授权地址。
-func (s *OauthService) CreateOauthBindingAuthorization(ctx context.Context, req *basev1.CreateOauthBindingAuthorizationRequest) (*basev1.CreateOauthBindingAuthorizationResponse, error) {
-	res, err := s.oauthCase.CreateOauthBindingAuthorization(ctx, req)
-	if err != nil {
-		log.Error(fmt.Sprintf("CreateOauthBindingAuthorization %v", err))
-		return nil, errorsx.WrapInternal(err, "创建三方账号绑定授权失败")
 	}
 	return res, nil
 }

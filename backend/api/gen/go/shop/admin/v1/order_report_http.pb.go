@@ -36,27 +36,27 @@ type OrderReportServiceHTTPServer interface {
 
 func RegisterOrderReportServiceHTTPServer(s *http.Server, srv OrderReportServiceHTTPServer) {
 	r := s.Route("/")
-	r.Handle("GET", "/api/v1/admin/report/order/month/summary", _OrderReportService_SummaryOrderMonthReport0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/admin/report/order/month", _OrderReportService_ListOrderMonthReport0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/admin/report/order/day/summary", _OrderReportService_SummaryOrderDayReport0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/report/order/day", _OrderReportService_ListOrderDayReport0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/report/order/month", _OrderReportService_ListOrderMonthReport0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/report/order/month/summary", _OrderReportService_SummaryOrderMonthReport0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/report/order/day/summary", _OrderReportService_SummaryOrderDayReport0_HTTP_Handler(srv))
 }
 
-func _OrderReportService_SummaryOrderMonthReport0_HTTP_Handler(srv OrderReportServiceHTTPServer) func(ctx http.Context) error {
+func _OrderReportService_ListOrderDayReport0_HTTP_Handler(srv OrderReportServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in SummaryOrderMonthReportRequest
+		var in ListOrderDayReportRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationOrderReportServiceSummaryOrderMonthReport)
+		http.SetOperation(ctx, OperationOrderReportServiceListOrderDayReport)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.SummaryOrderMonthReport(ctx, req.(*SummaryOrderMonthReportRequest))
+			return srv.ListOrderDayReport(ctx, req.(*ListOrderDayReportRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*SummaryOrderMonthReportResponse)
+		reply := out.(*ListOrderDayReportResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -80,6 +80,25 @@ func _OrderReportService_ListOrderMonthReport0_HTTP_Handler(srv OrderReportServi
 	}
 }
 
+func _OrderReportService_SummaryOrderMonthReport0_HTTP_Handler(srv OrderReportServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in SummaryOrderMonthReportRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationOrderReportServiceSummaryOrderMonthReport)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.SummaryOrderMonthReport(ctx, req.(*SummaryOrderMonthReportRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*SummaryOrderMonthReportResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _OrderReportService_SummaryOrderDayReport0_HTTP_Handler(srv OrderReportServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in SummaryOrderDayReportRequest
@@ -95,25 +114,6 @@ func _OrderReportService_SummaryOrderDayReport0_HTTP_Handler(srv OrderReportServ
 			return err
 		}
 		reply := out.(*SummaryOrderDayReportResponse)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _OrderReportService_ListOrderDayReport0_HTTP_Handler(srv OrderReportServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in ListOrderDayReportRequest
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationOrderReportServiceListOrderDayReport)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.ListOrderDayReport(ctx, req.(*ListOrderDayReportRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*ListOrderDayReportResponse)
 		return ctx.Result(200, reply)
 	}
 }

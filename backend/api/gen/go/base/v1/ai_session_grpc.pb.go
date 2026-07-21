@@ -20,12 +20,12 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
+	AiSessionService_ListAiMessage_FullMethodName         = "/base.v1.AiSessionService/ListAiMessage"
 	AiSessionService_ListAiSession_FullMethodName         = "/base.v1.AiSessionService/ListAiSession"
 	AiSessionService_CreateAiSession_FullMethodName       = "/base.v1.AiSessionService/CreateAiSession"
+	AiSessionService_CreateAiSessionBranch_FullMethodName = "/base.v1.AiSessionService/CreateAiSessionBranch"
 	AiSessionService_UpdateAiSession_FullMethodName       = "/base.v1.AiSessionService/UpdateAiSession"
 	AiSessionService_DeleteAiSession_FullMethodName       = "/base.v1.AiSessionService/DeleteAiSession"
-	AiSessionService_ListAiMessage_FullMethodName         = "/base.v1.AiSessionService/ListAiMessage"
-	AiSessionService_CreateAiSessionBranch_FullMethodName = "/base.v1.AiSessionService/CreateAiSessionBranch"
 )
 
 // AiSessionServiceClient is the client API for AiSessionService service.
@@ -34,18 +34,18 @@ const (
 //
 // Base AI 助手会话服务
 type AiSessionServiceClient interface {
+	// 查询 AI 助手消息列表
+	ListAiMessage(ctx context.Context, in *ListAiMessageRequest, opts ...grpc.CallOption) (*ListAiMessageResponse, error)
 	// 查询 AI 助手会话列表
 	ListAiSession(ctx context.Context, in *ListAiSessionRequest, opts ...grpc.CallOption) (*ListAiSessionResponse, error)
 	// 创建 AI 助手会话
 	CreateAiSession(ctx context.Context, in *CreateAiSessionRequest, opts ...grpc.CallOption) (*CreateAiSessionResponse, error)
+	// 从指定消息创建 AI 助手分支会话
+	CreateAiSessionBranch(ctx context.Context, in *CreateAiSessionBranchRequest, opts ...grpc.CallOption) (*CreateAiSessionBranchResponse, error)
 	// 更新 AI 助手会话
 	UpdateAiSession(ctx context.Context, in *UpdateAiSessionRequest, opts ...grpc.CallOption) (*UpdateAiSessionResponse, error)
 	// 删除 AI 助手会话
 	DeleteAiSession(ctx context.Context, in *DeleteAiSessionRequest, opts ...grpc.CallOption) (*DeleteAiSessionResponse, error)
-	// 查询 AI 助手消息列表
-	ListAiMessage(ctx context.Context, in *ListAiMessageRequest, opts ...grpc.CallOption) (*ListAiMessageResponse, error)
-	// 从指定消息创建 AI 助手分支会话
-	CreateAiSessionBranch(ctx context.Context, in *CreateAiSessionBranchRequest, opts ...grpc.CallOption) (*CreateAiSessionBranchResponse, error)
 }
 
 type aiSessionServiceClient struct {
@@ -54,6 +54,16 @@ type aiSessionServiceClient struct {
 
 func NewAiSessionServiceClient(cc grpc.ClientConnInterface) AiSessionServiceClient {
 	return &aiSessionServiceClient{cc}
+}
+
+func (c *aiSessionServiceClient) ListAiMessage(ctx context.Context, in *ListAiMessageRequest, opts ...grpc.CallOption) (*ListAiMessageResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListAiMessageResponse)
+	err := c.cc.Invoke(ctx, AiSessionService_ListAiMessage_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *aiSessionServiceClient) ListAiSession(ctx context.Context, in *ListAiSessionRequest, opts ...grpc.CallOption) (*ListAiSessionResponse, error) {
@@ -70,6 +80,16 @@ func (c *aiSessionServiceClient) CreateAiSession(ctx context.Context, in *Create
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(CreateAiSessionResponse)
 	err := c.cc.Invoke(ctx, AiSessionService_CreateAiSession_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aiSessionServiceClient) CreateAiSessionBranch(ctx context.Context, in *CreateAiSessionBranchRequest, opts ...grpc.CallOption) (*CreateAiSessionBranchResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateAiSessionBranchResponse)
+	err := c.cc.Invoke(ctx, AiSessionService_CreateAiSessionBranch_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -96,44 +116,24 @@ func (c *aiSessionServiceClient) DeleteAiSession(ctx context.Context, in *Delete
 	return out, nil
 }
 
-func (c *aiSessionServiceClient) ListAiMessage(ctx context.Context, in *ListAiMessageRequest, opts ...grpc.CallOption) (*ListAiMessageResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListAiMessageResponse)
-	err := c.cc.Invoke(ctx, AiSessionService_ListAiMessage_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *aiSessionServiceClient) CreateAiSessionBranch(ctx context.Context, in *CreateAiSessionBranchRequest, opts ...grpc.CallOption) (*CreateAiSessionBranchResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(CreateAiSessionBranchResponse)
-	err := c.cc.Invoke(ctx, AiSessionService_CreateAiSessionBranch_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // AiSessionServiceServer is the server API for AiSessionService service.
 // All implementations must embed UnimplementedAiSessionServiceServer
 // for forward compatibility.
 //
 // Base AI 助手会话服务
 type AiSessionServiceServer interface {
+	// 查询 AI 助手消息列表
+	ListAiMessage(context.Context, *ListAiMessageRequest) (*ListAiMessageResponse, error)
 	// 查询 AI 助手会话列表
 	ListAiSession(context.Context, *ListAiSessionRequest) (*ListAiSessionResponse, error)
 	// 创建 AI 助手会话
 	CreateAiSession(context.Context, *CreateAiSessionRequest) (*CreateAiSessionResponse, error)
+	// 从指定消息创建 AI 助手分支会话
+	CreateAiSessionBranch(context.Context, *CreateAiSessionBranchRequest) (*CreateAiSessionBranchResponse, error)
 	// 更新 AI 助手会话
 	UpdateAiSession(context.Context, *UpdateAiSessionRequest) (*UpdateAiSessionResponse, error)
 	// 删除 AI 助手会话
 	DeleteAiSession(context.Context, *DeleteAiSessionRequest) (*DeleteAiSessionResponse, error)
-	// 查询 AI 助手消息列表
-	ListAiMessage(context.Context, *ListAiMessageRequest) (*ListAiMessageResponse, error)
-	// 从指定消息创建 AI 助手分支会话
-	CreateAiSessionBranch(context.Context, *CreateAiSessionBranchRequest) (*CreateAiSessionBranchResponse, error)
 	mustEmbedUnimplementedAiSessionServiceServer()
 }
 
@@ -144,23 +144,23 @@ type AiSessionServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedAiSessionServiceServer struct{}
 
+func (UnimplementedAiSessionServiceServer) ListAiMessage(context.Context, *ListAiMessageRequest) (*ListAiMessageResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListAiMessage not implemented")
+}
 func (UnimplementedAiSessionServiceServer) ListAiSession(context.Context, *ListAiSessionRequest) (*ListAiSessionResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListAiSession not implemented")
 }
 func (UnimplementedAiSessionServiceServer) CreateAiSession(context.Context, *CreateAiSessionRequest) (*CreateAiSessionResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreateAiSession not implemented")
 }
+func (UnimplementedAiSessionServiceServer) CreateAiSessionBranch(context.Context, *CreateAiSessionBranchRequest) (*CreateAiSessionBranchResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method CreateAiSessionBranch not implemented")
+}
 func (UnimplementedAiSessionServiceServer) UpdateAiSession(context.Context, *UpdateAiSessionRequest) (*UpdateAiSessionResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdateAiSession not implemented")
 }
 func (UnimplementedAiSessionServiceServer) DeleteAiSession(context.Context, *DeleteAiSessionRequest) (*DeleteAiSessionResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteAiSession not implemented")
-}
-func (UnimplementedAiSessionServiceServer) ListAiMessage(context.Context, *ListAiMessageRequest) (*ListAiMessageResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method ListAiMessage not implemented")
-}
-func (UnimplementedAiSessionServiceServer) CreateAiSessionBranch(context.Context, *CreateAiSessionBranchRequest) (*CreateAiSessionBranchResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method CreateAiSessionBranch not implemented")
 }
 func (UnimplementedAiSessionServiceServer) mustEmbedUnimplementedAiSessionServiceServer() {}
 func (UnimplementedAiSessionServiceServer) testEmbeddedByValue()                          {}
@@ -181,6 +181,24 @@ func RegisterAiSessionServiceServer(s grpc.ServiceRegistrar, srv AiSessionServic
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&AiSessionService_ServiceDesc, srv)
+}
+
+func _AiSessionService_ListAiMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListAiMessageRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AiSessionServiceServer).ListAiMessage(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AiSessionService_ListAiMessage_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AiSessionServiceServer).ListAiMessage(ctx, req.(*ListAiMessageRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _AiSessionService_ListAiSession_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -215,6 +233,24 @@ func _AiSessionService_CreateAiSession_Handler(srv interface{}, ctx context.Cont
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AiSessionServiceServer).CreateAiSession(ctx, req.(*CreateAiSessionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AiSessionService_CreateAiSessionBranch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateAiSessionBranchRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AiSessionServiceServer).CreateAiSessionBranch(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AiSessionService_CreateAiSessionBranch_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AiSessionServiceServer).CreateAiSessionBranch(ctx, req.(*CreateAiSessionBranchRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -255,42 +291,6 @@ func _AiSessionService_DeleteAiSession_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AiSessionService_ListAiMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListAiMessageRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AiSessionServiceServer).ListAiMessage(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AiSessionService_ListAiMessage_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AiSessionServiceServer).ListAiMessage(ctx, req.(*ListAiMessageRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _AiSessionService_CreateAiSessionBranch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateAiSessionBranchRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AiSessionServiceServer).CreateAiSessionBranch(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AiSessionService_CreateAiSessionBranch_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AiSessionServiceServer).CreateAiSessionBranch(ctx, req.(*CreateAiSessionBranchRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // AiSessionService_ServiceDesc is the grpc.ServiceDesc for AiSessionService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -298,6 +298,10 @@ var AiSessionService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "base.v1.AiSessionService",
 	HandlerType: (*AiSessionServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "ListAiMessage",
+			Handler:    _AiSessionService_ListAiMessage_Handler,
+		},
 		{
 			MethodName: "ListAiSession",
 			Handler:    _AiSessionService_ListAiSession_Handler,
@@ -307,20 +311,16 @@ var AiSessionService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _AiSessionService_CreateAiSession_Handler,
 		},
 		{
+			MethodName: "CreateAiSessionBranch",
+			Handler:    _AiSessionService_CreateAiSessionBranch_Handler,
+		},
+		{
 			MethodName: "UpdateAiSession",
 			Handler:    _AiSessionService_UpdateAiSession_Handler,
 		},
 		{
 			MethodName: "DeleteAiSession",
 			Handler:    _AiSessionService_DeleteAiSession_Handler,
-		},
-		{
-			MethodName: "ListAiMessage",
-			Handler:    _AiSessionService_ListAiMessage_Handler,
-		},
-		{
-			MethodName: "CreateAiSessionBranch",
-			Handler:    _AiSessionService_CreateAiSessionBranch_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

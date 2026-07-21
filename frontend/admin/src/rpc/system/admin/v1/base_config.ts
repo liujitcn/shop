@@ -9,10 +9,6 @@ import type { BaseConfigSite, Status } from "../../../common/v1/enum";
 import type { Empty } from "../../../google/protobuf/empty";
 import type { BaseConfigType } from "../../common/v1/enum";
 
-/** 刷新系统配置缓存请求参数 */
-export interface RefreshBaseConfigCacheRequest {
-}
-
 /** 系统配置分页查询条件 */
 export interface PageBaseConfigRequest {
   /** 位置：枚举【BaseConfigSite】 */
@@ -55,6 +51,24 @@ export interface GetBaseConfigRequest {
   id: number;
 }
 
+/** 系统配置表单 */
+export interface BaseConfigForm {
+  /** 配置ID */
+  id: number;
+  /** 位置：枚举【BaseConfigSite】 */
+  site: BaseConfigSite;
+  /** 配置名称 */
+  name: string;
+  /** 配置类型：1、文本，2、图片，3、富文本，4、字典 */
+  type: BaseConfigType;
+  /** 配置key */
+  key: string;
+  /** 配置value */
+  value: string;
+  /** 状态 */
+  status: Status;
+}
+
 /** 创建系统配置请求参数 */
 export interface CreateBaseConfigRequest {
   /** 系统配置表单 */
@@ -81,6 +95,10 @@ export interface SetBaseConfigStatusRequest {
   status: number;
 }
 
+/** 刷新系统配置缓存请求参数 */
+export interface RefreshBaseConfigCacheRequest {
+}
+
 /** 系统配置 */
 export interface BaseConfig {
   /** 配置ID */
@@ -103,28 +121,8 @@ export interface BaseConfig {
   updated_at: string;
 }
 
-/** 系统配置表单 */
-export interface BaseConfigForm {
-  /** 配置ID */
-  id: number;
-  /** 位置：枚举【BaseConfigSite】 */
-  site: BaseConfigSite;
-  /** 配置名称 */
-  name: string;
-  /** 配置类型：1、文本，2、图片，3、富文本，4、字典 */
-  type: BaseConfigType;
-  /** 配置key */
-  key: string;
-  /** 配置value */
-  value: string;
-  /** 状态 */
-  status: Status;
-}
-
 /** Admin系统配置服务 */
 export interface BaseConfigService {
-  /** 刷新缓存 */
-  RefreshBaseConfigCache(request: RefreshBaseConfigCacheRequest): Promise<Empty>;
   /** 查询系统配置分页列表 */
   PageBaseConfig(request: PageBaseConfigRequest): Promise<PageBaseConfigResponse>;
   /** 查询系统配置 */
@@ -137,4 +135,6 @@ export interface BaseConfigService {
   DeleteBaseConfig(request: DeleteBaseConfigRequest): Promise<Empty>;
   /** 设置状态 */
   SetBaseConfigStatus(request: SetBaseConfigStatusRequest): Promise<Empty>;
+  /** 刷新缓存 */
+  RefreshBaseConfigCache(request: RefreshBaseConfigCacheRequest): Promise<Empty>;
 }

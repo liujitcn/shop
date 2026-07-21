@@ -37,6 +37,16 @@ func NewBaseDeptService(
 	}
 }
 
+// OptionBaseDept 查询部门树形选择
+func (s *BaseDeptService) OptionBaseDept(ctx context.Context, req *systemadminv1.OptionBaseDeptRequest) (*commonv1.TreeOptionResponse, error) {
+	tree, err := s.baseDeptCase.OptionBaseDept(ctx, req)
+	if err != nil {
+		log.Error(fmt.Sprintf("OptionBaseDept %v", err))
+		return nil, errorsx.WrapInternal(err, "查询部门树形选择失败")
+	}
+	return tree, nil
+}
+
 // TreeBaseDept 查询部门树形列表
 func (s *BaseDeptService) TreeBaseDept(ctx context.Context, req *systemadminv1.TreeBaseDeptRequest) (*systemadminv1.TreeBaseDeptResponse, error) {
 	tree, err := s.baseDeptCase.TreeBaseDept(ctx, req)
@@ -45,16 +55,6 @@ func (s *BaseDeptService) TreeBaseDept(ctx context.Context, req *systemadminv1.T
 		return nil, errorsx.WrapInternal(err, "查询部门树形列表失败")
 	}
 
-	return tree, nil
-}
-
-// OptionBaseDept 查询部门树形选择
-func (s *BaseDeptService) OptionBaseDept(ctx context.Context, req *systemadminv1.OptionBaseDeptRequest) (*commonv1.TreeOptionResponse, error) {
-	tree, err := s.baseDeptCase.OptionBaseDept(ctx, req)
-	if err != nil {
-		log.Error(fmt.Sprintf("OptionBaseDept %v", err))
-		return nil, errorsx.WrapInternal(err, "查询部门树形选择失败")
-	}
 	return tree, nil
 }
 

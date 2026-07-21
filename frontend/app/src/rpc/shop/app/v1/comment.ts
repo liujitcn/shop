@@ -15,10 +15,244 @@ import type {
   CommentStatus,
 } from "../../common/v1/enum";
 
+/** 评价讨论分页查询条件 */
+export interface PageCommentDiscussionRequest {
+  /** 评价ID */
+  comment_id: number;
+  /** 当前页码 */
+  page_num: number;
+  /** 每页数量 */
+  page_size: number;
+}
+
+/** 评价讨论分页响应 */
+export interface PageCommentDiscussionResponse {
+  /** 评价ID */
+  comment_id: number;
+  /** 讨论分页数据 */
+  comment_discussions: CommentDiscussionItem[];
+  /** 总数 */
+  total: number;
+  /** 当前页码 */
+  page_num: number;
+  /** 每页数量 */
+  page_size: number;
+  /** 是否还有下一页 */
+  has_more: boolean;
+}
+
+/** 商品评价分页查询条件 */
+export interface PageGoodsCommentRequest {
+  /** 商品ID */
+  goods_id: number;
+  /** SKU编码，仅当前商品筛选时使用 */
+  sku_code: string;
+  /** 筛选类型 */
+  filter_type: CommentFilterType;
+  /** 内容标签ID，筛选标签时使用 */
+  tag_id: number;
+  /** 是否只看当前SKU商品 */
+  current_goods_only: boolean;
+  /** 排序类型 */
+  sort_type: CommentSortType;
+  /** 当前页码 */
+  page_num: number;
+  /** 每页数量 */
+  page_size: number;
+}
+
+/** 商品评价分页响应 */
+export interface PageGoodsCommentResponse {
+  /** 顶部筛选项列表 */
+  comment_filters: CommentFilterItem[];
+  /** 评价列表摘要 */
+  comment_summary:
+    | CommentSummary
+    | undefined;
+  /** 评价分页数据 */
+  comments: CommentItem[];
+  /** 总数 */
+  total: number;
+  /** 当前页码 */
+  page_num: number;
+  /** 每页数量 */
+  page_size: number;
+  /** 是否还有下一页 */
+  has_more: boolean;
+}
+
+/** 我的评价分页查询条件 */
+export interface PageMyCommentRequest {
+  /** 当前页码 */
+  page_num: number;
+  /** 每页数量 */
+  page_size: number;
+}
+
+/** 我的评价分页响应 */
+export interface PageMyCommentResponse {
+  /** 我的评价列表 */
+  comments: CommentItem[];
+  /** 总数 */
+  total: number;
+  /** 当前页码 */
+  page_num: number;
+  /** 每页数量 */
+  page_size: number;
+  /** 是否还有下一页 */
+  has_more: boolean;
+}
+
+/** 待评价商品分页查询条件 */
+export interface PagePendingCommentGoodsRequest {
+  /** 门店订单ID，可为空 */
+  order_id?:
+    | number
+    | undefined;
+  /** 当前页码 */
+  page_num: number;
+  /** 每页数量 */
+  page_size: number;
+}
+
+/** 待评价商品分页响应 */
+export interface PagePendingCommentGoodsResponse {
+  /** 待评价商品列表 */
+  pending_comment_goods: PendingCommentGoodsItem[];
+  /** 总数 */
+  total: number;
+  /** 当前页码 */
+  page_num: number;
+  /** 每页数量 */
+  page_size: number;
+  /** 是否还有下一页 */
+  has_more: boolean;
+}
+
+/** 发布商品评价请求参数 */
+export interface CreateCommentRequest {
+  /** 订单ID */
+  order_id: number;
+  /** 商品ID */
+  goods_id: number;
+  /** SKU编码 */
+  sku_code: string;
+  /** 评价正文 */
+  content: string;
+  /** 评价图片数组 */
+  img: string[];
+  /** 是否匿名展示 */
+  is_anonymous: boolean;
+  /** 商品评价评分，范围1到5 */
+  goods_score: number;
+  /** 包装评价评分，范围1到5 */
+  package_score: number;
+  /** 送货评价评分，范围1到5 */
+  delivery_score: number;
+}
+
+/** 发布商品评价响应 */
+export interface CreateCommentResponse {
+  /** 新建评价ID */
+  comment_id: number;
+  /** 订单ID */
+  order_id: number;
+  /** 订单是否已因全部评价完成而流转为已完成 */
+  order_completed: boolean;
+}
+
+/** 发布评价讨论请求参数 */
+export interface CreateCommentDiscussionRequest {
+  /** 所属评价ID */
+  comment_id: number;
+  /** 讨论内容 */
+  content: string;
+  /** 父级讨论ID，可为空 */
+  parent_id: number;
+  /** 被回复讨论ID，可为空 */
+  reply_to_discussion_id: number;
+  /** 是否匿名讨论 */
+  is_anonymous: boolean;
+}
+
+/** 发布评价讨论响应 */
+export interface CreateCommentDiscussionResponse {
+  /** 新创建的讨论 */
+  item:
+    | CommentDiscussionItem
+    | undefined;
+  /** 发布后的讨论总数 */
+  discussion_count: number;
+}
+
 /** 删除商品评价条件 */
 export interface DeleteCommentRequest {
   /** 评价ID */
   id: number;
+}
+
+/** 商品评价摘要查询条件 */
+export interface GoodsCommentOverviewRequest {
+  /** 商品ID */
+  goods_id: number;
+  /** 评价预览数量 */
+  preview_limit: number;
+}
+
+/** 商品评价摘要响应 */
+export interface GoodsCommentOverviewResponse {
+  /** 评价总数 */
+  total_count: number;
+  /** 好评率统计天数 */
+  recent_days: number;
+  /** 近N天好评率百分比整数 */
+  recent_good_rate: number;
+  /** 商品详情评价摘要 */
+  comment_summary:
+    | CommentSummary
+    | undefined;
+  /** 评价预览列表 */
+  preview_comments: CommentItem[];
+}
+
+/** 商品评价标签查询条件 */
+export interface GoodsCommentTagRequest {
+  /** 商品ID */
+  goods_id: number;
+  /** 标签展示数量 */
+  limit: number;
+}
+
+/** 商品评价标签响应 */
+export interface GoodsCommentTagResponse {
+  /** 评价标签列表 */
+  comment_tags: CommentTagItem[];
+}
+
+/** 保存评价互动状态请求参数 */
+export interface SaveCommentReactionRequest {
+  /** 互动目标类型：枚举【CommentReactionTargetType】 */
+  target_type: CommentReactionTargetType;
+  /** 互动目标ID */
+  target_id: number;
+  /** 互动类型：枚举【CommentReactionType】 */
+  reaction_type: CommentReactionType;
+  /** 是否设置当前互动状态 */
+  active: boolean;
+}
+
+/** 保存评价互动状态响应 */
+export interface SaveCommentReactionResponse {
+  /** 互动目标类型：枚举【CommentReactionTargetType】 */
+  target_type: CommentReactionTargetType;
+  /** 互动目标ID */
+  target_id: number;
+  /** 当前用户互动类型：枚举【CommentReactionType】 */
+  reaction_type: CommentReactionType;
+  /** 点赞数 */
+  like_count: number;
+  /** 点踩数 */
+  dislike_count: number;
 }
 
 /** 文本片段 */
@@ -163,260 +397,26 @@ export interface PendingCommentGoodsItem {
   desc: string;
 }
 
-/** 商品评价摘要查询条件 */
-export interface GoodsCommentOverviewRequest {
-  /** 商品ID */
-  goods_id: number;
-  /** 评价预览数量 */
-  preview_limit: number;
-}
-
-/** 商品评价摘要响应 */
-export interface GoodsCommentOverviewResponse {
-  /** 评价总数 */
-  total_count: number;
-  /** 好评率统计天数 */
-  recent_days: number;
-  /** 近N天好评率百分比整数 */
-  recent_good_rate: number;
-  /** 商品详情评价摘要 */
-  comment_summary:
-    | CommentSummary
-    | undefined;
-  /** 评价预览列表 */
-  preview_comments: CommentItem[];
-}
-
-/** 商品评价标签查询条件 */
-export interface GoodsCommentTagRequest {
-  /** 商品ID */
-  goods_id: number;
-  /** 标签展示数量 */
-  limit: number;
-}
-
-/** 商品评价标签响应 */
-export interface GoodsCommentTagResponse {
-  /** 评价标签列表 */
-  comment_tags: CommentTagItem[];
-}
-
-/** 商品评价分页查询条件 */
-export interface PageGoodsCommentRequest {
-  /** 商品ID */
-  goods_id: number;
-  /** SKU编码，仅当前商品筛选时使用 */
-  sku_code: string;
-  /** 筛选类型 */
-  filter_type: CommentFilterType;
-  /** 内容标签ID，筛选标签时使用 */
-  tag_id: number;
-  /** 是否只看当前SKU商品 */
-  current_goods_only: boolean;
-  /** 排序类型 */
-  sort_type: CommentSortType;
-  /** 当前页码 */
-  page_num: number;
-  /** 每页数量 */
-  page_size: number;
-}
-
-/** 商品评价分页响应 */
-export interface PageGoodsCommentResponse {
-  /** 顶部筛选项列表 */
-  comment_filters: CommentFilterItem[];
-  /** 评价列表摘要 */
-  comment_summary:
-    | CommentSummary
-    | undefined;
-  /** 评价分页数据 */
-  comments: CommentItem[];
-  /** 总数 */
-  total: number;
-  /** 当前页码 */
-  page_num: number;
-  /** 每页数量 */
-  page_size: number;
-  /** 是否还有下一页 */
-  has_more: boolean;
-}
-
-/** 评价讨论分页查询条件 */
-export interface PageCommentDiscussionRequest {
-  /** 评价ID */
-  comment_id: number;
-  /** 当前页码 */
-  page_num: number;
-  /** 每页数量 */
-  page_size: number;
-}
-
-/** 评价讨论分页响应 */
-export interface PageCommentDiscussionResponse {
-  /** 评价ID */
-  comment_id: number;
-  /** 讨论分页数据 */
-  comment_discussions: CommentDiscussionItem[];
-  /** 总数 */
-  total: number;
-  /** 当前页码 */
-  page_num: number;
-  /** 每页数量 */
-  page_size: number;
-  /** 是否还有下一页 */
-  has_more: boolean;
-}
-
-/** 发布评价讨论请求参数 */
-export interface CreateCommentDiscussionRequest {
-  /** 所属评价ID */
-  comment_id: number;
-  /** 讨论内容 */
-  content: string;
-  /** 父级讨论ID，可为空 */
-  parent_id: number;
-  /** 被回复讨论ID，可为空 */
-  reply_to_discussion_id: number;
-  /** 是否匿名讨论 */
-  is_anonymous: boolean;
-}
-
-/** 发布评价讨论响应 */
-export interface CreateCommentDiscussionResponse {
-  /** 新创建的讨论 */
-  item:
-    | CommentDiscussionItem
-    | undefined;
-  /** 发布后的讨论总数 */
-  discussion_count: number;
-}
-
-/** 保存评价互动状态请求参数 */
-export interface SaveCommentReactionRequest {
-  /** 互动目标类型：枚举【CommentReactionTargetType】 */
-  target_type: CommentReactionTargetType;
-  /** 互动目标ID */
-  target_id: number;
-  /** 互动类型：枚举【CommentReactionType】 */
-  reaction_type: CommentReactionType;
-  /** 是否设置当前互动状态 */
-  active: boolean;
-}
-
-/** 保存评价互动状态响应 */
-export interface SaveCommentReactionResponse {
-  /** 互动目标类型：枚举【CommentReactionTargetType】 */
-  target_type: CommentReactionTargetType;
-  /** 互动目标ID */
-  target_id: number;
-  /** 当前用户互动类型：枚举【CommentReactionType】 */
-  reaction_type: CommentReactionType;
-  /** 点赞数 */
-  like_count: number;
-  /** 点踩数 */
-  dislike_count: number;
-}
-
-/** 待评价商品分页查询条件 */
-export interface PagePendingCommentGoodsRequest {
-  /** 门店订单ID，可为空 */
-  order_id?:
-    | number
-    | undefined;
-  /** 当前页码 */
-  page_num: number;
-  /** 每页数量 */
-  page_size: number;
-}
-
-/** 待评价商品分页响应 */
-export interface PagePendingCommentGoodsResponse {
-  /** 待评价商品列表 */
-  pending_comment_goods: PendingCommentGoodsItem[];
-  /** 总数 */
-  total: number;
-  /** 当前页码 */
-  page_num: number;
-  /** 每页数量 */
-  page_size: number;
-  /** 是否还有下一页 */
-  has_more: boolean;
-}
-
-/** 发布商品评价请求参数 */
-export interface CreateCommentRequest {
-  /** 订单ID */
-  order_id: number;
-  /** 商品ID */
-  goods_id: number;
-  /** SKU编码 */
-  sku_code: string;
-  /** 评价正文 */
-  content: string;
-  /** 评价图片数组 */
-  img: string[];
-  /** 是否匿名展示 */
-  is_anonymous: boolean;
-  /** 商品评价评分，范围1到5 */
-  goods_score: number;
-  /** 包装评价评分，范围1到5 */
-  package_score: number;
-  /** 送货评价评分，范围1到5 */
-  delivery_score: number;
-}
-
-/** 发布商品评价响应 */
-export interface CreateCommentResponse {
-  /** 新建评价ID */
-  comment_id: number;
-  /** 订单ID */
-  order_id: number;
-  /** 订单是否已因全部评价完成而流转为已完成 */
-  order_completed: boolean;
-}
-
-/** 我的评价分页查询条件 */
-export interface PageMyCommentRequest {
-  /** 当前页码 */
-  page_num: number;
-  /** 每页数量 */
-  page_size: number;
-}
-
-/** 我的评价分页响应 */
-export interface PageMyCommentResponse {
-  /** 我的评价列表 */
-  comments: CommentItem[];
-  /** 总数 */
-  total: number;
-  /** 当前页码 */
-  page_num: number;
-  /** 每页数量 */
-  page_size: number;
-  /** 是否还有下一页 */
-  has_more: boolean;
-}
-
 /** App评论服务 */
 export interface CommentInfoService {
-  /** 查询商品评价摘要 */
-  GoodsCommentOverview(request: GoodsCommentOverviewRequest): Promise<GoodsCommentOverviewResponse>;
-  /** 查询商品评价标签列表 */
-  GoodsCommentTag(request: GoodsCommentTagRequest): Promise<GoodsCommentTagResponse>;
-  /** 查询商品评价分页列表 */
-  PageGoodsComment(request: PageGoodsCommentRequest): Promise<PageGoodsCommentResponse>;
   /** 查询评价讨论分页列表 */
   PageCommentDiscussion(request: PageCommentDiscussionRequest): Promise<PageCommentDiscussionResponse>;
-  /** 发布评价讨论 */
-  CreateCommentDiscussion(request: CreateCommentDiscussionRequest): Promise<CreateCommentDiscussionResponse>;
-  /** 保存评价互动状态 */
-  SaveCommentReaction(request: SaveCommentReactionRequest): Promise<SaveCommentReactionResponse>;
+  /** 查询商品评价分页列表 */
+  PageGoodsComment(request: PageGoodsCommentRequest): Promise<PageGoodsCommentResponse>;
+  /** 查询我的评价分页列表 */
+  PageMyComment(request: PageMyCommentRequest): Promise<PageMyCommentResponse>;
   /** 查询待评价商品分页列表 */
   PagePendingCommentGoods(request: PagePendingCommentGoodsRequest): Promise<PagePendingCommentGoodsResponse>;
   /** 发布商品评价 */
   CreateComment(request: CreateCommentRequest): Promise<CreateCommentResponse>;
+  /** 发布评价讨论 */
+  CreateCommentDiscussion(request: CreateCommentDiscussionRequest): Promise<CreateCommentDiscussionResponse>;
   /** 删除商品评价 */
   DeleteComment(request: DeleteCommentRequest): Promise<Empty>;
-  /** 查询我的评价分页列表 */
-  PageMyComment(request: PageMyCommentRequest): Promise<PageMyCommentResponse>;
+  /** 查询商品评价摘要 */
+  GoodsCommentOverview(request: GoodsCommentOverviewRequest): Promise<GoodsCommentOverviewResponse>;
+  /** 查询商品评价标签列表 */
+  GoodsCommentTag(request: GoodsCommentTagRequest): Promise<GoodsCommentTagResponse>;
+  /** 保存评价互动状态 */
+  SaveCommentReaction(request: SaveCommentReactionRequest): Promise<SaveCommentReactionResponse>;
 }

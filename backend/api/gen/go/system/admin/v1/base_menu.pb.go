@@ -28,88 +28,6 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// 菜单树查询条件
-type TreeBaseMenuRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *TreeBaseMenuRequest) Reset() {
-	*x = TreeBaseMenuRequest{}
-	mi := &file_system_admin_v1_base_menu_proto_msgTypes[0]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *TreeBaseMenuRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*TreeBaseMenuRequest) ProtoMessage() {}
-
-func (x *TreeBaseMenuRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_menu_proto_msgTypes[0]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use TreeBaseMenuRequest.ProtoReflect.Descriptor instead.
-func (*TreeBaseMenuRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_menu_proto_rawDescGZIP(), []int{0}
-}
-
-// 菜单树响应
-type TreeBaseMenuResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	BaseMenus     []*BaseMenu            `protobuf:"bytes,1,rep,name=base_menus,json=baseMenus,proto3" json:"base_menus,omitempty"` // 菜单树
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *TreeBaseMenuResponse) Reset() {
-	*x = TreeBaseMenuResponse{}
-	mi := &file_system_admin_v1_base_menu_proto_msgTypes[1]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *TreeBaseMenuResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*TreeBaseMenuResponse) ProtoMessage() {}
-
-func (x *TreeBaseMenuResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_menu_proto_msgTypes[1]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use TreeBaseMenuResponse.ProtoReflect.Descriptor instead.
-func (*TreeBaseMenuResponse) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_menu_proto_rawDescGZIP(), []int{1}
-}
-
-func (x *TreeBaseMenuResponse) GetBaseMenus() []*BaseMenu {
-	if x != nil {
-		return x.BaseMenus
-	}
-	return nil
-}
-
 // 菜单选项查询条件
 type OptionBaseMenuRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -121,7 +39,7 @@ type OptionBaseMenuRequest struct {
 
 func (x *OptionBaseMenuRequest) Reset() {
 	*x = OptionBaseMenuRequest{}
-	mi := &file_system_admin_v1_base_menu_proto_msgTypes[2]
+	mi := &file_system_admin_v1_base_menu_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -133,7 +51,7 @@ func (x *OptionBaseMenuRequest) String() string {
 func (*OptionBaseMenuRequest) ProtoMessage() {}
 
 func (x *OptionBaseMenuRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_menu_proto_msgTypes[2]
+	mi := &file_system_admin_v1_base_menu_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -146,7 +64,7 @@ func (x *OptionBaseMenuRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OptionBaseMenuRequest.ProtoReflect.Descriptor instead.
 func (*OptionBaseMenuRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_menu_proto_rawDescGZIP(), []int{2}
+	return file_system_admin_v1_base_menu_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *OptionBaseMenuRequest) GetParentId() int64 {
@@ -161,6 +79,88 @@ func (x *OptionBaseMenuRequest) GetRoleId() int64 {
 		return *x.RoleId
 	}
 	return 0
+}
+
+// 菜单树查询条件
+type TreeBaseMenuRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TreeBaseMenuRequest) Reset() {
+	*x = TreeBaseMenuRequest{}
+	mi := &file_system_admin_v1_base_menu_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TreeBaseMenuRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TreeBaseMenuRequest) ProtoMessage() {}
+
+func (x *TreeBaseMenuRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_base_menu_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TreeBaseMenuRequest.ProtoReflect.Descriptor instead.
+func (*TreeBaseMenuRequest) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_base_menu_proto_rawDescGZIP(), []int{1}
+}
+
+// 菜单树响应
+type TreeBaseMenuResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	BaseMenus     []*BaseMenu            `protobuf:"bytes,1,rep,name=base_menus,json=baseMenus,proto3" json:"base_menus,omitempty"` // 菜单树
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TreeBaseMenuResponse) Reset() {
+	*x = TreeBaseMenuResponse{}
+	mi := &file_system_admin_v1_base_menu_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TreeBaseMenuResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TreeBaseMenuResponse) ProtoMessage() {}
+
+func (x *TreeBaseMenuResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_base_menu_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TreeBaseMenuResponse.ProtoReflect.Descriptor instead.
+func (*TreeBaseMenuResponse) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_base_menu_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *TreeBaseMenuResponse) GetBaseMenus() []*BaseMenu {
+	if x != nil {
+		return x.BaseMenus
+	}
+	return nil
 }
 
 // 查询菜单请求参数
@@ -208,6 +208,131 @@ func (x *GetBaseMenuRequest) GetId() int64 {
 	return 0
 }
 
+// 菜单表单
+type BaseMenuForm struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                        // 菜单ID
+	ParentId      *int64                 `protobuf:"varint,2,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`      // 父级菜单ID
+	Type          v1.BaseMenuType        `protobuf:"varint,3,opt,name=type,proto3,enum=system.common.v1.BaseMenuType" json:"type,omitempty"` // 菜单类型
+	Path          string                 `protobuf:"bytes,4,opt,name=path,proto3" json:"path,omitempty"`                                     // 路由地址
+	Name          string                 `protobuf:"bytes,5,opt,name=name,proto3" json:"name,omitempty"`                                     // 路由命名，然后我们可以使用 name 而不是 path 来传递 to 属性给 <router-link>。
+	Component     string                 `protobuf:"bytes,6,opt,name=component,proto3" json:"component,omitempty"`                           // 组件路径
+	Redirect      string                 `protobuf:"bytes,7,opt,name=redirect,proto3" json:"redirect,omitempty"`                             // 重定向地址
+	Meta          *BaseMenuMeta          `protobuf:"bytes,8,opt,name=meta,proto3" json:"meta,omitempty"`                                     // 路由元信息
+	Api           []string               `protobuf:"bytes,9,rep,name=api,proto3" json:"api,omitempty"`                                       // 分配的API列表
+	Sort          int32                  `protobuf:"varint,50,opt,name=sort,proto3" json:"sort,omitempty"`                                   // 排序
+	Status        v11.Status             `protobuf:"varint,101,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`        // 状态
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BaseMenuForm) Reset() {
+	*x = BaseMenuForm{}
+	mi := &file_system_admin_v1_base_menu_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BaseMenuForm) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BaseMenuForm) ProtoMessage() {}
+
+func (x *BaseMenuForm) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_base_menu_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BaseMenuForm.ProtoReflect.Descriptor instead.
+func (*BaseMenuForm) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_base_menu_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *BaseMenuForm) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *BaseMenuForm) GetParentId() int64 {
+	if x != nil && x.ParentId != nil {
+		return *x.ParentId
+	}
+	return 0
+}
+
+func (x *BaseMenuForm) GetType() v1.BaseMenuType {
+	if x != nil {
+		return x.Type
+	}
+	return v1.BaseMenuType(0)
+}
+
+func (x *BaseMenuForm) GetPath() string {
+	if x != nil {
+		return x.Path
+	}
+	return ""
+}
+
+func (x *BaseMenuForm) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *BaseMenuForm) GetComponent() string {
+	if x != nil {
+		return x.Component
+	}
+	return ""
+}
+
+func (x *BaseMenuForm) GetRedirect() string {
+	if x != nil {
+		return x.Redirect
+	}
+	return ""
+}
+
+func (x *BaseMenuForm) GetMeta() *BaseMenuMeta {
+	if x != nil {
+		return x.Meta
+	}
+	return nil
+}
+
+func (x *BaseMenuForm) GetApi() []string {
+	if x != nil {
+		return x.Api
+	}
+	return nil
+}
+
+func (x *BaseMenuForm) GetSort() int32 {
+	if x != nil {
+		return x.Sort
+	}
+	return 0
+}
+
+func (x *BaseMenuForm) GetStatus() v11.Status {
+	if x != nil {
+		return x.Status
+	}
+	return v11.Status(0)
+}
+
 // 创建菜单请求参数
 type CreateBaseMenuRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -218,7 +343,7 @@ type CreateBaseMenuRequest struct {
 
 func (x *CreateBaseMenuRequest) Reset() {
 	*x = CreateBaseMenuRequest{}
-	mi := &file_system_admin_v1_base_menu_proto_msgTypes[4]
+	mi := &file_system_admin_v1_base_menu_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -230,7 +355,7 @@ func (x *CreateBaseMenuRequest) String() string {
 func (*CreateBaseMenuRequest) ProtoMessage() {}
 
 func (x *CreateBaseMenuRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_menu_proto_msgTypes[4]
+	mi := &file_system_admin_v1_base_menu_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -243,7 +368,7 @@ func (x *CreateBaseMenuRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateBaseMenuRequest.ProtoReflect.Descriptor instead.
 func (*CreateBaseMenuRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_menu_proto_rawDescGZIP(), []int{4}
+	return file_system_admin_v1_base_menu_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *CreateBaseMenuRequest) GetBaseMenu() *BaseMenuForm {
@@ -263,7 +388,7 @@ type UpdateBaseMenuRequest struct {
 
 func (x *UpdateBaseMenuRequest) Reset() {
 	*x = UpdateBaseMenuRequest{}
-	mi := &file_system_admin_v1_base_menu_proto_msgTypes[5]
+	mi := &file_system_admin_v1_base_menu_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -275,7 +400,7 @@ func (x *UpdateBaseMenuRequest) String() string {
 func (*UpdateBaseMenuRequest) ProtoMessage() {}
 
 func (x *UpdateBaseMenuRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_menu_proto_msgTypes[5]
+	mi := &file_system_admin_v1_base_menu_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -288,7 +413,7 @@ func (x *UpdateBaseMenuRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateBaseMenuRequest.ProtoReflect.Descriptor instead.
 func (*UpdateBaseMenuRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_menu_proto_rawDescGZIP(), []int{5}
+	return file_system_admin_v1_base_menu_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *UpdateBaseMenuRequest) GetBaseMenu() *BaseMenuForm {
@@ -308,7 +433,7 @@ type DeleteBaseMenuRequest struct {
 
 func (x *DeleteBaseMenuRequest) Reset() {
 	*x = DeleteBaseMenuRequest{}
-	mi := &file_system_admin_v1_base_menu_proto_msgTypes[6]
+	mi := &file_system_admin_v1_base_menu_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -320,7 +445,7 @@ func (x *DeleteBaseMenuRequest) String() string {
 func (*DeleteBaseMenuRequest) ProtoMessage() {}
 
 func (x *DeleteBaseMenuRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_menu_proto_msgTypes[6]
+	mi := &file_system_admin_v1_base_menu_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -333,7 +458,7 @@ func (x *DeleteBaseMenuRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteBaseMenuRequest.ProtoReflect.Descriptor instead.
 func (*DeleteBaseMenuRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_menu_proto_rawDescGZIP(), []int{6}
+	return file_system_admin_v1_base_menu_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *DeleteBaseMenuRequest) GetId() string {
@@ -354,7 +479,7 @@ type SetBaseMenuStatusRequest struct {
 
 func (x *SetBaseMenuStatusRequest) Reset() {
 	*x = SetBaseMenuStatusRequest{}
-	mi := &file_system_admin_v1_base_menu_proto_msgTypes[7]
+	mi := &file_system_admin_v1_base_menu_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -366,7 +491,7 @@ func (x *SetBaseMenuStatusRequest) String() string {
 func (*SetBaseMenuStatusRequest) ProtoMessage() {}
 
 func (x *SetBaseMenuStatusRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_menu_proto_msgTypes[7]
+	mi := &file_system_admin_v1_base_menu_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -379,7 +504,7 @@ func (x *SetBaseMenuStatusRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetBaseMenuStatusRequest.ProtoReflect.Descriptor instead.
 func (*SetBaseMenuStatusRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_menu_proto_rawDescGZIP(), []int{7}
+	return file_system_admin_v1_base_menu_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *SetBaseMenuStatusRequest) GetId() int64 {
@@ -418,7 +543,7 @@ type BaseMenu struct {
 
 func (x *BaseMenu) Reset() {
 	*x = BaseMenu{}
-	mi := &file_system_admin_v1_base_menu_proto_msgTypes[8]
+	mi := &file_system_admin_v1_base_menu_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -430,7 +555,7 @@ func (x *BaseMenu) String() string {
 func (*BaseMenu) ProtoMessage() {}
 
 func (x *BaseMenu) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_menu_proto_msgTypes[8]
+	mi := &file_system_admin_v1_base_menu_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -443,7 +568,7 @@ func (x *BaseMenu) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BaseMenu.ProtoReflect.Descriptor instead.
 func (*BaseMenu) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_menu_proto_rawDescGZIP(), []int{8}
+	return file_system_admin_v1_base_menu_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *BaseMenu) GetId() int64 {
@@ -535,131 +660,6 @@ func (x *BaseMenu) GetChildren() []*BaseMenu {
 		return x.Children
 	}
 	return nil
-}
-
-// 菜单表单
-type BaseMenuForm struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                        // 菜单ID
-	ParentId      *int64                 `protobuf:"varint,2,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`      // 父级菜单ID
-	Type          v1.BaseMenuType        `protobuf:"varint,3,opt,name=type,proto3,enum=system.common.v1.BaseMenuType" json:"type,omitempty"` // 菜单类型
-	Path          string                 `protobuf:"bytes,4,opt,name=path,proto3" json:"path,omitempty"`                                     // 路由地址
-	Name          string                 `protobuf:"bytes,5,opt,name=name,proto3" json:"name,omitempty"`                                     // 路由命名，然后我们可以使用 name 而不是 path 来传递 to 属性给 <router-link>。
-	Component     string                 `protobuf:"bytes,6,opt,name=component,proto3" json:"component,omitempty"`                           // 组件路径
-	Redirect      string                 `protobuf:"bytes,7,opt,name=redirect,proto3" json:"redirect,omitempty"`                             // 重定向地址
-	Meta          *BaseMenuMeta          `protobuf:"bytes,8,opt,name=meta,proto3" json:"meta,omitempty"`                                     // 路由元信息
-	Api           []string               `protobuf:"bytes,9,rep,name=api,proto3" json:"api,omitempty"`                                       // 分配的API列表
-	Sort          int32                  `protobuf:"varint,50,opt,name=sort,proto3" json:"sort,omitempty"`                                   // 排序
-	Status        v11.Status             `protobuf:"varint,101,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`        // 状态
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *BaseMenuForm) Reset() {
-	*x = BaseMenuForm{}
-	mi := &file_system_admin_v1_base_menu_proto_msgTypes[9]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *BaseMenuForm) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*BaseMenuForm) ProtoMessage() {}
-
-func (x *BaseMenuForm) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_menu_proto_msgTypes[9]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use BaseMenuForm.ProtoReflect.Descriptor instead.
-func (*BaseMenuForm) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_menu_proto_rawDescGZIP(), []int{9}
-}
-
-func (x *BaseMenuForm) GetId() int64 {
-	if x != nil {
-		return x.Id
-	}
-	return 0
-}
-
-func (x *BaseMenuForm) GetParentId() int64 {
-	if x != nil && x.ParentId != nil {
-		return *x.ParentId
-	}
-	return 0
-}
-
-func (x *BaseMenuForm) GetType() v1.BaseMenuType {
-	if x != nil {
-		return x.Type
-	}
-	return v1.BaseMenuType(0)
-}
-
-func (x *BaseMenuForm) GetPath() string {
-	if x != nil {
-		return x.Path
-	}
-	return ""
-}
-
-func (x *BaseMenuForm) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
-}
-
-func (x *BaseMenuForm) GetComponent() string {
-	if x != nil {
-		return x.Component
-	}
-	return ""
-}
-
-func (x *BaseMenuForm) GetRedirect() string {
-	if x != nil {
-		return x.Redirect
-	}
-	return ""
-}
-
-func (x *BaseMenuForm) GetMeta() *BaseMenuMeta {
-	if x != nil {
-		return x.Meta
-	}
-	return nil
-}
-
-func (x *BaseMenuForm) GetApi() []string {
-	if x != nil {
-		return x.Api
-	}
-	return nil
-}
-
-func (x *BaseMenuForm) GetSort() int32 {
-	if x != nil {
-		return x.Sort
-	}
-	return 0
-}
-
-func (x *BaseMenuForm) GetStatus() v11.Status {
-	if x != nil {
-		return x.Status
-	}
-	return v11.Status(0)
 }
 
 // 菜单元信息
@@ -820,20 +820,38 @@ var File_system_admin_v1_base_menu_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_base_menu_proto_rawDesc = "" +
 	"\n" +
-	"\x1fsystem/admin/v1/base_menu.proto\x12\x0fsystem.admin.v1\x1a\x16common/v1/common.proto\x1a\x14common/v1/enum.proto\x1a\x1bsystem/common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1bbuf/validate/validate.proto\"\x15\n" +
-	"\x13TreeBaseMenuRequest\"a\n" +
-	"\x14TreeBaseMenuResponse\x12I\n" +
-	"\n" +
-	"base_menus\x18\x01 \x03(\v2\x19.system.admin.v1.BaseMenuB\x0f\xbaG\f\x92\x02\t菜单树R\tbaseMenus\"\x9d\x01\n" +
+	"\x1fsystem/admin/v1/base_menu.proto\x12\x0fsystem.admin.v1\x1a\x16common/v1/common.proto\x1a\x14common/v1/enum.proto\x1a\x1bsystem/common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1bbuf/validate/validate.proto\"\x9d\x01\n" +
 	"\x15OptionBaseMenuRequest\x126\n" +
 	"\tparent_id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e父级菜单IDH\x00R\bparentId\x88\x01\x01\x122\n" +
 	"\arole_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e目标角色IDH\x01R\x06roleId\x88\x01\x01B\f\n" +
 	"\n" +
 	"_parent_idB\n" +
 	"\n" +
-	"\b_role_id\"4\n" +
+	"\b_role_id\"\x15\n" +
+	"\x13TreeBaseMenuRequest\"a\n" +
+	"\x14TreeBaseMenuResponse\x12I\n" +
+	"\n" +
+	"base_menus\x18\x01 \x03(\v2\x19.system.admin.v1.BaseMenuB\x0f\xbaG\f\x92\x02\t菜单树R\tbaseMenus\"4\n" +
 	"\x12GetBaseMenuRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b菜单IDR\x02id\"g\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b菜单IDR\x02id\"\xc5\b\n" +
+	"\fBaseMenuForm\x12\x1e\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b菜单IDR\x02id\x126\n" +
+	"\tparent_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e父级菜单IDH\x00R\bparentId\x88\x01\x01\x12N\n" +
+	"\x04type\x18\x03 \x01(\x0e2\x1e.system.common.v1.BaseMenuTypeB\x1a\xbaG\x0f\x92\x02\f菜单类型\xbaH\x05\x82\x01\x02\x10\x01R\x04type\x12\xa1\x01\n" +
+	"\x04path\x18\x04 \x01(\tB\x8c\x01\xbaG\x0f\x92\x02\f路由地址\xbaHw\xba\x01t\n" +
+	"\x15base_menu.path.length\x123路由地址不能为空且不超过 1024 个字符\x1a&this.size() > 0 && this.size() <= 1024R\x04path\x12\xd8\x01\n" +
+	"\x04name\x18\x05 \x01(\tB\xc3\x01\xbaGf\x92\x02c路由命名，然后我们可以使用 name 而不是 path 来传递 to 属性给 <router-link>。\xbaHW\xba\x01T\n" +
+	"\x16base_menu.name.max_len\x12&路由名称不能超过 255 个字符\x1a\x12this.size() <= 255R\x04name\x12\x8f\x01\n" +
+	"\tcomponent\x18\x06 \x01(\tBq\xbaG\x0f\x92\x02\f组件路径\xbaH\\\xba\x01Y\n" +
+	"\x1bbase_menu.component.max_len\x12&组件路径不能超过 255 个字符\x1a\x12this.size() <= 255R\tcomponent\x12\x94\x01\n" +
+	"\bredirect\x18\a \x01(\tBx\xbaG\x12\x92\x02\x0f重定向地址\xbaH`\xba\x01]\n" +
+	"\x1abase_menu.redirect.max_len\x12*重定向地址不能超过 1024 个字符\x1a\x13this.size() <= 1024R\bredirect\x12H\n" +
+	"\x04meta\x18\b \x01(\v2\x1d.system.admin.v1.BaseMenuMetaB\x15\xbaG\x12\x92\x02\x0f路由元信息R\x04meta\x12*\n" +
+	"\x03api\x18\t \x03(\tB\x18\xbaG\x15\x92\x02\x12分配的API列表R\x03api\x12 \n" +
+	"\x04sort\x182 \x01(\x05B\f\xbaG\t\x92\x02\x06排序R\x04sort\x12?\n" +
+	"\x06status\x18e \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06statusB\f\n" +
+	"\n" +
+	"_parent_id\"g\n" +
 	"\x15CreateBaseMenuRequest\x12N\n" +
 	"\tbase_menu\x18\x01 \x01(\v2\x1d.system.admin.v1.BaseMenuFormB\x12\xbaG\x0f\x92\x02\f菜单表单R\bbaseMenu\"g\n" +
 	"\x15UpdateBaseMenuRequest\x12N\n" +
@@ -858,25 +876,7 @@ const file_system_admin_v1_base_menu_proto_rawDesc = "" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
 	"\n" +
 	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x12G\n" +
-	"\bchildren\x18\xac\x02 \x03(\v2\x19.system.admin.v1.BaseMenuB\x0f\xbaG\f\x92\x02\t子菜单R\bchildren\"\xc5\b\n" +
-	"\fBaseMenuForm\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b菜单IDR\x02id\x126\n" +
-	"\tparent_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e父级菜单IDH\x00R\bparentId\x88\x01\x01\x12N\n" +
-	"\x04type\x18\x03 \x01(\x0e2\x1e.system.common.v1.BaseMenuTypeB\x1a\xbaG\x0f\x92\x02\f菜单类型\xbaH\x05\x82\x01\x02\x10\x01R\x04type\x12\xa1\x01\n" +
-	"\x04path\x18\x04 \x01(\tB\x8c\x01\xbaG\x0f\x92\x02\f路由地址\xbaHw\xba\x01t\n" +
-	"\x15base_menu.path.length\x123路由地址不能为空且不超过 1024 个字符\x1a&this.size() > 0 && this.size() <= 1024R\x04path\x12\xd8\x01\n" +
-	"\x04name\x18\x05 \x01(\tB\xc3\x01\xbaGf\x92\x02c路由命名，然后我们可以使用 name 而不是 path 来传递 to 属性给 <router-link>。\xbaHW\xba\x01T\n" +
-	"\x16base_menu.name.max_len\x12&路由名称不能超过 255 个字符\x1a\x12this.size() <= 255R\x04name\x12\x8f\x01\n" +
-	"\tcomponent\x18\x06 \x01(\tBq\xbaG\x0f\x92\x02\f组件路径\xbaH\\\xba\x01Y\n" +
-	"\x1bbase_menu.component.max_len\x12&组件路径不能超过 255 个字符\x1a\x12this.size() <= 255R\tcomponent\x12\x94\x01\n" +
-	"\bredirect\x18\a \x01(\tBx\xbaG\x12\x92\x02\x0f重定向地址\xbaH`\xba\x01]\n" +
-	"\x1abase_menu.redirect.max_len\x12*重定向地址不能超过 1024 个字符\x1a\x13this.size() <= 1024R\bredirect\x12H\n" +
-	"\x04meta\x18\b \x01(\v2\x1d.system.admin.v1.BaseMenuMetaB\x15\xbaG\x12\x92\x02\x0f路由元信息R\x04meta\x12*\n" +
-	"\x03api\x18\t \x03(\tB\x18\xbaG\x15\x92\x02\x12分配的API列表R\x03api\x12 \n" +
-	"\x04sort\x182 \x01(\x05B\f\xbaG\t\x92\x02\x06排序R\x04sort\x12?\n" +
-	"\x06status\x18e \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06statusB\f\n" +
-	"\n" +
-	"_parent_id\"\xa2\x05\n" +
+	"\bchildren\x18\xac\x02 \x03(\v2\x19.system.admin.v1.BaseMenuB\x0f\xbaG\f\x92\x02\t子菜单R\bchildren\"\xa2\x05\n" +
 	"\fBaseMenuMeta\x12(\n" +
 	"\x05title\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f菜单标题R\x05title\x12+\n" +
 	"\x04icon\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f菜单图标H\x00R\x04icon\x88\x01\x01\x12_\n" +
@@ -897,9 +897,9 @@ const file_system_admin_v1_base_menu_proto_rawDesc = "" +
 	"\x0eBaseMenuParams\x12!\n" +
 	"\x03key\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t参数keyR\x03key\x12'\n" +
 	"\x05value\x18\x02 \x01(\tB\x11\xbaG\x0e\x92\x02\v参数valueR\x05value2\x9c\a\n" +
-	"\x0fBaseMenuService\x12\x81\x01\n" +
-	"\fTreeBaseMenu\x12$.system.admin.v1.TreeBaseMenuRequest\x1a%.system.admin.v1.TreeBaseMenuResponse\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/api/v1/admin/base/menu/tree\x12\x7f\n" +
-	"\x0eOptionBaseMenu\x12&.system.admin.v1.OptionBaseMenuRequest\x1a\x1d.common.v1.TreeOptionResponse\"&\x82\xd3\xe4\x93\x02 \x12\x1e/api/v1/admin/base/menu/option\x12w\n" +
+	"\x0fBaseMenuService\x12\x7f\n" +
+	"\x0eOptionBaseMenu\x12&.system.admin.v1.OptionBaseMenuRequest\x1a\x1d.common.v1.TreeOptionResponse\"&\x82\xd3\xe4\x93\x02 \x12\x1e/api/v1/admin/base/menu/option\x12\x81\x01\n" +
+	"\fTreeBaseMenu\x12$.system.admin.v1.TreeBaseMenuRequest\x1a%.system.admin.v1.TreeBaseMenuResponse\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/api/v1/admin/base/menu/tree\x12w\n" +
 	"\vGetBaseMenu\x12#.system.admin.v1.GetBaseMenuRequest\x1a\x1d.system.admin.v1.BaseMenuForm\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/api/v1/admin/base/menu/{id}\x12|\n" +
 	"\x0eCreateBaseMenu\x12&.system.admin.v1.CreateBaseMenuRequest\x1a\x16.google.protobuf.Empty\"*\x82\xd3\xe4\x93\x02$:\tbase_menu\"\x17/api/v1/admin/base/menu\x12\x8b\x01\n" +
 	"\x0eUpdateBaseMenu\x12&.system.admin.v1.UpdateBaseMenuRequest\x1a\x16.google.protobuf.Empty\"9\x82\xd3\xe4\x93\x023:\tbase_menu\x1a&/api/v1/admin/base/menu/{base_menu.id}\x12v\n" +
@@ -921,16 +921,16 @@ func file_system_admin_v1_base_menu_proto_rawDescGZIP() []byte {
 
 var file_system_admin_v1_base_menu_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_system_admin_v1_base_menu_proto_goTypes = []any{
-	(*TreeBaseMenuRequest)(nil),      // 0: system.admin.v1.TreeBaseMenuRequest
-	(*TreeBaseMenuResponse)(nil),     // 1: system.admin.v1.TreeBaseMenuResponse
-	(*OptionBaseMenuRequest)(nil),    // 2: system.admin.v1.OptionBaseMenuRequest
+	(*OptionBaseMenuRequest)(nil),    // 0: system.admin.v1.OptionBaseMenuRequest
+	(*TreeBaseMenuRequest)(nil),      // 1: system.admin.v1.TreeBaseMenuRequest
+	(*TreeBaseMenuResponse)(nil),     // 2: system.admin.v1.TreeBaseMenuResponse
 	(*GetBaseMenuRequest)(nil),       // 3: system.admin.v1.GetBaseMenuRequest
-	(*CreateBaseMenuRequest)(nil),    // 4: system.admin.v1.CreateBaseMenuRequest
-	(*UpdateBaseMenuRequest)(nil),    // 5: system.admin.v1.UpdateBaseMenuRequest
-	(*DeleteBaseMenuRequest)(nil),    // 6: system.admin.v1.DeleteBaseMenuRequest
-	(*SetBaseMenuStatusRequest)(nil), // 7: system.admin.v1.SetBaseMenuStatusRequest
-	(*BaseMenu)(nil),                 // 8: system.admin.v1.BaseMenu
-	(*BaseMenuForm)(nil),             // 9: system.admin.v1.BaseMenuForm
+	(*BaseMenuForm)(nil),             // 4: system.admin.v1.BaseMenuForm
+	(*CreateBaseMenuRequest)(nil),    // 5: system.admin.v1.CreateBaseMenuRequest
+	(*UpdateBaseMenuRequest)(nil),    // 6: system.admin.v1.UpdateBaseMenuRequest
+	(*DeleteBaseMenuRequest)(nil),    // 7: system.admin.v1.DeleteBaseMenuRequest
+	(*SetBaseMenuStatusRequest)(nil), // 8: system.admin.v1.SetBaseMenuStatusRequest
+	(*BaseMenu)(nil),                 // 9: system.admin.v1.BaseMenu
 	(*BaseMenuMeta)(nil),             // 10: system.admin.v1.BaseMenuMeta
 	(*BaseMenuParams)(nil),           // 11: system.admin.v1.BaseMenuParams
 	(v1.BaseMenuType)(0),             // 12: system.common.v1.BaseMenuType
@@ -939,27 +939,27 @@ var file_system_admin_v1_base_menu_proto_goTypes = []any{
 	(*emptypb.Empty)(nil),            // 15: google.protobuf.Empty
 }
 var file_system_admin_v1_base_menu_proto_depIdxs = []int32{
-	8,  // 0: system.admin.v1.TreeBaseMenuResponse.base_menus:type_name -> system.admin.v1.BaseMenu
-	9,  // 1: system.admin.v1.CreateBaseMenuRequest.base_menu:type_name -> system.admin.v1.BaseMenuForm
-	9,  // 2: system.admin.v1.UpdateBaseMenuRequest.base_menu:type_name -> system.admin.v1.BaseMenuForm
-	12, // 3: system.admin.v1.BaseMenu.type:type_name -> system.common.v1.BaseMenuType
-	10, // 4: system.admin.v1.BaseMenu.meta:type_name -> system.admin.v1.BaseMenuMeta
-	13, // 5: system.admin.v1.BaseMenu.status:type_name -> common.v1.Status
-	8,  // 6: system.admin.v1.BaseMenu.children:type_name -> system.admin.v1.BaseMenu
-	12, // 7: system.admin.v1.BaseMenuForm.type:type_name -> system.common.v1.BaseMenuType
-	10, // 8: system.admin.v1.BaseMenuForm.meta:type_name -> system.admin.v1.BaseMenuMeta
-	13, // 9: system.admin.v1.BaseMenuForm.status:type_name -> common.v1.Status
+	9,  // 0: system.admin.v1.TreeBaseMenuResponse.base_menus:type_name -> system.admin.v1.BaseMenu
+	12, // 1: system.admin.v1.BaseMenuForm.type:type_name -> system.common.v1.BaseMenuType
+	10, // 2: system.admin.v1.BaseMenuForm.meta:type_name -> system.admin.v1.BaseMenuMeta
+	13, // 3: system.admin.v1.BaseMenuForm.status:type_name -> common.v1.Status
+	4,  // 4: system.admin.v1.CreateBaseMenuRequest.base_menu:type_name -> system.admin.v1.BaseMenuForm
+	4,  // 5: system.admin.v1.UpdateBaseMenuRequest.base_menu:type_name -> system.admin.v1.BaseMenuForm
+	12, // 6: system.admin.v1.BaseMenu.type:type_name -> system.common.v1.BaseMenuType
+	10, // 7: system.admin.v1.BaseMenu.meta:type_name -> system.admin.v1.BaseMenuMeta
+	13, // 8: system.admin.v1.BaseMenu.status:type_name -> common.v1.Status
+	9,  // 9: system.admin.v1.BaseMenu.children:type_name -> system.admin.v1.BaseMenu
 	11, // 10: system.admin.v1.BaseMenuMeta.params:type_name -> system.admin.v1.BaseMenuParams
-	0,  // 11: system.admin.v1.BaseMenuService.TreeBaseMenu:input_type -> system.admin.v1.TreeBaseMenuRequest
-	2,  // 12: system.admin.v1.BaseMenuService.OptionBaseMenu:input_type -> system.admin.v1.OptionBaseMenuRequest
+	0,  // 11: system.admin.v1.BaseMenuService.OptionBaseMenu:input_type -> system.admin.v1.OptionBaseMenuRequest
+	1,  // 12: system.admin.v1.BaseMenuService.TreeBaseMenu:input_type -> system.admin.v1.TreeBaseMenuRequest
 	3,  // 13: system.admin.v1.BaseMenuService.GetBaseMenu:input_type -> system.admin.v1.GetBaseMenuRequest
-	4,  // 14: system.admin.v1.BaseMenuService.CreateBaseMenu:input_type -> system.admin.v1.CreateBaseMenuRequest
-	5,  // 15: system.admin.v1.BaseMenuService.UpdateBaseMenu:input_type -> system.admin.v1.UpdateBaseMenuRequest
-	6,  // 16: system.admin.v1.BaseMenuService.DeleteBaseMenu:input_type -> system.admin.v1.DeleteBaseMenuRequest
-	7,  // 17: system.admin.v1.BaseMenuService.SetBaseMenuStatus:input_type -> system.admin.v1.SetBaseMenuStatusRequest
-	1,  // 18: system.admin.v1.BaseMenuService.TreeBaseMenu:output_type -> system.admin.v1.TreeBaseMenuResponse
-	14, // 19: system.admin.v1.BaseMenuService.OptionBaseMenu:output_type -> common.v1.TreeOptionResponse
-	9,  // 20: system.admin.v1.BaseMenuService.GetBaseMenu:output_type -> system.admin.v1.BaseMenuForm
+	5,  // 14: system.admin.v1.BaseMenuService.CreateBaseMenu:input_type -> system.admin.v1.CreateBaseMenuRequest
+	6,  // 15: system.admin.v1.BaseMenuService.UpdateBaseMenu:input_type -> system.admin.v1.UpdateBaseMenuRequest
+	7,  // 16: system.admin.v1.BaseMenuService.DeleteBaseMenu:input_type -> system.admin.v1.DeleteBaseMenuRequest
+	8,  // 17: system.admin.v1.BaseMenuService.SetBaseMenuStatus:input_type -> system.admin.v1.SetBaseMenuStatusRequest
+	14, // 18: system.admin.v1.BaseMenuService.OptionBaseMenu:output_type -> common.v1.TreeOptionResponse
+	2,  // 19: system.admin.v1.BaseMenuService.TreeBaseMenu:output_type -> system.admin.v1.TreeBaseMenuResponse
+	4,  // 20: system.admin.v1.BaseMenuService.GetBaseMenu:output_type -> system.admin.v1.BaseMenuForm
 	15, // 21: system.admin.v1.BaseMenuService.CreateBaseMenu:output_type -> google.protobuf.Empty
 	15, // 22: system.admin.v1.BaseMenuService.UpdateBaseMenu:output_type -> google.protobuf.Empty
 	15, // 23: system.admin.v1.BaseMenuService.DeleteBaseMenu:output_type -> google.protobuf.Empty
@@ -976,8 +976,8 @@ func file_system_admin_v1_base_menu_proto_init() {
 	if File_system_admin_v1_base_menu_proto != nil {
 		return
 	}
-	file_system_admin_v1_base_menu_proto_msgTypes[2].OneofWrappers = []any{}
-	file_system_admin_v1_base_menu_proto_msgTypes[9].OneofWrappers = []any{}
+	file_system_admin_v1_base_menu_proto_msgTypes[0].OneofWrappers = []any{}
+	file_system_admin_v1_base_menu_proto_msgTypes[4].OneofWrappers = []any{}
 	file_system_admin_v1_base_menu_proto_msgTypes[10].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{

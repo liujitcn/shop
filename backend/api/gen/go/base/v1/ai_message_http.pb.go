@@ -39,25 +39,25 @@ type AiMessageServiceHTTPServer interface {
 
 func RegisterAiMessageServiceHTTPServer(s *http.Server, srv AiMessageServiceHTTPServer) {
 	r := s.Route("/")
-	r.Handle("POST", "/api/v1/base/ai/session/{session_id}/message", _AiMessageService_SendAiMessage0_HTTP_Handler(srv))
-	r.Handle("DELETE", "/api/v1/base/ai/session/{session_id}/message/{message_id}", _AiMessageService_DeleteAiMessage0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/base/ai/session/{session_id}/message/{message_id}", _AiMessageService_UpdateAiMessage0_HTTP_Handler(srv))
+	r.Handle("DELETE", "/api/v1/base/ai/session/{session_id}/message/{message_id}", _AiMessageService_DeleteAiMessage0_HTTP_Handler(srv))
+	r.Handle("POST", "/api/v1/base/ai/session/{session_id}/message", _AiMessageService_SendAiMessage0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/base/ai/session/{session_id}/message/{message_id}/retry", _AiMessageService_RetryAiUserMessage0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/base/ai/session/{session_id}/message/{message_id}/regeneration", _AiMessageService_RegenerateAiMessage0_HTTP_Handler(srv))
 }
 
-func _AiMessageService_SendAiMessage0_HTTP_Handler(srv AiMessageServiceHTTPServer) func(ctx http.Context) error {
+func _AiMessageService_UpdateAiMessage0_HTTP_Handler(srv AiMessageServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in SendAiMessageRequest
+		var in UpdateAiMessageRequest
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
 		if err := ctx.BindVars(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationAiMessageServiceSendAiMessage)
+		http.SetOperation(ctx, OperationAiMessageServiceUpdateAiMessage)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.SendAiMessage(ctx, req.(*SendAiMessageRequest))
+			return srv.UpdateAiMessage(ctx, req.(*UpdateAiMessageRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -90,18 +90,18 @@ func _AiMessageService_DeleteAiMessage0_HTTP_Handler(srv AiMessageServiceHTTPSer
 	}
 }
 
-func _AiMessageService_UpdateAiMessage0_HTTP_Handler(srv AiMessageServiceHTTPServer) func(ctx http.Context) error {
+func _AiMessageService_SendAiMessage0_HTTP_Handler(srv AiMessageServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in UpdateAiMessageRequest
+		var in SendAiMessageRequest
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
 		if err := ctx.BindVars(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationAiMessageServiceUpdateAiMessage)
+		http.SetOperation(ctx, OperationAiMessageServiceSendAiMessage)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.UpdateAiMessage(ctx, req.(*UpdateAiMessageRequest))
+			return srv.SendAiMessage(ctx, req.(*SendAiMessageRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {

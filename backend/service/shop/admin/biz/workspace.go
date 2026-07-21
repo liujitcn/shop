@@ -70,6 +70,47 @@ func NewWorkspaceCase(
 	}
 }
 
+// ListWorkspacePendingComment 查询工作台待审核评价。
+func (c *WorkspaceCase) ListWorkspacePendingComment(ctx context.Context, req *shopadminv1.ListWorkspacePendingCommentRequest) (*shopadminv1.ListWorkspacePendingCommentResponse, error) {
+	limit := int(req.GetLimit())
+	if limit <= 0 {
+		limit = DEFAULT_PENDING_COMMENT_LIMIT
+	}
+	if limit > MAX_PENDING_COMMENT_LIMIT {
+		limit = MAX_PENDING_COMMENT_LIMIT
+	}
+
+	query := c.commentInfoCase.Query(ctx).CommentInfo
+	opts := make([]repository.QueryOption, 0, 3)
+	opts = append(opts, repository.Where(query.Status.Eq(_const.COMMENT_STATUS_PENDING_REVIEW)))
+	if req.GetTenantId() > 0 {
+		opts = append(opts, repository.Where(query.TenantID.Eq(req.GetTenantId())))
+	}
+	if req.GetTenantStoreId() > 0 {
+		opts = append(opts, repository.Where(query.TenantStoreID.Eq(req.GetTenantStoreId())))
+	}
+	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
+	opts = append(opts, repository.Limit(limit))
+	list, err := c.commentInfoCase.List(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	pendingComments := make([]*shopadminv1.WorkspacePendingComment, 0, len(list))
+	for _, item := range list {
+		pendingComments = append(pendingComments, &shopadminv1.WorkspacePendingComment{
+			Id:         item.ID,
+			GoodsId:    item.GoodsID,
+			GoodsName:  item.GoodsNameSnapshot,
+			UserName:   item.UserNameSnapshot,
+			GoodsScore: item.GoodsScore,
+			Content:    truncateWorkspaceCommentContent(item.Content),
+			CreatedAt:  item.CreatedAt.Format("2006-01-02 15:04:05"),
+		})
+	}
+	return &shopadminv1.ListWorkspacePendingCommentResponse{PendingComments: pendingComments}, nil
+}
+
 // SummaryWorkspaceMetrics 查询工作台顶部指标。
 func (c *WorkspaceCase) SummaryWorkspaceMetrics(ctx context.Context, req *shopadminv1.SummaryWorkspaceMetricsRequest) (*shopadminv1.SummaryWorkspaceMetricsResponse, error) {
 	now := time.Now()
@@ -293,47 +334,6 @@ func (c *WorkspaceCase) SummaryWorkspaceReputation(ctx context.Context, req *sho
 		HotTags:             hotTags,
 		CommentSummary:      commentSummary,
 	}, nil
-}
-
-// ListWorkspacePendingComment 查询工作台待审核评价。
-func (c *WorkspaceCase) ListWorkspacePendingComment(ctx context.Context, req *shopadminv1.ListWorkspacePendingCommentRequest) (*shopadminv1.ListWorkspacePendingCommentResponse, error) {
-	limit := int(req.GetLimit())
-	if limit <= 0 {
-		limit = DEFAULT_PENDING_COMMENT_LIMIT
-	}
-	if limit > MAX_PENDING_COMMENT_LIMIT {
-		limit = MAX_PENDING_COMMENT_LIMIT
-	}
-
-	query := c.commentInfoCase.Query(ctx).CommentInfo
-	opts := make([]repository.QueryOption, 0, 3)
-	opts = append(opts, repository.Where(query.Status.Eq(_const.COMMENT_STATUS_PENDING_REVIEW)))
-	if req.GetTenantId() > 0 {
-		opts = append(opts, repository.Where(query.TenantID.Eq(req.GetTenantId())))
-	}
-	if req.GetTenantStoreId() > 0 {
-		opts = append(opts, repository.Where(query.TenantStoreID.Eq(req.GetTenantStoreId())))
-	}
-	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
-	opts = append(opts, repository.Limit(limit))
-	list, err := c.commentInfoCase.List(ctx, opts...)
-	if err != nil {
-		return nil, err
-	}
-
-	pendingComments := make([]*shopadminv1.WorkspacePendingComment, 0, len(list))
-	for _, item := range list {
-		pendingComments = append(pendingComments, &shopadminv1.WorkspacePendingComment{
-			Id:         item.ID,
-			GoodsId:    item.GoodsID,
-			GoodsName:  item.GoodsNameSnapshot,
-			UserName:   item.UserNameSnapshot,
-			GoodsScore: item.GoodsScore,
-			Content:    truncateWorkspaceCommentContent(item.Content),
-			CreatedAt:  item.CreatedAt.Format("2006-01-02 15:04:05"),
-		})
-	}
-	return &shopadminv1.ListWorkspacePendingCommentResponse{PendingComments: pendingComments}, nil
 }
 
 // countWorkspaceAbnormalPayBills 统计平台账单异常，租户管理员不展示平台账单风险。

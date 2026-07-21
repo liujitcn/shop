@@ -33,40 +33,47 @@ func NewGoodsReportCase(baseCase *biz.BaseCase, goodsStatDayRepo *data.GoodsStat
 	}
 }
 
-// SummaryGoodsMonthReport 查询商品月报汇总。
-func (c *GoodsReportCase) SummaryGoodsMonthReport(ctx context.Context, req *shopadminv1.SummaryGoodsMonthReportRequest) (*shopadminv1.SummaryGoodsMonthReportResponse, error) {
-	startMonth, err := c.parseMonth(req.GetStartMonth())
+// ListGoodsDayReport 查询商品日报明细。
+func (c *GoodsReportCase) ListGoodsDayReport(ctx context.Context, req *shopadminv1.ListGoodsDayReportRequest) (*shopadminv1.ListGoodsDayReportResponse, error) {
+	startDate, err := c.parseDate(req.GetStartDate())
 	if err != nil {
 		return nil, err
 	}
 
-	var endMonth time.Time
-	endMonth, err = c.parseMonth(req.GetEndMonth())
+	var endDate time.Time
+	endDate, err = c.parseDate(req.GetEndDate())
 	if err != nil {
 		return nil, err
 	}
 
-	// 结束月份早于开始月份时，不允许继续统计月报。
-	if endMonth.Before(startMonth) {
-		return nil, errorsx.InvalidArgument("结束月份不能早于开始月份")
+	// 结束日期早于开始日期时，不允许继续统计日报。
+	if endDate.Before(startDate) {
+		return nil, errorsx.InvalidArgument("结束日期不能早于开始日期")
 	}
 
-	var rows []*dto.GoodsMonthReportRow
-	rows, err = c.queryGoodsMonthReportRows(ctx, req.GetTenantId(), req.GetTenantStoreId(), startMonth, endMonth.AddDate(0, 1, 0))
+	var rows []*dto.GoodsDayReportRow
+	rows, err = c.queryGoodsDayReportRows(ctx, startDate, endDate.AddDate(0, 0, 1))
 	if err != nil {
 		return nil, err
 	}
 
-	summary := &shopadminv1.SummaryGoodsMonthReportResponse{}
-	for _, row := range rows {
-		item := c.toGoodsMonthReportItem(row)
-		c.appendMonthReportSummary(summary, item)
+	rowMap := make(map[string]*dto.GoodsDayReportRow, len(rows))
+	for _, item := range rows {
+		rowMap[item.Day] = item
 	}
-	summary.CartConversionRate = utils.CalcRatio(summary.CartCount, summary.ViewCount)
-	summary.OrderConversionRate = utils.CalcRatio(summary.OrderCount, summary.CartCount)
-	summary.PayConversionRate = utils.CalcRatio(summary.PayCount, summary.ViewCount)
-	summary.PayUnitPrice = utils.CalcPerUnit(summary.PayAmount, summary.PayGoodsNum)
-	return summary, nil
+
+	items := make([]*shopadminv1.GoodsDayReportItem, 0)
+	for cursor := startDate; !cursor.After(endDate); cursor = cursor.AddDate(0, 0, 1) {
+		dayKey := cursor.Format("2006-01-02")
+		row, ok := rowMap[dayKey]
+		// 当前日期没有统计数据时，补空行保证日期连续。
+		if !ok {
+			row = &dto.GoodsDayReportRow{Day: dayKey}
+		}
+		items = append(items, c.toGoodsDayReportItem(row))
+	}
+
+	return &shopadminv1.ListGoodsDayReportResponse{GoodsDayReports: items}, nil
 }
 
 // ListGoodsMonthReport 查询商品月报名细。
@@ -112,6 +119,42 @@ func (c *GoodsReportCase) ListGoodsMonthReport(ctx context.Context, req *shopadm
 	return &shopadminv1.ListGoodsMonthReportResponse{GoodsMonthReports: items}, nil
 }
 
+// SummaryGoodsMonthReport 查询商品月报汇总。
+func (c *GoodsReportCase) SummaryGoodsMonthReport(ctx context.Context, req *shopadminv1.SummaryGoodsMonthReportRequest) (*shopadminv1.SummaryGoodsMonthReportResponse, error) {
+	startMonth, err := c.parseMonth(req.GetStartMonth())
+	if err != nil {
+		return nil, err
+	}
+
+	var endMonth time.Time
+	endMonth, err = c.parseMonth(req.GetEndMonth())
+	if err != nil {
+		return nil, err
+	}
+
+	// 结束月份早于开始月份时，不允许继续统计月报。
+	if endMonth.Before(startMonth) {
+		return nil, errorsx.InvalidArgument("结束月份不能早于开始月份")
+	}
+
+	var rows []*dto.GoodsMonthReportRow
+	rows, err = c.queryGoodsMonthReportRows(ctx, req.GetTenantId(), req.GetTenantStoreId(), startMonth, endMonth.AddDate(0, 1, 0))
+	if err != nil {
+		return nil, err
+	}
+
+	summary := &shopadminv1.SummaryGoodsMonthReportResponse{}
+	for _, row := range rows {
+		item := c.toGoodsMonthReportItem(row)
+		c.appendMonthReportSummary(summary, item)
+	}
+	summary.CartConversionRate = utils.CalcRatio(summary.CartCount, summary.ViewCount)
+	summary.OrderConversionRate = utils.CalcRatio(summary.OrderCount, summary.CartCount)
+	summary.PayConversionRate = utils.CalcRatio(summary.PayCount, summary.ViewCount)
+	summary.PayUnitPrice = utils.CalcPerUnit(summary.PayAmount, summary.PayGoodsNum)
+	return summary, nil
+}
+
 // SummaryGoodsDayReport 查询商品日报汇总。
 func (c *GoodsReportCase) SummaryGoodsDayReport(ctx context.Context, req *shopadminv1.SummaryGoodsDayReportRequest) (*shopadminv1.SummaryGoodsDayReportResponse, error) {
 	startDate, err := c.parseDate(req.GetStartDate())
@@ -146,49 +189,6 @@ func (c *GoodsReportCase) SummaryGoodsDayReport(ctx context.Context, req *shopad
 	summary.PayConversionRate = utils.CalcRatio(summary.PayCount, summary.ViewCount)
 	summary.PayUnitPrice = utils.CalcPerUnit(summary.PayAmount, summary.PayGoodsNum)
 	return summary, nil
-}
-
-// ListGoodsDayReport 查询商品日报明细。
-func (c *GoodsReportCase) ListGoodsDayReport(ctx context.Context, req *shopadminv1.ListGoodsDayReportRequest) (*shopadminv1.ListGoodsDayReportResponse, error) {
-	startDate, err := c.parseDate(req.GetStartDate())
-	if err != nil {
-		return nil, err
-	}
-
-	var endDate time.Time
-	endDate, err = c.parseDate(req.GetEndDate())
-	if err != nil {
-		return nil, err
-	}
-
-	// 结束日期早于开始日期时，不允许继续统计日报。
-	if endDate.Before(startDate) {
-		return nil, errorsx.InvalidArgument("结束日期不能早于开始日期")
-	}
-
-	var rows []*dto.GoodsDayReportRow
-	rows, err = c.queryGoodsDayReportRows(ctx, startDate, endDate.AddDate(0, 0, 1))
-	if err != nil {
-		return nil, err
-	}
-
-	rowMap := make(map[string]*dto.GoodsDayReportRow, len(rows))
-	for _, item := range rows {
-		rowMap[item.Day] = item
-	}
-
-	items := make([]*shopadminv1.GoodsDayReportItem, 0)
-	for cursor := startDate; !cursor.After(endDate); cursor = cursor.AddDate(0, 0, 1) {
-		dayKey := cursor.Format("2006-01-02")
-		row, ok := rowMap[dayKey]
-		// 当前日期没有统计数据时，补空行保证日期连续。
-		if !ok {
-			row = &dto.GoodsDayReportRow{Day: dayKey}
-		}
-		items = append(items, c.toGoodsDayReportItem(row))
-	}
-
-	return &shopadminv1.ListGoodsDayReportResponse{GoodsDayReports: items}, nil
 }
 
 // parseMonth 解析月份字符串并归一化到当月第一天。

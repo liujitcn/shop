@@ -10,17 +10,17 @@ import "google/protobuf/empty.proto";
 
 // Admin评论管理服务
 service CommentInfoService {
+  // 查询评论讨论分页列表
+  rpc PageCommentDiscussion(PageCommentDiscussionRequest) returns (PageCommentDiscussionResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/comment/info/{comment_id}/discussion"
+    };
+  }
+
   // 查询评论分页列表
   rpc PageCommentInfo(PageCommentInfoRequest) returns (PageCommentInfoResponse) {
     option (google.api.http) = {
       get: "/api/v1/admin/comment/info"
-    };
-  }
-
-  // 按商品查询评论聚合信息
-  rpc GetGoodsCommentInfo(GetGoodsCommentInfoRequest) returns (GoodsCommentInfoResponse) {
-    option (google.api.http) = {
-      get: "/api/v1/admin/comment/info/goods/{goods_id}"
     };
   }
 
@@ -38,18 +38,10 @@ service CommentInfoService {
     };
   }
 
-  // 设置评论审核状态
-  rpc SetCommentInfoStatus(SetCommentInfoStatusRequest) returns (google.protobuf.Empty) {
+  // 按商品查询评论聚合信息
+  rpc GetGoodsCommentInfo(GetGoodsCommentInfoRequest) returns (GoodsCommentInfoResponse) {
     option (google.api.http) = {
-      put: "/api/v1/admin/comment/info/{id}/status"
-      body: "*"
-    };
-  }
-
-  // 查询评论讨论分页列表
-  rpc PageCommentDiscussion(PageCommentDiscussionRequest) returns (PageCommentDiscussionResponse) {
-    option (google.api.http) = {
-      get: "/api/v1/admin/comment/info/{comment_id}/discussion"
+      get: "/api/v1/admin/comment/info/goods/{goods_id}"
     };
   }
 
@@ -61,6 +53,42 @@ service CommentInfoService {
     };
   }
 
+  // 设置评论审核状态
+  rpc SetCommentInfoStatus(SetCommentInfoStatusRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/v1/admin/comment/info/{id}/status"
+      body: "*"
+    };
+  }
+
+}
+
+// 评论讨论分页查询条件
+message PageCommentDiscussionRequest {
+  int64 comment_id = 1 [(gnostic.openapi.v3.property) = {description: "所属评价ID"}]; // 所属评价ID
+
+  optional string user_name = 2 [(gnostic.openapi.v3.property) = {description: "讨论用户昵称"}]; // 讨论用户昵称
+
+  optional string content = 3 [(gnostic.openapi.v3.property) = {description: "讨论内容"}]; // 讨论内容
+
+  optional .shop.common.v1.CommentStatus status = 100 [(gnostic.openapi.v3.property) = {description: "审核状态：枚举【CommentStatus】"}]; // 审核状态：枚举【CommentStatus】
+
+  int64 page_num = 101 [(gnostic.openapi.v3.property) = {
+    description: "当前页码"
+    default: {number: 1}
+  }]; // 当前页码
+
+  int64 page_size = 102 [(gnostic.openapi.v3.property) = {
+    description: "每一页的行数"
+    default: {number: 10}
+  }]; // 每一页的行数
+}
+
+// 评论讨论分页响应
+message PageCommentDiscussionResponse {
+  repeated CommentDiscussion comment_discussions = 1 [(gnostic.openapi.v3.property) = {description: "分页数据"}]; // 分页数据
+
+  int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
 }
 
 // 评论分页查询条件
@@ -103,34 +131,6 @@ message PageCommentInfoResponse {
   int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
 }
 
-// 商品评论聚合查询条件
-message GetGoodsCommentInfoRequest {
-  int64 goods_id = 1 [(gnostic.openapi.v3.property) = {description: "商品ID"}]; // 商品ID
-}
-
-// 评论详情查询条件
-message GetCommentInfoRequest {
-  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "评论ID"}]; // 评论ID
-}
-
-// 评论状态设置条件
-message SetCommentInfoStatusRequest {
-  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "评论ID"}]; // 评论ID
-
-  .shop.common.v1.CommentStatus status = 2 [(gnostic.openapi.v3.property) = {description: "审核状态：枚举【CommentStatus】"}]; // 审核状态：枚举【CommentStatus】
-
-  string reason = 3 [(gnostic.openapi.v3.property) = {description: "人工审核备注或不通过原因"}]; // 人工审核备注或不通过原因
-}
-
-// 评论讨论状态设置条件
-message SetCommentDiscussionStatusRequest {
-  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "讨论ID"}]; // 讨论ID
-
-  .shop.common.v1.CommentStatus status = 2 [(gnostic.openapi.v3.property) = {description: "审核状态：枚举【CommentStatus】"}]; // 审核状态：枚举【CommentStatus】
-
-  string reason = 3 [(gnostic.openapi.v3.property) = {description: "人工审核备注或不通过原因"}]; // 人工审核备注或不通过原因
-}
-
 // 评论审核记录查询条件
 message ListCommentReviewRequest {
   .shop.common.v1.CommentReviewTargetType target_type = 1 [(gnostic.openapi.v3.property) = {description: "审核目标类型：枚举【CommentReviewTargetType】"}]; // 审核目标类型：枚举【CommentReviewTargetType】
@@ -141,6 +141,11 @@ message ListCommentReviewRequest {
 // 评论审核记录列表响应
 message ListCommentReviewResponse {
   repeated CommentReview comment_reviews = 1 [(gnostic.openapi.v3.property) = {description: "审核记录列表"}]; // 审核记录列表
+}
+
+// 评论详情查询条件
+message GetCommentInfoRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "评论ID"}]; // 评论ID
 }
 
 // 评论详情
@@ -156,6 +161,11 @@ message CommentInfoDetail {
   repeated CommentReview comment_reviews = 5 [(gnostic.openapi.v3.property) = {description: "评论审核记录"}]; // 评论审核记录
 }
 
+// 商品评论聚合查询条件
+message GetGoodsCommentInfoRequest {
+  int64 goods_id = 1 [(gnostic.openapi.v3.property) = {description: "商品ID"}]; // 商品ID
+}
+
 // 商品评论聚合响应
 message GoodsCommentInfoResponse {
   repeated CommentInfo comment_infos = 1 [(gnostic.openapi.v3.property) = {description: "评论列表"}]; // 评论列表
@@ -165,6 +175,24 @@ message GoodsCommentInfoResponse {
   repeated CommentDiscussion comment_discussions = 3 [(gnostic.openapi.v3.property) = {description: "评论讨论列表"}]; // 评论讨论列表
 
   repeated CommentSummary comment_summaries = 4 [(gnostic.openapi.v3.property) = {description: "商品评论摘要"}]; // 商品评论摘要
+}
+
+// 评论讨论状态设置条件
+message SetCommentDiscussionStatusRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "讨论ID"}]; // 讨论ID
+
+  .shop.common.v1.CommentStatus status = 2 [(gnostic.openapi.v3.property) = {description: "审核状态：枚举【CommentStatus】"}]; // 审核状态：枚举【CommentStatus】
+
+  string reason = 3 [(gnostic.openapi.v3.property) = {description: "人工审核备注或不通过原因"}]; // 人工审核备注或不通过原因
+}
+
+// 评论状态设置条件
+message SetCommentInfoStatusRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "评论ID"}]; // 评论ID
+
+  .shop.common.v1.CommentStatus status = 2 [(gnostic.openapi.v3.property) = {description: "审核状态：枚举【CommentStatus】"}]; // 审核状态：枚举【CommentStatus】
+
+  string reason = 3 [(gnostic.openapi.v3.property) = {description: "人工审核备注或不通过原因"}]; // 人工审核备注或不通过原因
 }
 
 // 评论信息
@@ -235,34 +263,6 @@ message CommentTag {
   int32 mention_count = 4 [(gnostic.openapi.v3.property) = {description: "提及次数"}]; // 提及次数
 
   int32 sort = 5 [(gnostic.openapi.v3.property) = {description: "展示排序"}]; // 展示排序
-}
-
-// 评论讨论分页查询条件
-message PageCommentDiscussionRequest {
-  int64 comment_id = 1 [(gnostic.openapi.v3.property) = {description: "所属评价ID"}]; // 所属评价ID
-
-  optional string user_name = 2 [(gnostic.openapi.v3.property) = {description: "讨论用户昵称"}]; // 讨论用户昵称
-
-  optional string content = 3 [(gnostic.openapi.v3.property) = {description: "讨论内容"}]; // 讨论内容
-
-  optional .shop.common.v1.CommentStatus status = 100 [(gnostic.openapi.v3.property) = {description: "审核状态：枚举【CommentStatus】"}]; // 审核状态：枚举【CommentStatus】
-
-  int64 page_num = 101 [(gnostic.openapi.v3.property) = {
-    description: "当前页码"
-    default: {number: 1}
-  }]; // 当前页码
-
-  int64 page_size = 102 [(gnostic.openapi.v3.property) = {
-    description: "每一页的行数"
-    default: {number: 10}
-  }]; // 每一页的行数
-}
-
-// 评论讨论分页响应
-message PageCommentDiscussionResponse {
-  repeated CommentDiscussion comment_discussions = 1 [(gnostic.openapi.v3.property) = {description: "分页数据"}]; // 分页数据
-
-  int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
 }
 
 // 评论讨论

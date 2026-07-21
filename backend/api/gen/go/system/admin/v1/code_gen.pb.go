@@ -139,6 +139,160 @@ func (CodeGenTaskStepStatus) EnumDescriptor() ([]byte, []int) {
 	return file_system_admin_v1_code_gen_proto_rawDescGZIP(), []int{1}
 }
 
+// 查询代码生成任务条件
+type GetCodeGenTaskRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	TaskId        string                 `protobuf:"bytes,1,opt,name=task_id,json=taskId,proto3" json:"task_id,omitempty"` // 生成任务ID
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetCodeGenTaskRequest) Reset() {
+	*x = GetCodeGenTaskRequest{}
+	mi := &file_system_admin_v1_code_gen_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetCodeGenTaskRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetCodeGenTaskRequest) ProtoMessage() {}
+
+func (x *GetCodeGenTaskRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_code_gen_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetCodeGenTaskRequest.ProtoReflect.Descriptor instead.
+func (*GetCodeGenTaskRequest) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_code_gen_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *GetCodeGenTaskRequest) GetTaskId() string {
+	if x != nil {
+		return x.TaskId
+	}
+	return ""
+}
+
+// 代码生成任务进度
+type CodeGenTask struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	TaskId           string                 `protobuf:"bytes,1,opt,name=task_id,json=taskId,proto3" json:"task_id,omitempty"`                                 // 生成任务ID
+	Status           CodeGenTaskStatus      `protobuf:"varint,2,opt,name=status,proto3,enum=system.admin.v1.CodeGenTaskStatus" json:"status,omitempty"`       // 任务状态
+	TotalSteps       int32                  `protobuf:"varint,3,opt,name=total_steps,json=totalSteps,proto3" json:"total_steps,omitempty"`                    // 步骤总数
+	CompletedSteps   int32                  `protobuf:"varint,4,opt,name=completed_steps,json=completedSteps,proto3" json:"completed_steps,omitempty"`        // 已完成步骤数
+	CurrentTableName string                 `protobuf:"bytes,5,opt,name=current_table_name,json=currentTableName,proto3" json:"current_table_name,omitempty"` // 当前生成表名
+	Message          string                 `protobuf:"bytes,6,opt,name=message,proto3" json:"message,omitempty"`                                             // 任务结果说明
+	Tables           []*CodeGenTaskTable    `protobuf:"bytes,7,rep,name=tables,proto3" json:"tables,omitempty"`                                               // 生成对象进度列表
+	CreatedAt        string                 `protobuf:"bytes,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`                        // 任务创建时间
+	FinishedAt       string                 `protobuf:"bytes,9,opt,name=finished_at,json=finishedAt,proto3" json:"finished_at,omitempty"`                     // 任务完成时间
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *CodeGenTask) Reset() {
+	*x = CodeGenTask{}
+	mi := &file_system_admin_v1_code_gen_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CodeGenTask) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CodeGenTask) ProtoMessage() {}
+
+func (x *CodeGenTask) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_code_gen_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CodeGenTask.ProtoReflect.Descriptor instead.
+func (*CodeGenTask) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_code_gen_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *CodeGenTask) GetTaskId() string {
+	if x != nil {
+		return x.TaskId
+	}
+	return ""
+}
+
+func (x *CodeGenTask) GetStatus() CodeGenTaskStatus {
+	if x != nil {
+		return x.Status
+	}
+	return CodeGenTaskStatus_CODE_GEN_TASK_STATUS_UNSPECIFIED
+}
+
+func (x *CodeGenTask) GetTotalSteps() int32 {
+	if x != nil {
+		return x.TotalSteps
+	}
+	return 0
+}
+
+func (x *CodeGenTask) GetCompletedSteps() int32 {
+	if x != nil {
+		return x.CompletedSteps
+	}
+	return 0
+}
+
+func (x *CodeGenTask) GetCurrentTableName() string {
+	if x != nil {
+		return x.CurrentTableName
+	}
+	return ""
+}
+
+func (x *CodeGenTask) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+func (x *CodeGenTask) GetTables() []*CodeGenTaskTable {
+	if x != nil {
+		return x.Tables
+	}
+	return nil
+}
+
+func (x *CodeGenTask) GetCreatedAt() string {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return ""
+}
+
+func (x *CodeGenTask) GetFinishedAt() string {
+	if x != nil {
+		return x.FinishedAt
+	}
+	return ""
+}
+
 // 预览代码生成条件
 type PreviewCodeGenRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -150,7 +304,7 @@ type PreviewCodeGenRequest struct {
 
 func (x *PreviewCodeGenRequest) Reset() {
 	*x = PreviewCodeGenRequest{}
-	mi := &file_system_admin_v1_code_gen_proto_msgTypes[0]
+	mi := &file_system_admin_v1_code_gen_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -162,7 +316,7 @@ func (x *PreviewCodeGenRequest) String() string {
 func (*PreviewCodeGenRequest) ProtoMessage() {}
 
 func (x *PreviewCodeGenRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_code_gen_proto_msgTypes[0]
+	mi := &file_system_admin_v1_code_gen_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -175,7 +329,7 @@ func (x *PreviewCodeGenRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PreviewCodeGenRequest.ProtoReflect.Descriptor instead.
 func (*PreviewCodeGenRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_code_gen_proto_rawDescGZIP(), []int{0}
+	return file_system_admin_v1_code_gen_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *PreviewCodeGenRequest) GetTableId() int64 {
@@ -203,7 +357,7 @@ type PreviewCodeGenResponse struct {
 
 func (x *PreviewCodeGenResponse) Reset() {
 	*x = PreviewCodeGenResponse{}
-	mi := &file_system_admin_v1_code_gen_proto_msgTypes[1]
+	mi := &file_system_admin_v1_code_gen_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -215,7 +369,7 @@ func (x *PreviewCodeGenResponse) String() string {
 func (*PreviewCodeGenResponse) ProtoMessage() {}
 
 func (x *PreviewCodeGenResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_code_gen_proto_msgTypes[1]
+	mi := &file_system_admin_v1_code_gen_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -228,7 +382,7 @@ func (x *PreviewCodeGenResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PreviewCodeGenResponse.ProtoReflect.Descriptor instead.
 func (*PreviewCodeGenResponse) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_code_gen_proto_rawDescGZIP(), []int{1}
+	return file_system_admin_v1_code_gen_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *PreviewCodeGenResponse) GetFiles() []*CodeGenPreviewFile {
@@ -257,7 +411,7 @@ type StartCodeGenTaskRequest struct {
 
 func (x *StartCodeGenTaskRequest) Reset() {
 	*x = StartCodeGenTaskRequest{}
-	mi := &file_system_admin_v1_code_gen_proto_msgTypes[2]
+	mi := &file_system_admin_v1_code_gen_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -269,7 +423,7 @@ func (x *StartCodeGenTaskRequest) String() string {
 func (*StartCodeGenTaskRequest) ProtoMessage() {}
 
 func (x *StartCodeGenTaskRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_code_gen_proto_msgTypes[2]
+	mi := &file_system_admin_v1_code_gen_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -282,7 +436,7 @@ func (x *StartCodeGenTaskRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StartCodeGenTaskRequest.ProtoReflect.Descriptor instead.
 func (*StartCodeGenTaskRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_code_gen_proto_rawDescGZIP(), []int{2}
+	return file_system_admin_v1_code_gen_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *StartCodeGenTaskRequest) GetTableIds() []int64 {
@@ -316,7 +470,7 @@ type StartCodeGenTaskResponse struct {
 
 func (x *StartCodeGenTaskResponse) Reset() {
 	*x = StartCodeGenTaskResponse{}
-	mi := &file_system_admin_v1_code_gen_proto_msgTypes[3]
+	mi := &file_system_admin_v1_code_gen_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -328,7 +482,7 @@ func (x *StartCodeGenTaskResponse) String() string {
 func (*StartCodeGenTaskResponse) ProtoMessage() {}
 
 func (x *StartCodeGenTaskResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_code_gen_proto_msgTypes[3]
+	mi := &file_system_admin_v1_code_gen_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -341,55 +495,10 @@ func (x *StartCodeGenTaskResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StartCodeGenTaskResponse.ProtoReflect.Descriptor instead.
 func (*StartCodeGenTaskResponse) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_code_gen_proto_rawDescGZIP(), []int{3}
+	return file_system_admin_v1_code_gen_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *StartCodeGenTaskResponse) GetTaskId() string {
-	if x != nil {
-		return x.TaskId
-	}
-	return ""
-}
-
-// 查询代码生成任务条件
-type GetCodeGenTaskRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	TaskId        string                 `protobuf:"bytes,1,opt,name=task_id,json=taskId,proto3" json:"task_id,omitempty"` // 生成任务ID
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetCodeGenTaskRequest) Reset() {
-	*x = GetCodeGenTaskRequest{}
-	mi := &file_system_admin_v1_code_gen_proto_msgTypes[4]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetCodeGenTaskRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetCodeGenTaskRequest) ProtoMessage() {}
-
-func (x *GetCodeGenTaskRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_code_gen_proto_msgTypes[4]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetCodeGenTaskRequest.ProtoReflect.Descriptor instead.
-func (*GetCodeGenTaskRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_code_gen_proto_rawDescGZIP(), []int{4}
-}
-
-func (x *GetCodeGenTaskRequest) GetTaskId() string {
 	if x != nil {
 		return x.TaskId
 	}
@@ -412,7 +521,7 @@ type CodeGenTaskStep struct {
 
 func (x *CodeGenTaskStep) Reset() {
 	*x = CodeGenTaskStep{}
-	mi := &file_system_admin_v1_code_gen_proto_msgTypes[5]
+	mi := &file_system_admin_v1_code_gen_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -424,7 +533,7 @@ func (x *CodeGenTaskStep) String() string {
 func (*CodeGenTaskStep) ProtoMessage() {}
 
 func (x *CodeGenTaskStep) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_code_gen_proto_msgTypes[5]
+	mi := &file_system_admin_v1_code_gen_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -437,7 +546,7 @@ func (x *CodeGenTaskStep) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CodeGenTaskStep.ProtoReflect.Descriptor instead.
 func (*CodeGenTaskStep) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_code_gen_proto_rawDescGZIP(), []int{5}
+	return file_system_admin_v1_code_gen_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *CodeGenTaskStep) GetId() string {
@@ -505,7 +614,7 @@ type CodeGenTaskTable struct {
 
 func (x *CodeGenTaskTable) Reset() {
 	*x = CodeGenTaskTable{}
-	mi := &file_system_admin_v1_code_gen_proto_msgTypes[6]
+	mi := &file_system_admin_v1_code_gen_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -517,7 +626,7 @@ func (x *CodeGenTaskTable) String() string {
 func (*CodeGenTaskTable) ProtoMessage() {}
 
 func (x *CodeGenTaskTable) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_code_gen_proto_msgTypes[6]
+	mi := &file_system_admin_v1_code_gen_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -530,7 +639,7 @@ func (x *CodeGenTaskTable) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CodeGenTaskTable.ProtoReflect.Descriptor instead.
 func (*CodeGenTaskTable) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_code_gen_proto_rawDescGZIP(), []int{6}
+	return file_system_admin_v1_code_gen_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *CodeGenTaskTable) GetTableId() int64 {
@@ -580,115 +689,6 @@ func (x *CodeGenTaskTable) GetSteps() []*CodeGenTaskStep {
 		return x.Steps
 	}
 	return nil
-}
-
-// 代码生成任务进度
-type CodeGenTask struct {
-	state            protoimpl.MessageState `protogen:"open.v1"`
-	TaskId           string                 `protobuf:"bytes,1,opt,name=task_id,json=taskId,proto3" json:"task_id,omitempty"`                                 // 生成任务ID
-	Status           CodeGenTaskStatus      `protobuf:"varint,2,opt,name=status,proto3,enum=system.admin.v1.CodeGenTaskStatus" json:"status,omitempty"`       // 任务状态
-	TotalSteps       int32                  `protobuf:"varint,3,opt,name=total_steps,json=totalSteps,proto3" json:"total_steps,omitempty"`                    // 步骤总数
-	CompletedSteps   int32                  `protobuf:"varint,4,opt,name=completed_steps,json=completedSteps,proto3" json:"completed_steps,omitempty"`        // 已完成步骤数
-	CurrentTableName string                 `protobuf:"bytes,5,opt,name=current_table_name,json=currentTableName,proto3" json:"current_table_name,omitempty"` // 当前生成表名
-	Message          string                 `protobuf:"bytes,6,opt,name=message,proto3" json:"message,omitempty"`                                             // 任务结果说明
-	Tables           []*CodeGenTaskTable    `protobuf:"bytes,7,rep,name=tables,proto3" json:"tables,omitempty"`                                               // 生成对象进度列表
-	CreatedAt        string                 `protobuf:"bytes,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`                        // 任务创建时间
-	FinishedAt       string                 `protobuf:"bytes,9,opt,name=finished_at,json=finishedAt,proto3" json:"finished_at,omitempty"`                     // 任务完成时间
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
-}
-
-func (x *CodeGenTask) Reset() {
-	*x = CodeGenTask{}
-	mi := &file_system_admin_v1_code_gen_proto_msgTypes[7]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *CodeGenTask) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*CodeGenTask) ProtoMessage() {}
-
-func (x *CodeGenTask) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_code_gen_proto_msgTypes[7]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use CodeGenTask.ProtoReflect.Descriptor instead.
-func (*CodeGenTask) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_code_gen_proto_rawDescGZIP(), []int{7}
-}
-
-func (x *CodeGenTask) GetTaskId() string {
-	if x != nil {
-		return x.TaskId
-	}
-	return ""
-}
-
-func (x *CodeGenTask) GetStatus() CodeGenTaskStatus {
-	if x != nil {
-		return x.Status
-	}
-	return CodeGenTaskStatus_CODE_GEN_TASK_STATUS_UNSPECIFIED
-}
-
-func (x *CodeGenTask) GetTotalSteps() int32 {
-	if x != nil {
-		return x.TotalSteps
-	}
-	return 0
-}
-
-func (x *CodeGenTask) GetCompletedSteps() int32 {
-	if x != nil {
-		return x.CompletedSteps
-	}
-	return 0
-}
-
-func (x *CodeGenTask) GetCurrentTableName() string {
-	if x != nil {
-		return x.CurrentTableName
-	}
-	return ""
-}
-
-func (x *CodeGenTask) GetMessage() string {
-	if x != nil {
-		return x.Message
-	}
-	return ""
-}
-
-func (x *CodeGenTask) GetTables() []*CodeGenTaskTable {
-	if x != nil {
-		return x.Tables
-	}
-	return nil
-}
-
-func (x *CodeGenTask) GetCreatedAt() string {
-	if x != nil {
-		return x.CreatedAt
-	}
-	return ""
-}
-
-func (x *CodeGenTask) GetFinishedAt() string {
-	if x != nil {
-		return x.FinishedAt
-	}
-	return ""
 }
 
 // 代码生成预览文件
@@ -857,7 +857,22 @@ var File_system_admin_v1_code_gen_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_code_gen_proto_rawDesc = "" +
 	"\n" +
-	"\x1esystem/admin/v1/code_gen.proto\x12\x0fsystem.admin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\xb9\x01\n" +
+	"\x1esystem/admin/v1/code_gen.proto\x12\x0fsystem.admin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"F\n" +
+	"\x15GetCodeGenTaskRequest\x12-\n" +
+	"\atask_id\x18\x01 \x01(\tB\x14\xbaG\x11\x92\x02\x0e生成任务IDR\x06taskId\"\xcf\x04\n" +
+	"\vCodeGenTask\x12-\n" +
+	"\atask_id\x18\x01 \x01(\tB\x14\xbaG\x11\x92\x02\x0e生成任务IDR\x06taskId\x12N\n" +
+	"\x06status\x18\x02 \x01(\x0e2\".system.admin.v1.CodeGenTaskStatusB\x12\xbaG\x0f\x92\x02\f任务状态R\x06status\x123\n" +
+	"\vtotal_steps\x18\x03 \x01(\x05B\x12\xbaG\x0f\x92\x02\f步骤总数R\n" +
+	"totalSteps\x12A\n" +
+	"\x0fcompleted_steps\x18\x04 \x01(\x05B\x18\xbaG\x15\x92\x02\x12已完成步骤数R\x0ecompletedSteps\x12F\n" +
+	"\x12current_table_name\x18\x05 \x01(\tB\x18\xbaG\x15\x92\x02\x12当前生成表名R\x10currentTableName\x122\n" +
+	"\amessage\x18\x06 \x01(\tB\x18\xbaG\x15\x92\x02\x12任务结果说明R\amessage\x12Y\n" +
+	"\x06tables\x18\a \x03(\v2!.system.admin.v1.CodeGenTaskTableB\x1e\xbaG\x1b\x92\x02\x18生成对象进度列表R\x06tables\x127\n" +
+	"\n" +
+	"created_at\x18\b \x01(\tB\x18\xbaG\x15\x92\x02\x12任务创建时间R\tcreatedAt\x129\n" +
+	"\vfinished_at\x18\t \x01(\tB\x18\xbaG\x15\x92\x02\x12任务完成时间R\n" +
+	"finishedAt\"\xb9\x01\n" +
 	"\x15PreviewCodeGenRequest\x128\n" +
 	"\btable_id\x18\x01 \x01(\x03B\x1d\xbaG\x1a\x92\x02\x17代码生成表配置IDR\atableId\x12f\n" +
 	"\foutput_paths\x18\x02 \x01(\v2#.system.admin.v1.CodeGenOutputPathsB\x1e\xbaG\x1b\x92\x02\x18本次生成输出路径R\voutputPaths\"\xd5\x01\n" +
@@ -869,8 +884,6 @@ const file_system_admin_v1_code_gen_proto_rawDesc = "" +
 	"\frun_commands\x18\x02 \x01(\bB\x1e\xbaG\x1b\x92\x02\x18是否执行生成命令R\vrunCommands\x12l\n" +
 	"\foutput_paths\x18\x03 \x01(\v2#.system.admin.v1.CodeGenOutputPathsB$\xbaG!\x92\x02\x1e单项任务本次输出路径R\voutputPaths\"I\n" +
 	"\x18StartCodeGenTaskResponse\x12-\n" +
-	"\atask_id\x18\x01 \x01(\tB\x14\xbaG\x11\x92\x02\x0e生成任务IDR\x06taskId\"F\n" +
-	"\x15GetCodeGenTaskRequest\x12-\n" +
 	"\atask_id\x18\x01 \x01(\tB\x14\xbaG\x11\x92\x02\x0e生成任务IDR\x06taskId\"\xdf\x02\n" +
 	"\x0fCodeGenTaskStep\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\tB\x0e\xbaG\v\x92\x02\b步骤IDR\x02id\x12(\n" +
@@ -889,20 +902,7 @@ const file_system_admin_v1_code_gen_proto_rawDesc = "" +
 	"totalSteps\x12A\n" +
 	"\x0fcompleted_steps\x18\x05 \x01(\x05B\x18\xbaG\x15\x92\x02\x12已完成步骤数R\x0ecompletedSteps\x128\n" +
 	"\amessage\x18\x06 \x01(\tB\x1e\xbaG\x1b\x92\x02\x18生成对象结果说明R\amessage\x12P\n" +
-	"\x05steps\x18\a \x03(\v2 .system.admin.v1.CodeGenTaskStepB\x18\xbaG\x15\x92\x02\x12生成步骤列表R\x05steps\"\xcf\x04\n" +
-	"\vCodeGenTask\x12-\n" +
-	"\atask_id\x18\x01 \x01(\tB\x14\xbaG\x11\x92\x02\x0e生成任务IDR\x06taskId\x12N\n" +
-	"\x06status\x18\x02 \x01(\x0e2\".system.admin.v1.CodeGenTaskStatusB\x12\xbaG\x0f\x92\x02\f任务状态R\x06status\x123\n" +
-	"\vtotal_steps\x18\x03 \x01(\x05B\x12\xbaG\x0f\x92\x02\f步骤总数R\n" +
-	"totalSteps\x12A\n" +
-	"\x0fcompleted_steps\x18\x04 \x01(\x05B\x18\xbaG\x15\x92\x02\x12已完成步骤数R\x0ecompletedSteps\x12F\n" +
-	"\x12current_table_name\x18\x05 \x01(\tB\x18\xbaG\x15\x92\x02\x12当前生成表名R\x10currentTableName\x122\n" +
-	"\amessage\x18\x06 \x01(\tB\x18\xbaG\x15\x92\x02\x12任务结果说明R\amessage\x12Y\n" +
-	"\x06tables\x18\a \x03(\v2!.system.admin.v1.CodeGenTaskTableB\x1e\xbaG\x1b\x92\x02\x18生成对象进度列表R\x06tables\x127\n" +
-	"\n" +
-	"created_at\x18\b \x01(\tB\x18\xbaG\x15\x92\x02\x12任务创建时间R\tcreatedAt\x129\n" +
-	"\vfinished_at\x18\t \x01(\tB\x18\xbaG\x15\x92\x02\x12任务完成时间R\n" +
-	"finishedAt\"\xf9\x01\n" +
+	"\x05steps\x18\a \x03(\v2 .system.admin.v1.CodeGenTaskStepB\x18\xbaG\x15\x92\x02\x12生成步骤列表R\x05steps\"\xf9\x01\n" +
 	"\x12CodeGenPreviewFile\x12&\n" +
 	"\x04path\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f文件路径R\x04path\x12*\n" +
 	"\x06action\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f处理动作R\x06action\x12,\n" +
@@ -929,10 +929,10 @@ const file_system_admin_v1_code_gen_proto_rawDesc = "" +
 	"#CODE_GEN_TASK_STEP_STATUS_SUCCEEDED\x10\x03\x12$\n" +
 	" CODE_GEN_TASK_STEP_STATUS_FAILED\x10\x04\x12%\n" +
 	"!CODE_GEN_TASK_STEP_STATUS_SKIPPED\x10\x052\xca\x03\n" +
-	"\x0eCodeGenService\x12\x9d\x01\n" +
+	"\x0eCodeGenService\x12\x85\x01\n" +
+	"\x0eGetCodeGenTask\x12&.system.admin.v1.GetCodeGenTaskRequest\x1a\x1c.system.admin.v1.CodeGenTask\"-\x82\xd3\xe4\x93\x02'\x12%/api/v1/admin/code-gen/task/{task_id}\x12\x9d\x01\n" +
 	"\x0ePreviewCodeGen\x12&.system.admin.v1.PreviewCodeGenRequest\x1a'.system.admin.v1.PreviewCodeGenResponse\":\x82\xd3\xe4\x93\x024:\x01*\"//api/v1/admin/code-gen/table/{table_id}/preview\x12\x8f\x01\n" +
-	"\x10StartCodeGenTask\x12(.system.admin.v1.StartCodeGenTaskRequest\x1a).system.admin.v1.StartCodeGenTaskResponse\"&\x82\xd3\xe4\x93\x02 :\x01*\"\x1b/api/v1/admin/code-gen/task\x12\x85\x01\n" +
-	"\x0eGetCodeGenTask\x12&.system.admin.v1.GetCodeGenTaskRequest\x1a\x1c.system.admin.v1.CodeGenTask\"-\x82\xd3\xe4\x93\x02'\x12%/api/v1/admin/code-gen/task/{task_id}B\xaa\x01\n" +
+	"\x10StartCodeGenTask\x12(.system.admin.v1.StartCodeGenTaskRequest\x1a).system.admin.v1.StartCodeGenTaskResponse\"&\x82\xd3\xe4\x93\x02 :\x01*\"\x1b/api/v1/admin/code-gen/taskB\xaa\x01\n" +
 	"\x13com.system.admin.v1B\fCodeGenProtoP\x01Z'shop/api/gen/go/system/admin/v1;adminv1\xa2\x02\x03SAX\xaa\x02\x0fSystem.Admin.V1\xca\x02\x0fSystem\\Admin\\V1\xe2\x02\x1bSystem\\Admin\\V1\\GPBMetadata\xea\x02\x11System::Admin::V1b\x06proto3"
 
 var (
@@ -952,33 +952,33 @@ var file_system_admin_v1_code_gen_proto_msgTypes = make([]protoimpl.MessageInfo,
 var file_system_admin_v1_code_gen_proto_goTypes = []any{
 	(CodeGenTaskStatus)(0),           // 0: system.admin.v1.CodeGenTaskStatus
 	(CodeGenTaskStepStatus)(0),       // 1: system.admin.v1.CodeGenTaskStepStatus
-	(*PreviewCodeGenRequest)(nil),    // 2: system.admin.v1.PreviewCodeGenRequest
-	(*PreviewCodeGenResponse)(nil),   // 3: system.admin.v1.PreviewCodeGenResponse
-	(*StartCodeGenTaskRequest)(nil),  // 4: system.admin.v1.StartCodeGenTaskRequest
-	(*StartCodeGenTaskResponse)(nil), // 5: system.admin.v1.StartCodeGenTaskResponse
-	(*GetCodeGenTaskRequest)(nil),    // 6: system.admin.v1.GetCodeGenTaskRequest
-	(*CodeGenTaskStep)(nil),          // 7: system.admin.v1.CodeGenTaskStep
-	(*CodeGenTaskTable)(nil),         // 8: system.admin.v1.CodeGenTaskTable
-	(*CodeGenTask)(nil),              // 9: system.admin.v1.CodeGenTask
+	(*GetCodeGenTaskRequest)(nil),    // 2: system.admin.v1.GetCodeGenTaskRequest
+	(*CodeGenTask)(nil),              // 3: system.admin.v1.CodeGenTask
+	(*PreviewCodeGenRequest)(nil),    // 4: system.admin.v1.PreviewCodeGenRequest
+	(*PreviewCodeGenResponse)(nil),   // 5: system.admin.v1.PreviewCodeGenResponse
+	(*StartCodeGenTaskRequest)(nil),  // 6: system.admin.v1.StartCodeGenTaskRequest
+	(*StartCodeGenTaskResponse)(nil), // 7: system.admin.v1.StartCodeGenTaskResponse
+	(*CodeGenTaskStep)(nil),          // 8: system.admin.v1.CodeGenTaskStep
+	(*CodeGenTaskTable)(nil),         // 9: system.admin.v1.CodeGenTaskTable
 	(*CodeGenPreviewFile)(nil),       // 10: system.admin.v1.CodeGenPreviewFile
 	(*CodeGenOutputPaths)(nil),       // 11: system.admin.v1.CodeGenOutputPaths
 }
 var file_system_admin_v1_code_gen_proto_depIdxs = []int32{
-	11, // 0: system.admin.v1.PreviewCodeGenRequest.output_paths:type_name -> system.admin.v1.CodeGenOutputPaths
-	10, // 1: system.admin.v1.PreviewCodeGenResponse.files:type_name -> system.admin.v1.CodeGenPreviewFile
-	11, // 2: system.admin.v1.PreviewCodeGenResponse.output_paths:type_name -> system.admin.v1.CodeGenOutputPaths
-	11, // 3: system.admin.v1.StartCodeGenTaskRequest.output_paths:type_name -> system.admin.v1.CodeGenOutputPaths
-	1,  // 4: system.admin.v1.CodeGenTaskStep.status:type_name -> system.admin.v1.CodeGenTaskStepStatus
-	0,  // 5: system.admin.v1.CodeGenTaskTable.status:type_name -> system.admin.v1.CodeGenTaskStatus
-	7,  // 6: system.admin.v1.CodeGenTaskTable.steps:type_name -> system.admin.v1.CodeGenTaskStep
-	0,  // 7: system.admin.v1.CodeGenTask.status:type_name -> system.admin.v1.CodeGenTaskStatus
-	8,  // 8: system.admin.v1.CodeGenTask.tables:type_name -> system.admin.v1.CodeGenTaskTable
-	2,  // 9: system.admin.v1.CodeGenService.PreviewCodeGen:input_type -> system.admin.v1.PreviewCodeGenRequest
-	4,  // 10: system.admin.v1.CodeGenService.StartCodeGenTask:input_type -> system.admin.v1.StartCodeGenTaskRequest
-	6,  // 11: system.admin.v1.CodeGenService.GetCodeGenTask:input_type -> system.admin.v1.GetCodeGenTaskRequest
-	3,  // 12: system.admin.v1.CodeGenService.PreviewCodeGen:output_type -> system.admin.v1.PreviewCodeGenResponse
-	5,  // 13: system.admin.v1.CodeGenService.StartCodeGenTask:output_type -> system.admin.v1.StartCodeGenTaskResponse
-	9,  // 14: system.admin.v1.CodeGenService.GetCodeGenTask:output_type -> system.admin.v1.CodeGenTask
+	0,  // 0: system.admin.v1.CodeGenTask.status:type_name -> system.admin.v1.CodeGenTaskStatus
+	9,  // 1: system.admin.v1.CodeGenTask.tables:type_name -> system.admin.v1.CodeGenTaskTable
+	11, // 2: system.admin.v1.PreviewCodeGenRequest.output_paths:type_name -> system.admin.v1.CodeGenOutputPaths
+	10, // 3: system.admin.v1.PreviewCodeGenResponse.files:type_name -> system.admin.v1.CodeGenPreviewFile
+	11, // 4: system.admin.v1.PreviewCodeGenResponse.output_paths:type_name -> system.admin.v1.CodeGenOutputPaths
+	11, // 5: system.admin.v1.StartCodeGenTaskRequest.output_paths:type_name -> system.admin.v1.CodeGenOutputPaths
+	1,  // 6: system.admin.v1.CodeGenTaskStep.status:type_name -> system.admin.v1.CodeGenTaskStepStatus
+	0,  // 7: system.admin.v1.CodeGenTaskTable.status:type_name -> system.admin.v1.CodeGenTaskStatus
+	8,  // 8: system.admin.v1.CodeGenTaskTable.steps:type_name -> system.admin.v1.CodeGenTaskStep
+	2,  // 9: system.admin.v1.CodeGenService.GetCodeGenTask:input_type -> system.admin.v1.GetCodeGenTaskRequest
+	4,  // 10: system.admin.v1.CodeGenService.PreviewCodeGen:input_type -> system.admin.v1.PreviewCodeGenRequest
+	6,  // 11: system.admin.v1.CodeGenService.StartCodeGenTask:input_type -> system.admin.v1.StartCodeGenTaskRequest
+	3,  // 12: system.admin.v1.CodeGenService.GetCodeGenTask:output_type -> system.admin.v1.CodeGenTask
+	5,  // 13: system.admin.v1.CodeGenService.PreviewCodeGen:output_type -> system.admin.v1.PreviewCodeGenResponse
+	7,  // 14: system.admin.v1.CodeGenService.StartCodeGenTask:output_type -> system.admin.v1.StartCodeGenTaskResponse
 	12, // [12:15] is the sub-list for method output_type
 	9,  // [9:12] is the sub-list for method input_type
 	9,  // [9:9] is the sub-list for extension type_name

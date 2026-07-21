@@ -43,46 +43,6 @@ func NewShopHotItemCase(baseCase *biz.BaseCase, shopHotRepo *data.ShopHotReposit
 	}
 }
 
-// ListShopHotItem 查询热门推荐选项
-func (c *ShopHotItemCase) ListShopHotItem(ctx context.Context, id int64) (*shopappv1.ListShopHotItemResponse, error) {
-	shopHotQuery := c.shopHotRepo.Query(ctx).ShopHot
-	shopHotOpts := make([]repository.QueryOption, 0, 2)
-	shopHotOpts = append(shopHotOpts, repository.Where(shopHotQuery.ID.Eq(id)))
-	shopHotOpts = append(shopHotOpts, repository.Where(shopHotQuery.Status.Eq(_const.STATUS_ENABLE)))
-	shopHot, err := c.shopHotRepo.Find(ctx, shopHotOpts...)
-	if err != nil {
-		// 推荐专区不存在或已禁用时，对外按资源不存在返回，避免公共页面记录 500。
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errorsx.ResourceNotFound("热门推荐不存在").WithCause(err)
-		}
-		return nil, err
-	}
-
-	var all []*models.ShopHotItem
-
-	shopHotItemQuery := c.Query(ctx).ShopHotItem
-	opts := make([]repository.QueryOption, 0, 3)
-	opts = append(opts, repository.Order(shopHotItemQuery.Sort.Asc()))
-	opts = append(opts, repository.Order(shopHotItemQuery.CreatedAt.Desc()))
-	opts = append(opts, repository.Where(shopHotItemQuery.HotID.Eq(shopHot.ID)))
-	all, err = c.List(ctx, opts...)
-	if err != nil {
-		return nil, err
-	}
-
-	list := make([]*shopappv1.ShopHotItem, 0, len(all))
-	for _, item := range all {
-		list = append(list, c.mapper.ToDTO(item))
-	}
-
-	return &shopappv1.ListShopHotItemResponse{
-		Id:           shopHot.ID,
-		Title:        shopHot.Title,
-		Banner:       shopHot.Banner,
-		ShopHotItems: list,
-	}, nil
-}
-
 // PageShopHotGoods 查询热门推荐商品
 func (c *ShopHotItemCase) PageShopHotGoods(ctx context.Context, req *shopappv1.PageShopHotGoodsRequest) (*shopappv1.PageShopHotGoodsResponse, error) {
 	// 是否会员
@@ -174,6 +134,46 @@ func (c *ShopHotItemCase) PageShopHotGoods(ctx context.Context, req *shopappv1.P
 	return &shopappv1.PageShopHotGoodsResponse{
 		GoodsInfos: list,
 		Total:      int32(count),
+	}, nil
+}
+
+// ListShopHotItem 查询热门推荐选项
+func (c *ShopHotItemCase) ListShopHotItem(ctx context.Context, id int64) (*shopappv1.ListShopHotItemResponse, error) {
+	shopHotQuery := c.shopHotRepo.Query(ctx).ShopHot
+	shopHotOpts := make([]repository.QueryOption, 0, 2)
+	shopHotOpts = append(shopHotOpts, repository.Where(shopHotQuery.ID.Eq(id)))
+	shopHotOpts = append(shopHotOpts, repository.Where(shopHotQuery.Status.Eq(_const.STATUS_ENABLE)))
+	shopHot, err := c.shopHotRepo.Find(ctx, shopHotOpts...)
+	if err != nil {
+		// 推荐专区不存在或已禁用时，对外按资源不存在返回，避免公共页面记录 500。
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errorsx.ResourceNotFound("热门推荐不存在").WithCause(err)
+		}
+		return nil, err
+	}
+
+	var all []*models.ShopHotItem
+
+	shopHotItemQuery := c.Query(ctx).ShopHotItem
+	opts := make([]repository.QueryOption, 0, 3)
+	opts = append(opts, repository.Order(shopHotItemQuery.Sort.Asc()))
+	opts = append(opts, repository.Order(shopHotItemQuery.CreatedAt.Desc()))
+	opts = append(opts, repository.Where(shopHotItemQuery.HotID.Eq(shopHot.ID)))
+	all, err = c.List(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	list := make([]*shopappv1.ShopHotItem, 0, len(all))
+	for _, item := range all {
+		list = append(list, c.mapper.ToDTO(item))
+	}
+
+	return &shopappv1.ListShopHotItemResponse{
+		Id:           shopHot.ID,
+		Title:        shopHot.Title,
+		Banner:       shopHot.Banner,
+		ShopHotItems: list,
 	}, nil
 }
 

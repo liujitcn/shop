@@ -49,6 +49,17 @@ func (s *BaseJobService) PageBaseJob(ctx context.Context, req *systemadminv1.Pag
 	return page, nil
 }
 
+// PageBaseJobLog 查询定时任务日志分页列表
+func (s *BaseJobService) PageBaseJobLog(ctx context.Context, req *systemadminv1.PageBaseJobLogRequest) (*systemadminv1.PageBaseJobLogResponse, error) {
+	page, err := s.baseJobLogCase.PageBaseJobLog(ctx, req)
+	if err != nil {
+		log.Error(fmt.Sprintf("PageBaseJobLog %v", err))
+		return nil, errorsx.WrapInternal(err, "查询定时任务日志分页列表失败")
+	}
+
+	return page, nil
+}
+
 // GetBaseJob 查询定时任务
 func (s *BaseJobService) GetBaseJob(ctx context.Context, req *systemadminv1.GetBaseJobRequest) (*systemadminv1.BaseJobForm, error) {
 	baseJob, err := s.baseJobCase.GetBaseJob(ctx, req.GetId())
@@ -57,6 +68,16 @@ func (s *BaseJobService) GetBaseJob(ctx context.Context, req *systemadminv1.GetB
 		return nil, errorsx.WrapInternal(err, "查询定时任务失败")
 	}
 	return baseJob, nil
+}
+
+// GetBaseJobLog 查询定时任务日志
+func (s *BaseJobService) GetBaseJobLog(ctx context.Context, req *systemadminv1.GetBaseJobLogRequest) (*systemadminv1.BaseJobLog, error) {
+	baseLog, err := s.baseJobLogCase.GetBaseJobLog(ctx, req.GetId())
+	if err != nil {
+		log.Error(fmt.Sprintf("GetBaseJobLog %v", err))
+		return nil, errorsx.WrapInternal(err, "查询定时任务日志失败")
+	}
+	return baseLog, nil
 }
 
 // CreateBaseJob 创建定时任务
@@ -127,25 +148,4 @@ func (s *BaseJobService) ExecuteBaseJob(ctx context.Context, req *systemadminv1.
 		return nil, errorsx.WrapInternal(err, "执行任务失败")
 	}
 	return new(emptypb.Empty), nil
-}
-
-// PageBaseJobLog 查询定时任务日志分页列表
-func (s *BaseJobService) PageBaseJobLog(ctx context.Context, req *systemadminv1.PageBaseJobLogRequest) (*systemadminv1.PageBaseJobLogResponse, error) {
-	page, err := s.baseJobLogCase.PageBaseJobLog(ctx, req)
-	if err != nil {
-		log.Error(fmt.Sprintf("PageBaseJobLog %v", err))
-		return nil, errorsx.WrapInternal(err, "查询定时任务日志分页列表失败")
-	}
-
-	return page, nil
-}
-
-// GetBaseJobLog 查询定时任务日志
-func (s *BaseJobService) GetBaseJobLog(ctx context.Context, req *systemadminv1.GetBaseJobLogRequest) (*systemadminv1.BaseJobLog, error) {
-	baseLog, err := s.baseJobLogCase.GetBaseJobLog(ctx, req.GetId())
-	if err != nil {
-		log.Error(fmt.Sprintf("GetBaseJobLog %v", err))
-		return nil, errorsx.WrapInternal(err, "查询定时任务日志失败")
-	}
-	return baseLog, nil
 }

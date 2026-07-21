@@ -14,25 +14,25 @@ import (
 
 // RegisterGoodsReportServiceMCPTools 注册Admin商品报表服务的 MCP Tool。
 func RegisterGoodsReportServiceMCPTools(mcpServer *mcp.Server, goodsReportServiceServer GoodsReportServiceServer) {
-	RegisterGoodsReportServiceSummaryGoodsMonthReportMCPTool(mcpServer, goodsReportServiceServer)
-	RegisterGoodsReportServiceListGoodsMonthReportMCPTool(mcpServer, goodsReportServiceServer)
-	RegisterGoodsReportServiceSummaryGoodsDayReportMCPTool(mcpServer, goodsReportServiceServer)
 	RegisterGoodsReportServiceListGoodsDayReportMCPTool(mcpServer, goodsReportServiceServer)
+	RegisterGoodsReportServiceListGoodsMonthReportMCPTool(mcpServer, goodsReportServiceServer)
+	RegisterGoodsReportServiceSummaryGoodsMonthReportMCPTool(mcpServer, goodsReportServiceServer)
+	RegisterGoodsReportServiceSummaryGoodsDayReportMCPTool(mcpServer, goodsReportServiceServer)
 }
 
-// RegisterGoodsReportServiceSummaryGoodsMonthReportMCPTool 注册查询商品月报汇总的 MCP Tool。
-func RegisterGoodsReportServiceSummaryGoodsMonthReportMCPTool(mcpServer *mcp.Server, goodsReportServiceServer GoodsReportServiceServer) {
-	mcp.AddTool[*SummaryGoodsMonthReportRequest, *SummaryGoodsMonthReportResponse](
+// RegisterGoodsReportServiceListGoodsDayReportMCPTool 注册查询商品日报明细的 MCP Tool。
+func RegisterGoodsReportServiceListGoodsDayReportMCPTool(mcpServer *mcp.Server, goodsReportServiceServer GoodsReportServiceServer) {
+	mcp.AddTool[*ListGoodsDayReportRequest, *ListGoodsDayReportResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "shop_admin_v1_goods_report_service_summary_goods_month_report",
-			Description: "查询商品月报汇总",
+			Name:        "shop_admin_v1_goods_report_service_list_goods_day_report",
+			Description: "查询商品日报明细",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *SummaryGoodsMonthReportRequest) (*mcp.CallToolResult, *SummaryGoodsMonthReportResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *ListGoodsDayReportRequest) (*mcp.CallToolResult, *ListGoodsDayReportResponse, error) {
 			if input == nil {
-				input = &SummaryGoodsMonthReportRequest{}
+				input = &ListGoodsDayReportRequest{}
 			}
-			reply, err := goodsReportServiceServer.SummaryGoodsMonthReport(ctx, input)
+			reply, err := goodsReportServiceServer.ListGoodsDayReport(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -62,6 +62,27 @@ func RegisterGoodsReportServiceListGoodsMonthReportMCPTool(mcpServer *mcp.Server
 	)
 }
 
+// RegisterGoodsReportServiceSummaryGoodsMonthReportMCPTool 注册查询商品月报汇总的 MCP Tool。
+func RegisterGoodsReportServiceSummaryGoodsMonthReportMCPTool(mcpServer *mcp.Server, goodsReportServiceServer GoodsReportServiceServer) {
+	mcp.AddTool[*SummaryGoodsMonthReportRequest, *SummaryGoodsMonthReportResponse](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "shop_admin_v1_goods_report_service_summary_goods_month_report",
+			Description: "查询商品月报汇总",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *SummaryGoodsMonthReportRequest) (*mcp.CallToolResult, *SummaryGoodsMonthReportResponse, error) {
+			if input == nil {
+				input = &SummaryGoodsMonthReportRequest{}
+			}
+			reply, err := goodsReportServiceServer.SummaryGoodsMonthReport(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
+}
+
 // RegisterGoodsReportServiceSummaryGoodsDayReportMCPTool 注册查询商品日报汇总的 MCP Tool。
 func RegisterGoodsReportServiceSummaryGoodsDayReportMCPTool(mcpServer *mcp.Server, goodsReportServiceServer GoodsReportServiceServer) {
 	mcp.AddTool[*SummaryGoodsDayReportRequest, *SummaryGoodsDayReportResponse](
@@ -75,27 +96,6 @@ func RegisterGoodsReportServiceSummaryGoodsDayReportMCPTool(mcpServer *mcp.Serve
 				input = &SummaryGoodsDayReportRequest{}
 			}
 			reply, err := goodsReportServiceServer.SummaryGoodsDayReport(ctx, input)
-			if err != nil {
-				return nil, nil, err
-			}
-			return nil, reply, nil
-		},
-	)
-}
-
-// RegisterGoodsReportServiceListGoodsDayReportMCPTool 注册查询商品日报明细的 MCP Tool。
-func RegisterGoodsReportServiceListGoodsDayReportMCPTool(mcpServer *mcp.Server, goodsReportServiceServer GoodsReportServiceServer) {
-	mcp.AddTool[*ListGoodsDayReportRequest, *ListGoodsDayReportResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "shop_admin_v1_goods_report_service_list_goods_day_report",
-			Description: "查询商品日报明细",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *ListGoodsDayReportRequest) (*mcp.CallToolResult, *ListGoodsDayReportResponse, error) {
-			if input == nil {
-				input = &ListGoodsDayReportRequest{}
-			}
-			reply, err := goodsReportServiceServer.ListGoodsDayReport(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

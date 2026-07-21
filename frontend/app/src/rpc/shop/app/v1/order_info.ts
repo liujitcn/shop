@@ -19,136 +19,6 @@ import type {
 import type { RecommendContext } from "./recommend";
 import type { TenantStore } from "./tenant_store";
 
-/** 确认订单查询条件 */
-export interface ConfirmOrderInfoRequest {
-}
-
-/** 订单数量汇总查询条件 */
-export interface CountOrderInfoRequest {
-}
-
-/** 订单编号查询订单ID条件 */
-export interface GetOrderInfoIdByOrderNoRequest {
-  /** 订单编号 */
-  order_no: string;
-}
-
-/** 订单编号查询订单ID响应 */
-export interface GetOrderInfoIdByOrderNoResponse {
-  /** 订单ID */
-  order_id: number;
-}
-
-/** 订单详情查询条件 */
-export interface GetOrderInfoByIdRequest {
-  /** 订单ID */
-  id: number;
-}
-
-/** 交易单详情查询条件 */
-export interface GetOrderTradeByIdRequest {
-  /** 交易单ID */
-  trade_id: number;
-}
-
-/** 删除订单条件 */
-export interface DeleteOrderInfoRequest {
-  /** 订单ID */
-  id: number;
-}
-
-/** 删除交易单条件 */
-export interface DeleteOrderTradeRequest {
-  /** 交易单ID */
-  trade_id: number;
-}
-
-/** 立即购买订单请求参数 */
-export interface BuyNowOrderInfoRequest {
-  /** 商品id */
-  goods_id: number;
-  /** 规格编号 */
-  sku_code: string;
-  /** 数量 */
-  num: number;
-  /** 推荐上下文 */
-  recommend_context: RecommendContext | undefined;
-}
-
-/** 下单商品 */
-export interface CreateOrderInfoGoods {
-  /** 商品id */
-  goods_id: number;
-  /** 规格编号 */
-  sku_code: string;
-  /** 数量 */
-  num: number;
-  /** 推荐上下文 */
-  recommend_context: RecommendContext | undefined;
-}
-
-/** 确认订单响应 */
-export interface ConfirmOrderInfoResponse {
-  /** 按门店分组的商品信息 */
-  order_goods_stores: OrderGoodsStore[];
-  /** 汇总信息 */
-  summary:
-    | OrderSummary
-    | undefined;
-  /** 是否清空购物车 */
-  clear_cart: boolean;
-}
-
-/** 立即购买订单响应 */
-export interface BuyNowOrderInfoResponse {
-  /** 按门店分组的商品信息 */
-  order_goods_stores: OrderGoodsStore[];
-  /** 汇总信息 */
-  summary:
-    | OrderSummary
-    | undefined;
-  /** 是否清空购物车 */
-  clear_cart: boolean;
-}
-
-/** 再次购买订单请求参数 */
-export interface RepurchaseOrderInfoRequest {
-  /** 订单id */
-  order_id: number;
-}
-
-/** 再次购买订单响应 */
-export interface RepurchaseOrderInfoResponse {
-  /** 按门店分组的商品信息 */
-  order_goods_stores: OrderGoodsStore[];
-  /** 汇总信息 */
-  summary:
-    | OrderSummary
-    | undefined;
-  /** 是否清空购物车 */
-  clear_cart: boolean;
-}
-
-/** 订单数量汇总响应 */
-export interface CountOrderInfoResponse {
-  /** 总数 */
-  counts: CountOrderInfoResponse_Count[];
-}
-
-/** 订单数量统计项 */
-export interface CountOrderInfoResponse_Count {
-  /** 订单履约状态 */
-  status: OrderInfoStatus;
-  /** 订单数量 */
-  num: number;
-  /** 交易支付状态 */
-  trade_status: OrderTradeStatus;
-  /** 订单退款状态 */
-  refund_status: OrderRefundStatus;
-  /** 是否为可申请售后订单统计 */
-  refundable: boolean;
-}
-
 /** 订单分页查询条件 */
 export interface PageOrderInfoRequest {
   /** 订单履约状态 */
@@ -183,6 +53,12 @@ export interface PageOrderInfoResponse {
   order_infos: OrderInfo[];
   /** 总数 */
   total: number;
+}
+
+/** 订单详情查询条件 */
+export interface GetOrderInfoByIdRequest {
+  /** 订单ID */
+  id: number;
 }
 
 /** 订单详情响应 */
@@ -245,6 +121,24 @@ export interface OrderInfoResponse_RelatedOrder {
   order_no: string;
 }
 
+/** 订单编号查询订单ID条件 */
+export interface GetOrderInfoIdByOrderNoRequest {
+  /** 订单编号 */
+  order_no: string;
+}
+
+/** 订单编号查询订单ID响应 */
+export interface GetOrderInfoIdByOrderNoResponse {
+  /** 订单ID */
+  order_id: number;
+}
+
+/** 交易单详情查询条件 */
+export interface GetOrderTradeByIdRequest {
+  /** 交易单ID */
+  trade_id: number;
+}
+
 /** 创建订单请求参数 */
 export interface CreateOrderInfoRequest {
   /** 地址id */
@@ -271,22 +165,106 @@ export interface CreateOrderInfoResponse {
   order_ids: number[];
 }
 
+/** 删除订单条件 */
+export interface DeleteOrderInfoRequest {
+  /** 订单ID */
+  id: number;
+}
+
+/** 删除交易单条件 */
+export interface DeleteOrderTradeRequest {
+  /** 交易单ID */
+  trade_id: number;
+}
+
+/** 确认订单查询条件 */
+export interface ConfirmOrderInfoRequest {
+}
+
+/** 确认订单响应 */
+export interface ConfirmOrderInfoResponse {
+  /** 按门店分组的商品信息 */
+  order_goods_stores: OrderGoodsStore[];
+  /** 汇总信息 */
+  summary:
+    | OrderSummary
+    | undefined;
+  /** 是否清空购物车 */
+  clear_cart: boolean;
+}
+
+/** 立即购买订单请求参数 */
+export interface BuyNowOrderInfoRequest {
+  /** 商品id */
+  goods_id: number;
+  /** 规格编号 */
+  sku_code: string;
+  /** 数量 */
+  num: number;
+  /** 推荐上下文 */
+  recommend_context: RecommendContext | undefined;
+}
+
+/** 立即购买订单响应 */
+export interface BuyNowOrderInfoResponse {
+  /** 按门店分组的商品信息 */
+  order_goods_stores: OrderGoodsStore[];
+  /** 汇总信息 */
+  summary:
+    | OrderSummary
+    | undefined;
+  /** 是否清空购物车 */
+  clear_cart: boolean;
+}
+
+/** 再次购买订单请求参数 */
+export interface RepurchaseOrderInfoRequest {
+  /** 订单id */
+  order_id: number;
+}
+
+/** 再次购买订单响应 */
+export interface RepurchaseOrderInfoResponse {
+  /** 按门店分组的商品信息 */
+  order_goods_stores: OrderGoodsStore[];
+  /** 汇总信息 */
+  summary:
+    | OrderSummary
+    | undefined;
+  /** 是否清空购物车 */
+  clear_cart: boolean;
+}
+
+/** 订单数量汇总查询条件 */
+export interface CountOrderInfoRequest {
+}
+
+/** 订单数量汇总响应 */
+export interface CountOrderInfoResponse {
+  /** 总数 */
+  counts: CountOrderInfoResponse_Count[];
+}
+
+/** 订单数量统计项 */
+export interface CountOrderInfoResponse_Count {
+  /** 订单履约状态 */
+  status: OrderInfoStatus;
+  /** 订单数量 */
+  num: number;
+  /** 交易支付状态 */
+  trade_status: OrderTradeStatus;
+  /** 订单退款状态 */
+  refund_status: OrderRefundStatus;
+  /** 是否为可申请售后订单统计 */
+  refundable: boolean;
+}
+
 /** 取消订单请求参数 */
 export interface CancelOrderInfoRequest {
   /** 交易单ID */
   trade_id: number;
   /** 取消原因 */
   reason: OrderCancelReason;
-}
-
-/** 门店订单选项 */
-export interface OrderStoreOption {
-  /** 租户门店ID */
-  tenant_store_id: number;
-  /** 配送时间：枚举【OrderDeliveryTime】 */
-  delivery_time: OrderDeliveryTime;
-  /** 订单备注 */
-  remark: string;
 }
 
 /** 订单退款请求参数 */
@@ -301,6 +279,28 @@ export interface RefundOrderInfoRequest {
 export interface ReceiveOrderInfoRequest {
   /** 订单id */
   order_id: number;
+}
+
+/** 下单商品 */
+export interface CreateOrderInfoGoods {
+  /** 商品id */
+  goods_id: number;
+  /** 规格编号 */
+  sku_code: string;
+  /** 数量 */
+  num: number;
+  /** 推荐上下文 */
+  recommend_context: RecommendContext | undefined;
+}
+
+/** 门店订单选项 */
+export interface OrderStoreOption {
+  /** 租户门店ID */
+  tenant_store_id: number;
+  /** 配送时间：枚举【OrderDeliveryTime】 */
+  delivery_time: OrderDeliveryTime;
+  /** 订单备注 */
+  remark: string;
 }
 
 /** 订单商品 */
@@ -413,20 +413,12 @@ export interface OrderSummary {
 
 /** App订单信息服务 */
 export interface OrderInfoService {
-  /** 确认订单信息 */
-  ConfirmOrderInfo(request: ConfirmOrderInfoRequest): Promise<ConfirmOrderInfoResponse>;
-  /** 立即购买订单信息 */
-  BuyNowOrderInfo(request: BuyNowOrderInfoRequest): Promise<BuyNowOrderInfoResponse>;
-  /** 再次购买订单信息 */
-  RepurchaseOrderInfo(request: RepurchaseOrderInfoRequest): Promise<RepurchaseOrderInfoResponse>;
-  /** 查询订单信息数量汇总 */
-  CountOrderInfo(request: CountOrderInfoRequest): Promise<CountOrderInfoResponse>;
   /** 查询订单信息分页列表 */
   PageOrderInfo(request: PageOrderInfoRequest): Promise<PageOrderInfoResponse>;
-  /** 根据订单信息编号查询订单信息id */
-  GetOrderInfoIdByOrderNo(request: GetOrderInfoIdByOrderNoRequest): Promise<GetOrderInfoIdByOrderNoResponse>;
   /** 根据订单信息id查询订单信息 */
   GetOrderInfoById(request: GetOrderInfoByIdRequest): Promise<OrderInfoResponse>;
+  /** 根据订单信息编号查询订单信息id */
+  GetOrderInfoIdByOrderNo(request: GetOrderInfoIdByOrderNoRequest): Promise<GetOrderInfoIdByOrderNoResponse>;
   /** 根据交易单ID查询聚合订单详情 */
   GetOrderTradeById(request: GetOrderTradeByIdRequest): Promise<OrderInfoResponse>;
   /** 创建订单信息 */
@@ -435,6 +427,14 @@ export interface OrderInfoService {
   DeleteOrderInfo(request: DeleteOrderInfoRequest): Promise<Empty>;
   /** 删除交易单 */
   DeleteOrderTrade(request: DeleteOrderTradeRequest): Promise<Empty>;
+  /** 确认订单信息 */
+  ConfirmOrderInfo(request: ConfirmOrderInfoRequest): Promise<ConfirmOrderInfoResponse>;
+  /** 立即购买订单信息 */
+  BuyNowOrderInfo(request: BuyNowOrderInfoRequest): Promise<BuyNowOrderInfoResponse>;
+  /** 再次购买订单信息 */
+  RepurchaseOrderInfo(request: RepurchaseOrderInfoRequest): Promise<RepurchaseOrderInfoResponse>;
+  /** 查询订单信息数量汇总 */
+  CountOrderInfo(request: CountOrderInfoRequest): Promise<CountOrderInfoResponse>;
   /** 取消订单信息 */
   CancelOrderInfo(request: CancelOrderInfoRequest): Promise<Empty>;
   /** 订单信息退款 */

@@ -25,9 +25,9 @@ const (
 	BaseApiService_ListBaseApi_FullMethodName           = "/system.admin.v1.BaseApiService/ListBaseApi"
 	BaseApiService_GetBaseApi_FullMethodName            = "/system.admin.v1.BaseApiService/GetBaseApi"
 	BaseApiService_GetBaseApiDoc_FullMethodName         = "/system.admin.v1.BaseApiService/GetBaseApiDoc"
-	BaseApiService_SetBaseApiMcpStatus_FullMethodName   = "/system.admin.v1.BaseApiService/SetBaseApiMcpStatus"
-	BaseApiService_SetBaseApiAgentStatus_FullMethodName = "/system.admin.v1.BaseApiService/SetBaseApiAgentStatus"
 	BaseApiService_UpdateBaseApi_FullMethodName         = "/system.admin.v1.BaseApiService/UpdateBaseApi"
+	BaseApiService_SetBaseApiAgentStatus_FullMethodName = "/system.admin.v1.BaseApiService/SetBaseApiAgentStatus"
+	BaseApiService_SetBaseApiMcpStatus_FullMethodName   = "/system.admin.v1.BaseApiService/SetBaseApiMcpStatus"
 )
 
 // BaseApiServiceClient is the client API for BaseApiService service.
@@ -44,12 +44,12 @@ type BaseApiServiceClient interface {
 	GetBaseApi(ctx context.Context, in *GetBaseApiRequest, opts ...grpc.CallOption) (*BaseApi, error)
 	// 查询API文档
 	GetBaseApiDoc(ctx context.Context, in *GetBaseApiDocRequest, opts ...grpc.CallOption) (*BaseApiDoc, error)
-	// 设置API MCP工具状态
-	SetBaseApiMcpStatus(ctx context.Context, in *SetBaseApiMcpStatusRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	// 设置API Agent工具状态
-	SetBaseApiAgentStatus(ctx context.Context, in *SetBaseApiAgentStatusRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 更新API配置
 	UpdateBaseApi(ctx context.Context, in *UpdateBaseApiRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 设置API Agent工具状态
+	SetBaseApiAgentStatus(ctx context.Context, in *SetBaseApiAgentStatusRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 设置API MCP工具状态
+	SetBaseApiMcpStatus(ctx context.Context, in *SetBaseApiMcpStatusRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type baseApiServiceClient struct {
@@ -100,10 +100,10 @@ func (c *baseApiServiceClient) GetBaseApiDoc(ctx context.Context, in *GetBaseApi
 	return out, nil
 }
 
-func (c *baseApiServiceClient) SetBaseApiMcpStatus(ctx context.Context, in *SetBaseApiMcpStatusRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *baseApiServiceClient) UpdateBaseApi(ctx context.Context, in *UpdateBaseApiRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, BaseApiService_SetBaseApiMcpStatus_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, BaseApiService_UpdateBaseApi_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -120,10 +120,10 @@ func (c *baseApiServiceClient) SetBaseApiAgentStatus(ctx context.Context, in *Se
 	return out, nil
 }
 
-func (c *baseApiServiceClient) UpdateBaseApi(ctx context.Context, in *UpdateBaseApiRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *baseApiServiceClient) SetBaseApiMcpStatus(ctx context.Context, in *SetBaseApiMcpStatusRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, BaseApiService_UpdateBaseApi_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, BaseApiService_SetBaseApiMcpStatus_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -144,12 +144,12 @@ type BaseApiServiceServer interface {
 	GetBaseApi(context.Context, *GetBaseApiRequest) (*BaseApi, error)
 	// 查询API文档
 	GetBaseApiDoc(context.Context, *GetBaseApiDocRequest) (*BaseApiDoc, error)
-	// 设置API MCP工具状态
-	SetBaseApiMcpStatus(context.Context, *SetBaseApiMcpStatusRequest) (*emptypb.Empty, error)
-	// 设置API Agent工具状态
-	SetBaseApiAgentStatus(context.Context, *SetBaseApiAgentStatusRequest) (*emptypb.Empty, error)
 	// 更新API配置
 	UpdateBaseApi(context.Context, *UpdateBaseApiRequest) (*emptypb.Empty, error)
+	// 设置API Agent工具状态
+	SetBaseApiAgentStatus(context.Context, *SetBaseApiAgentStatusRequest) (*emptypb.Empty, error)
+	// 设置API MCP工具状态
+	SetBaseApiMcpStatus(context.Context, *SetBaseApiMcpStatusRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedBaseApiServiceServer()
 }
 
@@ -172,14 +172,14 @@ func (UnimplementedBaseApiServiceServer) GetBaseApi(context.Context, *GetBaseApi
 func (UnimplementedBaseApiServiceServer) GetBaseApiDoc(context.Context, *GetBaseApiDocRequest) (*BaseApiDoc, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetBaseApiDoc not implemented")
 }
-func (UnimplementedBaseApiServiceServer) SetBaseApiMcpStatus(context.Context, *SetBaseApiMcpStatusRequest) (*emptypb.Empty, error) {
-	return nil, status.Error(codes.Unimplemented, "method SetBaseApiMcpStatus not implemented")
+func (UnimplementedBaseApiServiceServer) UpdateBaseApi(context.Context, *UpdateBaseApiRequest) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateBaseApi not implemented")
 }
 func (UnimplementedBaseApiServiceServer) SetBaseApiAgentStatus(context.Context, *SetBaseApiAgentStatusRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method SetBaseApiAgentStatus not implemented")
 }
-func (UnimplementedBaseApiServiceServer) UpdateBaseApi(context.Context, *UpdateBaseApiRequest) (*emptypb.Empty, error) {
-	return nil, status.Error(codes.Unimplemented, "method UpdateBaseApi not implemented")
+func (UnimplementedBaseApiServiceServer) SetBaseApiMcpStatus(context.Context, *SetBaseApiMcpStatusRequest) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method SetBaseApiMcpStatus not implemented")
 }
 func (UnimplementedBaseApiServiceServer) mustEmbedUnimplementedBaseApiServiceServer() {}
 func (UnimplementedBaseApiServiceServer) testEmbeddedByValue()                        {}
@@ -274,20 +274,20 @@ func _BaseApiService_GetBaseApiDoc_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
-func _BaseApiService_SetBaseApiMcpStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SetBaseApiMcpStatusRequest)
+func _BaseApiService_UpdateBaseApi_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateBaseApiRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BaseApiServiceServer).SetBaseApiMcpStatus(ctx, in)
+		return srv.(BaseApiServiceServer).UpdateBaseApi(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: BaseApiService_SetBaseApiMcpStatus_FullMethodName,
+		FullMethod: BaseApiService_UpdateBaseApi_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BaseApiServiceServer).SetBaseApiMcpStatus(ctx, req.(*SetBaseApiMcpStatusRequest))
+		return srv.(BaseApiServiceServer).UpdateBaseApi(ctx, req.(*UpdateBaseApiRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -310,20 +310,20 @@ func _BaseApiService_SetBaseApiAgentStatus_Handler(srv interface{}, ctx context.
 	return interceptor(ctx, in, info, handler)
 }
 
-func _BaseApiService_UpdateBaseApi_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateBaseApiRequest)
+func _BaseApiService_SetBaseApiMcpStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetBaseApiMcpStatusRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BaseApiServiceServer).UpdateBaseApi(ctx, in)
+		return srv.(BaseApiServiceServer).SetBaseApiMcpStatus(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: BaseApiService_UpdateBaseApi_FullMethodName,
+		FullMethod: BaseApiService_SetBaseApiMcpStatus_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BaseApiServiceServer).UpdateBaseApi(ctx, req.(*UpdateBaseApiRequest))
+		return srv.(BaseApiServiceServer).SetBaseApiMcpStatus(ctx, req.(*SetBaseApiMcpStatusRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -352,16 +352,16 @@ var BaseApiService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _BaseApiService_GetBaseApiDoc_Handler,
 		},
 		{
-			MethodName: "SetBaseApiMcpStatus",
-			Handler:    _BaseApiService_SetBaseApiMcpStatus_Handler,
+			MethodName: "UpdateBaseApi",
+			Handler:    _BaseApiService_UpdateBaseApi_Handler,
 		},
 		{
 			MethodName: "SetBaseApiAgentStatus",
 			Handler:    _BaseApiService_SetBaseApiAgentStatus_Handler,
 		},
 		{
-			MethodName: "UpdateBaseApi",
-			Handler:    _BaseApiService_UpdateBaseApi_Handler,
+			MethodName: "SetBaseApiMcpStatus",
+			Handler:    _BaseApiService_SetBaseApiMcpStatus_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -37,6 +37,16 @@ func NewGoodsCategoryService(
 	}
 }
 
+// OptionGoodsCategory 查询商品分类树形选择
+func (s *GoodsCategoryService) OptionGoodsCategory(ctx context.Context, req *shopadminv1.OptionGoodsCategoryRequest) (*commonv1.TreeOptionResponse, error) {
+	tree, err := s.goodsCategoryCase.OptionGoodsCategory(ctx, req)
+	if err != nil {
+		log.Error(fmt.Sprintf("OptionGoodsCategory %v", err))
+		return nil, errorsx.WrapInternal(err, "查询商品分类树形选择失败")
+	}
+	return tree, nil
+}
+
 // TreeGoodsCategory 查询商品分类树形列表
 func (s *GoodsCategoryService) TreeGoodsCategory(ctx context.Context, req *shopadminv1.TreeGoodsCategoryRequest) (*shopadminv1.TreeGoodsCategoryResponse, error) {
 	tree, err := s.goodsCategoryCase.TreeGoodsCategory(ctx, req)
@@ -45,16 +55,6 @@ func (s *GoodsCategoryService) TreeGoodsCategory(ctx context.Context, req *shopa
 		return nil, errorsx.WrapInternal(err, "查询商品分类树形列表失败")
 	}
 
-	return tree, nil
-}
-
-// OptionGoodsCategory 查询商品分类树形选择
-func (s *GoodsCategoryService) OptionGoodsCategory(ctx context.Context, req *shopadminv1.OptionGoodsCategoryRequest) (*commonv1.TreeOptionResponse, error) {
-	tree, err := s.goodsCategoryCase.OptionGoodsCategory(ctx, req)
-	if err != nil {
-		log.Error(fmt.Sprintf("OptionGoodsCategory %v", err))
-		return nil, errorsx.WrapInternal(err, "查询商品分类树形选择失败")
-	}
 	return tree, nil
 }
 

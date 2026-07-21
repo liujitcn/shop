@@ -11,17 +11,17 @@ import "google/protobuf/empty.proto";
 
 // Admin商品分类服务
 service GoodsCategoryService {
-  // 查询商品分类树形列表
-  rpc TreeGoodsCategory(TreeGoodsCategoryRequest) returns (TreeGoodsCategoryResponse) {
-    option (google.api.http) = {
-      get: "/api/v1/admin/goods/category/tree"
-    };
-  }
-
   // 查询商品分类树形选择
   rpc OptionGoodsCategory(OptionGoodsCategoryRequest) returns (.common.v1.TreeOptionResponse) {
     option (google.api.http) = {
       get: "/api/v1/admin/goods/category/option"
+    };
+  }
+
+  // 查询商品分类树形列表
+  rpc TreeGoodsCategory(TreeGoodsCategoryRequest) returns (TreeGoodsCategoryResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/goods/category/tree"
     };
   }
 
@@ -64,6 +64,11 @@ service GoodsCategoryService {
   }
 }
 
+// 商品分类选项查询条件
+message OptionGoodsCategoryRequest {
+  optional int64 parent_id = 1 [(gnostic.openapi.v3.property) = {description: "父级商品分类ID"}]; // 父级商品分类ID
+}
+
 // 商品分类树查询条件
 message TreeGoodsCategoryRequest {}
 
@@ -72,14 +77,24 @@ message TreeGoodsCategoryResponse {
   repeated GoodsCategory goods_categories = 1 [(gnostic.openapi.v3.property) = {description: "商品分类列表"}]; // 商品分类列表
 }
 
-// 商品分类选项查询条件
-message OptionGoodsCategoryRequest {
-  optional int64 parent_id = 1 [(gnostic.openapi.v3.property) = {description: "父级商品分类ID"}]; // 父级商品分类ID
-}
-
 // 商品分类详情查询条件
 message GetGoodsCategoryRequest {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "商品分类ID"}]; // 商品分类ID
+}
+
+// 商品分类表单
+message GoodsCategoryForm {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "商品分类ID"}]; // 商品分类ID
+
+  optional int64 parent_id = 2 [(gnostic.openapi.v3.property) = {description: "父级商品分类ID"}]; // 父级商品分类ID
+
+  string name = 3 [(gnostic.openapi.v3.property) = {description: "商品分类名称"}]; // 商品分类名称
+
+  string picture = 4 [(gnostic.openapi.v3.property) = {description: "商品分类图片"}]; // 商品分类图片
+
+  int32 sort = 5 [(gnostic.openapi.v3.property) = {description: "排序"}]; // 排序
+
+  .common.v1.Status status = 50 [(gnostic.openapi.v3.property) = {description: "菜单状态"}, (buf.validate.field).enum = {defined_only: true}]; // 菜单状态
 }
 
 // 商品分类创建条件
@@ -125,19 +140,4 @@ message GoodsCategory {
   string updated_at = 201 [(gnostic.openapi.v3.property) = {description: "更新时间"}]; // 更新时间
 
   repeated GoodsCategory children = 301 [(gnostic.openapi.v3.property) = {description: "子节点树"}]; // 子节点树
-}
-
-// 商品分类表单
-message GoodsCategoryForm {
-  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "商品分类ID"}]; // 商品分类ID
-
-  optional int64 parent_id = 2 [(gnostic.openapi.v3.property) = {description: "父级商品分类ID"}]; // 父级商品分类ID
-
-  string name = 3 [(gnostic.openapi.v3.property) = {description: "商品分类名称"}]; // 商品分类名称
-
-  string picture = 4 [(gnostic.openapi.v3.property) = {description: "商品分类图片"}]; // 商品分类图片
-
-  int32 sort = 5 [(gnostic.openapi.v3.property) = {description: "排序"}]; // 排序
-
-  .common.v1.Status status = 50 [(gnostic.openapi.v3.property) = {description: "菜单状态"}, (buf.validate.field).enum = {defined_only: true}]; // 菜单状态
 }

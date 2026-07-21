@@ -37,22 +37,22 @@ func NewBaseMenuService(
 	}
 }
 
-// TreeBaseMenu 查询菜单树形列表
-func (s *BaseMenuService) TreeBaseMenu(ctx context.Context, req *systemadminv1.TreeBaseMenuRequest) (*systemadminv1.TreeBaseMenuResponse, error) {
-	tree, err := s.baseMenuCase.TreeBaseMenu(ctx)
-	if err != nil {
-		log.Error(fmt.Sprintf("TreeBaseMenu %v", err))
-		return nil, errorsx.WrapInternal(err, "查询菜单树形列表失败")
-	}
-	return tree, nil
-}
-
 // OptionBaseMenu 查询菜单树形选择
 func (s *BaseMenuService) OptionBaseMenu(ctx context.Context, req *systemadminv1.OptionBaseMenuRequest) (*commonv1.TreeOptionResponse, error) {
 	tree, err := s.baseMenuCase.OptionBaseMenu(ctx, req)
 	if err != nil {
 		log.Error(fmt.Sprintf("OptionBaseMenu %v", err))
 		return nil, errorsx.WrapInternal(err, "查询菜单树形选择失败")
+	}
+	return tree, nil
+}
+
+// TreeBaseMenu 查询菜单树形列表
+func (s *BaseMenuService) TreeBaseMenu(ctx context.Context, req *systemadminv1.TreeBaseMenuRequest) (*systemadminv1.TreeBaseMenuResponse, error) {
+	tree, err := s.baseMenuCase.TreeBaseMenu(ctx)
+	if err != nil {
+		log.Error(fmt.Sprintf("TreeBaseMenu %v", err))
+		return nil, errorsx.WrapInternal(err, "查询菜单树形列表失败")
 	}
 	return tree, nil
 }

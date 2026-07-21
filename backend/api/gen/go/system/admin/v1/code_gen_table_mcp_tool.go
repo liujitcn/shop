@@ -15,13 +15,34 @@ import (
 
 // RegisterCodeGenTableServiceMCPTools 注册Admin代码生成表配置服务的 MCP Tool。
 func RegisterCodeGenTableServiceMCPTools(mcpServer *mcp.Server, codeGenTableServiceServer CodeGenTableServiceServer) {
+	RegisterCodeGenTableServicePageCodeGenTableMCPTool(mcpServer, codeGenTableServiceServer)
 	RegisterCodeGenTableServiceListCodeGenDatabaseTableMCPTool(mcpServer, codeGenTableServiceServer)
 	RegisterCodeGenTableServiceListCodeGenProtoDirectoryMCPTool(mcpServer, codeGenTableServiceServer)
-	RegisterCodeGenTableServicePageCodeGenTableMCPTool(mcpServer, codeGenTableServiceServer)
 	RegisterCodeGenTableServiceGetCodeGenTableMCPTool(mcpServer, codeGenTableServiceServer)
 	RegisterCodeGenTableServiceCreateCodeGenTableMCPTool(mcpServer, codeGenTableServiceServer)
 	RegisterCodeGenTableServiceUpdateCodeGenTableMCPTool(mcpServer, codeGenTableServiceServer)
 	RegisterCodeGenTableServiceDeleteCodeGenTableMCPTool(mcpServer, codeGenTableServiceServer)
+}
+
+// RegisterCodeGenTableServicePageCodeGenTableMCPTool 注册分页查询代码生成表配置的 MCP Tool。
+func RegisterCodeGenTableServicePageCodeGenTableMCPTool(mcpServer *mcp.Server, codeGenTableServiceServer CodeGenTableServiceServer) {
+	mcp.AddTool[*PageCodeGenTableRequest, *PageCodeGenTableResponse](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "system_admin_v1_code_gen_table_service_page_code_gen_table",
+			Description: "分页查询代码生成表配置",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *PageCodeGenTableRequest) (*mcp.CallToolResult, *PageCodeGenTableResponse, error) {
+			if input == nil {
+				input = &PageCodeGenTableRequest{}
+			}
+			reply, err := codeGenTableServiceServer.PageCodeGenTable(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
 }
 
 // RegisterCodeGenTableServiceListCodeGenDatabaseTableMCPTool 注册查询数据库表列表的 MCP Tool。
@@ -58,27 +79,6 @@ func RegisterCodeGenTableServiceListCodeGenProtoDirectoryMCPTool(mcpServer *mcp.
 				input = &ListCodeGenProtoDirectoryRequest{}
 			}
 			reply, err := codeGenTableServiceServer.ListCodeGenProtoDirectory(ctx, input)
-			if err != nil {
-				return nil, nil, err
-			}
-			return nil, reply, nil
-		},
-	)
-}
-
-// RegisterCodeGenTableServicePageCodeGenTableMCPTool 注册分页查询代码生成表配置的 MCP Tool。
-func RegisterCodeGenTableServicePageCodeGenTableMCPTool(mcpServer *mcp.Server, codeGenTableServiceServer CodeGenTableServiceServer) {
-	mcp.AddTool[*PageCodeGenTableRequest, *PageCodeGenTableResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_code_gen_table_service_page_code_gen_table",
-			Description: "分页查询代码生成表配置",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageCodeGenTableRequest) (*mcp.CallToolResult, *PageCodeGenTableResponse, error) {
-			if input == nil {
-				input = &PageCodeGenTableRequest{}
-			}
-			reply, err := codeGenTableServiceServer.PageCodeGenTable(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

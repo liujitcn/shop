@@ -28,6 +28,16 @@ func NewAiSessionService(aiSessionCase *biz.AiSessionCase, aiMessageCase *biz.Ai
 	}
 }
 
+// ListAiMessage 查询 AI 助手消息列表。
+func (s *AiSessionService) ListAiMessage(ctx context.Context, req *basev1.ListAiMessageRequest) (*basev1.ListAiMessageResponse, error) {
+	res, err := s.aiMessageCase.ListAiMessage(ctx, req)
+	if err != nil {
+		log.Error("ListAiMessage", "error", err)
+		return nil, errorsx.WrapInternal(err, "查询AI助手消息失败")
+	}
+	return res, nil
+}
+
 // ListAiSession 查询 AI 助手会话列表。
 func (s *AiSessionService) ListAiSession(ctx context.Context, req *basev1.ListAiSessionRequest) (*basev1.ListAiSessionResponse, error) {
 	res, err := s.aiSessionCase.ListAiSession(ctx, req)
@@ -48,6 +58,16 @@ func (s *AiSessionService) CreateAiSession(ctx context.Context, req *basev1.Crea
 	return &basev1.CreateAiSessionResponse{Session: res}, nil
 }
 
+// CreateAiSessionBranch 从指定消息创建 AI 助手分支会话。
+func (s *AiSessionService) CreateAiSessionBranch(ctx context.Context, req *basev1.CreateAiSessionBranchRequest) (*basev1.CreateAiSessionBranchResponse, error) {
+	res, err := s.aiSessionCase.CreateAiSessionBranch(ctx, req)
+	if err != nil {
+		log.Error("CreateAiSessionBranch", "error", err)
+		return nil, errorsx.WrapInternal(err, "创建AI助手分支会话失败")
+	}
+	return res, nil
+}
+
 // UpdateAiSession 更新 AI 助手会话。
 func (s *AiSessionService) UpdateAiSession(ctx context.Context, req *basev1.UpdateAiSessionRequest) (*basev1.UpdateAiSessionResponse, error) {
 	res, err := s.aiSessionCase.UpdateAiSession(ctx, req)
@@ -66,24 +86,4 @@ func (s *AiSessionService) DeleteAiSession(ctx context.Context, req *basev1.Dele
 		return nil, errorsx.WrapInternal(err, "删除AI助手会话失败")
 	}
 	return &basev1.DeleteAiSessionResponse{}, nil
-}
-
-// ListAiMessage 查询 AI 助手消息列表。
-func (s *AiSessionService) ListAiMessage(ctx context.Context, req *basev1.ListAiMessageRequest) (*basev1.ListAiMessageResponse, error) {
-	res, err := s.aiMessageCase.ListAiMessage(ctx, req)
-	if err != nil {
-		log.Error("ListAiMessage", "error", err)
-		return nil, errorsx.WrapInternal(err, "查询AI助手消息失败")
-	}
-	return res, nil
-}
-
-// CreateAiSessionBranch 从指定消息创建 AI 助手分支会话。
-func (s *AiSessionService) CreateAiSessionBranch(ctx context.Context, req *basev1.CreateAiSessionBranchRequest) (*basev1.CreateAiSessionBranchResponse, error) {
-	res, err := s.aiSessionCase.CreateAiSessionBranch(ctx, req)
-	if err != nil {
-		log.Error("CreateAiSessionBranch", "error", err)
-		return nil, errorsx.WrapInternal(err, "创建AI助手分支会话失败")
-	}
-	return res, nil
 }

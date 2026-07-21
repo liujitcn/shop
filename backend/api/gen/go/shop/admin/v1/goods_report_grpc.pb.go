@@ -20,10 +20,10 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	GoodsReportService_SummaryGoodsMonthReport_FullMethodName = "/shop.admin.v1.GoodsReportService/SummaryGoodsMonthReport"
-	GoodsReportService_ListGoodsMonthReport_FullMethodName    = "/shop.admin.v1.GoodsReportService/ListGoodsMonthReport"
-	GoodsReportService_SummaryGoodsDayReport_FullMethodName   = "/shop.admin.v1.GoodsReportService/SummaryGoodsDayReport"
 	GoodsReportService_ListGoodsDayReport_FullMethodName      = "/shop.admin.v1.GoodsReportService/ListGoodsDayReport"
+	GoodsReportService_ListGoodsMonthReport_FullMethodName    = "/shop.admin.v1.GoodsReportService/ListGoodsMonthReport"
+	GoodsReportService_SummaryGoodsMonthReport_FullMethodName = "/shop.admin.v1.GoodsReportService/SummaryGoodsMonthReport"
+	GoodsReportService_SummaryGoodsDayReport_FullMethodName   = "/shop.admin.v1.GoodsReportService/SummaryGoodsDayReport"
 )
 
 // GoodsReportServiceClient is the client API for GoodsReportService service.
@@ -32,14 +32,14 @@ const (
 //
 // Admin商品报表服务
 type GoodsReportServiceClient interface {
-	// 查询商品月报汇总
-	SummaryGoodsMonthReport(ctx context.Context, in *SummaryGoodsMonthReportRequest, opts ...grpc.CallOption) (*SummaryGoodsMonthReportResponse, error)
-	// 查询商品月报名细
-	ListGoodsMonthReport(ctx context.Context, in *ListGoodsMonthReportRequest, opts ...grpc.CallOption) (*ListGoodsMonthReportResponse, error)
-	// 查询商品日报汇总
-	SummaryGoodsDayReport(ctx context.Context, in *SummaryGoodsDayReportRequest, opts ...grpc.CallOption) (*SummaryGoodsDayReportResponse, error)
 	// 查询商品日报明细
 	ListGoodsDayReport(ctx context.Context, in *ListGoodsDayReportRequest, opts ...grpc.CallOption) (*ListGoodsDayReportResponse, error)
+	// 查询商品月报名细
+	ListGoodsMonthReport(ctx context.Context, in *ListGoodsMonthReportRequest, opts ...grpc.CallOption) (*ListGoodsMonthReportResponse, error)
+	// 查询商品月报汇总
+	SummaryGoodsMonthReport(ctx context.Context, in *SummaryGoodsMonthReportRequest, opts ...grpc.CallOption) (*SummaryGoodsMonthReportResponse, error)
+	// 查询商品日报汇总
+	SummaryGoodsDayReport(ctx context.Context, in *SummaryGoodsDayReportRequest, opts ...grpc.CallOption) (*SummaryGoodsDayReportResponse, error)
 }
 
 type goodsReportServiceClient struct {
@@ -50,10 +50,10 @@ func NewGoodsReportServiceClient(cc grpc.ClientConnInterface) GoodsReportService
 	return &goodsReportServiceClient{cc}
 }
 
-func (c *goodsReportServiceClient) SummaryGoodsMonthReport(ctx context.Context, in *SummaryGoodsMonthReportRequest, opts ...grpc.CallOption) (*SummaryGoodsMonthReportResponse, error) {
+func (c *goodsReportServiceClient) ListGoodsDayReport(ctx context.Context, in *ListGoodsDayReportRequest, opts ...grpc.CallOption) (*ListGoodsDayReportResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(SummaryGoodsMonthReportResponse)
-	err := c.cc.Invoke(ctx, GoodsReportService_SummaryGoodsMonthReport_FullMethodName, in, out, cOpts...)
+	out := new(ListGoodsDayReportResponse)
+	err := c.cc.Invoke(ctx, GoodsReportService_ListGoodsDayReport_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -70,20 +70,20 @@ func (c *goodsReportServiceClient) ListGoodsMonthReport(ctx context.Context, in 
 	return out, nil
 }
 
-func (c *goodsReportServiceClient) SummaryGoodsDayReport(ctx context.Context, in *SummaryGoodsDayReportRequest, opts ...grpc.CallOption) (*SummaryGoodsDayReportResponse, error) {
+func (c *goodsReportServiceClient) SummaryGoodsMonthReport(ctx context.Context, in *SummaryGoodsMonthReportRequest, opts ...grpc.CallOption) (*SummaryGoodsMonthReportResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(SummaryGoodsDayReportResponse)
-	err := c.cc.Invoke(ctx, GoodsReportService_SummaryGoodsDayReport_FullMethodName, in, out, cOpts...)
+	out := new(SummaryGoodsMonthReportResponse)
+	err := c.cc.Invoke(ctx, GoodsReportService_SummaryGoodsMonthReport_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *goodsReportServiceClient) ListGoodsDayReport(ctx context.Context, in *ListGoodsDayReportRequest, opts ...grpc.CallOption) (*ListGoodsDayReportResponse, error) {
+func (c *goodsReportServiceClient) SummaryGoodsDayReport(ctx context.Context, in *SummaryGoodsDayReportRequest, opts ...grpc.CallOption) (*SummaryGoodsDayReportResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListGoodsDayReportResponse)
-	err := c.cc.Invoke(ctx, GoodsReportService_ListGoodsDayReport_FullMethodName, in, out, cOpts...)
+	out := new(SummaryGoodsDayReportResponse)
+	err := c.cc.Invoke(ctx, GoodsReportService_SummaryGoodsDayReport_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -96,14 +96,14 @@ func (c *goodsReportServiceClient) ListGoodsDayReport(ctx context.Context, in *L
 //
 // Admin商品报表服务
 type GoodsReportServiceServer interface {
-	// 查询商品月报汇总
-	SummaryGoodsMonthReport(context.Context, *SummaryGoodsMonthReportRequest) (*SummaryGoodsMonthReportResponse, error)
-	// 查询商品月报名细
-	ListGoodsMonthReport(context.Context, *ListGoodsMonthReportRequest) (*ListGoodsMonthReportResponse, error)
-	// 查询商品日报汇总
-	SummaryGoodsDayReport(context.Context, *SummaryGoodsDayReportRequest) (*SummaryGoodsDayReportResponse, error)
 	// 查询商品日报明细
 	ListGoodsDayReport(context.Context, *ListGoodsDayReportRequest) (*ListGoodsDayReportResponse, error)
+	// 查询商品月报名细
+	ListGoodsMonthReport(context.Context, *ListGoodsMonthReportRequest) (*ListGoodsMonthReportResponse, error)
+	// 查询商品月报汇总
+	SummaryGoodsMonthReport(context.Context, *SummaryGoodsMonthReportRequest) (*SummaryGoodsMonthReportResponse, error)
+	// 查询商品日报汇总
+	SummaryGoodsDayReport(context.Context, *SummaryGoodsDayReportRequest) (*SummaryGoodsDayReportResponse, error)
 	mustEmbedUnimplementedGoodsReportServiceServer()
 }
 
@@ -114,17 +114,17 @@ type GoodsReportServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedGoodsReportServiceServer struct{}
 
-func (UnimplementedGoodsReportServiceServer) SummaryGoodsMonthReport(context.Context, *SummaryGoodsMonthReportRequest) (*SummaryGoodsMonthReportResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method SummaryGoodsMonthReport not implemented")
+func (UnimplementedGoodsReportServiceServer) ListGoodsDayReport(context.Context, *ListGoodsDayReportRequest) (*ListGoodsDayReportResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListGoodsDayReport not implemented")
 }
 func (UnimplementedGoodsReportServiceServer) ListGoodsMonthReport(context.Context, *ListGoodsMonthReportRequest) (*ListGoodsMonthReportResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListGoodsMonthReport not implemented")
 }
+func (UnimplementedGoodsReportServiceServer) SummaryGoodsMonthReport(context.Context, *SummaryGoodsMonthReportRequest) (*SummaryGoodsMonthReportResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method SummaryGoodsMonthReport not implemented")
+}
 func (UnimplementedGoodsReportServiceServer) SummaryGoodsDayReport(context.Context, *SummaryGoodsDayReportRequest) (*SummaryGoodsDayReportResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method SummaryGoodsDayReport not implemented")
-}
-func (UnimplementedGoodsReportServiceServer) ListGoodsDayReport(context.Context, *ListGoodsDayReportRequest) (*ListGoodsDayReportResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method ListGoodsDayReport not implemented")
 }
 func (UnimplementedGoodsReportServiceServer) mustEmbedUnimplementedGoodsReportServiceServer() {}
 func (UnimplementedGoodsReportServiceServer) testEmbeddedByValue()                            {}
@@ -147,20 +147,20 @@ func RegisterGoodsReportServiceServer(s grpc.ServiceRegistrar, srv GoodsReportSe
 	s.RegisterService(&GoodsReportService_ServiceDesc, srv)
 }
 
-func _GoodsReportService_SummaryGoodsMonthReport_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SummaryGoodsMonthReportRequest)
+func _GoodsReportService_ListGoodsDayReport_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListGoodsDayReportRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(GoodsReportServiceServer).SummaryGoodsMonthReport(ctx, in)
+		return srv.(GoodsReportServiceServer).ListGoodsDayReport(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: GoodsReportService_SummaryGoodsMonthReport_FullMethodName,
+		FullMethod: GoodsReportService_ListGoodsDayReport_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GoodsReportServiceServer).SummaryGoodsMonthReport(ctx, req.(*SummaryGoodsMonthReportRequest))
+		return srv.(GoodsReportServiceServer).ListGoodsDayReport(ctx, req.(*ListGoodsDayReportRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -183,6 +183,24 @@ func _GoodsReportService_ListGoodsMonthReport_Handler(srv interface{}, ctx conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _GoodsReportService_SummaryGoodsMonthReport_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SummaryGoodsMonthReportRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GoodsReportServiceServer).SummaryGoodsMonthReport(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GoodsReportService_SummaryGoodsMonthReport_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GoodsReportServiceServer).SummaryGoodsMonthReport(ctx, req.(*SummaryGoodsMonthReportRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _GoodsReportService_SummaryGoodsDayReport_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SummaryGoodsDayReportRequest)
 	if err := dec(in); err != nil {
@@ -201,24 +219,6 @@ func _GoodsReportService_SummaryGoodsDayReport_Handler(srv interface{}, ctx cont
 	return interceptor(ctx, in, info, handler)
 }
 
-func _GoodsReportService_ListGoodsDayReport_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListGoodsDayReportRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(GoodsReportServiceServer).ListGoodsDayReport(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: GoodsReportService_ListGoodsDayReport_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GoodsReportServiceServer).ListGoodsDayReport(ctx, req.(*ListGoodsDayReportRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // GoodsReportService_ServiceDesc is the grpc.ServiceDesc for GoodsReportService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -227,20 +227,20 @@ var GoodsReportService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*GoodsReportServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "SummaryGoodsMonthReport",
-			Handler:    _GoodsReportService_SummaryGoodsMonthReport_Handler,
+			MethodName: "ListGoodsDayReport",
+			Handler:    _GoodsReportService_ListGoodsDayReport_Handler,
 		},
 		{
 			MethodName: "ListGoodsMonthReport",
 			Handler:    _GoodsReportService_ListGoodsMonthReport_Handler,
 		},
 		{
-			MethodName: "SummaryGoodsDayReport",
-			Handler:    _GoodsReportService_SummaryGoodsDayReport_Handler,
+			MethodName: "SummaryGoodsMonthReport",
+			Handler:    _GoodsReportService_SummaryGoodsMonthReport_Handler,
 		},
 		{
-			MethodName: "ListGoodsDayReport",
-			Handler:    _GoodsReportService_ListGoodsDayReport_Handler,
+			MethodName: "SummaryGoodsDayReport",
+			Handler:    _GoodsReportService_SummaryGoodsDayReport_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

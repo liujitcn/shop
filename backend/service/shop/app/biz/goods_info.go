@@ -64,54 +64,6 @@ func NewGoodsInfoCase(
 	}
 }
 
-// GetGoodsInfo 查询商品详情
-func (c *GoodsInfoCase) GetGoodsInfo(ctx context.Context, id int64) (*shopappv1.GoodsInfoResponse, error) {
-	// 是否会员
-	member := utils.IsMember(ctx)
-
-	query := c.Query(ctx).GoodsInfo
-	opts := make([]repository.QueryOption, 0, 2)
-	opts = append(opts, repository.Where(query.ID.Eq(id)))
-	opts = append(opts, repository.Where(query.Status.Eq(_const.GOODS_STATUS_PUT_ON)))
-	info, err := c.Find(ctx, opts...)
-	if err != nil {
-		return nil, err
-	}
-	var tenantStore *models.TenantStore
-	tenantStore, err = c.tenantStoreCase.FindByID(ctx, info.TenantStoreID)
-	if err != nil {
-		return nil, err
-	}
-
-	price := info.Price
-	// 会员访问时，详情页优先展示会员价。
-	if member {
-		price = info.DiscountPrice
-	}
-
-	goodsInfo := c.responseMapper.ToDTO(info)
-	goodsInfo.Price = price
-	goodsInfo.SaleNum = info.InitSaleNum + info.RealSaleNum
-	goodsInfo.TenantStoreName = tenantStore.Name
-	goodsInfo.TenantStoreLogo = tenantStore.Logo
-	// 属性
-	goodsInfo.PropList, err = c.goodsPropCase.listByGoodsID(ctx, goodsInfo.Id)
-	if err != nil {
-		return nil, err
-	}
-	// 规格
-	goodsInfo.SpecList, err = c.goodsSpecCase.listByGoodsID(ctx, goodsInfo.Id)
-	if err != nil {
-		return nil, err
-	}
-	// 规格库存
-	goodsInfo.SkuList, err = c.goodsSKUCase.listByGoodsID(ctx, goodsInfo.Id, member)
-	if err != nil {
-		return nil, err
-	}
-	return goodsInfo, nil
-}
-
 // PageGoodsInfo 查询商品分页列表。
 func (c *GoodsInfoCase) PageGoodsInfo(ctx context.Context, req *shopappv1.PageGoodsInfoRequest, extraOpts ...repository.QueryOption) (*shopappv1.PageGoodsInfoResponse, error) {
 	var err error
@@ -178,6 +130,54 @@ func (c *GoodsInfoCase) PageGoodsInfo(ctx context.Context, req *shopappv1.PageGo
 		GoodsInfos: list,
 		Total:      int32(count),
 	}, nil
+}
+
+// GetGoodsInfo 查询商品详情
+func (c *GoodsInfoCase) GetGoodsInfo(ctx context.Context, id int64) (*shopappv1.GoodsInfoResponse, error) {
+	// 是否会员
+	member := utils.IsMember(ctx)
+
+	query := c.Query(ctx).GoodsInfo
+	opts := make([]repository.QueryOption, 0, 2)
+	opts = append(opts, repository.Where(query.ID.Eq(id)))
+	opts = append(opts, repository.Where(query.Status.Eq(_const.GOODS_STATUS_PUT_ON)))
+	info, err := c.Find(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+	var tenantStore *models.TenantStore
+	tenantStore, err = c.tenantStoreCase.FindByID(ctx, info.TenantStoreID)
+	if err != nil {
+		return nil, err
+	}
+
+	price := info.Price
+	// 会员访问时，详情页优先展示会员价。
+	if member {
+		price = info.DiscountPrice
+	}
+
+	goodsInfo := c.responseMapper.ToDTO(info)
+	goodsInfo.Price = price
+	goodsInfo.SaleNum = info.InitSaleNum + info.RealSaleNum
+	goodsInfo.TenantStoreName = tenantStore.Name
+	goodsInfo.TenantStoreLogo = tenantStore.Logo
+	// 属性
+	goodsInfo.PropList, err = c.goodsPropCase.listByGoodsID(ctx, goodsInfo.Id)
+	if err != nil {
+		return nil, err
+	}
+	// 规格
+	goodsInfo.SpecList, err = c.goodsSpecCase.listByGoodsID(ctx, goodsInfo.Id)
+	if err != nil {
+		return nil, err
+	}
+	// 规格库存
+	goodsInfo.SkuList, err = c.goodsSKUCase.listByGoodsID(ctx, goodsInfo.Id, member)
+	if err != nil {
+		return nil, err
+	}
+	return goodsInfo, nil
 }
 
 // listByGoodsIDs 按商品 ID 顺序查询商品信息。

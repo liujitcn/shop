@@ -14,9 +14,30 @@ import (
 
 // RegisterShopHotServiceMCPTools 注册App热门推荐服务的 MCP Tool。
 func RegisterShopHotServiceMCPTools(mcpServer *mcp.Server, shopHotServiceServer ShopHotServiceServer) {
+	RegisterShopHotServicePageShopHotGoodsMCPTool(mcpServer, shopHotServiceServer)
 	RegisterShopHotServiceListShopHotMCPTool(mcpServer, shopHotServiceServer)
 	RegisterShopHotServiceListShopHotItemMCPTool(mcpServer, shopHotServiceServer)
-	RegisterShopHotServicePageShopHotGoodsMCPTool(mcpServer, shopHotServiceServer)
+}
+
+// RegisterShopHotServicePageShopHotGoodsMCPTool 注册查询热门推荐商品的 MCP Tool。
+func RegisterShopHotServicePageShopHotGoodsMCPTool(mcpServer *mcp.Server, shopHotServiceServer ShopHotServiceServer) {
+	mcp.AddTool[*PageShopHotGoodsRequest, *PageShopHotGoodsResponse](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "shop_app_v1_shop_hot_service_page_shop_hot_goods",
+			Description: "查询热门推荐商品",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *PageShopHotGoodsRequest) (*mcp.CallToolResult, *PageShopHotGoodsResponse, error) {
+			if input == nil {
+				input = &PageShopHotGoodsRequest{}
+			}
+			reply, err := shopHotServiceServer.PageShopHotGoods(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
 }
 
 // RegisterShopHotServiceListShopHotMCPTool 注册查询热门推荐列表的 MCP Tool。
@@ -53,27 +74,6 @@ func RegisterShopHotServiceListShopHotItemMCPTool(mcpServer *mcp.Server, shopHot
 				input = &ListShopHotItemRequest{}
 			}
 			reply, err := shopHotServiceServer.ListShopHotItem(ctx, input)
-			if err != nil {
-				return nil, nil, err
-			}
-			return nil, reply, nil
-		},
-	)
-}
-
-// RegisterShopHotServicePageShopHotGoodsMCPTool 注册查询热门推荐商品的 MCP Tool。
-func RegisterShopHotServicePageShopHotGoodsMCPTool(mcpServer *mcp.Server, shopHotServiceServer ShopHotServiceServer) {
-	mcp.AddTool[*PageShopHotGoodsRequest, *PageShopHotGoodsResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "shop_app_v1_shop_hot_service_page_shop_hot_goods",
-			Description: "查询热门推荐商品",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageShopHotGoodsRequest) (*mcp.CallToolResult, *PageShopHotGoodsResponse, error) {
-			if input == nil {
-				input = &PageShopHotGoodsRequest{}
-			}
-			reply, err := shopHotServiceServer.PageShopHotGoods(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

@@ -59,6 +59,25 @@ func (c *GoodsPropCase) PageGoodsProp(ctx context.Context, req *shopadminv1.Page
 	return &shopadminv1.PageGoodsPropResponse{GoodsProps: resList, Total: int32(total)}, nil
 }
 
+// ListGoodsPropByGoodsID 按商品查询属性列表
+func (c *GoodsPropCase) ListGoodsPropByGoodsID(ctx context.Context, goodsID int64) ([]*shopadminv1.GoodsProp, error) {
+	query := c.Query(ctx).GoodsProp
+	opts := make([]repository.QueryOption, 0, 2)
+	opts = append(opts, repository.Order(query.Sort.Asc()))
+	opts = append(opts, repository.Where(query.GoodsID.Eq(goodsID)))
+	list, err := c.List(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	resList := make([]*shopadminv1.GoodsProp, 0, len(list))
+	for _, item := range list {
+		goodsProp := c.mapper.ToDTO(item)
+		resList = append(resList, goodsProp)
+	}
+	return resList, nil
+}
+
 // GetGoodsProp 获取商品属性
 func (c *GoodsPropCase) GetGoodsProp(ctx context.Context, id int64) (*shopadminv1.GoodsProp, error) {
 	goodsProp, err := c.FindByID(ctx, id)
@@ -113,23 +132,4 @@ func (c *GoodsPropCase) UpdateGoodsProp(ctx context.Context, req *shopadminv1.Go
 func (c *GoodsPropCase) DeleteGoodsProp(ctx context.Context, id string) error {
 	goodsIDs := _string.ConvertStringToInt64Array(id)
 	return c.DeleteByIDs(ctx, goodsIDs)
-}
-
-// ListGoodsPropByGoodsID 按商品查询属性列表
-func (c *GoodsPropCase) ListGoodsPropByGoodsID(ctx context.Context, goodsID int64) ([]*shopadminv1.GoodsProp, error) {
-	query := c.Query(ctx).GoodsProp
-	opts := make([]repository.QueryOption, 0, 2)
-	opts = append(opts, repository.Order(query.Sort.Asc()))
-	opts = append(opts, repository.Where(query.GoodsID.Eq(goodsID)))
-	list, err := c.List(ctx, opts...)
-	if err != nil {
-		return nil, err
-	}
-
-	resList := make([]*shopadminv1.GoodsProp, 0, len(list))
-	for _, item := range list {
-		goodsProp := c.mapper.ToDTO(item)
-		resList = append(resList, goodsProp)
-	}
-	return resList, nil
 }

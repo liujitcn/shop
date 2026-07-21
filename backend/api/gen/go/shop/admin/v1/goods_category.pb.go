@@ -27,88 +27,6 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// 商品分类树查询条件
-type TreeGoodsCategoryRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *TreeGoodsCategoryRequest) Reset() {
-	*x = TreeGoodsCategoryRequest{}
-	mi := &file_shop_admin_v1_goods_category_proto_msgTypes[0]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *TreeGoodsCategoryRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*TreeGoodsCategoryRequest) ProtoMessage() {}
-
-func (x *TreeGoodsCategoryRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_goods_category_proto_msgTypes[0]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use TreeGoodsCategoryRequest.ProtoReflect.Descriptor instead.
-func (*TreeGoodsCategoryRequest) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_goods_category_proto_rawDescGZIP(), []int{0}
-}
-
-// 商品分类树响应
-type TreeGoodsCategoryResponse struct {
-	state           protoimpl.MessageState `protogen:"open.v1"`
-	GoodsCategories []*GoodsCategory       `protobuf:"bytes,1,rep,name=goods_categories,json=goodsCategories,proto3" json:"goods_categories,omitempty"` // 商品分类列表
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
-}
-
-func (x *TreeGoodsCategoryResponse) Reset() {
-	*x = TreeGoodsCategoryResponse{}
-	mi := &file_shop_admin_v1_goods_category_proto_msgTypes[1]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *TreeGoodsCategoryResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*TreeGoodsCategoryResponse) ProtoMessage() {}
-
-func (x *TreeGoodsCategoryResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_goods_category_proto_msgTypes[1]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use TreeGoodsCategoryResponse.ProtoReflect.Descriptor instead.
-func (*TreeGoodsCategoryResponse) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_goods_category_proto_rawDescGZIP(), []int{1}
-}
-
-func (x *TreeGoodsCategoryResponse) GetGoodsCategories() []*GoodsCategory {
-	if x != nil {
-		return x.GoodsCategories
-	}
-	return nil
-}
-
 // 商品分类选项查询条件
 type OptionGoodsCategoryRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -119,7 +37,7 @@ type OptionGoodsCategoryRequest struct {
 
 func (x *OptionGoodsCategoryRequest) Reset() {
 	*x = OptionGoodsCategoryRequest{}
-	mi := &file_shop_admin_v1_goods_category_proto_msgTypes[2]
+	mi := &file_shop_admin_v1_goods_category_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -131,7 +49,7 @@ func (x *OptionGoodsCategoryRequest) String() string {
 func (*OptionGoodsCategoryRequest) ProtoMessage() {}
 
 func (x *OptionGoodsCategoryRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_goods_category_proto_msgTypes[2]
+	mi := &file_shop_admin_v1_goods_category_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -144,7 +62,7 @@ func (x *OptionGoodsCategoryRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OptionGoodsCategoryRequest.ProtoReflect.Descriptor instead.
 func (*OptionGoodsCategoryRequest) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_goods_category_proto_rawDescGZIP(), []int{2}
+	return file_shop_admin_v1_goods_category_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *OptionGoodsCategoryRequest) GetParentId() int64 {
@@ -152,6 +70,88 @@ func (x *OptionGoodsCategoryRequest) GetParentId() int64 {
 		return *x.ParentId
 	}
 	return 0
+}
+
+// 商品分类树查询条件
+type TreeGoodsCategoryRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TreeGoodsCategoryRequest) Reset() {
+	*x = TreeGoodsCategoryRequest{}
+	mi := &file_shop_admin_v1_goods_category_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TreeGoodsCategoryRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TreeGoodsCategoryRequest) ProtoMessage() {}
+
+func (x *TreeGoodsCategoryRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_admin_v1_goods_category_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TreeGoodsCategoryRequest.ProtoReflect.Descriptor instead.
+func (*TreeGoodsCategoryRequest) Descriptor() ([]byte, []int) {
+	return file_shop_admin_v1_goods_category_proto_rawDescGZIP(), []int{1}
+}
+
+// 商品分类树响应
+type TreeGoodsCategoryResponse struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	GoodsCategories []*GoodsCategory       `protobuf:"bytes,1,rep,name=goods_categories,json=goodsCategories,proto3" json:"goods_categories,omitempty"` // 商品分类列表
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *TreeGoodsCategoryResponse) Reset() {
+	*x = TreeGoodsCategoryResponse{}
+	mi := &file_shop_admin_v1_goods_category_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TreeGoodsCategoryResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TreeGoodsCategoryResponse) ProtoMessage() {}
+
+func (x *TreeGoodsCategoryResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_admin_v1_goods_category_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TreeGoodsCategoryResponse.ProtoReflect.Descriptor instead.
+func (*TreeGoodsCategoryResponse) Descriptor() ([]byte, []int) {
+	return file_shop_admin_v1_goods_category_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *TreeGoodsCategoryResponse) GetGoodsCategories() []*GoodsCategory {
+	if x != nil {
+		return x.GoodsCategories
+	}
+	return nil
 }
 
 // 商品分类详情查询条件
@@ -199,6 +199,91 @@ func (x *GetGoodsCategoryRequest) GetId() int64 {
 	return 0
 }
 
+// 商品分类表单
+type GoodsCategoryForm struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                   // 商品分类ID
+	ParentId      *int64                 `protobuf:"varint,2,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"` // 父级商品分类ID
+	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                // 商品分类名称
+	Picture       string                 `protobuf:"bytes,4,opt,name=picture,proto3" json:"picture,omitempty"`                          // 商品分类图片
+	Sort          int32                  `protobuf:"varint,5,opt,name=sort,proto3" json:"sort,omitempty"`                               // 排序
+	Status        v1.Status              `protobuf:"varint,50,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`    // 菜单状态
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GoodsCategoryForm) Reset() {
+	*x = GoodsCategoryForm{}
+	mi := &file_shop_admin_v1_goods_category_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GoodsCategoryForm) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GoodsCategoryForm) ProtoMessage() {}
+
+func (x *GoodsCategoryForm) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_admin_v1_goods_category_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GoodsCategoryForm.ProtoReflect.Descriptor instead.
+func (*GoodsCategoryForm) Descriptor() ([]byte, []int) {
+	return file_shop_admin_v1_goods_category_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *GoodsCategoryForm) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *GoodsCategoryForm) GetParentId() int64 {
+	if x != nil && x.ParentId != nil {
+		return *x.ParentId
+	}
+	return 0
+}
+
+func (x *GoodsCategoryForm) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *GoodsCategoryForm) GetPicture() string {
+	if x != nil {
+		return x.Picture
+	}
+	return ""
+}
+
+func (x *GoodsCategoryForm) GetSort() int32 {
+	if x != nil {
+		return x.Sort
+	}
+	return 0
+}
+
+func (x *GoodsCategoryForm) GetStatus() v1.Status {
+	if x != nil {
+		return x.Status
+	}
+	return v1.Status(0)
+}
+
 // 商品分类创建条件
 type CreateGoodsCategoryRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -209,7 +294,7 @@ type CreateGoodsCategoryRequest struct {
 
 func (x *CreateGoodsCategoryRequest) Reset() {
 	*x = CreateGoodsCategoryRequest{}
-	mi := &file_shop_admin_v1_goods_category_proto_msgTypes[4]
+	mi := &file_shop_admin_v1_goods_category_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -221,7 +306,7 @@ func (x *CreateGoodsCategoryRequest) String() string {
 func (*CreateGoodsCategoryRequest) ProtoMessage() {}
 
 func (x *CreateGoodsCategoryRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_goods_category_proto_msgTypes[4]
+	mi := &file_shop_admin_v1_goods_category_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -234,7 +319,7 @@ func (x *CreateGoodsCategoryRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateGoodsCategoryRequest.ProtoReflect.Descriptor instead.
 func (*CreateGoodsCategoryRequest) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_goods_category_proto_rawDescGZIP(), []int{4}
+	return file_shop_admin_v1_goods_category_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *CreateGoodsCategoryRequest) GetGoodsCategory() *GoodsCategoryForm {
@@ -255,7 +340,7 @@ type UpdateGoodsCategoryRequest struct {
 
 func (x *UpdateGoodsCategoryRequest) Reset() {
 	*x = UpdateGoodsCategoryRequest{}
-	mi := &file_shop_admin_v1_goods_category_proto_msgTypes[5]
+	mi := &file_shop_admin_v1_goods_category_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -267,7 +352,7 @@ func (x *UpdateGoodsCategoryRequest) String() string {
 func (*UpdateGoodsCategoryRequest) ProtoMessage() {}
 
 func (x *UpdateGoodsCategoryRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_goods_category_proto_msgTypes[5]
+	mi := &file_shop_admin_v1_goods_category_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -280,7 +365,7 @@ func (x *UpdateGoodsCategoryRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateGoodsCategoryRequest.ProtoReflect.Descriptor instead.
 func (*UpdateGoodsCategoryRequest) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_goods_category_proto_rawDescGZIP(), []int{5}
+	return file_shop_admin_v1_goods_category_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *UpdateGoodsCategoryRequest) GetId() int64 {
@@ -307,7 +392,7 @@ type DeleteGoodsCategoryRequest struct {
 
 func (x *DeleteGoodsCategoryRequest) Reset() {
 	*x = DeleteGoodsCategoryRequest{}
-	mi := &file_shop_admin_v1_goods_category_proto_msgTypes[6]
+	mi := &file_shop_admin_v1_goods_category_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -319,7 +404,7 @@ func (x *DeleteGoodsCategoryRequest) String() string {
 func (*DeleteGoodsCategoryRequest) ProtoMessage() {}
 
 func (x *DeleteGoodsCategoryRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_goods_category_proto_msgTypes[6]
+	mi := &file_shop_admin_v1_goods_category_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -332,7 +417,7 @@ func (x *DeleteGoodsCategoryRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteGoodsCategoryRequest.ProtoReflect.Descriptor instead.
 func (*DeleteGoodsCategoryRequest) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_goods_category_proto_rawDescGZIP(), []int{6}
+	return file_shop_admin_v1_goods_category_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *DeleteGoodsCategoryRequest) GetIds() string {
@@ -353,7 +438,7 @@ type SetGoodsCategoryStatusRequest struct {
 
 func (x *SetGoodsCategoryStatusRequest) Reset() {
 	*x = SetGoodsCategoryStatusRequest{}
-	mi := &file_shop_admin_v1_goods_category_proto_msgTypes[7]
+	mi := &file_shop_admin_v1_goods_category_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -365,7 +450,7 @@ func (x *SetGoodsCategoryStatusRequest) String() string {
 func (*SetGoodsCategoryStatusRequest) ProtoMessage() {}
 
 func (x *SetGoodsCategoryStatusRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_goods_category_proto_msgTypes[7]
+	mi := &file_shop_admin_v1_goods_category_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -378,7 +463,7 @@ func (x *SetGoodsCategoryStatusRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetGoodsCategoryStatusRequest.ProtoReflect.Descriptor instead.
 func (*SetGoodsCategoryStatusRequest) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_goods_category_proto_rawDescGZIP(), []int{7}
+	return file_shop_admin_v1_goods_category_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *SetGoodsCategoryStatusRequest) GetId() int64 {
@@ -413,7 +498,7 @@ type GoodsCategory struct {
 
 func (x *GoodsCategory) Reset() {
 	*x = GoodsCategory{}
-	mi := &file_shop_admin_v1_goods_category_proto_msgTypes[8]
+	mi := &file_shop_admin_v1_goods_category_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -425,7 +510,7 @@ func (x *GoodsCategory) String() string {
 func (*GoodsCategory) ProtoMessage() {}
 
 func (x *GoodsCategory) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_goods_category_proto_msgTypes[8]
+	mi := &file_shop_admin_v1_goods_category_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -438,7 +523,7 @@ func (x *GoodsCategory) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GoodsCategory.ProtoReflect.Descriptor instead.
 func (*GoodsCategory) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_goods_category_proto_rawDescGZIP(), []int{8}
+	return file_shop_admin_v1_goods_category_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *GoodsCategory) GetId() int64 {
@@ -504,105 +589,29 @@ func (x *GoodsCategory) GetChildren() []*GoodsCategory {
 	return nil
 }
 
-// 商品分类表单
-type GoodsCategoryForm struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                   // 商品分类ID
-	ParentId      *int64                 `protobuf:"varint,2,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"` // 父级商品分类ID
-	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                // 商品分类名称
-	Picture       string                 `protobuf:"bytes,4,opt,name=picture,proto3" json:"picture,omitempty"`                          // 商品分类图片
-	Sort          int32                  `protobuf:"varint,5,opt,name=sort,proto3" json:"sort,omitempty"`                               // 排序
-	Status        v1.Status              `protobuf:"varint,50,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`    // 菜单状态
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GoodsCategoryForm) Reset() {
-	*x = GoodsCategoryForm{}
-	mi := &file_shop_admin_v1_goods_category_proto_msgTypes[9]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GoodsCategoryForm) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GoodsCategoryForm) ProtoMessage() {}
-
-func (x *GoodsCategoryForm) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_goods_category_proto_msgTypes[9]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GoodsCategoryForm.ProtoReflect.Descriptor instead.
-func (*GoodsCategoryForm) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_goods_category_proto_rawDescGZIP(), []int{9}
-}
-
-func (x *GoodsCategoryForm) GetId() int64 {
-	if x != nil {
-		return x.Id
-	}
-	return 0
-}
-
-func (x *GoodsCategoryForm) GetParentId() int64 {
-	if x != nil && x.ParentId != nil {
-		return *x.ParentId
-	}
-	return 0
-}
-
-func (x *GoodsCategoryForm) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
-}
-
-func (x *GoodsCategoryForm) GetPicture() string {
-	if x != nil {
-		return x.Picture
-	}
-	return ""
-}
-
-func (x *GoodsCategoryForm) GetSort() int32 {
-	if x != nil {
-		return x.Sort
-	}
-	return 0
-}
-
-func (x *GoodsCategoryForm) GetStatus() v1.Status {
-	if x != nil {
-		return x.Status
-	}
-	return v1.Status(0)
-}
-
 var File_shop_admin_v1_goods_category_proto protoreflect.FileDescriptor
 
 const file_shop_admin_v1_goods_category_proto_rawDesc = "" +
 	"\n" +
-	"\"shop/admin/v1/goods_category.proto\x12\rshop.admin.v1\x1a\x16common/v1/common.proto\x1a\x14common/v1/enum.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x1a\n" +
-	"\x18TreeGoodsCategoryRequest\"~\n" +
-	"\x19TreeGoodsCategoryResponse\x12a\n" +
-	"\x10goods_categories\x18\x01 \x03(\v2\x1c.shop.admin.v1.GoodsCategoryB\x18\xbaG\x15\x92\x02\x12商品分类列表R\x0fgoodsCategories\"h\n" +
+	"\"shop/admin/v1/goods_category.proto\x12\rshop.admin.v1\x1a\x16common/v1/common.proto\x1a\x14common/v1/enum.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"h\n" +
 	"\x1aOptionGoodsCategoryRequest\x12<\n" +
 	"\tparent_id\x18\x01 \x01(\x03B\x1a\xbaG\x17\x92\x02\x14父级商品分类IDH\x00R\bparentId\x88\x01\x01B\f\n" +
 	"\n" +
-	"_parent_id\"?\n" +
+	"_parent_id\"\x1a\n" +
+	"\x18TreeGoodsCategoryRequest\"~\n" +
+	"\x19TreeGoodsCategoryResponse\x12a\n" +
+	"\x10goods_categories\x18\x01 \x03(\v2\x1c.shop.admin.v1.GoodsCategoryB\x18\xbaG\x15\x92\x02\x12商品分类列表R\x0fgoodsCategories\"?\n" +
 	"\x17GetGoodsCategoryRequest\x12$\n" +
-	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e商品分类IDR\x02id\"\x85\x01\n" +
+	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e商品分类IDR\x02id\"\xd0\x02\n" +
+	"\x11GoodsCategoryForm\x12$\n" +
+	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e商品分类IDR\x02id\x12<\n" +
+	"\tparent_id\x18\x02 \x01(\x03B\x1a\xbaG\x17\x92\x02\x14父级商品分类IDH\x00R\bparentId\x88\x01\x01\x12,\n" +
+	"\x04name\x18\x03 \x01(\tB\x18\xbaG\x15\x92\x02\x12商品分类名称R\x04name\x122\n" +
+	"\apicture\x18\x04 \x01(\tB\x18\xbaG\x15\x92\x02\x12商品分类图片R\apicture\x12 \n" +
+	"\x04sort\x18\x05 \x01(\x05B\f\xbaG\t\x92\x02\x06排序R\x04sort\x12E\n" +
+	"\x06status\x182 \x01(\x0e2\x11.common.v1.StatusB\x1a\xbaG\x0f\x92\x02\f菜单状态\xbaH\x05\x82\x01\x02\x10\x01R\x06statusB\f\n" +
+	"\n" +
+	"_parent_id\"\x85\x01\n" +
 	"\x1aCreateGoodsCategoryRequest\x12g\n" +
 	"\x0egoods_category\x18\x01 \x01(\v2 .shop.admin.v1.GoodsCategoryFormB\x1e\xbaG\x15\x92\x02\x12商品分类表单\xbaH\x03\xc8\x01\x01R\rgoodsCategory\"\xab\x01\n" +
 	"\x1aUpdateGoodsCategoryRequest\x12$\n" +
@@ -627,19 +636,10 @@ const file_shop_admin_v1_goods_category_proto_rawDesc = "" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
 	"\n" +
 	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x12M\n" +
-	"\bchildren\x18\xad\x02 \x03(\v2\x1c.shop.admin.v1.GoodsCategoryB\x12\xbaG\x0f\x92\x02\f子节点树R\bchildren\"\xd0\x02\n" +
-	"\x11GoodsCategoryForm\x12$\n" +
-	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e商品分类IDR\x02id\x12<\n" +
-	"\tparent_id\x18\x02 \x01(\x03B\x1a\xbaG\x17\x92\x02\x14父级商品分类IDH\x00R\bparentId\x88\x01\x01\x12,\n" +
-	"\x04name\x18\x03 \x01(\tB\x18\xbaG\x15\x92\x02\x12商品分类名称R\x04name\x122\n" +
-	"\apicture\x18\x04 \x01(\tB\x18\xbaG\x15\x92\x02\x12商品分类图片R\apicture\x12 \n" +
-	"\x04sort\x18\x05 \x01(\x05B\f\xbaG\t\x92\x02\x06排序R\x04sort\x12E\n" +
-	"\x06status\x182 \x01(\x0e2\x11.common.v1.StatusB\x1a\xbaG\x0f\x92\x02\f菜单状态\xbaH\x05\x82\x01\x02\x10\x01R\x06statusB\f\n" +
-	"\n" +
-	"_parent_id2\x87\b\n" +
-	"\x14GoodsCategoryService\x12\x91\x01\n" +
-	"\x11TreeGoodsCategory\x12'.shop.admin.v1.TreeGoodsCategoryRequest\x1a(.shop.admin.v1.TreeGoodsCategoryResponse\")\x82\xd3\xe4\x93\x02#\x12!/api/v1/admin/goods/category/tree\x12\x8c\x01\n" +
-	"\x13OptionGoodsCategory\x12).shop.admin.v1.OptionGoodsCategoryRequest\x1a\x1d.common.v1.TreeOptionResponse\"+\x82\xd3\xe4\x93\x02%\x12#/api/v1/admin/goods/category/option\x12\x87\x01\n" +
+	"\bchildren\x18\xad\x02 \x03(\v2\x1c.shop.admin.v1.GoodsCategoryB\x12\xbaG\x0f\x92\x02\f子节点树R\bchildren2\x87\b\n" +
+	"\x14GoodsCategoryService\x12\x8c\x01\n" +
+	"\x13OptionGoodsCategory\x12).shop.admin.v1.OptionGoodsCategoryRequest\x1a\x1d.common.v1.TreeOptionResponse\"+\x82\xd3\xe4\x93\x02%\x12#/api/v1/admin/goods/category/option\x12\x91\x01\n" +
+	"\x11TreeGoodsCategory\x12'.shop.admin.v1.TreeGoodsCategoryRequest\x1a(.shop.admin.v1.TreeGoodsCategoryResponse\")\x82\xd3\xe4\x93\x02#\x12!/api/v1/admin/goods/category/tree\x12\x87\x01\n" +
 	"\x10GetGoodsCategory\x12&.shop.admin.v1.GetGoodsCategoryRequest\x1a .shop.admin.v1.GoodsCategoryForm\")\x82\xd3\xe4\x93\x02#\x12!/api/v1/admin/goods/category/{id}\x12\x8e\x01\n" +
 	"\x13CreateGoodsCategory\x12).shop.admin.v1.CreateGoodsCategoryRequest\x1a\x16.google.protobuf.Empty\"4\x82\xd3\xe4\x93\x02.:\x0egoods_category\"\x1c/api/v1/admin/goods/category\x12\x93\x01\n" +
 	"\x13UpdateGoodsCategory\x12).shop.admin.v1.UpdateGoodsCategoryRequest\x1a\x16.google.protobuf.Empty\"9\x82\xd3\xe4\x93\x023:\x0egoods_category\x1a!/api/v1/admin/goods/category/{id}\x12\x84\x01\n" +
@@ -661,38 +661,38 @@ func file_shop_admin_v1_goods_category_proto_rawDescGZIP() []byte {
 
 var file_shop_admin_v1_goods_category_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_shop_admin_v1_goods_category_proto_goTypes = []any{
-	(*TreeGoodsCategoryRequest)(nil),      // 0: shop.admin.v1.TreeGoodsCategoryRequest
-	(*TreeGoodsCategoryResponse)(nil),     // 1: shop.admin.v1.TreeGoodsCategoryResponse
-	(*OptionGoodsCategoryRequest)(nil),    // 2: shop.admin.v1.OptionGoodsCategoryRequest
+	(*OptionGoodsCategoryRequest)(nil),    // 0: shop.admin.v1.OptionGoodsCategoryRequest
+	(*TreeGoodsCategoryRequest)(nil),      // 1: shop.admin.v1.TreeGoodsCategoryRequest
+	(*TreeGoodsCategoryResponse)(nil),     // 2: shop.admin.v1.TreeGoodsCategoryResponse
 	(*GetGoodsCategoryRequest)(nil),       // 3: shop.admin.v1.GetGoodsCategoryRequest
-	(*CreateGoodsCategoryRequest)(nil),    // 4: shop.admin.v1.CreateGoodsCategoryRequest
-	(*UpdateGoodsCategoryRequest)(nil),    // 5: shop.admin.v1.UpdateGoodsCategoryRequest
-	(*DeleteGoodsCategoryRequest)(nil),    // 6: shop.admin.v1.DeleteGoodsCategoryRequest
-	(*SetGoodsCategoryStatusRequest)(nil), // 7: shop.admin.v1.SetGoodsCategoryStatusRequest
-	(*GoodsCategory)(nil),                 // 8: shop.admin.v1.GoodsCategory
-	(*GoodsCategoryForm)(nil),             // 9: shop.admin.v1.GoodsCategoryForm
+	(*GoodsCategoryForm)(nil),             // 4: shop.admin.v1.GoodsCategoryForm
+	(*CreateGoodsCategoryRequest)(nil),    // 5: shop.admin.v1.CreateGoodsCategoryRequest
+	(*UpdateGoodsCategoryRequest)(nil),    // 6: shop.admin.v1.UpdateGoodsCategoryRequest
+	(*DeleteGoodsCategoryRequest)(nil),    // 7: shop.admin.v1.DeleteGoodsCategoryRequest
+	(*SetGoodsCategoryStatusRequest)(nil), // 8: shop.admin.v1.SetGoodsCategoryStatusRequest
+	(*GoodsCategory)(nil),                 // 9: shop.admin.v1.GoodsCategory
 	(v1.Status)(0),                        // 10: common.v1.Status
 	(*v1.TreeOptionResponse)(nil),         // 11: common.v1.TreeOptionResponse
 	(*emptypb.Empty)(nil),                 // 12: google.protobuf.Empty
 }
 var file_shop_admin_v1_goods_category_proto_depIdxs = []int32{
-	8,  // 0: shop.admin.v1.TreeGoodsCategoryResponse.goods_categories:type_name -> shop.admin.v1.GoodsCategory
-	9,  // 1: shop.admin.v1.CreateGoodsCategoryRequest.goods_category:type_name -> shop.admin.v1.GoodsCategoryForm
-	9,  // 2: shop.admin.v1.UpdateGoodsCategoryRequest.goods_category:type_name -> shop.admin.v1.GoodsCategoryForm
-	10, // 3: shop.admin.v1.SetGoodsCategoryStatusRequest.status:type_name -> common.v1.Status
-	10, // 4: shop.admin.v1.GoodsCategory.status:type_name -> common.v1.Status
-	8,  // 5: shop.admin.v1.GoodsCategory.children:type_name -> shop.admin.v1.GoodsCategory
-	10, // 6: shop.admin.v1.GoodsCategoryForm.status:type_name -> common.v1.Status
-	0,  // 7: shop.admin.v1.GoodsCategoryService.TreeGoodsCategory:input_type -> shop.admin.v1.TreeGoodsCategoryRequest
-	2,  // 8: shop.admin.v1.GoodsCategoryService.OptionGoodsCategory:input_type -> shop.admin.v1.OptionGoodsCategoryRequest
+	9,  // 0: shop.admin.v1.TreeGoodsCategoryResponse.goods_categories:type_name -> shop.admin.v1.GoodsCategory
+	10, // 1: shop.admin.v1.GoodsCategoryForm.status:type_name -> common.v1.Status
+	4,  // 2: shop.admin.v1.CreateGoodsCategoryRequest.goods_category:type_name -> shop.admin.v1.GoodsCategoryForm
+	4,  // 3: shop.admin.v1.UpdateGoodsCategoryRequest.goods_category:type_name -> shop.admin.v1.GoodsCategoryForm
+	10, // 4: shop.admin.v1.SetGoodsCategoryStatusRequest.status:type_name -> common.v1.Status
+	10, // 5: shop.admin.v1.GoodsCategory.status:type_name -> common.v1.Status
+	9,  // 6: shop.admin.v1.GoodsCategory.children:type_name -> shop.admin.v1.GoodsCategory
+	0,  // 7: shop.admin.v1.GoodsCategoryService.OptionGoodsCategory:input_type -> shop.admin.v1.OptionGoodsCategoryRequest
+	1,  // 8: shop.admin.v1.GoodsCategoryService.TreeGoodsCategory:input_type -> shop.admin.v1.TreeGoodsCategoryRequest
 	3,  // 9: shop.admin.v1.GoodsCategoryService.GetGoodsCategory:input_type -> shop.admin.v1.GetGoodsCategoryRequest
-	4,  // 10: shop.admin.v1.GoodsCategoryService.CreateGoodsCategory:input_type -> shop.admin.v1.CreateGoodsCategoryRequest
-	5,  // 11: shop.admin.v1.GoodsCategoryService.UpdateGoodsCategory:input_type -> shop.admin.v1.UpdateGoodsCategoryRequest
-	6,  // 12: shop.admin.v1.GoodsCategoryService.DeleteGoodsCategory:input_type -> shop.admin.v1.DeleteGoodsCategoryRequest
-	7,  // 13: shop.admin.v1.GoodsCategoryService.SetGoodsCategoryStatus:input_type -> shop.admin.v1.SetGoodsCategoryStatusRequest
-	1,  // 14: shop.admin.v1.GoodsCategoryService.TreeGoodsCategory:output_type -> shop.admin.v1.TreeGoodsCategoryResponse
-	11, // 15: shop.admin.v1.GoodsCategoryService.OptionGoodsCategory:output_type -> common.v1.TreeOptionResponse
-	9,  // 16: shop.admin.v1.GoodsCategoryService.GetGoodsCategory:output_type -> shop.admin.v1.GoodsCategoryForm
+	5,  // 10: shop.admin.v1.GoodsCategoryService.CreateGoodsCategory:input_type -> shop.admin.v1.CreateGoodsCategoryRequest
+	6,  // 11: shop.admin.v1.GoodsCategoryService.UpdateGoodsCategory:input_type -> shop.admin.v1.UpdateGoodsCategoryRequest
+	7,  // 12: shop.admin.v1.GoodsCategoryService.DeleteGoodsCategory:input_type -> shop.admin.v1.DeleteGoodsCategoryRequest
+	8,  // 13: shop.admin.v1.GoodsCategoryService.SetGoodsCategoryStatus:input_type -> shop.admin.v1.SetGoodsCategoryStatusRequest
+	11, // 14: shop.admin.v1.GoodsCategoryService.OptionGoodsCategory:output_type -> common.v1.TreeOptionResponse
+	2,  // 15: shop.admin.v1.GoodsCategoryService.TreeGoodsCategory:output_type -> shop.admin.v1.TreeGoodsCategoryResponse
+	4,  // 16: shop.admin.v1.GoodsCategoryService.GetGoodsCategory:output_type -> shop.admin.v1.GoodsCategoryForm
 	12, // 17: shop.admin.v1.GoodsCategoryService.CreateGoodsCategory:output_type -> google.protobuf.Empty
 	12, // 18: shop.admin.v1.GoodsCategoryService.UpdateGoodsCategory:output_type -> google.protobuf.Empty
 	12, // 19: shop.admin.v1.GoodsCategoryService.DeleteGoodsCategory:output_type -> google.protobuf.Empty
@@ -709,8 +709,8 @@ func file_shop_admin_v1_goods_category_proto_init() {
 	if File_shop_admin_v1_goods_category_proto != nil {
 		return
 	}
-	file_shop_admin_v1_goods_category_proto_msgTypes[2].OneofWrappers = []any{}
-	file_shop_admin_v1_goods_category_proto_msgTypes[9].OneofWrappers = []any{}
+	file_shop_admin_v1_goods_category_proto_msgTypes[0].OneofWrappers = []any{}
+	file_shop_admin_v1_goods_category_proto_msgTypes[4].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

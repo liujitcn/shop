@@ -28,6 +28,32 @@ export interface OptionTenantStoreResponse_Option {
   label: string;
 }
 
+/** 租户门店列表查询条件 */
+export interface PageTenantStoreRequest {
+  /** 门店名称 */
+  name: string;
+  /** 租户ID */
+  tenant_id?:
+    | number
+    | undefined;
+  /** 审核状态：枚举【TenantStoreStatus】 */
+  status?:
+    | TenantStoreStatus
+    | undefined;
+  /** 当前页码 */
+  page_num: number;
+  /** 每一页的行数 */
+  page_size: number;
+}
+
+/** 租户门店列表响应 */
+export interface PageTenantStoreResponse {
+  /** 租户门店列表 */
+  tenant_stores: TenantStore[];
+  /** 总数 */
+  total: number;
+}
+
 /** 租户门店树形选项查询条件 */
 export interface TreeTenantStoreRequest {
   /** 门店名称关键字 */
@@ -56,36 +82,32 @@ export interface TreeTenantStoreResponse_Option {
   children: TreeTenantStoreResponse_Option[];
 }
 
-/** 租户门店列表查询条件 */
-export interface PageTenantStoreRequest {
-  /** 门店名称 */
-  name: string;
-  /** 租户ID */
-  tenant_id?:
-    | number
-    | undefined;
-  /** 审核状态：枚举【TenantStoreStatus】 */
-  status?:
-    | TenantStoreStatus
-    | undefined;
-  /** 当前页码 */
-  page_num: number;
-  /** 每一页的行数 */
-  page_size: number;
-}
-
-/** 租户门店列表响应 */
-export interface PageTenantStoreResponse {
-  /** 租户门店列表 */
-  tenant_stores: TenantStore[];
-  /** 总数 */
-  total: number;
-}
-
 /** 租户门店详情查询条件 */
 export interface GetTenantStoreRequest {
   /** 门店ID */
   id: number;
+}
+
+/** 租户门店表单 */
+export interface TenantStoreForm {
+  /** 门店ID */
+  id: number;
+  /** 门店名称 */
+  name: string;
+  /** 门店LOGO */
+  logo: string;
+  /** 门店封面 */
+  cover: string;
+  /** 门店简介 */
+  intro: string;
+  /** 门店公告 */
+  notice: string;
+  /** 营业执照 */
+  business_license: string[];
+  /** 备注 */
+  remark: string;
+  /** 审核状态：枚举【TenantStoreStatus】 */
+  status: TenantStoreStatus;
 }
 
 /** 租户门店创建条件 */
@@ -146,36 +168,14 @@ export interface TenantStore {
   updated_at: string;
 }
 
-/** 租户门店表单 */
-export interface TenantStoreForm {
-  /** 门店ID */
-  id: number;
-  /** 门店名称 */
-  name: string;
-  /** 门店LOGO */
-  logo: string;
-  /** 门店封面 */
-  cover: string;
-  /** 门店简介 */
-  intro: string;
-  /** 门店公告 */
-  notice: string;
-  /** 营业执照 */
-  business_license: string[];
-  /** 备注 */
-  remark: string;
-  /** 审核状态：枚举【TenantStoreStatus】 */
-  status: TenantStoreStatus;
-}
-
 /** Admin租户门店服务 */
 export interface TenantStoreService {
   /** 查询租户门店下拉选项 */
   OptionTenantStore(request: OptionTenantStoreRequest): Promise<OptionTenantStoreResponse>;
-  /** 查询租户门店树形选项 */
-  TreeTenantStore(request: TreeTenantStoreRequest): Promise<TreeTenantStoreResponse>;
   /** 查询租户门店列表 */
   PageTenantStore(request: PageTenantStoreRequest): Promise<PageTenantStoreResponse>;
+  /** 查询租户门店树形选项 */
+  TreeTenantStore(request: TreeTenantStoreRequest): Promise<TreeTenantStoreResponse>;
   /** 查询租户门店 */
   GetTenantStore(request: GetTenantStoreRequest): Promise<TenantStoreForm>;
   /** 创建租户门店 */

@@ -11,14 +11,6 @@ import "google/protobuf/empty.proto";
 
 // Admin系统配置服务
 service BaseConfigService {
-  // 刷新缓存
-  rpc RefreshBaseConfigCache(RefreshBaseConfigCacheRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      put: "/api/v1/admin/base/config/cache"
-      body: "*"
-    };
-  }
-
   // 查询系统配置分页列表
   rpc PageBaseConfig(PageBaseConfigRequest) returns (PageBaseConfigResponse) {
     option (google.api.http) = {
@@ -63,10 +55,15 @@ service BaseConfigService {
       body: "*"
     };
   }
-}
 
-// 刷新系统配置缓存请求参数
-message RefreshBaseConfigCacheRequest {}
+  // 刷新缓存
+  rpc RefreshBaseConfigCache(RefreshBaseConfigCacheRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/v1/admin/base/config/cache"
+      body: "*"
+    };
+  }
+}
 
 // 系统配置分页查询条件
 message PageBaseConfigRequest {
@@ -103,6 +100,23 @@ message GetBaseConfigRequest {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "配置ID"}]; // 配置ID
 }
 
+// 系统配置表单
+message BaseConfigForm {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "配置ID"}]; // 配置ID
+
+  .common.v1.BaseConfigSite site = 2 [(gnostic.openapi.v3.property) = {description: "位置：枚举【BaseConfigSite】"}, (buf.validate.field).enum = {defined_only: true}]; // 位置：枚举【BaseConfigSite】
+
+  string name = 3 [(gnostic.openapi.v3.property) = {description: "配置名称"}, (buf.validate.field).cel = {id: "base_config.name.length" message: "配置名称不能为空且不超过 50 个字符" expression: "this.size() > 0 && this.size() <= 50"}]; // 配置名称
+
+  .system.common.v1.BaseConfigType type = 4 [(gnostic.openapi.v3.property) = {description: "配置类型：1、文本，2、图片，3、富文本，4、字典"}, (buf.validate.field).enum = {defined_only: true}]; // 配置类型：1、文本，2、图片，3、富文本，4、字典
+
+  string key = 5 [(gnostic.openapi.v3.property) = {description: "配置key"}, (buf.validate.field).cel = {id: "base_config.key.length" message: "配置key不能为空且不超过 50 个字符" expression: "this.size() > 0 && this.size() <= 50"}]; // 配置key
+
+  string value = 6 [(gnostic.openapi.v3.property) = {description: "配置value"}, (buf.validate.field).cel = {id: "base_config.value.required" message: "配置值不能为空" expression: "this.size() > 0"}]; // 配置value
+
+  .common.v1.Status status = 51 [(gnostic.openapi.v3.property) = {description: "状态"}, (buf.validate.field).enum = {defined_only: true}]; // 状态
+}
+
 // 创建系统配置请求参数
 message CreateBaseConfigRequest {
   BaseConfigForm base_config = 1 [(gnostic.openapi.v3.property) = {description: "系统配置表单"}, (buf.validate.field).required = true]; // 系统配置表单
@@ -125,6 +139,9 @@ message SetBaseConfigStatusRequest {
   int32 status = 2 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
 }
 
+// 刷新系统配置缓存请求参数
+message RefreshBaseConfigCacheRequest {}
+
 // 系统配置
 message BaseConfig {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "配置ID"}]; // 配置ID
@@ -144,21 +161,4 @@ message BaseConfig {
   string created_at = 200 [(gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间
 
   string updated_at = 201 [(gnostic.openapi.v3.property) = {description: "更新时间"}]; // 更新时间
-}
-
-// 系统配置表单
-message BaseConfigForm {
-  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "配置ID"}]; // 配置ID
-
-  .common.v1.BaseConfigSite site = 2 [(gnostic.openapi.v3.property) = {description: "位置：枚举【BaseConfigSite】"}, (buf.validate.field).enum = {defined_only: true}]; // 位置：枚举【BaseConfigSite】
-
-  string name = 3 [(gnostic.openapi.v3.property) = {description: "配置名称"}, (buf.validate.field).cel = {id: "base_config.name.length" message: "配置名称不能为空且不超过 50 个字符" expression: "this.size() > 0 && this.size() <= 50"}]; // 配置名称
-
-  .system.common.v1.BaseConfigType type = 4 [(gnostic.openapi.v3.property) = {description: "配置类型：1、文本，2、图片，3、富文本，4、字典"}, (buf.validate.field).enum = {defined_only: true}]; // 配置类型：1、文本，2、图片，3、富文本，4、字典
-
-  string key = 5 [(gnostic.openapi.v3.property) = {description: "配置key"}, (buf.validate.field).cel = {id: "base_config.key.length" message: "配置key不能为空且不超过 50 个字符" expression: "this.size() > 0 && this.size() <= 50"}]; // 配置key
-
-  string value = 6 [(gnostic.openapi.v3.property) = {description: "配置value"}, (buf.validate.field).cel = {id: "base_config.value.required" message: "配置值不能为空" expression: "this.size() > 0"}]; // 配置value
-
-  .common.v1.Status status = 51 [(gnostic.openapi.v3.property) = {description: "状态"}, (buf.validate.field).enum = {defined_only: true}]; // 状态
 }

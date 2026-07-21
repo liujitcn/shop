@@ -19,12 +19,6 @@ import (
 func NewAuthServiceAgentTools(authServiceServer AuthServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error
-	var getUserInfoTool tool.InvokableTool
-	getUserInfoTool, err = NewAuthServiceGetUserInfoAgentTool(authServiceServer)
-	if err != nil {
-		return nil, err
-	}
-	ts = append(ts, getUserInfoTool)
 	var treeUserMenuTool tool.InvokableTool
 	treeUserMenuTool, err = NewAuthServiceTreeUserMenuAgentTool(authServiceServer)
 	if err != nil {
@@ -37,12 +31,30 @@ func NewAuthServiceAgentTools(authServiceServer AuthServiceServer) ([]tool.Invok
 		return nil, err
 	}
 	ts = append(ts, listUserButtonTool)
+	var getUserInfoTool tool.InvokableTool
+	getUserInfoTool, err = NewAuthServiceGetUserInfoAgentTool(authServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, getUserInfoTool)
 	var getUserProfileTool tool.InvokableTool
 	getUserProfileTool, err = NewAuthServiceGetUserProfileAgentTool(authServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, getUserProfileTool)
+	var updateUserPasswordTool tool.InvokableTool
+	updateUserPasswordTool, err = NewAuthServiceUpdateUserPasswordAgentTool(authServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, updateUserPasswordTool)
+	var updateUserPhoneTool tool.InvokableTool
+	updateUserPhoneTool, err = NewAuthServiceUpdateUserPhoneAgentTool(authServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, updateUserPhoneTool)
 	var updateUserProfileTool tool.InvokableTool
 	updateUserProfileTool, err = NewAuthServiceUpdateUserProfileAgentTool(authServiceServer)
 	if err != nil {
@@ -55,33 +67,7 @@ func NewAuthServiceAgentTools(authServiceServer AuthServiceServer) ([]tool.Invok
 		return nil, err
 	}
 	ts = append(ts, sendPhoneCodeTool)
-	var updateUserPhoneTool tool.InvokableTool
-	updateUserPhoneTool, err = NewAuthServiceUpdateUserPhoneAgentTool(authServiceServer)
-	if err != nil {
-		return nil, err
-	}
-	ts = append(ts, updateUserPhoneTool)
-	var updateUserPasswordTool tool.InvokableTool
-	updateUserPasswordTool, err = NewAuthServiceUpdateUserPasswordAgentTool(authServiceServer)
-	if err != nil {
-		return nil, err
-	}
-	ts = append(ts, updateUserPasswordTool)
 	return ts, nil
-}
-
-// NewAuthServiceGetUserInfoAgentTool 创建获取已经登录的用户的数据的 Agent Tool。
-func NewAuthServiceGetUserInfoAgentTool(authServiceServer AuthServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*GetUserInfoRequest, *UserInfoForm](
-		"system_admin_v1_auth_service_get_user_info",
-		"获取已经登录的用户的数据",
-		func(ctx context.Context, req *GetUserInfoRequest) (*UserInfoForm, error) {
-			if req == nil {
-				req = &GetUserInfoRequest{}
-			}
-			return authServiceServer.GetUserInfo(ctx, req)
-		},
-	)
 }
 
 // NewAuthServiceTreeUserMenuAgentTool 创建查询已经登录的用户菜单树的 Agent Tool。
@@ -116,6 +102,20 @@ func NewAuthServiceListUserButtonAgentTool(authServiceServer AuthServiceServer) 
 	)
 }
 
+// NewAuthServiceGetUserInfoAgentTool 创建获取已经登录的用户的数据的 Agent Tool。
+func NewAuthServiceGetUserInfoAgentTool(authServiceServer AuthServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*GetUserInfoRequest, *UserInfoForm](
+		"system_admin_v1_auth_service_get_user_info",
+		"获取已经登录的用户的数据",
+		func(ctx context.Context, req *GetUserInfoRequest) (*UserInfoForm, error) {
+			if req == nil {
+				req = &GetUserInfoRequest{}
+			}
+			return authServiceServer.GetUserInfo(ctx, req)
+		},
+	)
+}
+
 // NewAuthServiceGetUserProfileAgentTool 创建获取个人中心用户信息的 Agent Tool。
 func NewAuthServiceGetUserProfileAgentTool(authServiceServer AuthServiceServer) (tool.InvokableTool, error) {
 	return utils.InferTool[*GetUserProfileRequest, *UserProfileForm](
@@ -126,6 +126,34 @@ func NewAuthServiceGetUserProfileAgentTool(authServiceServer AuthServiceServer) 
 				req = &GetUserProfileRequest{}
 			}
 			return authServiceServer.GetUserProfile(ctx, req)
+		},
+	)
+}
+
+// NewAuthServiceUpdateUserPasswordAgentTool 创建修改个人中心密码的 Agent Tool。
+func NewAuthServiceUpdateUserPasswordAgentTool(authServiceServer AuthServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*UpdateUserPasswordRequest, *emptypb.Empty](
+		"system_admin_v1_auth_service_update_user_password",
+		"修改个人中心密码",
+		func(ctx context.Context, req *UpdateUserPasswordRequest) (*emptypb.Empty, error) {
+			if req == nil {
+				req = &UpdateUserPasswordRequest{}
+			}
+			return authServiceServer.UpdateUserPassword(ctx, req)
+		},
+	)
+}
+
+// NewAuthServiceUpdateUserPhoneAgentTool 创建修改个人中心手机号的 Agent Tool。
+func NewAuthServiceUpdateUserPhoneAgentTool(authServiceServer AuthServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*UpdateUserPhoneRequest, *emptypb.Empty](
+		"system_admin_v1_auth_service_update_user_phone",
+		"修改个人中心手机号",
+		func(ctx context.Context, req *UpdateUserPhoneRequest) (*emptypb.Empty, error) {
+			if req == nil {
+				req = &UpdateUserPhoneRequest{}
+			}
+			return authServiceServer.UpdateUserPhone(ctx, req)
 		},
 	)
 }
@@ -154,34 +182,6 @@ func NewAuthServiceSendPhoneCodeAgentTool(authServiceServer AuthServiceServer) (
 				req = &SendPhoneCodeRequest{}
 			}
 			return authServiceServer.SendPhoneCode(ctx, req)
-		},
-	)
-}
-
-// NewAuthServiceUpdateUserPhoneAgentTool 创建修改个人中心手机号的 Agent Tool。
-func NewAuthServiceUpdateUserPhoneAgentTool(authServiceServer AuthServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*UpdateUserPhoneRequest, *emptypb.Empty](
-		"system_admin_v1_auth_service_update_user_phone",
-		"修改个人中心手机号",
-		func(ctx context.Context, req *UpdateUserPhoneRequest) (*emptypb.Empty, error) {
-			if req == nil {
-				req = &UpdateUserPhoneRequest{}
-			}
-			return authServiceServer.UpdateUserPhone(ctx, req)
-		},
-	)
-}
-
-// NewAuthServiceUpdateUserPasswordAgentTool 创建修改个人中心密码的 Agent Tool。
-func NewAuthServiceUpdateUserPasswordAgentTool(authServiceServer AuthServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*UpdateUserPasswordRequest, *emptypb.Empty](
-		"system_admin_v1_auth_service_update_user_password",
-		"修改个人中心密码",
-		func(ctx context.Context, req *UpdateUserPasswordRequest) (*emptypb.Empty, error) {
-			if req == nil {
-				req = &UpdateUserPasswordRequest{}
-			}
-			return authServiceServer.UpdateUserPassword(ctx, req)
 		},
 	)
 }

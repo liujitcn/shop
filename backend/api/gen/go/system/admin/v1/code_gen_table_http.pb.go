@@ -46,13 +46,32 @@ type CodeGenTableServiceHTTPServer interface {
 
 func RegisterCodeGenTableServiceHTTPServer(s *http.Server, srv CodeGenTableServiceHTTPServer) {
 	r := s.Route("/")
+	r.Handle("GET", "/api/v1/admin/code-gen/table", _CodeGenTableService_PageCodeGenTable0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/code-gen/database/table", _CodeGenTableService_ListCodeGenDatabaseTable0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/code-gen/proto/directory", _CodeGenTableService_ListCodeGenProtoDirectory0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/admin/code-gen/table", _CodeGenTableService_PageCodeGenTable0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/code-gen/table/{id}", _CodeGenTableService_GetCodeGenTable0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/admin/code-gen/table", _CodeGenTableService_CreateCodeGenTable0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/code-gen/table/{id}", _CodeGenTableService_UpdateCodeGenTable0_HTTP_Handler(srv))
 	r.Handle("DELETE", "/api/v1/admin/code-gen/table/{ids}", _CodeGenTableService_DeleteCodeGenTable0_HTTP_Handler(srv))
+}
+
+func _CodeGenTableService_PageCodeGenTable0_HTTP_Handler(srv CodeGenTableServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in PageCodeGenTableRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationCodeGenTableServicePageCodeGenTable)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.PageCodeGenTable(ctx, req.(*PageCodeGenTableRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*PageCodeGenTableResponse)
+		return ctx.Result(200, reply)
+	}
 }
 
 func _CodeGenTableService_ListCodeGenDatabaseTable0_HTTP_Handler(srv CodeGenTableServiceHTTPServer) func(ctx http.Context) error {
@@ -89,25 +108,6 @@ func _CodeGenTableService_ListCodeGenProtoDirectory0_HTTP_Handler(srv CodeGenTab
 			return err
 		}
 		reply := out.(*ListCodeGenProtoDirectoryResponse)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _CodeGenTableService_PageCodeGenTable0_HTTP_Handler(srv CodeGenTableServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in PageCodeGenTableRequest
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationCodeGenTableServicePageCodeGenTable)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.PageCodeGenTable(ctx, req.(*PageCodeGenTableRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*PageCodeGenTableResponse)
 		return ctx.Result(200, reply)
 	}
 }

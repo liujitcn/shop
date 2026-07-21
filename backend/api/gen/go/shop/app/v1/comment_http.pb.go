@@ -55,16 +55,161 @@ type CommentInfoServiceHTTPServer interface {
 
 func RegisterCommentInfoServiceHTTPServer(s *http.Server, srv CommentInfoServiceHTTPServer) {
 	r := s.Route("/")
-	r.Handle("GET", "/api/v1/app/comment/goods/{goods_id}/overview", _CommentInfoService_GoodsCommentOverview0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/app/comment/goods/{goods_id}/tags", _CommentInfoService_GoodsCommentTag0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/app/comment/goods/{goods_id}", _CommentInfoService_PageGoodsComment0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/app/comment/{comment_id}/discussion", _CommentInfoService_PageCommentDiscussion0_HTTP_Handler(srv))
-	r.Handle("POST", "/api/v1/app/comment/{comment_id}/discussion", _CommentInfoService_CreateCommentDiscussion0_HTTP_Handler(srv))
-	r.Handle("PUT", "/api/v1/app/comment/reaction", _CommentInfoService_SaveCommentReaction0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/app/comment/goods/{goods_id}", _CommentInfoService_PageGoodsComment0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/app/comment/my", _CommentInfoService_PageMyComment0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/app/comment/pending", _CommentInfoService_PagePendingCommentGoods0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/app/comment", _CommentInfoService_CreateComment0_HTTP_Handler(srv))
+	r.Handle("POST", "/api/v1/app/comment/{comment_id}/discussion", _CommentInfoService_CreateCommentDiscussion0_HTTP_Handler(srv))
 	r.Handle("DELETE", "/api/v1/app/comment/{id}", _CommentInfoService_DeleteComment0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/app/comment/my", _CommentInfoService_PageMyComment0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/app/comment/goods/{goods_id}/overview", _CommentInfoService_GoodsCommentOverview0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/app/comment/goods/{goods_id}/tags", _CommentInfoService_GoodsCommentTag0_HTTP_Handler(srv))
+	r.Handle("PUT", "/api/v1/app/comment/reaction", _CommentInfoService_SaveCommentReaction0_HTTP_Handler(srv))
+}
+
+func _CommentInfoService_PageCommentDiscussion0_HTTP_Handler(srv CommentInfoServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in PageCommentDiscussionRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationCommentInfoServicePageCommentDiscussion)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.PageCommentDiscussion(ctx, req.(*PageCommentDiscussionRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*PageCommentDiscussionResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _CommentInfoService_PageGoodsComment0_HTTP_Handler(srv CommentInfoServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in PageGoodsCommentRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationCommentInfoServicePageGoodsComment)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.PageGoodsComment(ctx, req.(*PageGoodsCommentRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*PageGoodsCommentResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _CommentInfoService_PageMyComment0_HTTP_Handler(srv CommentInfoServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in PageMyCommentRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationCommentInfoServicePageMyComment)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.PageMyComment(ctx, req.(*PageMyCommentRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*PageMyCommentResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _CommentInfoService_PagePendingCommentGoods0_HTTP_Handler(srv CommentInfoServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in PagePendingCommentGoodsRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationCommentInfoServicePagePendingCommentGoods)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.PagePendingCommentGoods(ctx, req.(*PagePendingCommentGoodsRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*PagePendingCommentGoodsResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _CommentInfoService_CreateComment0_HTTP_Handler(srv CommentInfoServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in CreateCommentRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationCommentInfoServiceCreateComment)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.CreateComment(ctx, req.(*CreateCommentRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*CreateCommentResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _CommentInfoService_CreateCommentDiscussion0_HTTP_Handler(srv CommentInfoServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in CreateCommentDiscussionRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationCommentInfoServiceCreateCommentDiscussion)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.CreateCommentDiscussion(ctx, req.(*CreateCommentDiscussionRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*CreateCommentDiscussionResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _CommentInfoService_DeleteComment0_HTTP_Handler(srv CommentInfoServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in DeleteCommentRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationCommentInfoServiceDeleteComment)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.DeleteComment(ctx, req.(*DeleteCommentRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
 }
 
 func _CommentInfoService_GoodsCommentOverview0_HTTP_Handler(srv CommentInfoServiceHTTPServer) func(ctx http.Context) error {
@@ -111,72 +256,6 @@ func _CommentInfoService_GoodsCommentTag0_HTTP_Handler(srv CommentInfoServiceHTT
 	}
 }
 
-func _CommentInfoService_PageGoodsComment0_HTTP_Handler(srv CommentInfoServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in PageGoodsCommentRequest
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		if err := ctx.BindVars(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationCommentInfoServicePageGoodsComment)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.PageGoodsComment(ctx, req.(*PageGoodsCommentRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*PageGoodsCommentResponse)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _CommentInfoService_PageCommentDiscussion0_HTTP_Handler(srv CommentInfoServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in PageCommentDiscussionRequest
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		if err := ctx.BindVars(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationCommentInfoServicePageCommentDiscussion)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.PageCommentDiscussion(ctx, req.(*PageCommentDiscussionRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*PageCommentDiscussionResponse)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _CommentInfoService_CreateCommentDiscussion0_HTTP_Handler(srv CommentInfoServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in CreateCommentDiscussionRequest
-		if err := ctx.Bind(&in); err != nil {
-			return err
-		}
-		if err := ctx.BindVars(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationCommentInfoServiceCreateCommentDiscussion)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.CreateCommentDiscussion(ctx, req.(*CreateCommentDiscussionRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*CreateCommentDiscussionResponse)
-		return ctx.Result(200, reply)
-	}
-}
-
 func _CommentInfoService_SaveCommentReaction0_HTTP_Handler(srv CommentInfoServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in SaveCommentReactionRequest
@@ -192,85 +271,6 @@ func _CommentInfoService_SaveCommentReaction0_HTTP_Handler(srv CommentInfoServic
 			return err
 		}
 		reply := out.(*SaveCommentReactionResponse)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _CommentInfoService_PagePendingCommentGoods0_HTTP_Handler(srv CommentInfoServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in PagePendingCommentGoodsRequest
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationCommentInfoServicePagePendingCommentGoods)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.PagePendingCommentGoods(ctx, req.(*PagePendingCommentGoodsRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*PagePendingCommentGoodsResponse)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _CommentInfoService_CreateComment0_HTTP_Handler(srv CommentInfoServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in CreateCommentRequest
-		if err := ctx.Bind(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationCommentInfoServiceCreateComment)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.CreateComment(ctx, req.(*CreateCommentRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*CreateCommentResponse)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _CommentInfoService_DeleteComment0_HTTP_Handler(srv CommentInfoServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in DeleteCommentRequest
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		if err := ctx.BindVars(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationCommentInfoServiceDeleteComment)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.DeleteComment(ctx, req.(*DeleteCommentRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*emptypb.Empty)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _CommentInfoService_PageMyComment0_HTTP_Handler(srv CommentInfoServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in PageMyCommentRequest
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationCommentInfoServicePageMyComment)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.PageMyComment(ctx, req.(*PageMyCommentRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*PageMyCommentResponse)
 		return ctx.Result(200, reply)
 	}
 }

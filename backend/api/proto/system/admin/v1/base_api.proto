@@ -30,10 +30,10 @@ service BaseApiService {
     option (google.api.http) = {get: "/api/v1/admin/base/api/{id}/doc"};
   }
 
-  // 设置API MCP工具状态
-  rpc SetBaseApiMcpStatus(SetBaseApiMcpStatusRequest) returns (google.protobuf.Empty) {
+  // 更新API配置
+  rpc UpdateBaseApi(UpdateBaseApiRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      put: "/api/v1/admin/base/api/{id}/mcp-status"
+      put: "/api/v1/admin/base/api/{id}"
       body: "*"
     };
   }
@@ -46,10 +46,10 @@ service BaseApiService {
     };
   }
 
-  // 更新API配置
-  rpc UpdateBaseApi(UpdateBaseApiRequest) returns (google.protobuf.Empty) {
+  // 设置API MCP工具状态
+  rpc SetBaseApiMcpStatus(SetBaseApiMcpStatusRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      put: "/api/v1/admin/base/api/{id}"
+      put: "/api/v1/admin/base/api/{id}/mcp-status"
       body: "*"
     };
   }
@@ -89,59 +89,17 @@ message PageBaseApiResponse {
   int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
 }
 
-// API详情查询条件
-message GetBaseApiRequest {
-  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "API ID"}]; // API ID
-}
-
-// API文档查询条件
-message GetBaseApiDocRequest {
-  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "API ID"}]; // API ID
-}
-
-// API MCP工具状态设置条件
-message SetBaseApiMcpStatusRequest {
-  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "API ID"}]; // API ID
-
-  .common.v1.Status mcp_status = 2 [
-    (gnostic.openapi.v3.property) = {description: "MCP工具状态：枚举【Status】"},
-    (buf.validate.field).enum = {defined_only: true}
-  ]; // MCP工具状态：枚举【Status】
-}
-
-// API Agent工具状态设置条件
-message SetBaseApiAgentStatusRequest {
-  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "API ID"}]; // API ID
-
-  .common.v1.Status agent_status = 2 [
-    (gnostic.openapi.v3.property) = {description: "Agent工具状态：枚举【Status】"},
-    (buf.validate.field).enum = {defined_only: true}
-  ]; // Agent工具状态：枚举【Status】
-}
-
-// API更新条件
-message UpdateBaseApiRequest {
-  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "API ID"}]; // API ID
-
-  repeated string tool_prompts = 2 [(gnostic.openapi.v3.property) = {description: "Agent/MCP工具提示词，作为工具描述覆盖、候选命中和目录展示依据"}]; // Agent/MCP工具提示词
-
-  .common.v1.Status mcp_status = 3 [
-    (gnostic.openapi.v3.property) = {description: "MCP工具状态：枚举【Status】"},
-    (buf.validate.field).enum = {defined_only: true}
-  ]; // MCP工具状态：枚举【Status】
-
-  .common.v1.Status agent_status = 4 [
-    (gnostic.openapi.v3.property) = {description: "Agent工具状态：枚举【Status】"},
-    (buf.validate.field).enum = {defined_only: true}
-  ]; // Agent工具状态：枚举【Status】
-}
-
 // API列表查询条件
 message ListBaseApiRequest {}
 
 // API列表响应
 message ListBaseApiResponse {
   repeated BaseApi base_apis = 1 [(gnostic.openapi.v3.property) = {description: "API列表"}]; // API列表
+}
+
+// API详情查询条件
+message GetBaseApiRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "API ID"}]; // API ID
 }
 
 // API
@@ -169,6 +127,11 @@ message BaseApi {
   .common.v1.Status agent_status = 11 [(gnostic.openapi.v3.property) = {description: "Agent工具状态：枚举【Status】"}]; // Agent工具状态：枚举【Status】
 }
 
+// API文档查询条件
+message GetBaseApiDocRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "API ID"}]; // API ID
+}
+
 // API文档
 message BaseApiDoc {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "API ID"}]; // API ID
@@ -182,6 +145,43 @@ message BaseApiDoc {
   BaseApiDocSchema request_body = 5 [(gnostic.openapi.v3.property) = {description: "请求体"}]; // 请求体
 
   repeated BaseApiDocResponse responses = 6 [(gnostic.openapi.v3.property) = {description: "返回值"}]; // 返回值
+}
+
+// API更新条件
+message UpdateBaseApiRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "API ID"}]; // API ID
+
+  repeated string tool_prompts = 2 [(gnostic.openapi.v3.property) = {description: "Agent/MCP工具提示词，作为工具描述覆盖、候选命中和目录展示依据"}]; // Agent/MCP工具提示词
+
+  .common.v1.Status mcp_status = 3 [
+    (gnostic.openapi.v3.property) = {description: "MCP工具状态：枚举【Status】"},
+    (buf.validate.field).enum = {defined_only: true}
+  ]; // MCP工具状态：枚举【Status】
+
+  .common.v1.Status agent_status = 4 [
+    (gnostic.openapi.v3.property) = {description: "Agent工具状态：枚举【Status】"},
+    (buf.validate.field).enum = {defined_only: true}
+  ]; // Agent工具状态：枚举【Status】
+}
+
+// API Agent工具状态设置条件
+message SetBaseApiAgentStatusRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "API ID"}]; // API ID
+
+  .common.v1.Status agent_status = 2 [
+    (gnostic.openapi.v3.property) = {description: "Agent工具状态：枚举【Status】"},
+    (buf.validate.field).enum = {defined_only: true}
+  ]; // Agent工具状态：枚举【Status】
+}
+
+// API MCP工具状态设置条件
+message SetBaseApiMcpStatusRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "API ID"}]; // API ID
+
+  .common.v1.Status mcp_status = 2 [
+    (gnostic.openapi.v3.property) = {description: "MCP工具状态：枚举【Status】"},
+    (buf.validate.field).enum = {defined_only: true}
+  ]; // MCP工具状态：枚举【Status】
 }
 
 // API文档Schema

@@ -22,8 +22,8 @@ func RegisterBaseRoleServiceMCPTools(mcpServer *mcp.Server, baseRoleServiceServe
 	RegisterBaseRoleServiceCreateBaseRoleMCPTool(mcpServer, baseRoleServiceServer)
 	RegisterBaseRoleServiceUpdateBaseRoleMCPTool(mcpServer, baseRoleServiceServer)
 	RegisterBaseRoleServiceDeleteBaseRoleMCPTool(mcpServer, baseRoleServiceServer)
-	RegisterBaseRoleServiceSetBaseRoleStatusMCPTool(mcpServer, baseRoleServiceServer)
 	RegisterBaseRoleServiceSetBaseRoleMenuMCPTool(mcpServer, baseRoleServiceServer)
+	RegisterBaseRoleServiceSetBaseRoleStatusMCPTool(mcpServer, baseRoleServiceServer)
 }
 
 // RegisterBaseRoleServiceOptionBaseRoleMCPTool 注册查询角色下拉选择的 MCP Tool。
@@ -152,27 +152,6 @@ func RegisterBaseRoleServiceDeleteBaseRoleMCPTool(mcpServer *mcp.Server, baseRol
 	)
 }
 
-// RegisterBaseRoleServiceSetBaseRoleStatusMCPTool 注册设置状态的 MCP Tool。
-func RegisterBaseRoleServiceSetBaseRoleStatusMCPTool(mcpServer *mcp.Server, baseRoleServiceServer BaseRoleServiceServer) {
-	mcp.AddTool[*SetBaseRoleStatusRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_role_service_set_base_role_status",
-			Description: "设置状态",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *SetBaseRoleStatusRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &SetBaseRoleStatusRequest{}
-			}
-			reply, err := baseRoleServiceServer.SetBaseRoleStatus(ctx, input)
-			if err != nil {
-				return nil, nil, err
-			}
-			return nil, reply, nil
-		},
-	)
-}
-
 // RegisterBaseRoleServiceSetBaseRoleMenuMCPTool 注册设置角色菜单权限的 MCP Tool。
 func RegisterBaseRoleServiceSetBaseRoleMenuMCPTool(mcpServer *mcp.Server, baseRoleServiceServer BaseRoleServiceServer) {
 	mcp.AddTool[*SetBaseRoleMenuRequest, *emptypb.Empty](
@@ -186,6 +165,27 @@ func RegisterBaseRoleServiceSetBaseRoleMenuMCPTool(mcpServer *mcp.Server, baseRo
 				input = &SetBaseRoleMenuRequest{}
 			}
 			reply, err := baseRoleServiceServer.SetBaseRoleMenu(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
+}
+
+// RegisterBaseRoleServiceSetBaseRoleStatusMCPTool 注册设置状态的 MCP Tool。
+func RegisterBaseRoleServiceSetBaseRoleStatusMCPTool(mcpServer *mcp.Server, baseRoleServiceServer BaseRoleServiceServer) {
+	mcp.AddTool[*SetBaseRoleStatusRequest, *emptypb.Empty](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "system_admin_v1_base_role_service_set_base_role_status",
+			Description: "设置状态",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *SetBaseRoleStatusRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
+			if input == nil {
+				input = &SetBaseRoleStatusRequest{}
+			}
+			reply, err := baseRoleServiceServer.SetBaseRoleStatus(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

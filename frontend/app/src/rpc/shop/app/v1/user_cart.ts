@@ -9,16 +9,6 @@ import type { Empty } from "../../../google/protobuf/empty";
 import type { RecommendContext } from "./recommend";
 import type { TenantStore } from "./tenant_store";
 
-/** 用户购物车数量查询条件 */
-export interface CountUserCartRequest {
-}
-
-/** 用户购物车数量响应 */
-export interface CountUserCartResponse {
-  /** 购物车数量 */
-  count: number;
-}
-
 /** 用户购物车列表查询条件 */
 export interface ListUserCartRequest {
 }
@@ -27,6 +17,56 @@ export interface ListUserCartRequest {
 export interface ListUserCartResponse {
   /** 按店铺分组的用户购物车列表 */
   user_cart_stores: UserCartStore[];
+}
+
+/** 创建购物车请求参数 */
+export interface CreateUserCartRequest {
+  /** 商品ID */
+  goods_id: number;
+  /** 规格编号 */
+  sku_code: string;
+  /** 数量 */
+  num: number;
+  /** 推荐上下文 */
+  recommend_context: RecommendContext | undefined;
+}
+
+/** 更新用户购物车请求参数 */
+export interface UpdateUserCartRequest {
+  /** 购物车ID */
+  id: number;
+  /** 用户购物车 */
+  user_cart: UserCartForm | undefined;
+}
+
+/** 删除用户购物车请求参数 */
+export interface DeleteUserCartRequest {
+  /** 购物车ID */
+  id: number;
+}
+
+/** 设置购物车选中状态请求参数 */
+export interface SetUserCartSelectionRequest {
+  /** 是否选中 */
+  is_checked: boolean;
+}
+
+/** 设置用户购物车选中状态请求参数 */
+export interface SetUserCartStatusRequest {
+  /** 购物车ID */
+  id: number;
+  /** 是否选中 */
+  is_checked: boolean;
+}
+
+/** 用户购物车数量查询条件 */
+export interface CountUserCartRequest {
+}
+
+/** 用户购物车数量响应 */
+export interface CountUserCartResponse {
+  /** 购物车数量 */
+  count: number;
 }
 
 /** 用户购物车店铺分组 */
@@ -69,18 +109,6 @@ export interface UserCart {
   recommend_context: RecommendContext | undefined;
 }
 
-/** 创建购物车请求参数 */
-export interface CreateUserCartRequest {
-  /** 商品ID */
-  goods_id: number;
-  /** 规格编号 */
-  sku_code: string;
-  /** 数量 */
-  num: number;
-  /** 推荐上下文 */
-  recommend_context: RecommendContext | undefined;
-}
-
 /** 用户购物车表单 */
 export interface UserCartForm {
   /** 购物车ID */
@@ -89,48 +117,20 @@ export interface UserCartForm {
   num: number;
 }
 
-/** 更新用户购物车请求参数 */
-export interface UpdateUserCartRequest {
-  /** 购物车ID */
-  id: number;
-  /** 用户购物车 */
-  user_cart: UserCartForm | undefined;
-}
-
-/** 删除用户购物车请求参数 */
-export interface DeleteUserCartRequest {
-  /** 购物车ID */
-  id: number;
-}
-
-/** 设置用户购物车选中状态请求参数 */
-export interface SetUserCartStatusRequest {
-  /** 购物车ID */
-  id: number;
-  /** 是否选中 */
-  is_checked: boolean;
-}
-
-/** 设置购物车选中状态请求参数 */
-export interface SetUserCartSelectionRequest {
-  /** 是否选中 */
-  is_checked: boolean;
-}
-
 /** App用户购物车管理服务 */
 export interface UserCartService {
-  /** 查询用户购物车数量 */
-  CountUserCart(request: CountUserCartRequest): Promise<CountUserCartResponse>;
   /** 查询用户购物车列表 */
   ListUserCart(request: ListUserCartRequest): Promise<ListUserCartResponse>;
   /** 创建用户购物车 */
   CreateUserCart(request: CreateUserCartRequest): Promise<Empty>;
-  /** 设置全选 */
-  SetUserCartSelection(request: SetUserCartSelectionRequest): Promise<Empty>;
   /** 更新用户购物车 */
   UpdateUserCart(request: UpdateUserCartRequest): Promise<Empty>;
   /** 删除用户购物车 */
   DeleteUserCart(request: DeleteUserCartRequest): Promise<Empty>;
+  /** 设置全选 */
+  SetUserCartSelection(request: SetUserCartSelectionRequest): Promise<Empty>;
   /** 设置状态 */
   SetUserCartStatus(request: SetUserCartStatusRequest): Promise<Empty>;
+  /** 查询用户购物车数量 */
+  CountUserCart(request: CountUserCartRequest): Promise<CountUserCartResponse>;
 }

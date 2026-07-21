@@ -23,18 +23,18 @@ func NewRecommendRequestServiceAgentTools(recommendRequestServiceServer Recommen
 		return nil, err
 	}
 	ts = append(ts, pageRecommendRequestTool)
-	var getRecommendRequestTool tool.InvokableTool
-	getRecommendRequestTool, err = NewRecommendRequestServiceGetRecommendRequestAgentTool(recommendRequestServiceServer)
-	if err != nil {
-		return nil, err
-	}
-	ts = append(ts, getRecommendRequestTool)
 	var listRecommendRequestEventTool tool.InvokableTool
 	listRecommendRequestEventTool, err = NewRecommendRequestServiceListRecommendRequestEventAgentTool(recommendRequestServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, listRecommendRequestEventTool)
+	var getRecommendRequestTool tool.InvokableTool
+	getRecommendRequestTool, err = NewRecommendRequestServiceGetRecommendRequestAgentTool(recommendRequestServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, getRecommendRequestTool)
 	return ts, nil
 }
 
@@ -52,20 +52,6 @@ func NewRecommendRequestServicePageRecommendRequestAgentTool(recommendRequestSer
 	)
 }
 
-// NewRecommendRequestServiceGetRecommendRequestAgentTool 创建查询推荐请求详情的 Agent Tool。
-func NewRecommendRequestServiceGetRecommendRequestAgentTool(recommendRequestServiceServer RecommendRequestServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*GetRecommendRequestRequest, *RecommendRequestDetailResponse](
-		"shop_admin_v1_recommend_request_service_get_recommend_request",
-		"查询推荐请求详情",
-		func(ctx context.Context, req *GetRecommendRequestRequest) (*RecommendRequestDetailResponse, error) {
-			if req == nil {
-				req = &GetRecommendRequestRequest{}
-			}
-			return recommendRequestServiceServer.GetRecommendRequest(ctx, req)
-		},
-	)
-}
-
 // NewRecommendRequestServiceListRecommendRequestEventAgentTool 创建查询推荐请求商品关联事件的 Agent Tool。
 func NewRecommendRequestServiceListRecommendRequestEventAgentTool(recommendRequestServiceServer RecommendRequestServiceServer) (tool.InvokableTool, error) {
 	return utils.InferTool[*ListRecommendRequestEventRequest, *ListRecommendRequestEventResponse](
@@ -76,6 +62,20 @@ func NewRecommendRequestServiceListRecommendRequestEventAgentTool(recommendReque
 				req = &ListRecommendRequestEventRequest{}
 			}
 			return recommendRequestServiceServer.ListRecommendRequestEvent(ctx, req)
+		},
+	)
+}
+
+// NewRecommendRequestServiceGetRecommendRequestAgentTool 创建查询推荐请求详情的 Agent Tool。
+func NewRecommendRequestServiceGetRecommendRequestAgentTool(recommendRequestServiceServer RecommendRequestServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*GetRecommendRequestRequest, *RecommendRequestDetailResponse](
+		"shop_admin_v1_recommend_request_service_get_recommend_request",
+		"查询推荐请求详情",
+		func(ctx context.Context, req *GetRecommendRequestRequest) (*RecommendRequestDetailResponse, error) {
+			if req == nil {
+				req = &GetRecommendRequestRequest{}
+			}
+			return recommendRequestServiceServer.GetRecommendRequest(ctx, req)
 		},
 	)
 }

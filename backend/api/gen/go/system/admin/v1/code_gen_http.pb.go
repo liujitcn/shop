@@ -33,9 +33,31 @@ type CodeGenServiceHTTPServer interface {
 
 func RegisterCodeGenServiceHTTPServer(s *http.Server, srv CodeGenServiceHTTPServer) {
 	r := s.Route("/")
+	r.Handle("GET", "/api/v1/admin/code-gen/task/{task_id}", _CodeGenService_GetCodeGenTask0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/admin/code-gen/table/{table_id}/preview", _CodeGenService_PreviewCodeGen0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/admin/code-gen/task", _CodeGenService_StartCodeGenTask0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/admin/code-gen/task/{task_id}", _CodeGenService_GetCodeGenTask0_HTTP_Handler(srv))
+}
+
+func _CodeGenService_GetCodeGenTask0_HTTP_Handler(srv CodeGenServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetCodeGenTaskRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationCodeGenServiceGetCodeGenTask)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetCodeGenTask(ctx, req.(*GetCodeGenTaskRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*CodeGenTask)
+		return ctx.Result(200, reply)
+	}
 }
 
 func _CodeGenService_PreviewCodeGen0_HTTP_Handler(srv CodeGenServiceHTTPServer) func(ctx http.Context) error {
@@ -75,28 +97,6 @@ func _CodeGenService_StartCodeGenTask0_HTTP_Handler(srv CodeGenServiceHTTPServer
 			return err
 		}
 		reply := out.(*StartCodeGenTaskResponse)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _CodeGenService_GetCodeGenTask0_HTTP_Handler(srv CodeGenServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in GetCodeGenTaskRequest
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		if err := ctx.BindVars(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationCodeGenServiceGetCodeGenTask)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.GetCodeGenTask(ctx, req.(*GetCodeGenTaskRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*CodeGenTask)
 		return ctx.Result(200, reply)
 	}
 }

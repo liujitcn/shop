@@ -68,17 +68,6 @@ func (s *OrderInfoService) GetOrderInfoRefund(ctx context.Context, req *shopadmi
 	return res, nil
 }
 
-// RefundOrderInfo 订单信息退款
-func (s *OrderInfoService) RefundOrderInfo(ctx context.Context, req *shopadminv1.RefundOrderInfoRequest) (*emptypb.Empty, error) {
-	err := s.orderInfoCase.RefundOrderInfo(ctx, req)
-	if err != nil {
-		log.Error(fmt.Sprintf("RefundOrderInfo %v", err))
-		return nil, errorsx.WrapInternal(err, "订单退款失败")
-	}
-
-	return new(emptypb.Empty), nil
-}
-
 // GetOrderInfoShipment 查询订单信息发货信息
 func (s *OrderInfoService) GetOrderInfoShipment(ctx context.Context, req *shopadminv1.GetOrderInfoShipmentRequest) (*shopadminv1.OrderInfoShipmentForm, error) {
 	res, err := s.orderInfoCase.GetOrderInfoShipment(ctx, req.GetId())
@@ -88,6 +77,17 @@ func (s *OrderInfoService) GetOrderInfoShipment(ctx context.Context, req *shopad
 	}
 
 	return res, nil
+}
+
+// RefundOrderInfo 订单信息退款
+func (s *OrderInfoService) RefundOrderInfo(ctx context.Context, req *shopadminv1.RefundOrderInfoRequest) (*emptypb.Empty, error) {
+	err := s.orderInfoCase.RefundOrderInfo(ctx, req)
+	if err != nil {
+		log.Error(fmt.Sprintf("RefundOrderInfo %v", err))
+		return nil, errorsx.WrapInternal(err, "订单退款失败")
+	}
+
+	return new(emptypb.Empty), nil
 }
 
 // ShipOrderInfo 订单信息发货

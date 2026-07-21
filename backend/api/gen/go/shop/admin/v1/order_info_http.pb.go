@@ -46,8 +46,8 @@ func RegisterOrderInfoServiceHTTPServer(s *http.Server, srv OrderInfoServiceHTTP
 	r.Handle("GET", "/api/v1/admin/order/info", _OrderInfoService_PageOrderInfo0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/order/info/{id}", _OrderInfoService_GetOrderInfo0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/order/info/{id}/refund", _OrderInfoService_GetOrderInfoRefund0_HTTP_Handler(srv))
-	r.Handle("PUT", "/api/v1/admin/order/info/{order_id}/refund", _OrderInfoService_RefundOrderInfo0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/order/info/{id}/shipment", _OrderInfoService_GetOrderInfoShipment0_HTTP_Handler(srv))
+	r.Handle("PUT", "/api/v1/admin/order/info/{order_id}/refund", _OrderInfoService_RefundOrderInfo0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/order/info/{order_id}/shipment", _OrderInfoService_ShipOrderInfo0_HTTP_Handler(srv))
 }
 
@@ -114,28 +114,6 @@ func _OrderInfoService_GetOrderInfoRefund0_HTTP_Handler(srv OrderInfoServiceHTTP
 	}
 }
 
-func _OrderInfoService_RefundOrderInfo0_HTTP_Handler(srv OrderInfoServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in RefundOrderInfoRequest
-		if err := ctx.Bind(&in); err != nil {
-			return err
-		}
-		if err := ctx.BindVars(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationOrderInfoServiceRefundOrderInfo)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.RefundOrderInfo(ctx, req.(*RefundOrderInfoRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*emptypb.Empty)
-		return ctx.Result(200, reply)
-	}
-}
-
 func _OrderInfoService_GetOrderInfoShipment0_HTTP_Handler(srv OrderInfoServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in GetOrderInfoShipmentRequest
@@ -154,6 +132,28 @@ func _OrderInfoService_GetOrderInfoShipment0_HTTP_Handler(srv OrderInfoServiceHT
 			return err
 		}
 		reply := out.(*OrderInfoShipmentForm)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _OrderInfoService_RefundOrderInfo0_HTTP_Handler(srv OrderInfoServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in RefundOrderInfoRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationOrderInfoServiceRefundOrderInfo)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.RefundOrderInfo(ctx, req.(*RefundOrderInfoRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
 		return ctx.Result(200, reply)
 	}
 }

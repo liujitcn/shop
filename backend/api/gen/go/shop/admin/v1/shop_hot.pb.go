@@ -157,247 +157,6 @@ func (x *PageShopHotResponse) GetTotal() int32 {
 	return 0
 }
 
-// 热门专区详情查询条件
-type GetShopHotRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"` // 商城热门推荐ID
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetShopHotRequest) Reset() {
-	*x = GetShopHotRequest{}
-	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[2]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetShopHotRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetShopHotRequest) ProtoMessage() {}
-
-func (x *GetShopHotRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[2]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetShopHotRequest.ProtoReflect.Descriptor instead.
-func (*GetShopHotRequest) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_shop_hot_proto_rawDescGZIP(), []int{2}
-}
-
-func (x *GetShopHotRequest) GetId() int64 {
-	if x != nil {
-		return x.Id
-	}
-	return 0
-}
-
-// 热门专区创建条件
-type CreateShopHotRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ShopHot       *ShopHotForm           `protobuf:"bytes,1,opt,name=shop_hot,json=shopHot,proto3" json:"shop_hot,omitempty"` // 热门专区表单
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *CreateShopHotRequest) Reset() {
-	*x = CreateShopHotRequest{}
-	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[3]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *CreateShopHotRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*CreateShopHotRequest) ProtoMessage() {}
-
-func (x *CreateShopHotRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[3]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use CreateShopHotRequest.ProtoReflect.Descriptor instead.
-func (*CreateShopHotRequest) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_shop_hot_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *CreateShopHotRequest) GetShopHot() *ShopHotForm {
-	if x != nil {
-		return x.ShopHot
-	}
-	return nil
-}
-
-// 热门专区更新条件
-type UpdateShopHotRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                         // 商城热门推荐ID
-	ShopHot       *ShopHotForm           `protobuf:"bytes,2,opt,name=shop_hot,json=shopHot,proto3" json:"shop_hot,omitempty"` // 热门专区表单
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *UpdateShopHotRequest) Reset() {
-	*x = UpdateShopHotRequest{}
-	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[4]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *UpdateShopHotRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*UpdateShopHotRequest) ProtoMessage() {}
-
-func (x *UpdateShopHotRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[4]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use UpdateShopHotRequest.ProtoReflect.Descriptor instead.
-func (*UpdateShopHotRequest) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_shop_hot_proto_rawDescGZIP(), []int{4}
-}
-
-func (x *UpdateShopHotRequest) GetId() int64 {
-	if x != nil {
-		return x.Id
-	}
-	return 0
-}
-
-func (x *UpdateShopHotRequest) GetShopHot() *ShopHotForm {
-	if x != nil {
-		return x.ShopHot
-	}
-	return nil
-}
-
-// 热门专区删除条件
-type DeleteShopHotRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Ids           string                 `protobuf:"bytes,1,opt,name=ids,proto3" json:"ids,omitempty"` // 热门专区ID列表，多个用逗号分隔
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *DeleteShopHotRequest) Reset() {
-	*x = DeleteShopHotRequest{}
-	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[5]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *DeleteShopHotRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*DeleteShopHotRequest) ProtoMessage() {}
-
-func (x *DeleteShopHotRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[5]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use DeleteShopHotRequest.ProtoReflect.Descriptor instead.
-func (*DeleteShopHotRequest) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_shop_hot_proto_rawDescGZIP(), []int{5}
-}
-
-func (x *DeleteShopHotRequest) GetIds() string {
-	if x != nil {
-		return x.Ids
-	}
-	return ""
-}
-
-// 热门专区状态设置条件
-type SetShopHotStatusRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                               // 商城热门推荐ID
-	Status        v1.Status              `protobuf:"varint,2,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"` // 状态：枚举【Status】
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *SetShopHotStatusRequest) Reset() {
-	*x = SetShopHotStatusRequest{}
-	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[6]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *SetShopHotStatusRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*SetShopHotStatusRequest) ProtoMessage() {}
-
-func (x *SetShopHotStatusRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[6]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use SetShopHotStatusRequest.ProtoReflect.Descriptor instead.
-func (*SetShopHotStatusRequest) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_shop_hot_proto_rawDescGZIP(), []int{6}
-}
-
-func (x *SetShopHotStatusRequest) GetId() int64 {
-	if x != nil {
-		return x.Id
-	}
-	return 0
-}
-
-func (x *SetShopHotStatusRequest) GetStatus() v1.Status {
-	if x != nil {
-		return x.Status
-	}
-	return v1.Status(0)
-}
-
 // 热门专区项列表查询条件
 type PageShopHotItemRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -412,7 +171,7 @@ type PageShopHotItemRequest struct {
 
 func (x *PageShopHotItemRequest) Reset() {
 	*x = PageShopHotItemRequest{}
-	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[7]
+	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -424,7 +183,7 @@ func (x *PageShopHotItemRequest) String() string {
 func (*PageShopHotItemRequest) ProtoMessage() {}
 
 func (x *PageShopHotItemRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[7]
+	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -437,7 +196,7 @@ func (x *PageShopHotItemRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PageShopHotItemRequest.ProtoReflect.Descriptor instead.
 func (*PageShopHotItemRequest) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_shop_hot_proto_rawDescGZIP(), []int{7}
+	return file_shop_admin_v1_shop_hot_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *PageShopHotItemRequest) GetHotId() int64 {
@@ -486,7 +245,7 @@ type PageShopHotItemResponse struct {
 
 func (x *PageShopHotItemResponse) Reset() {
 	*x = PageShopHotItemResponse{}
-	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[8]
+	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -498,7 +257,7 @@ func (x *PageShopHotItemResponse) String() string {
 func (*PageShopHotItemResponse) ProtoMessage() {}
 
 func (x *PageShopHotItemResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[8]
+	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -511,7 +270,7 @@ func (x *PageShopHotItemResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PageShopHotItemResponse.ProtoReflect.Descriptor instead.
 func (*PageShopHotItemResponse) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_shop_hot_proto_rawDescGZIP(), []int{8}
+	return file_shop_admin_v1_shop_hot_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *PageShopHotItemResponse) GetShopHotItems() []*ShopHotItem {
@@ -528,6 +287,144 @@ func (x *PageShopHotItemResponse) GetTotal() int32 {
 	return 0
 }
 
+// 热门专区详情查询条件
+type GetShopHotRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"` // 商城热门推荐ID
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetShopHotRequest) Reset() {
+	*x = GetShopHotRequest{}
+	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetShopHotRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetShopHotRequest) ProtoMessage() {}
+
+func (x *GetShopHotRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetShopHotRequest.ProtoReflect.Descriptor instead.
+func (*GetShopHotRequest) Descriptor() ([]byte, []int) {
+	return file_shop_admin_v1_shop_hot_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *GetShopHotRequest) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+// 热门专区表单
+type ShopHotForm struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                // 商城热门推荐ID
+	Title         string                 `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`                           // 商城热门推荐标题
+	Desc          string                 `protobuf:"bytes,3,opt,name=desc,proto3" json:"desc,omitempty"`                             // 商城热门推荐名称
+	Banner        string                 `protobuf:"bytes,4,opt,name=banner,proto3" json:"banner,omitempty"`                         // 轮播图
+	Picture       []string               `protobuf:"bytes,5,rep,name=picture,proto3" json:"picture,omitempty"`                       // 图片
+	Sort          int32                  `protobuf:"varint,6,opt,name=sort,proto3" json:"sort,omitempty"`                            // 排序
+	Status        v1.Status              `protobuf:"varint,51,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"` // 状态
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ShopHotForm) Reset() {
+	*x = ShopHotForm{}
+	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ShopHotForm) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ShopHotForm) ProtoMessage() {}
+
+func (x *ShopHotForm) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ShopHotForm.ProtoReflect.Descriptor instead.
+func (*ShopHotForm) Descriptor() ([]byte, []int) {
+	return file_shop_admin_v1_shop_hot_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *ShopHotForm) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *ShopHotForm) GetTitle() string {
+	if x != nil {
+		return x.Title
+	}
+	return ""
+}
+
+func (x *ShopHotForm) GetDesc() string {
+	if x != nil {
+		return x.Desc
+	}
+	return ""
+}
+
+func (x *ShopHotForm) GetBanner() string {
+	if x != nil {
+		return x.Banner
+	}
+	return ""
+}
+
+func (x *ShopHotForm) GetPicture() []string {
+	if x != nil {
+		return x.Picture
+	}
+	return nil
+}
+
+func (x *ShopHotForm) GetSort() int32 {
+	if x != nil {
+		return x.Sort
+	}
+	return 0
+}
+
+func (x *ShopHotForm) GetStatus() v1.Status {
+	if x != nil {
+		return x.Status
+	}
+	return v1.Status(0)
+}
+
 // 热门专区项详情查询条件
 type GetShopHotItemRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -538,7 +435,7 @@ type GetShopHotItemRequest struct {
 
 func (x *GetShopHotItemRequest) Reset() {
 	*x = GetShopHotItemRequest{}
-	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[9]
+	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -550,7 +447,7 @@ func (x *GetShopHotItemRequest) String() string {
 func (*GetShopHotItemRequest) ProtoMessage() {}
 
 func (x *GetShopHotItemRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[9]
+	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -563,7 +460,7 @@ func (x *GetShopHotItemRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetShopHotItemRequest.ProtoReflect.Descriptor instead.
 func (*GetShopHotItemRequest) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_shop_hot_proto_rawDescGZIP(), []int{9}
+	return file_shop_admin_v1_shop_hot_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *GetShopHotItemRequest) GetId() int64 {
@@ -571,6 +468,136 @@ func (x *GetShopHotItemRequest) GetId() int64 {
 		return x.Id
 	}
 	return 0
+}
+
+// 热门专区项表单
+type ShopHotItemForm struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                       // 商城热门推荐ID
+	HotId         int64                  `protobuf:"varint,2,opt,name=hot_id,json=hotId,proto3" json:"hot_id,omitempty"`                    // 商城热门推荐ID
+	Title         string                 `protobuf:"bytes,3,opt,name=title,proto3" json:"title,omitempty"`                                  // 标题
+	Sort          int32                  `protobuf:"varint,4,opt,name=sort,proto3" json:"sort,omitempty"`                                   // 排序
+	GoodsIds      []int64                `protobuf:"varint,5,rep,packed,name=goods_ids,json=goodsIds,proto3" json:"goods_ids,omitempty"`    // 商品
+	Status        *v1.Status             `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"` // 状态：枚举【Status】
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ShopHotItemForm) Reset() {
+	*x = ShopHotItemForm{}
+	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ShopHotItemForm) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ShopHotItemForm) ProtoMessage() {}
+
+func (x *ShopHotItemForm) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ShopHotItemForm.ProtoReflect.Descriptor instead.
+func (*ShopHotItemForm) Descriptor() ([]byte, []int) {
+	return file_shop_admin_v1_shop_hot_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *ShopHotItemForm) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *ShopHotItemForm) GetHotId() int64 {
+	if x != nil {
+		return x.HotId
+	}
+	return 0
+}
+
+func (x *ShopHotItemForm) GetTitle() string {
+	if x != nil {
+		return x.Title
+	}
+	return ""
+}
+
+func (x *ShopHotItemForm) GetSort() int32 {
+	if x != nil {
+		return x.Sort
+	}
+	return 0
+}
+
+func (x *ShopHotItemForm) GetGoodsIds() []int64 {
+	if x != nil {
+		return x.GoodsIds
+	}
+	return nil
+}
+
+func (x *ShopHotItemForm) GetStatus() v1.Status {
+	if x != nil && x.Status != nil {
+		return *x.Status
+	}
+	return v1.Status(0)
+}
+
+// 热门专区创建条件
+type CreateShopHotRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ShopHot       *ShopHotForm           `protobuf:"bytes,1,opt,name=shop_hot,json=shopHot,proto3" json:"shop_hot,omitempty"` // 热门专区表单
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateShopHotRequest) Reset() {
+	*x = CreateShopHotRequest{}
+	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateShopHotRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateShopHotRequest) ProtoMessage() {}
+
+func (x *CreateShopHotRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateShopHotRequest.ProtoReflect.Descriptor instead.
+func (*CreateShopHotRequest) Descriptor() ([]byte, []int) {
+	return file_shop_admin_v1_shop_hot_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *CreateShopHotRequest) GetShopHot() *ShopHotForm {
+	if x != nil {
+		return x.ShopHot
+	}
+	return nil
 }
 
 // 热门专区项创建条件
@@ -583,7 +610,7 @@ type CreateShopHotItemRequest struct {
 
 func (x *CreateShopHotItemRequest) Reset() {
 	*x = CreateShopHotItemRequest{}
-	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[10]
+	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -595,7 +622,7 @@ func (x *CreateShopHotItemRequest) String() string {
 func (*CreateShopHotItemRequest) ProtoMessage() {}
 
 func (x *CreateShopHotItemRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[10]
+	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -608,12 +635,65 @@ func (x *CreateShopHotItemRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateShopHotItemRequest.ProtoReflect.Descriptor instead.
 func (*CreateShopHotItemRequest) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_shop_hot_proto_rawDescGZIP(), []int{10}
+	return file_shop_admin_v1_shop_hot_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *CreateShopHotItemRequest) GetShopHotItem() *ShopHotItemForm {
 	if x != nil {
 		return x.ShopHotItem
+	}
+	return nil
+}
+
+// 热门专区更新条件
+type UpdateShopHotRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                         // 商城热门推荐ID
+	ShopHot       *ShopHotForm           `protobuf:"bytes,2,opt,name=shop_hot,json=shopHot,proto3" json:"shop_hot,omitempty"` // 热门专区表单
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateShopHotRequest) Reset() {
+	*x = UpdateShopHotRequest{}
+	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateShopHotRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateShopHotRequest) ProtoMessage() {}
+
+func (x *UpdateShopHotRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateShopHotRequest.ProtoReflect.Descriptor instead.
+func (*UpdateShopHotRequest) Descriptor() ([]byte, []int) {
+	return file_shop_admin_v1_shop_hot_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *UpdateShopHotRequest) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *UpdateShopHotRequest) GetShopHot() *ShopHotForm {
+	if x != nil {
+		return x.ShopHot
 	}
 	return nil
 }
@@ -671,6 +751,51 @@ func (x *UpdateShopHotItemRequest) GetShopHotItem() *ShopHotItemForm {
 	return nil
 }
 
+// 热门专区删除条件
+type DeleteShopHotRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Ids           string                 `protobuf:"bytes,1,opt,name=ids,proto3" json:"ids,omitempty"` // 热门专区ID列表，多个用逗号分隔
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteShopHotRequest) Reset() {
+	*x = DeleteShopHotRequest{}
+	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteShopHotRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteShopHotRequest) ProtoMessage() {}
+
+func (x *DeleteShopHotRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteShopHotRequest.ProtoReflect.Descriptor instead.
+func (*DeleteShopHotRequest) Descriptor() ([]byte, []int) {
+	return file_shop_admin_v1_shop_hot_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *DeleteShopHotRequest) GetIds() string {
+	if x != nil {
+		return x.Ids
+	}
+	return ""
+}
+
 // 热门专区项删除条件
 type DeleteShopHotItemRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -681,7 +806,7 @@ type DeleteShopHotItemRequest struct {
 
 func (x *DeleteShopHotItemRequest) Reset() {
 	*x = DeleteShopHotItemRequest{}
-	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[12]
+	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -693,7 +818,7 @@ func (x *DeleteShopHotItemRequest) String() string {
 func (*DeleteShopHotItemRequest) ProtoMessage() {}
 
 func (x *DeleteShopHotItemRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[12]
+	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -706,7 +831,7 @@ func (x *DeleteShopHotItemRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteShopHotItemRequest.ProtoReflect.Descriptor instead.
 func (*DeleteShopHotItemRequest) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_shop_hot_proto_rawDescGZIP(), []int{12}
+	return file_shop_admin_v1_shop_hot_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *DeleteShopHotItemRequest) GetIds() string {
@@ -727,7 +852,7 @@ type SetShopHotItemStatusRequest struct {
 
 func (x *SetShopHotItemStatusRequest) Reset() {
 	*x = SetShopHotItemStatusRequest{}
-	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[13]
+	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -739,7 +864,7 @@ func (x *SetShopHotItemStatusRequest) String() string {
 func (*SetShopHotItemStatusRequest) ProtoMessage() {}
 
 func (x *SetShopHotItemStatusRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[13]
+	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -752,7 +877,7 @@ func (x *SetShopHotItemStatusRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetShopHotItemStatusRequest.ProtoReflect.Descriptor instead.
 func (*SetShopHotItemStatusRequest) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_shop_hot_proto_rawDescGZIP(), []int{13}
+	return file_shop_admin_v1_shop_hot_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *SetShopHotItemStatusRequest) GetId() int64 {
@@ -763,6 +888,59 @@ func (x *SetShopHotItemStatusRequest) GetId() int64 {
 }
 
 func (x *SetShopHotItemStatusRequest) GetStatus() v1.Status {
+	if x != nil {
+		return x.Status
+	}
+	return v1.Status(0)
+}
+
+// 热门专区状态设置条件
+type SetShopHotStatusRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                               // 商城热门推荐ID
+	Status        v1.Status              `protobuf:"varint,2,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"` // 状态：枚举【Status】
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetShopHotStatusRequest) Reset() {
+	*x = SetShopHotStatusRequest{}
+	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetShopHotStatusRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetShopHotStatusRequest) ProtoMessage() {}
+
+func (x *SetShopHotStatusRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetShopHotStatusRequest.ProtoReflect.Descriptor instead.
+func (*SetShopHotStatusRequest) Descriptor() ([]byte, []int) {
+	return file_shop_admin_v1_shop_hot_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *SetShopHotStatusRequest) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *SetShopHotStatusRequest) GetStatus() v1.Status {
 	if x != nil {
 		return x.Status
 	}
@@ -785,7 +963,7 @@ type ShopHot struct {
 
 func (x *ShopHot) Reset() {
 	*x = ShopHot{}
-	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[14]
+	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -797,7 +975,7 @@ func (x *ShopHot) String() string {
 func (*ShopHot) ProtoMessage() {}
 
 func (x *ShopHot) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[14]
+	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -810,7 +988,7 @@ func (x *ShopHot) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ShopHot.ProtoReflect.Descriptor instead.
 func (*ShopHot) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_shop_hot_proto_rawDescGZIP(), []int{14}
+	return file_shop_admin_v1_shop_hot_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *ShopHot) GetId() int64 {
@@ -862,99 +1040,6 @@ func (x *ShopHot) GetUpdatedAt() string {
 	return ""
 }
 
-// 热门专区表单
-type ShopHotForm struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                // 商城热门推荐ID
-	Title         string                 `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`                           // 商城热门推荐标题
-	Desc          string                 `protobuf:"bytes,3,opt,name=desc,proto3" json:"desc,omitempty"`                             // 商城热门推荐名称
-	Banner        string                 `protobuf:"bytes,4,opt,name=banner,proto3" json:"banner,omitempty"`                         // 轮播图
-	Picture       []string               `protobuf:"bytes,5,rep,name=picture,proto3" json:"picture,omitempty"`                       // 图片
-	Sort          int32                  `protobuf:"varint,6,opt,name=sort,proto3" json:"sort,omitempty"`                            // 排序
-	Status        v1.Status              `protobuf:"varint,51,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"` // 状态
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ShopHotForm) Reset() {
-	*x = ShopHotForm{}
-	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[15]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ShopHotForm) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ShopHotForm) ProtoMessage() {}
-
-func (x *ShopHotForm) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[15]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ShopHotForm.ProtoReflect.Descriptor instead.
-func (*ShopHotForm) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_shop_hot_proto_rawDescGZIP(), []int{15}
-}
-
-func (x *ShopHotForm) GetId() int64 {
-	if x != nil {
-		return x.Id
-	}
-	return 0
-}
-
-func (x *ShopHotForm) GetTitle() string {
-	if x != nil {
-		return x.Title
-	}
-	return ""
-}
-
-func (x *ShopHotForm) GetDesc() string {
-	if x != nil {
-		return x.Desc
-	}
-	return ""
-}
-
-func (x *ShopHotForm) GetBanner() string {
-	if x != nil {
-		return x.Banner
-	}
-	return ""
-}
-
-func (x *ShopHotForm) GetPicture() []string {
-	if x != nil {
-		return x.Picture
-	}
-	return nil
-}
-
-func (x *ShopHotForm) GetSort() int32 {
-	if x != nil {
-		return x.Sort
-	}
-	return 0
-}
-
-func (x *ShopHotForm) GetStatus() v1.Status {
-	if x != nil {
-		return x.Status
-	}
-	return v1.Status(0)
-}
-
 // 热门专区项
 type ShopHotItem struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -971,7 +1056,7 @@ type ShopHotItem struct {
 
 func (x *ShopHotItem) Reset() {
 	*x = ShopHotItem{}
-	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[16]
+	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -983,7 +1068,7 @@ func (x *ShopHotItem) String() string {
 func (*ShopHotItem) ProtoMessage() {}
 
 func (x *ShopHotItem) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[16]
+	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -996,7 +1081,7 @@ func (x *ShopHotItem) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ShopHotItem.ProtoReflect.Descriptor instead.
 func (*ShopHotItem) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_shop_hot_proto_rawDescGZIP(), []int{16}
+	return file_shop_admin_v1_shop_hot_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *ShopHotItem) GetId() int64 {
@@ -1048,91 +1133,6 @@ func (x *ShopHotItem) GetUpdatedAt() string {
 	return ""
 }
 
-// 热门专区项表单
-type ShopHotItemForm struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                       // 商城热门推荐ID
-	HotId         int64                  `protobuf:"varint,2,opt,name=hot_id,json=hotId,proto3" json:"hot_id,omitempty"`                    // 商城热门推荐ID
-	Title         string                 `protobuf:"bytes,3,opt,name=title,proto3" json:"title,omitempty"`                                  // 标题
-	Sort          int32                  `protobuf:"varint,4,opt,name=sort,proto3" json:"sort,omitempty"`                                   // 排序
-	GoodsIds      []int64                `protobuf:"varint,5,rep,packed,name=goods_ids,json=goodsIds,proto3" json:"goods_ids,omitempty"`    // 商品
-	Status        *v1.Status             `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"` // 状态：枚举【Status】
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ShopHotItemForm) Reset() {
-	*x = ShopHotItemForm{}
-	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[17]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ShopHotItemForm) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ShopHotItemForm) ProtoMessage() {}
-
-func (x *ShopHotItemForm) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_shop_hot_proto_msgTypes[17]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ShopHotItemForm.ProtoReflect.Descriptor instead.
-func (*ShopHotItemForm) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_shop_hot_proto_rawDescGZIP(), []int{17}
-}
-
-func (x *ShopHotItemForm) GetId() int64 {
-	if x != nil {
-		return x.Id
-	}
-	return 0
-}
-
-func (x *ShopHotItemForm) GetHotId() int64 {
-	if x != nil {
-		return x.HotId
-	}
-	return 0
-}
-
-func (x *ShopHotItemForm) GetTitle() string {
-	if x != nil {
-		return x.Title
-	}
-	return ""
-}
-
-func (x *ShopHotItemForm) GetSort() int32 {
-	if x != nil {
-		return x.Sort
-	}
-	return 0
-}
-
-func (x *ShopHotItemForm) GetGoodsIds() []int64 {
-	if x != nil {
-		return x.GoodsIds
-	}
-	return nil
-}
-
-func (x *ShopHotItemForm) GetStatus() v1.Status {
-	if x != nil && x.Status != nil {
-		return *x.Status
-	}
-	return v1.Status(0)
-}
-
 var File_shop_admin_v1_shop_hot_proto protoreflect.FileDescriptor
 
 const file_shop_admin_v1_shop_hot_proto_rawDesc = "" +
@@ -1147,19 +1147,7 @@ const file_shop_admin_v1_shop_hot_proto_rawDesc = "" +
 	"\a_status\"\x88\x01\n" +
 	"\x13PageShopHotResponse\x12M\n" +
 	"\tshop_hots\x18\x01 \x03(\v2\x16.shop.admin.v1.ShopHotB\x18\xbaG\x15\x92\x02\x12热门专区列表R\bshopHots\x12\"\n" +
-	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"?\n" +
-	"\x11GetShopHotRequest\x12*\n" +
-	"\x02id\x18\x01 \x01(\x03B\x1a\xbaG\x17\x92\x02\x14商城热门推荐IDR\x02id\"m\n" +
-	"\x14CreateShopHotRequest\x12U\n" +
-	"\bshop_hot\x18\x01 \x01(\v2\x1a.shop.admin.v1.ShopHotFormB\x1e\xbaG\x15\x92\x02\x12热门专区表单\xbaH\x03\xc8\x01\x01R\ashopHot\"\x99\x01\n" +
-	"\x14UpdateShopHotRequest\x12*\n" +
-	"\x02id\x18\x01 \x01(\x03B\x1a\xbaG\x17\x92\x02\x14商城热门推荐IDR\x02id\x12U\n" +
-	"\bshop_hot\x18\x02 \x01(\v2\x1a.shop.admin.v1.ShopHotFormB\x1e\xbaG\x15\x92\x02\x12热门专区表单\xbaH\x03\xc8\x01\x01R\ashopHot\"\\\n" +
-	"\x14DeleteShopHotRequest\x12D\n" +
-	"\x03ids\x18\x01 \x01(\tB2\xbaG/\x92\x02,热门专区ID列表，多个用逗号分隔R\x03ids\"\x93\x01\n" +
-	"\x17SetShopHotStatusRequest\x12*\n" +
-	"\x02id\x18\x01 \x01(\x03B\x1a\xbaG\x17\x92\x02\x14商城热门推荐IDR\x02id\x12L\n" +
-	"\x06status\x18\x02 \x01(\x0e2\x11.common.v1.StatusB!\xbaG\x1e\x92\x02\x1b状态：枚举【Status】R\x06status\"\xce\x02\n" +
+	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\xce\x02\n" +
 	"\x16PageShopHotItemRequest\x121\n" +
 	"\x06hot_id\x18\x02 \x01(\x03B\x1a\xbaG\x17\x92\x02\x14商城热门推荐idR\x05hotId\x12:\n" +
 	"\x05title\x18\x03 \x01(\tB$\xbaG!\x92\x02\x1e商城热门推荐属性标题R\x05title\x12<\n" +
@@ -1169,29 +1157,9 @@ const file_shop_admin_v1_shop_hot_proto_rawDesc = "" +
 	"\a_status\"\x9c\x01\n" +
 	"\x17PageShopHotItemResponse\x12]\n" +
 	"\x0eshop_hot_items\x18\x01 \x03(\v2\x1a.shop.admin.v1.ShopHotItemB\x1b\xbaG\x18\x92\x02\x15热门专区项列表R\fshopHotItems\x12\"\n" +
-	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"@\n" +
-	"\x15GetShopHotItemRequest\x12'\n" +
-	"\x02id\x18\x01 \x01(\x03B\x17\xbaG\x14\x92\x02\x11热门专区项IDR\x02id\"{\n" +
-	"\x18CreateShopHotItemRequest\x12_\n" +
-	"\rshop_hot_item\x18\x01 \x01(\v2\x1e.shop.admin.v1.ShopHotItemFormB\x1b\xbaG\x18\x92\x02\x15热门专区项表单R\vshopHotItem\"\xa4\x01\n" +
-	"\x18UpdateShopHotItemRequest\x12'\n" +
-	"\x02id\x18\x01 \x01(\x03B\x17\xbaG\x14\x92\x02\x11热门专区项IDR\x02id\x12_\n" +
-	"\rshop_hot_item\x18\x02 \x01(\v2\x1e.shop.admin.v1.ShopHotItemFormB\x1b\xbaG\x18\x92\x02\x15热门专区项表单R\vshopHotItem\"c\n" +
-	"\x18DeleteShopHotItemRequest\x12G\n" +
-	"\x03ids\x18\x01 \x01(\tB5\xbaG2\x92\x02/热门专区项ID列表，多个用逗号分隔R\x03ids\"\x94\x01\n" +
-	"\x1bSetShopHotItemStatusRequest\x12'\n" +
-	"\x02id\x18\x01 \x01(\x03B\x17\xbaG\x14\x92\x02\x11热门专区项IDR\x02id\x12L\n" +
-	"\x06status\x18\x02 \x01(\x0e2\x11.common.v1.StatusB!\xbaG\x1e\x92\x02\x1b状态：枚举【Status】R\x06status\"\xe2\x02\n" +
-	"\aShopHot\x12*\n" +
-	"\x02id\x18\x01 \x01(\x03B\x1a\xbaG\x17\x92\x02\x14商城热门推荐IDR\x02id\x124\n" +
-	"\x05title\x18\x02 \x01(\tB\x1e\xbaG\x1b\x92\x02\x18商城热门推荐标题R\x05title\x122\n" +
-	"\x04desc\x18\x03 \x01(\tB\x1e\xbaG\x1b\x92\x02\x18商城热门推荐描述R\x04desc\x12 \n" +
-	"\x04sort\x18\x06 \x01(\x05B\f\xbaG\t\x92\x02\x06排序R\x04sort\x127\n" +
-	"\x06status\x183 \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态R\x06status\x122\n" +
-	"\n" +
-	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
-	"\n" +
-	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\"\xbb\x06\n" +
+	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"?\n" +
+	"\x11GetShopHotRequest\x12*\n" +
+	"\x02id\x18\x01 \x01(\x03B\x1a\xbaG\x17\x92\x02\x14商城热门推荐IDR\x02id\"\xbb\x06\n" +
 	"\vShopHotForm\x12*\n" +
 	"\x02id\x18\x01 \x01(\x03B\x1a\xbaG\x17\x92\x02\x14商城热门推荐IDR\x02id\x12\xb3\x01\n" +
 	"\x05title\x18\x02 \x01(\tB\x9c\x01\xbaG\x1b\x92\x02\x18商城热门推荐标题\xbaH{\xba\x01x\n" +
@@ -1204,17 +1172,9 @@ const file_shop_admin_v1_shop_hot_proto_rawDesc = "" +
 	"\x19shop_hot.picture.required\x12\x18推荐图片不能为空\x1a\x0fthis.size() > 0R\apicture\x12^\n" +
 	"\x04sort\x18\x06 \x01(\x05BJ\xbaG\t\x92\x02\x06排序\xbaH;\xba\x018\n" +
 	"\x16shop_hot.sort.required\x12\x14排序必须大于 0\x1a\bthis > 0R\x04sort\x12?\n" +
-	"\x06status\x183 \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"\xd3\x02\n" +
-	"\vShopHotItem\x12*\n" +
-	"\x02id\x18\x01 \x01(\x03B\x1a\xbaG\x17\x92\x02\x14商城热门推荐IDR\x02id\x121\n" +
-	"\x06hot_id\x18\x02 \x01(\x03B\x1a\xbaG\x17\x92\x02\x14商城热门推荐IDR\x05hotId\x12\"\n" +
-	"\x05title\x18\x03 \x01(\tB\f\xbaG\t\x92\x02\x06标题R\x05title\x12 \n" +
-	"\x04sort\x18\x04 \x01(\x05B\f\xbaG\t\x92\x02\x06排序R\x04sort\x127\n" +
-	"\x06status\x18e \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态R\x06status\x122\n" +
-	"\n" +
-	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
-	"\n" +
-	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\"\xfb\x03\n" +
+	"\x06status\x183 \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"@\n" +
+	"\x15GetShopHotItemRequest\x12'\n" +
+	"\x02id\x18\x01 \x01(\x03B\x17\xbaG\x14\x92\x02\x11热门专区项IDR\x02id\"\xfb\x03\n" +
 	"\x0fShopHotItemForm\x12*\n" +
 	"\x02id\x18\x01 \x01(\x03B\x1a\xbaG\x17\x92\x02\x14商城热门推荐IDR\x02id\x121\n" +
 	"\x06hot_id\x18\x02 \x01(\x03B\x1a\xbaG\x17\x92\x02\x14商城热门推荐IDR\x05hotId\x12\x98\x01\n" +
@@ -1224,21 +1184,61 @@ const file_shop_admin_v1_shop_hot_proto_rawDesc = "" +
 	"\x1bshop_hot_item.sort.required\x12\x14排序必须大于 0\x1a\bthis > 0R\x04sort\x12+\n" +
 	"\tgoods_ids\x18\x05 \x03(\x03B\x0e\xbaG\v\x92\x02\b商品IdR\bgoodsIds\x12Q\n" +
 	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB!\xbaG\x1e\x92\x02\x1b状态：枚举【Status】H\x00R\x06status\x88\x01\x01B\t\n" +
-	"\a_status2\x9c\f\n" +
-	"\x0eShopHotService\x12t\n" +
-	"\vPageShopHot\x12!.shop.admin.v1.PageShopHotRequest\x1a\".shop.admin.v1.PageShopHotResponse\"\x1e\x82\xd3\xe4\x93\x02\x18\x12\x16/api/v1/admin/shop/hot\x12o\n" +
+	"\a_status\"m\n" +
+	"\x14CreateShopHotRequest\x12U\n" +
+	"\bshop_hot\x18\x01 \x01(\v2\x1a.shop.admin.v1.ShopHotFormB\x1e\xbaG\x15\x92\x02\x12热门专区表单\xbaH\x03\xc8\x01\x01R\ashopHot\"{\n" +
+	"\x18CreateShopHotItemRequest\x12_\n" +
+	"\rshop_hot_item\x18\x01 \x01(\v2\x1e.shop.admin.v1.ShopHotItemFormB\x1b\xbaG\x18\x92\x02\x15热门专区项表单R\vshopHotItem\"\x99\x01\n" +
+	"\x14UpdateShopHotRequest\x12*\n" +
+	"\x02id\x18\x01 \x01(\x03B\x1a\xbaG\x17\x92\x02\x14商城热门推荐IDR\x02id\x12U\n" +
+	"\bshop_hot\x18\x02 \x01(\v2\x1a.shop.admin.v1.ShopHotFormB\x1e\xbaG\x15\x92\x02\x12热门专区表单\xbaH\x03\xc8\x01\x01R\ashopHot\"\xa4\x01\n" +
+	"\x18UpdateShopHotItemRequest\x12'\n" +
+	"\x02id\x18\x01 \x01(\x03B\x17\xbaG\x14\x92\x02\x11热门专区项IDR\x02id\x12_\n" +
+	"\rshop_hot_item\x18\x02 \x01(\v2\x1e.shop.admin.v1.ShopHotItemFormB\x1b\xbaG\x18\x92\x02\x15热门专区项表单R\vshopHotItem\"\\\n" +
+	"\x14DeleteShopHotRequest\x12D\n" +
+	"\x03ids\x18\x01 \x01(\tB2\xbaG/\x92\x02,热门专区ID列表，多个用逗号分隔R\x03ids\"c\n" +
+	"\x18DeleteShopHotItemRequest\x12G\n" +
+	"\x03ids\x18\x01 \x01(\tB5\xbaG2\x92\x02/热门专区项ID列表，多个用逗号分隔R\x03ids\"\x94\x01\n" +
+	"\x1bSetShopHotItemStatusRequest\x12'\n" +
+	"\x02id\x18\x01 \x01(\x03B\x17\xbaG\x14\x92\x02\x11热门专区项IDR\x02id\x12L\n" +
+	"\x06status\x18\x02 \x01(\x0e2\x11.common.v1.StatusB!\xbaG\x1e\x92\x02\x1b状态：枚举【Status】R\x06status\"\x93\x01\n" +
+	"\x17SetShopHotStatusRequest\x12*\n" +
+	"\x02id\x18\x01 \x01(\x03B\x1a\xbaG\x17\x92\x02\x14商城热门推荐IDR\x02id\x12L\n" +
+	"\x06status\x18\x02 \x01(\x0e2\x11.common.v1.StatusB!\xbaG\x1e\x92\x02\x1b状态：枚举【Status】R\x06status\"\xe2\x02\n" +
+	"\aShopHot\x12*\n" +
+	"\x02id\x18\x01 \x01(\x03B\x1a\xbaG\x17\x92\x02\x14商城热门推荐IDR\x02id\x124\n" +
+	"\x05title\x18\x02 \x01(\tB\x1e\xbaG\x1b\x92\x02\x18商城热门推荐标题R\x05title\x122\n" +
+	"\x04desc\x18\x03 \x01(\tB\x1e\xbaG\x1b\x92\x02\x18商城热门推荐描述R\x04desc\x12 \n" +
+	"\x04sort\x18\x06 \x01(\x05B\f\xbaG\t\x92\x02\x06排序R\x04sort\x127\n" +
+	"\x06status\x183 \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态R\x06status\x122\n" +
 	"\n" +
-	"GetShopHot\x12 .shop.admin.v1.GetShopHotRequest\x1a\x1a.shop.admin.v1.ShopHotForm\"#\x82\xd3\xe4\x93\x02\x1d\x12\x1b/api/v1/admin/shop/hot/{id}\x12v\n" +
-	"\rCreateShopHot\x12#.shop.admin.v1.CreateShopHotRequest\x1a\x16.google.protobuf.Empty\"(\x82\xd3\xe4\x93\x02\":\bshop_hot\"\x16/api/v1/admin/shop/hot\x12{\n" +
-	"\rUpdateShopHot\x12#.shop.admin.v1.UpdateShopHotRequest\x1a\x16.google.protobuf.Empty\"-\x82\xd3\xe4\x93\x02':\bshop_hot\x1a\x1b/api/v1/admin/shop/hot/{id}\x12r\n" +
-	"\rDeleteShopHot\x12#.shop.admin.v1.DeleteShopHotRequest\x1a\x16.google.protobuf.Empty\"$\x82\xd3\xe4\x93\x02\x1e*\x1c/api/v1/admin/shop/hot/{ids}\x12\x81\x01\n" +
-	"\x10SetShopHotStatus\x12&.shop.admin.v1.SetShopHotStatusRequest\x1a\x16.google.protobuf.Empty\"-\x82\xd3\xe4\x93\x02':\x01*\x1a\"/api/v1/admin/shop/hot/{id}/status\x12\x85\x01\n" +
-	"\x0fPageShopHotItem\x12%.shop.admin.v1.PageShopHotItemRequest\x1a&.shop.admin.v1.PageShopHotItemResponse\"#\x82\xd3\xe4\x93\x02\x1d\x12\x1b/api/v1/admin/shop/hot-item\x12\x80\x01\n" +
-	"\x0eGetShopHotItem\x12$.shop.admin.v1.GetShopHotItemRequest\x1a\x1e.shop.admin.v1.ShopHotItemForm\"(\x82\xd3\xe4\x93\x02\"\x12 /api/v1/admin/shop/hot-item/{id}\x12\x88\x01\n" +
-	"\x11CreateShopHotItem\x12'.shop.admin.v1.CreateShopHotItemRequest\x1a\x16.google.protobuf.Empty\"2\x82\xd3\xe4\x93\x02,:\rshop_hot_item\"\x1b/api/v1/admin/shop/hot-item\x12\x8d\x01\n" +
-	"\x11UpdateShopHotItem\x12'.shop.admin.v1.UpdateShopHotItemRequest\x1a\x16.google.protobuf.Empty\"7\x82\xd3\xe4\x93\x021:\rshop_hot_item\x1a /api/v1/admin/shop/hot-item/{id}\x12\x7f\n" +
+	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
+	"\n" +
+	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\"\xd3\x02\n" +
+	"\vShopHotItem\x12*\n" +
+	"\x02id\x18\x01 \x01(\x03B\x1a\xbaG\x17\x92\x02\x14商城热门推荐IDR\x02id\x121\n" +
+	"\x06hot_id\x18\x02 \x01(\x03B\x1a\xbaG\x17\x92\x02\x14商城热门推荐IDR\x05hotId\x12\"\n" +
+	"\x05title\x18\x03 \x01(\tB\f\xbaG\t\x92\x02\x06标题R\x05title\x12 \n" +
+	"\x04sort\x18\x04 \x01(\x05B\f\xbaG\t\x92\x02\x06排序R\x04sort\x127\n" +
+	"\x06status\x18e \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态R\x06status\x122\n" +
+	"\n" +
+	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
+	"\n" +
+	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt2\x9c\f\n" +
+	"\x0eShopHotService\x12t\n" +
+	"\vPageShopHot\x12!.shop.admin.v1.PageShopHotRequest\x1a\".shop.admin.v1.PageShopHotResponse\"\x1e\x82\xd3\xe4\x93\x02\x18\x12\x16/api/v1/admin/shop/hot\x12\x85\x01\n" +
+	"\x0fPageShopHotItem\x12%.shop.admin.v1.PageShopHotItemRequest\x1a&.shop.admin.v1.PageShopHotItemResponse\"#\x82\xd3\xe4\x93\x02\x1d\x12\x1b/api/v1/admin/shop/hot-item\x12o\n" +
+	"\n" +
+	"GetShopHot\x12 .shop.admin.v1.GetShopHotRequest\x1a\x1a.shop.admin.v1.ShopHotForm\"#\x82\xd3\xe4\x93\x02\x1d\x12\x1b/api/v1/admin/shop/hot/{id}\x12\x80\x01\n" +
+	"\x0eGetShopHotItem\x12$.shop.admin.v1.GetShopHotItemRequest\x1a\x1e.shop.admin.v1.ShopHotItemForm\"(\x82\xd3\xe4\x93\x02\"\x12 /api/v1/admin/shop/hot-item/{id}\x12v\n" +
+	"\rCreateShopHot\x12#.shop.admin.v1.CreateShopHotRequest\x1a\x16.google.protobuf.Empty\"(\x82\xd3\xe4\x93\x02\":\bshop_hot\"\x16/api/v1/admin/shop/hot\x12\x88\x01\n" +
+	"\x11CreateShopHotItem\x12'.shop.admin.v1.CreateShopHotItemRequest\x1a\x16.google.protobuf.Empty\"2\x82\xd3\xe4\x93\x02,:\rshop_hot_item\"\x1b/api/v1/admin/shop/hot-item\x12{\n" +
+	"\rUpdateShopHot\x12#.shop.admin.v1.UpdateShopHotRequest\x1a\x16.google.protobuf.Empty\"-\x82\xd3\xe4\x93\x02':\bshop_hot\x1a\x1b/api/v1/admin/shop/hot/{id}\x12\x8d\x01\n" +
+	"\x11UpdateShopHotItem\x12'.shop.admin.v1.UpdateShopHotItemRequest\x1a\x16.google.protobuf.Empty\"7\x82\xd3\xe4\x93\x021:\rshop_hot_item\x1a /api/v1/admin/shop/hot-item/{id}\x12r\n" +
+	"\rDeleteShopHot\x12#.shop.admin.v1.DeleteShopHotRequest\x1a\x16.google.protobuf.Empty\"$\x82\xd3\xe4\x93\x02\x1e*\x1c/api/v1/admin/shop/hot/{ids}\x12\x7f\n" +
 	"\x11DeleteShopHotItem\x12'.shop.admin.v1.DeleteShopHotItemRequest\x1a\x16.google.protobuf.Empty\")\x82\xd3\xe4\x93\x02#*!/api/v1/admin/shop/hot-item/{ids}\x12\x8e\x01\n" +
-	"\x14SetShopHotItemStatus\x12*.shop.admin.v1.SetShopHotItemStatusRequest\x1a\x16.google.protobuf.Empty\"2\x82\xd3\xe4\x93\x02,:\x01*\x1a'/api/v1/admin/shop/hot-item/{id}/statusB\x9e\x01\n" +
+	"\x14SetShopHotItemStatus\x12*.shop.admin.v1.SetShopHotItemStatusRequest\x1a\x16.google.protobuf.Empty\"2\x82\xd3\xe4\x93\x02,:\x01*\x1a'/api/v1/admin/shop/hot-item/{id}/status\x12\x81\x01\n" +
+	"\x10SetShopHotStatus\x12&.shop.admin.v1.SetShopHotStatusRequest\x1a\x16.google.protobuf.Empty\"-\x82\xd3\xe4\x93\x02':\x01*\x1a\"/api/v1/admin/shop/hot/{id}/statusB\x9e\x01\n" +
 	"\x11com.shop.admin.v1B\fShopHotProtoP\x01Z%shop/api/gen/go/shop/admin/v1;adminv1\xa2\x02\x03SAX\xaa\x02\rShop.Admin.V1\xca\x02\rShop\\Admin\\V1\xe2\x02\x19Shop\\Admin\\V1\\GPBMetadata\xea\x02\x0fShop::Admin::V1b\x06proto3"
 
 var (
@@ -1257,64 +1257,64 @@ var file_shop_admin_v1_shop_hot_proto_msgTypes = make([]protoimpl.MessageInfo, 1
 var file_shop_admin_v1_shop_hot_proto_goTypes = []any{
 	(*PageShopHotRequest)(nil),          // 0: shop.admin.v1.PageShopHotRequest
 	(*PageShopHotResponse)(nil),         // 1: shop.admin.v1.PageShopHotResponse
-	(*GetShopHotRequest)(nil),           // 2: shop.admin.v1.GetShopHotRequest
-	(*CreateShopHotRequest)(nil),        // 3: shop.admin.v1.CreateShopHotRequest
-	(*UpdateShopHotRequest)(nil),        // 4: shop.admin.v1.UpdateShopHotRequest
-	(*DeleteShopHotRequest)(nil),        // 5: shop.admin.v1.DeleteShopHotRequest
-	(*SetShopHotStatusRequest)(nil),     // 6: shop.admin.v1.SetShopHotStatusRequest
-	(*PageShopHotItemRequest)(nil),      // 7: shop.admin.v1.PageShopHotItemRequest
-	(*PageShopHotItemResponse)(nil),     // 8: shop.admin.v1.PageShopHotItemResponse
-	(*GetShopHotItemRequest)(nil),       // 9: shop.admin.v1.GetShopHotItemRequest
-	(*CreateShopHotItemRequest)(nil),    // 10: shop.admin.v1.CreateShopHotItemRequest
+	(*PageShopHotItemRequest)(nil),      // 2: shop.admin.v1.PageShopHotItemRequest
+	(*PageShopHotItemResponse)(nil),     // 3: shop.admin.v1.PageShopHotItemResponse
+	(*GetShopHotRequest)(nil),           // 4: shop.admin.v1.GetShopHotRequest
+	(*ShopHotForm)(nil),                 // 5: shop.admin.v1.ShopHotForm
+	(*GetShopHotItemRequest)(nil),       // 6: shop.admin.v1.GetShopHotItemRequest
+	(*ShopHotItemForm)(nil),             // 7: shop.admin.v1.ShopHotItemForm
+	(*CreateShopHotRequest)(nil),        // 8: shop.admin.v1.CreateShopHotRequest
+	(*CreateShopHotItemRequest)(nil),    // 9: shop.admin.v1.CreateShopHotItemRequest
+	(*UpdateShopHotRequest)(nil),        // 10: shop.admin.v1.UpdateShopHotRequest
 	(*UpdateShopHotItemRequest)(nil),    // 11: shop.admin.v1.UpdateShopHotItemRequest
-	(*DeleteShopHotItemRequest)(nil),    // 12: shop.admin.v1.DeleteShopHotItemRequest
-	(*SetShopHotItemStatusRequest)(nil), // 13: shop.admin.v1.SetShopHotItemStatusRequest
-	(*ShopHot)(nil),                     // 14: shop.admin.v1.ShopHot
-	(*ShopHotForm)(nil),                 // 15: shop.admin.v1.ShopHotForm
-	(*ShopHotItem)(nil),                 // 16: shop.admin.v1.ShopHotItem
-	(*ShopHotItemForm)(nil),             // 17: shop.admin.v1.ShopHotItemForm
+	(*DeleteShopHotRequest)(nil),        // 12: shop.admin.v1.DeleteShopHotRequest
+	(*DeleteShopHotItemRequest)(nil),    // 13: shop.admin.v1.DeleteShopHotItemRequest
+	(*SetShopHotItemStatusRequest)(nil), // 14: shop.admin.v1.SetShopHotItemStatusRequest
+	(*SetShopHotStatusRequest)(nil),     // 15: shop.admin.v1.SetShopHotStatusRequest
+	(*ShopHot)(nil),                     // 16: shop.admin.v1.ShopHot
+	(*ShopHotItem)(nil),                 // 17: shop.admin.v1.ShopHotItem
 	(v1.Status)(0),                      // 18: common.v1.Status
 	(*emptypb.Empty)(nil),               // 19: google.protobuf.Empty
 }
 var file_shop_admin_v1_shop_hot_proto_depIdxs = []int32{
 	18, // 0: shop.admin.v1.PageShopHotRequest.status:type_name -> common.v1.Status
-	14, // 1: shop.admin.v1.PageShopHotResponse.shop_hots:type_name -> shop.admin.v1.ShopHot
-	15, // 2: shop.admin.v1.CreateShopHotRequest.shop_hot:type_name -> shop.admin.v1.ShopHotForm
-	15, // 3: shop.admin.v1.UpdateShopHotRequest.shop_hot:type_name -> shop.admin.v1.ShopHotForm
-	18, // 4: shop.admin.v1.SetShopHotStatusRequest.status:type_name -> common.v1.Status
-	18, // 5: shop.admin.v1.PageShopHotItemRequest.status:type_name -> common.v1.Status
-	16, // 6: shop.admin.v1.PageShopHotItemResponse.shop_hot_items:type_name -> shop.admin.v1.ShopHotItem
-	17, // 7: shop.admin.v1.CreateShopHotItemRequest.shop_hot_item:type_name -> shop.admin.v1.ShopHotItemForm
-	17, // 8: shop.admin.v1.UpdateShopHotItemRequest.shop_hot_item:type_name -> shop.admin.v1.ShopHotItemForm
-	18, // 9: shop.admin.v1.SetShopHotItemStatusRequest.status:type_name -> common.v1.Status
-	18, // 10: shop.admin.v1.ShopHot.status:type_name -> common.v1.Status
-	18, // 11: shop.admin.v1.ShopHotForm.status:type_name -> common.v1.Status
-	18, // 12: shop.admin.v1.ShopHotItem.status:type_name -> common.v1.Status
-	18, // 13: shop.admin.v1.ShopHotItemForm.status:type_name -> common.v1.Status
+	16, // 1: shop.admin.v1.PageShopHotResponse.shop_hots:type_name -> shop.admin.v1.ShopHot
+	18, // 2: shop.admin.v1.PageShopHotItemRequest.status:type_name -> common.v1.Status
+	17, // 3: shop.admin.v1.PageShopHotItemResponse.shop_hot_items:type_name -> shop.admin.v1.ShopHotItem
+	18, // 4: shop.admin.v1.ShopHotForm.status:type_name -> common.v1.Status
+	18, // 5: shop.admin.v1.ShopHotItemForm.status:type_name -> common.v1.Status
+	5,  // 6: shop.admin.v1.CreateShopHotRequest.shop_hot:type_name -> shop.admin.v1.ShopHotForm
+	7,  // 7: shop.admin.v1.CreateShopHotItemRequest.shop_hot_item:type_name -> shop.admin.v1.ShopHotItemForm
+	5,  // 8: shop.admin.v1.UpdateShopHotRequest.shop_hot:type_name -> shop.admin.v1.ShopHotForm
+	7,  // 9: shop.admin.v1.UpdateShopHotItemRequest.shop_hot_item:type_name -> shop.admin.v1.ShopHotItemForm
+	18, // 10: shop.admin.v1.SetShopHotItemStatusRequest.status:type_name -> common.v1.Status
+	18, // 11: shop.admin.v1.SetShopHotStatusRequest.status:type_name -> common.v1.Status
+	18, // 12: shop.admin.v1.ShopHot.status:type_name -> common.v1.Status
+	18, // 13: shop.admin.v1.ShopHotItem.status:type_name -> common.v1.Status
 	0,  // 14: shop.admin.v1.ShopHotService.PageShopHot:input_type -> shop.admin.v1.PageShopHotRequest
-	2,  // 15: shop.admin.v1.ShopHotService.GetShopHot:input_type -> shop.admin.v1.GetShopHotRequest
-	3,  // 16: shop.admin.v1.ShopHotService.CreateShopHot:input_type -> shop.admin.v1.CreateShopHotRequest
-	4,  // 17: shop.admin.v1.ShopHotService.UpdateShopHot:input_type -> shop.admin.v1.UpdateShopHotRequest
-	5,  // 18: shop.admin.v1.ShopHotService.DeleteShopHot:input_type -> shop.admin.v1.DeleteShopHotRequest
-	6,  // 19: shop.admin.v1.ShopHotService.SetShopHotStatus:input_type -> shop.admin.v1.SetShopHotStatusRequest
-	7,  // 20: shop.admin.v1.ShopHotService.PageShopHotItem:input_type -> shop.admin.v1.PageShopHotItemRequest
-	9,  // 21: shop.admin.v1.ShopHotService.GetShopHotItem:input_type -> shop.admin.v1.GetShopHotItemRequest
-	10, // 22: shop.admin.v1.ShopHotService.CreateShopHotItem:input_type -> shop.admin.v1.CreateShopHotItemRequest
-	11, // 23: shop.admin.v1.ShopHotService.UpdateShopHotItem:input_type -> shop.admin.v1.UpdateShopHotItemRequest
-	12, // 24: shop.admin.v1.ShopHotService.DeleteShopHotItem:input_type -> shop.admin.v1.DeleteShopHotItemRequest
-	13, // 25: shop.admin.v1.ShopHotService.SetShopHotItemStatus:input_type -> shop.admin.v1.SetShopHotItemStatusRequest
+	2,  // 15: shop.admin.v1.ShopHotService.PageShopHotItem:input_type -> shop.admin.v1.PageShopHotItemRequest
+	4,  // 16: shop.admin.v1.ShopHotService.GetShopHot:input_type -> shop.admin.v1.GetShopHotRequest
+	6,  // 17: shop.admin.v1.ShopHotService.GetShopHotItem:input_type -> shop.admin.v1.GetShopHotItemRequest
+	8,  // 18: shop.admin.v1.ShopHotService.CreateShopHot:input_type -> shop.admin.v1.CreateShopHotRequest
+	9,  // 19: shop.admin.v1.ShopHotService.CreateShopHotItem:input_type -> shop.admin.v1.CreateShopHotItemRequest
+	10, // 20: shop.admin.v1.ShopHotService.UpdateShopHot:input_type -> shop.admin.v1.UpdateShopHotRequest
+	11, // 21: shop.admin.v1.ShopHotService.UpdateShopHotItem:input_type -> shop.admin.v1.UpdateShopHotItemRequest
+	12, // 22: shop.admin.v1.ShopHotService.DeleteShopHot:input_type -> shop.admin.v1.DeleteShopHotRequest
+	13, // 23: shop.admin.v1.ShopHotService.DeleteShopHotItem:input_type -> shop.admin.v1.DeleteShopHotItemRequest
+	14, // 24: shop.admin.v1.ShopHotService.SetShopHotItemStatus:input_type -> shop.admin.v1.SetShopHotItemStatusRequest
+	15, // 25: shop.admin.v1.ShopHotService.SetShopHotStatus:input_type -> shop.admin.v1.SetShopHotStatusRequest
 	1,  // 26: shop.admin.v1.ShopHotService.PageShopHot:output_type -> shop.admin.v1.PageShopHotResponse
-	15, // 27: shop.admin.v1.ShopHotService.GetShopHot:output_type -> shop.admin.v1.ShopHotForm
-	19, // 28: shop.admin.v1.ShopHotService.CreateShopHot:output_type -> google.protobuf.Empty
-	19, // 29: shop.admin.v1.ShopHotService.UpdateShopHot:output_type -> google.protobuf.Empty
-	19, // 30: shop.admin.v1.ShopHotService.DeleteShopHot:output_type -> google.protobuf.Empty
-	19, // 31: shop.admin.v1.ShopHotService.SetShopHotStatus:output_type -> google.protobuf.Empty
-	8,  // 32: shop.admin.v1.ShopHotService.PageShopHotItem:output_type -> shop.admin.v1.PageShopHotItemResponse
-	17, // 33: shop.admin.v1.ShopHotService.GetShopHotItem:output_type -> shop.admin.v1.ShopHotItemForm
-	19, // 34: shop.admin.v1.ShopHotService.CreateShopHotItem:output_type -> google.protobuf.Empty
-	19, // 35: shop.admin.v1.ShopHotService.UpdateShopHotItem:output_type -> google.protobuf.Empty
-	19, // 36: shop.admin.v1.ShopHotService.DeleteShopHotItem:output_type -> google.protobuf.Empty
-	19, // 37: shop.admin.v1.ShopHotService.SetShopHotItemStatus:output_type -> google.protobuf.Empty
+	3,  // 27: shop.admin.v1.ShopHotService.PageShopHotItem:output_type -> shop.admin.v1.PageShopHotItemResponse
+	5,  // 28: shop.admin.v1.ShopHotService.GetShopHot:output_type -> shop.admin.v1.ShopHotForm
+	7,  // 29: shop.admin.v1.ShopHotService.GetShopHotItem:output_type -> shop.admin.v1.ShopHotItemForm
+	19, // 30: shop.admin.v1.ShopHotService.CreateShopHot:output_type -> google.protobuf.Empty
+	19, // 31: shop.admin.v1.ShopHotService.CreateShopHotItem:output_type -> google.protobuf.Empty
+	19, // 32: shop.admin.v1.ShopHotService.UpdateShopHot:output_type -> google.protobuf.Empty
+	19, // 33: shop.admin.v1.ShopHotService.UpdateShopHotItem:output_type -> google.protobuf.Empty
+	19, // 34: shop.admin.v1.ShopHotService.DeleteShopHot:output_type -> google.protobuf.Empty
+	19, // 35: shop.admin.v1.ShopHotService.DeleteShopHotItem:output_type -> google.protobuf.Empty
+	19, // 36: shop.admin.v1.ShopHotService.SetShopHotItemStatus:output_type -> google.protobuf.Empty
+	19, // 37: shop.admin.v1.ShopHotService.SetShopHotStatus:output_type -> google.protobuf.Empty
 	26, // [26:38] is the sub-list for method output_type
 	14, // [14:26] is the sub-list for method input_type
 	14, // [14:14] is the sub-list for extension type_name
@@ -1328,8 +1328,8 @@ func file_shop_admin_v1_shop_hot_proto_init() {
 		return
 	}
 	file_shop_admin_v1_shop_hot_proto_msgTypes[0].OneofWrappers = []any{}
+	file_shop_admin_v1_shop_hot_proto_msgTypes[2].OneofWrappers = []any{}
 	file_shop_admin_v1_shop_hot_proto_msgTypes[7].OneofWrappers = []any{}
-	file_shop_admin_v1_shop_hot_proto_msgTypes[17].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

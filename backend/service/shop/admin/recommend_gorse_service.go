@@ -28,22 +28,38 @@ func NewRecommendGorseService(recommendGorseCase *biz.RecommendGorseCase) *Recom
 	}
 }
 
-// GetTimeSeries 查询 Gorse 推荐时间序列。
-func (s *RecommendGorseService) GetTimeSeries(ctx context.Context, req *shopadminv1.GetTimeSeriesRequest) (*shopadminv1.TimeSeriesResponse, error) {
-	res, err := s.recommendGorseCase.GetTimeSeries(ctx, req.GetName(), req.GetBegin(), req.GetEnd())
-	if err != nil {
-		log.Error(fmt.Sprintf("GetTimeSeries %v", err))
-		return nil, errorsx.WrapInternal(err, "查询 Gorse 推荐时间序列失败")
-	}
-	return res, nil
-}
-
 // OptionCategory 查询 Gorse 推荐分类列表。
 func (s *RecommendGorseService) OptionCategory(ctx context.Context, req *shopadminv1.OptionCategoryRequest) (*shopadminv1.OptionCategoryResponse, error) {
 	res, err := s.recommendGorseCase.OptionCategory(ctx)
 	if err != nil {
 		log.Error(fmt.Sprintf("OptionCategory %v", err))
 		return nil, errorsx.WrapInternal(err, "查询 Gorse 推荐分类列表失败")
+	}
+	return res, nil
+}
+
+// PageItem 查询 Gorse 推荐商品列表。
+func (s *RecommendGorseService) PageItem(
+	ctx context.Context,
+	req *shopadminv1.PageItemRequest,
+) (*shopadminv1.PageItemResponse, error) {
+	res, err := s.recommendGorseCase.PageItem(ctx, req.GetCursor(), req.GetN())
+	if err != nil {
+		log.Error(fmt.Sprintf("PageItem %v", err))
+		return nil, errorsx.WrapInternal(err, "查询 Gorse 推荐商品列表失败")
+	}
+	return res, nil
+}
+
+// PageUser 查询 Gorse 推荐用户列表。
+func (s *RecommendGorseService) PageUser(
+	ctx context.Context,
+	req *shopadminv1.PageUserRequest,
+) (*shopadminv1.PageUserResponse, error) {
+	res, err := s.recommendGorseCase.PageUser(ctx, req.GetCursor(), req.GetN())
+	if err != nil {
+		log.Error(fmt.Sprintf("PageUser %v", err))
+		return nil, errorsx.WrapInternal(err, "查询 Gorse 推荐用户列表失败")
 	}
 	return res, nil
 }
@@ -71,15 +87,45 @@ func (s *RecommendGorseService) ListTask(ctx context.Context, req *shopadminv1.L
 	return res, nil
 }
 
-// PageUser 查询 Gorse 推荐用户列表。
-func (s *RecommendGorseService) PageUser(
-	ctx context.Context,
-	req *shopadminv1.PageUserRequest,
-) (*shopadminv1.PageUserResponse, error) {
-	res, err := s.recommendGorseCase.PageUser(ctx, req.GetCursor(), req.GetN())
+// GetConfig 查询 Gorse 推荐配置。
+func (s *RecommendGorseService) GetConfig(ctx context.Context, req *shopadminv1.GetConfigRequest) (*shopadminv1.ConfigResponse, error) {
+	res, err := s.recommendGorseCase.GetConfig(ctx)
 	if err != nil {
-		log.Error(fmt.Sprintf("PageUser %v", err))
-		return nil, errorsx.WrapInternal(err, "查询 Gorse 推荐用户列表失败")
+		log.Error(fmt.Sprintf("GetConfig %v", err))
+		return nil, errorsx.WrapInternal(err, "查询 Gorse 推荐配置失败")
+	}
+	return res, nil
+}
+
+// GetItem 查询 Gorse 推荐商品。
+func (s *RecommendGorseService) GetItem(ctx context.Context, req *shopadminv1.GetItemRequest) (*shopadminv1.Item, error) {
+	res, err := s.recommendGorseCase.GetItem(ctx, req.GetId())
+	if err != nil {
+		log.Error(fmt.Sprintf("GetItem %v", err))
+		return nil, errorsx.WrapInternal(err, "查询 Gorse 推荐商品失败")
+	}
+	return res, nil
+}
+
+// GetItemSimilar 查询 Gorse 推荐相似商品。
+func (s *RecommendGorseService) GetItemSimilar(
+	ctx context.Context,
+	req *shopadminv1.GetItemSimilarRequest,
+) (*shopadminv1.ItemListResponse, error) {
+	res, err := s.recommendGorseCase.GetItemSimilar(ctx, req.GetId(), req.GetRecommender(), req.GetCategory())
+	if err != nil {
+		log.Error(fmt.Sprintf("GetItemSimilar %v", err))
+		return nil, errorsx.WrapInternal(err, "查询 Gorse 推荐相似商品失败")
+	}
+	return res, nil
+}
+
+// GetTimeSeries 查询 Gorse 推荐时间序列。
+func (s *RecommendGorseService) GetTimeSeries(ctx context.Context, req *shopadminv1.GetTimeSeriesRequest) (*shopadminv1.TimeSeriesResponse, error) {
+	res, err := s.recommendGorseCase.GetTimeSeries(ctx, req.GetName(), req.GetBegin(), req.GetEnd())
+	if err != nil {
+		log.Error(fmt.Sprintf("GetTimeSeries %v", err))
+		return nil, errorsx.WrapInternal(err, "查询 Gorse 推荐时间序列失败")
 	}
 	return res, nil
 }
@@ -90,29 +136,6 @@ func (s *RecommendGorseService) GetUser(ctx context.Context, req *shopadminv1.Ge
 	if err != nil {
 		log.Error(fmt.Sprintf("GetUser %v", err))
 		return nil, errorsx.WrapInternal(err, "查询 Gorse 推荐用户失败")
-	}
-	return res, nil
-}
-
-// DeleteUser 删除 Gorse 推荐用户。
-func (s *RecommendGorseService) DeleteUser(ctx context.Context, req *shopadminv1.DeleteUserRequest) (*emptypb.Empty, error) {
-	err := s.recommendGorseCase.DeleteUser(ctx, req.GetId())
-	if err != nil {
-		log.Error(fmt.Sprintf("DeleteUser %v", err))
-		return nil, errorsx.WrapInternal(err, "删除 Gorse 推荐用户失败")
-	}
-	return &emptypb.Empty{}, nil
-}
-
-// GetUserSimilar 查询 Gorse 推荐相似用户。
-func (s *RecommendGorseService) GetUserSimilar(
-	ctx context.Context,
-	req *shopadminv1.GetUserSimilarRequest,
-) (*shopadminv1.UserSimilarResponse, error) {
-	res, err := s.recommendGorseCase.GetUserSimilar(ctx, req.GetId(), req.GetRecommender())
-	if err != nil {
-		log.Error(fmt.Sprintf("GetUserSimilar %v", err))
-		return nil, errorsx.WrapInternal(err, "查询 Gorse 推荐相似用户失败")
 	}
 	return res, nil
 }
@@ -143,25 +166,15 @@ func (s *RecommendGorseService) GetUserRecommend(
 	return res, nil
 }
 
-// PageItem 查询 Gorse 推荐商品列表。
-func (s *RecommendGorseService) PageItem(
+// GetUserSimilar 查询 Gorse 推荐相似用户。
+func (s *RecommendGorseService) GetUserSimilar(
 	ctx context.Context,
-	req *shopadminv1.PageItemRequest,
-) (*shopadminv1.PageItemResponse, error) {
-	res, err := s.recommendGorseCase.PageItem(ctx, req.GetCursor(), req.GetN())
+	req *shopadminv1.GetUserSimilarRequest,
+) (*shopadminv1.UserSimilarResponse, error) {
+	res, err := s.recommendGorseCase.GetUserSimilar(ctx, req.GetId(), req.GetRecommender())
 	if err != nil {
-		log.Error(fmt.Sprintf("PageItem %v", err))
-		return nil, errorsx.WrapInternal(err, "查询 Gorse 推荐商品列表失败")
-	}
-	return res, nil
-}
-
-// GetItem 查询 Gorse 推荐商品。
-func (s *RecommendGorseService) GetItem(ctx context.Context, req *shopadminv1.GetItemRequest) (*shopadminv1.Item, error) {
-	res, err := s.recommendGorseCase.GetItem(ctx, req.GetId())
-	if err != nil {
-		log.Error(fmt.Sprintf("GetItem %v", err))
-		return nil, errorsx.WrapInternal(err, "查询 Gorse 推荐商品失败")
+		log.Error(fmt.Sprintf("GetUserSimilar %v", err))
+		return nil, errorsx.WrapInternal(err, "查询 Gorse 推荐相似用户失败")
 	}
 	return res, nil
 }
@@ -176,17 +189,14 @@ func (s *RecommendGorseService) DeleteItem(ctx context.Context, req *shopadminv1
 	return &emptypb.Empty{}, nil
 }
 
-// GetItemSimilar 查询 Gorse 推荐相似商品。
-func (s *RecommendGorseService) GetItemSimilar(
-	ctx context.Context,
-	req *shopadminv1.GetItemSimilarRequest,
-) (*shopadminv1.ItemListResponse, error) {
-	res, err := s.recommendGorseCase.GetItemSimilar(ctx, req.GetId(), req.GetRecommender(), req.GetCategory())
+// DeleteUser 删除 Gorse 推荐用户。
+func (s *RecommendGorseService) DeleteUser(ctx context.Context, req *shopadminv1.DeleteUserRequest) (*emptypb.Empty, error) {
+	err := s.recommendGorseCase.DeleteUser(ctx, req.GetId())
 	if err != nil {
-		log.Error(fmt.Sprintf("GetItemSimilar %v", err))
-		return nil, errorsx.WrapInternal(err, "查询 Gorse 推荐相似商品失败")
+		log.Error(fmt.Sprintf("DeleteUser %v", err))
+		return nil, errorsx.WrapInternal(err, "删除 Gorse 推荐用户失败")
 	}
-	return res, nil
+	return &emptypb.Empty{}, nil
 }
 
 // ExportData 导出 Gorse 推荐数据。
@@ -211,16 +221,6 @@ func (s *RecommendGorseService) ImportData(
 	if err != nil {
 		log.Error(fmt.Sprintf("ImportData %v", err))
 		return nil, errorsx.WrapInternal(err, "导入 Gorse 推荐数据失败")
-	}
-	return res, nil
-}
-
-// GetConfig 查询 Gorse 推荐配置。
-func (s *RecommendGorseService) GetConfig(ctx context.Context, req *shopadminv1.GetConfigRequest) (*shopadminv1.ConfigResponse, error) {
-	res, err := s.recommendGorseCase.GetConfig(ctx)
-	if err != nil {
-		log.Error(fmt.Sprintf("GetConfig %v", err))
-		return nil, errorsx.WrapInternal(err, "查询 Gorse 推荐配置失败")
 	}
 	return res, nil
 }

@@ -27,12 +27,12 @@ func NewOrderReportService(orderReportCase *biz.OrderReportCase) *OrderReportSer
 	}
 }
 
-// SummaryOrderMonthReport 查询订单月报汇总
-func (s *OrderReportService) SummaryOrderMonthReport(ctx context.Context, req *shopadminv1.SummaryOrderMonthReportRequest) (*shopadminv1.SummaryOrderMonthReportResponse, error) {
-	res, err := s.orderReportCase.SummaryOrderMonthReport(ctx, req)
+// ListOrderDayReport 查询订单日报明细
+func (s *OrderReportService) ListOrderDayReport(ctx context.Context, req *shopadminv1.ListOrderDayReportRequest) (*shopadminv1.ListOrderDayReportResponse, error) {
+	res, err := s.orderReportCase.ListOrderDayReport(ctx, req)
 	if err != nil {
-		log.Error(fmt.Sprintf("SummaryOrderMonthReport %v", err))
-		return nil, errorsx.WrapInternal(err, "查询订单月报汇总失败")
+		log.Error(fmt.Sprintf("ListOrderDayReport %v", err))
+		return nil, errorsx.WrapInternal(err, "查询订单日报明细失败")
 	}
 	return res, nil
 }
@@ -47,22 +47,22 @@ func (s *OrderReportService) ListOrderMonthReport(ctx context.Context, req *shop
 	return res, nil
 }
 
+// SummaryOrderMonthReport 查询订单月报汇总
+func (s *OrderReportService) SummaryOrderMonthReport(ctx context.Context, req *shopadminv1.SummaryOrderMonthReportRequest) (*shopadminv1.SummaryOrderMonthReportResponse, error) {
+	res, err := s.orderReportCase.SummaryOrderMonthReport(ctx, req)
+	if err != nil {
+		log.Error(fmt.Sprintf("SummaryOrderMonthReport %v", err))
+		return nil, errorsx.WrapInternal(err, "查询订单月报汇总失败")
+	}
+	return res, nil
+}
+
 // SummaryOrderDayReport 查询订单日报汇总
 func (s *OrderReportService) SummaryOrderDayReport(ctx context.Context, req *shopadminv1.SummaryOrderDayReportRequest) (*shopadminv1.SummaryOrderDayReportResponse, error) {
 	res, err := s.orderReportCase.SummaryOrderDayReport(ctx, req)
 	if err != nil {
 		log.Error(fmt.Sprintf("SummaryOrderDayReport %v", err))
 		return nil, errorsx.WrapInternal(err, "查询订单日报汇总失败")
-	}
-	return res, nil
-}
-
-// ListOrderDayReport 查询订单日报明细
-func (s *OrderReportService) ListOrderDayReport(ctx context.Context, req *shopadminv1.ListOrderDayReportRequest) (*shopadminv1.ListOrderDayReportResponse, error) {
-	res, err := s.orderReportCase.ListOrderDayReport(ctx, req)
-	if err != nil {
-		log.Error(fmt.Sprintf("ListOrderDayReport %v", err))
-		return nil, errorsx.WrapInternal(err, "查询订单日报明细失败")
 	}
 	return res, nil
 }

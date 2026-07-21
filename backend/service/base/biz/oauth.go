@@ -78,6 +78,40 @@ func NewOauthCase(
 	}
 }
 
+// ListOauthBinding 查询当前用户的三方账号绑定状态。
+func (c *OauthCase) ListOauthBinding(ctx context.Context, req *basev1.ListOauthBindingRequest) (*basev1.ListOauthBindingResponse, error) {
+	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var providerRes *basev1.ListOauthProviderResponse
+	providerRes, err = c.ListOauthProvider(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var thirdAccounts []*models.BaseThirdAccount
+	thirdAccounts, err = c.baseThirdAccountCase.ListByUserID(ctx, authInfo.UserId)
+	if err != nil {
+		return nil, errorsx.Internal("查询三方账号绑定失败").WithCause(err)
+	}
+	boundProviderSet := make(map[string]struct{}, len(thirdAccounts))
+	for _, item := range thirdAccounts {
+		boundProviderSet[item.Provider] = struct{}{}
+	}
+
+	bindings := make([]*basev1.OauthBinding, 0, len(providerRes.GetProviders()))
+	for _, item := range providerRes.GetProviders() {
+		_, bound := boundProviderSet[item.GetProvider()]
+		bindings = append(bindings, &basev1.OauthBinding{
+			Provider: item.GetProvider(),
+			Bound:    bound,
+		})
+	}
+	return &basev1.ListOauthBindingResponse{Bindings: bindings}, nil
+}
+
 // ListOauthProvider 查询可用于管理端展示的三方登录方式。
 func (c *OauthCase) ListOauthProvider(ctx context.Context, req *basev1.ListOauthProviderRequest) (*basev1.ListOauthProviderResponse, error) {
 	providerNames := c.oauthManager.Providers()
@@ -170,6 +204,34 @@ func (c *OauthCase) CreateOauthBindingAuthorization(ctx context.Context, req *ba
 	return &basev1.CreateOauthBindingAuthorizationResponse{AuthorizationUrl: authorizationURL}, nil
 }
 
+// CreateOauthSession 使用非跳转型 OAuth 授权码创建登录会话。
+func (c *OauthCase) CreateOauthSession(ctx context.Context, req *basev1.CreateOauthSessionRequest) (*basev1.CreateOauthSessionResponse, error) {
+	// 当前非跳转登录只开放微信小程序，其他 Provider 继续走授权地址回调流程。
+	if req.GetProvider() != string(kitOauth.WechatMini) {
+		return nil, errorsx.InvalidArgument("登录方式不支持")
+	}
+	if req.GetCode() == "" {
+		return nil, errorsx.InvalidArgument("三方授权码不能为空")
+	}
+
+	user, err := c.findOrCreateWechatMiniUser(ctx, req.GetCode())
+	if err != nil {
+		return nil, err
+	}
+	var loginRes *basev1.LoginResponse
+	loginRes, err = c.loginCase.IssueUserToken(ctx, user)
+	if err != nil {
+		return nil, err
+	}
+	c.userEvents.PublishUserChanged(user.ID)
+	return &basev1.CreateOauthSessionResponse{
+		AccessToken:  loginRes.GetAccessToken(),
+		RefreshToken: loginRes.GetRefreshToken(),
+		TokenType:    loginRes.GetTokenType(),
+		ExpiresIn:    loginRes.GetExpiresIn(),
+	}, nil
+}
+
 // HandleOauthCallback 处理三方登录回调并跳回管理端登录页。
 func (c *OauthCase) HandleOauthCallback(ctx context.Context, req *basev1.HandleOauthCallbackRequest) (*basev1.HandleOauthCallbackResponse, error) {
 	payload, err := kitOauth.VerifyState(c.Cache, req.GetState())
@@ -259,68 +321,6 @@ func (c *OauthCase) ExchangeOauthTicket(ctx context.Context, req *basev1.Exchang
 		TokenType:    payload.TokenType,
 		ExpiresIn:    payload.ExpiresIn,
 	}, nil
-}
-
-// CreateOauthSession 使用非跳转型 OAuth 授权码创建登录会话。
-func (c *OauthCase) CreateOauthSession(ctx context.Context, req *basev1.CreateOauthSessionRequest) (*basev1.CreateOauthSessionResponse, error) {
-	// 当前非跳转登录只开放微信小程序，其他 Provider 继续走授权地址回调流程。
-	if req.GetProvider() != string(kitOauth.WechatMini) {
-		return nil, errorsx.InvalidArgument("登录方式不支持")
-	}
-	if req.GetCode() == "" {
-		return nil, errorsx.InvalidArgument("三方授权码不能为空")
-	}
-
-	user, err := c.findOrCreateWechatMiniUser(ctx, req.GetCode())
-	if err != nil {
-		return nil, err
-	}
-	var loginRes *basev1.LoginResponse
-	loginRes, err = c.loginCase.IssueUserToken(ctx, user)
-	if err != nil {
-		return nil, err
-	}
-	c.userEvents.PublishUserChanged(user.ID)
-	return &basev1.CreateOauthSessionResponse{
-		AccessToken:  loginRes.GetAccessToken(),
-		RefreshToken: loginRes.GetRefreshToken(),
-		TokenType:    loginRes.GetTokenType(),
-		ExpiresIn:    loginRes.GetExpiresIn(),
-	}, nil
-}
-
-// ListOauthBinding 查询当前用户的三方账号绑定状态。
-func (c *OauthCase) ListOauthBinding(ctx context.Context, req *basev1.ListOauthBindingRequest) (*basev1.ListOauthBindingResponse, error) {
-	authInfo, err := c.GetAuthInfo(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	var providerRes *basev1.ListOauthProviderResponse
-	providerRes, err = c.ListOauthProvider(ctx, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	var thirdAccounts []*models.BaseThirdAccount
-	thirdAccounts, err = c.baseThirdAccountCase.ListByUserID(ctx, authInfo.UserId)
-	if err != nil {
-		return nil, errorsx.Internal("查询三方账号绑定失败").WithCause(err)
-	}
-	boundProviderSet := make(map[string]struct{}, len(thirdAccounts))
-	for _, item := range thirdAccounts {
-		boundProviderSet[item.Provider] = struct{}{}
-	}
-
-	bindings := make([]*basev1.OauthBinding, 0, len(providerRes.GetProviders()))
-	for _, item := range providerRes.GetProviders() {
-		_, bound := boundProviderSet[item.GetProvider()]
-		bindings = append(bindings, &basev1.OauthBinding{
-			Provider: item.GetProvider(),
-			Bound:    bound,
-		})
-	}
-	return &basev1.ListOauthBindingResponse{Bindings: bindings}, nil
 }
 
 // UnbindOauthAccount 解绑当前用户三方账号。

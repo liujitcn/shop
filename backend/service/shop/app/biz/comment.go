@@ -95,68 +95,41 @@ func NewCommentCase(
 	return c
 }
 
-// GoodsCommentOverview 查询商品评价摘要。
-func (c *CommentCase) GoodsCommentOverview(ctx context.Context, req *shopappv1.GoodsCommentOverviewRequest) (*shopappv1.GoodsCommentOverviewResponse, error) {
-	// 商品编号非法时，无法继续查询商品评价摘要。
-	if req.GetGoodsId() <= 0 {
-		return nil, errorsx.InvalidArgument("商品编号不能为空")
+// PageCommentDiscussion 查询评价讨论分页列表。
+func (c *CommentCase) PageCommentDiscussion(ctx context.Context, req *shopappv1.PageCommentDiscussionRequest) (*shopappv1.PageCommentDiscussionResponse, error) {
+	// 评价编号非法时，无法继续查询评价讨论列表。
+	if req.GetCommentId() <= 0 {
+		return nil, errorsx.InvalidArgument("评价编号不能为空")
+	}
+
+	_, err := c.commentInfoCase.FindByID(ctx, req.GetCommentId())
+	if err != nil {
+		return nil, err
 	}
 
 	userID := int64(0)
 	authInfo, authErr := c.GetAuthInfo(ctx)
-	// 当前请求带有登录信息时，补齐当前用户编号用于互动状态回显。
+	// 当前请求带有登录信息时，补齐当前用户编号用于点赞状态回显。
 	if authErr == nil && authInfo != nil && authInfo.UserId > 0 {
 		userID = authInfo.UserId
 	}
 
-	recordList, err := c.commentInfoCase.listByGoodsID(ctx, req.GetGoodsId())
-	if err != nil {
-		return nil, err
-	}
-	summary := c.commentInfoCase.buildOverviewSummary(recordList)
-	// 当前商品没有审核通过评价时，直接返回空摘要，避免继续查询 AI、标签和预览列表。
-	if summary.TotalCount == 0 {
-		return &shopappv1.GoodsCommentOverviewResponse{
-			TotalCount:     summary.TotalCount,
-			RecentDays:     90,
-			RecentGoodRate: summary.RecentGoodRate,
-			CommentSummary: &shopappv1.CommentSummary{},
-		}, nil
-	}
-
-	var commentSummary *shopappv1.CommentSummary
-	commentSummary, err = c.commentSummaryCase.buildCardByGoodsIDAndScene(ctx, req.GetGoodsId(), _const.COMMENT_SUMMARY_SCENE_OVERVIEW, userID)
-	if err != nil {
-		return nil, err
-	}
-	var previewList []*shopappv1.CommentItem
-	previewList, err = c.commentInfoCase.listPreviewByRecordList(ctx, recordList, req.GetPreviewLimit(), userID)
+	var list []*shopappv1.CommentDiscussionItem
+	total := int32(0)
+	list, total, err = c.commentDiscussionCase.PageCommentDiscussion(ctx, req.GetCommentId(), userID, req)
 	if err != nil {
 		return nil, err
 	}
 
-	return &shopappv1.GoodsCommentOverviewResponse{
-		TotalCount:      summary.TotalCount,
-		RecentDays:      90,
-		RecentGoodRate:  summary.RecentGoodRate,
-		CommentSummary:  commentSummary,
-		PreviewComments: previewList,
-	}, nil
-}
+	pageNum, pageSize := repository.PageDefault(req.GetPageNum(), req.GetPageSize())
 
-// GoodsCommentTag 查询商品评价标签列表。
-func (c *CommentCase) GoodsCommentTag(ctx context.Context, req *shopappv1.GoodsCommentTagRequest) (*shopappv1.GoodsCommentTagResponse, error) {
-	// 商品编号非法时，无法继续查询商品评价标签。
-	if req.GetGoodsId() <= 0 {
-		return nil, errorsx.InvalidArgument("商品编号不能为空")
-	}
-
-	commentTags, err := c.commentTagCase.ListTags(ctx, req.GetGoodsId(), req.GetLimit())
-	if err != nil {
-		return nil, err
-	}
-	return &shopappv1.GoodsCommentTagResponse{
-		CommentTags: commentTags,
+	return &shopappv1.PageCommentDiscussionResponse{
+		CommentId:          req.GetCommentId(),
+		CommentDiscussions: list,
+		Total:              total,
+		PageNum:            pageNum,
+		PageSize:           pageSize,
+		HasMore:            pageNum*pageSize < int64(total),
 	}, nil
 }
 
@@ -240,144 +213,29 @@ func (c *CommentCase) PageGoodsComment(ctx context.Context, req *shopappv1.PageG
 	}, nil
 }
 
-// PageCommentDiscussion 查询评价讨论分页列表。
-func (c *CommentCase) PageCommentDiscussion(ctx context.Context, req *shopappv1.PageCommentDiscussionRequest) (*shopappv1.PageCommentDiscussionResponse, error) {
-	// 评价编号非法时，无法继续查询评价讨论列表。
-	if req.GetCommentId() <= 0 {
-		return nil, errorsx.InvalidArgument("评价编号不能为空")
-	}
-
-	_, err := c.commentInfoCase.FindByID(ctx, req.GetCommentId())
+// PageMyComment 查询我的评价分页列表。
+func (c *CommentCase) PageMyComment(ctx context.Context, req *shopappv1.PageMyCommentRequest) (*shopappv1.PageMyCommentResponse, error) {
+	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	userID := int64(0)
-	authInfo, authErr := c.GetAuthInfo(ctx)
-	// 当前请求带有登录信息时，补齐当前用户编号用于点赞状态回显。
-	if authErr == nil && authInfo != nil && authInfo.UserId > 0 {
-		userID = authInfo.UserId
-	}
-
-	var list []*shopappv1.CommentDiscussionItem
+	var list []*shopappv1.CommentItem
 	total := int32(0)
-	list, total, err = c.commentDiscussionCase.PageCommentDiscussion(ctx, req.GetCommentId(), userID, req)
+	list, total, err = c.commentInfoCase.PageMyComment(ctx, authInfo.UserId, req)
 	if err != nil {
 		return nil, err
 	}
 
 	pageNum, pageSize := repository.PageDefault(req.GetPageNum(), req.GetPageSize())
 
-	return &shopappv1.PageCommentDiscussionResponse{
-		CommentId:          req.GetCommentId(),
-		CommentDiscussions: list,
-		Total:              total,
-		PageNum:            pageNum,
-		PageSize:           pageSize,
-		HasMore:            pageNum*pageSize < int64(total),
+	return &shopappv1.PageMyCommentResponse{
+		Comments: list,
+		Total:    total,
+		PageNum:  pageNum,
+		PageSize: pageSize,
+		HasMore:  pageNum*pageSize < int64(total),
 	}, nil
-}
-
-// CreateCommentDiscussion 发布评价讨论。
-func (c *CommentCase) CreateCommentDiscussion(ctx context.Context, req *shopappv1.CreateCommentDiscussionRequest) (*shopappv1.CreateCommentDiscussionResponse, error) {
-	// 评价编号非法时，无法继续创建评价讨论。
-	if req.GetCommentId() <= 0 {
-		return nil, errorsx.InvalidArgument("评价编号不能为空")
-	}
-
-	authInfo, err := c.GetAuthInfo(ctx)
-	if err != nil {
-		return nil, err
-	}
-	var commentInfo *models.CommentInfo
-	commentInfo, err = c.commentInfoCase.FindByID(ctx, req.GetCommentId())
-	if err != nil {
-		return nil, err
-	}
-
-	var user *models.BaseUser
-	user, err = c.baseUserCase.FindByID(ctx, authInfo.UserId)
-	if err != nil {
-		return nil, errorsx.ResourceNotFound("用户不存在").WithCause(err)
-	}
-
-	var record *models.CommentDiscussion
-	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
-		record, err = c.commentDiscussionCase.CreateDiscussion(txCtx, commentInfo, user, req)
-		if err != nil {
-			return err
-		}
-		return c.commentInfoCase.changeDiscussionCount(txCtx, req.GetCommentId(), _const.COMMENT_STATUS_PENDING_REVIEW, 1)
-	})
-	if err != nil {
-		return nil, err
-	}
-	queue.DispatchCommentAudit(_const.COMMENT_REVIEW_TARGET_TYPE_DISCUSSION, record.ID)
-	workspaceevent.Publish(ctx, workspaceevent.ReasonCommentChanged, workspaceevent.AreaTodo)
-
-	response := &shopappv1.CreateCommentDiscussionResponse{
-		DiscussionCount: commentInfo.DiscussionCount,
-	}
-	// 讨论默认待审核，未审核通过前不返回到公开讨论列表。
-	if record.Status == _const.COMMENT_STATUS_APPROVED {
-		response.DiscussionCount = commentInfo.DiscussionCount + 1
-		response.Item = c.commentDiscussionCase.buildDiscussionItem(record, map[int64]int32{})
-	}
-	return response, nil
-}
-
-// SaveCommentReaction 保存评价互动状态。
-func (c *CommentCase) SaveCommentReaction(ctx context.Context, req *shopappv1.SaveCommentReactionRequest) (*shopappv1.SaveCommentReactionResponse, error) {
-	// 互动目标编号非法时，无法继续保存互动状态。
-	if req.GetTargetId() <= 0 {
-		return nil, errorsx.InvalidArgument("互动目标编号不能为空")
-	}
-	// 互动类型非法时，无法继续保存互动状态。
-	if req.GetReactionType() != shopcommonv1.CommentReactionType(_const.COMMENT_REACTION_TYPE_LIKE) &&
-		req.GetReactionType() != shopcommonv1.CommentReactionType(_const.COMMENT_REACTION_TYPE_DISLIKE) {
-		return nil, errorsx.InvalidArgument("互动类型不支持")
-	}
-
-	authInfo, err := c.GetAuthInfo(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	// 不同互动目标使用各自的存在性校验和行为限制。
-	switch req.GetTargetType() {
-	case shopcommonv1.CommentReactionTargetType(_const.COMMENT_REACTION_TARGET_TYPE_SUMMARY):
-		_, err = c.commentSummaryCase.FindByID(ctx, req.GetTargetId())
-		if err != nil {
-			return nil, err
-		}
-	case shopcommonv1.CommentReactionTargetType(_const.COMMENT_REACTION_TARGET_TYPE_DISCUSSION):
-		// 讨论互动当前只支持点赞，不支持点踩。
-		if req.GetReactionType() != shopcommonv1.CommentReactionType(_const.COMMENT_REACTION_TYPE_LIKE) {
-			return nil, errorsx.InvalidArgument("讨论仅支持点赞")
-		}
-		_, err = c.commentDiscussionCase.FindByID(ctx, req.GetTargetId())
-		if err != nil {
-			return nil, err
-		}
-	case shopcommonv1.CommentReactionTargetType(_const.COMMENT_REACTION_TARGET_TYPE_COMMENT):
-		// 评价互动支持点赞和点踩，但只允许对审核通过的评价操作。
-		_, err = c.commentInfoCase.FindByID(ctx, req.GetTargetId())
-		if err != nil {
-			return nil, err
-		}
-	default:
-		return nil, errorsx.InvalidArgument("互动目标类型不支持")
-	}
-
-	var response *shopappv1.SaveCommentReactionResponse
-	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
-		response, err = c.commentReactionCase.SaveCommentReaction(txCtx, authInfo.UserId, req)
-		return err
-	})
-	if err != nil {
-		return nil, err
-	}
-	return response, nil
 }
 
 // PagePendingCommentGoods 查询待评价商品分页列表。
@@ -566,6 +424,54 @@ func (c *CommentCase) CreateComment(ctx context.Context, req *shopappv1.CreateCo
 	}, nil
 }
 
+// CreateCommentDiscussion 发布评价讨论。
+func (c *CommentCase) CreateCommentDiscussion(ctx context.Context, req *shopappv1.CreateCommentDiscussionRequest) (*shopappv1.CreateCommentDiscussionResponse, error) {
+	// 评价编号非法时，无法继续创建评价讨论。
+	if req.GetCommentId() <= 0 {
+		return nil, errorsx.InvalidArgument("评价编号不能为空")
+	}
+
+	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return nil, err
+	}
+	var commentInfo *models.CommentInfo
+	commentInfo, err = c.commentInfoCase.FindByID(ctx, req.GetCommentId())
+	if err != nil {
+		return nil, err
+	}
+
+	var user *models.BaseUser
+	user, err = c.baseUserCase.FindByID(ctx, authInfo.UserId)
+	if err != nil {
+		return nil, errorsx.ResourceNotFound("用户不存在").WithCause(err)
+	}
+
+	var record *models.CommentDiscussion
+	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
+		record, err = c.commentDiscussionCase.CreateDiscussion(txCtx, commentInfo, user, req)
+		if err != nil {
+			return err
+		}
+		return c.commentInfoCase.changeDiscussionCount(txCtx, req.GetCommentId(), _const.COMMENT_STATUS_PENDING_REVIEW, 1)
+	})
+	if err != nil {
+		return nil, err
+	}
+	queue.DispatchCommentAudit(_const.COMMENT_REVIEW_TARGET_TYPE_DISCUSSION, record.ID)
+	workspaceevent.Publish(ctx, workspaceevent.ReasonCommentChanged, workspaceevent.AreaTodo)
+
+	response := &shopappv1.CreateCommentDiscussionResponse{
+		DiscussionCount: commentInfo.DiscussionCount,
+	}
+	// 讨论默认待审核，未审核通过前不返回到公开讨论列表。
+	if record.Status == _const.COMMENT_STATUS_APPROVED {
+		response.DiscussionCount = commentInfo.DiscussionCount + 1
+		response.Item = c.commentDiscussionCase.buildDiscussionItem(record, map[int64]int32{})
+	}
+	return response, nil
+}
+
 // DeleteComment 删除商品评价。
 func (c *CommentCase) DeleteComment(ctx context.Context, commentID int64) error {
 	// 评价编号非法时，无法继续删除评价。
@@ -607,29 +513,123 @@ func (c *CommentCase) DeleteComment(ctx context.Context, commentID int64) error 
 	return nil
 }
 
-// PageMyComment 查询我的评价分页列表。
-func (c *CommentCase) PageMyComment(ctx context.Context, req *shopappv1.PageMyCommentRequest) (*shopappv1.PageMyCommentResponse, error) {
+// GoodsCommentOverview 查询商品评价摘要。
+func (c *CommentCase) GoodsCommentOverview(ctx context.Context, req *shopappv1.GoodsCommentOverviewRequest) (*shopappv1.GoodsCommentOverviewResponse, error) {
+	// 商品编号非法时，无法继续查询商品评价摘要。
+	if req.GetGoodsId() <= 0 {
+		return nil, errorsx.InvalidArgument("商品编号不能为空")
+	}
+
+	userID := int64(0)
+	authInfo, authErr := c.GetAuthInfo(ctx)
+	// 当前请求带有登录信息时，补齐当前用户编号用于互动状态回显。
+	if authErr == nil && authInfo != nil && authInfo.UserId > 0 {
+		userID = authInfo.UserId
+	}
+
+	recordList, err := c.commentInfoCase.listByGoodsID(ctx, req.GetGoodsId())
+	if err != nil {
+		return nil, err
+	}
+	summary := c.commentInfoCase.buildOverviewSummary(recordList)
+	// 当前商品没有审核通过评价时，直接返回空摘要，避免继续查询 AI、标签和预览列表。
+	if summary.TotalCount == 0 {
+		return &shopappv1.GoodsCommentOverviewResponse{
+			TotalCount:     summary.TotalCount,
+			RecentDays:     90,
+			RecentGoodRate: summary.RecentGoodRate,
+			CommentSummary: &shopappv1.CommentSummary{},
+		}, nil
+	}
+
+	var commentSummary *shopappv1.CommentSummary
+	commentSummary, err = c.commentSummaryCase.buildCardByGoodsIDAndScene(ctx, req.GetGoodsId(), _const.COMMENT_SUMMARY_SCENE_OVERVIEW, userID)
+	if err != nil {
+		return nil, err
+	}
+	var previewList []*shopappv1.CommentItem
+	previewList, err = c.commentInfoCase.listPreviewByRecordList(ctx, recordList, req.GetPreviewLimit(), userID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &shopappv1.GoodsCommentOverviewResponse{
+		TotalCount:      summary.TotalCount,
+		RecentDays:      90,
+		RecentGoodRate:  summary.RecentGoodRate,
+		CommentSummary:  commentSummary,
+		PreviewComments: previewList,
+	}, nil
+}
+
+// GoodsCommentTag 查询商品评价标签列表。
+func (c *CommentCase) GoodsCommentTag(ctx context.Context, req *shopappv1.GoodsCommentTagRequest) (*shopappv1.GoodsCommentTagResponse, error) {
+	// 商品编号非法时，无法继续查询商品评价标签。
+	if req.GetGoodsId() <= 0 {
+		return nil, errorsx.InvalidArgument("商品编号不能为空")
+	}
+
+	commentTags, err := c.commentTagCase.ListTags(ctx, req.GetGoodsId(), req.GetLimit())
+	if err != nil {
+		return nil, err
+	}
+	return &shopappv1.GoodsCommentTagResponse{
+		CommentTags: commentTags,
+	}, nil
+}
+
+// SaveCommentReaction 保存评价互动状态。
+func (c *CommentCase) SaveCommentReaction(ctx context.Context, req *shopappv1.SaveCommentReactionRequest) (*shopappv1.SaveCommentReactionResponse, error) {
+	// 互动目标编号非法时，无法继续保存互动状态。
+	if req.GetTargetId() <= 0 {
+		return nil, errorsx.InvalidArgument("互动目标编号不能为空")
+	}
+	// 互动类型非法时，无法继续保存互动状态。
+	if req.GetReactionType() != shopcommonv1.CommentReactionType(_const.COMMENT_REACTION_TYPE_LIKE) &&
+		req.GetReactionType() != shopcommonv1.CommentReactionType(_const.COMMENT_REACTION_TYPE_DISLIKE) {
+		return nil, errorsx.InvalidArgument("互动类型不支持")
+	}
+
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	var list []*shopappv1.CommentItem
-	total := int32(0)
-	list, total, err = c.commentInfoCase.PageMyComment(ctx, authInfo.UserId, req)
+	// 不同互动目标使用各自的存在性校验和行为限制。
+	switch req.GetTargetType() {
+	case shopcommonv1.CommentReactionTargetType(_const.COMMENT_REACTION_TARGET_TYPE_SUMMARY):
+		_, err = c.commentSummaryCase.FindByID(ctx, req.GetTargetId())
+		if err != nil {
+			return nil, err
+		}
+	case shopcommonv1.CommentReactionTargetType(_const.COMMENT_REACTION_TARGET_TYPE_DISCUSSION):
+		// 讨论互动当前只支持点赞，不支持点踩。
+		if req.GetReactionType() != shopcommonv1.CommentReactionType(_const.COMMENT_REACTION_TYPE_LIKE) {
+			return nil, errorsx.InvalidArgument("讨论仅支持点赞")
+		}
+		_, err = c.commentDiscussionCase.FindByID(ctx, req.GetTargetId())
+		if err != nil {
+			return nil, err
+		}
+	case shopcommonv1.CommentReactionTargetType(_const.COMMENT_REACTION_TARGET_TYPE_COMMENT):
+		// 评价互动支持点赞和点踩，但只允许对审核通过的评价操作。
+		_, err = c.commentInfoCase.FindByID(ctx, req.GetTargetId())
+		if err != nil {
+			return nil, err
+		}
+	default:
+		return nil, errorsx.InvalidArgument("互动目标类型不支持")
+	}
+
+	var response *shopappv1.SaveCommentReactionResponse
+	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
+		response, err = c.commentReactionCase.SaveCommentReaction(txCtx, authInfo.UserId, req)
+		return err
+	})
 	if err != nil {
 		return nil, err
 	}
-
-	pageNum, pageSize := repository.PageDefault(req.GetPageNum(), req.GetPageSize())
-
-	return &shopappv1.PageMyCommentResponse{
-		Comments: list,
-		Total:    total,
-		PageNum:  pageNum,
-		PageSize: pageSize,
-		HasMore:  pageNum*pageSize < int64(total),
-	}, nil
+	return response, nil
 }
 
 // AuditComment 根据评价对象执行 AI 审核流程。
@@ -1039,15 +1039,6 @@ func (c *CommentCase) isLLMImageURL(imageURL string) bool {
 	}
 }
 
-// commentReviewImagePath 提取评价图片在 OSS 中的对象路径。
-func commentReviewImagePath(imagePath string) string {
-	parsedURL, err := url.Parse(imagePath)
-	if err != nil || parsedURL.Scheme == "" {
-		return imagePath
-	}
-	return parsedURL.Path
-}
-
 // isLocalProjectImageURL 判断图片是否为本服务托管的本地静态资源。
 func (c *CommentCase) isLocalProjectImageURL(parsedURL *url.URL) bool {
 	if parsedURL == nil || !strings.HasPrefix(parsedURL.Path, "/"+c.appInfo.GetProject()+"/") {
@@ -1060,6 +1051,15 @@ func (c *CommentCase) isLocalProjectImageURL(parsedURL *url.URL) bool {
 		return ip.IsLoopback() || ip.IsPrivate()
 	}
 	return strings.EqualFold(host, "localhost")
+}
+
+// commentReviewImagePath 提取评价图片在 OSS 中的对象路径。
+func commentReviewImagePath(imagePath string) string {
+	parsedURL, err := url.Parse(imagePath)
+	if err != nil || parsedURL.Scheme == "" {
+		return imagePath
+	}
+	return parsedURL.Path
 }
 
 // commentReviewImageMIMEType 按图片路径推断审核图片 MIME 类型。

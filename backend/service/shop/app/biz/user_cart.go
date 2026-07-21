@@ -53,18 +53,6 @@ func NewUserCartCase(
 	}
 }
 
-// CountUserCart 查询用户购物车数量
-func (c *UserCartCase) CountUserCart(ctx context.Context) (int64, error) {
-	authInfo, err := c.GetAuthInfo(ctx)
-	if err != nil {
-		return 0, err
-	}
-	query := c.Query(ctx).UserCart
-	opts := make([]repository.QueryOption, 0, 1)
-	opts = append(opts, repository.Where(query.UserID.Eq(authInfo.UserId)))
-	return c.Count(ctx, opts...)
-}
-
 // ListUserCart 查询用户购物车列表
 func (c *UserCartCase) ListUserCart(ctx context.Context) (*shopappv1.ListUserCartResponse, error) {
 	authInfo, err := c.GetAuthInfo(ctx)
@@ -323,6 +311,20 @@ func (c *UserCartCase) DeleteUserCart(ctx context.Context, id int64) error {
 	return c.Delete(ctx, opts...)
 }
 
+// SetUserCartSelection 设置购物车全选状态
+func (c *UserCartCase) SetUserCartSelection(ctx context.Context, isChecked bool) error {
+	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return err
+	}
+	query := c.Query(ctx).UserCart
+	opts := make([]repository.QueryOption, 0, 1)
+	opts = append(opts, repository.Where(query.UserID.Eq(authInfo.UserId)))
+	return c.Update(ctx, &models.UserCart{
+		IsChecked: isChecked,
+	}, opts...)
+}
+
 // SetUserCartStatus 设置购物车选中状态
 func (c *UserCartCase) SetUserCartStatus(ctx context.Context, req *shopappv1.SetUserCartStatusRequest) error {
 	authInfo, err := c.GetAuthInfo(ctx)
@@ -339,18 +341,16 @@ func (c *UserCartCase) SetUserCartStatus(ctx context.Context, req *shopappv1.Set
 	}, opts...)
 }
 
-// SetUserCartSelection 设置购物车全选状态
-func (c *UserCartCase) SetUserCartSelection(ctx context.Context, isChecked bool) error {
+// CountUserCart 查询用户购物车数量
+func (c *UserCartCase) CountUserCart(ctx context.Context) (int64, error) {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
-		return err
+		return 0, err
 	}
 	query := c.Query(ctx).UserCart
 	opts := make([]repository.QueryOption, 0, 1)
 	opts = append(opts, repository.Where(query.UserID.Eq(authInfo.UserId)))
-	return c.Update(ctx, &models.UserCart{
-		IsChecked: isChecked,
-	}, opts...)
+	return c.Count(ctx, opts...)
 }
 
 // 按用户编号、商品编号和规格编码删除购物车商品

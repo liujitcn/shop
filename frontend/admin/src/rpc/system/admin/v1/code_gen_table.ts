@@ -7,26 +7,6 @@
 /* eslint-disable */
 import type { Empty } from "../../../google/protobuf/empty";
 
-/** 数据库表列表查询条件 */
-export interface ListCodeGenDatabaseTableRequest {
-}
-
-/** 数据库表列表响应 */
-export interface ListCodeGenDatabaseTableResponse {
-  /** 数据库表列表 */
-  tables: CodeGenDatabaseTable[];
-}
-
-/** Proto目录列表查询条件 */
-export interface ListCodeGenProtoDirectoryRequest {
-}
-
-/** Proto目录列表查询响应 */
-export interface ListCodeGenProtoDirectoryResponse {
-  /** Proto目录列表 */
-  directories: CodeGenProtoDirectory[];
-}
-
 /** 代码生成表配置分页查询条件 */
 export interface PageCodeGenTableRequest {
   /** 业务表名 */
@@ -63,10 +43,72 @@ export interface PageCodeGenTableResponse {
   total: number;
 }
 
+/** 数据库表列表查询条件 */
+export interface ListCodeGenDatabaseTableRequest {
+}
+
+/** 数据库表列表响应 */
+export interface ListCodeGenDatabaseTableResponse {
+  /** 数据库表列表 */
+  tables: CodeGenDatabaseTable[];
+}
+
+/** Proto目录列表查询条件 */
+export interface ListCodeGenProtoDirectoryRequest {
+}
+
+/** Proto目录列表查询响应 */
+export interface ListCodeGenProtoDirectoryResponse {
+  /** Proto目录列表 */
+  directories: CodeGenProtoDirectory[];
+}
+
 /** 代码生成表配置详情查询条件 */
 export interface GetCodeGenTableRequest {
   /** 主键ID */
   id: number;
+}
+
+/** 代码生成表配置表单 */
+export interface CodeGenTableForm {
+  /** 主键ID */
+  id: number;
+  /** 业务表名 */
+  name: string;
+  /** 业务表描述 */
+  comment: string;
+  /** 业务名 */
+  business_name: string;
+  /** 实体名 */
+  entity_name: string;
+  /** 模块路径 */
+  module_path: string;
+  /** Proto目录 */
+  api_path: string;
+  /** 权限标识前缀 */
+  permission_prefix: string;
+  /** 父级菜单ID */
+  parent_menu_id: number;
+  /** 页面类型：normal普通表格 tree树形表格 left_tree左树右表 */
+  page_type: string;
+  /** 树形表格父节点字段 */
+  parent_column: string;
+  /** 树节点显示字段 */
+  tree_label_column: string;
+  /** 左树配置 */
+  left_tree_config:
+    | CodeGenLeftTreeConfig
+    | undefined;
+  /** 是否生成后端 */
+  gen_backend: boolean;
+  /** 是否生成前端 */
+  gen_frontend: boolean;
+  /** 是否生成建表SQL */
+  gen_sql: boolean;
+  /** 状态 */
+  status: number;
+  /** 备注 */
+  remark: string;
 }
 
 /** 代码生成表配置创建条件 */
@@ -143,48 +185,6 @@ export interface CodeGenTable {
   updated_at: string;
 }
 
-/** 代码生成表配置表单 */
-export interface CodeGenTableForm {
-  /** 主键ID */
-  id: number;
-  /** 业务表名 */
-  name: string;
-  /** 业务表描述 */
-  comment: string;
-  /** 业务名 */
-  business_name: string;
-  /** 实体名 */
-  entity_name: string;
-  /** 模块路径 */
-  module_path: string;
-  /** Proto目录 */
-  api_path: string;
-  /** 权限标识前缀 */
-  permission_prefix: string;
-  /** 父级菜单ID */
-  parent_menu_id: number;
-  /** 页面类型：normal普通表格 tree树形表格 left_tree左树右表 */
-  page_type: string;
-  /** 树形表格父节点字段 */
-  parent_column: string;
-  /** 树节点显示字段 */
-  tree_label_column: string;
-  /** 左树配置 */
-  left_tree_config:
-    | CodeGenLeftTreeConfig
-    | undefined;
-  /** 是否生成后端 */
-  gen_backend: boolean;
-  /** 是否生成前端 */
-  gen_frontend: boolean;
-  /** 是否生成建表SQL */
-  gen_sql: boolean;
-  /** 状态 */
-  status: number;
-  /** 备注 */
-  remark: string;
-}
-
 /** 左树右表页面配置 */
 export interface CodeGenLeftTreeConfig {
   /** 左树数据表名 */
@@ -203,12 +203,12 @@ export interface CodeGenLeftTreeConfig {
 
 /** Admin代码生成表配置服务 */
 export interface CodeGenTableService {
+  /** 分页查询代码生成表配置 */
+  PageCodeGenTable(request: PageCodeGenTableRequest): Promise<PageCodeGenTableResponse>;
   /** 查询数据库表列表 */
   ListCodeGenDatabaseTable(request: ListCodeGenDatabaseTableRequest): Promise<ListCodeGenDatabaseTableResponse>;
   /** 查询Proto目录列表 */
   ListCodeGenProtoDirectory(request: ListCodeGenProtoDirectoryRequest): Promise<ListCodeGenProtoDirectoryResponse>;
-  /** 分页查询代码生成表配置 */
-  PageCodeGenTable(request: PageCodeGenTableRequest): Promise<PageCodeGenTableResponse>;
   /** 查询代码生成表配置 */
   GetCodeGenTable(request: GetCodeGenTableRequest): Promise<CodeGenTableForm>;
   /** 创建代码生成表配置 */

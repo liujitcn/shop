@@ -39,11 +39,30 @@ type WorkspaceServiceHTTPServer interface {
 
 func RegisterWorkspaceServiceHTTPServer(s *http.Server, srv WorkspaceServiceHTTPServer) {
 	r := s.Route("/")
+	r.Handle("GET", "/api/v1/admin/workspace/comment/pending", _WorkspaceService_ListWorkspacePendingComment0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/workspace/metrics/summary", _WorkspaceService_SummaryWorkspaceMetrics0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/workspace/todo/summary", _WorkspaceService_SummaryWorkspaceTodo0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/workspace/risk/summary", _WorkspaceService_SummaryWorkspaceRisk0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/workspace/reputation/summary", _WorkspaceService_SummaryWorkspaceReputation0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/admin/workspace/comment/pending", _WorkspaceService_ListWorkspacePendingComment0_HTTP_Handler(srv))
+}
+
+func _WorkspaceService_ListWorkspacePendingComment0_HTTP_Handler(srv WorkspaceServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in ListWorkspacePendingCommentRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationWorkspaceServiceListWorkspacePendingComment)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.ListWorkspacePendingComment(ctx, req.(*ListWorkspacePendingCommentRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*ListWorkspacePendingCommentResponse)
+		return ctx.Result(200, reply)
+	}
 }
 
 func _WorkspaceService_SummaryWorkspaceMetrics0_HTTP_Handler(srv WorkspaceServiceHTTPServer) func(ctx http.Context) error {
@@ -118,25 +137,6 @@ func _WorkspaceService_SummaryWorkspaceReputation0_HTTP_Handler(srv WorkspaceSer
 			return err
 		}
 		reply := out.(*SummaryWorkspaceReputationResponse)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _WorkspaceService_ListWorkspacePendingComment0_HTTP_Handler(srv WorkspaceServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in ListWorkspacePendingCommentRequest
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationWorkspaceServiceListWorkspacePendingComment)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.ListWorkspacePendingComment(ctx, req.(*ListWorkspacePendingCommentRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*ListWorkspacePendingCommentResponse)
 		return ctx.Result(200, reply)
 	}
 }

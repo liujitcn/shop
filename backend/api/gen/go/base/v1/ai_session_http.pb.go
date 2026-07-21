@@ -42,12 +42,34 @@ type AiSessionServiceHTTPServer interface {
 
 func RegisterAiSessionServiceHTTPServer(s *http.Server, srv AiSessionServiceHTTPServer) {
 	r := s.Route("/")
+	r.Handle("GET", "/api/v1/base/ai/session/{session_id}/message", _AiSessionService_ListAiMessage0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/base/ai/session", _AiSessionService_ListAiSession0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/base/ai/session", _AiSessionService_CreateAiSession0_HTTP_Handler(srv))
+	r.Handle("POST", "/api/v1/base/ai/session/{source_session_id}/branch", _AiSessionService_CreateAiSessionBranch0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/base/ai/session/{id}", _AiSessionService_UpdateAiSession0_HTTP_Handler(srv))
 	r.Handle("DELETE", "/api/v1/base/ai/session/{id}", _AiSessionService_DeleteAiSession0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/base/ai/session/{session_id}/message", _AiSessionService_ListAiMessage0_HTTP_Handler(srv))
-	r.Handle("POST", "/api/v1/base/ai/session/{source_session_id}/branch", _AiSessionService_CreateAiSessionBranch0_HTTP_Handler(srv))
+}
+
+func _AiSessionService_ListAiMessage0_HTTP_Handler(srv AiSessionServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in ListAiMessageRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAiSessionServiceListAiMessage)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.ListAiMessage(ctx, req.(*ListAiMessageRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*ListAiMessageResponse)
+		return ctx.Result(200, reply)
+	}
 }
 
 func _AiSessionService_ListAiSession0_HTTP_Handler(srv AiSessionServiceHTTPServer) func(ctx http.Context) error {
@@ -84,6 +106,28 @@ func _AiSessionService_CreateAiSession0_HTTP_Handler(srv AiSessionServiceHTTPSer
 			return err
 		}
 		reply := out.(*CreateAiSessionResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _AiSessionService_CreateAiSessionBranch0_HTTP_Handler(srv AiSessionServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in CreateAiSessionBranchRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAiSessionServiceCreateAiSessionBranch)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.CreateAiSessionBranch(ctx, req.(*CreateAiSessionBranchRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*CreateAiSessionBranchResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -128,50 +172,6 @@ func _AiSessionService_DeleteAiSession0_HTTP_Handler(srv AiSessionServiceHTTPSer
 			return err
 		}
 		reply := out.(*DeleteAiSessionResponse)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _AiSessionService_ListAiMessage0_HTTP_Handler(srv AiSessionServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in ListAiMessageRequest
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		if err := ctx.BindVars(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationAiSessionServiceListAiMessage)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.ListAiMessage(ctx, req.(*ListAiMessageRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*ListAiMessageResponse)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _AiSessionService_CreateAiSessionBranch0_HTTP_Handler(srv AiSessionServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in CreateAiSessionBranchRequest
-		if err := ctx.Bind(&in); err != nil {
-			return err
-		}
-		if err := ctx.BindVars(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationAiSessionServiceCreateAiSessionBranch)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.CreateAiSessionBranch(ctx, req.(*CreateAiSessionBranchRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*CreateAiSessionBranchResponse)
 		return ctx.Result(200, reply)
 	}
 }

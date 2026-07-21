@@ -32,40 +32,6 @@ export interface PageShopHotResponse {
   total: number;
 }
 
-/** 热门专区详情查询条件 */
-export interface GetShopHotRequest {
-  /** 商城热门推荐ID */
-  id: number;
-}
-
-/** 热门专区创建条件 */
-export interface CreateShopHotRequest {
-  /** 热门专区表单 */
-  shop_hot: ShopHotForm | undefined;
-}
-
-/** 热门专区更新条件 */
-export interface UpdateShopHotRequest {
-  /** 商城热门推荐ID */
-  id: number;
-  /** 热门专区表单 */
-  shop_hot: ShopHotForm | undefined;
-}
-
-/** 热门专区删除条件 */
-export interface DeleteShopHotRequest {
-  /** 热门专区ID列表，多个用逗号分隔 */
-  ids: string;
-}
-
-/** 热门专区状态设置条件 */
-export interface SetShopHotStatusRequest {
-  /** 商城热门推荐ID */
-  id: number;
-  /** 状态：枚举【Status】 */
-  status: Status;
-}
-
 /** 热门专区项列表查询条件 */
 export interface PageShopHotItemRequest {
   /** 商城热门推荐id */
@@ -90,10 +56,56 @@ export interface PageShopHotItemResponse {
   total: number;
 }
 
+/** 热门专区详情查询条件 */
+export interface GetShopHotRequest {
+  /** 商城热门推荐ID */
+  id: number;
+}
+
+/** 热门专区表单 */
+export interface ShopHotForm {
+  /** 商城热门推荐ID */
+  id: number;
+  /** 商城热门推荐标题 */
+  title: string;
+  /** 商城热门推荐名称 */
+  desc: string;
+  /** 轮播图 */
+  banner: string;
+  /** 图片 */
+  picture: string[];
+  /** 排序 */
+  sort: number;
+  /** 状态 */
+  status: Status;
+}
+
 /** 热门专区项详情查询条件 */
 export interface GetShopHotItemRequest {
   /** 热门专区项ID */
   id: number;
+}
+
+/** 热门专区项表单 */
+export interface ShopHotItemForm {
+  /** 商城热门推荐ID */
+  id: number;
+  /** 商城热门推荐ID */
+  hot_id: number;
+  /** 标题 */
+  title: string;
+  /** 排序 */
+  sort: number;
+  /** 商品 */
+  goods_ids: number[];
+  /** 状态：枚举【Status】 */
+  status?: Status | undefined;
+}
+
+/** 热门专区创建条件 */
+export interface CreateShopHotRequest {
+  /** 热门专区表单 */
+  shop_hot: ShopHotForm | undefined;
 }
 
 /** 热门专区项创建条件 */
@@ -102,12 +114,26 @@ export interface CreateShopHotItemRequest {
   shop_hot_item: ShopHotItemForm | undefined;
 }
 
+/** 热门专区更新条件 */
+export interface UpdateShopHotRequest {
+  /** 商城热门推荐ID */
+  id: number;
+  /** 热门专区表单 */
+  shop_hot: ShopHotForm | undefined;
+}
+
 /** 热门专区项更新条件 */
 export interface UpdateShopHotItemRequest {
   /** 热门专区项ID */
   id: number;
   /** 热门专区项表单 */
   shop_hot_item: ShopHotItemForm | undefined;
+}
+
+/** 热门专区删除条件 */
+export interface DeleteShopHotRequest {
+  /** 热门专区ID列表，多个用逗号分隔 */
+  ids: string;
 }
 
 /** 热门专区项删除条件 */
@@ -119,6 +145,14 @@ export interface DeleteShopHotItemRequest {
 /** 热门专区项状态设置条件 */
 export interface SetShopHotItemStatusRequest {
   /** 热门专区项ID */
+  id: number;
+  /** 状态：枚举【Status】 */
+  status: Status;
+}
+
+/** 热门专区状态设置条件 */
+export interface SetShopHotStatusRequest {
+  /** 商城热门推荐ID */
   id: number;
   /** 状态：枚举【Status】 */
   status: Status;
@@ -142,24 +176,6 @@ export interface ShopHot {
   updated_at: string;
 }
 
-/** 热门专区表单 */
-export interface ShopHotForm {
-  /** 商城热门推荐ID */
-  id: number;
-  /** 商城热门推荐标题 */
-  title: string;
-  /** 商城热门推荐名称 */
-  desc: string;
-  /** 轮播图 */
-  banner: string;
-  /** 图片 */
-  picture: string[];
-  /** 排序 */
-  sort: number;
-  /** 状态 */
-  status: Status;
-}
-
 /** 热门专区项 */
 export interface ShopHotItem {
   /** 商城热门推荐ID */
@@ -178,46 +194,30 @@ export interface ShopHotItem {
   updated_at: string;
 }
 
-/** 热门专区项表单 */
-export interface ShopHotItemForm {
-  /** 商城热门推荐ID */
-  id: number;
-  /** 商城热门推荐ID */
-  hot_id: number;
-  /** 标题 */
-  title: string;
-  /** 排序 */
-  sort: number;
-  /** 商品 */
-  goods_ids: number[];
-  /** 状态：枚举【Status】 */
-  status?: Status | undefined;
-}
-
 /** Admin商城热门推荐服务 */
 export interface ShopHotService {
   /** 查询商城热门推荐列表 */
   PageShopHot(request: PageShopHotRequest): Promise<PageShopHotResponse>;
-  /** 查询商城热门推荐 */
-  GetShopHot(request: GetShopHotRequest): Promise<ShopHotForm>;
-  /** 创建商城热门推荐 */
-  CreateShopHot(request: CreateShopHotRequest): Promise<Empty>;
-  /** 更新商城热门推荐 */
-  UpdateShopHot(request: UpdateShopHotRequest): Promise<Empty>;
-  /** 删除商城热门推荐 */
-  DeleteShopHot(request: DeleteShopHotRequest): Promise<Empty>;
-  /** 设置状态 */
-  SetShopHotStatus(request: SetShopHotStatusRequest): Promise<Empty>;
   /** 查询商城热门推荐属性列表 */
   PageShopHotItem(request: PageShopHotItemRequest): Promise<PageShopHotItemResponse>;
+  /** 查询商城热门推荐 */
+  GetShopHot(request: GetShopHotRequest): Promise<ShopHotForm>;
   /** 查询商城热门推荐属性 */
   GetShopHotItem(request: GetShopHotItemRequest): Promise<ShopHotItemForm>;
+  /** 创建商城热门推荐 */
+  CreateShopHot(request: CreateShopHotRequest): Promise<Empty>;
   /** 创建商城热门推荐属性 */
   CreateShopHotItem(request: CreateShopHotItemRequest): Promise<Empty>;
+  /** 更新商城热门推荐 */
+  UpdateShopHot(request: UpdateShopHotRequest): Promise<Empty>;
   /** 更新商城热门推荐属性 */
   UpdateShopHotItem(request: UpdateShopHotItemRequest): Promise<Empty>;
+  /** 删除商城热门推荐 */
+  DeleteShopHot(request: DeleteShopHotRequest): Promise<Empty>;
   /** 删除商城热门推荐属性 */
   DeleteShopHotItem(request: DeleteShopHotItemRequest): Promise<Empty>;
   /** 设置状态 */
   SetShopHotItemStatus(request: SetShopHotItemStatusRequest): Promise<Empty>;
+  /** 设置状态 */
+  SetShopHotStatus(request: SetShopHotStatusRequest): Promise<Empty>;
 }

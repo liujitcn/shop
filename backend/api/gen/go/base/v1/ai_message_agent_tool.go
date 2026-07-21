@@ -17,24 +17,24 @@ import (
 func NewAiMessageServiceAgentTools(aiMessageServiceServer AiMessageServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error
-	var sendAiMessageTool tool.InvokableTool
-	sendAiMessageTool, err = NewAiMessageServiceSendAiMessageAgentTool(aiMessageServiceServer)
-	if err != nil {
-		return nil, err
-	}
-	ts = append(ts, sendAiMessageTool)
-	var deleteAiMessageTool tool.InvokableTool
-	deleteAiMessageTool, err = NewAiMessageServiceDeleteAiMessageAgentTool(aiMessageServiceServer)
-	if err != nil {
-		return nil, err
-	}
-	ts = append(ts, deleteAiMessageTool)
 	var updateAiMessageTool tool.InvokableTool
 	updateAiMessageTool, err = NewAiMessageServiceUpdateAiMessageAgentTool(aiMessageServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, updateAiMessageTool)
+	var deleteAiMessageTool tool.InvokableTool
+	deleteAiMessageTool, err = NewAiMessageServiceDeleteAiMessageAgentTool(aiMessageServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, deleteAiMessageTool)
+	var sendAiMessageTool tool.InvokableTool
+	sendAiMessageTool, err = NewAiMessageServiceSendAiMessageAgentTool(aiMessageServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, sendAiMessageTool)
 	var retryAiUserMessageTool tool.InvokableTool
 	retryAiUserMessageTool, err = NewAiMessageServiceRetryAiUserMessageAgentTool(aiMessageServiceServer)
 	if err != nil {
@@ -50,16 +50,16 @@ func NewAiMessageServiceAgentTools(aiMessageServiceServer AiMessageServiceServer
 	return ts, nil
 }
 
-// NewAiMessageServiceSendAiMessageAgentTool 创建发送 AI 助手消息的 Agent Tool。
-func NewAiMessageServiceSendAiMessageAgentTool(aiMessageServiceServer AiMessageServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*SendAiMessageRequest, *SendAiMessageResponse](
-		"base_v1_ai_message_service_send_ai_message",
-		"发送 AI 助手消息",
-		func(ctx context.Context, req *SendAiMessageRequest) (*SendAiMessageResponse, error) {
+// NewAiMessageServiceUpdateAiMessageAgentTool 创建更新 AI 助手消息并重新生成输出的 Agent Tool。
+func NewAiMessageServiceUpdateAiMessageAgentTool(aiMessageServiceServer AiMessageServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*UpdateAiMessageRequest, *SendAiMessageResponse](
+		"base_v1_ai_message_service_update_ai_message",
+		"更新 AI 助手消息并重新生成输出",
+		func(ctx context.Context, req *UpdateAiMessageRequest) (*SendAiMessageResponse, error) {
 			if req == nil {
-				req = &SendAiMessageRequest{}
+				req = &UpdateAiMessageRequest{}
 			}
-			return aiMessageServiceServer.SendAiMessage(ctx, req)
+			return aiMessageServiceServer.UpdateAiMessage(ctx, req)
 		},
 	)
 }
@@ -78,16 +78,16 @@ func NewAiMessageServiceDeleteAiMessageAgentTool(aiMessageServiceServer AiMessag
 	)
 }
 
-// NewAiMessageServiceUpdateAiMessageAgentTool 创建更新 AI 助手消息并重新生成输出的 Agent Tool。
-func NewAiMessageServiceUpdateAiMessageAgentTool(aiMessageServiceServer AiMessageServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*UpdateAiMessageRequest, *SendAiMessageResponse](
-		"base_v1_ai_message_service_update_ai_message",
-		"更新 AI 助手消息并重新生成输出",
-		func(ctx context.Context, req *UpdateAiMessageRequest) (*SendAiMessageResponse, error) {
+// NewAiMessageServiceSendAiMessageAgentTool 创建发送 AI 助手消息的 Agent Tool。
+func NewAiMessageServiceSendAiMessageAgentTool(aiMessageServiceServer AiMessageServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*SendAiMessageRequest, *SendAiMessageResponse](
+		"base_v1_ai_message_service_send_ai_message",
+		"发送 AI 助手消息",
+		func(ctx context.Context, req *SendAiMessageRequest) (*SendAiMessageResponse, error) {
 			if req == nil {
-				req = &UpdateAiMessageRequest{}
+				req = &SendAiMessageRequest{}
 			}
-			return aiMessageServiceServer.UpdateAiMessage(ctx, req)
+			return aiMessageServiceServer.SendAiMessage(ctx, req)
 		},
 	)
 }

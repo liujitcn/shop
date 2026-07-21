@@ -17,6 +17,12 @@ import (
 func NewShopHotServiceAgentTools(shopHotServiceServer ShopHotServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error
+	var pageShopHotGoodsTool tool.InvokableTool
+	pageShopHotGoodsTool, err = NewShopHotServicePageShopHotGoodsAgentTool(shopHotServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, pageShopHotGoodsTool)
 	var listShopHotTool tool.InvokableTool
 	listShopHotTool, err = NewShopHotServiceListShopHotAgentTool(shopHotServiceServer)
 	if err != nil {
@@ -29,13 +35,21 @@ func NewShopHotServiceAgentTools(shopHotServiceServer ShopHotServiceServer) ([]t
 		return nil, err
 	}
 	ts = append(ts, listShopHotItemTool)
-	var pageShopHotGoodsTool tool.InvokableTool
-	pageShopHotGoodsTool, err = NewShopHotServicePageShopHotGoodsAgentTool(shopHotServiceServer)
-	if err != nil {
-		return nil, err
-	}
-	ts = append(ts, pageShopHotGoodsTool)
 	return ts, nil
+}
+
+// NewShopHotServicePageShopHotGoodsAgentTool 创建查询热门推荐商品的 Agent Tool。
+func NewShopHotServicePageShopHotGoodsAgentTool(shopHotServiceServer ShopHotServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PageShopHotGoodsRequest, *PageShopHotGoodsResponse](
+		"shop_app_v1_shop_hot_service_page_shop_hot_goods",
+		"查询热门推荐商品",
+		func(ctx context.Context, req *PageShopHotGoodsRequest) (*PageShopHotGoodsResponse, error) {
+			if req == nil {
+				req = &PageShopHotGoodsRequest{}
+			}
+			return shopHotServiceServer.PageShopHotGoods(ctx, req)
+		},
+	)
 }
 
 // NewShopHotServiceListShopHotAgentTool 创建查询热门推荐列表的 Agent Tool。
@@ -62,20 +76,6 @@ func NewShopHotServiceListShopHotItemAgentTool(shopHotServiceServer ShopHotServi
 				req = &ListShopHotItemRequest{}
 			}
 			return shopHotServiceServer.ListShopHotItem(ctx, req)
-		},
-	)
-}
-
-// NewShopHotServicePageShopHotGoodsAgentTool 创建查询热门推荐商品的 Agent Tool。
-func NewShopHotServicePageShopHotGoodsAgentTool(shopHotServiceServer ShopHotServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*PageShopHotGoodsRequest, *PageShopHotGoodsResponse](
-		"shop_app_v1_shop_hot_service_page_shop_hot_goods",
-		"查询热门推荐商品",
-		func(ctx context.Context, req *PageShopHotGoodsRequest) (*PageShopHotGoodsResponse, error) {
-			if req == nil {
-				req = &PageShopHotGoodsRequest{}
-			}
-			return shopHotServiceServer.PageShopHotGoods(ctx, req)
 		},
 	)
 }

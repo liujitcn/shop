@@ -17,6 +17,12 @@ import (
 func NewWorkspaceServiceAgentTools(workspaceServiceServer WorkspaceServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error
+	var listWorkspacePendingCommentTool tool.InvokableTool
+	listWorkspacePendingCommentTool, err = NewWorkspaceServiceListWorkspacePendingCommentAgentTool(workspaceServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, listWorkspacePendingCommentTool)
 	var summaryWorkspaceMetricsTool tool.InvokableTool
 	summaryWorkspaceMetricsTool, err = NewWorkspaceServiceSummaryWorkspaceMetricsAgentTool(workspaceServiceServer)
 	if err != nil {
@@ -41,13 +47,21 @@ func NewWorkspaceServiceAgentTools(workspaceServiceServer WorkspaceServiceServer
 		return nil, err
 	}
 	ts = append(ts, summaryWorkspaceReputationTool)
-	var listWorkspacePendingCommentTool tool.InvokableTool
-	listWorkspacePendingCommentTool, err = NewWorkspaceServiceListWorkspacePendingCommentAgentTool(workspaceServiceServer)
-	if err != nil {
-		return nil, err
-	}
-	ts = append(ts, listWorkspacePendingCommentTool)
 	return ts, nil
+}
+
+// NewWorkspaceServiceListWorkspacePendingCommentAgentTool 创建查询工作台待审核评价的 Agent Tool。
+func NewWorkspaceServiceListWorkspacePendingCommentAgentTool(workspaceServiceServer WorkspaceServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*ListWorkspacePendingCommentRequest, *ListWorkspacePendingCommentResponse](
+		"shop_admin_v1_workspace_service_list_workspace_pending_comment",
+		"查询工作台待审核评价",
+		func(ctx context.Context, req *ListWorkspacePendingCommentRequest) (*ListWorkspacePendingCommentResponse, error) {
+			if req == nil {
+				req = &ListWorkspacePendingCommentRequest{}
+			}
+			return workspaceServiceServer.ListWorkspacePendingComment(ctx, req)
+		},
+	)
 }
 
 // NewWorkspaceServiceSummaryWorkspaceMetricsAgentTool 创建查询工作台顶部指标的 Agent Tool。
@@ -102,20 +116,6 @@ func NewWorkspaceServiceSummaryWorkspaceReputationAgentTool(workspaceServiceServ
 				req = &SummaryWorkspaceReputationRequest{}
 			}
 			return workspaceServiceServer.SummaryWorkspaceReputation(ctx, req)
-		},
-	)
-}
-
-// NewWorkspaceServiceListWorkspacePendingCommentAgentTool 创建查询工作台待审核评价的 Agent Tool。
-func NewWorkspaceServiceListWorkspacePendingCommentAgentTool(workspaceServiceServer WorkspaceServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*ListWorkspacePendingCommentRequest, *ListWorkspacePendingCommentResponse](
-		"shop_admin_v1_workspace_service_list_workspace_pending_comment",
-		"查询工作台待审核评价",
-		func(ctx context.Context, req *ListWorkspacePendingCommentRequest) (*ListWorkspacePendingCommentResponse, error) {
-			if req == nil {
-				req = &ListWorkspacePendingCommentRequest{}
-			}
-			return workspaceServiceServer.ListWorkspacePendingComment(ctx, req)
 		},
 	)
 }

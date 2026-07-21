@@ -74,18 +74,6 @@ export interface GetOrderInfoRequest {
   id: number;
 }
 
-/** 订单退款信息查询条件 */
-export interface GetOrderInfoRefundRequest {
-  /** 订单ID */
-  id: number;
-}
-
-/** 订单发货信息查询条件 */
-export interface GetOrderInfoShipmentRequest {
-  /** 订单ID */
-  id: number;
-}
-
 /** 订单详情响应 */
 export interface OrderInfoResponse {
   /** 订单信息 */
@@ -116,6 +104,12 @@ export interface OrderInfoResponse {
   refund: OrderRefund[];
 }
 
+/** 订单退款信息查询条件 */
+export interface GetOrderInfoRefundRequest {
+  /** 订单ID */
+  id: number;
+}
+
 /** 订单Refund响应 */
 export interface OrderInfoRefundResponse {
   /** 支付信息 */
@@ -126,16 +120,10 @@ export interface OrderInfoRefundResponse {
   refund: OrderRefund[];
 }
 
-/** 订单退款请求参数 */
-export interface RefundOrderInfoRequest {
-  /** 订单id */
-  order_id: number;
-  /** 退款原因：枚举【OrderRefundReason】 */
-  reason?:
-    | OrderRefundReason
-    | undefined;
-  /** 退款金额 */
-  refund_money: number;
+/** 订单发货信息查询条件 */
+export interface GetOrderInfoShipmentRequest {
+  /** 订单ID */
+  id: number;
 }
 
 /** 订单发货表单 */
@@ -148,6 +136,18 @@ export interface OrderInfoShipmentForm {
   goods: OrderGoods[];
   /** 物流信息 */
   logistics: OrderLogistics | undefined;
+}
+
+/** 订单退款请求参数 */
+export interface RefundOrderInfoRequest {
+  /** 订单id */
+  order_id: number;
+  /** 退款原因：枚举【OrderRefundReason】 */
+  reason?:
+    | OrderRefundReason
+    | undefined;
+  /** 退款金额 */
+  refund_money: number;
 }
 
 /** 订单发货请求参数 */
@@ -388,10 +388,10 @@ export interface OrderInfoService {
   GetOrderInfo(request: GetOrderInfoRequest): Promise<OrderInfoResponse>;
   /** 查询订单信息退款信息 */
   GetOrderInfoRefund(request: GetOrderInfoRefundRequest): Promise<OrderInfoRefundResponse>;
-  /** 订单信息退款 */
-  RefundOrderInfo(request: RefundOrderInfoRequest): Promise<Empty>;
   /** 查询订单信息发货信息 */
   GetOrderInfoShipment(request: GetOrderInfoShipmentRequest): Promise<OrderInfoShipmentForm>;
+  /** 订单信息退款 */
+  RefundOrderInfo(request: RefundOrderInfoRequest): Promise<Empty>;
   /** 订单信息发货 */
   ShipOrderInfo(request: ShipOrderInfoRequest): Promise<Empty>;
 }

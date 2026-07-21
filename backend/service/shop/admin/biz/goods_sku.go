@@ -58,6 +58,23 @@ func (c *GoodsSKUCase) ListGoodsSKU(ctx context.Context, req *shopadminv1.PageGo
 	return &shopadminv1.PageGoodsSkuResponse{GoodsSkus: resList, Total: int32(total)}, nil
 }
 
+// ListGoodsSKUByGoodsID 按商品查询规格项列表
+func (c *GoodsSKUCase) ListGoodsSKUByGoodsID(ctx context.Context, goodsID int64) ([]*shopadminv1.GoodsSku, error) {
+	query := c.Query(ctx).GoodsSKU
+	opts := make([]repository.QueryOption, 0, 1)
+	opts = append(opts, repository.Where(query.GoodsID.Eq(goodsID)))
+	list, err := c.List(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	resList := make([]*shopadminv1.GoodsSku, 0, len(list))
+	for _, item := range list {
+		resList = append(resList, c.mapper.ToDTO(item))
+	}
+	return resList, nil
+}
+
 // GetGoodsSKU 获取商品规格项
 func (c *GoodsSKUCase) GetGoodsSKU(ctx context.Context, id int64) (*shopadminv1.GoodsSku, error) {
 	goodsSKU, err := c.FindByID(ctx, id)
@@ -83,23 +100,6 @@ func (c *GoodsSKUCase) UpdateGoodsSKU(ctx context.Context, req *shopadminv1.Good
 	}
 	workspaceevent.Publish(ctx, workspaceevent.ReasonGoodsChanged, workspaceevent.AreaMetrics, workspaceevent.AreaTodo, workspaceevent.AreaRisk)
 	return nil
-}
-
-// ListGoodsSKUByGoodsID 按商品查询规格项列表
-func (c *GoodsSKUCase) ListGoodsSKUByGoodsID(ctx context.Context, goodsID int64) ([]*shopadminv1.GoodsSku, error) {
-	query := c.Query(ctx).GoodsSKU
-	opts := make([]repository.QueryOption, 0, 1)
-	opts = append(opts, repository.Where(query.GoodsID.Eq(goodsID)))
-	list, err := c.List(ctx, opts...)
-	if err != nil {
-		return nil, err
-	}
-
-	resList := make([]*shopadminv1.GoodsSku, 0, len(list))
-	for _, item := range list {
-		resList = append(resList, c.mapper.ToDTO(item))
-	}
-	return resList, nil
 }
 
 // toGoodsSKUModel 转换商品规格项模型数据

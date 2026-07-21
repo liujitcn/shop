@@ -7,6 +7,13 @@ import "google/api/annotations.proto";
 
 // Admin代码生成服务
 service CodeGenService {
+  // 查询代码生成任务进度
+  rpc GetCodeGenTask(GetCodeGenTaskRequest) returns (CodeGenTask) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/code-gen/task/{task_id}"
+    };
+  }
+
   // 预览代码生成文件
   rpc PreviewCodeGen(PreviewCodeGenRequest) returns (PreviewCodeGenResponse) {
     option (google.api.http) = {
@@ -22,13 +29,32 @@ service CodeGenService {
       body: "*"
     };
   }
+}
 
-  // 查询代码生成任务进度
-  rpc GetCodeGenTask(GetCodeGenTaskRequest) returns (CodeGenTask) {
-    option (google.api.http) = {
-      get: "/api/v1/admin/code-gen/task/{task_id}"
-    };
-  }
+// 查询代码生成任务条件
+message GetCodeGenTaskRequest {
+  string task_id = 1 [(gnostic.openapi.v3.property) = {description: "生成任务ID"}]; // 生成任务ID
+}
+
+// 代码生成任务进度
+message CodeGenTask {
+  string task_id = 1 [(gnostic.openapi.v3.property) = {description: "生成任务ID"}]; // 生成任务ID
+
+  CodeGenTaskStatus status = 2 [(gnostic.openapi.v3.property) = {description: "任务状态"}]; // 任务状态
+
+  int32 total_steps = 3 [(gnostic.openapi.v3.property) = {description: "步骤总数"}]; // 步骤总数
+
+  int32 completed_steps = 4 [(gnostic.openapi.v3.property) = {description: "已完成步骤数"}]; // 已完成步骤数
+
+  string current_table_name = 5 [(gnostic.openapi.v3.property) = {description: "当前生成表名"}]; // 当前生成表名
+
+  string message = 6 [(gnostic.openapi.v3.property) = {description: "任务结果说明"}]; // 任务结果说明
+
+  repeated CodeGenTaskTable tables = 7 [(gnostic.openapi.v3.property) = {description: "生成对象进度列表"}]; // 生成对象进度列表
+
+  string created_at = 8 [(gnostic.openapi.v3.property) = {description: "任务创建时间"}]; // 任务创建时间
+
+  string finished_at = 9 [(gnostic.openapi.v3.property) = {description: "任务完成时间"}]; // 任务完成时间
 }
 
 // 预览代码生成条件
@@ -78,11 +104,6 @@ message StartCodeGenTaskResponse {
   string task_id = 1 [(gnostic.openapi.v3.property) = {description: "生成任务ID"}]; // 生成任务ID
 }
 
-// 查询代码生成任务条件
-message GetCodeGenTaskRequest {
-  string task_id = 1 [(gnostic.openapi.v3.property) = {description: "生成任务ID"}]; // 生成任务ID
-}
-
 // 代码生成任务步骤
 message CodeGenTaskStep {
   string id = 1 [(gnostic.openapi.v3.property) = {description: "步骤ID"}]; // 步骤ID
@@ -115,27 +136,6 @@ message CodeGenTaskTable {
   string message = 6 [(gnostic.openapi.v3.property) = {description: "生成对象结果说明"}]; // 生成对象结果说明
 
   repeated CodeGenTaskStep steps = 7 [(gnostic.openapi.v3.property) = {description: "生成步骤列表"}]; // 生成步骤列表
-}
-
-// 代码生成任务进度
-message CodeGenTask {
-  string task_id = 1 [(gnostic.openapi.v3.property) = {description: "生成任务ID"}]; // 生成任务ID
-
-  CodeGenTaskStatus status = 2 [(gnostic.openapi.v3.property) = {description: "任务状态"}]; // 任务状态
-
-  int32 total_steps = 3 [(gnostic.openapi.v3.property) = {description: "步骤总数"}]; // 步骤总数
-
-  int32 completed_steps = 4 [(gnostic.openapi.v3.property) = {description: "已完成步骤数"}]; // 已完成步骤数
-
-  string current_table_name = 5 [(gnostic.openapi.v3.property) = {description: "当前生成表名"}]; // 当前生成表名
-
-  string message = 6 [(gnostic.openapi.v3.property) = {description: "任务结果说明"}]; // 任务结果说明
-
-  repeated CodeGenTaskTable tables = 7 [(gnostic.openapi.v3.property) = {description: "生成对象进度列表"}]; // 生成对象进度列表
-
-  string created_at = 8 [(gnostic.openapi.v3.property) = {description: "任务创建时间"}]; // 任务创建时间
-
-  string finished_at = 9 [(gnostic.openapi.v3.property) = {description: "任务完成时间"}]; // 任务完成时间
 }
 
 // 代码生成预览文件

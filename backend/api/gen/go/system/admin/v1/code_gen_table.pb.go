@@ -26,170 +26,6 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// 数据库表列表查询条件
-type ListCodeGenDatabaseTableRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ListCodeGenDatabaseTableRequest) Reset() {
-	*x = ListCodeGenDatabaseTableRequest{}
-	mi := &file_system_admin_v1_code_gen_table_proto_msgTypes[0]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ListCodeGenDatabaseTableRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ListCodeGenDatabaseTableRequest) ProtoMessage() {}
-
-func (x *ListCodeGenDatabaseTableRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_code_gen_table_proto_msgTypes[0]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ListCodeGenDatabaseTableRequest.ProtoReflect.Descriptor instead.
-func (*ListCodeGenDatabaseTableRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_code_gen_table_proto_rawDescGZIP(), []int{0}
-}
-
-// 数据库表列表响应
-type ListCodeGenDatabaseTableResponse struct {
-	state         protoimpl.MessageState  `protogen:"open.v1"`
-	Tables        []*CodeGenDatabaseTable `protobuf:"bytes,1,rep,name=tables,proto3" json:"tables,omitempty"` // 数据库表列表
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ListCodeGenDatabaseTableResponse) Reset() {
-	*x = ListCodeGenDatabaseTableResponse{}
-	mi := &file_system_admin_v1_code_gen_table_proto_msgTypes[1]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ListCodeGenDatabaseTableResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ListCodeGenDatabaseTableResponse) ProtoMessage() {}
-
-func (x *ListCodeGenDatabaseTableResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_code_gen_table_proto_msgTypes[1]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ListCodeGenDatabaseTableResponse.ProtoReflect.Descriptor instead.
-func (*ListCodeGenDatabaseTableResponse) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_code_gen_table_proto_rawDescGZIP(), []int{1}
-}
-
-func (x *ListCodeGenDatabaseTableResponse) GetTables() []*CodeGenDatabaseTable {
-	if x != nil {
-		return x.Tables
-	}
-	return nil
-}
-
-// Proto目录列表查询条件
-type ListCodeGenProtoDirectoryRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ListCodeGenProtoDirectoryRequest) Reset() {
-	*x = ListCodeGenProtoDirectoryRequest{}
-	mi := &file_system_admin_v1_code_gen_table_proto_msgTypes[2]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ListCodeGenProtoDirectoryRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ListCodeGenProtoDirectoryRequest) ProtoMessage() {}
-
-func (x *ListCodeGenProtoDirectoryRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_code_gen_table_proto_msgTypes[2]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ListCodeGenProtoDirectoryRequest.ProtoReflect.Descriptor instead.
-func (*ListCodeGenProtoDirectoryRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_code_gen_table_proto_rawDescGZIP(), []int{2}
-}
-
-// Proto目录列表查询响应
-type ListCodeGenProtoDirectoryResponse struct {
-	state         protoimpl.MessageState   `protogen:"open.v1"`
-	Directories   []*CodeGenProtoDirectory `protobuf:"bytes,1,rep,name=directories,proto3" json:"directories,omitempty"` // Proto目录列表
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ListCodeGenProtoDirectoryResponse) Reset() {
-	*x = ListCodeGenProtoDirectoryResponse{}
-	mi := &file_system_admin_v1_code_gen_table_proto_msgTypes[3]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ListCodeGenProtoDirectoryResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ListCodeGenProtoDirectoryResponse) ProtoMessage() {}
-
-func (x *ListCodeGenProtoDirectoryResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_code_gen_table_proto_msgTypes[3]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ListCodeGenProtoDirectoryResponse.ProtoReflect.Descriptor instead.
-func (*ListCodeGenProtoDirectoryResponse) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_code_gen_table_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *ListCodeGenProtoDirectoryResponse) GetDirectories() []*CodeGenProtoDirectory {
-	if x != nil {
-		return x.Directories
-	}
-	return nil
-}
-
 // 代码生成表配置分页查询条件
 type PageCodeGenTableRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -206,7 +42,7 @@ type PageCodeGenTableRequest struct {
 
 func (x *PageCodeGenTableRequest) Reset() {
 	*x = PageCodeGenTableRequest{}
-	mi := &file_system_admin_v1_code_gen_table_proto_msgTypes[4]
+	mi := &file_system_admin_v1_code_gen_table_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -218,7 +54,7 @@ func (x *PageCodeGenTableRequest) String() string {
 func (*PageCodeGenTableRequest) ProtoMessage() {}
 
 func (x *PageCodeGenTableRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_code_gen_table_proto_msgTypes[4]
+	mi := &file_system_admin_v1_code_gen_table_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -231,7 +67,7 @@ func (x *PageCodeGenTableRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PageCodeGenTableRequest.ProtoReflect.Descriptor instead.
 func (*PageCodeGenTableRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_code_gen_table_proto_rawDescGZIP(), []int{4}
+	return file_system_admin_v1_code_gen_table_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *PageCodeGenTableRequest) GetName() string {
@@ -294,7 +130,7 @@ type PageCodeGenTableResponse struct {
 
 func (x *PageCodeGenTableResponse) Reset() {
 	*x = PageCodeGenTableResponse{}
-	mi := &file_system_admin_v1_code_gen_table_proto_msgTypes[5]
+	mi := &file_system_admin_v1_code_gen_table_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -306,7 +142,7 @@ func (x *PageCodeGenTableResponse) String() string {
 func (*PageCodeGenTableResponse) ProtoMessage() {}
 
 func (x *PageCodeGenTableResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_code_gen_table_proto_msgTypes[5]
+	mi := &file_system_admin_v1_code_gen_table_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -319,7 +155,7 @@ func (x *PageCodeGenTableResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PageCodeGenTableResponse.ProtoReflect.Descriptor instead.
 func (*PageCodeGenTableResponse) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_code_gen_table_proto_rawDescGZIP(), []int{5}
+	return file_system_admin_v1_code_gen_table_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *PageCodeGenTableResponse) GetCodeGenTables() []*CodeGenTable {
@@ -334,6 +170,170 @@ func (x *PageCodeGenTableResponse) GetTotal() int32 {
 		return x.Total
 	}
 	return 0
+}
+
+// 数据库表列表查询条件
+type ListCodeGenDatabaseTableRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListCodeGenDatabaseTableRequest) Reset() {
+	*x = ListCodeGenDatabaseTableRequest{}
+	mi := &file_system_admin_v1_code_gen_table_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListCodeGenDatabaseTableRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListCodeGenDatabaseTableRequest) ProtoMessage() {}
+
+func (x *ListCodeGenDatabaseTableRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_code_gen_table_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListCodeGenDatabaseTableRequest.ProtoReflect.Descriptor instead.
+func (*ListCodeGenDatabaseTableRequest) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_code_gen_table_proto_rawDescGZIP(), []int{2}
+}
+
+// 数据库表列表响应
+type ListCodeGenDatabaseTableResponse struct {
+	state         protoimpl.MessageState  `protogen:"open.v1"`
+	Tables        []*CodeGenDatabaseTable `protobuf:"bytes,1,rep,name=tables,proto3" json:"tables,omitempty"` // 数据库表列表
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListCodeGenDatabaseTableResponse) Reset() {
+	*x = ListCodeGenDatabaseTableResponse{}
+	mi := &file_system_admin_v1_code_gen_table_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListCodeGenDatabaseTableResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListCodeGenDatabaseTableResponse) ProtoMessage() {}
+
+func (x *ListCodeGenDatabaseTableResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_code_gen_table_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListCodeGenDatabaseTableResponse.ProtoReflect.Descriptor instead.
+func (*ListCodeGenDatabaseTableResponse) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_code_gen_table_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *ListCodeGenDatabaseTableResponse) GetTables() []*CodeGenDatabaseTable {
+	if x != nil {
+		return x.Tables
+	}
+	return nil
+}
+
+// Proto目录列表查询条件
+type ListCodeGenProtoDirectoryRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListCodeGenProtoDirectoryRequest) Reset() {
+	*x = ListCodeGenProtoDirectoryRequest{}
+	mi := &file_system_admin_v1_code_gen_table_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListCodeGenProtoDirectoryRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListCodeGenProtoDirectoryRequest) ProtoMessage() {}
+
+func (x *ListCodeGenProtoDirectoryRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_code_gen_table_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListCodeGenProtoDirectoryRequest.ProtoReflect.Descriptor instead.
+func (*ListCodeGenProtoDirectoryRequest) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_code_gen_table_proto_rawDescGZIP(), []int{4}
+}
+
+// Proto目录列表查询响应
+type ListCodeGenProtoDirectoryResponse struct {
+	state         protoimpl.MessageState   `protogen:"open.v1"`
+	Directories   []*CodeGenProtoDirectory `protobuf:"bytes,1,rep,name=directories,proto3" json:"directories,omitempty"` // Proto目录列表
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListCodeGenProtoDirectoryResponse) Reset() {
+	*x = ListCodeGenProtoDirectoryResponse{}
+	mi := &file_system_admin_v1_code_gen_table_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListCodeGenProtoDirectoryResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListCodeGenProtoDirectoryResponse) ProtoMessage() {}
+
+func (x *ListCodeGenProtoDirectoryResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_code_gen_table_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListCodeGenProtoDirectoryResponse.ProtoReflect.Descriptor instead.
+func (*ListCodeGenProtoDirectoryResponse) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_code_gen_table_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *ListCodeGenProtoDirectoryResponse) GetDirectories() []*CodeGenProtoDirectory {
+	if x != nil {
+		return x.Directories
+	}
+	return nil
 }
 
 // 代码生成表配置详情查询条件
@@ -381,428 +381,6 @@ func (x *GetCodeGenTableRequest) GetId() int64 {
 	return 0
 }
 
-// 代码生成表配置创建条件
-type CreateCodeGenTableRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	CodeGenTable  *CodeGenTableForm      `protobuf:"bytes,1,opt,name=code_gen_table,json=codeGenTable,proto3" json:"code_gen_table,omitempty"` // 代码生成表配置表单
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *CreateCodeGenTableRequest) Reset() {
-	*x = CreateCodeGenTableRequest{}
-	mi := &file_system_admin_v1_code_gen_table_proto_msgTypes[7]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *CreateCodeGenTableRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*CreateCodeGenTableRequest) ProtoMessage() {}
-
-func (x *CreateCodeGenTableRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_code_gen_table_proto_msgTypes[7]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use CreateCodeGenTableRequest.ProtoReflect.Descriptor instead.
-func (*CreateCodeGenTableRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_code_gen_table_proto_rawDescGZIP(), []int{7}
-}
-
-func (x *CreateCodeGenTableRequest) GetCodeGenTable() *CodeGenTableForm {
-	if x != nil {
-		return x.CodeGenTable
-	}
-	return nil
-}
-
-// 代码生成表配置更新条件
-type UpdateCodeGenTableRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                          // 主键ID
-	CodeGenTable  *CodeGenTableForm      `protobuf:"bytes,2,opt,name=code_gen_table,json=codeGenTable,proto3" json:"code_gen_table,omitempty"` // 代码生成表配置表单
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *UpdateCodeGenTableRequest) Reset() {
-	*x = UpdateCodeGenTableRequest{}
-	mi := &file_system_admin_v1_code_gen_table_proto_msgTypes[8]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *UpdateCodeGenTableRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*UpdateCodeGenTableRequest) ProtoMessage() {}
-
-func (x *UpdateCodeGenTableRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_code_gen_table_proto_msgTypes[8]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use UpdateCodeGenTableRequest.ProtoReflect.Descriptor instead.
-func (*UpdateCodeGenTableRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_code_gen_table_proto_rawDescGZIP(), []int{8}
-}
-
-func (x *UpdateCodeGenTableRequest) GetId() int64 {
-	if x != nil {
-		return x.Id
-	}
-	return 0
-}
-
-func (x *UpdateCodeGenTableRequest) GetCodeGenTable() *CodeGenTableForm {
-	if x != nil {
-		return x.CodeGenTable
-	}
-	return nil
-}
-
-// 代码生成表配置删除条件
-type DeleteCodeGenTableRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Ids           string                 `protobuf:"bytes,1,opt,name=ids,proto3" json:"ids,omitempty"` // 代码生成表配置ID列表，多个用逗号分隔
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *DeleteCodeGenTableRequest) Reset() {
-	*x = DeleteCodeGenTableRequest{}
-	mi := &file_system_admin_v1_code_gen_table_proto_msgTypes[9]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *DeleteCodeGenTableRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*DeleteCodeGenTableRequest) ProtoMessage() {}
-
-func (x *DeleteCodeGenTableRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_code_gen_table_proto_msgTypes[9]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use DeleteCodeGenTableRequest.ProtoReflect.Descriptor instead.
-func (*DeleteCodeGenTableRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_code_gen_table_proto_rawDescGZIP(), []int{9}
-}
-
-func (x *DeleteCodeGenTableRequest) GetIds() string {
-	if x != nil {
-		return x.Ids
-	}
-	return ""
-}
-
-// 数据库表元数据
-type CodeGenDatabaseTable struct {
-	state            protoimpl.MessageState `protogen:"open.v1"`
-	Name             string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`                                                 // 数据库表名
-	Comment          string                 `protobuf:"bytes,2,opt,name=comment,proto3" json:"comment,omitempty"`                                           // 业务表描述
-	Disabled         bool                   `protobuf:"varint,3,opt,name=disabled,proto3" json:"disabled,omitempty"`                                        // 是否已被选择
-	BusinessName     string                 `protobuf:"bytes,4,opt,name=business_name,json=businessName,proto3" json:"business_name,omitempty"`             // 默认业务名
-	EntityName       string                 `protobuf:"bytes,5,opt,name=entity_name,json=entityName,proto3" json:"entity_name,omitempty"`                   // 默认实体名
-	ModulePath       string                 `protobuf:"bytes,6,opt,name=module_path,json=modulePath,proto3" json:"module_path,omitempty"`                   // 默认模块路径
-	ApiPath          string                 `protobuf:"bytes,7,opt,name=api_path,json=apiPath,proto3" json:"api_path,omitempty"`                            // 默认Proto目录
-	PermissionPrefix string                 `protobuf:"bytes,8,opt,name=permission_prefix,json=permissionPrefix,proto3" json:"permission_prefix,omitempty"` // 默认权限前缀
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
-}
-
-func (x *CodeGenDatabaseTable) Reset() {
-	*x = CodeGenDatabaseTable{}
-	mi := &file_system_admin_v1_code_gen_table_proto_msgTypes[10]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *CodeGenDatabaseTable) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*CodeGenDatabaseTable) ProtoMessage() {}
-
-func (x *CodeGenDatabaseTable) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_code_gen_table_proto_msgTypes[10]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use CodeGenDatabaseTable.ProtoReflect.Descriptor instead.
-func (*CodeGenDatabaseTable) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_code_gen_table_proto_rawDescGZIP(), []int{10}
-}
-
-func (x *CodeGenDatabaseTable) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
-}
-
-func (x *CodeGenDatabaseTable) GetComment() string {
-	if x != nil {
-		return x.Comment
-	}
-	return ""
-}
-
-func (x *CodeGenDatabaseTable) GetDisabled() bool {
-	if x != nil {
-		return x.Disabled
-	}
-	return false
-}
-
-func (x *CodeGenDatabaseTable) GetBusinessName() string {
-	if x != nil {
-		return x.BusinessName
-	}
-	return ""
-}
-
-func (x *CodeGenDatabaseTable) GetEntityName() string {
-	if x != nil {
-		return x.EntityName
-	}
-	return ""
-}
-
-func (x *CodeGenDatabaseTable) GetModulePath() string {
-	if x != nil {
-		return x.ModulePath
-	}
-	return ""
-}
-
-func (x *CodeGenDatabaseTable) GetApiPath() string {
-	if x != nil {
-		return x.ApiPath
-	}
-	return ""
-}
-
-func (x *CodeGenDatabaseTable) GetPermissionPrefix() string {
-	if x != nil {
-		return x.PermissionPrefix
-	}
-	return ""
-}
-
-// Proto目录
-type CodeGenProtoDirectory struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Path          string                 `protobuf:"bytes,1,opt,name=path,proto3" json:"path,omitempty"` // 相对Proto根目录的目录路径
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *CodeGenProtoDirectory) Reset() {
-	*x = CodeGenProtoDirectory{}
-	mi := &file_system_admin_v1_code_gen_table_proto_msgTypes[11]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *CodeGenProtoDirectory) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*CodeGenProtoDirectory) ProtoMessage() {}
-
-func (x *CodeGenProtoDirectory) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_code_gen_table_proto_msgTypes[11]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use CodeGenProtoDirectory.ProtoReflect.Descriptor instead.
-func (*CodeGenProtoDirectory) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_code_gen_table_proto_rawDescGZIP(), []int{11}
-}
-
-func (x *CodeGenProtoDirectory) GetPath() string {
-	if x != nil {
-		return x.Path
-	}
-	return ""
-}
-
-// 代码生成表配置
-type CodeGenTable struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                        // 主键ID
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`                                     // 业务表名
-	Comment       string                 `protobuf:"bytes,3,opt,name=comment,proto3" json:"comment,omitempty"`                               // 业务表描述
-	BusinessName  string                 `protobuf:"bytes,4,opt,name=business_name,json=businessName,proto3" json:"business_name,omitempty"` // 业务名
-	EntityName    string                 `protobuf:"bytes,5,opt,name=entity_name,json=entityName,proto3" json:"entity_name,omitempty"`       // 实体名
-	ModulePath    string                 `protobuf:"bytes,6,opt,name=module_path,json=modulePath,proto3" json:"module_path,omitempty"`       // 模块路径
-	ApiPath       string                 `protobuf:"bytes,7,opt,name=api_path,json=apiPath,proto3" json:"api_path,omitempty"`                // Proto目录
-	PageType      string                 `protobuf:"bytes,8,opt,name=page_type,json=pageType,proto3" json:"page_type,omitempty"`             // 页面类型
-	Status        int32                  `protobuf:"varint,9,opt,name=status,proto3" json:"status,omitempty"`                                // 状态
-	Remark        string                 `protobuf:"bytes,10,opt,name=remark,proto3" json:"remark,omitempty"`                                // 备注
-	CreatedAt     string                 `protobuf:"bytes,11,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`         // 创建时间
-	UpdatedAt     string                 `protobuf:"bytes,12,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`         // 更新时间
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *CodeGenTable) Reset() {
-	*x = CodeGenTable{}
-	mi := &file_system_admin_v1_code_gen_table_proto_msgTypes[12]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *CodeGenTable) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*CodeGenTable) ProtoMessage() {}
-
-func (x *CodeGenTable) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_code_gen_table_proto_msgTypes[12]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use CodeGenTable.ProtoReflect.Descriptor instead.
-func (*CodeGenTable) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_code_gen_table_proto_rawDescGZIP(), []int{12}
-}
-
-func (x *CodeGenTable) GetId() int64 {
-	if x != nil {
-		return x.Id
-	}
-	return 0
-}
-
-func (x *CodeGenTable) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
-}
-
-func (x *CodeGenTable) GetComment() string {
-	if x != nil {
-		return x.Comment
-	}
-	return ""
-}
-
-func (x *CodeGenTable) GetBusinessName() string {
-	if x != nil {
-		return x.BusinessName
-	}
-	return ""
-}
-
-func (x *CodeGenTable) GetEntityName() string {
-	if x != nil {
-		return x.EntityName
-	}
-	return ""
-}
-
-func (x *CodeGenTable) GetModulePath() string {
-	if x != nil {
-		return x.ModulePath
-	}
-	return ""
-}
-
-func (x *CodeGenTable) GetApiPath() string {
-	if x != nil {
-		return x.ApiPath
-	}
-	return ""
-}
-
-func (x *CodeGenTable) GetPageType() string {
-	if x != nil {
-		return x.PageType
-	}
-	return ""
-}
-
-func (x *CodeGenTable) GetStatus() int32 {
-	if x != nil {
-		return x.Status
-	}
-	return 0
-}
-
-func (x *CodeGenTable) GetRemark() string {
-	if x != nil {
-		return x.Remark
-	}
-	return ""
-}
-
-func (x *CodeGenTable) GetCreatedAt() string {
-	if x != nil {
-		return x.CreatedAt
-	}
-	return ""
-}
-
-func (x *CodeGenTable) GetUpdatedAt() string {
-	if x != nil {
-		return x.UpdatedAt
-	}
-	return ""
-}
-
 // 代码生成表配置表单
 type CodeGenTableForm struct {
 	state            protoimpl.MessageState `protogen:"open.v1"`
@@ -830,7 +408,7 @@ type CodeGenTableForm struct {
 
 func (x *CodeGenTableForm) Reset() {
 	*x = CodeGenTableForm{}
-	mi := &file_system_admin_v1_code_gen_table_proto_msgTypes[13]
+	mi := &file_system_admin_v1_code_gen_table_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -842,7 +420,7 @@ func (x *CodeGenTableForm) String() string {
 func (*CodeGenTableForm) ProtoMessage() {}
 
 func (x *CodeGenTableForm) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_code_gen_table_proto_msgTypes[13]
+	mi := &file_system_admin_v1_code_gen_table_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -855,7 +433,7 @@ func (x *CodeGenTableForm) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CodeGenTableForm.ProtoReflect.Descriptor instead.
 func (*CodeGenTableForm) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_code_gen_table_proto_rawDescGZIP(), []int{13}
+	return file_system_admin_v1_code_gen_table_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *CodeGenTableForm) GetId() int64 {
@@ -984,6 +562,428 @@ func (x *CodeGenTableForm) GetRemark() string {
 	return ""
 }
 
+// 代码生成表配置创建条件
+type CreateCodeGenTableRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	CodeGenTable  *CodeGenTableForm      `protobuf:"bytes,1,opt,name=code_gen_table,json=codeGenTable,proto3" json:"code_gen_table,omitempty"` // 代码生成表配置表单
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateCodeGenTableRequest) Reset() {
+	*x = CreateCodeGenTableRequest{}
+	mi := &file_system_admin_v1_code_gen_table_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateCodeGenTableRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateCodeGenTableRequest) ProtoMessage() {}
+
+func (x *CreateCodeGenTableRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_code_gen_table_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateCodeGenTableRequest.ProtoReflect.Descriptor instead.
+func (*CreateCodeGenTableRequest) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_code_gen_table_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *CreateCodeGenTableRequest) GetCodeGenTable() *CodeGenTableForm {
+	if x != nil {
+		return x.CodeGenTable
+	}
+	return nil
+}
+
+// 代码生成表配置更新条件
+type UpdateCodeGenTableRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                          // 主键ID
+	CodeGenTable  *CodeGenTableForm      `protobuf:"bytes,2,opt,name=code_gen_table,json=codeGenTable,proto3" json:"code_gen_table,omitempty"` // 代码生成表配置表单
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateCodeGenTableRequest) Reset() {
+	*x = UpdateCodeGenTableRequest{}
+	mi := &file_system_admin_v1_code_gen_table_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateCodeGenTableRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateCodeGenTableRequest) ProtoMessage() {}
+
+func (x *UpdateCodeGenTableRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_code_gen_table_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateCodeGenTableRequest.ProtoReflect.Descriptor instead.
+func (*UpdateCodeGenTableRequest) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_code_gen_table_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *UpdateCodeGenTableRequest) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *UpdateCodeGenTableRequest) GetCodeGenTable() *CodeGenTableForm {
+	if x != nil {
+		return x.CodeGenTable
+	}
+	return nil
+}
+
+// 代码生成表配置删除条件
+type DeleteCodeGenTableRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Ids           string                 `protobuf:"bytes,1,opt,name=ids,proto3" json:"ids,omitempty"` // 代码生成表配置ID列表，多个用逗号分隔
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteCodeGenTableRequest) Reset() {
+	*x = DeleteCodeGenTableRequest{}
+	mi := &file_system_admin_v1_code_gen_table_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteCodeGenTableRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteCodeGenTableRequest) ProtoMessage() {}
+
+func (x *DeleteCodeGenTableRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_code_gen_table_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteCodeGenTableRequest.ProtoReflect.Descriptor instead.
+func (*DeleteCodeGenTableRequest) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_code_gen_table_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *DeleteCodeGenTableRequest) GetIds() string {
+	if x != nil {
+		return x.Ids
+	}
+	return ""
+}
+
+// 数据库表元数据
+type CodeGenDatabaseTable struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	Name             string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`                                                 // 数据库表名
+	Comment          string                 `protobuf:"bytes,2,opt,name=comment,proto3" json:"comment,omitempty"`                                           // 业务表描述
+	Disabled         bool                   `protobuf:"varint,3,opt,name=disabled,proto3" json:"disabled,omitempty"`                                        // 是否已被选择
+	BusinessName     string                 `protobuf:"bytes,4,opt,name=business_name,json=businessName,proto3" json:"business_name,omitempty"`             // 默认业务名
+	EntityName       string                 `protobuf:"bytes,5,opt,name=entity_name,json=entityName,proto3" json:"entity_name,omitempty"`                   // 默认实体名
+	ModulePath       string                 `protobuf:"bytes,6,opt,name=module_path,json=modulePath,proto3" json:"module_path,omitempty"`                   // 默认模块路径
+	ApiPath          string                 `protobuf:"bytes,7,opt,name=api_path,json=apiPath,proto3" json:"api_path,omitempty"`                            // 默认Proto目录
+	PermissionPrefix string                 `protobuf:"bytes,8,opt,name=permission_prefix,json=permissionPrefix,proto3" json:"permission_prefix,omitempty"` // 默认权限前缀
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *CodeGenDatabaseTable) Reset() {
+	*x = CodeGenDatabaseTable{}
+	mi := &file_system_admin_v1_code_gen_table_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CodeGenDatabaseTable) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CodeGenDatabaseTable) ProtoMessage() {}
+
+func (x *CodeGenDatabaseTable) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_code_gen_table_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CodeGenDatabaseTable.ProtoReflect.Descriptor instead.
+func (*CodeGenDatabaseTable) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_code_gen_table_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *CodeGenDatabaseTable) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *CodeGenDatabaseTable) GetComment() string {
+	if x != nil {
+		return x.Comment
+	}
+	return ""
+}
+
+func (x *CodeGenDatabaseTable) GetDisabled() bool {
+	if x != nil {
+		return x.Disabled
+	}
+	return false
+}
+
+func (x *CodeGenDatabaseTable) GetBusinessName() string {
+	if x != nil {
+		return x.BusinessName
+	}
+	return ""
+}
+
+func (x *CodeGenDatabaseTable) GetEntityName() string {
+	if x != nil {
+		return x.EntityName
+	}
+	return ""
+}
+
+func (x *CodeGenDatabaseTable) GetModulePath() string {
+	if x != nil {
+		return x.ModulePath
+	}
+	return ""
+}
+
+func (x *CodeGenDatabaseTable) GetApiPath() string {
+	if x != nil {
+		return x.ApiPath
+	}
+	return ""
+}
+
+func (x *CodeGenDatabaseTable) GetPermissionPrefix() string {
+	if x != nil {
+		return x.PermissionPrefix
+	}
+	return ""
+}
+
+// Proto目录
+type CodeGenProtoDirectory struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Path          string                 `protobuf:"bytes,1,opt,name=path,proto3" json:"path,omitempty"` // 相对Proto根目录的目录路径
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CodeGenProtoDirectory) Reset() {
+	*x = CodeGenProtoDirectory{}
+	mi := &file_system_admin_v1_code_gen_table_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CodeGenProtoDirectory) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CodeGenProtoDirectory) ProtoMessage() {}
+
+func (x *CodeGenProtoDirectory) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_code_gen_table_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CodeGenProtoDirectory.ProtoReflect.Descriptor instead.
+func (*CodeGenProtoDirectory) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_code_gen_table_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *CodeGenProtoDirectory) GetPath() string {
+	if x != nil {
+		return x.Path
+	}
+	return ""
+}
+
+// 代码生成表配置
+type CodeGenTable struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                        // 主键ID
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`                                     // 业务表名
+	Comment       string                 `protobuf:"bytes,3,opt,name=comment,proto3" json:"comment,omitempty"`                               // 业务表描述
+	BusinessName  string                 `protobuf:"bytes,4,opt,name=business_name,json=businessName,proto3" json:"business_name,omitempty"` // 业务名
+	EntityName    string                 `protobuf:"bytes,5,opt,name=entity_name,json=entityName,proto3" json:"entity_name,omitempty"`       // 实体名
+	ModulePath    string                 `protobuf:"bytes,6,opt,name=module_path,json=modulePath,proto3" json:"module_path,omitempty"`       // 模块路径
+	ApiPath       string                 `protobuf:"bytes,7,opt,name=api_path,json=apiPath,proto3" json:"api_path,omitempty"`                // Proto目录
+	PageType      string                 `protobuf:"bytes,8,opt,name=page_type,json=pageType,proto3" json:"page_type,omitempty"`             // 页面类型
+	Status        int32                  `protobuf:"varint,9,opt,name=status,proto3" json:"status,omitempty"`                                // 状态
+	Remark        string                 `protobuf:"bytes,10,opt,name=remark,proto3" json:"remark,omitempty"`                                // 备注
+	CreatedAt     string                 `protobuf:"bytes,11,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`         // 创建时间
+	UpdatedAt     string                 `protobuf:"bytes,12,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`         // 更新时间
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CodeGenTable) Reset() {
+	*x = CodeGenTable{}
+	mi := &file_system_admin_v1_code_gen_table_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CodeGenTable) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CodeGenTable) ProtoMessage() {}
+
+func (x *CodeGenTable) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_code_gen_table_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CodeGenTable.ProtoReflect.Descriptor instead.
+func (*CodeGenTable) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_code_gen_table_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *CodeGenTable) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *CodeGenTable) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *CodeGenTable) GetComment() string {
+	if x != nil {
+		return x.Comment
+	}
+	return ""
+}
+
+func (x *CodeGenTable) GetBusinessName() string {
+	if x != nil {
+		return x.BusinessName
+	}
+	return ""
+}
+
+func (x *CodeGenTable) GetEntityName() string {
+	if x != nil {
+		return x.EntityName
+	}
+	return ""
+}
+
+func (x *CodeGenTable) GetModulePath() string {
+	if x != nil {
+		return x.ModulePath
+	}
+	return ""
+}
+
+func (x *CodeGenTable) GetApiPath() string {
+	if x != nil {
+		return x.ApiPath
+	}
+	return ""
+}
+
+func (x *CodeGenTable) GetPageType() string {
+	if x != nil {
+		return x.PageType
+	}
+	return ""
+}
+
+func (x *CodeGenTable) GetStatus() int32 {
+	if x != nil {
+		return x.Status
+	}
+	return 0
+}
+
+func (x *CodeGenTable) GetRemark() string {
+	if x != nil {
+		return x.Remark
+	}
+	return ""
+}
+
+func (x *CodeGenTable) GetCreatedAt() string {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return ""
+}
+
+func (x *CodeGenTable) GetUpdatedAt() string {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return ""
+}
+
 // 左树右表页面配置
 type CodeGenLeftTreeConfig struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -1073,13 +1073,7 @@ var File_system_admin_v1_code_gen_table_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_code_gen_table_proto_rawDesc = "" +
 	"\n" +
-	"$system/admin/v1/code_gen_table.proto\x12\x0fsystem.admin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"!\n" +
-	"\x1fListCodeGenDatabaseTableRequest\"{\n" +
-	" ListCodeGenDatabaseTableResponse\x12W\n" +
-	"\x06tables\x18\x01 \x03(\v2%.system.admin.v1.CodeGenDatabaseTableB\x18\xbaG\x15\x92\x02\x12数据库表列表R\x06tables\"\"\n" +
-	" ListCodeGenProtoDirectoryRequest\"\x86\x01\n" +
-	"!ListCodeGenProtoDirectoryResponse\x12a\n" +
-	"\vdirectories\x18\x01 \x03(\v2&.system.admin.v1.CodeGenProtoDirectoryB\x17\xbaG\x14\x92\x02\x11Proto目录列表R\vdirectories\"\xde\x03\n" +
+	"$system/admin/v1/code_gen_table.proto\x12\x0fsystem.admin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xde\x03\n" +
 	"\x17PageCodeGenTableRequest\x12+\n" +
 	"\x04name\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f业务表名H\x00R\x04name\x88\x01\x01\x129\n" +
 	"\rbusiness_name\x18\x02 \x01(\tB\x0f\xbaG\f\x92\x02\t业务名H\x01R\fbusinessName\x88\x01\x01\x128\n" +
@@ -1097,47 +1091,15 @@ const file_system_admin_v1_code_gen_table_proto_rawDesc = "" +
 	"\a_status\"\xa8\x01\n" +
 	"\x18PageCodeGenTableResponse\x12h\n" +
 	"\x0fcode_gen_tables\x18\x01 \x03(\v2\x1d.system.admin.v1.CodeGenTableB!\xbaG\x1e\x92\x02\x1b代码生成表配置列表R\rcodeGenTables\x12\"\n" +
-	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"8\n" +
+	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"!\n" +
+	"\x1fListCodeGenDatabaseTableRequest\"{\n" +
+	" ListCodeGenDatabaseTableResponse\x12W\n" +
+	"\x06tables\x18\x01 \x03(\v2%.system.admin.v1.CodeGenDatabaseTableB\x18\xbaG\x15\x92\x02\x12数据库表列表R\x06tables\"\"\n" +
+	" ListCodeGenProtoDirectoryRequest\"\x86\x01\n" +
+	"!ListCodeGenProtoDirectoryResponse\x12a\n" +
+	"\vdirectories\x18\x01 \x03(\v2&.system.admin.v1.CodeGenProtoDirectoryB\x17\xbaG\x14\x92\x02\x11Proto目录列表R\vdirectories\"8\n" +
 	"\x16GetCodeGenTableRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键IDR\x02id\"\x87\x01\n" +
-	"\x19CreateCodeGenTableRequest\x12j\n" +
-	"\x0ecode_gen_table\x18\x01 \x01(\v2!.system.admin.v1.CodeGenTableFormB!\xbaG\x1e\x92\x02\x1b代码生成表配置表单R\fcodeGenTable\"\xa7\x01\n" +
-	"\x19UpdateCodeGenTableRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键IDR\x02id\x12j\n" +
-	"\x0ecode_gen_table\x18\x02 \x01(\v2!.system.admin.v1.CodeGenTableFormB!\xbaG\x1e\x92\x02\x1b代码生成表配置表单R\fcodeGenTable\"j\n" +
-	"\x19DeleteCodeGenTableRequest\x12M\n" +
-	"\x03ids\x18\x01 \x01(\tB;\xbaG8\x92\x025代码生成表配置ID列表，多个用逗号分隔R\x03ids\"\xd2\x03\n" +
-	"\x14CodeGenDatabaseTable\x12)\n" +
-	"\x04name\x18\x01 \x01(\tB\x15\xbaG\x12\x92\x02\x0f数据库表名R\x04name\x12/\n" +
-	"\acomment\x18\x02 \x01(\tB\x15\xbaG\x12\x92\x02\x0f业务表描述R\acomment\x124\n" +
-	"\bdisabled\x18\x03 \x01(\bB\x18\xbaG\x15\x92\x02\x12是否已被选择R\bdisabled\x12:\n" +
-	"\rbusiness_name\x18\x04 \x01(\tB\x15\xbaG\x12\x92\x02\x0f默认业务名R\fbusinessName\x126\n" +
-	"\ventity_name\x18\x05 \x01(\tB\x15\xbaG\x12\x92\x02\x0f默认实体名R\n" +
-	"entityName\x129\n" +
-	"\vmodule_path\x18\x06 \x01(\tB\x18\xbaG\x15\x92\x02\x12默认模块路径R\n" +
-	"modulePath\x122\n" +
-	"\bapi_path\x18\a \x01(\tB\x17\xbaG\x14\x92\x02\x11默认Proto目录R\aapiPath\x12E\n" +
-	"\x11permission_prefix\x18\b \x01(\tB\x18\xbaG\x15\x92\x02\x12默认权限前缀R\x10permissionPrefix\"V\n" +
-	"\x15CodeGenProtoDirectory\x12=\n" +
-	"\x04path\x18\x01 \x01(\tB)\xbaG&\x92\x02#相对Proto根目录的目录路径R\x04path\"\xb5\x04\n" +
-	"\fCodeGenTable\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键IDR\x02id\x12&\n" +
-	"\x04name\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f业务表名R\x04name\x12/\n" +
-	"\acomment\x18\x03 \x01(\tB\x15\xbaG\x12\x92\x02\x0f业务表描述R\acomment\x124\n" +
-	"\rbusiness_name\x18\x04 \x01(\tB\x0f\xbaG\f\x92\x02\t业务名R\fbusinessName\x120\n" +
-	"\ventity_name\x18\x05 \x01(\tB\x0f\xbaG\f\x92\x02\t实体名R\n" +
-	"entityName\x123\n" +
-	"\vmodule_path\x18\x06 \x01(\tB\x12\xbaG\x0f\x92\x02\f模块路径R\n" +
-	"modulePath\x12,\n" +
-	"\bapi_path\x18\a \x01(\tB\x11\xbaG\x0e\x92\x02\vProto目录R\aapiPath\x12/\n" +
-	"\tpage_type\x18\b \x01(\tB\x12\xbaG\x0f\x92\x02\f页面类型R\bpageType\x12$\n" +
-	"\x06status\x18\t \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\x12$\n" +
-	"\x06remark\x18\n" +
-	" \x01(\tB\f\xbaG\t\x92\x02\x06备注R\x06remark\x121\n" +
-	"\n" +
-	"created_at\x18\v \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x121\n" +
-	"\n" +
-	"updated_at\x18\f \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\"\xac\x13\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键IDR\x02id\"\xac\x13\n" +
 	"\x10CodeGenTableForm\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键IDR\x02id\x12\xc0\x01\n" +
 	"\x04name\x18\x02 \x01(\tB\xab\x01\xbaG\x0f\x92\x02\f业务表名\xbaH\x95\x01\xba\x01@\n" +
@@ -1176,7 +1138,45 @@ const file_system_admin_v1_code_gen_table_proto_rawDesc = "" +
 	"\agen_sql\x18\x10 \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否生成建表SQLR\x06genSql\x12$\n" +
 	"\x06status\x18\x11 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\x12u\n" +
 	"\x06remark\x18\x12 \x01(\tB]\xbaG\t\x92\x02\x06备注\xbaHN\xba\x01K\n" +
-	"\x13field.remark.length\x12 备注不能超过 500 个字符\x1a\x12this.size() <= 500R\x06remark\"\xff\x02\n" +
+	"\x13field.remark.length\x12 备注不能超过 500 个字符\x1a\x12this.size() <= 500R\x06remark\"\x87\x01\n" +
+	"\x19CreateCodeGenTableRequest\x12j\n" +
+	"\x0ecode_gen_table\x18\x01 \x01(\v2!.system.admin.v1.CodeGenTableFormB!\xbaG\x1e\x92\x02\x1b代码生成表配置表单R\fcodeGenTable\"\xa7\x01\n" +
+	"\x19UpdateCodeGenTableRequest\x12\x1e\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键IDR\x02id\x12j\n" +
+	"\x0ecode_gen_table\x18\x02 \x01(\v2!.system.admin.v1.CodeGenTableFormB!\xbaG\x1e\x92\x02\x1b代码生成表配置表单R\fcodeGenTable\"j\n" +
+	"\x19DeleteCodeGenTableRequest\x12M\n" +
+	"\x03ids\x18\x01 \x01(\tB;\xbaG8\x92\x025代码生成表配置ID列表，多个用逗号分隔R\x03ids\"\xd2\x03\n" +
+	"\x14CodeGenDatabaseTable\x12)\n" +
+	"\x04name\x18\x01 \x01(\tB\x15\xbaG\x12\x92\x02\x0f数据库表名R\x04name\x12/\n" +
+	"\acomment\x18\x02 \x01(\tB\x15\xbaG\x12\x92\x02\x0f业务表描述R\acomment\x124\n" +
+	"\bdisabled\x18\x03 \x01(\bB\x18\xbaG\x15\x92\x02\x12是否已被选择R\bdisabled\x12:\n" +
+	"\rbusiness_name\x18\x04 \x01(\tB\x15\xbaG\x12\x92\x02\x0f默认业务名R\fbusinessName\x126\n" +
+	"\ventity_name\x18\x05 \x01(\tB\x15\xbaG\x12\x92\x02\x0f默认实体名R\n" +
+	"entityName\x129\n" +
+	"\vmodule_path\x18\x06 \x01(\tB\x18\xbaG\x15\x92\x02\x12默认模块路径R\n" +
+	"modulePath\x122\n" +
+	"\bapi_path\x18\a \x01(\tB\x17\xbaG\x14\x92\x02\x11默认Proto目录R\aapiPath\x12E\n" +
+	"\x11permission_prefix\x18\b \x01(\tB\x18\xbaG\x15\x92\x02\x12默认权限前缀R\x10permissionPrefix\"V\n" +
+	"\x15CodeGenProtoDirectory\x12=\n" +
+	"\x04path\x18\x01 \x01(\tB)\xbaG&\x92\x02#相对Proto根目录的目录路径R\x04path\"\xb5\x04\n" +
+	"\fCodeGenTable\x12\x1e\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键IDR\x02id\x12&\n" +
+	"\x04name\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f业务表名R\x04name\x12/\n" +
+	"\acomment\x18\x03 \x01(\tB\x15\xbaG\x12\x92\x02\x0f业务表描述R\acomment\x124\n" +
+	"\rbusiness_name\x18\x04 \x01(\tB\x0f\xbaG\f\x92\x02\t业务名R\fbusinessName\x120\n" +
+	"\ventity_name\x18\x05 \x01(\tB\x0f\xbaG\f\x92\x02\t实体名R\n" +
+	"entityName\x123\n" +
+	"\vmodule_path\x18\x06 \x01(\tB\x12\xbaG\x0f\x92\x02\f模块路径R\n" +
+	"modulePath\x12,\n" +
+	"\bapi_path\x18\a \x01(\tB\x11\xbaG\x0e\x92\x02\vProto目录R\aapiPath\x12/\n" +
+	"\tpage_type\x18\b \x01(\tB\x12\xbaG\x0f\x92\x02\f页面类型R\bpageType\x12$\n" +
+	"\x06status\x18\t \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\x12$\n" +
+	"\x06remark\x18\n" +
+	" \x01(\tB\f\xbaG\t\x92\x02\x06备注R\x06remark\x121\n" +
+	"\n" +
+	"created_at\x18\v \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x121\n" +
+	"\n" +
+	"updated_at\x18\f \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\"\xff\x02\n" +
 	"\x15CodeGenLeftTreeConfig\x127\n" +
 	"\n" +
 	"table_name\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12左树数据表名R\ttableName\x12F\n" +
@@ -1185,10 +1185,10 @@ const file_system_admin_v1_code_gen_table_proto_rawDesc = "" +
 	"\flabel_column\x18\x04 \x01(\tB\x18\xbaG\x15\x92\x02\x12左树显示字段R\vlabelColumn\x128\n" +
 	"\fvalue_column\x18\x05 \x01(\tB\x15\xbaG\x12\x92\x02\x0f左树值字段R\vvalueColumn\x12,\n" +
 	"\acomment\x18\x06 \x01(\tB\x12\xbaG\x0f\x92\x02\f左树描述R\acomment2\xc4\b\n" +
-	"\x13CodeGenTableService\x12\xae\x01\n" +
+	"\x13CodeGenTableService\x12\x8d\x01\n" +
+	"\x10PageCodeGenTable\x12(.system.admin.v1.PageCodeGenTableRequest\x1a).system.admin.v1.PageCodeGenTableResponse\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/api/v1/admin/code-gen/table\x12\xae\x01\n" +
 	"\x18ListCodeGenDatabaseTable\x120.system.admin.v1.ListCodeGenDatabaseTableRequest\x1a1.system.admin.v1.ListCodeGenDatabaseTableResponse\"-\x82\xd3\xe4\x93\x02'\x12%/api/v1/admin/code-gen/database/table\x12\xb2\x01\n" +
-	"\x19ListCodeGenProtoDirectory\x121.system.admin.v1.ListCodeGenProtoDirectoryRequest\x1a2.system.admin.v1.ListCodeGenProtoDirectoryResponse\".\x82\xd3\xe4\x93\x02(\x12&/api/v1/admin/code-gen/proto/directory\x12\x8d\x01\n" +
-	"\x10PageCodeGenTable\x12(.system.admin.v1.PageCodeGenTableRequest\x1a).system.admin.v1.PageCodeGenTableResponse\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/api/v1/admin/code-gen/table\x12\x88\x01\n" +
+	"\x19ListCodeGenProtoDirectory\x121.system.admin.v1.ListCodeGenProtoDirectoryRequest\x1a2.system.admin.v1.ListCodeGenProtoDirectoryResponse\".\x82\xd3\xe4\x93\x02(\x12&/api/v1/admin/code-gen/proto/directory\x12\x88\x01\n" +
 	"\x0fGetCodeGenTable\x12'.system.admin.v1.GetCodeGenTableRequest\x1a!.system.admin.v1.CodeGenTableForm\")\x82\xd3\xe4\x93\x02#\x12!/api/v1/admin/code-gen/table/{id}\x12\x8e\x01\n" +
 	"\x12CreateCodeGenTable\x12*.system.admin.v1.CreateCodeGenTableRequest\x1a\x16.google.protobuf.Empty\"4\x82\xd3\xe4\x93\x02.:\x0ecode_gen_table\"\x1c/api/v1/admin/code-gen/table\x12\x93\x01\n" +
 	"\x12UpdateCodeGenTable\x12*.system.admin.v1.UpdateCodeGenTableRequest\x1a\x16.google.protobuf.Empty\"9\x82\xd3\xe4\x93\x023:\x0ecode_gen_table\x1a!/api/v1/admin/code-gen/table/{id}\x12\x84\x01\n" +
@@ -1209,41 +1209,41 @@ func file_system_admin_v1_code_gen_table_proto_rawDescGZIP() []byte {
 
 var file_system_admin_v1_code_gen_table_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 var file_system_admin_v1_code_gen_table_proto_goTypes = []any{
-	(*ListCodeGenDatabaseTableRequest)(nil),   // 0: system.admin.v1.ListCodeGenDatabaseTableRequest
-	(*ListCodeGenDatabaseTableResponse)(nil),  // 1: system.admin.v1.ListCodeGenDatabaseTableResponse
-	(*ListCodeGenProtoDirectoryRequest)(nil),  // 2: system.admin.v1.ListCodeGenProtoDirectoryRequest
-	(*ListCodeGenProtoDirectoryResponse)(nil), // 3: system.admin.v1.ListCodeGenProtoDirectoryResponse
-	(*PageCodeGenTableRequest)(nil),           // 4: system.admin.v1.PageCodeGenTableRequest
-	(*PageCodeGenTableResponse)(nil),          // 5: system.admin.v1.PageCodeGenTableResponse
+	(*PageCodeGenTableRequest)(nil),           // 0: system.admin.v1.PageCodeGenTableRequest
+	(*PageCodeGenTableResponse)(nil),          // 1: system.admin.v1.PageCodeGenTableResponse
+	(*ListCodeGenDatabaseTableRequest)(nil),   // 2: system.admin.v1.ListCodeGenDatabaseTableRequest
+	(*ListCodeGenDatabaseTableResponse)(nil),  // 3: system.admin.v1.ListCodeGenDatabaseTableResponse
+	(*ListCodeGenProtoDirectoryRequest)(nil),  // 4: system.admin.v1.ListCodeGenProtoDirectoryRequest
+	(*ListCodeGenProtoDirectoryResponse)(nil), // 5: system.admin.v1.ListCodeGenProtoDirectoryResponse
 	(*GetCodeGenTableRequest)(nil),            // 6: system.admin.v1.GetCodeGenTableRequest
-	(*CreateCodeGenTableRequest)(nil),         // 7: system.admin.v1.CreateCodeGenTableRequest
-	(*UpdateCodeGenTableRequest)(nil),         // 8: system.admin.v1.UpdateCodeGenTableRequest
-	(*DeleteCodeGenTableRequest)(nil),         // 9: system.admin.v1.DeleteCodeGenTableRequest
-	(*CodeGenDatabaseTable)(nil),              // 10: system.admin.v1.CodeGenDatabaseTable
-	(*CodeGenProtoDirectory)(nil),             // 11: system.admin.v1.CodeGenProtoDirectory
-	(*CodeGenTable)(nil),                      // 12: system.admin.v1.CodeGenTable
-	(*CodeGenTableForm)(nil),                  // 13: system.admin.v1.CodeGenTableForm
+	(*CodeGenTableForm)(nil),                  // 7: system.admin.v1.CodeGenTableForm
+	(*CreateCodeGenTableRequest)(nil),         // 8: system.admin.v1.CreateCodeGenTableRequest
+	(*UpdateCodeGenTableRequest)(nil),         // 9: system.admin.v1.UpdateCodeGenTableRequest
+	(*DeleteCodeGenTableRequest)(nil),         // 10: system.admin.v1.DeleteCodeGenTableRequest
+	(*CodeGenDatabaseTable)(nil),              // 11: system.admin.v1.CodeGenDatabaseTable
+	(*CodeGenProtoDirectory)(nil),             // 12: system.admin.v1.CodeGenProtoDirectory
+	(*CodeGenTable)(nil),                      // 13: system.admin.v1.CodeGenTable
 	(*CodeGenLeftTreeConfig)(nil),             // 14: system.admin.v1.CodeGenLeftTreeConfig
 	(*emptypb.Empty)(nil),                     // 15: google.protobuf.Empty
 }
 var file_system_admin_v1_code_gen_table_proto_depIdxs = []int32{
-	10, // 0: system.admin.v1.ListCodeGenDatabaseTableResponse.tables:type_name -> system.admin.v1.CodeGenDatabaseTable
-	11, // 1: system.admin.v1.ListCodeGenProtoDirectoryResponse.directories:type_name -> system.admin.v1.CodeGenProtoDirectory
-	12, // 2: system.admin.v1.PageCodeGenTableResponse.code_gen_tables:type_name -> system.admin.v1.CodeGenTable
-	13, // 3: system.admin.v1.CreateCodeGenTableRequest.code_gen_table:type_name -> system.admin.v1.CodeGenTableForm
-	13, // 4: system.admin.v1.UpdateCodeGenTableRequest.code_gen_table:type_name -> system.admin.v1.CodeGenTableForm
-	14, // 5: system.admin.v1.CodeGenTableForm.left_tree_config:type_name -> system.admin.v1.CodeGenLeftTreeConfig
-	0,  // 6: system.admin.v1.CodeGenTableService.ListCodeGenDatabaseTable:input_type -> system.admin.v1.ListCodeGenDatabaseTableRequest
-	2,  // 7: system.admin.v1.CodeGenTableService.ListCodeGenProtoDirectory:input_type -> system.admin.v1.ListCodeGenProtoDirectoryRequest
-	4,  // 8: system.admin.v1.CodeGenTableService.PageCodeGenTable:input_type -> system.admin.v1.PageCodeGenTableRequest
+	13, // 0: system.admin.v1.PageCodeGenTableResponse.code_gen_tables:type_name -> system.admin.v1.CodeGenTable
+	11, // 1: system.admin.v1.ListCodeGenDatabaseTableResponse.tables:type_name -> system.admin.v1.CodeGenDatabaseTable
+	12, // 2: system.admin.v1.ListCodeGenProtoDirectoryResponse.directories:type_name -> system.admin.v1.CodeGenProtoDirectory
+	14, // 3: system.admin.v1.CodeGenTableForm.left_tree_config:type_name -> system.admin.v1.CodeGenLeftTreeConfig
+	7,  // 4: system.admin.v1.CreateCodeGenTableRequest.code_gen_table:type_name -> system.admin.v1.CodeGenTableForm
+	7,  // 5: system.admin.v1.UpdateCodeGenTableRequest.code_gen_table:type_name -> system.admin.v1.CodeGenTableForm
+	0,  // 6: system.admin.v1.CodeGenTableService.PageCodeGenTable:input_type -> system.admin.v1.PageCodeGenTableRequest
+	2,  // 7: system.admin.v1.CodeGenTableService.ListCodeGenDatabaseTable:input_type -> system.admin.v1.ListCodeGenDatabaseTableRequest
+	4,  // 8: system.admin.v1.CodeGenTableService.ListCodeGenProtoDirectory:input_type -> system.admin.v1.ListCodeGenProtoDirectoryRequest
 	6,  // 9: system.admin.v1.CodeGenTableService.GetCodeGenTable:input_type -> system.admin.v1.GetCodeGenTableRequest
-	7,  // 10: system.admin.v1.CodeGenTableService.CreateCodeGenTable:input_type -> system.admin.v1.CreateCodeGenTableRequest
-	8,  // 11: system.admin.v1.CodeGenTableService.UpdateCodeGenTable:input_type -> system.admin.v1.UpdateCodeGenTableRequest
-	9,  // 12: system.admin.v1.CodeGenTableService.DeleteCodeGenTable:input_type -> system.admin.v1.DeleteCodeGenTableRequest
-	1,  // 13: system.admin.v1.CodeGenTableService.ListCodeGenDatabaseTable:output_type -> system.admin.v1.ListCodeGenDatabaseTableResponse
-	3,  // 14: system.admin.v1.CodeGenTableService.ListCodeGenProtoDirectory:output_type -> system.admin.v1.ListCodeGenProtoDirectoryResponse
-	5,  // 15: system.admin.v1.CodeGenTableService.PageCodeGenTable:output_type -> system.admin.v1.PageCodeGenTableResponse
-	13, // 16: system.admin.v1.CodeGenTableService.GetCodeGenTable:output_type -> system.admin.v1.CodeGenTableForm
+	8,  // 10: system.admin.v1.CodeGenTableService.CreateCodeGenTable:input_type -> system.admin.v1.CreateCodeGenTableRequest
+	9,  // 11: system.admin.v1.CodeGenTableService.UpdateCodeGenTable:input_type -> system.admin.v1.UpdateCodeGenTableRequest
+	10, // 12: system.admin.v1.CodeGenTableService.DeleteCodeGenTable:input_type -> system.admin.v1.DeleteCodeGenTableRequest
+	1,  // 13: system.admin.v1.CodeGenTableService.PageCodeGenTable:output_type -> system.admin.v1.PageCodeGenTableResponse
+	3,  // 14: system.admin.v1.CodeGenTableService.ListCodeGenDatabaseTable:output_type -> system.admin.v1.ListCodeGenDatabaseTableResponse
+	5,  // 15: system.admin.v1.CodeGenTableService.ListCodeGenProtoDirectory:output_type -> system.admin.v1.ListCodeGenProtoDirectoryResponse
+	7,  // 16: system.admin.v1.CodeGenTableService.GetCodeGenTable:output_type -> system.admin.v1.CodeGenTableForm
 	15, // 17: system.admin.v1.CodeGenTableService.CreateCodeGenTable:output_type -> google.protobuf.Empty
 	15, // 18: system.admin.v1.CodeGenTableService.UpdateCodeGenTable:output_type -> google.protobuf.Empty
 	15, // 19: system.admin.v1.CodeGenTableService.DeleteCodeGenTable:output_type -> google.protobuf.Empty
@@ -1259,7 +1259,7 @@ func file_system_admin_v1_code_gen_table_proto_init() {
 	if File_system_admin_v1_code_gen_table_proto != nil {
 		return
 	}
-	file_system_admin_v1_code_gen_table_proto_msgTypes[4].OneofWrappers = []any{}
+	file_system_admin_v1_code_gen_table_proto_msgTypes[0].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

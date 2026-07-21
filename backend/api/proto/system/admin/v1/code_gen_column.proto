@@ -8,17 +8,17 @@ import "google/protobuf/empty.proto";
 
 // Admin代码生成字段服务
 service CodeGenColumnService {
-  // 查询数据库表字段列表
-  rpc ListCodeGenDatabaseColumn(ListCodeGenDatabaseColumnRequest) returns (ListCodeGenDatabaseColumnResponse) {
-    option (google.api.http) = {
-      get: "/api/v1/admin/code-gen/database/table/{table_name}/column"
-    };
-  }
-
   // 查询代码生成字段配置
   rpc ListCodeGenColumn(ListCodeGenColumnRequest) returns (ListCodeGenColumnResponse) {
     option (google.api.http) = {
       get: "/api/v1/admin/code-gen/table/{table_id}/column"
+    };
+  }
+
+  // 查询数据库表字段列表
+  rpc ListCodeGenDatabaseColumn(ListCodeGenDatabaseColumnRequest) returns (ListCodeGenDatabaseColumnResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/code-gen/database/table/{table_name}/column"
     };
   }
 
@@ -31,16 +31,6 @@ service CodeGenColumnService {
   }
 }
 
-// 数据库表字段列表查询条件
-message ListCodeGenDatabaseColumnRequest {
-  string table_name = 1 [(gnostic.openapi.v3.property) = {description: "数据库表名"}]; // 数据库表名
-}
-
-// 数据库表字段列表响应
-message ListCodeGenDatabaseColumnResponse {
-  repeated CodeGenDatabaseColumn columns = 1 [(gnostic.openapi.v3.property) = {description: "数据库字段列表"}]; // 数据库字段列表
-}
-
 // 代码生成字段配置查询条件
 message ListCodeGenColumnRequest {
   int64 table_id = 1 [(gnostic.openapi.v3.property) = {description: "代码生成表配置ID"}]; // 代码生成表配置ID
@@ -49,6 +39,16 @@ message ListCodeGenColumnRequest {
 // 代码生成字段配置查询响应
 message ListCodeGenColumnResponse {
   repeated CodeGenColumn code_gen_columns = 1 [(gnostic.openapi.v3.property) = {description: "代码生成字段配置列表"}]; // 代码生成字段配置列表
+}
+
+// 数据库表字段列表查询条件
+message ListCodeGenDatabaseColumnRequest {
+  string table_name = 1 [(gnostic.openapi.v3.property) = {description: "数据库表名"}]; // 数据库表名
+}
+
+// 数据库表字段列表响应
+message ListCodeGenDatabaseColumnResponse {
+  repeated CodeGenDatabaseColumn columns = 1 [(gnostic.openapi.v3.property) = {description: "数据库字段列表"}]; // 数据库字段列表
 }
 
 // 代码生成字段配置保存条件

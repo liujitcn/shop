@@ -36,21 +36,6 @@ func NewGoodsCategoryCase(baseCase *biz.BaseCase, goodsCategoryRepo *data.GoodsC
 	}
 }
 
-// TreeGoodsCategory 查询分类树
-func (c *GoodsCategoryCase) TreeGoodsCategory(ctx context.Context, _ *shopadminv1.TreeGoodsCategoryRequest) (*shopadminv1.TreeGoodsCategoryResponse, error) {
-	query := c.Query(ctx).GoodsCategory
-	opts := make([]repository.QueryOption, 0, 2)
-	opts = append(opts, repository.Order(query.Sort.Asc()))
-	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
-	list, err := c.List(ctx, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return &shopadminv1.TreeGoodsCategoryResponse{
-		GoodsCategories: c.buildTree(list, 0),
-	}, nil
-}
-
 // OptionGoodsCategory 查询分类选项
 func (c *GoodsCategoryCase) OptionGoodsCategory(ctx context.Context, req *shopadminv1.OptionGoodsCategoryRequest) (*commonv1.TreeOptionResponse, error) {
 	query := c.Query(ctx).GoodsCategory
@@ -63,6 +48,21 @@ func (c *GoodsCategoryCase) OptionGoodsCategory(ctx context.Context, req *shopad
 	}
 	return &commonv1.TreeOptionResponse{
 		List: c.buildOption(list, 0, req.ParentId == nil),
+	}, nil
+}
+
+// TreeGoodsCategory 查询分类树
+func (c *GoodsCategoryCase) TreeGoodsCategory(ctx context.Context, _ *shopadminv1.TreeGoodsCategoryRequest) (*shopadminv1.TreeGoodsCategoryResponse, error) {
+	query := c.Query(ctx).GoodsCategory
+	opts := make([]repository.QueryOption, 0, 2)
+	opts = append(opts, repository.Order(query.Sort.Asc()))
+	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
+	list, err := c.List(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &shopadminv1.TreeGoodsCategoryResponse{
+		GoodsCategories: c.buildTree(list, 0),
 	}, nil
 }
 

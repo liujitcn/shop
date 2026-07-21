@@ -41,34 +41,6 @@ func NewRecommendGorseCase(recommend *gorse.Dashboard) *RecommendGorseCase {
 	}
 }
 
-// GetTimeSeries 查询 Gorse 推荐单项时间序列。
-func (c *RecommendGorseCase) GetTimeSeries(ctx context.Context, name, begin, end string) (*shopadminv1.TimeSeriesResponse, error) {
-	// 指标名称为空时，无法拼装Gorse 仪表盘 API 路径。
-	if name == "" {
-		return nil, errorsx.InvalidArgument("指标名称不能为空")
-	}
-
-	data, err := c.dashboard.TimeSeries(ctx, name, begin, end)
-	if err != nil {
-		return nil, err
-	}
-
-	response := new(shopadminv1.TimeSeriesResponse)
-	// Gorse 时间序列接口原始返回数组，Proto 响应需要外层字段承载，内部字段通过 json_name 直接对齐原始结构。
-	if string(data) == "null" {
-		return response, nil
-	}
-	wrappedData := make([]byte, 0, len(data)+12)
-	wrappedData = append(wrappedData, `{"Points":`...)
-	wrappedData = append(wrappedData, data...)
-	wrappedData = append(wrappedData, '}')
-	err = (protojson.UnmarshalOptions{DiscardUnknown: true}).Unmarshal(wrappedData, response)
-	if err != nil {
-		return nil, err
-	}
-	return response, nil
-}
-
 // OptionCategory 查询 Gorse 推荐分类列表。
 func (c *RecommendGorseCase) OptionCategory(ctx context.Context) (*shopadminv1.OptionCategoryResponse, error) {
 	data, err := c.dashboard.Categories(ctx)
@@ -78,6 +50,36 @@ func (c *RecommendGorseCase) OptionCategory(ctx context.Context) (*shopadminv1.O
 
 	response := new(shopadminv1.OptionCategoryResponse)
 	err = (protojson.UnmarshalOptions{DiscardUnknown: true}).Unmarshal([]byte(`{"categories":`+string(data)+`}`), response)
+	if err != nil {
+		return nil, err
+	}
+	return response, nil
+}
+
+// PageItem 查询 Gorse 推荐商品列表。
+func (c *RecommendGorseCase) PageItem(ctx context.Context, cursor string, n int32) (*shopadminv1.PageItemResponse, error) {
+	data, err := c.dashboard.Items(ctx, cursor, n)
+	if err != nil {
+		return nil, err
+	}
+
+	response := new(shopadminv1.PageItemResponse)
+	err = (protojson.UnmarshalOptions{DiscardUnknown: true}).Unmarshal(data, response)
+	if err != nil {
+		return nil, err
+	}
+	return response, nil
+}
+
+// PageUser 查询 Gorse 推荐用户列表。
+func (c *RecommendGorseCase) PageUser(ctx context.Context, cursor string, n int32) (*shopadminv1.PageUserResponse, error) {
+	data, err := c.dashboard.Users(ctx, cursor, n)
+	if err != nil {
+		return nil, err
+	}
+
+	response := new(shopadminv1.PageUserResponse)
+	err = (protojson.UnmarshalOptions{DiscardUnknown: true}).Unmarshal(data, response)
 	if err != nil {
 		return nil, err
 	}
@@ -135,15 +137,96 @@ func (c *RecommendGorseCase) ListTask(ctx context.Context) (*shopadminv1.ListTas
 	return response, nil
 }
 
-// PageUser 查询 Gorse 推荐用户列表。
-func (c *RecommendGorseCase) PageUser(ctx context.Context, cursor string, n int32) (*shopadminv1.PageUserResponse, error) {
-	data, err := c.dashboard.Users(ctx, cursor, n)
+// GetConfig 查询 Gorse 推荐配置。
+func (c *RecommendGorseCase) GetConfig(ctx context.Context) (*shopadminv1.ConfigResponse, error) {
+	data, err := c.dashboard.Config(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	response := new(shopadminv1.PageUserResponse)
+	data, err = redactGorseConfig(data)
+	if err != nil {
+		return nil, err
+	}
+
+	config := new(shopadminv1.ConfigResponse)
+	err = (protojson.UnmarshalOptions{DiscardUnknown: true}).Unmarshal(data, config)
+	if err != nil {
+		return nil, err
+	}
+	return config, nil
+}
+
+// GetItem 查询 Gorse 推荐商品。
+func (c *RecommendGorseCase) GetItem(ctx context.Context, id string) (*shopadminv1.Item, error) {
+	// 商品编号为空时，无法继续代理 Gorse商品详情接口。
+	if id == "" {
+		return nil, errorsx.InvalidArgument("商品编号不能为空")
+	}
+
+	data, err := c.dashboard.Item(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	response := new(shopadminv1.Item)
 	err = (protojson.UnmarshalOptions{DiscardUnknown: true}).Unmarshal(data, response)
+	if err != nil {
+		return nil, err
+	}
+	return response, nil
+}
+
+// GetItemSimilar 查询 Gorse 推荐相似商品。
+func (c *RecommendGorseCase) GetItemSimilar(ctx context.Context, id, recommender, category string) (*shopadminv1.ItemListResponse, error) {
+	// 商品编号为空时，无法继续代理 Gorse相似商品接口。
+	if id == "" {
+		return nil, errorsx.InvalidArgument("商品编号不能为空")
+	}
+
+	data, err := c.dashboard.ItemSimilar(ctx, id, recommender, category)
+	if err != nil {
+		return nil, err
+	}
+
+	response := new(shopadminv1.ItemListResponse)
+	// Gorse 相似商品接口原始返回数组，商品字段通过 json_name 直接对齐原始结构。
+	if string(data) == "null" {
+		return response, nil
+	}
+	wrappedData := make([]byte, 0, len(data)+11)
+	wrappedData = append(wrappedData, `{"Items":`...)
+	wrappedData = append(wrappedData, data...)
+	wrappedData = append(wrappedData, '}')
+	err = (protojson.UnmarshalOptions{DiscardUnknown: true}).Unmarshal(wrappedData, response)
+	if err != nil {
+		return nil, err
+	}
+	return response, nil
+}
+
+// GetTimeSeries 查询 Gorse 推荐单项时间序列。
+func (c *RecommendGorseCase) GetTimeSeries(ctx context.Context, name, begin, end string) (*shopadminv1.TimeSeriesResponse, error) {
+	// 指标名称为空时，无法拼装Gorse 仪表盘 API 路径。
+	if name == "" {
+		return nil, errorsx.InvalidArgument("指标名称不能为空")
+	}
+
+	data, err := c.dashboard.TimeSeries(ctx, name, begin, end)
+	if err != nil {
+		return nil, err
+	}
+
+	response := new(shopadminv1.TimeSeriesResponse)
+	// Gorse 时间序列接口原始返回数组，Proto 响应需要外层字段承载，内部字段通过 json_name 直接对齐原始结构。
+	if string(data) == "null" {
+		return response, nil
+	}
+	wrappedData := make([]byte, 0, len(data)+12)
+	wrappedData = append(wrappedData, `{"Points":`...)
+	wrappedData = append(wrappedData, data...)
+	wrappedData = append(wrappedData, '}')
+	err = (protojson.UnmarshalOptions{DiscardUnknown: true}).Unmarshal(wrappedData, response)
 	if err != nil {
 		return nil, err
 	}
@@ -164,48 +247,6 @@ func (c *RecommendGorseCase) GetUser(ctx context.Context, id string) (*shopadmin
 
 	response := new(shopadminv1.UserResponse)
 	err = (protojson.UnmarshalOptions{DiscardUnknown: true}).Unmarshal(data, response)
-	if err != nil {
-		return nil, err
-	}
-	return response, nil
-}
-
-// DeleteUser 删除 Gorse 推荐用户。
-func (c *RecommendGorseCase) DeleteUser(ctx context.Context, id string) error {
-	// 用户编号为空时，无法继续代理 Gorse用户删除接口。
-	if id == "" {
-		return errorsx.InvalidArgument("用户编号不能为空")
-	}
-
-	_, err := c.dashboard.DeleteUser(ctx, id)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-// GetUserSimilar 查询 Gorse 推荐相似用户。
-func (c *RecommendGorseCase) GetUserSimilar(ctx context.Context, id, recommender string) (*shopadminv1.UserSimilarResponse, error) {
-	// 用户编号为空时，无法继续代理 Gorse相似用户接口。
-	if id == "" {
-		return nil, errorsx.InvalidArgument("用户编号不能为空")
-	}
-
-	data, err := c.dashboard.UserSimilar(ctx, id, recommender)
-	if err != nil {
-		return nil, err
-	}
-
-	response := new(shopadminv1.UserSimilarResponse)
-	// Gorse 相似用户接口原始返回数组，用户字段通过 json_name 直接对齐原始结构。
-	if string(data) == "null" {
-		return response, nil
-	}
-	wrappedData := make([]byte, 0, len(data)+11)
-	wrappedData = append(wrappedData, `{"Users":`...)
-	wrappedData = append(wrappedData, data...)
-	wrappedData = append(wrappedData, '}')
-	err = (protojson.UnmarshalOptions{DiscardUnknown: true}).Unmarshal(wrappedData, response)
 	if err != nil {
 		return nil, err
 	}
@@ -280,35 +321,28 @@ func (c *RecommendGorseCase) GetUserRecommend(
 	return response, nil
 }
 
-// PageItem 查询 Gorse 推荐商品列表。
-func (c *RecommendGorseCase) PageItem(ctx context.Context, cursor string, n int32) (*shopadminv1.PageItemResponse, error) {
-	data, err := c.dashboard.Items(ctx, cursor, n)
-	if err != nil {
-		return nil, err
-	}
-
-	response := new(shopadminv1.PageItemResponse)
-	err = (protojson.UnmarshalOptions{DiscardUnknown: true}).Unmarshal(data, response)
-	if err != nil {
-		return nil, err
-	}
-	return response, nil
-}
-
-// GetItem 查询 Gorse 推荐商品。
-func (c *RecommendGorseCase) GetItem(ctx context.Context, id string) (*shopadminv1.Item, error) {
-	// 商品编号为空时，无法继续代理 Gorse商品详情接口。
+// GetUserSimilar 查询 Gorse 推荐相似用户。
+func (c *RecommendGorseCase) GetUserSimilar(ctx context.Context, id, recommender string) (*shopadminv1.UserSimilarResponse, error) {
+	// 用户编号为空时，无法继续代理 Gorse相似用户接口。
 	if id == "" {
-		return nil, errorsx.InvalidArgument("商品编号不能为空")
+		return nil, errorsx.InvalidArgument("用户编号不能为空")
 	}
 
-	data, err := c.dashboard.Item(ctx, id)
+	data, err := c.dashboard.UserSimilar(ctx, id, recommender)
 	if err != nil {
 		return nil, err
 	}
 
-	response := new(shopadminv1.Item)
-	err = (protojson.UnmarshalOptions{DiscardUnknown: true}).Unmarshal(data, response)
+	response := new(shopadminv1.UserSimilarResponse)
+	// Gorse 相似用户接口原始返回数组，用户字段通过 json_name 直接对齐原始结构。
+	if string(data) == "null" {
+		return response, nil
+	}
+	wrappedData := make([]byte, 0, len(data)+11)
+	wrappedData = append(wrappedData, `{"Users":`...)
+	wrappedData = append(wrappedData, data...)
+	wrappedData = append(wrappedData, '}')
+	err = (protojson.UnmarshalOptions{DiscardUnknown: true}).Unmarshal(wrappedData, response)
 	if err != nil {
 		return nil, err
 	}
@@ -329,32 +363,18 @@ func (c *RecommendGorseCase) DeleteItem(ctx context.Context, id string) error {
 	return nil
 }
 
-// GetItemSimilar 查询 Gorse 推荐相似商品。
-func (c *RecommendGorseCase) GetItemSimilar(ctx context.Context, id, recommender, category string) (*shopadminv1.ItemListResponse, error) {
-	// 商品编号为空时，无法继续代理 Gorse相似商品接口。
+// DeleteUser 删除 Gorse 推荐用户。
+func (c *RecommendGorseCase) DeleteUser(ctx context.Context, id string) error {
+	// 用户编号为空时，无法继续代理 Gorse用户删除接口。
 	if id == "" {
-		return nil, errorsx.InvalidArgument("商品编号不能为空")
+		return errorsx.InvalidArgument("用户编号不能为空")
 	}
 
-	data, err := c.dashboard.ItemSimilar(ctx, id, recommender, category)
+	_, err := c.dashboard.DeleteUser(ctx, id)
 	if err != nil {
-		return nil, err
+		return err
 	}
-
-	response := new(shopadminv1.ItemListResponse)
-	// Gorse 相似商品接口原始返回数组，商品字段通过 json_name 直接对齐原始结构。
-	if string(data) == "null" {
-		return response, nil
-	}
-	wrappedData := make([]byte, 0, len(data)+11)
-	wrappedData = append(wrappedData, `{"Items":`...)
-	wrappedData = append(wrappedData, data...)
-	wrappedData = append(wrappedData, '}')
-	err = (protojson.UnmarshalOptions{DiscardUnknown: true}).Unmarshal(wrappedData, response)
-	if err != nil {
-		return nil, err
-	}
-	return response, nil
+	return nil
 }
 
 // ExportData 导出 Gorse 推荐数据。
@@ -447,26 +467,6 @@ func (c *RecommendGorseCase) ImportData(
 	return &shopadminv1.ImportDataResponse{
 		SuccessCount: int32(successCount),
 	}, nil
-}
-
-// GetConfig 查询 Gorse 推荐配置。
-func (c *RecommendGorseCase) GetConfig(ctx context.Context) (*shopadminv1.ConfigResponse, error) {
-	data, err := c.dashboard.Config(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	data, err = redactGorseConfig(data)
-	if err != nil {
-		return nil, err
-	}
-
-	config := new(shopadminv1.ConfigResponse)
-	err = (protojson.UnmarshalOptions{DiscardUnknown: true}).Unmarshal(data, config)
-	if err != nil {
-		return nil, err
-	}
-	return config, nil
 }
 
 // SaveConfig 保存 Gorse 推荐配置。

@@ -49,6 +49,17 @@ func NewCodeGenColumnCase(
 	}
 }
 
+// ListCodeGenColumn 查询允许用户维护的字段配置。
+func (c *CodeGenColumnCase) ListCodeGenColumn(ctx context.Context, tableID int64) (*systemadminv1.ListCodeGenColumnResponse, error) {
+	columns, err := c.listCodeGenColumns(ctx, tableID)
+	if err != nil {
+		return nil, err
+	}
+	return &systemadminv1.ListCodeGenColumnResponse{
+		CodeGenColumns: filterConfigurableCodeGenColumns(columns),
+	}, nil
+}
+
 // ListCodeGenDatabaseColumn 查询指定数据库表的字段元数据。
 func (c *CodeGenColumnCase) ListCodeGenDatabaseColumn(ctx context.Context, tableName string) (*systemadminv1.ListCodeGenDatabaseColumnResponse, error) {
 	databaseColumns, err := c.listDatabaseColumns(ctx, tableName)
@@ -79,15 +90,13 @@ func (c *CodeGenColumnCase) ListCodeGenDatabaseColumn(ctx context.Context, table
 	return &systemadminv1.ListCodeGenDatabaseColumnResponse{Columns: columns}, nil
 }
 
-// ListCodeGenColumn 查询允许用户维护的字段配置。
-func (c *CodeGenColumnCase) ListCodeGenColumn(ctx context.Context, tableID int64) (*systemadminv1.ListCodeGenColumnResponse, error) {
-	columns, err := c.listCodeGenColumns(ctx, tableID)
-	if err != nil {
-		return nil, err
+// DeleteByTableIDs 删除多个代码生成表配置关联的字段配置。
+func (c *CodeGenColumnCase) DeleteByTableIDs(ctx context.Context, tableIDs []int64) error {
+	if len(tableIDs) == 0 {
+		return nil
 	}
-	return &systemadminv1.ListCodeGenColumnResponse{
-		CodeGenColumns: filterConfigurableCodeGenColumns(columns),
-	}, nil
+	query := c.Query(ctx).CodeGenColumn
+	return c.Delete(ctx, repository.Where(query.TableID.In(tableIDs...)))
 }
 
 // SaveCodeGenColumn 按最新数据库字段同步代码生成字段配置。
@@ -188,15 +197,6 @@ func (c *CodeGenColumnCase) SaveCodeGenColumn(ctx context.Context, req *systemad
 		}
 		return c.DeleteByIDs(ctx, deleteIDs)
 	})
-}
-
-// DeleteByTableIDs 删除多个代码生成表配置关联的字段配置。
-func (c *CodeGenColumnCase) DeleteByTableIDs(ctx context.Context, tableIDs []int64) error {
-	if len(tableIDs) == 0 {
-		return nil
-	}
-	query := c.Query(ctx).CodeGenColumn
-	return c.Delete(ctx, repository.Where(query.TableID.In(tableIDs...)))
 }
 
 // listCodeGenColumns 查询数据库字段与已保存生成配置的完整合并结果。

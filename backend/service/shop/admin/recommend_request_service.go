@@ -40,19 +40,6 @@ func (s *RecommendRequestService) PageRecommendRequest(
 	return page, nil
 }
 
-// GetRecommendRequest 查询推荐请求详情。
-func (s *RecommendRequestService) GetRecommendRequest(
-	ctx context.Context,
-	req *shopadminv1.GetRecommendRequestRequest,
-) (*shopadminv1.RecommendRequestDetailResponse, error) {
-	res, err := s.recommendRequestCase.GetRecommendRequest(ctx, req.GetId())
-	if err != nil {
-		log.Error(fmt.Sprintf("GetRecommendRequest %v", err))
-		return nil, errorsx.WrapInternal(err, "查询推荐请求详情失败")
-	}
-	return res, nil
-}
-
 // ListRecommendRequestEvent 查询推荐请求商品关联事件列表。
 func (s *RecommendRequestService) ListRecommendRequestEvent(
 	ctx context.Context,
@@ -62,6 +49,19 @@ func (s *RecommendRequestService) ListRecommendRequestEvent(
 	if err != nil {
 		log.Error(fmt.Sprintf("ListRecommendRequestEvent %v", err))
 		return nil, errorsx.WrapInternal(err, "查询推荐请求事件失败")
+	}
+	return res, nil
+}
+
+// GetRecommendRequest 查询推荐请求详情。
+func (s *RecommendRequestService) GetRecommendRequest(
+	ctx context.Context,
+	req *shopadminv1.GetRecommendRequestRequest,
+) (*shopadminv1.RecommendRequestDetailResponse, error) {
+	res, err := s.recommendRequestCase.GetRecommendRequest(ctx, req.GetId())
+	if err != nil {
+		log.Error(fmt.Sprintf("GetRecommendRequest %v", err))
+		return nil, errorsx.WrapInternal(err, "查询推荐请求详情失败")
 	}
 	return res, nil
 }

@@ -7,18 +7,6 @@
 /* eslint-disable */
 import type { Empty } from "../../../google/protobuf/empty";
 
-/** 数据库表字段列表查询条件 */
-export interface ListCodeGenDatabaseColumnRequest {
-  /** 数据库表名 */
-  table_name: string;
-}
-
-/** 数据库表字段列表响应 */
-export interface ListCodeGenDatabaseColumnResponse {
-  /** 数据库字段列表 */
-  columns: CodeGenDatabaseColumn[];
-}
-
 /** 代码生成字段配置查询条件 */
 export interface ListCodeGenColumnRequest {
   /** 代码生成表配置ID */
@@ -29,6 +17,18 @@ export interface ListCodeGenColumnRequest {
 export interface ListCodeGenColumnResponse {
   /** 代码生成字段配置列表 */
   code_gen_columns: CodeGenColumn[];
+}
+
+/** 数据库表字段列表查询条件 */
+export interface ListCodeGenDatabaseColumnRequest {
+  /** 数据库表名 */
+  table_name: string;
+}
+
+/** 数据库表字段列表响应 */
+export interface ListCodeGenDatabaseColumnResponse {
+  /** 数据库字段列表 */
+  columns: CodeGenDatabaseColumn[];
 }
 
 /** 代码生成字段配置保存条件 */
@@ -159,10 +159,10 @@ export interface CodeGenColumnOptionConfig {
 
 /** Admin代码生成字段服务 */
 export interface CodeGenColumnService {
-  /** 查询数据库表字段列表 */
-  ListCodeGenDatabaseColumn(request: ListCodeGenDatabaseColumnRequest): Promise<ListCodeGenDatabaseColumnResponse>;
   /** 查询代码生成字段配置 */
   ListCodeGenColumn(request: ListCodeGenColumnRequest): Promise<ListCodeGenColumnResponse>;
+  /** 查询数据库表字段列表 */
+  ListCodeGenDatabaseColumn(request: ListCodeGenDatabaseColumnRequest): Promise<ListCodeGenDatabaseColumnResponse>;
   /** 保存代码生成字段配置 */
   SaveCodeGenColumn(request: SaveCodeGenColumnRequest): Promise<Empty>;
 }

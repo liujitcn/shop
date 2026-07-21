@@ -48,45 +48,6 @@ func NewCommentInfoCase(baseCase *biz.BaseCase, commentInfoRepo *data.CommentInf
 	}
 }
 
-// BuildOverviewSummary 查询商品评价摘要统计。
-func (c *CommentInfoCase) BuildOverviewSummary(ctx context.Context, goodsID int64) (*appDto.CommentSummary, error) {
-	recordList, err := c.listByGoodsID(ctx, goodsID)
-	if err != nil {
-		return nil, err
-	}
-	return c.buildOverviewSummary(recordList), nil
-}
-
-// BuildFilterStats 统计商品评价筛选项数量。
-func (c *CommentInfoCase) BuildFilterStats(ctx context.Context, goodsID int64) (*appDto.CommentFilterStats, error) {
-	recordList, err := c.listByGoodsID(ctx, goodsID)
-	if err != nil {
-		return nil, err
-	}
-
-	stats := &appDto.CommentFilterStats{}
-	for _, record := range recordList {
-		imageList := _string.ConvertJsonStringToStringArray(record.Img)
-		// 存在评价图片时，计入“有图”筛选统计。
-		if len(imageList) > 0 {
-			stats.MediaCount++
-		}
-		// 商品评分大于等于 4 时，归入好评统计。
-		if record.GoodsScore >= 4 {
-			stats.GoodCount++
-			continue
-		}
-		// 商品评分等于 3 时，归入中评统计。
-		if record.GoodsScore == 3 {
-			stats.MiddleCount++
-			continue
-		}
-		// 剩余评价统一归入差评统计。
-		stats.BadCount++
-	}
-	return stats, nil
-}
-
 // PageGoodsComment 查询商品评价分页列表。
 func (c *CommentInfoCase) PageGoodsComment(ctx context.Context, req *shopappv1.PageGoodsCommentRequest, userID int64) ([]*shopappv1.CommentItem, int32, error) {
 	recordList, err := c.listByGoodsID(ctx, req.GetGoodsId())
@@ -176,57 +137,6 @@ func (c *CommentInfoCase) PageMyComment(ctx context.Context, userID int64, req *
 	return list, total, nil
 }
 
-// FindByID 按评价编号查询审核通过的评价主记录。
-func (c *CommentInfoCase) FindByID(ctx context.Context, commentID int64) (*models.CommentInfo, error) {
-	query := c.Query(ctx).CommentInfo
-	opts := make([]repository.QueryOption, 0, 2)
-	opts = append(opts, repository.Where(query.ID.Eq(commentID)))
-	opts = append(opts, repository.Where(query.Status.Eq(_const.COMMENT_STATUS_APPROVED)))
-	record, err := c.Find(ctx, opts...)
-	if err != nil {
-		// 目标评价不存在时，明确返回资源不存在错误。
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errorsx.ResourceNotFound("评价不存在")
-		}
-		return nil, err
-	}
-	return record, nil
-}
-
-// FindOwnerByID 按评价编号查询当前用户自己的评价主记录。
-func (c *CommentInfoCase) FindOwnerByID(ctx context.Context, commentID int64, userID int64) (*models.CommentInfo, error) {
-	query := c.Query(ctx).CommentInfo
-	opts := make([]repository.QueryOption, 0, 3)
-	opts = append(opts, repository.Where(query.ID.Eq(commentID)))
-	opts = append(opts, repository.Where(query.UserID.Eq(userID)))
-	opts = append(opts, repository.Where(query.Status.In(_const.COMMENT_STATUS_PENDING_REVIEW, _const.COMMENT_STATUS_APPROVED, _const.COMMENT_STATUS_REJECTED)))
-	record, err := c.Find(ctx, opts...)
-	if err != nil {
-		// 当前用户评价不存在时，统一返回资源不存在。
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errorsx.ResourceNotFound("评价不存在")
-		}
-		return nil, err
-	}
-	return record, nil
-}
-
-// FindAnyByID 按评价编号查询未删除评价主记录。
-func (c *CommentInfoCase) FindAnyByID(ctx context.Context, commentID int64) (*models.CommentInfo, error) {
-	query := c.Query(ctx).CommentInfo
-	opts := make([]repository.QueryOption, 0, 1)
-	opts = append(opts, repository.Where(query.ID.Eq(commentID)))
-	record, err := c.Find(ctx, opts...)
-	if err != nil {
-		// 目标评价不存在时，明确返回资源不存在错误。
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errorsx.ResourceNotFound("评价不存在")
-		}
-		return nil, err
-	}
-	return record, nil
-}
-
 // CreateComment 创建商品评价。
 func (c *CommentInfoCase) CreateComment(ctx context.Context, tenantID int64, tenantStoreID int64, user *models.BaseUser, req *shopappv1.CreateCommentRequest, orderGoods *models.OrderGoods) (*models.CommentInfo, error) {
 	userID := int64(0)
@@ -276,13 +186,35 @@ func (c *CommentInfoCase) CreateComment(ctx context.Context, tenantID int64, ten
 	return record, nil
 }
 
-// DeleteOwnerComment 逻辑删除当前用户自己的商品评价。
-func (c *CommentInfoCase) DeleteOwnerComment(ctx context.Context, commentID int64, userID int64) error {
+// UpdatePendingStatus 将待审核评价更新为目标审核状态。
+func (c *CommentInfoCase) UpdatePendingStatus(ctx context.Context, commentID int64, status int32) (bool, error) {
 	query := c.Query(ctx).CommentInfo
-	opts := make([]repository.QueryOption, 0, 2)
-	opts = append(opts, repository.Where(query.ID.Eq(commentID)))
-	opts = append(opts, repository.Where(query.UserID.Eq(userID)))
-	return c.Delete(ctx, opts...)
+	result, err := query.WithContext(ctx).
+		Where(
+			query.ID.Eq(commentID),
+			query.Status.Eq(_const.COMMENT_STATUS_PENDING_REVIEW),
+		).
+		Update(query.Status, status)
+	if err != nil {
+		return false, err
+	}
+	return result.RowsAffected > 0, nil
+}
+
+// UpdateStatus 更新评价审核状态。
+func (c *CommentInfoCase) UpdateStatus(ctx context.Context, commentID int64, status int32) error {
+	query := c.Query(ctx).CommentInfo
+	result, err := query.WithContext(ctx).
+		Where(query.ID.Eq(commentID)).
+		Update(query.Status, status)
+	if err != nil {
+		return err
+	}
+	// 目标评价不存在时，无法更新审核状态。
+	if result.RowsAffected == 0 {
+		return errorsx.ResourceNotFound("评价不存在")
+	}
+	return nil
 }
 
 // UpdateTagIDs 更新评价命中的标签编号列表。
@@ -302,35 +234,103 @@ func (c *CommentInfoCase) UpdateTagIDs(ctx context.Context, commentID int64, tag
 	return nil
 }
 
-// UpdateStatus 更新评价审核状态。
-func (c *CommentInfoCase) UpdateStatus(ctx context.Context, commentID int64, status int32) error {
+// DeleteOwnerComment 逻辑删除当前用户自己的商品评价。
+func (c *CommentInfoCase) DeleteOwnerComment(ctx context.Context, commentID int64, userID int64) error {
 	query := c.Query(ctx).CommentInfo
-	result, err := query.WithContext(ctx).
-		Where(query.ID.Eq(commentID)).
-		Update(query.Status, status)
-	if err != nil {
-		return err
-	}
-	// 目标评价不存在时，无法更新审核状态。
-	if result.RowsAffected == 0 {
-		return errorsx.ResourceNotFound("评价不存在")
-	}
-	return nil
+	opts := make([]repository.QueryOption, 0, 2)
+	opts = append(opts, repository.Where(query.ID.Eq(commentID)))
+	opts = append(opts, repository.Where(query.UserID.Eq(userID)))
+	return c.Delete(ctx, opts...)
 }
 
-// UpdatePendingStatus 将待审核评价更新为目标审核状态。
-func (c *CommentInfoCase) UpdatePendingStatus(ctx context.Context, commentID int64, status int32) (bool, error) {
-	query := c.Query(ctx).CommentInfo
-	result, err := query.WithContext(ctx).
-		Where(
-			query.ID.Eq(commentID),
-			query.Status.Eq(_const.COMMENT_STATUS_PENDING_REVIEW),
-		).
-		Update(query.Status, status)
+// BuildOverviewSummary 查询商品评价摘要统计。
+func (c *CommentInfoCase) BuildOverviewSummary(ctx context.Context, goodsID int64) (*appDto.CommentSummary, error) {
+	recordList, err := c.listByGoodsID(ctx, goodsID)
 	if err != nil {
-		return false, err
+		return nil, err
 	}
-	return result.RowsAffected > 0, nil
+	return c.buildOverviewSummary(recordList), nil
+}
+
+// BuildFilterStats 统计商品评价筛选项数量。
+func (c *CommentInfoCase) BuildFilterStats(ctx context.Context, goodsID int64) (*appDto.CommentFilterStats, error) {
+	recordList, err := c.listByGoodsID(ctx, goodsID)
+	if err != nil {
+		return nil, err
+	}
+
+	stats := &appDto.CommentFilterStats{}
+	for _, record := range recordList {
+		imageList := _string.ConvertJsonStringToStringArray(record.Img)
+		// 存在评价图片时，计入“有图”筛选统计。
+		if len(imageList) > 0 {
+			stats.MediaCount++
+		}
+		// 商品评分大于等于 4 时，归入好评统计。
+		if record.GoodsScore >= 4 {
+			stats.GoodCount++
+			continue
+		}
+		// 商品评分等于 3 时，归入中评统计。
+		if record.GoodsScore == 3 {
+			stats.MiddleCount++
+			continue
+		}
+		// 剩余评价统一归入差评统计。
+		stats.BadCount++
+	}
+	return stats, nil
+}
+
+// FindByID 按评价编号查询审核通过的评价主记录。
+func (c *CommentInfoCase) FindByID(ctx context.Context, commentID int64) (*models.CommentInfo, error) {
+	query := c.Query(ctx).CommentInfo
+	opts := make([]repository.QueryOption, 0, 2)
+	opts = append(opts, repository.Where(query.ID.Eq(commentID)))
+	opts = append(opts, repository.Where(query.Status.Eq(_const.COMMENT_STATUS_APPROVED)))
+	record, err := c.Find(ctx, opts...)
+	if err != nil {
+		// 目标评价不存在时，明确返回资源不存在错误。
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errorsx.ResourceNotFound("评价不存在")
+		}
+		return nil, err
+	}
+	return record, nil
+}
+
+// FindOwnerByID 按评价编号查询当前用户自己的评价主记录。
+func (c *CommentInfoCase) FindOwnerByID(ctx context.Context, commentID int64, userID int64) (*models.CommentInfo, error) {
+	query := c.Query(ctx).CommentInfo
+	opts := make([]repository.QueryOption, 0, 3)
+	opts = append(opts, repository.Where(query.ID.Eq(commentID)))
+	opts = append(opts, repository.Where(query.UserID.Eq(userID)))
+	opts = append(opts, repository.Where(query.Status.In(_const.COMMENT_STATUS_PENDING_REVIEW, _const.COMMENT_STATUS_APPROVED, _const.COMMENT_STATUS_REJECTED)))
+	record, err := c.Find(ctx, opts...)
+	if err != nil {
+		// 当前用户评价不存在时，统一返回资源不存在。
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errorsx.ResourceNotFound("评价不存在")
+		}
+		return nil, err
+	}
+	return record, nil
+}
+
+// FindAnyByID 按评价编号查询未删除评价主记录。
+func (c *CommentInfoCase) FindAnyByID(ctx context.Context, commentID int64) (*models.CommentInfo, error) {
+	query := c.Query(ctx).CommentInfo
+	opts := make([]repository.QueryOption, 0, 1)
+	opts = append(opts, repository.Where(query.ID.Eq(commentID)))
+	record, err := c.Find(ctx, opts...)
+	if err != nil {
+		// 目标评价不存在时，明确返回资源不存在错误。
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errorsx.ResourceNotFound("评价不存在")
+		}
+		return nil, err
+	}
+	return record, nil
 }
 
 // BuildCommentedOrderGoodsMap 按当前用户的订单商品关联键构建已评价集合。

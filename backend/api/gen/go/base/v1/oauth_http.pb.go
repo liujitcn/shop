@@ -52,15 +52,34 @@ type OauthServiceHTTPServer interface {
 
 func RegisterOauthServiceHTTPServer(s *http.Server, srv OauthServiceHTTPServer) {
 	r := s.Route("/")
+	r.Handle("GET", "/api/v1/base/oauth/binding", _OauthService_ListOauthBinding0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/base/oauth/provider", _OauthService_ListOauthProvider0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/base/oauth/authorization", _OauthService_CreateOauthAuthorization0_HTTP_Handler(srv))
+	r.Handle("POST", "/api/v1/base/oauth/binding/authorization", _OauthService_CreateOauthBindingAuthorization0_HTTP_Handler(srv))
+	r.Handle("POST", "/api/v1/base/oauth/session", _OauthService_CreateOauthSession0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/base/oauth/{provider}/callback", _OauthService_HandleOauthCallback0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/base/oauth/ticket", _OauthService_ExchangeOauthTicket0_HTTP_Handler(srv))
-	r.Handle("POST", "/api/v1/base/oauth/session", _OauthService_CreateOauthSession0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/base/oauth/binding", _OauthService_ListOauthBinding0_HTTP_Handler(srv))
-	r.Handle("POST", "/api/v1/base/oauth/binding/authorization", _OauthService_CreateOauthBindingAuthorization0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/base/oauth/{provider}/binding/callback", _OauthService_HandleOauthBindingCallback0_HTTP_Handler(srv))
 	r.Handle("DELETE", "/api/v1/base/oauth/binding/{provider}", _OauthService_UnbindOauthAccount0_HTTP_Handler(srv))
+}
+
+func _OauthService_ListOauthBinding0_HTTP_Handler(srv OauthServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in ListOauthBindingRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationOauthServiceListOauthBinding)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.ListOauthBinding(ctx, req.(*ListOauthBindingRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*ListOauthBindingResponse)
+		return ctx.Result(200, reply)
+	}
 }
 
 func _OauthService_ListOauthProvider0_HTTP_Handler(srv OauthServiceHTTPServer) func(ctx http.Context) error {
@@ -97,6 +116,44 @@ func _OauthService_CreateOauthAuthorization0_HTTP_Handler(srv OauthServiceHTTPSe
 			return err
 		}
 		reply := out.(*CreateOauthAuthorizationResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _OauthService_CreateOauthBindingAuthorization0_HTTP_Handler(srv OauthServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in CreateOauthBindingAuthorizationRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationOauthServiceCreateOauthBindingAuthorization)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.CreateOauthBindingAuthorization(ctx, req.(*CreateOauthBindingAuthorizationRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*CreateOauthBindingAuthorizationResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _OauthService_CreateOauthSession0_HTTP_Handler(srv OauthServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in CreateOauthSessionRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationOauthServiceCreateOauthSession)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.CreateOauthSession(ctx, req.(*CreateOauthSessionRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*CreateOauthSessionResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -138,63 +195,6 @@ func _OauthService_ExchangeOauthTicket0_HTTP_Handler(srv OauthServiceHTTPServer)
 			return err
 		}
 		reply := out.(*ExchangeOauthTicketResponse)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _OauthService_CreateOauthSession0_HTTP_Handler(srv OauthServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in CreateOauthSessionRequest
-		if err := ctx.Bind(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationOauthServiceCreateOauthSession)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.CreateOauthSession(ctx, req.(*CreateOauthSessionRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*CreateOauthSessionResponse)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _OauthService_ListOauthBinding0_HTTP_Handler(srv OauthServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in ListOauthBindingRequest
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationOauthServiceListOauthBinding)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.ListOauthBinding(ctx, req.(*ListOauthBindingRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*ListOauthBindingResponse)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _OauthService_CreateOauthBindingAuthorization0_HTTP_Handler(srv OauthServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in CreateOauthBindingAuthorizationRequest
-		if err := ctx.Bind(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationOauthServiceCreateOauthBindingAuthorization)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.CreateOauthBindingAuthorization(ctx, req.(*CreateOauthBindingAuthorizationRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*CreateOauthBindingAuthorizationResponse)
 		return ctx.Result(200, reply)
 	}
 }

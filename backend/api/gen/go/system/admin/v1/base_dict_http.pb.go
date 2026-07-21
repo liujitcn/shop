@@ -66,17 +66,17 @@ func RegisterBaseDictServiceHTTPServer(s *http.Server, srv BaseDictServiceHTTPSe
 	r := s.Route("/")
 	r.Handle("GET", "/api/v1/admin/base/dict/option", _BaseDictService_OptionBaseDict0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/base/dict", _BaseDictService_PageBaseDict0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/admin/base/dict/{id}", _BaseDictService_GetBaseDict0_HTTP_Handler(srv))
-	r.Handle("POST", "/api/v1/admin/base/dict", _BaseDictService_CreateBaseDict0_HTTP_Handler(srv))
-	r.Handle("PUT", "/api/v1/admin/base/dict/{base_dict.id}", _BaseDictService_UpdateBaseDict0_HTTP_Handler(srv))
-	r.Handle("DELETE", "/api/v1/admin/base/dict/{id}", _BaseDictService_DeleteBaseDict0_HTTP_Handler(srv))
-	r.Handle("PUT", "/api/v1/admin/base/dict/{id}/status", _BaseDictService_SetBaseDictStatus0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/base/dict-item", _BaseDictService_PageBaseDictItem0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/base/dict/{id}", _BaseDictService_GetBaseDict0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/base/dict-item/{id}", _BaseDictService_GetBaseDictItem0_HTTP_Handler(srv))
+	r.Handle("POST", "/api/v1/admin/base/dict", _BaseDictService_CreateBaseDict0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/admin/base/dict-item", _BaseDictService_CreateBaseDictItem0_HTTP_Handler(srv))
+	r.Handle("PUT", "/api/v1/admin/base/dict/{base_dict.id}", _BaseDictService_UpdateBaseDict0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/base/dict-item/{base_dict_item.id}", _BaseDictService_UpdateBaseDictItem0_HTTP_Handler(srv))
+	r.Handle("DELETE", "/api/v1/admin/base/dict/{id}", _BaseDictService_DeleteBaseDict0_HTTP_Handler(srv))
 	r.Handle("DELETE", "/api/v1/admin/base/dict-item/{id}", _BaseDictService_DeleteBaseDictItem0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/base/dict-item/{id}/status", _BaseDictService_SetBaseDictItemStatus0_HTTP_Handler(srv))
+	r.Handle("PUT", "/api/v1/admin/base/dict/{id}/status", _BaseDictService_SetBaseDictStatus0_HTTP_Handler(srv))
 }
 
 func _BaseDictService_OptionBaseDict0_HTTP_Handler(srv BaseDictServiceHTTPServer) func(ctx http.Context) error {
@@ -117,6 +117,25 @@ func _BaseDictService_PageBaseDict0_HTTP_Handler(srv BaseDictServiceHTTPServer) 
 	}
 }
 
+func _BaseDictService_PageBaseDictItem0_HTTP_Handler(srv BaseDictServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in PageBaseDictItemRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBaseDictServicePageBaseDictItem)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.PageBaseDictItem(ctx, req.(*PageBaseDictItemRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*PageBaseDictItemResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _BaseDictService_GetBaseDict0_HTTP_Handler(srv BaseDictServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in GetBaseDictRequest
@@ -139,6 +158,28 @@ func _BaseDictService_GetBaseDict0_HTTP_Handler(srv BaseDictServiceHTTPServer) f
 	}
 }
 
+func _BaseDictService_GetBaseDictItem0_HTTP_Handler(srv BaseDictServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetBaseDictItemRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBaseDictServiceGetBaseDictItem)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetBaseDictItem(ctx, req.(*GetBaseDictItemRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*BaseDictItemForm)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _BaseDictService_CreateBaseDict0_HTTP_Handler(srv BaseDictServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in CreateBaseDictRequest
@@ -151,6 +192,28 @@ func _BaseDictService_CreateBaseDict0_HTTP_Handler(srv BaseDictServiceHTTPServer
 		http.SetOperation(ctx, OperationBaseDictServiceCreateBaseDict)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
 			return srv.CreateBaseDict(ctx, req.(*CreateBaseDictRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _BaseDictService_CreateBaseDictItem0_HTTP_Handler(srv BaseDictServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in CreateBaseDictItemRequest
+		if err := ctx.Bind(&in.BaseDictItem); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBaseDictServiceCreateBaseDictItem)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.CreateBaseDictItem(ctx, req.(*CreateBaseDictItemRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -186,113 +249,6 @@ func _BaseDictService_UpdateBaseDict0_HTTP_Handler(srv BaseDictServiceHTTPServer
 	}
 }
 
-func _BaseDictService_DeleteBaseDict0_HTTP_Handler(srv BaseDictServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in DeleteBaseDictRequest
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		if err := ctx.BindVars(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationBaseDictServiceDeleteBaseDict)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.DeleteBaseDict(ctx, req.(*DeleteBaseDictRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*emptypb.Empty)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _BaseDictService_SetBaseDictStatus0_HTTP_Handler(srv BaseDictServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in SetBaseDictStatusRequest
-		if err := ctx.Bind(&in); err != nil {
-			return err
-		}
-		if err := ctx.BindVars(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationBaseDictServiceSetBaseDictStatus)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.SetBaseDictStatus(ctx, req.(*SetBaseDictStatusRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*emptypb.Empty)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _BaseDictService_PageBaseDictItem0_HTTP_Handler(srv BaseDictServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in PageBaseDictItemRequest
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationBaseDictServicePageBaseDictItem)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.PageBaseDictItem(ctx, req.(*PageBaseDictItemRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*PageBaseDictItemResponse)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _BaseDictService_GetBaseDictItem0_HTTP_Handler(srv BaseDictServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in GetBaseDictItemRequest
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		if err := ctx.BindVars(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationBaseDictServiceGetBaseDictItem)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.GetBaseDictItem(ctx, req.(*GetBaseDictItemRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*BaseDictItemForm)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _BaseDictService_CreateBaseDictItem0_HTTP_Handler(srv BaseDictServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in CreateBaseDictItemRequest
-		if err := ctx.Bind(&in.BaseDictItem); err != nil {
-			return err
-		}
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationBaseDictServiceCreateBaseDictItem)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.CreateBaseDictItem(ctx, req.(*CreateBaseDictItemRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*emptypb.Empty)
-		return ctx.Result(200, reply)
-	}
-}
-
 func _BaseDictService_UpdateBaseDictItem0_HTTP_Handler(srv BaseDictServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in UpdateBaseDictItemRequest
@@ -308,6 +264,28 @@ func _BaseDictService_UpdateBaseDictItem0_HTTP_Handler(srv BaseDictServiceHTTPSe
 		http.SetOperation(ctx, OperationBaseDictServiceUpdateBaseDictItem)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
 			return srv.UpdateBaseDictItem(ctx, req.(*UpdateBaseDictItemRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _BaseDictService_DeleteBaseDict0_HTTP_Handler(srv BaseDictServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in DeleteBaseDictRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBaseDictServiceDeleteBaseDict)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.DeleteBaseDict(ctx, req.(*DeleteBaseDictRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -352,6 +330,28 @@ func _BaseDictService_SetBaseDictItemStatus0_HTTP_Handler(srv BaseDictServiceHTT
 		http.SetOperation(ctx, OperationBaseDictServiceSetBaseDictItemStatus)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
 			return srv.SetBaseDictItemStatus(ctx, req.(*SetBaseDictItemStatusRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _BaseDictService_SetBaseDictStatus0_HTTP_Handler(srv BaseDictServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in SetBaseDictStatusRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBaseDictServiceSetBaseDictStatus)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.SetBaseDictStatus(ctx, req.(*SetBaseDictStatusRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {

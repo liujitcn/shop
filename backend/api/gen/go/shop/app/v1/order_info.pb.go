@@ -26,761 +26,6 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// 确认订单查询条件
-type ConfirmOrderInfoRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ConfirmOrderInfoRequest) Reset() {
-	*x = ConfirmOrderInfoRequest{}
-	mi := &file_shop_app_v1_order_info_proto_msgTypes[0]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ConfirmOrderInfoRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ConfirmOrderInfoRequest) ProtoMessage() {}
-
-func (x *ConfirmOrderInfoRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_order_info_proto_msgTypes[0]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ConfirmOrderInfoRequest.ProtoReflect.Descriptor instead.
-func (*ConfirmOrderInfoRequest) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_order_info_proto_rawDescGZIP(), []int{0}
-}
-
-// 订单数量汇总查询条件
-type CountOrderInfoRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *CountOrderInfoRequest) Reset() {
-	*x = CountOrderInfoRequest{}
-	mi := &file_shop_app_v1_order_info_proto_msgTypes[1]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *CountOrderInfoRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*CountOrderInfoRequest) ProtoMessage() {}
-
-func (x *CountOrderInfoRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_order_info_proto_msgTypes[1]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use CountOrderInfoRequest.ProtoReflect.Descriptor instead.
-func (*CountOrderInfoRequest) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_order_info_proto_rawDescGZIP(), []int{1}
-}
-
-// 订单编号查询订单ID条件
-type GetOrderInfoIdByOrderNoRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	OrderNo       string                 `protobuf:"bytes,1,opt,name=order_no,json=orderNo,proto3" json:"order_no,omitempty"` // 订单编号
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetOrderInfoIdByOrderNoRequest) Reset() {
-	*x = GetOrderInfoIdByOrderNoRequest{}
-	mi := &file_shop_app_v1_order_info_proto_msgTypes[2]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetOrderInfoIdByOrderNoRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetOrderInfoIdByOrderNoRequest) ProtoMessage() {}
-
-func (x *GetOrderInfoIdByOrderNoRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_order_info_proto_msgTypes[2]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetOrderInfoIdByOrderNoRequest.ProtoReflect.Descriptor instead.
-func (*GetOrderInfoIdByOrderNoRequest) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_order_info_proto_rawDescGZIP(), []int{2}
-}
-
-func (x *GetOrderInfoIdByOrderNoRequest) GetOrderNo() string {
-	if x != nil {
-		return x.OrderNo
-	}
-	return ""
-}
-
-// 订单编号查询订单ID响应
-type GetOrderInfoIdByOrderNoResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	OrderId       int64                  `protobuf:"varint,1,opt,name=order_id,json=orderId,proto3" json:"order_id,omitempty"` // 订单ID
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetOrderInfoIdByOrderNoResponse) Reset() {
-	*x = GetOrderInfoIdByOrderNoResponse{}
-	mi := &file_shop_app_v1_order_info_proto_msgTypes[3]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetOrderInfoIdByOrderNoResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetOrderInfoIdByOrderNoResponse) ProtoMessage() {}
-
-func (x *GetOrderInfoIdByOrderNoResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_order_info_proto_msgTypes[3]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetOrderInfoIdByOrderNoResponse.ProtoReflect.Descriptor instead.
-func (*GetOrderInfoIdByOrderNoResponse) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_order_info_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *GetOrderInfoIdByOrderNoResponse) GetOrderId() int64 {
-	if x != nil {
-		return x.OrderId
-	}
-	return 0
-}
-
-// 订单详情查询条件
-type GetOrderInfoByIdRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"` // 订单ID
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetOrderInfoByIdRequest) Reset() {
-	*x = GetOrderInfoByIdRequest{}
-	mi := &file_shop_app_v1_order_info_proto_msgTypes[4]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetOrderInfoByIdRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetOrderInfoByIdRequest) ProtoMessage() {}
-
-func (x *GetOrderInfoByIdRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_order_info_proto_msgTypes[4]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetOrderInfoByIdRequest.ProtoReflect.Descriptor instead.
-func (*GetOrderInfoByIdRequest) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_order_info_proto_rawDescGZIP(), []int{4}
-}
-
-func (x *GetOrderInfoByIdRequest) GetId() int64 {
-	if x != nil {
-		return x.Id
-	}
-	return 0
-}
-
-// 交易单详情查询条件
-type GetOrderTradeByIdRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	TradeId       int64                  `protobuf:"varint,1,opt,name=trade_id,json=tradeId,proto3" json:"trade_id,omitempty"` // 交易单ID
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetOrderTradeByIdRequest) Reset() {
-	*x = GetOrderTradeByIdRequest{}
-	mi := &file_shop_app_v1_order_info_proto_msgTypes[5]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetOrderTradeByIdRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetOrderTradeByIdRequest) ProtoMessage() {}
-
-func (x *GetOrderTradeByIdRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_order_info_proto_msgTypes[5]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetOrderTradeByIdRequest.ProtoReflect.Descriptor instead.
-func (*GetOrderTradeByIdRequest) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_order_info_proto_rawDescGZIP(), []int{5}
-}
-
-func (x *GetOrderTradeByIdRequest) GetTradeId() int64 {
-	if x != nil {
-		return x.TradeId
-	}
-	return 0
-}
-
-// 删除订单条件
-type DeleteOrderInfoRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"` // 订单ID
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *DeleteOrderInfoRequest) Reset() {
-	*x = DeleteOrderInfoRequest{}
-	mi := &file_shop_app_v1_order_info_proto_msgTypes[6]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *DeleteOrderInfoRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*DeleteOrderInfoRequest) ProtoMessage() {}
-
-func (x *DeleteOrderInfoRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_order_info_proto_msgTypes[6]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use DeleteOrderInfoRequest.ProtoReflect.Descriptor instead.
-func (*DeleteOrderInfoRequest) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_order_info_proto_rawDescGZIP(), []int{6}
-}
-
-func (x *DeleteOrderInfoRequest) GetId() int64 {
-	if x != nil {
-		return x.Id
-	}
-	return 0
-}
-
-// 删除交易单条件
-type DeleteOrderTradeRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	TradeId       int64                  `protobuf:"varint,1,opt,name=trade_id,json=tradeId,proto3" json:"trade_id,omitempty"` // 交易单ID
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *DeleteOrderTradeRequest) Reset() {
-	*x = DeleteOrderTradeRequest{}
-	mi := &file_shop_app_v1_order_info_proto_msgTypes[7]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *DeleteOrderTradeRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*DeleteOrderTradeRequest) ProtoMessage() {}
-
-func (x *DeleteOrderTradeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_order_info_proto_msgTypes[7]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use DeleteOrderTradeRequest.ProtoReflect.Descriptor instead.
-func (*DeleteOrderTradeRequest) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_order_info_proto_rawDescGZIP(), []int{7}
-}
-
-func (x *DeleteOrderTradeRequest) GetTradeId() int64 {
-	if x != nil {
-		return x.TradeId
-	}
-	return 0
-}
-
-// 立即购买订单请求参数
-type BuyNowOrderInfoRequest struct {
-	state            protoimpl.MessageState `protogen:"open.v1"`
-	GoodsId          int64                  `protobuf:"varint,1,opt,name=goods_id,json=goodsId,proto3" json:"goods_id,omitempty"`                           // 商品id
-	SkuCode          string                 `protobuf:"bytes,2,opt,name=sku_code,json=skuCode,proto3" json:"sku_code,omitempty"`                            // 规格编号
-	Num              int64                  `protobuf:"varint,3,opt,name=num,proto3" json:"num,omitempty"`                                                  // 数量
-	RecommendContext *RecommendContext      `protobuf:"bytes,4,opt,name=recommend_context,json=recommendContext,proto3" json:"recommend_context,omitempty"` // 推荐上下文
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
-}
-
-func (x *BuyNowOrderInfoRequest) Reset() {
-	*x = BuyNowOrderInfoRequest{}
-	mi := &file_shop_app_v1_order_info_proto_msgTypes[8]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *BuyNowOrderInfoRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*BuyNowOrderInfoRequest) ProtoMessage() {}
-
-func (x *BuyNowOrderInfoRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_order_info_proto_msgTypes[8]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use BuyNowOrderInfoRequest.ProtoReflect.Descriptor instead.
-func (*BuyNowOrderInfoRequest) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_order_info_proto_rawDescGZIP(), []int{8}
-}
-
-func (x *BuyNowOrderInfoRequest) GetGoodsId() int64 {
-	if x != nil {
-		return x.GoodsId
-	}
-	return 0
-}
-
-func (x *BuyNowOrderInfoRequest) GetSkuCode() string {
-	if x != nil {
-		return x.SkuCode
-	}
-	return ""
-}
-
-func (x *BuyNowOrderInfoRequest) GetNum() int64 {
-	if x != nil {
-		return x.Num
-	}
-	return 0
-}
-
-func (x *BuyNowOrderInfoRequest) GetRecommendContext() *RecommendContext {
-	if x != nil {
-		return x.RecommendContext
-	}
-	return nil
-}
-
-// 下单商品
-type CreateOrderInfoGoods struct {
-	state            protoimpl.MessageState `protogen:"open.v1"`
-	GoodsId          int64                  `protobuf:"varint,1,opt,name=goods_id,json=goodsId,proto3" json:"goods_id,omitempty"`                           // 商品id
-	SkuCode          string                 `protobuf:"bytes,2,opt,name=sku_code,json=skuCode,proto3" json:"sku_code,omitempty"`                            // 规格编号
-	Num              int64                  `protobuf:"varint,3,opt,name=num,proto3" json:"num,omitempty"`                                                  // 数量
-	RecommendContext *RecommendContext      `protobuf:"bytes,4,opt,name=recommend_context,json=recommendContext,proto3" json:"recommend_context,omitempty"` // 推荐上下文
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
-}
-
-func (x *CreateOrderInfoGoods) Reset() {
-	*x = CreateOrderInfoGoods{}
-	mi := &file_shop_app_v1_order_info_proto_msgTypes[9]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *CreateOrderInfoGoods) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*CreateOrderInfoGoods) ProtoMessage() {}
-
-func (x *CreateOrderInfoGoods) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_order_info_proto_msgTypes[9]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use CreateOrderInfoGoods.ProtoReflect.Descriptor instead.
-func (*CreateOrderInfoGoods) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_order_info_proto_rawDescGZIP(), []int{9}
-}
-
-func (x *CreateOrderInfoGoods) GetGoodsId() int64 {
-	if x != nil {
-		return x.GoodsId
-	}
-	return 0
-}
-
-func (x *CreateOrderInfoGoods) GetSkuCode() string {
-	if x != nil {
-		return x.SkuCode
-	}
-	return ""
-}
-
-func (x *CreateOrderInfoGoods) GetNum() int64 {
-	if x != nil {
-		return x.Num
-	}
-	return 0
-}
-
-func (x *CreateOrderInfoGoods) GetRecommendContext() *RecommendContext {
-	if x != nil {
-		return x.RecommendContext
-	}
-	return nil
-}
-
-// 确认订单响应
-type ConfirmOrderInfoResponse struct {
-	state            protoimpl.MessageState `protogen:"open.v1"`
-	OrderGoodsStores []*OrderGoodsStore     `protobuf:"bytes,1,rep,name=order_goods_stores,json=orderGoodsStores,proto3" json:"order_goods_stores,omitempty"` // 按门店分组的商品信息
-	Summary          *OrderSummary          `protobuf:"bytes,2,opt,name=summary,proto3" json:"summary,omitempty"`                                             // 汇总信息
-	ClearCart        bool                   `protobuf:"varint,3,opt,name=clear_cart,json=clearCart,proto3" json:"clear_cart,omitempty"`                       // 是否清空购物车
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
-}
-
-func (x *ConfirmOrderInfoResponse) Reset() {
-	*x = ConfirmOrderInfoResponse{}
-	mi := &file_shop_app_v1_order_info_proto_msgTypes[10]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ConfirmOrderInfoResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ConfirmOrderInfoResponse) ProtoMessage() {}
-
-func (x *ConfirmOrderInfoResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_order_info_proto_msgTypes[10]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ConfirmOrderInfoResponse.ProtoReflect.Descriptor instead.
-func (*ConfirmOrderInfoResponse) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_order_info_proto_rawDescGZIP(), []int{10}
-}
-
-func (x *ConfirmOrderInfoResponse) GetOrderGoodsStores() []*OrderGoodsStore {
-	if x != nil {
-		return x.OrderGoodsStores
-	}
-	return nil
-}
-
-func (x *ConfirmOrderInfoResponse) GetSummary() *OrderSummary {
-	if x != nil {
-		return x.Summary
-	}
-	return nil
-}
-
-func (x *ConfirmOrderInfoResponse) GetClearCart() bool {
-	if x != nil {
-		return x.ClearCart
-	}
-	return false
-}
-
-// 立即购买订单响应
-type BuyNowOrderInfoResponse struct {
-	state            protoimpl.MessageState `protogen:"open.v1"`
-	OrderGoodsStores []*OrderGoodsStore     `protobuf:"bytes,1,rep,name=order_goods_stores,json=orderGoodsStores,proto3" json:"order_goods_stores,omitempty"` // 按门店分组的商品信息
-	Summary          *OrderSummary          `protobuf:"bytes,2,opt,name=summary,proto3" json:"summary,omitempty"`                                             // 汇总信息
-	ClearCart        bool                   `protobuf:"varint,3,opt,name=clear_cart,json=clearCart,proto3" json:"clear_cart,omitempty"`                       // 是否清空购物车
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
-}
-
-func (x *BuyNowOrderInfoResponse) Reset() {
-	*x = BuyNowOrderInfoResponse{}
-	mi := &file_shop_app_v1_order_info_proto_msgTypes[11]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *BuyNowOrderInfoResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*BuyNowOrderInfoResponse) ProtoMessage() {}
-
-func (x *BuyNowOrderInfoResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_order_info_proto_msgTypes[11]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use BuyNowOrderInfoResponse.ProtoReflect.Descriptor instead.
-func (*BuyNowOrderInfoResponse) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_order_info_proto_rawDescGZIP(), []int{11}
-}
-
-func (x *BuyNowOrderInfoResponse) GetOrderGoodsStores() []*OrderGoodsStore {
-	if x != nil {
-		return x.OrderGoodsStores
-	}
-	return nil
-}
-
-func (x *BuyNowOrderInfoResponse) GetSummary() *OrderSummary {
-	if x != nil {
-		return x.Summary
-	}
-	return nil
-}
-
-func (x *BuyNowOrderInfoResponse) GetClearCart() bool {
-	if x != nil {
-		return x.ClearCart
-	}
-	return false
-}
-
-// 再次购买订单请求参数
-type RepurchaseOrderInfoRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	OrderId       int64                  `protobuf:"varint,1,opt,name=order_id,json=orderId,proto3" json:"order_id,omitempty"` // 订单id
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *RepurchaseOrderInfoRequest) Reset() {
-	*x = RepurchaseOrderInfoRequest{}
-	mi := &file_shop_app_v1_order_info_proto_msgTypes[12]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *RepurchaseOrderInfoRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*RepurchaseOrderInfoRequest) ProtoMessage() {}
-
-func (x *RepurchaseOrderInfoRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_order_info_proto_msgTypes[12]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use RepurchaseOrderInfoRequest.ProtoReflect.Descriptor instead.
-func (*RepurchaseOrderInfoRequest) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_order_info_proto_rawDescGZIP(), []int{12}
-}
-
-func (x *RepurchaseOrderInfoRequest) GetOrderId() int64 {
-	if x != nil {
-		return x.OrderId
-	}
-	return 0
-}
-
-// 再次购买订单响应
-type RepurchaseOrderInfoResponse struct {
-	state            protoimpl.MessageState `protogen:"open.v1"`
-	OrderGoodsStores []*OrderGoodsStore     `protobuf:"bytes,1,rep,name=order_goods_stores,json=orderGoodsStores,proto3" json:"order_goods_stores,omitempty"` // 按门店分组的商品信息
-	Summary          *OrderSummary          `protobuf:"bytes,2,opt,name=summary,proto3" json:"summary,omitempty"`                                             // 汇总信息
-	ClearCart        bool                   `protobuf:"varint,3,opt,name=clear_cart,json=clearCart,proto3" json:"clear_cart,omitempty"`                       // 是否清空购物车
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
-}
-
-func (x *RepurchaseOrderInfoResponse) Reset() {
-	*x = RepurchaseOrderInfoResponse{}
-	mi := &file_shop_app_v1_order_info_proto_msgTypes[13]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *RepurchaseOrderInfoResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*RepurchaseOrderInfoResponse) ProtoMessage() {}
-
-func (x *RepurchaseOrderInfoResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_order_info_proto_msgTypes[13]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use RepurchaseOrderInfoResponse.ProtoReflect.Descriptor instead.
-func (*RepurchaseOrderInfoResponse) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_order_info_proto_rawDescGZIP(), []int{13}
-}
-
-func (x *RepurchaseOrderInfoResponse) GetOrderGoodsStores() []*OrderGoodsStore {
-	if x != nil {
-		return x.OrderGoodsStores
-	}
-	return nil
-}
-
-func (x *RepurchaseOrderInfoResponse) GetSummary() *OrderSummary {
-	if x != nil {
-		return x.Summary
-	}
-	return nil
-}
-
-func (x *RepurchaseOrderInfoResponse) GetClearCart() bool {
-	if x != nil {
-		return x.ClearCart
-	}
-	return false
-}
-
-// 订单数量汇总响应
-type CountOrderInfoResponse struct {
-	state         protoimpl.MessageState          `protogen:"open.v1"`
-	Counts        []*CountOrderInfoResponse_Count `protobuf:"bytes,1,rep,name=counts,proto3" json:"counts,omitempty"` // 总数
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *CountOrderInfoResponse) Reset() {
-	*x = CountOrderInfoResponse{}
-	mi := &file_shop_app_v1_order_info_proto_msgTypes[14]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *CountOrderInfoResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*CountOrderInfoResponse) ProtoMessage() {}
-
-func (x *CountOrderInfoResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_order_info_proto_msgTypes[14]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use CountOrderInfoResponse.ProtoReflect.Descriptor instead.
-func (*CountOrderInfoResponse) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_order_info_proto_rawDescGZIP(), []int{14}
-}
-
-func (x *CountOrderInfoResponse) GetCounts() []*CountOrderInfoResponse_Count {
-	if x != nil {
-		return x.Counts
-	}
-	return nil
-}
-
 // 订单分页查询条件
 type PageOrderInfoRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -797,7 +42,7 @@ type PageOrderInfoRequest struct {
 
 func (x *PageOrderInfoRequest) Reset() {
 	*x = PageOrderInfoRequest{}
-	mi := &file_shop_app_v1_order_info_proto_msgTypes[15]
+	mi := &file_shop_app_v1_order_info_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -809,7 +54,7 @@ func (x *PageOrderInfoRequest) String() string {
 func (*PageOrderInfoRequest) ProtoMessage() {}
 
 func (x *PageOrderInfoRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_order_info_proto_msgTypes[15]
+	mi := &file_shop_app_v1_order_info_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -822,7 +67,7 @@ func (x *PageOrderInfoRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PageOrderInfoRequest.ProtoReflect.Descriptor instead.
 func (*PageOrderInfoRequest) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_order_info_proto_rawDescGZIP(), []int{15}
+	return file_shop_app_v1_order_info_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *PageOrderInfoRequest) GetStatus() v1.OrderInfoStatus {
@@ -885,7 +130,7 @@ type PageOrderInfoResponse struct {
 
 func (x *PageOrderInfoResponse) Reset() {
 	*x = PageOrderInfoResponse{}
-	mi := &file_shop_app_v1_order_info_proto_msgTypes[16]
+	mi := &file_shop_app_v1_order_info_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -897,7 +142,7 @@ func (x *PageOrderInfoResponse) String() string {
 func (*PageOrderInfoResponse) ProtoMessage() {}
 
 func (x *PageOrderInfoResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_order_info_proto_msgTypes[16]
+	mi := &file_shop_app_v1_order_info_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -910,7 +155,7 @@ func (x *PageOrderInfoResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PageOrderInfoResponse.ProtoReflect.Descriptor instead.
 func (*PageOrderInfoResponse) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_order_info_proto_rawDescGZIP(), []int{16}
+	return file_shop_app_v1_order_info_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *PageOrderInfoResponse) GetOrderInfos() []*OrderInfo {
@@ -923,6 +168,51 @@ func (x *PageOrderInfoResponse) GetOrderInfos() []*OrderInfo {
 func (x *PageOrderInfoResponse) GetTotal() int32 {
 	if x != nil {
 		return x.Total
+	}
+	return 0
+}
+
+// 订单详情查询条件
+type GetOrderInfoByIdRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"` // 订单ID
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetOrderInfoByIdRequest) Reset() {
+	*x = GetOrderInfoByIdRequest{}
+	mi := &file_shop_app_v1_order_info_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetOrderInfoByIdRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetOrderInfoByIdRequest) ProtoMessage() {}
+
+func (x *GetOrderInfoByIdRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_app_v1_order_info_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetOrderInfoByIdRequest.ProtoReflect.Descriptor instead.
+func (*GetOrderInfoByIdRequest) Descriptor() ([]byte, []int) {
+	return file_shop_app_v1_order_info_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *GetOrderInfoByIdRequest) GetId() int64 {
+	if x != nil {
+		return x.Id
 	}
 	return 0
 }
@@ -941,7 +231,7 @@ type OrderInfoResponse struct {
 
 func (x *OrderInfoResponse) Reset() {
 	*x = OrderInfoResponse{}
-	mi := &file_shop_app_v1_order_info_proto_msgTypes[17]
+	mi := &file_shop_app_v1_order_info_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -953,7 +243,7 @@ func (x *OrderInfoResponse) String() string {
 func (*OrderInfoResponse) ProtoMessage() {}
 
 func (x *OrderInfoResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_order_info_proto_msgTypes[17]
+	mi := &file_shop_app_v1_order_info_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -966,7 +256,7 @@ func (x *OrderInfoResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OrderInfoResponse.ProtoReflect.Descriptor instead.
 func (*OrderInfoResponse) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_order_info_proto_rawDescGZIP(), []int{17}
+	return file_shop_app_v1_order_info_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *OrderInfoResponse) GetOrder() *OrderInfo {
@@ -1004,6 +294,141 @@ func (x *OrderInfoResponse) GetRelatedOrders() []*OrderInfoResponse_RelatedOrder
 	return nil
 }
 
+// 订单编号查询订单ID条件
+type GetOrderInfoIdByOrderNoRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	OrderNo       string                 `protobuf:"bytes,1,opt,name=order_no,json=orderNo,proto3" json:"order_no,omitempty"` // 订单编号
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetOrderInfoIdByOrderNoRequest) Reset() {
+	*x = GetOrderInfoIdByOrderNoRequest{}
+	mi := &file_shop_app_v1_order_info_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetOrderInfoIdByOrderNoRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetOrderInfoIdByOrderNoRequest) ProtoMessage() {}
+
+func (x *GetOrderInfoIdByOrderNoRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_app_v1_order_info_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetOrderInfoIdByOrderNoRequest.ProtoReflect.Descriptor instead.
+func (*GetOrderInfoIdByOrderNoRequest) Descriptor() ([]byte, []int) {
+	return file_shop_app_v1_order_info_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *GetOrderInfoIdByOrderNoRequest) GetOrderNo() string {
+	if x != nil {
+		return x.OrderNo
+	}
+	return ""
+}
+
+// 订单编号查询订单ID响应
+type GetOrderInfoIdByOrderNoResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	OrderId       int64                  `protobuf:"varint,1,opt,name=order_id,json=orderId,proto3" json:"order_id,omitempty"` // 订单ID
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetOrderInfoIdByOrderNoResponse) Reset() {
+	*x = GetOrderInfoIdByOrderNoResponse{}
+	mi := &file_shop_app_v1_order_info_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetOrderInfoIdByOrderNoResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetOrderInfoIdByOrderNoResponse) ProtoMessage() {}
+
+func (x *GetOrderInfoIdByOrderNoResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_app_v1_order_info_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetOrderInfoIdByOrderNoResponse.ProtoReflect.Descriptor instead.
+func (*GetOrderInfoIdByOrderNoResponse) Descriptor() ([]byte, []int) {
+	return file_shop_app_v1_order_info_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *GetOrderInfoIdByOrderNoResponse) GetOrderId() int64 {
+	if x != nil {
+		return x.OrderId
+	}
+	return 0
+}
+
+// 交易单详情查询条件
+type GetOrderTradeByIdRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	TradeId       int64                  `protobuf:"varint,1,opt,name=trade_id,json=tradeId,proto3" json:"trade_id,omitempty"` // 交易单ID
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetOrderTradeByIdRequest) Reset() {
+	*x = GetOrderTradeByIdRequest{}
+	mi := &file_shop_app_v1_order_info_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetOrderTradeByIdRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetOrderTradeByIdRequest) ProtoMessage() {}
+
+func (x *GetOrderTradeByIdRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_app_v1_order_info_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetOrderTradeByIdRequest.ProtoReflect.Descriptor instead.
+func (*GetOrderTradeByIdRequest) Descriptor() ([]byte, []int) {
+	return file_shop_app_v1_order_info_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *GetOrderTradeByIdRequest) GetTradeId() int64 {
+	if x != nil {
+		return x.TradeId
+	}
+	return 0
+}
+
 // 创建订单请求参数
 type CreateOrderInfoRequest struct {
 	state             protoimpl.MessageState  `protogen:"open.v1"`
@@ -1019,7 +444,7 @@ type CreateOrderInfoRequest struct {
 
 func (x *CreateOrderInfoRequest) Reset() {
 	*x = CreateOrderInfoRequest{}
-	mi := &file_shop_app_v1_order_info_proto_msgTypes[18]
+	mi := &file_shop_app_v1_order_info_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1031,7 +456,7 @@ func (x *CreateOrderInfoRequest) String() string {
 func (*CreateOrderInfoRequest) ProtoMessage() {}
 
 func (x *CreateOrderInfoRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_order_info_proto_msgTypes[18]
+	mi := &file_shop_app_v1_order_info_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1044,7 +469,7 @@ func (x *CreateOrderInfoRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateOrderInfoRequest.ProtoReflect.Descriptor instead.
 func (*CreateOrderInfoRequest) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_order_info_proto_rawDescGZIP(), []int{18}
+	return file_shop_app_v1_order_info_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *CreateOrderInfoRequest) GetAddressId() int64 {
@@ -1101,7 +526,7 @@ type CreateOrderInfoResponse struct {
 
 func (x *CreateOrderInfoResponse) Reset() {
 	*x = CreateOrderInfoResponse{}
-	mi := &file_shop_app_v1_order_info_proto_msgTypes[19]
+	mi := &file_shop_app_v1_order_info_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1113,7 +538,7 @@ func (x *CreateOrderInfoResponse) String() string {
 func (*CreateOrderInfoResponse) ProtoMessage() {}
 
 func (x *CreateOrderInfoResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_order_info_proto_msgTypes[19]
+	mi := &file_shop_app_v1_order_info_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1126,7 +551,7 @@ func (x *CreateOrderInfoResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateOrderInfoResponse.ProtoReflect.Descriptor instead.
 func (*CreateOrderInfoResponse) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_order_info_proto_rawDescGZIP(), []int{19}
+	return file_shop_app_v1_order_info_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *CreateOrderInfoResponse) GetTradeId() int64 {
@@ -1150,6 +575,512 @@ func (x *CreateOrderInfoResponse) GetOrderIds() []int64 {
 	return nil
 }
 
+// 删除订单条件
+type DeleteOrderInfoRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"` // 订单ID
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteOrderInfoRequest) Reset() {
+	*x = DeleteOrderInfoRequest{}
+	mi := &file_shop_app_v1_order_info_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteOrderInfoRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteOrderInfoRequest) ProtoMessage() {}
+
+func (x *DeleteOrderInfoRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_app_v1_order_info_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteOrderInfoRequest.ProtoReflect.Descriptor instead.
+func (*DeleteOrderInfoRequest) Descriptor() ([]byte, []int) {
+	return file_shop_app_v1_order_info_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *DeleteOrderInfoRequest) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+// 删除交易单条件
+type DeleteOrderTradeRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	TradeId       int64                  `protobuf:"varint,1,opt,name=trade_id,json=tradeId,proto3" json:"trade_id,omitempty"` // 交易单ID
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteOrderTradeRequest) Reset() {
+	*x = DeleteOrderTradeRequest{}
+	mi := &file_shop_app_v1_order_info_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteOrderTradeRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteOrderTradeRequest) ProtoMessage() {}
+
+func (x *DeleteOrderTradeRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_app_v1_order_info_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteOrderTradeRequest.ProtoReflect.Descriptor instead.
+func (*DeleteOrderTradeRequest) Descriptor() ([]byte, []int) {
+	return file_shop_app_v1_order_info_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *DeleteOrderTradeRequest) GetTradeId() int64 {
+	if x != nil {
+		return x.TradeId
+	}
+	return 0
+}
+
+// 确认订单查询条件
+type ConfirmOrderInfoRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ConfirmOrderInfoRequest) Reset() {
+	*x = ConfirmOrderInfoRequest{}
+	mi := &file_shop_app_v1_order_info_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ConfirmOrderInfoRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ConfirmOrderInfoRequest) ProtoMessage() {}
+
+func (x *ConfirmOrderInfoRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_app_v1_order_info_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ConfirmOrderInfoRequest.ProtoReflect.Descriptor instead.
+func (*ConfirmOrderInfoRequest) Descriptor() ([]byte, []int) {
+	return file_shop_app_v1_order_info_proto_rawDescGZIP(), []int{11}
+}
+
+// 确认订单响应
+type ConfirmOrderInfoResponse struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	OrderGoodsStores []*OrderGoodsStore     `protobuf:"bytes,1,rep,name=order_goods_stores,json=orderGoodsStores,proto3" json:"order_goods_stores,omitempty"` // 按门店分组的商品信息
+	Summary          *OrderSummary          `protobuf:"bytes,2,opt,name=summary,proto3" json:"summary,omitempty"`                                             // 汇总信息
+	ClearCart        bool                   `protobuf:"varint,3,opt,name=clear_cart,json=clearCart,proto3" json:"clear_cart,omitempty"`                       // 是否清空购物车
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *ConfirmOrderInfoResponse) Reset() {
+	*x = ConfirmOrderInfoResponse{}
+	mi := &file_shop_app_v1_order_info_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ConfirmOrderInfoResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ConfirmOrderInfoResponse) ProtoMessage() {}
+
+func (x *ConfirmOrderInfoResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_app_v1_order_info_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ConfirmOrderInfoResponse.ProtoReflect.Descriptor instead.
+func (*ConfirmOrderInfoResponse) Descriptor() ([]byte, []int) {
+	return file_shop_app_v1_order_info_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *ConfirmOrderInfoResponse) GetOrderGoodsStores() []*OrderGoodsStore {
+	if x != nil {
+		return x.OrderGoodsStores
+	}
+	return nil
+}
+
+func (x *ConfirmOrderInfoResponse) GetSummary() *OrderSummary {
+	if x != nil {
+		return x.Summary
+	}
+	return nil
+}
+
+func (x *ConfirmOrderInfoResponse) GetClearCart() bool {
+	if x != nil {
+		return x.ClearCart
+	}
+	return false
+}
+
+// 立即购买订单请求参数
+type BuyNowOrderInfoRequest struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	GoodsId          int64                  `protobuf:"varint,1,opt,name=goods_id,json=goodsId,proto3" json:"goods_id,omitempty"`                           // 商品id
+	SkuCode          string                 `protobuf:"bytes,2,opt,name=sku_code,json=skuCode,proto3" json:"sku_code,omitempty"`                            // 规格编号
+	Num              int64                  `protobuf:"varint,3,opt,name=num,proto3" json:"num,omitempty"`                                                  // 数量
+	RecommendContext *RecommendContext      `protobuf:"bytes,4,opt,name=recommend_context,json=recommendContext,proto3" json:"recommend_context,omitempty"` // 推荐上下文
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *BuyNowOrderInfoRequest) Reset() {
+	*x = BuyNowOrderInfoRequest{}
+	mi := &file_shop_app_v1_order_info_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BuyNowOrderInfoRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BuyNowOrderInfoRequest) ProtoMessage() {}
+
+func (x *BuyNowOrderInfoRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_app_v1_order_info_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BuyNowOrderInfoRequest.ProtoReflect.Descriptor instead.
+func (*BuyNowOrderInfoRequest) Descriptor() ([]byte, []int) {
+	return file_shop_app_v1_order_info_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *BuyNowOrderInfoRequest) GetGoodsId() int64 {
+	if x != nil {
+		return x.GoodsId
+	}
+	return 0
+}
+
+func (x *BuyNowOrderInfoRequest) GetSkuCode() string {
+	if x != nil {
+		return x.SkuCode
+	}
+	return ""
+}
+
+func (x *BuyNowOrderInfoRequest) GetNum() int64 {
+	if x != nil {
+		return x.Num
+	}
+	return 0
+}
+
+func (x *BuyNowOrderInfoRequest) GetRecommendContext() *RecommendContext {
+	if x != nil {
+		return x.RecommendContext
+	}
+	return nil
+}
+
+// 立即购买订单响应
+type BuyNowOrderInfoResponse struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	OrderGoodsStores []*OrderGoodsStore     `protobuf:"bytes,1,rep,name=order_goods_stores,json=orderGoodsStores,proto3" json:"order_goods_stores,omitempty"` // 按门店分组的商品信息
+	Summary          *OrderSummary          `protobuf:"bytes,2,opt,name=summary,proto3" json:"summary,omitempty"`                                             // 汇总信息
+	ClearCart        bool                   `protobuf:"varint,3,opt,name=clear_cart,json=clearCart,proto3" json:"clear_cart,omitempty"`                       // 是否清空购物车
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *BuyNowOrderInfoResponse) Reset() {
+	*x = BuyNowOrderInfoResponse{}
+	mi := &file_shop_app_v1_order_info_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BuyNowOrderInfoResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BuyNowOrderInfoResponse) ProtoMessage() {}
+
+func (x *BuyNowOrderInfoResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_app_v1_order_info_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BuyNowOrderInfoResponse.ProtoReflect.Descriptor instead.
+func (*BuyNowOrderInfoResponse) Descriptor() ([]byte, []int) {
+	return file_shop_app_v1_order_info_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *BuyNowOrderInfoResponse) GetOrderGoodsStores() []*OrderGoodsStore {
+	if x != nil {
+		return x.OrderGoodsStores
+	}
+	return nil
+}
+
+func (x *BuyNowOrderInfoResponse) GetSummary() *OrderSummary {
+	if x != nil {
+		return x.Summary
+	}
+	return nil
+}
+
+func (x *BuyNowOrderInfoResponse) GetClearCart() bool {
+	if x != nil {
+		return x.ClearCart
+	}
+	return false
+}
+
+// 再次购买订单请求参数
+type RepurchaseOrderInfoRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	OrderId       int64                  `protobuf:"varint,1,opt,name=order_id,json=orderId,proto3" json:"order_id,omitempty"` // 订单id
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RepurchaseOrderInfoRequest) Reset() {
+	*x = RepurchaseOrderInfoRequest{}
+	mi := &file_shop_app_v1_order_info_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RepurchaseOrderInfoRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RepurchaseOrderInfoRequest) ProtoMessage() {}
+
+func (x *RepurchaseOrderInfoRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_app_v1_order_info_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RepurchaseOrderInfoRequest.ProtoReflect.Descriptor instead.
+func (*RepurchaseOrderInfoRequest) Descriptor() ([]byte, []int) {
+	return file_shop_app_v1_order_info_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *RepurchaseOrderInfoRequest) GetOrderId() int64 {
+	if x != nil {
+		return x.OrderId
+	}
+	return 0
+}
+
+// 再次购买订单响应
+type RepurchaseOrderInfoResponse struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	OrderGoodsStores []*OrderGoodsStore     `protobuf:"bytes,1,rep,name=order_goods_stores,json=orderGoodsStores,proto3" json:"order_goods_stores,omitempty"` // 按门店分组的商品信息
+	Summary          *OrderSummary          `protobuf:"bytes,2,opt,name=summary,proto3" json:"summary,omitempty"`                                             // 汇总信息
+	ClearCart        bool                   `protobuf:"varint,3,opt,name=clear_cart,json=clearCart,proto3" json:"clear_cart,omitempty"`                       // 是否清空购物车
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *RepurchaseOrderInfoResponse) Reset() {
+	*x = RepurchaseOrderInfoResponse{}
+	mi := &file_shop_app_v1_order_info_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RepurchaseOrderInfoResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RepurchaseOrderInfoResponse) ProtoMessage() {}
+
+func (x *RepurchaseOrderInfoResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_app_v1_order_info_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RepurchaseOrderInfoResponse.ProtoReflect.Descriptor instead.
+func (*RepurchaseOrderInfoResponse) Descriptor() ([]byte, []int) {
+	return file_shop_app_v1_order_info_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *RepurchaseOrderInfoResponse) GetOrderGoodsStores() []*OrderGoodsStore {
+	if x != nil {
+		return x.OrderGoodsStores
+	}
+	return nil
+}
+
+func (x *RepurchaseOrderInfoResponse) GetSummary() *OrderSummary {
+	if x != nil {
+		return x.Summary
+	}
+	return nil
+}
+
+func (x *RepurchaseOrderInfoResponse) GetClearCart() bool {
+	if x != nil {
+		return x.ClearCart
+	}
+	return false
+}
+
+// 订单数量汇总查询条件
+type CountOrderInfoRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CountOrderInfoRequest) Reset() {
+	*x = CountOrderInfoRequest{}
+	mi := &file_shop_app_v1_order_info_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CountOrderInfoRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CountOrderInfoRequest) ProtoMessage() {}
+
+func (x *CountOrderInfoRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_app_v1_order_info_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CountOrderInfoRequest.ProtoReflect.Descriptor instead.
+func (*CountOrderInfoRequest) Descriptor() ([]byte, []int) {
+	return file_shop_app_v1_order_info_proto_rawDescGZIP(), []int{17}
+}
+
+// 订单数量汇总响应
+type CountOrderInfoResponse struct {
+	state         protoimpl.MessageState          `protogen:"open.v1"`
+	Counts        []*CountOrderInfoResponse_Count `protobuf:"bytes,1,rep,name=counts,proto3" json:"counts,omitempty"` // 总数
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CountOrderInfoResponse) Reset() {
+	*x = CountOrderInfoResponse{}
+	mi := &file_shop_app_v1_order_info_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CountOrderInfoResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CountOrderInfoResponse) ProtoMessage() {}
+
+func (x *CountOrderInfoResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_app_v1_order_info_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CountOrderInfoResponse.ProtoReflect.Descriptor instead.
+func (*CountOrderInfoResponse) Descriptor() ([]byte, []int) {
+	return file_shop_app_v1_order_info_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *CountOrderInfoResponse) GetCounts() []*CountOrderInfoResponse_Count {
+	if x != nil {
+		return x.Counts
+	}
+	return nil
+}
+
 // 取消订单请求参数
 type CancelOrderInfoRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -1161,7 +1092,7 @@ type CancelOrderInfoRequest struct {
 
 func (x *CancelOrderInfoRequest) Reset() {
 	*x = CancelOrderInfoRequest{}
-	mi := &file_shop_app_v1_order_info_proto_msgTypes[20]
+	mi := &file_shop_app_v1_order_info_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1173,7 +1104,7 @@ func (x *CancelOrderInfoRequest) String() string {
 func (*CancelOrderInfoRequest) ProtoMessage() {}
 
 func (x *CancelOrderInfoRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_order_info_proto_msgTypes[20]
+	mi := &file_shop_app_v1_order_info_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1186,7 +1117,7 @@ func (x *CancelOrderInfoRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CancelOrderInfoRequest.ProtoReflect.Descriptor instead.
 func (*CancelOrderInfoRequest) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_order_info_proto_rawDescGZIP(), []int{20}
+	return file_shop_app_v1_order_info_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *CancelOrderInfoRequest) GetTradeId() int64 {
@@ -1203,67 +1134,6 @@ func (x *CancelOrderInfoRequest) GetReason() v1.OrderCancelReason {
 	return v1.OrderCancelReason(0)
 }
 
-// 门店订单选项
-type OrderStoreOption struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	TenantStoreId int64                  `protobuf:"varint,1,opt,name=tenant_store_id,json=tenantStoreId,proto3" json:"tenant_store_id,omitempty"`                                  // 租户门店ID
-	DeliveryTime  v1.OrderDeliveryTime   `protobuf:"varint,2,opt,name=delivery_time,json=deliveryTime,proto3,enum=shop.common.v1.OrderDeliveryTime" json:"delivery_time,omitempty"` // 配送时间：枚举【OrderDeliveryTime】
-	Remark        string                 `protobuf:"bytes,3,opt,name=remark,proto3" json:"remark,omitempty"`                                                                        // 订单备注
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *OrderStoreOption) Reset() {
-	*x = OrderStoreOption{}
-	mi := &file_shop_app_v1_order_info_proto_msgTypes[21]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *OrderStoreOption) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*OrderStoreOption) ProtoMessage() {}
-
-func (x *OrderStoreOption) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_order_info_proto_msgTypes[21]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use OrderStoreOption.ProtoReflect.Descriptor instead.
-func (*OrderStoreOption) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_order_info_proto_rawDescGZIP(), []int{21}
-}
-
-func (x *OrderStoreOption) GetTenantStoreId() int64 {
-	if x != nil {
-		return x.TenantStoreId
-	}
-	return 0
-}
-
-func (x *OrderStoreOption) GetDeliveryTime() v1.OrderDeliveryTime {
-	if x != nil {
-		return x.DeliveryTime
-	}
-	return v1.OrderDeliveryTime(0)
-}
-
-func (x *OrderStoreOption) GetRemark() string {
-	if x != nil {
-		return x.Remark
-	}
-	return ""
-}
-
 // 订单退款请求参数
 type RefundOrderInfoRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -1275,7 +1145,7 @@ type RefundOrderInfoRequest struct {
 
 func (x *RefundOrderInfoRequest) Reset() {
 	*x = RefundOrderInfoRequest{}
-	mi := &file_shop_app_v1_order_info_proto_msgTypes[22]
+	mi := &file_shop_app_v1_order_info_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1287,7 +1157,7 @@ func (x *RefundOrderInfoRequest) String() string {
 func (*RefundOrderInfoRequest) ProtoMessage() {}
 
 func (x *RefundOrderInfoRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_order_info_proto_msgTypes[22]
+	mi := &file_shop_app_v1_order_info_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1300,7 +1170,7 @@ func (x *RefundOrderInfoRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RefundOrderInfoRequest.ProtoReflect.Descriptor instead.
 func (*RefundOrderInfoRequest) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_order_info_proto_rawDescGZIP(), []int{22}
+	return file_shop_app_v1_order_info_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *RefundOrderInfoRequest) GetOrderId() int64 {
@@ -1327,7 +1197,7 @@ type ReceiveOrderInfoRequest struct {
 
 func (x *ReceiveOrderInfoRequest) Reset() {
 	*x = ReceiveOrderInfoRequest{}
-	mi := &file_shop_app_v1_order_info_proto_msgTypes[23]
+	mi := &file_shop_app_v1_order_info_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1339,7 +1209,7 @@ func (x *ReceiveOrderInfoRequest) String() string {
 func (*ReceiveOrderInfoRequest) ProtoMessage() {}
 
 func (x *ReceiveOrderInfoRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_order_info_proto_msgTypes[23]
+	mi := &file_shop_app_v1_order_info_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1352,7 +1222,7 @@ func (x *ReceiveOrderInfoRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReceiveOrderInfoRequest.ProtoReflect.Descriptor instead.
 func (*ReceiveOrderInfoRequest) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_order_info_proto_rawDescGZIP(), []int{23}
+	return file_shop_app_v1_order_info_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *ReceiveOrderInfoRequest) GetOrderId() int64 {
@@ -1360,6 +1230,136 @@ func (x *ReceiveOrderInfoRequest) GetOrderId() int64 {
 		return x.OrderId
 	}
 	return 0
+}
+
+// 下单商品
+type CreateOrderInfoGoods struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	GoodsId          int64                  `protobuf:"varint,1,opt,name=goods_id,json=goodsId,proto3" json:"goods_id,omitempty"`                           // 商品id
+	SkuCode          string                 `protobuf:"bytes,2,opt,name=sku_code,json=skuCode,proto3" json:"sku_code,omitempty"`                            // 规格编号
+	Num              int64                  `protobuf:"varint,3,opt,name=num,proto3" json:"num,omitempty"`                                                  // 数量
+	RecommendContext *RecommendContext      `protobuf:"bytes,4,opt,name=recommend_context,json=recommendContext,proto3" json:"recommend_context,omitempty"` // 推荐上下文
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *CreateOrderInfoGoods) Reset() {
+	*x = CreateOrderInfoGoods{}
+	mi := &file_shop_app_v1_order_info_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateOrderInfoGoods) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateOrderInfoGoods) ProtoMessage() {}
+
+func (x *CreateOrderInfoGoods) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_app_v1_order_info_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateOrderInfoGoods.ProtoReflect.Descriptor instead.
+func (*CreateOrderInfoGoods) Descriptor() ([]byte, []int) {
+	return file_shop_app_v1_order_info_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *CreateOrderInfoGoods) GetGoodsId() int64 {
+	if x != nil {
+		return x.GoodsId
+	}
+	return 0
+}
+
+func (x *CreateOrderInfoGoods) GetSkuCode() string {
+	if x != nil {
+		return x.SkuCode
+	}
+	return ""
+}
+
+func (x *CreateOrderInfoGoods) GetNum() int64 {
+	if x != nil {
+		return x.Num
+	}
+	return 0
+}
+
+func (x *CreateOrderInfoGoods) GetRecommendContext() *RecommendContext {
+	if x != nil {
+		return x.RecommendContext
+	}
+	return nil
+}
+
+// 门店订单选项
+type OrderStoreOption struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	TenantStoreId int64                  `protobuf:"varint,1,opt,name=tenant_store_id,json=tenantStoreId,proto3" json:"tenant_store_id,omitempty"`                                  // 租户门店ID
+	DeliveryTime  v1.OrderDeliveryTime   `protobuf:"varint,2,opt,name=delivery_time,json=deliveryTime,proto3,enum=shop.common.v1.OrderDeliveryTime" json:"delivery_time,omitempty"` // 配送时间：枚举【OrderDeliveryTime】
+	Remark        string                 `protobuf:"bytes,3,opt,name=remark,proto3" json:"remark,omitempty"`                                                                        // 订单备注
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *OrderStoreOption) Reset() {
+	*x = OrderStoreOption{}
+	mi := &file_shop_app_v1_order_info_proto_msgTypes[23]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OrderStoreOption) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OrderStoreOption) ProtoMessage() {}
+
+func (x *OrderStoreOption) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_app_v1_order_info_proto_msgTypes[23]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use OrderStoreOption.ProtoReflect.Descriptor instead.
+func (*OrderStoreOption) Descriptor() ([]byte, []int) {
+	return file_shop_app_v1_order_info_proto_rawDescGZIP(), []int{23}
+}
+
+func (x *OrderStoreOption) GetTenantStoreId() int64 {
+	if x != nil {
+		return x.TenantStoreId
+	}
+	return 0
+}
+
+func (x *OrderStoreOption) GetDeliveryTime() v1.OrderDeliveryTime {
+	if x != nil {
+		return x.DeliveryTime
+	}
+	return v1.OrderDeliveryTime(0)
+}
+
+func (x *OrderStoreOption) GetRemark() string {
+	if x != nil {
+		return x.Remark
+	}
+	return ""
 }
 
 // 订单商品
@@ -1862,83 +1862,6 @@ func (x *OrderSummary) GetGoodsNum() int64 {
 	return 0
 }
 
-// 订单数量统计项
-type CountOrderInfoResponse_Count struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Status        v1.OrderInfoStatus     `protobuf:"varint,1,opt,name=status,proto3,enum=shop.common.v1.OrderInfoStatus" json:"status,omitempty"`                                   // 订单履约状态
-	Num           int32                  `protobuf:"varint,2,opt,name=num,proto3" json:"num,omitempty"`                                                                             // 订单数量
-	TradeStatus   v1.OrderTradeStatus    `protobuf:"varint,3,opt,name=trade_status,json=tradeStatus,proto3,enum=shop.common.v1.OrderTradeStatus" json:"trade_status,omitempty"`     // 交易支付状态
-	RefundStatus  v1.OrderRefundStatus   `protobuf:"varint,4,opt,name=refund_status,json=refundStatus,proto3,enum=shop.common.v1.OrderRefundStatus" json:"refund_status,omitempty"` // 订单退款状态
-	Refundable    bool                   `protobuf:"varint,5,opt,name=refundable,proto3" json:"refundable,omitempty"`                                                               // 是否为可申请售后订单统计
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *CountOrderInfoResponse_Count) Reset() {
-	*x = CountOrderInfoResponse_Count{}
-	mi := &file_shop_app_v1_order_info_proto_msgTypes[28]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *CountOrderInfoResponse_Count) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*CountOrderInfoResponse_Count) ProtoMessage() {}
-
-func (x *CountOrderInfoResponse_Count) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_order_info_proto_msgTypes[28]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use CountOrderInfoResponse_Count.ProtoReflect.Descriptor instead.
-func (*CountOrderInfoResponse_Count) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_order_info_proto_rawDescGZIP(), []int{14, 0}
-}
-
-func (x *CountOrderInfoResponse_Count) GetStatus() v1.OrderInfoStatus {
-	if x != nil {
-		return x.Status
-	}
-	return v1.OrderInfoStatus(0)
-}
-
-func (x *CountOrderInfoResponse_Count) GetNum() int32 {
-	if x != nil {
-		return x.Num
-	}
-	return 0
-}
-
-func (x *CountOrderInfoResponse_Count) GetTradeStatus() v1.OrderTradeStatus {
-	if x != nil {
-		return x.TradeStatus
-	}
-	return v1.OrderTradeStatus(0)
-}
-
-func (x *CountOrderInfoResponse_Count) GetRefundStatus() v1.OrderRefundStatus {
-	if x != nil {
-		return x.RefundStatus
-	}
-	return v1.OrderRefundStatus(0)
-}
-
-func (x *CountOrderInfoResponse_Count) GetRefundable() bool {
-	if x != nil {
-		return x.Refundable
-	}
-	return false
-}
-
 // 收货地址
 type OrderInfoResponse_Address struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -1952,7 +1875,7 @@ type OrderInfoResponse_Address struct {
 
 func (x *OrderInfoResponse_Address) Reset() {
 	*x = OrderInfoResponse_Address{}
-	mi := &file_shop_app_v1_order_info_proto_msgTypes[29]
+	mi := &file_shop_app_v1_order_info_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1964,7 +1887,7 @@ func (x *OrderInfoResponse_Address) String() string {
 func (*OrderInfoResponse_Address) ProtoMessage() {}
 
 func (x *OrderInfoResponse_Address) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_order_info_proto_msgTypes[29]
+	mi := &file_shop_app_v1_order_info_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1977,7 +1900,7 @@ func (x *OrderInfoResponse_Address) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OrderInfoResponse_Address.ProtoReflect.Descriptor instead.
 func (*OrderInfoResponse_Address) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_order_info_proto_rawDescGZIP(), []int{17, 0}
+	return file_shop_app_v1_order_info_proto_rawDescGZIP(), []int{3, 0}
 }
 
 func (x *OrderInfoResponse_Address) GetReceiver() string {
@@ -2021,7 +1944,7 @@ type OrderInfoResponse_Logistics struct {
 
 func (x *OrderInfoResponse_Logistics) Reset() {
 	*x = OrderInfoResponse_Logistics{}
-	mi := &file_shop_app_v1_order_info_proto_msgTypes[30]
+	mi := &file_shop_app_v1_order_info_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2033,7 +1956,7 @@ func (x *OrderInfoResponse_Logistics) String() string {
 func (*OrderInfoResponse_Logistics) ProtoMessage() {}
 
 func (x *OrderInfoResponse_Logistics) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_order_info_proto_msgTypes[30]
+	mi := &file_shop_app_v1_order_info_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2046,7 +1969,7 @@ func (x *OrderInfoResponse_Logistics) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OrderInfoResponse_Logistics.ProtoReflect.Descriptor instead.
 func (*OrderInfoResponse_Logistics) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_order_info_proto_rawDescGZIP(), []int{17, 1}
+	return file_shop_app_v1_order_info_proto_rawDescGZIP(), []int{3, 1}
 }
 
 func (x *OrderInfoResponse_Logistics) GetName() string {
@@ -2088,7 +2011,7 @@ type OrderInfoResponse_RelatedOrder struct {
 
 func (x *OrderInfoResponse_RelatedOrder) Reset() {
 	*x = OrderInfoResponse_RelatedOrder{}
-	mi := &file_shop_app_v1_order_info_proto_msgTypes[31]
+	mi := &file_shop_app_v1_order_info_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2100,7 +2023,7 @@ func (x *OrderInfoResponse_RelatedOrder) String() string {
 func (*OrderInfoResponse_RelatedOrder) ProtoMessage() {}
 
 func (x *OrderInfoResponse_RelatedOrder) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_order_info_proto_msgTypes[31]
+	mi := &file_shop_app_v1_order_info_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2113,7 +2036,7 @@ func (x *OrderInfoResponse_RelatedOrder) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OrderInfoResponse_RelatedOrder.ProtoReflect.Descriptor instead.
 func (*OrderInfoResponse_RelatedOrder) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_order_info_proto_rawDescGZIP(), []int{17, 2}
+	return file_shop_app_v1_order_info_proto_rawDescGZIP(), []int{3, 2}
 }
 
 func (x *OrderInfoResponse_RelatedOrder) GetOrderId() int64 {
@@ -2141,7 +2064,7 @@ type OrderInfoResponse_Logistics_Detail struct {
 
 func (x *OrderInfoResponse_Logistics_Detail) Reset() {
 	*x = OrderInfoResponse_Logistics_Detail{}
-	mi := &file_shop_app_v1_order_info_proto_msgTypes[32]
+	mi := &file_shop_app_v1_order_info_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2153,7 +2076,7 @@ func (x *OrderInfoResponse_Logistics_Detail) String() string {
 func (*OrderInfoResponse_Logistics_Detail) ProtoMessage() {}
 
 func (x *OrderInfoResponse_Logistics_Detail) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_order_info_proto_msgTypes[32]
+	mi := &file_shop_app_v1_order_info_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2166,7 +2089,7 @@ func (x *OrderInfoResponse_Logistics_Detail) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use OrderInfoResponse_Logistics_Detail.ProtoReflect.Descriptor instead.
 func (*OrderInfoResponse_Logistics_Detail) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_order_info_proto_rawDescGZIP(), []int{17, 1, 0}
+	return file_shop_app_v1_order_info_proto_rawDescGZIP(), []int{3, 1, 0}
 }
 
 func (x *OrderInfoResponse_Logistics_Detail) GetTime() string {
@@ -2183,62 +2106,88 @@ func (x *OrderInfoResponse_Logistics_Detail) GetText() string {
 	return ""
 }
 
+// 订单数量统计项
+type CountOrderInfoResponse_Count struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Status        v1.OrderInfoStatus     `protobuf:"varint,1,opt,name=status,proto3,enum=shop.common.v1.OrderInfoStatus" json:"status,omitempty"`                                   // 订单履约状态
+	Num           int32                  `protobuf:"varint,2,opt,name=num,proto3" json:"num,omitempty"`                                                                             // 订单数量
+	TradeStatus   v1.OrderTradeStatus    `protobuf:"varint,3,opt,name=trade_status,json=tradeStatus,proto3,enum=shop.common.v1.OrderTradeStatus" json:"trade_status,omitempty"`     // 交易支付状态
+	RefundStatus  v1.OrderRefundStatus   `protobuf:"varint,4,opt,name=refund_status,json=refundStatus,proto3,enum=shop.common.v1.OrderRefundStatus" json:"refund_status,omitempty"` // 订单退款状态
+	Refundable    bool                   `protobuf:"varint,5,opt,name=refundable,proto3" json:"refundable,omitempty"`                                                               // 是否为可申请售后订单统计
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CountOrderInfoResponse_Count) Reset() {
+	*x = CountOrderInfoResponse_Count{}
+	mi := &file_shop_app_v1_order_info_proto_msgTypes[32]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CountOrderInfoResponse_Count) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CountOrderInfoResponse_Count) ProtoMessage() {}
+
+func (x *CountOrderInfoResponse_Count) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_app_v1_order_info_proto_msgTypes[32]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CountOrderInfoResponse_Count.ProtoReflect.Descriptor instead.
+func (*CountOrderInfoResponse_Count) Descriptor() ([]byte, []int) {
+	return file_shop_app_v1_order_info_proto_rawDescGZIP(), []int{18, 0}
+}
+
+func (x *CountOrderInfoResponse_Count) GetStatus() v1.OrderInfoStatus {
+	if x != nil {
+		return x.Status
+	}
+	return v1.OrderInfoStatus(0)
+}
+
+func (x *CountOrderInfoResponse_Count) GetNum() int32 {
+	if x != nil {
+		return x.Num
+	}
+	return 0
+}
+
+func (x *CountOrderInfoResponse_Count) GetTradeStatus() v1.OrderTradeStatus {
+	if x != nil {
+		return x.TradeStatus
+	}
+	return v1.OrderTradeStatus(0)
+}
+
+func (x *CountOrderInfoResponse_Count) GetRefundStatus() v1.OrderRefundStatus {
+	if x != nil {
+		return x.RefundStatus
+	}
+	return v1.OrderRefundStatus(0)
+}
+
+func (x *CountOrderInfoResponse_Count) GetRefundable() bool {
+	if x != nil {
+		return x.Refundable
+	}
+	return false
+}
+
 var File_shop_app_v1_order_info_proto protoreflect.FileDescriptor
 
 const file_shop_app_v1_order_info_proto_rawDesc = "" +
 	"\n" +
-	"\x1cshop/app/v1/order_info.proto\x12\vshop.app.v1\x1a\x1bshop/app/v1/recommend.proto\x1a\x1eshop/app/v1/tenant_store.proto\x1a\x19shop/common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x19\n" +
-	"\x17ConfirmOrderInfoRequest\"\x17\n" +
-	"\x15CountOrderInfoRequest\"O\n" +
-	"\x1eGetOrderInfoIdByOrderNoRequest\x12-\n" +
-	"\border_no\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f订单编号R\aorderNo\"L\n" +
-	"\x1fGetOrderInfoIdByOrderNoResponse\x12)\n" +
-	"\border_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单IDR\aorderId\"9\n" +
-	"\x17GetOrderInfoByIdRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单IDR\x02id\"H\n" +
-	"\x18GetOrderTradeByIdRequest\x12,\n" +
-	"\btrade_id\x18\x01 \x01(\x03B\x11\xbaG\x0e\x92\x02\v交易单IDR\atradeId\"8\n" +
-	"\x16DeleteOrderInfoRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单IDR\x02id\"G\n" +
-	"\x17DeleteOrderTradeRequest\x12,\n" +
-	"\btrade_id\x18\x01 \x01(\x03B\x11\xbaG\x0e\x92\x02\v交易单IDR\atradeId\"\xf5\x01\n" +
-	"\x16BuyNowOrderInfoRequest\x12)\n" +
-	"\bgoods_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品idR\agoodsId\x12-\n" +
-	"\bsku_code\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f规格编号R\askuCode\x12\x1e\n" +
-	"\x03num\x18\x03 \x01(\x03B\f\xbaG\t\x92\x02\x06数量R\x03num\x12a\n" +
-	"\x11recommend_context\x18\x04 \x01(\v2\x1d.shop.app.v1.RecommendContextB\x15\xbaG\x12\x92\x02\x0f推荐上下文R\x10recommendContext\"\xf3\x01\n" +
-	"\x14CreateOrderInfoGoods\x12)\n" +
-	"\bgoods_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品idR\agoodsId\x12-\n" +
-	"\bsku_code\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f规格编号R\askuCode\x12\x1e\n" +
-	"\x03num\x18\x03 \x01(\x03B\f\xbaG\t\x92\x02\x06数量R\x03num\x12a\n" +
-	"\x11recommend_context\x18\x04 \x01(\v2\x1d.shop.app.v1.RecommendContextB\x15\xbaG\x12\x92\x02\x0f推荐上下文R\x10recommendContext\"\x91\x02\n" +
-	"\x18ConfirmOrderInfoResponse\x12p\n" +
-	"\x12order_goods_stores\x18\x01 \x03(\v2\x1c.shop.app.v1.OrderGoodsStoreB$\xbaG!\x92\x02\x1e按门店分组的商品信息R\x10orderGoodsStores\x12G\n" +
-	"\asummary\x18\x02 \x01(\v2\x19.shop.app.v1.OrderSummaryB\x12\xbaG\x0f\x92\x02\f汇总信息R\asummary\x12:\n" +
-	"\n" +
-	"clear_cart\x18\x03 \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否清空购物车R\tclearCart\"\x90\x02\n" +
-	"\x17BuyNowOrderInfoResponse\x12p\n" +
-	"\x12order_goods_stores\x18\x01 \x03(\v2\x1c.shop.app.v1.OrderGoodsStoreB$\xbaG!\x92\x02\x1e按门店分组的商品信息R\x10orderGoodsStores\x12G\n" +
-	"\asummary\x18\x02 \x01(\v2\x19.shop.app.v1.OrderSummaryB\x12\xbaG\x0f\x92\x02\f汇总信息R\asummary\x12:\n" +
-	"\n" +
-	"clear_cart\x18\x03 \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否清空购物车R\tclearCart\"G\n" +
-	"\x1aRepurchaseOrderInfoRequest\x12)\n" +
-	"\border_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单idR\aorderId\"\x94\x02\n" +
-	"\x1bRepurchaseOrderInfoResponse\x12p\n" +
-	"\x12order_goods_stores\x18\x01 \x03(\v2\x1c.shop.app.v1.OrderGoodsStoreB$\xbaG!\x92\x02\x1e按门店分组的商品信息R\x10orderGoodsStores\x12G\n" +
-	"\asummary\x18\x02 \x01(\v2\x19.shop.app.v1.OrderSummaryB\x12\xbaG\x0f\x92\x02\f汇总信息R\asummary\x12:\n" +
-	"\n" +
-	"clear_cart\x18\x03 \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否清空购物车R\tclearCart\"\xf9\x03\n" +
-	"\x16CountOrderInfoResponse\x12O\n" +
-	"\x06counts\x18\x01 \x03(\v2).shop.app.v1.CountOrderInfoResponse.CountB\f\xbaG\t\x92\x02\x06总数R\x06counts\x1a\x8d\x03\n" +
-	"\x05Count\x12Q\n" +
-	"\x06status\x18\x01 \x01(\x0e2\x1f.shop.common.v1.OrderInfoStatusB\x18\xbaG\x15\x92\x02\x12订单履约状态R\x06status\x12$\n" +
-	"\x03num\x18\x02 \x01(\x05B\x12\xbaG\x0f\x92\x02\f订单数量R\x03num\x12]\n" +
-	"\ftrade_status\x18\x03 \x01(\x0e2 .shop.common.v1.OrderTradeStatusB\x18\xbaG\x15\x92\x02\x12交易支付状态R\vtradeStatus\x12`\n" +
-	"\rrefund_status\x18\x04 \x01(\x0e2!.shop.common.v1.OrderRefundStatusB\x18\xbaG\x15\x92\x02\x12订单退款状态R\frefundStatus\x12J\n" +
-	"\n" +
-	"refundable\x18\x05 \x01(\bB*\xbaG'\x92\x02$是否为可申请售后订单统计R\n" +
-	"refundable\"\x92\x05\n" +
+	"\x1cshop/app/v1/order_info.proto\x12\vshop.app.v1\x1a\x1bshop/app/v1/recommend.proto\x1a\x1eshop/app/v1/tenant_store.proto\x1a\x19shop/common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x92\x05\n" +
 	"\x14PageOrderInfoRequest\x12V\n" +
 	"\x06status\x18\x01 \x01(\x0e2\x1f.shop.common.v1.OrderInfoStatusB\x18\xbaG\x15\x92\x02\x12订单履约状态H\x00R\x06status\x88\x01\x01\x12b\n" +
 	"\ftrade_status\x18\x02 \x01(\x0e2 .shop.common.v1.OrderTradeStatusB\x18\xbaG\x15\x92\x02\x12交易支付状态H\x01R\vtradeStatus\x88\x01\x01\x12e\n" +
@@ -2258,7 +2207,9 @@ const file_shop_app_v1_order_info_proto_rawDesc = "" +
 	"\x15PageOrderInfoResponse\x12K\n" +
 	"\vorder_infos\x18\x01 \x03(\v2\x16.shop.app.v1.OrderInfoB\x12\xbaG\x0f\x92\x02\f分页数据R\n" +
 	"orderInfos\x12\"\n" +
-	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\x88\b\n" +
+	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"9\n" +
+	"\x17GetOrderInfoByIdRequest\x12\x1e\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单IDR\x02id\"\x88\b\n" +
 	"\x11OrderInfoResponse\x12@\n" +
 	"\x05order\x18\x01 \x01(\v2\x16.shop.app.v1.OrderInfoB\x12\xbaG\x0f\x92\x02\f订单信息R\x05order\x12T\n" +
 	"\aaddress\x18\x02 \x01(\v2&.shop.app.v1.OrderInfoResponse.AddressB\x12\xbaG\x0f\x92\x02\f地址信息R\aaddress\x12Z\n" +
@@ -2280,7 +2231,13 @@ const file_shop_app_v1_order_info_proto_rawDesc = "" +
 	"\x04text\x18\x02 \x01(\tB\f\xbaG\t\x92\x02\x06动态R\x04text\x1ah\n" +
 	"\fRelatedOrder\x12)\n" +
 	"\border_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单IDR\aorderId\x12-\n" +
-	"\border_no\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f订单编号R\aorderNo\"\x95\x04\n" +
+	"\border_no\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f订单编号R\aorderNo\"O\n" +
+	"\x1eGetOrderInfoIdByOrderNoRequest\x12-\n" +
+	"\border_no\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f订单编号R\aorderNo\"L\n" +
+	"\x1fGetOrderInfoIdByOrderNoResponse\x12)\n" +
+	"\border_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单IDR\aorderId\"H\n" +
+	"\x18GetOrderTradeByIdRequest\x12,\n" +
+	"\btrade_id\x18\x01 \x01(\x03B\x11\xbaG\x0e\x92\x02\v交易单IDR\atradeId\"\x95\x04\n" +
 	"\x16CreateOrderInfoRequest\x12-\n" +
 	"\n" +
 	"address_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b地址idR\taddressId\x12:\n" +
@@ -2295,19 +2252,62 @@ const file_shop_app_v1_order_info_proto_rawDesc = "" +
 	"\x17CreateOrderInfoResponse\x12,\n" +
 	"\btrade_id\x18\x01 \x01(\x03B\x11\xbaG\x0e\x92\x02\v交易单IDR\atradeId\x120\n" +
 	"\btrade_no\x18\x02 \x01(\tB\x15\xbaG\x12\x92\x02\x0f交易单编号R\atradeNo\x121\n" +
-	"\torder_ids\x18\x03 \x03(\x03B\x14\xbaG\x11\x92\x02\x0e门店订单IDR\borderIds\"\x95\x01\n" +
+	"\torder_ids\x18\x03 \x03(\x03B\x14\xbaG\x11\x92\x02\x0e门店订单IDR\borderIds\"8\n" +
+	"\x16DeleteOrderInfoRequest\x12\x1e\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单IDR\x02id\"G\n" +
+	"\x17DeleteOrderTradeRequest\x12,\n" +
+	"\btrade_id\x18\x01 \x01(\x03B\x11\xbaG\x0e\x92\x02\v交易单IDR\atradeId\"\x19\n" +
+	"\x17ConfirmOrderInfoRequest\"\x91\x02\n" +
+	"\x18ConfirmOrderInfoResponse\x12p\n" +
+	"\x12order_goods_stores\x18\x01 \x03(\v2\x1c.shop.app.v1.OrderGoodsStoreB$\xbaG!\x92\x02\x1e按门店分组的商品信息R\x10orderGoodsStores\x12G\n" +
+	"\asummary\x18\x02 \x01(\v2\x19.shop.app.v1.OrderSummaryB\x12\xbaG\x0f\x92\x02\f汇总信息R\asummary\x12:\n" +
+	"\n" +
+	"clear_cart\x18\x03 \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否清空购物车R\tclearCart\"\xf5\x01\n" +
+	"\x16BuyNowOrderInfoRequest\x12)\n" +
+	"\bgoods_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品idR\agoodsId\x12-\n" +
+	"\bsku_code\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f规格编号R\askuCode\x12\x1e\n" +
+	"\x03num\x18\x03 \x01(\x03B\f\xbaG\t\x92\x02\x06数量R\x03num\x12a\n" +
+	"\x11recommend_context\x18\x04 \x01(\v2\x1d.shop.app.v1.RecommendContextB\x15\xbaG\x12\x92\x02\x0f推荐上下文R\x10recommendContext\"\x90\x02\n" +
+	"\x17BuyNowOrderInfoResponse\x12p\n" +
+	"\x12order_goods_stores\x18\x01 \x03(\v2\x1c.shop.app.v1.OrderGoodsStoreB$\xbaG!\x92\x02\x1e按门店分组的商品信息R\x10orderGoodsStores\x12G\n" +
+	"\asummary\x18\x02 \x01(\v2\x19.shop.app.v1.OrderSummaryB\x12\xbaG\x0f\x92\x02\f汇总信息R\asummary\x12:\n" +
+	"\n" +
+	"clear_cart\x18\x03 \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否清空购物车R\tclearCart\"G\n" +
+	"\x1aRepurchaseOrderInfoRequest\x12)\n" +
+	"\border_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单idR\aorderId\"\x94\x02\n" +
+	"\x1bRepurchaseOrderInfoResponse\x12p\n" +
+	"\x12order_goods_stores\x18\x01 \x03(\v2\x1c.shop.app.v1.OrderGoodsStoreB$\xbaG!\x92\x02\x1e按门店分组的商品信息R\x10orderGoodsStores\x12G\n" +
+	"\asummary\x18\x02 \x01(\v2\x19.shop.app.v1.OrderSummaryB\x12\xbaG\x0f\x92\x02\f汇总信息R\asummary\x12:\n" +
+	"\n" +
+	"clear_cart\x18\x03 \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否清空购物车R\tclearCart\"\x17\n" +
+	"\x15CountOrderInfoRequest\"\xf9\x03\n" +
+	"\x16CountOrderInfoResponse\x12O\n" +
+	"\x06counts\x18\x01 \x03(\v2).shop.app.v1.CountOrderInfoResponse.CountB\f\xbaG\t\x92\x02\x06总数R\x06counts\x1a\x8d\x03\n" +
+	"\x05Count\x12Q\n" +
+	"\x06status\x18\x01 \x01(\x0e2\x1f.shop.common.v1.OrderInfoStatusB\x18\xbaG\x15\x92\x02\x12订单履约状态R\x06status\x12$\n" +
+	"\x03num\x18\x02 \x01(\x05B\x12\xbaG\x0f\x92\x02\f订单数量R\x03num\x12]\n" +
+	"\ftrade_status\x18\x03 \x01(\x0e2 .shop.common.v1.OrderTradeStatusB\x18\xbaG\x15\x92\x02\x12交易支付状态R\vtradeStatus\x12`\n" +
+	"\rrefund_status\x18\x04 \x01(\x0e2!.shop.common.v1.OrderRefundStatusB\x18\xbaG\x15\x92\x02\x12订单退款状态R\frefundStatus\x12J\n" +
+	"\n" +
+	"refundable\x18\x05 \x01(\bB*\xbaG'\x92\x02$是否为可申请售后订单统计R\n" +
+	"refundable\"\x95\x01\n" +
 	"\x16CancelOrderInfoRequest\x12,\n" +
 	"\btrade_id\x18\x01 \x01(\x03B\x11\xbaG\x0e\x92\x02\v交易单IDR\atradeId\x12M\n" +
-	"\x06reason\x18\x02 \x01(\x0e2!.shop.common.v1.OrderCancelReasonB\x12\xbaG\x0f\x92\x02\f取消原因R\x06reason\"\xf8\x01\n" +
-	"\x10OrderStoreOption\x12<\n" +
-	"\x0ftenant_store_id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDR\rtenantStoreId\x12z\n" +
-	"\rdelivery_time\x18\x02 \x01(\x0e2!.shop.common.v1.OrderDeliveryTimeB2\xbaG/\x92\x02,配送时间：枚举【OrderDeliveryTime】R\fdeliveryTime\x12*\n" +
-	"\x06remark\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f订单备注R\x06remark\"\x92\x01\n" +
+	"\x06reason\x18\x02 \x01(\x0e2!.shop.common.v1.OrderCancelReasonB\x12\xbaG\x0f\x92\x02\f取消原因R\x06reason\"\x92\x01\n" +
 	"\x16RefundOrderInfoRequest\x12)\n" +
 	"\border_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单idR\aorderId\x12M\n" +
 	"\x06reason\x18\x02 \x01(\x0e2!.shop.common.v1.OrderRefundReasonB\x12\xbaG\x0f\x92\x02\f退款原因R\x06reason\"D\n" +
 	"\x17ReceiveOrderInfoRequest\x12)\n" +
-	"\border_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单idR\aorderId\"\xbc\x04\n" +
+	"\border_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单idR\aorderId\"\xf3\x01\n" +
+	"\x14CreateOrderInfoGoods\x12)\n" +
+	"\bgoods_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品idR\agoodsId\x12-\n" +
+	"\bsku_code\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f规格编号R\askuCode\x12\x1e\n" +
+	"\x03num\x18\x03 \x01(\x03B\f\xbaG\t\x92\x02\x06数量R\x03num\x12a\n" +
+	"\x11recommend_context\x18\x04 \x01(\v2\x1d.shop.app.v1.RecommendContextB\x15\xbaG\x12\x92\x02\x0f推荐上下文R\x10recommendContext\"\xf8\x01\n" +
+	"\x10OrderStoreOption\x12<\n" +
+	"\x0ftenant_store_id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDR\rtenantStoreId\x12z\n" +
+	"\rdelivery_time\x18\x02 \x01(\x0e2!.shop.common.v1.OrderDeliveryTimeB2\xbaG/\x92\x02,配送时间：枚举【OrderDeliveryTime】R\fdeliveryTime\x12*\n" +
+	"\x06remark\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f订单备注R\x06remark\"\xbc\x04\n" +
 	"\n" +
 	"OrderGoods\x12)\n" +
 	"\bgoods_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\agoodsId\x12-\n" +
@@ -2367,18 +2367,18 @@ const file_shop_app_v1_order_info_proto_rawDesc = "" +
 	"totalMoney\x12-\n" +
 	"\bpost_fee\x18\x03 \x01(\x03B\x12\xbaG\x0f\x92\x02\f优惠金额R\apostFee\x12/\n" +
 	"\tgoods_num\x18\x04 \x01(\x03B\x12\xbaG\x0f\x92\x02\f商品总数R\bgoodsNum2\xf9\x0e\n" +
-	"\x10OrderInfoService\x12\x85\x01\n" +
-	"\x10ConfirmOrderInfo\x12$.shop.app.v1.ConfirmOrderInfoRequest\x1a%.shop.app.v1.ConfirmOrderInfoResponse\"$\x82\xd3\xe4\x93\x02\x1e:\x01*\"\x19/api/v1/app/order/confirm\x12\x8a\x01\n" +
-	"\x0fBuyNowOrderInfo\x12#.shop.app.v1.BuyNowOrderInfoRequest\x1a$.shop.app.v1.BuyNowOrderInfoResponse\",\x82\xd3\xe4\x93\x02&:\x01*\"!/api/v1/app/order/confirm/buy-now\x12\x99\x01\n" +
-	"\x13RepurchaseOrderInfo\x12'.shop.app.v1.RepurchaseOrderInfoRequest\x1a(.shop.app.v1.RepurchaseOrderInfoResponse\"/\x82\xd3\xe4\x93\x02):\x01*\"$/api/v1/app/order/confirm/repurchase\x12\x7f\n" +
-	"\x0eCountOrderInfo\x12\".shop.app.v1.CountOrderInfoRequest\x1a#.shop.app.v1.CountOrderInfoResponse\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/api/v1/app/order/info/count\x12v\n" +
-	"\rPageOrderInfo\x12!.shop.app.v1.PageOrderInfoRequest\x1a\".shop.app.v1.PageOrderInfoResponse\"\x1e\x82\xd3\xe4\x93\x02\x18\x12\x16/api/v1/app/order/info\x12\xa2\x01\n" +
-	"\x17GetOrderInfoIdByOrderNo\x12+.shop.app.v1.GetOrderInfoIdByOrderNoRequest\x1a,.shop.app.v1.GetOrderInfoIdByOrderNoResponse\",\x82\xd3\xe4\x93\x02&\x12$/api/v1/app/order/info/no/{order_no}\x12}\n" +
-	"\x10GetOrderInfoById\x12$.shop.app.v1.GetOrderInfoByIdRequest\x1a\x1e.shop.app.v1.OrderInfoResponse\"#\x82\xd3\xe4\x93\x02\x1d\x12\x1b/api/v1/app/order/info/{id}\x12\x86\x01\n" +
+	"\x10OrderInfoService\x12v\n" +
+	"\rPageOrderInfo\x12!.shop.app.v1.PageOrderInfoRequest\x1a\".shop.app.v1.PageOrderInfoResponse\"\x1e\x82\xd3\xe4\x93\x02\x18\x12\x16/api/v1/app/order/info\x12}\n" +
+	"\x10GetOrderInfoById\x12$.shop.app.v1.GetOrderInfoByIdRequest\x1a\x1e.shop.app.v1.OrderInfoResponse\"#\x82\xd3\xe4\x93\x02\x1d\x12\x1b/api/v1/app/order/info/{id}\x12\xa2\x01\n" +
+	"\x17GetOrderInfoIdByOrderNo\x12+.shop.app.v1.GetOrderInfoIdByOrderNoRequest\x1a,.shop.app.v1.GetOrderInfoIdByOrderNoResponse\",\x82\xd3\xe4\x93\x02&\x12$/api/v1/app/order/info/no/{order_no}\x12\x86\x01\n" +
 	"\x11GetOrderTradeById\x12%.shop.app.v1.GetOrderTradeByIdRequest\x1a\x1e.shop.app.v1.OrderInfoResponse\"*\x82\xd3\xe4\x93\x02$\x12\"/api/v1/app/order/trade/{trade_id}\x12\x7f\n" +
 	"\x0fCreateOrderInfo\x12#.shop.app.v1.CreateOrderInfoRequest\x1a$.shop.app.v1.CreateOrderInfoResponse\"!\x82\xd3\xe4\x93\x02\x1b:\x01*\"\x16/api/v1/app/order/info\x12s\n" +
 	"\x0fDeleteOrderInfo\x12#.shop.app.v1.DeleteOrderInfoRequest\x1a\x16.google.protobuf.Empty\"#\x82\xd3\xe4\x93\x02\x1d*\x1b/api/v1/app/order/info/{id}\x12|\n" +
-	"\x10DeleteOrderTrade\x12$.shop.app.v1.DeleteOrderTradeRequest\x1a\x16.google.protobuf.Empty\"*\x82\xd3\xe4\x93\x02$*\"/api/v1/app/order/trade/{trade_id}\x12\x8a\x01\n" +
+	"\x10DeleteOrderTrade\x12$.shop.app.v1.DeleteOrderTradeRequest\x1a\x16.google.protobuf.Empty\"*\x82\xd3\xe4\x93\x02$*\"/api/v1/app/order/trade/{trade_id}\x12\x85\x01\n" +
+	"\x10ConfirmOrderInfo\x12$.shop.app.v1.ConfirmOrderInfoRequest\x1a%.shop.app.v1.ConfirmOrderInfoResponse\"$\x82\xd3\xe4\x93\x02\x1e:\x01*\"\x19/api/v1/app/order/confirm\x12\x8a\x01\n" +
+	"\x0fBuyNowOrderInfo\x12#.shop.app.v1.BuyNowOrderInfoRequest\x1a$.shop.app.v1.BuyNowOrderInfoResponse\",\x82\xd3\xe4\x93\x02&:\x01*\"!/api/v1/app/order/confirm/buy-now\x12\x99\x01\n" +
+	"\x13RepurchaseOrderInfo\x12'.shop.app.v1.RepurchaseOrderInfoRequest\x1a(.shop.app.v1.RepurchaseOrderInfoResponse\"/\x82\xd3\xe4\x93\x02):\x01*\"$/api/v1/app/order/confirm/repurchase\x12\x7f\n" +
+	"\x0eCountOrderInfo\x12\".shop.app.v1.CountOrderInfoRequest\x1a#.shop.app.v1.CountOrderInfoResponse\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/api/v1/app/order/info/count\x12\x8a\x01\n" +
 	"\x0fCancelOrderInfo\x12#.shop.app.v1.CancelOrderInfoRequest\x1a\x16.google.protobuf.Empty\":\x82\xd3\xe4\x93\x024:\x01*\x1a//api/v1/app/order/trade/{trade_id}/cancellation\x12\x83\x01\n" +
 	"\x0fRefundOrderInfo\x12#.shop.app.v1.RefundOrderInfoRequest\x1a\x16.google.protobuf.Empty\"3\x82\xd3\xe4\x93\x02-:\x01*\x1a(/api/v1/app/order/info/{order_id}/refund\x12\x86\x01\n" +
 	"\x10ReceiveOrderInfo\x12$.shop.app.v1.ReceiveOrderInfoRequest\x1a\x16.google.protobuf.Empty\"4\x82\xd3\xe4\x93\x02.:\x01*\x1a)/api/v1/app/order/info/{order_id}/receiptB\x92\x01\n" +
@@ -2398,117 +2398,117 @@ func file_shop_app_v1_order_info_proto_rawDescGZIP() []byte {
 
 var file_shop_app_v1_order_info_proto_msgTypes = make([]protoimpl.MessageInfo, 33)
 var file_shop_app_v1_order_info_proto_goTypes = []any{
-	(*ConfirmOrderInfoRequest)(nil),            // 0: shop.app.v1.ConfirmOrderInfoRequest
-	(*CountOrderInfoRequest)(nil),              // 1: shop.app.v1.CountOrderInfoRequest
-	(*GetOrderInfoIdByOrderNoRequest)(nil),     // 2: shop.app.v1.GetOrderInfoIdByOrderNoRequest
-	(*GetOrderInfoIdByOrderNoResponse)(nil),    // 3: shop.app.v1.GetOrderInfoIdByOrderNoResponse
-	(*GetOrderInfoByIdRequest)(nil),            // 4: shop.app.v1.GetOrderInfoByIdRequest
-	(*GetOrderTradeByIdRequest)(nil),           // 5: shop.app.v1.GetOrderTradeByIdRequest
-	(*DeleteOrderInfoRequest)(nil),             // 6: shop.app.v1.DeleteOrderInfoRequest
-	(*DeleteOrderTradeRequest)(nil),            // 7: shop.app.v1.DeleteOrderTradeRequest
-	(*BuyNowOrderInfoRequest)(nil),             // 8: shop.app.v1.BuyNowOrderInfoRequest
-	(*CreateOrderInfoGoods)(nil),               // 9: shop.app.v1.CreateOrderInfoGoods
-	(*ConfirmOrderInfoResponse)(nil),           // 10: shop.app.v1.ConfirmOrderInfoResponse
-	(*BuyNowOrderInfoResponse)(nil),            // 11: shop.app.v1.BuyNowOrderInfoResponse
-	(*RepurchaseOrderInfoRequest)(nil),         // 12: shop.app.v1.RepurchaseOrderInfoRequest
-	(*RepurchaseOrderInfoResponse)(nil),        // 13: shop.app.v1.RepurchaseOrderInfoResponse
-	(*CountOrderInfoResponse)(nil),             // 14: shop.app.v1.CountOrderInfoResponse
-	(*PageOrderInfoRequest)(nil),               // 15: shop.app.v1.PageOrderInfoRequest
-	(*PageOrderInfoResponse)(nil),              // 16: shop.app.v1.PageOrderInfoResponse
-	(*OrderInfoResponse)(nil),                  // 17: shop.app.v1.OrderInfoResponse
-	(*CreateOrderInfoRequest)(nil),             // 18: shop.app.v1.CreateOrderInfoRequest
-	(*CreateOrderInfoResponse)(nil),            // 19: shop.app.v1.CreateOrderInfoResponse
-	(*CancelOrderInfoRequest)(nil),             // 20: shop.app.v1.CancelOrderInfoRequest
-	(*OrderStoreOption)(nil),                   // 21: shop.app.v1.OrderStoreOption
-	(*RefundOrderInfoRequest)(nil),             // 22: shop.app.v1.RefundOrderInfoRequest
-	(*ReceiveOrderInfoRequest)(nil),            // 23: shop.app.v1.ReceiveOrderInfoRequest
+	(*PageOrderInfoRequest)(nil),               // 0: shop.app.v1.PageOrderInfoRequest
+	(*PageOrderInfoResponse)(nil),              // 1: shop.app.v1.PageOrderInfoResponse
+	(*GetOrderInfoByIdRequest)(nil),            // 2: shop.app.v1.GetOrderInfoByIdRequest
+	(*OrderInfoResponse)(nil),                  // 3: shop.app.v1.OrderInfoResponse
+	(*GetOrderInfoIdByOrderNoRequest)(nil),     // 4: shop.app.v1.GetOrderInfoIdByOrderNoRequest
+	(*GetOrderInfoIdByOrderNoResponse)(nil),    // 5: shop.app.v1.GetOrderInfoIdByOrderNoResponse
+	(*GetOrderTradeByIdRequest)(nil),           // 6: shop.app.v1.GetOrderTradeByIdRequest
+	(*CreateOrderInfoRequest)(nil),             // 7: shop.app.v1.CreateOrderInfoRequest
+	(*CreateOrderInfoResponse)(nil),            // 8: shop.app.v1.CreateOrderInfoResponse
+	(*DeleteOrderInfoRequest)(nil),             // 9: shop.app.v1.DeleteOrderInfoRequest
+	(*DeleteOrderTradeRequest)(nil),            // 10: shop.app.v1.DeleteOrderTradeRequest
+	(*ConfirmOrderInfoRequest)(nil),            // 11: shop.app.v1.ConfirmOrderInfoRequest
+	(*ConfirmOrderInfoResponse)(nil),           // 12: shop.app.v1.ConfirmOrderInfoResponse
+	(*BuyNowOrderInfoRequest)(nil),             // 13: shop.app.v1.BuyNowOrderInfoRequest
+	(*BuyNowOrderInfoResponse)(nil),            // 14: shop.app.v1.BuyNowOrderInfoResponse
+	(*RepurchaseOrderInfoRequest)(nil),         // 15: shop.app.v1.RepurchaseOrderInfoRequest
+	(*RepurchaseOrderInfoResponse)(nil),        // 16: shop.app.v1.RepurchaseOrderInfoResponse
+	(*CountOrderInfoRequest)(nil),              // 17: shop.app.v1.CountOrderInfoRequest
+	(*CountOrderInfoResponse)(nil),             // 18: shop.app.v1.CountOrderInfoResponse
+	(*CancelOrderInfoRequest)(nil),             // 19: shop.app.v1.CancelOrderInfoRequest
+	(*RefundOrderInfoRequest)(nil),             // 20: shop.app.v1.RefundOrderInfoRequest
+	(*ReceiveOrderInfoRequest)(nil),            // 21: shop.app.v1.ReceiveOrderInfoRequest
+	(*CreateOrderInfoGoods)(nil),               // 22: shop.app.v1.CreateOrderInfoGoods
+	(*OrderStoreOption)(nil),                   // 23: shop.app.v1.OrderStoreOption
 	(*OrderGoods)(nil),                         // 24: shop.app.v1.OrderGoods
 	(*OrderGoodsStore)(nil),                    // 25: shop.app.v1.OrderGoodsStore
 	(*OrderInfo)(nil),                          // 26: shop.app.v1.OrderInfo
 	(*OrderSummary)(nil),                       // 27: shop.app.v1.OrderSummary
-	(*CountOrderInfoResponse_Count)(nil),       // 28: shop.app.v1.CountOrderInfoResponse.Count
-	(*OrderInfoResponse_Address)(nil),          // 29: shop.app.v1.OrderInfoResponse.Address
-	(*OrderInfoResponse_Logistics)(nil),        // 30: shop.app.v1.OrderInfoResponse.Logistics
-	(*OrderInfoResponse_RelatedOrder)(nil),     // 31: shop.app.v1.OrderInfoResponse.RelatedOrder
-	(*OrderInfoResponse_Logistics_Detail)(nil), // 32: shop.app.v1.OrderInfoResponse.Logistics.Detail
-	(*RecommendContext)(nil),                   // 33: shop.app.v1.RecommendContext
-	(v1.OrderInfoStatus)(0),                    // 34: shop.common.v1.OrderInfoStatus
-	(v1.OrderTradeStatus)(0),                   // 35: shop.common.v1.OrderTradeStatus
-	(v1.OrderRefundStatus)(0),                  // 36: shop.common.v1.OrderRefundStatus
-	(v1.OrderPayType)(0),                       // 37: shop.common.v1.OrderPayType
-	(v1.OrderPayChannel)(0),                    // 38: shop.common.v1.OrderPayChannel
+	(*OrderInfoResponse_Address)(nil),          // 28: shop.app.v1.OrderInfoResponse.Address
+	(*OrderInfoResponse_Logistics)(nil),        // 29: shop.app.v1.OrderInfoResponse.Logistics
+	(*OrderInfoResponse_RelatedOrder)(nil),     // 30: shop.app.v1.OrderInfoResponse.RelatedOrder
+	(*OrderInfoResponse_Logistics_Detail)(nil), // 31: shop.app.v1.OrderInfoResponse.Logistics.Detail
+	(*CountOrderInfoResponse_Count)(nil),       // 32: shop.app.v1.CountOrderInfoResponse.Count
+	(v1.OrderInfoStatus)(0),                    // 33: shop.common.v1.OrderInfoStatus
+	(v1.OrderTradeStatus)(0),                   // 34: shop.common.v1.OrderTradeStatus
+	(v1.OrderRefundStatus)(0),                  // 35: shop.common.v1.OrderRefundStatus
+	(v1.OrderPayType)(0),                       // 36: shop.common.v1.OrderPayType
+	(v1.OrderPayChannel)(0),                    // 37: shop.common.v1.OrderPayChannel
+	(*RecommendContext)(nil),                   // 38: shop.app.v1.RecommendContext
 	(v1.OrderCancelReason)(0),                  // 39: shop.common.v1.OrderCancelReason
-	(v1.OrderDeliveryTime)(0),                  // 40: shop.common.v1.OrderDeliveryTime
-	(v1.OrderRefundReason)(0),                  // 41: shop.common.v1.OrderRefundReason
+	(v1.OrderRefundReason)(0),                  // 40: shop.common.v1.OrderRefundReason
+	(v1.OrderDeliveryTime)(0),                  // 41: shop.common.v1.OrderDeliveryTime
 	(*TenantStore)(nil),                        // 42: shop.app.v1.TenantStore
 	(*emptypb.Empty)(nil),                      // 43: google.protobuf.Empty
 }
 var file_shop_app_v1_order_info_proto_depIdxs = []int32{
-	33, // 0: shop.app.v1.BuyNowOrderInfoRequest.recommend_context:type_name -> shop.app.v1.RecommendContext
-	33, // 1: shop.app.v1.CreateOrderInfoGoods.recommend_context:type_name -> shop.app.v1.RecommendContext
-	25, // 2: shop.app.v1.ConfirmOrderInfoResponse.order_goods_stores:type_name -> shop.app.v1.OrderGoodsStore
-	27, // 3: shop.app.v1.ConfirmOrderInfoResponse.summary:type_name -> shop.app.v1.OrderSummary
-	25, // 4: shop.app.v1.BuyNowOrderInfoResponse.order_goods_stores:type_name -> shop.app.v1.OrderGoodsStore
-	27, // 5: shop.app.v1.BuyNowOrderInfoResponse.summary:type_name -> shop.app.v1.OrderSummary
-	25, // 6: shop.app.v1.RepurchaseOrderInfoResponse.order_goods_stores:type_name -> shop.app.v1.OrderGoodsStore
-	27, // 7: shop.app.v1.RepurchaseOrderInfoResponse.summary:type_name -> shop.app.v1.OrderSummary
-	28, // 8: shop.app.v1.CountOrderInfoResponse.counts:type_name -> shop.app.v1.CountOrderInfoResponse.Count
-	34, // 9: shop.app.v1.PageOrderInfoRequest.status:type_name -> shop.common.v1.OrderInfoStatus
-	35, // 10: shop.app.v1.PageOrderInfoRequest.trade_status:type_name -> shop.common.v1.OrderTradeStatus
-	36, // 11: shop.app.v1.PageOrderInfoRequest.refund_status:type_name -> shop.common.v1.OrderRefundStatus
-	26, // 12: shop.app.v1.PageOrderInfoResponse.order_infos:type_name -> shop.app.v1.OrderInfo
-	26, // 13: shop.app.v1.OrderInfoResponse.order:type_name -> shop.app.v1.OrderInfo
-	29, // 14: shop.app.v1.OrderInfoResponse.address:type_name -> shop.app.v1.OrderInfoResponse.Address
-	30, // 15: shop.app.v1.OrderInfoResponse.logistics:type_name -> shop.app.v1.OrderInfoResponse.Logistics
-	31, // 16: shop.app.v1.OrderInfoResponse.related_orders:type_name -> shop.app.v1.OrderInfoResponse.RelatedOrder
-	37, // 17: shop.app.v1.CreateOrderInfoRequest.pay_type:type_name -> shop.common.v1.OrderPayType
-	38, // 18: shop.app.v1.CreateOrderInfoRequest.pay_channel:type_name -> shop.common.v1.OrderPayChannel
-	21, // 19: shop.app.v1.CreateOrderInfoRequest.order_store_options:type_name -> shop.app.v1.OrderStoreOption
-	9,  // 20: shop.app.v1.CreateOrderInfoRequest.goods:type_name -> shop.app.v1.CreateOrderInfoGoods
-	39, // 21: shop.app.v1.CancelOrderInfoRequest.reason:type_name -> shop.common.v1.OrderCancelReason
-	40, // 22: shop.app.v1.OrderStoreOption.delivery_time:type_name -> shop.common.v1.OrderDeliveryTime
-	41, // 23: shop.app.v1.RefundOrderInfoRequest.reason:type_name -> shop.common.v1.OrderRefundReason
-	33, // 24: shop.app.v1.OrderGoods.recommend_context:type_name -> shop.app.v1.RecommendContext
+	33, // 0: shop.app.v1.PageOrderInfoRequest.status:type_name -> shop.common.v1.OrderInfoStatus
+	34, // 1: shop.app.v1.PageOrderInfoRequest.trade_status:type_name -> shop.common.v1.OrderTradeStatus
+	35, // 2: shop.app.v1.PageOrderInfoRequest.refund_status:type_name -> shop.common.v1.OrderRefundStatus
+	26, // 3: shop.app.v1.PageOrderInfoResponse.order_infos:type_name -> shop.app.v1.OrderInfo
+	26, // 4: shop.app.v1.OrderInfoResponse.order:type_name -> shop.app.v1.OrderInfo
+	28, // 5: shop.app.v1.OrderInfoResponse.address:type_name -> shop.app.v1.OrderInfoResponse.Address
+	29, // 6: shop.app.v1.OrderInfoResponse.logistics:type_name -> shop.app.v1.OrderInfoResponse.Logistics
+	30, // 7: shop.app.v1.OrderInfoResponse.related_orders:type_name -> shop.app.v1.OrderInfoResponse.RelatedOrder
+	36, // 8: shop.app.v1.CreateOrderInfoRequest.pay_type:type_name -> shop.common.v1.OrderPayType
+	37, // 9: shop.app.v1.CreateOrderInfoRequest.pay_channel:type_name -> shop.common.v1.OrderPayChannel
+	23, // 10: shop.app.v1.CreateOrderInfoRequest.order_store_options:type_name -> shop.app.v1.OrderStoreOption
+	22, // 11: shop.app.v1.CreateOrderInfoRequest.goods:type_name -> shop.app.v1.CreateOrderInfoGoods
+	25, // 12: shop.app.v1.ConfirmOrderInfoResponse.order_goods_stores:type_name -> shop.app.v1.OrderGoodsStore
+	27, // 13: shop.app.v1.ConfirmOrderInfoResponse.summary:type_name -> shop.app.v1.OrderSummary
+	38, // 14: shop.app.v1.BuyNowOrderInfoRequest.recommend_context:type_name -> shop.app.v1.RecommendContext
+	25, // 15: shop.app.v1.BuyNowOrderInfoResponse.order_goods_stores:type_name -> shop.app.v1.OrderGoodsStore
+	27, // 16: shop.app.v1.BuyNowOrderInfoResponse.summary:type_name -> shop.app.v1.OrderSummary
+	25, // 17: shop.app.v1.RepurchaseOrderInfoResponse.order_goods_stores:type_name -> shop.app.v1.OrderGoodsStore
+	27, // 18: shop.app.v1.RepurchaseOrderInfoResponse.summary:type_name -> shop.app.v1.OrderSummary
+	32, // 19: shop.app.v1.CountOrderInfoResponse.counts:type_name -> shop.app.v1.CountOrderInfoResponse.Count
+	39, // 20: shop.app.v1.CancelOrderInfoRequest.reason:type_name -> shop.common.v1.OrderCancelReason
+	40, // 21: shop.app.v1.RefundOrderInfoRequest.reason:type_name -> shop.common.v1.OrderRefundReason
+	38, // 22: shop.app.v1.CreateOrderInfoGoods.recommend_context:type_name -> shop.app.v1.RecommendContext
+	41, // 23: shop.app.v1.OrderStoreOption.delivery_time:type_name -> shop.common.v1.OrderDeliveryTime
+	38, // 24: shop.app.v1.OrderGoods.recommend_context:type_name -> shop.app.v1.RecommendContext
 	42, // 25: shop.app.v1.OrderGoodsStore.store:type_name -> shop.app.v1.TenantStore
 	24, // 26: shop.app.v1.OrderGoodsStore.goods:type_name -> shop.app.v1.OrderGoods
 	27, // 27: shop.app.v1.OrderGoodsStore.summary:type_name -> shop.app.v1.OrderSummary
-	40, // 28: shop.app.v1.OrderGoodsStore.delivery_time:type_name -> shop.common.v1.OrderDeliveryTime
-	40, // 29: shop.app.v1.OrderInfo.delivery_time:type_name -> shop.common.v1.OrderDeliveryTime
-	34, // 30: shop.app.v1.OrderInfo.status:type_name -> shop.common.v1.OrderInfoStatus
-	36, // 31: shop.app.v1.OrderInfo.refund_status:type_name -> shop.common.v1.OrderRefundStatus
-	37, // 32: shop.app.v1.OrderInfo.pay_type:type_name -> shop.common.v1.OrderPayType
-	38, // 33: shop.app.v1.OrderInfo.pay_channel:type_name -> shop.common.v1.OrderPayChannel
-	35, // 34: shop.app.v1.OrderInfo.trade_status:type_name -> shop.common.v1.OrderTradeStatus
+	41, // 28: shop.app.v1.OrderGoodsStore.delivery_time:type_name -> shop.common.v1.OrderDeliveryTime
+	41, // 29: shop.app.v1.OrderInfo.delivery_time:type_name -> shop.common.v1.OrderDeliveryTime
+	33, // 30: shop.app.v1.OrderInfo.status:type_name -> shop.common.v1.OrderInfoStatus
+	35, // 31: shop.app.v1.OrderInfo.refund_status:type_name -> shop.common.v1.OrderRefundStatus
+	36, // 32: shop.app.v1.OrderInfo.pay_type:type_name -> shop.common.v1.OrderPayType
+	37, // 33: shop.app.v1.OrderInfo.pay_channel:type_name -> shop.common.v1.OrderPayChannel
+	34, // 34: shop.app.v1.OrderInfo.trade_status:type_name -> shop.common.v1.OrderTradeStatus
 	25, // 35: shop.app.v1.OrderInfo.order_goods_stores:type_name -> shop.app.v1.OrderGoodsStore
-	34, // 36: shop.app.v1.CountOrderInfoResponse.Count.status:type_name -> shop.common.v1.OrderInfoStatus
-	35, // 37: shop.app.v1.CountOrderInfoResponse.Count.trade_status:type_name -> shop.common.v1.OrderTradeStatus
-	36, // 38: shop.app.v1.CountOrderInfoResponse.Count.refund_status:type_name -> shop.common.v1.OrderRefundStatus
-	32, // 39: shop.app.v1.OrderInfoResponse.Logistics.detail:type_name -> shop.app.v1.OrderInfoResponse.Logistics.Detail
-	0,  // 40: shop.app.v1.OrderInfoService.ConfirmOrderInfo:input_type -> shop.app.v1.ConfirmOrderInfoRequest
-	8,  // 41: shop.app.v1.OrderInfoService.BuyNowOrderInfo:input_type -> shop.app.v1.BuyNowOrderInfoRequest
-	12, // 42: shop.app.v1.OrderInfoService.RepurchaseOrderInfo:input_type -> shop.app.v1.RepurchaseOrderInfoRequest
-	1,  // 43: shop.app.v1.OrderInfoService.CountOrderInfo:input_type -> shop.app.v1.CountOrderInfoRequest
-	15, // 44: shop.app.v1.OrderInfoService.PageOrderInfo:input_type -> shop.app.v1.PageOrderInfoRequest
-	2,  // 45: shop.app.v1.OrderInfoService.GetOrderInfoIdByOrderNo:input_type -> shop.app.v1.GetOrderInfoIdByOrderNoRequest
-	4,  // 46: shop.app.v1.OrderInfoService.GetOrderInfoById:input_type -> shop.app.v1.GetOrderInfoByIdRequest
-	5,  // 47: shop.app.v1.OrderInfoService.GetOrderTradeById:input_type -> shop.app.v1.GetOrderTradeByIdRequest
-	18, // 48: shop.app.v1.OrderInfoService.CreateOrderInfo:input_type -> shop.app.v1.CreateOrderInfoRequest
-	6,  // 49: shop.app.v1.OrderInfoService.DeleteOrderInfo:input_type -> shop.app.v1.DeleteOrderInfoRequest
-	7,  // 50: shop.app.v1.OrderInfoService.DeleteOrderTrade:input_type -> shop.app.v1.DeleteOrderTradeRequest
-	20, // 51: shop.app.v1.OrderInfoService.CancelOrderInfo:input_type -> shop.app.v1.CancelOrderInfoRequest
-	22, // 52: shop.app.v1.OrderInfoService.RefundOrderInfo:input_type -> shop.app.v1.RefundOrderInfoRequest
-	23, // 53: shop.app.v1.OrderInfoService.ReceiveOrderInfo:input_type -> shop.app.v1.ReceiveOrderInfoRequest
-	10, // 54: shop.app.v1.OrderInfoService.ConfirmOrderInfo:output_type -> shop.app.v1.ConfirmOrderInfoResponse
-	11, // 55: shop.app.v1.OrderInfoService.BuyNowOrderInfo:output_type -> shop.app.v1.BuyNowOrderInfoResponse
-	13, // 56: shop.app.v1.OrderInfoService.RepurchaseOrderInfo:output_type -> shop.app.v1.RepurchaseOrderInfoResponse
-	14, // 57: shop.app.v1.OrderInfoService.CountOrderInfo:output_type -> shop.app.v1.CountOrderInfoResponse
-	16, // 58: shop.app.v1.OrderInfoService.PageOrderInfo:output_type -> shop.app.v1.PageOrderInfoResponse
-	3,  // 59: shop.app.v1.OrderInfoService.GetOrderInfoIdByOrderNo:output_type -> shop.app.v1.GetOrderInfoIdByOrderNoResponse
-	17, // 60: shop.app.v1.OrderInfoService.GetOrderInfoById:output_type -> shop.app.v1.OrderInfoResponse
-	17, // 61: shop.app.v1.OrderInfoService.GetOrderTradeById:output_type -> shop.app.v1.OrderInfoResponse
-	19, // 62: shop.app.v1.OrderInfoService.CreateOrderInfo:output_type -> shop.app.v1.CreateOrderInfoResponse
-	43, // 63: shop.app.v1.OrderInfoService.DeleteOrderInfo:output_type -> google.protobuf.Empty
-	43, // 64: shop.app.v1.OrderInfoService.DeleteOrderTrade:output_type -> google.protobuf.Empty
+	31, // 36: shop.app.v1.OrderInfoResponse.Logistics.detail:type_name -> shop.app.v1.OrderInfoResponse.Logistics.Detail
+	33, // 37: shop.app.v1.CountOrderInfoResponse.Count.status:type_name -> shop.common.v1.OrderInfoStatus
+	34, // 38: shop.app.v1.CountOrderInfoResponse.Count.trade_status:type_name -> shop.common.v1.OrderTradeStatus
+	35, // 39: shop.app.v1.CountOrderInfoResponse.Count.refund_status:type_name -> shop.common.v1.OrderRefundStatus
+	0,  // 40: shop.app.v1.OrderInfoService.PageOrderInfo:input_type -> shop.app.v1.PageOrderInfoRequest
+	2,  // 41: shop.app.v1.OrderInfoService.GetOrderInfoById:input_type -> shop.app.v1.GetOrderInfoByIdRequest
+	4,  // 42: shop.app.v1.OrderInfoService.GetOrderInfoIdByOrderNo:input_type -> shop.app.v1.GetOrderInfoIdByOrderNoRequest
+	6,  // 43: shop.app.v1.OrderInfoService.GetOrderTradeById:input_type -> shop.app.v1.GetOrderTradeByIdRequest
+	7,  // 44: shop.app.v1.OrderInfoService.CreateOrderInfo:input_type -> shop.app.v1.CreateOrderInfoRequest
+	9,  // 45: shop.app.v1.OrderInfoService.DeleteOrderInfo:input_type -> shop.app.v1.DeleteOrderInfoRequest
+	10, // 46: shop.app.v1.OrderInfoService.DeleteOrderTrade:input_type -> shop.app.v1.DeleteOrderTradeRequest
+	11, // 47: shop.app.v1.OrderInfoService.ConfirmOrderInfo:input_type -> shop.app.v1.ConfirmOrderInfoRequest
+	13, // 48: shop.app.v1.OrderInfoService.BuyNowOrderInfo:input_type -> shop.app.v1.BuyNowOrderInfoRequest
+	15, // 49: shop.app.v1.OrderInfoService.RepurchaseOrderInfo:input_type -> shop.app.v1.RepurchaseOrderInfoRequest
+	17, // 50: shop.app.v1.OrderInfoService.CountOrderInfo:input_type -> shop.app.v1.CountOrderInfoRequest
+	19, // 51: shop.app.v1.OrderInfoService.CancelOrderInfo:input_type -> shop.app.v1.CancelOrderInfoRequest
+	20, // 52: shop.app.v1.OrderInfoService.RefundOrderInfo:input_type -> shop.app.v1.RefundOrderInfoRequest
+	21, // 53: shop.app.v1.OrderInfoService.ReceiveOrderInfo:input_type -> shop.app.v1.ReceiveOrderInfoRequest
+	1,  // 54: shop.app.v1.OrderInfoService.PageOrderInfo:output_type -> shop.app.v1.PageOrderInfoResponse
+	3,  // 55: shop.app.v1.OrderInfoService.GetOrderInfoById:output_type -> shop.app.v1.OrderInfoResponse
+	5,  // 56: shop.app.v1.OrderInfoService.GetOrderInfoIdByOrderNo:output_type -> shop.app.v1.GetOrderInfoIdByOrderNoResponse
+	3,  // 57: shop.app.v1.OrderInfoService.GetOrderTradeById:output_type -> shop.app.v1.OrderInfoResponse
+	8,  // 58: shop.app.v1.OrderInfoService.CreateOrderInfo:output_type -> shop.app.v1.CreateOrderInfoResponse
+	43, // 59: shop.app.v1.OrderInfoService.DeleteOrderInfo:output_type -> google.protobuf.Empty
+	43, // 60: shop.app.v1.OrderInfoService.DeleteOrderTrade:output_type -> google.protobuf.Empty
+	12, // 61: shop.app.v1.OrderInfoService.ConfirmOrderInfo:output_type -> shop.app.v1.ConfirmOrderInfoResponse
+	14, // 62: shop.app.v1.OrderInfoService.BuyNowOrderInfo:output_type -> shop.app.v1.BuyNowOrderInfoResponse
+	16, // 63: shop.app.v1.OrderInfoService.RepurchaseOrderInfo:output_type -> shop.app.v1.RepurchaseOrderInfoResponse
+	18, // 64: shop.app.v1.OrderInfoService.CountOrderInfo:output_type -> shop.app.v1.CountOrderInfoResponse
 	43, // 65: shop.app.v1.OrderInfoService.CancelOrderInfo:output_type -> google.protobuf.Empty
 	43, // 66: shop.app.v1.OrderInfoService.RefundOrderInfo:output_type -> google.protobuf.Empty
 	43, // 67: shop.app.v1.OrderInfoService.ReceiveOrderInfo:output_type -> google.protobuf.Empty
@@ -2526,7 +2526,7 @@ func file_shop_app_v1_order_info_proto_init() {
 	}
 	file_shop_app_v1_recommend_proto_init()
 	file_shop_app_v1_tenant_store_proto_init()
-	file_shop_app_v1_order_info_proto_msgTypes[15].OneofWrappers = []any{}
+	file_shop_app_v1_order_info_proto_msgTypes[0].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

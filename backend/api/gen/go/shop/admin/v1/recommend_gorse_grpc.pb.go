@@ -21,23 +21,23 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	RecommendGorseService_GetTimeSeries_FullMethodName       = "/shop.admin.v1.RecommendGorseService/GetTimeSeries"
 	RecommendGorseService_OptionCategory_FullMethodName      = "/shop.admin.v1.RecommendGorseService/OptionCategory"
+	RecommendGorseService_PageItem_FullMethodName            = "/shop.admin.v1.RecommendGorseService/PageItem"
+	RecommendGorseService_PageUser_FullMethodName            = "/shop.admin.v1.RecommendGorseService/PageUser"
 	RecommendGorseService_ListDashboardItem_FullMethodName   = "/shop.admin.v1.RecommendGorseService/ListDashboardItem"
 	RecommendGorseService_ListTask_FullMethodName            = "/shop.admin.v1.RecommendGorseService/ListTask"
-	RecommendGorseService_PageUser_FullMethodName            = "/shop.admin.v1.RecommendGorseService/PageUser"
+	RecommendGorseService_GetConfig_FullMethodName           = "/shop.admin.v1.RecommendGorseService/GetConfig"
+	RecommendGorseService_GetItem_FullMethodName             = "/shop.admin.v1.RecommendGorseService/GetItem"
+	RecommendGorseService_GetItemSimilar_FullMethodName      = "/shop.admin.v1.RecommendGorseService/GetItemSimilar"
+	RecommendGorseService_GetTimeSeries_FullMethodName       = "/shop.admin.v1.RecommendGorseService/GetTimeSeries"
 	RecommendGorseService_GetUser_FullMethodName             = "/shop.admin.v1.RecommendGorseService/GetUser"
-	RecommendGorseService_DeleteUser_FullMethodName          = "/shop.admin.v1.RecommendGorseService/DeleteUser"
-	RecommendGorseService_GetUserSimilar_FullMethodName      = "/shop.admin.v1.RecommendGorseService/GetUserSimilar"
 	RecommendGorseService_GetUserFeedback_FullMethodName     = "/shop.admin.v1.RecommendGorseService/GetUserFeedback"
 	RecommendGorseService_GetUserRecommend_FullMethodName    = "/shop.admin.v1.RecommendGorseService/GetUserRecommend"
-	RecommendGorseService_PageItem_FullMethodName            = "/shop.admin.v1.RecommendGorseService/PageItem"
-	RecommendGorseService_GetItem_FullMethodName             = "/shop.admin.v1.RecommendGorseService/GetItem"
+	RecommendGorseService_GetUserSimilar_FullMethodName      = "/shop.admin.v1.RecommendGorseService/GetUserSimilar"
 	RecommendGorseService_DeleteItem_FullMethodName          = "/shop.admin.v1.RecommendGorseService/DeleteItem"
-	RecommendGorseService_GetItemSimilar_FullMethodName      = "/shop.admin.v1.RecommendGorseService/GetItemSimilar"
+	RecommendGorseService_DeleteUser_FullMethodName          = "/shop.admin.v1.RecommendGorseService/DeleteUser"
 	RecommendGorseService_ExportData_FullMethodName          = "/shop.admin.v1.RecommendGorseService/ExportData"
 	RecommendGorseService_ImportData_FullMethodName          = "/shop.admin.v1.RecommendGorseService/ImportData"
-	RecommendGorseService_GetConfig_FullMethodName           = "/shop.admin.v1.RecommendGorseService/GetConfig"
 	RecommendGorseService_SaveConfig_FullMethodName          = "/shop.admin.v1.RecommendGorseService/SaveConfig"
 	RecommendGorseService_ResetConfig_FullMethodName         = "/shop.admin.v1.RecommendGorseService/ResetConfig"
 	RecommendGorseService_PreviewExternal_FullMethodName     = "/shop.admin.v1.RecommendGorseService/PreviewExternal"
@@ -50,40 +50,40 @@ const (
 //
 // Admin Gorse 推荐服务
 type RecommendGorseServiceClient interface {
-	// 查询 Gorse 推荐时间序列
-	GetTimeSeries(ctx context.Context, in *GetTimeSeriesRequest, opts ...grpc.CallOption) (*TimeSeriesResponse, error)
 	// 查询 Gorse 推荐分类
 	OptionCategory(ctx context.Context, in *OptionCategoryRequest, opts ...grpc.CallOption) (*OptionCategoryResponse, error)
+	// 查询 Gorse 推荐商品列表
+	PageItem(ctx context.Context, in *PageItemRequest, opts ...grpc.CallOption) (*PageItemResponse, error)
+	// 查询 Gorse 推荐用户列表
+	PageUser(ctx context.Context, in *PageUserRequest, opts ...grpc.CallOption) (*PageUserResponse, error)
 	// 查询 Gorse 推荐仪表盘推荐商品
 	ListDashboardItem(ctx context.Context, in *ListDashboardItemRequest, opts ...grpc.CallOption) (*ListDashboardItemResponse, error)
 	// 查询 Gorse 推荐任务状态
 	ListTask(ctx context.Context, in *ListTaskRequest, opts ...grpc.CallOption) (*ListTaskResponse, error)
-	// 查询 Gorse 推荐用户列表
-	PageUser(ctx context.Context, in *PageUserRequest, opts ...grpc.CallOption) (*PageUserResponse, error)
+	// 查询 Gorse 推荐配置
+	GetConfig(ctx context.Context, in *GetConfigRequest, opts ...grpc.CallOption) (*ConfigResponse, error)
+	// 查询 Gorse 推荐商品
+	GetItem(ctx context.Context, in *GetItemRequest, opts ...grpc.CallOption) (*Item, error)
+	// 查询 Gorse 推荐相似商品
+	GetItemSimilar(ctx context.Context, in *GetItemSimilarRequest, opts ...grpc.CallOption) (*ItemListResponse, error)
+	// 查询 Gorse 推荐时间序列
+	GetTimeSeries(ctx context.Context, in *GetTimeSeriesRequest, opts ...grpc.CallOption) (*TimeSeriesResponse, error)
 	// 查询 Gorse 推荐用户
 	GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*UserResponse, error)
-	// 删除 Gorse 推荐用户
-	DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	// 查询 Gorse 推荐相似用户
-	GetUserSimilar(ctx context.Context, in *GetUserSimilarRequest, opts ...grpc.CallOption) (*UserSimilarResponse, error)
 	// 查询 Gorse 推荐用户反馈
 	GetUserFeedback(ctx context.Context, in *GetUserFeedbackRequest, opts ...grpc.CallOption) (*FeedbackResponse, error)
 	// 查询 Gorse 推荐用户推荐结果
 	GetUserRecommend(ctx context.Context, in *GetUserRecommendRequest, opts ...grpc.CallOption) (*ItemListResponse, error)
-	// 查询 Gorse 推荐商品列表
-	PageItem(ctx context.Context, in *PageItemRequest, opts ...grpc.CallOption) (*PageItemResponse, error)
-	// 查询 Gorse 推荐商品
-	GetItem(ctx context.Context, in *GetItemRequest, opts ...grpc.CallOption) (*Item, error)
+	// 查询 Gorse 推荐相似用户
+	GetUserSimilar(ctx context.Context, in *GetUserSimilarRequest, opts ...grpc.CallOption) (*UserSimilarResponse, error)
 	// 删除 Gorse 推荐商品
 	DeleteItem(ctx context.Context, in *DeleteItemRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	// 查询 Gorse 推荐相似商品
-	GetItemSimilar(ctx context.Context, in *GetItemSimilarRequest, opts ...grpc.CallOption) (*ItemListResponse, error)
+	// 删除 Gorse 推荐用户
+	DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 导出 Gorse 推荐数据
 	ExportData(ctx context.Context, in *ExportDataRequest, opts ...grpc.CallOption) (*ExportDataResponse, error)
 	// 导入 Gorse 推荐数据
 	ImportData(ctx context.Context, in *ImportDataRequest, opts ...grpc.CallOption) (*ImportDataResponse, error)
-	// 查询 Gorse 推荐配置
-	GetConfig(ctx context.Context, in *GetConfigRequest, opts ...grpc.CallOption) (*ConfigResponse, error)
 	// 保存 Gorse 推荐配置
 	SaveConfig(ctx context.Context, in *SaveConfigRequest, opts ...grpc.CallOption) (*ConfigResponse, error)
 	// 重置 Gorse 推荐配置
@@ -102,20 +102,30 @@ func NewRecommendGorseServiceClient(cc grpc.ClientConnInterface) RecommendGorseS
 	return &recommendGorseServiceClient{cc}
 }
 
-func (c *recommendGorseServiceClient) GetTimeSeries(ctx context.Context, in *GetTimeSeriesRequest, opts ...grpc.CallOption) (*TimeSeriesResponse, error) {
+func (c *recommendGorseServiceClient) OptionCategory(ctx context.Context, in *OptionCategoryRequest, opts ...grpc.CallOption) (*OptionCategoryResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(TimeSeriesResponse)
-	err := c.cc.Invoke(ctx, RecommendGorseService_GetTimeSeries_FullMethodName, in, out, cOpts...)
+	out := new(OptionCategoryResponse)
+	err := c.cc.Invoke(ctx, RecommendGorseService_OptionCategory_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *recommendGorseServiceClient) OptionCategory(ctx context.Context, in *OptionCategoryRequest, opts ...grpc.CallOption) (*OptionCategoryResponse, error) {
+func (c *recommendGorseServiceClient) PageItem(ctx context.Context, in *PageItemRequest, opts ...grpc.CallOption) (*PageItemResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(OptionCategoryResponse)
-	err := c.cc.Invoke(ctx, RecommendGorseService_OptionCategory_FullMethodName, in, out, cOpts...)
+	out := new(PageItemResponse)
+	err := c.cc.Invoke(ctx, RecommendGorseService_PageItem_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *recommendGorseServiceClient) PageUser(ctx context.Context, in *PageUserRequest, opts ...grpc.CallOption) (*PageUserResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PageUserResponse)
+	err := c.cc.Invoke(ctx, RecommendGorseService_PageUser_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -142,10 +152,40 @@ func (c *recommendGorseServiceClient) ListTask(ctx context.Context, in *ListTask
 	return out, nil
 }
 
-func (c *recommendGorseServiceClient) PageUser(ctx context.Context, in *PageUserRequest, opts ...grpc.CallOption) (*PageUserResponse, error) {
+func (c *recommendGorseServiceClient) GetConfig(ctx context.Context, in *GetConfigRequest, opts ...grpc.CallOption) (*ConfigResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(PageUserResponse)
-	err := c.cc.Invoke(ctx, RecommendGorseService_PageUser_FullMethodName, in, out, cOpts...)
+	out := new(ConfigResponse)
+	err := c.cc.Invoke(ctx, RecommendGorseService_GetConfig_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *recommendGorseServiceClient) GetItem(ctx context.Context, in *GetItemRequest, opts ...grpc.CallOption) (*Item, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Item)
+	err := c.cc.Invoke(ctx, RecommendGorseService_GetItem_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *recommendGorseServiceClient) GetItemSimilar(ctx context.Context, in *GetItemSimilarRequest, opts ...grpc.CallOption) (*ItemListResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ItemListResponse)
+	err := c.cc.Invoke(ctx, RecommendGorseService_GetItemSimilar_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *recommendGorseServiceClient) GetTimeSeries(ctx context.Context, in *GetTimeSeriesRequest, opts ...grpc.CallOption) (*TimeSeriesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(TimeSeriesResponse)
+	err := c.cc.Invoke(ctx, RecommendGorseService_GetTimeSeries_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -156,26 +196,6 @@ func (c *recommendGorseServiceClient) GetUser(ctx context.Context, in *GetUserRe
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(UserResponse)
 	err := c.cc.Invoke(ctx, RecommendGorseService_GetUser_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *recommendGorseServiceClient) DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, RecommendGorseService_DeleteUser_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *recommendGorseServiceClient) GetUserSimilar(ctx context.Context, in *GetUserSimilarRequest, opts ...grpc.CallOption) (*UserSimilarResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(UserSimilarResponse)
-	err := c.cc.Invoke(ctx, RecommendGorseService_GetUserSimilar_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -202,20 +222,10 @@ func (c *recommendGorseServiceClient) GetUserRecommend(ctx context.Context, in *
 	return out, nil
 }
 
-func (c *recommendGorseServiceClient) PageItem(ctx context.Context, in *PageItemRequest, opts ...grpc.CallOption) (*PageItemResponse, error) {
+func (c *recommendGorseServiceClient) GetUserSimilar(ctx context.Context, in *GetUserSimilarRequest, opts ...grpc.CallOption) (*UserSimilarResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(PageItemResponse)
-	err := c.cc.Invoke(ctx, RecommendGorseService_PageItem_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *recommendGorseServiceClient) GetItem(ctx context.Context, in *GetItemRequest, opts ...grpc.CallOption) (*Item, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Item)
-	err := c.cc.Invoke(ctx, RecommendGorseService_GetItem_FullMethodName, in, out, cOpts...)
+	out := new(UserSimilarResponse)
+	err := c.cc.Invoke(ctx, RecommendGorseService_GetUserSimilar_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -232,10 +242,10 @@ func (c *recommendGorseServiceClient) DeleteItem(ctx context.Context, in *Delete
 	return out, nil
 }
 
-func (c *recommendGorseServiceClient) GetItemSimilar(ctx context.Context, in *GetItemSimilarRequest, opts ...grpc.CallOption) (*ItemListResponse, error) {
+func (c *recommendGorseServiceClient) DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ItemListResponse)
-	err := c.cc.Invoke(ctx, RecommendGorseService_GetItemSimilar_FullMethodName, in, out, cOpts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, RecommendGorseService_DeleteUser_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -256,16 +266,6 @@ func (c *recommendGorseServiceClient) ImportData(ctx context.Context, in *Import
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ImportDataResponse)
 	err := c.cc.Invoke(ctx, RecommendGorseService_ImportData_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *recommendGorseServiceClient) GetConfig(ctx context.Context, in *GetConfigRequest, opts ...grpc.CallOption) (*ConfigResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ConfigResponse)
-	err := c.cc.Invoke(ctx, RecommendGorseService_GetConfig_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -318,40 +318,40 @@ func (c *recommendGorseServiceClient) PreviewRankerPrompt(ctx context.Context, i
 //
 // Admin Gorse 推荐服务
 type RecommendGorseServiceServer interface {
-	// 查询 Gorse 推荐时间序列
-	GetTimeSeries(context.Context, *GetTimeSeriesRequest) (*TimeSeriesResponse, error)
 	// 查询 Gorse 推荐分类
 	OptionCategory(context.Context, *OptionCategoryRequest) (*OptionCategoryResponse, error)
+	// 查询 Gorse 推荐商品列表
+	PageItem(context.Context, *PageItemRequest) (*PageItemResponse, error)
+	// 查询 Gorse 推荐用户列表
+	PageUser(context.Context, *PageUserRequest) (*PageUserResponse, error)
 	// 查询 Gorse 推荐仪表盘推荐商品
 	ListDashboardItem(context.Context, *ListDashboardItemRequest) (*ListDashboardItemResponse, error)
 	// 查询 Gorse 推荐任务状态
 	ListTask(context.Context, *ListTaskRequest) (*ListTaskResponse, error)
-	// 查询 Gorse 推荐用户列表
-	PageUser(context.Context, *PageUserRequest) (*PageUserResponse, error)
+	// 查询 Gorse 推荐配置
+	GetConfig(context.Context, *GetConfigRequest) (*ConfigResponse, error)
+	// 查询 Gorse 推荐商品
+	GetItem(context.Context, *GetItemRequest) (*Item, error)
+	// 查询 Gorse 推荐相似商品
+	GetItemSimilar(context.Context, *GetItemSimilarRequest) (*ItemListResponse, error)
+	// 查询 Gorse 推荐时间序列
+	GetTimeSeries(context.Context, *GetTimeSeriesRequest) (*TimeSeriesResponse, error)
 	// 查询 Gorse 推荐用户
 	GetUser(context.Context, *GetUserRequest) (*UserResponse, error)
-	// 删除 Gorse 推荐用户
-	DeleteUser(context.Context, *DeleteUserRequest) (*emptypb.Empty, error)
-	// 查询 Gorse 推荐相似用户
-	GetUserSimilar(context.Context, *GetUserSimilarRequest) (*UserSimilarResponse, error)
 	// 查询 Gorse 推荐用户反馈
 	GetUserFeedback(context.Context, *GetUserFeedbackRequest) (*FeedbackResponse, error)
 	// 查询 Gorse 推荐用户推荐结果
 	GetUserRecommend(context.Context, *GetUserRecommendRequest) (*ItemListResponse, error)
-	// 查询 Gorse 推荐商品列表
-	PageItem(context.Context, *PageItemRequest) (*PageItemResponse, error)
-	// 查询 Gorse 推荐商品
-	GetItem(context.Context, *GetItemRequest) (*Item, error)
+	// 查询 Gorse 推荐相似用户
+	GetUserSimilar(context.Context, *GetUserSimilarRequest) (*UserSimilarResponse, error)
 	// 删除 Gorse 推荐商品
 	DeleteItem(context.Context, *DeleteItemRequest) (*emptypb.Empty, error)
-	// 查询 Gorse 推荐相似商品
-	GetItemSimilar(context.Context, *GetItemSimilarRequest) (*ItemListResponse, error)
+	// 删除 Gorse 推荐用户
+	DeleteUser(context.Context, *DeleteUserRequest) (*emptypb.Empty, error)
 	// 导出 Gorse 推荐数据
 	ExportData(context.Context, *ExportDataRequest) (*ExportDataResponse, error)
 	// 导入 Gorse 推荐数据
 	ImportData(context.Context, *ImportDataRequest) (*ImportDataResponse, error)
-	// 查询 Gorse 推荐配置
-	GetConfig(context.Context, *GetConfigRequest) (*ConfigResponse, error)
 	// 保存 Gorse 推荐配置
 	SaveConfig(context.Context, *SaveConfigRequest) (*ConfigResponse, error)
 	// 重置 Gorse 推荐配置
@@ -370,11 +370,14 @@ type RecommendGorseServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedRecommendGorseServiceServer struct{}
 
-func (UnimplementedRecommendGorseServiceServer) GetTimeSeries(context.Context, *GetTimeSeriesRequest) (*TimeSeriesResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method GetTimeSeries not implemented")
-}
 func (UnimplementedRecommendGorseServiceServer) OptionCategory(context.Context, *OptionCategoryRequest) (*OptionCategoryResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method OptionCategory not implemented")
+}
+func (UnimplementedRecommendGorseServiceServer) PageItem(context.Context, *PageItemRequest) (*PageItemResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method PageItem not implemented")
+}
+func (UnimplementedRecommendGorseServiceServer) PageUser(context.Context, *PageUserRequest) (*PageUserResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method PageUser not implemented")
 }
 func (UnimplementedRecommendGorseServiceServer) ListDashboardItem(context.Context, *ListDashboardItemRequest) (*ListDashboardItemResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListDashboardItem not implemented")
@@ -382,17 +385,20 @@ func (UnimplementedRecommendGorseServiceServer) ListDashboardItem(context.Contex
 func (UnimplementedRecommendGorseServiceServer) ListTask(context.Context, *ListTaskRequest) (*ListTaskResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListTask not implemented")
 }
-func (UnimplementedRecommendGorseServiceServer) PageUser(context.Context, *PageUserRequest) (*PageUserResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method PageUser not implemented")
+func (UnimplementedRecommendGorseServiceServer) GetConfig(context.Context, *GetConfigRequest) (*ConfigResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetConfig not implemented")
+}
+func (UnimplementedRecommendGorseServiceServer) GetItem(context.Context, *GetItemRequest) (*Item, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetItem not implemented")
+}
+func (UnimplementedRecommendGorseServiceServer) GetItemSimilar(context.Context, *GetItemSimilarRequest) (*ItemListResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetItemSimilar not implemented")
+}
+func (UnimplementedRecommendGorseServiceServer) GetTimeSeries(context.Context, *GetTimeSeriesRequest) (*TimeSeriesResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetTimeSeries not implemented")
 }
 func (UnimplementedRecommendGorseServiceServer) GetUser(context.Context, *GetUserRequest) (*UserResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetUser not implemented")
-}
-func (UnimplementedRecommendGorseServiceServer) DeleteUser(context.Context, *DeleteUserRequest) (*emptypb.Empty, error) {
-	return nil, status.Error(codes.Unimplemented, "method DeleteUser not implemented")
-}
-func (UnimplementedRecommendGorseServiceServer) GetUserSimilar(context.Context, *GetUserSimilarRequest) (*UserSimilarResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method GetUserSimilar not implemented")
 }
 func (UnimplementedRecommendGorseServiceServer) GetUserFeedback(context.Context, *GetUserFeedbackRequest) (*FeedbackResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetUserFeedback not implemented")
@@ -400,26 +406,20 @@ func (UnimplementedRecommendGorseServiceServer) GetUserFeedback(context.Context,
 func (UnimplementedRecommendGorseServiceServer) GetUserRecommend(context.Context, *GetUserRecommendRequest) (*ItemListResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetUserRecommend not implemented")
 }
-func (UnimplementedRecommendGorseServiceServer) PageItem(context.Context, *PageItemRequest) (*PageItemResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method PageItem not implemented")
-}
-func (UnimplementedRecommendGorseServiceServer) GetItem(context.Context, *GetItemRequest) (*Item, error) {
-	return nil, status.Error(codes.Unimplemented, "method GetItem not implemented")
+func (UnimplementedRecommendGorseServiceServer) GetUserSimilar(context.Context, *GetUserSimilarRequest) (*UserSimilarResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetUserSimilar not implemented")
 }
 func (UnimplementedRecommendGorseServiceServer) DeleteItem(context.Context, *DeleteItemRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteItem not implemented")
 }
-func (UnimplementedRecommendGorseServiceServer) GetItemSimilar(context.Context, *GetItemSimilarRequest) (*ItemListResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method GetItemSimilar not implemented")
+func (UnimplementedRecommendGorseServiceServer) DeleteUser(context.Context, *DeleteUserRequest) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeleteUser not implemented")
 }
 func (UnimplementedRecommendGorseServiceServer) ExportData(context.Context, *ExportDataRequest) (*ExportDataResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ExportData not implemented")
 }
 func (UnimplementedRecommendGorseServiceServer) ImportData(context.Context, *ImportDataRequest) (*ImportDataResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ImportData not implemented")
-}
-func (UnimplementedRecommendGorseServiceServer) GetConfig(context.Context, *GetConfigRequest) (*ConfigResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method GetConfig not implemented")
 }
 func (UnimplementedRecommendGorseServiceServer) SaveConfig(context.Context, *SaveConfigRequest) (*ConfigResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method SaveConfig not implemented")
@@ -454,24 +454,6 @@ func RegisterRecommendGorseServiceServer(s grpc.ServiceRegistrar, srv RecommendG
 	s.RegisterService(&RecommendGorseService_ServiceDesc, srv)
 }
 
-func _RecommendGorseService_GetTimeSeries_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetTimeSeriesRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(RecommendGorseServiceServer).GetTimeSeries(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: RecommendGorseService_GetTimeSeries_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RecommendGorseServiceServer).GetTimeSeries(ctx, req.(*GetTimeSeriesRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _RecommendGorseService_OptionCategory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(OptionCategoryRequest)
 	if err := dec(in); err != nil {
@@ -486,6 +468,42 @@ func _RecommendGorseService_OptionCategory_Handler(srv interface{}, ctx context.
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(RecommendGorseServiceServer).OptionCategory(ctx, req.(*OptionCategoryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RecommendGorseService_PageItem_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PageItemRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RecommendGorseServiceServer).PageItem(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RecommendGorseService_PageItem_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RecommendGorseServiceServer).PageItem(ctx, req.(*PageItemRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RecommendGorseService_PageUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PageUserRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RecommendGorseServiceServer).PageUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RecommendGorseService_PageUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RecommendGorseServiceServer).PageUser(ctx, req.(*PageUserRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -526,20 +544,74 @@ func _RecommendGorseService_ListTask_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
-func _RecommendGorseService_PageUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PageUserRequest)
+func _RecommendGorseService_GetConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetConfigRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(RecommendGorseServiceServer).PageUser(ctx, in)
+		return srv.(RecommendGorseServiceServer).GetConfig(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: RecommendGorseService_PageUser_FullMethodName,
+		FullMethod: RecommendGorseService_GetConfig_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RecommendGorseServiceServer).PageUser(ctx, req.(*PageUserRequest))
+		return srv.(RecommendGorseServiceServer).GetConfig(ctx, req.(*GetConfigRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RecommendGorseService_GetItem_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetItemRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RecommendGorseServiceServer).GetItem(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RecommendGorseService_GetItem_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RecommendGorseServiceServer).GetItem(ctx, req.(*GetItemRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RecommendGorseService_GetItemSimilar_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetItemSimilarRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RecommendGorseServiceServer).GetItemSimilar(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RecommendGorseService_GetItemSimilar_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RecommendGorseServiceServer).GetItemSimilar(ctx, req.(*GetItemSimilarRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RecommendGorseService_GetTimeSeries_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetTimeSeriesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RecommendGorseServiceServer).GetTimeSeries(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RecommendGorseService_GetTimeSeries_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RecommendGorseServiceServer).GetTimeSeries(ctx, req.(*GetTimeSeriesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -558,42 +630,6 @@ func _RecommendGorseService_GetUser_Handler(srv interface{}, ctx context.Context
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(RecommendGorseServiceServer).GetUser(ctx, req.(*GetUserRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _RecommendGorseService_DeleteUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteUserRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(RecommendGorseServiceServer).DeleteUser(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: RecommendGorseService_DeleteUser_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RecommendGorseServiceServer).DeleteUser(ctx, req.(*DeleteUserRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _RecommendGorseService_GetUserSimilar_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetUserSimilarRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(RecommendGorseServiceServer).GetUserSimilar(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: RecommendGorseService_GetUserSimilar_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RecommendGorseServiceServer).GetUserSimilar(ctx, req.(*GetUserSimilarRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -634,38 +670,20 @@ func _RecommendGorseService_GetUserRecommend_Handler(srv interface{}, ctx contex
 	return interceptor(ctx, in, info, handler)
 }
 
-func _RecommendGorseService_PageItem_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PageItemRequest)
+func _RecommendGorseService_GetUserSimilar_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserSimilarRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(RecommendGorseServiceServer).PageItem(ctx, in)
+		return srv.(RecommendGorseServiceServer).GetUserSimilar(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: RecommendGorseService_PageItem_FullMethodName,
+		FullMethod: RecommendGorseService_GetUserSimilar_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RecommendGorseServiceServer).PageItem(ctx, req.(*PageItemRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _RecommendGorseService_GetItem_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetItemRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(RecommendGorseServiceServer).GetItem(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: RecommendGorseService_GetItem_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RecommendGorseServiceServer).GetItem(ctx, req.(*GetItemRequest))
+		return srv.(RecommendGorseServiceServer).GetUserSimilar(ctx, req.(*GetUserSimilarRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -688,20 +706,20 @@ func _RecommendGorseService_DeleteItem_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
-func _RecommendGorseService_GetItemSimilar_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetItemSimilarRequest)
+func _RecommendGorseService_DeleteUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteUserRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(RecommendGorseServiceServer).GetItemSimilar(ctx, in)
+		return srv.(RecommendGorseServiceServer).DeleteUser(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: RecommendGorseService_GetItemSimilar_FullMethodName,
+		FullMethod: RecommendGorseService_DeleteUser_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RecommendGorseServiceServer).GetItemSimilar(ctx, req.(*GetItemSimilarRequest))
+		return srv.(RecommendGorseServiceServer).DeleteUser(ctx, req.(*DeleteUserRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -738,24 +756,6 @@ func _RecommendGorseService_ImportData_Handler(srv interface{}, ctx context.Cont
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(RecommendGorseServiceServer).ImportData(ctx, req.(*ImportDataRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _RecommendGorseService_GetConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetConfigRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(RecommendGorseServiceServer).GetConfig(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: RecommendGorseService_GetConfig_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RecommendGorseServiceServer).GetConfig(ctx, req.(*GetConfigRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -840,12 +840,16 @@ var RecommendGorseService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*RecommendGorseServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "GetTimeSeries",
-			Handler:    _RecommendGorseService_GetTimeSeries_Handler,
-		},
-		{
 			MethodName: "OptionCategory",
 			Handler:    _RecommendGorseService_OptionCategory_Handler,
+		},
+		{
+			MethodName: "PageItem",
+			Handler:    _RecommendGorseService_PageItem_Handler,
+		},
+		{
+			MethodName: "PageUser",
+			Handler:    _RecommendGorseService_PageUser_Handler,
 		},
 		{
 			MethodName: "ListDashboardItem",
@@ -856,20 +860,24 @@ var RecommendGorseService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _RecommendGorseService_ListTask_Handler,
 		},
 		{
-			MethodName: "PageUser",
-			Handler:    _RecommendGorseService_PageUser_Handler,
+			MethodName: "GetConfig",
+			Handler:    _RecommendGorseService_GetConfig_Handler,
+		},
+		{
+			MethodName: "GetItem",
+			Handler:    _RecommendGorseService_GetItem_Handler,
+		},
+		{
+			MethodName: "GetItemSimilar",
+			Handler:    _RecommendGorseService_GetItemSimilar_Handler,
+		},
+		{
+			MethodName: "GetTimeSeries",
+			Handler:    _RecommendGorseService_GetTimeSeries_Handler,
 		},
 		{
 			MethodName: "GetUser",
 			Handler:    _RecommendGorseService_GetUser_Handler,
-		},
-		{
-			MethodName: "DeleteUser",
-			Handler:    _RecommendGorseService_DeleteUser_Handler,
-		},
-		{
-			MethodName: "GetUserSimilar",
-			Handler:    _RecommendGorseService_GetUserSimilar_Handler,
 		},
 		{
 			MethodName: "GetUserFeedback",
@@ -880,20 +888,16 @@ var RecommendGorseService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _RecommendGorseService_GetUserRecommend_Handler,
 		},
 		{
-			MethodName: "PageItem",
-			Handler:    _RecommendGorseService_PageItem_Handler,
-		},
-		{
-			MethodName: "GetItem",
-			Handler:    _RecommendGorseService_GetItem_Handler,
+			MethodName: "GetUserSimilar",
+			Handler:    _RecommendGorseService_GetUserSimilar_Handler,
 		},
 		{
 			MethodName: "DeleteItem",
 			Handler:    _RecommendGorseService_DeleteItem_Handler,
 		},
 		{
-			MethodName: "GetItemSimilar",
-			Handler:    _RecommendGorseService_GetItemSimilar_Handler,
+			MethodName: "DeleteUser",
+			Handler:    _RecommendGorseService_DeleteUser_Handler,
 		},
 		{
 			MethodName: "ExportData",
@@ -902,10 +906,6 @@ var RecommendGorseService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ImportData",
 			Handler:    _RecommendGorseService_ImportData_Handler,
-		},
-		{
-			MethodName: "GetConfig",
-			Handler:    _RecommendGorseService_GetConfig_Handler,
 		},
 		{
 			MethodName: "SaveConfig",

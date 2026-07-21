@@ -47,32 +47,13 @@ type BaseDeptServiceHTTPServer interface {
 
 func RegisterBaseDeptServiceHTTPServer(s *http.Server, srv BaseDeptServiceHTTPServer) {
 	r := s.Route("/")
-	r.Handle("GET", "/api/v1/admin/base/dept/tree", _BaseDeptService_TreeBaseDept0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/base/dept/option", _BaseDeptService_OptionBaseDept0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/base/dept/tree", _BaseDeptService_TreeBaseDept0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/base/dept/{id}", _BaseDeptService_GetBaseDept0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/admin/base/dept", _BaseDeptService_CreateBaseDept0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/base/dept/{base_dept.id}", _BaseDeptService_UpdateBaseDept0_HTTP_Handler(srv))
 	r.Handle("DELETE", "/api/v1/admin/base/dept/{id}", _BaseDeptService_DeleteBaseDept0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/base/dept/{id}/status", _BaseDeptService_SetBaseDeptStatus0_HTTP_Handler(srv))
-}
-
-func _BaseDeptService_TreeBaseDept0_HTTP_Handler(srv BaseDeptServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in TreeBaseDeptRequest
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationBaseDeptServiceTreeBaseDept)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.TreeBaseDept(ctx, req.(*TreeBaseDeptRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*TreeBaseDeptResponse)
-		return ctx.Result(200, reply)
-	}
 }
 
 func _BaseDeptService_OptionBaseDept0_HTTP_Handler(srv BaseDeptServiceHTTPServer) func(ctx http.Context) error {
@@ -90,6 +71,25 @@ func _BaseDeptService_OptionBaseDept0_HTTP_Handler(srv BaseDeptServiceHTTPServer
 			return err
 		}
 		reply := out.(*v1.TreeOptionResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _BaseDeptService_TreeBaseDept0_HTTP_Handler(srv BaseDeptServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in TreeBaseDeptRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBaseDeptServiceTreeBaseDept)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.TreeBaseDept(ctx, req.(*TreeBaseDeptRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*TreeBaseDeptResponse)
 		return ctx.Result(200, reply)
 	}
 }

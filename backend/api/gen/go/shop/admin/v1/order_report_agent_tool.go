@@ -17,43 +17,43 @@ import (
 func NewOrderReportServiceAgentTools(orderReportServiceServer OrderReportServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error
-	var summaryOrderMonthReportTool tool.InvokableTool
-	summaryOrderMonthReportTool, err = NewOrderReportServiceSummaryOrderMonthReportAgentTool(orderReportServiceServer)
-	if err != nil {
-		return nil, err
-	}
-	ts = append(ts, summaryOrderMonthReportTool)
-	var listOrderMonthReportTool tool.InvokableTool
-	listOrderMonthReportTool, err = NewOrderReportServiceListOrderMonthReportAgentTool(orderReportServiceServer)
-	if err != nil {
-		return nil, err
-	}
-	ts = append(ts, listOrderMonthReportTool)
-	var summaryOrderDayReportTool tool.InvokableTool
-	summaryOrderDayReportTool, err = NewOrderReportServiceSummaryOrderDayReportAgentTool(orderReportServiceServer)
-	if err != nil {
-		return nil, err
-	}
-	ts = append(ts, summaryOrderDayReportTool)
 	var listOrderDayReportTool tool.InvokableTool
 	listOrderDayReportTool, err = NewOrderReportServiceListOrderDayReportAgentTool(orderReportServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, listOrderDayReportTool)
+	var listOrderMonthReportTool tool.InvokableTool
+	listOrderMonthReportTool, err = NewOrderReportServiceListOrderMonthReportAgentTool(orderReportServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, listOrderMonthReportTool)
+	var summaryOrderMonthReportTool tool.InvokableTool
+	summaryOrderMonthReportTool, err = NewOrderReportServiceSummaryOrderMonthReportAgentTool(orderReportServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, summaryOrderMonthReportTool)
+	var summaryOrderDayReportTool tool.InvokableTool
+	summaryOrderDayReportTool, err = NewOrderReportServiceSummaryOrderDayReportAgentTool(orderReportServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, summaryOrderDayReportTool)
 	return ts, nil
 }
 
-// NewOrderReportServiceSummaryOrderMonthReportAgentTool 创建查询订单月报汇总的 Agent Tool。
-func NewOrderReportServiceSummaryOrderMonthReportAgentTool(orderReportServiceServer OrderReportServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*SummaryOrderMonthReportRequest, *SummaryOrderMonthReportResponse](
-		"shop_admin_v1_order_report_service_summary_order_month_report",
-		"查询订单月报汇总",
-		func(ctx context.Context, req *SummaryOrderMonthReportRequest) (*SummaryOrderMonthReportResponse, error) {
+// NewOrderReportServiceListOrderDayReportAgentTool 创建查询订单日报明细的 Agent Tool。
+func NewOrderReportServiceListOrderDayReportAgentTool(orderReportServiceServer OrderReportServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*ListOrderDayReportRequest, *ListOrderDayReportResponse](
+		"shop_admin_v1_order_report_service_list_order_day_report",
+		"查询订单日报明细",
+		func(ctx context.Context, req *ListOrderDayReportRequest) (*ListOrderDayReportResponse, error) {
 			if req == nil {
-				req = &SummaryOrderMonthReportRequest{}
+				req = &ListOrderDayReportRequest{}
 			}
-			return orderReportServiceServer.SummaryOrderMonthReport(ctx, req)
+			return orderReportServiceServer.ListOrderDayReport(ctx, req)
 		},
 	)
 }
@@ -72,6 +72,20 @@ func NewOrderReportServiceListOrderMonthReportAgentTool(orderReportServiceServer
 	)
 }
 
+// NewOrderReportServiceSummaryOrderMonthReportAgentTool 创建查询订单月报汇总的 Agent Tool。
+func NewOrderReportServiceSummaryOrderMonthReportAgentTool(orderReportServiceServer OrderReportServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*SummaryOrderMonthReportRequest, *SummaryOrderMonthReportResponse](
+		"shop_admin_v1_order_report_service_summary_order_month_report",
+		"查询订单月报汇总",
+		func(ctx context.Context, req *SummaryOrderMonthReportRequest) (*SummaryOrderMonthReportResponse, error) {
+			if req == nil {
+				req = &SummaryOrderMonthReportRequest{}
+			}
+			return orderReportServiceServer.SummaryOrderMonthReport(ctx, req)
+		},
+	)
+}
+
 // NewOrderReportServiceSummaryOrderDayReportAgentTool 创建查询订单日报汇总的 Agent Tool。
 func NewOrderReportServiceSummaryOrderDayReportAgentTool(orderReportServiceServer OrderReportServiceServer) (tool.InvokableTool, error) {
 	return utils.InferTool[*SummaryOrderDayReportRequest, *SummaryOrderDayReportResponse](
@@ -82,20 +96,6 @@ func NewOrderReportServiceSummaryOrderDayReportAgentTool(orderReportServiceServe
 				req = &SummaryOrderDayReportRequest{}
 			}
 			return orderReportServiceServer.SummaryOrderDayReport(ctx, req)
-		},
-	)
-}
-
-// NewOrderReportServiceListOrderDayReportAgentTool 创建查询订单日报明细的 Agent Tool。
-func NewOrderReportServiceListOrderDayReportAgentTool(orderReportServiceServer OrderReportServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*ListOrderDayReportRequest, *ListOrderDayReportResponse](
-		"shop_admin_v1_order_report_service_list_order_day_report",
-		"查询订单日报明细",
-		func(ctx context.Context, req *ListOrderDayReportRequest) (*ListOrderDayReportResponse, error) {
-			if req == nil {
-				req = &ListOrderDayReportRequest{}
-			}
-			return orderReportServiceServer.ListOrderDayReport(ctx, req)
 		},
 	)
 }

@@ -24,6 +24,16 @@ func NewCodeGenService(codeGenCase *biz.CodeGenCase) *CodeGenService {
 	return &CodeGenService{codeGenCase: codeGenCase}
 }
 
+// GetCodeGenTask 查询代码生成任务进度。
+func (s *CodeGenService) GetCodeGenTask(ctx context.Context, req *systemadminv1.GetCodeGenTaskRequest) (*systemadminv1.CodeGenTask, error) {
+	res, err := s.codeGenCase.GetCodeGenTask(ctx, req.GetTaskId())
+	if err != nil {
+		log.Error("GetCodeGenTask", "error", err)
+		return nil, errorsx.WrapInternal(err, "查询代码生成任务进度失败")
+	}
+	return res, nil
+}
+
 // PreviewCodeGen 预览代码生成文件。
 func (s *CodeGenService) PreviewCodeGen(ctx context.Context, req *systemadminv1.PreviewCodeGenRequest) (*systemadminv1.PreviewCodeGenResponse, error) {
 	res, err := s.codeGenCase.PreviewCodeGen(ctx, req.GetTableId(), req.GetOutputPaths())
@@ -40,16 +50,6 @@ func (s *CodeGenService) StartCodeGenTask(ctx context.Context, req *systemadminv
 	if err != nil {
 		log.Error("StartCodeGenTask", "error", err)
 		return nil, errorsx.WrapInternal(err, "启动代码生成任务失败")
-	}
-	return res, nil
-}
-
-// GetCodeGenTask 查询代码生成任务进度。
-func (s *CodeGenService) GetCodeGenTask(ctx context.Context, req *systemadminv1.GetCodeGenTaskRequest) (*systemadminv1.CodeGenTask, error) {
-	res, err := s.codeGenCase.GetCodeGenTask(ctx, req.GetTaskId())
-	if err != nil {
-		log.Error("GetCodeGenTask", "error", err)
-		return nil, errorsx.WrapInternal(err, "查询代码生成任务进度失败")
 	}
 	return res, nil
 }

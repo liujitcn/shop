@@ -46,32 +46,13 @@ type UserCartServiceHTTPServer interface {
 
 func RegisterUserCartServiceHTTPServer(s *http.Server, srv UserCartServiceHTTPServer) {
 	r := s.Route("/")
-	r.Handle("GET", "/api/v1/app/user/cart/count", _UserCartService_CountUserCart0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/app/user/cart", _UserCartService_ListUserCart0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/app/user/cart", _UserCartService_CreateUserCart0_HTTP_Handler(srv))
-	r.Handle("PUT", "/api/v1/app/user/cart/selection", _UserCartService_SetUserCartSelection0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/app/user/cart/{id}", _UserCartService_UpdateUserCart0_HTTP_Handler(srv))
 	r.Handle("DELETE", "/api/v1/app/user/cart/{id}", _UserCartService_DeleteUserCart0_HTTP_Handler(srv))
+	r.Handle("PUT", "/api/v1/app/user/cart/selection", _UserCartService_SetUserCartSelection0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/app/user/cart/{id}/status", _UserCartService_SetUserCartStatus0_HTTP_Handler(srv))
-}
-
-func _UserCartService_CountUserCart0_HTTP_Handler(srv UserCartServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in CountUserCartRequest
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationUserCartServiceCountUserCart)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.CountUserCart(ctx, req.(*CountUserCartRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*CountUserCartResponse)
-		return ctx.Result(200, reply)
-	}
+	r.Handle("GET", "/api/v1/app/user/cart/count", _UserCartService_CountUserCart0_HTTP_Handler(srv))
 }
 
 func _UserCartService_ListUserCart0_HTTP_Handler(srv UserCartServiceHTTPServer) func(ctx http.Context) error {
@@ -102,25 +83,6 @@ func _UserCartService_CreateUserCart0_HTTP_Handler(srv UserCartServiceHTTPServer
 		http.SetOperation(ctx, OperationUserCartServiceCreateUserCart)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
 			return srv.CreateUserCart(ctx, req.(*CreateUserCartRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*emptypb.Empty)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _UserCartService_SetUserCartSelection0_HTTP_Handler(srv UserCartServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in SetUserCartSelectionRequest
-		if err := ctx.Bind(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationUserCartServiceSetUserCartSelection)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.SetUserCartSelection(ctx, req.(*SetUserCartSelectionRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -178,6 +140,25 @@ func _UserCartService_DeleteUserCart0_HTTP_Handler(srv UserCartServiceHTTPServer
 	}
 }
 
+func _UserCartService_SetUserCartSelection0_HTTP_Handler(srv UserCartServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in SetUserCartSelectionRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationUserCartServiceSetUserCartSelection)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.SetUserCartSelection(ctx, req.(*SetUserCartSelectionRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _UserCartService_SetUserCartStatus0_HTTP_Handler(srv UserCartServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in SetUserCartStatusRequest
@@ -196,6 +177,25 @@ func _UserCartService_SetUserCartStatus0_HTTP_Handler(srv UserCartServiceHTTPSer
 			return err
 		}
 		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _UserCartService_CountUserCart0_HTTP_Handler(srv UserCartServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in CountUserCartRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationUserCartServiceCountUserCart)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.CountUserCart(ctx, req.(*CountUserCartRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*CountUserCartResponse)
 		return ctx.Result(200, reply)
 	}
 }

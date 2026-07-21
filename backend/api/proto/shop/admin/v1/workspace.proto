@@ -7,6 +7,13 @@ import "google/api/annotations.proto";
 
 // Admin工作台服务
 service WorkspaceService {
+  // 查询工作台待审核评价
+  rpc ListWorkspacePendingComment(ListWorkspacePendingCommentRequest) returns (ListWorkspacePendingCommentResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/workspace/comment/pending"
+    };
+  }
+
   // 查询工作台顶部指标
   rpc SummaryWorkspaceMetrics(SummaryWorkspaceMetricsRequest) returns (SummaryWorkspaceMetricsResponse) {
     option (google.api.http) = {
@@ -34,13 +41,18 @@ service WorkspaceService {
       get: "/api/v1/admin/workspace/reputation/summary"
     };
   }
+}
 
-  // 查询工作台待审核评价
-  rpc ListWorkspacePendingComment(ListWorkspacePendingCommentRequest) returns (ListWorkspacePendingCommentResponse) {
-    option (google.api.http) = {
-      get: "/api/v1/admin/workspace/comment/pending"
-    };
-  }
+// 工作台待审核评价查询条件
+message ListWorkspacePendingCommentRequest {
+  optional int64 tenant_id = 1 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+  optional int64 tenant_store_id = 2 [(gnostic.openapi.v3.property) = {description: "租户门店ID"}]; // 租户门店ID
+  int64 limit = 3 [(gnostic.openapi.v3.property) = {description: "返回数量，默认5，最大10"}]; // 返回数量，默认5，最大10
+}
+
+// 工作台待审核评价响应
+message ListWorkspacePendingCommentResponse {
+  repeated WorkspacePendingComment pending_comments = 1 [(gnostic.openapi.v3.property) = {description: "待审核评价"}]; // 待审核评价
 }
 
 // 工作台指标查询条件
@@ -102,16 +114,19 @@ message SummaryWorkspaceRiskResponse {
   int64 low_score_comment_count = 4 [(gnostic.openapi.v3.property) = {description: "近7日低分评价数"}]; // 近7日低分评价数
 }
 
-// 工作台待审核评价查询条件
-message ListWorkspacePendingCommentRequest {
+// 工作台口碑洞察查询条件
+message SummaryWorkspaceReputationRequest {
   optional int64 tenant_id = 1 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
   optional int64 tenant_store_id = 2 [(gnostic.openapi.v3.property) = {description: "租户门店ID"}]; // 租户门店ID
-  int64 limit = 3 [(gnostic.openapi.v3.property) = {description: "返回数量，默认5，最大10"}]; // 返回数量，默认5，最大10
 }
 
-// 工作台待审核评价响应
-message ListWorkspacePendingCommentResponse {
-  repeated WorkspacePendingComment pending_comments = 1 [(gnostic.openapi.v3.property) = {description: "待审核评价"}]; // 待审核评价
+// 工作台口碑洞察响应
+message SummaryWorkspaceReputationResponse {
+  int64 average_comment_score = 1 [(gnostic.openapi.v3.property) = {description: "近7日平均评分，十分位，46表示4.6分"}]; // 近7日平均评分，十分位，46表示4.6分
+
+  repeated WorkspaceReputationTag hot_tags = 2 [(gnostic.openapi.v3.property) = {description: "高频评价标签"}]; // 高频评价标签
+
+  string comment_summary = 3 [(gnostic.openapi.v3.property) = {description: "评价摘要"}]; // 评价摘要
 }
 
 // 工作台待审核评价
@@ -129,21 +144,6 @@ message WorkspacePendingComment {
   string content = 6 [(gnostic.openapi.v3.property) = {description: "评论摘要"}]; // 评论摘要
 
   string created_at = 7 [(gnostic.openapi.v3.property) = {description: "评价时间"}]; // 评价时间
-}
-
-// 工作台口碑洞察查询条件
-message SummaryWorkspaceReputationRequest {
-  optional int64 tenant_id = 1 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
-  optional int64 tenant_store_id = 2 [(gnostic.openapi.v3.property) = {description: "租户门店ID"}]; // 租户门店ID
-}
-
-// 工作台口碑洞察响应
-message SummaryWorkspaceReputationResponse {
-  int64 average_comment_score = 1 [(gnostic.openapi.v3.property) = {description: "近7日平均评分，十分位，46表示4.6分"}]; // 近7日平均评分，十分位，46表示4.6分
-
-  repeated WorkspaceReputationTag hot_tags = 2 [(gnostic.openapi.v3.property) = {description: "高频评价标签"}]; // 高频评价标签
-
-  string comment_summary = 3 [(gnostic.openapi.v3.property) = {description: "评价摘要"}]; // 评价摘要
 }
 
 // 工作台口碑高频标签

@@ -79,53 +79,6 @@ func NewAuthCase(
 	}
 }
 
-// GetUserInfo 获取用户信息
-func (c *AuthCase) GetUserInfo(ctx context.Context) (*systemadminv1.UserInfoForm, error) {
-	authInfo, err := c.GetAuthInfo(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	var baseUser *models.BaseUser
-	baseUser, err = c.baseUserCase.FindByID(ctx, authInfo.UserId)
-	if err != nil {
-		return nil, errorsx.ResourceNotFound("用户不存在").WithCause(err)
-	}
-	// 用户被停用时，不允许继续访问后台信息。
-	if baseUser.Status != _const.STATUS_ENABLE {
-		return nil, errorsx.PermissionDenied("账号已被禁用")
-	}
-
-	// 查询角色信息
-	var baseRole *models.BaseRole
-	baseRole, err = c.baseRoleCase.FindByID(ctx, baseUser.RoleID)
-	if err != nil {
-		return nil, errorsx.Internal("获取用户信息失败").WithCause(err)
-	}
-
-	// 查询部门信息
-	var baseDept *models.BaseDept
-	baseDept, err = c.baseDeptCase.FindByID(ctx, baseUser.DeptID)
-	if err != nil {
-		return nil, errorsx.Internal("获取用户信息失败").WithCause(err)
-	}
-
-	// 查询租户信息，用于前端区分默认租户与普通租户展示范围。
-	var baseTenant *models.BaseTenant
-	baseTenant, err = c.baseTenantCase.FindByID(ctx, baseUser.TenantID)
-	if err != nil {
-		return nil, errorsx.Internal("获取用户信息失败").WithCause(err)
-	}
-
-	res := c.userInfoMapper.ToDTO(baseUser)
-	res.RoleCode = baseRole.Code
-	res.RoleName = baseRole.Name
-	res.DeptName = baseDept.Name
-	res.TenantCode = baseTenant.Code
-	res.TenantName = baseTenant.Name
-	return res, nil
-}
-
 // TreeUserMenu 获取用户菜单
 func (c *AuthCase) TreeUserMenu(ctx context.Context) (*systemadminv1.TreeRouteResponse, error) {
 	authInfo, err := c.GetAuthInfo(ctx)
@@ -234,6 +187,53 @@ func (c *AuthCase) ListUserButton(ctx context.Context) (*commonv1.StringValues, 
 	}, nil
 }
 
+// GetUserInfo 获取用户信息
+func (c *AuthCase) GetUserInfo(ctx context.Context) (*systemadminv1.UserInfoForm, error) {
+	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var baseUser *models.BaseUser
+	baseUser, err = c.baseUserCase.FindByID(ctx, authInfo.UserId)
+	if err != nil {
+		return nil, errorsx.ResourceNotFound("用户不存在").WithCause(err)
+	}
+	// 用户被停用时，不允许继续访问后台信息。
+	if baseUser.Status != _const.STATUS_ENABLE {
+		return nil, errorsx.PermissionDenied("账号已被禁用")
+	}
+
+	// 查询角色信息
+	var baseRole *models.BaseRole
+	baseRole, err = c.baseRoleCase.FindByID(ctx, baseUser.RoleID)
+	if err != nil {
+		return nil, errorsx.Internal("获取用户信息失败").WithCause(err)
+	}
+
+	// 查询部门信息
+	var baseDept *models.BaseDept
+	baseDept, err = c.baseDeptCase.FindByID(ctx, baseUser.DeptID)
+	if err != nil {
+		return nil, errorsx.Internal("获取用户信息失败").WithCause(err)
+	}
+
+	// 查询租户信息，用于前端区分默认租户与普通租户展示范围。
+	var baseTenant *models.BaseTenant
+	baseTenant, err = c.baseTenantCase.FindByID(ctx, baseUser.TenantID)
+	if err != nil {
+		return nil, errorsx.Internal("获取用户信息失败").WithCause(err)
+	}
+
+	res := c.userInfoMapper.ToDTO(baseUser)
+	res.RoleCode = baseRole.Code
+	res.RoleName = baseRole.Name
+	res.DeptName = baseDept.Name
+	res.TenantCode = baseTenant.Code
+	res.TenantName = baseTenant.Name
+	return res, nil
+}
+
 // GetUserProfile 获取用户资料
 func (c *AuthCase) GetUserProfile(ctx context.Context) (*systemadminv1.UserProfileForm, error) {
 	authInfo, err := c.GetAuthInfo(ctx)
@@ -267,6 +267,104 @@ func (c *AuthCase) GetUserProfile(ctx context.Context) (*systemadminv1.UserProfi
 	res.RoleName = baseRole.Name
 	res.DeptName = baseDept.Name
 	return res, nil
+}
+
+// UpdateUserPassword 更新用户密码
+func (c *AuthCase) UpdateUserPassword(ctx context.Context, req *systemadminv1.UserPasswordForm) error {
+	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return err
+	}
+	var oldPwd string
+	oldPwd, err = utils.DecryptPassword(req.GetOldPwd(), commonv1.PasswordCryptoScene_UPDATE_USER_PASSWORD)
+	if err != nil {
+		return err
+	}
+	var newPwd string
+	newPwd, err = utils.DecryptPassword(req.GetNewPwd(), commonv1.PasswordCryptoScene_UPDATE_USER_PASSWORD)
+	if err != nil {
+		return err
+	}
+
+	var baseUser *models.BaseUser
+	baseUser, err = c.baseUserCase.FindByID(ctx, authInfo.UserId)
+	if err != nil {
+		return errorsx.ResourceNotFound("用户不存在").WithCause(err)
+	}
+
+	err = crypto.Verify(oldPwd, baseUser.Password)
+	if err != nil {
+		return errorsx.InvalidArgument("原密码错误")
+	}
+
+	var encrypted string
+	encrypted, err = crypto.Encrypt(newPwd)
+	if err != nil {
+		return errorsx.Internal("修改密码失败").WithCause(err)
+	}
+
+	return c.baseUserCase.UpdateByID(ctx, &models.BaseUser{
+		ID:       authInfo.UserId,
+		Password: encrypted,
+	})
+}
+
+// UpdateUserPhone 更新用户手机号
+func (c *AuthCase) UpdateUserPhone(ctx context.Context, req *systemadminv1.UserPhoneForm) error {
+	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return err
+	}
+	// 手机号格式非法时，不允许继续修改。
+	if !phoneRegexp.MatchString(req.GetPhone()) {
+		return errorsx.InvalidArgument("手机号格式错误")
+	}
+	// 验证码为空时，不允许继续修改。
+	if req.GetCode() == "" {
+		return errorsx.InvalidArgument("验证码不能为空")
+	}
+
+	cacheKey := c.makeUpdatePhoneCodeCacheKey(authInfo.UserId, req.GetPhone())
+	var cacheCode string
+	cacheCode, err = sdk.Runtime.GetCache().Get(cacheKey)
+	// 验证码不存在或已过期时，直接返回业务错误。
+	if err != nil || cacheCode == "" {
+		return errorsx.InvalidArgument("验证码已过期")
+	}
+	// 验证码不匹配时，直接返回业务错误。
+	if cacheCode != req.GetCode() {
+		return errorsx.InvalidArgument("验证码错误")
+	}
+
+	var userID int64
+	userID, err = c.findUserIDByPhone(ctx, req.GetPhone())
+	// 手机号占用查询异常时，统一返回修改失败。
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return errorsx.Internal("修改手机号失败").WithCause(err)
+	}
+	// 手机号已绑定其他用户时，不允许继续修改。
+	if userID > 0 && userID != authInfo.UserId {
+		return errorsx.Conflict("手机号已被占用").WithMetadata(map[string]string{
+			errorsx.METADATA_KEY_CONFLICT_TYPE: errorsx.CONFLICT_TYPE_UNIQUE_VIOLATION,
+			errorsx.METADATA_KEY_RESOURCE:      "base_user",
+			errorsx.METADATA_KEY_FIELD:         "phone",
+		})
+	}
+
+	err = c.baseUserCase.UpdateByID(ctx, &models.BaseUser{
+		ID:    authInfo.UserId,
+		Phone: req.GetPhone(),
+	})
+	if err != nil {
+		return errorsx.Internal("修改手机号失败").WithCause(err)
+	}
+
+	err = sdk.Runtime.GetCache().Del(cacheKey)
+	// 验证码缓存删除失败时，只记录日志不影响主流程。
+	if err != nil {
+		log.Error(fmt.Sprintf("删除修改手机号验证码缓存失败 %v", err))
+	}
+	return nil
 }
 
 // UpdateUserProfile 更新用户资料
@@ -333,104 +431,6 @@ func (c *AuthCase) SendPhoneCode(ctx context.Context, req *systemadminv1.SendPho
 	// 当前先将验证码写入日志，后续接入短信渠道时替换这里。
 	log.Info(fmt.Sprintf("send update phone code userID=%d phone=%s code=%s", authInfo.UserId, req.GetPhone(), code))
 	return nil
-}
-
-// UpdateUserPhone 更新用户手机号
-func (c *AuthCase) UpdateUserPhone(ctx context.Context, req *systemadminv1.UserPhoneForm) error {
-	authInfo, err := c.GetAuthInfo(ctx)
-	if err != nil {
-		return err
-	}
-	// 手机号格式非法时，不允许继续修改。
-	if !phoneRegexp.MatchString(req.GetPhone()) {
-		return errorsx.InvalidArgument("手机号格式错误")
-	}
-	// 验证码为空时，不允许继续修改。
-	if req.GetCode() == "" {
-		return errorsx.InvalidArgument("验证码不能为空")
-	}
-
-	cacheKey := c.makeUpdatePhoneCodeCacheKey(authInfo.UserId, req.GetPhone())
-	var cacheCode string
-	cacheCode, err = sdk.Runtime.GetCache().Get(cacheKey)
-	// 验证码不存在或已过期时，直接返回业务错误。
-	if err != nil || cacheCode == "" {
-		return errorsx.InvalidArgument("验证码已过期")
-	}
-	// 验证码不匹配时，直接返回业务错误。
-	if cacheCode != req.GetCode() {
-		return errorsx.InvalidArgument("验证码错误")
-	}
-
-	var userID int64
-	userID, err = c.findUserIDByPhone(ctx, req.GetPhone())
-	// 手机号占用查询异常时，统一返回修改失败。
-	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return errorsx.Internal("修改手机号失败").WithCause(err)
-	}
-	// 手机号已绑定其他用户时，不允许继续修改。
-	if userID > 0 && userID != authInfo.UserId {
-		return errorsx.Conflict("手机号已被占用").WithMetadata(map[string]string{
-			errorsx.METADATA_KEY_CONFLICT_TYPE: errorsx.CONFLICT_TYPE_UNIQUE_VIOLATION,
-			errorsx.METADATA_KEY_RESOURCE:      "base_user",
-			errorsx.METADATA_KEY_FIELD:         "phone",
-		})
-	}
-
-	err = c.baseUserCase.UpdateByID(ctx, &models.BaseUser{
-		ID:    authInfo.UserId,
-		Phone: req.GetPhone(),
-	})
-	if err != nil {
-		return errorsx.Internal("修改手机号失败").WithCause(err)
-	}
-
-	err = sdk.Runtime.GetCache().Del(cacheKey)
-	// 验证码缓存删除失败时，只记录日志不影响主流程。
-	if err != nil {
-		log.Error(fmt.Sprintf("删除修改手机号验证码缓存失败 %v", err))
-	}
-	return nil
-}
-
-// UpdateUserPassword 更新用户密码
-func (c *AuthCase) UpdateUserPassword(ctx context.Context, req *systemadminv1.UserPasswordForm) error {
-	authInfo, err := c.GetAuthInfo(ctx)
-	if err != nil {
-		return err
-	}
-	var oldPwd string
-	oldPwd, err = utils.DecryptPassword(req.GetOldPwd(), commonv1.PasswordCryptoScene_UPDATE_USER_PASSWORD)
-	if err != nil {
-		return err
-	}
-	var newPwd string
-	newPwd, err = utils.DecryptPassword(req.GetNewPwd(), commonv1.PasswordCryptoScene_UPDATE_USER_PASSWORD)
-	if err != nil {
-		return err
-	}
-
-	var baseUser *models.BaseUser
-	baseUser, err = c.baseUserCase.FindByID(ctx, authInfo.UserId)
-	if err != nil {
-		return errorsx.ResourceNotFound("用户不存在").WithCause(err)
-	}
-
-	err = crypto.Verify(oldPwd, baseUser.Password)
-	if err != nil {
-		return errorsx.InvalidArgument("原密码错误")
-	}
-
-	var encrypted string
-	encrypted, err = crypto.Encrypt(newPwd)
-	if err != nil {
-		return errorsx.Internal("修改密码失败").WithCause(err)
-	}
-
-	return c.baseUserCase.UpdateByID(ctx, &models.BaseUser{
-		ID:       authInfo.UserId,
-		Password: encrypted,
-	})
 }
 
 // findUserIDByPhone 根据手机号查询用户ID

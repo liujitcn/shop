@@ -16,35 +16,14 @@ import (
 
 // RegisterAuthServiceMCPTools 注册Admin用户登录认证服务的 MCP Tool。
 func RegisterAuthServiceMCPTools(mcpServer *mcp.Server, authServiceServer AuthServiceServer) {
-	RegisterAuthServiceGetUserInfoMCPTool(mcpServer, authServiceServer)
 	RegisterAuthServiceTreeUserMenuMCPTool(mcpServer, authServiceServer)
 	RegisterAuthServiceListUserButtonMCPTool(mcpServer, authServiceServer)
+	RegisterAuthServiceGetUserInfoMCPTool(mcpServer, authServiceServer)
 	RegisterAuthServiceGetUserProfileMCPTool(mcpServer, authServiceServer)
+	RegisterAuthServiceUpdateUserPasswordMCPTool(mcpServer, authServiceServer)
+	RegisterAuthServiceUpdateUserPhoneMCPTool(mcpServer, authServiceServer)
 	RegisterAuthServiceUpdateUserProfileMCPTool(mcpServer, authServiceServer)
 	RegisterAuthServiceSendPhoneCodeMCPTool(mcpServer, authServiceServer)
-	RegisterAuthServiceUpdateUserPhoneMCPTool(mcpServer, authServiceServer)
-	RegisterAuthServiceUpdateUserPasswordMCPTool(mcpServer, authServiceServer)
-}
-
-// RegisterAuthServiceGetUserInfoMCPTool 注册获取已经登录的用户的数据的 MCP Tool。
-func RegisterAuthServiceGetUserInfoMCPTool(mcpServer *mcp.Server, authServiceServer AuthServiceServer) {
-	mcp.AddTool[*GetUserInfoRequest, *UserInfoForm](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_auth_service_get_user_info",
-			Description: "获取已经登录的用户的数据",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetUserInfoRequest) (*mcp.CallToolResult, *UserInfoForm, error) {
-			if input == nil {
-				input = &GetUserInfoRequest{}
-			}
-			reply, err := authServiceServer.GetUserInfo(ctx, input)
-			if err != nil {
-				return nil, nil, err
-			}
-			return nil, reply, nil
-		},
-	)
 }
 
 // RegisterAuthServiceTreeUserMenuMCPTool 注册查询已经登录的用户菜单树的 MCP Tool。
@@ -89,6 +68,27 @@ func RegisterAuthServiceListUserButtonMCPTool(mcpServer *mcp.Server, authService
 	)
 }
 
+// RegisterAuthServiceGetUserInfoMCPTool 注册获取已经登录的用户的数据的 MCP Tool。
+func RegisterAuthServiceGetUserInfoMCPTool(mcpServer *mcp.Server, authServiceServer AuthServiceServer) {
+	mcp.AddTool[*GetUserInfoRequest, *UserInfoForm](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "system_admin_v1_auth_service_get_user_info",
+			Description: "获取已经登录的用户的数据",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *GetUserInfoRequest) (*mcp.CallToolResult, *UserInfoForm, error) {
+			if input == nil {
+				input = &GetUserInfoRequest{}
+			}
+			reply, err := authServiceServer.GetUserInfo(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
+}
+
 // RegisterAuthServiceGetUserProfileMCPTool 注册获取个人中心用户信息的 MCP Tool。
 func RegisterAuthServiceGetUserProfileMCPTool(mcpServer *mcp.Server, authServiceServer AuthServiceServer) {
 	mcp.AddTool[*GetUserProfileRequest, *UserProfileForm](
@@ -102,6 +102,48 @@ func RegisterAuthServiceGetUserProfileMCPTool(mcpServer *mcp.Server, authService
 				input = &GetUserProfileRequest{}
 			}
 			reply, err := authServiceServer.GetUserProfile(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
+}
+
+// RegisterAuthServiceUpdateUserPasswordMCPTool 注册修改个人中心密码的 MCP Tool。
+func RegisterAuthServiceUpdateUserPasswordMCPTool(mcpServer *mcp.Server, authServiceServer AuthServiceServer) {
+	mcp.AddTool[*UpdateUserPasswordRequest, *emptypb.Empty](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "system_admin_v1_auth_service_update_user_password",
+			Description: "修改个人中心密码",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *UpdateUserPasswordRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
+			if input == nil {
+				input = &UpdateUserPasswordRequest{}
+			}
+			reply, err := authServiceServer.UpdateUserPassword(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
+}
+
+// RegisterAuthServiceUpdateUserPhoneMCPTool 注册修改个人中心手机号的 MCP Tool。
+func RegisterAuthServiceUpdateUserPhoneMCPTool(mcpServer *mcp.Server, authServiceServer AuthServiceServer) {
+	mcp.AddTool[*UpdateUserPhoneRequest, *emptypb.Empty](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "system_admin_v1_auth_service_update_user_phone",
+			Description: "修改个人中心手机号",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *UpdateUserPhoneRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
+			if input == nil {
+				input = &UpdateUserPhoneRequest{}
+			}
+			reply, err := authServiceServer.UpdateUserPhone(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -144,48 +186,6 @@ func RegisterAuthServiceSendPhoneCodeMCPTool(mcpServer *mcp.Server, authServiceS
 				input = &SendPhoneCodeRequest{}
 			}
 			reply, err := authServiceServer.SendPhoneCode(ctx, input)
-			if err != nil {
-				return nil, nil, err
-			}
-			return nil, reply, nil
-		},
-	)
-}
-
-// RegisterAuthServiceUpdateUserPhoneMCPTool 注册修改个人中心手机号的 MCP Tool。
-func RegisterAuthServiceUpdateUserPhoneMCPTool(mcpServer *mcp.Server, authServiceServer AuthServiceServer) {
-	mcp.AddTool[*UpdateUserPhoneRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_auth_service_update_user_phone",
-			Description: "修改个人中心手机号",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *UpdateUserPhoneRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &UpdateUserPhoneRequest{}
-			}
-			reply, err := authServiceServer.UpdateUserPhone(ctx, input)
-			if err != nil {
-				return nil, nil, err
-			}
-			return nil, reply, nil
-		},
-	)
-}
-
-// RegisterAuthServiceUpdateUserPasswordMCPTool 注册修改个人中心密码的 MCP Tool。
-func RegisterAuthServiceUpdateUserPasswordMCPTool(mcpServer *mcp.Server, authServiceServer AuthServiceServer) {
-	mcp.AddTool[*UpdateUserPasswordRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_auth_service_update_user_password",
-			Description: "修改个人中心密码",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *UpdateUserPasswordRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &UpdateUserPasswordRequest{}
-			}
-			reply, err := authServiceServer.UpdateUserPassword(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

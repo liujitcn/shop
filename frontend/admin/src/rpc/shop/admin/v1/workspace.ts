@@ -6,6 +6,26 @@
 
 /* eslint-disable */
 
+/** 工作台待审核评价查询条件 */
+export interface ListWorkspacePendingCommentRequest {
+  /** 租户ID */
+  tenant_id?:
+    | number
+    | undefined;
+  /** 租户门店ID */
+  tenant_store_id?:
+    | number
+    | undefined;
+  /** 返回数量，默认5，最大10 */
+  limit: number;
+}
+
+/** 工作台待审核评价响应 */
+export interface ListWorkspacePendingCommentResponse {
+  /** 待审核评价 */
+  pending_comments: WorkspacePendingComment[];
+}
+
 /** 工作台指标查询条件 */
 export interface SummaryWorkspaceMetricsRequest {
   /** 租户ID */
@@ -96,44 +116,6 @@ export interface SummaryWorkspaceRiskResponse {
   low_score_comment_count: number;
 }
 
-/** 工作台待审核评价查询条件 */
-export interface ListWorkspacePendingCommentRequest {
-  /** 租户ID */
-  tenant_id?:
-    | number
-    | undefined;
-  /** 租户门店ID */
-  tenant_store_id?:
-    | number
-    | undefined;
-  /** 返回数量，默认5，最大10 */
-  limit: number;
-}
-
-/** 工作台待审核评价响应 */
-export interface ListWorkspacePendingCommentResponse {
-  /** 待审核评价 */
-  pending_comments: WorkspacePendingComment[];
-}
-
-/** 工作台待审核评价 */
-export interface WorkspacePendingComment {
-  /** 评论ID */
-  id: number;
-  /** 商品ID */
-  goods_id: number;
-  /** 商品名称 */
-  goods_name: string;
-  /** 用户昵称 */
-  user_name: string;
-  /** 商品评分 */
-  goods_score: number;
-  /** 评论摘要 */
-  content: string;
-  /** 评价时间 */
-  created_at: string;
-}
-
 /** 工作台口碑洞察查询条件 */
 export interface SummaryWorkspaceReputationRequest {
   /** 租户ID */
@@ -154,6 +136,24 @@ export interface SummaryWorkspaceReputationResponse {
   comment_summary: string;
 }
 
+/** 工作台待审核评价 */
+export interface WorkspacePendingComment {
+  /** 评论ID */
+  id: number;
+  /** 商品ID */
+  goods_id: number;
+  /** 商品名称 */
+  goods_name: string;
+  /** 用户昵称 */
+  user_name: string;
+  /** 商品评分 */
+  goods_score: number;
+  /** 评论摘要 */
+  content: string;
+  /** 评价时间 */
+  created_at: string;
+}
+
 /** 工作台口碑高频标签 */
 export interface WorkspaceReputationTag {
   /** 标签名称 */
@@ -164,6 +164,10 @@ export interface WorkspaceReputationTag {
 
 /** Admin工作台服务 */
 export interface WorkspaceService {
+  /** 查询工作台待审核评价 */
+  ListWorkspacePendingComment(
+    request: ListWorkspacePendingCommentRequest,
+  ): Promise<ListWorkspacePendingCommentResponse>;
   /** 查询工作台顶部指标 */
   SummaryWorkspaceMetrics(request: SummaryWorkspaceMetricsRequest): Promise<SummaryWorkspaceMetricsResponse>;
   /** 查询工作台待处理事项 */
@@ -172,8 +176,4 @@ export interface WorkspaceService {
   SummaryWorkspaceRisk(request: SummaryWorkspaceRiskRequest): Promise<SummaryWorkspaceRiskResponse>;
   /** 查询工作台口碑洞察 */
   SummaryWorkspaceReputation(request: SummaryWorkspaceReputationRequest): Promise<SummaryWorkspaceReputationResponse>;
-  /** 查询工作台待审核评价 */
-  ListWorkspacePendingComment(
-    request: ListWorkspacePendingCommentRequest,
-  ): Promise<ListWorkspacePendingCommentResponse>;
 }

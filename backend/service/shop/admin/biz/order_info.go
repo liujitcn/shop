@@ -259,6 +259,32 @@ func (c *OrderInfoCase) GetOrderInfoRefund(ctx context.Context, id int64) (*shop
 	return res, nil
 }
 
+// GetOrderInfoShipment 获取订单发货信息
+func (c *OrderInfoCase) GetOrderInfoShipment(ctx context.Context, id int64) (*shopadminv1.OrderInfoShipmentForm, error) {
+	orderInfo, err := c.FindByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &shopadminv1.OrderInfoShipmentForm{}
+	res.Address, err = c.orderAddressCase.FindFromByTradeID(ctx, orderInfo.TradeID)
+	if err != nil {
+		return nil, err
+	}
+	res.Goods, err = c.orderGoodsCase.FindFromByOrderID(ctx, orderInfo.ID)
+	if err != nil {
+		return nil, err
+	}
+	// 已发货、待评价或已完成订单需要补充物流信息。
+	if orderInfo.Status == _const.ORDER_INFO_STATUS_SHIPPED || orderInfo.Status == _const.ORDER_INFO_STATUS_WAIT_REVIEW || orderInfo.Status == _const.ORDER_INFO_STATUS_COMPLETED {
+		res.Logistics, err = c.orderLogisticsCase.FindFromByOrderID(ctx, orderInfo.ID)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
 // RefundOrderInfo 退款订单
 func (c *OrderInfoCase) RefundOrderInfo(ctx context.Context, req *shopadminv1.RefundOrderInfoRequest) error {
 	orderInfo, err := c.FindByID(ctx, req.GetOrderId())
@@ -391,32 +417,6 @@ func (c *OrderInfoCase) RefundOrderInfo(ctx context.Context, req *shopadminv1.Re
 		workspaceevent.Publish(ctx, workspaceevent.ReasonOrderChanged, workspaceevent.AreaTodo, workspaceevent.AreaMetrics)
 	}
 	return nil
-}
-
-// GetOrderInfoShipment 获取订单发货信息
-func (c *OrderInfoCase) GetOrderInfoShipment(ctx context.Context, id int64) (*shopadminv1.OrderInfoShipmentForm, error) {
-	orderInfo, err := c.FindByID(ctx, id)
-	if err != nil {
-		return nil, err
-	}
-
-	res := &shopadminv1.OrderInfoShipmentForm{}
-	res.Address, err = c.orderAddressCase.FindFromByTradeID(ctx, orderInfo.TradeID)
-	if err != nil {
-		return nil, err
-	}
-	res.Goods, err = c.orderGoodsCase.FindFromByOrderID(ctx, orderInfo.ID)
-	if err != nil {
-		return nil, err
-	}
-	// 已发货、待评价或已完成订单需要补充物流信息。
-	if orderInfo.Status == _const.ORDER_INFO_STATUS_SHIPPED || orderInfo.Status == _const.ORDER_INFO_STATUS_WAIT_REVIEW || orderInfo.Status == _const.ORDER_INFO_STATUS_COMPLETED {
-		res.Logistics, err = c.orderLogisticsCase.FindFromByOrderID(ctx, orderInfo.ID)
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
 }
 
 // ShipOrderInfo 发货订单

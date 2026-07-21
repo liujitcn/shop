@@ -59,7 +59,9 @@ type BaseJobServiceHTTPServer interface {
 func RegisterBaseJobServiceHTTPServer(s *http.Server, srv BaseJobServiceHTTPServer) {
 	r := s.Route("/")
 	r.Handle("GET", "/api/v1/admin/base/job", _BaseJobService_PageBaseJob0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/base/job-log", _BaseJobService_PageBaseJobLog0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/base/job/{id}", _BaseJobService_GetBaseJob0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/base/job-log/{id}", _BaseJobService_GetBaseJobLog0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/admin/base/job", _BaseJobService_CreateBaseJob0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/base/job/{base_job.id}", _BaseJobService_UpdateBaseJob0_HTTP_Handler(srv))
 	r.Handle("DELETE", "/api/v1/admin/base/job/{id}", _BaseJobService_DeleteBaseJob0_HTTP_Handler(srv))
@@ -67,8 +69,6 @@ func RegisterBaseJobServiceHTTPServer(s *http.Server, srv BaseJobServiceHTTPServ
 	r.Handle("PUT", "/api/v1/admin/base/job/{id}/running", _BaseJobService_StartBaseJob0_HTTP_Handler(srv))
 	r.Handle("DELETE", "/api/v1/admin/base/job/{id}/running", _BaseJobService_StopBaseJob0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/admin/base/job/{id}/execution", _BaseJobService_ExecuteBaseJob0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/admin/base/job-log", _BaseJobService_PageBaseJobLog0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/admin/base/job-log/{id}", _BaseJobService_GetBaseJobLog0_HTTP_Handler(srv))
 }
 
 func _BaseJobService_PageBaseJob0_HTTP_Handler(srv BaseJobServiceHTTPServer) func(ctx http.Context) error {
@@ -86,6 +86,25 @@ func _BaseJobService_PageBaseJob0_HTTP_Handler(srv BaseJobServiceHTTPServer) fun
 			return err
 		}
 		reply := out.(*PageBaseJobResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _BaseJobService_PageBaseJobLog0_HTTP_Handler(srv BaseJobServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in PageBaseJobLogRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBaseJobServicePageBaseJobLog)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.PageBaseJobLog(ctx, req.(*PageBaseJobLogRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*PageBaseJobLogResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -108,6 +127,28 @@ func _BaseJobService_GetBaseJob0_HTTP_Handler(srv BaseJobServiceHTTPServer) func
 			return err
 		}
 		reply := out.(*BaseJobForm)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _BaseJobService_GetBaseJobLog0_HTTP_Handler(srv BaseJobServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetBaseJobLogRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBaseJobServiceGetBaseJobLog)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetBaseJobLog(ctx, req.(*GetBaseJobLogRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*BaseJobLog)
 		return ctx.Result(200, reply)
 	}
 }
@@ -265,47 +306,6 @@ func _BaseJobService_ExecuteBaseJob0_HTTP_Handler(srv BaseJobServiceHTTPServer) 
 			return err
 		}
 		reply := out.(*emptypb.Empty)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _BaseJobService_PageBaseJobLog0_HTTP_Handler(srv BaseJobServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in PageBaseJobLogRequest
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationBaseJobServicePageBaseJobLog)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.PageBaseJobLog(ctx, req.(*PageBaseJobLogRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*PageBaseJobLogResponse)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _BaseJobService_GetBaseJobLog0_HTTP_Handler(srv BaseJobServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in GetBaseJobLogRequest
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		if err := ctx.BindVars(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationBaseJobServiceGetBaseJobLog)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.GetBaseJobLog(ctx, req.(*GetBaseJobLogRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*BaseJobLog)
 		return ctx.Result(200, reply)
 	}
 }

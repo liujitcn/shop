@@ -62,17 +62,17 @@ type ShopHotServiceHTTPServer interface {
 func RegisterShopHotServiceHTTPServer(s *http.Server, srv ShopHotServiceHTTPServer) {
 	r := s.Route("/")
 	r.Handle("GET", "/api/v1/admin/shop/hot", _ShopHotService_PageShopHot0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/admin/shop/hot/{id}", _ShopHotService_GetShopHot0_HTTP_Handler(srv))
-	r.Handle("POST", "/api/v1/admin/shop/hot", _ShopHotService_CreateShopHot0_HTTP_Handler(srv))
-	r.Handle("PUT", "/api/v1/admin/shop/hot/{id}", _ShopHotService_UpdateShopHot0_HTTP_Handler(srv))
-	r.Handle("DELETE", "/api/v1/admin/shop/hot/{ids}", _ShopHotService_DeleteShopHot0_HTTP_Handler(srv))
-	r.Handle("PUT", "/api/v1/admin/shop/hot/{id}/status", _ShopHotService_SetShopHotStatus0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/shop/hot-item", _ShopHotService_PageShopHotItem0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/shop/hot/{id}", _ShopHotService_GetShopHot0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/shop/hot-item/{id}", _ShopHotService_GetShopHotItem0_HTTP_Handler(srv))
+	r.Handle("POST", "/api/v1/admin/shop/hot", _ShopHotService_CreateShopHot0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/admin/shop/hot-item", _ShopHotService_CreateShopHotItem0_HTTP_Handler(srv))
+	r.Handle("PUT", "/api/v1/admin/shop/hot/{id}", _ShopHotService_UpdateShopHot0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/shop/hot-item/{id}", _ShopHotService_UpdateShopHotItem0_HTTP_Handler(srv))
+	r.Handle("DELETE", "/api/v1/admin/shop/hot/{ids}", _ShopHotService_DeleteShopHot0_HTTP_Handler(srv))
 	r.Handle("DELETE", "/api/v1/admin/shop/hot-item/{ids}", _ShopHotService_DeleteShopHotItem0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/shop/hot-item/{id}/status", _ShopHotService_SetShopHotItemStatus0_HTTP_Handler(srv))
+	r.Handle("PUT", "/api/v1/admin/shop/hot/{id}/status", _ShopHotService_SetShopHotStatus0_HTTP_Handler(srv))
 }
 
 func _ShopHotService_PageShopHot0_HTTP_Handler(srv ShopHotServiceHTTPServer) func(ctx http.Context) error {
@@ -90,6 +90,25 @@ func _ShopHotService_PageShopHot0_HTTP_Handler(srv ShopHotServiceHTTPServer) fun
 			return err
 		}
 		reply := out.(*PageShopHotResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _ShopHotService_PageShopHotItem0_HTTP_Handler(srv ShopHotServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in PageShopHotItemRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationShopHotServicePageShopHotItem)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.PageShopHotItem(ctx, req.(*PageShopHotItemRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*PageShopHotItemResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -116,6 +135,28 @@ func _ShopHotService_GetShopHot0_HTTP_Handler(srv ShopHotServiceHTTPServer) func
 	}
 }
 
+func _ShopHotService_GetShopHotItem0_HTTP_Handler(srv ShopHotServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetShopHotItemRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationShopHotServiceGetShopHotItem)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetShopHotItem(ctx, req.(*GetShopHotItemRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*ShopHotItemForm)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _ShopHotService_CreateShopHot0_HTTP_Handler(srv ShopHotServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in CreateShopHotRequest
@@ -128,6 +169,28 @@ func _ShopHotService_CreateShopHot0_HTTP_Handler(srv ShopHotServiceHTTPServer) f
 		http.SetOperation(ctx, OperationShopHotServiceCreateShopHot)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
 			return srv.CreateShopHot(ctx, req.(*CreateShopHotRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _ShopHotService_CreateShopHotItem0_HTTP_Handler(srv ShopHotServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in CreateShopHotItemRequest
+		if err := ctx.Bind(&in.ShopHotItem); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationShopHotServiceCreateShopHotItem)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.CreateShopHotItem(ctx, req.(*CreateShopHotItemRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -163,113 +226,6 @@ func _ShopHotService_UpdateShopHot0_HTTP_Handler(srv ShopHotServiceHTTPServer) f
 	}
 }
 
-func _ShopHotService_DeleteShopHot0_HTTP_Handler(srv ShopHotServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in DeleteShopHotRequest
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		if err := ctx.BindVars(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationShopHotServiceDeleteShopHot)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.DeleteShopHot(ctx, req.(*DeleteShopHotRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*emptypb.Empty)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _ShopHotService_SetShopHotStatus0_HTTP_Handler(srv ShopHotServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in SetShopHotStatusRequest
-		if err := ctx.Bind(&in); err != nil {
-			return err
-		}
-		if err := ctx.BindVars(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationShopHotServiceSetShopHotStatus)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.SetShopHotStatus(ctx, req.(*SetShopHotStatusRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*emptypb.Empty)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _ShopHotService_PageShopHotItem0_HTTP_Handler(srv ShopHotServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in PageShopHotItemRequest
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationShopHotServicePageShopHotItem)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.PageShopHotItem(ctx, req.(*PageShopHotItemRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*PageShopHotItemResponse)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _ShopHotService_GetShopHotItem0_HTTP_Handler(srv ShopHotServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in GetShopHotItemRequest
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		if err := ctx.BindVars(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationShopHotServiceGetShopHotItem)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.GetShopHotItem(ctx, req.(*GetShopHotItemRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*ShopHotItemForm)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _ShopHotService_CreateShopHotItem0_HTTP_Handler(srv ShopHotServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in CreateShopHotItemRequest
-		if err := ctx.Bind(&in.ShopHotItem); err != nil {
-			return err
-		}
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationShopHotServiceCreateShopHotItem)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.CreateShopHotItem(ctx, req.(*CreateShopHotItemRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*emptypb.Empty)
-		return ctx.Result(200, reply)
-	}
-}
-
 func _ShopHotService_UpdateShopHotItem0_HTTP_Handler(srv ShopHotServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in UpdateShopHotItemRequest
@@ -285,6 +241,28 @@ func _ShopHotService_UpdateShopHotItem0_HTTP_Handler(srv ShopHotServiceHTTPServe
 		http.SetOperation(ctx, OperationShopHotServiceUpdateShopHotItem)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
 			return srv.UpdateShopHotItem(ctx, req.(*UpdateShopHotItemRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _ShopHotService_DeleteShopHot0_HTTP_Handler(srv ShopHotServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in DeleteShopHotRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationShopHotServiceDeleteShopHot)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.DeleteShopHot(ctx, req.(*DeleteShopHotRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -329,6 +307,28 @@ func _ShopHotService_SetShopHotItemStatus0_HTTP_Handler(srv ShopHotServiceHTTPSe
 		http.SetOperation(ctx, OperationShopHotServiceSetShopHotItemStatus)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
 			return srv.SetShopHotItemStatus(ctx, req.(*SetShopHotItemStatusRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _ShopHotService_SetShopHotStatus0_HTTP_Handler(srv ShopHotServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in SetShopHotStatusRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationShopHotServiceSetShopHotStatus)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.SetShopHotStatus(ctx, req.(*SetShopHotStatusRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {

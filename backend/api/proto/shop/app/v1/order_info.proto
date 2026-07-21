@@ -11,37 +11,6 @@ import "google/protobuf/empty.proto";
 
 // App订单信息服务
 service OrderInfoService {
-  // 确认订单信息
-  rpc ConfirmOrderInfo(ConfirmOrderInfoRequest) returns (ConfirmOrderInfoResponse) {
-    option (google.api.http) = {
-      post: "/api/v1/app/order/confirm"
-      body: "*"
-    };
-  }
-
-  // 立即购买订单信息
-  rpc BuyNowOrderInfo(BuyNowOrderInfoRequest) returns (BuyNowOrderInfoResponse) {
-    option (google.api.http) = {
-      post: "/api/v1/app/order/confirm/buy-now"
-      body: "*"
-    };
-  }
-
-  // 再次购买订单信息
-  rpc RepurchaseOrderInfo(RepurchaseOrderInfoRequest) returns (RepurchaseOrderInfoResponse) {
-    option (google.api.http) = {
-      post: "/api/v1/app/order/confirm/repurchase"
-      body: "*"
-    };
-  }
-
-  // 查询订单信息数量汇总
-  rpc CountOrderInfo(CountOrderInfoRequest) returns (CountOrderInfoResponse) {
-    option (google.api.http) = {
-      get: "/api/v1/app/order/info/count"
-    };
-  }
-
   // 查询订单信息分页列表
   rpc PageOrderInfo(PageOrderInfoRequest) returns (PageOrderInfoResponse) {
     option (google.api.http) = {
@@ -49,17 +18,17 @@ service OrderInfoService {
     };
   }
 
-  // 根据订单信息编号查询订单信息id
-  rpc GetOrderInfoIdByOrderNo(GetOrderInfoIdByOrderNoRequest) returns (GetOrderInfoIdByOrderNoResponse) {
-    option (google.api.http) = {
-      get: "/api/v1/app/order/info/no/{order_no}"
-    };
-  }
-
   // 根据订单信息id查询订单信息
   rpc GetOrderInfoById(GetOrderInfoByIdRequest) returns (OrderInfoResponse) {
     option (google.api.http) = {
       get: "/api/v1/app/order/info/{id}"
+    };
+  }
+
+  // 根据订单信息编号查询订单信息id
+  rpc GetOrderInfoIdByOrderNo(GetOrderInfoIdByOrderNoRequest) returns (GetOrderInfoIdByOrderNoResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/app/order/info/no/{order_no}"
     };
   }
 
@@ -92,6 +61,37 @@ service OrderInfoService {
     };
   }
 
+  // 确认订单信息
+  rpc ConfirmOrderInfo(ConfirmOrderInfoRequest) returns (ConfirmOrderInfoResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/app/order/confirm"
+      body: "*"
+    };
+  }
+
+  // 立即购买订单信息
+  rpc BuyNowOrderInfo(BuyNowOrderInfoRequest) returns (BuyNowOrderInfoResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/app/order/confirm/buy-now"
+      body: "*"
+    };
+  }
+
+  // 再次购买订单信息
+  rpc RepurchaseOrderInfo(RepurchaseOrderInfoRequest) returns (RepurchaseOrderInfoResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/app/order/confirm/repurchase"
+      body: "*"
+    };
+  }
+
+  // 查询订单信息数量汇总
+  rpc CountOrderInfo(CountOrderInfoRequest) returns (CountOrderInfoResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/app/order/info/count"
+    };
+  }
+
   // 取消订单信息
   rpc CancelOrderInfo(CancelOrderInfoRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
@@ -117,103 +117,6 @@ service OrderInfoService {
   }
 }
 
-// 确认订单查询条件
-message ConfirmOrderInfoRequest {}
-
-// 订单数量汇总查询条件
-message CountOrderInfoRequest {}
-
-// 订单编号查询订单ID条件
-message GetOrderInfoIdByOrderNoRequest {
-  string order_no = 1 [(gnostic.openapi.v3.property) = {description: "订单编号"}]; // 订单编号
-}
-
-// 订单编号查询订单ID响应
-message GetOrderInfoIdByOrderNoResponse {
-  int64 order_id = 1 [(gnostic.openapi.v3.property) = {description: "订单ID"}]; // 订单ID
-}
-
-// 订单详情查询条件
-message GetOrderInfoByIdRequest {
-  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "订单ID"}]; // 订单ID
-}
-
-// 交易单详情查询条件
-message GetOrderTradeByIdRequest {
-  int64 trade_id = 1 [(gnostic.openapi.v3.property) = {description: "交易单ID"}]; // 交易单ID
-}
-
-// 删除订单条件
-message DeleteOrderInfoRequest {
-  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "订单ID"}]; // 订单ID
-}
-
-// 删除交易单条件
-message DeleteOrderTradeRequest {
-  int64 trade_id = 1 [(gnostic.openapi.v3.property) = {description: "交易单ID"}]; // 交易单ID
-}
-
-// 立即购买订单请求参数
-message BuyNowOrderInfoRequest {
-  int64 goods_id = 1 [(gnostic.openapi.v3.property) = {description: "商品id"}]; // 商品id
-  string sku_code = 2 [(gnostic.openapi.v3.property) = {description: "规格编号"}]; // 规格编号
-  int64 num = 3 [(gnostic.openapi.v3.property) = {description: "数量"}]; // 数量
-
-  RecommendContext recommend_context = 4 [(gnostic.openapi.v3.property) = {description: "推荐上下文"}]; // 推荐上下文
-}
-
-// 下单商品
-message CreateOrderInfoGoods {
-  int64 goods_id = 1 [(gnostic.openapi.v3.property) = {description: "商品id"}]; // 商品id
-  string sku_code = 2 [(gnostic.openapi.v3.property) = {description: "规格编号"}]; // 规格编号
-  int64 num = 3 [(gnostic.openapi.v3.property) = {description: "数量"}]; // 数量
-
-  RecommendContext recommend_context = 4 [(gnostic.openapi.v3.property) = {description: "推荐上下文"}]; // 推荐上下文
-}
-
-// 确认订单响应
-message ConfirmOrderInfoResponse {
-  repeated OrderGoodsStore order_goods_stores = 1 [(gnostic.openapi.v3.property) = {description: "按门店分组的商品信息"}]; // 按门店分组的商品信息
-  OrderSummary summary = 2 [(gnostic.openapi.v3.property) = {description: "汇总信息"}]; // 汇总信息
-
-  bool clear_cart = 3 [(gnostic.openapi.v3.property) = {description: "是否清空购物车"}]; // 是否清空购物车
-}
-
-// 立即购买订单响应
-message BuyNowOrderInfoResponse {
-  repeated OrderGoodsStore order_goods_stores = 1 [(gnostic.openapi.v3.property) = {description: "按门店分组的商品信息"}]; // 按门店分组的商品信息
-  OrderSummary summary = 2 [(gnostic.openapi.v3.property) = {description: "汇总信息"}]; // 汇总信息
-
-  bool clear_cart = 3 [(gnostic.openapi.v3.property) = {description: "是否清空购物车"}]; // 是否清空购物车
-}
-
-// 再次购买订单请求参数
-message RepurchaseOrderInfoRequest {
-  int64 order_id = 1 [(gnostic.openapi.v3.property) = {description: "订单id"}]; // 订单id
-}
-
-// 再次购买订单响应
-message RepurchaseOrderInfoResponse {
-  repeated OrderGoodsStore order_goods_stores = 1 [(gnostic.openapi.v3.property) = {description: "按门店分组的商品信息"}]; // 按门店分组的商品信息
-  OrderSummary summary = 2 [(gnostic.openapi.v3.property) = {description: "汇总信息"}]; // 汇总信息
-
-  bool clear_cart = 3 [(gnostic.openapi.v3.property) = {description: "是否清空购物车"}]; // 是否清空购物车
-}
-
-// 订单数量汇总响应
-message CountOrderInfoResponse {
-  // 订单数量统计项
-  message Count {
-    .shop.common.v1.OrderInfoStatus status = 1 [(gnostic.openapi.v3.property) = {description: "订单履约状态"}]; // 订单履约状态
-    int32 num = 2 [(gnostic.openapi.v3.property) = {description: "订单数量"}]; // 订单数量
-    .shop.common.v1.OrderTradeStatus trade_status = 3 [(gnostic.openapi.v3.property) = {description: "交易支付状态"}]; // 交易支付状态
-    .shop.common.v1.OrderRefundStatus refund_status = 4 [(gnostic.openapi.v3.property) = {description: "订单退款状态"}]; // 订单退款状态
-    bool refundable = 5 [(gnostic.openapi.v3.property) = {description: "是否为可申请售后订单统计"}]; // 是否为可申请售后订单统计
-  }
-
-  repeated Count counts = 1 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
-}
-
 // 订单分页查询条件
 message PageOrderInfoRequest {
   optional .shop.common.v1.OrderInfoStatus status = 1 [(gnostic.openapi.v3.property) = {description: "订单履约状态"}]; // 订单履约状态
@@ -237,6 +140,11 @@ message PageOrderInfoRequest {
 message PageOrderInfoResponse {
   repeated OrderInfo order_infos = 1 [(gnostic.openapi.v3.property) = {description: "分页数据"}]; // 分页数据
   int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
+}
+
+// 订单详情查询条件
+message GetOrderInfoByIdRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "订单ID"}]; // 订单ID
 }
 
 // 订单详情响应
@@ -278,6 +186,21 @@ message OrderInfoResponse {
   repeated RelatedOrder related_orders = 5 [(gnostic.openapi.v3.property) = {description: "关联门店订单"}]; // 关联门店订单
 }
 
+// 订单编号查询订单ID条件
+message GetOrderInfoIdByOrderNoRequest {
+  string order_no = 1 [(gnostic.openapi.v3.property) = {description: "订单编号"}]; // 订单编号
+}
+
+// 订单编号查询订单ID响应
+message GetOrderInfoIdByOrderNoResponse {
+  int64 order_id = 1 [(gnostic.openapi.v3.property) = {description: "订单ID"}]; // 订单ID
+}
+
+// 交易单详情查询条件
+message GetOrderTradeByIdRequest {
+  int64 trade_id = 1 [(gnostic.openapi.v3.property) = {description: "交易单ID"}]; // 交易单ID
+}
+
 // 创建订单请求参数
 message CreateOrderInfoRequest {
   int64 address_id = 1 [(gnostic.openapi.v3.property) = {description: "地址id"}]; // 地址id
@@ -300,17 +223,78 @@ message CreateOrderInfoResponse {
   repeated int64 order_ids = 3 [(gnostic.openapi.v3.property) = {description: "门店订单ID"}]; // 门店订单ID
 }
 
+// 删除订单条件
+message DeleteOrderInfoRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "订单ID"}]; // 订单ID
+}
+
+// 删除交易单条件
+message DeleteOrderTradeRequest {
+  int64 trade_id = 1 [(gnostic.openapi.v3.property) = {description: "交易单ID"}]; // 交易单ID
+}
+
+// 确认订单查询条件
+message ConfirmOrderInfoRequest {}
+
+// 确认订单响应
+message ConfirmOrderInfoResponse {
+  repeated OrderGoodsStore order_goods_stores = 1 [(gnostic.openapi.v3.property) = {description: "按门店分组的商品信息"}]; // 按门店分组的商品信息
+  OrderSummary summary = 2 [(gnostic.openapi.v3.property) = {description: "汇总信息"}]; // 汇总信息
+
+  bool clear_cart = 3 [(gnostic.openapi.v3.property) = {description: "是否清空购物车"}]; // 是否清空购物车
+}
+
+// 立即购买订单请求参数
+message BuyNowOrderInfoRequest {
+  int64 goods_id = 1 [(gnostic.openapi.v3.property) = {description: "商品id"}]; // 商品id
+  string sku_code = 2 [(gnostic.openapi.v3.property) = {description: "规格编号"}]; // 规格编号
+  int64 num = 3 [(gnostic.openapi.v3.property) = {description: "数量"}]; // 数量
+
+  RecommendContext recommend_context = 4 [(gnostic.openapi.v3.property) = {description: "推荐上下文"}]; // 推荐上下文
+}
+
+// 立即购买订单响应
+message BuyNowOrderInfoResponse {
+  repeated OrderGoodsStore order_goods_stores = 1 [(gnostic.openapi.v3.property) = {description: "按门店分组的商品信息"}]; // 按门店分组的商品信息
+  OrderSummary summary = 2 [(gnostic.openapi.v3.property) = {description: "汇总信息"}]; // 汇总信息
+
+  bool clear_cart = 3 [(gnostic.openapi.v3.property) = {description: "是否清空购物车"}]; // 是否清空购物车
+}
+
+// 再次购买订单请求参数
+message RepurchaseOrderInfoRequest {
+  int64 order_id = 1 [(gnostic.openapi.v3.property) = {description: "订单id"}]; // 订单id
+}
+
+// 再次购买订单响应
+message RepurchaseOrderInfoResponse {
+  repeated OrderGoodsStore order_goods_stores = 1 [(gnostic.openapi.v3.property) = {description: "按门店分组的商品信息"}]; // 按门店分组的商品信息
+  OrderSummary summary = 2 [(gnostic.openapi.v3.property) = {description: "汇总信息"}]; // 汇总信息
+
+  bool clear_cart = 3 [(gnostic.openapi.v3.property) = {description: "是否清空购物车"}]; // 是否清空购物车
+}
+
+// 订单数量汇总查询条件
+message CountOrderInfoRequest {}
+
+// 订单数量汇总响应
+message CountOrderInfoResponse {
+  // 订单数量统计项
+  message Count {
+    .shop.common.v1.OrderInfoStatus status = 1 [(gnostic.openapi.v3.property) = {description: "订单履约状态"}]; // 订单履约状态
+    int32 num = 2 [(gnostic.openapi.v3.property) = {description: "订单数量"}]; // 订单数量
+    .shop.common.v1.OrderTradeStatus trade_status = 3 [(gnostic.openapi.v3.property) = {description: "交易支付状态"}]; // 交易支付状态
+    .shop.common.v1.OrderRefundStatus refund_status = 4 [(gnostic.openapi.v3.property) = {description: "订单退款状态"}]; // 订单退款状态
+    bool refundable = 5 [(gnostic.openapi.v3.property) = {description: "是否为可申请售后订单统计"}]; // 是否为可申请售后订单统计
+  }
+
+  repeated Count counts = 1 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
+}
+
 // 取消订单请求参数
 message CancelOrderInfoRequest {
   int64 trade_id = 1 [(gnostic.openapi.v3.property) = {description: "交易单ID"}]; // 交易单ID
   .shop.common.v1.OrderCancelReason reason = 2 [(gnostic.openapi.v3.property) = {description: "取消原因"}]; // 取消原因
-}
-
-// 门店订单选项
-message OrderStoreOption {
-  int64 tenant_store_id = 1 [(gnostic.openapi.v3.property) = {description: "租户门店ID"}]; // 租户门店ID
-  .shop.common.v1.OrderDeliveryTime delivery_time = 2 [(gnostic.openapi.v3.property) = {description: "配送时间：枚举【OrderDeliveryTime】"}]; // 配送时间：枚举【OrderDeliveryTime】
-  string remark = 3 [(gnostic.openapi.v3.property) = {description: "订单备注"}]; // 订单备注
 }
 
 // 订单退款请求参数
@@ -322,6 +306,22 @@ message RefundOrderInfoRequest {
 // 确认收货请求参数
 message ReceiveOrderInfoRequest {
   int64 order_id = 1 [(gnostic.openapi.v3.property) = {description: "订单id"}]; // 订单id
+}
+
+// 下单商品
+message CreateOrderInfoGoods {
+  int64 goods_id = 1 [(gnostic.openapi.v3.property) = {description: "商品id"}]; // 商品id
+  string sku_code = 2 [(gnostic.openapi.v3.property) = {description: "规格编号"}]; // 规格编号
+  int64 num = 3 [(gnostic.openapi.v3.property) = {description: "数量"}]; // 数量
+
+  RecommendContext recommend_context = 4 [(gnostic.openapi.v3.property) = {description: "推荐上下文"}]; // 推荐上下文
+}
+
+// 门店订单选项
+message OrderStoreOption {
+  int64 tenant_store_id = 1 [(gnostic.openapi.v3.property) = {description: "租户门店ID"}]; // 租户门店ID
+  .shop.common.v1.OrderDeliveryTime delivery_time = 2 [(gnostic.openapi.v3.property) = {description: "配送时间：枚举【OrderDeliveryTime】"}]; // 配送时间：枚举【OrderDeliveryTime】
+  string remark = 3 [(gnostic.openapi.v3.property) = {description: "订单备注"}]; // 订单备注
 }
 
 // 订单商品

@@ -7,22 +7,6 @@
 /* eslint-disable */
 import type { GoodsInfo } from "./goods_info";
 
-/** 热门专区列表查询条件 */
-export interface ListShopHotRequest {
-}
-
-/** 热门专区列表响应 */
-export interface ListShopHotResponse {
-  /** 热门专区列表 */
-  shop_hots: ShopHot[];
-}
-
-/** 热门专区项列表查询条件 */
-export interface ListShopHotItemRequest {
-  /** 热门专区ID */
-  id: number;
-}
-
 /** 热门专区商品分页查询条件 */
 export interface PageShopHotGoodsRequest {
   /** 选项ID */
@@ -41,16 +25,20 @@ export interface PageShopHotGoodsResponse {
   total: number;
 }
 
-/** 热门专区 */
-export interface ShopHot {
-  /** 主键ID */
+/** 热门专区列表查询条件 */
+export interface ListShopHotRequest {
+}
+
+/** 热门专区列表响应 */
+export interface ListShopHotResponse {
+  /** 热门专区列表 */
+  shop_hots: ShopHot[];
+}
+
+/** 热门专区项列表查询条件 */
+export interface ListShopHotItemRequest {
+  /** 热门专区ID */
   id: number;
-  /** 标题 */
-  title: string;
-  /** 描述 */
-  desc: string;
-  /** 图片链接 */
-  picture: string[];
 }
 
 /** 热门专区项列表响应 */
@@ -65,6 +53,18 @@ export interface ListShopHotItemResponse {
   shop_hot_items: ShopHotItem[];
 }
 
+/** 热门专区 */
+export interface ShopHot {
+  /** 主键ID */
+  id: number;
+  /** 标题 */
+  title: string;
+  /** 描述 */
+  desc: string;
+  /** 图片链接 */
+  picture: string[];
+}
+
 /** 热门专区项 */
 export interface ShopHotItem {
   /** 主键ID */
@@ -75,10 +75,10 @@ export interface ShopHotItem {
 
 /** App热门推荐服务 */
 export interface ShopHotService {
+  /** 查询热门推荐商品 */
+  PageShopHotGoods(request: PageShopHotGoodsRequest): Promise<PageShopHotGoodsResponse>;
   /** 查询热门推荐列表 */
   ListShopHot(request: ListShopHotRequest): Promise<ListShopHotResponse>;
   /** 查询热门推荐选项 */
   ListShopHotItem(request: ListShopHotItemRequest): Promise<ListShopHotItemResponse>;
-  /** 查询热门推荐商品 */
-  PageShopHotGoods(request: PageShopHotGoodsRequest): Promise<PageShopHotGoodsResponse>;
 }

@@ -36,18 +36,18 @@ func NewOrderInfoServiceAgentTools(orderInfoServiceServer OrderInfoServiceServer
 		return nil, err
 	}
 	ts = append(ts, getOrderInfoRefundTool)
-	var refundOrderInfoTool tool.InvokableTool
-	refundOrderInfoTool, err = NewOrderInfoServiceRefundOrderInfoAgentTool(orderInfoServiceServer)
-	if err != nil {
-		return nil, err
-	}
-	ts = append(ts, refundOrderInfoTool)
 	var getOrderInfoShipmentTool tool.InvokableTool
 	getOrderInfoShipmentTool, err = NewOrderInfoServiceGetOrderInfoShipmentAgentTool(orderInfoServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, getOrderInfoShipmentTool)
+	var refundOrderInfoTool tool.InvokableTool
+	refundOrderInfoTool, err = NewOrderInfoServiceRefundOrderInfoAgentTool(orderInfoServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, refundOrderInfoTool)
 	var shipOrderInfoTool tool.InvokableTool
 	shipOrderInfoTool, err = NewOrderInfoServiceShipOrderInfoAgentTool(orderInfoServiceServer)
 	if err != nil {
@@ -99,20 +99,6 @@ func NewOrderInfoServiceGetOrderInfoRefundAgentTool(orderInfoServiceServer Order
 	)
 }
 
-// NewOrderInfoServiceRefundOrderInfoAgentTool 创建订单信息退款的 Agent Tool。
-func NewOrderInfoServiceRefundOrderInfoAgentTool(orderInfoServiceServer OrderInfoServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*RefundOrderInfoRequest, *emptypb.Empty](
-		"shop_admin_v1_order_info_service_refund_order_info",
-		"订单信息退款",
-		func(ctx context.Context, req *RefundOrderInfoRequest) (*emptypb.Empty, error) {
-			if req == nil {
-				req = &RefundOrderInfoRequest{}
-			}
-			return orderInfoServiceServer.RefundOrderInfo(ctx, req)
-		},
-	)
-}
-
 // NewOrderInfoServiceGetOrderInfoShipmentAgentTool 创建查询订单信息发货信息的 Agent Tool。
 func NewOrderInfoServiceGetOrderInfoShipmentAgentTool(orderInfoServiceServer OrderInfoServiceServer) (tool.InvokableTool, error) {
 	return utils.InferTool[*GetOrderInfoShipmentRequest, *OrderInfoShipmentForm](
@@ -123,6 +109,20 @@ func NewOrderInfoServiceGetOrderInfoShipmentAgentTool(orderInfoServiceServer Ord
 				req = &GetOrderInfoShipmentRequest{}
 			}
 			return orderInfoServiceServer.GetOrderInfoShipment(ctx, req)
+		},
+	)
+}
+
+// NewOrderInfoServiceRefundOrderInfoAgentTool 创建订单信息退款的 Agent Tool。
+func NewOrderInfoServiceRefundOrderInfoAgentTool(orderInfoServiceServer OrderInfoServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*RefundOrderInfoRequest, *emptypb.Empty](
+		"shop_admin_v1_order_info_service_refund_order_info",
+		"订单信息退款",
+		func(ctx context.Context, req *RefundOrderInfoRequest) (*emptypb.Empty, error) {
+			if req == nil {
+				req = &RefundOrderInfoRequest{}
+			}
+			return orderInfoServiceServer.RefundOrderInfo(ctx, req)
 		},
 	)
 }

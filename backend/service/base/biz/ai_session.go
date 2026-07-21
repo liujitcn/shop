@@ -101,48 +101,6 @@ func (c *AiSessionCase) CreateAiSession(ctx context.Context, req *basev1.CreateA
 	return c.ToDTO(model), nil
 }
 
-// UpdateAiSession 更新当前用户的会话标题。
-func (c *AiSessionCase) UpdateAiSession(ctx context.Context, req *basev1.UpdateAiSessionRequest) (*basev1.AiSession, error) {
-	title := req.GetTitle()
-	if title == "" {
-		return nil, errorsx.InvalidArgument("会话标题不能为空")
-	}
-
-	session, err := c.FindCurrentUserSessionByRawID(ctx, req.GetId())
-	if err != nil {
-		return nil, err
-	}
-	now := time.Now()
-	query := c.Query(ctx).AiSession
-	_, err = query.WithContext(ctx).
-		Where(query.ID.Eq(session.ID)).
-		UpdateSimple(
-			query.Title.Value(title),
-			query.UpdatedAt.Value(now),
-		)
-	if err != nil {
-		return nil, err
-	}
-	session.Title = title
-	session.UpdatedAt = now
-	return c.ToDTO(session), nil
-}
-
-// DeleteAiSession 删除当前用户的会话。
-func (c *AiSessionCase) DeleteAiSession(ctx context.Context, req *basev1.DeleteAiSessionRequest) (*emptypb.Empty, error) {
-	session, err := c.FindCurrentUserSessionByRawID(ctx, req.GetId())
-	if err != nil {
-		return nil, err
-	}
-	query := c.Query(ctx).AiSession
-	opts := make([]repository.QueryOption, 0, 1)
-	opts = append(opts, repository.Where(query.ID.Eq(session.ID)))
-	if err = c.Delete(ctx, opts...); err != nil {
-		return nil, err
-	}
-	return &emptypb.Empty{}, nil
-}
-
 // CreateAiSessionBranch 从指定消息创建当前用户的新分支会话。
 func (c *AiSessionCase) CreateAiSessionBranch(ctx context.Context, req *basev1.CreateAiSessionBranchRequest) (*basev1.CreateAiSessionBranchResponse, error) {
 	sourceSession, err := c.FindCurrentUserSessionByRawID(ctx, req.GetSourceSessionId())
@@ -238,6 +196,65 @@ func (c *AiSessionCase) CreateAiSessionBranch(ctx context.Context, req *basev1.C
 	}, nil
 }
 
+// UpdateAiSession 更新当前用户的会话标题。
+func (c *AiSessionCase) UpdateAiSession(ctx context.Context, req *basev1.UpdateAiSessionRequest) (*basev1.AiSession, error) {
+	title := req.GetTitle()
+	if title == "" {
+		return nil, errorsx.InvalidArgument("会话标题不能为空")
+	}
+
+	session, err := c.FindCurrentUserSessionByRawID(ctx, req.GetId())
+	if err != nil {
+		return nil, err
+	}
+	now := time.Now()
+	query := c.Query(ctx).AiSession
+	_, err = query.WithContext(ctx).
+		Where(query.ID.Eq(session.ID)).
+		UpdateSimple(
+			query.Title.Value(title),
+			query.UpdatedAt.Value(now),
+		)
+	if err != nil {
+		return nil, err
+	}
+	session.Title = title
+	session.UpdatedAt = now
+	return c.ToDTO(session), nil
+}
+
+// UpdateSessionSummary 更新会话摘要与更新时间。
+func (c *AiSessionCase) UpdateSessionSummary(ctx context.Context, session *models.AiSession, summary string, now time.Time) error {
+	query := c.Query(ctx).AiSession
+	_, err := query.WithContext(ctx).
+		Where(query.ID.Eq(session.ID)).
+		UpdateSimple(
+			query.Summary.Value(summary),
+			query.UpdatedAt.Value(now),
+		)
+	if err != nil {
+		return err
+	}
+	session.Summary = summary
+	session.UpdatedAt = now
+	return nil
+}
+
+// DeleteAiSession 删除当前用户的会话。
+func (c *AiSessionCase) DeleteAiSession(ctx context.Context, req *basev1.DeleteAiSessionRequest) (*emptypb.Empty, error) {
+	session, err := c.FindCurrentUserSessionByRawID(ctx, req.GetId())
+	if err != nil {
+		return nil, err
+	}
+	query := c.Query(ctx).AiSession
+	opts := make([]repository.QueryOption, 0, 1)
+	opts = append(opts, repository.Where(query.ID.Eq(session.ID)))
+	if err = c.Delete(ctx, opts...); err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
 // FindCurrentUserSessionByRawID 按当前用户与字符串会话编号查询会话。
 func (c *AiSessionCase) FindCurrentUserSessionByRawID(ctx context.Context, rawID string) (*models.AiSession, error) {
 	authInfo, err := c.GetAuthInfo(ctx)
@@ -263,23 +280,6 @@ func (c *AiSessionCase) FindCurrentUserSessionByRawID(ctx context.Context, rawID
 		return nil, err
 	}
 	return session, nil
-}
-
-// UpdateSessionSummary 更新会话摘要与更新时间。
-func (c *AiSessionCase) UpdateSessionSummary(ctx context.Context, session *models.AiSession, summary string, now time.Time) error {
-	query := c.Query(ctx).AiSession
-	_, err := query.WithContext(ctx).
-		Where(query.ID.Eq(session.ID)).
-		UpdateSimple(
-			query.Summary.Value(summary),
-			query.UpdatedAt.Value(now),
-		)
-	if err != nil {
-		return err
-	}
-	session.Summary = summary
-	session.UpdatedAt = now
-	return nil
 }
 
 // RefreshSessionUpdatedAt 更新会话更新时间。

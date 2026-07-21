@@ -18,6 +18,12 @@ import (
 func NewOauthServiceAgentTools(oauthServiceServer OauthServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error
+	var listOauthBindingTool tool.InvokableTool
+	listOauthBindingTool, err = NewOauthServiceListOauthBindingAgentTool(oauthServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, listOauthBindingTool)
 	var listOauthProviderTool tool.InvokableTool
 	listOauthProviderTool, err = NewOauthServiceListOauthProviderAgentTool(oauthServiceServer)
 	if err != nil {
@@ -30,6 +36,18 @@ func NewOauthServiceAgentTools(oauthServiceServer OauthServiceServer) ([]tool.In
 		return nil, err
 	}
 	ts = append(ts, createOauthAuthorizationTool)
+	var createOauthBindingAuthorizationTool tool.InvokableTool
+	createOauthBindingAuthorizationTool, err = NewOauthServiceCreateOauthBindingAuthorizationAgentTool(oauthServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, createOauthBindingAuthorizationTool)
+	var createOauthSessionTool tool.InvokableTool
+	createOauthSessionTool, err = NewOauthServiceCreateOauthSessionAgentTool(oauthServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, createOauthSessionTool)
 	var handleOauthCallbackTool tool.InvokableTool
 	handleOauthCallbackTool, err = NewOauthServiceHandleOauthCallbackAgentTool(oauthServiceServer)
 	if err != nil {
@@ -42,24 +60,6 @@ func NewOauthServiceAgentTools(oauthServiceServer OauthServiceServer) ([]tool.In
 		return nil, err
 	}
 	ts = append(ts, exchangeOauthTicketTool)
-	var createOauthSessionTool tool.InvokableTool
-	createOauthSessionTool, err = NewOauthServiceCreateOauthSessionAgentTool(oauthServiceServer)
-	if err != nil {
-		return nil, err
-	}
-	ts = append(ts, createOauthSessionTool)
-	var listOauthBindingTool tool.InvokableTool
-	listOauthBindingTool, err = NewOauthServiceListOauthBindingAgentTool(oauthServiceServer)
-	if err != nil {
-		return nil, err
-	}
-	ts = append(ts, listOauthBindingTool)
-	var createOauthBindingAuthorizationTool tool.InvokableTool
-	createOauthBindingAuthorizationTool, err = NewOauthServiceCreateOauthBindingAuthorizationAgentTool(oauthServiceServer)
-	if err != nil {
-		return nil, err
-	}
-	ts = append(ts, createOauthBindingAuthorizationTool)
 	var handleOauthBindingCallbackTool tool.InvokableTool
 	handleOauthBindingCallbackTool, err = NewOauthServiceHandleOauthBindingCallbackAgentTool(oauthServiceServer)
 	if err != nil {
@@ -73,6 +73,20 @@ func NewOauthServiceAgentTools(oauthServiceServer OauthServiceServer) ([]tool.In
 	}
 	ts = append(ts, unbindOauthAccountTool)
 	return ts, nil
+}
+
+// NewOauthServiceListOauthBindingAgentTool 创建查询个人中心三方账号绑定列表的 Agent Tool。
+func NewOauthServiceListOauthBindingAgentTool(oauthServiceServer OauthServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*ListOauthBindingRequest, *ListOauthBindingResponse](
+		"base_v1_oauth_service_list_oauth_binding",
+		"查询个人中心三方账号绑定列表",
+		func(ctx context.Context, req *ListOauthBindingRequest) (*ListOauthBindingResponse, error) {
+			if req == nil {
+				req = &ListOauthBindingRequest{}
+			}
+			return oauthServiceServer.ListOauthBinding(ctx, req)
+		},
+	)
 }
 
 // NewOauthServiceListOauthProviderAgentTool 创建查询三方登录方式的 Agent Tool。
@@ -103,6 +117,34 @@ func NewOauthServiceCreateOauthAuthorizationAgentTool(oauthServiceServer OauthSe
 	)
 }
 
+// NewOauthServiceCreateOauthBindingAuthorizationAgentTool 创建创建个人中心三方账号绑定授权地址的 Agent Tool。
+func NewOauthServiceCreateOauthBindingAuthorizationAgentTool(oauthServiceServer OauthServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*CreateOauthBindingAuthorizationRequest, *CreateOauthBindingAuthorizationResponse](
+		"base_v1_oauth_service_create_oauth_binding_authorization",
+		"创建个人中心三方账号绑定授权地址",
+		func(ctx context.Context, req *CreateOauthBindingAuthorizationRequest) (*CreateOauthBindingAuthorizationResponse, error) {
+			if req == nil {
+				req = &CreateOauthBindingAuthorizationRequest{}
+			}
+			return oauthServiceServer.CreateOauthBindingAuthorization(ctx, req)
+		},
+	)
+}
+
+// NewOauthServiceCreateOauthSessionAgentTool 创建创建三方登录会话的 Agent Tool。
+func NewOauthServiceCreateOauthSessionAgentTool(oauthServiceServer OauthServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*CreateOauthSessionRequest, *CreateOauthSessionResponse](
+		"base_v1_oauth_service_create_oauth_session",
+		"创建三方登录会话",
+		func(ctx context.Context, req *CreateOauthSessionRequest) (*CreateOauthSessionResponse, error) {
+			if req == nil {
+				req = &CreateOauthSessionRequest{}
+			}
+			return oauthServiceServer.CreateOauthSession(ctx, req)
+		},
+	)
+}
+
 // NewOauthServiceHandleOauthCallbackAgentTool 创建处理三方登录回调的 Agent Tool。
 func NewOauthServiceHandleOauthCallbackAgentTool(oauthServiceServer OauthServiceServer) (tool.InvokableTool, error) {
 	return utils.InferTool[*HandleOauthCallbackRequest, *HandleOauthCallbackResponse](
@@ -127,48 +169,6 @@ func NewOauthServiceExchangeOauthTicketAgentTool(oauthServiceServer OauthService
 				req = &ExchangeOauthTicketRequest{}
 			}
 			return oauthServiceServer.ExchangeOauthTicket(ctx, req)
-		},
-	)
-}
-
-// NewOauthServiceCreateOauthSessionAgentTool 创建创建三方登录会话的 Agent Tool。
-func NewOauthServiceCreateOauthSessionAgentTool(oauthServiceServer OauthServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*CreateOauthSessionRequest, *CreateOauthSessionResponse](
-		"base_v1_oauth_service_create_oauth_session",
-		"创建三方登录会话",
-		func(ctx context.Context, req *CreateOauthSessionRequest) (*CreateOauthSessionResponse, error) {
-			if req == nil {
-				req = &CreateOauthSessionRequest{}
-			}
-			return oauthServiceServer.CreateOauthSession(ctx, req)
-		},
-	)
-}
-
-// NewOauthServiceListOauthBindingAgentTool 创建查询个人中心三方账号绑定列表的 Agent Tool。
-func NewOauthServiceListOauthBindingAgentTool(oauthServiceServer OauthServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*ListOauthBindingRequest, *ListOauthBindingResponse](
-		"base_v1_oauth_service_list_oauth_binding",
-		"查询个人中心三方账号绑定列表",
-		func(ctx context.Context, req *ListOauthBindingRequest) (*ListOauthBindingResponse, error) {
-			if req == nil {
-				req = &ListOauthBindingRequest{}
-			}
-			return oauthServiceServer.ListOauthBinding(ctx, req)
-		},
-	)
-}
-
-// NewOauthServiceCreateOauthBindingAuthorizationAgentTool 创建创建个人中心三方账号绑定授权地址的 Agent Tool。
-func NewOauthServiceCreateOauthBindingAuthorizationAgentTool(oauthServiceServer OauthServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*CreateOauthBindingAuthorizationRequest, *CreateOauthBindingAuthorizationResponse](
-		"base_v1_oauth_service_create_oauth_binding_authorization",
-		"创建个人中心三方账号绑定授权地址",
-		func(ctx context.Context, req *CreateOauthBindingAuthorizationRequest) (*CreateOauthBindingAuthorizationResponse, error) {
-			if req == nil {
-				req = &CreateOauthBindingAuthorizationRequest{}
-			}
-			return oauthServiceServer.CreateOauthBindingAuthorization(ctx, req)
 		},
 	)
 }

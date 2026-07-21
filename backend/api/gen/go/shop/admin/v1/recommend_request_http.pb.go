@@ -34,8 +34,8 @@ type RecommendRequestServiceHTTPServer interface {
 func RegisterRecommendRequestServiceHTTPServer(s *http.Server, srv RecommendRequestServiceHTTPServer) {
 	r := s.Route("/")
 	r.Handle("GET", "/api/v1/admin/recommend/request", _RecommendRequestService_PageRecommendRequest0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/admin/recommend/request/{id}", _RecommendRequestService_GetRecommendRequest0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/recommend/request/{request_record_id}/event", _RecommendRequestService_ListRecommendRequestEvent0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/recommend/request/{id}", _RecommendRequestService_GetRecommendRequest0_HTTP_Handler(srv))
 }
 
 func _RecommendRequestService_PageRecommendRequest0_HTTP_Handler(srv RecommendRequestServiceHTTPServer) func(ctx http.Context) error {
@@ -53,28 +53,6 @@ func _RecommendRequestService_PageRecommendRequest0_HTTP_Handler(srv RecommendRe
 			return err
 		}
 		reply := out.(*PageRecommendRequestResponse)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _RecommendRequestService_GetRecommendRequest0_HTTP_Handler(srv RecommendRequestServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in GetRecommendRequestRequest
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		if err := ctx.BindVars(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationRecommendRequestServiceGetRecommendRequest)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.GetRecommendRequest(ctx, req.(*GetRecommendRequestRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*RecommendRequestDetailResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -97,6 +75,28 @@ func _RecommendRequestService_ListRecommendRequestEvent0_HTTP_Handler(srv Recomm
 			return err
 		}
 		reply := out.(*ListRecommendRequestEventResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _RecommendRequestService_GetRecommendRequest0_HTTP_Handler(srv RecommendRequestServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetRecommendRequestRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationRecommendRequestServiceGetRecommendRequest)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetRecommendRequest(ctx, req.(*GetRecommendRequestRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*RecommendRequestDetailResponse)
 		return ctx.Result(200, reply)
 	}
 }

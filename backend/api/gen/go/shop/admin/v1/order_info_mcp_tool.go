@@ -18,8 +18,8 @@ func RegisterOrderInfoServiceMCPTools(mcpServer *mcp.Server, orderInfoServiceSer
 	RegisterOrderInfoServicePageOrderInfoMCPTool(mcpServer, orderInfoServiceServer)
 	RegisterOrderInfoServiceGetOrderInfoMCPTool(mcpServer, orderInfoServiceServer)
 	RegisterOrderInfoServiceGetOrderInfoRefundMCPTool(mcpServer, orderInfoServiceServer)
-	RegisterOrderInfoServiceRefundOrderInfoMCPTool(mcpServer, orderInfoServiceServer)
 	RegisterOrderInfoServiceGetOrderInfoShipmentMCPTool(mcpServer, orderInfoServiceServer)
+	RegisterOrderInfoServiceRefundOrderInfoMCPTool(mcpServer, orderInfoServiceServer)
 	RegisterOrderInfoServiceShipOrderInfoMCPTool(mcpServer, orderInfoServiceServer)
 }
 
@@ -86,27 +86,6 @@ func RegisterOrderInfoServiceGetOrderInfoRefundMCPTool(mcpServer *mcp.Server, or
 	)
 }
 
-// RegisterOrderInfoServiceRefundOrderInfoMCPTool 注册订单信息退款的 MCP Tool。
-func RegisterOrderInfoServiceRefundOrderInfoMCPTool(mcpServer *mcp.Server, orderInfoServiceServer OrderInfoServiceServer) {
-	mcp.AddTool[*RefundOrderInfoRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "shop_admin_v1_order_info_service_refund_order_info",
-			Description: "订单信息退款",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *RefundOrderInfoRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &RefundOrderInfoRequest{}
-			}
-			reply, err := orderInfoServiceServer.RefundOrderInfo(ctx, input)
-			if err != nil {
-				return nil, nil, err
-			}
-			return nil, reply, nil
-		},
-	)
-}
-
 // RegisterOrderInfoServiceGetOrderInfoShipmentMCPTool 注册查询订单信息发货信息的 MCP Tool。
 func RegisterOrderInfoServiceGetOrderInfoShipmentMCPTool(mcpServer *mcp.Server, orderInfoServiceServer OrderInfoServiceServer) {
 	mcp.AddTool[*GetOrderInfoShipmentRequest, *OrderInfoShipmentForm](
@@ -120,6 +99,27 @@ func RegisterOrderInfoServiceGetOrderInfoShipmentMCPTool(mcpServer *mcp.Server, 
 				input = &GetOrderInfoShipmentRequest{}
 			}
 			reply, err := orderInfoServiceServer.GetOrderInfoShipment(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
+}
+
+// RegisterOrderInfoServiceRefundOrderInfoMCPTool 注册订单信息退款的 MCP Tool。
+func RegisterOrderInfoServiceRefundOrderInfoMCPTool(mcpServer *mcp.Server, orderInfoServiceServer OrderInfoServiceServer) {
+	mcp.AddTool[*RefundOrderInfoRequest, *emptypb.Empty](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "shop_admin_v1_order_info_service_refund_order_info",
+			Description: "订单信息退款",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *RefundOrderInfoRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
+			if input == nil {
+				input = &RefundOrderInfoRequest{}
+			}
+			reply, err := orderInfoServiceServer.RefundOrderInfo(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

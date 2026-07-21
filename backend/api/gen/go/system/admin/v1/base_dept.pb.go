@@ -27,6 +27,59 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 部门选项查询条件
+type OptionBaseDeptRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	TenantId      *int64                 `protobuf:"varint,1,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"` // 租户ID
+	ParentId      *int64                 `protobuf:"varint,2,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"` // 父级部门ID
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *OptionBaseDeptRequest) Reset() {
+	*x = OptionBaseDeptRequest{}
+	mi := &file_system_admin_v1_base_dept_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OptionBaseDeptRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OptionBaseDeptRequest) ProtoMessage() {}
+
+func (x *OptionBaseDeptRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_base_dept_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use OptionBaseDeptRequest.ProtoReflect.Descriptor instead.
+func (*OptionBaseDeptRequest) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_base_dept_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *OptionBaseDeptRequest) GetTenantId() int64 {
+	if x != nil && x.TenantId != nil {
+		return *x.TenantId
+	}
+	return 0
+}
+
+func (x *OptionBaseDeptRequest) GetParentId() int64 {
+	if x != nil && x.ParentId != nil {
+		return *x.ParentId
+	}
+	return 0
+}
+
 // 部门树查询条件
 type TreeBaseDeptRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -37,7 +90,7 @@ type TreeBaseDeptRequest struct {
 
 func (x *TreeBaseDeptRequest) Reset() {
 	*x = TreeBaseDeptRequest{}
-	mi := &file_system_admin_v1_base_dept_proto_msgTypes[0]
+	mi := &file_system_admin_v1_base_dept_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -49,7 +102,7 @@ func (x *TreeBaseDeptRequest) String() string {
 func (*TreeBaseDeptRequest) ProtoMessage() {}
 
 func (x *TreeBaseDeptRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_dept_proto_msgTypes[0]
+	mi := &file_system_admin_v1_base_dept_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -62,7 +115,7 @@ func (x *TreeBaseDeptRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TreeBaseDeptRequest.ProtoReflect.Descriptor instead.
 func (*TreeBaseDeptRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_dept_proto_rawDescGZIP(), []int{0}
+	return file_system_admin_v1_base_dept_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *TreeBaseDeptRequest) GetTenantId() int64 {
@@ -82,7 +135,7 @@ type TreeBaseDeptResponse struct {
 
 func (x *TreeBaseDeptResponse) Reset() {
 	*x = TreeBaseDeptResponse{}
-	mi := &file_system_admin_v1_base_dept_proto_msgTypes[1]
+	mi := &file_system_admin_v1_base_dept_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -94,7 +147,7 @@ func (x *TreeBaseDeptResponse) String() string {
 func (*TreeBaseDeptResponse) ProtoMessage() {}
 
 func (x *TreeBaseDeptResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_dept_proto_msgTypes[1]
+	mi := &file_system_admin_v1_base_dept_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -107,7 +160,7 @@ func (x *TreeBaseDeptResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TreeBaseDeptResponse.ProtoReflect.Descriptor instead.
 func (*TreeBaseDeptResponse) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_dept_proto_rawDescGZIP(), []int{1}
+	return file_system_admin_v1_base_dept_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *TreeBaseDeptResponse) GetBaseDepts() []*BaseDept {
@@ -115,59 +168,6 @@ func (x *TreeBaseDeptResponse) GetBaseDepts() []*BaseDept {
 		return x.BaseDepts
 	}
 	return nil
-}
-
-// 部门选项查询条件
-type OptionBaseDeptRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	TenantId      *int64                 `protobuf:"varint,1,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"` // 租户ID
-	ParentId      *int64                 `protobuf:"varint,2,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"` // 父级部门ID
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *OptionBaseDeptRequest) Reset() {
-	*x = OptionBaseDeptRequest{}
-	mi := &file_system_admin_v1_base_dept_proto_msgTypes[2]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *OptionBaseDeptRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*OptionBaseDeptRequest) ProtoMessage() {}
-
-func (x *OptionBaseDeptRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_dept_proto_msgTypes[2]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use OptionBaseDeptRequest.ProtoReflect.Descriptor instead.
-func (*OptionBaseDeptRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_dept_proto_rawDescGZIP(), []int{2}
-}
-
-func (x *OptionBaseDeptRequest) GetTenantId() int64 {
-	if x != nil && x.TenantId != nil {
-		return *x.TenantId
-	}
-	return 0
-}
-
-func (x *OptionBaseDeptRequest) GetParentId() int64 {
-	if x != nil && x.ParentId != nil {
-		return *x.ParentId
-	}
-	return 0
 }
 
 // 查询部门请求参数
@@ -215,6 +215,99 @@ func (x *GetBaseDeptRequest) GetId() int64 {
 	return 0
 }
 
+// 部门表单
+type BaseDeptForm struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                   // 部门ID
+	TenantId      int64                  `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`       // 租户ID
+	ParentId      *int64                 `protobuf:"varint,3,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"` // 父级部门ID
+	Name          string                 `protobuf:"bytes,4,opt,name=name,proto3" json:"name,omitempty"`                                // 部门名称
+	Sort          int32                  `protobuf:"varint,5,opt,name=sort,proto3" json:"sort,omitempty"`                               // 排序
+	Status        v1.Status              `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`   // 状态
+	Remark        string                 `protobuf:"bytes,101,opt,name=remark,proto3" json:"remark,omitempty"`                          // 备注
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BaseDeptForm) Reset() {
+	*x = BaseDeptForm{}
+	mi := &file_system_admin_v1_base_dept_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BaseDeptForm) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BaseDeptForm) ProtoMessage() {}
+
+func (x *BaseDeptForm) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_base_dept_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BaseDeptForm.ProtoReflect.Descriptor instead.
+func (*BaseDeptForm) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_base_dept_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *BaseDeptForm) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *BaseDeptForm) GetTenantId() int64 {
+	if x != nil {
+		return x.TenantId
+	}
+	return 0
+}
+
+func (x *BaseDeptForm) GetParentId() int64 {
+	if x != nil && x.ParentId != nil {
+		return *x.ParentId
+	}
+	return 0
+}
+
+func (x *BaseDeptForm) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *BaseDeptForm) GetSort() int32 {
+	if x != nil {
+		return x.Sort
+	}
+	return 0
+}
+
+func (x *BaseDeptForm) GetStatus() v1.Status {
+	if x != nil {
+		return x.Status
+	}
+	return v1.Status(0)
+}
+
+func (x *BaseDeptForm) GetRemark() string {
+	if x != nil {
+		return x.Remark
+	}
+	return ""
+}
+
 // 创建部门请求参数
 type CreateBaseDeptRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -225,7 +318,7 @@ type CreateBaseDeptRequest struct {
 
 func (x *CreateBaseDeptRequest) Reset() {
 	*x = CreateBaseDeptRequest{}
-	mi := &file_system_admin_v1_base_dept_proto_msgTypes[4]
+	mi := &file_system_admin_v1_base_dept_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -237,7 +330,7 @@ func (x *CreateBaseDeptRequest) String() string {
 func (*CreateBaseDeptRequest) ProtoMessage() {}
 
 func (x *CreateBaseDeptRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_dept_proto_msgTypes[4]
+	mi := &file_system_admin_v1_base_dept_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -250,7 +343,7 @@ func (x *CreateBaseDeptRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateBaseDeptRequest.ProtoReflect.Descriptor instead.
 func (*CreateBaseDeptRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_dept_proto_rawDescGZIP(), []int{4}
+	return file_system_admin_v1_base_dept_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *CreateBaseDeptRequest) GetBaseDept() *BaseDeptForm {
@@ -270,7 +363,7 @@ type UpdateBaseDeptRequest struct {
 
 func (x *UpdateBaseDeptRequest) Reset() {
 	*x = UpdateBaseDeptRequest{}
-	mi := &file_system_admin_v1_base_dept_proto_msgTypes[5]
+	mi := &file_system_admin_v1_base_dept_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -282,7 +375,7 @@ func (x *UpdateBaseDeptRequest) String() string {
 func (*UpdateBaseDeptRequest) ProtoMessage() {}
 
 func (x *UpdateBaseDeptRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_dept_proto_msgTypes[5]
+	mi := &file_system_admin_v1_base_dept_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -295,7 +388,7 @@ func (x *UpdateBaseDeptRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateBaseDeptRequest.ProtoReflect.Descriptor instead.
 func (*UpdateBaseDeptRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_dept_proto_rawDescGZIP(), []int{5}
+	return file_system_admin_v1_base_dept_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *UpdateBaseDeptRequest) GetBaseDept() *BaseDeptForm {
@@ -315,7 +408,7 @@ type DeleteBaseDeptRequest struct {
 
 func (x *DeleteBaseDeptRequest) Reset() {
 	*x = DeleteBaseDeptRequest{}
-	mi := &file_system_admin_v1_base_dept_proto_msgTypes[6]
+	mi := &file_system_admin_v1_base_dept_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -327,7 +420,7 @@ func (x *DeleteBaseDeptRequest) String() string {
 func (*DeleteBaseDeptRequest) ProtoMessage() {}
 
 func (x *DeleteBaseDeptRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_dept_proto_msgTypes[6]
+	mi := &file_system_admin_v1_base_dept_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -340,7 +433,7 @@ func (x *DeleteBaseDeptRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteBaseDeptRequest.ProtoReflect.Descriptor instead.
 func (*DeleteBaseDeptRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_dept_proto_rawDescGZIP(), []int{6}
+	return file_system_admin_v1_base_dept_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *DeleteBaseDeptRequest) GetId() string {
@@ -361,7 +454,7 @@ type SetBaseDeptStatusRequest struct {
 
 func (x *SetBaseDeptStatusRequest) Reset() {
 	*x = SetBaseDeptStatusRequest{}
-	mi := &file_system_admin_v1_base_dept_proto_msgTypes[7]
+	mi := &file_system_admin_v1_base_dept_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -373,7 +466,7 @@ func (x *SetBaseDeptStatusRequest) String() string {
 func (*SetBaseDeptStatusRequest) ProtoMessage() {}
 
 func (x *SetBaseDeptStatusRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_dept_proto_msgTypes[7]
+	mi := &file_system_admin_v1_base_dept_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -386,7 +479,7 @@ func (x *SetBaseDeptStatusRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetBaseDeptStatusRequest.ProtoReflect.Descriptor instead.
 func (*SetBaseDeptStatusRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_dept_proto_rawDescGZIP(), []int{7}
+	return file_system_admin_v1_base_dept_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *SetBaseDeptStatusRequest) GetId() int64 {
@@ -422,7 +515,7 @@ type BaseDept struct {
 
 func (x *BaseDept) Reset() {
 	*x = BaseDept{}
-	mi := &file_system_admin_v1_base_dept_proto_msgTypes[8]
+	mi := &file_system_admin_v1_base_dept_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -434,7 +527,7 @@ func (x *BaseDept) String() string {
 func (*BaseDept) ProtoMessage() {}
 
 func (x *BaseDept) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_dept_proto_msgTypes[8]
+	mi := &file_system_admin_v1_base_dept_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -447,7 +540,7 @@ func (x *BaseDept) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BaseDept.ProtoReflect.Descriptor instead.
 func (*BaseDept) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_dept_proto_rawDescGZIP(), []int{8}
+	return file_system_admin_v1_base_dept_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *BaseDept) GetId() int64 {
@@ -520,120 +613,38 @@ func (x *BaseDept) GetChildren() []*BaseDept {
 	return nil
 }
 
-// 部门表单
-type BaseDeptForm struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                   // 部门ID
-	TenantId      int64                  `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`       // 租户ID
-	ParentId      *int64                 `protobuf:"varint,3,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"` // 父级部门ID
-	Name          string                 `protobuf:"bytes,4,opt,name=name,proto3" json:"name,omitempty"`                                // 部门名称
-	Sort          int32                  `protobuf:"varint,5,opt,name=sort,proto3" json:"sort,omitempty"`                               // 排序
-	Status        v1.Status              `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`   // 状态
-	Remark        string                 `protobuf:"bytes,101,opt,name=remark,proto3" json:"remark,omitempty"`                          // 备注
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *BaseDeptForm) Reset() {
-	*x = BaseDeptForm{}
-	mi := &file_system_admin_v1_base_dept_proto_msgTypes[9]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *BaseDeptForm) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*BaseDeptForm) ProtoMessage() {}
-
-func (x *BaseDeptForm) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_dept_proto_msgTypes[9]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use BaseDeptForm.ProtoReflect.Descriptor instead.
-func (*BaseDeptForm) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_dept_proto_rawDescGZIP(), []int{9}
-}
-
-func (x *BaseDeptForm) GetId() int64 {
-	if x != nil {
-		return x.Id
-	}
-	return 0
-}
-
-func (x *BaseDeptForm) GetTenantId() int64 {
-	if x != nil {
-		return x.TenantId
-	}
-	return 0
-}
-
-func (x *BaseDeptForm) GetParentId() int64 {
-	if x != nil && x.ParentId != nil {
-		return *x.ParentId
-	}
-	return 0
-}
-
-func (x *BaseDeptForm) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
-}
-
-func (x *BaseDeptForm) GetSort() int32 {
-	if x != nil {
-		return x.Sort
-	}
-	return 0
-}
-
-func (x *BaseDeptForm) GetStatus() v1.Status {
-	if x != nil {
-		return x.Status
-	}
-	return v1.Status(0)
-}
-
-func (x *BaseDeptForm) GetRemark() string {
-	if x != nil {
-		return x.Remark
-	}
-	return ""
-}
-
 var File_system_admin_v1_base_dept_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_base_dept_proto_rawDesc = "" +
 	"\n" +
-	"\x1fsystem/admin/v1/base_dept.proto\x12\x0fsystem.admin.v1\x1a\x16common/v1/common.proto\x1a\x14common/v1/enum.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"U\n" +
-	"\x13TreeBaseDeptRequest\x120\n" +
-	"\ttenant_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01B\f\n" +
-	"\n" +
-	"_tenant_id\"a\n" +
-	"\x14TreeBaseDeptResponse\x12I\n" +
-	"\n" +
-	"base_depts\x18\x01 \x03(\v2\x19.system.admin.v1.BaseDeptB\x0f\xbaG\f\x92\x02\t部门树R\tbaseDepts\"\x9d\x01\n" +
+	"\x1fsystem/admin/v1/base_dept.proto\x12\x0fsystem.admin.v1\x1a\x16common/v1/common.proto\x1a\x14common/v1/enum.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x9d\x01\n" +
 	"\x15OptionBaseDeptRequest\x120\n" +
 	"\ttenant_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x126\n" +
 	"\tparent_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e父级部门IDH\x01R\bparentId\x88\x01\x01B\f\n" +
 	"\n" +
 	"_tenant_idB\f\n" +
 	"\n" +
-	"_parent_id\"4\n" +
+	"_parent_id\"U\n" +
+	"\x13TreeBaseDeptRequest\x120\n" +
+	"\ttenant_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01B\f\n" +
+	"\n" +
+	"_tenant_id\"a\n" +
+	"\x14TreeBaseDeptResponse\x12I\n" +
+	"\n" +
+	"base_depts\x18\x01 \x03(\v2\x19.system.admin.v1.BaseDeptB\x0f\xbaG\f\x92\x02\t部门树R\tbaseDepts\"4\n" +
 	"\x12GetBaseDeptRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b部门IDR\x02id\"m\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b部门IDR\x02id\"\xa8\x03\n" +
+	"\fBaseDeptForm\x12\x1e\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b部门IDR\x02id\x12+\n" +
+	"\ttenant_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDR\btenantId\x126\n" +
+	"\tparent_id\x18\x03 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e父级部门IDH\x00R\bparentId\x88\x01\x01\x12&\n" +
+	"\x04name\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f部门名称R\x04name\x12 \n" +
+	"\x04sort\x18\x05 \x01(\x05B\f\xbaG\t\x92\x02\x06排序R\x04sort\x12?\n" +
+	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\x12z\n" +
+	"\x06remark\x18e \x01(\tBb\xbaG\t\x92\x02\x06备注\xbaHS\xba\x01P\n" +
+	"\x18base_dept.remark.max_len\x12 备注不能超过 500 个字符\x1a\x12this.size() <= 500R\x06remarkB\f\n" +
+	"\n" +
+	"_parent_id\"m\n" +
 	"\x15CreateBaseDeptRequest\x12T\n" +
 	"\tbase_dept\x18\x01 \x01(\v2\x1d.system.admin.v1.BaseDeptFormB\x18\xbaG\x0f\x92\x02\f部门表单\xbaH\x03\xc8\x01\x01R\bbaseDept\"m\n" +
 	"\x15UpdateBaseDeptRequest\x12T\n" +
@@ -658,21 +669,10 @@ const file_system_admin_v1_base_dept_proto_rawDesc = "" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
 	"\n" +
 	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x12G\n" +
-	"\bchildren\x18\xac\x02 \x03(\v2\x19.system.admin.v1.BaseDeptB\x0f\xbaG\f\x92\x02\t子部门R\bchildren\"\xa8\x03\n" +
-	"\fBaseDeptForm\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b部门IDR\x02id\x12+\n" +
-	"\ttenant_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDR\btenantId\x126\n" +
-	"\tparent_id\x18\x03 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e父级部门IDH\x00R\bparentId\x88\x01\x01\x12&\n" +
-	"\x04name\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f部门名称R\x04name\x12 \n" +
-	"\x04sort\x18\x05 \x01(\x05B\f\xbaG\t\x92\x02\x06排序R\x04sort\x12?\n" +
-	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\x12z\n" +
-	"\x06remark\x18e \x01(\tBb\xbaG\t\x92\x02\x06备注\xbaHS\xba\x01P\n" +
-	"\x18base_dept.remark.max_len\x12 备注不能超过 500 个字符\x1a\x12this.size() <= 500R\x06remarkB\f\n" +
-	"\n" +
-	"_parent_id2\x9c\a\n" +
-	"\x0fBaseDeptService\x12\x81\x01\n" +
-	"\fTreeBaseDept\x12$.system.admin.v1.TreeBaseDeptRequest\x1a%.system.admin.v1.TreeBaseDeptResponse\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/api/v1/admin/base/dept/tree\x12\x7f\n" +
-	"\x0eOptionBaseDept\x12&.system.admin.v1.OptionBaseDeptRequest\x1a\x1d.common.v1.TreeOptionResponse\"&\x82\xd3\xe4\x93\x02 \x12\x1e/api/v1/admin/base/dept/option\x12w\n" +
+	"\bchildren\x18\xac\x02 \x03(\v2\x19.system.admin.v1.BaseDeptB\x0f\xbaG\f\x92\x02\t子部门R\bchildren2\x9c\a\n" +
+	"\x0fBaseDeptService\x12\x7f\n" +
+	"\x0eOptionBaseDept\x12&.system.admin.v1.OptionBaseDeptRequest\x1a\x1d.common.v1.TreeOptionResponse\"&\x82\xd3\xe4\x93\x02 \x12\x1e/api/v1/admin/base/dept/option\x12\x81\x01\n" +
+	"\fTreeBaseDept\x12$.system.admin.v1.TreeBaseDeptRequest\x1a%.system.admin.v1.TreeBaseDeptResponse\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/api/v1/admin/base/dept/tree\x12w\n" +
 	"\vGetBaseDept\x12#.system.admin.v1.GetBaseDeptRequest\x1a\x1d.system.admin.v1.BaseDeptForm\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/api/v1/admin/base/dept/{id}\x12|\n" +
 	"\x0eCreateBaseDept\x12&.system.admin.v1.CreateBaseDeptRequest\x1a\x16.google.protobuf.Empty\"*\x82\xd3\xe4\x93\x02$:\tbase_dept\"\x17/api/v1/admin/base/dept\x12\x8b\x01\n" +
 	"\x0eUpdateBaseDept\x12&.system.admin.v1.UpdateBaseDeptRequest\x1a\x16.google.protobuf.Empty\"9\x82\xd3\xe4\x93\x023:\tbase_dept\x1a&/api/v1/admin/base/dept/{base_dept.id}\x12v\n" +
@@ -694,37 +694,37 @@ func file_system_admin_v1_base_dept_proto_rawDescGZIP() []byte {
 
 var file_system_admin_v1_base_dept_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_system_admin_v1_base_dept_proto_goTypes = []any{
-	(*TreeBaseDeptRequest)(nil),      // 0: system.admin.v1.TreeBaseDeptRequest
-	(*TreeBaseDeptResponse)(nil),     // 1: system.admin.v1.TreeBaseDeptResponse
-	(*OptionBaseDeptRequest)(nil),    // 2: system.admin.v1.OptionBaseDeptRequest
+	(*OptionBaseDeptRequest)(nil),    // 0: system.admin.v1.OptionBaseDeptRequest
+	(*TreeBaseDeptRequest)(nil),      // 1: system.admin.v1.TreeBaseDeptRequest
+	(*TreeBaseDeptResponse)(nil),     // 2: system.admin.v1.TreeBaseDeptResponse
 	(*GetBaseDeptRequest)(nil),       // 3: system.admin.v1.GetBaseDeptRequest
-	(*CreateBaseDeptRequest)(nil),    // 4: system.admin.v1.CreateBaseDeptRequest
-	(*UpdateBaseDeptRequest)(nil),    // 5: system.admin.v1.UpdateBaseDeptRequest
-	(*DeleteBaseDeptRequest)(nil),    // 6: system.admin.v1.DeleteBaseDeptRequest
-	(*SetBaseDeptStatusRequest)(nil), // 7: system.admin.v1.SetBaseDeptStatusRequest
-	(*BaseDept)(nil),                 // 8: system.admin.v1.BaseDept
-	(*BaseDeptForm)(nil),             // 9: system.admin.v1.BaseDeptForm
+	(*BaseDeptForm)(nil),             // 4: system.admin.v1.BaseDeptForm
+	(*CreateBaseDeptRequest)(nil),    // 5: system.admin.v1.CreateBaseDeptRequest
+	(*UpdateBaseDeptRequest)(nil),    // 6: system.admin.v1.UpdateBaseDeptRequest
+	(*DeleteBaseDeptRequest)(nil),    // 7: system.admin.v1.DeleteBaseDeptRequest
+	(*SetBaseDeptStatusRequest)(nil), // 8: system.admin.v1.SetBaseDeptStatusRequest
+	(*BaseDept)(nil),                 // 9: system.admin.v1.BaseDept
 	(v1.Status)(0),                   // 10: common.v1.Status
 	(*v1.TreeOptionResponse)(nil),    // 11: common.v1.TreeOptionResponse
 	(*emptypb.Empty)(nil),            // 12: google.protobuf.Empty
 }
 var file_system_admin_v1_base_dept_proto_depIdxs = []int32{
-	8,  // 0: system.admin.v1.TreeBaseDeptResponse.base_depts:type_name -> system.admin.v1.BaseDept
-	9,  // 1: system.admin.v1.CreateBaseDeptRequest.base_dept:type_name -> system.admin.v1.BaseDeptForm
-	9,  // 2: system.admin.v1.UpdateBaseDeptRequest.base_dept:type_name -> system.admin.v1.BaseDeptForm
-	10, // 3: system.admin.v1.BaseDept.status:type_name -> common.v1.Status
-	8,  // 4: system.admin.v1.BaseDept.children:type_name -> system.admin.v1.BaseDept
-	10, // 5: system.admin.v1.BaseDeptForm.status:type_name -> common.v1.Status
-	0,  // 6: system.admin.v1.BaseDeptService.TreeBaseDept:input_type -> system.admin.v1.TreeBaseDeptRequest
-	2,  // 7: system.admin.v1.BaseDeptService.OptionBaseDept:input_type -> system.admin.v1.OptionBaseDeptRequest
+	9,  // 0: system.admin.v1.TreeBaseDeptResponse.base_depts:type_name -> system.admin.v1.BaseDept
+	10, // 1: system.admin.v1.BaseDeptForm.status:type_name -> common.v1.Status
+	4,  // 2: system.admin.v1.CreateBaseDeptRequest.base_dept:type_name -> system.admin.v1.BaseDeptForm
+	4,  // 3: system.admin.v1.UpdateBaseDeptRequest.base_dept:type_name -> system.admin.v1.BaseDeptForm
+	10, // 4: system.admin.v1.BaseDept.status:type_name -> common.v1.Status
+	9,  // 5: system.admin.v1.BaseDept.children:type_name -> system.admin.v1.BaseDept
+	0,  // 6: system.admin.v1.BaseDeptService.OptionBaseDept:input_type -> system.admin.v1.OptionBaseDeptRequest
+	1,  // 7: system.admin.v1.BaseDeptService.TreeBaseDept:input_type -> system.admin.v1.TreeBaseDeptRequest
 	3,  // 8: system.admin.v1.BaseDeptService.GetBaseDept:input_type -> system.admin.v1.GetBaseDeptRequest
-	4,  // 9: system.admin.v1.BaseDeptService.CreateBaseDept:input_type -> system.admin.v1.CreateBaseDeptRequest
-	5,  // 10: system.admin.v1.BaseDeptService.UpdateBaseDept:input_type -> system.admin.v1.UpdateBaseDeptRequest
-	6,  // 11: system.admin.v1.BaseDeptService.DeleteBaseDept:input_type -> system.admin.v1.DeleteBaseDeptRequest
-	7,  // 12: system.admin.v1.BaseDeptService.SetBaseDeptStatus:input_type -> system.admin.v1.SetBaseDeptStatusRequest
-	1,  // 13: system.admin.v1.BaseDeptService.TreeBaseDept:output_type -> system.admin.v1.TreeBaseDeptResponse
-	11, // 14: system.admin.v1.BaseDeptService.OptionBaseDept:output_type -> common.v1.TreeOptionResponse
-	9,  // 15: system.admin.v1.BaseDeptService.GetBaseDept:output_type -> system.admin.v1.BaseDeptForm
+	5,  // 9: system.admin.v1.BaseDeptService.CreateBaseDept:input_type -> system.admin.v1.CreateBaseDeptRequest
+	6,  // 10: system.admin.v1.BaseDeptService.UpdateBaseDept:input_type -> system.admin.v1.UpdateBaseDeptRequest
+	7,  // 11: system.admin.v1.BaseDeptService.DeleteBaseDept:input_type -> system.admin.v1.DeleteBaseDeptRequest
+	8,  // 12: system.admin.v1.BaseDeptService.SetBaseDeptStatus:input_type -> system.admin.v1.SetBaseDeptStatusRequest
+	11, // 13: system.admin.v1.BaseDeptService.OptionBaseDept:output_type -> common.v1.TreeOptionResponse
+	2,  // 14: system.admin.v1.BaseDeptService.TreeBaseDept:output_type -> system.admin.v1.TreeBaseDeptResponse
+	4,  // 15: system.admin.v1.BaseDeptService.GetBaseDept:output_type -> system.admin.v1.BaseDeptForm
 	12, // 16: system.admin.v1.BaseDeptService.CreateBaseDept:output_type -> google.protobuf.Empty
 	12, // 17: system.admin.v1.BaseDeptService.UpdateBaseDept:output_type -> google.protobuf.Empty
 	12, // 18: system.admin.v1.BaseDeptService.DeleteBaseDept:output_type -> google.protobuf.Empty
@@ -742,8 +742,8 @@ func file_system_admin_v1_base_dept_proto_init() {
 		return
 	}
 	file_system_admin_v1_base_dept_proto_msgTypes[0].OneofWrappers = []any{}
-	file_system_admin_v1_base_dept_proto_msgTypes[2].OneofWrappers = []any{}
-	file_system_admin_v1_base_dept_proto_msgTypes[9].OneofWrappers = []any{}
+	file_system_admin_v1_base_dept_proto_msgTypes[1].OneofWrappers = []any{}
+	file_system_admin_v1_base_dept_proto_msgTypes[4].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

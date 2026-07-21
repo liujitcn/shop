@@ -39,46 +39,56 @@ func NewOrderReportCase(
 	}
 }
 
-// SummaryOrderMonthReport 查询订单月报汇总
-func (c *OrderReportCase) SummaryOrderMonthReport(ctx context.Context, req *shopadminv1.SummaryOrderMonthReportRequest) (*shopadminv1.SummaryOrderMonthReportResponse, error) {
-	startMonth, err := c.parseMonth(req.GetStartMonth())
+// ListOrderDayReport 查询订单日报明细
+func (c *OrderReportCase) ListOrderDayReport(ctx context.Context, req *shopadminv1.ListOrderDayReportRequest) (*shopadminv1.ListOrderDayReportResponse, error) {
+	startDate, err := c.parseDate(req.GetStartDate())
 	if err != nil {
 		return nil, err
 	}
 
-	var endMonth time.Time
-	endMonth, err = c.parseMonth(req.GetEndMonth())
+	var endDate time.Time
+	endDate, err = c.parseDate(req.GetEndDate())
 	if err != nil {
 		return nil, err
 	}
 
-	// 结束月份早于开始月份时，不允许继续统计月报。
-	if endMonth.Before(startMonth) {
-		return nil, errorsx.InvalidArgument("结束月份不能早于开始月份")
+	// 结束日期早于开始日期时，不允许继续统计日报。
+	if endDate.Before(startDate) {
+		return nil, errorsx.InvalidArgument("结束日期不能早于开始日期")
 	}
 
-	var rows []*dto.OrderMonthReportRow
-	rows, err = c.queryOrderMonthReportRows(ctx, req.GetPayType(), req.GetPayChannel(), req.GetTenantId(), req.GetTenantStoreId(), startMonth, endMonth.AddDate(0, 1, 0))
+	var rows []*dto.OrderDayReportRow
+	rows, err = c.queryOrderDayReportRows(ctx, req.GetPayType(), req.GetPayChannel(), req.GetTenantId(), req.GetTenantStoreId(), startDate, endDate.AddDate(0, 0, 1))
 	if err != nil {
 		return nil, err
 	}
 	var paidMetrics *dto.OrderReportPaidMetrics
-	paidMetrics, err = c.queryPaidOrderMetrics(ctx, req.GetPayType(), req.GetPayChannel(), req.GetTenantId(), req.GetTenantStoreId(), startMonth, endMonth.AddDate(0, 1, 0), "2006-01")
+	paidMetrics, err = c.queryPaidOrderMetrics(ctx, req.GetPayType(), req.GetPayChannel(), req.GetTenantId(), req.GetTenantStoreId(), startDate, endDate.AddDate(0, 0, 1), "2006-01-02")
 	if err != nil {
 		return nil, err
 	}
 
-	summary := &shopadminv1.SummaryOrderMonthReportResponse{}
-	for _, row := range rows {
-		item := c.toOrderMonthReportItem(row)
-		c.appendMonthReportSummary(summary, item)
+	rowMap := make(map[string]*dto.OrderDayReportRow, len(rows))
+	for _, item := range rows {
+		rowMap[item.Day] = item
 	}
 
-	summary.PaidOrderCount = paidMetrics.TotalOrderCount
-	summary.PaidUserCount = paidMetrics.TotalUserCount
-	summary.NetOrderAmount = summary.PaidOrderAmount - summary.RefundOrderAmount
-	summary.CustomerUnitPrice = utils.CalcPerUnit(summary.PaidOrderAmount, summary.PaidOrderCount)
-	return summary, nil
+	items := make([]*shopadminv1.OrderDayReportItem, 0)
+	for cursor := startDate; !cursor.After(endDate); cursor = cursor.AddDate(0, 0, 1) {
+		dayKey := cursor.Format("2006-01-02")
+		row, ok := rowMap[dayKey]
+		// 当前日期没有统计数据时，补空行保证日期连续。
+		if !ok {
+			row = &dto.OrderDayReportRow{Day: dayKey}
+		}
+		row.PaidOrderCount = paidMetrics.PeriodOrderCounts[dayKey]
+		row.PaidUserCount = paidMetrics.PeriodUserCounts[dayKey]
+		items = append(items, c.toOrderDayReportItem(row))
+	}
+
+	return &shopadminv1.ListOrderDayReportResponse{
+		OrderDayReports: items,
+	}, nil
 }
 
 // ListOrderMonthReport 查询订单月报名细
@@ -133,6 +143,48 @@ func (c *OrderReportCase) ListOrderMonthReport(ctx context.Context, req *shopadm
 	}, nil
 }
 
+// SummaryOrderMonthReport 查询订单月报汇总
+func (c *OrderReportCase) SummaryOrderMonthReport(ctx context.Context, req *shopadminv1.SummaryOrderMonthReportRequest) (*shopadminv1.SummaryOrderMonthReportResponse, error) {
+	startMonth, err := c.parseMonth(req.GetStartMonth())
+	if err != nil {
+		return nil, err
+	}
+
+	var endMonth time.Time
+	endMonth, err = c.parseMonth(req.GetEndMonth())
+	if err != nil {
+		return nil, err
+	}
+
+	// 结束月份早于开始月份时，不允许继续统计月报。
+	if endMonth.Before(startMonth) {
+		return nil, errorsx.InvalidArgument("结束月份不能早于开始月份")
+	}
+
+	var rows []*dto.OrderMonthReportRow
+	rows, err = c.queryOrderMonthReportRows(ctx, req.GetPayType(), req.GetPayChannel(), req.GetTenantId(), req.GetTenantStoreId(), startMonth, endMonth.AddDate(0, 1, 0))
+	if err != nil {
+		return nil, err
+	}
+	var paidMetrics *dto.OrderReportPaidMetrics
+	paidMetrics, err = c.queryPaidOrderMetrics(ctx, req.GetPayType(), req.GetPayChannel(), req.GetTenantId(), req.GetTenantStoreId(), startMonth, endMonth.AddDate(0, 1, 0), "2006-01")
+	if err != nil {
+		return nil, err
+	}
+
+	summary := &shopadminv1.SummaryOrderMonthReportResponse{}
+	for _, row := range rows {
+		item := c.toOrderMonthReportItem(row)
+		c.appendMonthReportSummary(summary, item)
+	}
+
+	summary.PaidOrderCount = paidMetrics.TotalOrderCount
+	summary.PaidUserCount = paidMetrics.TotalUserCount
+	summary.NetOrderAmount = summary.PaidOrderAmount - summary.RefundOrderAmount
+	summary.CustomerUnitPrice = utils.CalcPerUnit(summary.PaidOrderAmount, summary.PaidOrderCount)
+	return summary, nil
+}
+
 // SummaryOrderDayReport 查询订单日报汇总
 func (c *OrderReportCase) SummaryOrderDayReport(ctx context.Context, req *shopadminv1.SummaryOrderDayReportRequest) (*shopadminv1.SummaryOrderDayReportResponse, error) {
 	startDate, err := c.parseDate(req.GetStartDate())
@@ -173,58 +225,6 @@ func (c *OrderReportCase) SummaryOrderDayReport(ctx context.Context, req *shopad
 	summary.NetOrderAmount = summary.PaidOrderAmount - summary.RefundOrderAmount
 	summary.CustomerUnitPrice = utils.CalcPerUnit(summary.PaidOrderAmount, summary.PaidOrderCount)
 	return summary, nil
-}
-
-// ListOrderDayReport 查询订单日报明细
-func (c *OrderReportCase) ListOrderDayReport(ctx context.Context, req *shopadminv1.ListOrderDayReportRequest) (*shopadminv1.ListOrderDayReportResponse, error) {
-	startDate, err := c.parseDate(req.GetStartDate())
-	if err != nil {
-		return nil, err
-	}
-
-	var endDate time.Time
-	endDate, err = c.parseDate(req.GetEndDate())
-	if err != nil {
-		return nil, err
-	}
-
-	// 结束日期早于开始日期时，不允许继续统计日报。
-	if endDate.Before(startDate) {
-		return nil, errorsx.InvalidArgument("结束日期不能早于开始日期")
-	}
-
-	var rows []*dto.OrderDayReportRow
-	rows, err = c.queryOrderDayReportRows(ctx, req.GetPayType(), req.GetPayChannel(), req.GetTenantId(), req.GetTenantStoreId(), startDate, endDate.AddDate(0, 0, 1))
-	if err != nil {
-		return nil, err
-	}
-	var paidMetrics *dto.OrderReportPaidMetrics
-	paidMetrics, err = c.queryPaidOrderMetrics(ctx, req.GetPayType(), req.GetPayChannel(), req.GetTenantId(), req.GetTenantStoreId(), startDate, endDate.AddDate(0, 0, 1), "2006-01-02")
-	if err != nil {
-		return nil, err
-	}
-
-	rowMap := make(map[string]*dto.OrderDayReportRow, len(rows))
-	for _, item := range rows {
-		rowMap[item.Day] = item
-	}
-
-	items := make([]*shopadminv1.OrderDayReportItem, 0)
-	for cursor := startDate; !cursor.After(endDate); cursor = cursor.AddDate(0, 0, 1) {
-		dayKey := cursor.Format("2006-01-02")
-		row, ok := rowMap[dayKey]
-		// 当前日期没有统计数据时，补空行保证日期连续。
-		if !ok {
-			row = &dto.OrderDayReportRow{Day: dayKey}
-		}
-		row.PaidOrderCount = paidMetrics.PeriodOrderCounts[dayKey]
-		row.PaidUserCount = paidMetrics.PeriodUserCounts[dayKey]
-		items = append(items, c.toOrderDayReportItem(row))
-	}
-
-	return &shopadminv1.ListOrderDayReportResponse{
-		OrderDayReports: items,
-	}, nil
 }
 
 // parseMonth 解析月份字符串并归一化到当月第一天。

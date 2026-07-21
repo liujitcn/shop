@@ -26,22 +26,22 @@ func NewCodeGenColumnService(codeGenColumnCase *biz.CodeGenColumnCase) *CodeGenC
 	return &CodeGenColumnService{codeGenColumnCase: codeGenColumnCase}
 }
 
-// ListCodeGenDatabaseColumn 查询数据库表字段列表。
-func (s *CodeGenColumnService) ListCodeGenDatabaseColumn(ctx context.Context, req *systemadminv1.ListCodeGenDatabaseColumnRequest) (*systemadminv1.ListCodeGenDatabaseColumnResponse, error) {
-	res, err := s.codeGenColumnCase.ListCodeGenDatabaseColumn(ctx, req.GetTableName())
-	if err != nil {
-		log.Error(fmt.Sprintf("ListCodeGenDatabaseColumn %v", err))
-		return nil, errorsx.WrapInternal(err, "查询数据库表字段列表失败")
-	}
-	return res, nil
-}
-
 // ListCodeGenColumn 查询代码生成字段配置。
 func (s *CodeGenColumnService) ListCodeGenColumn(ctx context.Context, req *systemadminv1.ListCodeGenColumnRequest) (*systemadminv1.ListCodeGenColumnResponse, error) {
 	res, err := s.codeGenColumnCase.ListCodeGenColumn(ctx, req.GetTableId())
 	if err != nil {
 		log.Error(fmt.Sprintf("ListCodeGenColumn %v", err))
 		return nil, errorsx.WrapInternal(err, "查询代码生成字段配置失败")
+	}
+	return res, nil
+}
+
+// ListCodeGenDatabaseColumn 查询数据库表字段列表。
+func (s *CodeGenColumnService) ListCodeGenDatabaseColumn(ctx context.Context, req *systemadminv1.ListCodeGenDatabaseColumnRequest) (*systemadminv1.ListCodeGenDatabaseColumnResponse, error) {
+	res, err := s.codeGenColumnCase.ListCodeGenDatabaseColumn(ctx, req.GetTableName())
+	if err != nil {
+		log.Error(fmt.Sprintf("ListCodeGenDatabaseColumn %v", err))
+		return nil, errorsx.WrapInternal(err, "查询数据库表字段列表失败")
 	}
 	return res, nil
 }

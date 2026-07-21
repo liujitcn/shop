@@ -10,6 +10,13 @@ import "google/protobuf/timestamp.proto";
 
 // Base AI 助手会话服务
 service AiSessionService {
+  // 查询 AI 助手消息列表
+  rpc ListAiMessage(ListAiMessageRequest) returns (ListAiMessageResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/base/ai/session/{session_id}/message"
+    };
+  }
+
   // 查询 AI 助手会话列表
   rpc ListAiSession(ListAiSessionRequest) returns (ListAiSessionResponse) {
     option (google.api.http) = {
@@ -21,6 +28,14 @@ service AiSessionService {
   rpc CreateAiSession(CreateAiSessionRequest) returns (CreateAiSessionResponse) {
     option (google.api.http) = {
       post: "/api/v1/base/ai/session"
+      body: "*"
+    };
+  }
+
+  // 从指定消息创建 AI 助手分支会话
+  rpc CreateAiSessionBranch(CreateAiSessionBranchRequest) returns (CreateAiSessionBranchResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/base/ai/session/{source_session_id}/branch"
       body: "*"
     };
   }
@@ -39,21 +54,16 @@ service AiSessionService {
       delete: "/api/v1/base/ai/session/{id}"
     };
   }
+}
 
-  // 查询 AI 助手消息列表
-  rpc ListAiMessage(ListAiMessageRequest) returns (ListAiMessageResponse) {
-    option (google.api.http) = {
-      get: "/api/v1/base/ai/session/{session_id}/message"
-    };
-  }
+// AI 助手消息列表查询条件
+message ListAiMessageRequest {
+  string session_id = 1 [(gnostic.openapi.v3.property) = {description: "会话ID"}]; // 会话ID
+}
 
-  // 从指定消息创建 AI 助手分支会话
-  rpc CreateAiSessionBranch(CreateAiSessionBranchRequest) returns (CreateAiSessionBranchResponse) {
-    option (google.api.http) = {
-      post: "/api/v1/base/ai/session/{source_session_id}/branch"
-      body: "*"
-    };
-  }
+// AI 助手消息列表响应
+message ListAiMessageResponse {
+  repeated AiMessage messages = 1 [(gnostic.openapi.v3.property) = {description: "消息列表"}]; // 消息列表
 }
 
 // AI 助手会话列表查询条件
@@ -78,6 +88,24 @@ message CreateAiSessionResponse {
   AiSession session = 1 [(gnostic.openapi.v3.property) = {description: "会话信息"}]; // 会话信息
 }
 
+// AI 助手分支会话创建请求
+message CreateAiSessionBranchRequest {
+  string source_session_id = 1 [(gnostic.openapi.v3.property) = {description: "来源会话ID"}]; // 来源会话ID
+
+  string anchor_message_id = 2 [(gnostic.openapi.v3.property) = {description: "分支锚点消息ID"}]; // 分支锚点消息ID
+
+  string title = 3 [(gnostic.openapi.v3.property) = {description: "分支会话标题"}]; // 分支会话标题
+
+  .common.v1.Terminal terminal = 4 [(gnostic.openapi.v3.property) = {description: "终端类型：枚举【Terminal】"}]; // 终端类型：枚举【Terminal】
+}
+
+// AI 助手分支会话创建响应
+message CreateAiSessionBranchResponse {
+  AiSession session = 1 [(gnostic.openapi.v3.property) = {description: "新会话信息"}]; // 新会话信息
+
+  repeated AiMessage messages = 2 [(gnostic.openapi.v3.property) = {description: "新会话消息列表"}]; // 新会话消息列表
+}
+
 // AI 助手会话更新请求
 message UpdateAiSessionRequest {
   string id = 1 [(gnostic.openapi.v3.property) = {description: "会话ID"}]; // 会话ID
@@ -97,34 +125,6 @@ message DeleteAiSessionRequest {
 
 // AI 助手会话删除响应
 message DeleteAiSessionResponse {}
-
-// AI 助手消息列表查询条件
-message ListAiMessageRequest {
-  string session_id = 1 [(gnostic.openapi.v3.property) = {description: "会话ID"}]; // 会话ID
-}
-
-// AI 助手消息列表响应
-message ListAiMessageResponse {
-  repeated AiMessage messages = 1 [(gnostic.openapi.v3.property) = {description: "消息列表"}]; // 消息列表
-}
-
-// AI 助手分支会话创建请求
-message CreateAiSessionBranchRequest {
-  string source_session_id = 1 [(gnostic.openapi.v3.property) = {description: "来源会话ID"}]; // 来源会话ID
-
-  string anchor_message_id = 2 [(gnostic.openapi.v3.property) = {description: "分支锚点消息ID"}]; // 分支锚点消息ID
-
-  string title = 3 [(gnostic.openapi.v3.property) = {description: "分支会话标题"}]; // 分支会话标题
-
-  .common.v1.Terminal terminal = 4 [(gnostic.openapi.v3.property) = {description: "终端类型：枚举【Terminal】"}]; // 终端类型：枚举【Terminal】
-}
-
-// AI 助手分支会话创建响应
-message CreateAiSessionBranchResponse {
-  AiSession session = 1 [(gnostic.openapi.v3.property) = {description: "新会话信息"}]; // 新会话信息
-
-  repeated AiMessage messages = 2 [(gnostic.openapi.v3.property) = {description: "新会话消息列表"}]; // 新会话消息列表
-}
 
 // AI 助手会话
 message AiSession {

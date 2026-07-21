@@ -37,18 +37,6 @@ func NewUserCartService(
 	return &ss
 }
 
-// CountUserCart 查询用户购物车数量
-func (s *UserCartService) CountUserCart(ctx context.Context, req *shopappv1.CountUserCartRequest) (*shopappv1.CountUserCartResponse, error) {
-	count, err := s.userCartCase.CountUserCart(ctx)
-	if err != nil {
-		log.Error(fmt.Sprintf("CountUserCart %v", err))
-		return nil, errorsx.WrapInternal(err, "查询用户购物车数量失败")
-	}
-	return &shopappv1.CountUserCartResponse{
-		Count: int32(count),
-	}, nil
-}
-
 // ListUserCart 查询用户购物车列表
 func (s *UserCartService) ListUserCart(ctx context.Context, req *shopappv1.ListUserCartRequest) (*shopappv1.ListUserCartResponse, error) {
 	res, err := s.userCartCase.ListUserCart(ctx)
@@ -98,6 +86,16 @@ func (s *UserCartService) DeleteUserCart(ctx context.Context, req *shopappv1.Del
 	return new(emptypb.Empty), nil
 }
 
+// SetUserCartSelection 设置购物车全选状态
+func (s *UserCartService) SetUserCartSelection(ctx context.Context, req *shopappv1.SetUserCartSelectionRequest) (*emptypb.Empty, error) {
+	err := s.userCartCase.SetUserCartSelection(ctx, req.GetIsChecked())
+	if err != nil {
+		log.Error(fmt.Sprintf("SetUserCartSelection %v", err))
+		return nil, errorsx.WrapInternal(err, "设置全选失败")
+	}
+	return new(emptypb.Empty), nil
+}
+
 // SetUserCartStatus 设置购物车选中状态
 func (s *UserCartService) SetUserCartStatus(ctx context.Context, req *shopappv1.SetUserCartStatusRequest) (*emptypb.Empty, error) {
 	err := s.userCartCase.SetUserCartStatus(ctx, req)
@@ -108,12 +106,14 @@ func (s *UserCartService) SetUserCartStatus(ctx context.Context, req *shopappv1.
 	return new(emptypb.Empty), nil
 }
 
-// SetUserCartSelection 设置购物车全选状态
-func (s *UserCartService) SetUserCartSelection(ctx context.Context, req *shopappv1.SetUserCartSelectionRequest) (*emptypb.Empty, error) {
-	err := s.userCartCase.SetUserCartSelection(ctx, req.GetIsChecked())
+// CountUserCart 查询用户购物车数量
+func (s *UserCartService) CountUserCart(ctx context.Context, req *shopappv1.CountUserCartRequest) (*shopappv1.CountUserCartResponse, error) {
+	count, err := s.userCartCase.CountUserCart(ctx)
 	if err != nil {
-		log.Error(fmt.Sprintf("SetUserCartSelection %v", err))
-		return nil, errorsx.WrapInternal(err, "设置全选失败")
+		log.Error(fmt.Sprintf("CountUserCart %v", err))
+		return nil, errorsx.WrapInternal(err, "查询用户购物车数量失败")
 	}
-	return new(emptypb.Empty), nil
+	return &shopappv1.CountUserCartResponse{
+		Count: int32(count),
+	}, nil
 }

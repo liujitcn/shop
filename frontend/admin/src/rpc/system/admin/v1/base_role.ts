@@ -50,6 +50,26 @@ export interface GetBaseRoleRequest {
   id: number;
 }
 
+/** 角色表单 */
+export interface BaseRoleForm {
+  /** 角色ID */
+  id: number;
+  /** 租户ID */
+  tenant_id: number;
+  /** 角色名称 */
+  name: string;
+  /** 角色编号 */
+  code: string;
+  /** 数据权限：0全部数据1部门及子部门数据2本部门数据3本人数据 */
+  data_scope: BaseRoleDataScope;
+  /** 分配的菜单列表 */
+  menus: number[];
+  /** 状态 */
+  status: Status;
+  /** 备注 */
+  remark: string;
+}
+
 /** 创建角色请求参数 */
 export interface CreateBaseRoleRequest {
   /** 角色表单 */
@@ -66,6 +86,14 @@ export interface UpdateBaseRoleRequest {
 export interface DeleteBaseRoleRequest {
   /** 角色ID列表 */
   id: string;
+}
+
+/** 设置角色菜单权限请求参数 */
+export interface SetBaseRoleMenuRequest {
+  /** 角色ID */
+  id: number;
+  /** 分配的菜单列表 */
+  menus: number[];
 }
 
 /** 设置角色状态请求参数 */
@@ -102,34 +130,6 @@ export interface BaseRole {
   is_protected: boolean;
 }
 
-/** 角色表单 */
-export interface BaseRoleForm {
-  /** 角色ID */
-  id: number;
-  /** 租户ID */
-  tenant_id: number;
-  /** 角色名称 */
-  name: string;
-  /** 角色编号 */
-  code: string;
-  /** 数据权限：0全部数据1部门及子部门数据2本部门数据3本人数据 */
-  data_scope: BaseRoleDataScope;
-  /** 分配的菜单列表 */
-  menus: number[];
-  /** 状态 */
-  status: Status;
-  /** 备注 */
-  remark: string;
-}
-
-/** 设置角色菜单权限请求参数 */
-export interface SetBaseRoleMenuRequest {
-  /** 角色ID */
-  id: number;
-  /** 分配的菜单列表 */
-  menus: number[];
-}
-
 /** Admin角色管理服务 */
 export interface BaseRoleService {
   /** 查询角色下拉选择 */
@@ -144,8 +144,8 @@ export interface BaseRoleService {
   UpdateBaseRole(request: UpdateBaseRoleRequest): Promise<Empty>;
   /** 删除角色 */
   DeleteBaseRole(request: DeleteBaseRoleRequest): Promise<Empty>;
-  /** 设置状态 */
-  SetBaseRoleStatus(request: SetBaseRoleStatusRequest): Promise<Empty>;
   /** 设置角色菜单权限 */
   SetBaseRoleMenu(request: SetBaseRoleMenuRequest): Promise<Empty>;
+  /** 设置状态 */
+  SetBaseRoleStatus(request: SetBaseRoleStatusRequest): Promise<Empty>;
 }

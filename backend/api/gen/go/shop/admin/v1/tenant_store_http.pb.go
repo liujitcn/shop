@@ -50,8 +50,8 @@ type TenantStoreServiceHTTPServer interface {
 func RegisterTenantStoreServiceHTTPServer(s *http.Server, srv TenantStoreServiceHTTPServer) {
 	r := s.Route("/")
 	r.Handle("GET", "/api/v1/admin/tenant/store/option", _TenantStoreService_OptionTenantStore0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/admin/tenant/store/tree", _TenantStoreService_TreeTenantStore0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/tenant/store", _TenantStoreService_PageTenantStore0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/tenant/store/tree", _TenantStoreService_TreeTenantStore0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/tenant/store/{id}", _TenantStoreService_GetTenantStore0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/admin/tenant/store", _TenantStoreService_CreateTenantStore0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/tenant/store/{id}", _TenantStoreService_UpdateTenantStore0_HTTP_Handler(srv))
@@ -78,25 +78,6 @@ func _TenantStoreService_OptionTenantStore0_HTTP_Handler(srv TenantStoreServiceH
 	}
 }
 
-func _TenantStoreService_TreeTenantStore0_HTTP_Handler(srv TenantStoreServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in TreeTenantStoreRequest
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationTenantStoreServiceTreeTenantStore)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.TreeTenantStore(ctx, req.(*TreeTenantStoreRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*TreeTenantStoreResponse)
-		return ctx.Result(200, reply)
-	}
-}
-
 func _TenantStoreService_PageTenantStore0_HTTP_Handler(srv TenantStoreServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in PageTenantStoreRequest
@@ -112,6 +93,25 @@ func _TenantStoreService_PageTenantStore0_HTTP_Handler(srv TenantStoreServiceHTT
 			return err
 		}
 		reply := out.(*PageTenantStoreResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _TenantStoreService_TreeTenantStore0_HTTP_Handler(srv TenantStoreServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in TreeTenantStoreRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationTenantStoreServiceTreeTenantStore)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.TreeTenantStore(ctx, req.(*TreeTenantStoreRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*TreeTenantStoreResponse)
 		return ctx.Result(200, reply)
 	}
 }

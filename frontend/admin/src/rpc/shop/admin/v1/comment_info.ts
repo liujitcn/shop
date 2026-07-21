@@ -15,6 +15,36 @@ import type {
   CommentSummaryScene,
 } from "../../common/v1/enum";
 
+/** 评论讨论分页查询条件 */
+export interface PageCommentDiscussionRequest {
+  /** 所属评价ID */
+  comment_id: number;
+  /** 讨论用户昵称 */
+  user_name?:
+    | string
+    | undefined;
+  /** 讨论内容 */
+  content?:
+    | string
+    | undefined;
+  /** 审核状态：枚举【CommentStatus】 */
+  status?:
+    | CommentStatus
+    | undefined;
+  /** 当前页码 */
+  page_num: number;
+  /** 每一页的行数 */
+  page_size: number;
+}
+
+/** 评论讨论分页响应 */
+export interface PageCommentDiscussionResponse {
+  /** 分页数据 */
+  comment_discussions: CommentDiscussion[];
+  /** 总数 */
+  total: number;
+}
+
 /** 评论分页查询条件 */
 export interface PageCommentInfoRequest {
   /** 租户ID */
@@ -71,38 +101,6 @@ export interface PageCommentInfoResponse {
   total: number;
 }
 
-/** 商品评论聚合查询条件 */
-export interface GetGoodsCommentInfoRequest {
-  /** 商品ID */
-  goods_id: number;
-}
-
-/** 评论详情查询条件 */
-export interface GetCommentInfoRequest {
-  /** 评论ID */
-  id: number;
-}
-
-/** 评论状态设置条件 */
-export interface SetCommentInfoStatusRequest {
-  /** 评论ID */
-  id: number;
-  /** 审核状态：枚举【CommentStatus】 */
-  status: CommentStatus;
-  /** 人工审核备注或不通过原因 */
-  reason: string;
-}
-
-/** 评论讨论状态设置条件 */
-export interface SetCommentDiscussionStatusRequest {
-  /** 讨论ID */
-  id: number;
-  /** 审核状态：枚举【CommentStatus】 */
-  status: CommentStatus;
-  /** 人工审核备注或不通过原因 */
-  reason: string;
-}
-
 /** 评论审核记录查询条件 */
 export interface ListCommentReviewRequest {
   /** 审核目标类型：枚举【CommentReviewTargetType】 */
@@ -115,6 +113,12 @@ export interface ListCommentReviewRequest {
 export interface ListCommentReviewResponse {
   /** 审核记录列表 */
   comment_reviews: CommentReview[];
+}
+
+/** 评论详情查询条件 */
+export interface GetCommentInfoRequest {
+  /** 评论ID */
+  id: number;
 }
 
 /** 评论详情 */
@@ -133,6 +137,12 @@ export interface CommentInfoDetail {
   comment_reviews: CommentReview[];
 }
 
+/** 商品评论聚合查询条件 */
+export interface GetGoodsCommentInfoRequest {
+  /** 商品ID */
+  goods_id: number;
+}
+
 /** 商品评论聚合响应 */
 export interface GoodsCommentInfoResponse {
   /** 评论列表 */
@@ -143,6 +153,26 @@ export interface GoodsCommentInfoResponse {
   comment_discussions: CommentDiscussion[];
   /** 商品评论摘要 */
   comment_summaries: CommentSummary[];
+}
+
+/** 评论讨论状态设置条件 */
+export interface SetCommentDiscussionStatusRequest {
+  /** 讨论ID */
+  id: number;
+  /** 审核状态：枚举【CommentStatus】 */
+  status: CommentStatus;
+  /** 人工审核备注或不通过原因 */
+  reason: string;
+}
+
+/** 评论状态设置条件 */
+export interface SetCommentInfoStatusRequest {
+  /** 评论ID */
+  id: number;
+  /** 审核状态：枚举【CommentStatus】 */
+  status: CommentStatus;
+  /** 人工审核备注或不通过原因 */
+  reason: string;
 }
 
 /** 评论信息 */
@@ -215,36 +245,6 @@ export interface CommentTag {
   mention_count: number;
   /** 展示排序 */
   sort: number;
-}
-
-/** 评论讨论分页查询条件 */
-export interface PageCommentDiscussionRequest {
-  /** 所属评价ID */
-  comment_id: number;
-  /** 讨论用户昵称 */
-  user_name?:
-    | string
-    | undefined;
-  /** 讨论内容 */
-  content?:
-    | string
-    | undefined;
-  /** 审核状态：枚举【CommentStatus】 */
-  status?:
-    | CommentStatus
-    | undefined;
-  /** 当前页码 */
-  page_num: number;
-  /** 每一页的行数 */
-  page_size: number;
-}
-
-/** 评论讨论分页响应 */
-export interface PageCommentDiscussionResponse {
-  /** 分页数据 */
-  comment_discussions: CommentDiscussion[];
-  /** 总数 */
-  total: number;
 }
 
 /** 评论讨论 */
@@ -331,18 +331,18 @@ export interface CommentReview {
 
 /** Admin评论管理服务 */
 export interface CommentInfoService {
+  /** 查询评论讨论分页列表 */
+  PageCommentDiscussion(request: PageCommentDiscussionRequest): Promise<PageCommentDiscussionResponse>;
   /** 查询评论分页列表 */
   PageCommentInfo(request: PageCommentInfoRequest): Promise<PageCommentInfoResponse>;
-  /** 按商品查询评论聚合信息 */
-  GetGoodsCommentInfo(request: GetGoodsCommentInfoRequest): Promise<GoodsCommentInfoResponse>;
   /** 查询评论审核记录列表 */
   ListCommentReview(request: ListCommentReviewRequest): Promise<ListCommentReviewResponse>;
   /** 查询评论详情 */
   GetCommentInfo(request: GetCommentInfoRequest): Promise<CommentInfoDetail>;
-  /** 设置评论审核状态 */
-  SetCommentInfoStatus(request: SetCommentInfoStatusRequest): Promise<Empty>;
-  /** 查询评论讨论分页列表 */
-  PageCommentDiscussion(request: PageCommentDiscussionRequest): Promise<PageCommentDiscussionResponse>;
+  /** 按商品查询评论聚合信息 */
+  GetGoodsCommentInfo(request: GetGoodsCommentInfoRequest): Promise<GoodsCommentInfoResponse>;
   /** 设置评论讨论审核状态 */
   SetCommentDiscussionStatus(request: SetCommentDiscussionStatusRequest): Promise<Empty>;
+  /** 设置评论审核状态 */
+  SetCommentInfoStatus(request: SetCommentInfoStatusRequest): Promise<Empty>;
 }

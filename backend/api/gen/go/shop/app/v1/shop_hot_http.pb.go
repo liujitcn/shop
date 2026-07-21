@@ -33,9 +33,31 @@ type ShopHotServiceHTTPServer interface {
 
 func RegisterShopHotServiceHTTPServer(s *http.Server, srv ShopHotServiceHTTPServer) {
 	r := s.Route("/")
+	r.Handle("GET", "/api/v1/app/shop/hot/item/{hot_item_id}/goods", _ShopHotService_PageShopHotGoods0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/app/shop/hot", _ShopHotService_ListShopHot0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/app/shop/hot/{id}/item", _ShopHotService_ListShopHotItem0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/app/shop/hot/item/{hot_item_id}/goods", _ShopHotService_PageShopHotGoods0_HTTP_Handler(srv))
+}
+
+func _ShopHotService_PageShopHotGoods0_HTTP_Handler(srv ShopHotServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in PageShopHotGoodsRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationShopHotServicePageShopHotGoods)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.PageShopHotGoods(ctx, req.(*PageShopHotGoodsRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*PageShopHotGoodsResponse)
+		return ctx.Result(200, reply)
+	}
 }
 
 func _ShopHotService_ListShopHot0_HTTP_Handler(srv ShopHotServiceHTTPServer) func(ctx http.Context) error {
@@ -75,28 +97,6 @@ func _ShopHotService_ListShopHotItem0_HTTP_Handler(srv ShopHotServiceHTTPServer)
 			return err
 		}
 		reply := out.(*ListShopHotItemResponse)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _ShopHotService_PageShopHotGoods0_HTTP_Handler(srv ShopHotServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in PageShopHotGoodsRequest
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		if err := ctx.BindVars(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationShopHotServicePageShopHotGoods)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.PageShopHotGoods(ctx, req.(*PageShopHotGoodsRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*PageShopHotGoodsResponse)
 		return ctx.Result(200, reply)
 	}
 }

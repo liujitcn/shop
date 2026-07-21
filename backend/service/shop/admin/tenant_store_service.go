@@ -35,22 +35,22 @@ func (s *TenantStoreService) OptionTenantStore(ctx context.Context, req *shopadm
 	return res, nil
 }
 
-// TreeTenantStore 查询租户门店树形选项。
-func (s *TenantStoreService) TreeTenantStore(ctx context.Context, req *shopadminv1.TreeTenantStoreRequest) (*shopadminv1.TreeTenantStoreResponse, error) {
-	res, err := s.tenantStoreCase.TreeTenantStore(ctx, req)
-	if err != nil {
-		log.Error("TreeTenantStore", err)
-		return nil, errorsx.WrapInternal(err, "查询租户门店树形选项失败")
-	}
-	return res, nil
-}
-
 // PageTenantStore 查询租户门店列表。
 func (s *TenantStoreService) PageTenantStore(ctx context.Context, req *shopadminv1.PageTenantStoreRequest) (*shopadminv1.PageTenantStoreResponse, error) {
 	res, err := s.tenantStoreCase.PageTenantStore(ctx, req)
 	if err != nil {
 		log.Error("PageTenantStore", err)
 		return nil, errorsx.WrapInternal(err, "查询租户门店列表失败")
+	}
+	return res, nil
+}
+
+// TreeTenantStore 查询租户门店树形选项。
+func (s *TenantStoreService) TreeTenantStore(ctx context.Context, req *shopadminv1.TreeTenantStoreRequest) (*shopadminv1.TreeTenantStoreResponse, error) {
+	res, err := s.tenantStoreCase.TreeTenantStore(ctx, req)
+	if err != nil {
+		log.Error("TreeTenantStore", err)
+		return nil, errorsx.WrapInternal(err, "查询租户门店树形选项失败")
 	}
 	return res, nil
 }

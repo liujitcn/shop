@@ -50,9 +50,9 @@ func RegisterBaseApiServiceHTTPServer(s *http.Server, srv BaseApiServiceHTTPServ
 	r.Handle("GET", "/api/v1/admin/base/api/option", _BaseApiService_ListBaseApi0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/base/api/{id}", _BaseApiService_GetBaseApi0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/base/api/{id}/doc", _BaseApiService_GetBaseApiDoc0_HTTP_Handler(srv))
-	r.Handle("PUT", "/api/v1/admin/base/api/{id}/mcp-status", _BaseApiService_SetBaseApiMcpStatus0_HTTP_Handler(srv))
-	r.Handle("PUT", "/api/v1/admin/base/api/{id}/agent-status", _BaseApiService_SetBaseApiAgentStatus0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/base/api/{id}", _BaseApiService_UpdateBaseApi0_HTTP_Handler(srv))
+	r.Handle("PUT", "/api/v1/admin/base/api/{id}/agent-status", _BaseApiService_SetBaseApiAgentStatus0_HTTP_Handler(srv))
+	r.Handle("PUT", "/api/v1/admin/base/api/{id}/mcp-status", _BaseApiService_SetBaseApiMcpStatus0_HTTP_Handler(srv))
 }
 
 func _BaseApiService_PageBaseApi0_HTTP_Handler(srv BaseApiServiceHTTPServer) func(ctx http.Context) error {
@@ -137,18 +137,18 @@ func _BaseApiService_GetBaseApiDoc0_HTTP_Handler(srv BaseApiServiceHTTPServer) f
 	}
 }
 
-func _BaseApiService_SetBaseApiMcpStatus0_HTTP_Handler(srv BaseApiServiceHTTPServer) func(ctx http.Context) error {
+func _BaseApiService_UpdateBaseApi0_HTTP_Handler(srv BaseApiServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in SetBaseApiMcpStatusRequest
+		var in UpdateBaseApiRequest
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
 		if err := ctx.BindVars(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationBaseApiServiceSetBaseApiMcpStatus)
+		http.SetOperation(ctx, OperationBaseApiServiceUpdateBaseApi)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.SetBaseApiMcpStatus(ctx, req.(*SetBaseApiMcpStatusRequest))
+			return srv.UpdateBaseApi(ctx, req.(*UpdateBaseApiRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -181,18 +181,18 @@ func _BaseApiService_SetBaseApiAgentStatus0_HTTP_Handler(srv BaseApiServiceHTTPS
 	}
 }
 
-func _BaseApiService_UpdateBaseApi0_HTTP_Handler(srv BaseApiServiceHTTPServer) func(ctx http.Context) error {
+func _BaseApiService_SetBaseApiMcpStatus0_HTTP_Handler(srv BaseApiServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in UpdateBaseApiRequest
+		var in SetBaseApiMcpStatusRequest
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
 		if err := ctx.BindVars(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationBaseApiServiceUpdateBaseApi)
+		http.SetOperation(ctx, OperationBaseApiServiceSetBaseApiMcpStatus)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.UpdateBaseApi(ctx, req.(*UpdateBaseApiRequest))
+			return srv.SetBaseApiMcpStatus(ctx, req.(*SetBaseApiMcpStatusRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {

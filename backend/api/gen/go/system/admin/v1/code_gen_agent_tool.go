@@ -17,6 +17,12 @@ import (
 func NewCodeGenServiceAgentTools(codeGenServiceServer CodeGenServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error
+	var getCodeGenTaskTool tool.InvokableTool
+	getCodeGenTaskTool, err = NewCodeGenServiceGetCodeGenTaskAgentTool(codeGenServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, getCodeGenTaskTool)
 	var previewCodeGenTool tool.InvokableTool
 	previewCodeGenTool, err = NewCodeGenServicePreviewCodeGenAgentTool(codeGenServiceServer)
 	if err != nil {
@@ -29,13 +35,21 @@ func NewCodeGenServiceAgentTools(codeGenServiceServer CodeGenServiceServer) ([]t
 		return nil, err
 	}
 	ts = append(ts, startCodeGenTaskTool)
-	var getCodeGenTaskTool tool.InvokableTool
-	getCodeGenTaskTool, err = NewCodeGenServiceGetCodeGenTaskAgentTool(codeGenServiceServer)
-	if err != nil {
-		return nil, err
-	}
-	ts = append(ts, getCodeGenTaskTool)
 	return ts, nil
+}
+
+// NewCodeGenServiceGetCodeGenTaskAgentTool 创建查询代码生成任务进度的 Agent Tool。
+func NewCodeGenServiceGetCodeGenTaskAgentTool(codeGenServiceServer CodeGenServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*GetCodeGenTaskRequest, *CodeGenTask](
+		"system_admin_v1_code_gen_service_get_code_gen_task",
+		"查询代码生成任务进度",
+		func(ctx context.Context, req *GetCodeGenTaskRequest) (*CodeGenTask, error) {
+			if req == nil {
+				req = &GetCodeGenTaskRequest{}
+			}
+			return codeGenServiceServer.GetCodeGenTask(ctx, req)
+		},
+	)
 }
 
 // NewCodeGenServicePreviewCodeGenAgentTool 创建预览代码生成文件的 Agent Tool。
@@ -62,20 +76,6 @@ func NewCodeGenServiceStartCodeGenTaskAgentTool(codeGenServiceServer CodeGenServ
 				req = &StartCodeGenTaskRequest{}
 			}
 			return codeGenServiceServer.StartCodeGenTask(ctx, req)
-		},
-	)
-}
-
-// NewCodeGenServiceGetCodeGenTaskAgentTool 创建查询代码生成任务进度的 Agent Tool。
-func NewCodeGenServiceGetCodeGenTaskAgentTool(codeGenServiceServer CodeGenServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*GetCodeGenTaskRequest, *CodeGenTask](
-		"system_admin_v1_code_gen_service_get_code_gen_task",
-		"查询代码生成任务进度",
-		func(ctx context.Context, req *GetCodeGenTaskRequest) (*CodeGenTask, error) {
-			if req == nil {
-				req = &GetCodeGenTaskRequest{}
-			}
-			return codeGenServiceServer.GetCodeGenTask(ctx, req)
 		},
 	)
 }

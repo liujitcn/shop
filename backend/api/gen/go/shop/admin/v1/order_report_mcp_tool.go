@@ -14,25 +14,25 @@ import (
 
 // RegisterOrderReportServiceMCPTools 注册Admin订单报表服务的 MCP Tool。
 func RegisterOrderReportServiceMCPTools(mcpServer *mcp.Server, orderReportServiceServer OrderReportServiceServer) {
-	RegisterOrderReportServiceSummaryOrderMonthReportMCPTool(mcpServer, orderReportServiceServer)
-	RegisterOrderReportServiceListOrderMonthReportMCPTool(mcpServer, orderReportServiceServer)
-	RegisterOrderReportServiceSummaryOrderDayReportMCPTool(mcpServer, orderReportServiceServer)
 	RegisterOrderReportServiceListOrderDayReportMCPTool(mcpServer, orderReportServiceServer)
+	RegisterOrderReportServiceListOrderMonthReportMCPTool(mcpServer, orderReportServiceServer)
+	RegisterOrderReportServiceSummaryOrderMonthReportMCPTool(mcpServer, orderReportServiceServer)
+	RegisterOrderReportServiceSummaryOrderDayReportMCPTool(mcpServer, orderReportServiceServer)
 }
 
-// RegisterOrderReportServiceSummaryOrderMonthReportMCPTool 注册查询订单月报汇总的 MCP Tool。
-func RegisterOrderReportServiceSummaryOrderMonthReportMCPTool(mcpServer *mcp.Server, orderReportServiceServer OrderReportServiceServer) {
-	mcp.AddTool[*SummaryOrderMonthReportRequest, *SummaryOrderMonthReportResponse](
+// RegisterOrderReportServiceListOrderDayReportMCPTool 注册查询订单日报明细的 MCP Tool。
+func RegisterOrderReportServiceListOrderDayReportMCPTool(mcpServer *mcp.Server, orderReportServiceServer OrderReportServiceServer) {
+	mcp.AddTool[*ListOrderDayReportRequest, *ListOrderDayReportResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "shop_admin_v1_order_report_service_summary_order_month_report",
-			Description: "查询订单月报汇总",
+			Name:        "shop_admin_v1_order_report_service_list_order_day_report",
+			Description: "查询订单日报明细",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *SummaryOrderMonthReportRequest) (*mcp.CallToolResult, *SummaryOrderMonthReportResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *ListOrderDayReportRequest) (*mcp.CallToolResult, *ListOrderDayReportResponse, error) {
 			if input == nil {
-				input = &SummaryOrderMonthReportRequest{}
+				input = &ListOrderDayReportRequest{}
 			}
-			reply, err := orderReportServiceServer.SummaryOrderMonthReport(ctx, input)
+			reply, err := orderReportServiceServer.ListOrderDayReport(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -62,6 +62,27 @@ func RegisterOrderReportServiceListOrderMonthReportMCPTool(mcpServer *mcp.Server
 	)
 }
 
+// RegisterOrderReportServiceSummaryOrderMonthReportMCPTool 注册查询订单月报汇总的 MCP Tool。
+func RegisterOrderReportServiceSummaryOrderMonthReportMCPTool(mcpServer *mcp.Server, orderReportServiceServer OrderReportServiceServer) {
+	mcp.AddTool[*SummaryOrderMonthReportRequest, *SummaryOrderMonthReportResponse](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "shop_admin_v1_order_report_service_summary_order_month_report",
+			Description: "查询订单月报汇总",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *SummaryOrderMonthReportRequest) (*mcp.CallToolResult, *SummaryOrderMonthReportResponse, error) {
+			if input == nil {
+				input = &SummaryOrderMonthReportRequest{}
+			}
+			reply, err := orderReportServiceServer.SummaryOrderMonthReport(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
+}
+
 // RegisterOrderReportServiceSummaryOrderDayReportMCPTool 注册查询订单日报汇总的 MCP Tool。
 func RegisterOrderReportServiceSummaryOrderDayReportMCPTool(mcpServer *mcp.Server, orderReportServiceServer OrderReportServiceServer) {
 	mcp.AddTool[*SummaryOrderDayReportRequest, *SummaryOrderDayReportResponse](
@@ -75,27 +96,6 @@ func RegisterOrderReportServiceSummaryOrderDayReportMCPTool(mcpServer *mcp.Serve
 				input = &SummaryOrderDayReportRequest{}
 			}
 			reply, err := orderReportServiceServer.SummaryOrderDayReport(ctx, input)
-			if err != nil {
-				return nil, nil, err
-			}
-			return nil, reply, nil
-		},
-	)
-}
-
-// RegisterOrderReportServiceListOrderDayReportMCPTool 注册查询订单日报明细的 MCP Tool。
-func RegisterOrderReportServiceListOrderDayReportMCPTool(mcpServer *mcp.Server, orderReportServiceServer OrderReportServiceServer) {
-	mcp.AddTool[*ListOrderDayReportRequest, *ListOrderDayReportResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "shop_admin_v1_order_report_service_list_order_day_report",
-			Description: "查询订单日报明细",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *ListOrderDayReportRequest) (*mcp.CallToolResult, *ListOrderDayReportResponse, error) {
-			if input == nil {
-				input = &ListOrderDayReportRequest{}
-			}
-			reply, err := orderReportServiceServer.ListOrderDayReport(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

@@ -37,48 +37,6 @@ func NewOrderInfoService(
 	return &ss
 }
 
-// ConfirmOrderInfo 确认订单信息
-func (s *OrderInfoService) ConfirmOrderInfo(ctx context.Context, req *shopappv1.ConfirmOrderInfoRequest) (*shopappv1.ConfirmOrderInfoResponse, error) {
-	res, err := s.orderInfoCase.ConfirmOrderInfo(ctx)
-	if err != nil {
-		log.Error(fmt.Sprintf("ConfirmOrderInfo %v", err))
-		return nil, errorsx.WrapInternal(err, "预付订单失败")
-	}
-	// 预付订单来自购物车结算，前端确认后需要清空购物车勾选项
-	res.ClearCart = true
-	return res, nil
-}
-
-// BuyNowOrderInfo 立即购买订单信息
-func (s *OrderInfoService) BuyNowOrderInfo(ctx context.Context, req *shopappv1.BuyNowOrderInfoRequest) (*shopappv1.BuyNowOrderInfoResponse, error) {
-	res, err := s.orderInfoCase.BuyNowOrderInfo(ctx, req)
-	if err != nil {
-		log.Error(fmt.Sprintf("BuyNowOrderInfo %v", err))
-		return nil, errorsx.WrapInternal(err, "立即购买失败")
-	}
-	return res, nil
-}
-
-// RepurchaseOrderInfo 再次购买订单信息
-func (s *OrderInfoService) RepurchaseOrderInfo(ctx context.Context, req *shopappv1.RepurchaseOrderInfoRequest) (*shopappv1.RepurchaseOrderInfoResponse, error) {
-	res, err := s.orderInfoCase.RepurchaseOrderInfo(ctx, req)
-	if err != nil {
-		log.Error(fmt.Sprintf("RepurchaseOrderInfo %v", err))
-		return nil, errorsx.WrapInternal(err, "再次购买订单失败")
-	}
-	return res, nil
-}
-
-// CountOrderInfo 查询订单信息数量汇总
-func (s *OrderInfoService) CountOrderInfo(ctx context.Context, req *shopappv1.CountOrderInfoRequest) (*shopappv1.CountOrderInfoResponse, error) {
-	res, err := s.orderInfoCase.CountOrderInfo(ctx)
-	if err != nil {
-		log.Error(fmt.Sprintf("CountOrderInfo %v", err))
-		return nil, errorsx.WrapInternal(err, "查询订单数量汇总失败")
-	}
-	return res, nil
-}
-
 // PageOrderInfo 查询订单信息分页列表
 func (s *OrderInfoService) PageOrderInfo(ctx context.Context, req *shopappv1.PageOrderInfoRequest) (*shopappv1.PageOrderInfoResponse, error) {
 	page, err := s.orderInfoCase.PageOrderInfo(ctx, req)
@@ -87,6 +45,17 @@ func (s *OrderInfoService) PageOrderInfo(ctx context.Context, req *shopappv1.Pag
 		return nil, errorsx.WrapInternal(err, "查询订单分页列表失败")
 	}
 	return page, nil
+}
+
+// GetOrderInfoById 根据订单信息编号查询订单信息
+func (s *OrderInfoService) GetOrderInfoById(ctx context.Context, req *shopappv1.GetOrderInfoByIdRequest) (*shopappv1.OrderInfoResponse, error) {
+	res, err := s.orderInfoCase.GetOrderInfoByID(ctx, req.GetId())
+	if err != nil {
+		log.Error(fmt.Sprintf("GetOrderInfoById %v", err))
+		return nil, errorsx.WrapInternal(err, "查询订单失败")
+	}
+
+	return res, nil
 }
 
 // GetOrderInfoIdByOrderNo 根据订单信息编号查询订单信息编号
@@ -100,17 +69,6 @@ func (s *OrderInfoService) GetOrderInfoIdByOrderNo(ctx context.Context, req *sho
 	return &shopappv1.GetOrderInfoIdByOrderNoResponse{
 		OrderId: res,
 	}, nil
-}
-
-// GetOrderInfoById 根据订单信息编号查询订单信息
-func (s *OrderInfoService) GetOrderInfoById(ctx context.Context, req *shopappv1.GetOrderInfoByIdRequest) (*shopappv1.OrderInfoResponse, error) {
-	res, err := s.orderInfoCase.GetOrderInfoByID(ctx, req.GetId())
-	if err != nil {
-		log.Error(fmt.Sprintf("GetOrderInfoById %v", err))
-		return nil, errorsx.WrapInternal(err, "查询订单失败")
-	}
-
-	return res, nil
 }
 
 // GetOrderTradeById 根据交易单编号查询聚合订单详情。
@@ -152,6 +110,48 @@ func (s *OrderInfoService) DeleteOrderTrade(ctx context.Context, req *shopappv1.
 		return nil, errorsx.WrapInternal(err, "删除交易单失败")
 	}
 	return new(emptypb.Empty), nil
+}
+
+// ConfirmOrderInfo 确认订单信息
+func (s *OrderInfoService) ConfirmOrderInfo(ctx context.Context, req *shopappv1.ConfirmOrderInfoRequest) (*shopappv1.ConfirmOrderInfoResponse, error) {
+	res, err := s.orderInfoCase.ConfirmOrderInfo(ctx)
+	if err != nil {
+		log.Error(fmt.Sprintf("ConfirmOrderInfo %v", err))
+		return nil, errorsx.WrapInternal(err, "预付订单失败")
+	}
+	// 预付订单来自购物车结算，前端确认后需要清空购物车勾选项
+	res.ClearCart = true
+	return res, nil
+}
+
+// BuyNowOrderInfo 立即购买订单信息
+func (s *OrderInfoService) BuyNowOrderInfo(ctx context.Context, req *shopappv1.BuyNowOrderInfoRequest) (*shopappv1.BuyNowOrderInfoResponse, error) {
+	res, err := s.orderInfoCase.BuyNowOrderInfo(ctx, req)
+	if err != nil {
+		log.Error(fmt.Sprintf("BuyNowOrderInfo %v", err))
+		return nil, errorsx.WrapInternal(err, "立即购买失败")
+	}
+	return res, nil
+}
+
+// RepurchaseOrderInfo 再次购买订单信息
+func (s *OrderInfoService) RepurchaseOrderInfo(ctx context.Context, req *shopappv1.RepurchaseOrderInfoRequest) (*shopappv1.RepurchaseOrderInfoResponse, error) {
+	res, err := s.orderInfoCase.RepurchaseOrderInfo(ctx, req)
+	if err != nil {
+		log.Error(fmt.Sprintf("RepurchaseOrderInfo %v", err))
+		return nil, errorsx.WrapInternal(err, "再次购买订单失败")
+	}
+	return res, nil
+}
+
+// CountOrderInfo 查询订单信息数量汇总
+func (s *OrderInfoService) CountOrderInfo(ctx context.Context, req *shopappv1.CountOrderInfoRequest) (*shopappv1.CountOrderInfoResponse, error) {
+	res, err := s.orderInfoCase.CountOrderInfo(ctx)
+	if err != nil {
+		log.Error(fmt.Sprintf("CountOrderInfo %v", err))
+		return nil, errorsx.WrapInternal(err, "查询订单数量汇总失败")
+	}
+	return res, nil
 }
 
 // CancelOrderInfo 取消订单信息

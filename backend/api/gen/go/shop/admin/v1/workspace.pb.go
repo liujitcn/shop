@@ -24,6 +24,112 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 工作台待审核评价查询条件
+type ListWorkspacePendingCommentRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	TenantId      *int64                 `protobuf:"varint,1,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`                  // 租户ID
+	TenantStoreId *int64                 `protobuf:"varint,2,opt,name=tenant_store_id,json=tenantStoreId,proto3,oneof" json:"tenant_store_id,omitempty"` // 租户门店ID
+	Limit         int64                  `protobuf:"varint,3,opt,name=limit,proto3" json:"limit,omitempty"`                                              // 返回数量，默认5，最大10
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListWorkspacePendingCommentRequest) Reset() {
+	*x = ListWorkspacePendingCommentRequest{}
+	mi := &file_shop_admin_v1_workspace_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListWorkspacePendingCommentRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListWorkspacePendingCommentRequest) ProtoMessage() {}
+
+func (x *ListWorkspacePendingCommentRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_admin_v1_workspace_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListWorkspacePendingCommentRequest.ProtoReflect.Descriptor instead.
+func (*ListWorkspacePendingCommentRequest) Descriptor() ([]byte, []int) {
+	return file_shop_admin_v1_workspace_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *ListWorkspacePendingCommentRequest) GetTenantId() int64 {
+	if x != nil && x.TenantId != nil {
+		return *x.TenantId
+	}
+	return 0
+}
+
+func (x *ListWorkspacePendingCommentRequest) GetTenantStoreId() int64 {
+	if x != nil && x.TenantStoreId != nil {
+		return *x.TenantStoreId
+	}
+	return 0
+}
+
+func (x *ListWorkspacePendingCommentRequest) GetLimit() int64 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+// 工作台待审核评价响应
+type ListWorkspacePendingCommentResponse struct {
+	state           protoimpl.MessageState     `protogen:"open.v1"`
+	PendingComments []*WorkspacePendingComment `protobuf:"bytes,1,rep,name=pending_comments,json=pendingComments,proto3" json:"pending_comments,omitempty"` // 待审核评价
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *ListWorkspacePendingCommentResponse) Reset() {
+	*x = ListWorkspacePendingCommentResponse{}
+	mi := &file_shop_admin_v1_workspace_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListWorkspacePendingCommentResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListWorkspacePendingCommentResponse) ProtoMessage() {}
+
+func (x *ListWorkspacePendingCommentResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_admin_v1_workspace_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListWorkspacePendingCommentResponse.ProtoReflect.Descriptor instead.
+func (*ListWorkspacePendingCommentResponse) Descriptor() ([]byte, []int) {
+	return file_shop_admin_v1_workspace_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *ListWorkspacePendingCommentResponse) GetPendingComments() []*WorkspacePendingComment {
+	if x != nil {
+		return x.PendingComments
+	}
+	return nil
+}
+
 // 工作台指标查询条件
 type SummaryWorkspaceMetricsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -35,7 +141,7 @@ type SummaryWorkspaceMetricsRequest struct {
 
 func (x *SummaryWorkspaceMetricsRequest) Reset() {
 	*x = SummaryWorkspaceMetricsRequest{}
-	mi := &file_shop_admin_v1_workspace_proto_msgTypes[0]
+	mi := &file_shop_admin_v1_workspace_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -47,7 +153,7 @@ func (x *SummaryWorkspaceMetricsRequest) String() string {
 func (*SummaryWorkspaceMetricsRequest) ProtoMessage() {}
 
 func (x *SummaryWorkspaceMetricsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_workspace_proto_msgTypes[0]
+	mi := &file_shop_admin_v1_workspace_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -60,7 +166,7 @@ func (x *SummaryWorkspaceMetricsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SummaryWorkspaceMetricsRequest.ProtoReflect.Descriptor instead.
 func (*SummaryWorkspaceMetricsRequest) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_workspace_proto_rawDescGZIP(), []int{0}
+	return file_shop_admin_v1_workspace_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *SummaryWorkspaceMetricsRequest) GetTenantId() int64 {
@@ -100,7 +206,7 @@ type SummaryWorkspaceMetricsResponse struct {
 
 func (x *SummaryWorkspaceMetricsResponse) Reset() {
 	*x = SummaryWorkspaceMetricsResponse{}
-	mi := &file_shop_admin_v1_workspace_proto_msgTypes[1]
+	mi := &file_shop_admin_v1_workspace_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -112,7 +218,7 @@ func (x *SummaryWorkspaceMetricsResponse) String() string {
 func (*SummaryWorkspaceMetricsResponse) ProtoMessage() {}
 
 func (x *SummaryWorkspaceMetricsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_workspace_proto_msgTypes[1]
+	mi := &file_shop_admin_v1_workspace_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -125,7 +231,7 @@ func (x *SummaryWorkspaceMetricsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SummaryWorkspaceMetricsResponse.ProtoReflect.Descriptor instead.
 func (*SummaryWorkspaceMetricsResponse) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_workspace_proto_rawDescGZIP(), []int{1}
+	return file_shop_admin_v1_workspace_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *SummaryWorkspaceMetricsResponse) GetTodayOrderCount() int64 {
@@ -237,7 +343,7 @@ type SummaryWorkspaceTodoRequest struct {
 
 func (x *SummaryWorkspaceTodoRequest) Reset() {
 	*x = SummaryWorkspaceTodoRequest{}
-	mi := &file_shop_admin_v1_workspace_proto_msgTypes[2]
+	mi := &file_shop_admin_v1_workspace_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -249,7 +355,7 @@ func (x *SummaryWorkspaceTodoRequest) String() string {
 func (*SummaryWorkspaceTodoRequest) ProtoMessage() {}
 
 func (x *SummaryWorkspaceTodoRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_workspace_proto_msgTypes[2]
+	mi := &file_shop_admin_v1_workspace_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -262,7 +368,7 @@ func (x *SummaryWorkspaceTodoRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SummaryWorkspaceTodoRequest.ProtoReflect.Descriptor instead.
 func (*SummaryWorkspaceTodoRequest) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_workspace_proto_rawDescGZIP(), []int{2}
+	return file_shop_admin_v1_workspace_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *SummaryWorkspaceTodoRequest) GetTenantId() int64 {
@@ -294,7 +400,7 @@ type SummaryWorkspaceTodoResponse struct {
 
 func (x *SummaryWorkspaceTodoResponse) Reset() {
 	*x = SummaryWorkspaceTodoResponse{}
-	mi := &file_shop_admin_v1_workspace_proto_msgTypes[3]
+	mi := &file_shop_admin_v1_workspace_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -306,7 +412,7 @@ func (x *SummaryWorkspaceTodoResponse) String() string {
 func (*SummaryWorkspaceTodoResponse) ProtoMessage() {}
 
 func (x *SummaryWorkspaceTodoResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_workspace_proto_msgTypes[3]
+	mi := &file_shop_admin_v1_workspace_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -319,7 +425,7 @@ func (x *SummaryWorkspaceTodoResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SummaryWorkspaceTodoResponse.ProtoReflect.Descriptor instead.
 func (*SummaryWorkspaceTodoResponse) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_workspace_proto_rawDescGZIP(), []int{3}
+	return file_shop_admin_v1_workspace_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *SummaryWorkspaceTodoResponse) GetPendingPayOrderCount() int64 {
@@ -375,7 +481,7 @@ type SummaryWorkspaceRiskRequest struct {
 
 func (x *SummaryWorkspaceRiskRequest) Reset() {
 	*x = SummaryWorkspaceRiskRequest{}
-	mi := &file_shop_admin_v1_workspace_proto_msgTypes[4]
+	mi := &file_shop_admin_v1_workspace_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -387,7 +493,7 @@ func (x *SummaryWorkspaceRiskRequest) String() string {
 func (*SummaryWorkspaceRiskRequest) ProtoMessage() {}
 
 func (x *SummaryWorkspaceRiskRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_workspace_proto_msgTypes[4]
+	mi := &file_shop_admin_v1_workspace_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -400,7 +506,7 @@ func (x *SummaryWorkspaceRiskRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SummaryWorkspaceRiskRequest.ProtoReflect.Descriptor instead.
 func (*SummaryWorkspaceRiskRequest) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_workspace_proto_rawDescGZIP(), []int{4}
+	return file_shop_admin_v1_workspace_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *SummaryWorkspaceRiskRequest) GetTenantId() int64 {
@@ -430,7 +536,7 @@ type SummaryWorkspaceRiskResponse struct {
 
 func (x *SummaryWorkspaceRiskResponse) Reset() {
 	*x = SummaryWorkspaceRiskResponse{}
-	mi := &file_shop_admin_v1_workspace_proto_msgTypes[5]
+	mi := &file_shop_admin_v1_workspace_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -442,7 +548,7 @@ func (x *SummaryWorkspaceRiskResponse) String() string {
 func (*SummaryWorkspaceRiskResponse) ProtoMessage() {}
 
 func (x *SummaryWorkspaceRiskResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_workspace_proto_msgTypes[5]
+	mi := &file_shop_admin_v1_workspace_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -455,7 +561,7 @@ func (x *SummaryWorkspaceRiskResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SummaryWorkspaceRiskResponse.ProtoReflect.Descriptor instead.
 func (*SummaryWorkspaceRiskResponse) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_workspace_proto_rawDescGZIP(), []int{5}
+	return file_shop_admin_v1_workspace_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *SummaryWorkspaceRiskResponse) GetAbnormalPayBillCount() int64 {
@@ -486,31 +592,30 @@ func (x *SummaryWorkspaceRiskResponse) GetLowScoreCommentCount() int64 {
 	return 0
 }
 
-// 工作台待审核评价查询条件
-type ListWorkspacePendingCommentRequest struct {
+// 工作台口碑洞察查询条件
+type SummaryWorkspaceReputationRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	TenantId      *int64                 `protobuf:"varint,1,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`                  // 租户ID
 	TenantStoreId *int64                 `protobuf:"varint,2,opt,name=tenant_store_id,json=tenantStoreId,proto3,oneof" json:"tenant_store_id,omitempty"` // 租户门店ID
-	Limit         int64                  `protobuf:"varint,3,opt,name=limit,proto3" json:"limit,omitempty"`                                              // 返回数量，默认5，最大10
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListWorkspacePendingCommentRequest) Reset() {
-	*x = ListWorkspacePendingCommentRequest{}
-	mi := &file_shop_admin_v1_workspace_proto_msgTypes[6]
+func (x *SummaryWorkspaceReputationRequest) Reset() {
+	*x = SummaryWorkspaceReputationRequest{}
+	mi := &file_shop_admin_v1_workspace_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListWorkspacePendingCommentRequest) String() string {
+func (x *SummaryWorkspaceReputationRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListWorkspacePendingCommentRequest) ProtoMessage() {}
+func (*SummaryWorkspaceReputationRequest) ProtoMessage() {}
 
-func (x *ListWorkspacePendingCommentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_workspace_proto_msgTypes[6]
+func (x *SummaryWorkspaceReputationRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_admin_v1_workspace_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -521,55 +626,50 @@ func (x *ListWorkspacePendingCommentRequest) ProtoReflect() protoreflect.Message
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListWorkspacePendingCommentRequest.ProtoReflect.Descriptor instead.
-func (*ListWorkspacePendingCommentRequest) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_workspace_proto_rawDescGZIP(), []int{6}
+// Deprecated: Use SummaryWorkspaceReputationRequest.ProtoReflect.Descriptor instead.
+func (*SummaryWorkspaceReputationRequest) Descriptor() ([]byte, []int) {
+	return file_shop_admin_v1_workspace_proto_rawDescGZIP(), []int{8}
 }
 
-func (x *ListWorkspacePendingCommentRequest) GetTenantId() int64 {
+func (x *SummaryWorkspaceReputationRequest) GetTenantId() int64 {
 	if x != nil && x.TenantId != nil {
 		return *x.TenantId
 	}
 	return 0
 }
 
-func (x *ListWorkspacePendingCommentRequest) GetTenantStoreId() int64 {
+func (x *SummaryWorkspaceReputationRequest) GetTenantStoreId() int64 {
 	if x != nil && x.TenantStoreId != nil {
 		return *x.TenantStoreId
 	}
 	return 0
 }
 
-func (x *ListWorkspacePendingCommentRequest) GetLimit() int64 {
-	if x != nil {
-		return x.Limit
-	}
-	return 0
+// 工作台口碑洞察响应
+type SummaryWorkspaceReputationResponse struct {
+	state               protoimpl.MessageState    `protogen:"open.v1"`
+	AverageCommentScore int64                     `protobuf:"varint,1,opt,name=average_comment_score,json=averageCommentScore,proto3" json:"average_comment_score,omitempty"` // 近7日平均评分，十分位，46表示4.6分
+	HotTags             []*WorkspaceReputationTag `protobuf:"bytes,2,rep,name=hot_tags,json=hotTags,proto3" json:"hot_tags,omitempty"`                                        // 高频评价标签
+	CommentSummary      string                    `protobuf:"bytes,3,opt,name=comment_summary,json=commentSummary,proto3" json:"comment_summary,omitempty"`                   // 评价摘要
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
-// 工作台待审核评价响应
-type ListWorkspacePendingCommentResponse struct {
-	state           protoimpl.MessageState     `protogen:"open.v1"`
-	PendingComments []*WorkspacePendingComment `protobuf:"bytes,1,rep,name=pending_comments,json=pendingComments,proto3" json:"pending_comments,omitempty"` // 待审核评价
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
-}
-
-func (x *ListWorkspacePendingCommentResponse) Reset() {
-	*x = ListWorkspacePendingCommentResponse{}
-	mi := &file_shop_admin_v1_workspace_proto_msgTypes[7]
+func (x *SummaryWorkspaceReputationResponse) Reset() {
+	*x = SummaryWorkspaceReputationResponse{}
+	mi := &file_shop_admin_v1_workspace_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListWorkspacePendingCommentResponse) String() string {
+func (x *SummaryWorkspaceReputationResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListWorkspacePendingCommentResponse) ProtoMessage() {}
+func (*SummaryWorkspaceReputationResponse) ProtoMessage() {}
 
-func (x *ListWorkspacePendingCommentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_workspace_proto_msgTypes[7]
+func (x *SummaryWorkspaceReputationResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_admin_v1_workspace_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -580,16 +680,30 @@ func (x *ListWorkspacePendingCommentResponse) ProtoReflect() protoreflect.Messag
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListWorkspacePendingCommentResponse.ProtoReflect.Descriptor instead.
-func (*ListWorkspacePendingCommentResponse) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_workspace_proto_rawDescGZIP(), []int{7}
+// Deprecated: Use SummaryWorkspaceReputationResponse.ProtoReflect.Descriptor instead.
+func (*SummaryWorkspaceReputationResponse) Descriptor() ([]byte, []int) {
+	return file_shop_admin_v1_workspace_proto_rawDescGZIP(), []int{9}
 }
 
-func (x *ListWorkspacePendingCommentResponse) GetPendingComments() []*WorkspacePendingComment {
+func (x *SummaryWorkspaceReputationResponse) GetAverageCommentScore() int64 {
 	if x != nil {
-		return x.PendingComments
+		return x.AverageCommentScore
+	}
+	return 0
+}
+
+func (x *SummaryWorkspaceReputationResponse) GetHotTags() []*WorkspaceReputationTag {
+	if x != nil {
+		return x.HotTags
 	}
 	return nil
+}
+
+func (x *SummaryWorkspaceReputationResponse) GetCommentSummary() string {
+	if x != nil {
+		return x.CommentSummary
+	}
+	return ""
 }
 
 // 工作台待审核评价
@@ -608,7 +722,7 @@ type WorkspacePendingComment struct {
 
 func (x *WorkspacePendingComment) Reset() {
 	*x = WorkspacePendingComment{}
-	mi := &file_shop_admin_v1_workspace_proto_msgTypes[8]
+	mi := &file_shop_admin_v1_workspace_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -620,7 +734,7 @@ func (x *WorkspacePendingComment) String() string {
 func (*WorkspacePendingComment) ProtoMessage() {}
 
 func (x *WorkspacePendingComment) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_workspace_proto_msgTypes[8]
+	mi := &file_shop_admin_v1_workspace_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -633,7 +747,7 @@ func (x *WorkspacePendingComment) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WorkspacePendingComment.ProtoReflect.Descriptor instead.
 func (*WorkspacePendingComment) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_workspace_proto_rawDescGZIP(), []int{8}
+	return file_shop_admin_v1_workspace_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *WorkspacePendingComment) GetId() int64 {
@@ -681,120 +795,6 @@ func (x *WorkspacePendingComment) GetContent() string {
 func (x *WorkspacePendingComment) GetCreatedAt() string {
 	if x != nil {
 		return x.CreatedAt
-	}
-	return ""
-}
-
-// 工作台口碑洞察查询条件
-type SummaryWorkspaceReputationRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	TenantId      *int64                 `protobuf:"varint,1,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`                  // 租户ID
-	TenantStoreId *int64                 `protobuf:"varint,2,opt,name=tenant_store_id,json=tenantStoreId,proto3,oneof" json:"tenant_store_id,omitempty"` // 租户门店ID
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *SummaryWorkspaceReputationRequest) Reset() {
-	*x = SummaryWorkspaceReputationRequest{}
-	mi := &file_shop_admin_v1_workspace_proto_msgTypes[9]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *SummaryWorkspaceReputationRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*SummaryWorkspaceReputationRequest) ProtoMessage() {}
-
-func (x *SummaryWorkspaceReputationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_workspace_proto_msgTypes[9]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use SummaryWorkspaceReputationRequest.ProtoReflect.Descriptor instead.
-func (*SummaryWorkspaceReputationRequest) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_workspace_proto_rawDescGZIP(), []int{9}
-}
-
-func (x *SummaryWorkspaceReputationRequest) GetTenantId() int64 {
-	if x != nil && x.TenantId != nil {
-		return *x.TenantId
-	}
-	return 0
-}
-
-func (x *SummaryWorkspaceReputationRequest) GetTenantStoreId() int64 {
-	if x != nil && x.TenantStoreId != nil {
-		return *x.TenantStoreId
-	}
-	return 0
-}
-
-// 工作台口碑洞察响应
-type SummaryWorkspaceReputationResponse struct {
-	state               protoimpl.MessageState    `protogen:"open.v1"`
-	AverageCommentScore int64                     `protobuf:"varint,1,opt,name=average_comment_score,json=averageCommentScore,proto3" json:"average_comment_score,omitempty"` // 近7日平均评分，十分位，46表示4.6分
-	HotTags             []*WorkspaceReputationTag `protobuf:"bytes,2,rep,name=hot_tags,json=hotTags,proto3" json:"hot_tags,omitempty"`                                        // 高频评价标签
-	CommentSummary      string                    `protobuf:"bytes,3,opt,name=comment_summary,json=commentSummary,proto3" json:"comment_summary,omitempty"`                   // 评价摘要
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
-}
-
-func (x *SummaryWorkspaceReputationResponse) Reset() {
-	*x = SummaryWorkspaceReputationResponse{}
-	mi := &file_shop_admin_v1_workspace_proto_msgTypes[10]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *SummaryWorkspaceReputationResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*SummaryWorkspaceReputationResponse) ProtoMessage() {}
-
-func (x *SummaryWorkspaceReputationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_workspace_proto_msgTypes[10]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use SummaryWorkspaceReputationResponse.ProtoReflect.Descriptor instead.
-func (*SummaryWorkspaceReputationResponse) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_workspace_proto_rawDescGZIP(), []int{10}
-}
-
-func (x *SummaryWorkspaceReputationResponse) GetAverageCommentScore() int64 {
-	if x != nil {
-		return x.AverageCommentScore
-	}
-	return 0
-}
-
-func (x *SummaryWorkspaceReputationResponse) GetHotTags() []*WorkspaceReputationTag {
-	if x != nil {
-		return x.HotTags
-	}
-	return nil
-}
-
-func (x *SummaryWorkspaceReputationResponse) GetCommentSummary() string {
-	if x != nil {
-		return x.CommentSummary
 	}
 	return ""
 }
@@ -856,7 +856,16 @@ var File_shop_admin_v1_workspace_proto protoreflect.FileDescriptor
 
 const file_shop_admin_v1_workspace_proto_rawDesc = "" +
 	"\n" +
-	"\x1dshop/admin/v1/workspace.proto\x12\rshop.admin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\xb7\x01\n" +
+	"\x1dshop/admin/v1/workspace.proto\x12\rshop.admin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\xfa\x01\n" +
+	"\"ListWorkspacePendingCommentRequest\x120\n" +
+	"\ttenant_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12A\n" +
+	"\x0ftenant_store_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDH\x01R\rtenantStoreId\x88\x01\x01\x12=\n" +
+	"\x05limit\x18\x03 \x01(\x03B'\xbaG$\x92\x02!返回数量，默认5，最大10R\x05limitB\f\n" +
+	"\n" +
+	"_tenant_idB\x12\n" +
+	"\x10_tenant_store_id\"\x8f\x01\n" +
+	"#ListWorkspacePendingCommentResponse\x12h\n" +
+	"\x10pending_comments\x18\x01 \x03(\v2&.shop.admin.v1.WorkspacePendingCommentB\x15\xbaG\x12\x92\x02\x0f待审核评价R\x0fpendingComments\"\xb7\x01\n" +
 	"\x1eSummaryWorkspaceMetricsRequest\x120\n" +
 	"\ttenant_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12A\n" +
 	"\x0ftenant_store_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDH\x01R\rtenantStoreId\x88\x01\x01B\f\n" +
@@ -902,16 +911,17 @@ const file_shop_admin_v1_workspace_proto_rawDesc = "" +
 	"\x17abnormal_pay_bill_count\x18\x01 \x01(\x03B\x18\xbaG\x15\x92\x02\x12对账单异常数R\x14abnormalPayBillCount\x12c\n" +
 	"\x1fzero_inventory_put_on_sku_count\x18\x02 \x01(\x03B\x1e\xbaG\x1b\x92\x02\x18零库存仍上架SKU数R\x1azeroInventoryPutOnSkuCount\x12W\n" +
 	"\x18abnormal_price_sku_count\x18\x03 \x01(\x03B\x1e\xbaG\x1b\x92\x02\x18价格配置异常SKU数R\x15abnormalPriceSkuCount\x12S\n" +
-	"\x17low_score_comment_count\x18\x04 \x01(\x03B\x1c\xbaG\x19\x92\x02\x16近7日低分评价数R\x14lowScoreCommentCount\"\xfa\x01\n" +
-	"\"ListWorkspacePendingCommentRequest\x120\n" +
+	"\x17low_score_comment_count\x18\x04 \x01(\x03B\x1c\xbaG\x19\x92\x02\x16近7日低分评价数R\x14lowScoreCommentCount\"\xba\x01\n" +
+	"!SummaryWorkspaceReputationRequest\x120\n" +
 	"\ttenant_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12A\n" +
-	"\x0ftenant_store_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDH\x01R\rtenantStoreId\x88\x01\x01\x12=\n" +
-	"\x05limit\x18\x03 \x01(\x03B'\xbaG$\x92\x02!返回数量，默认5，最大10R\x05limitB\f\n" +
+	"\x0ftenant_store_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDH\x01R\rtenantStoreId\x88\x01\x01B\f\n" +
 	"\n" +
 	"_tenant_idB\x12\n" +
-	"\x10_tenant_store_id\"\x8f\x01\n" +
-	"#ListWorkspacePendingCommentResponse\x12h\n" +
-	"\x10pending_comments\x18\x01 \x03(\v2&.shop.admin.v1.WorkspacePendingCommentB\x15\xbaG\x12\x92\x02\x0f待审核评价R\x0fpendingComments\"\xde\x02\n" +
+	"\x10_tenant_store_id\"\xa9\x02\n" +
+	"\"SummaryWorkspaceReputationResponse\x12j\n" +
+	"\x15average_comment_score\x18\x01 \x01(\x03B6\xbaG3\x92\x020近7日平均评分，十分位，46表示4.6分R\x13averageCommentScore\x12Z\n" +
+	"\bhot_tags\x18\x02 \x03(\v2%.shop.admin.v1.WorkspaceReputationTagB\x18\xbaG\x15\x92\x02\x12高频评价标签R\ahotTags\x12;\n" +
+	"\x0fcomment_summary\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f评价摘要R\x0ecommentSummary\"\xde\x02\n" +
 	"\x17WorkspacePendingComment\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b评论IDR\x02id\x12)\n" +
 	"\bgoods_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\agoodsId\x121\n" +
@@ -922,26 +932,16 @@ const file_shop_admin_v1_workspace_proto_rawDesc = "" +
 	"goodsScore\x12,\n" +
 	"\acontent\x18\x06 \x01(\tB\x12\xbaG\x0f\x92\x02\f评论摘要R\acontent\x121\n" +
 	"\n" +
-	"created_at\x18\a \x01(\tB\x12\xbaG\x0f\x92\x02\f评价时间R\tcreatedAt\"\xba\x01\n" +
-	"!SummaryWorkspaceReputationRequest\x120\n" +
-	"\ttenant_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12A\n" +
-	"\x0ftenant_store_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDH\x01R\rtenantStoreId\x88\x01\x01B\f\n" +
-	"\n" +
-	"_tenant_idB\x12\n" +
-	"\x10_tenant_store_id\"\xa9\x02\n" +
-	"\"SummaryWorkspaceReputationResponse\x12j\n" +
-	"\x15average_comment_score\x18\x01 \x01(\x03B6\xbaG3\x92\x020近7日平均评分，十分位，46表示4.6分R\x13averageCommentScore\x12Z\n" +
-	"\bhot_tags\x18\x02 \x03(\v2%.shop.admin.v1.WorkspaceReputationTagB\x18\xbaG\x15\x92\x02\x12高频评价标签R\ahotTags\x12;\n" +
-	"\x0fcomment_summary\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f评价摘要R\x0ecommentSummary\"y\n" +
+	"created_at\x18\a \x01(\tB\x12\xbaG\x0f\x92\x02\f评价时间R\tcreatedAt\"y\n" +
 	"\x16WorkspaceReputationTag\x12&\n" +
 	"\x04name\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f标签名称R\x04name\x127\n" +
 	"\rmention_count\x18\x02 \x01(\x03B\x12\xbaG\x0f\x92\x02\f提及次数R\fmentionCount2\xee\x06\n" +
-	"\x10WorkspaceService\x12\xa9\x01\n" +
+	"\x10WorkspaceService\x12\xb5\x01\n" +
+	"\x1bListWorkspacePendingComment\x121.shop.admin.v1.ListWorkspacePendingCommentRequest\x1a2.shop.admin.v1.ListWorkspacePendingCommentResponse\"/\x82\xd3\xe4\x93\x02)\x12'/api/v1/admin/workspace/comment/pending\x12\xa9\x01\n" +
 	"\x17SummaryWorkspaceMetrics\x12-.shop.admin.v1.SummaryWorkspaceMetricsRequest\x1a..shop.admin.v1.SummaryWorkspaceMetricsResponse\"/\x82\xd3\xe4\x93\x02)\x12'/api/v1/admin/workspace/metrics/summary\x12\x9d\x01\n" +
 	"\x14SummaryWorkspaceTodo\x12*.shop.admin.v1.SummaryWorkspaceTodoRequest\x1a+.shop.admin.v1.SummaryWorkspaceTodoResponse\",\x82\xd3\xe4\x93\x02&\x12$/api/v1/admin/workspace/todo/summary\x12\x9d\x01\n" +
 	"\x14SummaryWorkspaceRisk\x12*.shop.admin.v1.SummaryWorkspaceRiskRequest\x1a+.shop.admin.v1.SummaryWorkspaceRiskResponse\",\x82\xd3\xe4\x93\x02&\x12$/api/v1/admin/workspace/risk/summary\x12\xb5\x01\n" +
-	"\x1aSummaryWorkspaceReputation\x120.shop.admin.v1.SummaryWorkspaceReputationRequest\x1a1.shop.admin.v1.SummaryWorkspaceReputationResponse\"2\x82\xd3\xe4\x93\x02,\x12*/api/v1/admin/workspace/reputation/summary\x12\xb5\x01\n" +
-	"\x1bListWorkspacePendingComment\x121.shop.admin.v1.ListWorkspacePendingCommentRequest\x1a2.shop.admin.v1.ListWorkspacePendingCommentResponse\"/\x82\xd3\xe4\x93\x02)\x12'/api/v1/admin/workspace/comment/pendingB\xa0\x01\n" +
+	"\x1aSummaryWorkspaceReputation\x120.shop.admin.v1.SummaryWorkspaceReputationRequest\x1a1.shop.admin.v1.SummaryWorkspaceReputationResponse\"2\x82\xd3\xe4\x93\x02,\x12*/api/v1/admin/workspace/reputation/summaryB\xa0\x01\n" +
 	"\x11com.shop.admin.v1B\x0eWorkspaceProtoP\x01Z%shop/api/gen/go/shop/admin/v1;adminv1\xa2\x02\x03SAX\xaa\x02\rShop.Admin.V1\xca\x02\rShop\\Admin\\V1\xe2\x02\x19Shop\\Admin\\V1\\GPBMetadata\xea\x02\x0fShop::Admin::V1b\x06proto3"
 
 var (
@@ -958,32 +958,32 @@ func file_shop_admin_v1_workspace_proto_rawDescGZIP() []byte {
 
 var file_shop_admin_v1_workspace_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_shop_admin_v1_workspace_proto_goTypes = []any{
-	(*SummaryWorkspaceMetricsRequest)(nil),      // 0: shop.admin.v1.SummaryWorkspaceMetricsRequest
-	(*SummaryWorkspaceMetricsResponse)(nil),     // 1: shop.admin.v1.SummaryWorkspaceMetricsResponse
-	(*SummaryWorkspaceTodoRequest)(nil),         // 2: shop.admin.v1.SummaryWorkspaceTodoRequest
-	(*SummaryWorkspaceTodoResponse)(nil),        // 3: shop.admin.v1.SummaryWorkspaceTodoResponse
-	(*SummaryWorkspaceRiskRequest)(nil),         // 4: shop.admin.v1.SummaryWorkspaceRiskRequest
-	(*SummaryWorkspaceRiskResponse)(nil),        // 5: shop.admin.v1.SummaryWorkspaceRiskResponse
-	(*ListWorkspacePendingCommentRequest)(nil),  // 6: shop.admin.v1.ListWorkspacePendingCommentRequest
-	(*ListWorkspacePendingCommentResponse)(nil), // 7: shop.admin.v1.ListWorkspacePendingCommentResponse
-	(*WorkspacePendingComment)(nil),             // 8: shop.admin.v1.WorkspacePendingComment
-	(*SummaryWorkspaceReputationRequest)(nil),   // 9: shop.admin.v1.SummaryWorkspaceReputationRequest
-	(*SummaryWorkspaceReputationResponse)(nil),  // 10: shop.admin.v1.SummaryWorkspaceReputationResponse
+	(*ListWorkspacePendingCommentRequest)(nil),  // 0: shop.admin.v1.ListWorkspacePendingCommentRequest
+	(*ListWorkspacePendingCommentResponse)(nil), // 1: shop.admin.v1.ListWorkspacePendingCommentResponse
+	(*SummaryWorkspaceMetricsRequest)(nil),      // 2: shop.admin.v1.SummaryWorkspaceMetricsRequest
+	(*SummaryWorkspaceMetricsResponse)(nil),     // 3: shop.admin.v1.SummaryWorkspaceMetricsResponse
+	(*SummaryWorkspaceTodoRequest)(nil),         // 4: shop.admin.v1.SummaryWorkspaceTodoRequest
+	(*SummaryWorkspaceTodoResponse)(nil),        // 5: shop.admin.v1.SummaryWorkspaceTodoResponse
+	(*SummaryWorkspaceRiskRequest)(nil),         // 6: shop.admin.v1.SummaryWorkspaceRiskRequest
+	(*SummaryWorkspaceRiskResponse)(nil),        // 7: shop.admin.v1.SummaryWorkspaceRiskResponse
+	(*SummaryWorkspaceReputationRequest)(nil),   // 8: shop.admin.v1.SummaryWorkspaceReputationRequest
+	(*SummaryWorkspaceReputationResponse)(nil),  // 9: shop.admin.v1.SummaryWorkspaceReputationResponse
+	(*WorkspacePendingComment)(nil),             // 10: shop.admin.v1.WorkspacePendingComment
 	(*WorkspaceReputationTag)(nil),              // 11: shop.admin.v1.WorkspaceReputationTag
 }
 var file_shop_admin_v1_workspace_proto_depIdxs = []int32{
-	8,  // 0: shop.admin.v1.ListWorkspacePendingCommentResponse.pending_comments:type_name -> shop.admin.v1.WorkspacePendingComment
+	10, // 0: shop.admin.v1.ListWorkspacePendingCommentResponse.pending_comments:type_name -> shop.admin.v1.WorkspacePendingComment
 	11, // 1: shop.admin.v1.SummaryWorkspaceReputationResponse.hot_tags:type_name -> shop.admin.v1.WorkspaceReputationTag
-	0,  // 2: shop.admin.v1.WorkspaceService.SummaryWorkspaceMetrics:input_type -> shop.admin.v1.SummaryWorkspaceMetricsRequest
-	2,  // 3: shop.admin.v1.WorkspaceService.SummaryWorkspaceTodo:input_type -> shop.admin.v1.SummaryWorkspaceTodoRequest
-	4,  // 4: shop.admin.v1.WorkspaceService.SummaryWorkspaceRisk:input_type -> shop.admin.v1.SummaryWorkspaceRiskRequest
-	9,  // 5: shop.admin.v1.WorkspaceService.SummaryWorkspaceReputation:input_type -> shop.admin.v1.SummaryWorkspaceReputationRequest
-	6,  // 6: shop.admin.v1.WorkspaceService.ListWorkspacePendingComment:input_type -> shop.admin.v1.ListWorkspacePendingCommentRequest
-	1,  // 7: shop.admin.v1.WorkspaceService.SummaryWorkspaceMetrics:output_type -> shop.admin.v1.SummaryWorkspaceMetricsResponse
-	3,  // 8: shop.admin.v1.WorkspaceService.SummaryWorkspaceTodo:output_type -> shop.admin.v1.SummaryWorkspaceTodoResponse
-	5,  // 9: shop.admin.v1.WorkspaceService.SummaryWorkspaceRisk:output_type -> shop.admin.v1.SummaryWorkspaceRiskResponse
-	10, // 10: shop.admin.v1.WorkspaceService.SummaryWorkspaceReputation:output_type -> shop.admin.v1.SummaryWorkspaceReputationResponse
-	7,  // 11: shop.admin.v1.WorkspaceService.ListWorkspacePendingComment:output_type -> shop.admin.v1.ListWorkspacePendingCommentResponse
+	0,  // 2: shop.admin.v1.WorkspaceService.ListWorkspacePendingComment:input_type -> shop.admin.v1.ListWorkspacePendingCommentRequest
+	2,  // 3: shop.admin.v1.WorkspaceService.SummaryWorkspaceMetrics:input_type -> shop.admin.v1.SummaryWorkspaceMetricsRequest
+	4,  // 4: shop.admin.v1.WorkspaceService.SummaryWorkspaceTodo:input_type -> shop.admin.v1.SummaryWorkspaceTodoRequest
+	6,  // 5: shop.admin.v1.WorkspaceService.SummaryWorkspaceRisk:input_type -> shop.admin.v1.SummaryWorkspaceRiskRequest
+	8,  // 6: shop.admin.v1.WorkspaceService.SummaryWorkspaceReputation:input_type -> shop.admin.v1.SummaryWorkspaceReputationRequest
+	1,  // 7: shop.admin.v1.WorkspaceService.ListWorkspacePendingComment:output_type -> shop.admin.v1.ListWorkspacePendingCommentResponse
+	3,  // 8: shop.admin.v1.WorkspaceService.SummaryWorkspaceMetrics:output_type -> shop.admin.v1.SummaryWorkspaceMetricsResponse
+	5,  // 9: shop.admin.v1.WorkspaceService.SummaryWorkspaceTodo:output_type -> shop.admin.v1.SummaryWorkspaceTodoResponse
+	7,  // 10: shop.admin.v1.WorkspaceService.SummaryWorkspaceRisk:output_type -> shop.admin.v1.SummaryWorkspaceRiskResponse
+	9,  // 11: shop.admin.v1.WorkspaceService.SummaryWorkspaceReputation:output_type -> shop.admin.v1.SummaryWorkspaceReputationResponse
 	7,  // [7:12] is the sub-list for method output_type
 	2,  // [2:7] is the sub-list for method input_type
 	2,  // [2:2] is the sub-list for extension type_name
@@ -1000,7 +1000,7 @@ func file_shop_admin_v1_workspace_proto_init() {
 	file_shop_admin_v1_workspace_proto_msgTypes[2].OneofWrappers = []any{}
 	file_shop_admin_v1_workspace_proto_msgTypes[4].OneofWrappers = []any{}
 	file_shop_admin_v1_workspace_proto_msgTypes[6].OneofWrappers = []any{}
-	file_shop_admin_v1_workspace_proto_msgTypes[9].OneofWrappers = []any{}
+	file_shop_admin_v1_workspace_proto_msgTypes[8].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

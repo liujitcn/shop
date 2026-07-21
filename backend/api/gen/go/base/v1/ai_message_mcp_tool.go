@@ -14,26 +14,26 @@ import (
 
 // RegisterAiMessageServiceMCPTools 注册Base AI 助手消息服务的 MCP Tool。
 func RegisterAiMessageServiceMCPTools(mcpServer *mcp.Server, aiMessageServiceServer AiMessageServiceServer) {
-	RegisterAiMessageServiceSendAiMessageMCPTool(mcpServer, aiMessageServiceServer)
-	RegisterAiMessageServiceDeleteAiMessageMCPTool(mcpServer, aiMessageServiceServer)
 	RegisterAiMessageServiceUpdateAiMessageMCPTool(mcpServer, aiMessageServiceServer)
+	RegisterAiMessageServiceDeleteAiMessageMCPTool(mcpServer, aiMessageServiceServer)
+	RegisterAiMessageServiceSendAiMessageMCPTool(mcpServer, aiMessageServiceServer)
 	RegisterAiMessageServiceRetryAiUserMessageMCPTool(mcpServer, aiMessageServiceServer)
 	RegisterAiMessageServiceRegenerateAiMessageMCPTool(mcpServer, aiMessageServiceServer)
 }
 
-// RegisterAiMessageServiceSendAiMessageMCPTool 注册发送 AI 助手消息的 MCP Tool。
-func RegisterAiMessageServiceSendAiMessageMCPTool(mcpServer *mcp.Server, aiMessageServiceServer AiMessageServiceServer) {
-	mcp.AddTool[*SendAiMessageRequest, *SendAiMessageResponse](
+// RegisterAiMessageServiceUpdateAiMessageMCPTool 注册更新 AI 助手消息并重新生成输出的 MCP Tool。
+func RegisterAiMessageServiceUpdateAiMessageMCPTool(mcpServer *mcp.Server, aiMessageServiceServer AiMessageServiceServer) {
+	mcp.AddTool[*UpdateAiMessageRequest, *SendAiMessageResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "base_v1_ai_message_service_send_ai_message",
-			Description: "发送 AI 助手消息",
+			Name:        "base_v1_ai_message_service_update_ai_message",
+			Description: "更新 AI 助手消息并重新生成输出",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *SendAiMessageRequest) (*mcp.CallToolResult, *SendAiMessageResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *UpdateAiMessageRequest) (*mcp.CallToolResult, *SendAiMessageResponse, error) {
 			if input == nil {
-				input = &SendAiMessageRequest{}
+				input = &UpdateAiMessageRequest{}
 			}
-			reply, err := aiMessageServiceServer.SendAiMessage(ctx, input)
+			reply, err := aiMessageServiceServer.UpdateAiMessage(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -63,19 +63,19 @@ func RegisterAiMessageServiceDeleteAiMessageMCPTool(mcpServer *mcp.Server, aiMes
 	)
 }
 
-// RegisterAiMessageServiceUpdateAiMessageMCPTool 注册更新 AI 助手消息并重新生成输出的 MCP Tool。
-func RegisterAiMessageServiceUpdateAiMessageMCPTool(mcpServer *mcp.Server, aiMessageServiceServer AiMessageServiceServer) {
-	mcp.AddTool[*UpdateAiMessageRequest, *SendAiMessageResponse](
+// RegisterAiMessageServiceSendAiMessageMCPTool 注册发送 AI 助手消息的 MCP Tool。
+func RegisterAiMessageServiceSendAiMessageMCPTool(mcpServer *mcp.Server, aiMessageServiceServer AiMessageServiceServer) {
+	mcp.AddTool[*SendAiMessageRequest, *SendAiMessageResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "base_v1_ai_message_service_update_ai_message",
-			Description: "更新 AI 助手消息并重新生成输出",
+			Name:        "base_v1_ai_message_service_send_ai_message",
+			Description: "发送 AI 助手消息",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *UpdateAiMessageRequest) (*mcp.CallToolResult, *SendAiMessageResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *SendAiMessageRequest) (*mcp.CallToolResult, *SendAiMessageResponse, error) {
 			if input == nil {
-				input = &UpdateAiMessageRequest{}
+				input = &SendAiMessageRequest{}
 			}
-			reply, err := aiMessageServiceServer.UpdateAiMessage(ctx, input)
+			reply, err := aiMessageServiceServer.SendAiMessage(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

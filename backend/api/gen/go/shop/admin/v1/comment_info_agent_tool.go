@@ -18,18 +18,18 @@ import (
 func NewCommentInfoServiceAgentTools(commentInfoServiceServer CommentInfoServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error
+	var pageCommentDiscussionTool tool.InvokableTool
+	pageCommentDiscussionTool, err = NewCommentInfoServicePageCommentDiscussionAgentTool(commentInfoServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, pageCommentDiscussionTool)
 	var pageCommentInfoTool tool.InvokableTool
 	pageCommentInfoTool, err = NewCommentInfoServicePageCommentInfoAgentTool(commentInfoServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, pageCommentInfoTool)
-	var getGoodsCommentInfoTool tool.InvokableTool
-	getGoodsCommentInfoTool, err = NewCommentInfoServiceGetGoodsCommentInfoAgentTool(commentInfoServiceServer)
-	if err != nil {
-		return nil, err
-	}
-	ts = append(ts, getGoodsCommentInfoTool)
 	var listCommentReviewTool tool.InvokableTool
 	listCommentReviewTool, err = NewCommentInfoServiceListCommentReviewAgentTool(commentInfoServiceServer)
 	if err != nil {
@@ -42,25 +42,39 @@ func NewCommentInfoServiceAgentTools(commentInfoServiceServer CommentInfoService
 		return nil, err
 	}
 	ts = append(ts, getCommentInfoTool)
-	var setCommentInfoStatusTool tool.InvokableTool
-	setCommentInfoStatusTool, err = NewCommentInfoServiceSetCommentInfoStatusAgentTool(commentInfoServiceServer)
+	var getGoodsCommentInfoTool tool.InvokableTool
+	getGoodsCommentInfoTool, err = NewCommentInfoServiceGetGoodsCommentInfoAgentTool(commentInfoServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, setCommentInfoStatusTool)
-	var pageCommentDiscussionTool tool.InvokableTool
-	pageCommentDiscussionTool, err = NewCommentInfoServicePageCommentDiscussionAgentTool(commentInfoServiceServer)
-	if err != nil {
-		return nil, err
-	}
-	ts = append(ts, pageCommentDiscussionTool)
+	ts = append(ts, getGoodsCommentInfoTool)
 	var setCommentDiscussionStatusTool tool.InvokableTool
 	setCommentDiscussionStatusTool, err = NewCommentInfoServiceSetCommentDiscussionStatusAgentTool(commentInfoServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, setCommentDiscussionStatusTool)
+	var setCommentInfoStatusTool tool.InvokableTool
+	setCommentInfoStatusTool, err = NewCommentInfoServiceSetCommentInfoStatusAgentTool(commentInfoServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, setCommentInfoStatusTool)
 	return ts, nil
+}
+
+// NewCommentInfoServicePageCommentDiscussionAgentTool 创建查询评论讨论分页列表的 Agent Tool。
+func NewCommentInfoServicePageCommentDiscussionAgentTool(commentInfoServiceServer CommentInfoServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PageCommentDiscussionRequest, *PageCommentDiscussionResponse](
+		"shop_admin_v1_comment_info_service_page_comment_discussion",
+		"查询评论讨论分页列表",
+		func(ctx context.Context, req *PageCommentDiscussionRequest) (*PageCommentDiscussionResponse, error) {
+			if req == nil {
+				req = &PageCommentDiscussionRequest{}
+			}
+			return commentInfoServiceServer.PageCommentDiscussion(ctx, req)
+		},
+	)
 }
 
 // NewCommentInfoServicePageCommentInfoAgentTool 创建查询评论分页列表的 Agent Tool。
@@ -73,20 +87,6 @@ func NewCommentInfoServicePageCommentInfoAgentTool(commentInfoServiceServer Comm
 				req = &PageCommentInfoRequest{}
 			}
 			return commentInfoServiceServer.PageCommentInfo(ctx, req)
-		},
-	)
-}
-
-// NewCommentInfoServiceGetGoodsCommentInfoAgentTool 创建按商品查询评论聚合信息的 Agent Tool。
-func NewCommentInfoServiceGetGoodsCommentInfoAgentTool(commentInfoServiceServer CommentInfoServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*GetGoodsCommentInfoRequest, *GoodsCommentInfoResponse](
-		"shop_admin_v1_comment_info_service_get_goods_comment_info",
-		"按商品查询评论聚合信息",
-		func(ctx context.Context, req *GetGoodsCommentInfoRequest) (*GoodsCommentInfoResponse, error) {
-			if req == nil {
-				req = &GetGoodsCommentInfoRequest{}
-			}
-			return commentInfoServiceServer.GetGoodsCommentInfo(ctx, req)
 		},
 	)
 }
@@ -119,30 +119,16 @@ func NewCommentInfoServiceGetCommentInfoAgentTool(commentInfoServiceServer Comme
 	)
 }
 
-// NewCommentInfoServiceSetCommentInfoStatusAgentTool 创建设置评论审核状态的 Agent Tool。
-func NewCommentInfoServiceSetCommentInfoStatusAgentTool(commentInfoServiceServer CommentInfoServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*SetCommentInfoStatusRequest, *emptypb.Empty](
-		"shop_admin_v1_comment_info_service_set_comment_info_status",
-		"设置评论审核状态",
-		func(ctx context.Context, req *SetCommentInfoStatusRequest) (*emptypb.Empty, error) {
+// NewCommentInfoServiceGetGoodsCommentInfoAgentTool 创建按商品查询评论聚合信息的 Agent Tool。
+func NewCommentInfoServiceGetGoodsCommentInfoAgentTool(commentInfoServiceServer CommentInfoServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*GetGoodsCommentInfoRequest, *GoodsCommentInfoResponse](
+		"shop_admin_v1_comment_info_service_get_goods_comment_info",
+		"按商品查询评论聚合信息",
+		func(ctx context.Context, req *GetGoodsCommentInfoRequest) (*GoodsCommentInfoResponse, error) {
 			if req == nil {
-				req = &SetCommentInfoStatusRequest{}
+				req = &GetGoodsCommentInfoRequest{}
 			}
-			return commentInfoServiceServer.SetCommentInfoStatus(ctx, req)
-		},
-	)
-}
-
-// NewCommentInfoServicePageCommentDiscussionAgentTool 创建查询评论讨论分页列表的 Agent Tool。
-func NewCommentInfoServicePageCommentDiscussionAgentTool(commentInfoServiceServer CommentInfoServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*PageCommentDiscussionRequest, *PageCommentDiscussionResponse](
-		"shop_admin_v1_comment_info_service_page_comment_discussion",
-		"查询评论讨论分页列表",
-		func(ctx context.Context, req *PageCommentDiscussionRequest) (*PageCommentDiscussionResponse, error) {
-			if req == nil {
-				req = &PageCommentDiscussionRequest{}
-			}
-			return commentInfoServiceServer.PageCommentDiscussion(ctx, req)
+			return commentInfoServiceServer.GetGoodsCommentInfo(ctx, req)
 		},
 	)
 }
@@ -157,6 +143,20 @@ func NewCommentInfoServiceSetCommentDiscussionStatusAgentTool(commentInfoService
 				req = &SetCommentDiscussionStatusRequest{}
 			}
 			return commentInfoServiceServer.SetCommentDiscussionStatus(ctx, req)
+		},
+	)
+}
+
+// NewCommentInfoServiceSetCommentInfoStatusAgentTool 创建设置评论审核状态的 Agent Tool。
+func NewCommentInfoServiceSetCommentInfoStatusAgentTool(commentInfoServiceServer CommentInfoServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*SetCommentInfoStatusRequest, *emptypb.Empty](
+		"shop_admin_v1_comment_info_service_set_comment_info_status",
+		"设置评论审核状态",
+		func(ctx context.Context, req *SetCommentInfoStatusRequest) (*emptypb.Empty, error) {
+			if req == nil {
+				req = &SetCommentInfoStatusRequest{}
+			}
+			return commentInfoServiceServer.SetCommentInfoStatus(ctx, req)
 		},
 	)
 }

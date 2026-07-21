@@ -8,76 +8,46 @@
 import type { Empty } from "../../../google/protobuf/empty";
 import type { AdvanceDataType } from "../../common/v1/enum";
 
-/** 外部推荐脚本预览请求 */
-export interface PreviewExternalRequest {
-  /** 用户编号 */
-  user_id: string;
-  /** 外部推荐脚本 */
-  script: string;
+/** Gorse 推荐分类查询条件 */
+export interface OptionCategoryRequest {
 }
 
-/** 外部推荐脚本预览响应 */
-export interface PreviewExternalResponse {
-  /** 推荐商品编号列表 */
-  items: string[];
+/** Gorse 推荐分类响应 */
+export interface OptionCategoryResponse {
+  /** 分类列表 */
+  categories: string[];
 }
 
-/** 排序提示词预览请求 */
-export interface PreviewRankerPromptRequest {
-  /** 用户编号 */
-  user_id: string;
-  /** 查询模板 */
-  query_template: string;
-  /** 文档模板 */
-  document_template: string;
+/** Gorse 推荐商品列表查询条件 */
+export interface PageItemRequest {
+  /** 分页游标 */
+  cursor: string;
+  /** 查询数量 */
+  n: number;
 }
 
-/** 排序提示词预览响应 */
-export interface PreviewRankerPromptResponse {
-  /** 查询提示词 */
-  query: string;
-  /** 文档提示词列表 */
-  documents: string[];
+/** Gorse 推荐商品分页响应 */
+export interface PageItemResponse {
+  /** 下一页游标 */
+  cursor: string;
+  /** 商品列表 */
+  items: Item[];
 }
 
-/** Gorse 推荐导出数据查询条件 */
-export interface ExportDataRequest {
-  /** 数据类型：枚举【AdvanceDataType】 */
-  data_type: AdvanceDataType;
+/** Gorse 推荐用户列表查询条件 */
+export interface PageUserRequest {
+  /** 分页游标 */
+  cursor: string;
+  /** 查询数量 */
+  n: number;
 }
 
-/** Gorse 推荐导出数据响应 */
-export interface ExportDataResponse {
-  /** 文件名 */
-  file_name: string;
-  /** JSONL文件内容 */
-  content: string;
-}
-
-/** Gorse 推荐导入数据请求 */
-export interface ImportDataRequest {
-  /** 数据类型：枚举【AdvanceDataType】 */
-  data_type: AdvanceDataType;
-  /** 文件名 */
-  file_name: string;
-  /** JSONL文件内容 */
-  content: string;
-}
-
-/** Gorse 推荐导入数据响应 */
-export interface ImportDataResponse {
-  /** 成功导入数量 */
-  success_count: number;
-}
-
-/** Gorse 推荐名称查询条件 */
-export interface GetTimeSeriesRequest {
-  /** 名称 */
-  name: string;
-  /** 开始时间 */
-  begin: string;
-  /** 结束时间 */
-  end: string;
+/** Gorse 推荐用户分页响应 */
+export interface PageUserResponse {
+  /** 下一页游标 */
+  cursor: string;
+  /** 用户列表 */
+  users: UserResponse[];
 }
 
 /** Gorse 推荐仪表盘推荐商品查询条件 */
@@ -90,82 +60,12 @@ export interface ListDashboardItemRequest {
   end: number;
 }
 
-/** Gorse 推荐分类查询条件 */
-export interface OptionCategoryRequest {
-}
-
-/** Gorse 推荐分类响应 */
-export interface OptionCategoryResponse {
-  /** 分类列表 */
-  categories: string[];
-}
-
 /** Gorse 推荐仪表盘推荐商品响应 */
 export interface ListDashboardItemResponse {
   /** 商品列表 */
   items: Item[];
   /** 最后更新时间 */
   last_modified: string;
-}
-
-/** Gorse 推荐时间序列响应 */
-export interface TimeSeriesResponse {
-  /** 时间序列点列表 */
-  points: TimeSeriesPoint[];
-}
-
-/** Gorse 推荐时间序列点 */
-export interface TimeSeriesPoint {
-  /** 名称 */
-  name: string;
-  /** 时间 */
-  timestamp: string;
-  /** 数值 */
-  value: number;
-}
-
-/** Gorse 推荐相似用户查询条件 */
-export interface GetUserSimilarRequest {
-  /** 用户编号 */
-  id: string;
-  /** 推荐器名称 */
-  recommender: string;
-  /** 分类 */
-  category: string;
-}
-
-/** Gorse 推荐相似商品查询条件 */
-export interface GetItemSimilarRequest {
-  /** 商品编号 */
-  id: string;
-  /** 推荐器名称 */
-  recommender: string;
-  /** 分类 */
-  category: string;
-}
-
-/** Gorse 推荐用户反馈查询条件 */
-export interface GetUserFeedbackRequest {
-  /** 用户编号 */
-  id: string;
-  /** 反馈类型 */
-  feedback_type: string;
-  /** 偏移量 */
-  offset: number;
-  /** 查询数量 */
-  n: number;
-}
-
-/** Gorse 推荐用户推荐查询条件 */
-export interface GetUserRecommendRequest {
-  /** 用户编号 */
-  id: string;
-  /** 推荐器名称 */
-  recommender: string;
-  /** 分类 */
-  category: string;
-  /** 查询数量 */
-  n: number;
 }
 
 /** Gorse 推荐任务状态查询条件 */
@@ -178,194 +78,8 @@ export interface ListTaskResponse {
   tasks: Task[];
 }
 
-/** Gorse 推荐任务状态 */
-export interface Task {
-  /** 执行节点 */
-  tracer: string;
-  /** 任务名称 */
-  name: string;
-  /** 任务状态 */
-  status: string;
-  /** 错误信息 */
-  error: string;
-  /** 当前进度 */
-  count: number;
-  /** 总进度 */
-  total: number;
-  /** 开始时间 */
-  start_time: string;
-  /** 结束时间 */
-  finish_time: string;
-}
-
-/** Gorse 推荐用户列表查询条件 */
-export interface PageUserRequest {
-  /** 分页游标 */
-  cursor: string;
-  /** 查询数量 */
-  n: number;
-}
-
-/** Gorse 推荐用户查询条件 */
-export interface GetUserRequest {
-  /** 用户编号 */
-  id: string;
-}
-
-/** Gorse 推荐用户删除条件 */
-export interface DeleteUserRequest {
-  /** 用户编号 */
-  id: string;
-}
-
-/** Gorse 推荐用户分页响应 */
-export interface PageUserResponse {
-  /** 下一页游标 */
-  cursor: string;
-  /** 用户列表 */
-  users: UserResponse[];
-}
-
-/** Gorse 推荐相似用户响应 */
-export interface UserSimilarResponse {
-  /** 相似用户列表 */
-  users: UserResponse[];
-}
-
-/** Gorse 推荐用户 */
-export interface UserResponse {
-  /** 用户编号 */
-  user_id: string;
-  /** 标签信息 */
-  labels:
-    | UserLabel
-    | undefined;
-  /** 备注 */
-  comment: string;
-  /** 最后活跃时间 */
-  last_active_time: string;
-  /** 最后更新时间 */
-  last_update_time: string;
-  /** 分数 */
-  score: number;
-}
-
-/** Gorse 推荐用户标签信息 */
-export interface UserLabel {
-  /** 部门编号 */
-  dept_id: number;
-  /** 性别 */
-  gender: number;
-  /** 角色编号 */
-  role_id: number;
-  /** 状态 */
-  status: number;
-}
-
-/** Gorse 推荐商品列表查询条件 */
-export interface PageItemRequest {
-  /** 分页游标 */
-  cursor: string;
-  /** 查询数量 */
-  n: number;
-}
-
-/** Gorse 推荐商品查询条件 */
-export interface GetItemRequest {
-  /** 商品编号 */
-  id: string;
-}
-
-/** Gorse 推荐商品删除条件 */
-export interface DeleteItemRequest {
-  /** 商品编号 */
-  id: string;
-}
-
-/** Gorse 推荐商品分页响应 */
-export interface PageItemResponse {
-  /** 下一页游标 */
-  cursor: string;
-  /** 商品列表 */
-  items: Item[];
-}
-
-/** Gorse 推荐商品列表响应 */
-export interface ItemListResponse {
-  /** 商品列表 */
-  items: Item[];
-}
-
-/** Gorse 推荐商品 */
-export interface Item {
-  /** 商品编号 */
-  item_id: string;
-  /** 是否隐藏 */
-  is_hidden: boolean;
-  /** 分类列表 */
-  categories: string[];
-  /** 时间 */
-  timestamp: string;
-  /** 标签信息 */
-  labels:
-    | ItemLabel
-    | undefined;
-  /** 备注 */
-  comment: string;
-  /** 分数 */
-  score: number;
-}
-
-/** Gorse 推荐商品标签信息 */
-export interface ItemLabel {
-  /** 商品描述 */
-  desc: string;
-  /** 折扣价 */
-  discount_price: number;
-  /** 库存 */
-  inventory: number;
-  /** 原价 */
-  price: number;
-  /** 状态 */
-  status: number;
-}
-
-/** Gorse 推荐反馈响应 */
-export interface FeedbackResponse {
-  /** 反馈列表 */
-  feedback: Feedback[];
-}
-
-/** Gorse 推荐反馈 */
-export interface Feedback {
-  /** 反馈类型 */
-  feedback_type: string;
-  /** 用户编号 */
-  user_id: string;
-  /** 反馈商品 */
-  item:
-    | Item
-    | undefined;
-  /** 反馈值 */
-  value: number;
-  /** 时间 */
-  timestamp: string;
-  /** 备注 */
-  comment: string;
-}
-
 /** Gorse 推荐配置查询条件 */
 export interface GetConfigRequest {
-}
-
-/** Gorse 推荐配置保存条件 */
-export interface SaveConfigRequest {
-  /** Gorse 推荐配置 */
-  config: ConfigResponse | undefined;
-}
-
-/** Gorse 推荐配置重置条件 */
-export interface ResetConfigRequest {
 }
 
 /** Gorse 推荐配置响应 */
@@ -770,42 +484,328 @@ export interface ConfigResponse_Openai {
   log_file: string;
 }
 
+/** Gorse 推荐商品查询条件 */
+export interface GetItemRequest {
+  /** 商品编号 */
+  id: string;
+}
+
+/** Gorse 推荐商品 */
+export interface Item {
+  /** 商品编号 */
+  item_id: string;
+  /** 是否隐藏 */
+  is_hidden: boolean;
+  /** 分类列表 */
+  categories: string[];
+  /** 时间 */
+  timestamp: string;
+  /** 标签信息 */
+  labels:
+    | ItemLabel
+    | undefined;
+  /** 备注 */
+  comment: string;
+  /** 分数 */
+  score: number;
+}
+
+/** Gorse 推荐相似商品查询条件 */
+export interface GetItemSimilarRequest {
+  /** 商品编号 */
+  id: string;
+  /** 推荐器名称 */
+  recommender: string;
+  /** 分类 */
+  category: string;
+}
+
+/** Gorse 推荐商品列表响应 */
+export interface ItemListResponse {
+  /** 商品列表 */
+  items: Item[];
+}
+
+/** Gorse 推荐名称查询条件 */
+export interface GetTimeSeriesRequest {
+  /** 名称 */
+  name: string;
+  /** 开始时间 */
+  begin: string;
+  /** 结束时间 */
+  end: string;
+}
+
+/** Gorse 推荐时间序列响应 */
+export interface TimeSeriesResponse {
+  /** 时间序列点列表 */
+  points: TimeSeriesPoint[];
+}
+
+/** Gorse 推荐用户查询条件 */
+export interface GetUserRequest {
+  /** 用户编号 */
+  id: string;
+}
+
+/** Gorse 推荐用户 */
+export interface UserResponse {
+  /** 用户编号 */
+  user_id: string;
+  /** 标签信息 */
+  labels:
+    | UserLabel
+    | undefined;
+  /** 备注 */
+  comment: string;
+  /** 最后活跃时间 */
+  last_active_time: string;
+  /** 最后更新时间 */
+  last_update_time: string;
+  /** 分数 */
+  score: number;
+}
+
+/** Gorse 推荐用户反馈查询条件 */
+export interface GetUserFeedbackRequest {
+  /** 用户编号 */
+  id: string;
+  /** 反馈类型 */
+  feedback_type: string;
+  /** 偏移量 */
+  offset: number;
+  /** 查询数量 */
+  n: number;
+}
+
+/** Gorse 推荐反馈响应 */
+export interface FeedbackResponse {
+  /** 反馈列表 */
+  feedback: Feedback[];
+}
+
+/** Gorse 推荐用户推荐查询条件 */
+export interface GetUserRecommendRequest {
+  /** 用户编号 */
+  id: string;
+  /** 推荐器名称 */
+  recommender: string;
+  /** 分类 */
+  category: string;
+  /** 查询数量 */
+  n: number;
+}
+
+/** Gorse 推荐相似用户查询条件 */
+export interface GetUserSimilarRequest {
+  /** 用户编号 */
+  id: string;
+  /** 推荐器名称 */
+  recommender: string;
+  /** 分类 */
+  category: string;
+}
+
+/** Gorse 推荐相似用户响应 */
+export interface UserSimilarResponse {
+  /** 相似用户列表 */
+  users: UserResponse[];
+}
+
+/** Gorse 推荐商品删除条件 */
+export interface DeleteItemRequest {
+  /** 商品编号 */
+  id: string;
+}
+
+/** Gorse 推荐用户删除条件 */
+export interface DeleteUserRequest {
+  /** 用户编号 */
+  id: string;
+}
+
+/** Gorse 推荐导出数据查询条件 */
+export interface ExportDataRequest {
+  /** 数据类型：枚举【AdvanceDataType】 */
+  data_type: AdvanceDataType;
+}
+
+/** Gorse 推荐导出数据响应 */
+export interface ExportDataResponse {
+  /** 文件名 */
+  file_name: string;
+  /** JSONL文件内容 */
+  content: string;
+}
+
+/** Gorse 推荐导入数据请求 */
+export interface ImportDataRequest {
+  /** 数据类型：枚举【AdvanceDataType】 */
+  data_type: AdvanceDataType;
+  /** 文件名 */
+  file_name: string;
+  /** JSONL文件内容 */
+  content: string;
+}
+
+/** Gorse 推荐导入数据响应 */
+export interface ImportDataResponse {
+  /** 成功导入数量 */
+  success_count: number;
+}
+
+/** Gorse 推荐配置保存条件 */
+export interface SaveConfigRequest {
+  /** Gorse 推荐配置 */
+  config: ConfigResponse | undefined;
+}
+
+/** Gorse 推荐配置重置条件 */
+export interface ResetConfigRequest {
+}
+
+/** 外部推荐脚本预览请求 */
+export interface PreviewExternalRequest {
+  /** 用户编号 */
+  user_id: string;
+  /** 外部推荐脚本 */
+  script: string;
+}
+
+/** 外部推荐脚本预览响应 */
+export interface PreviewExternalResponse {
+  /** 推荐商品编号列表 */
+  items: string[];
+}
+
+/** 排序提示词预览请求 */
+export interface PreviewRankerPromptRequest {
+  /** 用户编号 */
+  user_id: string;
+  /** 查询模板 */
+  query_template: string;
+  /** 文档模板 */
+  document_template: string;
+}
+
+/** 排序提示词预览响应 */
+export interface PreviewRankerPromptResponse {
+  /** 查询提示词 */
+  query: string;
+  /** 文档提示词列表 */
+  documents: string[];
+}
+
+/** Gorse 推荐时间序列点 */
+export interface TimeSeriesPoint {
+  /** 名称 */
+  name: string;
+  /** 时间 */
+  timestamp: string;
+  /** 数值 */
+  value: number;
+}
+
+/** Gorse 推荐任务状态 */
+export interface Task {
+  /** 执行节点 */
+  tracer: string;
+  /** 任务名称 */
+  name: string;
+  /** 任务状态 */
+  status: string;
+  /** 错误信息 */
+  error: string;
+  /** 当前进度 */
+  count: number;
+  /** 总进度 */
+  total: number;
+  /** 开始时间 */
+  start_time: string;
+  /** 结束时间 */
+  finish_time: string;
+}
+
+/** Gorse 推荐用户标签信息 */
+export interface UserLabel {
+  /** 部门编号 */
+  dept_id: number;
+  /** 性别 */
+  gender: number;
+  /** 角色编号 */
+  role_id: number;
+  /** 状态 */
+  status: number;
+}
+
+/** Gorse 推荐商品标签信息 */
+export interface ItemLabel {
+  /** 商品描述 */
+  desc: string;
+  /** 折扣价 */
+  discount_price: number;
+  /** 库存 */
+  inventory: number;
+  /** 原价 */
+  price: number;
+  /** 状态 */
+  status: number;
+}
+
+/** Gorse 推荐反馈 */
+export interface Feedback {
+  /** 反馈类型 */
+  feedback_type: string;
+  /** 用户编号 */
+  user_id: string;
+  /** 反馈商品 */
+  item:
+    | Item
+    | undefined;
+  /** 反馈值 */
+  value: number;
+  /** 时间 */
+  timestamp: string;
+  /** 备注 */
+  comment: string;
+}
+
 /** Admin Gorse 推荐服务 */
 export interface RecommendGorseService {
-  /** 查询 Gorse 推荐时间序列 */
-  GetTimeSeries(request: GetTimeSeriesRequest): Promise<TimeSeriesResponse>;
   /** 查询 Gorse 推荐分类 */
   OptionCategory(request: OptionCategoryRequest): Promise<OptionCategoryResponse>;
+  /** 查询 Gorse 推荐商品列表 */
+  PageItem(request: PageItemRequest): Promise<PageItemResponse>;
+  /** 查询 Gorse 推荐用户列表 */
+  PageUser(request: PageUserRequest): Promise<PageUserResponse>;
   /** 查询 Gorse 推荐仪表盘推荐商品 */
   ListDashboardItem(request: ListDashboardItemRequest): Promise<ListDashboardItemResponse>;
   /** 查询 Gorse 推荐任务状态 */
   ListTask(request: ListTaskRequest): Promise<ListTaskResponse>;
-  /** 查询 Gorse 推荐用户列表 */
-  PageUser(request: PageUserRequest): Promise<PageUserResponse>;
+  /** 查询 Gorse 推荐配置 */
+  GetConfig(request: GetConfigRequest): Promise<ConfigResponse>;
+  /** 查询 Gorse 推荐商品 */
+  GetItem(request: GetItemRequest): Promise<Item>;
+  /** 查询 Gorse 推荐相似商品 */
+  GetItemSimilar(request: GetItemSimilarRequest): Promise<ItemListResponse>;
+  /** 查询 Gorse 推荐时间序列 */
+  GetTimeSeries(request: GetTimeSeriesRequest): Promise<TimeSeriesResponse>;
   /** 查询 Gorse 推荐用户 */
   GetUser(request: GetUserRequest): Promise<UserResponse>;
-  /** 删除 Gorse 推荐用户 */
-  DeleteUser(request: DeleteUserRequest): Promise<Empty>;
-  /** 查询 Gorse 推荐相似用户 */
-  GetUserSimilar(request: GetUserSimilarRequest): Promise<UserSimilarResponse>;
   /** 查询 Gorse 推荐用户反馈 */
   GetUserFeedback(request: GetUserFeedbackRequest): Promise<FeedbackResponse>;
   /** 查询 Gorse 推荐用户推荐结果 */
   GetUserRecommend(request: GetUserRecommendRequest): Promise<ItemListResponse>;
-  /** 查询 Gorse 推荐商品列表 */
-  PageItem(request: PageItemRequest): Promise<PageItemResponse>;
-  /** 查询 Gorse 推荐商品 */
-  GetItem(request: GetItemRequest): Promise<Item>;
+  /** 查询 Gorse 推荐相似用户 */
+  GetUserSimilar(request: GetUserSimilarRequest): Promise<UserSimilarResponse>;
   /** 删除 Gorse 推荐商品 */
   DeleteItem(request: DeleteItemRequest): Promise<Empty>;
-  /** 查询 Gorse 推荐相似商品 */
-  GetItemSimilar(request: GetItemSimilarRequest): Promise<ItemListResponse>;
+  /** 删除 Gorse 推荐用户 */
+  DeleteUser(request: DeleteUserRequest): Promise<Empty>;
   /** 导出 Gorse 推荐数据 */
   ExportData(request: ExportDataRequest): Promise<ExportDataResponse>;
   /** 导入 Gorse 推荐数据 */
   ImportData(request: ImportDataRequest): Promise<ImportDataResponse>;
-  /** 查询 Gorse 推荐配置 */
-  GetConfig(request: GetConfigRequest): Promise<ConfigResponse>;
   /** 保存 Gorse 推荐配置 */
   SaveConfig(request: SaveConfigRequest): Promise<ConfigResponse>;
   /** 重置 Gorse 推荐配置 */

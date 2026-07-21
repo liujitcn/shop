@@ -37,22 +37,6 @@ func NewBaseDeptCase(
 	}
 }
 
-// TreeBaseDept 查询部门树
-func (c *BaseDeptCase) TreeBaseDept(ctx context.Context, req *systemadminv1.TreeBaseDeptRequest) (*systemadminv1.TreeBaseDeptResponse, error) {
-	query := c.Query(ctx).BaseDept
-	opts := make([]repository.QueryOption, 0, 3)
-	opts = append(opts, repository.Order(query.Sort.Asc()))
-	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
-	if req.TenantId != nil && req.GetTenantId() > 0 {
-		opts = append(opts, repository.Where(query.TenantID.Eq(req.GetTenantId())))
-	}
-	list, err := c.List(ctx, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return &systemadminv1.TreeBaseDeptResponse{BaseDepts: c.buildBaseDeptTree(list, 0)}, nil
-}
-
 // OptionBaseDept 查询部门选项
 func (c *BaseDeptCase) OptionBaseDept(ctx context.Context, req *systemadminv1.OptionBaseDeptRequest) (*commonv1.TreeOptionResponse, error) {
 	query := c.Query(ctx).BaseDept
@@ -67,6 +51,22 @@ func (c *BaseDeptCase) OptionBaseDept(ctx context.Context, req *systemadminv1.Op
 		return nil, err
 	}
 	return &commonv1.TreeOptionResponse{List: c.buildBaseDeptOption(list, req.GetParentId())}, nil
+}
+
+// TreeBaseDept 查询部门树
+func (c *BaseDeptCase) TreeBaseDept(ctx context.Context, req *systemadminv1.TreeBaseDeptRequest) (*systemadminv1.TreeBaseDeptResponse, error) {
+	query := c.Query(ctx).BaseDept
+	opts := make([]repository.QueryOption, 0, 3)
+	opts = append(opts, repository.Order(query.Sort.Asc()))
+	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
+	if req.TenantId != nil && req.GetTenantId() > 0 {
+		opts = append(opts, repository.Where(query.TenantID.Eq(req.GetTenantId())))
+	}
+	list, err := c.List(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &systemadminv1.TreeBaseDeptResponse{BaseDepts: c.buildBaseDeptTree(list, 0)}, nil
 }
 
 // GetBaseDept 获取部门

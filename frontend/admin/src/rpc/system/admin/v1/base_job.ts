@@ -33,10 +33,76 @@ export interface PageBaseJobResponse {
   total: number;
 }
 
+/** 定时任务日志分页查询条件 */
+export interface PageBaseJobLogRequest {
+  /** 任务ID */
+  job_id: number;
+  /** 状态 */
+  status?:
+    | BaseJobLogStatus
+    | undefined;
+  /** 执行时间 */
+  execute_time: string[];
+  /** 当前页码 */
+  page_num: number;
+  /** 每一页的行数 */
+  page_size: number;
+}
+
+/** 定时任务日志分页响应 */
+export interface PageBaseJobLogResponse {
+  /** 分页数据 */
+  base_job_logs: BaseJobLog[];
+  /** 总数 */
+  total: number;
+}
+
 /** 查询定时任务请求参数 */
 export interface GetBaseJobRequest {
   /** 任务ID */
   id: number;
+}
+
+/** 定时任务表单 */
+export interface BaseJobForm {
+  /** 任务ID */
+  id: number;
+  /** 任务名称 */
+  name: string;
+  /** 调用目标 */
+  invoke_target: string;
+  /** 目标参数 */
+  args: BaseJobArgs[];
+  /** cron表达式 */
+  cron_expression: string;
+  /** 状态 */
+  status: Status;
+}
+
+/** 查询定时任务日志请求参数 */
+export interface GetBaseJobLogRequest {
+  /** 任务日志ID */
+  id: number;
+}
+
+/** 定时任务日志 */
+export interface BaseJobLog {
+  /** 任务日志ID */
+  id: number;
+  /** 任务ID */
+  job_id: number;
+  /** 执行参数 */
+  input: string;
+  /** 输出结果 */
+  output: string;
+  /** 错误信息 */
+  error: string;
+  /** 状态：1、成功。2、失败。 */
+  status: BaseJobLogStatus;
+  /** 消耗时间/毫秒 */
+  process_time: string;
+  /** 执行时间 */
+  execute_time: string;
 }
 
 /** 创建定时任务请求参数 */
@@ -83,36 +149,6 @@ export interface ExecuteBaseJobRequest {
   id: number;
 }
 
-/** 定时任务日志分页查询条件 */
-export interface PageBaseJobLogRequest {
-  /** 任务ID */
-  job_id: number;
-  /** 状态 */
-  status?:
-    | BaseJobLogStatus
-    | undefined;
-  /** 执行时间 */
-  execute_time: string[];
-  /** 当前页码 */
-  page_num: number;
-  /** 每一页的行数 */
-  page_size: number;
-}
-
-/** 定时任务日志分页响应 */
-export interface PageBaseJobLogResponse {
-  /** 分页数据 */
-  base_job_logs: BaseJobLog[];
-  /** 总数 */
-  total: number;
-}
-
-/** 查询定时任务日志请求参数 */
-export interface GetBaseJobLogRequest {
-  /** 任务日志ID */
-  id: number;
-}
-
 /** 定时任务参数 */
 export interface BaseJobArgs {
   /** 参数 */
@@ -143,48 +179,16 @@ export interface BaseJob {
   updated_at: string;
 }
 
-/** 定时任务表单 */
-export interface BaseJobForm {
-  /** 任务ID */
-  id: number;
-  /** 任务名称 */
-  name: string;
-  /** 调用目标 */
-  invoke_target: string;
-  /** 目标参数 */
-  args: BaseJobArgs[];
-  /** cron表达式 */
-  cron_expression: string;
-  /** 状态 */
-  status: Status;
-}
-
-/** 定时任务日志 */
-export interface BaseJobLog {
-  /** 任务日志ID */
-  id: number;
-  /** 任务ID */
-  job_id: number;
-  /** 执行参数 */
-  input: string;
-  /** 输出结果 */
-  output: string;
-  /** 错误信息 */
-  error: string;
-  /** 状态：1、成功。2、失败。 */
-  status: BaseJobLogStatus;
-  /** 消耗时间/毫秒 */
-  process_time: string;
-  /** 执行时间 */
-  execute_time: string;
-}
-
 /** Admin定时任务服务 */
 export interface BaseJobService {
   /** 查询定时任务分页列表 */
   PageBaseJob(request: PageBaseJobRequest): Promise<PageBaseJobResponse>;
+  /** 查询定时任务日志分页列表 */
+  PageBaseJobLog(request: PageBaseJobLogRequest): Promise<PageBaseJobLogResponse>;
   /** 查询定时任务 */
   GetBaseJob(request: GetBaseJobRequest): Promise<BaseJobForm>;
+  /** 查询定时任务日志 */
+  GetBaseJobLog(request: GetBaseJobLogRequest): Promise<BaseJobLog>;
   /** 创建定时任务 */
   CreateBaseJob(request: CreateBaseJobRequest): Promise<Empty>;
   /** 更新定时任务 */
@@ -199,8 +203,4 @@ export interface BaseJobService {
   StopBaseJob(request: StopBaseJobRequest): Promise<Empty>;
   /** 执行任务 */
   ExecuteBaseJob(request: ExecuteBaseJobRequest): Promise<Empty>;
-  /** 查询定时任务日志分页列表 */
-  PageBaseJobLog(request: PageBaseJobLogRequest): Promise<PageBaseJobLogResponse>;
-  /** 查询定时任务日志 */
-  GetBaseJobLog(request: GetBaseJobLogRequest): Promise<BaseJobLog>;
 }

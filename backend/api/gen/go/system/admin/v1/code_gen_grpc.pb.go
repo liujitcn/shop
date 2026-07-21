@@ -20,9 +20,9 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
+	CodeGenService_GetCodeGenTask_FullMethodName   = "/system.admin.v1.CodeGenService/GetCodeGenTask"
 	CodeGenService_PreviewCodeGen_FullMethodName   = "/system.admin.v1.CodeGenService/PreviewCodeGen"
 	CodeGenService_StartCodeGenTask_FullMethodName = "/system.admin.v1.CodeGenService/StartCodeGenTask"
-	CodeGenService_GetCodeGenTask_FullMethodName   = "/system.admin.v1.CodeGenService/GetCodeGenTask"
 )
 
 // CodeGenServiceClient is the client API for CodeGenService service.
@@ -31,12 +31,12 @@ const (
 //
 // Admin代码生成服务
 type CodeGenServiceClient interface {
+	// 查询代码生成任务进度
+	GetCodeGenTask(ctx context.Context, in *GetCodeGenTaskRequest, opts ...grpc.CallOption) (*CodeGenTask, error)
 	// 预览代码生成文件
 	PreviewCodeGen(ctx context.Context, in *PreviewCodeGenRequest, opts ...grpc.CallOption) (*PreviewCodeGenResponse, error)
 	// 启动代码生成任务
 	StartCodeGenTask(ctx context.Context, in *StartCodeGenTaskRequest, opts ...grpc.CallOption) (*StartCodeGenTaskResponse, error)
-	// 查询代码生成任务进度
-	GetCodeGenTask(ctx context.Context, in *GetCodeGenTaskRequest, opts ...grpc.CallOption) (*CodeGenTask, error)
 }
 
 type codeGenServiceClient struct {
@@ -45,6 +45,16 @@ type codeGenServiceClient struct {
 
 func NewCodeGenServiceClient(cc grpc.ClientConnInterface) CodeGenServiceClient {
 	return &codeGenServiceClient{cc}
+}
+
+func (c *codeGenServiceClient) GetCodeGenTask(ctx context.Context, in *GetCodeGenTaskRequest, opts ...grpc.CallOption) (*CodeGenTask, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CodeGenTask)
+	err := c.cc.Invoke(ctx, CodeGenService_GetCodeGenTask_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *codeGenServiceClient) PreviewCodeGen(ctx context.Context, in *PreviewCodeGenRequest, opts ...grpc.CallOption) (*PreviewCodeGenResponse, error) {
@@ -67,28 +77,18 @@ func (c *codeGenServiceClient) StartCodeGenTask(ctx context.Context, in *StartCo
 	return out, nil
 }
 
-func (c *codeGenServiceClient) GetCodeGenTask(ctx context.Context, in *GetCodeGenTaskRequest, opts ...grpc.CallOption) (*CodeGenTask, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(CodeGenTask)
-	err := c.cc.Invoke(ctx, CodeGenService_GetCodeGenTask_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // CodeGenServiceServer is the server API for CodeGenService service.
 // All implementations must embed UnimplementedCodeGenServiceServer
 // for forward compatibility.
 //
 // Admin代码生成服务
 type CodeGenServiceServer interface {
+	// 查询代码生成任务进度
+	GetCodeGenTask(context.Context, *GetCodeGenTaskRequest) (*CodeGenTask, error)
 	// 预览代码生成文件
 	PreviewCodeGen(context.Context, *PreviewCodeGenRequest) (*PreviewCodeGenResponse, error)
 	// 启动代码生成任务
 	StartCodeGenTask(context.Context, *StartCodeGenTaskRequest) (*StartCodeGenTaskResponse, error)
-	// 查询代码生成任务进度
-	GetCodeGenTask(context.Context, *GetCodeGenTaskRequest) (*CodeGenTask, error)
 	mustEmbedUnimplementedCodeGenServiceServer()
 }
 
@@ -99,14 +99,14 @@ type CodeGenServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedCodeGenServiceServer struct{}
 
+func (UnimplementedCodeGenServiceServer) GetCodeGenTask(context.Context, *GetCodeGenTaskRequest) (*CodeGenTask, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetCodeGenTask not implemented")
+}
 func (UnimplementedCodeGenServiceServer) PreviewCodeGen(context.Context, *PreviewCodeGenRequest) (*PreviewCodeGenResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method PreviewCodeGen not implemented")
 }
 func (UnimplementedCodeGenServiceServer) StartCodeGenTask(context.Context, *StartCodeGenTaskRequest) (*StartCodeGenTaskResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method StartCodeGenTask not implemented")
-}
-func (UnimplementedCodeGenServiceServer) GetCodeGenTask(context.Context, *GetCodeGenTaskRequest) (*CodeGenTask, error) {
-	return nil, status.Error(codes.Unimplemented, "method GetCodeGenTask not implemented")
 }
 func (UnimplementedCodeGenServiceServer) mustEmbedUnimplementedCodeGenServiceServer() {}
 func (UnimplementedCodeGenServiceServer) testEmbeddedByValue()                        {}
@@ -127,6 +127,24 @@ func RegisterCodeGenServiceServer(s grpc.ServiceRegistrar, srv CodeGenServiceSer
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&CodeGenService_ServiceDesc, srv)
+}
+
+func _CodeGenService_GetCodeGenTask_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCodeGenTaskRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CodeGenServiceServer).GetCodeGenTask(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CodeGenService_GetCodeGenTask_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CodeGenServiceServer).GetCodeGenTask(ctx, req.(*GetCodeGenTaskRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _CodeGenService_PreviewCodeGen_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -165,24 +183,6 @@ func _CodeGenService_StartCodeGenTask_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
-func _CodeGenService_GetCodeGenTask_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetCodeGenTaskRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(CodeGenServiceServer).GetCodeGenTask(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: CodeGenService_GetCodeGenTask_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CodeGenServiceServer).GetCodeGenTask(ctx, req.(*GetCodeGenTaskRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // CodeGenService_ServiceDesc is the grpc.ServiceDesc for CodeGenService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -191,16 +191,16 @@ var CodeGenService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*CodeGenServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
+			MethodName: "GetCodeGenTask",
+			Handler:    _CodeGenService_GetCodeGenTask_Handler,
+		},
+		{
 			MethodName: "PreviewCodeGen",
 			Handler:    _CodeGenService_PreviewCodeGen_Handler,
 		},
 		{
 			MethodName: "StartCodeGenTask",
 			Handler:    _CodeGenService_StartCodeGenTask_Handler,
-		},
-		{
-			MethodName: "GetCodeGenTask",
-			Handler:    _CodeGenService_GetCodeGenTask_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

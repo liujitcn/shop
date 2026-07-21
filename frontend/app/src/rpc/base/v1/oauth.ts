@@ -7,14 +7,18 @@
 /* eslint-disable */
 import type { Empty } from "../../google/protobuf/empty";
 
-/** 三方登录方式查询条件 */
-export interface ListOauthProviderRequest {
+/** 个人中心三方账号绑定列表查询条件 */
+export interface ListOauthBindingRequest {
 }
 
-/** 三方登录方式信息 */
-export interface OauthProvider {
-  /** 登录方式标识 */
-  provider: string;
+/** 个人中心三方账号绑定列表响应 */
+export interface ListOauthBindingResponse {
+  /** 三方账号绑定列表 */
+  bindings: OauthBinding[];
+}
+
+/** 三方登录方式查询条件 */
+export interface ListOauthProviderRequest {
 }
 
 /** 三方登录方式查询结果 */
@@ -35,6 +39,40 @@ export interface CreateOauthAuthorizationRequest {
 export interface CreateOauthAuthorizationResponse {
   /** 三方授权地址 */
   authorization_url: string;
+}
+
+/** 个人中心三方账号绑定授权地址创建条件 */
+export interface CreateOauthBindingAuthorizationRequest {
+  /** 登录方式标识 */
+  provider: string;
+  /** 绑定完成后回跳地址 */
+  redirect_url: string;
+}
+
+/** 个人中心三方账号绑定授权地址创建响应 */
+export interface CreateOauthBindingAuthorizationResponse {
+  /** 三方授权地址 */
+  authorization_url: string;
+}
+
+/** 三方登录会话创建请求 */
+export interface CreateOauthSessionRequest {
+  /** 登录方式标识 */
+  provider: string;
+  /** 三方授权码 */
+  code: string;
+}
+
+/** 三方登录会话创建响应 */
+export interface CreateOauthSessionResponse {
+  /** 访问令牌，必选项。 */
+  access_token: string;
+  /** 更新令牌，用来获取下一次的访问令牌，可选项。 */
+  refresh_token: string;
+  /** 令牌类型，该值大小写不敏感，必选项，可以是bearer类型或mac类型。 */
+  token_type: string;
+  /** 令牌有效时间，单位为秒。 */
+  expires_in: number;
 }
 
 /** 三方登录回调请求 */
@@ -73,58 +111,6 @@ export interface ExchangeOauthTicketResponse {
   expires_in: number;
 }
 
-/** 三方登录会话创建请求 */
-export interface CreateOauthSessionRequest {
-  /** 登录方式标识 */
-  provider: string;
-  /** 三方授权码 */
-  code: string;
-}
-
-/** 三方登录会话创建响应 */
-export interface CreateOauthSessionResponse {
-  /** 访问令牌，必选项。 */
-  access_token: string;
-  /** 更新令牌，用来获取下一次的访问令牌，可选项。 */
-  refresh_token: string;
-  /** 令牌类型，该值大小写不敏感，必选项，可以是bearer类型或mac类型。 */
-  token_type: string;
-  /** 令牌有效时间，单位为秒。 */
-  expires_in: number;
-}
-
-/** 个人中心三方账号绑定列表查询条件 */
-export interface ListOauthBindingRequest {
-}
-
-/** 个人中心三方账号绑定列表响应 */
-export interface ListOauthBindingResponse {
-  /** 三方账号绑定列表 */
-  bindings: OauthBinding[];
-}
-
-/** 个人中心三方账号绑定信息 */
-export interface OauthBinding {
-  /** 登录方式标识 */
-  provider: string;
-  /** 是否已绑定 */
-  bound: boolean;
-}
-
-/** 个人中心三方账号绑定授权地址创建条件 */
-export interface CreateOauthBindingAuthorizationRequest {
-  /** 登录方式标识 */
-  provider: string;
-  /** 绑定完成后回跳地址 */
-  redirect_url: string;
-}
-
-/** 个人中心三方账号绑定授权地址创建响应 */
-export interface CreateOauthBindingAuthorizationResponse {
-  /** 三方授权地址 */
-  authorization_url: string;
-}
-
 /** 个人中心三方账号绑定回调请求 */
 export interface HandleOauthBindingCallbackRequest {
   /** 登录方式标识 */
@@ -149,24 +135,38 @@ export interface UnbindOauthAccountRequest {
   provider: string;
 }
 
+/** 三方登录方式信息 */
+export interface OauthProvider {
+  /** 登录方式标识 */
+  provider: string;
+}
+
+/** 个人中心三方账号绑定信息 */
+export interface OauthBinding {
+  /** 登录方式标识 */
+  provider: string;
+  /** 是否已绑定 */
+  bound: boolean;
+}
+
 /** Base三方登录公共服务 */
 export interface OauthService {
+  /** 查询个人中心三方账号绑定列表 */
+  ListOauthBinding(request: ListOauthBindingRequest): Promise<ListOauthBindingResponse>;
   /** 查询三方登录方式 */
   ListOauthProvider(request: ListOauthProviderRequest): Promise<ListOauthProviderResponse>;
   /** 创建三方登录授权地址 */
   CreateOauthAuthorization(request: CreateOauthAuthorizationRequest): Promise<CreateOauthAuthorizationResponse>;
-  /** 处理三方登录回调 */
-  HandleOauthCallback(request: HandleOauthCallbackRequest): Promise<HandleOauthCallbackResponse>;
-  /** 兑换三方登录票据 */
-  ExchangeOauthTicket(request: ExchangeOauthTicketRequest): Promise<ExchangeOauthTicketResponse>;
-  /** 创建三方登录会话 */
-  CreateOauthSession(request: CreateOauthSessionRequest): Promise<CreateOauthSessionResponse>;
-  /** 查询个人中心三方账号绑定列表 */
-  ListOauthBinding(request: ListOauthBindingRequest): Promise<ListOauthBindingResponse>;
   /** 创建个人中心三方账号绑定授权地址 */
   CreateOauthBindingAuthorization(
     request: CreateOauthBindingAuthorizationRequest,
   ): Promise<CreateOauthBindingAuthorizationResponse>;
+  /** 创建三方登录会话 */
+  CreateOauthSession(request: CreateOauthSessionRequest): Promise<CreateOauthSessionResponse>;
+  /** 处理三方登录回调 */
+  HandleOauthCallback(request: HandleOauthCallbackRequest): Promise<HandleOauthCallbackResponse>;
+  /** 兑换三方登录票据 */
+  ExchangeOauthTicket(request: ExchangeOauthTicketRequest): Promise<ExchangeOauthTicketResponse>;
   /** 处理个人中心三方账号绑定回调 */
   HandleOauthBindingCallback(request: HandleOauthBindingCallbackRequest): Promise<HandleOauthBindingCallbackResponse>;
   /** 解绑个人中心三方账号 */

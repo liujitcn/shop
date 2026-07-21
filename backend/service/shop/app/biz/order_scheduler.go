@@ -26,6 +26,15 @@ func NewOrderSchedulerCase(baseCase *biz.BaseCase) *OrderSchedulerCase {
 	}
 }
 
+// DeleteScheduled 删除交易单自动取消调度任务。
+func (s *OrderSchedulerCase) DeleteScheduled(tradeID int64) {
+	// 命中已注册的定时器时，先移除再停止，避免并发回调误删后续任务。
+	if timer, ok := s.timers.LoadAndDelete(tradeID); ok {
+		timer.(*time.Timer).Stop()
+		log.Info(fmt.Sprintf("order schedule delete %d", tradeID))
+	}
+}
+
 // AddSchedule 添加交易单自动取消调度任务。
 func (s *OrderSchedulerCase) AddSchedule(tradeID int64, d time.Duration, cancelFunc func()) {
 	s.log.Info(fmt.Sprintf("order schedule add %d", tradeID))
@@ -38,14 +47,5 @@ func (s *OrderSchedulerCase) AddSchedule(tradeID int64, d time.Duration, cancelF
 	previous, loaded := s.timers.Swap(tradeID, timer)
 	if loaded {
 		previous.(*time.Timer).Stop()
-	}
-}
-
-// DeleteScheduled 删除交易单自动取消调度任务。
-func (s *OrderSchedulerCase) DeleteScheduled(tradeID int64) {
-	// 命中已注册的定时器时，先移除再停止，避免并发回调误删后续任务。
-	if timer, ok := s.timers.LoadAndDelete(tradeID); ok {
-		timer.(*time.Timer).Stop()
-		log.Info(fmt.Sprintf("order schedule delete %d", tradeID))
 	}
 }

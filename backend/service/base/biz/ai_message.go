@@ -63,6 +63,62 @@ func NewAiMessageCase(
 	return c
 }
 
+// ListAiMessage 查询指定会话的消息列表。
+func (c *AiMessageCase) ListAiMessage(ctx context.Context, req *basev1.ListAiMessageRequest) (*basev1.ListAiMessageResponse, error) {
+	session, err := c.aiSessionCase.FindCurrentUserSessionByRawID(ctx, req.GetSessionId())
+	if err != nil {
+		return nil, err
+	}
+
+	query := c.aiMessageRepo.Query(ctx).AiMessage
+	opts := make([]repository.QueryOption, 0, 2)
+	opts = append(opts, repository.Where(query.SessionID.Eq(session.ID)))
+	opts = append(opts, repository.Order(query.CreatedAt.Asc(), query.ID.Asc()))
+	var list []*models.AiMessage
+	list, err = c.aiMessageRepo.List(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	messages := make([]*basev1.AiMessage, 0, len(list))
+	for _, item := range list {
+		messages = append(messages, c.ToDTO(item))
+	}
+	return &basev1.ListAiMessageResponse{Messages: messages}, nil
+}
+
+// UpdateAiMessage 更新当前用户消息文本并重新生成同一轮助手输出。
+func (c *AiMessageCase) UpdateAiMessage(ctx context.Context, req *basev1.UpdateAiMessageRequest) (*basev1.SendAiMessageResponse, error) {
+	content := req.GetContent()
+	if content == "" {
+		return nil, errorsx.InvalidArgument("消息内容不能为空")
+	}
+	message, session, err := c.findCurrentUserMessage(ctx, req.GetSessionId(), req.GetMessageId())
+	if err != nil {
+		return nil, err
+	}
+	err = c.ensureLastAiMessage(ctx, session.ID, message.ID)
+	if err != nil {
+		return nil, err
+	}
+	if message.Status == int32(commonv1.AiMessageStatus_GENERATING_AAMS) {
+		return nil, errorsx.StateConflict("助手回复仍在生成中", "ai_message", strconv.Itoa(int(message.Status)), strconv.Itoa(int(commonv1.AiMessageStatus_SUCCESS_AAMS)))
+	}
+	return c.regenerateAiMessageWithContent(ctx, session, message, content)
+}
+
+// DeleteAiMessage 删除当前用户当前会话下的单轮消息。
+func (c *AiMessageCase) DeleteAiMessage(ctx context.Context, req *basev1.DeleteAiMessageRequest) error {
+	message, _, err := c.findCurrentUserMessage(ctx, req.GetSessionId(), req.GetMessageId())
+	if err != nil {
+		return err
+	}
+	query := c.aiMessageRepo.Query(ctx).AiMessage
+	opts := make([]repository.QueryOption, 0, 1)
+	opts = append(opts, repository.Where(query.ID.Eq(message.ID)))
+	return c.aiMessageRepo.Delete(ctx, opts...)
+}
+
 // SendAiMessage 发送用户消息并生成 AI 助手回复。
 func (c *AiMessageCase) SendAiMessage(ctx context.Context, req *basev1.SendAiMessageRequest) (*basev1.SendAiMessageResponse, error) {
 	session, message, content, attachments, aiAttachments, history, userName, err := c.prepareNewAiMessage(ctx, req)
@@ -161,38 +217,6 @@ func (c *AiMessageCase) StreamAiMessage(ctx context.Context, req *basev1.SendAiM
 	return nil
 }
 
-// DeleteAiMessage 删除当前用户当前会话下的单轮消息。
-func (c *AiMessageCase) DeleteAiMessage(ctx context.Context, req *basev1.DeleteAiMessageRequest) error {
-	message, _, err := c.findCurrentUserMessage(ctx, req.GetSessionId(), req.GetMessageId())
-	if err != nil {
-		return err
-	}
-	query := c.aiMessageRepo.Query(ctx).AiMessage
-	opts := make([]repository.QueryOption, 0, 1)
-	opts = append(opts, repository.Where(query.ID.Eq(message.ID)))
-	return c.aiMessageRepo.Delete(ctx, opts...)
-}
-
-// UpdateAiMessage 更新当前用户消息文本并重新生成同一轮助手输出。
-func (c *AiMessageCase) UpdateAiMessage(ctx context.Context, req *basev1.UpdateAiMessageRequest) (*basev1.SendAiMessageResponse, error) {
-	content := req.GetContent()
-	if content == "" {
-		return nil, errorsx.InvalidArgument("消息内容不能为空")
-	}
-	message, session, err := c.findCurrentUserMessage(ctx, req.GetSessionId(), req.GetMessageId())
-	if err != nil {
-		return nil, err
-	}
-	err = c.ensureLastAiMessage(ctx, session.ID, message.ID)
-	if err != nil {
-		return nil, err
-	}
-	if message.Status == int32(commonv1.AiMessageStatus_GENERATING_AAMS) {
-		return nil, errorsx.StateConflict("助手回复仍在生成中", "ai_message", strconv.Itoa(int(message.Status)), strconv.Itoa(int(commonv1.AiMessageStatus_SUCCESS_AAMS)))
-	}
-	return c.regenerateAiMessageWithContent(ctx, session, message, content)
-}
-
 // RetryAiUserMessage 重试失败的 AI 助手消息。
 func (c *AiMessageCase) RetryAiUserMessage(ctx context.Context, req *basev1.RetryAiUserMessageRequest) (*basev1.SendAiMessageResponse, error) {
 	message, session, err := c.findCurrentUserMessage(ctx, req.GetSessionId(), req.GetMessageId())
@@ -215,30 +239,6 @@ func (c *AiMessageCase) RegenerateAiMessage(ctx context.Context, req *basev1.Reg
 		return nil, errorsx.StateConflict("助手回复仍在生成中", "ai_message", strconv.Itoa(int(message.Status)), strconv.Itoa(int(commonv1.AiMessageStatus_SUCCESS_AAMS)))
 	}
 	return c.regenerateAiMessage(ctx, session, message)
-}
-
-// ListAiMessage 查询指定会话的消息列表。
-func (c *AiMessageCase) ListAiMessage(ctx context.Context, req *basev1.ListAiMessageRequest) (*basev1.ListAiMessageResponse, error) {
-	session, err := c.aiSessionCase.FindCurrentUserSessionByRawID(ctx, req.GetSessionId())
-	if err != nil {
-		return nil, err
-	}
-
-	query := c.aiMessageRepo.Query(ctx).AiMessage
-	opts := make([]repository.QueryOption, 0, 2)
-	opts = append(opts, repository.Where(query.SessionID.Eq(session.ID)))
-	opts = append(opts, repository.Order(query.CreatedAt.Asc(), query.ID.Asc()))
-	var list []*models.AiMessage
-	list, err = c.aiMessageRepo.List(ctx, opts...)
-	if err != nil {
-		return nil, err
-	}
-
-	messages := make([]*basev1.AiMessage, 0, len(list))
-	for _, item := range list {
-		messages = append(messages, c.ToDTO(item))
-	}
-	return &basev1.ListAiMessageResponse{Messages: messages}, nil
 }
 
 // ToDTO 转换消息模型到接口对象。

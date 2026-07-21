@@ -72,6 +72,33 @@ func (c *TenantStoreCase) OptionTenantStore(ctx context.Context, req *shopadminv
 	return &shopadminv1.OptionTenantStoreResponse{List: options}, nil
 }
 
+// PageTenantStore 分页查询租户门店。
+func (c *TenantStoreCase) PageTenantStore(ctx context.Context, req *shopadminv1.PageTenantStoreRequest) (*shopadminv1.PageTenantStoreResponse, error) {
+	query := c.Query(ctx).TenantStore
+	opts := make([]repository.QueryOption, 0, 5)
+	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
+	if req.GetName() != "" {
+		opts = append(opts, repository.Where(query.Name.Like("%"+req.GetName()+"%")))
+	}
+	if req.GetTenantId() > 0 {
+		opts = append(opts, repository.Where(query.TenantID.Eq(req.GetTenantId())))
+	}
+	if req.Status != nil {
+		opts = append(opts, repository.Where(query.Status.Eq(int32(req.GetStatus()))))
+	}
+
+	list, total, err := c.Page(ctx, req.GetPageNum(), req.GetPageSize(), opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	resList := make([]*shopadminv1.TenantStore, 0, len(list))
+	for _, item := range list {
+		resList = append(resList, c.mapper.ToDTO(item))
+	}
+	return &shopadminv1.PageTenantStoreResponse{TenantStores: resList, Total: int32(total)}, nil
+}
+
 // TreeTenantStore 查询租户门店树形选项。
 func (c *TenantStoreCase) TreeTenantStore(ctx context.Context, req *shopadminv1.TreeTenantStoreRequest) (*shopadminv1.TreeTenantStoreResponse, error) {
 	authInfo, err := c.GetAuthInfo(ctx)
@@ -112,33 +139,6 @@ func (c *TenantStoreCase) TreeTenantStore(ctx context.Context, req *shopadminv1.
 	return &shopadminv1.TreeTenantStoreResponse{List: c.buildTenantStoreTreeOptions(list, tenantNames)}, nil
 }
 
-// PageTenantStore 分页查询租户门店。
-func (c *TenantStoreCase) PageTenantStore(ctx context.Context, req *shopadminv1.PageTenantStoreRequest) (*shopadminv1.PageTenantStoreResponse, error) {
-	query := c.Query(ctx).TenantStore
-	opts := make([]repository.QueryOption, 0, 5)
-	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
-	if req.GetName() != "" {
-		opts = append(opts, repository.Where(query.Name.Like("%"+req.GetName()+"%")))
-	}
-	if req.GetTenantId() > 0 {
-		opts = append(opts, repository.Where(query.TenantID.Eq(req.GetTenantId())))
-	}
-	if req.Status != nil {
-		opts = append(opts, repository.Where(query.Status.Eq(int32(req.GetStatus()))))
-	}
-
-	list, total, err := c.Page(ctx, req.GetPageNum(), req.GetPageSize(), opts...)
-	if err != nil {
-		return nil, err
-	}
-
-	resList := make([]*shopadminv1.TenantStore, 0, len(list))
-	for _, item := range list {
-		resList = append(resList, c.mapper.ToDTO(item))
-	}
-	return &shopadminv1.PageTenantStoreResponse{TenantStores: resList, Total: int32(total)}, nil
-}
-
 // GetTenantStore 获取租户门店。
 func (c *TenantStoreCase) GetTenantStore(ctx context.Context, id int64) (*shopadminv1.TenantStoreForm, error) {
 	tenantStore, err := c.FindByID(ctx, id)
@@ -146,6 +146,22 @@ func (c *TenantStoreCase) GetTenantStore(ctx context.Context, id int64) (*shopad
 		return nil, err
 	}
 	return c.formMapper.ToDTO(tenantStore), nil
+}
+
+// GetTenantStoreMapByIDs 按门店id批量查询门店。
+func (c *TenantStoreCase) GetTenantStoreMapByIDs(ctx context.Context, ids []int64) (map[int64]*models.TenantStore, error) {
+	if len(ids) == 0 {
+		return map[int64]*models.TenantStore{}, nil
+	}
+	list, err := c.ListByIDs(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+	res := make(map[int64]*models.TenantStore, len(list))
+	for _, item := range list {
+		res[item.ID] = item
+	}
+	return res, nil
 }
 
 // CreateTenantStore 创建租户门店。
@@ -249,22 +265,6 @@ func (c *TenantStoreCase) AuditTenantStore(ctx context.Context, req *shopadminv1
 		return c.goodsInfoRepo.Update(ctx, &models.GoodsInfo{Status: goodsStatus}, opts...)
 	})
 	return err
-}
-
-// GetTenantStoreMapByIDs 按门店id批量查询门店。
-func (c *TenantStoreCase) GetTenantStoreMapByIDs(ctx context.Context, ids []int64) (map[int64]*models.TenantStore, error) {
-	if len(ids) == 0 {
-		return map[int64]*models.TenantStore{}, nil
-	}
-	list, err := c.ListByIDs(ctx, ids)
-	if err != nil {
-		return nil, err
-	}
-	res := make(map[int64]*models.TenantStore, len(list))
-	for _, item := range list {
-		res[item.ID] = item
-	}
-	return res, nil
 }
 
 // buildStoreTreeOptions 构建普通租户可见的门店树节点。

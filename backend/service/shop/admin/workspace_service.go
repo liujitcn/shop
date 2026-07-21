@@ -27,6 +27,16 @@ func NewWorkspaceService(workspaceCase *biz.WorkspaceCase) *WorkspaceService {
 	}
 }
 
+// ListWorkspacePendingComment 查询工作台待审核评价。
+func (s *WorkspaceService) ListWorkspacePendingComment(ctx context.Context, req *shopadminv1.ListWorkspacePendingCommentRequest) (*shopadminv1.ListWorkspacePendingCommentResponse, error) {
+	res, err := s.workspaceCase.ListWorkspacePendingComment(ctx, req)
+	if err != nil {
+		log.Error(fmt.Sprintf("ListWorkspacePendingComment %v", err))
+		return nil, errorsx.WrapInternal(err, "查询工作台待审核评价失败")
+	}
+	return res, nil
+}
+
 // SummaryWorkspaceMetrics 查询工作台顶部指标。
 func (s *WorkspaceService) SummaryWorkspaceMetrics(ctx context.Context, req *shopadminv1.SummaryWorkspaceMetricsRequest) (*shopadminv1.SummaryWorkspaceMetricsResponse, error) {
 	res, err := s.workspaceCase.SummaryWorkspaceMetrics(ctx, req)
@@ -63,16 +73,6 @@ func (s *WorkspaceService) SummaryWorkspaceReputation(ctx context.Context, req *
 	if err != nil {
 		log.Error(fmt.Sprintf("SummaryWorkspaceReputation %v", err))
 		return nil, errorsx.WrapInternal(err, "查询工作台口碑洞察失败")
-	}
-	return res, nil
-}
-
-// ListWorkspacePendingComment 查询工作台待审核评价。
-func (s *WorkspaceService) ListWorkspacePendingComment(ctx context.Context, req *shopadminv1.ListWorkspacePendingCommentRequest) (*shopadminv1.ListWorkspacePendingCommentResponse, error) {
-	res, err := s.workspaceCase.ListWorkspacePendingComment(ctx, req)
-	if err != nil {
-		log.Error(fmt.Sprintf("ListWorkspacePendingComment %v", err))
-		return nil, errorsx.WrapInternal(err, "查询工作台待审核评价失败")
 	}
 	return res, nil
 }

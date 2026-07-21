@@ -26,43 +26,6 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// 获取登录用户信息请求参数
-type GetUserInfoRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetUserInfoRequest) Reset() {
-	*x = GetUserInfoRequest{}
-	mi := &file_system_admin_v1_auth_proto_msgTypes[0]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetUserInfoRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetUserInfoRequest) ProtoMessage() {}
-
-func (x *GetUserInfoRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_auth_proto_msgTypes[0]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetUserInfoRequest.ProtoReflect.Descriptor instead.
-func (*GetUserInfoRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_auth_proto_rawDescGZIP(), []int{0}
-}
-
 // 登录用户菜单树查询参数
 type TreeUserMenuRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -72,7 +35,7 @@ type TreeUserMenuRequest struct {
 
 func (x *TreeUserMenuRequest) Reset() {
 	*x = TreeUserMenuRequest{}
-	mi := &file_system_admin_v1_auth_proto_msgTypes[1]
+	mi := &file_system_admin_v1_auth_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -84,7 +47,7 @@ func (x *TreeUserMenuRequest) String() string {
 func (*TreeUserMenuRequest) ProtoMessage() {}
 
 func (x *TreeUserMenuRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_auth_proto_msgTypes[1]
+	mi := &file_system_admin_v1_auth_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -97,7 +60,52 @@ func (x *TreeUserMenuRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TreeUserMenuRequest.ProtoReflect.Descriptor instead.
 func (*TreeUserMenuRequest) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_auth_proto_rawDescGZIP(), []int{0}
+}
+
+// Route树响应
+type TreeRouteResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Routes        []*RouteItem           `protobuf:"bytes,1,rep,name=routes,proto3" json:"routes,omitempty"` // 路由列表
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TreeRouteResponse) Reset() {
+	*x = TreeRouteResponse{}
+	mi := &file_system_admin_v1_auth_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TreeRouteResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TreeRouteResponse) ProtoMessage() {}
+
+func (x *TreeRouteResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_auth_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TreeRouteResponse.ProtoReflect.Descriptor instead.
+func (*TreeRouteResponse) Descriptor() ([]byte, []int) {
 	return file_system_admin_v1_auth_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *TreeRouteResponse) GetRoutes() []*RouteItem {
+	if x != nil {
+		return x.Routes
+	}
+	return nil
 }
 
 // 登录用户按钮列表查询参数
@@ -137,27 +145,27 @@ func (*ListUserButtonRequest) Descriptor() ([]byte, []int) {
 	return file_system_admin_v1_auth_proto_rawDescGZIP(), []int{2}
 }
 
-// 获取个人中心用户信息请求参数
-type GetUserProfileRequest struct {
+// 获取登录用户信息请求参数
+type GetUserInfoRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *GetUserProfileRequest) Reset() {
-	*x = GetUserProfileRequest{}
+func (x *GetUserInfoRequest) Reset() {
+	*x = GetUserInfoRequest{}
 	mi := &file_system_admin_v1_auth_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GetUserProfileRequest) String() string {
+func (x *GetUserInfoRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GetUserProfileRequest) ProtoMessage() {}
+func (*GetUserInfoRequest) ProtoMessage() {}
 
-func (x *GetUserProfileRequest) ProtoReflect() protoreflect.Message {
+func (x *GetUserInfoRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_system_admin_v1_auth_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -169,144 +177,9 @@ func (x *GetUserProfileRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GetUserProfileRequest.ProtoReflect.Descriptor instead.
-func (*GetUserProfileRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use GetUserInfoRequest.ProtoReflect.Descriptor instead.
+func (*GetUserInfoRequest) Descriptor() ([]byte, []int) {
 	return file_system_admin_v1_auth_proto_rawDescGZIP(), []int{3}
-}
-
-// 更新个人中心用户信息请求参数
-type UpdateUserProfileRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserProfile   *UserProfileForm       `protobuf:"bytes,1,opt,name=user_profile,json=userProfile,proto3" json:"user_profile,omitempty"` // 个人中心用户信息
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *UpdateUserProfileRequest) Reset() {
-	*x = UpdateUserProfileRequest{}
-	mi := &file_system_admin_v1_auth_proto_msgTypes[4]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *UpdateUserProfileRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*UpdateUserProfileRequest) ProtoMessage() {}
-
-func (x *UpdateUserProfileRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_auth_proto_msgTypes[4]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use UpdateUserProfileRequest.ProtoReflect.Descriptor instead.
-func (*UpdateUserProfileRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_auth_proto_rawDescGZIP(), []int{4}
-}
-
-func (x *UpdateUserProfileRequest) GetUserProfile() *UserProfileForm {
-	if x != nil {
-		return x.UserProfile
-	}
-	return nil
-}
-
-// 更新个人中心手机号请求参数
-type UpdateUserPhoneRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserPhone     *UserPhoneForm         `protobuf:"bytes,1,opt,name=user_phone,json=userPhone,proto3" json:"user_phone,omitempty"` // 个人中心手机号
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *UpdateUserPhoneRequest) Reset() {
-	*x = UpdateUserPhoneRequest{}
-	mi := &file_system_admin_v1_auth_proto_msgTypes[5]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *UpdateUserPhoneRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*UpdateUserPhoneRequest) ProtoMessage() {}
-
-func (x *UpdateUserPhoneRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_auth_proto_msgTypes[5]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use UpdateUserPhoneRequest.ProtoReflect.Descriptor instead.
-func (*UpdateUserPhoneRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_auth_proto_rawDescGZIP(), []int{5}
-}
-
-func (x *UpdateUserPhoneRequest) GetUserPhone() *UserPhoneForm {
-	if x != nil {
-		return x.UserPhone
-	}
-	return nil
-}
-
-// 更新个人中心密码请求参数
-type UpdateUserPasswordRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserPassword  *UserPasswordForm      `protobuf:"bytes,1,opt,name=user_password,json=userPassword,proto3" json:"user_password,omitempty"` // 个人中心密码
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *UpdateUserPasswordRequest) Reset() {
-	*x = UpdateUserPasswordRequest{}
-	mi := &file_system_admin_v1_auth_proto_msgTypes[6]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *UpdateUserPasswordRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*UpdateUserPasswordRequest) ProtoMessage() {}
-
-func (x *UpdateUserPasswordRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_auth_proto_msgTypes[6]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use UpdateUserPasswordRequest.ProtoReflect.Descriptor instead.
-func (*UpdateUserPasswordRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_auth_proto_rawDescGZIP(), []int{6}
-}
-
-func (x *UpdateUserPasswordRequest) GetUserPassword() *UserPasswordForm {
-	if x != nil {
-		return x.UserPassword
-	}
-	return nil
 }
 
 // 用户信息表单
@@ -327,7 +200,7 @@ type UserInfoForm struct {
 
 func (x *UserInfoForm) Reset() {
 	*x = UserInfoForm{}
-	mi := &file_system_admin_v1_auth_proto_msgTypes[7]
+	mi := &file_system_admin_v1_auth_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -339,7 +212,7 @@ func (x *UserInfoForm) String() string {
 func (*UserInfoForm) ProtoMessage() {}
 
 func (x *UserInfoForm) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_auth_proto_msgTypes[7]
+	mi := &file_system_admin_v1_auth_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -352,7 +225,7 @@ func (x *UserInfoForm) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UserInfoForm.ProtoReflect.Descriptor instead.
 func (*UserInfoForm) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_auth_proto_rawDescGZIP(), []int{7}
+	return file_system_admin_v1_auth_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *UserInfoForm) GetUserName() string {
@@ -418,28 +291,211 @@ func (x *UserInfoForm) GetTenantName() string {
 	return ""
 }
 
-// Route树响应
-type TreeRouteResponse struct {
+// 获取个人中心用户信息请求参数
+type GetUserProfileRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Routes        []*RouteItem           `protobuf:"bytes,1,rep,name=routes,proto3" json:"routes,omitempty"` // 路由列表
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *TreeRouteResponse) Reset() {
-	*x = TreeRouteResponse{}
+func (x *GetUserProfileRequest) Reset() {
+	*x = GetUserProfileRequest{}
+	mi := &file_system_admin_v1_auth_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetUserProfileRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetUserProfileRequest) ProtoMessage() {}
+
+func (x *GetUserProfileRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_auth_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetUserProfileRequest.ProtoReflect.Descriptor instead.
+func (*GetUserProfileRequest) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_auth_proto_rawDescGZIP(), []int{5}
+}
+
+// 用户资料表单
+type UserProfileForm struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserName      string                 `protobuf:"bytes,1,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`      // 用户名
+	NickName      string                 `protobuf:"bytes,2,opt,name=nick_name,json=nickName,proto3" json:"nick_name,omitempty"`      // 昵称
+	Avatar        string                 `protobuf:"bytes,3,opt,name=avatar,proto3" json:"avatar,omitempty"`                          // 头像URL
+	Gender        int32                  `protobuf:"varint,4,opt,name=gender,proto3" json:"gender,omitempty"`                         // 性别
+	Phone         string                 `protobuf:"bytes,5,opt,name=phone,proto3" json:"phone,omitempty"`                            // 手机号
+	RoleName      string                 `protobuf:"bytes,10,opt,name=role_name,json=roleName,proto3" json:"role_name,omitempty"`     // 角色名
+	DeptName      string                 `protobuf:"bytes,11,opt,name=dept_name,json=deptName,proto3" json:"dept_name,omitempty"`     // 部门名
+	CreatedAt     string                 `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"` // 创建时间
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UserProfileForm) Reset() {
+	*x = UserProfileForm{}
+	mi := &file_system_admin_v1_auth_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UserProfileForm) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UserProfileForm) ProtoMessage() {}
+
+func (x *UserProfileForm) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_auth_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UserProfileForm.ProtoReflect.Descriptor instead.
+func (*UserProfileForm) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_auth_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *UserProfileForm) GetUserName() string {
+	if x != nil {
+		return x.UserName
+	}
+	return ""
+}
+
+func (x *UserProfileForm) GetNickName() string {
+	if x != nil {
+		return x.NickName
+	}
+	return ""
+}
+
+func (x *UserProfileForm) GetAvatar() string {
+	if x != nil {
+		return x.Avatar
+	}
+	return ""
+}
+
+func (x *UserProfileForm) GetGender() int32 {
+	if x != nil {
+		return x.Gender
+	}
+	return 0
+}
+
+func (x *UserProfileForm) GetPhone() string {
+	if x != nil {
+		return x.Phone
+	}
+	return ""
+}
+
+func (x *UserProfileForm) GetRoleName() string {
+	if x != nil {
+		return x.RoleName
+	}
+	return ""
+}
+
+func (x *UserProfileForm) GetDeptName() string {
+	if x != nil {
+		return x.DeptName
+	}
+	return ""
+}
+
+func (x *UserProfileForm) GetCreatedAt() string {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return ""
+}
+
+// 更新个人中心密码请求参数
+type UpdateUserPasswordRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserPassword  *UserPasswordForm      `protobuf:"bytes,1,opt,name=user_password,json=userPassword,proto3" json:"user_password,omitempty"` // 个人中心密码
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateUserPasswordRequest) Reset() {
+	*x = UpdateUserPasswordRequest{}
+	mi := &file_system_admin_v1_auth_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateUserPasswordRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateUserPasswordRequest) ProtoMessage() {}
+
+func (x *UpdateUserPasswordRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_auth_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateUserPasswordRequest.ProtoReflect.Descriptor instead.
+func (*UpdateUserPasswordRequest) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_auth_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *UpdateUserPasswordRequest) GetUserPassword() *UserPasswordForm {
+	if x != nil {
+		return x.UserPassword
+	}
+	return nil
+}
+
+// 更新个人中心手机号请求参数
+type UpdateUserPhoneRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserPhone     *UserPhoneForm         `protobuf:"bytes,1,opt,name=user_phone,json=userPhone,proto3" json:"user_phone,omitempty"` // 个人中心手机号
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateUserPhoneRequest) Reset() {
+	*x = UpdateUserPhoneRequest{}
 	mi := &file_system_admin_v1_auth_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *TreeRouteResponse) String() string {
+func (x *UpdateUserPhoneRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*TreeRouteResponse) ProtoMessage() {}
+func (*UpdateUserPhoneRequest) ProtoMessage() {}
 
-func (x *TreeRouteResponse) ProtoReflect() protoreflect.Message {
+func (x *UpdateUserPhoneRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_system_admin_v1_auth_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -451,16 +507,106 @@ func (x *TreeRouteResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use TreeRouteResponse.ProtoReflect.Descriptor instead.
-func (*TreeRouteResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use UpdateUserPhoneRequest.ProtoReflect.Descriptor instead.
+func (*UpdateUserPhoneRequest) Descriptor() ([]byte, []int) {
 	return file_system_admin_v1_auth_proto_rawDescGZIP(), []int{8}
 }
 
-func (x *TreeRouteResponse) GetRoutes() []*RouteItem {
+func (x *UpdateUserPhoneRequest) GetUserPhone() *UserPhoneForm {
 	if x != nil {
-		return x.Routes
+		return x.UserPhone
 	}
 	return nil
+}
+
+// 更新个人中心用户信息请求参数
+type UpdateUserProfileRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserProfile   *UserProfileForm       `protobuf:"bytes,1,opt,name=user_profile,json=userProfile,proto3" json:"user_profile,omitempty"` // 个人中心用户信息
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateUserProfileRequest) Reset() {
+	*x = UpdateUserProfileRequest{}
+	mi := &file_system_admin_v1_auth_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateUserProfileRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateUserProfileRequest) ProtoMessage() {}
+
+func (x *UpdateUserProfileRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_auth_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateUserProfileRequest.ProtoReflect.Descriptor instead.
+func (*UpdateUserProfileRequest) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_auth_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *UpdateUserProfileRequest) GetUserProfile() *UserProfileForm {
+	if x != nil {
+		return x.UserProfile
+	}
+	return nil
+}
+
+// 发送手机号验证码请求参数
+type SendPhoneCodeRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Phone         string                 `protobuf:"bytes,1,opt,name=phone,proto3" json:"phone,omitempty"` // 手机号
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SendPhoneCodeRequest) Reset() {
+	*x = SendPhoneCodeRequest{}
+	mi := &file_system_admin_v1_auth_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SendPhoneCodeRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SendPhoneCodeRequest) ProtoMessage() {}
+
+func (x *SendPhoneCodeRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_auth_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SendPhoneCodeRequest.ProtoReflect.Descriptor instead.
+func (*SendPhoneCodeRequest) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_auth_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *SendPhoneCodeRequest) GetPhone() string {
+	if x != nil {
+		return x.Phone
+	}
+	return ""
 }
 
 // Route项
@@ -478,7 +624,7 @@ type RouteItem struct {
 
 func (x *RouteItem) Reset() {
 	*x = RouteItem{}
-	mi := &file_system_admin_v1_auth_proto_msgTypes[9]
+	mi := &file_system_admin_v1_auth_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -490,7 +636,7 @@ func (x *RouteItem) String() string {
 func (*RouteItem) ProtoMessage() {}
 
 func (x *RouteItem) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_auth_proto_msgTypes[9]
+	mi := &file_system_admin_v1_auth_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -503,7 +649,7 @@ func (x *RouteItem) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RouteItem.ProtoReflect.Descriptor instead.
 func (*RouteItem) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_auth_proto_rawDescGZIP(), []int{9}
+	return file_system_admin_v1_auth_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *RouteItem) GetPath() string {
@@ -565,7 +711,7 @@ type RouteMeta struct {
 
 func (x *RouteMeta) Reset() {
 	*x = RouteMeta{}
-	mi := &file_system_admin_v1_auth_proto_msgTypes[10]
+	mi := &file_system_admin_v1_auth_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -577,7 +723,7 @@ func (x *RouteMeta) String() string {
 func (*RouteMeta) ProtoMessage() {}
 
 func (x *RouteMeta) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_auth_proto_msgTypes[10]
+	mi := &file_system_admin_v1_auth_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -590,7 +736,7 @@ func (x *RouteMeta) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RouteMeta.ProtoReflect.Descriptor instead.
 func (*RouteMeta) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_auth_proto_rawDescGZIP(), []int{10}
+	return file_system_admin_v1_auth_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *RouteMeta) GetTitle() string {
@@ -660,7 +806,7 @@ type RouteParams struct {
 
 func (x *RouteParams) Reset() {
 	*x = RouteParams{}
-	mi := &file_system_admin_v1_auth_proto_msgTypes[11]
+	mi := &file_system_admin_v1_auth_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -672,7 +818,7 @@ func (x *RouteParams) String() string {
 func (*RouteParams) ProtoMessage() {}
 
 func (x *RouteParams) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_auth_proto_msgTypes[11]
+	mi := &file_system_admin_v1_auth_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -685,7 +831,7 @@ func (x *RouteParams) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RouteParams.ProtoReflect.Descriptor instead.
 func (*RouteParams) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_auth_proto_rawDescGZIP(), []int{11}
+	return file_system_admin_v1_auth_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *RouteParams) GetKey() string {
@@ -702,107 +848,6 @@ func (x *RouteParams) GetValue() string {
 	return ""
 }
 
-// 用户资料表单
-type UserProfileForm struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserName      string                 `protobuf:"bytes,1,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`      // 用户名
-	NickName      string                 `protobuf:"bytes,2,opt,name=nick_name,json=nickName,proto3" json:"nick_name,omitempty"`      // 昵称
-	Avatar        string                 `protobuf:"bytes,3,opt,name=avatar,proto3" json:"avatar,omitempty"`                          // 头像URL
-	Gender        int32                  `protobuf:"varint,4,opt,name=gender,proto3" json:"gender,omitempty"`                         // 性别
-	Phone         string                 `protobuf:"bytes,5,opt,name=phone,proto3" json:"phone,omitempty"`                            // 手机号
-	RoleName      string                 `protobuf:"bytes,10,opt,name=role_name,json=roleName,proto3" json:"role_name,omitempty"`     // 角色名
-	DeptName      string                 `protobuf:"bytes,11,opt,name=dept_name,json=deptName,proto3" json:"dept_name,omitempty"`     // 部门名
-	CreatedAt     string                 `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"` // 创建时间
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *UserProfileForm) Reset() {
-	*x = UserProfileForm{}
-	mi := &file_system_admin_v1_auth_proto_msgTypes[12]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *UserProfileForm) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*UserProfileForm) ProtoMessage() {}
-
-func (x *UserProfileForm) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_auth_proto_msgTypes[12]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use UserProfileForm.ProtoReflect.Descriptor instead.
-func (*UserProfileForm) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_auth_proto_rawDescGZIP(), []int{12}
-}
-
-func (x *UserProfileForm) GetUserName() string {
-	if x != nil {
-		return x.UserName
-	}
-	return ""
-}
-
-func (x *UserProfileForm) GetNickName() string {
-	if x != nil {
-		return x.NickName
-	}
-	return ""
-}
-
-func (x *UserProfileForm) GetAvatar() string {
-	if x != nil {
-		return x.Avatar
-	}
-	return ""
-}
-
-func (x *UserProfileForm) GetGender() int32 {
-	if x != nil {
-		return x.Gender
-	}
-	return 0
-}
-
-func (x *UserProfileForm) GetPhone() string {
-	if x != nil {
-		return x.Phone
-	}
-	return ""
-}
-
-func (x *UserProfileForm) GetRoleName() string {
-	if x != nil {
-		return x.RoleName
-	}
-	return ""
-}
-
-func (x *UserProfileForm) GetDeptName() string {
-	if x != nil {
-		return x.DeptName
-	}
-	return ""
-}
-
-func (x *UserProfileForm) GetCreatedAt() string {
-	if x != nil {
-		return x.CreatedAt
-	}
-	return ""
-}
-
 // 用户密码表单
 type UserPasswordForm struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -814,7 +859,7 @@ type UserPasswordForm struct {
 
 func (x *UserPasswordForm) Reset() {
 	*x = UserPasswordForm{}
-	mi := &file_system_admin_v1_auth_proto_msgTypes[13]
+	mi := &file_system_admin_v1_auth_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -826,7 +871,7 @@ func (x *UserPasswordForm) String() string {
 func (*UserPasswordForm) ProtoMessage() {}
 
 func (x *UserPasswordForm) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_auth_proto_msgTypes[13]
+	mi := &file_system_admin_v1_auth_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -839,7 +884,7 @@ func (x *UserPasswordForm) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UserPasswordForm.ProtoReflect.Descriptor instead.
 func (*UserPasswordForm) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_auth_proto_rawDescGZIP(), []int{13}
+	return file_system_admin_v1_auth_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *UserPasswordForm) GetOldPwd() *v1.PasswordCrypto {
@@ -854,51 +899,6 @@ func (x *UserPasswordForm) GetNewPwd() *v1.PasswordCrypto {
 		return x.NewPwd
 	}
 	return nil
-}
-
-// 发送手机号验证码请求参数
-type SendPhoneCodeRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Phone         string                 `protobuf:"bytes,1,opt,name=phone,proto3" json:"phone,omitempty"` // 手机号
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *SendPhoneCodeRequest) Reset() {
-	*x = SendPhoneCodeRequest{}
-	mi := &file_system_admin_v1_auth_proto_msgTypes[14]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *SendPhoneCodeRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*SendPhoneCodeRequest) ProtoMessage() {}
-
-func (x *SendPhoneCodeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_auth_proto_msgTypes[14]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use SendPhoneCodeRequest.ProtoReflect.Descriptor instead.
-func (*SendPhoneCodeRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_auth_proto_rawDescGZIP(), []int{14}
-}
-
-func (x *SendPhoneCodeRequest) GetPhone() string {
-	if x != nil {
-		return x.Phone
-	}
-	return ""
 }
 
 // 用户手机号表单
@@ -958,18 +958,12 @@ var File_system_admin_v1_auth_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_auth_proto_rawDesc = "" +
 	"\n" +
-	"\x1asystem/admin/v1/auth.proto\x12\x0fsystem.admin.v1\x1a\x15common/v1/types.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x14\n" +
-	"\x12GetUserInfoRequest\"\x15\n" +
-	"\x13TreeUserMenuRequest\"\x17\n" +
-	"\x15ListUserButtonRequest\"\x17\n" +
-	"\x15GetUserProfileRequest\"\x7f\n" +
-	"\x18UpdateUserProfileRequest\x12c\n" +
-	"\fuser_profile\x18\x01 \x01(\v2 .system.admin.v1.UserProfileFormB\x1e\xbaG\x1b\x92\x02\x18个人中心用户信息R\vuserProfile\"t\n" +
-	"\x16UpdateUserPhoneRequest\x12Z\n" +
-	"\n" +
-	"user_phone\x18\x01 \x01(\v2\x1e.system.admin.v1.UserPhoneFormB\x1b\xbaG\x18\x92\x02\x15个人中心手机号R\tuserPhone\"}\n" +
-	"\x19UpdateUserPasswordRequest\x12`\n" +
-	"\ruser_password\x18\x01 \x01(\v2!.system.admin.v1.UserPasswordFormB\x18\xbaG\x15\x92\x02\x12个人中心密码R\fuserPassword\"\xba\x03\n" +
+	"\x1asystem/admin/v1/auth.proto\x12\x0fsystem.admin.v1\x1a\x15common/v1/types.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x15\n" +
+	"\x13TreeUserMenuRequest\"[\n" +
+	"\x11TreeRouteResponse\x12F\n" +
+	"\x06routes\x18\x01 \x03(\v2\x1a.system.admin.v1.RouteItemB\x12\xbaG\x0f\x92\x02\f路由列表R\x06routes\"\x17\n" +
+	"\x15ListUserButtonRequest\"\x14\n" +
+	"\x12GetUserInfoRequest\"\xba\x03\n" +
 	"\fUserInfoForm\x12/\n" +
 	"\tuser_name\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户账号R\buserName\x12/\n" +
 	"\tnick_name\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户昵称R\bnickName\x12%\n" +
@@ -981,9 +975,28 @@ const file_system_admin_v1_auth_proto_rawDesc = "" +
 	"\vtenant_code\x18h \x01(\tB\x12\xbaG\x0f\x92\x02\f租户编码R\n" +
 	"tenantCode\x123\n" +
 	"\vtenant_name\x18i \x01(\tB\x12\xbaG\x0f\x92\x02\f租户名称R\n" +
-	"tenantName\"[\n" +
-	"\x11TreeRouteResponse\x12F\n" +
-	"\x06routes\x18\x01 \x03(\v2\x1a.system.admin.v1.RouteItemB\x12\xbaG\x0f\x92\x02\f路由列表R\x06routes\"\xfd\x03\n" +
+	"tenantName\"\x17\n" +
+	"\x15GetUserProfileRequest\"\xf0\x02\n" +
+	"\x0fUserProfileForm\x12,\n" +
+	"\tuser_name\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t用户名R\buserName\x12)\n" +
+	"\tnick_name\x18\x02 \x01(\tB\f\xbaG\t\x92\x02\x06昵称R\bnickName\x12'\n" +
+	"\x06avatar\x18\x03 \x01(\tB\x0f\xbaG\f\x92\x02\t头像URLR\x06avatar\x12$\n" +
+	"\x06gender\x18\x04 \x01(\x05B\f\xbaG\t\x92\x02\x06性别R\x06gender\x12%\n" +
+	"\x05phone\x18\x05 \x01(\tB\x0f\xbaG\f\x92\x02\t手机号R\x05phone\x12,\n" +
+	"\trole_name\x18\n" +
+	" \x01(\tB\x0f\xbaG\f\x92\x02\t角色名R\broleName\x12,\n" +
+	"\tdept_name\x18\v \x01(\tB\x0f\xbaG\f\x92\x02\t部门名R\bdeptName\x122\n" +
+	"\n" +
+	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\"}\n" +
+	"\x19UpdateUserPasswordRequest\x12`\n" +
+	"\ruser_password\x18\x01 \x01(\v2!.system.admin.v1.UserPasswordFormB\x18\xbaG\x15\x92\x02\x12个人中心密码R\fuserPassword\"t\n" +
+	"\x16UpdateUserPhoneRequest\x12Z\n" +
+	"\n" +
+	"user_phone\x18\x01 \x01(\v2\x1e.system.admin.v1.UserPhoneFormB\x1b\xbaG\x18\x92\x02\x15个人中心手机号R\tuserPhone\"\x7f\n" +
+	"\x18UpdateUserProfileRequest\x12c\n" +
+	"\fuser_profile\x18\x01 \x01(\v2 .system.admin.v1.UserProfileFormB\x1e\xbaG\x1b\x92\x02\x18个人中心用户信息R\vuserProfile\"=\n" +
+	"\x14SendPhoneCodeRequest\x12%\n" +
+	"\x05phone\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t手机号R\x05phone\"\xfd\x03\n" +
 	"\tRouteItem\x12+\n" +
 	"\x04path\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f路由路径H\x00R\x04path\x88\x01\x01\x126\n" +
 	"\bredirect\x18\x02 \x01(\tB\x15\xbaG\x12\x92\x02\x0f重定向地址H\x01R\bredirect\x88\x01\x01\x12\x82\x01\n" +
@@ -1019,36 +1032,23 @@ const file_system_admin_v1_auth_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tB\t\xbaG\x06\x92\x02\x03keyH\x00R\x03key\x88\x01\x01\x12&\n" +
 	"\x05value\x18\x02 \x01(\tB\v\xbaG\b\x92\x02\x05valueH\x01R\x05value\x88\x01\x01B\x06\n" +
 	"\x04_keyB\b\n" +
-	"\x06_value\"\xf0\x02\n" +
-	"\x0fUserProfileForm\x12,\n" +
-	"\tuser_name\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t用户名R\buserName\x12)\n" +
-	"\tnick_name\x18\x02 \x01(\tB\f\xbaG\t\x92\x02\x06昵称R\bnickName\x12'\n" +
-	"\x06avatar\x18\x03 \x01(\tB\x0f\xbaG\f\x92\x02\t头像URLR\x06avatar\x12$\n" +
-	"\x06gender\x18\x04 \x01(\x05B\f\xbaG\t\x92\x02\x06性别R\x06gender\x12%\n" +
-	"\x05phone\x18\x05 \x01(\tB\x0f\xbaG\f\x92\x02\t手机号R\x05phone\x12,\n" +
-	"\trole_name\x18\n" +
-	" \x01(\tB\x0f\xbaG\f\x92\x02\t角色名R\broleName\x12,\n" +
-	"\tdept_name\x18\v \x01(\tB\x0f\xbaG\f\x92\x02\t部门名R\bdeptName\x122\n" +
-	"\n" +
-	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\"\x9c\x01\n" +
+	"\x06_value\"\x9c\x01\n" +
 	"\x10UserPasswordForm\x12C\n" +
 	"\aold_pwd\x18\x01 \x01(\v2\x19.common.v1.PasswordCryptoB\x0f\xbaG\f\x92\x02\t原密码R\x06oldPwd\x12C\n" +
-	"\anew_pwd\x18\x02 \x01(\v2\x19.common.v1.PasswordCryptoB\x0f\xbaG\f\x92\x02\t新密码R\x06newPwd\"=\n" +
-	"\x14SendPhoneCodeRequest\x12%\n" +
-	"\x05phone\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t手机号R\x05phone\"[\n" +
+	"\anew_pwd\x18\x02 \x01(\v2\x19.common.v1.PasswordCryptoB\x0f\xbaG\f\x92\x02\t新密码R\x06newPwd\"[\n" +
 	"\rUserPhoneForm\x12%\n" +
 	"\x05phone\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t手机号R\x05phone\x12#\n" +
 	"\x04code\x18\x02 \x01(\tB\x0f\xbaG\f\x92\x02\t验证码R\x04code2\x8f\b\n" +
-	"\vAuthService\x12r\n" +
-	"\vGetUserInfo\x12#.system.admin.v1.GetUserInfoRequest\x1a\x1d.system.admin.v1.UserInfoForm\"\x1f\x82\xd3\xe4\x93\x02\x19\x12\x17/api/v1/admin/auth/user\x12~\n" +
+	"\vAuthService\x12~\n" +
 	"\fTreeUserMenu\x12$.system.admin.v1.TreeUserMenuRequest\x1a\".system.admin.v1.TreeRouteResponse\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/api/v1/admin/auth/menu/tree\x12u\n" +
-	"\x0eListUserButton\x12&.system.admin.v1.ListUserButtonRequest\x1a\x17.common.v1.StringValues\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/v1/admin/auth/buttons\x12~\n" +
-	"\x0eGetUserProfile\x12&.system.admin.v1.GetUserProfileRequest\x1a .system.admin.v1.UserProfileForm\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/v1/admin/auth/profile\x12\x88\x01\n" +
-	"\x11UpdateUserProfile\x12).system.admin.v1.UpdateUserProfileRequest\x1a\x16.google.protobuf.Empty\"0\x82\xd3\xe4\x93\x02*:\fuser_profile\x1a\x1a/api/v1/admin/auth/profile\x12x\n" +
-	"\rSendPhoneCode\x12%.system.admin.v1.SendPhoneCodeRequest\x1a\x16.google.protobuf.Empty\"(\x82\xd3\xe4\x93\x02\":\x01*\"\x1d/api/v1/admin/auth/phone/code\x12\x80\x01\n" +
+	"\x0eListUserButton\x12&.system.admin.v1.ListUserButtonRequest\x1a\x17.common.v1.StringValues\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/v1/admin/auth/buttons\x12r\n" +
+	"\vGetUserInfo\x12#.system.admin.v1.GetUserInfoRequest\x1a\x1d.system.admin.v1.UserInfoForm\"\x1f\x82\xd3\xe4\x93\x02\x19\x12\x17/api/v1/admin/auth/user\x12~\n" +
+	"\x0eGetUserProfile\x12&.system.admin.v1.GetUserProfileRequest\x1a .system.admin.v1.UserProfileForm\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/v1/admin/auth/profile\x12\x8c\x01\n" +
+	"\x12UpdateUserPassword\x12*.system.admin.v1.UpdateUserPasswordRequest\x1a\x16.google.protobuf.Empty\"2\x82\xd3\xe4\x93\x02,:\ruser_password\x1a\x1b/api/v1/admin/auth/password\x12\x80\x01\n" +
 	"\x0fUpdateUserPhone\x12'.system.admin.v1.UpdateUserPhoneRequest\x1a\x16.google.protobuf.Empty\",\x82\xd3\xe4\x93\x02&:\n" +
-	"user_phone\x1a\x18/api/v1/admin/auth/phone\x12\x8c\x01\n" +
-	"\x12UpdateUserPassword\x12*.system.admin.v1.UpdateUserPasswordRequest\x1a\x16.google.protobuf.Empty\"2\x82\xd3\xe4\x93\x02,:\ruser_password\x1a\x1b/api/v1/admin/auth/passwordB\xa7\x01\n" +
+	"user_phone\x1a\x18/api/v1/admin/auth/phone\x12\x88\x01\n" +
+	"\x11UpdateUserProfile\x12).system.admin.v1.UpdateUserProfileRequest\x1a\x16.google.protobuf.Empty\"0\x82\xd3\xe4\x93\x02*:\fuser_profile\x1a\x1a/api/v1/admin/auth/profile\x12x\n" +
+	"\rSendPhoneCode\x12%.system.admin.v1.SendPhoneCodeRequest\x1a\x16.google.protobuf.Empty\"(\x82\xd3\xe4\x93\x02\":\x01*\"\x1d/api/v1/admin/auth/phone/codeB\xa7\x01\n" +
 	"\x13com.system.admin.v1B\tAuthProtoP\x01Z'shop/api/gen/go/system/admin/v1;adminv1\xa2\x02\x03SAX\xaa\x02\x0fSystem.Admin.V1\xca\x02\x0fSystem\\Admin\\V1\xe2\x02\x1bSystem\\Admin\\V1\\GPBMetadata\xea\x02\x11System::Admin::V1b\x06proto3"
 
 var (
@@ -1065,52 +1065,52 @@ func file_system_admin_v1_auth_proto_rawDescGZIP() []byte {
 
 var file_system_admin_v1_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
 var file_system_admin_v1_auth_proto_goTypes = []any{
-	(*GetUserInfoRequest)(nil),        // 0: system.admin.v1.GetUserInfoRequest
-	(*TreeUserMenuRequest)(nil),       // 1: system.admin.v1.TreeUserMenuRequest
+	(*TreeUserMenuRequest)(nil),       // 0: system.admin.v1.TreeUserMenuRequest
+	(*TreeRouteResponse)(nil),         // 1: system.admin.v1.TreeRouteResponse
 	(*ListUserButtonRequest)(nil),     // 2: system.admin.v1.ListUserButtonRequest
-	(*GetUserProfileRequest)(nil),     // 3: system.admin.v1.GetUserProfileRequest
-	(*UpdateUserProfileRequest)(nil),  // 4: system.admin.v1.UpdateUserProfileRequest
-	(*UpdateUserPhoneRequest)(nil),    // 5: system.admin.v1.UpdateUserPhoneRequest
-	(*UpdateUserPasswordRequest)(nil), // 6: system.admin.v1.UpdateUserPasswordRequest
-	(*UserInfoForm)(nil),              // 7: system.admin.v1.UserInfoForm
-	(*TreeRouteResponse)(nil),         // 8: system.admin.v1.TreeRouteResponse
-	(*RouteItem)(nil),                 // 9: system.admin.v1.RouteItem
-	(*RouteMeta)(nil),                 // 10: system.admin.v1.RouteMeta
-	(*RouteParams)(nil),               // 11: system.admin.v1.RouteParams
-	(*UserProfileForm)(nil),           // 12: system.admin.v1.UserProfileForm
-	(*UserPasswordForm)(nil),          // 13: system.admin.v1.UserPasswordForm
-	(*SendPhoneCodeRequest)(nil),      // 14: system.admin.v1.SendPhoneCodeRequest
+	(*GetUserInfoRequest)(nil),        // 3: system.admin.v1.GetUserInfoRequest
+	(*UserInfoForm)(nil),              // 4: system.admin.v1.UserInfoForm
+	(*GetUserProfileRequest)(nil),     // 5: system.admin.v1.GetUserProfileRequest
+	(*UserProfileForm)(nil),           // 6: system.admin.v1.UserProfileForm
+	(*UpdateUserPasswordRequest)(nil), // 7: system.admin.v1.UpdateUserPasswordRequest
+	(*UpdateUserPhoneRequest)(nil),    // 8: system.admin.v1.UpdateUserPhoneRequest
+	(*UpdateUserProfileRequest)(nil),  // 9: system.admin.v1.UpdateUserProfileRequest
+	(*SendPhoneCodeRequest)(nil),      // 10: system.admin.v1.SendPhoneCodeRequest
+	(*RouteItem)(nil),                 // 11: system.admin.v1.RouteItem
+	(*RouteMeta)(nil),                 // 12: system.admin.v1.RouteMeta
+	(*RouteParams)(nil),               // 13: system.admin.v1.RouteParams
+	(*UserPasswordForm)(nil),          // 14: system.admin.v1.UserPasswordForm
 	(*UserPhoneForm)(nil),             // 15: system.admin.v1.UserPhoneForm
 	(*v1.PasswordCrypto)(nil),         // 16: common.v1.PasswordCrypto
 	(*v1.StringValues)(nil),           // 17: common.v1.StringValues
 	(*emptypb.Empty)(nil),             // 18: google.protobuf.Empty
 }
 var file_system_admin_v1_auth_proto_depIdxs = []int32{
-	12, // 0: system.admin.v1.UpdateUserProfileRequest.user_profile:type_name -> system.admin.v1.UserProfileForm
-	15, // 1: system.admin.v1.UpdateUserPhoneRequest.user_phone:type_name -> system.admin.v1.UserPhoneForm
-	13, // 2: system.admin.v1.UpdateUserPasswordRequest.user_password:type_name -> system.admin.v1.UserPasswordForm
-	9,  // 3: system.admin.v1.TreeRouteResponse.routes:type_name -> system.admin.v1.RouteItem
-	10, // 4: system.admin.v1.RouteItem.meta:type_name -> system.admin.v1.RouteMeta
-	9,  // 5: system.admin.v1.RouteItem.children:type_name -> system.admin.v1.RouteItem
-	11, // 6: system.admin.v1.RouteMeta.params:type_name -> system.admin.v1.RouteParams
+	11, // 0: system.admin.v1.TreeRouteResponse.routes:type_name -> system.admin.v1.RouteItem
+	14, // 1: system.admin.v1.UpdateUserPasswordRequest.user_password:type_name -> system.admin.v1.UserPasswordForm
+	15, // 2: system.admin.v1.UpdateUserPhoneRequest.user_phone:type_name -> system.admin.v1.UserPhoneForm
+	6,  // 3: system.admin.v1.UpdateUserProfileRequest.user_profile:type_name -> system.admin.v1.UserProfileForm
+	12, // 4: system.admin.v1.RouteItem.meta:type_name -> system.admin.v1.RouteMeta
+	11, // 5: system.admin.v1.RouteItem.children:type_name -> system.admin.v1.RouteItem
+	13, // 6: system.admin.v1.RouteMeta.params:type_name -> system.admin.v1.RouteParams
 	16, // 7: system.admin.v1.UserPasswordForm.old_pwd:type_name -> common.v1.PasswordCrypto
 	16, // 8: system.admin.v1.UserPasswordForm.new_pwd:type_name -> common.v1.PasswordCrypto
-	0,  // 9: system.admin.v1.AuthService.GetUserInfo:input_type -> system.admin.v1.GetUserInfoRequest
-	1,  // 10: system.admin.v1.AuthService.TreeUserMenu:input_type -> system.admin.v1.TreeUserMenuRequest
-	2,  // 11: system.admin.v1.AuthService.ListUserButton:input_type -> system.admin.v1.ListUserButtonRequest
-	3,  // 12: system.admin.v1.AuthService.GetUserProfile:input_type -> system.admin.v1.GetUserProfileRequest
-	4,  // 13: system.admin.v1.AuthService.UpdateUserProfile:input_type -> system.admin.v1.UpdateUserProfileRequest
-	14, // 14: system.admin.v1.AuthService.SendPhoneCode:input_type -> system.admin.v1.SendPhoneCodeRequest
-	5,  // 15: system.admin.v1.AuthService.UpdateUserPhone:input_type -> system.admin.v1.UpdateUserPhoneRequest
-	6,  // 16: system.admin.v1.AuthService.UpdateUserPassword:input_type -> system.admin.v1.UpdateUserPasswordRequest
-	7,  // 17: system.admin.v1.AuthService.GetUserInfo:output_type -> system.admin.v1.UserInfoForm
-	8,  // 18: system.admin.v1.AuthService.TreeUserMenu:output_type -> system.admin.v1.TreeRouteResponse
-	17, // 19: system.admin.v1.AuthService.ListUserButton:output_type -> common.v1.StringValues
-	12, // 20: system.admin.v1.AuthService.GetUserProfile:output_type -> system.admin.v1.UserProfileForm
-	18, // 21: system.admin.v1.AuthService.UpdateUserProfile:output_type -> google.protobuf.Empty
-	18, // 22: system.admin.v1.AuthService.SendPhoneCode:output_type -> google.protobuf.Empty
-	18, // 23: system.admin.v1.AuthService.UpdateUserPhone:output_type -> google.protobuf.Empty
-	18, // 24: system.admin.v1.AuthService.UpdateUserPassword:output_type -> google.protobuf.Empty
+	0,  // 9: system.admin.v1.AuthService.TreeUserMenu:input_type -> system.admin.v1.TreeUserMenuRequest
+	2,  // 10: system.admin.v1.AuthService.ListUserButton:input_type -> system.admin.v1.ListUserButtonRequest
+	3,  // 11: system.admin.v1.AuthService.GetUserInfo:input_type -> system.admin.v1.GetUserInfoRequest
+	5,  // 12: system.admin.v1.AuthService.GetUserProfile:input_type -> system.admin.v1.GetUserProfileRequest
+	7,  // 13: system.admin.v1.AuthService.UpdateUserPassword:input_type -> system.admin.v1.UpdateUserPasswordRequest
+	8,  // 14: system.admin.v1.AuthService.UpdateUserPhone:input_type -> system.admin.v1.UpdateUserPhoneRequest
+	9,  // 15: system.admin.v1.AuthService.UpdateUserProfile:input_type -> system.admin.v1.UpdateUserProfileRequest
+	10, // 16: system.admin.v1.AuthService.SendPhoneCode:input_type -> system.admin.v1.SendPhoneCodeRequest
+	1,  // 17: system.admin.v1.AuthService.TreeUserMenu:output_type -> system.admin.v1.TreeRouteResponse
+	17, // 18: system.admin.v1.AuthService.ListUserButton:output_type -> common.v1.StringValues
+	4,  // 19: system.admin.v1.AuthService.GetUserInfo:output_type -> system.admin.v1.UserInfoForm
+	6,  // 20: system.admin.v1.AuthService.GetUserProfile:output_type -> system.admin.v1.UserProfileForm
+	18, // 21: system.admin.v1.AuthService.UpdateUserPassword:output_type -> google.protobuf.Empty
+	18, // 22: system.admin.v1.AuthService.UpdateUserPhone:output_type -> google.protobuf.Empty
+	18, // 23: system.admin.v1.AuthService.UpdateUserProfile:output_type -> google.protobuf.Empty
+	18, // 24: system.admin.v1.AuthService.SendPhoneCode:output_type -> google.protobuf.Empty
 	17, // [17:25] is the sub-list for method output_type
 	9,  // [9:17] is the sub-list for method input_type
 	9,  // [9:9] is the sub-list for extension type_name
@@ -1123,9 +1123,9 @@ func file_system_admin_v1_auth_proto_init() {
 	if File_system_admin_v1_auth_proto != nil {
 		return
 	}
-	file_system_admin_v1_auth_proto_msgTypes[9].OneofWrappers = []any{}
-	file_system_admin_v1_auth_proto_msgTypes[10].OneofWrappers = []any{}
 	file_system_admin_v1_auth_proto_msgTypes[11].OneofWrappers = []any{}
+	file_system_admin_v1_auth_proto_msgTypes[12].OneofWrappers = []any{}
+	file_system_admin_v1_auth_proto_msgTypes[13].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

@@ -147,6 +147,599 @@ func NewOrderInfoCase(
 	return c, nil
 }
 
+// PageOrderInfo 查询订单分页列表
+func (c *OrderInfoCase) PageOrderInfo(ctx context.Context, req *shopappv1.PageOrderInfoRequest) (*shopappv1.PageOrderInfoResponse, error) {
+	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return nil, err
+	}
+	pageNum, pageSize := repository.PageDefault(int64(req.GetPageNum()), int64(req.GetPageSize()))
+	// 两类记录各取合并目标页之前的候选，保证结果准确且不随用户全部订单量增长。
+	fetchSize := pageNum * pageSize
+	tradeOpts, orderOpts, noStatusFilter := c.pageOrderInfoQueryOptions(ctx, authInfo.UserId, req)
+
+	var trades []*models.OrderTrade
+	var tradeTotal int64
+	if len(tradeOpts) > 0 {
+		query := c.orderTradeCase.Query(ctx).OrderTrade
+		// 全部订单页优先展示待支付、支付中和已关闭的交易单，再按创建时间排序。
+		if noStatusFilter {
+			tradeOpts = append(tradeOpts, repository.Order(query.Status.Asc(), query.CreatedAt.Desc(), query.ID.Desc()))
+		} else {
+			tradeOpts = append(tradeOpts, repository.Order(query.CreatedAt.Desc(), query.ID.Desc()))
+		}
+		trades, tradeTotal, err = c.orderTradeCase.Page(ctx, 1, fetchSize, tradeOpts...)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	var orderInfos []*models.OrderInfo
+	var orderTotal int64
+	if len(orderOpts) > 0 {
+		query := c.Query(ctx).OrderInfo
+		orderOpts = append(orderOpts, repository.Order(query.CreatedAt.Desc(), query.ID.Desc()))
+		orderInfos, orderTotal, err = c.Page(ctx, 1, fetchSize, orderOpts...)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	tradeIDs := make([]int64, 0, len(trades)+len(orderInfos))
+	tradeMap := make(map[int64]*models.OrderTrade, len(trades)+len(orderInfos))
+	for _, trade := range trades {
+		tradeIDs = append(tradeIDs, trade.ID)
+		tradeMap[trade.ID] = trade
+	}
+	for _, orderInfo := range orderInfos {
+		if tradeMap[orderInfo.TradeID] == nil {
+			tradeIDs = append(tradeIDs, orderInfo.TradeID)
+		}
+	}
+	if len(tradeIDs) > 0 {
+		query := c.orderTradeCase.Query(ctx).OrderTrade
+		opts := make([]repository.QueryOption, 0, 1)
+		opts = append(opts, repository.Where(query.ID.In(tradeIDs...)))
+		var allTrades []*models.OrderTrade
+		allTrades, err = c.orderTradeCase.List(ctx, opts...)
+		if err != nil {
+			return nil, err
+		}
+		for _, trade := range allTrades {
+			tradeMap[trade.ID] = trade
+		}
+	}
+
+	allOrderInfos := append([]*models.OrderInfo{}, orderInfos...)
+	if len(trades) > 0 {
+		query := c.Query(ctx).OrderInfo
+		opts := make([]repository.QueryOption, 0, 1)
+		opts = append(opts, repository.Where(query.TradeID.In(tradeIDs...)))
+		var tradeOrderInfos []*models.OrderInfo
+		tradeOrderInfos, err = c.List(ctx, opts...)
+		if err != nil {
+			return nil, err
+		}
+		allOrderInfos = append(allOrderInfos, tradeOrderInfos...)
+	}
+	orderIDs := make([]int64, 0, len(allOrderInfos))
+	orderInfoMap := make(map[int64]*models.OrderInfo, len(allOrderInfos))
+	for _, orderInfo := range allOrderInfos {
+		orderIDs = append(orderIDs, orderInfo.ID)
+		orderInfoMap[orderInfo.ID] = orderInfo
+	}
+	var orderGoodsMap map[int64][]*models.OrderGoods
+	orderGoodsMap, err = c.orderGoodsCase.mapByOrderIDs(ctx, orderIDs)
+	if err != nil {
+		return nil, err
+	}
+	var orderGoodsStoreMap map[int64][]*shopappv1.OrderGoodsStore
+	orderGoodsStoreMap, err = c.buildOrderGoodsStoreMap(ctx, orderGoodsMap)
+	if err != nil {
+		return nil, err
+	}
+
+	items := make([]*appDto.OrderPageItem, 0, len(trades)+len(orderInfos))
+	for _, orderInfo := range orderInfos {
+		protoOrder := c.convertToProto(orderInfo)
+		c.applyTradeToProto(protoOrder, tradeMap[orderInfo.TradeID])
+		protoOrder.OrderGoodsStores = orderGoodsStoreMap[orderInfo.ID]
+		applyOrderStoreOptions(protoOrder.OrderGoodsStores, []*models.OrderInfo{orderInfo})
+		items = append(items, &appDto.OrderPageItem{OrderInfo: protoOrder, CreatedAt: orderInfo.CreatedAt})
+	}
+	for _, trade := range trades {
+		tradeOrders := make([]*models.OrderInfo, 0)
+		for _, orderInfo := range orderInfoMap {
+			if orderInfo.TradeID == trade.ID {
+				tradeOrders = append(tradeOrders, orderInfo)
+			}
+		}
+		var protoOrder *shopappv1.OrderInfo
+		protoOrder, err = c.buildTradeOrderProto(ctx, trade, tradeOrders, orderGoodsMap)
+		if err != nil {
+			return nil, err
+		}
+		items = append(items, &appDto.OrderPageItem{OrderInfo: protoOrder, CreatedAt: trade.CreatedAt})
+	}
+	return &shopappv1.PageOrderInfoResponse{
+		OrderInfos: pageOrderItems(items, pageNum, pageSize, noStatusFilter),
+		Total:      int32(tradeTotal + orderTotal),
+	}, nil
+}
+
+// GetOrderInfoByID 根据订单编号查询订单
+func (c *OrderInfoCase) GetOrderInfoByID(ctx context.Context, id int64) (*shopappv1.OrderInfoResponse, error) {
+	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var item *models.OrderInfo
+	item, err = c.findByUserIDAndID(ctx, authInfo.UserId, id)
+	if err != nil {
+		// 管理员查看订单详情时，允许按订单 ID 读取详情。
+		if !isAdminRoleCode(authInfo.RoleCode) {
+			return nil, err
+		}
+		item, err = c.FindByID(ctx, id)
+		if err != nil {
+			return nil, err
+		}
+	}
+	orderInfo := c.convertToProto(item)
+	var orderTrade *models.OrderTrade
+	orderTrade, err = c.orderTradeCase.findByUserIDAndID(ctx, item.UserID, item.TradeID)
+	if err != nil {
+		return nil, err
+	}
+	c.applyTradeToProto(orderInfo, orderTrade)
+	var countdown float64
+	// 只有未完成支付的交易单才需要返回支付剩余时间。
+	if orderTrade.Status == _const.ORDER_TRADE_STATUS_PENDING_PAYMENT || orderTrade.Status == _const.ORDER_TRADE_STATUS_PAYING {
+		payTimeout := config.ParsePayTimeout()
+		countdown = orderTrade.CreatedAt.Add(payTimeout).Sub(time.Now()).Seconds()
+	}
+
+	// 查询订单商品明细，并同时按商品快照中的门店编号生成展示分组。
+	var orderGoodsList []*models.OrderGoods
+	orderGoodsList, err = c.orderGoodsCase.listByOrderID(ctx, orderInfo.Id)
+	if err != nil {
+		return nil, err
+	}
+	var orderGoodsStoreMap map[int64][]*shopappv1.OrderGoodsStore
+	orderGoodsStoreMap, err = c.buildOrderGoodsStoreMap(ctx, map[int64][]*models.OrderGoods{
+		orderInfo.Id: orderGoodsList,
+	})
+	if err != nil {
+		return nil, err
+	}
+	orderInfo.OrderGoodsStores = orderGoodsStoreMap[orderInfo.Id]
+	applyOrderStoreOptions(orderInfo.OrderGoodsStores, []*models.OrderInfo{item})
+
+	// 合并支付的门店订单返回同一交易下的其他订单，用于详情页相互跳转。
+	query := c.Query(ctx).OrderInfo
+	opts := make([]repository.QueryOption, 0, 4)
+	opts = append(opts, repository.Where(query.TradeID.Eq(item.TradeID)))
+	opts = append(opts, repository.Where(query.UserID.Eq(item.UserID)))
+	opts = append(opts, repository.Where(query.ID.Neq(item.ID)))
+	opts = append(opts, repository.Order(query.ID.Asc()))
+	var relatedOrderInfos []*models.OrderInfo
+	relatedOrderInfos, err = c.List(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+	relatedOrders := make([]*shopappv1.OrderInfoResponse_RelatedOrder, 0, len(relatedOrderInfos))
+	for _, relatedOrderInfo := range relatedOrderInfos {
+		relatedOrders = append(relatedOrders, &shopappv1.OrderInfoResponse_RelatedOrder{
+			OrderId: relatedOrderInfo.ID,
+			OrderNo: relatedOrderInfo.OrderNo,
+		})
+	}
+	// 查询订单收货地址快照
+	var address *shopappv1.OrderInfoResponse_Address
+	address, err = c.orderAddressCase.findByTradeID(ctx, orderInfo.TradeId)
+	if err != nil {
+		// 地址信息缺失时返回空地址，保持订单详情主体信息可展示。
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			address = &shopappv1.OrderInfoResponse_Address{}
+		} else {
+			return nil, err
+		}
+	}
+
+	res := shopappv1.OrderInfoResponse{
+		Order:         orderInfo,
+		Address:       address,
+		Countdown:     float32(countdown),
+		RelatedOrders: relatedOrders,
+	}
+
+	// 在线支付交易进入已支付或退款状态后，补充支付完成时间。
+	if shopcommonv1.OrderPayType(orderTrade.PayType) == shopcommonv1.OrderPayType(_const.ORDER_PAY_TYPE_ONLINE_PAY) &&
+		(orderTrade.Status == _const.ORDER_TRADE_STATUS_PAID ||
+			orderTrade.Status == _const.ORDER_TRADE_STATUS_PARTIAL_REFUND ||
+			orderTrade.Status == _const.ORDER_TRADE_STATUS_FULL_REFUND) {
+		res.Order.PaymentTime, err = c.orderPaymentCase.findPaymentTimeByTradeID(ctx, orderInfo.TradeId)
+		if err != nil {
+			// 支付记录缺失时，支付时间保持为空。
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				res.Order.PaymentTime = ""
+			} else {
+				return nil, err
+			}
+		}
+	}
+	// 已发货、待评价、已完成订单返回当前门店的物流信息。
+	if item.Status == _const.ORDER_INFO_STATUS_SHIPPED ||
+		item.Status == _const.ORDER_INFO_STATUS_WAIT_REVIEW ||
+		item.Status == _const.ORDER_INFO_STATUS_COMPLETED {
+		var logistics *shopappv1.OrderInfoResponse_Logistics
+		logistics, err = c.orderLogisticsCase.findByOrderID(ctx, orderInfo.Id)
+		if err != nil {
+			// 物流信息缺失时返回空物流，保持订单详情主体信息可展示。
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				logistics = &shopappv1.OrderInfoResponse_Logistics{}
+			} else {
+				return nil, err
+			}
+		}
+		res.Logistics = logistics
+	}
+	// 交易关闭后返回整笔交易的取消时间。
+	if orderTrade.Status == _const.ORDER_TRADE_STATUS_CLOSED {
+		res.Order.CancelTime, err = c.orderCancelCase.findCancelTimeByTradeID(ctx, orderInfo.TradeId)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				res.Order.CancelTime = ""
+			} else {
+				return nil, err
+			}
+		}
+	}
+	// 当前门店订单存在退款时，返回该子订单的退款时间。
+	if item.RefundStatus != _const.ORDER_REFUND_STATUS_NONE {
+		res.Order.RefundTime, err = c.orderRefundCase.findRefundTimeByOrderID(ctx, orderInfo.Id)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				res.Order.RefundTime = ""
+			} else {
+				return nil, err
+			}
+		}
+	}
+	return &res, nil
+}
+
+// GetOrderInfoIDByOrderNo 按订单号查询订单编号
+func (c *OrderInfoCase) GetOrderInfoIDByOrderNo(ctx context.Context, orderNo string) (int64, error) {
+	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return 0, err
+	}
+
+	query := c.Query(ctx).OrderInfo
+	var item *models.OrderInfo
+	opts := make([]repository.QueryOption, 0, 2)
+	opts = append(opts, repository.Where(query.OrderNo.Eq(orderNo)))
+	opts = append(opts, repository.Where(query.UserID.Eq(authInfo.UserId)))
+	item, err = c.Find(ctx, opts...)
+	if err != nil {
+		return 0, err
+	}
+	return item.ID, nil
+}
+
+// GetOrderTradeByID 根据交易单编号查询聚合订单详情。
+func (c *OrderInfoCase) GetOrderTradeByID(ctx context.Context, tradeID int64) (*shopappv1.OrderInfoResponse, error) {
+	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return nil, err
+	}
+	var orderTrade *models.OrderTrade
+	orderTrade, err = c.orderTradeCase.findByUserIDAndID(ctx, authInfo.UserId, tradeID)
+	if err != nil {
+		return nil, err
+	}
+
+	query := c.Query(ctx).OrderInfo
+	opts := make([]repository.QueryOption, 0, 2)
+	opts = append(opts, repository.Where(query.TradeID.Eq(tradeID)))
+	opts = append(opts, repository.Where(query.UserID.Eq(authInfo.UserId)))
+	var orderInfos []*models.OrderInfo
+	orderInfos, err = c.List(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+	orderIDs := make([]int64, 0, len(orderInfos))
+	for _, orderInfo := range orderInfos {
+		orderIDs = append(orderIDs, orderInfo.ID)
+	}
+	var orderGoodsMap map[int64][]*models.OrderGoods
+	orderGoodsMap, err = c.orderGoodsCase.mapByOrderIDs(ctx, orderIDs)
+	if err != nil {
+		return nil, err
+	}
+	var orderInfo *shopappv1.OrderInfo
+	orderInfo, err = c.buildTradeOrderProto(ctx, orderTrade, orderInfos, orderGoodsMap)
+	if err != nil {
+		return nil, err
+	}
+
+	var countdown float64
+	// 只有未完成支付的交易单才需要返回支付剩余时间。
+	if orderTrade.Status == _const.ORDER_TRADE_STATUS_PENDING_PAYMENT || orderTrade.Status == _const.ORDER_TRADE_STATUS_PAYING {
+		payTimeout := config.ParsePayTimeout()
+		countdown = orderTrade.CreatedAt.Add(payTimeout).Sub(time.Now()).Seconds()
+	}
+	var address *shopappv1.OrderInfoResponse_Address
+	address, err = c.orderAddressCase.findByTradeID(ctx, tradeID)
+	if err != nil {
+		// 地址信息缺失时返回空地址，保持交易详情主体信息可展示。
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			address = &shopappv1.OrderInfoResponse_Address{}
+		} else {
+			return nil, err
+		}
+	}
+	res := &shopappv1.OrderInfoResponse{
+		Order:     orderInfo,
+		Address:   address,
+		Countdown: float32(countdown),
+	}
+	// 在线支付交易进入已支付或退款状态后，补充支付完成时间。
+	if shopcommonv1.OrderPayType(orderTrade.PayType) == shopcommonv1.OrderPayType(_const.ORDER_PAY_TYPE_ONLINE_PAY) &&
+		(orderTrade.Status == _const.ORDER_TRADE_STATUS_PAID ||
+			orderTrade.Status == _const.ORDER_TRADE_STATUS_PARTIAL_REFUND ||
+			orderTrade.Status == _const.ORDER_TRADE_STATUS_FULL_REFUND) {
+		res.Order.PaymentTime, err = c.orderPaymentCase.findPaymentTimeByTradeID(ctx, tradeID)
+		if err != nil {
+			// 支付记录缺失时，支付时间保持为空。
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				res.Order.PaymentTime = ""
+			} else {
+				return nil, err
+			}
+		}
+	}
+	// 已关闭交易返回整笔交易的取消时间。
+	if orderTrade.Status == _const.ORDER_TRADE_STATUS_CLOSED {
+		res.Order.CancelTime, err = c.orderCancelCase.findCancelTimeByTradeID(ctx, tradeID)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				res.Order.CancelTime = ""
+			} else {
+				return nil, err
+			}
+		}
+	}
+	return res, nil
+}
+
+// CreateOrderInfo 创建订单并发起支付准备
+func (c *OrderInfoCase) CreateOrderInfo(ctx context.Context, request *shopappv1.CreateOrderInfoRequest) (*shopappv1.CreateOrderInfoResponse, error) {
+	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if request.PayType != shopcommonv1.OrderPayType_ONLINE_PAY && request.PayType != shopcommonv1.OrderPayType_CASH_ON_DELIVERY {
+		return nil, errorsx.InvalidArgument("支付方式无效")
+	}
+	payChannel := request.PayChannel
+	// 货到付款不归属线上支付渠道，避免统计时被错误计入微信或银联。
+	if request.PayType == shopcommonv1.OrderPayType_CASH_ON_DELIVERY {
+		payChannel = shopcommonv1.OrderPayChannel_UNKNOWN_OPC
+	} else if payChannel == shopcommonv1.OrderPayChannel_UNKNOWN_OPC {
+		return nil, errorsx.InvalidArgument("支付渠道不能为空")
+	} else if payChannel != shopcommonv1.OrderPayChannel_WX_PAY {
+		return nil, errorsx.InvalidArgument("当前仅支持微信支付")
+	}
+	tradeStatus := _const.ORDER_TRADE_STATUS_PENDING_PAYMENT
+	orderStatus := _const.ORDER_INFO_STATUS_NOT_STARTED
+	// 货到付款交易创建后，门店订单直接进入待发货。
+	if request.PayType == shopcommonv1.OrderPayType(_const.ORDER_PAY_TYPE_CASH_ON_DELIVERY) {
+		tradeStatus = _const.ORDER_TRADE_STATUS_CASH_ON_DELIVERY
+		orderStatus = _const.ORDER_INFO_STATUS_WAIT_SHIPMENT
+	}
+
+	storeOptions := make(map[int64]*shopappv1.OrderStoreOption, len(request.GetOrderStoreOptions()))
+	for _, option := range request.GetOrderStoreOptions() {
+		storeOptions[option.GetTenantStoreId()] = option
+	}
+	orderGoodsByStore := make(map[int64][]*models.OrderGoods)
+	storeTenantIDs := make(map[int64]int64)
+	member := utils.IsMember(ctx)
+	for _, item := range request.GetGoods() {
+		var orderGoods *models.OrderGoods
+		var goodsInfo *models.GoodsInfo
+		orderGoods, goodsInfo, err = c.orderGoodsCase.convertToModel(ctx, member, item)
+		if err != nil {
+			return nil, err
+		}
+		if goodsInfo.TenantStoreID <= 0 {
+			return nil, errorsx.InvalidArgument("商品未绑定门店，无法下单")
+		}
+		if storeOptions[goodsInfo.TenantStoreID] == nil {
+			return nil, errorsx.InvalidArgument("门店配送信息不能为空")
+		}
+		if storeOptions[goodsInfo.TenantStoreID].GetDeliveryTime() == shopcommonv1.OrderDeliveryTime_UNKNOWN_ODT {
+			return nil, errorsx.InvalidArgument("门店配送时间不能为空")
+		}
+		orderGoods.TenantStoreID = goodsInfo.TenantStoreID
+		orderGoodsByStore[goodsInfo.TenantStoreID] = append(orderGoodsByStore[goodsInfo.TenantStoreID], orderGoods)
+		storeTenantIDs[goodsInfo.TenantStoreID] = goodsInfo.TenantID
+	}
+	if len(orderGoodsByStore) == 0 {
+		return nil, errorsx.InvalidArgument("订单商品信息不能为空")
+	}
+
+	orderTrade := &models.OrderTrade{
+		TradeNo:    strconv.FormatInt(id.GenSnowflakeID(), 10),
+		UserID:     authInfo.UserId,
+		PayType:    int32(request.PayType),
+		PayChannel: int32(payChannel),
+		Status:     tradeStatus,
+	}
+	orderInfos := make([]*models.OrderInfo, 0, len(orderGoodsByStore))
+	orderGoodsMap := make(map[int64][]*models.OrderGoods, len(orderGoodsByStore))
+	for storeID, orderGoodsList := range orderGoodsByStore {
+		option := storeOptions[storeID]
+		orderInfo := &models.OrderInfo{
+			TenantID:      storeTenantIDs[storeID],
+			TenantStoreID: storeID,
+			OrderNo:       strconv.FormatInt(id.GenSnowflakeID(), 10),
+			UserID:        authInfo.UserId,
+			DeliveryTime:  int32(option.GetDeliveryTime()),
+			Status:        orderStatus,
+			RefundStatus:  _const.ORDER_REFUND_STATUS_NONE,
+			Remark:        option.GetRemark(),
+		}
+		for _, orderGoods := range orderGoodsList {
+			orderInfo.PayMoney += orderGoods.TotalPayPrice
+			orderInfo.TotalMoney += orderGoods.TotalPrice
+			orderInfo.GoodsNum += orderGoods.Num
+		}
+		orderTrade.PayMoney += orderInfo.PayMoney
+		orderTrade.TotalMoney += orderInfo.TotalMoney
+		orderTrade.GoodsNum += orderInfo.GoodsNum
+		orderInfos = append(orderInfos, orderInfo)
+		orderGoodsMap[storeID] = orderGoodsList
+	}
+	orderTrade.OrderNum = int64(len(orderInfos))
+	err = c.tx.Transaction(ctx, func(ctx context.Context) error {
+		err = c.orderTradeCase.Create(ctx, orderTrade)
+		if err != nil {
+			return err
+		}
+		err = c.orderAddressCase.createByTrade(ctx, authInfo.UserId, orderTrade.ID, request.GetAddressId())
+		if err != nil {
+			return err
+		}
+		for _, orderInfo := range orderInfos {
+			orderInfo.TradeID = orderTrade.ID
+			err = c.OrderInfoRepository.Create(ctx, orderInfo)
+			if err != nil {
+				return err
+			}
+			orderGoodsList := orderGoodsMap[orderInfo.TenantStoreID]
+			err = c.orderGoodsCase.createByOrder(ctx, orderInfo, orderGoodsList)
+			if err != nil {
+				return err
+			}
+			for _, orderGoods := range orderGoodsList {
+				err = c.goodsInfoCase.addSaleNum(ctx, orderGoods.GoodsID, orderGoods.Num)
+				if err != nil {
+					return err
+				}
+				err = c.goodsSKUCase.addSaleNum(ctx, orderGoods.SKUCode, orderGoods.Num)
+				if err != nil {
+					return err
+				}
+				if request.GetClearCart() {
+					err = c.userCartCase.deleteByUserIDAndGoodsIDAndSKUCode(ctx, authInfo.UserId, orderGoods.GoodsID, orderGoods.SKUCode)
+					if err != nil {
+						return err
+					}
+				}
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	c.dispatchRecommendOrderEvent(request.PayType, authInfo.UserId, request.GetGoods(), orderTrade.CreatedAt)
+	workspaceevent.Publish(ctx, workspaceevent.ReasonOrderChanged, workspaceevent.AreaMetrics, workspaceevent.AreaTodo, workspaceevent.AreaRisk)
+	// 为在线支付交易增加超时自动取消任务。
+	if orderTrade.Status == _const.ORDER_TRADE_STATUS_PENDING_PAYMENT {
+		// 延迟时间使用支付超时配置。
+		payTimeout := config.ParsePayTimeout()
+		createdAt := orderTrade.CreatedAt.Add(payTimeout)
+		nowTime := time.Now()
+		countdown := createdAt.Sub(nowTime).Seconds()
+		c.scheduleTradeCancellation(orderTrade.ID, orderTrade.UserID, time.Duration(countdown)*time.Second)
+	}
+	orderIDs := make([]int64, 0, len(orderInfos))
+	for _, orderInfo := range orderInfos {
+		orderIDs = append(orderIDs, orderInfo.ID)
+	}
+	return &shopappv1.CreateOrderInfoResponse{
+		TradeId:  orderTrade.ID,
+		TradeNo:  orderTrade.TradeNo,
+		OrderIds: orderIDs,
+	}, nil
+}
+
+// DeleteOrderInfo 删除订单
+func (c *OrderInfoCase) DeleteOrderInfo(ctx context.Context, id int64) error {
+	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return err
+	}
+
+	var orderInfo *models.OrderInfo
+	orderInfo, err = c.findByUserIDAndID(ctx, authInfo.UserId, id)
+	if err != nil {
+		return err
+	}
+	// 只有已完成、已取消或已退款订单允许用户侧删除。
+	if orderInfo.Status != _const.ORDER_INFO_STATUS_COMPLETED &&
+		orderInfo.Status != _const.ORDER_INFO_STATUS_CANCELED &&
+		orderInfo.RefundStatus != _const.ORDER_REFUND_STATUS_REFUNDED {
+		return errorsx.StateConflict(
+			fmt.Sprintf("订单状态错误：【%s】", shopcommonv1.OrderInfoStatus_name[orderInfo.Status]),
+			"order_info",
+			shopcommonv1.OrderInfoStatus(orderInfo.Status).String(),
+			"COMPLETED_OIS|CANCELED_OIS|REFUNDED_ORS",
+		)
+	}
+	return c.DeleteByIDs(ctx, []int64{id})
+}
+
+// DeleteOrderTrade 删除已关闭交易及其门店子订单。
+func (c *OrderInfoCase) DeleteOrderTrade(ctx context.Context, tradeID int64) error {
+	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return err
+	}
+
+	var orderTrade *models.OrderTrade
+	orderTrade, err = c.orderTradeCase.findByUserIDAndID(ctx, authInfo.UserId, tradeID)
+	if err != nil {
+		return err
+	}
+	// 只有已关闭交易允许用户侧删除。
+	if orderTrade.Status != _const.ORDER_TRADE_STATUS_CLOSED {
+		return errorsx.StateConflict(
+			fmt.Sprintf("交易状态错误：【%s】", shopcommonv1.OrderTradeStatus_name[orderTrade.Status]),
+			"order_trade",
+			shopcommonv1.OrderTradeStatus(orderTrade.Status).String(),
+			shopcommonv1.OrderTradeStatus(_const.ORDER_TRADE_STATUS_CLOSED).String(),
+		)
+	}
+
+	query := c.Query(ctx).OrderInfo
+	opts := make([]repository.QueryOption, 0, 2)
+	opts = append(opts, repository.Where(query.TradeID.Eq(tradeID)))
+	opts = append(opts, repository.Where(query.UserID.Eq(authInfo.UserId)))
+	var orderInfos []*models.OrderInfo
+	orderInfos, err = c.List(ctx, opts...)
+	if err != nil {
+		return err
+	}
+	orderIDs := make([]int64, 0, len(orderInfos))
+	for _, orderInfo := range orderInfos {
+		orderIDs = append(orderIDs, orderInfo.ID)
+	}
+
+	return c.tx.Transaction(ctx, func(ctx context.Context) error {
+		err = c.DeleteByIDs(ctx, orderIDs)
+		if err != nil {
+			return err
+		}
+		return c.orderTradeCase.DeleteByIDs(ctx, []int64{tradeID})
+	})
+}
+
 // RefundOrderInfo 申请订单退款
 func (c *OrderInfoCase) RefundOrderInfo(ctx context.Context, req *shopappv1.RefundOrderInfoRequest) error {
 	authInfo, err := c.GetAuthInfo(ctx)
@@ -466,599 +1059,6 @@ func (c *OrderInfoCase) CountOrderInfo(ctx context.Context) (*shopappv1.CountOrd
 			},
 		},
 	}, nil
-}
-
-// PageOrderInfo 查询订单分页列表
-func (c *OrderInfoCase) PageOrderInfo(ctx context.Context, req *shopappv1.PageOrderInfoRequest) (*shopappv1.PageOrderInfoResponse, error) {
-	authInfo, err := c.GetAuthInfo(ctx)
-	if err != nil {
-		return nil, err
-	}
-	pageNum, pageSize := repository.PageDefault(int64(req.GetPageNum()), int64(req.GetPageSize()))
-	// 两类记录各取合并目标页之前的候选，保证结果准确且不随用户全部订单量增长。
-	fetchSize := pageNum * pageSize
-	tradeOpts, orderOpts, noStatusFilter := c.pageOrderInfoQueryOptions(ctx, authInfo.UserId, req)
-
-	var trades []*models.OrderTrade
-	var tradeTotal int64
-	if len(tradeOpts) > 0 {
-		query := c.orderTradeCase.Query(ctx).OrderTrade
-		// 全部订单页优先展示待支付、支付中和已关闭的交易单，再按创建时间排序。
-		if noStatusFilter {
-			tradeOpts = append(tradeOpts, repository.Order(query.Status.Asc(), query.CreatedAt.Desc(), query.ID.Desc()))
-		} else {
-			tradeOpts = append(tradeOpts, repository.Order(query.CreatedAt.Desc(), query.ID.Desc()))
-		}
-		trades, tradeTotal, err = c.orderTradeCase.Page(ctx, 1, fetchSize, tradeOpts...)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	var orderInfos []*models.OrderInfo
-	var orderTotal int64
-	if len(orderOpts) > 0 {
-		query := c.Query(ctx).OrderInfo
-		orderOpts = append(orderOpts, repository.Order(query.CreatedAt.Desc(), query.ID.Desc()))
-		orderInfos, orderTotal, err = c.Page(ctx, 1, fetchSize, orderOpts...)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	tradeIDs := make([]int64, 0, len(trades)+len(orderInfos))
-	tradeMap := make(map[int64]*models.OrderTrade, len(trades)+len(orderInfos))
-	for _, trade := range trades {
-		tradeIDs = append(tradeIDs, trade.ID)
-		tradeMap[trade.ID] = trade
-	}
-	for _, orderInfo := range orderInfos {
-		if tradeMap[orderInfo.TradeID] == nil {
-			tradeIDs = append(tradeIDs, orderInfo.TradeID)
-		}
-	}
-	if len(tradeIDs) > 0 {
-		query := c.orderTradeCase.Query(ctx).OrderTrade
-		opts := make([]repository.QueryOption, 0, 1)
-		opts = append(opts, repository.Where(query.ID.In(tradeIDs...)))
-		var allTrades []*models.OrderTrade
-		allTrades, err = c.orderTradeCase.List(ctx, opts...)
-		if err != nil {
-			return nil, err
-		}
-		for _, trade := range allTrades {
-			tradeMap[trade.ID] = trade
-		}
-	}
-
-	allOrderInfos := append([]*models.OrderInfo{}, orderInfos...)
-	if len(trades) > 0 {
-		query := c.Query(ctx).OrderInfo
-		opts := make([]repository.QueryOption, 0, 1)
-		opts = append(opts, repository.Where(query.TradeID.In(tradeIDs...)))
-		var tradeOrderInfos []*models.OrderInfo
-		tradeOrderInfos, err = c.List(ctx, opts...)
-		if err != nil {
-			return nil, err
-		}
-		allOrderInfos = append(allOrderInfos, tradeOrderInfos...)
-	}
-	orderIDs := make([]int64, 0, len(allOrderInfos))
-	orderInfoMap := make(map[int64]*models.OrderInfo, len(allOrderInfos))
-	for _, orderInfo := range allOrderInfos {
-		orderIDs = append(orderIDs, orderInfo.ID)
-		orderInfoMap[orderInfo.ID] = orderInfo
-	}
-	var orderGoodsMap map[int64][]*models.OrderGoods
-	orderGoodsMap, err = c.orderGoodsCase.mapByOrderIDs(ctx, orderIDs)
-	if err != nil {
-		return nil, err
-	}
-	var orderGoodsStoreMap map[int64][]*shopappv1.OrderGoodsStore
-	orderGoodsStoreMap, err = c.buildOrderGoodsStoreMap(ctx, orderGoodsMap)
-	if err != nil {
-		return nil, err
-	}
-
-	items := make([]*appDto.OrderPageItem, 0, len(trades)+len(orderInfos))
-	for _, orderInfo := range orderInfos {
-		protoOrder := c.convertToProto(orderInfo)
-		c.applyTradeToProto(protoOrder, tradeMap[orderInfo.TradeID])
-		protoOrder.OrderGoodsStores = orderGoodsStoreMap[orderInfo.ID]
-		applyOrderStoreOptions(protoOrder.OrderGoodsStores, []*models.OrderInfo{orderInfo})
-		items = append(items, &appDto.OrderPageItem{OrderInfo: protoOrder, CreatedAt: orderInfo.CreatedAt})
-	}
-	for _, trade := range trades {
-		tradeOrders := make([]*models.OrderInfo, 0)
-		for _, orderInfo := range orderInfoMap {
-			if orderInfo.TradeID == trade.ID {
-				tradeOrders = append(tradeOrders, orderInfo)
-			}
-		}
-		var protoOrder *shopappv1.OrderInfo
-		protoOrder, err = c.buildTradeOrderProto(ctx, trade, tradeOrders, orderGoodsMap)
-		if err != nil {
-			return nil, err
-		}
-		items = append(items, &appDto.OrderPageItem{OrderInfo: protoOrder, CreatedAt: trade.CreatedAt})
-	}
-	return &shopappv1.PageOrderInfoResponse{
-		OrderInfos: pageOrderItems(items, pageNum, pageSize, noStatusFilter),
-		Total:      int32(tradeTotal + orderTotal),
-	}, nil
-}
-
-// GetOrderInfoIDByOrderNo 按订单号查询订单编号
-func (c *OrderInfoCase) GetOrderInfoIDByOrderNo(ctx context.Context, orderNo string) (int64, error) {
-	authInfo, err := c.GetAuthInfo(ctx)
-	if err != nil {
-		return 0, err
-	}
-
-	query := c.Query(ctx).OrderInfo
-	var item *models.OrderInfo
-	opts := make([]repository.QueryOption, 0, 2)
-	opts = append(opts, repository.Where(query.OrderNo.Eq(orderNo)))
-	opts = append(opts, repository.Where(query.UserID.Eq(authInfo.UserId)))
-	item, err = c.Find(ctx, opts...)
-	if err != nil {
-		return 0, err
-	}
-	return item.ID, nil
-}
-
-// GetOrderInfoByID 根据订单编号查询订单
-func (c *OrderInfoCase) GetOrderInfoByID(ctx context.Context, id int64) (*shopappv1.OrderInfoResponse, error) {
-	authInfo, err := c.GetAuthInfo(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	var item *models.OrderInfo
-	item, err = c.findByUserIDAndID(ctx, authInfo.UserId, id)
-	if err != nil {
-		// 管理员查看订单详情时，允许按订单 ID 读取详情。
-		if !isAdminRoleCode(authInfo.RoleCode) {
-			return nil, err
-		}
-		item, err = c.FindByID(ctx, id)
-		if err != nil {
-			return nil, err
-		}
-	}
-	orderInfo := c.convertToProto(item)
-	var orderTrade *models.OrderTrade
-	orderTrade, err = c.orderTradeCase.findByUserIDAndID(ctx, item.UserID, item.TradeID)
-	if err != nil {
-		return nil, err
-	}
-	c.applyTradeToProto(orderInfo, orderTrade)
-	var countdown float64
-	// 只有未完成支付的交易单才需要返回支付剩余时间。
-	if orderTrade.Status == _const.ORDER_TRADE_STATUS_PENDING_PAYMENT || orderTrade.Status == _const.ORDER_TRADE_STATUS_PAYING {
-		payTimeout := config.ParsePayTimeout()
-		countdown = orderTrade.CreatedAt.Add(payTimeout).Sub(time.Now()).Seconds()
-	}
-
-	// 查询订单商品明细，并同时按商品快照中的门店编号生成展示分组。
-	var orderGoodsList []*models.OrderGoods
-	orderGoodsList, err = c.orderGoodsCase.listByOrderID(ctx, orderInfo.Id)
-	if err != nil {
-		return nil, err
-	}
-	var orderGoodsStoreMap map[int64][]*shopappv1.OrderGoodsStore
-	orderGoodsStoreMap, err = c.buildOrderGoodsStoreMap(ctx, map[int64][]*models.OrderGoods{
-		orderInfo.Id: orderGoodsList,
-	})
-	if err != nil {
-		return nil, err
-	}
-	orderInfo.OrderGoodsStores = orderGoodsStoreMap[orderInfo.Id]
-	applyOrderStoreOptions(orderInfo.OrderGoodsStores, []*models.OrderInfo{item})
-
-	// 合并支付的门店订单返回同一交易下的其他订单，用于详情页相互跳转。
-	query := c.Query(ctx).OrderInfo
-	opts := make([]repository.QueryOption, 0, 4)
-	opts = append(opts, repository.Where(query.TradeID.Eq(item.TradeID)))
-	opts = append(opts, repository.Where(query.UserID.Eq(item.UserID)))
-	opts = append(opts, repository.Where(query.ID.Neq(item.ID)))
-	opts = append(opts, repository.Order(query.ID.Asc()))
-	var relatedOrderInfos []*models.OrderInfo
-	relatedOrderInfos, err = c.List(ctx, opts...)
-	if err != nil {
-		return nil, err
-	}
-	relatedOrders := make([]*shopappv1.OrderInfoResponse_RelatedOrder, 0, len(relatedOrderInfos))
-	for _, relatedOrderInfo := range relatedOrderInfos {
-		relatedOrders = append(relatedOrders, &shopappv1.OrderInfoResponse_RelatedOrder{
-			OrderId: relatedOrderInfo.ID,
-			OrderNo: relatedOrderInfo.OrderNo,
-		})
-	}
-	// 查询订单收货地址快照
-	var address *shopappv1.OrderInfoResponse_Address
-	address, err = c.orderAddressCase.findByTradeID(ctx, orderInfo.TradeId)
-	if err != nil {
-		// 地址信息缺失时返回空地址，保持订单详情主体信息可展示。
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			address = &shopappv1.OrderInfoResponse_Address{}
-		} else {
-			return nil, err
-		}
-	}
-
-	res := shopappv1.OrderInfoResponse{
-		Order:         orderInfo,
-		Address:       address,
-		Countdown:     float32(countdown),
-		RelatedOrders: relatedOrders,
-	}
-
-	// 在线支付交易进入已支付或退款状态后，补充支付完成时间。
-	if shopcommonv1.OrderPayType(orderTrade.PayType) == shopcommonv1.OrderPayType(_const.ORDER_PAY_TYPE_ONLINE_PAY) &&
-		(orderTrade.Status == _const.ORDER_TRADE_STATUS_PAID ||
-			orderTrade.Status == _const.ORDER_TRADE_STATUS_PARTIAL_REFUND ||
-			orderTrade.Status == _const.ORDER_TRADE_STATUS_FULL_REFUND) {
-		res.Order.PaymentTime, err = c.orderPaymentCase.findPaymentTimeByTradeID(ctx, orderInfo.TradeId)
-		if err != nil {
-			// 支付记录缺失时，支付时间保持为空。
-			if errors.Is(err, gorm.ErrRecordNotFound) {
-				res.Order.PaymentTime = ""
-			} else {
-				return nil, err
-			}
-		}
-	}
-	// 已发货、待评价、已完成订单返回当前门店的物流信息。
-	if item.Status == _const.ORDER_INFO_STATUS_SHIPPED ||
-		item.Status == _const.ORDER_INFO_STATUS_WAIT_REVIEW ||
-		item.Status == _const.ORDER_INFO_STATUS_COMPLETED {
-		var logistics *shopappv1.OrderInfoResponse_Logistics
-		logistics, err = c.orderLogisticsCase.findByOrderID(ctx, orderInfo.Id)
-		if err != nil {
-			// 物流信息缺失时返回空物流，保持订单详情主体信息可展示。
-			if errors.Is(err, gorm.ErrRecordNotFound) {
-				logistics = &shopappv1.OrderInfoResponse_Logistics{}
-			} else {
-				return nil, err
-			}
-		}
-		res.Logistics = logistics
-	}
-	// 交易关闭后返回整笔交易的取消时间。
-	if orderTrade.Status == _const.ORDER_TRADE_STATUS_CLOSED {
-		res.Order.CancelTime, err = c.orderCancelCase.findCancelTimeByTradeID(ctx, orderInfo.TradeId)
-		if err != nil {
-			if errors.Is(err, gorm.ErrRecordNotFound) {
-				res.Order.CancelTime = ""
-			} else {
-				return nil, err
-			}
-		}
-	}
-	// 当前门店订单存在退款时，返回该子订单的退款时间。
-	if item.RefundStatus != _const.ORDER_REFUND_STATUS_NONE {
-		res.Order.RefundTime, err = c.orderRefundCase.findRefundTimeByOrderID(ctx, orderInfo.Id)
-		if err != nil {
-			if errors.Is(err, gorm.ErrRecordNotFound) {
-				res.Order.RefundTime = ""
-			} else {
-				return nil, err
-			}
-		}
-	}
-	return &res, nil
-}
-
-// GetOrderTradeByID 根据交易单编号查询聚合订单详情。
-func (c *OrderInfoCase) GetOrderTradeByID(ctx context.Context, tradeID int64) (*shopappv1.OrderInfoResponse, error) {
-	authInfo, err := c.GetAuthInfo(ctx)
-	if err != nil {
-		return nil, err
-	}
-	var orderTrade *models.OrderTrade
-	orderTrade, err = c.orderTradeCase.findByUserIDAndID(ctx, authInfo.UserId, tradeID)
-	if err != nil {
-		return nil, err
-	}
-
-	query := c.Query(ctx).OrderInfo
-	opts := make([]repository.QueryOption, 0, 2)
-	opts = append(opts, repository.Where(query.TradeID.Eq(tradeID)))
-	opts = append(opts, repository.Where(query.UserID.Eq(authInfo.UserId)))
-	var orderInfos []*models.OrderInfo
-	orderInfos, err = c.List(ctx, opts...)
-	if err != nil {
-		return nil, err
-	}
-	orderIDs := make([]int64, 0, len(orderInfos))
-	for _, orderInfo := range orderInfos {
-		orderIDs = append(orderIDs, orderInfo.ID)
-	}
-	var orderGoodsMap map[int64][]*models.OrderGoods
-	orderGoodsMap, err = c.orderGoodsCase.mapByOrderIDs(ctx, orderIDs)
-	if err != nil {
-		return nil, err
-	}
-	var orderInfo *shopappv1.OrderInfo
-	orderInfo, err = c.buildTradeOrderProto(ctx, orderTrade, orderInfos, orderGoodsMap)
-	if err != nil {
-		return nil, err
-	}
-
-	var countdown float64
-	// 只有未完成支付的交易单才需要返回支付剩余时间。
-	if orderTrade.Status == _const.ORDER_TRADE_STATUS_PENDING_PAYMENT || orderTrade.Status == _const.ORDER_TRADE_STATUS_PAYING {
-		payTimeout := config.ParsePayTimeout()
-		countdown = orderTrade.CreatedAt.Add(payTimeout).Sub(time.Now()).Seconds()
-	}
-	var address *shopappv1.OrderInfoResponse_Address
-	address, err = c.orderAddressCase.findByTradeID(ctx, tradeID)
-	if err != nil {
-		// 地址信息缺失时返回空地址，保持交易详情主体信息可展示。
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			address = &shopappv1.OrderInfoResponse_Address{}
-		} else {
-			return nil, err
-		}
-	}
-	res := &shopappv1.OrderInfoResponse{
-		Order:     orderInfo,
-		Address:   address,
-		Countdown: float32(countdown),
-	}
-	// 在线支付交易进入已支付或退款状态后，补充支付完成时间。
-	if shopcommonv1.OrderPayType(orderTrade.PayType) == shopcommonv1.OrderPayType(_const.ORDER_PAY_TYPE_ONLINE_PAY) &&
-		(orderTrade.Status == _const.ORDER_TRADE_STATUS_PAID ||
-			orderTrade.Status == _const.ORDER_TRADE_STATUS_PARTIAL_REFUND ||
-			orderTrade.Status == _const.ORDER_TRADE_STATUS_FULL_REFUND) {
-		res.Order.PaymentTime, err = c.orderPaymentCase.findPaymentTimeByTradeID(ctx, tradeID)
-		if err != nil {
-			// 支付记录缺失时，支付时间保持为空。
-			if errors.Is(err, gorm.ErrRecordNotFound) {
-				res.Order.PaymentTime = ""
-			} else {
-				return nil, err
-			}
-		}
-	}
-	// 已关闭交易返回整笔交易的取消时间。
-	if orderTrade.Status == _const.ORDER_TRADE_STATUS_CLOSED {
-		res.Order.CancelTime, err = c.orderCancelCase.findCancelTimeByTradeID(ctx, tradeID)
-		if err != nil {
-			if errors.Is(err, gorm.ErrRecordNotFound) {
-				res.Order.CancelTime = ""
-			} else {
-				return nil, err
-			}
-		}
-	}
-	return res, nil
-}
-
-// CreateOrderInfo 创建订单并发起支付准备
-func (c *OrderInfoCase) CreateOrderInfo(ctx context.Context, request *shopappv1.CreateOrderInfoRequest) (*shopappv1.CreateOrderInfoResponse, error) {
-	authInfo, err := c.GetAuthInfo(ctx)
-	if err != nil {
-		return nil, err
-	}
-	if request.PayType != shopcommonv1.OrderPayType_ONLINE_PAY && request.PayType != shopcommonv1.OrderPayType_CASH_ON_DELIVERY {
-		return nil, errorsx.InvalidArgument("支付方式无效")
-	}
-	payChannel := request.PayChannel
-	// 货到付款不归属线上支付渠道，避免统计时被错误计入微信或银联。
-	if request.PayType == shopcommonv1.OrderPayType_CASH_ON_DELIVERY {
-		payChannel = shopcommonv1.OrderPayChannel_UNKNOWN_OPC
-	} else if payChannel == shopcommonv1.OrderPayChannel_UNKNOWN_OPC {
-		return nil, errorsx.InvalidArgument("支付渠道不能为空")
-	} else if payChannel != shopcommonv1.OrderPayChannel_WX_PAY {
-		return nil, errorsx.InvalidArgument("当前仅支持微信支付")
-	}
-	tradeStatus := _const.ORDER_TRADE_STATUS_PENDING_PAYMENT
-	orderStatus := _const.ORDER_INFO_STATUS_NOT_STARTED
-	// 货到付款交易创建后，门店订单直接进入待发货。
-	if request.PayType == shopcommonv1.OrderPayType(_const.ORDER_PAY_TYPE_CASH_ON_DELIVERY) {
-		tradeStatus = _const.ORDER_TRADE_STATUS_CASH_ON_DELIVERY
-		orderStatus = _const.ORDER_INFO_STATUS_WAIT_SHIPMENT
-	}
-
-	storeOptions := make(map[int64]*shopappv1.OrderStoreOption, len(request.GetOrderStoreOptions()))
-	for _, option := range request.GetOrderStoreOptions() {
-		storeOptions[option.GetTenantStoreId()] = option
-	}
-	orderGoodsByStore := make(map[int64][]*models.OrderGoods)
-	storeTenantIDs := make(map[int64]int64)
-	member := utils.IsMember(ctx)
-	for _, item := range request.GetGoods() {
-		var orderGoods *models.OrderGoods
-		var goodsInfo *models.GoodsInfo
-		orderGoods, goodsInfo, err = c.orderGoodsCase.convertToModel(ctx, member, item)
-		if err != nil {
-			return nil, err
-		}
-		if goodsInfo.TenantStoreID <= 0 {
-			return nil, errorsx.InvalidArgument("商品未绑定门店，无法下单")
-		}
-		if storeOptions[goodsInfo.TenantStoreID] == nil {
-			return nil, errorsx.InvalidArgument("门店配送信息不能为空")
-		}
-		if storeOptions[goodsInfo.TenantStoreID].GetDeliveryTime() == shopcommonv1.OrderDeliveryTime_UNKNOWN_ODT {
-			return nil, errorsx.InvalidArgument("门店配送时间不能为空")
-		}
-		orderGoods.TenantStoreID = goodsInfo.TenantStoreID
-		orderGoodsByStore[goodsInfo.TenantStoreID] = append(orderGoodsByStore[goodsInfo.TenantStoreID], orderGoods)
-		storeTenantIDs[goodsInfo.TenantStoreID] = goodsInfo.TenantID
-	}
-	if len(orderGoodsByStore) == 0 {
-		return nil, errorsx.InvalidArgument("订单商品信息不能为空")
-	}
-
-	orderTrade := &models.OrderTrade{
-		TradeNo:    strconv.FormatInt(id.GenSnowflakeID(), 10),
-		UserID:     authInfo.UserId,
-		PayType:    int32(request.PayType),
-		PayChannel: int32(payChannel),
-		Status:     tradeStatus,
-	}
-	orderInfos := make([]*models.OrderInfo, 0, len(orderGoodsByStore))
-	orderGoodsMap := make(map[int64][]*models.OrderGoods, len(orderGoodsByStore))
-	for storeID, orderGoodsList := range orderGoodsByStore {
-		option := storeOptions[storeID]
-		orderInfo := &models.OrderInfo{
-			TenantID:      storeTenantIDs[storeID],
-			TenantStoreID: storeID,
-			OrderNo:       strconv.FormatInt(id.GenSnowflakeID(), 10),
-			UserID:        authInfo.UserId,
-			DeliveryTime:  int32(option.GetDeliveryTime()),
-			Status:        orderStatus,
-			RefundStatus:  _const.ORDER_REFUND_STATUS_NONE,
-			Remark:        option.GetRemark(),
-		}
-		for _, orderGoods := range orderGoodsList {
-			orderInfo.PayMoney += orderGoods.TotalPayPrice
-			orderInfo.TotalMoney += orderGoods.TotalPrice
-			orderInfo.GoodsNum += orderGoods.Num
-		}
-		orderTrade.PayMoney += orderInfo.PayMoney
-		orderTrade.TotalMoney += orderInfo.TotalMoney
-		orderTrade.GoodsNum += orderInfo.GoodsNum
-		orderInfos = append(orderInfos, orderInfo)
-		orderGoodsMap[storeID] = orderGoodsList
-	}
-	orderTrade.OrderNum = int64(len(orderInfos))
-	err = c.tx.Transaction(ctx, func(ctx context.Context) error {
-		err = c.orderTradeCase.Create(ctx, orderTrade)
-		if err != nil {
-			return err
-		}
-		err = c.orderAddressCase.createByTrade(ctx, authInfo.UserId, orderTrade.ID, request.GetAddressId())
-		if err != nil {
-			return err
-		}
-		for _, orderInfo := range orderInfos {
-			orderInfo.TradeID = orderTrade.ID
-			err = c.OrderInfoRepository.Create(ctx, orderInfo)
-			if err != nil {
-				return err
-			}
-			orderGoodsList := orderGoodsMap[orderInfo.TenantStoreID]
-			err = c.orderGoodsCase.createByOrder(ctx, orderInfo, orderGoodsList)
-			if err != nil {
-				return err
-			}
-			for _, orderGoods := range orderGoodsList {
-				err = c.goodsInfoCase.addSaleNum(ctx, orderGoods.GoodsID, orderGoods.Num)
-				if err != nil {
-					return err
-				}
-				err = c.goodsSKUCase.addSaleNum(ctx, orderGoods.SKUCode, orderGoods.Num)
-				if err != nil {
-					return err
-				}
-				if request.GetClearCart() {
-					err = c.userCartCase.deleteByUserIDAndGoodsIDAndSKUCode(ctx, authInfo.UserId, orderGoods.GoodsID, orderGoods.SKUCode)
-					if err != nil {
-						return err
-					}
-				}
-			}
-		}
-		return nil
-	})
-	if err != nil {
-		return nil, err
-	}
-	c.dispatchRecommendOrderEvent(request.PayType, authInfo.UserId, request.GetGoods(), orderTrade.CreatedAt)
-	workspaceevent.Publish(ctx, workspaceevent.ReasonOrderChanged, workspaceevent.AreaMetrics, workspaceevent.AreaTodo, workspaceevent.AreaRisk)
-	// 为在线支付交易增加超时自动取消任务。
-	if orderTrade.Status == _const.ORDER_TRADE_STATUS_PENDING_PAYMENT {
-		// 延迟时间使用支付超时配置。
-		payTimeout := config.ParsePayTimeout()
-		createdAt := orderTrade.CreatedAt.Add(payTimeout)
-		nowTime := time.Now()
-		countdown := createdAt.Sub(nowTime).Seconds()
-		c.scheduleTradeCancellation(orderTrade.ID, orderTrade.UserID, time.Duration(countdown)*time.Second)
-	}
-	orderIDs := make([]int64, 0, len(orderInfos))
-	for _, orderInfo := range orderInfos {
-		orderIDs = append(orderIDs, orderInfo.ID)
-	}
-	return &shopappv1.CreateOrderInfoResponse{
-		TradeId:  orderTrade.ID,
-		TradeNo:  orderTrade.TradeNo,
-		OrderIds: orderIDs,
-	}, nil
-}
-
-// DeleteOrderInfo 删除订单
-func (c *OrderInfoCase) DeleteOrderInfo(ctx context.Context, id int64) error {
-	authInfo, err := c.GetAuthInfo(ctx)
-	if err != nil {
-		return err
-	}
-
-	var orderInfo *models.OrderInfo
-	orderInfo, err = c.findByUserIDAndID(ctx, authInfo.UserId, id)
-	if err != nil {
-		return err
-	}
-	// 只有已完成、已取消或已退款订单允许用户侧删除。
-	if orderInfo.Status != _const.ORDER_INFO_STATUS_COMPLETED &&
-		orderInfo.Status != _const.ORDER_INFO_STATUS_CANCELED &&
-		orderInfo.RefundStatus != _const.ORDER_REFUND_STATUS_REFUNDED {
-		return errorsx.StateConflict(
-			fmt.Sprintf("订单状态错误：【%s】", shopcommonv1.OrderInfoStatus_name[orderInfo.Status]),
-			"order_info",
-			shopcommonv1.OrderInfoStatus(orderInfo.Status).String(),
-			"COMPLETED_OIS|CANCELED_OIS|REFUNDED_ORS",
-		)
-	}
-	return c.DeleteByIDs(ctx, []int64{id})
-}
-
-// DeleteOrderTrade 删除已关闭交易及其门店子订单。
-func (c *OrderInfoCase) DeleteOrderTrade(ctx context.Context, tradeID int64) error {
-	authInfo, err := c.GetAuthInfo(ctx)
-	if err != nil {
-		return err
-	}
-
-	var orderTrade *models.OrderTrade
-	orderTrade, err = c.orderTradeCase.findByUserIDAndID(ctx, authInfo.UserId, tradeID)
-	if err != nil {
-		return err
-	}
-	// 只有已关闭交易允许用户侧删除。
-	if orderTrade.Status != _const.ORDER_TRADE_STATUS_CLOSED {
-		return errorsx.StateConflict(
-			fmt.Sprintf("交易状态错误：【%s】", shopcommonv1.OrderTradeStatus_name[orderTrade.Status]),
-			"order_trade",
-			shopcommonv1.OrderTradeStatus(orderTrade.Status).String(),
-			shopcommonv1.OrderTradeStatus(_const.ORDER_TRADE_STATUS_CLOSED).String(),
-		)
-	}
-
-	query := c.Query(ctx).OrderInfo
-	opts := make([]repository.QueryOption, 0, 2)
-	opts = append(opts, repository.Where(query.TradeID.Eq(tradeID)))
-	opts = append(opts, repository.Where(query.UserID.Eq(authInfo.UserId)))
-	var orderInfos []*models.OrderInfo
-	orderInfos, err = c.List(ctx, opts...)
-	if err != nil {
-		return err
-	}
-	orderIDs := make([]int64, 0, len(orderInfos))
-	for _, orderInfo := range orderInfos {
-		orderIDs = append(orderIDs, orderInfo.ID)
-	}
-
-	return c.tx.Transaction(ctx, func(ctx context.Context) error {
-		err = c.DeleteByIDs(ctx, orderIDs)
-		if err != nil {
-			return err
-		}
-		return c.orderTradeCase.DeleteByIDs(ctx, []int64{tradeID})
-	})
 }
 
 // CancelOrderInfo 取消订单并回退库存销量

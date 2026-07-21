@@ -15,15 +15,36 @@ import (
 
 // RegisterOauthServiceMCPTools 注册Base三方登录公共服务的 MCP Tool。
 func RegisterOauthServiceMCPTools(mcpServer *mcp.Server, oauthServiceServer OauthServiceServer) {
+	RegisterOauthServiceListOauthBindingMCPTool(mcpServer, oauthServiceServer)
 	RegisterOauthServiceListOauthProviderMCPTool(mcpServer, oauthServiceServer)
 	RegisterOauthServiceCreateOauthAuthorizationMCPTool(mcpServer, oauthServiceServer)
+	RegisterOauthServiceCreateOauthBindingAuthorizationMCPTool(mcpServer, oauthServiceServer)
+	RegisterOauthServiceCreateOauthSessionMCPTool(mcpServer, oauthServiceServer)
 	RegisterOauthServiceHandleOauthCallbackMCPTool(mcpServer, oauthServiceServer)
 	RegisterOauthServiceExchangeOauthTicketMCPTool(mcpServer, oauthServiceServer)
-	RegisterOauthServiceCreateOauthSessionMCPTool(mcpServer, oauthServiceServer)
-	RegisterOauthServiceListOauthBindingMCPTool(mcpServer, oauthServiceServer)
-	RegisterOauthServiceCreateOauthBindingAuthorizationMCPTool(mcpServer, oauthServiceServer)
 	RegisterOauthServiceHandleOauthBindingCallbackMCPTool(mcpServer, oauthServiceServer)
 	RegisterOauthServiceUnbindOauthAccountMCPTool(mcpServer, oauthServiceServer)
+}
+
+// RegisterOauthServiceListOauthBindingMCPTool 注册查询个人中心三方账号绑定列表的 MCP Tool。
+func RegisterOauthServiceListOauthBindingMCPTool(mcpServer *mcp.Server, oauthServiceServer OauthServiceServer) {
+	mcp.AddTool[*ListOauthBindingRequest, *ListOauthBindingResponse](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "base_v1_oauth_service_list_oauth_binding",
+			Description: "查询个人中心三方账号绑定列表",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *ListOauthBindingRequest) (*mcp.CallToolResult, *ListOauthBindingResponse, error) {
+			if input == nil {
+				input = &ListOauthBindingRequest{}
+			}
+			reply, err := oauthServiceServer.ListOauthBinding(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
 }
 
 // RegisterOauthServiceListOauthProviderMCPTool 注册查询三方登录方式的 MCP Tool。
@@ -68,6 +89,48 @@ func RegisterOauthServiceCreateOauthAuthorizationMCPTool(mcpServer *mcp.Server, 
 	)
 }
 
+// RegisterOauthServiceCreateOauthBindingAuthorizationMCPTool 注册创建个人中心三方账号绑定授权地址的 MCP Tool。
+func RegisterOauthServiceCreateOauthBindingAuthorizationMCPTool(mcpServer *mcp.Server, oauthServiceServer OauthServiceServer) {
+	mcp.AddTool[*CreateOauthBindingAuthorizationRequest, *CreateOauthBindingAuthorizationResponse](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "base_v1_oauth_service_create_oauth_binding_authorization",
+			Description: "创建个人中心三方账号绑定授权地址",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *CreateOauthBindingAuthorizationRequest) (*mcp.CallToolResult, *CreateOauthBindingAuthorizationResponse, error) {
+			if input == nil {
+				input = &CreateOauthBindingAuthorizationRequest{}
+			}
+			reply, err := oauthServiceServer.CreateOauthBindingAuthorization(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
+}
+
+// RegisterOauthServiceCreateOauthSessionMCPTool 注册创建三方登录会话的 MCP Tool。
+func RegisterOauthServiceCreateOauthSessionMCPTool(mcpServer *mcp.Server, oauthServiceServer OauthServiceServer) {
+	mcp.AddTool[*CreateOauthSessionRequest, *CreateOauthSessionResponse](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "base_v1_oauth_service_create_oauth_session",
+			Description: "创建三方登录会话",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *CreateOauthSessionRequest) (*mcp.CallToolResult, *CreateOauthSessionResponse, error) {
+			if input == nil {
+				input = &CreateOauthSessionRequest{}
+			}
+			reply, err := oauthServiceServer.CreateOauthSession(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
+}
+
 // RegisterOauthServiceHandleOauthCallbackMCPTool 注册处理三方登录回调的 MCP Tool。
 func RegisterOauthServiceHandleOauthCallbackMCPTool(mcpServer *mcp.Server, oauthServiceServer OauthServiceServer) {
 	mcp.AddTool[*HandleOauthCallbackRequest, *HandleOauthCallbackResponse](
@@ -102,69 +165,6 @@ func RegisterOauthServiceExchangeOauthTicketMCPTool(mcpServer *mcp.Server, oauth
 				input = &ExchangeOauthTicketRequest{}
 			}
 			reply, err := oauthServiceServer.ExchangeOauthTicket(ctx, input)
-			if err != nil {
-				return nil, nil, err
-			}
-			return nil, reply, nil
-		},
-	)
-}
-
-// RegisterOauthServiceCreateOauthSessionMCPTool 注册创建三方登录会话的 MCP Tool。
-func RegisterOauthServiceCreateOauthSessionMCPTool(mcpServer *mcp.Server, oauthServiceServer OauthServiceServer) {
-	mcp.AddTool[*CreateOauthSessionRequest, *CreateOauthSessionResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "base_v1_oauth_service_create_oauth_session",
-			Description: "创建三方登录会话",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *CreateOauthSessionRequest) (*mcp.CallToolResult, *CreateOauthSessionResponse, error) {
-			if input == nil {
-				input = &CreateOauthSessionRequest{}
-			}
-			reply, err := oauthServiceServer.CreateOauthSession(ctx, input)
-			if err != nil {
-				return nil, nil, err
-			}
-			return nil, reply, nil
-		},
-	)
-}
-
-// RegisterOauthServiceListOauthBindingMCPTool 注册查询个人中心三方账号绑定列表的 MCP Tool。
-func RegisterOauthServiceListOauthBindingMCPTool(mcpServer *mcp.Server, oauthServiceServer OauthServiceServer) {
-	mcp.AddTool[*ListOauthBindingRequest, *ListOauthBindingResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "base_v1_oauth_service_list_oauth_binding",
-			Description: "查询个人中心三方账号绑定列表",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *ListOauthBindingRequest) (*mcp.CallToolResult, *ListOauthBindingResponse, error) {
-			if input == nil {
-				input = &ListOauthBindingRequest{}
-			}
-			reply, err := oauthServiceServer.ListOauthBinding(ctx, input)
-			if err != nil {
-				return nil, nil, err
-			}
-			return nil, reply, nil
-		},
-	)
-}
-
-// RegisterOauthServiceCreateOauthBindingAuthorizationMCPTool 注册创建个人中心三方账号绑定授权地址的 MCP Tool。
-func RegisterOauthServiceCreateOauthBindingAuthorizationMCPTool(mcpServer *mcp.Server, oauthServiceServer OauthServiceServer) {
-	mcp.AddTool[*CreateOauthBindingAuthorizationRequest, *CreateOauthBindingAuthorizationResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "base_v1_oauth_service_create_oauth_binding_authorization",
-			Description: "创建个人中心三方账号绑定授权地址",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *CreateOauthBindingAuthorizationRequest) (*mcp.CallToolResult, *CreateOauthBindingAuthorizationResponse, error) {
-			if input == nil {
-				input = &CreateOauthBindingAuthorizationRequest{}
-			}
-			reply, err := oauthServiceServer.CreateOauthBindingAuthorization(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

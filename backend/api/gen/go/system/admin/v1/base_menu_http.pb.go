@@ -47,32 +47,13 @@ type BaseMenuServiceHTTPServer interface {
 
 func RegisterBaseMenuServiceHTTPServer(s *http.Server, srv BaseMenuServiceHTTPServer) {
 	r := s.Route("/")
-	r.Handle("GET", "/api/v1/admin/base/menu/tree", _BaseMenuService_TreeBaseMenu0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/base/menu/option", _BaseMenuService_OptionBaseMenu0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/base/menu/tree", _BaseMenuService_TreeBaseMenu0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/base/menu/{id}", _BaseMenuService_GetBaseMenu0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/admin/base/menu", _BaseMenuService_CreateBaseMenu0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/base/menu/{base_menu.id}", _BaseMenuService_UpdateBaseMenu0_HTTP_Handler(srv))
 	r.Handle("DELETE", "/api/v1/admin/base/menu/{id}", _BaseMenuService_DeleteBaseMenu0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/base/menu/{id}/status", _BaseMenuService_SetBaseMenuStatus0_HTTP_Handler(srv))
-}
-
-func _BaseMenuService_TreeBaseMenu0_HTTP_Handler(srv BaseMenuServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in TreeBaseMenuRequest
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationBaseMenuServiceTreeBaseMenu)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.TreeBaseMenu(ctx, req.(*TreeBaseMenuRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*TreeBaseMenuResponse)
-		return ctx.Result(200, reply)
-	}
 }
 
 func _BaseMenuService_OptionBaseMenu0_HTTP_Handler(srv BaseMenuServiceHTTPServer) func(ctx http.Context) error {
@@ -90,6 +71,25 @@ func _BaseMenuService_OptionBaseMenu0_HTTP_Handler(srv BaseMenuServiceHTTPServer
 			return err
 		}
 		reply := out.(*v1.TreeOptionResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _BaseMenuService_TreeBaseMenu0_HTTP_Handler(srv BaseMenuServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in TreeBaseMenuRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBaseMenuServiceTreeBaseMenu)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.TreeBaseMenu(ctx, req.(*TreeBaseMenuRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*TreeBaseMenuResponse)
 		return ctx.Result(200, reply)
 	}
 }

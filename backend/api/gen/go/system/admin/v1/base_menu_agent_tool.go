@@ -18,18 +18,18 @@ import (
 func NewBaseMenuServiceAgentTools(baseMenuServiceServer BaseMenuServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error
-	var treeBaseMenuTool tool.InvokableTool
-	treeBaseMenuTool, err = NewBaseMenuServiceTreeBaseMenuAgentTool(baseMenuServiceServer)
-	if err != nil {
-		return nil, err
-	}
-	ts = append(ts, treeBaseMenuTool)
 	var optionBaseMenuTool tool.InvokableTool
 	optionBaseMenuTool, err = NewBaseMenuServiceOptionBaseMenuAgentTool(baseMenuServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, optionBaseMenuTool)
+	var treeBaseMenuTool tool.InvokableTool
+	treeBaseMenuTool, err = NewBaseMenuServiceTreeBaseMenuAgentTool(baseMenuServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, treeBaseMenuTool)
 	var getBaseMenuTool tool.InvokableTool
 	getBaseMenuTool, err = NewBaseMenuServiceGetBaseMenuAgentTool(baseMenuServiceServer)
 	if err != nil {
@@ -63,24 +63,6 @@ func NewBaseMenuServiceAgentTools(baseMenuServiceServer BaseMenuServiceServer) (
 	return ts, nil
 }
 
-// NewBaseMenuServiceTreeBaseMenuAgentTool 创建查询菜单树形列表的 Agent Tool。
-func NewBaseMenuServiceTreeBaseMenuAgentTool(baseMenuServiceServer BaseMenuServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*TreeBaseMenuRequest, any](
-		"system_admin_v1_base_menu_service_tree_base_menu",
-		"查询菜单树形列表",
-		func(ctx context.Context, req *TreeBaseMenuRequest) (any, error) {
-			if req == nil {
-				req = &TreeBaseMenuRequest{}
-			}
-			reply, err := baseMenuServiceServer.TreeBaseMenu(ctx, req)
-			if err != nil {
-				return nil, err
-			}
-			return reply, nil
-		},
-	)
-}
-
 // NewBaseMenuServiceOptionBaseMenuAgentTool 创建查询菜单树形选择的 Agent Tool。
 func NewBaseMenuServiceOptionBaseMenuAgentTool(baseMenuServiceServer BaseMenuServiceServer) (tool.InvokableTool, error) {
 	return utils.InferTool[*OptionBaseMenuRequest, any](
@@ -91,6 +73,24 @@ func NewBaseMenuServiceOptionBaseMenuAgentTool(baseMenuServiceServer BaseMenuSer
 				req = &OptionBaseMenuRequest{}
 			}
 			reply, err := baseMenuServiceServer.OptionBaseMenu(ctx, req)
+			if err != nil {
+				return nil, err
+			}
+			return reply, nil
+		},
+	)
+}
+
+// NewBaseMenuServiceTreeBaseMenuAgentTool 创建查询菜单树形列表的 Agent Tool。
+func NewBaseMenuServiceTreeBaseMenuAgentTool(baseMenuServiceServer BaseMenuServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*TreeBaseMenuRequest, any](
+		"system_admin_v1_base_menu_service_tree_base_menu",
+		"查询菜单树形列表",
+		func(ctx context.Context, req *TreeBaseMenuRequest) (any, error) {
+			if req == nil {
+				req = &TreeBaseMenuRequest{}
+			}
+			reply, err := baseMenuServiceServer.TreeBaseMenu(ctx, req)
 			if err != nil {
 				return nil, err
 			}

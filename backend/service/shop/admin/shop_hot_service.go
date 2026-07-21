@@ -50,6 +50,16 @@ func (s *ShopHotService) PageShopHot(ctx context.Context, req *shopadminv1.PageS
 	return page, nil
 }
 
+// PageShopHotItem 查询商城热门推荐属性列表
+func (s *ShopHotService) PageShopHotItem(ctx context.Context, req *shopadminv1.PageShopHotItemRequest) (*shopadminv1.PageShopHotItemResponse, error) {
+	page, err := s.hotItemCase.PageShopHotItem(ctx, req)
+	if err != nil {
+		log.Error(fmt.Sprintf("PageShopHotItem %v", err))
+		return nil, errorsx.WrapInternal(err, "查询热门推荐选项列表失败")
+	}
+	return page, nil
+}
+
 // GetShopHot 查询商城热门推荐
 func (s *ShopHotService) GetShopHot(ctx context.Context, req *shopadminv1.GetShopHotRequest) (*shopadminv1.ShopHotForm, error) {
 	shopHot, err := s.hotCase.GetShopHot(ctx, req.GetId())
@@ -60,12 +70,32 @@ func (s *ShopHotService) GetShopHot(ctx context.Context, req *shopadminv1.GetSho
 	return shopHot, nil
 }
 
+// GetShopHotItem 查询商城热门推荐属性
+func (s *ShopHotService) GetShopHotItem(ctx context.Context, req *shopadminv1.GetShopHotItemRequest) (*shopadminv1.ShopHotItemForm, error) {
+	shopHotItem, err := s.hotItemCase.GetShopHotItem(ctx, req.GetId())
+	if err != nil {
+		log.Error(fmt.Sprintf("GetShopHotItem %v", err))
+		return nil, errorsx.WrapInternal(err, "查询热门推荐选项失败")
+	}
+	return shopHotItem, nil
+}
+
 // CreateShopHot 创建商城热门推荐
 func (s *ShopHotService) CreateShopHot(ctx context.Context, req *shopadminv1.CreateShopHotRequest) (*emptypb.Empty, error) {
 	err := s.hotCase.CreateShopHot(ctx, req.GetShopHot())
 	if err != nil {
 		log.Error(fmt.Sprintf("CreateShopHot %v", err))
 		return nil, errorsx.WrapInternal(err, "创建商城热门推荐失败")
+	}
+	return new(emptypb.Empty), nil
+}
+
+// CreateShopHotItem 创建商城热门推荐属性
+func (s *ShopHotService) CreateShopHotItem(ctx context.Context, req *shopadminv1.CreateShopHotItemRequest) (*emptypb.Empty, error) {
+	err := s.hotItemCase.CreateShopHotItem(ctx, req.GetShopHotItem())
+	if err != nil {
+		log.Error(fmt.Sprintf("CreateShopHotItem %v", err))
+		return nil, errorsx.WrapInternal(err, "创建热门推荐选项失败")
 	}
 	return new(emptypb.Empty), nil
 }
@@ -80,62 +110,22 @@ func (s *ShopHotService) UpdateShopHot(ctx context.Context, req *shopadminv1.Upd
 	return new(emptypb.Empty), nil
 }
 
-// DeleteShopHot 删除商城热门推荐
-func (s *ShopHotService) DeleteShopHot(ctx context.Context, req *shopadminv1.DeleteShopHotRequest) (*emptypb.Empty, error) {
-	err := s.hotCase.DeleteShopHot(ctx, req.GetIds())
-	if err != nil {
-		log.Error(fmt.Sprintf("DeleteShopHot %v", err))
-		return nil, errorsx.WrapInternal(err, "删除商城热门推荐失败")
-	}
-	return new(emptypb.Empty), nil
-}
-
-// SetShopHotStatus 设置状态
-func (s *ShopHotService) SetShopHotStatus(ctx context.Context, req *shopadminv1.SetShopHotStatusRequest) (*emptypb.Empty, error) {
-	err := s.hotCase.SetShopHotStatus(ctx, req)
-	if err != nil {
-		log.Error(fmt.Sprintf("SetShopHotStatus %v", err))
-		return nil, errorsx.WrapInternal(err, "设置状态失败")
-	}
-	return new(emptypb.Empty), nil
-}
-
-// PageShopHotItem 查询商城热门推荐属性列表
-func (s *ShopHotService) PageShopHotItem(ctx context.Context, req *shopadminv1.PageShopHotItemRequest) (*shopadminv1.PageShopHotItemResponse, error) {
-	page, err := s.hotItemCase.PageShopHotItem(ctx, req)
-	if err != nil {
-		log.Error(fmt.Sprintf("PageShopHotItem %v", err))
-		return nil, errorsx.WrapInternal(err, "查询热门推荐选项列表失败")
-	}
-	return page, nil
-}
-
-// GetShopHotItem 查询商城热门推荐属性
-func (s *ShopHotService) GetShopHotItem(ctx context.Context, req *shopadminv1.GetShopHotItemRequest) (*shopadminv1.ShopHotItemForm, error) {
-	shopHotItem, err := s.hotItemCase.GetShopHotItem(ctx, req.GetId())
-	if err != nil {
-		log.Error(fmt.Sprintf("GetShopHotItem %v", err))
-		return nil, errorsx.WrapInternal(err, "查询热门推荐选项失败")
-	}
-	return shopHotItem, nil
-}
-
-// CreateShopHotItem 创建商城热门推荐属性
-func (s *ShopHotService) CreateShopHotItem(ctx context.Context, req *shopadminv1.CreateShopHotItemRequest) (*emptypb.Empty, error) {
-	err := s.hotItemCase.CreateShopHotItem(ctx, req.GetShopHotItem())
-	if err != nil {
-		log.Error(fmt.Sprintf("CreateShopHotItem %v", err))
-		return nil, errorsx.WrapInternal(err, "创建热门推荐选项失败")
-	}
-	return new(emptypb.Empty), nil
-}
-
 // UpdateShopHotItem 更新商城热门推荐属性
 func (s *ShopHotService) UpdateShopHotItem(ctx context.Context, req *shopadminv1.UpdateShopHotItemRequest) (*emptypb.Empty, error) {
 	err := s.hotItemCase.UpdateShopHotItem(ctx, req.GetShopHotItem())
 	if err != nil {
 		log.Error(fmt.Sprintf("UpdateShopHotItem %v", err))
 		return nil, errorsx.WrapInternal(err, "更新热门推荐选项失败")
+	}
+	return new(emptypb.Empty), nil
+}
+
+// DeleteShopHot 删除商城热门推荐
+func (s *ShopHotService) DeleteShopHot(ctx context.Context, req *shopadminv1.DeleteShopHotRequest) (*emptypb.Empty, error) {
+	err := s.hotCase.DeleteShopHot(ctx, req.GetIds())
+	if err != nil {
+		log.Error(fmt.Sprintf("DeleteShopHot %v", err))
+		return nil, errorsx.WrapInternal(err, "删除商城热门推荐失败")
 	}
 	return new(emptypb.Empty), nil
 }
@@ -155,6 +145,16 @@ func (s *ShopHotService) SetShopHotItemStatus(ctx context.Context, req *shopadmi
 	err := s.hotItemCase.SetShopHotItemStatus(ctx, req)
 	if err != nil {
 		log.Error(fmt.Sprintf("SetShopHotItemStatus %v", err))
+		return nil, errorsx.WrapInternal(err, "设置状态失败")
+	}
+	return new(emptypb.Empty), nil
+}
+
+// SetShopHotStatus 设置状态
+func (s *ShopHotService) SetShopHotStatus(ctx context.Context, req *shopadminv1.SetShopHotStatusRequest) (*emptypb.Empty, error) {
+	err := s.hotCase.SetShopHotStatus(ctx, req)
+	if err != nil {
+		log.Error(fmt.Sprintf("SetShopHotStatus %v", err))
 		return nil, errorsx.WrapInternal(err, "设置状态失败")
 	}
 	return new(emptypb.Empty), nil

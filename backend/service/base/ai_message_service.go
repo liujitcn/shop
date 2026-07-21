@@ -28,12 +28,12 @@ func NewAiMessageService(aiMessageCase *biz.AiMessageCase) *AiMessageService {
 	}
 }
 
-// SendAiMessage 发送 AI 助手消息。
-func (s *AiMessageService) SendAiMessage(ctx context.Context, req *basev1.SendAiMessageRequest) (*basev1.SendAiMessageResponse, error) {
-	res, err := s.aiMessageCase.SendAiMessage(ctx, req)
+// UpdateAiMessage 更新 AI 助手消息并重新生成输出。
+func (s *AiMessageService) UpdateAiMessage(ctx context.Context, req *basev1.UpdateAiMessageRequest) (*basev1.SendAiMessageResponse, error) {
+	res, err := s.aiMessageCase.UpdateAiMessage(ctx, req)
 	if err != nil {
-		log.Error(fmt.Sprintf("SendAiMessage %v", err))
-		return nil, errorsx.WrapInternal(err, "发送AI助手消息失败")
+		log.Error(fmt.Sprintf("UpdateAiMessage %v", err))
+		return nil, errorsx.WrapInternal(err, "更新AI助手消息失败")
 	}
 	return res, nil
 }
@@ -48,12 +48,12 @@ func (s *AiMessageService) DeleteAiMessage(ctx context.Context, req *basev1.Dele
 	return &basev1.DeleteAiMessageResponse{}, nil
 }
 
-// UpdateAiMessage 更新 AI 助手消息并重新生成输出。
-func (s *AiMessageService) UpdateAiMessage(ctx context.Context, req *basev1.UpdateAiMessageRequest) (*basev1.SendAiMessageResponse, error) {
-	res, err := s.aiMessageCase.UpdateAiMessage(ctx, req)
+// SendAiMessage 发送 AI 助手消息。
+func (s *AiMessageService) SendAiMessage(ctx context.Context, req *basev1.SendAiMessageRequest) (*basev1.SendAiMessageResponse, error) {
+	res, err := s.aiMessageCase.SendAiMessage(ctx, req)
 	if err != nil {
-		log.Error(fmt.Sprintf("UpdateAiMessage %v", err))
-		return nil, errorsx.WrapInternal(err, "更新AI助手消息失败")
+		log.Error(fmt.Sprintf("SendAiMessage %v", err))
+		return nil, errorsx.WrapInternal(err, "发送AI助手消息失败")
 	}
 	return res, nil
 }

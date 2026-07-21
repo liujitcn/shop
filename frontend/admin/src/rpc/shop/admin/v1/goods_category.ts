@@ -9,6 +9,12 @@ import type { TreeOptionResponse } from "../../../common/v1/common";
 import type { Status } from "../../../common/v1/enum";
 import type { Empty } from "../../../google/protobuf/empty";
 
+/** 商品分类选项查询条件 */
+export interface OptionGoodsCategoryRequest {
+  /** 父级商品分类ID */
+  parent_id?: number | undefined;
+}
+
 /** 商品分类树查询条件 */
 export interface TreeGoodsCategoryRequest {
 }
@@ -19,16 +25,28 @@ export interface TreeGoodsCategoryResponse {
   goods_categories: GoodsCategory[];
 }
 
-/** 商品分类选项查询条件 */
-export interface OptionGoodsCategoryRequest {
-  /** 父级商品分类ID */
-  parent_id?: number | undefined;
-}
-
 /** 商品分类详情查询条件 */
 export interface GetGoodsCategoryRequest {
   /** 商品分类ID */
   id: number;
+}
+
+/** 商品分类表单 */
+export interface GoodsCategoryForm {
+  /** 商品分类ID */
+  id: number;
+  /** 父级商品分类ID */
+  parent_id?:
+    | number
+    | undefined;
+  /** 商品分类名称 */
+  name: string;
+  /** 商品分类图片 */
+  picture: string;
+  /** 排序 */
+  sort: number;
+  /** 菜单状态 */
+  status: Status;
 }
 
 /** 商品分类创建条件 */
@@ -81,30 +99,12 @@ export interface GoodsCategory {
   children: GoodsCategory[];
 }
 
-/** 商品分类表单 */
-export interface GoodsCategoryForm {
-  /** 商品分类ID */
-  id: number;
-  /** 父级商品分类ID */
-  parent_id?:
-    | number
-    | undefined;
-  /** 商品分类名称 */
-  name: string;
-  /** 商品分类图片 */
-  picture: string;
-  /** 排序 */
-  sort: number;
-  /** 菜单状态 */
-  status: Status;
-}
-
 /** Admin商品分类服务 */
 export interface GoodsCategoryService {
-  /** 查询商品分类树形列表 */
-  TreeGoodsCategory(request: TreeGoodsCategoryRequest): Promise<TreeGoodsCategoryResponse>;
   /** 查询商品分类树形选择 */
   OptionGoodsCategory(request: OptionGoodsCategoryRequest): Promise<TreeOptionResponse>;
+  /** 查询商品分类树形列表 */
+  TreeGoodsCategory(request: TreeGoodsCategoryRequest): Promise<TreeGoodsCategoryResponse>;
   /** 查询商品分类 */
   GetGoodsCategory(request: GetGoodsCategoryRequest): Promise<GoodsCategoryForm>;
   /** 创建商品分类 */

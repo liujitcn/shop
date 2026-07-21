@@ -117,96 +117,6 @@ func (x *OptionTenantStoreResponse) GetList() []*OptionTenantStoreResponse_Optio
 	return nil
 }
 
-// 租户门店树形选项查询条件
-type TreeTenantStoreRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Keyword       string                 `protobuf:"bytes,1,opt,name=keyword,proto3" json:"keyword,omitempty"` // 门店名称关键字
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *TreeTenantStoreRequest) Reset() {
-	*x = TreeTenantStoreRequest{}
-	mi := &file_shop_admin_v1_tenant_store_proto_msgTypes[2]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *TreeTenantStoreRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*TreeTenantStoreRequest) ProtoMessage() {}
-
-func (x *TreeTenantStoreRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_tenant_store_proto_msgTypes[2]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use TreeTenantStoreRequest.ProtoReflect.Descriptor instead.
-func (*TreeTenantStoreRequest) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_tenant_store_proto_rawDescGZIP(), []int{2}
-}
-
-func (x *TreeTenantStoreRequest) GetKeyword() string {
-	if x != nil {
-		return x.Keyword
-	}
-	return ""
-}
-
-// 租户门店树形选项响应
-type TreeTenantStoreResponse struct {
-	state         protoimpl.MessageState            `protogen:"open.v1"`
-	List          []*TreeTenantStoreResponse_Option `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"` // 租户门店树形选项列表
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *TreeTenantStoreResponse) Reset() {
-	*x = TreeTenantStoreResponse{}
-	mi := &file_shop_admin_v1_tenant_store_proto_msgTypes[3]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *TreeTenantStoreResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*TreeTenantStoreResponse) ProtoMessage() {}
-
-func (x *TreeTenantStoreResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_tenant_store_proto_msgTypes[3]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use TreeTenantStoreResponse.ProtoReflect.Descriptor instead.
-func (*TreeTenantStoreResponse) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_tenant_store_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *TreeTenantStoreResponse) GetList() []*TreeTenantStoreResponse_Option {
-	if x != nil {
-		return x.List
-	}
-	return nil
-}
-
 // 租户门店列表查询条件
 type PageTenantStoreRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -221,7 +131,7 @@ type PageTenantStoreRequest struct {
 
 func (x *PageTenantStoreRequest) Reset() {
 	*x = PageTenantStoreRequest{}
-	mi := &file_shop_admin_v1_tenant_store_proto_msgTypes[4]
+	mi := &file_shop_admin_v1_tenant_store_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -233,7 +143,7 @@ func (x *PageTenantStoreRequest) String() string {
 func (*PageTenantStoreRequest) ProtoMessage() {}
 
 func (x *PageTenantStoreRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_tenant_store_proto_msgTypes[4]
+	mi := &file_shop_admin_v1_tenant_store_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -246,7 +156,7 @@ func (x *PageTenantStoreRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PageTenantStoreRequest.ProtoReflect.Descriptor instead.
 func (*PageTenantStoreRequest) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_tenant_store_proto_rawDescGZIP(), []int{4}
+	return file_shop_admin_v1_tenant_store_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *PageTenantStoreRequest) GetName() string {
@@ -295,7 +205,7 @@ type PageTenantStoreResponse struct {
 
 func (x *PageTenantStoreResponse) Reset() {
 	*x = PageTenantStoreResponse{}
-	mi := &file_shop_admin_v1_tenant_store_proto_msgTypes[5]
+	mi := &file_shop_admin_v1_tenant_store_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -307,7 +217,7 @@ func (x *PageTenantStoreResponse) String() string {
 func (*PageTenantStoreResponse) ProtoMessage() {}
 
 func (x *PageTenantStoreResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_tenant_store_proto_msgTypes[5]
+	mi := &file_shop_admin_v1_tenant_store_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -320,7 +230,7 @@ func (x *PageTenantStoreResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PageTenantStoreResponse.ProtoReflect.Descriptor instead.
 func (*PageTenantStoreResponse) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_tenant_store_proto_rawDescGZIP(), []int{5}
+	return file_shop_admin_v1_tenant_store_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *PageTenantStoreResponse) GetTenantStores() []*TenantStore {
@@ -335,6 +245,96 @@ func (x *PageTenantStoreResponse) GetTotal() int32 {
 		return x.Total
 	}
 	return 0
+}
+
+// 租户门店树形选项查询条件
+type TreeTenantStoreRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Keyword       string                 `protobuf:"bytes,1,opt,name=keyword,proto3" json:"keyword,omitempty"` // 门店名称关键字
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TreeTenantStoreRequest) Reset() {
+	*x = TreeTenantStoreRequest{}
+	mi := &file_shop_admin_v1_tenant_store_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TreeTenantStoreRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TreeTenantStoreRequest) ProtoMessage() {}
+
+func (x *TreeTenantStoreRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_admin_v1_tenant_store_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TreeTenantStoreRequest.ProtoReflect.Descriptor instead.
+func (*TreeTenantStoreRequest) Descriptor() ([]byte, []int) {
+	return file_shop_admin_v1_tenant_store_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *TreeTenantStoreRequest) GetKeyword() string {
+	if x != nil {
+		return x.Keyword
+	}
+	return ""
+}
+
+// 租户门店树形选项响应
+type TreeTenantStoreResponse struct {
+	state         protoimpl.MessageState            `protogen:"open.v1"`
+	List          []*TreeTenantStoreResponse_Option `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"` // 租户门店树形选项列表
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TreeTenantStoreResponse) Reset() {
+	*x = TreeTenantStoreResponse{}
+	mi := &file_shop_admin_v1_tenant_store_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TreeTenantStoreResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TreeTenantStoreResponse) ProtoMessage() {}
+
+func (x *TreeTenantStoreResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_admin_v1_tenant_store_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TreeTenantStoreResponse.ProtoReflect.Descriptor instead.
+func (*TreeTenantStoreResponse) Descriptor() ([]byte, []int) {
+	return file_shop_admin_v1_tenant_store_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *TreeTenantStoreResponse) GetList() []*TreeTenantStoreResponse_Option {
+	if x != nil {
+		return x.List
+	}
+	return nil
 }
 
 // 租户门店详情查询条件
@@ -382,6 +382,115 @@ func (x *GetTenantStoreRequest) GetId() int64 {
 	return 0
 }
 
+// 租户门店表单
+type TenantStoreForm struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	Id              int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                 // 门店ID
+	Name            string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`                                              // 门店名称
+	Logo            string                 `protobuf:"bytes,3,opt,name=logo,proto3" json:"logo,omitempty"`                                              // 门店LOGO
+	Cover           string                 `protobuf:"bytes,4,opt,name=cover,proto3" json:"cover,omitempty"`                                            // 门店封面
+	Intro           string                 `protobuf:"bytes,5,opt,name=intro,proto3" json:"intro,omitempty"`                                            // 门店简介
+	Notice          string                 `protobuf:"bytes,6,opt,name=notice,proto3" json:"notice,omitempty"`                                          // 门店公告
+	BusinessLicense []string               `protobuf:"bytes,7,rep,name=business_license,json=businessLicense,proto3" json:"business_license,omitempty"` // 营业执照
+	Remark          string                 `protobuf:"bytes,8,opt,name=remark,proto3" json:"remark,omitempty"`                                          // 备注
+	Status          v1.TenantStoreStatus   `protobuf:"varint,100,opt,name=status,proto3,enum=shop.common.v1.TenantStoreStatus" json:"status,omitempty"` // 审核状态：枚举【TenantStoreStatus】
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *TenantStoreForm) Reset() {
+	*x = TenantStoreForm{}
+	mi := &file_shop_admin_v1_tenant_store_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TenantStoreForm) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TenantStoreForm) ProtoMessage() {}
+
+func (x *TenantStoreForm) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_admin_v1_tenant_store_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TenantStoreForm.ProtoReflect.Descriptor instead.
+func (*TenantStoreForm) Descriptor() ([]byte, []int) {
+	return file_shop_admin_v1_tenant_store_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *TenantStoreForm) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *TenantStoreForm) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *TenantStoreForm) GetLogo() string {
+	if x != nil {
+		return x.Logo
+	}
+	return ""
+}
+
+func (x *TenantStoreForm) GetCover() string {
+	if x != nil {
+		return x.Cover
+	}
+	return ""
+}
+
+func (x *TenantStoreForm) GetIntro() string {
+	if x != nil {
+		return x.Intro
+	}
+	return ""
+}
+
+func (x *TenantStoreForm) GetNotice() string {
+	if x != nil {
+		return x.Notice
+	}
+	return ""
+}
+
+func (x *TenantStoreForm) GetBusinessLicense() []string {
+	if x != nil {
+		return x.BusinessLicense
+	}
+	return nil
+}
+
+func (x *TenantStoreForm) GetRemark() string {
+	if x != nil {
+		return x.Remark
+	}
+	return ""
+}
+
+func (x *TenantStoreForm) GetStatus() v1.TenantStoreStatus {
+	if x != nil {
+		return x.Status
+	}
+	return v1.TenantStoreStatus(0)
+}
+
 // 租户门店创建条件
 type CreateTenantStoreRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -392,7 +501,7 @@ type CreateTenantStoreRequest struct {
 
 func (x *CreateTenantStoreRequest) Reset() {
 	*x = CreateTenantStoreRequest{}
-	mi := &file_shop_admin_v1_tenant_store_proto_msgTypes[7]
+	mi := &file_shop_admin_v1_tenant_store_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -404,7 +513,7 @@ func (x *CreateTenantStoreRequest) String() string {
 func (*CreateTenantStoreRequest) ProtoMessage() {}
 
 func (x *CreateTenantStoreRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_tenant_store_proto_msgTypes[7]
+	mi := &file_shop_admin_v1_tenant_store_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -417,7 +526,7 @@ func (x *CreateTenantStoreRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateTenantStoreRequest.ProtoReflect.Descriptor instead.
 func (*CreateTenantStoreRequest) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_tenant_store_proto_rawDescGZIP(), []int{7}
+	return file_shop_admin_v1_tenant_store_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *CreateTenantStoreRequest) GetTenantStore() *TenantStoreForm {
@@ -438,7 +547,7 @@ type UpdateTenantStoreRequest struct {
 
 func (x *UpdateTenantStoreRequest) Reset() {
 	*x = UpdateTenantStoreRequest{}
-	mi := &file_shop_admin_v1_tenant_store_proto_msgTypes[8]
+	mi := &file_shop_admin_v1_tenant_store_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -450,7 +559,7 @@ func (x *UpdateTenantStoreRequest) String() string {
 func (*UpdateTenantStoreRequest) ProtoMessage() {}
 
 func (x *UpdateTenantStoreRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_tenant_store_proto_msgTypes[8]
+	mi := &file_shop_admin_v1_tenant_store_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -463,7 +572,7 @@ func (x *UpdateTenantStoreRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateTenantStoreRequest.ProtoReflect.Descriptor instead.
 func (*UpdateTenantStoreRequest) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_tenant_store_proto_rawDescGZIP(), []int{8}
+	return file_shop_admin_v1_tenant_store_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *UpdateTenantStoreRequest) GetId() int64 {
@@ -490,7 +599,7 @@ type DeleteTenantStoreRequest struct {
 
 func (x *DeleteTenantStoreRequest) Reset() {
 	*x = DeleteTenantStoreRequest{}
-	mi := &file_shop_admin_v1_tenant_store_proto_msgTypes[9]
+	mi := &file_shop_admin_v1_tenant_store_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -502,7 +611,7 @@ func (x *DeleteTenantStoreRequest) String() string {
 func (*DeleteTenantStoreRequest) ProtoMessage() {}
 
 func (x *DeleteTenantStoreRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_tenant_store_proto_msgTypes[9]
+	mi := &file_shop_admin_v1_tenant_store_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -515,7 +624,7 @@ func (x *DeleteTenantStoreRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteTenantStoreRequest.ProtoReflect.Descriptor instead.
 func (*DeleteTenantStoreRequest) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_tenant_store_proto_rawDescGZIP(), []int{9}
+	return file_shop_admin_v1_tenant_store_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *DeleteTenantStoreRequest) GetIds() string {
@@ -537,7 +646,7 @@ type AuditTenantStoreRequest struct {
 
 func (x *AuditTenantStoreRequest) Reset() {
 	*x = AuditTenantStoreRequest{}
-	mi := &file_shop_admin_v1_tenant_store_proto_msgTypes[10]
+	mi := &file_shop_admin_v1_tenant_store_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -549,7 +658,7 @@ func (x *AuditTenantStoreRequest) String() string {
 func (*AuditTenantStoreRequest) ProtoMessage() {}
 
 func (x *AuditTenantStoreRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_tenant_store_proto_msgTypes[10]
+	mi := &file_shop_admin_v1_tenant_store_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -562,7 +671,7 @@ func (x *AuditTenantStoreRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AuditTenantStoreRequest.ProtoReflect.Descriptor instead.
 func (*AuditTenantStoreRequest) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_tenant_store_proto_rawDescGZIP(), []int{10}
+	return file_shop_admin_v1_tenant_store_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *AuditTenantStoreRequest) GetId() int64 {
@@ -607,7 +716,7 @@ type TenantStore struct {
 
 func (x *TenantStore) Reset() {
 	*x = TenantStore{}
-	mi := &file_shop_admin_v1_tenant_store_proto_msgTypes[11]
+	mi := &file_shop_admin_v1_tenant_store_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -619,7 +728,7 @@ func (x *TenantStore) String() string {
 func (*TenantStore) ProtoMessage() {}
 
 func (x *TenantStore) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_tenant_store_proto_msgTypes[11]
+	mi := &file_shop_admin_v1_tenant_store_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -632,7 +741,7 @@ func (x *TenantStore) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TenantStore.ProtoReflect.Descriptor instead.
 func (*TenantStore) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_tenant_store_proto_rawDescGZIP(), []int{11}
+	return file_shop_admin_v1_tenant_store_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *TenantStore) GetId() int64 {
@@ -717,115 +826,6 @@ func (x *TenantStore) GetUpdatedAt() string {
 		return x.UpdatedAt
 	}
 	return ""
-}
-
-// 租户门店表单
-type TenantStoreForm struct {
-	state           protoimpl.MessageState `protogen:"open.v1"`
-	Id              int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                 // 门店ID
-	Name            string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`                                              // 门店名称
-	Logo            string                 `protobuf:"bytes,3,opt,name=logo,proto3" json:"logo,omitempty"`                                              // 门店LOGO
-	Cover           string                 `protobuf:"bytes,4,opt,name=cover,proto3" json:"cover,omitempty"`                                            // 门店封面
-	Intro           string                 `protobuf:"bytes,5,opt,name=intro,proto3" json:"intro,omitempty"`                                            // 门店简介
-	Notice          string                 `protobuf:"bytes,6,opt,name=notice,proto3" json:"notice,omitempty"`                                          // 门店公告
-	BusinessLicense []string               `protobuf:"bytes,7,rep,name=business_license,json=businessLicense,proto3" json:"business_license,omitempty"` // 营业执照
-	Remark          string                 `protobuf:"bytes,8,opt,name=remark,proto3" json:"remark,omitempty"`                                          // 备注
-	Status          v1.TenantStoreStatus   `protobuf:"varint,100,opt,name=status,proto3,enum=shop.common.v1.TenantStoreStatus" json:"status,omitempty"` // 审核状态：枚举【TenantStoreStatus】
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
-}
-
-func (x *TenantStoreForm) Reset() {
-	*x = TenantStoreForm{}
-	mi := &file_shop_admin_v1_tenant_store_proto_msgTypes[12]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *TenantStoreForm) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*TenantStoreForm) ProtoMessage() {}
-
-func (x *TenantStoreForm) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_admin_v1_tenant_store_proto_msgTypes[12]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use TenantStoreForm.ProtoReflect.Descriptor instead.
-func (*TenantStoreForm) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_tenant_store_proto_rawDescGZIP(), []int{12}
-}
-
-func (x *TenantStoreForm) GetId() int64 {
-	if x != nil {
-		return x.Id
-	}
-	return 0
-}
-
-func (x *TenantStoreForm) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
-}
-
-func (x *TenantStoreForm) GetLogo() string {
-	if x != nil {
-		return x.Logo
-	}
-	return ""
-}
-
-func (x *TenantStoreForm) GetCover() string {
-	if x != nil {
-		return x.Cover
-	}
-	return ""
-}
-
-func (x *TenantStoreForm) GetIntro() string {
-	if x != nil {
-		return x.Intro
-	}
-	return ""
-}
-
-func (x *TenantStoreForm) GetNotice() string {
-	if x != nil {
-		return x.Notice
-	}
-	return ""
-}
-
-func (x *TenantStoreForm) GetBusinessLicense() []string {
-	if x != nil {
-		return x.BusinessLicense
-	}
-	return nil
-}
-
-func (x *TenantStoreForm) GetRemark() string {
-	if x != nil {
-		return x.Remark
-	}
-	return ""
-}
-
-func (x *TenantStoreForm) GetStatus() v1.TenantStoreStatus {
-	if x != nil {
-		return x.Status
-	}
-	return v1.TenantStoreStatus(0)
 }
 
 // 租户门店选项
@@ -921,7 +921,7 @@ func (x *TreeTenantStoreResponse_Option) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TreeTenantStoreResponse_Option.ProtoReflect.Descriptor instead.
 func (*TreeTenantStoreResponse_Option) Descriptor() ([]byte, []int) {
-	return file_shop_admin_v1_tenant_store_proto_rawDescGZIP(), []int{3, 0}
+	return file_shop_admin_v1_tenant_store_proto_rawDescGZIP(), []int{5, 0}
 }
 
 func (x *TreeTenantStoreResponse_Option) GetValue() string {
@@ -977,18 +977,7 @@ const file_shop_admin_v1_tenant_store_proto_rawDesc = "" +
 	"\x04list\x18\x01 \x03(\v2/.shop.admin.v1.OptionTenantStoreResponse.OptionB\x18\xbaG\x15\x92\x02\x12门店选项列表R\x04list\x1aX\n" +
 	"\x06Option\x12$\n" +
 	"\x05value\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b门店IDR\x05value\x12(\n" +
-	"\x05label\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f门店名称R\x05label\"O\n" +
-	"\x16TreeTenantStoreRequest\x125\n" +
-	"\akeyword\x18\x01 \x01(\tB\x1b\xbaG\x18\x92\x02\x15门店名称关键字R\akeyword\"\xe8\x03\n" +
-	"\x17TreeTenantStoreResponse\x12g\n" +
-	"\x04list\x18\x01 \x03(\v2-.shop.admin.v1.TreeTenantStoreResponse.OptionB$\xbaG!\x92\x02\x1e租户门店树形选项列表R\x04list\x1a\xe3\x02\n" +
-	"\x06Option\x12B\n" +
-	"\x05value\x18\x01 \x01(\tB,\xbaG)\x92\x02&选项值，tenant:{id} 或 store:{id}R\x05value\x12(\n" +
-	"\x05label\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f选项名称R\x05label\x129\n" +
-	"\x04type\x18\x03 \x01(\tB%\xbaG\"\x92\x02\x1f节点类型：tenant 或 storeR\x04type\x12$\n" +
-	"\x02id\x18\x04 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e节点业务IDR\x02id\x12+\n" +
-	"\ttenant_id\x18\x05 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDR\btenantId\x12]\n" +
-	"\bchildren\x18e \x03(\v2-.shop.admin.v1.TreeTenantStoreResponse.OptionB\x12\xbaG\x0f\x92\x02\f子节点树R\bchildren\"\x89\x03\n" +
+	"\x05label\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f门店名称R\x05label\"\x89\x03\n" +
 	"\x16PageTenantStoreRequest\x12&\n" +
 	"\x04name\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f门店名称R\x04name\x120\n" +
 	"\ttenant_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12~\n" +
@@ -1000,9 +989,38 @@ const file_shop_admin_v1_tenant_store_proto_rawDesc = "" +
 	"\a_status\"\x98\x01\n" +
 	"\x17PageTenantStoreResponse\x12Y\n" +
 	"\rtenant_stores\x18\x01 \x03(\v2\x1a.shop.admin.v1.TenantStoreB\x18\xbaG\x15\x92\x02\x12租户门店列表R\ftenantStores\x12\"\n" +
-	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"7\n" +
+	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"O\n" +
+	"\x16TreeTenantStoreRequest\x125\n" +
+	"\akeyword\x18\x01 \x01(\tB\x1b\xbaG\x18\x92\x02\x15门店名称关键字R\akeyword\"\xe8\x03\n" +
+	"\x17TreeTenantStoreResponse\x12g\n" +
+	"\x04list\x18\x01 \x03(\v2-.shop.admin.v1.TreeTenantStoreResponse.OptionB$\xbaG!\x92\x02\x1e租户门店树形选项列表R\x04list\x1a\xe3\x02\n" +
+	"\x06Option\x12B\n" +
+	"\x05value\x18\x01 \x01(\tB,\xbaG)\x92\x02&选项值，tenant:{id} 或 store:{id}R\x05value\x12(\n" +
+	"\x05label\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f选项名称R\x05label\x129\n" +
+	"\x04type\x18\x03 \x01(\tB%\xbaG\"\x92\x02\x1f节点类型：tenant 或 storeR\x04type\x12$\n" +
+	"\x02id\x18\x04 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e节点业务IDR\x02id\x12+\n" +
+	"\ttenant_id\x18\x05 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDR\btenantId\x12]\n" +
+	"\bchildren\x18e \x03(\v2-.shop.admin.v1.TreeTenantStoreResponse.OptionB\x12\xbaG\x0f\x92\x02\f子节点树R\bchildren\"7\n" +
 	"\x15GetTenantStoreRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b门店IDR\x02id\"}\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b门店IDR\x02id\"\x89\t\n" +
+	"\x0fTenantStoreForm\x12\x1e\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b门店IDR\x02id\x12\xa2\x01\n" +
+	"\x04name\x18\x02 \x01(\tB\x8d\x01\xbaG\x0f\x92\x02\f门店名称\xbaHx\xba\x01u\n" +
+	"\x18tenant_store.name.length\x122门店名称不能为空且不超过 100 个字符\x1a%this.size() > 0 && this.size() <= 100R\x04name\x12\x81\x01\n" +
+	"\x04logo\x18\x03 \x01(\tBm\xbaG\r\x92\x02\n" +
+	"门店LOGO\xbaHZ\xba\x01W\n" +
+	"\x19tenant_store.logo.max_len\x12%门店LOGO不能超过 1024 个字符\x1a\x13this.size() <= 1024R\x04logo\x12\x88\x01\n" +
+	"\x05cover\x18\x04 \x01(\tBr\xbaG\x0f\x92\x02\f门店封面\xbaH]\xba\x01Z\n" +
+	"\x1atenant_store.cover.max_len\x12'门店封面不能超过 1024 个字符\x1a\x13this.size() <= 1024R\x05cover\x12\x86\x01\n" +
+	"\x05intro\x18\x05 \x01(\tBp\xbaG\x0f\x92\x02\f门店简介\xbaH[\xba\x01X\n" +
+	"\x1atenant_store.intro.max_len\x12&门店简介不能超过 500 个字符\x1a\x12this.size() <= 500R\x05intro\x12\x89\x01\n" +
+	"\x06notice\x18\x06 \x01(\tBq\xbaG\x0f\x92\x02\f门店公告\xbaH\\\xba\x01Y\n" +
+	"\x1btenant_store.notice.max_len\x12&门店公告不能超过 500 个字符\x1a\x12this.size() <= 500R\x06notice\x12\x96\x01\n" +
+	"\x10business_license\x18\a \x03(\tBk\xbaG\x0f\x92\x02\f营业执照\xbaHV\xba\x01S\n" +
+	"&tenant_store.business_license.required\x12\x18营业执照不能为空\x1a\x0fthis.size() > 0R\x0fbusinessLicense\x12}\n" +
+	"\x06remark\x18\b \x01(\tBe\xbaG\t\x92\x02\x06备注\xbaHV\xba\x01S\n" +
+	"\x1btenant_store.remark.max_len\x12 备注不能超过 500 个字符\x1a\x12this.size() <= 500R\x06remark\x12u\n" +
+	"\x06status\x18d \x01(\x0e2!.shop.common.v1.TenantStoreStatusB:\xbaG/\x92\x02,审核状态：枚举【TenantStoreStatus】\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"}\n" +
 	"\x18CreateTenantStoreRequest\x12a\n" +
 	"\ftenant_store\x18\x01 \x01(\v2\x1e.shop.admin.v1.TenantStoreFormB\x1e\xbaG\x15\x92\x02\x12租户门店表单\xbaH\x03\xc8\x01\x01R\vtenantStore\"\x9d\x01\n" +
 	"\x18UpdateTenantStoreRequest\x12\x1e\n" +
@@ -1029,29 +1047,11 @@ const file_shop_admin_v1_tenant_store_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
 	"\n" +
-	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\"\x89\t\n" +
-	"\x0fTenantStoreForm\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b门店IDR\x02id\x12\xa2\x01\n" +
-	"\x04name\x18\x02 \x01(\tB\x8d\x01\xbaG\x0f\x92\x02\f门店名称\xbaHx\xba\x01u\n" +
-	"\x18tenant_store.name.length\x122门店名称不能为空且不超过 100 个字符\x1a%this.size() > 0 && this.size() <= 100R\x04name\x12\x81\x01\n" +
-	"\x04logo\x18\x03 \x01(\tBm\xbaG\r\x92\x02\n" +
-	"门店LOGO\xbaHZ\xba\x01W\n" +
-	"\x19tenant_store.logo.max_len\x12%门店LOGO不能超过 1024 个字符\x1a\x13this.size() <= 1024R\x04logo\x12\x88\x01\n" +
-	"\x05cover\x18\x04 \x01(\tBr\xbaG\x0f\x92\x02\f门店封面\xbaH]\xba\x01Z\n" +
-	"\x1atenant_store.cover.max_len\x12'门店封面不能超过 1024 个字符\x1a\x13this.size() <= 1024R\x05cover\x12\x86\x01\n" +
-	"\x05intro\x18\x05 \x01(\tBp\xbaG\x0f\x92\x02\f门店简介\xbaH[\xba\x01X\n" +
-	"\x1atenant_store.intro.max_len\x12&门店简介不能超过 500 个字符\x1a\x12this.size() <= 500R\x05intro\x12\x89\x01\n" +
-	"\x06notice\x18\x06 \x01(\tBq\xbaG\x0f\x92\x02\f门店公告\xbaH\\\xba\x01Y\n" +
-	"\x1btenant_store.notice.max_len\x12&门店公告不能超过 500 个字符\x1a\x12this.size() <= 500R\x06notice\x12\x96\x01\n" +
-	"\x10business_license\x18\a \x03(\tBk\xbaG\x0f\x92\x02\f营业执照\xbaHV\xba\x01S\n" +
-	"&tenant_store.business_license.required\x12\x18营业执照不能为空\x1a\x0fthis.size() > 0R\x0fbusinessLicense\x12}\n" +
-	"\x06remark\x18\b \x01(\tBe\xbaG\t\x92\x02\x06备注\xbaHV\xba\x01S\n" +
-	"\x1btenant_store.remark.max_len\x12 备注不能超过 500 个字符\x1a\x12this.size() <= 500R\x06remark\x12u\n" +
-	"\x06status\x18d \x01(\x0e2!.shop.common.v1.TenantStoreStatusB:\xbaG/\x92\x02,审核状态：枚举【TenantStoreStatus】\xbaH\x05\x82\x01\x02\x10\x01R\x06status2\xda\b\n" +
+	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt2\xda\b\n" +
 	"\x12TenantStoreService\x12\x91\x01\n" +
-	"\x11OptionTenantStore\x12'.shop.admin.v1.OptionTenantStoreRequest\x1a(.shop.admin.v1.OptionTenantStoreResponse\")\x82\xd3\xe4\x93\x02#\x12!/api/v1/admin/tenant/store/option\x12\x89\x01\n" +
-	"\x0fTreeTenantStore\x12%.shop.admin.v1.TreeTenantStoreRequest\x1a&.shop.admin.v1.TreeTenantStoreResponse\"'\x82\xd3\xe4\x93\x02!\x12\x1f/api/v1/admin/tenant/store/tree\x12\x84\x01\n" +
-	"\x0fPageTenantStore\x12%.shop.admin.v1.PageTenantStoreRequest\x1a&.shop.admin.v1.PageTenantStoreResponse\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/v1/admin/tenant/store\x12\x7f\n" +
+	"\x11OptionTenantStore\x12'.shop.admin.v1.OptionTenantStoreRequest\x1a(.shop.admin.v1.OptionTenantStoreResponse\")\x82\xd3\xe4\x93\x02#\x12!/api/v1/admin/tenant/store/option\x12\x84\x01\n" +
+	"\x0fPageTenantStore\x12%.shop.admin.v1.PageTenantStoreRequest\x1a&.shop.admin.v1.PageTenantStoreResponse\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/v1/admin/tenant/store\x12\x89\x01\n" +
+	"\x0fTreeTenantStore\x12%.shop.admin.v1.TreeTenantStoreRequest\x1a&.shop.admin.v1.TreeTenantStoreResponse\"'\x82\xd3\xe4\x93\x02!\x12\x1f/api/v1/admin/tenant/store/tree\x12\x7f\n" +
 	"\x0eGetTenantStore\x12$.shop.admin.v1.GetTenantStoreRequest\x1a\x1e.shop.admin.v1.TenantStoreForm\"'\x82\xd3\xe4\x93\x02!\x12\x1f/api/v1/admin/tenant/store/{id}\x12\x86\x01\n" +
 	"\x11CreateTenantStore\x12'.shop.admin.v1.CreateTenantStoreRequest\x1a\x16.google.protobuf.Empty\"0\x82\xd3\xe4\x93\x02*:\ftenant_store\"\x1a/api/v1/admin/tenant/store\x12\x8b\x01\n" +
 	"\x11UpdateTenantStore\x12'.shop.admin.v1.UpdateTenantStoreRequest\x1a\x16.google.protobuf.Empty\"5\x82\xd3\xe4\x93\x02/:\ftenant_store\x1a\x1f/api/v1/admin/tenant/store/{id}\x12~\n" +
@@ -1075,17 +1075,17 @@ var file_shop_admin_v1_tenant_store_proto_msgTypes = make([]protoimpl.MessageInf
 var file_shop_admin_v1_tenant_store_proto_goTypes = []any{
 	(*OptionTenantStoreRequest)(nil),         // 0: shop.admin.v1.OptionTenantStoreRequest
 	(*OptionTenantStoreResponse)(nil),        // 1: shop.admin.v1.OptionTenantStoreResponse
-	(*TreeTenantStoreRequest)(nil),           // 2: shop.admin.v1.TreeTenantStoreRequest
-	(*TreeTenantStoreResponse)(nil),          // 3: shop.admin.v1.TreeTenantStoreResponse
-	(*PageTenantStoreRequest)(nil),           // 4: shop.admin.v1.PageTenantStoreRequest
-	(*PageTenantStoreResponse)(nil),          // 5: shop.admin.v1.PageTenantStoreResponse
+	(*PageTenantStoreRequest)(nil),           // 2: shop.admin.v1.PageTenantStoreRequest
+	(*PageTenantStoreResponse)(nil),          // 3: shop.admin.v1.PageTenantStoreResponse
+	(*TreeTenantStoreRequest)(nil),           // 4: shop.admin.v1.TreeTenantStoreRequest
+	(*TreeTenantStoreResponse)(nil),          // 5: shop.admin.v1.TreeTenantStoreResponse
 	(*GetTenantStoreRequest)(nil),            // 6: shop.admin.v1.GetTenantStoreRequest
-	(*CreateTenantStoreRequest)(nil),         // 7: shop.admin.v1.CreateTenantStoreRequest
-	(*UpdateTenantStoreRequest)(nil),         // 8: shop.admin.v1.UpdateTenantStoreRequest
-	(*DeleteTenantStoreRequest)(nil),         // 9: shop.admin.v1.DeleteTenantStoreRequest
-	(*AuditTenantStoreRequest)(nil),          // 10: shop.admin.v1.AuditTenantStoreRequest
-	(*TenantStore)(nil),                      // 11: shop.admin.v1.TenantStore
-	(*TenantStoreForm)(nil),                  // 12: shop.admin.v1.TenantStoreForm
+	(*TenantStoreForm)(nil),                  // 7: shop.admin.v1.TenantStoreForm
+	(*CreateTenantStoreRequest)(nil),         // 8: shop.admin.v1.CreateTenantStoreRequest
+	(*UpdateTenantStoreRequest)(nil),         // 9: shop.admin.v1.UpdateTenantStoreRequest
+	(*DeleteTenantStoreRequest)(nil),         // 10: shop.admin.v1.DeleteTenantStoreRequest
+	(*AuditTenantStoreRequest)(nil),          // 11: shop.admin.v1.AuditTenantStoreRequest
+	(*TenantStore)(nil),                      // 12: shop.admin.v1.TenantStore
 	(*OptionTenantStoreResponse_Option)(nil), // 13: shop.admin.v1.OptionTenantStoreResponse.Option
 	(*TreeTenantStoreResponse_Option)(nil),   // 14: shop.admin.v1.TreeTenantStoreResponse.Option
 	(v1.TenantStoreStatus)(0),                // 15: shop.common.v1.TenantStoreStatus
@@ -1093,27 +1093,27 @@ var file_shop_admin_v1_tenant_store_proto_goTypes = []any{
 }
 var file_shop_admin_v1_tenant_store_proto_depIdxs = []int32{
 	13, // 0: shop.admin.v1.OptionTenantStoreResponse.list:type_name -> shop.admin.v1.OptionTenantStoreResponse.Option
-	14, // 1: shop.admin.v1.TreeTenantStoreResponse.list:type_name -> shop.admin.v1.TreeTenantStoreResponse.Option
-	15, // 2: shop.admin.v1.PageTenantStoreRequest.status:type_name -> shop.common.v1.TenantStoreStatus
-	11, // 3: shop.admin.v1.PageTenantStoreResponse.tenant_stores:type_name -> shop.admin.v1.TenantStore
-	12, // 4: shop.admin.v1.CreateTenantStoreRequest.tenant_store:type_name -> shop.admin.v1.TenantStoreForm
-	12, // 5: shop.admin.v1.UpdateTenantStoreRequest.tenant_store:type_name -> shop.admin.v1.TenantStoreForm
-	15, // 6: shop.admin.v1.AuditTenantStoreRequest.status:type_name -> shop.common.v1.TenantStoreStatus
-	15, // 7: shop.admin.v1.TenantStore.status:type_name -> shop.common.v1.TenantStoreStatus
-	15, // 8: shop.admin.v1.TenantStoreForm.status:type_name -> shop.common.v1.TenantStoreStatus
+	15, // 1: shop.admin.v1.PageTenantStoreRequest.status:type_name -> shop.common.v1.TenantStoreStatus
+	12, // 2: shop.admin.v1.PageTenantStoreResponse.tenant_stores:type_name -> shop.admin.v1.TenantStore
+	14, // 3: shop.admin.v1.TreeTenantStoreResponse.list:type_name -> shop.admin.v1.TreeTenantStoreResponse.Option
+	15, // 4: shop.admin.v1.TenantStoreForm.status:type_name -> shop.common.v1.TenantStoreStatus
+	7,  // 5: shop.admin.v1.CreateTenantStoreRequest.tenant_store:type_name -> shop.admin.v1.TenantStoreForm
+	7,  // 6: shop.admin.v1.UpdateTenantStoreRequest.tenant_store:type_name -> shop.admin.v1.TenantStoreForm
+	15, // 7: shop.admin.v1.AuditTenantStoreRequest.status:type_name -> shop.common.v1.TenantStoreStatus
+	15, // 8: shop.admin.v1.TenantStore.status:type_name -> shop.common.v1.TenantStoreStatus
 	14, // 9: shop.admin.v1.TreeTenantStoreResponse.Option.children:type_name -> shop.admin.v1.TreeTenantStoreResponse.Option
 	0,  // 10: shop.admin.v1.TenantStoreService.OptionTenantStore:input_type -> shop.admin.v1.OptionTenantStoreRequest
-	2,  // 11: shop.admin.v1.TenantStoreService.TreeTenantStore:input_type -> shop.admin.v1.TreeTenantStoreRequest
-	4,  // 12: shop.admin.v1.TenantStoreService.PageTenantStore:input_type -> shop.admin.v1.PageTenantStoreRequest
+	2,  // 11: shop.admin.v1.TenantStoreService.PageTenantStore:input_type -> shop.admin.v1.PageTenantStoreRequest
+	4,  // 12: shop.admin.v1.TenantStoreService.TreeTenantStore:input_type -> shop.admin.v1.TreeTenantStoreRequest
 	6,  // 13: shop.admin.v1.TenantStoreService.GetTenantStore:input_type -> shop.admin.v1.GetTenantStoreRequest
-	7,  // 14: shop.admin.v1.TenantStoreService.CreateTenantStore:input_type -> shop.admin.v1.CreateTenantStoreRequest
-	8,  // 15: shop.admin.v1.TenantStoreService.UpdateTenantStore:input_type -> shop.admin.v1.UpdateTenantStoreRequest
-	9,  // 16: shop.admin.v1.TenantStoreService.DeleteTenantStore:input_type -> shop.admin.v1.DeleteTenantStoreRequest
-	10, // 17: shop.admin.v1.TenantStoreService.AuditTenantStore:input_type -> shop.admin.v1.AuditTenantStoreRequest
+	8,  // 14: shop.admin.v1.TenantStoreService.CreateTenantStore:input_type -> shop.admin.v1.CreateTenantStoreRequest
+	9,  // 15: shop.admin.v1.TenantStoreService.UpdateTenantStore:input_type -> shop.admin.v1.UpdateTenantStoreRequest
+	10, // 16: shop.admin.v1.TenantStoreService.DeleteTenantStore:input_type -> shop.admin.v1.DeleteTenantStoreRequest
+	11, // 17: shop.admin.v1.TenantStoreService.AuditTenantStore:input_type -> shop.admin.v1.AuditTenantStoreRequest
 	1,  // 18: shop.admin.v1.TenantStoreService.OptionTenantStore:output_type -> shop.admin.v1.OptionTenantStoreResponse
-	3,  // 19: shop.admin.v1.TenantStoreService.TreeTenantStore:output_type -> shop.admin.v1.TreeTenantStoreResponse
-	5,  // 20: shop.admin.v1.TenantStoreService.PageTenantStore:output_type -> shop.admin.v1.PageTenantStoreResponse
-	12, // 21: shop.admin.v1.TenantStoreService.GetTenantStore:output_type -> shop.admin.v1.TenantStoreForm
+	3,  // 19: shop.admin.v1.TenantStoreService.PageTenantStore:output_type -> shop.admin.v1.PageTenantStoreResponse
+	5,  // 20: shop.admin.v1.TenantStoreService.TreeTenantStore:output_type -> shop.admin.v1.TreeTenantStoreResponse
+	7,  // 21: shop.admin.v1.TenantStoreService.GetTenantStore:output_type -> shop.admin.v1.TenantStoreForm
 	16, // 22: shop.admin.v1.TenantStoreService.CreateTenantStore:output_type -> google.protobuf.Empty
 	16, // 23: shop.admin.v1.TenantStoreService.UpdateTenantStore:output_type -> google.protobuf.Empty
 	16, // 24: shop.admin.v1.TenantStoreService.DeleteTenantStore:output_type -> google.protobuf.Empty
@@ -1130,7 +1130,7 @@ func file_shop_admin_v1_tenant_store_proto_init() {
 	if File_shop_admin_v1_tenant_store_proto != nil {
 		return
 	}
-	file_shop_admin_v1_tenant_store_proto_msgTypes[4].OneofWrappers = []any{}
+	file_shop_admin_v1_tenant_store_proto_msgTypes[2].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

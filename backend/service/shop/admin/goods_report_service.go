@@ -27,12 +27,12 @@ func NewGoodsReportService(goodsReportCase *biz.GoodsReportCase) *GoodsReportSer
 	}
 }
 
-// SummaryGoodsMonthReport 查询商品月报汇总。
-func (s *GoodsReportService) SummaryGoodsMonthReport(ctx context.Context, req *shopadminv1.SummaryGoodsMonthReportRequest) (*shopadminv1.SummaryGoodsMonthReportResponse, error) {
-	res, err := s.goodsReportCase.SummaryGoodsMonthReport(ctx, req)
+// ListGoodsDayReport 查询商品日报明细。
+func (s *GoodsReportService) ListGoodsDayReport(ctx context.Context, req *shopadminv1.ListGoodsDayReportRequest) (*shopadminv1.ListGoodsDayReportResponse, error) {
+	res, err := s.goodsReportCase.ListGoodsDayReport(ctx, req)
 	if err != nil {
-		log.Error(fmt.Sprintf("SummaryGoodsMonthReport %v", err))
-		return nil, errorsx.WrapInternal(err, "查询商品月报汇总失败")
+		log.Error(fmt.Sprintf("ListGoodsDayReport %v", err))
+		return nil, errorsx.WrapInternal(err, "查询商品日报明细失败")
 	}
 	return res, nil
 }
@@ -47,22 +47,22 @@ func (s *GoodsReportService) ListGoodsMonthReport(ctx context.Context, req *shop
 	return res, nil
 }
 
+// SummaryGoodsMonthReport 查询商品月报汇总。
+func (s *GoodsReportService) SummaryGoodsMonthReport(ctx context.Context, req *shopadminv1.SummaryGoodsMonthReportRequest) (*shopadminv1.SummaryGoodsMonthReportResponse, error) {
+	res, err := s.goodsReportCase.SummaryGoodsMonthReport(ctx, req)
+	if err != nil {
+		log.Error(fmt.Sprintf("SummaryGoodsMonthReport %v", err))
+		return nil, errorsx.WrapInternal(err, "查询商品月报汇总失败")
+	}
+	return res, nil
+}
+
 // SummaryGoodsDayReport 查询商品日报汇总。
 func (s *GoodsReportService) SummaryGoodsDayReport(ctx context.Context, req *shopadminv1.SummaryGoodsDayReportRequest) (*shopadminv1.SummaryGoodsDayReportResponse, error) {
 	res, err := s.goodsReportCase.SummaryGoodsDayReport(ctx, req)
 	if err != nil {
 		log.Error(fmt.Sprintf("SummaryGoodsDayReport %v", err))
 		return nil, errorsx.WrapInternal(err, "查询商品日报汇总失败")
-	}
-	return res, nil
-}
-
-// ListGoodsDayReport 查询商品日报明细。
-func (s *GoodsReportService) ListGoodsDayReport(ctx context.Context, req *shopadminv1.ListGoodsDayReportRequest) (*shopadminv1.ListGoodsDayReportResponse, error) {
-	res, err := s.goodsReportCase.ListGoodsDayReport(ctx, req)
-	if err != nil {
-		log.Error(fmt.Sprintf("ListGoodsDayReport %v", err))
-		return nil, errorsx.WrapInternal(err, "查询商品日报明细失败")
 	}
 	return res, nil
 }

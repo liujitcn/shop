@@ -10,16 +10,6 @@ import type { Status } from "../../../common/v1/enum";
 import type { Empty } from "../../../google/protobuf/empty";
 import type { BaseMenuType } from "../../common/v1/enum";
 
-/** 菜单树查询条件 */
-export interface TreeBaseMenuRequest {
-}
-
-/** 菜单树响应 */
-export interface TreeBaseMenuResponse {
-  /** 菜单树 */
-  base_menus: BaseMenu[];
-}
-
 /** 菜单选项查询条件 */
 export interface OptionBaseMenuRequest {
   /** 父级菜单ID */
@@ -30,10 +20,50 @@ export interface OptionBaseMenuRequest {
   role_id?: number | undefined;
 }
 
+/** 菜单树查询条件 */
+export interface TreeBaseMenuRequest {
+}
+
+/** 菜单树响应 */
+export interface TreeBaseMenuResponse {
+  /** 菜单树 */
+  base_menus: BaseMenu[];
+}
+
 /** 查询菜单请求参数 */
 export interface GetBaseMenuRequest {
   /** 菜单ID */
   id: number;
+}
+
+/** 菜单表单 */
+export interface BaseMenuForm {
+  /** 菜单ID */
+  id: number;
+  /** 父级菜单ID */
+  parent_id?:
+    | number
+    | undefined;
+  /** 菜单类型 */
+  type: BaseMenuType;
+  /** 路由地址 */
+  path: string;
+  /** 路由命名，然后我们可以使用 name 而不是 path 来传递 to 属性给 <router-link>。 */
+  name: string;
+  /** 组件路径 */
+  component: string;
+  /** 重定向地址 */
+  redirect: string;
+  /** 路由元信息 */
+  meta:
+    | BaseMenuMeta
+    | undefined;
+  /** 分配的API列表 */
+  api: string[];
+  /** 排序 */
+  sort: number;
+  /** 状态 */
+  status: Status;
 }
 
 /** 创建菜单请求参数 */
@@ -94,36 +124,6 @@ export interface BaseMenu {
   children: BaseMenu[];
 }
 
-/** 菜单表单 */
-export interface BaseMenuForm {
-  /** 菜单ID */
-  id: number;
-  /** 父级菜单ID */
-  parent_id?:
-    | number
-    | undefined;
-  /** 菜单类型 */
-  type: BaseMenuType;
-  /** 路由地址 */
-  path: string;
-  /** 路由命名，然后我们可以使用 name 而不是 path 来传递 to 属性给 <router-link>。 */
-  name: string;
-  /** 组件路径 */
-  component: string;
-  /** 重定向地址 */
-  redirect: string;
-  /** 路由元信息 */
-  meta:
-    | BaseMenuMeta
-    | undefined;
-  /** 分配的API列表 */
-  api: string[];
-  /** 排序 */
-  sort: number;
-  /** 状态 */
-  status: Status;
-}
-
 /** 菜单元信息 */
 export interface BaseMenuMeta {
   /** 菜单标题 */
@@ -166,10 +166,10 @@ export interface BaseMenuParams {
 
 /** Admin菜单管理服务 */
 export interface BaseMenuService {
-  /** 查询菜单树形列表 */
-  TreeBaseMenu(request: TreeBaseMenuRequest): Promise<TreeBaseMenuResponse>;
   /** 查询菜单树形选择 */
   OptionBaseMenu(request: OptionBaseMenuRequest): Promise<TreeOptionResponse>;
+  /** 查询菜单树形列表 */
+  TreeBaseMenu(request: TreeBaseMenuRequest): Promise<TreeBaseMenuResponse>;
   /** 查询菜单 */
   GetBaseMenu(request: GetBaseMenuRequest): Promise<BaseMenuForm>;
   /** 创建菜单 */

@@ -36,6 +36,16 @@ func NewCommentInfoService(
 	}
 }
 
+// PageCommentDiscussion 查询评论讨论分页列表。
+func (s *CommentInfoService) PageCommentDiscussion(ctx context.Context, req *shopadminv1.PageCommentDiscussionRequest) (*shopadminv1.PageCommentDiscussionResponse, error) {
+	page, err := s.commentDiscussionCase.PageCommentDiscussion(ctx, req)
+	if err != nil {
+		log.Error(fmt.Sprintf("PageCommentDiscussion %v", err))
+		return nil, errorsx.WrapInternal(err, "查询评论讨论分页列表失败")
+	}
+	return page, nil
+}
+
 // PageCommentInfo 查询评论分页列表。
 func (s *CommentInfoService) PageCommentInfo(ctx context.Context, req *shopadminv1.PageCommentInfoRequest) (*shopadminv1.PageCommentInfoResponse, error) {
 	page, err := s.commentInfoCase.PageCommentInfo(ctx, req)
@@ -46,14 +56,14 @@ func (s *CommentInfoService) PageCommentInfo(ctx context.Context, req *shopadmin
 	return page, nil
 }
 
-// GetGoodsCommentInfo 按商品查询评论聚合信息。
-func (s *CommentInfoService) GetGoodsCommentInfo(ctx context.Context, req *shopadminv1.GetGoodsCommentInfoRequest) (*shopadminv1.GoodsCommentInfoResponse, error) {
-	res, err := s.commentInfoCase.GetGoodsCommentInfo(ctx, req.GetGoodsId())
+// ListCommentReview 查询评论审核记录列表。
+func (s *CommentInfoService) ListCommentReview(ctx context.Context, req *shopadminv1.ListCommentReviewRequest) (*shopadminv1.ListCommentReviewResponse, error) {
+	list, err := s.commentReviewCase.ListByTarget(ctx, int32(req.GetTargetType()), req.GetTargetId())
 	if err != nil {
-		log.Error(fmt.Sprintf("GetGoodsCommentInfo %v", err))
-		return nil, errorsx.WrapInternal(err, "按商品查询评论聚合信息失败")
+		log.Error(fmt.Sprintf("ListCommentReview %v", err))
+		return nil, errorsx.WrapInternal(err, "查询评论审核记录列表失败")
 	}
-	return res, nil
+	return &shopadminv1.ListCommentReviewResponse{CommentReviews: list}, nil
 }
 
 // GetCommentInfo 查询评论详情。
@@ -66,24 +76,14 @@ func (s *CommentInfoService) GetCommentInfo(ctx context.Context, req *shopadminv
 	return res, nil
 }
 
-// SetCommentInfoStatus 设置评论审核状态。
-func (s *CommentInfoService) SetCommentInfoStatus(ctx context.Context, req *shopadminv1.SetCommentInfoStatusRequest) (*emptypb.Empty, error) {
-	err := s.commentInfoCase.SetCommentInfoStatus(ctx, req)
+// GetGoodsCommentInfo 按商品查询评论聚合信息。
+func (s *CommentInfoService) GetGoodsCommentInfo(ctx context.Context, req *shopadminv1.GetGoodsCommentInfoRequest) (*shopadminv1.GoodsCommentInfoResponse, error) {
+	res, err := s.commentInfoCase.GetGoodsCommentInfo(ctx, req.GetGoodsId())
 	if err != nil {
-		log.Error(fmt.Sprintf("SetCommentInfoStatus %v", err))
-		return nil, errorsx.WrapInternal(err, "设置评论审核状态失败")
+		log.Error(fmt.Sprintf("GetGoodsCommentInfo %v", err))
+		return nil, errorsx.WrapInternal(err, "按商品查询评论聚合信息失败")
 	}
-	return new(emptypb.Empty), nil
-}
-
-// PageCommentDiscussion 查询评论讨论分页列表。
-func (s *CommentInfoService) PageCommentDiscussion(ctx context.Context, req *shopadminv1.PageCommentDiscussionRequest) (*shopadminv1.PageCommentDiscussionResponse, error) {
-	page, err := s.commentDiscussionCase.PageCommentDiscussion(ctx, req)
-	if err != nil {
-		log.Error(fmt.Sprintf("PageCommentDiscussion %v", err))
-		return nil, errorsx.WrapInternal(err, "查询评论讨论分页列表失败")
-	}
-	return page, nil
+	return res, nil
 }
 
 // SetCommentDiscussionStatus 设置评论讨论审核状态。
@@ -96,12 +96,12 @@ func (s *CommentInfoService) SetCommentDiscussionStatus(ctx context.Context, req
 	return new(emptypb.Empty), nil
 }
 
-// ListCommentReview 查询评论审核记录列表。
-func (s *CommentInfoService) ListCommentReview(ctx context.Context, req *shopadminv1.ListCommentReviewRequest) (*shopadminv1.ListCommentReviewResponse, error) {
-	list, err := s.commentReviewCase.ListByTarget(ctx, int32(req.GetTargetType()), req.GetTargetId())
+// SetCommentInfoStatus 设置评论审核状态。
+func (s *CommentInfoService) SetCommentInfoStatus(ctx context.Context, req *shopadminv1.SetCommentInfoStatusRequest) (*emptypb.Empty, error) {
+	err := s.commentInfoCase.SetCommentInfoStatus(ctx, req)
 	if err != nil {
-		log.Error(fmt.Sprintf("ListCommentReview %v", err))
-		return nil, errorsx.WrapInternal(err, "查询评论审核记录列表失败")
+		log.Error(fmt.Sprintf("SetCommentInfoStatus %v", err))
+		return nil, errorsx.WrapInternal(err, "设置评论审核状态失败")
 	}
-	return &shopadminv1.ListCommentReviewResponse{CommentReviews: list}, nil
+	return new(emptypb.Empty), nil
 }

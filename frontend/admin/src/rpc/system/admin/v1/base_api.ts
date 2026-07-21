@@ -64,46 +64,6 @@ export interface PageBaseApiResponse {
   total: number;
 }
 
-/** API详情查询条件 */
-export interface GetBaseApiRequest {
-  /** API ID */
-  id: number;
-}
-
-/** API文档查询条件 */
-export interface GetBaseApiDocRequest {
-  /** API ID */
-  id: number;
-}
-
-/** API MCP工具状态设置条件 */
-export interface SetBaseApiMcpStatusRequest {
-  /** API ID */
-  id: number;
-  /** MCP工具状态：枚举【Status】 */
-  mcp_status: Status;
-}
-
-/** API Agent工具状态设置条件 */
-export interface SetBaseApiAgentStatusRequest {
-  /** API ID */
-  id: number;
-  /** Agent工具状态：枚举【Status】 */
-  agent_status: Status;
-}
-
-/** API更新条件 */
-export interface UpdateBaseApiRequest {
-  /** API ID */
-  id: number;
-  /** Agent/MCP工具提示词 */
-  tool_prompts: string[];
-  /** MCP工具状态：枚举【Status】 */
-  mcp_status: Status;
-  /** Agent工具状态：枚举【Status】 */
-  agent_status: Status;
-}
-
 /** API列表查询条件 */
 export interface ListBaseApiRequest {
 }
@@ -112,6 +72,12 @@ export interface ListBaseApiRequest {
 export interface ListBaseApiResponse {
   /** API列表 */
   base_apis: BaseApi[];
+}
+
+/** API详情查询条件 */
+export interface GetBaseApiRequest {
+  /** API ID */
+  id: number;
 }
 
 /** API */
@@ -140,6 +106,12 @@ export interface BaseApi {
   agent_status: Status;
 }
 
+/** API文档查询条件 */
+export interface GetBaseApiDocRequest {
+  /** API ID */
+  id: number;
+}
+
 /** API文档 */
 export interface BaseApiDoc {
   /** API ID */
@@ -156,6 +128,34 @@ export interface BaseApiDoc {
     | undefined;
   /** 返回值 */
   responses: BaseApiDocResponse[];
+}
+
+/** API更新条件 */
+export interface UpdateBaseApiRequest {
+  /** API ID */
+  id: number;
+  /** Agent/MCP工具提示词 */
+  tool_prompts: string[];
+  /** MCP工具状态：枚举【Status】 */
+  mcp_status: Status;
+  /** Agent工具状态：枚举【Status】 */
+  agent_status: Status;
+}
+
+/** API Agent工具状态设置条件 */
+export interface SetBaseApiAgentStatusRequest {
+  /** API ID */
+  id: number;
+  /** Agent工具状态：枚举【Status】 */
+  agent_status: Status;
+}
+
+/** API MCP工具状态设置条件 */
+export interface SetBaseApiMcpStatusRequest {
+  /** API ID */
+  id: number;
+  /** MCP工具状态：枚举【Status】 */
+  mcp_status: Status;
 }
 
 /** API文档Schema */
@@ -202,10 +202,10 @@ export interface BaseApiService {
   GetBaseApi(request: GetBaseApiRequest): Promise<BaseApi>;
   /** 查询API文档 */
   GetBaseApiDoc(request: GetBaseApiDocRequest): Promise<BaseApiDoc>;
-  /** 设置API MCP工具状态 */
-  SetBaseApiMcpStatus(request: SetBaseApiMcpStatusRequest): Promise<Empty>;
-  /** 设置API Agent工具状态 */
-  SetBaseApiAgentStatus(request: SetBaseApiAgentStatusRequest): Promise<Empty>;
   /** 更新API配置 */
   UpdateBaseApi(request: UpdateBaseApiRequest): Promise<Empty>;
+  /** 设置API Agent工具状态 */
+  SetBaseApiAgentStatus(request: SetBaseApiAgentStatusRequest): Promise<Empty>;
+  /** 设置API MCP工具状态 */
+  SetBaseApiMcpStatus(request: SetBaseApiMcpStatusRequest): Promise<Empty>;
 }

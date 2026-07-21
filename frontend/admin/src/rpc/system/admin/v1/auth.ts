@@ -8,38 +8,22 @@
 import type { PasswordCrypto, StringValues } from "../../../common/v1/types";
 import type { Empty } from "../../../google/protobuf/empty";
 
-/** 获取登录用户信息请求参数 */
-export interface GetUserInfoRequest {
-}
-
 /** 登录用户菜单树查询参数 */
 export interface TreeUserMenuRequest {
+}
+
+/** Route树响应 */
+export interface TreeRouteResponse {
+  /** 路由列表 */
+  routes: RouteItem[];
 }
 
 /** 登录用户按钮列表查询参数 */
 export interface ListUserButtonRequest {
 }
 
-/** 获取个人中心用户信息请求参数 */
-export interface GetUserProfileRequest {
-}
-
-/** 更新个人中心用户信息请求参数 */
-export interface UpdateUserProfileRequest {
-  /** 个人中心用户信息 */
-  user_profile: UserProfileForm | undefined;
-}
-
-/** 更新个人中心手机号请求参数 */
-export interface UpdateUserPhoneRequest {
-  /** 个人中心手机号 */
-  user_phone: UserPhoneForm | undefined;
-}
-
-/** 更新个人中心密码请求参数 */
-export interface UpdateUserPasswordRequest {
-  /** 个人中心密码 */
-  user_password: UserPasswordForm | undefined;
+/** 获取登录用户信息请求参数 */
+export interface GetUserInfoRequest {
 }
 
 /** 用户信息表单 */
@@ -64,10 +48,52 @@ export interface UserInfoForm {
   tenant_name: string;
 }
 
-/** Route树响应 */
-export interface TreeRouteResponse {
-  /** 路由列表 */
-  routes: RouteItem[];
+/** 获取个人中心用户信息请求参数 */
+export interface GetUserProfileRequest {
+}
+
+/** 用户资料表单 */
+export interface UserProfileForm {
+  /** 用户名 */
+  user_name: string;
+  /** 昵称 */
+  nick_name: string;
+  /** 头像URL */
+  avatar: string;
+  /** 性别 */
+  gender: number;
+  /** 手机号 */
+  phone: string;
+  /** 角色名 */
+  role_name: string;
+  /** 部门名 */
+  dept_name: string;
+  /** 创建时间 */
+  created_at: string;
+}
+
+/** 更新个人中心密码请求参数 */
+export interface UpdateUserPasswordRequest {
+  /** 个人中心密码 */
+  user_password: UserPasswordForm | undefined;
+}
+
+/** 更新个人中心手机号请求参数 */
+export interface UpdateUserPhoneRequest {
+  /** 个人中心手机号 */
+  user_phone: UserPhoneForm | undefined;
+}
+
+/** 更新个人中心用户信息请求参数 */
+export interface UpdateUserProfileRequest {
+  /** 个人中心用户信息 */
+  user_profile: UserProfileForm | undefined;
+}
+
+/** 发送手机号验证码请求参数 */
+export interface SendPhoneCodeRequest {
+  /** 手机号 */
+  phone: string;
 }
 
 /** Route项 */
@@ -140,26 +166,6 @@ export interface RouteParams {
   value?: string | undefined;
 }
 
-/** 用户资料表单 */
-export interface UserProfileForm {
-  /** 用户名 */
-  user_name: string;
-  /** 昵称 */
-  nick_name: string;
-  /** 头像URL */
-  avatar: string;
-  /** 性别 */
-  gender: number;
-  /** 手机号 */
-  phone: string;
-  /** 角色名 */
-  role_name: string;
-  /** 部门名 */
-  dept_name: string;
-  /** 创建时间 */
-  created_at: string;
-}
-
 /** 用户密码表单 */
 export interface UserPasswordForm {
   /** 原密码 */
@@ -168,12 +174,6 @@ export interface UserPasswordForm {
     | undefined;
   /** 新密码 */
   new_pwd: PasswordCrypto | undefined;
-}
-
-/** 发送手机号验证码请求参数 */
-export interface SendPhoneCodeRequest {
-  /** 手机号 */
-  phone: string;
 }
 
 /** 用户手机号表单 */
@@ -186,20 +186,20 @@ export interface UserPhoneForm {
 
 /** Admin用户登录认证服务 */
 export interface AuthService {
-  /** 获取已经登录的用户的数据 */
-  GetUserInfo(request: GetUserInfoRequest): Promise<UserInfoForm>;
   /** 查询已经登录的用户菜单树 */
   TreeUserMenu(request: TreeUserMenuRequest): Promise<TreeRouteResponse>;
   /** 查询已经登录的用户按钮列表 */
   ListUserButton(request: ListUserButtonRequest): Promise<StringValues>;
+  /** 获取已经登录的用户的数据 */
+  GetUserInfo(request: GetUserInfoRequest): Promise<UserInfoForm>;
   /** 获取个人中心用户信息 */
   GetUserProfile(request: GetUserProfileRequest): Promise<UserProfileForm>;
+  /** 修改个人中心密码 */
+  UpdateUserPassword(request: UpdateUserPasswordRequest): Promise<Empty>;
+  /** 修改个人中心手机号 */
+  UpdateUserPhone(request: UpdateUserPhoneRequest): Promise<Empty>;
   /** 修改个人中心用户信息 */
   UpdateUserProfile(request: UpdateUserProfileRequest): Promise<Empty>;
   /** 发送手机号验证码 */
   SendPhoneCode(request: SendPhoneCodeRequest): Promise<Empty>;
-  /** 修改个人中心手机号 */
-  UpdateUserPhone(request: UpdateUserPhoneRequest): Promise<Empty>;
-  /** 修改个人中心密码 */
-  UpdateUserPassword(request: UpdateUserPasswordRequest): Promise<Empty>;
 }

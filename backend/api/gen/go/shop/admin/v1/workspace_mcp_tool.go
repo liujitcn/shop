@@ -14,11 +14,32 @@ import (
 
 // RegisterWorkspaceServiceMCPTools 注册Admin工作台服务的 MCP Tool。
 func RegisterWorkspaceServiceMCPTools(mcpServer *mcp.Server, workspaceServiceServer WorkspaceServiceServer) {
+	RegisterWorkspaceServiceListWorkspacePendingCommentMCPTool(mcpServer, workspaceServiceServer)
 	RegisterWorkspaceServiceSummaryWorkspaceMetricsMCPTool(mcpServer, workspaceServiceServer)
 	RegisterWorkspaceServiceSummaryWorkspaceTodoMCPTool(mcpServer, workspaceServiceServer)
 	RegisterWorkspaceServiceSummaryWorkspaceRiskMCPTool(mcpServer, workspaceServiceServer)
 	RegisterWorkspaceServiceSummaryWorkspaceReputationMCPTool(mcpServer, workspaceServiceServer)
-	RegisterWorkspaceServiceListWorkspacePendingCommentMCPTool(mcpServer, workspaceServiceServer)
+}
+
+// RegisterWorkspaceServiceListWorkspacePendingCommentMCPTool 注册查询工作台待审核评价的 MCP Tool。
+func RegisterWorkspaceServiceListWorkspacePendingCommentMCPTool(mcpServer *mcp.Server, workspaceServiceServer WorkspaceServiceServer) {
+	mcp.AddTool[*ListWorkspacePendingCommentRequest, *ListWorkspacePendingCommentResponse](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "shop_admin_v1_workspace_service_list_workspace_pending_comment",
+			Description: "查询工作台待审核评价",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *ListWorkspacePendingCommentRequest) (*mcp.CallToolResult, *ListWorkspacePendingCommentResponse, error) {
+			if input == nil {
+				input = &ListWorkspacePendingCommentRequest{}
+			}
+			reply, err := workspaceServiceServer.ListWorkspacePendingComment(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
 }
 
 // RegisterWorkspaceServiceSummaryWorkspaceMetricsMCPTool 注册查询工作台顶部指标的 MCP Tool。
@@ -97,27 +118,6 @@ func RegisterWorkspaceServiceSummaryWorkspaceReputationMCPTool(mcpServer *mcp.Se
 				input = &SummaryWorkspaceReputationRequest{}
 			}
 			reply, err := workspaceServiceServer.SummaryWorkspaceReputation(ctx, input)
-			if err != nil {
-				return nil, nil, err
-			}
-			return nil, reply, nil
-		},
-	)
-}
-
-// RegisterWorkspaceServiceListWorkspacePendingCommentMCPTool 注册查询工作台待审核评价的 MCP Tool。
-func RegisterWorkspaceServiceListWorkspacePendingCommentMCPTool(mcpServer *mcp.Server, workspaceServiceServer WorkspaceServiceServer) {
-	mcp.AddTool[*ListWorkspacePendingCommentRequest, *ListWorkspacePendingCommentResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "shop_admin_v1_workspace_service_list_workspace_pending_comment",
-			Description: "查询工作台待审核评价",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *ListWorkspacePendingCommentRequest) (*mcp.CallToolResult, *ListWorkspacePendingCommentResponse, error) {
-			if input == nil {
-				input = &ListWorkspacePendingCommentRequest{}
-			}
-			reply, err := workspaceServiceServer.ListWorkspacePendingComment(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

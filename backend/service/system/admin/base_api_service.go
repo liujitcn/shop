@@ -47,6 +47,17 @@ func (s *BaseApiService) PageBaseApi(ctx context.Context, req *systemadminv1.Pag
 	return list, nil
 }
 
+// ListBaseApi 查询菜单分配API选项列表
+func (s *BaseApiService) ListBaseApi(ctx context.Context, req *systemadminv1.ListBaseApiRequest) (*systemadminv1.ListBaseApiResponse, error) {
+	list, err := s.baseAPICase.ListBaseAPI(ctx, req)
+	if err != nil {
+		log.Error(fmt.Sprintf("ListBaseApi %v", err))
+		return nil, errorsx.WrapInternal(err, "查询API选项列表失败")
+	}
+
+	return list, nil
+}
+
 // GetBaseApi 查询API详情
 func (s *BaseApiService) GetBaseApi(ctx context.Context, req *systemadminv1.GetBaseApiRequest) (*systemadminv1.BaseApi, error) {
 	baseAPI, err := s.baseAPICase.GetBaseAPI(ctx, req.GetId())
@@ -69,12 +80,12 @@ func (s *BaseApiService) GetBaseApiDoc(ctx context.Context, req *systemadminv1.G
 	return baseAPIDoc, nil
 }
 
-// SetBaseApiMcpStatus 设置API MCP工具状态
-func (s *BaseApiService) SetBaseApiMcpStatus(ctx context.Context, req *systemadminv1.SetBaseApiMcpStatusRequest) (*emptypb.Empty, error) {
-	err := s.baseAPICase.SetBaseAPIMcpStatus(ctx, req)
+// UpdateBaseApi 更新API配置
+func (s *BaseApiService) UpdateBaseApi(ctx context.Context, req *systemadminv1.UpdateBaseApiRequest) (*emptypb.Empty, error) {
+	err := s.baseAPICase.UpdateBaseAPI(ctx, req)
 	if err != nil {
-		log.Error(fmt.Sprintf("SetBaseApiMcpStatus %v", err))
-		return nil, errorsx.WrapInternal(err, "设置API MCP工具状态失败")
+		log.Error(fmt.Sprintf("UpdateBaseApi %v", err))
+		return nil, errorsx.WrapInternal(err, "更新API配置失败")
 	}
 
 	return &emptypb.Empty{}, nil
@@ -91,24 +102,13 @@ func (s *BaseApiService) SetBaseApiAgentStatus(ctx context.Context, req *systema
 	return &emptypb.Empty{}, nil
 }
 
-// UpdateBaseApi 更新API配置
-func (s *BaseApiService) UpdateBaseApi(ctx context.Context, req *systemadminv1.UpdateBaseApiRequest) (*emptypb.Empty, error) {
-	err := s.baseAPICase.UpdateBaseAPI(ctx, req)
+// SetBaseApiMcpStatus 设置API MCP工具状态
+func (s *BaseApiService) SetBaseApiMcpStatus(ctx context.Context, req *systemadminv1.SetBaseApiMcpStatusRequest) (*emptypb.Empty, error) {
+	err := s.baseAPICase.SetBaseAPIMcpStatus(ctx, req)
 	if err != nil {
-		log.Error(fmt.Sprintf("UpdateBaseApi %v", err))
-		return nil, errorsx.WrapInternal(err, "更新API配置失败")
+		log.Error(fmt.Sprintf("SetBaseApiMcpStatus %v", err))
+		return nil, errorsx.WrapInternal(err, "设置API MCP工具状态失败")
 	}
 
 	return &emptypb.Empty{}, nil
-}
-
-// ListBaseApi 查询菜单分配API选项列表
-func (s *BaseApiService) ListBaseApi(ctx context.Context, req *systemadminv1.ListBaseApiRequest) (*systemadminv1.ListBaseApiResponse, error) {
-	list, err := s.baseAPICase.ListBaseAPI(ctx, req)
-	if err != nil {
-		log.Error(fmt.Sprintf("ListBaseApi %v", err))
-		return nil, errorsx.WrapInternal(err, "查询API选项列表失败")
-	}
-
-	return list, nil
 }

@@ -88,49 +88,27 @@ type RecommendGorseServiceHTTPServer interface {
 
 func RegisterRecommendGorseServiceHTTPServer(s *http.Server, srv RecommendGorseServiceHTTPServer) {
 	r := s.Route("/")
-	r.Handle("GET", "/api/v1/admin/recommend/gorse/timeseries/{name}", _RecommendGorseService_GetTimeSeries0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/recommend/gorse/category/option", _RecommendGorseService_OptionCategory0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/recommend/gorse/item", _RecommendGorseService_PageItem0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/recommend/gorse/user", _RecommendGorseService_PageUser0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/recommend/gorse/dashboard", _RecommendGorseService_ListDashboardItem0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/recommend/gorse/task", _RecommendGorseService_ListTask0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/admin/recommend/gorse/user", _RecommendGorseService_PageUser0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/recommend/gorse/config", _RecommendGorseService_GetConfig0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/recommend/gorse/item/{id}", _RecommendGorseService_GetItem0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/recommend/gorse/item/{id}/similar", _RecommendGorseService_GetItemSimilar0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/recommend/gorse/timeseries/{name}", _RecommendGorseService_GetTimeSeries0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/recommend/gorse/user/{id}", _RecommendGorseService_GetUser0_HTTP_Handler(srv))
-	r.Handle("DELETE", "/api/v1/admin/recommend/gorse/user/{id}", _RecommendGorseService_DeleteUser0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/admin/recommend/gorse/user/{id}/similar", _RecommendGorseService_GetUserSimilar0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/recommend/gorse/user/{id}/feedback", _RecommendGorseService_GetUserFeedback0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/recommend/gorse/user/{id}/recommend", _RecommendGorseService_GetUserRecommend0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/admin/recommend/gorse/item", _RecommendGorseService_PageItem0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/admin/recommend/gorse/item/{id}", _RecommendGorseService_GetItem0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/recommend/gorse/user/{id}/similar", _RecommendGorseService_GetUserSimilar0_HTTP_Handler(srv))
 	r.Handle("DELETE", "/api/v1/admin/recommend/gorse/item/{id}", _RecommendGorseService_DeleteItem0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/admin/recommend/gorse/item/{id}/similar", _RecommendGorseService_GetItemSimilar0_HTTP_Handler(srv))
+	r.Handle("DELETE", "/api/v1/admin/recommend/gorse/user/{id}", _RecommendGorseService_DeleteUser0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/recommend/gorse/export", _RecommendGorseService_ExportData0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/admin/recommend/gorse/import", _RecommendGorseService_ImportData0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/admin/recommend/gorse/config", _RecommendGorseService_GetConfig0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/admin/recommend/gorse/config", _RecommendGorseService_SaveConfig0_HTTP_Handler(srv))
 	r.Handle("DELETE", "/api/v1/admin/recommend/gorse/config", _RecommendGorseService_ResetConfig0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/admin/recommend/gorse/external/preview", _RecommendGorseService_PreviewExternal0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/admin/recommend/gorse/ranker/prompt", _RecommendGorseService_PreviewRankerPrompt0_HTTP_Handler(srv))
-}
-
-func _RecommendGorseService_GetTimeSeries0_HTTP_Handler(srv RecommendGorseServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in GetTimeSeriesRequest
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		if err := ctx.BindVars(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationRecommendGorseServiceGetTimeSeries)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.GetTimeSeries(ctx, req.(*GetTimeSeriesRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*TimeSeriesResponse)
-		return ctx.Result(200, reply)
-	}
 }
 
 func _RecommendGorseService_OptionCategory0_HTTP_Handler(srv RecommendGorseServiceHTTPServer) func(ctx http.Context) error {
@@ -148,6 +126,44 @@ func _RecommendGorseService_OptionCategory0_HTTP_Handler(srv RecommendGorseServi
 			return err
 		}
 		reply := out.(*OptionCategoryResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _RecommendGorseService_PageItem0_HTTP_Handler(srv RecommendGorseServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in PageItemRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationRecommendGorseServicePageItem)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.PageItem(ctx, req.(*PageItemRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*PageItemResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _RecommendGorseService_PageUser0_HTTP_Handler(srv RecommendGorseServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in PageUserRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationRecommendGorseServicePageUser)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.PageUser(ctx, req.(*PageUserRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*PageUserResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -190,21 +206,87 @@ func _RecommendGorseService_ListTask0_HTTP_Handler(srv RecommendGorseServiceHTTP
 	}
 }
 
-func _RecommendGorseService_PageUser0_HTTP_Handler(srv RecommendGorseServiceHTTPServer) func(ctx http.Context) error {
+func _RecommendGorseService_GetConfig0_HTTP_Handler(srv RecommendGorseServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in PageUserRequest
+		var in GetConfigRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationRecommendGorseServicePageUser)
+		http.SetOperation(ctx, OperationRecommendGorseServiceGetConfig)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.PageUser(ctx, req.(*PageUserRequest))
+			return srv.GetConfig(ctx, req.(*GetConfigRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*PageUserResponse)
+		reply := out.(*ConfigResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _RecommendGorseService_GetItem0_HTTP_Handler(srv RecommendGorseServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetItemRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationRecommendGorseServiceGetItem)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetItem(ctx, req.(*GetItemRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*Item)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _RecommendGorseService_GetItemSimilar0_HTTP_Handler(srv RecommendGorseServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetItemSimilarRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationRecommendGorseServiceGetItemSimilar)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetItemSimilar(ctx, req.(*GetItemSimilarRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*ItemListResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _RecommendGorseService_GetTimeSeries0_HTTP_Handler(srv RecommendGorseServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetTimeSeriesRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationRecommendGorseServiceGetTimeSeries)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetTimeSeries(ctx, req.(*GetTimeSeriesRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*TimeSeriesResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -227,50 +309,6 @@ func _RecommendGorseService_GetUser0_HTTP_Handler(srv RecommendGorseServiceHTTPS
 			return err
 		}
 		reply := out.(*UserResponse)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _RecommendGorseService_DeleteUser0_HTTP_Handler(srv RecommendGorseServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in DeleteUserRequest
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		if err := ctx.BindVars(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationRecommendGorseServiceDeleteUser)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.DeleteUser(ctx, req.(*DeleteUserRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*emptypb.Empty)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _RecommendGorseService_GetUserSimilar0_HTTP_Handler(srv RecommendGorseServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in GetUserSimilarRequest
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		if err := ctx.BindVars(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationRecommendGorseServiceGetUserSimilar)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.GetUserSimilar(ctx, req.(*GetUserSimilarRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*UserSimilarResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -319,43 +357,24 @@ func _RecommendGorseService_GetUserRecommend0_HTTP_Handler(srv RecommendGorseSer
 	}
 }
 
-func _RecommendGorseService_PageItem0_HTTP_Handler(srv RecommendGorseServiceHTTPServer) func(ctx http.Context) error {
+func _RecommendGorseService_GetUserSimilar0_HTTP_Handler(srv RecommendGorseServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in PageItemRequest
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationRecommendGorseServicePageItem)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.PageItem(ctx, req.(*PageItemRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*PageItemResponse)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _RecommendGorseService_GetItem0_HTTP_Handler(srv RecommendGorseServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in GetItemRequest
+		var in GetUserSimilarRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
 		if err := ctx.BindVars(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationRecommendGorseServiceGetItem)
+		http.SetOperation(ctx, OperationRecommendGorseServiceGetUserSimilar)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.GetItem(ctx, req.(*GetItemRequest))
+			return srv.GetUserSimilar(ctx, req.(*GetUserSimilarRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*Item)
+		reply := out.(*UserSimilarResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -382,24 +401,24 @@ func _RecommendGorseService_DeleteItem0_HTTP_Handler(srv RecommendGorseServiceHT
 	}
 }
 
-func _RecommendGorseService_GetItemSimilar0_HTTP_Handler(srv RecommendGorseServiceHTTPServer) func(ctx http.Context) error {
+func _RecommendGorseService_DeleteUser0_HTTP_Handler(srv RecommendGorseServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in GetItemSimilarRequest
+		var in DeleteUserRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
 		if err := ctx.BindVars(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationRecommendGorseServiceGetItemSimilar)
+		http.SetOperation(ctx, OperationRecommendGorseServiceDeleteUser)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.GetItemSimilar(ctx, req.(*GetItemSimilarRequest))
+			return srv.DeleteUser(ctx, req.(*DeleteUserRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*ItemListResponse)
+		reply := out.(*emptypb.Empty)
 		return ctx.Result(200, reply)
 	}
 }
@@ -438,25 +457,6 @@ func _RecommendGorseService_ImportData0_HTTP_Handler(srv RecommendGorseServiceHT
 			return err
 		}
 		reply := out.(*ImportDataResponse)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _RecommendGorseService_GetConfig0_HTTP_Handler(srv RecommendGorseServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in GetConfigRequest
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationRecommendGorseServiceGetConfig)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.GetConfig(ctx, req.(*GetConfigRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*ConfigResponse)
 		return ctx.Result(200, reply)
 	}
 }

@@ -25,88 +25,6 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// 用户购物车数量查询条件
-type CountUserCartRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *CountUserCartRequest) Reset() {
-	*x = CountUserCartRequest{}
-	mi := &file_shop_app_v1_user_cart_proto_msgTypes[0]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *CountUserCartRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*CountUserCartRequest) ProtoMessage() {}
-
-func (x *CountUserCartRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_user_cart_proto_msgTypes[0]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use CountUserCartRequest.ProtoReflect.Descriptor instead.
-func (*CountUserCartRequest) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_user_cart_proto_rawDescGZIP(), []int{0}
-}
-
-// 用户购物车数量响应
-type CountUserCartResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Count         int32                  `protobuf:"varint,1,opt,name=count,proto3" json:"count,omitempty"` // 购物车数量
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *CountUserCartResponse) Reset() {
-	*x = CountUserCartResponse{}
-	mi := &file_shop_app_v1_user_cart_proto_msgTypes[1]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *CountUserCartResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*CountUserCartResponse) ProtoMessage() {}
-
-func (x *CountUserCartResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_user_cart_proto_msgTypes[1]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use CountUserCartResponse.ProtoReflect.Descriptor instead.
-func (*CountUserCartResponse) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_user_cart_proto_rawDescGZIP(), []int{1}
-}
-
-func (x *CountUserCartResponse) GetCount() int32 {
-	if x != nil {
-		return x.Count
-	}
-	return 0
-}
-
 // 用户购物车列表查询条件
 type ListUserCartRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -116,7 +34,7 @@ type ListUserCartRequest struct {
 
 func (x *ListUserCartRequest) Reset() {
 	*x = ListUserCartRequest{}
-	mi := &file_shop_app_v1_user_cart_proto_msgTypes[2]
+	mi := &file_shop_app_v1_user_cart_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -128,7 +46,7 @@ func (x *ListUserCartRequest) String() string {
 func (*ListUserCartRequest) ProtoMessage() {}
 
 func (x *ListUserCartRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_user_cart_proto_msgTypes[2]
+	mi := &file_shop_app_v1_user_cart_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -141,7 +59,7 @@ func (x *ListUserCartRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListUserCartRequest.ProtoReflect.Descriptor instead.
 func (*ListUserCartRequest) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_user_cart_proto_rawDescGZIP(), []int{2}
+	return file_shop_app_v1_user_cart_proto_rawDescGZIP(), []int{0}
 }
 
 // 用户购物车列表响应
@@ -154,7 +72,7 @@ type ListUserCartResponse struct {
 
 func (x *ListUserCartResponse) Reset() {
 	*x = ListUserCartResponse{}
-	mi := &file_shop_app_v1_user_cart_proto_msgTypes[3]
+	mi := &file_shop_app_v1_user_cart_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -166,7 +84,7 @@ func (x *ListUserCartResponse) String() string {
 func (*ListUserCartResponse) ProtoMessage() {}
 
 func (x *ListUserCartResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_user_cart_proto_msgTypes[3]
+	mi := &file_shop_app_v1_user_cart_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -179,7 +97,7 @@ func (x *ListUserCartResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListUserCartResponse.ProtoReflect.Descriptor instead.
 func (*ListUserCartResponse) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_user_cart_proto_rawDescGZIP(), []int{3}
+	return file_shop_app_v1_user_cart_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *ListUserCartResponse) GetUserCartStores() []*UserCartStore {
@@ -187,6 +105,353 @@ func (x *ListUserCartResponse) GetUserCartStores() []*UserCartStore {
 		return x.UserCartStores
 	}
 	return nil
+}
+
+// 创建购物车请求参数
+type CreateUserCartRequest struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	GoodsId          int64                  `protobuf:"varint,1,opt,name=goods_id,json=goodsId,proto3" json:"goods_id,omitempty"`                           // 商品ID
+	SkuCode          string                 `protobuf:"bytes,2,opt,name=sku_code,json=skuCode,proto3" json:"sku_code,omitempty"`                            // 规格编号
+	Num              int64                  `protobuf:"varint,3,opt,name=num,proto3" json:"num,omitempty"`                                                  // 数量
+	RecommendContext *RecommendContext      `protobuf:"bytes,4,opt,name=recommend_context,json=recommendContext,proto3" json:"recommend_context,omitempty"` // 推荐上下文
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *CreateUserCartRequest) Reset() {
+	*x = CreateUserCartRequest{}
+	mi := &file_shop_app_v1_user_cart_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateUserCartRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateUserCartRequest) ProtoMessage() {}
+
+func (x *CreateUserCartRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_app_v1_user_cart_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateUserCartRequest.ProtoReflect.Descriptor instead.
+func (*CreateUserCartRequest) Descriptor() ([]byte, []int) {
+	return file_shop_app_v1_user_cart_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *CreateUserCartRequest) GetGoodsId() int64 {
+	if x != nil {
+		return x.GoodsId
+	}
+	return 0
+}
+
+func (x *CreateUserCartRequest) GetSkuCode() string {
+	if x != nil {
+		return x.SkuCode
+	}
+	return ""
+}
+
+func (x *CreateUserCartRequest) GetNum() int64 {
+	if x != nil {
+		return x.Num
+	}
+	return 0
+}
+
+func (x *CreateUserCartRequest) GetRecommendContext() *RecommendContext {
+	if x != nil {
+		return x.RecommendContext
+	}
+	return nil
+}
+
+// 更新用户购物车请求参数
+type UpdateUserCartRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                            // 购物车ID
+	UserCart      *UserCartForm          `protobuf:"bytes,2,opt,name=user_cart,json=userCart,proto3" json:"user_cart,omitempty"` // 用户购物车
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateUserCartRequest) Reset() {
+	*x = UpdateUserCartRequest{}
+	mi := &file_shop_app_v1_user_cart_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateUserCartRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateUserCartRequest) ProtoMessage() {}
+
+func (x *UpdateUserCartRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_app_v1_user_cart_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateUserCartRequest.ProtoReflect.Descriptor instead.
+func (*UpdateUserCartRequest) Descriptor() ([]byte, []int) {
+	return file_shop_app_v1_user_cart_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *UpdateUserCartRequest) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *UpdateUserCartRequest) GetUserCart() *UserCartForm {
+	if x != nil {
+		return x.UserCart
+	}
+	return nil
+}
+
+// 删除用户购物车请求参数
+type DeleteUserCartRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"` // 购物车ID
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteUserCartRequest) Reset() {
+	*x = DeleteUserCartRequest{}
+	mi := &file_shop_app_v1_user_cart_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteUserCartRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteUserCartRequest) ProtoMessage() {}
+
+func (x *DeleteUserCartRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_app_v1_user_cart_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteUserCartRequest.ProtoReflect.Descriptor instead.
+func (*DeleteUserCartRequest) Descriptor() ([]byte, []int) {
+	return file_shop_app_v1_user_cart_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *DeleteUserCartRequest) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+// 设置购物车选中状态请求参数
+type SetUserCartSelectionRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	IsChecked     bool                   `protobuf:"varint,1,opt,name=is_checked,json=isChecked,proto3" json:"is_checked,omitempty"` // 是否选中
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetUserCartSelectionRequest) Reset() {
+	*x = SetUserCartSelectionRequest{}
+	mi := &file_shop_app_v1_user_cart_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetUserCartSelectionRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetUserCartSelectionRequest) ProtoMessage() {}
+
+func (x *SetUserCartSelectionRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_app_v1_user_cart_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetUserCartSelectionRequest.ProtoReflect.Descriptor instead.
+func (*SetUserCartSelectionRequest) Descriptor() ([]byte, []int) {
+	return file_shop_app_v1_user_cart_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *SetUserCartSelectionRequest) GetIsChecked() bool {
+	if x != nil {
+		return x.IsChecked
+	}
+	return false
+}
+
+// 设置用户购物车选中状态请求参数
+type SetUserCartStatusRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                // 购物车ID
+	IsChecked     bool                   `protobuf:"varint,2,opt,name=is_checked,json=isChecked,proto3" json:"is_checked,omitempty"` // 是否选中
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetUserCartStatusRequest) Reset() {
+	*x = SetUserCartStatusRequest{}
+	mi := &file_shop_app_v1_user_cart_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetUserCartStatusRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetUserCartStatusRequest) ProtoMessage() {}
+
+func (x *SetUserCartStatusRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_app_v1_user_cart_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetUserCartStatusRequest.ProtoReflect.Descriptor instead.
+func (*SetUserCartStatusRequest) Descriptor() ([]byte, []int) {
+	return file_shop_app_v1_user_cart_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *SetUserCartStatusRequest) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *SetUserCartStatusRequest) GetIsChecked() bool {
+	if x != nil {
+		return x.IsChecked
+	}
+	return false
+}
+
+// 用户购物车数量查询条件
+type CountUserCartRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CountUserCartRequest) Reset() {
+	*x = CountUserCartRequest{}
+	mi := &file_shop_app_v1_user_cart_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CountUserCartRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CountUserCartRequest) ProtoMessage() {}
+
+func (x *CountUserCartRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_app_v1_user_cart_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CountUserCartRequest.ProtoReflect.Descriptor instead.
+func (*CountUserCartRequest) Descriptor() ([]byte, []int) {
+	return file_shop_app_v1_user_cart_proto_rawDescGZIP(), []int{7}
+}
+
+// 用户购物车数量响应
+type CountUserCartResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Count         int32                  `protobuf:"varint,1,opt,name=count,proto3" json:"count,omitempty"` // 购物车数量
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CountUserCartResponse) Reset() {
+	*x = CountUserCartResponse{}
+	mi := &file_shop_app_v1_user_cart_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CountUserCartResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CountUserCartResponse) ProtoMessage() {}
+
+func (x *CountUserCartResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_app_v1_user_cart_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CountUserCartResponse.ProtoReflect.Descriptor instead.
+func (*CountUserCartResponse) Descriptor() ([]byte, []int) {
+	return file_shop_app_v1_user_cart_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *CountUserCartResponse) GetCount() int32 {
+	if x != nil {
+		return x.Count
+	}
+	return 0
 }
 
 // 用户购物车店铺分组
@@ -200,7 +465,7 @@ type UserCartStore struct {
 
 func (x *UserCartStore) Reset() {
 	*x = UserCartStore{}
-	mi := &file_shop_app_v1_user_cart_proto_msgTypes[4]
+	mi := &file_shop_app_v1_user_cart_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -212,7 +477,7 @@ func (x *UserCartStore) String() string {
 func (*UserCartStore) ProtoMessage() {}
 
 func (x *UserCartStore) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_user_cart_proto_msgTypes[4]
+	mi := &file_shop_app_v1_user_cart_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -225,7 +490,7 @@ func (x *UserCartStore) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UserCartStore.ProtoReflect.Descriptor instead.
 func (*UserCartStore) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_user_cart_proto_rawDescGZIP(), []int{4}
+	return file_shop_app_v1_user_cart_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *UserCartStore) GetStore() *TenantStore {
@@ -264,7 +529,7 @@ type UserCart struct {
 
 func (x *UserCart) Reset() {
 	*x = UserCart{}
-	mi := &file_shop_app_v1_user_cart_proto_msgTypes[5]
+	mi := &file_shop_app_v1_user_cart_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -276,7 +541,7 @@ func (x *UserCart) String() string {
 func (*UserCart) ProtoMessage() {}
 
 func (x *UserCart) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_user_cart_proto_msgTypes[5]
+	mi := &file_shop_app_v1_user_cart_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -289,7 +554,7 @@ func (x *UserCart) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UserCart.ProtoReflect.Descriptor instead.
 func (*UserCart) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_user_cart_proto_rawDescGZIP(), []int{5}
+	return file_shop_app_v1_user_cart_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *UserCart) GetId() int64 {
@@ -383,75 +648,6 @@ func (x *UserCart) GetRecommendContext() *RecommendContext {
 	return nil
 }
 
-// 创建购物车请求参数
-type CreateUserCartRequest struct {
-	state            protoimpl.MessageState `protogen:"open.v1"`
-	GoodsId          int64                  `protobuf:"varint,1,opt,name=goods_id,json=goodsId,proto3" json:"goods_id,omitempty"`                           // 商品ID
-	SkuCode          string                 `protobuf:"bytes,2,opt,name=sku_code,json=skuCode,proto3" json:"sku_code,omitempty"`                            // 规格编号
-	Num              int64                  `protobuf:"varint,3,opt,name=num,proto3" json:"num,omitempty"`                                                  // 数量
-	RecommendContext *RecommendContext      `protobuf:"bytes,4,opt,name=recommend_context,json=recommendContext,proto3" json:"recommend_context,omitempty"` // 推荐上下文
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
-}
-
-func (x *CreateUserCartRequest) Reset() {
-	*x = CreateUserCartRequest{}
-	mi := &file_shop_app_v1_user_cart_proto_msgTypes[6]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *CreateUserCartRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*CreateUserCartRequest) ProtoMessage() {}
-
-func (x *CreateUserCartRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_user_cart_proto_msgTypes[6]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use CreateUserCartRequest.ProtoReflect.Descriptor instead.
-func (*CreateUserCartRequest) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_user_cart_proto_rawDescGZIP(), []int{6}
-}
-
-func (x *CreateUserCartRequest) GetGoodsId() int64 {
-	if x != nil {
-		return x.GoodsId
-	}
-	return 0
-}
-
-func (x *CreateUserCartRequest) GetSkuCode() string {
-	if x != nil {
-		return x.SkuCode
-	}
-	return ""
-}
-
-func (x *CreateUserCartRequest) GetNum() int64 {
-	if x != nil {
-		return x.Num
-	}
-	return 0
-}
-
-func (x *CreateUserCartRequest) GetRecommendContext() *RecommendContext {
-	if x != nil {
-		return x.RecommendContext
-	}
-	return nil
-}
-
 // 用户购物车表单
 type UserCartForm struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -463,7 +659,7 @@ type UserCartForm struct {
 
 func (x *UserCartForm) Reset() {
 	*x = UserCartForm{}
-	mi := &file_shop_app_v1_user_cart_proto_msgTypes[7]
+	mi := &file_shop_app_v1_user_cart_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -475,7 +671,7 @@ func (x *UserCartForm) String() string {
 func (*UserCartForm) ProtoMessage() {}
 
 func (x *UserCartForm) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_user_cart_proto_msgTypes[7]
+	mi := &file_shop_app_v1_user_cart_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -488,7 +684,7 @@ func (x *UserCartForm) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UserCartForm.ProtoReflect.Descriptor instead.
 func (*UserCartForm) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_user_cart_proto_rawDescGZIP(), []int{7}
+	return file_shop_app_v1_user_cart_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *UserCartForm) GetId() int64 {
@@ -505,213 +701,34 @@ func (x *UserCartForm) GetNum() int64 {
 	return 0
 }
 
-// 更新用户购物车请求参数
-type UpdateUserCartRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                            // 购物车ID
-	UserCart      *UserCartForm          `protobuf:"bytes,2,opt,name=user_cart,json=userCart,proto3" json:"user_cart,omitempty"` // 用户购物车
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *UpdateUserCartRequest) Reset() {
-	*x = UpdateUserCartRequest{}
-	mi := &file_shop_app_v1_user_cart_proto_msgTypes[8]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *UpdateUserCartRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*UpdateUserCartRequest) ProtoMessage() {}
-
-func (x *UpdateUserCartRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_user_cart_proto_msgTypes[8]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use UpdateUserCartRequest.ProtoReflect.Descriptor instead.
-func (*UpdateUserCartRequest) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_user_cart_proto_rawDescGZIP(), []int{8}
-}
-
-func (x *UpdateUserCartRequest) GetId() int64 {
-	if x != nil {
-		return x.Id
-	}
-	return 0
-}
-
-func (x *UpdateUserCartRequest) GetUserCart() *UserCartForm {
-	if x != nil {
-		return x.UserCart
-	}
-	return nil
-}
-
-// 删除用户购物车请求参数
-type DeleteUserCartRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"` // 购物车ID
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *DeleteUserCartRequest) Reset() {
-	*x = DeleteUserCartRequest{}
-	mi := &file_shop_app_v1_user_cart_proto_msgTypes[9]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *DeleteUserCartRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*DeleteUserCartRequest) ProtoMessage() {}
-
-func (x *DeleteUserCartRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_user_cart_proto_msgTypes[9]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use DeleteUserCartRequest.ProtoReflect.Descriptor instead.
-func (*DeleteUserCartRequest) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_user_cart_proto_rawDescGZIP(), []int{9}
-}
-
-func (x *DeleteUserCartRequest) GetId() int64 {
-	if x != nil {
-		return x.Id
-	}
-	return 0
-}
-
-// 设置用户购物车选中状态请求参数
-type SetUserCartStatusRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                // 购物车ID
-	IsChecked     bool                   `protobuf:"varint,2,opt,name=is_checked,json=isChecked,proto3" json:"is_checked,omitempty"` // 是否选中
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *SetUserCartStatusRequest) Reset() {
-	*x = SetUserCartStatusRequest{}
-	mi := &file_shop_app_v1_user_cart_proto_msgTypes[10]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *SetUserCartStatusRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*SetUserCartStatusRequest) ProtoMessage() {}
-
-func (x *SetUserCartStatusRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_user_cart_proto_msgTypes[10]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use SetUserCartStatusRequest.ProtoReflect.Descriptor instead.
-func (*SetUserCartStatusRequest) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_user_cart_proto_rawDescGZIP(), []int{10}
-}
-
-func (x *SetUserCartStatusRequest) GetId() int64 {
-	if x != nil {
-		return x.Id
-	}
-	return 0
-}
-
-func (x *SetUserCartStatusRequest) GetIsChecked() bool {
-	if x != nil {
-		return x.IsChecked
-	}
-	return false
-}
-
-// 设置购物车选中状态请求参数
-type SetUserCartSelectionRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	IsChecked     bool                   `protobuf:"varint,1,opt,name=is_checked,json=isChecked,proto3" json:"is_checked,omitempty"` // 是否选中
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *SetUserCartSelectionRequest) Reset() {
-	*x = SetUserCartSelectionRequest{}
-	mi := &file_shop_app_v1_user_cart_proto_msgTypes[11]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *SetUserCartSelectionRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*SetUserCartSelectionRequest) ProtoMessage() {}
-
-func (x *SetUserCartSelectionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_user_cart_proto_msgTypes[11]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use SetUserCartSelectionRequest.ProtoReflect.Descriptor instead.
-func (*SetUserCartSelectionRequest) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_user_cart_proto_rawDescGZIP(), []int{11}
-}
-
-func (x *SetUserCartSelectionRequest) GetIsChecked() bool {
-	if x != nil {
-		return x.IsChecked
-	}
-	return false
-}
-
 var File_shop_app_v1_user_cart_proto protoreflect.FileDescriptor
 
 const file_shop_app_v1_user_cart_proto_rawDesc = "" +
 	"\n" +
-	"\x1bshop/app/v1/user_cart.proto\x12\vshop.app.v1\x1a\x1bshop/app/v1/recommend.proto\x1a\x1eshop/app/v1/tenant_store.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x16\n" +
-	"\x14CountUserCartRequest\"D\n" +
-	"\x15CountUserCartResponse\x12+\n" +
-	"\x05count\x18\x01 \x01(\x05B\x15\xbaG\x12\x92\x02\x0f购物车数量R\x05count\"\x15\n" +
+	"\x1bshop/app/v1/user_cart.proto\x12\vshop.app.v1\x1a\x1bshop/app/v1/recommend.proto\x1a\x1eshop/app/v1/tenant_store.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x15\n" +
 	"\x13ListUserCartRequest\"\x8b\x01\n" +
 	"\x14ListUserCartResponse\x12s\n" +
-	"\x10user_cart_stores\x18\x01 \x03(\v2\x1a.shop.app.v1.UserCartStoreB-\xbaG*\x92\x02'按店铺分组的用户购物车列表R\x0euserCartStores\"\x94\x01\n" +
+	"\x10user_cart_stores\x18\x01 \x03(\v2\x1a.shop.app.v1.UserCartStoreB-\xbaG*\x92\x02'按店铺分组的用户购物车列表R\x0euserCartStores\"\xf4\x01\n" +
+	"\x15CreateUserCartRequest\x12)\n" +
+	"\bgoods_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\agoodsId\x12-\n" +
+	"\bsku_code\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f规格编号R\askuCode\x12\x1e\n" +
+	"\x03num\x18\x03 \x01(\x03B\f\xbaG\t\x92\x02\x06数量R\x03num\x12a\n" +
+	"\x11recommend_context\x18\x04 \x01(\v2\x1d.shop.app.v1.RecommendContextB\x15\xbaG\x12\x92\x02\x0f推荐上下文R\x10recommendContext\"\x89\x01\n" +
+	"\x15UpdateUserCartRequest\x12!\n" +
+	"\x02id\x18\x01 \x01(\x03B\x11\xbaG\x0e\x92\x02\v购物车IDR\x02id\x12M\n" +
+	"\tuser_cart\x18\x02 \x01(\v2\x19.shop.app.v1.UserCartFormB\x15\xbaG\x12\x92\x02\x0f用户购物车R\buserCart\":\n" +
+	"\x15DeleteUserCartRequest\x12!\n" +
+	"\x02id\x18\x01 \x01(\x03B\x11\xbaG\x0e\x92\x02\v购物车IDR\x02id\"P\n" +
+	"\x1bSetUserCartSelectionRequest\x121\n" +
+	"\n" +
+	"is_checked\x18\x01 \x01(\bB\x12\xbaG\x0f\x92\x02\f是否选中R\tisChecked\"p\n" +
+	"\x18SetUserCartStatusRequest\x12!\n" +
+	"\x02id\x18\x01 \x01(\x03B\x11\xbaG\x0e\x92\x02\v购物车IDR\x02id\x121\n" +
+	"\n" +
+	"is_checked\x18\x02 \x01(\bB\x12\xbaG\x0f\x92\x02\f是否选中R\tisChecked\"\x16\n" +
+	"\x14CountUserCartRequest\"D\n" +
+	"\x15CountUserCartResponse\x12+\n" +
+	"\x05count\x18\x01 \x01(\x05B\x15\xbaG\x12\x92\x02\x0f购物车数量R\x05count\"\x94\x01\n" +
 	"\rUserCartStore\x12B\n" +
 	"\x05store\x18\x01 \x01(\v2\x18.shop.app.v1.TenantStoreB\x12\xbaG\x0f\x92\x02\f店铺信息R\x05store\x12?\n" +
 	"\x05goods\x18\x02 \x03(\v2\x15.shop.app.v1.UserCartB\x12\xbaG\x0f\x92\x02\f商品列表R\x05goods\"\x88\x05\n" +
@@ -730,35 +747,18 @@ const file_shop_app_v1_user_cart_proto_rawDesc = "" +
 	"join_price\x18( \x01(\x03B\x15\xbaG\x12\x92\x02\x0f加入时价格R\tjoinPrice\x121\n" +
 	"\n" +
 	"is_checked\x183 \x01(\bB\x12\xbaG\x0f\x92\x02\f是否选中R\tisChecked\x12a\n" +
-	"\x11recommend_context\x184 \x01(\v2\x1d.shop.app.v1.RecommendContextB\x15\xbaG\x12\x92\x02\x0f推荐上下文R\x10recommendContext\"\xf4\x01\n" +
-	"\x15CreateUserCartRequest\x12)\n" +
-	"\bgoods_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\agoodsId\x12-\n" +
-	"\bsku_code\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f规格编号R\askuCode\x12\x1e\n" +
-	"\x03num\x18\x03 \x01(\x03B\f\xbaG\t\x92\x02\x06数量R\x03num\x12a\n" +
-	"\x11recommend_context\x18\x04 \x01(\v2\x1d.shop.app.v1.RecommendContextB\x15\xbaG\x12\x92\x02\x0f推荐上下文R\x10recommendContext\"Q\n" +
+	"\x11recommend_context\x184 \x01(\v2\x1d.shop.app.v1.RecommendContextB\x15\xbaG\x12\x92\x02\x0f推荐上下文R\x10recommendContext\"Q\n" +
 	"\fUserCartForm\x12!\n" +
 	"\x02id\x18\x01 \x01(\x03B\x11\xbaG\x0e\x92\x02\v购物车IDR\x02id\x12\x1e\n" +
-	"\x03num\x18\x02 \x01(\x03B\f\xbaG\t\x92\x02\x06数量R\x03num\"\x89\x01\n" +
-	"\x15UpdateUserCartRequest\x12!\n" +
-	"\x02id\x18\x01 \x01(\x03B\x11\xbaG\x0e\x92\x02\v购物车IDR\x02id\x12M\n" +
-	"\tuser_cart\x18\x02 \x01(\v2\x19.shop.app.v1.UserCartFormB\x15\xbaG\x12\x92\x02\x0f用户购物车R\buserCart\":\n" +
-	"\x15DeleteUserCartRequest\x12!\n" +
-	"\x02id\x18\x01 \x01(\x03B\x11\xbaG\x0e\x92\x02\v购物车IDR\x02id\"p\n" +
-	"\x18SetUserCartStatusRequest\x12!\n" +
-	"\x02id\x18\x01 \x01(\x03B\x11\xbaG\x0e\x92\x02\v购物车IDR\x02id\x121\n" +
-	"\n" +
-	"is_checked\x18\x02 \x01(\bB\x12\xbaG\x0f\x92\x02\f是否选中R\tisChecked\"P\n" +
-	"\x1bSetUserCartSelectionRequest\x121\n" +
-	"\n" +
-	"is_checked\x18\x01 \x01(\bB\x12\xbaG\x0f\x92\x02\f是否选中R\tisChecked2\xeb\x06\n" +
-	"\x0fUserCartService\x12{\n" +
-	"\rCountUserCart\x12!.shop.app.v1.CountUserCartRequest\x1a\".shop.app.v1.CountUserCartResponse\"#\x82\xd3\xe4\x93\x02\x1d\x12\x1b/api/v1/app/user/cart/count\x12r\n" +
+	"\x03num\x18\x02 \x01(\x03B\f\xbaG\t\x92\x02\x06数量R\x03num2\xeb\x06\n" +
+	"\x0fUserCartService\x12r\n" +
 	"\fListUserCart\x12 .shop.app.v1.ListUserCartRequest\x1a!.shop.app.v1.ListUserCartResponse\"\x1d\x82\xd3\xe4\x93\x02\x17\x12\x15/api/v1/app/user/cart\x12n\n" +
-	"\x0eCreateUserCart\x12\".shop.app.v1.CreateUserCartRequest\x1a\x16.google.protobuf.Empty\" \x82\xd3\xe4\x93\x02\x1a:\x01*\"\x15/api/v1/app/user/cart\x12\x84\x01\n" +
-	"\x14SetUserCartSelection\x12(.shop.app.v1.SetUserCartSelectionRequest\x1a\x16.google.protobuf.Empty\"*\x82\xd3\xe4\x93\x02$:\x01*\x1a\x1f/api/v1/app/user/cart/selection\x12{\n" +
+	"\x0eCreateUserCart\x12\".shop.app.v1.CreateUserCartRequest\x1a\x16.google.protobuf.Empty\" \x82\xd3\xe4\x93\x02\x1a:\x01*\"\x15/api/v1/app/user/cart\x12{\n" +
 	"\x0eUpdateUserCart\x12\".shop.app.v1.UpdateUserCartRequest\x1a\x16.google.protobuf.Empty\"-\x82\xd3\xe4\x93\x02':\tuser_cart\x1a\x1a/api/v1/app/user/cart/{id}\x12p\n" +
-	"\x0eDeleteUserCart\x12\".shop.app.v1.DeleteUserCartRequest\x1a\x16.google.protobuf.Empty\"\"\x82\xd3\xe4\x93\x02\x1c*\x1a/api/v1/app/user/cart/{id}\x12\x80\x01\n" +
-	"\x11SetUserCartStatus\x12%.shop.app.v1.SetUserCartStatusRequest\x1a\x16.google.protobuf.Empty\",\x82\xd3\xe4\x93\x02&:\x01*\x1a!/api/v1/app/user/cart/{id}/statusB\x91\x01\n" +
+	"\x0eDeleteUserCart\x12\".shop.app.v1.DeleteUserCartRequest\x1a\x16.google.protobuf.Empty\"\"\x82\xd3\xe4\x93\x02\x1c*\x1a/api/v1/app/user/cart/{id}\x12\x84\x01\n" +
+	"\x14SetUserCartSelection\x12(.shop.app.v1.SetUserCartSelectionRequest\x1a\x16.google.protobuf.Empty\"*\x82\xd3\xe4\x93\x02$:\x01*\x1a\x1f/api/v1/app/user/cart/selection\x12\x80\x01\n" +
+	"\x11SetUserCartStatus\x12%.shop.app.v1.SetUserCartStatusRequest\x1a\x16.google.protobuf.Empty\",\x82\xd3\xe4\x93\x02&:\x01*\x1a!/api/v1/app/user/cart/{id}/status\x12{\n" +
+	"\rCountUserCart\x12!.shop.app.v1.CountUserCartRequest\x1a\".shop.app.v1.CountUserCartResponse\"#\x82\xd3\xe4\x93\x02\x1d\x12\x1b/api/v1/app/user/cart/countB\x91\x01\n" +
 	"\x0fcom.shop.app.v1B\rUserCartProtoP\x01Z!shop/api/gen/go/shop/app/v1;appv1\xa2\x02\x03SAX\xaa\x02\vShop.App.V1\xca\x02\vShop\\App\\V1\xe2\x02\x17Shop\\App\\V1\\GPBMetadata\xea\x02\rShop::App::V1b\x06proto3"
 
 var (
@@ -775,43 +775,43 @@ func file_shop_app_v1_user_cart_proto_rawDescGZIP() []byte {
 
 var file_shop_app_v1_user_cart_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_shop_app_v1_user_cart_proto_goTypes = []any{
-	(*CountUserCartRequest)(nil),        // 0: shop.app.v1.CountUserCartRequest
-	(*CountUserCartResponse)(nil),       // 1: shop.app.v1.CountUserCartResponse
-	(*ListUserCartRequest)(nil),         // 2: shop.app.v1.ListUserCartRequest
-	(*ListUserCartResponse)(nil),        // 3: shop.app.v1.ListUserCartResponse
-	(*UserCartStore)(nil),               // 4: shop.app.v1.UserCartStore
-	(*UserCart)(nil),                    // 5: shop.app.v1.UserCart
-	(*CreateUserCartRequest)(nil),       // 6: shop.app.v1.CreateUserCartRequest
-	(*UserCartForm)(nil),                // 7: shop.app.v1.UserCartForm
-	(*UpdateUserCartRequest)(nil),       // 8: shop.app.v1.UpdateUserCartRequest
-	(*DeleteUserCartRequest)(nil),       // 9: shop.app.v1.DeleteUserCartRequest
-	(*SetUserCartStatusRequest)(nil),    // 10: shop.app.v1.SetUserCartStatusRequest
-	(*SetUserCartSelectionRequest)(nil), // 11: shop.app.v1.SetUserCartSelectionRequest
-	(*TenantStore)(nil),                 // 12: shop.app.v1.TenantStore
-	(*RecommendContext)(nil),            // 13: shop.app.v1.RecommendContext
+	(*ListUserCartRequest)(nil),         // 0: shop.app.v1.ListUserCartRequest
+	(*ListUserCartResponse)(nil),        // 1: shop.app.v1.ListUserCartResponse
+	(*CreateUserCartRequest)(nil),       // 2: shop.app.v1.CreateUserCartRequest
+	(*UpdateUserCartRequest)(nil),       // 3: shop.app.v1.UpdateUserCartRequest
+	(*DeleteUserCartRequest)(nil),       // 4: shop.app.v1.DeleteUserCartRequest
+	(*SetUserCartSelectionRequest)(nil), // 5: shop.app.v1.SetUserCartSelectionRequest
+	(*SetUserCartStatusRequest)(nil),    // 6: shop.app.v1.SetUserCartStatusRequest
+	(*CountUserCartRequest)(nil),        // 7: shop.app.v1.CountUserCartRequest
+	(*CountUserCartResponse)(nil),       // 8: shop.app.v1.CountUserCartResponse
+	(*UserCartStore)(nil),               // 9: shop.app.v1.UserCartStore
+	(*UserCart)(nil),                    // 10: shop.app.v1.UserCart
+	(*UserCartForm)(nil),                // 11: shop.app.v1.UserCartForm
+	(*RecommendContext)(nil),            // 12: shop.app.v1.RecommendContext
+	(*TenantStore)(nil),                 // 13: shop.app.v1.TenantStore
 	(*emptypb.Empty)(nil),               // 14: google.protobuf.Empty
 }
 var file_shop_app_v1_user_cart_proto_depIdxs = []int32{
-	4,  // 0: shop.app.v1.ListUserCartResponse.user_cart_stores:type_name -> shop.app.v1.UserCartStore
-	12, // 1: shop.app.v1.UserCartStore.store:type_name -> shop.app.v1.TenantStore
-	5,  // 2: shop.app.v1.UserCartStore.goods:type_name -> shop.app.v1.UserCart
-	13, // 3: shop.app.v1.UserCart.recommend_context:type_name -> shop.app.v1.RecommendContext
-	13, // 4: shop.app.v1.CreateUserCartRequest.recommend_context:type_name -> shop.app.v1.RecommendContext
-	7,  // 5: shop.app.v1.UpdateUserCartRequest.user_cart:type_name -> shop.app.v1.UserCartForm
-	0,  // 6: shop.app.v1.UserCartService.CountUserCart:input_type -> shop.app.v1.CountUserCartRequest
-	2,  // 7: shop.app.v1.UserCartService.ListUserCart:input_type -> shop.app.v1.ListUserCartRequest
-	6,  // 8: shop.app.v1.UserCartService.CreateUserCart:input_type -> shop.app.v1.CreateUserCartRequest
-	11, // 9: shop.app.v1.UserCartService.SetUserCartSelection:input_type -> shop.app.v1.SetUserCartSelectionRequest
-	8,  // 10: shop.app.v1.UserCartService.UpdateUserCart:input_type -> shop.app.v1.UpdateUserCartRequest
-	9,  // 11: shop.app.v1.UserCartService.DeleteUserCart:input_type -> shop.app.v1.DeleteUserCartRequest
-	10, // 12: shop.app.v1.UserCartService.SetUserCartStatus:input_type -> shop.app.v1.SetUserCartStatusRequest
-	1,  // 13: shop.app.v1.UserCartService.CountUserCart:output_type -> shop.app.v1.CountUserCartResponse
-	3,  // 14: shop.app.v1.UserCartService.ListUserCart:output_type -> shop.app.v1.ListUserCartResponse
-	14, // 15: shop.app.v1.UserCartService.CreateUserCart:output_type -> google.protobuf.Empty
-	14, // 16: shop.app.v1.UserCartService.SetUserCartSelection:output_type -> google.protobuf.Empty
-	14, // 17: shop.app.v1.UserCartService.UpdateUserCart:output_type -> google.protobuf.Empty
-	14, // 18: shop.app.v1.UserCartService.DeleteUserCart:output_type -> google.protobuf.Empty
-	14, // 19: shop.app.v1.UserCartService.SetUserCartStatus:output_type -> google.protobuf.Empty
+	9,  // 0: shop.app.v1.ListUserCartResponse.user_cart_stores:type_name -> shop.app.v1.UserCartStore
+	12, // 1: shop.app.v1.CreateUserCartRequest.recommend_context:type_name -> shop.app.v1.RecommendContext
+	11, // 2: shop.app.v1.UpdateUserCartRequest.user_cart:type_name -> shop.app.v1.UserCartForm
+	13, // 3: shop.app.v1.UserCartStore.store:type_name -> shop.app.v1.TenantStore
+	10, // 4: shop.app.v1.UserCartStore.goods:type_name -> shop.app.v1.UserCart
+	12, // 5: shop.app.v1.UserCart.recommend_context:type_name -> shop.app.v1.RecommendContext
+	0,  // 6: shop.app.v1.UserCartService.ListUserCart:input_type -> shop.app.v1.ListUserCartRequest
+	2,  // 7: shop.app.v1.UserCartService.CreateUserCart:input_type -> shop.app.v1.CreateUserCartRequest
+	3,  // 8: shop.app.v1.UserCartService.UpdateUserCart:input_type -> shop.app.v1.UpdateUserCartRequest
+	4,  // 9: shop.app.v1.UserCartService.DeleteUserCart:input_type -> shop.app.v1.DeleteUserCartRequest
+	5,  // 10: shop.app.v1.UserCartService.SetUserCartSelection:input_type -> shop.app.v1.SetUserCartSelectionRequest
+	6,  // 11: shop.app.v1.UserCartService.SetUserCartStatus:input_type -> shop.app.v1.SetUserCartStatusRequest
+	7,  // 12: shop.app.v1.UserCartService.CountUserCart:input_type -> shop.app.v1.CountUserCartRequest
+	1,  // 13: shop.app.v1.UserCartService.ListUserCart:output_type -> shop.app.v1.ListUserCartResponse
+	14, // 14: shop.app.v1.UserCartService.CreateUserCart:output_type -> google.protobuf.Empty
+	14, // 15: shop.app.v1.UserCartService.UpdateUserCart:output_type -> google.protobuf.Empty
+	14, // 16: shop.app.v1.UserCartService.DeleteUserCart:output_type -> google.protobuf.Empty
+	14, // 17: shop.app.v1.UserCartService.SetUserCartSelection:output_type -> google.protobuf.Empty
+	14, // 18: shop.app.v1.UserCartService.SetUserCartStatus:output_type -> google.protobuf.Empty
+	8,  // 19: shop.app.v1.UserCartService.CountUserCart:output_type -> shop.app.v1.CountUserCartResponse
 	13, // [13:20] is the sub-list for method output_type
 	6,  // [6:13] is the sub-list for method input_type
 	6,  // [6:6] is the sub-list for extension type_name

@@ -36,6 +36,34 @@ export enum CodeGenTaskStepStatus {
   CODE_GEN_TASK_STEP_STATUS_SKIPPED = 5,
 }
 
+/** 查询代码生成任务条件 */
+export interface GetCodeGenTaskRequest {
+  /** 生成任务ID */
+  task_id: string;
+}
+
+/** 代码生成任务进度 */
+export interface CodeGenTask {
+  /** 生成任务ID */
+  task_id: string;
+  /** 任务状态 */
+  status: CodeGenTaskStatus;
+  /** 步骤总数 */
+  total_steps: number;
+  /** 已完成步骤数 */
+  completed_steps: number;
+  /** 当前生成表名 */
+  current_table_name: string;
+  /** 任务结果说明 */
+  message: string;
+  /** 生成对象进度列表 */
+  tables: CodeGenTaskTable[];
+  /** 任务创建时间 */
+  created_at: string;
+  /** 任务完成时间 */
+  finished_at: string;
+}
+
 /** 预览代码生成条件 */
 export interface PreviewCodeGenRequest {
   /** 代码生成表配置ID */
@@ -64,12 +92,6 @@ export interface StartCodeGenTaskRequest {
 
 /** 启动代码生成任务响应 */
 export interface StartCodeGenTaskResponse {
-  /** 生成任务ID */
-  task_id: string;
-}
-
-/** 查询代码生成任务条件 */
-export interface GetCodeGenTaskRequest {
   /** 生成任务ID */
   task_id: string;
 }
@@ -110,28 +132,6 @@ export interface CodeGenTaskTable {
   steps: CodeGenTaskStep[];
 }
 
-/** 代码生成任务进度 */
-export interface CodeGenTask {
-  /** 生成任务ID */
-  task_id: string;
-  /** 任务状态 */
-  status: CodeGenTaskStatus;
-  /** 步骤总数 */
-  total_steps: number;
-  /** 已完成步骤数 */
-  completed_steps: number;
-  /** 当前生成表名 */
-  current_table_name: string;
-  /** 任务结果说明 */
-  message: string;
-  /** 生成对象进度列表 */
-  tables: CodeGenTaskTable[];
-  /** 任务创建时间 */
-  created_at: string;
-  /** 任务完成时间 */
-  finished_at: string;
-}
-
 /** 代码生成预览文件 */
 export interface CodeGenPreviewFile {
   /** 文件路径 */
@@ -164,10 +164,10 @@ export interface CodeGenOutputPaths {
 
 /** Admin代码生成服务 */
 export interface CodeGenService {
+  /** 查询代码生成任务进度 */
+  GetCodeGenTask(request: GetCodeGenTaskRequest): Promise<CodeGenTask>;
   /** 预览代码生成文件 */
   PreviewCodeGen(request: PreviewCodeGenRequest): Promise<PreviewCodeGenResponse>;
   /** 启动代码生成任务 */
   StartCodeGenTask(request: StartCodeGenTaskRequest): Promise<StartCodeGenTaskResponse>;
-  /** 查询代码生成任务进度 */
-  GetCodeGenTask(request: GetCodeGenTaskRequest): Promise<CodeGenTask>;
 }

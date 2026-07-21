@@ -20,10 +20,10 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	OrderReportService_SummaryOrderMonthReport_FullMethodName = "/shop.admin.v1.OrderReportService/SummaryOrderMonthReport"
-	OrderReportService_ListOrderMonthReport_FullMethodName    = "/shop.admin.v1.OrderReportService/ListOrderMonthReport"
-	OrderReportService_SummaryOrderDayReport_FullMethodName   = "/shop.admin.v1.OrderReportService/SummaryOrderDayReport"
 	OrderReportService_ListOrderDayReport_FullMethodName      = "/shop.admin.v1.OrderReportService/ListOrderDayReport"
+	OrderReportService_ListOrderMonthReport_FullMethodName    = "/shop.admin.v1.OrderReportService/ListOrderMonthReport"
+	OrderReportService_SummaryOrderMonthReport_FullMethodName = "/shop.admin.v1.OrderReportService/SummaryOrderMonthReport"
+	OrderReportService_SummaryOrderDayReport_FullMethodName   = "/shop.admin.v1.OrderReportService/SummaryOrderDayReport"
 )
 
 // OrderReportServiceClient is the client API for OrderReportService service.
@@ -32,14 +32,14 @@ const (
 //
 // Admin订单报表服务
 type OrderReportServiceClient interface {
-	// 查询订单月报汇总
-	SummaryOrderMonthReport(ctx context.Context, in *SummaryOrderMonthReportRequest, opts ...grpc.CallOption) (*SummaryOrderMonthReportResponse, error)
-	// 查询订单月报明细
-	ListOrderMonthReport(ctx context.Context, in *ListOrderMonthReportRequest, opts ...grpc.CallOption) (*ListOrderMonthReportResponse, error)
-	// 查询订单日报汇总
-	SummaryOrderDayReport(ctx context.Context, in *SummaryOrderDayReportRequest, opts ...grpc.CallOption) (*SummaryOrderDayReportResponse, error)
 	// 查询订单日报明细
 	ListOrderDayReport(ctx context.Context, in *ListOrderDayReportRequest, opts ...grpc.CallOption) (*ListOrderDayReportResponse, error)
+	// 查询订单月报明细
+	ListOrderMonthReport(ctx context.Context, in *ListOrderMonthReportRequest, opts ...grpc.CallOption) (*ListOrderMonthReportResponse, error)
+	// 查询订单月报汇总
+	SummaryOrderMonthReport(ctx context.Context, in *SummaryOrderMonthReportRequest, opts ...grpc.CallOption) (*SummaryOrderMonthReportResponse, error)
+	// 查询订单日报汇总
+	SummaryOrderDayReport(ctx context.Context, in *SummaryOrderDayReportRequest, opts ...grpc.CallOption) (*SummaryOrderDayReportResponse, error)
 }
 
 type orderReportServiceClient struct {
@@ -50,10 +50,10 @@ func NewOrderReportServiceClient(cc grpc.ClientConnInterface) OrderReportService
 	return &orderReportServiceClient{cc}
 }
 
-func (c *orderReportServiceClient) SummaryOrderMonthReport(ctx context.Context, in *SummaryOrderMonthReportRequest, opts ...grpc.CallOption) (*SummaryOrderMonthReportResponse, error) {
+func (c *orderReportServiceClient) ListOrderDayReport(ctx context.Context, in *ListOrderDayReportRequest, opts ...grpc.CallOption) (*ListOrderDayReportResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(SummaryOrderMonthReportResponse)
-	err := c.cc.Invoke(ctx, OrderReportService_SummaryOrderMonthReport_FullMethodName, in, out, cOpts...)
+	out := new(ListOrderDayReportResponse)
+	err := c.cc.Invoke(ctx, OrderReportService_ListOrderDayReport_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -70,20 +70,20 @@ func (c *orderReportServiceClient) ListOrderMonthReport(ctx context.Context, in 
 	return out, nil
 }
 
-func (c *orderReportServiceClient) SummaryOrderDayReport(ctx context.Context, in *SummaryOrderDayReportRequest, opts ...grpc.CallOption) (*SummaryOrderDayReportResponse, error) {
+func (c *orderReportServiceClient) SummaryOrderMonthReport(ctx context.Context, in *SummaryOrderMonthReportRequest, opts ...grpc.CallOption) (*SummaryOrderMonthReportResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(SummaryOrderDayReportResponse)
-	err := c.cc.Invoke(ctx, OrderReportService_SummaryOrderDayReport_FullMethodName, in, out, cOpts...)
+	out := new(SummaryOrderMonthReportResponse)
+	err := c.cc.Invoke(ctx, OrderReportService_SummaryOrderMonthReport_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *orderReportServiceClient) ListOrderDayReport(ctx context.Context, in *ListOrderDayReportRequest, opts ...grpc.CallOption) (*ListOrderDayReportResponse, error) {
+func (c *orderReportServiceClient) SummaryOrderDayReport(ctx context.Context, in *SummaryOrderDayReportRequest, opts ...grpc.CallOption) (*SummaryOrderDayReportResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListOrderDayReportResponse)
-	err := c.cc.Invoke(ctx, OrderReportService_ListOrderDayReport_FullMethodName, in, out, cOpts...)
+	out := new(SummaryOrderDayReportResponse)
+	err := c.cc.Invoke(ctx, OrderReportService_SummaryOrderDayReport_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -96,14 +96,14 @@ func (c *orderReportServiceClient) ListOrderDayReport(ctx context.Context, in *L
 //
 // Admin订单报表服务
 type OrderReportServiceServer interface {
-	// 查询订单月报汇总
-	SummaryOrderMonthReport(context.Context, *SummaryOrderMonthReportRequest) (*SummaryOrderMonthReportResponse, error)
-	// 查询订单月报明细
-	ListOrderMonthReport(context.Context, *ListOrderMonthReportRequest) (*ListOrderMonthReportResponse, error)
-	// 查询订单日报汇总
-	SummaryOrderDayReport(context.Context, *SummaryOrderDayReportRequest) (*SummaryOrderDayReportResponse, error)
 	// 查询订单日报明细
 	ListOrderDayReport(context.Context, *ListOrderDayReportRequest) (*ListOrderDayReportResponse, error)
+	// 查询订单月报明细
+	ListOrderMonthReport(context.Context, *ListOrderMonthReportRequest) (*ListOrderMonthReportResponse, error)
+	// 查询订单月报汇总
+	SummaryOrderMonthReport(context.Context, *SummaryOrderMonthReportRequest) (*SummaryOrderMonthReportResponse, error)
+	// 查询订单日报汇总
+	SummaryOrderDayReport(context.Context, *SummaryOrderDayReportRequest) (*SummaryOrderDayReportResponse, error)
 	mustEmbedUnimplementedOrderReportServiceServer()
 }
 
@@ -114,17 +114,17 @@ type OrderReportServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedOrderReportServiceServer struct{}
 
-func (UnimplementedOrderReportServiceServer) SummaryOrderMonthReport(context.Context, *SummaryOrderMonthReportRequest) (*SummaryOrderMonthReportResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method SummaryOrderMonthReport not implemented")
+func (UnimplementedOrderReportServiceServer) ListOrderDayReport(context.Context, *ListOrderDayReportRequest) (*ListOrderDayReportResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListOrderDayReport not implemented")
 }
 func (UnimplementedOrderReportServiceServer) ListOrderMonthReport(context.Context, *ListOrderMonthReportRequest) (*ListOrderMonthReportResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListOrderMonthReport not implemented")
 }
+func (UnimplementedOrderReportServiceServer) SummaryOrderMonthReport(context.Context, *SummaryOrderMonthReportRequest) (*SummaryOrderMonthReportResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method SummaryOrderMonthReport not implemented")
+}
 func (UnimplementedOrderReportServiceServer) SummaryOrderDayReport(context.Context, *SummaryOrderDayReportRequest) (*SummaryOrderDayReportResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method SummaryOrderDayReport not implemented")
-}
-func (UnimplementedOrderReportServiceServer) ListOrderDayReport(context.Context, *ListOrderDayReportRequest) (*ListOrderDayReportResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method ListOrderDayReport not implemented")
 }
 func (UnimplementedOrderReportServiceServer) mustEmbedUnimplementedOrderReportServiceServer() {}
 func (UnimplementedOrderReportServiceServer) testEmbeddedByValue()                            {}
@@ -147,20 +147,20 @@ func RegisterOrderReportServiceServer(s grpc.ServiceRegistrar, srv OrderReportSe
 	s.RegisterService(&OrderReportService_ServiceDesc, srv)
 }
 
-func _OrderReportService_SummaryOrderMonthReport_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SummaryOrderMonthReportRequest)
+func _OrderReportService_ListOrderDayReport_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListOrderDayReportRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(OrderReportServiceServer).SummaryOrderMonthReport(ctx, in)
+		return srv.(OrderReportServiceServer).ListOrderDayReport(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: OrderReportService_SummaryOrderMonthReport_FullMethodName,
+		FullMethod: OrderReportService_ListOrderDayReport_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OrderReportServiceServer).SummaryOrderMonthReport(ctx, req.(*SummaryOrderMonthReportRequest))
+		return srv.(OrderReportServiceServer).ListOrderDayReport(ctx, req.(*ListOrderDayReportRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -183,6 +183,24 @@ func _OrderReportService_ListOrderMonthReport_Handler(srv interface{}, ctx conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _OrderReportService_SummaryOrderMonthReport_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SummaryOrderMonthReportRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderReportServiceServer).SummaryOrderMonthReport(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OrderReportService_SummaryOrderMonthReport_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderReportServiceServer).SummaryOrderMonthReport(ctx, req.(*SummaryOrderMonthReportRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _OrderReportService_SummaryOrderDayReport_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SummaryOrderDayReportRequest)
 	if err := dec(in); err != nil {
@@ -201,24 +219,6 @@ func _OrderReportService_SummaryOrderDayReport_Handler(srv interface{}, ctx cont
 	return interceptor(ctx, in, info, handler)
 }
 
-func _OrderReportService_ListOrderDayReport_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListOrderDayReportRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(OrderReportServiceServer).ListOrderDayReport(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: OrderReportService_ListOrderDayReport_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OrderReportServiceServer).ListOrderDayReport(ctx, req.(*ListOrderDayReportRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // OrderReportService_ServiceDesc is the grpc.ServiceDesc for OrderReportService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -227,20 +227,20 @@ var OrderReportService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*OrderReportServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "SummaryOrderMonthReport",
-			Handler:    _OrderReportService_SummaryOrderMonthReport_Handler,
+			MethodName: "ListOrderDayReport",
+			Handler:    _OrderReportService_ListOrderDayReport_Handler,
 		},
 		{
 			MethodName: "ListOrderMonthReport",
 			Handler:    _OrderReportService_ListOrderMonthReport_Handler,
 		},
 		{
-			MethodName: "SummaryOrderDayReport",
-			Handler:    _OrderReportService_SummaryOrderDayReport_Handler,
+			MethodName: "SummaryOrderMonthReport",
+			Handler:    _OrderReportService_SummaryOrderMonthReport_Handler,
 		},
 		{
-			MethodName: "ListOrderDayReport",
-			Handler:    _OrderReportService_ListOrderDayReport_Handler,
+			MethodName: "SummaryOrderDayReport",
+			Handler:    _OrderReportService_SummaryOrderDayReport_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

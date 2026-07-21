@@ -37,16 +37,6 @@ func NewAuthService(
 	}
 }
 
-// GetUserInfo 获取已经登录的用户的数据
-func (s *AuthService) GetUserInfo(ctx context.Context, req *systemadminv1.GetUserInfoRequest) (*systemadminv1.UserInfoForm, error) {
-	res, err := s.authCase.GetUserInfo(ctx)
-	if err != nil {
-		log.Error(fmt.Sprintf("GetUserInfo %v", err))
-		return nil, errorsx.WrapInternal(err, "获取用户信息失败")
-	}
-	return res, nil
-}
-
 // TreeUserMenu 获取已经登录的用户菜单
 func (s *AuthService) TreeUserMenu(ctx context.Context, req *systemadminv1.TreeUserMenuRequest) (*systemadminv1.TreeRouteResponse, error) {
 	res, err := s.authCase.TreeUserMenu(ctx)
@@ -67,6 +57,16 @@ func (s *AuthService) ListUserButton(ctx context.Context, req *systemadminv1.Lis
 	return res, nil
 }
 
+// GetUserInfo 获取已经登录的用户的数据
+func (s *AuthService) GetUserInfo(ctx context.Context, req *systemadminv1.GetUserInfoRequest) (*systemadminv1.UserInfoForm, error) {
+	res, err := s.authCase.GetUserInfo(ctx)
+	if err != nil {
+		log.Error(fmt.Sprintf("GetUserInfo %v", err))
+		return nil, errorsx.WrapInternal(err, "获取用户信息失败")
+	}
+	return res, nil
+}
+
 // GetUserProfile 获取个人中心用户信息
 func (s *AuthService) GetUserProfile(ctx context.Context, req *systemadminv1.GetUserProfileRequest) (*systemadminv1.UserProfileForm, error) {
 	res, err := s.authCase.GetUserProfile(ctx)
@@ -75,6 +75,27 @@ func (s *AuthService) GetUserProfile(ctx context.Context, req *systemadminv1.Get
 		return nil, errorsx.WrapInternal(err, "获取个人资料失败")
 	}
 	return res, nil
+}
+
+// UpdateUserPassword 修改个人中心密码
+func (s *AuthService) UpdateUserPassword(ctx context.Context, req *systemadminv1.UpdateUserPasswordRequest) (*emptypb.Empty, error) {
+	err := s.authCase.UpdateUserPassword(ctx, req.GetUserPassword())
+	if err != nil {
+		log.Error(fmt.Sprintf("UpdateUserPassword %v", err))
+		return nil, errorsx.WrapInternal(err, "重置密码失败")
+	}
+	return new(emptypb.Empty), nil
+}
+
+// UpdateUserPhone 修改个人中心手机号
+func (s *AuthService) UpdateUserPhone(ctx context.Context, req *systemadminv1.UpdateUserPhoneRequest) (*emptypb.Empty, error) {
+	err := s.authCase.UpdateUserPhone(ctx, req.GetUserPhone())
+	if err != nil {
+		log.Error(fmt.Sprintf("UpdateUserPhone %v", err))
+		return nil, errorsx.WrapInternal(err, "修改个人中心手机号失败")
+	}
+
+	return new(emptypb.Empty), nil
 }
 
 // UpdateUserProfile 修改个人中心用户信息
@@ -93,27 +114,6 @@ func (s *AuthService) SendPhoneCode(ctx context.Context, req *systemadminv1.Send
 	if err != nil {
 		log.Error(fmt.Sprintf("SendPhoneCode %v", err))
 		return nil, errorsx.WrapInternal(err, "发送手机号验证码失败")
-	}
-	return new(emptypb.Empty), nil
-}
-
-// UpdateUserPhone 修改个人中心手机号
-func (s *AuthService) UpdateUserPhone(ctx context.Context, req *systemadminv1.UpdateUserPhoneRequest) (*emptypb.Empty, error) {
-	err := s.authCase.UpdateUserPhone(ctx, req.GetUserPhone())
-	if err != nil {
-		log.Error(fmt.Sprintf("UpdateUserPhone %v", err))
-		return nil, errorsx.WrapInternal(err, "修改个人中心手机号失败")
-	}
-
-	return new(emptypb.Empty), nil
-}
-
-// UpdateUserPassword 修改个人中心密码
-func (s *AuthService) UpdateUserPassword(ctx context.Context, req *systemadminv1.UpdateUserPasswordRequest) (*emptypb.Empty, error) {
-	err := s.authCase.UpdateUserPassword(ctx, req.GetUserPassword())
-	if err != nil {
-		log.Error(fmt.Sprintf("UpdateUserPassword %v", err))
-		return nil, errorsx.WrapInternal(err, "重置密码失败")
 	}
 	return new(emptypb.Empty), nil
 }

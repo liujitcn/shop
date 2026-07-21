@@ -118,6 +118,15 @@ func (c *CodeGenProtoCase) ListCodeGenProto(ctx context.Context, tableID int64) 
 	}, nil
 }
 
+// DeleteByTableIDs 删除多个代码生成表配置关联的 Proto 接口配置。
+func (c *CodeGenProtoCase) DeleteByTableIDs(ctx context.Context, tableIDs []int64) error {
+	if len(tableIDs) == 0 {
+		return nil
+	}
+	query := c.Query(ctx).CodeGenProto
+	return c.Delete(ctx, repository.Where(query.TableID.In(tableIDs...)))
+}
+
 // SaveCodeGenProto 按当前 Proto 能力清单同步接口配置。
 func (c *CodeGenProtoCase) SaveCodeGenProto(ctx context.Context, req *systemadminv1.SaveCodeGenProtoRequest) error {
 	table, err := c.codeGenTableRepo.FindByID(ctx, req.GetTableId())
@@ -228,15 +237,6 @@ func (c *CodeGenProtoCase) SaveCodeGenProto(ctx context.Context, req *systemadmi
 		}
 		return c.DeleteByIDs(ctx, deleteIDs)
 	})
-}
-
-// DeleteByTableIDs 删除多个代码生成表配置关联的 Proto 接口配置。
-func (c *CodeGenProtoCase) DeleteByTableIDs(ctx context.Context, tableIDs []int64) error {
-	if len(tableIDs) == 0 {
-		return nil
-	}
-	query := c.Query(ctx).CodeGenProto
-	return c.Delete(ctx, repository.Where(query.TableID.In(tableIDs...)))
 }
 
 // validateCodeGenProtoColumns 校验待生成 Proto 接口的类型配置和数据库字段。

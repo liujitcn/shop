@@ -108,6 +108,45 @@ func (c *CommentInfoCase) PageCommentInfo(ctx context.Context, req *shopadminv1.
 	return &shopadminv1.PageCommentInfoResponse{CommentInfos: resList, Total: int32(total)}, nil
 }
 
+// GetCommentInfo 查询评论详情。
+func (c *CommentInfoCase) GetCommentInfo(ctx context.Context, commentID int64) (*shopadminv1.CommentInfoDetail, error) {
+	commentInfo, err := c.FindByID(ctx, commentID)
+	if err != nil {
+		return nil, err
+	}
+
+	var tagList []*shopadminv1.CommentTag
+	tagList, err = c.commentTagCase.ListByGoodsID(ctx, commentInfo.GoodsID)
+	if err != nil {
+		return nil, err
+	}
+
+	var discussionList []*shopadminv1.CommentDiscussion
+	discussionList, err = c.commentDiscussionCase.ListByCommentIDs(ctx, []int64{commentInfo.ID})
+	if err != nil {
+		return nil, err
+	}
+
+	var summaryList []*shopadminv1.CommentSummary
+	summaryList, err = c.commentSummaryCase.ListByGoodsID(ctx, commentInfo.GoodsID)
+	if err != nil {
+		return nil, err
+	}
+
+	var reviewList []*shopadminv1.CommentReview
+	reviewList, err = c.commentReviewCase.ListByTarget(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_COMMENT, commentInfo.ID)
+	if err != nil {
+		return nil, err
+	}
+	return &shopadminv1.CommentInfoDetail{
+		Comment:            c.commentInfoMapper.ToDTO(commentInfo),
+		CommentTags:        tagList,
+		CommentDiscussions: discussionList,
+		CommentSummaries:   summaryList,
+		CommentReviews:     reviewList,
+	}, nil
+}
+
 // GetGoodsCommentInfo 按商品查询评论聚合信息。
 func (c *CommentInfoCase) GetGoodsCommentInfo(ctx context.Context, goodsID int64) (*shopadminv1.GoodsCommentInfoResponse, error) {
 	// 商品编号为空时，无法定位评论聚合范围。
@@ -153,45 +192,6 @@ func (c *CommentInfoCase) GetGoodsCommentInfo(ctx context.Context, goodsID int64
 		CommentTags:        tagList,
 		CommentDiscussions: discussionList,
 		CommentSummaries:   summaryList,
-	}, nil
-}
-
-// GetCommentInfo 查询评论详情。
-func (c *CommentInfoCase) GetCommentInfo(ctx context.Context, commentID int64) (*shopadminv1.CommentInfoDetail, error) {
-	commentInfo, err := c.FindByID(ctx, commentID)
-	if err != nil {
-		return nil, err
-	}
-
-	var tagList []*shopadminv1.CommentTag
-	tagList, err = c.commentTagCase.ListByGoodsID(ctx, commentInfo.GoodsID)
-	if err != nil {
-		return nil, err
-	}
-
-	var discussionList []*shopadminv1.CommentDiscussion
-	discussionList, err = c.commentDiscussionCase.ListByCommentIDs(ctx, []int64{commentInfo.ID})
-	if err != nil {
-		return nil, err
-	}
-
-	var summaryList []*shopadminv1.CommentSummary
-	summaryList, err = c.commentSummaryCase.ListByGoodsID(ctx, commentInfo.GoodsID)
-	if err != nil {
-		return nil, err
-	}
-
-	var reviewList []*shopadminv1.CommentReview
-	reviewList, err = c.commentReviewCase.ListByTarget(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_COMMENT, commentInfo.ID)
-	if err != nil {
-		return nil, err
-	}
-	return &shopadminv1.CommentInfoDetail{
-		Comment:            c.commentInfoMapper.ToDTO(commentInfo),
-		CommentTags:        tagList,
-		CommentDiscussions: discussionList,
-		CommentSummaries:   summaryList,
-		CommentReviews:     reviewList,
 	}, nil
 }
 

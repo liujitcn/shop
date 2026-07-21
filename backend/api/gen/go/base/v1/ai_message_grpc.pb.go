@@ -20,9 +20,9 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AiMessageService_SendAiMessage_FullMethodName       = "/base.v1.AiMessageService/SendAiMessage"
-	AiMessageService_DeleteAiMessage_FullMethodName     = "/base.v1.AiMessageService/DeleteAiMessage"
 	AiMessageService_UpdateAiMessage_FullMethodName     = "/base.v1.AiMessageService/UpdateAiMessage"
+	AiMessageService_DeleteAiMessage_FullMethodName     = "/base.v1.AiMessageService/DeleteAiMessage"
+	AiMessageService_SendAiMessage_FullMethodName       = "/base.v1.AiMessageService/SendAiMessage"
 	AiMessageService_RetryAiUserMessage_FullMethodName  = "/base.v1.AiMessageService/RetryAiUserMessage"
 	AiMessageService_RegenerateAiMessage_FullMethodName = "/base.v1.AiMessageService/RegenerateAiMessage"
 )
@@ -33,12 +33,12 @@ const (
 //
 // Base AI 助手消息服务
 type AiMessageServiceClient interface {
-	// 发送 AI 助手消息
-	SendAiMessage(ctx context.Context, in *SendAiMessageRequest, opts ...grpc.CallOption) (*SendAiMessageResponse, error)
-	// 删除 AI 助手消息
-	DeleteAiMessage(ctx context.Context, in *DeleteAiMessageRequest, opts ...grpc.CallOption) (*DeleteAiMessageResponse, error)
 	// 更新 AI 助手消息并重新生成输出
 	UpdateAiMessage(ctx context.Context, in *UpdateAiMessageRequest, opts ...grpc.CallOption) (*SendAiMessageResponse, error)
+	// 删除 AI 助手消息
+	DeleteAiMessage(ctx context.Context, in *DeleteAiMessageRequest, opts ...grpc.CallOption) (*DeleteAiMessageResponse, error)
+	// 发送 AI 助手消息
+	SendAiMessage(ctx context.Context, in *SendAiMessageRequest, opts ...grpc.CallOption) (*SendAiMessageResponse, error)
 	// 重试失败的 AI 助手消息
 	RetryAiUserMessage(ctx context.Context, in *RetryAiUserMessageRequest, opts ...grpc.CallOption) (*SendAiMessageResponse, error)
 	// 重新生成 AI 助手输出
@@ -53,10 +53,10 @@ func NewAiMessageServiceClient(cc grpc.ClientConnInterface) AiMessageServiceClie
 	return &aiMessageServiceClient{cc}
 }
 
-func (c *aiMessageServiceClient) SendAiMessage(ctx context.Context, in *SendAiMessageRequest, opts ...grpc.CallOption) (*SendAiMessageResponse, error) {
+func (c *aiMessageServiceClient) UpdateAiMessage(ctx context.Context, in *UpdateAiMessageRequest, opts ...grpc.CallOption) (*SendAiMessageResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(SendAiMessageResponse)
-	err := c.cc.Invoke(ctx, AiMessageService_SendAiMessage_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, AiMessageService_UpdateAiMessage_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -73,10 +73,10 @@ func (c *aiMessageServiceClient) DeleteAiMessage(ctx context.Context, in *Delete
 	return out, nil
 }
 
-func (c *aiMessageServiceClient) UpdateAiMessage(ctx context.Context, in *UpdateAiMessageRequest, opts ...grpc.CallOption) (*SendAiMessageResponse, error) {
+func (c *aiMessageServiceClient) SendAiMessage(ctx context.Context, in *SendAiMessageRequest, opts ...grpc.CallOption) (*SendAiMessageResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(SendAiMessageResponse)
-	err := c.cc.Invoke(ctx, AiMessageService_UpdateAiMessage_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, AiMessageService_SendAiMessage_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -109,12 +109,12 @@ func (c *aiMessageServiceClient) RegenerateAiMessage(ctx context.Context, in *Re
 //
 // Base AI 助手消息服务
 type AiMessageServiceServer interface {
-	// 发送 AI 助手消息
-	SendAiMessage(context.Context, *SendAiMessageRequest) (*SendAiMessageResponse, error)
-	// 删除 AI 助手消息
-	DeleteAiMessage(context.Context, *DeleteAiMessageRequest) (*DeleteAiMessageResponse, error)
 	// 更新 AI 助手消息并重新生成输出
 	UpdateAiMessage(context.Context, *UpdateAiMessageRequest) (*SendAiMessageResponse, error)
+	// 删除 AI 助手消息
+	DeleteAiMessage(context.Context, *DeleteAiMessageRequest) (*DeleteAiMessageResponse, error)
+	// 发送 AI 助手消息
+	SendAiMessage(context.Context, *SendAiMessageRequest) (*SendAiMessageResponse, error)
 	// 重试失败的 AI 助手消息
 	RetryAiUserMessage(context.Context, *RetryAiUserMessageRequest) (*SendAiMessageResponse, error)
 	// 重新生成 AI 助手输出
@@ -129,14 +129,14 @@ type AiMessageServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedAiMessageServiceServer struct{}
 
-func (UnimplementedAiMessageServiceServer) SendAiMessage(context.Context, *SendAiMessageRequest) (*SendAiMessageResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method SendAiMessage not implemented")
+func (UnimplementedAiMessageServiceServer) UpdateAiMessage(context.Context, *UpdateAiMessageRequest) (*SendAiMessageResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateAiMessage not implemented")
 }
 func (UnimplementedAiMessageServiceServer) DeleteAiMessage(context.Context, *DeleteAiMessageRequest) (*DeleteAiMessageResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteAiMessage not implemented")
 }
-func (UnimplementedAiMessageServiceServer) UpdateAiMessage(context.Context, *UpdateAiMessageRequest) (*SendAiMessageResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method UpdateAiMessage not implemented")
+func (UnimplementedAiMessageServiceServer) SendAiMessage(context.Context, *SendAiMessageRequest) (*SendAiMessageResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method SendAiMessage not implemented")
 }
 func (UnimplementedAiMessageServiceServer) RetryAiUserMessage(context.Context, *RetryAiUserMessageRequest) (*SendAiMessageResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method RetryAiUserMessage not implemented")
@@ -165,20 +165,20 @@ func RegisterAiMessageServiceServer(s grpc.ServiceRegistrar, srv AiMessageServic
 	s.RegisterService(&AiMessageService_ServiceDesc, srv)
 }
 
-func _AiMessageService_SendAiMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SendAiMessageRequest)
+func _AiMessageService_UpdateAiMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateAiMessageRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AiMessageServiceServer).SendAiMessage(ctx, in)
+		return srv.(AiMessageServiceServer).UpdateAiMessage(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: AiMessageService_SendAiMessage_FullMethodName,
+		FullMethod: AiMessageService_UpdateAiMessage_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AiMessageServiceServer).SendAiMessage(ctx, req.(*SendAiMessageRequest))
+		return srv.(AiMessageServiceServer).UpdateAiMessage(ctx, req.(*UpdateAiMessageRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -201,20 +201,20 @@ func _AiMessageService_DeleteAiMessage_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AiMessageService_UpdateAiMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateAiMessageRequest)
+func _AiMessageService_SendAiMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SendAiMessageRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AiMessageServiceServer).UpdateAiMessage(ctx, in)
+		return srv.(AiMessageServiceServer).SendAiMessage(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: AiMessageService_UpdateAiMessage_FullMethodName,
+		FullMethod: AiMessageService_SendAiMessage_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AiMessageServiceServer).UpdateAiMessage(ctx, req.(*UpdateAiMessageRequest))
+		return srv.(AiMessageServiceServer).SendAiMessage(ctx, req.(*SendAiMessageRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -263,16 +263,16 @@ var AiMessageService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*AiMessageServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "SendAiMessage",
-			Handler:    _AiMessageService_SendAiMessage_Handler,
+			MethodName: "UpdateAiMessage",
+			Handler:    _AiMessageService_UpdateAiMessage_Handler,
 		},
 		{
 			MethodName: "DeleteAiMessage",
 			Handler:    _AiMessageService_DeleteAiMessage_Handler,
 		},
 		{
-			MethodName: "UpdateAiMessage",
-			Handler:    _AiMessageService_UpdateAiMessage_Handler,
+			MethodName: "SendAiMessage",
+			Handler:    _AiMessageService_SendAiMessage_Handler,
 		},
 		{
 			MethodName: "RetryAiUserMessage",

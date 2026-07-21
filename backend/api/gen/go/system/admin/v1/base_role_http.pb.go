@@ -56,8 +56,8 @@ func RegisterBaseRoleServiceHTTPServer(s *http.Server, srv BaseRoleServiceHTTPSe
 	r.Handle("POST", "/api/v1/admin/base/role", _BaseRoleService_CreateBaseRole0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/base/role/{base_role.id}", _BaseRoleService_UpdateBaseRole0_HTTP_Handler(srv))
 	r.Handle("DELETE", "/api/v1/admin/base/role/{id}", _BaseRoleService_DeleteBaseRole0_HTTP_Handler(srv))
-	r.Handle("PUT", "/api/v1/admin/base/role/{id}/status", _BaseRoleService_SetBaseRoleStatus0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/base/role/{id}/menu", _BaseRoleService_SetBaseRoleMenu0_HTTP_Handler(srv))
+	r.Handle("PUT", "/api/v1/admin/base/role/{id}/status", _BaseRoleService_SetBaseRoleStatus0_HTTP_Handler(srv))
 }
 
 func _BaseRoleService_OptionBaseRole0_HTTP_Handler(srv BaseRoleServiceHTTPServer) func(ctx http.Context) error {
@@ -189,28 +189,6 @@ func _BaseRoleService_DeleteBaseRole0_HTTP_Handler(srv BaseRoleServiceHTTPServer
 	}
 }
 
-func _BaseRoleService_SetBaseRoleStatus0_HTTP_Handler(srv BaseRoleServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in SetBaseRoleStatusRequest
-		if err := ctx.Bind(&in); err != nil {
-			return err
-		}
-		if err := ctx.BindVars(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationBaseRoleServiceSetBaseRoleStatus)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.SetBaseRoleStatus(ctx, req.(*SetBaseRoleStatusRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*emptypb.Empty)
-		return ctx.Result(200, reply)
-	}
-}
-
 func _BaseRoleService_SetBaseRoleMenu0_HTTP_Handler(srv BaseRoleServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in SetBaseRoleMenuRequest
@@ -223,6 +201,28 @@ func _BaseRoleService_SetBaseRoleMenu0_HTTP_Handler(srv BaseRoleServiceHTTPServe
 		http.SetOperation(ctx, OperationBaseRoleServiceSetBaseRoleMenu)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
 			return srv.SetBaseRoleMenu(ctx, req.(*SetBaseRoleMenuRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _BaseRoleService_SetBaseRoleStatus0_HTTP_Handler(srv BaseRoleServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in SetBaseRoleStatusRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBaseRoleServiceSetBaseRoleStatus)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.SetBaseRoleStatus(ctx, req.(*SetBaseRoleStatusRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {

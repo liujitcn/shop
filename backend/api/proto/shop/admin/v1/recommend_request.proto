@@ -15,17 +15,17 @@ service RecommendRequestService {
     };
   }
 
-  // 查询推荐请求详情
-  rpc GetRecommendRequest(GetRecommendRequestRequest) returns (RecommendRequestDetailResponse) {
-    option (google.api.http) = {
-      get: "/api/v1/admin/recommend/request/{id}"
-    };
-  }
-
   // 查询推荐请求商品关联事件
   rpc ListRecommendRequestEvent(ListRecommendRequestEventRequest) returns (ListRecommendRequestEventResponse) {
     option (google.api.http) = {
       get: "/api/v1/admin/recommend/request/{request_record_id}/event"
+    };
+  }
+
+  // 查询推荐请求详情
+  rpc GetRecommendRequest(GetRecommendRequestRequest) returns (RecommendRequestDetailResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/recommend/request/{id}"
     };
   }
 }
@@ -60,6 +60,36 @@ message PageRecommendRequestResponse {
   int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
 }
 
+// 推荐请求事件查询条件
+message ListRecommendRequestEventRequest {
+  int64 request_record_id = 1 [(gnostic.openapi.v3.property) = {description: "推荐请求记录ID"}]; // 推荐请求记录ID
+
+  int64 goods_id = 2 [(gnostic.openapi.v3.property) = {description: "商品ID"}]; // 商品ID
+
+  int32 position = 3 [(gnostic.openapi.v3.property) = {description: "结果位置"}]; // 结果位置
+}
+
+// 推荐请求事件响应
+message ListRecommendRequestEventResponse {
+  repeated RecommendEvent recommend_events = 1 [(gnostic.openapi.v3.property) = {description: "事件数据"}]; // 事件数据
+
+  int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
+}
+
+// 推荐请求详情查询条件
+message GetRecommendRequestRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "推荐请求记录ID"}]; // 推荐请求记录ID
+}
+
+// 推荐请求详情响应
+message RecommendRequestDetailResponse {
+  RecommendRequest request = 1 [(gnostic.openapi.v3.property) = {description: "请求基础信息"}]; // 请求基础信息
+
+  RecommendRequestContext context = 2 [(gnostic.openapi.v3.property) = {description: "推荐上下文信息"}]; // 推荐上下文信息
+
+  repeated RecommendRequestItem item_list = 3 [(gnostic.openapi.v3.property) = {description: "当前请求页的推荐商品列表"}]; // 当前请求页的推荐商品列表
+}
+
 // 推荐请求
 message RecommendRequest {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "主键ID"}]; // 主键ID
@@ -85,20 +115,6 @@ message RecommendRequest {
   string request_at = 11 [(gnostic.openapi.v3.property) = {description: "请求时间"}]; // 请求时间
 
   string actor_name = 12 [(gnostic.openapi.v3.property) = {description: "主体名称"}]; // 主体名称
-}
-
-// 推荐请求详情查询条件
-message GetRecommendRequestRequest {
-  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "推荐请求记录ID"}]; // 推荐请求记录ID
-}
-
-// 推荐请求详情响应
-message RecommendRequestDetailResponse {
-  RecommendRequest request = 1 [(gnostic.openapi.v3.property) = {description: "请求基础信息"}]; // 请求基础信息
-
-  RecommendRequestContext context = 2 [(gnostic.openapi.v3.property) = {description: "推荐上下文信息"}]; // 推荐上下文信息
-
-  repeated RecommendRequestItem item_list = 3 [(gnostic.openapi.v3.property) = {description: "当前请求页的推荐商品列表"}]; // 当前请求页的推荐商品列表
 }
 
 // 推荐请求上下文信息
@@ -152,22 +168,6 @@ message RecommendRequestItem {
   .shop.common.v1.GoodsStatus goods_status = 7 [(gnostic.openapi.v3.property) = {description: "商品状态：枚举【GoodsStatus】"}]; // 商品状态：枚举【GoodsStatus】
 
   int64 event_count = 8 [(gnostic.openapi.v3.property) = {description: "关联事件条数"}]; // 关联事件条数
-}
-
-// 推荐请求事件查询条件
-message ListRecommendRequestEventRequest {
-  int64 request_record_id = 1 [(gnostic.openapi.v3.property) = {description: "推荐请求记录ID"}]; // 推荐请求记录ID
-
-  int64 goods_id = 2 [(gnostic.openapi.v3.property) = {description: "商品ID"}]; // 商品ID
-
-  int32 position = 3 [(gnostic.openapi.v3.property) = {description: "结果位置"}]; // 结果位置
-}
-
-// 推荐请求事件响应
-message ListRecommendRequestEventResponse {
-  repeated RecommendEvent recommend_events = 1 [(gnostic.openapi.v3.property) = {description: "事件数据"}]; // 事件数据
-
-  int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
 }
 
 // 推荐事件

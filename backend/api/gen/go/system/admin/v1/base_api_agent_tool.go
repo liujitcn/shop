@@ -42,24 +42,24 @@ func NewBaseApiServiceAgentTools(baseApiServiceServer BaseApiServiceServer) ([]t
 		return nil, err
 	}
 	ts = append(ts, getBaseApiDocTool)
-	var setBaseApiMcpStatusTool tool.InvokableTool
-	setBaseApiMcpStatusTool, err = NewBaseApiServiceSetBaseApiMcpStatusAgentTool(baseApiServiceServer)
-	if err != nil {
-		return nil, err
-	}
-	ts = append(ts, setBaseApiMcpStatusTool)
-	var setBaseApiAgentStatusTool tool.InvokableTool
-	setBaseApiAgentStatusTool, err = NewBaseApiServiceSetBaseApiAgentStatusAgentTool(baseApiServiceServer)
-	if err != nil {
-		return nil, err
-	}
-	ts = append(ts, setBaseApiAgentStatusTool)
 	var updateBaseApiTool tool.InvokableTool
 	updateBaseApiTool, err = NewBaseApiServiceUpdateBaseApiAgentTool(baseApiServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, updateBaseApiTool)
+	var setBaseApiAgentStatusTool tool.InvokableTool
+	setBaseApiAgentStatusTool, err = NewBaseApiServiceSetBaseApiAgentStatusAgentTool(baseApiServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, setBaseApiAgentStatusTool)
+	var setBaseApiMcpStatusTool tool.InvokableTool
+	setBaseApiMcpStatusTool, err = NewBaseApiServiceSetBaseApiMcpStatusAgentTool(baseApiServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, setBaseApiMcpStatusTool)
 	return ts, nil
 }
 
@@ -123,16 +123,16 @@ func NewBaseApiServiceGetBaseApiDocAgentTool(baseApiServiceServer BaseApiService
 	)
 }
 
-// NewBaseApiServiceSetBaseApiMcpStatusAgentTool 创建设置API MCP工具状态的 Agent Tool。
-func NewBaseApiServiceSetBaseApiMcpStatusAgentTool(baseApiServiceServer BaseApiServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*SetBaseApiMcpStatusRequest, *emptypb.Empty](
-		"system_admin_v1_base_api_service_set_base_api_mcp_status",
-		"设置API MCP工具状态",
-		func(ctx context.Context, req *SetBaseApiMcpStatusRequest) (*emptypb.Empty, error) {
+// NewBaseApiServiceUpdateBaseApiAgentTool 创建更新API配置的 Agent Tool。
+func NewBaseApiServiceUpdateBaseApiAgentTool(baseApiServiceServer BaseApiServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*UpdateBaseApiRequest, *emptypb.Empty](
+		"system_admin_v1_base_api_service_update_base_api",
+		"更新API配置",
+		func(ctx context.Context, req *UpdateBaseApiRequest) (*emptypb.Empty, error) {
 			if req == nil {
-				req = &SetBaseApiMcpStatusRequest{}
+				req = &UpdateBaseApiRequest{}
 			}
-			return baseApiServiceServer.SetBaseApiMcpStatus(ctx, req)
+			return baseApiServiceServer.UpdateBaseApi(ctx, req)
 		},
 	)
 }
@@ -151,16 +151,16 @@ func NewBaseApiServiceSetBaseApiAgentStatusAgentTool(baseApiServiceServer BaseAp
 	)
 }
 
-// NewBaseApiServiceUpdateBaseApiAgentTool 创建更新API配置的 Agent Tool。
-func NewBaseApiServiceUpdateBaseApiAgentTool(baseApiServiceServer BaseApiServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*UpdateBaseApiRequest, *emptypb.Empty](
-		"system_admin_v1_base_api_service_update_base_api",
-		"更新API配置",
-		func(ctx context.Context, req *UpdateBaseApiRequest) (*emptypb.Empty, error) {
+// NewBaseApiServiceSetBaseApiMcpStatusAgentTool 创建设置API MCP工具状态的 Agent Tool。
+func NewBaseApiServiceSetBaseApiMcpStatusAgentTool(baseApiServiceServer BaseApiServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*SetBaseApiMcpStatusRequest, *emptypb.Empty](
+		"system_admin_v1_base_api_service_set_base_api_mcp_status",
+		"设置API MCP工具状态",
+		func(ctx context.Context, req *SetBaseApiMcpStatusRequest) (*emptypb.Empty, error) {
 			if req == nil {
-				req = &UpdateBaseApiRequest{}
+				req = &SetBaseApiMcpStatusRequest{}
 			}
-			return baseApiServiceServer.UpdateBaseApi(ctx, req)
+			return baseApiServiceServer.SetBaseApiMcpStatus(ctx, req)
 		},
 	)
 }

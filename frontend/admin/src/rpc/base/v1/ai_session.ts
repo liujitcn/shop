@@ -9,6 +9,18 @@ import type { AiMessageStatus, Terminal } from "../../common/v1/enum";
 import type { Timestamp } from "../../google/protobuf/timestamp";
 import type { AiToolCall } from "./ai_tool";
 
+/** AI 助手消息列表查询条件 */
+export interface ListAiMessageRequest {
+  /** 会话ID */
+  session_id: string;
+}
+
+/** AI 助手消息列表响应 */
+export interface ListAiMessageResponse {
+  /** 消息列表 */
+  messages: AiMessage[];
+}
+
 /** AI 助手会话列表查询条件 */
 export interface ListAiSessionRequest {
   /** 终端类型：枚举【Terminal】 */
@@ -35,6 +47,28 @@ export interface CreateAiSessionResponse {
   session: AiSession | undefined;
 }
 
+/** AI 助手分支会话创建请求 */
+export interface CreateAiSessionBranchRequest {
+  /** 来源会话ID */
+  source_session_id: string;
+  /** 分支锚点消息ID */
+  anchor_message_id: string;
+  /** 分支会话标题 */
+  title: string;
+  /** 终端类型：枚举【Terminal】 */
+  terminal: Terminal;
+}
+
+/** AI 助手分支会话创建响应 */
+export interface CreateAiSessionBranchResponse {
+  /** 新会话信息 */
+  session:
+    | AiSession
+    | undefined;
+  /** 新会话消息列表 */
+  messages: AiMessage[];
+}
+
 /** AI 助手会话更新请求 */
 export interface UpdateAiSessionRequest {
   /** 会话ID */
@@ -57,40 +91,6 @@ export interface DeleteAiSessionRequest {
 
 /** AI 助手会话删除响应 */
 export interface DeleteAiSessionResponse {
-}
-
-/** AI 助手消息列表查询条件 */
-export interface ListAiMessageRequest {
-  /** 会话ID */
-  session_id: string;
-}
-
-/** AI 助手消息列表响应 */
-export interface ListAiMessageResponse {
-  /** 消息列表 */
-  messages: AiMessage[];
-}
-
-/** AI 助手分支会话创建请求 */
-export interface CreateAiSessionBranchRequest {
-  /** 来源会话ID */
-  source_session_id: string;
-  /** 分支锚点消息ID */
-  anchor_message_id: string;
-  /** 分支会话标题 */
-  title: string;
-  /** 终端类型：枚举【Terminal】 */
-  terminal: Terminal;
-}
-
-/** AI 助手分支会话创建响应 */
-export interface CreateAiSessionBranchResponse {
-  /** 新会话信息 */
-  session:
-    | AiSession
-    | undefined;
-  /** 新会话消息列表 */
-  messages: AiMessage[];
 }
 
 /** AI 助手会话 */
@@ -199,16 +199,16 @@ export interface AiAttachment {
 
 /** Base AI 助手会话服务 */
 export interface AiSessionService {
+  /** 查询 AI 助手消息列表 */
+  ListAiMessage(request: ListAiMessageRequest): Promise<ListAiMessageResponse>;
   /** 查询 AI 助手会话列表 */
   ListAiSession(request: ListAiSessionRequest): Promise<ListAiSessionResponse>;
   /** 创建 AI 助手会话 */
   CreateAiSession(request: CreateAiSessionRequest): Promise<CreateAiSessionResponse>;
+  /** 从指定消息创建 AI 助手分支会话 */
+  CreateAiSessionBranch(request: CreateAiSessionBranchRequest): Promise<CreateAiSessionBranchResponse>;
   /** 更新 AI 助手会话 */
   UpdateAiSession(request: UpdateAiSessionRequest): Promise<UpdateAiSessionResponse>;
   /** 删除 AI 助手会话 */
   DeleteAiSession(request: DeleteAiSessionRequest): Promise<DeleteAiSessionResponse>;
-  /** 查询 AI 助手消息列表 */
-  ListAiMessage(request: ListAiMessageRequest): Promise<ListAiMessageResponse>;
-  /** 从指定消息创建 AI 助手分支会话 */
-  CreateAiSessionBranch(request: CreateAiSessionBranchRequest): Promise<CreateAiSessionBranchResponse>;
 }

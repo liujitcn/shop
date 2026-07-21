@@ -6,20 +6,18 @@
 
 /* eslint-disable */
 
-/** 商品月报汇总查询条件 */
-export interface SummaryGoodsMonthReportRequest {
-  /** 租户ID */
-  tenant_id?:
-    | number
-    | undefined;
-  /** 租户门店ID */
-  tenant_store_id?:
-    | number
-    | undefined;
-  /** 开始月份，格式：YYYY-MM */
-  start_month: string;
-  /** 结束月份，格式：YYYY-MM */
-  end_month: string;
+/** 商品日报列表请求参数 */
+export interface ListGoodsDayReportRequest {
+  /** 开始日期，格式：YYYY-MM-DD */
+  start_date: string;
+  /** 结束日期，格式：YYYY-MM-DD */
+  end_date: string;
+}
+
+/** 商品日报列表响应 */
+export interface ListGoodsDayReportResponse {
+  /** 商品日报明细 */
+  goods_day_reports: GoodsDayReportItem[];
 }
 
 /** 商品月报列表请求参数 */
@@ -38,8 +36,64 @@ export interface ListGoodsMonthReportRequest {
   end_month: string;
 }
 
+/** 商品月报列表响应 */
+export interface ListGoodsMonthReportResponse {
+  /** 商品月报明细 */
+  goods_month_reports: GoodsMonthReportItem[];
+}
+
+/** 商品月报汇总查询条件 */
+export interface SummaryGoodsMonthReportRequest {
+  /** 租户ID */
+  tenant_id?:
+    | number
+    | undefined;
+  /** 租户门店ID */
+  tenant_store_id?:
+    | number
+    | undefined;
+  /** 开始月份，格式：YYYY-MM */
+  start_month: string;
+  /** 结束月份，格式：YYYY-MM */
+  end_month: string;
+}
+
 /** 商品月报汇总响应 */
 export interface SummaryGoodsMonthReportResponse {
+  /** 浏览次数 */
+  view_count: number;
+  /** 收藏次数 */
+  collect_count: number;
+  /** 加购件数 */
+  cart_count: number;
+  /** 下单次数 */
+  order_count: number;
+  /** 支付次数 */
+  pay_count: number;
+  /** 支付件数 */
+  pay_goods_num: number;
+  /** 支付金额，单位分 */
+  pay_amount: number;
+  /** 浏览加购转化率 */
+  cart_conversion_rate: number;
+  /** 加购下单转化率 */
+  order_conversion_rate: number;
+  /** 浏览支付转化率 */
+  pay_conversion_rate: number;
+  /** 件均成交价，单位分 */
+  pay_unit_price: number;
+}
+
+/** 商品日报汇总查询条件 */
+export interface SummaryGoodsDayReportRequest {
+  /** 开始日期，格式：YYYY-MM-DD */
+  start_date: string;
+  /** 结束日期，格式：YYYY-MM-DD */
+  end_date: string;
+}
+
+/** 商品日报汇总响应 */
+export interface SummaryGoodsDayReportResponse {
   /** 浏览次数 */
   view_count: number;
   /** 收藏次数 */
@@ -92,54 +146,6 @@ export interface GoodsMonthReportItem {
   pay_unit_price: number;
 }
 
-/** 商品月报列表响应 */
-export interface ListGoodsMonthReportResponse {
-  /** 商品月报明细 */
-  goods_month_reports: GoodsMonthReportItem[];
-}
-
-/** 商品日报汇总查询条件 */
-export interface SummaryGoodsDayReportRequest {
-  /** 开始日期，格式：YYYY-MM-DD */
-  start_date: string;
-  /** 结束日期，格式：YYYY-MM-DD */
-  end_date: string;
-}
-
-/** 商品日报列表请求参数 */
-export interface ListGoodsDayReportRequest {
-  /** 开始日期，格式：YYYY-MM-DD */
-  start_date: string;
-  /** 结束日期，格式：YYYY-MM-DD */
-  end_date: string;
-}
-
-/** 商品日报汇总响应 */
-export interface SummaryGoodsDayReportResponse {
-  /** 浏览次数 */
-  view_count: number;
-  /** 收藏次数 */
-  collect_count: number;
-  /** 加购件数 */
-  cart_count: number;
-  /** 下单次数 */
-  order_count: number;
-  /** 支付次数 */
-  pay_count: number;
-  /** 支付件数 */
-  pay_goods_num: number;
-  /** 支付金额，单位分 */
-  pay_amount: number;
-  /** 浏览加购转化率 */
-  cart_conversion_rate: number;
-  /** 加购下单转化率 */
-  order_conversion_rate: number;
-  /** 浏览支付转化率 */
-  pay_conversion_rate: number;
-  /** 件均成交价，单位分 */
-  pay_unit_price: number;
-}
-
 /** 商品日报项 */
 export interface GoodsDayReportItem {
   /** 日期，格式：YYYY-MM-DD */
@@ -168,20 +174,14 @@ export interface GoodsDayReportItem {
   pay_unit_price: number;
 }
 
-/** 商品日报列表响应 */
-export interface ListGoodsDayReportResponse {
-  /** 商品日报明细 */
-  goods_day_reports: GoodsDayReportItem[];
-}
-
 /** Admin商品报表服务 */
 export interface GoodsReportService {
-  /** 查询商品月报汇总 */
-  SummaryGoodsMonthReport(request: SummaryGoodsMonthReportRequest): Promise<SummaryGoodsMonthReportResponse>;
-  /** 查询商品月报名细 */
-  ListGoodsMonthReport(request: ListGoodsMonthReportRequest): Promise<ListGoodsMonthReportResponse>;
-  /** 查询商品日报汇总 */
-  SummaryGoodsDayReport(request: SummaryGoodsDayReportRequest): Promise<SummaryGoodsDayReportResponse>;
   /** 查询商品日报明细 */
   ListGoodsDayReport(request: ListGoodsDayReportRequest): Promise<ListGoodsDayReportResponse>;
+  /** 查询商品月报名细 */
+  ListGoodsMonthReport(request: ListGoodsMonthReportRequest): Promise<ListGoodsMonthReportResponse>;
+  /** 查询商品月报汇总 */
+  SummaryGoodsMonthReport(request: SummaryGoodsMonthReportRequest): Promise<SummaryGoodsMonthReportResponse>;
+  /** 查询商品日报汇总 */
+  SummaryGoodsDayReport(request: SummaryGoodsDayReportRequest): Promise<SummaryGoodsDayReportResponse>;
 }

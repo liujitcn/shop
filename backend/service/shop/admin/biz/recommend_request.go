@@ -114,6 +114,30 @@ func (c *RecommendRequestCase) PageRecommendRequest(ctx context.Context, req *sh
 	}, nil
 }
 
+// ListRecommendRequestEvent 查询推荐请求商品关联事件列表。
+func (c *RecommendRequestCase) ListRecommendRequestEvent(
+	ctx context.Context,
+	requestRecordID int64,
+	goodsID int64,
+	position int32,
+) (*shopadminv1.ListRecommendRequestEventResponse, error) {
+	// 请求记录编号非法时，无法定位推荐请求事件范围。
+	if requestRecordID <= 0 {
+		return nil, errorsx.InvalidArgument("推荐请求记录编号不能为空")
+	}
+	// 商品编号非法时，无法定位推荐请求事件范围。
+	if goodsID <= 0 {
+		return nil, errorsx.InvalidArgument("商品编号不能为空")
+	}
+
+	requestModel, err := c.RecommendRequestRepository.FindByID(ctx, requestRecordID)
+	if err != nil {
+		return nil, err
+	}
+
+	return c.recommendEventCase.ListRecommendRequestEvent(ctx, requestModel.RequestID, goodsID, position)
+}
+
 // GetRecommendRequest 查询推荐请求详情。
 func (c *RecommendRequestCase) GetRecommendRequest(ctx context.Context, id int64) (*shopadminv1.RecommendRequestDetailResponse, error) {
 	// 请求记录编号非法时，无法定位推荐请求详情。
@@ -143,30 +167,6 @@ func (c *RecommendRequestCase) GetRecommendRequest(ctx context.Context, id int64
 		Context:  c.toRecommendRequestContext(contextRecord, requestModel.ContextJSON),
 		ItemList: itemList,
 	}, nil
-}
-
-// ListRecommendRequestEvent 查询推荐请求商品关联事件列表。
-func (c *RecommendRequestCase) ListRecommendRequestEvent(
-	ctx context.Context,
-	requestRecordID int64,
-	goodsID int64,
-	position int32,
-) (*shopadminv1.ListRecommendRequestEventResponse, error) {
-	// 请求记录编号非法时，无法定位推荐请求事件范围。
-	if requestRecordID <= 0 {
-		return nil, errorsx.InvalidArgument("推荐请求记录编号不能为空")
-	}
-	// 商品编号非法时，无法定位推荐请求事件范围。
-	if goodsID <= 0 {
-		return nil, errorsx.InvalidArgument("商品编号不能为空")
-	}
-
-	requestModel, err := c.RecommendRequestRepository.FindByID(ctx, requestRecordID)
-	if err != nil {
-		return nil, err
-	}
-
-	return c.recommendEventCase.ListRecommendRequestEvent(ctx, requestModel.RequestID, goodsID, position)
 }
 
 // getRecommendActorNameMap 构建推荐主体名称映射。

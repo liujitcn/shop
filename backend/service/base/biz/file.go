@@ -29,6 +29,19 @@ func NewFileCase(
 	}
 }
 
+// DeleteFile 删除单个旧文件。
+func (c *FileCase) DeleteFile(oldFile string, newFile string) {
+	// 新旧文件不一致时，删除历史文件资源。
+	if newFile == "" || oldFile != newFile {
+		// 删除旧文件
+		err := c.OSS.DeleteFile(oldFile)
+		// 删除单个旧文件失败时，只记录日志不阻断调用方流程。
+		if err != nil {
+			log.Error(fmt.Sprintf("DeleteFile %v", err))
+		}
+	}
+}
+
 // MultiUploadFile 批量上传文件。
 func (c *FileCase) MultiUploadFile(req *basev1.MultiUploadFileRequest) (*basev1.MultiUploadFileResponse, error) {
 	files := make([]*basev1.FileInfo, 0)
@@ -96,19 +109,6 @@ func (c *FileCase) MultiDeleteFile(oldFile, newFile []string) {
 			if err != nil {
 				log.Error(fmt.Sprintf("MultiDeleteFile %v", err))
 			}
-		}
-	}
-}
-
-// DeleteFile 删除单个旧文件。
-func (c *FileCase) DeleteFile(oldFile string, newFile string) {
-	// 新旧文件不一致时，删除历史文件资源。
-	if newFile == "" || oldFile != newFile {
-		// 删除旧文件
-		err := c.OSS.DeleteFile(oldFile)
-		// 删除单个旧文件失败时，只记录日志不阻断调用方流程。
-		if err != nil {
-			log.Error(fmt.Sprintf("DeleteFile %v", err))
 		}
 	}
 }

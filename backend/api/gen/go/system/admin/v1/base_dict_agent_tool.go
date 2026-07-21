@@ -30,60 +30,54 @@ func NewBaseDictServiceAgentTools(baseDictServiceServer BaseDictServiceServer) (
 		return nil, err
 	}
 	ts = append(ts, pageBaseDictTool)
-	var getBaseDictTool tool.InvokableTool
-	getBaseDictTool, err = NewBaseDictServiceGetBaseDictAgentTool(baseDictServiceServer)
-	if err != nil {
-		return nil, err
-	}
-	ts = append(ts, getBaseDictTool)
-	var createBaseDictTool tool.InvokableTool
-	createBaseDictTool, err = NewBaseDictServiceCreateBaseDictAgentTool(baseDictServiceServer)
-	if err != nil {
-		return nil, err
-	}
-	ts = append(ts, createBaseDictTool)
-	var updateBaseDictTool tool.InvokableTool
-	updateBaseDictTool, err = NewBaseDictServiceUpdateBaseDictAgentTool(baseDictServiceServer)
-	if err != nil {
-		return nil, err
-	}
-	ts = append(ts, updateBaseDictTool)
-	var deleteBaseDictTool tool.InvokableTool
-	deleteBaseDictTool, err = NewBaseDictServiceDeleteBaseDictAgentTool(baseDictServiceServer)
-	if err != nil {
-		return nil, err
-	}
-	ts = append(ts, deleteBaseDictTool)
-	var setBaseDictStatusTool tool.InvokableTool
-	setBaseDictStatusTool, err = NewBaseDictServiceSetBaseDictStatusAgentTool(baseDictServiceServer)
-	if err != nil {
-		return nil, err
-	}
-	ts = append(ts, setBaseDictStatusTool)
 	var pageBaseDictItemTool tool.InvokableTool
 	pageBaseDictItemTool, err = NewBaseDictServicePageBaseDictItemAgentTool(baseDictServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, pageBaseDictItemTool)
+	var getBaseDictTool tool.InvokableTool
+	getBaseDictTool, err = NewBaseDictServiceGetBaseDictAgentTool(baseDictServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, getBaseDictTool)
 	var getBaseDictItemTool tool.InvokableTool
 	getBaseDictItemTool, err = NewBaseDictServiceGetBaseDictItemAgentTool(baseDictServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, getBaseDictItemTool)
+	var createBaseDictTool tool.InvokableTool
+	createBaseDictTool, err = NewBaseDictServiceCreateBaseDictAgentTool(baseDictServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, createBaseDictTool)
 	var createBaseDictItemTool tool.InvokableTool
 	createBaseDictItemTool, err = NewBaseDictServiceCreateBaseDictItemAgentTool(baseDictServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, createBaseDictItemTool)
+	var updateBaseDictTool tool.InvokableTool
+	updateBaseDictTool, err = NewBaseDictServiceUpdateBaseDictAgentTool(baseDictServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, updateBaseDictTool)
 	var updateBaseDictItemTool tool.InvokableTool
 	updateBaseDictItemTool, err = NewBaseDictServiceUpdateBaseDictItemAgentTool(baseDictServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, updateBaseDictItemTool)
+	var deleteBaseDictTool tool.InvokableTool
+	deleteBaseDictTool, err = NewBaseDictServiceDeleteBaseDictAgentTool(baseDictServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, deleteBaseDictTool)
 	var deleteBaseDictItemTool tool.InvokableTool
 	deleteBaseDictItemTool, err = NewBaseDictServiceDeleteBaseDictItemAgentTool(baseDictServiceServer)
 	if err != nil {
@@ -96,6 +90,12 @@ func NewBaseDictServiceAgentTools(baseDictServiceServer BaseDictServiceServer) (
 		return nil, err
 	}
 	ts = append(ts, setBaseDictItemStatusTool)
+	var setBaseDictStatusTool tool.InvokableTool
+	setBaseDictStatusTool, err = NewBaseDictServiceSetBaseDictStatusAgentTool(baseDictServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, setBaseDictStatusTool)
 	return ts, nil
 }
 
@@ -127,76 +127,6 @@ func NewBaseDictServicePageBaseDictAgentTool(baseDictServiceServer BaseDictServi
 	)
 }
 
-// NewBaseDictServiceGetBaseDictAgentTool 创建查询字典的 Agent Tool。
-func NewBaseDictServiceGetBaseDictAgentTool(baseDictServiceServer BaseDictServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*GetBaseDictRequest, *BaseDictForm](
-		"system_admin_v1_base_dict_service_get_base_dict",
-		"查询字典",
-		func(ctx context.Context, req *GetBaseDictRequest) (*BaseDictForm, error) {
-			if req == nil {
-				req = &GetBaseDictRequest{}
-			}
-			return baseDictServiceServer.GetBaseDict(ctx, req)
-		},
-	)
-}
-
-// NewBaseDictServiceCreateBaseDictAgentTool 创建创建字典的 Agent Tool。
-func NewBaseDictServiceCreateBaseDictAgentTool(baseDictServiceServer BaseDictServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*CreateBaseDictRequest, *emptypb.Empty](
-		"system_admin_v1_base_dict_service_create_base_dict",
-		"创建字典",
-		func(ctx context.Context, req *CreateBaseDictRequest) (*emptypb.Empty, error) {
-			if req == nil {
-				req = &CreateBaseDictRequest{}
-			}
-			return baseDictServiceServer.CreateBaseDict(ctx, req)
-		},
-	)
-}
-
-// NewBaseDictServiceUpdateBaseDictAgentTool 创建更新字典的 Agent Tool。
-func NewBaseDictServiceUpdateBaseDictAgentTool(baseDictServiceServer BaseDictServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*UpdateBaseDictRequest, *emptypb.Empty](
-		"system_admin_v1_base_dict_service_update_base_dict",
-		"更新字典",
-		func(ctx context.Context, req *UpdateBaseDictRequest) (*emptypb.Empty, error) {
-			if req == nil {
-				req = &UpdateBaseDictRequest{}
-			}
-			return baseDictServiceServer.UpdateBaseDict(ctx, req)
-		},
-	)
-}
-
-// NewBaseDictServiceDeleteBaseDictAgentTool 创建删除字典的 Agent Tool。
-func NewBaseDictServiceDeleteBaseDictAgentTool(baseDictServiceServer BaseDictServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*DeleteBaseDictRequest, *emptypb.Empty](
-		"system_admin_v1_base_dict_service_delete_base_dict",
-		"删除字典",
-		func(ctx context.Context, req *DeleteBaseDictRequest) (*emptypb.Empty, error) {
-			if req == nil {
-				req = &DeleteBaseDictRequest{}
-			}
-			return baseDictServiceServer.DeleteBaseDict(ctx, req)
-		},
-	)
-}
-
-// NewBaseDictServiceSetBaseDictStatusAgentTool 创建设置状态的 Agent Tool。
-func NewBaseDictServiceSetBaseDictStatusAgentTool(baseDictServiceServer BaseDictServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*SetBaseDictStatusRequest, *emptypb.Empty](
-		"system_admin_v1_base_dict_service_set_base_dict_status",
-		"设置状态",
-		func(ctx context.Context, req *SetBaseDictStatusRequest) (*emptypb.Empty, error) {
-			if req == nil {
-				req = &SetBaseDictStatusRequest{}
-			}
-			return baseDictServiceServer.SetBaseDictStatus(ctx, req)
-		},
-	)
-}
-
 // NewBaseDictServicePageBaseDictItemAgentTool 创建查询字典属性分页列表的 Agent Tool。
 func NewBaseDictServicePageBaseDictItemAgentTool(baseDictServiceServer BaseDictServiceServer) (tool.InvokableTool, error) {
 	return utils.InferTool[*PageBaseDictItemRequest, *PageBaseDictItemResponse](
@@ -207,6 +137,20 @@ func NewBaseDictServicePageBaseDictItemAgentTool(baseDictServiceServer BaseDictS
 				req = &PageBaseDictItemRequest{}
 			}
 			return baseDictServiceServer.PageBaseDictItem(ctx, req)
+		},
+	)
+}
+
+// NewBaseDictServiceGetBaseDictAgentTool 创建查询字典的 Agent Tool。
+func NewBaseDictServiceGetBaseDictAgentTool(baseDictServiceServer BaseDictServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*GetBaseDictRequest, *BaseDictForm](
+		"system_admin_v1_base_dict_service_get_base_dict",
+		"查询字典",
+		func(ctx context.Context, req *GetBaseDictRequest) (*BaseDictForm, error) {
+			if req == nil {
+				req = &GetBaseDictRequest{}
+			}
+			return baseDictServiceServer.GetBaseDict(ctx, req)
 		},
 	)
 }
@@ -225,6 +169,20 @@ func NewBaseDictServiceGetBaseDictItemAgentTool(baseDictServiceServer BaseDictSe
 	)
 }
 
+// NewBaseDictServiceCreateBaseDictAgentTool 创建创建字典的 Agent Tool。
+func NewBaseDictServiceCreateBaseDictAgentTool(baseDictServiceServer BaseDictServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*CreateBaseDictRequest, *emptypb.Empty](
+		"system_admin_v1_base_dict_service_create_base_dict",
+		"创建字典",
+		func(ctx context.Context, req *CreateBaseDictRequest) (*emptypb.Empty, error) {
+			if req == nil {
+				req = &CreateBaseDictRequest{}
+			}
+			return baseDictServiceServer.CreateBaseDict(ctx, req)
+		},
+	)
+}
+
 // NewBaseDictServiceCreateBaseDictItemAgentTool 创建创建字典属性的 Agent Tool。
 func NewBaseDictServiceCreateBaseDictItemAgentTool(baseDictServiceServer BaseDictServiceServer) (tool.InvokableTool, error) {
 	return utils.InferTool[*CreateBaseDictItemRequest, *emptypb.Empty](
@@ -239,6 +197,20 @@ func NewBaseDictServiceCreateBaseDictItemAgentTool(baseDictServiceServer BaseDic
 	)
 }
 
+// NewBaseDictServiceUpdateBaseDictAgentTool 创建更新字典的 Agent Tool。
+func NewBaseDictServiceUpdateBaseDictAgentTool(baseDictServiceServer BaseDictServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*UpdateBaseDictRequest, *emptypb.Empty](
+		"system_admin_v1_base_dict_service_update_base_dict",
+		"更新字典",
+		func(ctx context.Context, req *UpdateBaseDictRequest) (*emptypb.Empty, error) {
+			if req == nil {
+				req = &UpdateBaseDictRequest{}
+			}
+			return baseDictServiceServer.UpdateBaseDict(ctx, req)
+		},
+	)
+}
+
 // NewBaseDictServiceUpdateBaseDictItemAgentTool 创建更新字典属性的 Agent Tool。
 func NewBaseDictServiceUpdateBaseDictItemAgentTool(baseDictServiceServer BaseDictServiceServer) (tool.InvokableTool, error) {
 	return utils.InferTool[*UpdateBaseDictItemRequest, *emptypb.Empty](
@@ -249,6 +221,20 @@ func NewBaseDictServiceUpdateBaseDictItemAgentTool(baseDictServiceServer BaseDic
 				req = &UpdateBaseDictItemRequest{}
 			}
 			return baseDictServiceServer.UpdateBaseDictItem(ctx, req)
+		},
+	)
+}
+
+// NewBaseDictServiceDeleteBaseDictAgentTool 创建删除字典的 Agent Tool。
+func NewBaseDictServiceDeleteBaseDictAgentTool(baseDictServiceServer BaseDictServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*DeleteBaseDictRequest, *emptypb.Empty](
+		"system_admin_v1_base_dict_service_delete_base_dict",
+		"删除字典",
+		func(ctx context.Context, req *DeleteBaseDictRequest) (*emptypb.Empty, error) {
+			if req == nil {
+				req = &DeleteBaseDictRequest{}
+			}
+			return baseDictServiceServer.DeleteBaseDict(ctx, req)
 		},
 	)
 }
@@ -277,6 +263,20 @@ func NewBaseDictServiceSetBaseDictItemStatusAgentTool(baseDictServiceServer Base
 				req = &SetBaseDictItemStatusRequest{}
 			}
 			return baseDictServiceServer.SetBaseDictItemStatus(ctx, req)
+		},
+	)
+}
+
+// NewBaseDictServiceSetBaseDictStatusAgentTool 创建设置状态的 Agent Tool。
+func NewBaseDictServiceSetBaseDictStatusAgentTool(baseDictServiceServer BaseDictServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*SetBaseDictStatusRequest, *emptypb.Empty](
+		"system_admin_v1_base_dict_service_set_base_dict_status",
+		"设置状态",
+		func(ctx context.Context, req *SetBaseDictStatusRequest) (*emptypb.Empty, error) {
+			if req == nil {
+				req = &SetBaseDictStatusRequest{}
+			}
+			return baseDictServiceServer.SetBaseDictStatus(ctx, req)
 		},
 	)
 }

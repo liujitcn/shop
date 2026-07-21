@@ -38,25 +38,6 @@ func NewBaseConfigCase(baseCase *biz.BaseCase, baseConfigRepo *data.BaseConfigRe
 	}
 }
 
-// RefreshBaseConfig 刷新配置缓存
-func (c *BaseConfigCase) RefreshBaseConfig(ctx context.Context) error {
-	query := c.Query(ctx).BaseConfig
-	opts := make([]repository.QueryOption, 0, 1)
-	opts = append(opts, repository.Where(query.Site.Eq(_const.BASE_CONFIG_SITE_SYSTEM)))
-	list, err := c.List(ctx, opts...)
-	if err != nil {
-		return err
-	}
-
-	for _, item := range list {
-		err = c.syncBaseConfigCache(item)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
 // PageBaseConfig 分页查询配置
 func (c *BaseConfigCase) PageBaseConfig(ctx context.Context, req *systemadminv1.PageBaseConfigRequest) (*systemadminv1.PageBaseConfigResponse, error) {
 	query := c.Query(ctx).BaseConfig
@@ -211,6 +192,25 @@ func (c *BaseConfigCase) SetBaseConfigStatus(ctx context.Context, req *systemadm
 		}
 	}
 
+	return nil
+}
+
+// RefreshBaseConfig 刷新配置缓存
+func (c *BaseConfigCase) RefreshBaseConfig(ctx context.Context) error {
+	query := c.Query(ctx).BaseConfig
+	opts := make([]repository.QueryOption, 0, 1)
+	opts = append(opts, repository.Where(query.Site.Eq(_const.BASE_CONFIG_SITE_SYSTEM)))
+	list, err := c.List(ctx, opts...)
+	if err != nil {
+		return err
+	}
+
+	for _, item := range list {
+		err = c.syncBaseConfigCache(item)
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 

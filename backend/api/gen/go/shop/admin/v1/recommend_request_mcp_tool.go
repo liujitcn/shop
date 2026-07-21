@@ -15,8 +15,8 @@ import (
 // RegisterRecommendRequestServiceMCPTools 注册Admin推荐请求服务的 MCP Tool。
 func RegisterRecommendRequestServiceMCPTools(mcpServer *mcp.Server, recommendRequestServiceServer RecommendRequestServiceServer) {
 	RegisterRecommendRequestServicePageRecommendRequestMCPTool(mcpServer, recommendRequestServiceServer)
-	RegisterRecommendRequestServiceGetRecommendRequestMCPTool(mcpServer, recommendRequestServiceServer)
 	RegisterRecommendRequestServiceListRecommendRequestEventMCPTool(mcpServer, recommendRequestServiceServer)
+	RegisterRecommendRequestServiceGetRecommendRequestMCPTool(mcpServer, recommendRequestServiceServer)
 }
 
 // RegisterRecommendRequestServicePageRecommendRequestMCPTool 注册查询推荐请求分页列表的 MCP Tool。
@@ -40,27 +40,6 @@ func RegisterRecommendRequestServicePageRecommendRequestMCPTool(mcpServer *mcp.S
 	)
 }
 
-// RegisterRecommendRequestServiceGetRecommendRequestMCPTool 注册查询推荐请求详情的 MCP Tool。
-func RegisterRecommendRequestServiceGetRecommendRequestMCPTool(mcpServer *mcp.Server, recommendRequestServiceServer RecommendRequestServiceServer) {
-	mcp.AddTool[*GetRecommendRequestRequest, *RecommendRequestDetailResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "shop_admin_v1_recommend_request_service_get_recommend_request",
-			Description: "查询推荐请求详情",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetRecommendRequestRequest) (*mcp.CallToolResult, *RecommendRequestDetailResponse, error) {
-			if input == nil {
-				input = &GetRecommendRequestRequest{}
-			}
-			reply, err := recommendRequestServiceServer.GetRecommendRequest(ctx, input)
-			if err != nil {
-				return nil, nil, err
-			}
-			return nil, reply, nil
-		},
-	)
-}
-
 // RegisterRecommendRequestServiceListRecommendRequestEventMCPTool 注册查询推荐请求商品关联事件的 MCP Tool。
 func RegisterRecommendRequestServiceListRecommendRequestEventMCPTool(mcpServer *mcp.Server, recommendRequestServiceServer RecommendRequestServiceServer) {
 	mcp.AddTool[*ListRecommendRequestEventRequest, *ListRecommendRequestEventResponse](
@@ -74,6 +53,27 @@ func RegisterRecommendRequestServiceListRecommendRequestEventMCPTool(mcpServer *
 				input = &ListRecommendRequestEventRequest{}
 			}
 			reply, err := recommendRequestServiceServer.ListRecommendRequestEvent(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
+}
+
+// RegisterRecommendRequestServiceGetRecommendRequestMCPTool 注册查询推荐请求详情的 MCP Tool。
+func RegisterRecommendRequestServiceGetRecommendRequestMCPTool(mcpServer *mcp.Server, recommendRequestServiceServer RecommendRequestServiceServer) {
+	mcp.AddTool[*GetRecommendRequestRequest, *RecommendRequestDetailResponse](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "shop_admin_v1_recommend_request_service_get_recommend_request",
+			Description: "查询推荐请求详情",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *GetRecommendRequestRequest) (*mcp.CallToolResult, *RecommendRequestDetailResponse, error) {
+			if input == nil {
+				input = &GetRecommendRequestRequest{}
+			}
+			reply, err := recommendRequestServiceServer.GetRecommendRequest(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

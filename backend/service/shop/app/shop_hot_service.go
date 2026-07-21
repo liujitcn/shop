@@ -39,6 +39,16 @@ func NewShopHotService(
 	return &ss
 }
 
+// PageShopHotGoods 查询热门推荐商品
+func (s *ShopHotService) PageShopHotGoods(ctx context.Context, req *shopappv1.PageShopHotGoodsRequest) (*shopappv1.PageShopHotGoodsResponse, error) {
+	page, err := s.shopHotItemCase.PageShopHotGoods(ctx, req)
+	if err != nil {
+		log.Error(fmt.Sprintf("PageShopHotGoods %v", err))
+		return nil, errorsx.WrapInternal(err, "查询热门推荐商品失败")
+	}
+	return page, nil
+}
+
 // ListShopHot 查询热门推荐列表
 func (s *ShopHotService) ListShopHot(ctx context.Context, req *shopappv1.ListShopHotRequest) (*shopappv1.ListShopHotResponse, error) {
 	res, err := s.shopHotCase.ListShopHot(ctx)
@@ -57,14 +67,4 @@ func (s *ShopHotService) ListShopHotItem(ctx context.Context, req *shopappv1.Lis
 		return nil, errorsx.WrapInternal(err, "查询热门推荐选项失败")
 	}
 	return res, nil
-}
-
-// PageShopHotGoods 查询热门推荐商品
-func (s *ShopHotService) PageShopHotGoods(ctx context.Context, req *shopappv1.PageShopHotGoodsRequest) (*shopappv1.PageShopHotGoodsResponse, error) {
-	page, err := s.shopHotItemCase.PageShopHotGoods(ctx, req)
-	if err != nil {
-		log.Error(fmt.Sprintf("PageShopHotGoods %v", err))
-		return nil, errorsx.WrapInternal(err, "查询热门推荐商品失败")
-	}
-	return page, nil
 }

@@ -42,23 +42,6 @@ func NewCommentDiscussionCase(
 	}
 }
 
-// FindByID 按编号查询审核通过的评价讨论。
-func (c *CommentDiscussionCase) FindByID(ctx context.Context, discussionID int64) (*models.CommentDiscussion, error) {
-	query := c.Query(ctx).CommentDiscussion
-	opts := make([]repository.QueryOption, 0, 2)
-	opts = append(opts, repository.Where(query.ID.Eq(discussionID)))
-	opts = append(opts, repository.Where(query.Status.Eq(_const.COMMENT_STATUS_APPROVED)))
-	record, err := c.Find(ctx, opts...)
-	if err != nil {
-		// 当前讨论不存在时，明确返回资源不存在错误。
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errorsx.ResourceNotFound("讨论不存在")
-		}
-		return nil, err
-	}
-	return record, nil
-}
-
 // PageCommentDiscussion 查询评价讨论分页列表。
 func (c *CommentDiscussionCase) PageCommentDiscussion(
 	ctx context.Context,
@@ -198,6 +181,23 @@ func (c *CommentDiscussionCase) CreateDiscussion(
 
 	err = c.Create(ctx, record)
 	if err != nil {
+		return nil, err
+	}
+	return record, nil
+}
+
+// FindByID 按编号查询审核通过的评价讨论。
+func (c *CommentDiscussionCase) FindByID(ctx context.Context, discussionID int64) (*models.CommentDiscussion, error) {
+	query := c.Query(ctx).CommentDiscussion
+	opts := make([]repository.QueryOption, 0, 2)
+	opts = append(opts, repository.Where(query.ID.Eq(discussionID)))
+	opts = append(opts, repository.Where(query.Status.Eq(_const.COMMENT_STATUS_APPROVED)))
+	record, err := c.Find(ctx, opts...)
+	if err != nil {
+		// 当前讨论不存在时，明确返回资源不存在错误。
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errorsx.ResourceNotFound("讨论不存在")
+		}
 		return nil, err
 	}
 	return record, nil

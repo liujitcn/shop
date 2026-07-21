@@ -44,27 +44,6 @@ func NewCasbinRuleCase(
 	}, nil
 }
 
-// RebuildCasbinRuleByMenuID 按菜单重建角色权限
-func (c *CasbinRuleCase) RebuildCasbinRuleByMenuID(ctx context.Context, menuID int64) error {
-	baseRoleList, err := c.baseRoleRepo.List(ctx)
-	if err != nil {
-		return err
-	}
-
-	for _, item := range baseRoleList {
-		menus := _string.ConvertJsonStringToInt64Array(item.Menus)
-		// 当前角色未配置目标菜单时，无需重建该角色权限。
-		if !_set.NewThreadUnsafeSet(menus...).ContainsOne(menuID) {
-			continue
-		}
-		err = c.rebuildCasbinRuleByRole(ctx, item)
-		if err != nil {
-			return err
-		}
-	}
-	return c.RebuildPolicyRule(ctx)
-}
-
 // DeleteCasbinRuleByMenuIDs 按菜单批量删除角色权限
 func (c *CasbinRuleCase) DeleteCasbinRuleByMenuIDs(ctx context.Context, menuIDs []int64) error {
 	baseRoleList, err := c.baseRoleRepo.List(ctx)
@@ -83,24 +62,6 @@ func (c *CasbinRuleCase) DeleteCasbinRuleByMenuIDs(ctx context.Context, menuIDs 
 		if err != nil {
 			return err
 		}
-	}
-	return c.RebuildPolicyRule(ctx)
-}
-
-// RebuildCasbinRuleByRole 按角色重建权限规则
-func (c *CasbinRuleCase) RebuildCasbinRuleByRole(ctx context.Context, baseRole *models.BaseRole) error {
-	err := c.rebuildCasbinRuleByRole(ctx, baseRole)
-	if err != nil {
-		return err
-	}
-	return c.RebuildPolicyRule(ctx)
-}
-
-// RebuildCasbinRuleByTenantRole 按指定租户和角色模板重建权限规则。
-func (c *CasbinRuleCase) RebuildCasbinRuleByTenantRole(ctx context.Context, tenantCode string, baseRole *models.BaseRole) error {
-	err := c.rebuildCasbinRuleByTenantRole(ctx, tenantCode, baseRole)
-	if err != nil {
-		return err
 	}
 	return c.RebuildPolicyRule(ctx)
 }
@@ -131,6 +92,45 @@ func (c *CasbinRuleCase) DeleteCasbinRuleByRoleIDs(ctx context.Context, roleIDs 
 		if err != nil {
 			return err
 		}
+	}
+	return c.RebuildPolicyRule(ctx)
+}
+
+// RebuildCasbinRuleByMenuID 按菜单重建角色权限
+func (c *CasbinRuleCase) RebuildCasbinRuleByMenuID(ctx context.Context, menuID int64) error {
+	baseRoleList, err := c.baseRoleRepo.List(ctx)
+	if err != nil {
+		return err
+	}
+
+	for _, item := range baseRoleList {
+		menus := _string.ConvertJsonStringToInt64Array(item.Menus)
+		// 当前角色未配置目标菜单时，无需重建该角色权限。
+		if !_set.NewThreadUnsafeSet(menus...).ContainsOne(menuID) {
+			continue
+		}
+		err = c.rebuildCasbinRuleByRole(ctx, item)
+		if err != nil {
+			return err
+		}
+	}
+	return c.RebuildPolicyRule(ctx)
+}
+
+// RebuildCasbinRuleByRole 按角色重建权限规则
+func (c *CasbinRuleCase) RebuildCasbinRuleByRole(ctx context.Context, baseRole *models.BaseRole) error {
+	err := c.rebuildCasbinRuleByRole(ctx, baseRole)
+	if err != nil {
+		return err
+	}
+	return c.RebuildPolicyRule(ctx)
+}
+
+// RebuildCasbinRuleByTenantRole 按指定租户和角色模板重建权限规则。
+func (c *CasbinRuleCase) RebuildCasbinRuleByTenantRole(ctx context.Context, tenantCode string, baseRole *models.BaseRole) error {
+	err := c.rebuildCasbinRuleByTenantRole(ctx, tenantCode, baseRole)
+	if err != nil {
+		return err
 	}
 	return c.RebuildPolicyRule(ctx)
 }

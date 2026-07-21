@@ -16,17 +16,17 @@ import (
 // RegisterShopHotServiceMCPTools 注册Admin商城热门推荐服务的 MCP Tool。
 func RegisterShopHotServiceMCPTools(mcpServer *mcp.Server, shopHotServiceServer ShopHotServiceServer) {
 	RegisterShopHotServicePageShopHotMCPTool(mcpServer, shopHotServiceServer)
-	RegisterShopHotServiceGetShopHotMCPTool(mcpServer, shopHotServiceServer)
-	RegisterShopHotServiceCreateShopHotMCPTool(mcpServer, shopHotServiceServer)
-	RegisterShopHotServiceUpdateShopHotMCPTool(mcpServer, shopHotServiceServer)
-	RegisterShopHotServiceDeleteShopHotMCPTool(mcpServer, shopHotServiceServer)
-	RegisterShopHotServiceSetShopHotStatusMCPTool(mcpServer, shopHotServiceServer)
 	RegisterShopHotServicePageShopHotItemMCPTool(mcpServer, shopHotServiceServer)
+	RegisterShopHotServiceGetShopHotMCPTool(mcpServer, shopHotServiceServer)
 	RegisterShopHotServiceGetShopHotItemMCPTool(mcpServer, shopHotServiceServer)
+	RegisterShopHotServiceCreateShopHotMCPTool(mcpServer, shopHotServiceServer)
 	RegisterShopHotServiceCreateShopHotItemMCPTool(mcpServer, shopHotServiceServer)
+	RegisterShopHotServiceUpdateShopHotMCPTool(mcpServer, shopHotServiceServer)
 	RegisterShopHotServiceUpdateShopHotItemMCPTool(mcpServer, shopHotServiceServer)
+	RegisterShopHotServiceDeleteShopHotMCPTool(mcpServer, shopHotServiceServer)
 	RegisterShopHotServiceDeleteShopHotItemMCPTool(mcpServer, shopHotServiceServer)
 	RegisterShopHotServiceSetShopHotItemStatusMCPTool(mcpServer, shopHotServiceServer)
+	RegisterShopHotServiceSetShopHotStatusMCPTool(mcpServer, shopHotServiceServer)
 }
 
 // RegisterShopHotServicePageShopHotMCPTool 注册查询商城热门推荐列表的 MCP Tool。
@@ -42,111 +42,6 @@ func RegisterShopHotServicePageShopHotMCPTool(mcpServer *mcp.Server, shopHotServ
 				input = &PageShopHotRequest{}
 			}
 			reply, err := shopHotServiceServer.PageShopHot(ctx, input)
-			if err != nil {
-				return nil, nil, err
-			}
-			return nil, reply, nil
-		},
-	)
-}
-
-// RegisterShopHotServiceGetShopHotMCPTool 注册查询商城热门推荐的 MCP Tool。
-func RegisterShopHotServiceGetShopHotMCPTool(mcpServer *mcp.Server, shopHotServiceServer ShopHotServiceServer) {
-	mcp.AddTool[*GetShopHotRequest, *ShopHotForm](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "shop_admin_v1_shop_hot_service_get_shop_hot",
-			Description: "查询商城热门推荐",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetShopHotRequest) (*mcp.CallToolResult, *ShopHotForm, error) {
-			if input == nil {
-				input = &GetShopHotRequest{}
-			}
-			reply, err := shopHotServiceServer.GetShopHot(ctx, input)
-			if err != nil {
-				return nil, nil, err
-			}
-			return nil, reply, nil
-		},
-	)
-}
-
-// RegisterShopHotServiceCreateShopHotMCPTool 注册创建商城热门推荐的 MCP Tool。
-func RegisterShopHotServiceCreateShopHotMCPTool(mcpServer *mcp.Server, shopHotServiceServer ShopHotServiceServer) {
-	mcp.AddTool[*CreateShopHotRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "shop_admin_v1_shop_hot_service_create_shop_hot",
-			Description: "创建商城热门推荐",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *CreateShopHotRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &CreateShopHotRequest{}
-			}
-			reply, err := shopHotServiceServer.CreateShopHot(ctx, input)
-			if err != nil {
-				return nil, nil, err
-			}
-			return nil, reply, nil
-		},
-	)
-}
-
-// RegisterShopHotServiceUpdateShopHotMCPTool 注册更新商城热门推荐的 MCP Tool。
-func RegisterShopHotServiceUpdateShopHotMCPTool(mcpServer *mcp.Server, shopHotServiceServer ShopHotServiceServer) {
-	mcp.AddTool[*UpdateShopHotRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "shop_admin_v1_shop_hot_service_update_shop_hot",
-			Description: "更新商城热门推荐",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *UpdateShopHotRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &UpdateShopHotRequest{}
-			}
-			reply, err := shopHotServiceServer.UpdateShopHot(ctx, input)
-			if err != nil {
-				return nil, nil, err
-			}
-			return nil, reply, nil
-		},
-	)
-}
-
-// RegisterShopHotServiceDeleteShopHotMCPTool 注册删除商城热门推荐的 MCP Tool。
-func RegisterShopHotServiceDeleteShopHotMCPTool(mcpServer *mcp.Server, shopHotServiceServer ShopHotServiceServer) {
-	mcp.AddTool[*DeleteShopHotRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "shop_admin_v1_shop_hot_service_delete_shop_hot",
-			Description: "删除商城热门推荐",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *DeleteShopHotRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &DeleteShopHotRequest{}
-			}
-			reply, err := shopHotServiceServer.DeleteShopHot(ctx, input)
-			if err != nil {
-				return nil, nil, err
-			}
-			return nil, reply, nil
-		},
-	)
-}
-
-// RegisterShopHotServiceSetShopHotStatusMCPTool 注册设置状态的 MCP Tool。
-func RegisterShopHotServiceSetShopHotStatusMCPTool(mcpServer *mcp.Server, shopHotServiceServer ShopHotServiceServer) {
-	mcp.AddTool[*SetShopHotStatusRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "shop_admin_v1_shop_hot_service_set_shop_hot_status",
-			Description: "设置状态",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *SetShopHotStatusRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &SetShopHotStatusRequest{}
-			}
-			reply, err := shopHotServiceServer.SetShopHotStatus(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -176,6 +71,27 @@ func RegisterShopHotServicePageShopHotItemMCPTool(mcpServer *mcp.Server, shopHot
 	)
 }
 
+// RegisterShopHotServiceGetShopHotMCPTool 注册查询商城热门推荐的 MCP Tool。
+func RegisterShopHotServiceGetShopHotMCPTool(mcpServer *mcp.Server, shopHotServiceServer ShopHotServiceServer) {
+	mcp.AddTool[*GetShopHotRequest, *ShopHotForm](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "shop_admin_v1_shop_hot_service_get_shop_hot",
+			Description: "查询商城热门推荐",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *GetShopHotRequest) (*mcp.CallToolResult, *ShopHotForm, error) {
+			if input == nil {
+				input = &GetShopHotRequest{}
+			}
+			reply, err := shopHotServiceServer.GetShopHot(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
+}
+
 // RegisterShopHotServiceGetShopHotItemMCPTool 注册查询商城热门推荐属性的 MCP Tool。
 func RegisterShopHotServiceGetShopHotItemMCPTool(mcpServer *mcp.Server, shopHotServiceServer ShopHotServiceServer) {
 	mcp.AddTool[*GetShopHotItemRequest, *ShopHotItemForm](
@@ -189,6 +105,27 @@ func RegisterShopHotServiceGetShopHotItemMCPTool(mcpServer *mcp.Server, shopHotS
 				input = &GetShopHotItemRequest{}
 			}
 			reply, err := shopHotServiceServer.GetShopHotItem(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
+}
+
+// RegisterShopHotServiceCreateShopHotMCPTool 注册创建商城热门推荐的 MCP Tool。
+func RegisterShopHotServiceCreateShopHotMCPTool(mcpServer *mcp.Server, shopHotServiceServer ShopHotServiceServer) {
+	mcp.AddTool[*CreateShopHotRequest, *emptypb.Empty](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "shop_admin_v1_shop_hot_service_create_shop_hot",
+			Description: "创建商城热门推荐",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *CreateShopHotRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
+			if input == nil {
+				input = &CreateShopHotRequest{}
+			}
+			reply, err := shopHotServiceServer.CreateShopHot(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -218,6 +155,27 @@ func RegisterShopHotServiceCreateShopHotItemMCPTool(mcpServer *mcp.Server, shopH
 	)
 }
 
+// RegisterShopHotServiceUpdateShopHotMCPTool 注册更新商城热门推荐的 MCP Tool。
+func RegisterShopHotServiceUpdateShopHotMCPTool(mcpServer *mcp.Server, shopHotServiceServer ShopHotServiceServer) {
+	mcp.AddTool[*UpdateShopHotRequest, *emptypb.Empty](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "shop_admin_v1_shop_hot_service_update_shop_hot",
+			Description: "更新商城热门推荐",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *UpdateShopHotRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
+			if input == nil {
+				input = &UpdateShopHotRequest{}
+			}
+			reply, err := shopHotServiceServer.UpdateShopHot(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
+}
+
 // RegisterShopHotServiceUpdateShopHotItemMCPTool 注册更新商城热门推荐属性的 MCP Tool。
 func RegisterShopHotServiceUpdateShopHotItemMCPTool(mcpServer *mcp.Server, shopHotServiceServer ShopHotServiceServer) {
 	mcp.AddTool[*UpdateShopHotItemRequest, *emptypb.Empty](
@@ -231,6 +189,27 @@ func RegisterShopHotServiceUpdateShopHotItemMCPTool(mcpServer *mcp.Server, shopH
 				input = &UpdateShopHotItemRequest{}
 			}
 			reply, err := shopHotServiceServer.UpdateShopHotItem(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
+}
+
+// RegisterShopHotServiceDeleteShopHotMCPTool 注册删除商城热门推荐的 MCP Tool。
+func RegisterShopHotServiceDeleteShopHotMCPTool(mcpServer *mcp.Server, shopHotServiceServer ShopHotServiceServer) {
+	mcp.AddTool[*DeleteShopHotRequest, *emptypb.Empty](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "shop_admin_v1_shop_hot_service_delete_shop_hot",
+			Description: "删除商城热门推荐",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *DeleteShopHotRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
+			if input == nil {
+				input = &DeleteShopHotRequest{}
+			}
+			reply, err := shopHotServiceServer.DeleteShopHot(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -273,6 +252,27 @@ func RegisterShopHotServiceSetShopHotItemStatusMCPTool(mcpServer *mcp.Server, sh
 				input = &SetShopHotItemStatusRequest{}
 			}
 			reply, err := shopHotServiceServer.SetShopHotItemStatus(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
+}
+
+// RegisterShopHotServiceSetShopHotStatusMCPTool 注册设置状态的 MCP Tool。
+func RegisterShopHotServiceSetShopHotStatusMCPTool(mcpServer *mcp.Server, shopHotServiceServer ShopHotServiceServer) {
+	mcp.AddTool[*SetShopHotStatusRequest, *emptypb.Empty](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "shop_admin_v1_shop_hot_service_set_shop_hot_status",
+			Description: "设置状态",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *SetShopHotStatusRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
+			if input == nil {
+				input = &SetShopHotStatusRequest{}
+			}
+			reply, err := shopHotServiceServer.SetShopHotStatus(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

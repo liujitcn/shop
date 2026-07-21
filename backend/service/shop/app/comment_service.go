@@ -29,22 +29,12 @@ func NewCommentInfoService(commentCase *biz.CommentCase) *CommentInfoService {
 	return &ss
 }
 
-// GoodsCommentOverview 查询商品评价摘要。
-func (s *CommentInfoService) GoodsCommentOverview(ctx context.Context, req *shopappv1.GoodsCommentOverviewRequest) (*shopappv1.GoodsCommentOverviewResponse, error) {
-	res, err := s.commentCase.GoodsCommentOverview(ctx, req)
+// PageCommentDiscussion 查询评价讨论分页列表。
+func (s *CommentInfoService) PageCommentDiscussion(ctx context.Context, req *shopappv1.PageCommentDiscussionRequest) (*shopappv1.PageCommentDiscussionResponse, error) {
+	res, err := s.commentCase.PageCommentDiscussion(ctx, req)
 	if err != nil {
-		log.Error(fmt.Sprintf("GoodsCommentOverview %v", err))
-		return nil, errorsx.WrapInternal(err, "查询商品评价摘要失败")
-	}
-	return res, nil
-}
-
-// GoodsCommentTag 查询商品评价标签列表。
-func (s *CommentInfoService) GoodsCommentTag(ctx context.Context, req *shopappv1.GoodsCommentTagRequest) (*shopappv1.GoodsCommentTagResponse, error) {
-	res, err := s.commentCase.GoodsCommentTag(ctx, req)
-	if err != nil {
-		log.Error(fmt.Sprintf("GoodsCommentTag %v", err))
-		return nil, errorsx.WrapInternal(err, "查询商品评价标签失败")
+		log.Error(fmt.Sprintf("PageCommentDiscussion %v", err))
+		return nil, errorsx.WrapInternal(err, "查询评价讨论失败")
 	}
 	return res, nil
 }
@@ -59,32 +49,12 @@ func (s *CommentInfoService) PageGoodsComment(ctx context.Context, req *shopappv
 	return res, nil
 }
 
-// PageCommentDiscussion 查询评价讨论分页列表。
-func (s *CommentInfoService) PageCommentDiscussion(ctx context.Context, req *shopappv1.PageCommentDiscussionRequest) (*shopappv1.PageCommentDiscussionResponse, error) {
-	res, err := s.commentCase.PageCommentDiscussion(ctx, req)
+// PageMyComment 查询我的评价分页列表。
+func (s *CommentInfoService) PageMyComment(ctx context.Context, req *shopappv1.PageMyCommentRequest) (*shopappv1.PageMyCommentResponse, error) {
+	res, err := s.commentCase.PageMyComment(ctx, req)
 	if err != nil {
-		log.Error(fmt.Sprintf("PageCommentDiscussion %v", err))
-		return nil, errorsx.WrapInternal(err, "查询评价讨论失败")
-	}
-	return res, nil
-}
-
-// CreateCommentDiscussion 发布评价讨论。
-func (s *CommentInfoService) CreateCommentDiscussion(ctx context.Context, req *shopappv1.CreateCommentDiscussionRequest) (*shopappv1.CreateCommentDiscussionResponse, error) {
-	res, err := s.commentCase.CreateCommentDiscussion(ctx, req)
-	if err != nil {
-		log.Error(fmt.Sprintf("CreateCommentDiscussion %v", err))
-		return nil, errorsx.WrapInternal(err, "发布评价讨论失败")
-	}
-	return res, nil
-}
-
-// SaveCommentReaction 保存评价互动状态。
-func (s *CommentInfoService) SaveCommentReaction(ctx context.Context, req *shopappv1.SaveCommentReactionRequest) (*shopappv1.SaveCommentReactionResponse, error) {
-	res, err := s.commentCase.SaveCommentReaction(ctx, req)
-	if err != nil {
-		log.Error(fmt.Sprintf("SaveCommentReaction %v", err))
-		return nil, errorsx.WrapInternal(err, "保存评价互动状态失败")
+		log.Error(fmt.Sprintf("PageMyComment %v", err))
+		return nil, errorsx.WrapInternal(err, "查询我的评价失败")
 	}
 	return res, nil
 }
@@ -109,6 +79,16 @@ func (s *CommentInfoService) CreateComment(ctx context.Context, req *shopappv1.C
 	return res, nil
 }
 
+// CreateCommentDiscussion 发布评价讨论。
+func (s *CommentInfoService) CreateCommentDiscussion(ctx context.Context, req *shopappv1.CreateCommentDiscussionRequest) (*shopappv1.CreateCommentDiscussionResponse, error) {
+	res, err := s.commentCase.CreateCommentDiscussion(ctx, req)
+	if err != nil {
+		log.Error(fmt.Sprintf("CreateCommentDiscussion %v", err))
+		return nil, errorsx.WrapInternal(err, "发布评价讨论失败")
+	}
+	return res, nil
+}
+
 // DeleteComment 删除商品评价。
 func (s *CommentInfoService) DeleteComment(ctx context.Context, req *shopappv1.DeleteCommentRequest) (*emptypb.Empty, error) {
 	err := s.commentCase.DeleteComment(ctx, req.GetId())
@@ -119,12 +99,32 @@ func (s *CommentInfoService) DeleteComment(ctx context.Context, req *shopappv1.D
 	return &emptypb.Empty{}, nil
 }
 
-// PageMyComment 查询我的评价分页列表。
-func (s *CommentInfoService) PageMyComment(ctx context.Context, req *shopappv1.PageMyCommentRequest) (*shopappv1.PageMyCommentResponse, error) {
-	res, err := s.commentCase.PageMyComment(ctx, req)
+// GoodsCommentOverview 查询商品评价摘要。
+func (s *CommentInfoService) GoodsCommentOverview(ctx context.Context, req *shopappv1.GoodsCommentOverviewRequest) (*shopappv1.GoodsCommentOverviewResponse, error) {
+	res, err := s.commentCase.GoodsCommentOverview(ctx, req)
 	if err != nil {
-		log.Error(fmt.Sprintf("PageMyComment %v", err))
-		return nil, errorsx.WrapInternal(err, "查询我的评价失败")
+		log.Error(fmt.Sprintf("GoodsCommentOverview %v", err))
+		return nil, errorsx.WrapInternal(err, "查询商品评价摘要失败")
+	}
+	return res, nil
+}
+
+// GoodsCommentTag 查询商品评价标签列表。
+func (s *CommentInfoService) GoodsCommentTag(ctx context.Context, req *shopappv1.GoodsCommentTagRequest) (*shopappv1.GoodsCommentTagResponse, error) {
+	res, err := s.commentCase.GoodsCommentTag(ctx, req)
+	if err != nil {
+		log.Error(fmt.Sprintf("GoodsCommentTag %v", err))
+		return nil, errorsx.WrapInternal(err, "查询商品评价标签失败")
+	}
+	return res, nil
+}
+
+// SaveCommentReaction 保存评价互动状态。
+func (s *CommentInfoService) SaveCommentReaction(ctx context.Context, req *shopappv1.SaveCommentReactionRequest) (*shopappv1.SaveCommentReactionResponse, error) {
+	res, err := s.commentCase.SaveCommentReaction(ctx, req)
+	if err != nil {
+		log.Error(fmt.Sprintf("SaveCommentReaction %v", err))
+		return nil, errorsx.WrapInternal(err, "保存评价互动状态失败")
 	}
 	return res, nil
 }

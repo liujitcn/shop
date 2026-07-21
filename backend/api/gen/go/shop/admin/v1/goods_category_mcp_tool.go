@@ -15,34 +15,13 @@ import (
 
 // RegisterGoodsCategoryServiceMCPTools 注册Admin商品分类服务的 MCP Tool。
 func RegisterGoodsCategoryServiceMCPTools(mcpServer *mcp.Server, goodsCategoryServiceServer GoodsCategoryServiceServer) {
-	RegisterGoodsCategoryServiceTreeGoodsCategoryMCPTool(mcpServer, goodsCategoryServiceServer)
 	RegisterGoodsCategoryServiceOptionGoodsCategoryMCPTool(mcpServer, goodsCategoryServiceServer)
+	RegisterGoodsCategoryServiceTreeGoodsCategoryMCPTool(mcpServer, goodsCategoryServiceServer)
 	RegisterGoodsCategoryServiceGetGoodsCategoryMCPTool(mcpServer, goodsCategoryServiceServer)
 	RegisterGoodsCategoryServiceCreateGoodsCategoryMCPTool(mcpServer, goodsCategoryServiceServer)
 	RegisterGoodsCategoryServiceUpdateGoodsCategoryMCPTool(mcpServer, goodsCategoryServiceServer)
 	RegisterGoodsCategoryServiceDeleteGoodsCategoryMCPTool(mcpServer, goodsCategoryServiceServer)
 	RegisterGoodsCategoryServiceSetGoodsCategoryStatusMCPTool(mcpServer, goodsCategoryServiceServer)
-}
-
-// RegisterGoodsCategoryServiceTreeGoodsCategoryMCPTool 注册查询商品分类树形列表的 MCP Tool。
-func RegisterGoodsCategoryServiceTreeGoodsCategoryMCPTool(mcpServer *mcp.Server, goodsCategoryServiceServer GoodsCategoryServiceServer) {
-	mcp.AddTool[*TreeGoodsCategoryRequest, any](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "shop_admin_v1_goods_category_service_tree_goods_category",
-			Description: "查询商品分类树形列表",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *TreeGoodsCategoryRequest) (*mcp.CallToolResult, any, error) {
-			if input == nil {
-				input = &TreeGoodsCategoryRequest{}
-			}
-			reply, err := goodsCategoryServiceServer.TreeGoodsCategory(ctx, input)
-			if err != nil {
-				return nil, nil, err
-			}
-			return nil, reply, nil
-		},
-	)
 }
 
 // RegisterGoodsCategoryServiceOptionGoodsCategoryMCPTool 注册查询商品分类树形选择的 MCP Tool。
@@ -58,6 +37,27 @@ func RegisterGoodsCategoryServiceOptionGoodsCategoryMCPTool(mcpServer *mcp.Serve
 				input = &OptionGoodsCategoryRequest{}
 			}
 			reply, err := goodsCategoryServiceServer.OptionGoodsCategory(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
+}
+
+// RegisterGoodsCategoryServiceTreeGoodsCategoryMCPTool 注册查询商品分类树形列表的 MCP Tool。
+func RegisterGoodsCategoryServiceTreeGoodsCategoryMCPTool(mcpServer *mcp.Server, goodsCategoryServiceServer GoodsCategoryServiceServer) {
+	mcp.AddTool[*TreeGoodsCategoryRequest, any](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "shop_admin_v1_goods_category_service_tree_goods_category",
+			Description: "查询商品分类树形列表",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *TreeGoodsCategoryRequest) (*mcp.CallToolResult, any, error) {
+			if input == nil {
+				input = &TreeGoodsCategoryRequest{}
+			}
+			reply, err := goodsCategoryServiceServer.TreeGoodsCategory(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

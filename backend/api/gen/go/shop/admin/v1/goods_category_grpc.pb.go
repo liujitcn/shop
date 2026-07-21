@@ -22,8 +22,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	GoodsCategoryService_TreeGoodsCategory_FullMethodName      = "/shop.admin.v1.GoodsCategoryService/TreeGoodsCategory"
 	GoodsCategoryService_OptionGoodsCategory_FullMethodName    = "/shop.admin.v1.GoodsCategoryService/OptionGoodsCategory"
+	GoodsCategoryService_TreeGoodsCategory_FullMethodName      = "/shop.admin.v1.GoodsCategoryService/TreeGoodsCategory"
 	GoodsCategoryService_GetGoodsCategory_FullMethodName       = "/shop.admin.v1.GoodsCategoryService/GetGoodsCategory"
 	GoodsCategoryService_CreateGoodsCategory_FullMethodName    = "/shop.admin.v1.GoodsCategoryService/CreateGoodsCategory"
 	GoodsCategoryService_UpdateGoodsCategory_FullMethodName    = "/shop.admin.v1.GoodsCategoryService/UpdateGoodsCategory"
@@ -37,10 +37,10 @@ const (
 //
 // Admin商品分类服务
 type GoodsCategoryServiceClient interface {
-	// 查询商品分类树形列表
-	TreeGoodsCategory(ctx context.Context, in *TreeGoodsCategoryRequest, opts ...grpc.CallOption) (*TreeGoodsCategoryResponse, error)
 	// 查询商品分类树形选择
 	OptionGoodsCategory(ctx context.Context, in *OptionGoodsCategoryRequest, opts ...grpc.CallOption) (*v1.TreeOptionResponse, error)
+	// 查询商品分类树形列表
+	TreeGoodsCategory(ctx context.Context, in *TreeGoodsCategoryRequest, opts ...grpc.CallOption) (*TreeGoodsCategoryResponse, error)
 	// 查询商品分类
 	GetGoodsCategory(ctx context.Context, in *GetGoodsCategoryRequest, opts ...grpc.CallOption) (*GoodsCategoryForm, error)
 	// 创建商品分类
@@ -61,20 +61,20 @@ func NewGoodsCategoryServiceClient(cc grpc.ClientConnInterface) GoodsCategorySer
 	return &goodsCategoryServiceClient{cc}
 }
 
-func (c *goodsCategoryServiceClient) TreeGoodsCategory(ctx context.Context, in *TreeGoodsCategoryRequest, opts ...grpc.CallOption) (*TreeGoodsCategoryResponse, error) {
+func (c *goodsCategoryServiceClient) OptionGoodsCategory(ctx context.Context, in *OptionGoodsCategoryRequest, opts ...grpc.CallOption) (*v1.TreeOptionResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(TreeGoodsCategoryResponse)
-	err := c.cc.Invoke(ctx, GoodsCategoryService_TreeGoodsCategory_FullMethodName, in, out, cOpts...)
+	out := new(v1.TreeOptionResponse)
+	err := c.cc.Invoke(ctx, GoodsCategoryService_OptionGoodsCategory_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *goodsCategoryServiceClient) OptionGoodsCategory(ctx context.Context, in *OptionGoodsCategoryRequest, opts ...grpc.CallOption) (*v1.TreeOptionResponse, error) {
+func (c *goodsCategoryServiceClient) TreeGoodsCategory(ctx context.Context, in *TreeGoodsCategoryRequest, opts ...grpc.CallOption) (*TreeGoodsCategoryResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(v1.TreeOptionResponse)
-	err := c.cc.Invoke(ctx, GoodsCategoryService_OptionGoodsCategory_FullMethodName, in, out, cOpts...)
+	out := new(TreeGoodsCategoryResponse)
+	err := c.cc.Invoke(ctx, GoodsCategoryService_TreeGoodsCategory_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -137,10 +137,10 @@ func (c *goodsCategoryServiceClient) SetGoodsCategoryStatus(ctx context.Context,
 //
 // Admin商品分类服务
 type GoodsCategoryServiceServer interface {
-	// 查询商品分类树形列表
-	TreeGoodsCategory(context.Context, *TreeGoodsCategoryRequest) (*TreeGoodsCategoryResponse, error)
 	// 查询商品分类树形选择
 	OptionGoodsCategory(context.Context, *OptionGoodsCategoryRequest) (*v1.TreeOptionResponse, error)
+	// 查询商品分类树形列表
+	TreeGoodsCategory(context.Context, *TreeGoodsCategoryRequest) (*TreeGoodsCategoryResponse, error)
 	// 查询商品分类
 	GetGoodsCategory(context.Context, *GetGoodsCategoryRequest) (*GoodsCategoryForm, error)
 	// 创建商品分类
@@ -161,11 +161,11 @@ type GoodsCategoryServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedGoodsCategoryServiceServer struct{}
 
-func (UnimplementedGoodsCategoryServiceServer) TreeGoodsCategory(context.Context, *TreeGoodsCategoryRequest) (*TreeGoodsCategoryResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method TreeGoodsCategory not implemented")
-}
 func (UnimplementedGoodsCategoryServiceServer) OptionGoodsCategory(context.Context, *OptionGoodsCategoryRequest) (*v1.TreeOptionResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method OptionGoodsCategory not implemented")
+}
+func (UnimplementedGoodsCategoryServiceServer) TreeGoodsCategory(context.Context, *TreeGoodsCategoryRequest) (*TreeGoodsCategoryResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method TreeGoodsCategory not implemented")
 }
 func (UnimplementedGoodsCategoryServiceServer) GetGoodsCategory(context.Context, *GetGoodsCategoryRequest) (*GoodsCategoryForm, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetGoodsCategory not implemented")
@@ -203,24 +203,6 @@ func RegisterGoodsCategoryServiceServer(s grpc.ServiceRegistrar, srv GoodsCatego
 	s.RegisterService(&GoodsCategoryService_ServiceDesc, srv)
 }
 
-func _GoodsCategoryService_TreeGoodsCategory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(TreeGoodsCategoryRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(GoodsCategoryServiceServer).TreeGoodsCategory(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: GoodsCategoryService_TreeGoodsCategory_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GoodsCategoryServiceServer).TreeGoodsCategory(ctx, req.(*TreeGoodsCategoryRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _GoodsCategoryService_OptionGoodsCategory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(OptionGoodsCategoryRequest)
 	if err := dec(in); err != nil {
@@ -235,6 +217,24 @@ func _GoodsCategoryService_OptionGoodsCategory_Handler(srv interface{}, ctx cont
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(GoodsCategoryServiceServer).OptionGoodsCategory(ctx, req.(*OptionGoodsCategoryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _GoodsCategoryService_TreeGoodsCategory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TreeGoodsCategoryRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GoodsCategoryServiceServer).TreeGoodsCategory(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GoodsCategoryService_TreeGoodsCategory_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GoodsCategoryServiceServer).TreeGoodsCategory(ctx, req.(*TreeGoodsCategoryRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -337,12 +337,12 @@ var GoodsCategoryService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*GoodsCategoryServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "TreeGoodsCategory",
-			Handler:    _GoodsCategoryService_TreeGoodsCategory_Handler,
-		},
-		{
 			MethodName: "OptionGoodsCategory",
 			Handler:    _GoodsCategoryService_OptionGoodsCategory_Handler,
+		},
+		{
+			MethodName: "TreeGoodsCategory",
+			Handler:    _GoodsCategoryService_TreeGoodsCategory_Handler,
 		},
 		{
 			MethodName: "GetGoodsCategory",

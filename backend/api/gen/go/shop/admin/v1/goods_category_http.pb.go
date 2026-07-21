@@ -47,32 +47,13 @@ type GoodsCategoryServiceHTTPServer interface {
 
 func RegisterGoodsCategoryServiceHTTPServer(s *http.Server, srv GoodsCategoryServiceHTTPServer) {
 	r := s.Route("/")
-	r.Handle("GET", "/api/v1/admin/goods/category/tree", _GoodsCategoryService_TreeGoodsCategory0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/goods/category/option", _GoodsCategoryService_OptionGoodsCategory0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/goods/category/tree", _GoodsCategoryService_TreeGoodsCategory0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/goods/category/{id}", _GoodsCategoryService_GetGoodsCategory0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/admin/goods/category", _GoodsCategoryService_CreateGoodsCategory0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/goods/category/{id}", _GoodsCategoryService_UpdateGoodsCategory0_HTTP_Handler(srv))
 	r.Handle("DELETE", "/api/v1/admin/goods/category/{ids}", _GoodsCategoryService_DeleteGoodsCategory0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/goods/category/{id}/status", _GoodsCategoryService_SetGoodsCategoryStatus0_HTTP_Handler(srv))
-}
-
-func _GoodsCategoryService_TreeGoodsCategory0_HTTP_Handler(srv GoodsCategoryServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in TreeGoodsCategoryRequest
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationGoodsCategoryServiceTreeGoodsCategory)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.TreeGoodsCategory(ctx, req.(*TreeGoodsCategoryRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*TreeGoodsCategoryResponse)
-		return ctx.Result(200, reply)
-	}
 }
 
 func _GoodsCategoryService_OptionGoodsCategory0_HTTP_Handler(srv GoodsCategoryServiceHTTPServer) func(ctx http.Context) error {
@@ -90,6 +71,25 @@ func _GoodsCategoryService_OptionGoodsCategory0_HTTP_Handler(srv GoodsCategorySe
 			return err
 		}
 		reply := out.(*v1.TreeOptionResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _GoodsCategoryService_TreeGoodsCategory0_HTTP_Handler(srv GoodsCategoryServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in TreeGoodsCategoryRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationGoodsCategoryServiceTreeGoodsCategory)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.TreeGoodsCategory(ctx, req.(*TreeGoodsCategoryRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*TreeGoodsCategoryResponse)
 		return ctx.Result(200, reply)
 	}
 }

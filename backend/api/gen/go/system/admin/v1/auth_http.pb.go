@@ -50,33 +50,14 @@ type AuthServiceHTTPServer interface {
 
 func RegisterAuthServiceHTTPServer(s *http.Server, srv AuthServiceHTTPServer) {
 	r := s.Route("/")
-	r.Handle("GET", "/api/v1/admin/auth/user", _AuthService_GetUserInfo0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/auth/menu/tree", _AuthService_TreeUserMenu0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/auth/buttons", _AuthService_ListUserButton0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/auth/user", _AuthService_GetUserInfo0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/auth/profile", _AuthService_GetUserProfile0_HTTP_Handler(srv))
+	r.Handle("PUT", "/api/v1/admin/auth/password", _AuthService_UpdateUserPassword0_HTTP_Handler(srv))
+	r.Handle("PUT", "/api/v1/admin/auth/phone", _AuthService_UpdateUserPhone0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/auth/profile", _AuthService_UpdateUserProfile0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/admin/auth/phone/code", _AuthService_SendPhoneCode0_HTTP_Handler(srv))
-	r.Handle("PUT", "/api/v1/admin/auth/phone", _AuthService_UpdateUserPhone0_HTTP_Handler(srv))
-	r.Handle("PUT", "/api/v1/admin/auth/password", _AuthService_UpdateUserPassword0_HTTP_Handler(srv))
-}
-
-func _AuthService_GetUserInfo0_HTTP_Handler(srv AuthServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in GetUserInfoRequest
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationAuthServiceGetUserInfo)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.GetUserInfo(ctx, req.(*GetUserInfoRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*UserInfoForm)
-		return ctx.Result(200, reply)
-	}
 }
 
 func _AuthService_TreeUserMenu0_HTTP_Handler(srv AuthServiceHTTPServer) func(ctx http.Context) error {
@@ -117,6 +98,25 @@ func _AuthService_ListUserButton0_HTTP_Handler(srv AuthServiceHTTPServer) func(c
 	}
 }
 
+func _AuthService_GetUserInfo0_HTTP_Handler(srv AuthServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetUserInfoRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAuthServiceGetUserInfo)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetUserInfo(ctx, req.(*GetUserInfoRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*UserInfoForm)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _AuthService_GetUserProfile0_HTTP_Handler(srv AuthServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in GetUserProfileRequest
@@ -132,6 +132,50 @@ func _AuthService_GetUserProfile0_HTTP_Handler(srv AuthServiceHTTPServer) func(c
 			return err
 		}
 		reply := out.(*UserProfileForm)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _AuthService_UpdateUserPassword0_HTTP_Handler(srv AuthServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in UpdateUserPasswordRequest
+		if err := ctx.Bind(&in.UserPassword); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAuthServiceUpdateUserPassword)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.UpdateUserPassword(ctx, req.(*UpdateUserPasswordRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _AuthService_UpdateUserPhone0_HTTP_Handler(srv AuthServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in UpdateUserPhoneRequest
+		if err := ctx.Bind(&in.UserPhone); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAuthServiceUpdateUserPhone)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.UpdateUserPhone(ctx, req.(*UpdateUserPhoneRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
 		return ctx.Result(200, reply)
 	}
 }
@@ -167,50 +211,6 @@ func _AuthService_SendPhoneCode0_HTTP_Handler(srv AuthServiceHTTPServer) func(ct
 		http.SetOperation(ctx, OperationAuthServiceSendPhoneCode)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
 			return srv.SendPhoneCode(ctx, req.(*SendPhoneCodeRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*emptypb.Empty)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _AuthService_UpdateUserPhone0_HTTP_Handler(srv AuthServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in UpdateUserPhoneRequest
-		if err := ctx.Bind(&in.UserPhone); err != nil {
-			return err
-		}
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationAuthServiceUpdateUserPhone)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.UpdateUserPhone(ctx, req.(*UpdateUserPhoneRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*emptypb.Empty)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _AuthService_UpdateUserPassword0_HTTP_Handler(srv AuthServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in UpdateUserPasswordRequest
-		if err := ctx.Bind(&in.UserPassword); err != nil {
-			return err
-		}
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationAuthServiceUpdateUserPassword)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.UpdateUserPassword(ctx, req.(*UpdateUserPasswordRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {

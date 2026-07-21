@@ -84,6 +84,29 @@ func (c *CommentDiscussionCase) PageCommentDiscussion(ctx context.Context, req *
 	return &shopadminv1.PageCommentDiscussionResponse{CommentDiscussions: resList, Total: int32(total)}, nil
 }
 
+// ListByCommentIDs 查询评论讨论列表。
+func (c *CommentDiscussionCase) ListByCommentIDs(ctx context.Context, commentIDs []int64) ([]*shopadminv1.CommentDiscussion, error) {
+	resList := make([]*shopadminv1.CommentDiscussion, 0)
+	// 没有评论编号时，直接返回空讨论列表。
+	if len(commentIDs) == 0 {
+		return resList, nil
+	}
+
+	query := c.Query(ctx).CommentDiscussion
+	opts := make([]repository.QueryOption, 0, 2)
+	opts = append(opts, repository.Where(query.CommentID.In(commentIDs...)))
+	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
+	list, err := c.List(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, item := range list {
+		resList = append(resList, c.discussionMapper.ToDTO(item))
+	}
+	return resList, nil
+}
+
 // SetCommentDiscussionStatus 设置评论讨论审核状态。
 func (c *CommentDiscussionCase) SetCommentDiscussionStatus(ctx context.Context, req *shopadminv1.SetCommentDiscussionStatusRequest) error {
 	err := validateCommentStatus(int32(req.GetStatus()))
@@ -136,29 +159,6 @@ func (c *CommentDiscussionCase) SetCommentDiscussionStatus(ctx context.Context, 
 	}
 	workspaceevent.Publish(ctx, workspaceevent.ReasonCommentChanged, workspaceevent.AreaTodo, workspaceevent.AreaReputation)
 	return nil
-}
-
-// ListByCommentIDs 查询评论讨论列表。
-func (c *CommentDiscussionCase) ListByCommentIDs(ctx context.Context, commentIDs []int64) ([]*shopadminv1.CommentDiscussion, error) {
-	resList := make([]*shopadminv1.CommentDiscussion, 0)
-	// 没有评论编号时，直接返回空讨论列表。
-	if len(commentIDs) == 0 {
-		return resList, nil
-	}
-
-	query := c.Query(ctx).CommentDiscussion
-	opts := make([]repository.QueryOption, 0, 2)
-	opts = append(opts, repository.Where(query.CommentID.In(commentIDs...)))
-	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
-	list, err := c.List(ctx, opts...)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, item := range list {
-		resList = append(resList, c.discussionMapper.ToDTO(item))
-	}
-	return resList, nil
 }
 
 // operatorName 查询后台操作人展示名称。

@@ -34,31 +34,9 @@ type CodeGenColumnServiceHTTPServer interface {
 
 func RegisterCodeGenColumnServiceHTTPServer(s *http.Server, srv CodeGenColumnServiceHTTPServer) {
 	r := s.Route("/")
-	r.Handle("GET", "/api/v1/admin/code-gen/database/table/{table_name}/column", _CodeGenColumnService_ListCodeGenDatabaseColumn0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/code-gen/table/{table_id}/column", _CodeGenColumnService_ListCodeGenColumn0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/code-gen/database/table/{table_name}/column", _CodeGenColumnService_ListCodeGenDatabaseColumn0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/code-gen/table/{table_id}/column", _CodeGenColumnService_SaveCodeGenColumn0_HTTP_Handler(srv))
-}
-
-func _CodeGenColumnService_ListCodeGenDatabaseColumn0_HTTP_Handler(srv CodeGenColumnServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in ListCodeGenDatabaseColumnRequest
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		if err := ctx.BindVars(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationCodeGenColumnServiceListCodeGenDatabaseColumn)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.ListCodeGenDatabaseColumn(ctx, req.(*ListCodeGenDatabaseColumnRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*ListCodeGenDatabaseColumnResponse)
-		return ctx.Result(200, reply)
-	}
 }
 
 func _CodeGenColumnService_ListCodeGenColumn0_HTTP_Handler(srv CodeGenColumnServiceHTTPServer) func(ctx http.Context) error {
@@ -79,6 +57,28 @@ func _CodeGenColumnService_ListCodeGenColumn0_HTTP_Handler(srv CodeGenColumnServ
 			return err
 		}
 		reply := out.(*ListCodeGenColumnResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _CodeGenColumnService_ListCodeGenDatabaseColumn0_HTTP_Handler(srv CodeGenColumnServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in ListCodeGenDatabaseColumnRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationCodeGenColumnServiceListCodeGenDatabaseColumn)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.ListCodeGenDatabaseColumn(ctx, req.(*ListCodeGenDatabaseColumnRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*ListCodeGenDatabaseColumnResponse)
 		return ctx.Result(200, reply)
 	}
 }

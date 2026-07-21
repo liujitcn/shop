@@ -15,52 +15,31 @@ import (
 
 // RegisterCommentInfoServiceMCPTools 注册App评论服务的 MCP Tool。
 func RegisterCommentInfoServiceMCPTools(mcpServer *mcp.Server, commentInfoServiceServer CommentInfoServiceServer) {
-	RegisterCommentInfoServiceGoodsCommentOverviewMCPTool(mcpServer, commentInfoServiceServer)
-	RegisterCommentInfoServiceGoodsCommentTagMCPTool(mcpServer, commentInfoServiceServer)
-	RegisterCommentInfoServicePageGoodsCommentMCPTool(mcpServer, commentInfoServiceServer)
 	RegisterCommentInfoServicePageCommentDiscussionMCPTool(mcpServer, commentInfoServiceServer)
-	RegisterCommentInfoServiceCreateCommentDiscussionMCPTool(mcpServer, commentInfoServiceServer)
-	RegisterCommentInfoServiceSaveCommentReactionMCPTool(mcpServer, commentInfoServiceServer)
+	RegisterCommentInfoServicePageGoodsCommentMCPTool(mcpServer, commentInfoServiceServer)
+	RegisterCommentInfoServicePageMyCommentMCPTool(mcpServer, commentInfoServiceServer)
 	RegisterCommentInfoServicePagePendingCommentGoodsMCPTool(mcpServer, commentInfoServiceServer)
 	RegisterCommentInfoServiceCreateCommentMCPTool(mcpServer, commentInfoServiceServer)
+	RegisterCommentInfoServiceCreateCommentDiscussionMCPTool(mcpServer, commentInfoServiceServer)
 	RegisterCommentInfoServiceDeleteCommentMCPTool(mcpServer, commentInfoServiceServer)
-	RegisterCommentInfoServicePageMyCommentMCPTool(mcpServer, commentInfoServiceServer)
+	RegisterCommentInfoServiceGoodsCommentOverviewMCPTool(mcpServer, commentInfoServiceServer)
+	RegisterCommentInfoServiceGoodsCommentTagMCPTool(mcpServer, commentInfoServiceServer)
+	RegisterCommentInfoServiceSaveCommentReactionMCPTool(mcpServer, commentInfoServiceServer)
 }
 
-// RegisterCommentInfoServiceGoodsCommentOverviewMCPTool 注册查询商品评价摘要的 MCP Tool。
-func RegisterCommentInfoServiceGoodsCommentOverviewMCPTool(mcpServer *mcp.Server, commentInfoServiceServer CommentInfoServiceServer) {
-	mcp.AddTool[*GoodsCommentOverviewRequest, *GoodsCommentOverviewResponse](
+// RegisterCommentInfoServicePageCommentDiscussionMCPTool 注册查询评价讨论分页列表的 MCP Tool。
+func RegisterCommentInfoServicePageCommentDiscussionMCPTool(mcpServer *mcp.Server, commentInfoServiceServer CommentInfoServiceServer) {
+	mcp.AddTool[*PageCommentDiscussionRequest, *PageCommentDiscussionResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "shop_app_v1_comment_info_service_goods_comment_overview",
-			Description: "查询商品评价摘要",
+			Name:        "shop_app_v1_comment_info_service_page_comment_discussion",
+			Description: "查询评价讨论分页列表",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GoodsCommentOverviewRequest) (*mcp.CallToolResult, *GoodsCommentOverviewResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *PageCommentDiscussionRequest) (*mcp.CallToolResult, *PageCommentDiscussionResponse, error) {
 			if input == nil {
-				input = &GoodsCommentOverviewRequest{}
+				input = &PageCommentDiscussionRequest{}
 			}
-			reply, err := commentInfoServiceServer.GoodsCommentOverview(ctx, input)
-			if err != nil {
-				return nil, nil, err
-			}
-			return nil, reply, nil
-		},
-	)
-}
-
-// RegisterCommentInfoServiceGoodsCommentTagMCPTool 注册查询商品评价标签列表的 MCP Tool。
-func RegisterCommentInfoServiceGoodsCommentTagMCPTool(mcpServer *mcp.Server, commentInfoServiceServer CommentInfoServiceServer) {
-	mcp.AddTool[*GoodsCommentTagRequest, *GoodsCommentTagResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "shop_app_v1_comment_info_service_goods_comment_tag",
-			Description: "查询商品评价标签列表",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GoodsCommentTagRequest) (*mcp.CallToolResult, *GoodsCommentTagResponse, error) {
-			if input == nil {
-				input = &GoodsCommentTagRequest{}
-			}
-			reply, err := commentInfoServiceServer.GoodsCommentTag(ctx, input)
+			reply, err := commentInfoServiceServer.PageCommentDiscussion(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -90,61 +69,19 @@ func RegisterCommentInfoServicePageGoodsCommentMCPTool(mcpServer *mcp.Server, co
 	)
 }
 
-// RegisterCommentInfoServicePageCommentDiscussionMCPTool 注册查询评价讨论分页列表的 MCP Tool。
-func RegisterCommentInfoServicePageCommentDiscussionMCPTool(mcpServer *mcp.Server, commentInfoServiceServer CommentInfoServiceServer) {
-	mcp.AddTool[*PageCommentDiscussionRequest, *PageCommentDiscussionResponse](
+// RegisterCommentInfoServicePageMyCommentMCPTool 注册查询我的评价分页列表的 MCP Tool。
+func RegisterCommentInfoServicePageMyCommentMCPTool(mcpServer *mcp.Server, commentInfoServiceServer CommentInfoServiceServer) {
+	mcp.AddTool[*PageMyCommentRequest, *PageMyCommentResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "shop_app_v1_comment_info_service_page_comment_discussion",
-			Description: "查询评价讨论分页列表",
+			Name:        "shop_app_v1_comment_info_service_page_my_comment",
+			Description: "查询我的评价分页列表",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageCommentDiscussionRequest) (*mcp.CallToolResult, *PageCommentDiscussionResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *PageMyCommentRequest) (*mcp.CallToolResult, *PageMyCommentResponse, error) {
 			if input == nil {
-				input = &PageCommentDiscussionRequest{}
+				input = &PageMyCommentRequest{}
 			}
-			reply, err := commentInfoServiceServer.PageCommentDiscussion(ctx, input)
-			if err != nil {
-				return nil, nil, err
-			}
-			return nil, reply, nil
-		},
-	)
-}
-
-// RegisterCommentInfoServiceCreateCommentDiscussionMCPTool 注册发布评价讨论的 MCP Tool。
-func RegisterCommentInfoServiceCreateCommentDiscussionMCPTool(mcpServer *mcp.Server, commentInfoServiceServer CommentInfoServiceServer) {
-	mcp.AddTool[*CreateCommentDiscussionRequest, *CreateCommentDiscussionResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "shop_app_v1_comment_info_service_create_comment_discussion",
-			Description: "发布评价讨论",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *CreateCommentDiscussionRequest) (*mcp.CallToolResult, *CreateCommentDiscussionResponse, error) {
-			if input == nil {
-				input = &CreateCommentDiscussionRequest{}
-			}
-			reply, err := commentInfoServiceServer.CreateCommentDiscussion(ctx, input)
-			if err != nil {
-				return nil, nil, err
-			}
-			return nil, reply, nil
-		},
-	)
-}
-
-// RegisterCommentInfoServiceSaveCommentReactionMCPTool 注册保存评价互动状态的 MCP Tool。
-func RegisterCommentInfoServiceSaveCommentReactionMCPTool(mcpServer *mcp.Server, commentInfoServiceServer CommentInfoServiceServer) {
-	mcp.AddTool[*SaveCommentReactionRequest, *SaveCommentReactionResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "shop_app_v1_comment_info_service_save_comment_reaction",
-			Description: "保存评价互动状态",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *SaveCommentReactionRequest) (*mcp.CallToolResult, *SaveCommentReactionResponse, error) {
-			if input == nil {
-				input = &SaveCommentReactionRequest{}
-			}
-			reply, err := commentInfoServiceServer.SaveCommentReaction(ctx, input)
+			reply, err := commentInfoServiceServer.PageMyComment(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -195,6 +132,27 @@ func RegisterCommentInfoServiceCreateCommentMCPTool(mcpServer *mcp.Server, comme
 	)
 }
 
+// RegisterCommentInfoServiceCreateCommentDiscussionMCPTool 注册发布评价讨论的 MCP Tool。
+func RegisterCommentInfoServiceCreateCommentDiscussionMCPTool(mcpServer *mcp.Server, commentInfoServiceServer CommentInfoServiceServer) {
+	mcp.AddTool[*CreateCommentDiscussionRequest, *CreateCommentDiscussionResponse](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "shop_app_v1_comment_info_service_create_comment_discussion",
+			Description: "发布评价讨论",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *CreateCommentDiscussionRequest) (*mcp.CallToolResult, *CreateCommentDiscussionResponse, error) {
+			if input == nil {
+				input = &CreateCommentDiscussionRequest{}
+			}
+			reply, err := commentInfoServiceServer.CreateCommentDiscussion(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
+}
+
 // RegisterCommentInfoServiceDeleteCommentMCPTool 注册删除商品评价的 MCP Tool。
 func RegisterCommentInfoServiceDeleteCommentMCPTool(mcpServer *mcp.Server, commentInfoServiceServer CommentInfoServiceServer) {
 	mcp.AddTool[*DeleteCommentRequest, *emptypb.Empty](
@@ -216,19 +174,61 @@ func RegisterCommentInfoServiceDeleteCommentMCPTool(mcpServer *mcp.Server, comme
 	)
 }
 
-// RegisterCommentInfoServicePageMyCommentMCPTool 注册查询我的评价分页列表的 MCP Tool。
-func RegisterCommentInfoServicePageMyCommentMCPTool(mcpServer *mcp.Server, commentInfoServiceServer CommentInfoServiceServer) {
-	mcp.AddTool[*PageMyCommentRequest, *PageMyCommentResponse](
+// RegisterCommentInfoServiceGoodsCommentOverviewMCPTool 注册查询商品评价摘要的 MCP Tool。
+func RegisterCommentInfoServiceGoodsCommentOverviewMCPTool(mcpServer *mcp.Server, commentInfoServiceServer CommentInfoServiceServer) {
+	mcp.AddTool[*GoodsCommentOverviewRequest, *GoodsCommentOverviewResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "shop_app_v1_comment_info_service_page_my_comment",
-			Description: "查询我的评价分页列表",
+			Name:        "shop_app_v1_comment_info_service_goods_comment_overview",
+			Description: "查询商品评价摘要",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageMyCommentRequest) (*mcp.CallToolResult, *PageMyCommentResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *GoodsCommentOverviewRequest) (*mcp.CallToolResult, *GoodsCommentOverviewResponse, error) {
 			if input == nil {
-				input = &PageMyCommentRequest{}
+				input = &GoodsCommentOverviewRequest{}
 			}
-			reply, err := commentInfoServiceServer.PageMyComment(ctx, input)
+			reply, err := commentInfoServiceServer.GoodsCommentOverview(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
+}
+
+// RegisterCommentInfoServiceGoodsCommentTagMCPTool 注册查询商品评价标签列表的 MCP Tool。
+func RegisterCommentInfoServiceGoodsCommentTagMCPTool(mcpServer *mcp.Server, commentInfoServiceServer CommentInfoServiceServer) {
+	mcp.AddTool[*GoodsCommentTagRequest, *GoodsCommentTagResponse](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "shop_app_v1_comment_info_service_goods_comment_tag",
+			Description: "查询商品评价标签列表",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *GoodsCommentTagRequest) (*mcp.CallToolResult, *GoodsCommentTagResponse, error) {
+			if input == nil {
+				input = &GoodsCommentTagRequest{}
+			}
+			reply, err := commentInfoServiceServer.GoodsCommentTag(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
+}
+
+// RegisterCommentInfoServiceSaveCommentReactionMCPTool 注册保存评价互动状态的 MCP Tool。
+func RegisterCommentInfoServiceSaveCommentReactionMCPTool(mcpServer *mcp.Server, commentInfoServiceServer CommentInfoServiceServer) {
+	mcp.AddTool[*SaveCommentReactionRequest, *SaveCommentReactionResponse](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "shop_app_v1_comment_info_service_save_comment_reaction",
+			Description: "保存评价互动状态",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *SaveCommentReactionRequest) (*mcp.CallToolResult, *SaveCommentReactionResponse, error) {
+			if input == nil {
+				input = &SaveCommentReactionRequest{}
+			}
+			reply, err := commentInfoServiceServer.SaveCommentReaction(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

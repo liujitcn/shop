@@ -26,6 +26,96 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// AI 助手消息列表查询条件
+type ListAiMessageRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	SessionId     string                 `protobuf:"bytes,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"` // 会话ID
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListAiMessageRequest) Reset() {
+	*x = ListAiMessageRequest{}
+	mi := &file_base_v1_ai_session_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListAiMessageRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListAiMessageRequest) ProtoMessage() {}
+
+func (x *ListAiMessageRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_base_v1_ai_session_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListAiMessageRequest.ProtoReflect.Descriptor instead.
+func (*ListAiMessageRequest) Descriptor() ([]byte, []int) {
+	return file_base_v1_ai_session_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *ListAiMessageRequest) GetSessionId() string {
+	if x != nil {
+		return x.SessionId
+	}
+	return ""
+}
+
+// AI 助手消息列表响应
+type ListAiMessageResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Messages      []*AiMessage           `protobuf:"bytes,1,rep,name=messages,proto3" json:"messages,omitempty"` // 消息列表
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListAiMessageResponse) Reset() {
+	*x = ListAiMessageResponse{}
+	mi := &file_base_v1_ai_session_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListAiMessageResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListAiMessageResponse) ProtoMessage() {}
+
+func (x *ListAiMessageResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_base_v1_ai_session_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListAiMessageResponse.ProtoReflect.Descriptor instead.
+func (*ListAiMessageResponse) Descriptor() ([]byte, []int) {
+	return file_base_v1_ai_session_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *ListAiMessageResponse) GetMessages() []*AiMessage {
+	if x != nil {
+		return x.Messages
+	}
+	return nil
+}
+
 // AI 助手会话列表查询条件
 type ListAiSessionRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -36,7 +126,7 @@ type ListAiSessionRequest struct {
 
 func (x *ListAiSessionRequest) Reset() {
 	*x = ListAiSessionRequest{}
-	mi := &file_base_v1_ai_session_proto_msgTypes[0]
+	mi := &file_base_v1_ai_session_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -48,7 +138,7 @@ func (x *ListAiSessionRequest) String() string {
 func (*ListAiSessionRequest) ProtoMessage() {}
 
 func (x *ListAiSessionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_session_proto_msgTypes[0]
+	mi := &file_base_v1_ai_session_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -61,7 +151,7 @@ func (x *ListAiSessionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAiSessionRequest.ProtoReflect.Descriptor instead.
 func (*ListAiSessionRequest) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_session_proto_rawDescGZIP(), []int{0}
+	return file_base_v1_ai_session_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *ListAiSessionRequest) GetTerminal() v1.Terminal {
@@ -81,7 +171,7 @@ type ListAiSessionResponse struct {
 
 func (x *ListAiSessionResponse) Reset() {
 	*x = ListAiSessionResponse{}
-	mi := &file_base_v1_ai_session_proto_msgTypes[1]
+	mi := &file_base_v1_ai_session_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -93,7 +183,7 @@ func (x *ListAiSessionResponse) String() string {
 func (*ListAiSessionResponse) ProtoMessage() {}
 
 func (x *ListAiSessionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_session_proto_msgTypes[1]
+	mi := &file_base_v1_ai_session_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -106,7 +196,7 @@ func (x *ListAiSessionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAiSessionResponse.ProtoReflect.Descriptor instead.
 func (*ListAiSessionResponse) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_session_proto_rawDescGZIP(), []int{1}
+	return file_base_v1_ai_session_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *ListAiSessionResponse) GetSessions() []*AiSession {
@@ -127,7 +217,7 @@ type CreateAiSessionRequest struct {
 
 func (x *CreateAiSessionRequest) Reset() {
 	*x = CreateAiSessionRequest{}
-	mi := &file_base_v1_ai_session_proto_msgTypes[2]
+	mi := &file_base_v1_ai_session_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -139,7 +229,7 @@ func (x *CreateAiSessionRequest) String() string {
 func (*CreateAiSessionRequest) ProtoMessage() {}
 
 func (x *CreateAiSessionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_session_proto_msgTypes[2]
+	mi := &file_base_v1_ai_session_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -152,7 +242,7 @@ func (x *CreateAiSessionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateAiSessionRequest.ProtoReflect.Descriptor instead.
 func (*CreateAiSessionRequest) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_session_proto_rawDescGZIP(), []int{2}
+	return file_base_v1_ai_session_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *CreateAiSessionRequest) GetTitle() string {
@@ -179,7 +269,7 @@ type CreateAiSessionResponse struct {
 
 func (x *CreateAiSessionResponse) Reset() {
 	*x = CreateAiSessionResponse{}
-	mi := &file_base_v1_ai_session_proto_msgTypes[3]
+	mi := &file_base_v1_ai_session_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -191,7 +281,7 @@ func (x *CreateAiSessionResponse) String() string {
 func (*CreateAiSessionResponse) ProtoMessage() {}
 
 func (x *CreateAiSessionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_session_proto_msgTypes[3]
+	mi := &file_base_v1_ai_session_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -204,282 +294,12 @@ func (x *CreateAiSessionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateAiSessionResponse.ProtoReflect.Descriptor instead.
 func (*CreateAiSessionResponse) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_session_proto_rawDescGZIP(), []int{3}
+	return file_base_v1_ai_session_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *CreateAiSessionResponse) GetSession() *AiSession {
 	if x != nil {
 		return x.Session
-	}
-	return nil
-}
-
-// AI 助手会话更新请求
-type UpdateAiSessionRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`       // 会话ID
-	Title         string                 `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"` // 会话标题
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *UpdateAiSessionRequest) Reset() {
-	*x = UpdateAiSessionRequest{}
-	mi := &file_base_v1_ai_session_proto_msgTypes[4]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *UpdateAiSessionRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*UpdateAiSessionRequest) ProtoMessage() {}
-
-func (x *UpdateAiSessionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_session_proto_msgTypes[4]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use UpdateAiSessionRequest.ProtoReflect.Descriptor instead.
-func (*UpdateAiSessionRequest) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_session_proto_rawDescGZIP(), []int{4}
-}
-
-func (x *UpdateAiSessionRequest) GetId() string {
-	if x != nil {
-		return x.Id
-	}
-	return ""
-}
-
-func (x *UpdateAiSessionRequest) GetTitle() string {
-	if x != nil {
-		return x.Title
-	}
-	return ""
-}
-
-// AI 助手会话更新响应
-type UpdateAiSessionResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Session       *AiSession             `protobuf:"bytes,1,opt,name=session,proto3" json:"session,omitempty"` // 会话信息
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *UpdateAiSessionResponse) Reset() {
-	*x = UpdateAiSessionResponse{}
-	mi := &file_base_v1_ai_session_proto_msgTypes[5]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *UpdateAiSessionResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*UpdateAiSessionResponse) ProtoMessage() {}
-
-func (x *UpdateAiSessionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_session_proto_msgTypes[5]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use UpdateAiSessionResponse.ProtoReflect.Descriptor instead.
-func (*UpdateAiSessionResponse) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_session_proto_rawDescGZIP(), []int{5}
-}
-
-func (x *UpdateAiSessionResponse) GetSession() *AiSession {
-	if x != nil {
-		return x.Session
-	}
-	return nil
-}
-
-// AI 助手会话删除请求
-type DeleteAiSessionRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"` // 会话ID
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *DeleteAiSessionRequest) Reset() {
-	*x = DeleteAiSessionRequest{}
-	mi := &file_base_v1_ai_session_proto_msgTypes[6]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *DeleteAiSessionRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*DeleteAiSessionRequest) ProtoMessage() {}
-
-func (x *DeleteAiSessionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_session_proto_msgTypes[6]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use DeleteAiSessionRequest.ProtoReflect.Descriptor instead.
-func (*DeleteAiSessionRequest) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_session_proto_rawDescGZIP(), []int{6}
-}
-
-func (x *DeleteAiSessionRequest) GetId() string {
-	if x != nil {
-		return x.Id
-	}
-	return ""
-}
-
-// AI 助手会话删除响应
-type DeleteAiSessionResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *DeleteAiSessionResponse) Reset() {
-	*x = DeleteAiSessionResponse{}
-	mi := &file_base_v1_ai_session_proto_msgTypes[7]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *DeleteAiSessionResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*DeleteAiSessionResponse) ProtoMessage() {}
-
-func (x *DeleteAiSessionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_session_proto_msgTypes[7]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use DeleteAiSessionResponse.ProtoReflect.Descriptor instead.
-func (*DeleteAiSessionResponse) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_session_proto_rawDescGZIP(), []int{7}
-}
-
-// AI 助手消息列表查询条件
-type ListAiMessageRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	SessionId     string                 `protobuf:"bytes,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"` // 会话ID
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ListAiMessageRequest) Reset() {
-	*x = ListAiMessageRequest{}
-	mi := &file_base_v1_ai_session_proto_msgTypes[8]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ListAiMessageRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ListAiMessageRequest) ProtoMessage() {}
-
-func (x *ListAiMessageRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_session_proto_msgTypes[8]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ListAiMessageRequest.ProtoReflect.Descriptor instead.
-func (*ListAiMessageRequest) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_session_proto_rawDescGZIP(), []int{8}
-}
-
-func (x *ListAiMessageRequest) GetSessionId() string {
-	if x != nil {
-		return x.SessionId
-	}
-	return ""
-}
-
-// AI 助手消息列表响应
-type ListAiMessageResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Messages      []*AiMessage           `protobuf:"bytes,1,rep,name=messages,proto3" json:"messages,omitempty"` // 消息列表
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ListAiMessageResponse) Reset() {
-	*x = ListAiMessageResponse{}
-	mi := &file_base_v1_ai_session_proto_msgTypes[9]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ListAiMessageResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ListAiMessageResponse) ProtoMessage() {}
-
-func (x *ListAiMessageResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_session_proto_msgTypes[9]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ListAiMessageResponse.ProtoReflect.Descriptor instead.
-func (*ListAiMessageResponse) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_session_proto_rawDescGZIP(), []int{9}
-}
-
-func (x *ListAiMessageResponse) GetMessages() []*AiMessage {
-	if x != nil {
-		return x.Messages
 	}
 	return nil
 }
@@ -497,7 +317,7 @@ type CreateAiSessionBranchRequest struct {
 
 func (x *CreateAiSessionBranchRequest) Reset() {
 	*x = CreateAiSessionBranchRequest{}
-	mi := &file_base_v1_ai_session_proto_msgTypes[10]
+	mi := &file_base_v1_ai_session_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -509,7 +329,7 @@ func (x *CreateAiSessionBranchRequest) String() string {
 func (*CreateAiSessionBranchRequest) ProtoMessage() {}
 
 func (x *CreateAiSessionBranchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_session_proto_msgTypes[10]
+	mi := &file_base_v1_ai_session_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -522,7 +342,7 @@ func (x *CreateAiSessionBranchRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateAiSessionBranchRequest.ProtoReflect.Descriptor instead.
 func (*CreateAiSessionBranchRequest) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_session_proto_rawDescGZIP(), []int{10}
+	return file_base_v1_ai_session_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *CreateAiSessionBranchRequest) GetSourceSessionId() string {
@@ -564,7 +384,7 @@ type CreateAiSessionBranchResponse struct {
 
 func (x *CreateAiSessionBranchResponse) Reset() {
 	*x = CreateAiSessionBranchResponse{}
-	mi := &file_base_v1_ai_session_proto_msgTypes[11]
+	mi := &file_base_v1_ai_session_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -576,7 +396,7 @@ func (x *CreateAiSessionBranchResponse) String() string {
 func (*CreateAiSessionBranchResponse) ProtoMessage() {}
 
 func (x *CreateAiSessionBranchResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_session_proto_msgTypes[11]
+	mi := &file_base_v1_ai_session_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -589,7 +409,7 @@ func (x *CreateAiSessionBranchResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateAiSessionBranchResponse.ProtoReflect.Descriptor instead.
 func (*CreateAiSessionBranchResponse) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_session_proto_rawDescGZIP(), []int{11}
+	return file_base_v1_ai_session_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *CreateAiSessionBranchResponse) GetSession() *AiSession {
@@ -604,6 +424,186 @@ func (x *CreateAiSessionBranchResponse) GetMessages() []*AiMessage {
 		return x.Messages
 	}
 	return nil
+}
+
+// AI 助手会话更新请求
+type UpdateAiSessionRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`       // 会话ID
+	Title         string                 `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"` // 会话标题
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateAiSessionRequest) Reset() {
+	*x = UpdateAiSessionRequest{}
+	mi := &file_base_v1_ai_session_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateAiSessionRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateAiSessionRequest) ProtoMessage() {}
+
+func (x *UpdateAiSessionRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_base_v1_ai_session_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateAiSessionRequest.ProtoReflect.Descriptor instead.
+func (*UpdateAiSessionRequest) Descriptor() ([]byte, []int) {
+	return file_base_v1_ai_session_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *UpdateAiSessionRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *UpdateAiSessionRequest) GetTitle() string {
+	if x != nil {
+		return x.Title
+	}
+	return ""
+}
+
+// AI 助手会话更新响应
+type UpdateAiSessionResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Session       *AiSession             `protobuf:"bytes,1,opt,name=session,proto3" json:"session,omitempty"` // 会话信息
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateAiSessionResponse) Reset() {
+	*x = UpdateAiSessionResponse{}
+	mi := &file_base_v1_ai_session_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateAiSessionResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateAiSessionResponse) ProtoMessage() {}
+
+func (x *UpdateAiSessionResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_base_v1_ai_session_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateAiSessionResponse.ProtoReflect.Descriptor instead.
+func (*UpdateAiSessionResponse) Descriptor() ([]byte, []int) {
+	return file_base_v1_ai_session_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *UpdateAiSessionResponse) GetSession() *AiSession {
+	if x != nil {
+		return x.Session
+	}
+	return nil
+}
+
+// AI 助手会话删除请求
+type DeleteAiSessionRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"` // 会话ID
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteAiSessionRequest) Reset() {
+	*x = DeleteAiSessionRequest{}
+	mi := &file_base_v1_ai_session_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteAiSessionRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteAiSessionRequest) ProtoMessage() {}
+
+func (x *DeleteAiSessionRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_base_v1_ai_session_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteAiSessionRequest.ProtoReflect.Descriptor instead.
+func (*DeleteAiSessionRequest) Descriptor() ([]byte, []int) {
+	return file_base_v1_ai_session_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *DeleteAiSessionRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+// AI 助手会话删除响应
+type DeleteAiSessionResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteAiSessionResponse) Reset() {
+	*x = DeleteAiSessionResponse{}
+	mi := &file_base_v1_ai_session_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteAiSessionResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteAiSessionResponse) ProtoMessage() {}
+
+func (x *DeleteAiSessionResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_base_v1_ai_session_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteAiSessionResponse.ProtoReflect.Descriptor instead.
+func (*DeleteAiSessionResponse) Descriptor() ([]byte, []int) {
+	return file_base_v1_ai_session_proto_rawDescGZIP(), []int{11}
 }
 
 // AI 助手会话
@@ -1112,7 +1112,12 @@ var File_base_v1_ai_session_proto protoreflect.FileDescriptor
 
 const file_base_v1_ai_session_proto_rawDesc = "" +
 	"\n" +
-	"\x18base/v1/ai_session.proto\x12\abase.v1\x1a\x15base/v1/ai_tool.proto\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"r\n" +
+	"\x18base/v1/ai_session.proto\x12\abase.v1\x1a\x15base/v1/ai_tool.proto\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"E\n" +
+	"\x14ListAiMessageRequest\x12-\n" +
+	"\n" +
+	"session_id\x18\x01 \x01(\tB\x0e\xbaG\v\x92\x02\b会话IDR\tsessionId\"[\n" +
+	"\x15ListAiMessageResponse\x12B\n" +
+	"\bmessages\x18\x01 \x03(\v2\x12.base.v1.AiMessageB\x12\xbaG\x0f\x92\x02\f消息列表R\bmessages\"r\n" +
 	"\x14ListAiSessionRequest\x12Z\n" +
 	"\bterminal\x18\x01 \x01(\x0e2\x13.common.v1.TerminalB)\xbaG&\x92\x02#终端类型：枚举【Terminal】R\bterminal\"[\n" +
 	"\x15ListAiSessionResponse\x12B\n" +
@@ -1121,20 +1126,7 @@ const file_base_v1_ai_session_proto_rawDesc = "" +
 	"\x05title\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f会话标题R\x05title\x12Z\n" +
 	"\bterminal\x18\x02 \x01(\x0e2\x13.common.v1.TerminalB)\xbaG&\x92\x02#终端类型：枚举【Terminal】R\bterminal\"[\n" +
 	"\x17CreateAiSessionResponse\x12@\n" +
-	"\asession\x18\x01 \x01(\v2\x12.base.v1.AiSessionB\x12\xbaG\x0f\x92\x02\f会话信息R\asession\"b\n" +
-	"\x16UpdateAiSessionRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\tB\x0e\xbaG\v\x92\x02\b会话IDR\x02id\x12(\n" +
-	"\x05title\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f会话标题R\x05title\"[\n" +
-	"\x17UpdateAiSessionResponse\x12@\n" +
-	"\asession\x18\x01 \x01(\v2\x12.base.v1.AiSessionB\x12\xbaG\x0f\x92\x02\f会话信息R\asession\"8\n" +
-	"\x16DeleteAiSessionRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\tB\x0e\xbaG\v\x92\x02\b会话IDR\x02id\"\x19\n" +
-	"\x17DeleteAiSessionResponse\"E\n" +
-	"\x14ListAiMessageRequest\x12-\n" +
-	"\n" +
-	"session_id\x18\x01 \x01(\tB\x0e\xbaG\v\x92\x02\b会话IDR\tsessionId\"[\n" +
-	"\x15ListAiMessageResponse\x12B\n" +
-	"\bmessages\x18\x01 \x03(\v2\x12.base.v1.AiMessageB\x12\xbaG\x0f\x92\x02\f消息列表R\bmessages\"\xb4\x02\n" +
+	"\asession\x18\x01 \x01(\v2\x12.base.v1.AiSessionB\x12\xbaG\x0f\x92\x02\f会话信息R\asession\"\xb4\x02\n" +
 	"\x1cCreateAiSessionBranchRequest\x12@\n" +
 	"\x11source_session_id\x18\x01 \x01(\tB\x14\xbaG\x11\x92\x02\x0e来源会话IDR\x0fsourceSessionId\x12F\n" +
 	"\x11anchor_message_id\x18\x02 \x01(\tB\x1a\xbaG\x17\x92\x02\x14分支锚点消息IDR\x0fanchorMessageId\x12.\n" +
@@ -1142,7 +1134,15 @@ const file_base_v1_ai_session_proto_rawDesc = "" +
 	"\bterminal\x18\x04 \x01(\x0e2\x13.common.v1.TerminalB)\xbaG&\x92\x02#终端类型：枚举【Terminal】R\bterminal\"\xb1\x01\n" +
 	"\x1dCreateAiSessionBranchResponse\x12C\n" +
 	"\asession\x18\x01 \x01(\v2\x12.base.v1.AiSessionB\x15\xbaG\x12\x92\x02\x0f新会话信息R\asession\x12K\n" +
-	"\bmessages\x18\x02 \x03(\v2\x12.base.v1.AiMessageB\x1b\xbaG\x18\x92\x02\x15新会话消息列表R\bmessages\"\xae\x02\n" +
+	"\bmessages\x18\x02 \x03(\v2\x12.base.v1.AiMessageB\x1b\xbaG\x18\x92\x02\x15新会话消息列表R\bmessages\"b\n" +
+	"\x16UpdateAiSessionRequest\x12\x1e\n" +
+	"\x02id\x18\x01 \x01(\tB\x0e\xbaG\v\x92\x02\b会话IDR\x02id\x12(\n" +
+	"\x05title\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f会话标题R\x05title\"[\n" +
+	"\x17UpdateAiSessionResponse\x12@\n" +
+	"\asession\x18\x01 \x01(\v2\x12.base.v1.AiSessionB\x12\xbaG\x0f\x92\x02\f会话信息R\asession\"8\n" +
+	"\x16DeleteAiSessionRequest\x12\x1e\n" +
+	"\x02id\x18\x01 \x01(\tB\x0e\xbaG\v\x92\x02\b会话IDR\x02id\"\x19\n" +
+	"\x17DeleteAiSessionResponse\"\xae\x02\n" +
 	"\tAiSession\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\tB\x0e\xbaG\v\x92\x02\b会话IDR\x02id\x12(\n" +
 	"\x05title\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f会话标题R\x05title\x12,\n" +
@@ -1189,13 +1189,13 @@ const file_base_v1_ai_session_proto_rawDesc = "" +
 	"\x04size\x18\x03 \x01(\x03B\x12\xbaG\x0f\x92\x02\f附件大小R\x04size\x12$\n" +
 	"\x03url\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f附件地址R\x03url\x125\n" +
 	"\tmime_type\x18\x05 \x01(\tB\x18\xbaG\x15\x92\x02\x12附件 MIME 类型R\bmimeType2\xa7\x06\n" +
-	"\x10AiSessionService\x12o\n" +
+	"\x10AiSessionService\x12\x84\x01\n" +
+	"\rListAiMessage\x12\x1d.base.v1.ListAiMessageRequest\x1a\x1e.base.v1.ListAiMessageResponse\"4\x82\xd3\xe4\x93\x02.\x12,/api/v1/base/ai/session/{session_id}/message\x12o\n" +
 	"\rListAiSession\x12\x1d.base.v1.ListAiSessionRequest\x1a\x1e.base.v1.ListAiSessionResponse\"\x1f\x82\xd3\xe4\x93\x02\x19\x12\x17/api/v1/base/ai/session\x12x\n" +
-	"\x0fCreateAiSession\x12\x1f.base.v1.CreateAiSessionRequest\x1a .base.v1.CreateAiSessionResponse\"\"\x82\xd3\xe4\x93\x02\x1c:\x01*\"\x17/api/v1/base/ai/session\x12}\n" +
+	"\x0fCreateAiSession\x12\x1f.base.v1.CreateAiSessionRequest\x1a .base.v1.CreateAiSessionResponse\"\"\x82\xd3\xe4\x93\x02\x1c:\x01*\"\x17/api/v1/base/ai/session\x12\xa5\x01\n" +
+	"\x15CreateAiSessionBranch\x12%.base.v1.CreateAiSessionBranchRequest\x1a&.base.v1.CreateAiSessionBranchResponse\"=\x82\xd3\xe4\x93\x027:\x01*\"2/api/v1/base/ai/session/{source_session_id}/branch\x12}\n" +
 	"\x0fUpdateAiSession\x12\x1f.base.v1.UpdateAiSessionRequest\x1a .base.v1.UpdateAiSessionResponse\"'\x82\xd3\xe4\x93\x02!:\x01*\x1a\x1c/api/v1/base/ai/session/{id}\x12z\n" +
-	"\x0fDeleteAiSession\x12\x1f.base.v1.DeleteAiSessionRequest\x1a .base.v1.DeleteAiSessionResponse\"$\x82\xd3\xe4\x93\x02\x1e*\x1c/api/v1/base/ai/session/{id}\x12\x84\x01\n" +
-	"\rListAiMessage\x12\x1d.base.v1.ListAiMessageRequest\x1a\x1e.base.v1.ListAiMessageResponse\"4\x82\xd3\xe4\x93\x02.\x12,/api/v1/base/ai/session/{session_id}/message\x12\xa5\x01\n" +
-	"\x15CreateAiSessionBranch\x12%.base.v1.CreateAiSessionBranchRequest\x1a&.base.v1.CreateAiSessionBranchResponse\"=\x82\xd3\xe4\x93\x027:\x01*\"2/api/v1/base/ai/session/{source_session_id}/branchBz\n" +
+	"\x0fDeleteAiSession\x12\x1f.base.v1.DeleteAiSessionRequest\x1a .base.v1.DeleteAiSessionResponse\"$\x82\xd3\xe4\x93\x02\x1e*\x1c/api/v1/base/ai/session/{id}Bz\n" +
 	"\vcom.base.v1B\x0eAiSessionProtoP\x01Z\x1eshop/api/gen/go/base/v1;basev1\xa2\x02\x03BXX\xaa\x02\aBase.V1\xca\x02\aBase\\V1\xe2\x02\x13Base\\V1\\GPBMetadata\xea\x02\bBase::V1b\x06proto3"
 
 var (
@@ -1212,18 +1212,18 @@ func file_base_v1_ai_session_proto_rawDescGZIP() []byte {
 
 var file_base_v1_ai_session_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
 var file_base_v1_ai_session_proto_goTypes = []any{
-	(*ListAiSessionRequest)(nil),          // 0: base.v1.ListAiSessionRequest
-	(*ListAiSessionResponse)(nil),         // 1: base.v1.ListAiSessionResponse
-	(*CreateAiSessionRequest)(nil),        // 2: base.v1.CreateAiSessionRequest
-	(*CreateAiSessionResponse)(nil),       // 3: base.v1.CreateAiSessionResponse
-	(*UpdateAiSessionRequest)(nil),        // 4: base.v1.UpdateAiSessionRequest
-	(*UpdateAiSessionResponse)(nil),       // 5: base.v1.UpdateAiSessionResponse
-	(*DeleteAiSessionRequest)(nil),        // 6: base.v1.DeleteAiSessionRequest
-	(*DeleteAiSessionResponse)(nil),       // 7: base.v1.DeleteAiSessionResponse
-	(*ListAiMessageRequest)(nil),          // 8: base.v1.ListAiMessageRequest
-	(*ListAiMessageResponse)(nil),         // 9: base.v1.ListAiMessageResponse
-	(*CreateAiSessionBranchRequest)(nil),  // 10: base.v1.CreateAiSessionBranchRequest
-	(*CreateAiSessionBranchResponse)(nil), // 11: base.v1.CreateAiSessionBranchResponse
+	(*ListAiMessageRequest)(nil),          // 0: base.v1.ListAiMessageRequest
+	(*ListAiMessageResponse)(nil),         // 1: base.v1.ListAiMessageResponse
+	(*ListAiSessionRequest)(nil),          // 2: base.v1.ListAiSessionRequest
+	(*ListAiSessionResponse)(nil),         // 3: base.v1.ListAiSessionResponse
+	(*CreateAiSessionRequest)(nil),        // 4: base.v1.CreateAiSessionRequest
+	(*CreateAiSessionResponse)(nil),       // 5: base.v1.CreateAiSessionResponse
+	(*CreateAiSessionBranchRequest)(nil),  // 6: base.v1.CreateAiSessionBranchRequest
+	(*CreateAiSessionBranchResponse)(nil), // 7: base.v1.CreateAiSessionBranchResponse
+	(*UpdateAiSessionRequest)(nil),        // 8: base.v1.UpdateAiSessionRequest
+	(*UpdateAiSessionResponse)(nil),       // 9: base.v1.UpdateAiSessionResponse
+	(*DeleteAiSessionRequest)(nil),        // 10: base.v1.DeleteAiSessionRequest
+	(*DeleteAiSessionResponse)(nil),       // 11: base.v1.DeleteAiSessionResponse
 	(*AiSession)(nil),                     // 12: base.v1.AiSession
 	(*AiMessage)(nil),                     // 13: base.v1.AiMessage
 	(*AiInputContent)(nil),                // 14: base.v1.AiInputContent
@@ -1236,15 +1236,15 @@ var file_base_v1_ai_session_proto_goTypes = []any{
 	(*AiToolCall)(nil),                    // 21: base.v1.AiToolCall
 }
 var file_base_v1_ai_session_proto_depIdxs = []int32{
-	18, // 0: base.v1.ListAiSessionRequest.terminal:type_name -> common.v1.Terminal
-	12, // 1: base.v1.ListAiSessionResponse.sessions:type_name -> base.v1.AiSession
-	18, // 2: base.v1.CreateAiSessionRequest.terminal:type_name -> common.v1.Terminal
-	12, // 3: base.v1.CreateAiSessionResponse.session:type_name -> base.v1.AiSession
-	12, // 4: base.v1.UpdateAiSessionResponse.session:type_name -> base.v1.AiSession
-	13, // 5: base.v1.ListAiMessageResponse.messages:type_name -> base.v1.AiMessage
-	18, // 6: base.v1.CreateAiSessionBranchRequest.terminal:type_name -> common.v1.Terminal
-	12, // 7: base.v1.CreateAiSessionBranchResponse.session:type_name -> base.v1.AiSession
-	13, // 8: base.v1.CreateAiSessionBranchResponse.messages:type_name -> base.v1.AiMessage
+	13, // 0: base.v1.ListAiMessageResponse.messages:type_name -> base.v1.AiMessage
+	18, // 1: base.v1.ListAiSessionRequest.terminal:type_name -> common.v1.Terminal
+	12, // 2: base.v1.ListAiSessionResponse.sessions:type_name -> base.v1.AiSession
+	18, // 3: base.v1.CreateAiSessionRequest.terminal:type_name -> common.v1.Terminal
+	12, // 4: base.v1.CreateAiSessionResponse.session:type_name -> base.v1.AiSession
+	18, // 5: base.v1.CreateAiSessionBranchRequest.terminal:type_name -> common.v1.Terminal
+	12, // 6: base.v1.CreateAiSessionBranchResponse.session:type_name -> base.v1.AiSession
+	13, // 7: base.v1.CreateAiSessionBranchResponse.messages:type_name -> base.v1.AiMessage
+	12, // 8: base.v1.UpdateAiSessionResponse.session:type_name -> base.v1.AiSession
 	19, // 9: base.v1.AiSession.updated_at:type_name -> google.protobuf.Timestamp
 	18, // 10: base.v1.AiSession.terminal:type_name -> common.v1.Terminal
 	14, // 11: base.v1.AiMessage.input_content:type_name -> base.v1.AiInputContent
@@ -1254,18 +1254,18 @@ var file_base_v1_ai_session_proto_depIdxs = []int32{
 	20, // 15: base.v1.AiMessage.status:type_name -> common.v1.AiMessageStatus
 	16, // 16: base.v1.AiMessage.token:type_name -> base.v1.AiToken
 	21, // 17: base.v1.AiMessage.tools:type_name -> base.v1.AiToolCall
-	0,  // 18: base.v1.AiSessionService.ListAiSession:input_type -> base.v1.ListAiSessionRequest
-	2,  // 19: base.v1.AiSessionService.CreateAiSession:input_type -> base.v1.CreateAiSessionRequest
-	4,  // 20: base.v1.AiSessionService.UpdateAiSession:input_type -> base.v1.UpdateAiSessionRequest
-	6,  // 21: base.v1.AiSessionService.DeleteAiSession:input_type -> base.v1.DeleteAiSessionRequest
-	8,  // 22: base.v1.AiSessionService.ListAiMessage:input_type -> base.v1.ListAiMessageRequest
-	10, // 23: base.v1.AiSessionService.CreateAiSessionBranch:input_type -> base.v1.CreateAiSessionBranchRequest
-	1,  // 24: base.v1.AiSessionService.ListAiSession:output_type -> base.v1.ListAiSessionResponse
-	3,  // 25: base.v1.AiSessionService.CreateAiSession:output_type -> base.v1.CreateAiSessionResponse
-	5,  // 26: base.v1.AiSessionService.UpdateAiSession:output_type -> base.v1.UpdateAiSessionResponse
-	7,  // 27: base.v1.AiSessionService.DeleteAiSession:output_type -> base.v1.DeleteAiSessionResponse
-	9,  // 28: base.v1.AiSessionService.ListAiMessage:output_type -> base.v1.ListAiMessageResponse
-	11, // 29: base.v1.AiSessionService.CreateAiSessionBranch:output_type -> base.v1.CreateAiSessionBranchResponse
+	0,  // 18: base.v1.AiSessionService.ListAiMessage:input_type -> base.v1.ListAiMessageRequest
+	2,  // 19: base.v1.AiSessionService.ListAiSession:input_type -> base.v1.ListAiSessionRequest
+	4,  // 20: base.v1.AiSessionService.CreateAiSession:input_type -> base.v1.CreateAiSessionRequest
+	6,  // 21: base.v1.AiSessionService.CreateAiSessionBranch:input_type -> base.v1.CreateAiSessionBranchRequest
+	8,  // 22: base.v1.AiSessionService.UpdateAiSession:input_type -> base.v1.UpdateAiSessionRequest
+	10, // 23: base.v1.AiSessionService.DeleteAiSession:input_type -> base.v1.DeleteAiSessionRequest
+	1,  // 24: base.v1.AiSessionService.ListAiMessage:output_type -> base.v1.ListAiMessageResponse
+	3,  // 25: base.v1.AiSessionService.ListAiSession:output_type -> base.v1.ListAiSessionResponse
+	5,  // 26: base.v1.AiSessionService.CreateAiSession:output_type -> base.v1.CreateAiSessionResponse
+	7,  // 27: base.v1.AiSessionService.CreateAiSessionBranch:output_type -> base.v1.CreateAiSessionBranchResponse
+	9,  // 28: base.v1.AiSessionService.UpdateAiSession:output_type -> base.v1.UpdateAiSessionResponse
+	11, // 29: base.v1.AiSessionService.DeleteAiSession:output_type -> base.v1.DeleteAiSessionResponse
 	24, // [24:30] is the sub-list for method output_type
 	18, // [18:24] is the sub-list for method input_type
 	18, // [18:18] is the sub-list for extension type_name

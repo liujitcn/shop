@@ -14,9 +14,30 @@ import (
 
 // RegisterCodeGenServiceMCPTools 注册Admin代码生成服务的 MCP Tool。
 func RegisterCodeGenServiceMCPTools(mcpServer *mcp.Server, codeGenServiceServer CodeGenServiceServer) {
+	RegisterCodeGenServiceGetCodeGenTaskMCPTool(mcpServer, codeGenServiceServer)
 	RegisterCodeGenServicePreviewCodeGenMCPTool(mcpServer, codeGenServiceServer)
 	RegisterCodeGenServiceStartCodeGenTaskMCPTool(mcpServer, codeGenServiceServer)
-	RegisterCodeGenServiceGetCodeGenTaskMCPTool(mcpServer, codeGenServiceServer)
+}
+
+// RegisterCodeGenServiceGetCodeGenTaskMCPTool 注册查询代码生成任务进度的 MCP Tool。
+func RegisterCodeGenServiceGetCodeGenTaskMCPTool(mcpServer *mcp.Server, codeGenServiceServer CodeGenServiceServer) {
+	mcp.AddTool[*GetCodeGenTaskRequest, *CodeGenTask](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "system_admin_v1_code_gen_service_get_code_gen_task",
+			Description: "查询代码生成任务进度",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *GetCodeGenTaskRequest) (*mcp.CallToolResult, *CodeGenTask, error) {
+			if input == nil {
+				input = &GetCodeGenTaskRequest{}
+			}
+			reply, err := codeGenServiceServer.GetCodeGenTask(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
 }
 
 // RegisterCodeGenServicePreviewCodeGenMCPTool 注册预览代码生成文件的 MCP Tool。
@@ -53,27 +74,6 @@ func RegisterCodeGenServiceStartCodeGenTaskMCPTool(mcpServer *mcp.Server, codeGe
 				input = &StartCodeGenTaskRequest{}
 			}
 			reply, err := codeGenServiceServer.StartCodeGenTask(ctx, input)
-			if err != nil {
-				return nil, nil, err
-			}
-			return nil, reply, nil
-		},
-	)
-}
-
-// RegisterCodeGenServiceGetCodeGenTaskMCPTool 注册查询代码生成任务进度的 MCP Tool。
-func RegisterCodeGenServiceGetCodeGenTaskMCPTool(mcpServer *mcp.Server, codeGenServiceServer CodeGenServiceServer) {
-	mcp.AddTool[*GetCodeGenTaskRequest, *CodeGenTask](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_code_gen_service_get_code_gen_task",
-			Description: "查询代码生成任务进度",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetCodeGenTaskRequest) (*mcp.CallToolResult, *CodeGenTask, error) {
-			if input == nil {
-				input = &GetCodeGenTaskRequest{}
-			}
-			reply, err := codeGenServiceServer.GetCodeGenTask(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

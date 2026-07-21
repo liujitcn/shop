@@ -46,13 +46,35 @@ type CommentInfoServiceHTTPServer interface {
 
 func RegisterCommentInfoServiceHTTPServer(s *http.Server, srv CommentInfoServiceHTTPServer) {
 	r := s.Route("/")
+	r.Handle("GET", "/api/v1/admin/comment/info/{comment_id}/discussion", _CommentInfoService_PageCommentDiscussion0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/comment/info", _CommentInfoService_PageCommentInfo0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/admin/comment/info/goods/{goods_id}", _CommentInfoService_GetGoodsCommentInfo0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/comment/info/review", _CommentInfoService_ListCommentReview0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/comment/info/{id}", _CommentInfoService_GetCommentInfo0_HTTP_Handler(srv))
-	r.Handle("PUT", "/api/v1/admin/comment/info/{id}/status", _CommentInfoService_SetCommentInfoStatus0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/admin/comment/info/{comment_id}/discussion", _CommentInfoService_PageCommentDiscussion0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/comment/info/goods/{goods_id}", _CommentInfoService_GetGoodsCommentInfo0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/comment/info/discussion/{id}/status", _CommentInfoService_SetCommentDiscussionStatus0_HTTP_Handler(srv))
+	r.Handle("PUT", "/api/v1/admin/comment/info/{id}/status", _CommentInfoService_SetCommentInfoStatus0_HTTP_Handler(srv))
+}
+
+func _CommentInfoService_PageCommentDiscussion0_HTTP_Handler(srv CommentInfoServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in PageCommentDiscussionRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationCommentInfoServicePageCommentDiscussion)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.PageCommentDiscussion(ctx, req.(*PageCommentDiscussionRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*PageCommentDiscussionResponse)
+		return ctx.Result(200, reply)
+	}
 }
 
 func _CommentInfoService_PageCommentInfo0_HTTP_Handler(srv CommentInfoServiceHTTPServer) func(ctx http.Context) error {
@@ -70,28 +92,6 @@ func _CommentInfoService_PageCommentInfo0_HTTP_Handler(srv CommentInfoServiceHTT
 			return err
 		}
 		reply := out.(*PageCommentInfoResponse)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _CommentInfoService_GetGoodsCommentInfo0_HTTP_Handler(srv CommentInfoServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in GetGoodsCommentInfoRequest
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		if err := ctx.BindVars(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationCommentInfoServiceGetGoodsCommentInfo)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.GetGoodsCommentInfo(ctx, req.(*GetGoodsCommentInfoRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*GoodsCommentInfoResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -137,46 +137,24 @@ func _CommentInfoService_GetCommentInfo0_HTTP_Handler(srv CommentInfoServiceHTTP
 	}
 }
 
-func _CommentInfoService_SetCommentInfoStatus0_HTTP_Handler(srv CommentInfoServiceHTTPServer) func(ctx http.Context) error {
+func _CommentInfoService_GetGoodsCommentInfo0_HTTP_Handler(srv CommentInfoServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in SetCommentInfoStatusRequest
-		if err := ctx.Bind(&in); err != nil {
-			return err
-		}
-		if err := ctx.BindVars(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationCommentInfoServiceSetCommentInfoStatus)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.SetCommentInfoStatus(ctx, req.(*SetCommentInfoStatusRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*emptypb.Empty)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _CommentInfoService_PageCommentDiscussion0_HTTP_Handler(srv CommentInfoServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in PageCommentDiscussionRequest
+		var in GetGoodsCommentInfoRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
 		if err := ctx.BindVars(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationCommentInfoServicePageCommentDiscussion)
+		http.SetOperation(ctx, OperationCommentInfoServiceGetGoodsCommentInfo)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.PageCommentDiscussion(ctx, req.(*PageCommentDiscussionRequest))
+			return srv.GetGoodsCommentInfo(ctx, req.(*GetGoodsCommentInfoRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*PageCommentDiscussionResponse)
+		reply := out.(*GoodsCommentInfoResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -193,6 +171,28 @@ func _CommentInfoService_SetCommentDiscussionStatus0_HTTP_Handler(srv CommentInf
 		http.SetOperation(ctx, OperationCommentInfoServiceSetCommentDiscussionStatus)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
 			return srv.SetCommentDiscussionStatus(ctx, req.(*SetCommentDiscussionStatusRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _CommentInfoService_SetCommentInfoStatus0_HTTP_Handler(srv CommentInfoServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in SetCommentInfoStatusRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationCommentInfoServiceSetCommentInfoStatus)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.SetCommentInfoStatus(ctx, req.(*SetCommentInfoStatusRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {

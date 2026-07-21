@@ -26,6 +26,914 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 评价讨论分页查询条件
+type PageCommentDiscussionRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	CommentId     int64                  `protobuf:"varint,1,opt,name=comment_id,json=commentId,proto3" json:"comment_id,omitempty"` // 评价ID
+	PageNum       int64                  `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`     // 当前页码
+	PageSize      int64                  `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`  // 每页数量
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PageCommentDiscussionRequest) Reset() {
+	*x = PageCommentDiscussionRequest{}
+	mi := &file_shop_app_v1_comment_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PageCommentDiscussionRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PageCommentDiscussionRequest) ProtoMessage() {}
+
+func (x *PageCommentDiscussionRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_app_v1_comment_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PageCommentDiscussionRequest.ProtoReflect.Descriptor instead.
+func (*PageCommentDiscussionRequest) Descriptor() ([]byte, []int) {
+	return file_shop_app_v1_comment_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *PageCommentDiscussionRequest) GetCommentId() int64 {
+	if x != nil {
+		return x.CommentId
+	}
+	return 0
+}
+
+func (x *PageCommentDiscussionRequest) GetPageNum() int64 {
+	if x != nil {
+		return x.PageNum
+	}
+	return 0
+}
+
+func (x *PageCommentDiscussionRequest) GetPageSize() int64 {
+	if x != nil {
+		return x.PageSize
+	}
+	return 0
+}
+
+// 评价讨论分页响应
+type PageCommentDiscussionResponse struct {
+	state              protoimpl.MessageState   `protogen:"open.v1"`
+	CommentId          int64                    `protobuf:"varint,1,opt,name=comment_id,json=commentId,proto3" json:"comment_id,omitempty"`                           // 评价ID
+	CommentDiscussions []*CommentDiscussionItem `protobuf:"bytes,2,rep,name=comment_discussions,json=commentDiscussions,proto3" json:"comment_discussions,omitempty"` // 讨论分页数据
+	Total              int32                    `protobuf:"varint,3,opt,name=total,proto3" json:"total,omitempty"`                                                    // 总数
+	PageNum            int64                    `protobuf:"varint,4,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`                                 // 当前页码
+	PageSize           int64                    `protobuf:"varint,5,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`                              // 每页数量
+	HasMore            bool                     `protobuf:"varint,6,opt,name=has_more,json=hasMore,proto3" json:"has_more,omitempty"`                                 // 是否还有下一页
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
+}
+
+func (x *PageCommentDiscussionResponse) Reset() {
+	*x = PageCommentDiscussionResponse{}
+	mi := &file_shop_app_v1_comment_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PageCommentDiscussionResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PageCommentDiscussionResponse) ProtoMessage() {}
+
+func (x *PageCommentDiscussionResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_app_v1_comment_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PageCommentDiscussionResponse.ProtoReflect.Descriptor instead.
+func (*PageCommentDiscussionResponse) Descriptor() ([]byte, []int) {
+	return file_shop_app_v1_comment_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *PageCommentDiscussionResponse) GetCommentId() int64 {
+	if x != nil {
+		return x.CommentId
+	}
+	return 0
+}
+
+func (x *PageCommentDiscussionResponse) GetCommentDiscussions() []*CommentDiscussionItem {
+	if x != nil {
+		return x.CommentDiscussions
+	}
+	return nil
+}
+
+func (x *PageCommentDiscussionResponse) GetTotal() int32 {
+	if x != nil {
+		return x.Total
+	}
+	return 0
+}
+
+func (x *PageCommentDiscussionResponse) GetPageNum() int64 {
+	if x != nil {
+		return x.PageNum
+	}
+	return 0
+}
+
+func (x *PageCommentDiscussionResponse) GetPageSize() int64 {
+	if x != nil {
+		return x.PageSize
+	}
+	return 0
+}
+
+func (x *PageCommentDiscussionResponse) GetHasMore() bool {
+	if x != nil {
+		return x.HasMore
+	}
+	return false
+}
+
+// 商品评价分页查询条件
+type PageGoodsCommentRequest struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	GoodsId          int64                  `protobuf:"varint,1,opt,name=goods_id,json=goodsId,proto3" json:"goods_id,omitempty"`                                                // 商品ID
+	SkuCode          string                 `protobuf:"bytes,2,opt,name=sku_code,json=skuCode,proto3" json:"sku_code,omitempty"`                                                 // SKU编码，仅当前商品筛选时使用
+	FilterType       v1.CommentFilterType   `protobuf:"varint,3,opt,name=filter_type,json=filterType,proto3,enum=shop.common.v1.CommentFilterType" json:"filter_type,omitempty"` // 筛选类型
+	TagId            int64                  `protobuf:"varint,4,opt,name=tag_id,json=tagId,proto3" json:"tag_id,omitempty"`                                                      // 内容标签ID，筛选标签时使用
+	CurrentGoodsOnly bool                   `protobuf:"varint,5,opt,name=current_goods_only,json=currentGoodsOnly,proto3" json:"current_goods_only,omitempty"`                   // 是否只看当前SKU商品
+	SortType         v1.CommentSortType     `protobuf:"varint,6,opt,name=sort_type,json=sortType,proto3,enum=shop.common.v1.CommentSortType" json:"sort_type,omitempty"`         // 排序类型
+	PageNum          int64                  `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`                                              // 当前页码
+	PageSize         int64                  `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`                                           // 每页数量
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *PageGoodsCommentRequest) Reset() {
+	*x = PageGoodsCommentRequest{}
+	mi := &file_shop_app_v1_comment_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PageGoodsCommentRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PageGoodsCommentRequest) ProtoMessage() {}
+
+func (x *PageGoodsCommentRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_app_v1_comment_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PageGoodsCommentRequest.ProtoReflect.Descriptor instead.
+func (*PageGoodsCommentRequest) Descriptor() ([]byte, []int) {
+	return file_shop_app_v1_comment_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *PageGoodsCommentRequest) GetGoodsId() int64 {
+	if x != nil {
+		return x.GoodsId
+	}
+	return 0
+}
+
+func (x *PageGoodsCommentRequest) GetSkuCode() string {
+	if x != nil {
+		return x.SkuCode
+	}
+	return ""
+}
+
+func (x *PageGoodsCommentRequest) GetFilterType() v1.CommentFilterType {
+	if x != nil {
+		return x.FilterType
+	}
+	return v1.CommentFilterType(0)
+}
+
+func (x *PageGoodsCommentRequest) GetTagId() int64 {
+	if x != nil {
+		return x.TagId
+	}
+	return 0
+}
+
+func (x *PageGoodsCommentRequest) GetCurrentGoodsOnly() bool {
+	if x != nil {
+		return x.CurrentGoodsOnly
+	}
+	return false
+}
+
+func (x *PageGoodsCommentRequest) GetSortType() v1.CommentSortType {
+	if x != nil {
+		return x.SortType
+	}
+	return v1.CommentSortType(0)
+}
+
+func (x *PageGoodsCommentRequest) GetPageNum() int64 {
+	if x != nil {
+		return x.PageNum
+	}
+	return 0
+}
+
+func (x *PageGoodsCommentRequest) GetPageSize() int64 {
+	if x != nil {
+		return x.PageSize
+	}
+	return 0
+}
+
+// 商品评价分页响应
+type PageGoodsCommentResponse struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	CommentFilters []*CommentFilterItem   `protobuf:"bytes,1,rep,name=comment_filters,json=commentFilters,proto3" json:"comment_filters,omitempty"` // 顶部筛选项列表
+	CommentSummary *CommentSummary        `protobuf:"bytes,2,opt,name=comment_summary,json=commentSummary,proto3" json:"comment_summary,omitempty"` // 评价列表摘要
+	Comments       []*CommentItem         `protobuf:"bytes,3,rep,name=comments,proto3" json:"comments,omitempty"`                                   // 评价分页数据
+	Total          int32                  `protobuf:"varint,4,opt,name=total,proto3" json:"total,omitempty"`                                        // 总数
+	PageNum        int64                  `protobuf:"varint,5,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`                     // 当前页码
+	PageSize       int64                  `protobuf:"varint,6,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`                  // 每页数量
+	HasMore        bool                   `protobuf:"varint,7,opt,name=has_more,json=hasMore,proto3" json:"has_more,omitempty"`                     // 是否还有下一页
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *PageGoodsCommentResponse) Reset() {
+	*x = PageGoodsCommentResponse{}
+	mi := &file_shop_app_v1_comment_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PageGoodsCommentResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PageGoodsCommentResponse) ProtoMessage() {}
+
+func (x *PageGoodsCommentResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_app_v1_comment_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PageGoodsCommentResponse.ProtoReflect.Descriptor instead.
+func (*PageGoodsCommentResponse) Descriptor() ([]byte, []int) {
+	return file_shop_app_v1_comment_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *PageGoodsCommentResponse) GetCommentFilters() []*CommentFilterItem {
+	if x != nil {
+		return x.CommentFilters
+	}
+	return nil
+}
+
+func (x *PageGoodsCommentResponse) GetCommentSummary() *CommentSummary {
+	if x != nil {
+		return x.CommentSummary
+	}
+	return nil
+}
+
+func (x *PageGoodsCommentResponse) GetComments() []*CommentItem {
+	if x != nil {
+		return x.Comments
+	}
+	return nil
+}
+
+func (x *PageGoodsCommentResponse) GetTotal() int32 {
+	if x != nil {
+		return x.Total
+	}
+	return 0
+}
+
+func (x *PageGoodsCommentResponse) GetPageNum() int64 {
+	if x != nil {
+		return x.PageNum
+	}
+	return 0
+}
+
+func (x *PageGoodsCommentResponse) GetPageSize() int64 {
+	if x != nil {
+		return x.PageSize
+	}
+	return 0
+}
+
+func (x *PageGoodsCommentResponse) GetHasMore() bool {
+	if x != nil {
+		return x.HasMore
+	}
+	return false
+}
+
+// 我的评价分页查询条件
+type PageMyCommentRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	PageNum       int64                  `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`    // 当前页码
+	PageSize      int64                  `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"` // 每页数量
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PageMyCommentRequest) Reset() {
+	*x = PageMyCommentRequest{}
+	mi := &file_shop_app_v1_comment_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PageMyCommentRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PageMyCommentRequest) ProtoMessage() {}
+
+func (x *PageMyCommentRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_app_v1_comment_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PageMyCommentRequest.ProtoReflect.Descriptor instead.
+func (*PageMyCommentRequest) Descriptor() ([]byte, []int) {
+	return file_shop_app_v1_comment_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *PageMyCommentRequest) GetPageNum() int64 {
+	if x != nil {
+		return x.PageNum
+	}
+	return 0
+}
+
+func (x *PageMyCommentRequest) GetPageSize() int64 {
+	if x != nil {
+		return x.PageSize
+	}
+	return 0
+}
+
+// 我的评价分页响应
+type PageMyCommentResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Comments      []*CommentItem         `protobuf:"bytes,1,rep,name=comments,proto3" json:"comments,omitempty"`                  // 我的评价列表
+	Total         int32                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`                       // 总数
+	PageNum       int64                  `protobuf:"varint,3,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`    // 当前页码
+	PageSize      int64                  `protobuf:"varint,4,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"` // 每页数量
+	HasMore       bool                   `protobuf:"varint,5,opt,name=has_more,json=hasMore,proto3" json:"has_more,omitempty"`    // 是否还有下一页
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PageMyCommentResponse) Reset() {
+	*x = PageMyCommentResponse{}
+	mi := &file_shop_app_v1_comment_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PageMyCommentResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PageMyCommentResponse) ProtoMessage() {}
+
+func (x *PageMyCommentResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_app_v1_comment_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PageMyCommentResponse.ProtoReflect.Descriptor instead.
+func (*PageMyCommentResponse) Descriptor() ([]byte, []int) {
+	return file_shop_app_v1_comment_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *PageMyCommentResponse) GetComments() []*CommentItem {
+	if x != nil {
+		return x.Comments
+	}
+	return nil
+}
+
+func (x *PageMyCommentResponse) GetTotal() int32 {
+	if x != nil {
+		return x.Total
+	}
+	return 0
+}
+
+func (x *PageMyCommentResponse) GetPageNum() int64 {
+	if x != nil {
+		return x.PageNum
+	}
+	return 0
+}
+
+func (x *PageMyCommentResponse) GetPageSize() int64 {
+	if x != nil {
+		return x.PageSize
+	}
+	return 0
+}
+
+func (x *PageMyCommentResponse) GetHasMore() bool {
+	if x != nil {
+		return x.HasMore
+	}
+	return false
+}
+
+// 待评价商品分页查询条件
+type PagePendingCommentGoodsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	OrderId       *int64                 `protobuf:"varint,1,opt,name=order_id,json=orderId,proto3,oneof" json:"order_id,omitempty"` // 门店订单ID，可为空
+	PageNum       int64                  `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`     // 当前页码
+	PageSize      int64                  `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`  // 每页数量
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PagePendingCommentGoodsRequest) Reset() {
+	*x = PagePendingCommentGoodsRequest{}
+	mi := &file_shop_app_v1_comment_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PagePendingCommentGoodsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PagePendingCommentGoodsRequest) ProtoMessage() {}
+
+func (x *PagePendingCommentGoodsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_app_v1_comment_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PagePendingCommentGoodsRequest.ProtoReflect.Descriptor instead.
+func (*PagePendingCommentGoodsRequest) Descriptor() ([]byte, []int) {
+	return file_shop_app_v1_comment_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *PagePendingCommentGoodsRequest) GetOrderId() int64 {
+	if x != nil && x.OrderId != nil {
+		return *x.OrderId
+	}
+	return 0
+}
+
+func (x *PagePendingCommentGoodsRequest) GetPageNum() int64 {
+	if x != nil {
+		return x.PageNum
+	}
+	return 0
+}
+
+func (x *PagePendingCommentGoodsRequest) GetPageSize() int64 {
+	if x != nil {
+		return x.PageSize
+	}
+	return 0
+}
+
+// 待评价商品分页响应
+type PagePendingCommentGoodsResponse struct {
+	state               protoimpl.MessageState     `protogen:"open.v1"`
+	PendingCommentGoods []*PendingCommentGoodsItem `protobuf:"bytes,1,rep,name=pending_comment_goods,json=pendingCommentGoods,proto3" json:"pending_comment_goods,omitempty"` // 待评价商品列表
+	Total               int32                      `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`                                                         // 总数
+	PageNum             int64                      `protobuf:"varint,3,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`                                      // 当前页码
+	PageSize            int64                      `protobuf:"varint,4,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`                                   // 每页数量
+	HasMore             bool                       `protobuf:"varint,5,opt,name=has_more,json=hasMore,proto3" json:"has_more,omitempty"`                                      // 是否还有下一页
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *PagePendingCommentGoodsResponse) Reset() {
+	*x = PagePendingCommentGoodsResponse{}
+	mi := &file_shop_app_v1_comment_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PagePendingCommentGoodsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PagePendingCommentGoodsResponse) ProtoMessage() {}
+
+func (x *PagePendingCommentGoodsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_app_v1_comment_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PagePendingCommentGoodsResponse.ProtoReflect.Descriptor instead.
+func (*PagePendingCommentGoodsResponse) Descriptor() ([]byte, []int) {
+	return file_shop_app_v1_comment_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *PagePendingCommentGoodsResponse) GetPendingCommentGoods() []*PendingCommentGoodsItem {
+	if x != nil {
+		return x.PendingCommentGoods
+	}
+	return nil
+}
+
+func (x *PagePendingCommentGoodsResponse) GetTotal() int32 {
+	if x != nil {
+		return x.Total
+	}
+	return 0
+}
+
+func (x *PagePendingCommentGoodsResponse) GetPageNum() int64 {
+	if x != nil {
+		return x.PageNum
+	}
+	return 0
+}
+
+func (x *PagePendingCommentGoodsResponse) GetPageSize() int64 {
+	if x != nil {
+		return x.PageSize
+	}
+	return 0
+}
+
+func (x *PagePendingCommentGoodsResponse) GetHasMore() bool {
+	if x != nil {
+		return x.HasMore
+	}
+	return false
+}
+
+// 发布商品评价请求参数
+type CreateCommentRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	OrderId       int64                  `protobuf:"varint,1,opt,name=order_id,json=orderId,proto3" json:"order_id,omitempty"`                   // 订单ID
+	GoodsId       int64                  `protobuf:"varint,2,opt,name=goods_id,json=goodsId,proto3" json:"goods_id,omitempty"`                   // 商品ID
+	SkuCode       string                 `protobuf:"bytes,3,opt,name=sku_code,json=skuCode,proto3" json:"sku_code,omitempty"`                    // SKU编码
+	Content       string                 `protobuf:"bytes,4,opt,name=content,proto3" json:"content,omitempty"`                                   // 评价正文
+	Img           []string               `protobuf:"bytes,5,rep,name=img,proto3" json:"img,omitempty"`                                           // 评价图片数组
+	IsAnonymous   bool                   `protobuf:"varint,6,opt,name=is_anonymous,json=isAnonymous,proto3" json:"is_anonymous,omitempty"`       // 是否匿名展示
+	GoodsScore    int32                  `protobuf:"varint,7,opt,name=goods_score,json=goodsScore,proto3" json:"goods_score,omitempty"`          // 商品评价评分，范围1到5
+	PackageScore  int32                  `protobuf:"varint,8,opt,name=package_score,json=packageScore,proto3" json:"package_score,omitempty"`    // 包装评价评分，范围1到5
+	DeliveryScore int32                  `protobuf:"varint,9,opt,name=delivery_score,json=deliveryScore,proto3" json:"delivery_score,omitempty"` // 送货评价评分，范围1到5
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateCommentRequest) Reset() {
+	*x = CreateCommentRequest{}
+	mi := &file_shop_app_v1_comment_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateCommentRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateCommentRequest) ProtoMessage() {}
+
+func (x *CreateCommentRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_app_v1_comment_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateCommentRequest.ProtoReflect.Descriptor instead.
+func (*CreateCommentRequest) Descriptor() ([]byte, []int) {
+	return file_shop_app_v1_comment_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *CreateCommentRequest) GetOrderId() int64 {
+	if x != nil {
+		return x.OrderId
+	}
+	return 0
+}
+
+func (x *CreateCommentRequest) GetGoodsId() int64 {
+	if x != nil {
+		return x.GoodsId
+	}
+	return 0
+}
+
+func (x *CreateCommentRequest) GetSkuCode() string {
+	if x != nil {
+		return x.SkuCode
+	}
+	return ""
+}
+
+func (x *CreateCommentRequest) GetContent() string {
+	if x != nil {
+		return x.Content
+	}
+	return ""
+}
+
+func (x *CreateCommentRequest) GetImg() []string {
+	if x != nil {
+		return x.Img
+	}
+	return nil
+}
+
+func (x *CreateCommentRequest) GetIsAnonymous() bool {
+	if x != nil {
+		return x.IsAnonymous
+	}
+	return false
+}
+
+func (x *CreateCommentRequest) GetGoodsScore() int32 {
+	if x != nil {
+		return x.GoodsScore
+	}
+	return 0
+}
+
+func (x *CreateCommentRequest) GetPackageScore() int32 {
+	if x != nil {
+		return x.PackageScore
+	}
+	return 0
+}
+
+func (x *CreateCommentRequest) GetDeliveryScore() int32 {
+	if x != nil {
+		return x.DeliveryScore
+	}
+	return 0
+}
+
+// 发布商品评价响应
+type CreateCommentResponse struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	CommentId      int64                  `protobuf:"varint,1,opt,name=comment_id,json=commentId,proto3" json:"comment_id,omitempty"`                // 新建评价ID
+	OrderId        int64                  `protobuf:"varint,2,opt,name=order_id,json=orderId,proto3" json:"order_id,omitempty"`                      // 订单ID
+	OrderCompleted bool                   `protobuf:"varint,3,opt,name=order_completed,json=orderCompleted,proto3" json:"order_completed,omitempty"` // 订单是否已因全部评价完成而流转为已完成
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *CreateCommentResponse) Reset() {
+	*x = CreateCommentResponse{}
+	mi := &file_shop_app_v1_comment_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateCommentResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateCommentResponse) ProtoMessage() {}
+
+func (x *CreateCommentResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_app_v1_comment_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateCommentResponse.ProtoReflect.Descriptor instead.
+func (*CreateCommentResponse) Descriptor() ([]byte, []int) {
+	return file_shop_app_v1_comment_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *CreateCommentResponse) GetCommentId() int64 {
+	if x != nil {
+		return x.CommentId
+	}
+	return 0
+}
+
+func (x *CreateCommentResponse) GetOrderId() int64 {
+	if x != nil {
+		return x.OrderId
+	}
+	return 0
+}
+
+func (x *CreateCommentResponse) GetOrderCompleted() bool {
+	if x != nil {
+		return x.OrderCompleted
+	}
+	return false
+}
+
+// 发布评价讨论请求参数
+type CreateCommentDiscussionRequest struct {
+	state               protoimpl.MessageState `protogen:"open.v1"`
+	CommentId           int64                  `protobuf:"varint,1,opt,name=comment_id,json=commentId,proto3" json:"comment_id,omitempty"`                                   // 所属评价ID
+	Content             string                 `protobuf:"bytes,2,opt,name=content,proto3" json:"content,omitempty"`                                                         // 讨论内容
+	ParentId            int64                  `protobuf:"varint,3,opt,name=parent_id,json=parentId,proto3" json:"parent_id,omitempty"`                                      // 父级讨论ID，可为空
+	ReplyToDiscussionId int64                  `protobuf:"varint,4,opt,name=reply_to_discussion_id,json=replyToDiscussionId,proto3" json:"reply_to_discussion_id,omitempty"` // 被回复讨论ID，可为空
+	IsAnonymous         bool                   `protobuf:"varint,5,opt,name=is_anonymous,json=isAnonymous,proto3" json:"is_anonymous,omitempty"`                             // 是否匿名讨论
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *CreateCommentDiscussionRequest) Reset() {
+	*x = CreateCommentDiscussionRequest{}
+	mi := &file_shop_app_v1_comment_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateCommentDiscussionRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateCommentDiscussionRequest) ProtoMessage() {}
+
+func (x *CreateCommentDiscussionRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_app_v1_comment_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateCommentDiscussionRequest.ProtoReflect.Descriptor instead.
+func (*CreateCommentDiscussionRequest) Descriptor() ([]byte, []int) {
+	return file_shop_app_v1_comment_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *CreateCommentDiscussionRequest) GetCommentId() int64 {
+	if x != nil {
+		return x.CommentId
+	}
+	return 0
+}
+
+func (x *CreateCommentDiscussionRequest) GetContent() string {
+	if x != nil {
+		return x.Content
+	}
+	return ""
+}
+
+func (x *CreateCommentDiscussionRequest) GetParentId() int64 {
+	if x != nil {
+		return x.ParentId
+	}
+	return 0
+}
+
+func (x *CreateCommentDiscussionRequest) GetReplyToDiscussionId() int64 {
+	if x != nil {
+		return x.ReplyToDiscussionId
+	}
+	return 0
+}
+
+func (x *CreateCommentDiscussionRequest) GetIsAnonymous() bool {
+	if x != nil {
+		return x.IsAnonymous
+	}
+	return false
+}
+
+// 发布评价讨论响应
+type CreateCommentDiscussionResponse struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	Item            *CommentDiscussionItem `protobuf:"bytes,1,opt,name=item,proto3" json:"item,omitempty"`                                               // 新创建的讨论
+	DiscussionCount int32                  `protobuf:"varint,2,opt,name=discussion_count,json=discussionCount,proto3" json:"discussion_count,omitempty"` // 发布后的讨论总数
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *CreateCommentDiscussionResponse) Reset() {
+	*x = CreateCommentDiscussionResponse{}
+	mi := &file_shop_app_v1_comment_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateCommentDiscussionResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateCommentDiscussionResponse) ProtoMessage() {}
+
+func (x *CreateCommentDiscussionResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_app_v1_comment_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateCommentDiscussionResponse.ProtoReflect.Descriptor instead.
+func (*CreateCommentDiscussionResponse) Descriptor() ([]byte, []int) {
+	return file_shop_app_v1_comment_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *CreateCommentDiscussionResponse) GetItem() *CommentDiscussionItem {
+	if x != nil {
+		return x.Item
+	}
+	return nil
+}
+
+func (x *CreateCommentDiscussionResponse) GetDiscussionCount() int32 {
+	if x != nil {
+		return x.DiscussionCount
+	}
+	return 0
+}
+
 // 删除商品评价条件
 type DeleteCommentRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -36,7 +944,7 @@ type DeleteCommentRequest struct {
 
 func (x *DeleteCommentRequest) Reset() {
 	*x = DeleteCommentRequest{}
-	mi := &file_shop_app_v1_comment_proto_msgTypes[0]
+	mi := &file_shop_app_v1_comment_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -48,7 +956,7 @@ func (x *DeleteCommentRequest) String() string {
 func (*DeleteCommentRequest) ProtoMessage() {}
 
 func (x *DeleteCommentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_comment_proto_msgTypes[0]
+	mi := &file_shop_app_v1_comment_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -61,12 +969,386 @@ func (x *DeleteCommentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteCommentRequest.ProtoReflect.Descriptor instead.
 func (*DeleteCommentRequest) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_comment_proto_rawDescGZIP(), []int{0}
+	return file_shop_app_v1_comment_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *DeleteCommentRequest) GetId() int64 {
 	if x != nil {
 		return x.Id
+	}
+	return 0
+}
+
+// 商品评价摘要查询条件
+type GoodsCommentOverviewRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	GoodsId       int64                  `protobuf:"varint,1,opt,name=goods_id,json=goodsId,proto3" json:"goods_id,omitempty"`                // 商品ID
+	PreviewLimit  int32                  `protobuf:"varint,2,opt,name=preview_limit,json=previewLimit,proto3" json:"preview_limit,omitempty"` // 评价预览数量
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GoodsCommentOverviewRequest) Reset() {
+	*x = GoodsCommentOverviewRequest{}
+	mi := &file_shop_app_v1_comment_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GoodsCommentOverviewRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GoodsCommentOverviewRequest) ProtoMessage() {}
+
+func (x *GoodsCommentOverviewRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_app_v1_comment_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GoodsCommentOverviewRequest.ProtoReflect.Descriptor instead.
+func (*GoodsCommentOverviewRequest) Descriptor() ([]byte, []int) {
+	return file_shop_app_v1_comment_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *GoodsCommentOverviewRequest) GetGoodsId() int64 {
+	if x != nil {
+		return x.GoodsId
+	}
+	return 0
+}
+
+func (x *GoodsCommentOverviewRequest) GetPreviewLimit() int32 {
+	if x != nil {
+		return x.PreviewLimit
+	}
+	return 0
+}
+
+// 商品评价摘要响应
+type GoodsCommentOverviewResponse struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	TotalCount      int32                  `protobuf:"varint,1,opt,name=total_count,json=totalCount,proto3" json:"total_count,omitempty"`               // 评价总数
+	RecentDays      int32                  `protobuf:"varint,2,opt,name=recent_days,json=recentDays,proto3" json:"recent_days,omitempty"`               // 好评率统计天数
+	RecentGoodRate  int32                  `protobuf:"varint,3,opt,name=recent_good_rate,json=recentGoodRate,proto3" json:"recent_good_rate,omitempty"` // 近N天好评率百分比整数
+	CommentSummary  *CommentSummary        `protobuf:"bytes,4,opt,name=comment_summary,json=commentSummary,proto3" json:"comment_summary,omitempty"`    // 商品详情评价摘要
+	PreviewComments []*CommentItem         `protobuf:"bytes,6,rep,name=preview_comments,json=previewComments,proto3" json:"preview_comments,omitempty"` // 评价预览列表
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *GoodsCommentOverviewResponse) Reset() {
+	*x = GoodsCommentOverviewResponse{}
+	mi := &file_shop_app_v1_comment_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GoodsCommentOverviewResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GoodsCommentOverviewResponse) ProtoMessage() {}
+
+func (x *GoodsCommentOverviewResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_app_v1_comment_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GoodsCommentOverviewResponse.ProtoReflect.Descriptor instead.
+func (*GoodsCommentOverviewResponse) Descriptor() ([]byte, []int) {
+	return file_shop_app_v1_comment_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *GoodsCommentOverviewResponse) GetTotalCount() int32 {
+	if x != nil {
+		return x.TotalCount
+	}
+	return 0
+}
+
+func (x *GoodsCommentOverviewResponse) GetRecentDays() int32 {
+	if x != nil {
+		return x.RecentDays
+	}
+	return 0
+}
+
+func (x *GoodsCommentOverviewResponse) GetRecentGoodRate() int32 {
+	if x != nil {
+		return x.RecentGoodRate
+	}
+	return 0
+}
+
+func (x *GoodsCommentOverviewResponse) GetCommentSummary() *CommentSummary {
+	if x != nil {
+		return x.CommentSummary
+	}
+	return nil
+}
+
+func (x *GoodsCommentOverviewResponse) GetPreviewComments() []*CommentItem {
+	if x != nil {
+		return x.PreviewComments
+	}
+	return nil
+}
+
+// 商品评价标签查询条件
+type GoodsCommentTagRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	GoodsId       int64                  `protobuf:"varint,1,opt,name=goods_id,json=goodsId,proto3" json:"goods_id,omitempty"` // 商品ID
+	Limit         int32                  `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"`                    // 标签展示数量
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GoodsCommentTagRequest) Reset() {
+	*x = GoodsCommentTagRequest{}
+	mi := &file_shop_app_v1_comment_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GoodsCommentTagRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GoodsCommentTagRequest) ProtoMessage() {}
+
+func (x *GoodsCommentTagRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_app_v1_comment_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GoodsCommentTagRequest.ProtoReflect.Descriptor instead.
+func (*GoodsCommentTagRequest) Descriptor() ([]byte, []int) {
+	return file_shop_app_v1_comment_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *GoodsCommentTagRequest) GetGoodsId() int64 {
+	if x != nil {
+		return x.GoodsId
+	}
+	return 0
+}
+
+func (x *GoodsCommentTagRequest) GetLimit() int32 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+// 商品评价标签响应
+type GoodsCommentTagResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	CommentTags   []*CommentTagItem      `protobuf:"bytes,1,rep,name=comment_tags,json=commentTags,proto3" json:"comment_tags,omitempty"` // 评价标签列表
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GoodsCommentTagResponse) Reset() {
+	*x = GoodsCommentTagResponse{}
+	mi := &file_shop_app_v1_comment_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GoodsCommentTagResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GoodsCommentTagResponse) ProtoMessage() {}
+
+func (x *GoodsCommentTagResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_app_v1_comment_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GoodsCommentTagResponse.ProtoReflect.Descriptor instead.
+func (*GoodsCommentTagResponse) Descriptor() ([]byte, []int) {
+	return file_shop_app_v1_comment_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *GoodsCommentTagResponse) GetCommentTags() []*CommentTagItem {
+	if x != nil {
+		return x.CommentTags
+	}
+	return nil
+}
+
+// 保存评价互动状态请求参数
+type SaveCommentReactionRequest struct {
+	state         protoimpl.MessageState       `protogen:"open.v1"`
+	TargetType    v1.CommentReactionTargetType `protobuf:"varint,1,opt,name=target_type,json=targetType,proto3,enum=shop.common.v1.CommentReactionTargetType" json:"target_type,omitempty"` // 互动目标类型：枚举【CommentReactionTargetType】
+	TargetId      int64                        `protobuf:"varint,2,opt,name=target_id,json=targetId,proto3" json:"target_id,omitempty"`                                                     // 互动目标ID
+	ReactionType  v1.CommentReactionType       `protobuf:"varint,3,opt,name=reaction_type,json=reactionType,proto3,enum=shop.common.v1.CommentReactionType" json:"reaction_type,omitempty"` // 互动类型：枚举【CommentReactionType】
+	Active        bool                         `protobuf:"varint,4,opt,name=active,proto3" json:"active,omitempty"`                                                                         // 是否设置当前互动状态
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SaveCommentReactionRequest) Reset() {
+	*x = SaveCommentReactionRequest{}
+	mi := &file_shop_app_v1_comment_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SaveCommentReactionRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SaveCommentReactionRequest) ProtoMessage() {}
+
+func (x *SaveCommentReactionRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_app_v1_comment_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SaveCommentReactionRequest.ProtoReflect.Descriptor instead.
+func (*SaveCommentReactionRequest) Descriptor() ([]byte, []int) {
+	return file_shop_app_v1_comment_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *SaveCommentReactionRequest) GetTargetType() v1.CommentReactionTargetType {
+	if x != nil {
+		return x.TargetType
+	}
+	return v1.CommentReactionTargetType(0)
+}
+
+func (x *SaveCommentReactionRequest) GetTargetId() int64 {
+	if x != nil {
+		return x.TargetId
+	}
+	return 0
+}
+
+func (x *SaveCommentReactionRequest) GetReactionType() v1.CommentReactionType {
+	if x != nil {
+		return x.ReactionType
+	}
+	return v1.CommentReactionType(0)
+}
+
+func (x *SaveCommentReactionRequest) GetActive() bool {
+	if x != nil {
+		return x.Active
+	}
+	return false
+}
+
+// 保存评价互动状态响应
+type SaveCommentReactionResponse struct {
+	state         protoimpl.MessageState       `protogen:"open.v1"`
+	TargetType    v1.CommentReactionTargetType `protobuf:"varint,1,opt,name=target_type,json=targetType,proto3,enum=shop.common.v1.CommentReactionTargetType" json:"target_type,omitempty"` // 互动目标类型：枚举【CommentReactionTargetType】
+	TargetId      int64                        `protobuf:"varint,2,opt,name=target_id,json=targetId,proto3" json:"target_id,omitempty"`                                                     // 互动目标ID
+	ReactionType  v1.CommentReactionType       `protobuf:"varint,3,opt,name=reaction_type,json=reactionType,proto3,enum=shop.common.v1.CommentReactionType" json:"reaction_type,omitempty"` // 当前用户互动类型：枚举【CommentReactionType】
+	LikeCount     int32                        `protobuf:"varint,4,opt,name=like_count,json=likeCount,proto3" json:"like_count,omitempty"`                                                  // 点赞数
+	DislikeCount  int32                        `protobuf:"varint,5,opt,name=dislike_count,json=dislikeCount,proto3" json:"dislike_count,omitempty"`                                         // 点踩数
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SaveCommentReactionResponse) Reset() {
+	*x = SaveCommentReactionResponse{}
+	mi := &file_shop_app_v1_comment_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SaveCommentReactionResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SaveCommentReactionResponse) ProtoMessage() {}
+
+func (x *SaveCommentReactionResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_shop_app_v1_comment_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SaveCommentReactionResponse.ProtoReflect.Descriptor instead.
+func (*SaveCommentReactionResponse) Descriptor() ([]byte, []int) {
+	return file_shop_app_v1_comment_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *SaveCommentReactionResponse) GetTargetType() v1.CommentReactionTargetType {
+	if x != nil {
+		return x.TargetType
+	}
+	return v1.CommentReactionTargetType(0)
+}
+
+func (x *SaveCommentReactionResponse) GetTargetId() int64 {
+	if x != nil {
+		return x.TargetId
+	}
+	return 0
+}
+
+func (x *SaveCommentReactionResponse) GetReactionType() v1.CommentReactionType {
+	if x != nil {
+		return x.ReactionType
+	}
+	return v1.CommentReactionType(0)
+}
+
+func (x *SaveCommentReactionResponse) GetLikeCount() int32 {
+	if x != nil {
+		return x.LikeCount
+	}
+	return 0
+}
+
+func (x *SaveCommentReactionResponse) GetDislikeCount() int32 {
+	if x != nil {
+		return x.DislikeCount
 	}
 	return 0
 }
@@ -82,7 +1364,7 @@ type CommentTextSegment struct {
 
 func (x *CommentTextSegment) Reset() {
 	*x = CommentTextSegment{}
-	mi := &file_shop_app_v1_comment_proto_msgTypes[1]
+	mi := &file_shop_app_v1_comment_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -94,7 +1376,7 @@ func (x *CommentTextSegment) String() string {
 func (*CommentTextSegment) ProtoMessage() {}
 
 func (x *CommentTextSegment) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_comment_proto_msgTypes[1]
+	mi := &file_shop_app_v1_comment_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -107,7 +1389,7 @@ func (x *CommentTextSegment) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CommentTextSegment.ProtoReflect.Descriptor instead.
 func (*CommentTextSegment) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_comment_proto_rawDescGZIP(), []int{1}
+	return file_shop_app_v1_comment_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *CommentTextSegment) GetText() string {
@@ -137,7 +1419,7 @@ type CommentUserView struct {
 
 func (x *CommentUserView) Reset() {
 	*x = CommentUserView{}
-	mi := &file_shop_app_v1_comment_proto_msgTypes[2]
+	mi := &file_shop_app_v1_comment_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -149,7 +1431,7 @@ func (x *CommentUserView) String() string {
 func (*CommentUserView) ProtoMessage() {}
 
 func (x *CommentUserView) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_comment_proto_msgTypes[2]
+	mi := &file_shop_app_v1_comment_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -162,7 +1444,7 @@ func (x *CommentUserView) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CommentUserView.ProtoReflect.Descriptor instead.
 func (*CommentUserView) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_comment_proto_rawDescGZIP(), []int{2}
+	return file_shop_app_v1_comment_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *CommentUserView) GetUserName() string {
@@ -206,7 +1488,7 @@ type CommentFilterItem struct {
 
 func (x *CommentFilterItem) Reset() {
 	*x = CommentFilterItem{}
-	mi := &file_shop_app_v1_comment_proto_msgTypes[3]
+	mi := &file_shop_app_v1_comment_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -218,7 +1500,7 @@ func (x *CommentFilterItem) String() string {
 func (*CommentFilterItem) ProtoMessage() {}
 
 func (x *CommentFilterItem) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_comment_proto_msgTypes[3]
+	mi := &file_shop_app_v1_comment_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -231,7 +1513,7 @@ func (x *CommentFilterItem) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CommentFilterItem.ProtoReflect.Descriptor instead.
 func (*CommentFilterItem) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_comment_proto_rawDescGZIP(), []int{3}
+	return file_shop_app_v1_comment_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *CommentFilterItem) GetFilterType() v1.CommentFilterType {
@@ -274,7 +1556,7 @@ type CommentTagItem struct {
 
 func (x *CommentTagItem) Reset() {
 	*x = CommentTagItem{}
-	mi := &file_shop_app_v1_comment_proto_msgTypes[4]
+	mi := &file_shop_app_v1_comment_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -286,7 +1568,7 @@ func (x *CommentTagItem) String() string {
 func (*CommentTagItem) ProtoMessage() {}
 
 func (x *CommentTagItem) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_comment_proto_msgTypes[4]
+	mi := &file_shop_app_v1_comment_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -299,7 +1581,7 @@ func (x *CommentTagItem) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CommentTagItem.ProtoReflect.Descriptor instead.
 func (*CommentTagItem) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_comment_proto_rawDescGZIP(), []int{4}
+	return file_shop_app_v1_comment_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *CommentTagItem) GetTagId() int64 {
@@ -350,7 +1632,7 @@ type CommentItem struct {
 
 func (x *CommentItem) Reset() {
 	*x = CommentItem{}
-	mi := &file_shop_app_v1_comment_proto_msgTypes[5]
+	mi := &file_shop_app_v1_comment_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -362,7 +1644,7 @@ func (x *CommentItem) String() string {
 func (*CommentItem) ProtoMessage() {}
 
 func (x *CommentItem) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_comment_proto_msgTypes[5]
+	mi := &file_shop_app_v1_comment_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -375,7 +1657,7 @@ func (x *CommentItem) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CommentItem.ProtoReflect.Descriptor instead.
 func (*CommentItem) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_comment_proto_rawDescGZIP(), []int{5}
+	return file_shop_app_v1_comment_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *CommentItem) GetId() int64 {
@@ -518,7 +1800,7 @@ type CommentSummary struct {
 
 func (x *CommentSummary) Reset() {
 	*x = CommentSummary{}
-	mi := &file_shop_app_v1_comment_proto_msgTypes[6]
+	mi := &file_shop_app_v1_comment_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -530,7 +1812,7 @@ func (x *CommentSummary) String() string {
 func (*CommentSummary) ProtoMessage() {}
 
 func (x *CommentSummary) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_comment_proto_msgTypes[6]
+	mi := &file_shop_app_v1_comment_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -543,7 +1825,7 @@ func (x *CommentSummary) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CommentSummary.ProtoReflect.Descriptor instead.
 func (*CommentSummary) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_comment_proto_rawDescGZIP(), []int{6}
+	return file_shop_app_v1_comment_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *CommentSummary) GetId() int64 {
@@ -600,7 +1882,7 @@ type CommentDiscussionItem struct {
 
 func (x *CommentDiscussionItem) Reset() {
 	*x = CommentDiscussionItem{}
-	mi := &file_shop_app_v1_comment_proto_msgTypes[7]
+	mi := &file_shop_app_v1_comment_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -612,7 +1894,7 @@ func (x *CommentDiscussionItem) String() string {
 func (*CommentDiscussionItem) ProtoMessage() {}
 
 func (x *CommentDiscussionItem) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_comment_proto_msgTypes[7]
+	mi := &file_shop_app_v1_comment_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -625,7 +1907,7 @@ func (x *CommentDiscussionItem) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CommentDiscussionItem.ProtoReflect.Descriptor instead.
 func (*CommentDiscussionItem) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_comment_proto_rawDescGZIP(), []int{7}
+	return file_shop_app_v1_comment_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *CommentDiscussionItem) GetId() int64 {
@@ -714,7 +1996,7 @@ type PendingCommentGoodsItem struct {
 
 func (x *PendingCommentGoodsItem) Reset() {
 	*x = PendingCommentGoodsItem{}
-	mi := &file_shop_app_v1_comment_proto_msgTypes[8]
+	mi := &file_shop_app_v1_comment_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -726,7 +2008,7 @@ func (x *PendingCommentGoodsItem) String() string {
 func (*PendingCommentGoodsItem) ProtoMessage() {}
 
 func (x *PendingCommentGoodsItem) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_comment_proto_msgTypes[8]
+	mi := &file_shop_app_v1_comment_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -739,7 +2021,7 @@ func (x *PendingCommentGoodsItem) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PendingCommentGoodsItem.ProtoReflect.Descriptor instead.
 func (*PendingCommentGoodsItem) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_comment_proto_rawDescGZIP(), []int{8}
+	return file_shop_app_v1_comment_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *PendingCommentGoodsItem) GetOrderId() int64 {
@@ -791,1295 +2073,120 @@ func (x *PendingCommentGoodsItem) GetDesc() string {
 	return ""
 }
 
-// 商品评价摘要查询条件
-type GoodsCommentOverviewRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	GoodsId       int64                  `protobuf:"varint,1,opt,name=goods_id,json=goodsId,proto3" json:"goods_id,omitempty"`                // 商品ID
-	PreviewLimit  int32                  `protobuf:"varint,2,opt,name=preview_limit,json=previewLimit,proto3" json:"preview_limit,omitempty"` // 评价预览数量
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GoodsCommentOverviewRequest) Reset() {
-	*x = GoodsCommentOverviewRequest{}
-	mi := &file_shop_app_v1_comment_proto_msgTypes[9]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GoodsCommentOverviewRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GoodsCommentOverviewRequest) ProtoMessage() {}
-
-func (x *GoodsCommentOverviewRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_comment_proto_msgTypes[9]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GoodsCommentOverviewRequest.ProtoReflect.Descriptor instead.
-func (*GoodsCommentOverviewRequest) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_comment_proto_rawDescGZIP(), []int{9}
-}
-
-func (x *GoodsCommentOverviewRequest) GetGoodsId() int64 {
-	if x != nil {
-		return x.GoodsId
-	}
-	return 0
-}
-
-func (x *GoodsCommentOverviewRequest) GetPreviewLimit() int32 {
-	if x != nil {
-		return x.PreviewLimit
-	}
-	return 0
-}
-
-// 商品评价摘要响应
-type GoodsCommentOverviewResponse struct {
-	state           protoimpl.MessageState `protogen:"open.v1"`
-	TotalCount      int32                  `protobuf:"varint,1,opt,name=total_count,json=totalCount,proto3" json:"total_count,omitempty"`               // 评价总数
-	RecentDays      int32                  `protobuf:"varint,2,opt,name=recent_days,json=recentDays,proto3" json:"recent_days,omitempty"`               // 好评率统计天数
-	RecentGoodRate  int32                  `protobuf:"varint,3,opt,name=recent_good_rate,json=recentGoodRate,proto3" json:"recent_good_rate,omitempty"` // 近N天好评率百分比整数
-	CommentSummary  *CommentSummary        `protobuf:"bytes,4,opt,name=comment_summary,json=commentSummary,proto3" json:"comment_summary,omitempty"`    // 商品详情评价摘要
-	PreviewComments []*CommentItem         `protobuf:"bytes,6,rep,name=preview_comments,json=previewComments,proto3" json:"preview_comments,omitempty"` // 评价预览列表
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
-}
-
-func (x *GoodsCommentOverviewResponse) Reset() {
-	*x = GoodsCommentOverviewResponse{}
-	mi := &file_shop_app_v1_comment_proto_msgTypes[10]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GoodsCommentOverviewResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GoodsCommentOverviewResponse) ProtoMessage() {}
-
-func (x *GoodsCommentOverviewResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_comment_proto_msgTypes[10]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GoodsCommentOverviewResponse.ProtoReflect.Descriptor instead.
-func (*GoodsCommentOverviewResponse) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_comment_proto_rawDescGZIP(), []int{10}
-}
-
-func (x *GoodsCommentOverviewResponse) GetTotalCount() int32 {
-	if x != nil {
-		return x.TotalCount
-	}
-	return 0
-}
-
-func (x *GoodsCommentOverviewResponse) GetRecentDays() int32 {
-	if x != nil {
-		return x.RecentDays
-	}
-	return 0
-}
-
-func (x *GoodsCommentOverviewResponse) GetRecentGoodRate() int32 {
-	if x != nil {
-		return x.RecentGoodRate
-	}
-	return 0
-}
-
-func (x *GoodsCommentOverviewResponse) GetCommentSummary() *CommentSummary {
-	if x != nil {
-		return x.CommentSummary
-	}
-	return nil
-}
-
-func (x *GoodsCommentOverviewResponse) GetPreviewComments() []*CommentItem {
-	if x != nil {
-		return x.PreviewComments
-	}
-	return nil
-}
-
-// 商品评价标签查询条件
-type GoodsCommentTagRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	GoodsId       int64                  `protobuf:"varint,1,opt,name=goods_id,json=goodsId,proto3" json:"goods_id,omitempty"` // 商品ID
-	Limit         int32                  `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"`                    // 标签展示数量
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GoodsCommentTagRequest) Reset() {
-	*x = GoodsCommentTagRequest{}
-	mi := &file_shop_app_v1_comment_proto_msgTypes[11]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GoodsCommentTagRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GoodsCommentTagRequest) ProtoMessage() {}
-
-func (x *GoodsCommentTagRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_comment_proto_msgTypes[11]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GoodsCommentTagRequest.ProtoReflect.Descriptor instead.
-func (*GoodsCommentTagRequest) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_comment_proto_rawDescGZIP(), []int{11}
-}
-
-func (x *GoodsCommentTagRequest) GetGoodsId() int64 {
-	if x != nil {
-		return x.GoodsId
-	}
-	return 0
-}
-
-func (x *GoodsCommentTagRequest) GetLimit() int32 {
-	if x != nil {
-		return x.Limit
-	}
-	return 0
-}
-
-// 商品评价标签响应
-type GoodsCommentTagResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	CommentTags   []*CommentTagItem      `protobuf:"bytes,1,rep,name=comment_tags,json=commentTags,proto3" json:"comment_tags,omitempty"` // 评价标签列表
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GoodsCommentTagResponse) Reset() {
-	*x = GoodsCommentTagResponse{}
-	mi := &file_shop_app_v1_comment_proto_msgTypes[12]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GoodsCommentTagResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GoodsCommentTagResponse) ProtoMessage() {}
-
-func (x *GoodsCommentTagResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_comment_proto_msgTypes[12]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GoodsCommentTagResponse.ProtoReflect.Descriptor instead.
-func (*GoodsCommentTagResponse) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_comment_proto_rawDescGZIP(), []int{12}
-}
-
-func (x *GoodsCommentTagResponse) GetCommentTags() []*CommentTagItem {
-	if x != nil {
-		return x.CommentTags
-	}
-	return nil
-}
-
-// 商品评价分页查询条件
-type PageGoodsCommentRequest struct {
-	state            protoimpl.MessageState `protogen:"open.v1"`
-	GoodsId          int64                  `protobuf:"varint,1,opt,name=goods_id,json=goodsId,proto3" json:"goods_id,omitempty"`                                                // 商品ID
-	SkuCode          string                 `protobuf:"bytes,2,opt,name=sku_code,json=skuCode,proto3" json:"sku_code,omitempty"`                                                 // SKU编码，仅当前商品筛选时使用
-	FilterType       v1.CommentFilterType   `protobuf:"varint,3,opt,name=filter_type,json=filterType,proto3,enum=shop.common.v1.CommentFilterType" json:"filter_type,omitempty"` // 筛选类型
-	TagId            int64                  `protobuf:"varint,4,opt,name=tag_id,json=tagId,proto3" json:"tag_id,omitempty"`                                                      // 内容标签ID，筛选标签时使用
-	CurrentGoodsOnly bool                   `protobuf:"varint,5,opt,name=current_goods_only,json=currentGoodsOnly,proto3" json:"current_goods_only,omitempty"`                   // 是否只看当前SKU商品
-	SortType         v1.CommentSortType     `protobuf:"varint,6,opt,name=sort_type,json=sortType,proto3,enum=shop.common.v1.CommentSortType" json:"sort_type,omitempty"`         // 排序类型
-	PageNum          int64                  `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`                                              // 当前页码
-	PageSize         int64                  `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`                                           // 每页数量
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
-}
-
-func (x *PageGoodsCommentRequest) Reset() {
-	*x = PageGoodsCommentRequest{}
-	mi := &file_shop_app_v1_comment_proto_msgTypes[13]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PageGoodsCommentRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PageGoodsCommentRequest) ProtoMessage() {}
-
-func (x *PageGoodsCommentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_comment_proto_msgTypes[13]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use PageGoodsCommentRequest.ProtoReflect.Descriptor instead.
-func (*PageGoodsCommentRequest) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_comment_proto_rawDescGZIP(), []int{13}
-}
-
-func (x *PageGoodsCommentRequest) GetGoodsId() int64 {
-	if x != nil {
-		return x.GoodsId
-	}
-	return 0
-}
-
-func (x *PageGoodsCommentRequest) GetSkuCode() string {
-	if x != nil {
-		return x.SkuCode
-	}
-	return ""
-}
-
-func (x *PageGoodsCommentRequest) GetFilterType() v1.CommentFilterType {
-	if x != nil {
-		return x.FilterType
-	}
-	return v1.CommentFilterType(0)
-}
-
-func (x *PageGoodsCommentRequest) GetTagId() int64 {
-	if x != nil {
-		return x.TagId
-	}
-	return 0
-}
-
-func (x *PageGoodsCommentRequest) GetCurrentGoodsOnly() bool {
-	if x != nil {
-		return x.CurrentGoodsOnly
-	}
-	return false
-}
-
-func (x *PageGoodsCommentRequest) GetSortType() v1.CommentSortType {
-	if x != nil {
-		return x.SortType
-	}
-	return v1.CommentSortType(0)
-}
-
-func (x *PageGoodsCommentRequest) GetPageNum() int64 {
-	if x != nil {
-		return x.PageNum
-	}
-	return 0
-}
-
-func (x *PageGoodsCommentRequest) GetPageSize() int64 {
-	if x != nil {
-		return x.PageSize
-	}
-	return 0
-}
-
-// 商品评价分页响应
-type PageGoodsCommentResponse struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	CommentFilters []*CommentFilterItem   `protobuf:"bytes,1,rep,name=comment_filters,json=commentFilters,proto3" json:"comment_filters,omitempty"` // 顶部筛选项列表
-	CommentSummary *CommentSummary        `protobuf:"bytes,2,opt,name=comment_summary,json=commentSummary,proto3" json:"comment_summary,omitempty"` // 评价列表摘要
-	Comments       []*CommentItem         `protobuf:"bytes,3,rep,name=comments,proto3" json:"comments,omitempty"`                                   // 评价分页数据
-	Total          int32                  `protobuf:"varint,4,opt,name=total,proto3" json:"total,omitempty"`                                        // 总数
-	PageNum        int64                  `protobuf:"varint,5,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`                     // 当前页码
-	PageSize       int64                  `protobuf:"varint,6,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`                  // 每页数量
-	HasMore        bool                   `protobuf:"varint,7,opt,name=has_more,json=hasMore,proto3" json:"has_more,omitempty"`                     // 是否还有下一页
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
-}
-
-func (x *PageGoodsCommentResponse) Reset() {
-	*x = PageGoodsCommentResponse{}
-	mi := &file_shop_app_v1_comment_proto_msgTypes[14]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PageGoodsCommentResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PageGoodsCommentResponse) ProtoMessage() {}
-
-func (x *PageGoodsCommentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_comment_proto_msgTypes[14]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use PageGoodsCommentResponse.ProtoReflect.Descriptor instead.
-func (*PageGoodsCommentResponse) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_comment_proto_rawDescGZIP(), []int{14}
-}
-
-func (x *PageGoodsCommentResponse) GetCommentFilters() []*CommentFilterItem {
-	if x != nil {
-		return x.CommentFilters
-	}
-	return nil
-}
-
-func (x *PageGoodsCommentResponse) GetCommentSummary() *CommentSummary {
-	if x != nil {
-		return x.CommentSummary
-	}
-	return nil
-}
-
-func (x *PageGoodsCommentResponse) GetComments() []*CommentItem {
-	if x != nil {
-		return x.Comments
-	}
-	return nil
-}
-
-func (x *PageGoodsCommentResponse) GetTotal() int32 {
-	if x != nil {
-		return x.Total
-	}
-	return 0
-}
-
-func (x *PageGoodsCommentResponse) GetPageNum() int64 {
-	if x != nil {
-		return x.PageNum
-	}
-	return 0
-}
-
-func (x *PageGoodsCommentResponse) GetPageSize() int64 {
-	if x != nil {
-		return x.PageSize
-	}
-	return 0
-}
-
-func (x *PageGoodsCommentResponse) GetHasMore() bool {
-	if x != nil {
-		return x.HasMore
-	}
-	return false
-}
-
-// 评价讨论分页查询条件
-type PageCommentDiscussionRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	CommentId     int64                  `protobuf:"varint,1,opt,name=comment_id,json=commentId,proto3" json:"comment_id,omitempty"` // 评价ID
-	PageNum       int64                  `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`     // 当前页码
-	PageSize      int64                  `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`  // 每页数量
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *PageCommentDiscussionRequest) Reset() {
-	*x = PageCommentDiscussionRequest{}
-	mi := &file_shop_app_v1_comment_proto_msgTypes[15]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PageCommentDiscussionRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PageCommentDiscussionRequest) ProtoMessage() {}
-
-func (x *PageCommentDiscussionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_comment_proto_msgTypes[15]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use PageCommentDiscussionRequest.ProtoReflect.Descriptor instead.
-func (*PageCommentDiscussionRequest) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_comment_proto_rawDescGZIP(), []int{15}
-}
-
-func (x *PageCommentDiscussionRequest) GetCommentId() int64 {
-	if x != nil {
-		return x.CommentId
-	}
-	return 0
-}
-
-func (x *PageCommentDiscussionRequest) GetPageNum() int64 {
-	if x != nil {
-		return x.PageNum
-	}
-	return 0
-}
-
-func (x *PageCommentDiscussionRequest) GetPageSize() int64 {
-	if x != nil {
-		return x.PageSize
-	}
-	return 0
-}
-
-// 评价讨论分页响应
-type PageCommentDiscussionResponse struct {
-	state              protoimpl.MessageState   `protogen:"open.v1"`
-	CommentId          int64                    `protobuf:"varint,1,opt,name=comment_id,json=commentId,proto3" json:"comment_id,omitempty"`                           // 评价ID
-	CommentDiscussions []*CommentDiscussionItem `protobuf:"bytes,2,rep,name=comment_discussions,json=commentDiscussions,proto3" json:"comment_discussions,omitempty"` // 讨论分页数据
-	Total              int32                    `protobuf:"varint,3,opt,name=total,proto3" json:"total,omitempty"`                                                    // 总数
-	PageNum            int64                    `protobuf:"varint,4,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`                                 // 当前页码
-	PageSize           int64                    `protobuf:"varint,5,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`                              // 每页数量
-	HasMore            bool                     `protobuf:"varint,6,opt,name=has_more,json=hasMore,proto3" json:"has_more,omitempty"`                                 // 是否还有下一页
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
-}
-
-func (x *PageCommentDiscussionResponse) Reset() {
-	*x = PageCommentDiscussionResponse{}
-	mi := &file_shop_app_v1_comment_proto_msgTypes[16]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PageCommentDiscussionResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PageCommentDiscussionResponse) ProtoMessage() {}
-
-func (x *PageCommentDiscussionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_comment_proto_msgTypes[16]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use PageCommentDiscussionResponse.ProtoReflect.Descriptor instead.
-func (*PageCommentDiscussionResponse) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_comment_proto_rawDescGZIP(), []int{16}
-}
-
-func (x *PageCommentDiscussionResponse) GetCommentId() int64 {
-	if x != nil {
-		return x.CommentId
-	}
-	return 0
-}
-
-func (x *PageCommentDiscussionResponse) GetCommentDiscussions() []*CommentDiscussionItem {
-	if x != nil {
-		return x.CommentDiscussions
-	}
-	return nil
-}
-
-func (x *PageCommentDiscussionResponse) GetTotal() int32 {
-	if x != nil {
-		return x.Total
-	}
-	return 0
-}
-
-func (x *PageCommentDiscussionResponse) GetPageNum() int64 {
-	if x != nil {
-		return x.PageNum
-	}
-	return 0
-}
-
-func (x *PageCommentDiscussionResponse) GetPageSize() int64 {
-	if x != nil {
-		return x.PageSize
-	}
-	return 0
-}
-
-func (x *PageCommentDiscussionResponse) GetHasMore() bool {
-	if x != nil {
-		return x.HasMore
-	}
-	return false
-}
-
-// 发布评价讨论请求参数
-type CreateCommentDiscussionRequest struct {
-	state               protoimpl.MessageState `protogen:"open.v1"`
-	CommentId           int64                  `protobuf:"varint,1,opt,name=comment_id,json=commentId,proto3" json:"comment_id,omitempty"`                                   // 所属评价ID
-	Content             string                 `protobuf:"bytes,2,opt,name=content,proto3" json:"content,omitempty"`                                                         // 讨论内容
-	ParentId            int64                  `protobuf:"varint,3,opt,name=parent_id,json=parentId,proto3" json:"parent_id,omitempty"`                                      // 父级讨论ID，可为空
-	ReplyToDiscussionId int64                  `protobuf:"varint,4,opt,name=reply_to_discussion_id,json=replyToDiscussionId,proto3" json:"reply_to_discussion_id,omitempty"` // 被回复讨论ID，可为空
-	IsAnonymous         bool                   `protobuf:"varint,5,opt,name=is_anonymous,json=isAnonymous,proto3" json:"is_anonymous,omitempty"`                             // 是否匿名讨论
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
-}
-
-func (x *CreateCommentDiscussionRequest) Reset() {
-	*x = CreateCommentDiscussionRequest{}
-	mi := &file_shop_app_v1_comment_proto_msgTypes[17]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *CreateCommentDiscussionRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*CreateCommentDiscussionRequest) ProtoMessage() {}
-
-func (x *CreateCommentDiscussionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_comment_proto_msgTypes[17]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use CreateCommentDiscussionRequest.ProtoReflect.Descriptor instead.
-func (*CreateCommentDiscussionRequest) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_comment_proto_rawDescGZIP(), []int{17}
-}
-
-func (x *CreateCommentDiscussionRequest) GetCommentId() int64 {
-	if x != nil {
-		return x.CommentId
-	}
-	return 0
-}
-
-func (x *CreateCommentDiscussionRequest) GetContent() string {
-	if x != nil {
-		return x.Content
-	}
-	return ""
-}
-
-func (x *CreateCommentDiscussionRequest) GetParentId() int64 {
-	if x != nil {
-		return x.ParentId
-	}
-	return 0
-}
-
-func (x *CreateCommentDiscussionRequest) GetReplyToDiscussionId() int64 {
-	if x != nil {
-		return x.ReplyToDiscussionId
-	}
-	return 0
-}
-
-func (x *CreateCommentDiscussionRequest) GetIsAnonymous() bool {
-	if x != nil {
-		return x.IsAnonymous
-	}
-	return false
-}
-
-// 发布评价讨论响应
-type CreateCommentDiscussionResponse struct {
-	state           protoimpl.MessageState `protogen:"open.v1"`
-	Item            *CommentDiscussionItem `protobuf:"bytes,1,opt,name=item,proto3" json:"item,omitempty"`                                               // 新创建的讨论
-	DiscussionCount int32                  `protobuf:"varint,2,opt,name=discussion_count,json=discussionCount,proto3" json:"discussion_count,omitempty"` // 发布后的讨论总数
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
-}
-
-func (x *CreateCommentDiscussionResponse) Reset() {
-	*x = CreateCommentDiscussionResponse{}
-	mi := &file_shop_app_v1_comment_proto_msgTypes[18]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *CreateCommentDiscussionResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*CreateCommentDiscussionResponse) ProtoMessage() {}
-
-func (x *CreateCommentDiscussionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_comment_proto_msgTypes[18]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use CreateCommentDiscussionResponse.ProtoReflect.Descriptor instead.
-func (*CreateCommentDiscussionResponse) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_comment_proto_rawDescGZIP(), []int{18}
-}
-
-func (x *CreateCommentDiscussionResponse) GetItem() *CommentDiscussionItem {
-	if x != nil {
-		return x.Item
-	}
-	return nil
-}
-
-func (x *CreateCommentDiscussionResponse) GetDiscussionCount() int32 {
-	if x != nil {
-		return x.DiscussionCount
-	}
-	return 0
-}
-
-// 保存评价互动状态请求参数
-type SaveCommentReactionRequest struct {
-	state         protoimpl.MessageState       `protogen:"open.v1"`
-	TargetType    v1.CommentReactionTargetType `protobuf:"varint,1,opt,name=target_type,json=targetType,proto3,enum=shop.common.v1.CommentReactionTargetType" json:"target_type,omitempty"` // 互动目标类型：枚举【CommentReactionTargetType】
-	TargetId      int64                        `protobuf:"varint,2,opt,name=target_id,json=targetId,proto3" json:"target_id,omitempty"`                                                     // 互动目标ID
-	ReactionType  v1.CommentReactionType       `protobuf:"varint,3,opt,name=reaction_type,json=reactionType,proto3,enum=shop.common.v1.CommentReactionType" json:"reaction_type,omitempty"` // 互动类型：枚举【CommentReactionType】
-	Active        bool                         `protobuf:"varint,4,opt,name=active,proto3" json:"active,omitempty"`                                                                         // 是否设置当前互动状态
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *SaveCommentReactionRequest) Reset() {
-	*x = SaveCommentReactionRequest{}
-	mi := &file_shop_app_v1_comment_proto_msgTypes[19]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *SaveCommentReactionRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*SaveCommentReactionRequest) ProtoMessage() {}
-
-func (x *SaveCommentReactionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_comment_proto_msgTypes[19]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use SaveCommentReactionRequest.ProtoReflect.Descriptor instead.
-func (*SaveCommentReactionRequest) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_comment_proto_rawDescGZIP(), []int{19}
-}
-
-func (x *SaveCommentReactionRequest) GetTargetType() v1.CommentReactionTargetType {
-	if x != nil {
-		return x.TargetType
-	}
-	return v1.CommentReactionTargetType(0)
-}
-
-func (x *SaveCommentReactionRequest) GetTargetId() int64 {
-	if x != nil {
-		return x.TargetId
-	}
-	return 0
-}
-
-func (x *SaveCommentReactionRequest) GetReactionType() v1.CommentReactionType {
-	if x != nil {
-		return x.ReactionType
-	}
-	return v1.CommentReactionType(0)
-}
-
-func (x *SaveCommentReactionRequest) GetActive() bool {
-	if x != nil {
-		return x.Active
-	}
-	return false
-}
-
-// 保存评价互动状态响应
-type SaveCommentReactionResponse struct {
-	state         protoimpl.MessageState       `protogen:"open.v1"`
-	TargetType    v1.CommentReactionTargetType `protobuf:"varint,1,opt,name=target_type,json=targetType,proto3,enum=shop.common.v1.CommentReactionTargetType" json:"target_type,omitempty"` // 互动目标类型：枚举【CommentReactionTargetType】
-	TargetId      int64                        `protobuf:"varint,2,opt,name=target_id,json=targetId,proto3" json:"target_id,omitempty"`                                                     // 互动目标ID
-	ReactionType  v1.CommentReactionType       `protobuf:"varint,3,opt,name=reaction_type,json=reactionType,proto3,enum=shop.common.v1.CommentReactionType" json:"reaction_type,omitempty"` // 当前用户互动类型：枚举【CommentReactionType】
-	LikeCount     int32                        `protobuf:"varint,4,opt,name=like_count,json=likeCount,proto3" json:"like_count,omitempty"`                                                  // 点赞数
-	DislikeCount  int32                        `protobuf:"varint,5,opt,name=dislike_count,json=dislikeCount,proto3" json:"dislike_count,omitempty"`                                         // 点踩数
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *SaveCommentReactionResponse) Reset() {
-	*x = SaveCommentReactionResponse{}
-	mi := &file_shop_app_v1_comment_proto_msgTypes[20]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *SaveCommentReactionResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*SaveCommentReactionResponse) ProtoMessage() {}
-
-func (x *SaveCommentReactionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_comment_proto_msgTypes[20]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use SaveCommentReactionResponse.ProtoReflect.Descriptor instead.
-func (*SaveCommentReactionResponse) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_comment_proto_rawDescGZIP(), []int{20}
-}
-
-func (x *SaveCommentReactionResponse) GetTargetType() v1.CommentReactionTargetType {
-	if x != nil {
-		return x.TargetType
-	}
-	return v1.CommentReactionTargetType(0)
-}
-
-func (x *SaveCommentReactionResponse) GetTargetId() int64 {
-	if x != nil {
-		return x.TargetId
-	}
-	return 0
-}
-
-func (x *SaveCommentReactionResponse) GetReactionType() v1.CommentReactionType {
-	if x != nil {
-		return x.ReactionType
-	}
-	return v1.CommentReactionType(0)
-}
-
-func (x *SaveCommentReactionResponse) GetLikeCount() int32 {
-	if x != nil {
-		return x.LikeCount
-	}
-	return 0
-}
-
-func (x *SaveCommentReactionResponse) GetDislikeCount() int32 {
-	if x != nil {
-		return x.DislikeCount
-	}
-	return 0
-}
-
-// 待评价商品分页查询条件
-type PagePendingCommentGoodsRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	OrderId       *int64                 `protobuf:"varint,1,opt,name=order_id,json=orderId,proto3,oneof" json:"order_id,omitempty"` // 门店订单ID，可为空
-	PageNum       int64                  `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`     // 当前页码
-	PageSize      int64                  `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`  // 每页数量
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *PagePendingCommentGoodsRequest) Reset() {
-	*x = PagePendingCommentGoodsRequest{}
-	mi := &file_shop_app_v1_comment_proto_msgTypes[21]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PagePendingCommentGoodsRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PagePendingCommentGoodsRequest) ProtoMessage() {}
-
-func (x *PagePendingCommentGoodsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_comment_proto_msgTypes[21]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use PagePendingCommentGoodsRequest.ProtoReflect.Descriptor instead.
-func (*PagePendingCommentGoodsRequest) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_comment_proto_rawDescGZIP(), []int{21}
-}
-
-func (x *PagePendingCommentGoodsRequest) GetOrderId() int64 {
-	if x != nil && x.OrderId != nil {
-		return *x.OrderId
-	}
-	return 0
-}
-
-func (x *PagePendingCommentGoodsRequest) GetPageNum() int64 {
-	if x != nil {
-		return x.PageNum
-	}
-	return 0
-}
-
-func (x *PagePendingCommentGoodsRequest) GetPageSize() int64 {
-	if x != nil {
-		return x.PageSize
-	}
-	return 0
-}
-
-// 待评价商品分页响应
-type PagePendingCommentGoodsResponse struct {
-	state               protoimpl.MessageState     `protogen:"open.v1"`
-	PendingCommentGoods []*PendingCommentGoodsItem `protobuf:"bytes,1,rep,name=pending_comment_goods,json=pendingCommentGoods,proto3" json:"pending_comment_goods,omitempty"` // 待评价商品列表
-	Total               int32                      `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`                                                         // 总数
-	PageNum             int64                      `protobuf:"varint,3,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`                                      // 当前页码
-	PageSize            int64                      `protobuf:"varint,4,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`                                   // 每页数量
-	HasMore             bool                       `protobuf:"varint,5,opt,name=has_more,json=hasMore,proto3" json:"has_more,omitempty"`                                      // 是否还有下一页
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
-}
-
-func (x *PagePendingCommentGoodsResponse) Reset() {
-	*x = PagePendingCommentGoodsResponse{}
-	mi := &file_shop_app_v1_comment_proto_msgTypes[22]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PagePendingCommentGoodsResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PagePendingCommentGoodsResponse) ProtoMessage() {}
-
-func (x *PagePendingCommentGoodsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_comment_proto_msgTypes[22]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use PagePendingCommentGoodsResponse.ProtoReflect.Descriptor instead.
-func (*PagePendingCommentGoodsResponse) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_comment_proto_rawDescGZIP(), []int{22}
-}
-
-func (x *PagePendingCommentGoodsResponse) GetPendingCommentGoods() []*PendingCommentGoodsItem {
-	if x != nil {
-		return x.PendingCommentGoods
-	}
-	return nil
-}
-
-func (x *PagePendingCommentGoodsResponse) GetTotal() int32 {
-	if x != nil {
-		return x.Total
-	}
-	return 0
-}
-
-func (x *PagePendingCommentGoodsResponse) GetPageNum() int64 {
-	if x != nil {
-		return x.PageNum
-	}
-	return 0
-}
-
-func (x *PagePendingCommentGoodsResponse) GetPageSize() int64 {
-	if x != nil {
-		return x.PageSize
-	}
-	return 0
-}
-
-func (x *PagePendingCommentGoodsResponse) GetHasMore() bool {
-	if x != nil {
-		return x.HasMore
-	}
-	return false
-}
-
-// 发布商品评价请求参数
-type CreateCommentRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	OrderId       int64                  `protobuf:"varint,1,opt,name=order_id,json=orderId,proto3" json:"order_id,omitempty"`                   // 订单ID
-	GoodsId       int64                  `protobuf:"varint,2,opt,name=goods_id,json=goodsId,proto3" json:"goods_id,omitempty"`                   // 商品ID
-	SkuCode       string                 `protobuf:"bytes,3,opt,name=sku_code,json=skuCode,proto3" json:"sku_code,omitempty"`                    // SKU编码
-	Content       string                 `protobuf:"bytes,4,opt,name=content,proto3" json:"content,omitempty"`                                   // 评价正文
-	Img           []string               `protobuf:"bytes,5,rep,name=img,proto3" json:"img,omitempty"`                                           // 评价图片数组
-	IsAnonymous   bool                   `protobuf:"varint,6,opt,name=is_anonymous,json=isAnonymous,proto3" json:"is_anonymous,omitempty"`       // 是否匿名展示
-	GoodsScore    int32                  `protobuf:"varint,7,opt,name=goods_score,json=goodsScore,proto3" json:"goods_score,omitempty"`          // 商品评价评分，范围1到5
-	PackageScore  int32                  `protobuf:"varint,8,opt,name=package_score,json=packageScore,proto3" json:"package_score,omitempty"`    // 包装评价评分，范围1到5
-	DeliveryScore int32                  `protobuf:"varint,9,opt,name=delivery_score,json=deliveryScore,proto3" json:"delivery_score,omitempty"` // 送货评价评分，范围1到5
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *CreateCommentRequest) Reset() {
-	*x = CreateCommentRequest{}
-	mi := &file_shop_app_v1_comment_proto_msgTypes[23]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *CreateCommentRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*CreateCommentRequest) ProtoMessage() {}
-
-func (x *CreateCommentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_comment_proto_msgTypes[23]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use CreateCommentRequest.ProtoReflect.Descriptor instead.
-func (*CreateCommentRequest) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_comment_proto_rawDescGZIP(), []int{23}
-}
-
-func (x *CreateCommentRequest) GetOrderId() int64 {
-	if x != nil {
-		return x.OrderId
-	}
-	return 0
-}
-
-func (x *CreateCommentRequest) GetGoodsId() int64 {
-	if x != nil {
-		return x.GoodsId
-	}
-	return 0
-}
-
-func (x *CreateCommentRequest) GetSkuCode() string {
-	if x != nil {
-		return x.SkuCode
-	}
-	return ""
-}
-
-func (x *CreateCommentRequest) GetContent() string {
-	if x != nil {
-		return x.Content
-	}
-	return ""
-}
-
-func (x *CreateCommentRequest) GetImg() []string {
-	if x != nil {
-		return x.Img
-	}
-	return nil
-}
-
-func (x *CreateCommentRequest) GetIsAnonymous() bool {
-	if x != nil {
-		return x.IsAnonymous
-	}
-	return false
-}
-
-func (x *CreateCommentRequest) GetGoodsScore() int32 {
-	if x != nil {
-		return x.GoodsScore
-	}
-	return 0
-}
-
-func (x *CreateCommentRequest) GetPackageScore() int32 {
-	if x != nil {
-		return x.PackageScore
-	}
-	return 0
-}
-
-func (x *CreateCommentRequest) GetDeliveryScore() int32 {
-	if x != nil {
-		return x.DeliveryScore
-	}
-	return 0
-}
-
-// 发布商品评价响应
-type CreateCommentResponse struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	CommentId      int64                  `protobuf:"varint,1,opt,name=comment_id,json=commentId,proto3" json:"comment_id,omitempty"`                // 新建评价ID
-	OrderId        int64                  `protobuf:"varint,2,opt,name=order_id,json=orderId,proto3" json:"order_id,omitempty"`                      // 订单ID
-	OrderCompleted bool                   `protobuf:"varint,3,opt,name=order_completed,json=orderCompleted,proto3" json:"order_completed,omitempty"` // 订单是否已因全部评价完成而流转为已完成
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
-}
-
-func (x *CreateCommentResponse) Reset() {
-	*x = CreateCommentResponse{}
-	mi := &file_shop_app_v1_comment_proto_msgTypes[24]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *CreateCommentResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*CreateCommentResponse) ProtoMessage() {}
-
-func (x *CreateCommentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_comment_proto_msgTypes[24]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use CreateCommentResponse.ProtoReflect.Descriptor instead.
-func (*CreateCommentResponse) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_comment_proto_rawDescGZIP(), []int{24}
-}
-
-func (x *CreateCommentResponse) GetCommentId() int64 {
-	if x != nil {
-		return x.CommentId
-	}
-	return 0
-}
-
-func (x *CreateCommentResponse) GetOrderId() int64 {
-	if x != nil {
-		return x.OrderId
-	}
-	return 0
-}
-
-func (x *CreateCommentResponse) GetOrderCompleted() bool {
-	if x != nil {
-		return x.OrderCompleted
-	}
-	return false
-}
-
-// 我的评价分页查询条件
-type PageMyCommentRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	PageNum       int64                  `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`    // 当前页码
-	PageSize      int64                  `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"` // 每页数量
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *PageMyCommentRequest) Reset() {
-	*x = PageMyCommentRequest{}
-	mi := &file_shop_app_v1_comment_proto_msgTypes[25]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PageMyCommentRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PageMyCommentRequest) ProtoMessage() {}
-
-func (x *PageMyCommentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_comment_proto_msgTypes[25]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use PageMyCommentRequest.ProtoReflect.Descriptor instead.
-func (*PageMyCommentRequest) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_comment_proto_rawDescGZIP(), []int{25}
-}
-
-func (x *PageMyCommentRequest) GetPageNum() int64 {
-	if x != nil {
-		return x.PageNum
-	}
-	return 0
-}
-
-func (x *PageMyCommentRequest) GetPageSize() int64 {
-	if x != nil {
-		return x.PageSize
-	}
-	return 0
-}
-
-// 我的评价分页响应
-type PageMyCommentResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Comments      []*CommentItem         `protobuf:"bytes,1,rep,name=comments,proto3" json:"comments,omitempty"`                  // 我的评价列表
-	Total         int32                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`                       // 总数
-	PageNum       int64                  `protobuf:"varint,3,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`    // 当前页码
-	PageSize      int64                  `protobuf:"varint,4,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"` // 每页数量
-	HasMore       bool                   `protobuf:"varint,5,opt,name=has_more,json=hasMore,proto3" json:"has_more,omitempty"`    // 是否还有下一页
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *PageMyCommentResponse) Reset() {
-	*x = PageMyCommentResponse{}
-	mi := &file_shop_app_v1_comment_proto_msgTypes[26]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PageMyCommentResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PageMyCommentResponse) ProtoMessage() {}
-
-func (x *PageMyCommentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_shop_app_v1_comment_proto_msgTypes[26]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use PageMyCommentResponse.ProtoReflect.Descriptor instead.
-func (*PageMyCommentResponse) Descriptor() ([]byte, []int) {
-	return file_shop_app_v1_comment_proto_rawDescGZIP(), []int{26}
-}
-
-func (x *PageMyCommentResponse) GetComments() []*CommentItem {
-	if x != nil {
-		return x.Comments
-	}
-	return nil
-}
-
-func (x *PageMyCommentResponse) GetTotal() int32 {
-	if x != nil {
-		return x.Total
-	}
-	return 0
-}
-
-func (x *PageMyCommentResponse) GetPageNum() int64 {
-	if x != nil {
-		return x.PageNum
-	}
-	return 0
-}
-
-func (x *PageMyCommentResponse) GetPageSize() int64 {
-	if x != nil {
-		return x.PageSize
-	}
-	return 0
-}
-
-func (x *PageMyCommentResponse) GetHasMore() bool {
-	if x != nil {
-		return x.HasMore
-	}
-	return false
-}
-
 var File_shop_app_v1_comment_proto protoreflect.FileDescriptor
 
 const file_shop_app_v1_comment_proto_rawDesc = "" +
 	"\n" +
-	"\x19shop/app/v1/comment.proto\x12\vshop.app.v1\x1a\x1bshop/common/v1/common.proto\x1a\x19shop/common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"6\n" +
+	"\x19shop/app/v1/comment.proto\x12\vshop.app.v1\x1a\x1bshop/common/v1/common.proto\x1a\x19shop/common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xc5\x01\n" +
+	"\x1cPageCommentDiscussionRequest\x12-\n" +
+	"\n" +
+	"comment_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b评价IDR\tcommentId\x129\n" +
+	"\bpage_num\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12;\n" +
+	"\tpage_size\x18f \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x004@\x92\x02\f每页数量R\bpageSize\"\xf9\x02\n" +
+	"\x1dPageCommentDiscussionResponse\x12-\n" +
+	"\n" +
+	"comment_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b评价IDR\tcommentId\x12m\n" +
+	"\x13comment_discussions\x18\x02 \x03(\v2\".shop.app.v1.CommentDiscussionItemB\x18\xbaG\x15\x92\x02\x12讨论分页数据R\x12commentDiscussions\x12\"\n" +
+	"\x05total\x18\x03 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\x12-\n" +
+	"\bpage_num\x18\x04 \x01(\x03B\x12\xbaG\x0f\x92\x02\f当前页码R\apageNum\x12/\n" +
+	"\tpage_size\x18\x05 \x01(\x03B\x12\xbaG\x0f\x92\x02\f每页数量R\bpageSize\x126\n" +
+	"\bhas_more\x18\x06 \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否还有下一页R\ahasMore\"\xf9\x04\n" +
+	"\x17PageGoodsCommentRequest\x12)\n" +
+	"\bgoods_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\agoodsId\x12K\n" +
+	"\bsku_code\x18\x02 \x01(\tB0\xbaG-\x92\x02*SKU编码，仅当前商品筛选时使用R\askuCode\x12m\n" +
+	"\vfilter_type\x18\x03 \x01(\x0e2!.shop.common.v1.CommentFilterTypeB)\xbaG&\x8a\x02\x14\x1a\x12COMMENT_FILTER_ALL\x92\x02\f筛选类型R\n" +
+	"filterType\x12C\n" +
+	"\x06tag_id\x18\x04 \x01(\x03B,\xbaG)\x92\x02&内容标签ID，筛选标签时使用R\x05tagId\x12O\n" +
+	"\x12current_goods_only\x18\x05 \x01(\bB!\xbaG\x1e\x92\x02\x1b是否只看当前SKU商品R\x10currentGoodsOnly\x12i\n" +
+	"\tsort_type\x18\x06 \x01(\x0e2\x1f.shop.common.v1.CommentSortTypeB+\xbaG(\x8a\x02\x16\x1a\x14COMMENT_SORT_DEFAULT\x92\x02\f排序类型R\bsortType\x129\n" +
+	"\bpage_num\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12;\n" +
+	"\tpage_size\x18f \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\f每页数量R\bpageSize\"\xec\x03\n" +
+	"\x18PageGoodsCommentResponse\x12d\n" +
+	"\x0fcomment_filters\x18\x01 \x03(\v2\x1e.shop.app.v1.CommentFilterItemB\x1b\xbaG\x18\x92\x02\x15顶部筛选项列表R\x0ecommentFilters\x12^\n" +
+	"\x0fcomment_summary\x18\x02 \x01(\v2\x1b.shop.app.v1.CommentSummaryB\x18\xbaG\x15\x92\x02\x12评价列表摘要R\x0ecommentSummary\x12N\n" +
+	"\bcomments\x18\x03 \x03(\v2\x18.shop.app.v1.CommentItemB\x18\xbaG\x15\x92\x02\x12评价分页数据R\bcomments\x12\"\n" +
+	"\x05total\x18\x04 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\x12-\n" +
+	"\bpage_num\x18\x05 \x01(\x03B\x12\xbaG\x0f\x92\x02\f当前页码R\apageNum\x12/\n" +
+	"\tpage_size\x18\x06 \x01(\x03B\x12\xbaG\x0f\x92\x02\f每页数量R\bpageSize\x126\n" +
+	"\bhas_more\x18\a \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否还有下一页R\ahasMore\"\x8e\x01\n" +
+	"\x14PageMyCommentRequest\x129\n" +
+	"\bpage_num\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12;\n" +
+	"\tpage_size\x18f \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\f每页数量R\bpageSize\"\xa3\x02\n" +
+	"\x15PageMyCommentResponse\x12N\n" +
+	"\bcomments\x18\x01 \x03(\v2\x18.shop.app.v1.CommentItemB\x18\xbaG\x15\x92\x02\x12我的评价列表R\bcomments\x12\"\n" +
+	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\x12-\n" +
+	"\bpage_num\x18\x03 \x01(\x03B\x12\xbaG\x0f\x92\x02\f当前页码R\apageNum\x12/\n" +
+	"\tpage_size\x18\x04 \x01(\x03B\x12\xbaG\x0f\x92\x02\f每页数量R\bpageSize\x126\n" +
+	"\bhas_more\x18\x05 \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否还有下一页R\ahasMore\"\xe7\x01\n" +
+	"\x1ePagePendingCommentGoodsRequest\x12@\n" +
+	"\border_id\x18\x01 \x01(\x03B \xbaG\x1d\x92\x02\x1a门店订单ID，可为空H\x00R\aorderId\x88\x01\x01\x129\n" +
+	"\bpage_num\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12;\n" +
+	"\tpage_size\x18f \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\f每页数量R\bpageSizeB\v\n" +
+	"\t_order_id\"\xd4\x02\n" +
+	"\x1fPagePendingCommentGoodsResponse\x12u\n" +
+	"\x15pending_comment_goods\x18\x01 \x03(\v2$.shop.app.v1.PendingCommentGoodsItemB\x1b\xbaG\x18\x92\x02\x15待评价商品列表R\x13pendingCommentGoods\x12\"\n" +
+	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\x12-\n" +
+	"\bpage_num\x18\x03 \x01(\x03B\x12\xbaG\x0f\x92\x02\f当前页码R\apageNum\x12/\n" +
+	"\tpage_size\x18\x04 \x01(\x03B\x12\xbaG\x0f\x92\x02\f每页数量R\bpageSize\x126\n" +
+	"\bhas_more\x18\x05 \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否还有下一页R\ahasMore\"\x94\x04\n" +
+	"\x14CreateCommentRequest\x12)\n" +
+	"\border_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单IDR\aorderId\x12)\n" +
+	"\bgoods_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\agoodsId\x12*\n" +
+	"\bsku_code\x18\x03 \x01(\tB\x0f\xbaG\f\x92\x02\tSKU编码R\askuCode\x12,\n" +
+	"\acontent\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f评价正文R\acontent\x12*\n" +
+	"\x03img\x18\x05 \x03(\tB\x18\xbaG\x15\x92\x02\x12评价图片数组R\x03img\x12;\n" +
+	"\fis_anonymous\x18\x06 \x01(\bB\x18\xbaG\x15\x92\x02\x12是否匿名展示R\visAnonymous\x12G\n" +
+	"\vgoods_score\x18\a \x01(\x05B&\xbaG#\x92\x02 商品评价评分，范围1到5R\n" +
+	"goodsScore\x12K\n" +
+	"\rpackage_score\x18\b \x01(\x05B&\xbaG#\x92\x02 包装评价评分，范围1到5R\fpackageScore\x12M\n" +
+	"\x0edelivery_score\x18\t \x01(\x05B&\xbaG#\x92\x02 送货评价评分，范围1到5R\rdeliveryScore\"\xe1\x01\n" +
+	"\x15CreateCommentResponse\x123\n" +
+	"\n" +
+	"comment_id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e新建评价IDR\tcommentId\x12)\n" +
+	"\border_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单IDR\aorderId\x12h\n" +
+	"\x0forder_completed\x18\x03 \x01(\bB?\xbaG<\x92\x029订单是否已因全部评价完成而流转为已完成R\x0eorderCompleted\"\xd9\x02\n" +
+	"\x1eCreateCommentDiscussionRequest\x123\n" +
+	"\n" +
+	"comment_id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e所属评价IDR\tcommentId\x12,\n" +
+	"\acontent\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f讨论内容R\acontent\x12=\n" +
+	"\tparent_id\x18\x03 \x01(\x03B \xbaG\x1d\x92\x02\x1a父级讨论ID，可为空R\bparentId\x12X\n" +
+	"\x16reply_to_discussion_id\x18\x04 \x01(\x03B#\xbaG \x92\x02\x1d被回复讨论ID，可为空R\x13replyToDiscussionId\x12;\n" +
+	"\fis_anonymous\x18\x05 \x01(\bB\x18\xbaG\x15\x92\x02\x12是否匿名讨论R\visAnonymous\"\xbe\x01\n" +
+	"\x1fCreateCommentDiscussionResponse\x12P\n" +
+	"\x04item\x18\x01 \x01(\v2\".shop.app.v1.CommentDiscussionItemB\x18\xbaG\x15\x92\x02\x12新创建的讨论R\x04item\x12I\n" +
+	"\x10discussion_count\x18\x02 \x01(\x05B\x1e\xbaG\x1b\x92\x02\x18发布后的讨论总数R\x0fdiscussionCount\"6\n" +
 	"\x14DeleteCommentRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b评价IDR\x02id\"n\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b评价IDR\x02id\"\x93\x01\n" +
+	"\x1bGoodsCommentOverviewRequest\x12)\n" +
+	"\bgoods_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\agoodsId\x12I\n" +
+	"\rpreview_limit\x18\x02 \x01(\x05B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\x00@\x92\x02\x12评价预览数量R\fpreviewLimit\"\xa7\x03\n" +
+	"\x1cGoodsCommentOverviewResponse\x123\n" +
+	"\vtotal_count\x18\x01 \x01(\x05B\x12\xbaG\x0f\x92\x02\f评价总数R\n" +
+	"totalCount\x12<\n" +
+	"\vrecent_days\x18\x02 \x01(\x05B\x1b\xbaG\x18\x92\x02\x15好评率统计天数R\n" +
+	"recentDays\x12O\n" +
+	"\x10recent_good_rate\x18\x03 \x01(\x05B%\xbaG\"\x92\x02\x1f近N天好评率百分比整数R\x0erecentGoodRate\x12d\n" +
+	"\x0fcomment_summary\x18\x04 \x01(\v2\x1b.shop.app.v1.CommentSummaryB\x1e\xbaG\x1b\x92\x02\x18商品详情评价摘要R\x0ecommentSummary\x12]\n" +
+	"\x10preview_comments\x18\x06 \x03(\v2\x18.shop.app.v1.CommentItemB\x18\xbaG\x15\x92\x02\x12评价预览列表R\x0fpreviewComments\"\x7f\n" +
+	"\x16GoodsCommentTagRequest\x12)\n" +
+	"\bgoods_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\agoodsId\x12:\n" +
+	"\x05limit\x18\x02 \x01(\x05B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x004@\x92\x02\x12标签展示数量R\x05limit\"s\n" +
+	"\x17GoodsCommentTagResponse\x12X\n" +
+	"\fcomment_tags\x18\x01 \x03(\v2\x1b.shop.app.v1.CommentTagItemB\x18\xbaG\x15\x92\x02\x12评价标签列表R\vcommentTags\"\x9c\x03\n" +
+	"\x1aSaveCommentReactionRequest\x12\x8c\x01\n" +
+	"\vtarget_type\x18\x01 \x01(\x0e2).shop.common.v1.CommentReactionTargetTypeB@\xbaG=\x92\x02:互动目标类型：枚举【CommentReactionTargetType】R\n" +
+	"targetType\x121\n" +
+	"\ttarget_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e互动目标IDR\btargetId\x12~\n" +
+	"\rreaction_type\x18\x03 \x01(\x0e2#.shop.common.v1.CommentReactionTypeB4\xbaG1\x92\x02.互动类型：枚举【CommentReactionType】R\freactionType\x12<\n" +
+	"\x06active\x18\x04 \x01(\bB$\xbaG!\x92\x02\x1e是否设置当前互动状态R\x06active\"\xd2\x03\n" +
+	"\x1bSaveCommentReactionResponse\x12\x8c\x01\n" +
+	"\vtarget_type\x18\x01 \x01(\x0e2).shop.common.v1.CommentReactionTargetTypeB@\xbaG=\x92\x02:互动目标类型：枚举【CommentReactionTargetType】R\n" +
+	"targetType\x121\n" +
+	"\ttarget_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e互动目标IDR\btargetId\x12\x8a\x01\n" +
+	"\rreaction_type\x18\x03 \x01(\x0e2#.shop.common.v1.CommentReactionTypeB@\xbaG=\x92\x02:当前用户互动类型：枚举【CommentReactionType】R\freactionType\x12.\n" +
+	"\n" +
+	"like_count\x18\x04 \x01(\x05B\x0f\xbaG\f\x92\x02\t点赞数R\tlikeCount\x124\n" +
+	"\rdislike_count\x18\x05 \x01(\x05B\x0f\xbaG\f\x92\x02\t点踩数R\fdislikeCount\"n\n" +
 	"\x12CommentTextSegment\x12&\n" +
 	"\x04text\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f文本内容R\x04text\x120\n" +
 	"\thighlight\x18\x02 \x01(\bB\x12\xbaG\x0f\x92\x02\f是否高亮R\thighlight\"\xb2\x02\n" +
@@ -2151,125 +2258,18 @@ const file_shop_app_v1_comment_proto_rawDesc = "" +
 	"\rgoods_picture\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f商品主图R\fgoodsPicture\x12*\n" +
 	"\bsku_code\x18\x05 \x01(\tB\x0f\xbaG\f\x92\x02\tSKU编码R\askuCode\x123\n" +
 	"\bsku_desc\x18\x06 \x01(\tB\x18\xbaG\x15\x92\x02\x12规格展示文案R\askuDesc\x125\n" +
-	"\x04desc\x18\a \x01(\tB!\xbaG\x1e\x92\x02\x1b待评价卡片提示文案R\x04desc\"\x93\x01\n" +
-	"\x1bGoodsCommentOverviewRequest\x12)\n" +
-	"\bgoods_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\agoodsId\x12I\n" +
-	"\rpreview_limit\x18\x02 \x01(\x05B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\x00@\x92\x02\x12评价预览数量R\fpreviewLimit\"\xa7\x03\n" +
-	"\x1cGoodsCommentOverviewResponse\x123\n" +
-	"\vtotal_count\x18\x01 \x01(\x05B\x12\xbaG\x0f\x92\x02\f评价总数R\n" +
-	"totalCount\x12<\n" +
-	"\vrecent_days\x18\x02 \x01(\x05B\x1b\xbaG\x18\x92\x02\x15好评率统计天数R\n" +
-	"recentDays\x12O\n" +
-	"\x10recent_good_rate\x18\x03 \x01(\x05B%\xbaG\"\x92\x02\x1f近N天好评率百分比整数R\x0erecentGoodRate\x12d\n" +
-	"\x0fcomment_summary\x18\x04 \x01(\v2\x1b.shop.app.v1.CommentSummaryB\x1e\xbaG\x1b\x92\x02\x18商品详情评价摘要R\x0ecommentSummary\x12]\n" +
-	"\x10preview_comments\x18\x06 \x03(\v2\x18.shop.app.v1.CommentItemB\x18\xbaG\x15\x92\x02\x12评价预览列表R\x0fpreviewComments\"\x7f\n" +
-	"\x16GoodsCommentTagRequest\x12)\n" +
-	"\bgoods_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\agoodsId\x12:\n" +
-	"\x05limit\x18\x02 \x01(\x05B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x004@\x92\x02\x12标签展示数量R\x05limit\"s\n" +
-	"\x17GoodsCommentTagResponse\x12X\n" +
-	"\fcomment_tags\x18\x01 \x03(\v2\x1b.shop.app.v1.CommentTagItemB\x18\xbaG\x15\x92\x02\x12评价标签列表R\vcommentTags\"\xf9\x04\n" +
-	"\x17PageGoodsCommentRequest\x12)\n" +
-	"\bgoods_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\agoodsId\x12K\n" +
-	"\bsku_code\x18\x02 \x01(\tB0\xbaG-\x92\x02*SKU编码，仅当前商品筛选时使用R\askuCode\x12m\n" +
-	"\vfilter_type\x18\x03 \x01(\x0e2!.shop.common.v1.CommentFilterTypeB)\xbaG&\x8a\x02\x14\x1a\x12COMMENT_FILTER_ALL\x92\x02\f筛选类型R\n" +
-	"filterType\x12C\n" +
-	"\x06tag_id\x18\x04 \x01(\x03B,\xbaG)\x92\x02&内容标签ID，筛选标签时使用R\x05tagId\x12O\n" +
-	"\x12current_goods_only\x18\x05 \x01(\bB!\xbaG\x1e\x92\x02\x1b是否只看当前SKU商品R\x10currentGoodsOnly\x12i\n" +
-	"\tsort_type\x18\x06 \x01(\x0e2\x1f.shop.common.v1.CommentSortTypeB+\xbaG(\x8a\x02\x16\x1a\x14COMMENT_SORT_DEFAULT\x92\x02\f排序类型R\bsortType\x129\n" +
-	"\bpage_num\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12;\n" +
-	"\tpage_size\x18f \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\f每页数量R\bpageSize\"\xec\x03\n" +
-	"\x18PageGoodsCommentResponse\x12d\n" +
-	"\x0fcomment_filters\x18\x01 \x03(\v2\x1e.shop.app.v1.CommentFilterItemB\x1b\xbaG\x18\x92\x02\x15顶部筛选项列表R\x0ecommentFilters\x12^\n" +
-	"\x0fcomment_summary\x18\x02 \x01(\v2\x1b.shop.app.v1.CommentSummaryB\x18\xbaG\x15\x92\x02\x12评价列表摘要R\x0ecommentSummary\x12N\n" +
-	"\bcomments\x18\x03 \x03(\v2\x18.shop.app.v1.CommentItemB\x18\xbaG\x15\x92\x02\x12评价分页数据R\bcomments\x12\"\n" +
-	"\x05total\x18\x04 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\x12-\n" +
-	"\bpage_num\x18\x05 \x01(\x03B\x12\xbaG\x0f\x92\x02\f当前页码R\apageNum\x12/\n" +
-	"\tpage_size\x18\x06 \x01(\x03B\x12\xbaG\x0f\x92\x02\f每页数量R\bpageSize\x126\n" +
-	"\bhas_more\x18\a \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否还有下一页R\ahasMore\"\xc5\x01\n" +
-	"\x1cPageCommentDiscussionRequest\x12-\n" +
-	"\n" +
-	"comment_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b评价IDR\tcommentId\x129\n" +
-	"\bpage_num\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12;\n" +
-	"\tpage_size\x18f \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x004@\x92\x02\f每页数量R\bpageSize\"\xf9\x02\n" +
-	"\x1dPageCommentDiscussionResponse\x12-\n" +
-	"\n" +
-	"comment_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b评价IDR\tcommentId\x12m\n" +
-	"\x13comment_discussions\x18\x02 \x03(\v2\".shop.app.v1.CommentDiscussionItemB\x18\xbaG\x15\x92\x02\x12讨论分页数据R\x12commentDiscussions\x12\"\n" +
-	"\x05total\x18\x03 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\x12-\n" +
-	"\bpage_num\x18\x04 \x01(\x03B\x12\xbaG\x0f\x92\x02\f当前页码R\apageNum\x12/\n" +
-	"\tpage_size\x18\x05 \x01(\x03B\x12\xbaG\x0f\x92\x02\f每页数量R\bpageSize\x126\n" +
-	"\bhas_more\x18\x06 \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否还有下一页R\ahasMore\"\xd9\x02\n" +
-	"\x1eCreateCommentDiscussionRequest\x123\n" +
-	"\n" +
-	"comment_id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e所属评价IDR\tcommentId\x12,\n" +
-	"\acontent\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f讨论内容R\acontent\x12=\n" +
-	"\tparent_id\x18\x03 \x01(\x03B \xbaG\x1d\x92\x02\x1a父级讨论ID，可为空R\bparentId\x12X\n" +
-	"\x16reply_to_discussion_id\x18\x04 \x01(\x03B#\xbaG \x92\x02\x1d被回复讨论ID，可为空R\x13replyToDiscussionId\x12;\n" +
-	"\fis_anonymous\x18\x05 \x01(\bB\x18\xbaG\x15\x92\x02\x12是否匿名讨论R\visAnonymous\"\xbe\x01\n" +
-	"\x1fCreateCommentDiscussionResponse\x12P\n" +
-	"\x04item\x18\x01 \x01(\v2\".shop.app.v1.CommentDiscussionItemB\x18\xbaG\x15\x92\x02\x12新创建的讨论R\x04item\x12I\n" +
-	"\x10discussion_count\x18\x02 \x01(\x05B\x1e\xbaG\x1b\x92\x02\x18发布后的讨论总数R\x0fdiscussionCount\"\x9c\x03\n" +
-	"\x1aSaveCommentReactionRequest\x12\x8c\x01\n" +
-	"\vtarget_type\x18\x01 \x01(\x0e2).shop.common.v1.CommentReactionTargetTypeB@\xbaG=\x92\x02:互动目标类型：枚举【CommentReactionTargetType】R\n" +
-	"targetType\x121\n" +
-	"\ttarget_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e互动目标IDR\btargetId\x12~\n" +
-	"\rreaction_type\x18\x03 \x01(\x0e2#.shop.common.v1.CommentReactionTypeB4\xbaG1\x92\x02.互动类型：枚举【CommentReactionType】R\freactionType\x12<\n" +
-	"\x06active\x18\x04 \x01(\bB$\xbaG!\x92\x02\x1e是否设置当前互动状态R\x06active\"\xd2\x03\n" +
-	"\x1bSaveCommentReactionResponse\x12\x8c\x01\n" +
-	"\vtarget_type\x18\x01 \x01(\x0e2).shop.common.v1.CommentReactionTargetTypeB@\xbaG=\x92\x02:互动目标类型：枚举【CommentReactionTargetType】R\n" +
-	"targetType\x121\n" +
-	"\ttarget_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e互动目标IDR\btargetId\x12\x8a\x01\n" +
-	"\rreaction_type\x18\x03 \x01(\x0e2#.shop.common.v1.CommentReactionTypeB@\xbaG=\x92\x02:当前用户互动类型：枚举【CommentReactionType】R\freactionType\x12.\n" +
-	"\n" +
-	"like_count\x18\x04 \x01(\x05B\x0f\xbaG\f\x92\x02\t点赞数R\tlikeCount\x124\n" +
-	"\rdislike_count\x18\x05 \x01(\x05B\x0f\xbaG\f\x92\x02\t点踩数R\fdislikeCount\"\xe7\x01\n" +
-	"\x1ePagePendingCommentGoodsRequest\x12@\n" +
-	"\border_id\x18\x01 \x01(\x03B \xbaG\x1d\x92\x02\x1a门店订单ID，可为空H\x00R\aorderId\x88\x01\x01\x129\n" +
-	"\bpage_num\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12;\n" +
-	"\tpage_size\x18f \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\f每页数量R\bpageSizeB\v\n" +
-	"\t_order_id\"\xd4\x02\n" +
-	"\x1fPagePendingCommentGoodsResponse\x12u\n" +
-	"\x15pending_comment_goods\x18\x01 \x03(\v2$.shop.app.v1.PendingCommentGoodsItemB\x1b\xbaG\x18\x92\x02\x15待评价商品列表R\x13pendingCommentGoods\x12\"\n" +
-	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\x12-\n" +
-	"\bpage_num\x18\x03 \x01(\x03B\x12\xbaG\x0f\x92\x02\f当前页码R\apageNum\x12/\n" +
-	"\tpage_size\x18\x04 \x01(\x03B\x12\xbaG\x0f\x92\x02\f每页数量R\bpageSize\x126\n" +
-	"\bhas_more\x18\x05 \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否还有下一页R\ahasMore\"\x94\x04\n" +
-	"\x14CreateCommentRequest\x12)\n" +
-	"\border_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单IDR\aorderId\x12)\n" +
-	"\bgoods_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\agoodsId\x12*\n" +
-	"\bsku_code\x18\x03 \x01(\tB\x0f\xbaG\f\x92\x02\tSKU编码R\askuCode\x12,\n" +
-	"\acontent\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f评价正文R\acontent\x12*\n" +
-	"\x03img\x18\x05 \x03(\tB\x18\xbaG\x15\x92\x02\x12评价图片数组R\x03img\x12;\n" +
-	"\fis_anonymous\x18\x06 \x01(\bB\x18\xbaG\x15\x92\x02\x12是否匿名展示R\visAnonymous\x12G\n" +
-	"\vgoods_score\x18\a \x01(\x05B&\xbaG#\x92\x02 商品评价评分，范围1到5R\n" +
-	"goodsScore\x12K\n" +
-	"\rpackage_score\x18\b \x01(\x05B&\xbaG#\x92\x02 包装评价评分，范围1到5R\fpackageScore\x12M\n" +
-	"\x0edelivery_score\x18\t \x01(\x05B&\xbaG#\x92\x02 送货评价评分，范围1到5R\rdeliveryScore\"\xe1\x01\n" +
-	"\x15CreateCommentResponse\x123\n" +
-	"\n" +
-	"comment_id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e新建评价IDR\tcommentId\x12)\n" +
-	"\border_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单IDR\aorderId\x12h\n" +
-	"\x0forder_completed\x18\x03 \x01(\bB?\xbaG<\x92\x029订单是否已因全部评价完成而流转为已完成R\x0eorderCompleted\"\x8e\x01\n" +
-	"\x14PageMyCommentRequest\x129\n" +
-	"\bpage_num\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12;\n" +
-	"\tpage_size\x18f \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\f每页数量R\bpageSize\"\xa3\x02\n" +
-	"\x15PageMyCommentResponse\x12N\n" +
-	"\bcomments\x18\x01 \x03(\v2\x18.shop.app.v1.CommentItemB\x18\xbaG\x15\x92\x02\x12我的评价列表R\bcomments\x12\"\n" +
-	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\x12-\n" +
-	"\bpage_num\x18\x03 \x01(\x03B\x12\xbaG\x0f\x92\x02\f当前页码R\apageNum\x12/\n" +
-	"\tpage_size\x18\x04 \x01(\x03B\x12\xbaG\x0f\x92\x02\f每页数量R\bpageSize\x126\n" +
-	"\bhas_more\x18\x05 \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否还有下一页R\ahasMore2\xbe\v\n" +
-	"\x12CommentInfoService\x12\xa2\x01\n" +
-	"\x14GoodsCommentOverview\x12(.shop.app.v1.GoodsCommentOverviewRequest\x1a).shop.app.v1.GoodsCommentOverviewResponse\"5\x82\xd3\xe4\x93\x02/\x12-/api/v1/app/comment/goods/{goods_id}/overview\x12\x8f\x01\n" +
-	"\x0fGoodsCommentTag\x12#.shop.app.v1.GoodsCommentTagRequest\x1a$.shop.app.v1.GoodsCommentTagResponse\"1\x82\xd3\xe4\x93\x02+\x12)/api/v1/app/comment/goods/{goods_id}/tags\x12\x8d\x01\n" +
-	"\x10PageGoodsComment\x12$.shop.app.v1.PageGoodsCommentRequest\x1a%.shop.app.v1.PageGoodsCommentResponse\",\x82\xd3\xe4\x93\x02&\x12$/api/v1/app/comment/goods/{goods_id}\x12\xa3\x01\n" +
-	"\x15PageCommentDiscussion\x12).shop.app.v1.PageCommentDiscussionRequest\x1a*.shop.app.v1.PageCommentDiscussionResponse\"3\x82\xd3\xe4\x93\x02-\x12+/api/v1/app/comment/{comment_id}/discussion\x12\xac\x01\n" +
-	"\x17CreateCommentDiscussion\x12+.shop.app.v1.CreateCommentDiscussionRequest\x1a,.shop.app.v1.CreateCommentDiscussionResponse\"6\x82\xd3\xe4\x93\x020:\x01*\"+/api/v1/app/comment/{comment_id}/discussion\x12\x91\x01\n" +
-	"\x13SaveCommentReaction\x12'.shop.app.v1.SaveCommentReactionRequest\x1a(.shop.app.v1.SaveCommentReactionResponse\"'\x82\xd3\xe4\x93\x02!:\x01*\x1a\x1c/api/v1/app/comment/reaction\x12\x99\x01\n" +
+	"\x04desc\x18\a \x01(\tB!\xbaG\x1e\x92\x02\x1b待评价卡片提示文案R\x04desc2\xbe\v\n" +
+	"\x12CommentInfoService\x12\xa3\x01\n" +
+	"\x15PageCommentDiscussion\x12).shop.app.v1.PageCommentDiscussionRequest\x1a*.shop.app.v1.PageCommentDiscussionResponse\"3\x82\xd3\xe4\x93\x02-\x12+/api/v1/app/comment/{comment_id}/discussion\x12\x8d\x01\n" +
+	"\x10PageGoodsComment\x12$.shop.app.v1.PageGoodsCommentRequest\x1a%.shop.app.v1.PageGoodsCommentResponse\",\x82\xd3\xe4\x93\x02&\x12$/api/v1/app/comment/goods/{goods_id}\x12v\n" +
+	"\rPageMyComment\x12!.shop.app.v1.PageMyCommentRequest\x1a\".shop.app.v1.PageMyCommentResponse\"\x1e\x82\xd3\xe4\x93\x02\x18\x12\x16/api/v1/app/comment/my\x12\x99\x01\n" +
 	"\x17PagePendingCommentGoods\x12+.shop.app.v1.PagePendingCommentGoodsRequest\x1a,.shop.app.v1.PagePendingCommentGoodsResponse\"#\x82\xd3\xe4\x93\x02\x1d\x12\x1b/api/v1/app/comment/pending\x12v\n" +
-	"\rCreateComment\x12!.shop.app.v1.CreateCommentRequest\x1a\".shop.app.v1.CreateCommentResponse\"\x1e\x82\xd3\xe4\x93\x02\x18:\x01*\"\x13/api/v1/app/comment\x12l\n" +
-	"\rDeleteComment\x12!.shop.app.v1.DeleteCommentRequest\x1a\x16.google.protobuf.Empty\" \x82\xd3\xe4\x93\x02\x1a*\x18/api/v1/app/comment/{id}\x12v\n" +
-	"\rPageMyComment\x12!.shop.app.v1.PageMyCommentRequest\x1a\".shop.app.v1.PageMyCommentResponse\"\x1e\x82\xd3\xe4\x93\x02\x18\x12\x16/api/v1/app/comment/myB\x90\x01\n" +
+	"\rCreateComment\x12!.shop.app.v1.CreateCommentRequest\x1a\".shop.app.v1.CreateCommentResponse\"\x1e\x82\xd3\xe4\x93\x02\x18:\x01*\"\x13/api/v1/app/comment\x12\xac\x01\n" +
+	"\x17CreateCommentDiscussion\x12+.shop.app.v1.CreateCommentDiscussionRequest\x1a,.shop.app.v1.CreateCommentDiscussionResponse\"6\x82\xd3\xe4\x93\x020:\x01*\"+/api/v1/app/comment/{comment_id}/discussion\x12l\n" +
+	"\rDeleteComment\x12!.shop.app.v1.DeleteCommentRequest\x1a\x16.google.protobuf.Empty\" \x82\xd3\xe4\x93\x02\x1a*\x18/api/v1/app/comment/{id}\x12\xa2\x01\n" +
+	"\x14GoodsCommentOverview\x12(.shop.app.v1.GoodsCommentOverviewRequest\x1a).shop.app.v1.GoodsCommentOverviewResponse\"5\x82\xd3\xe4\x93\x02/\x12-/api/v1/app/comment/goods/{goods_id}/overview\x12\x8f\x01\n" +
+	"\x0fGoodsCommentTag\x12#.shop.app.v1.GoodsCommentTagRequest\x1a$.shop.app.v1.GoodsCommentTagResponse\"1\x82\xd3\xe4\x93\x02+\x12)/api/v1/app/comment/goods/{goods_id}/tags\x12\x91\x01\n" +
+	"\x13SaveCommentReaction\x12'.shop.app.v1.SaveCommentReactionRequest\x1a(.shop.app.v1.SaveCommentReactionResponse\"'\x82\xd3\xe4\x93\x02!:\x01*\x1a\x1c/api/v1/app/comment/reactionB\x90\x01\n" +
 	"\x0fcom.shop.app.v1B\fCommentProtoP\x01Z!shop/api/gen/go/shop/app/v1;appv1\xa2\x02\x03SAX\xaa\x02\vShop.App.V1\xca\x02\vShop\\App\\V1\xe2\x02\x17Shop\\App\\V1\\GPBMetadata\xea\x02\rShop::App::V1b\x06proto3"
 
 var (
@@ -2286,87 +2286,87 @@ func file_shop_app_v1_comment_proto_rawDescGZIP() []byte {
 
 var file_shop_app_v1_comment_proto_msgTypes = make([]protoimpl.MessageInfo, 27)
 var file_shop_app_v1_comment_proto_goTypes = []any{
-	(*DeleteCommentRequest)(nil),            // 0: shop.app.v1.DeleteCommentRequest
-	(*CommentTextSegment)(nil),              // 1: shop.app.v1.CommentTextSegment
-	(*CommentUserView)(nil),                 // 2: shop.app.v1.CommentUserView
-	(*CommentFilterItem)(nil),               // 3: shop.app.v1.CommentFilterItem
-	(*CommentTagItem)(nil),                  // 4: shop.app.v1.CommentTagItem
-	(*CommentItem)(nil),                     // 5: shop.app.v1.CommentItem
-	(*CommentSummary)(nil),                  // 6: shop.app.v1.CommentSummary
-	(*CommentDiscussionItem)(nil),           // 7: shop.app.v1.CommentDiscussionItem
-	(*PendingCommentGoodsItem)(nil),         // 8: shop.app.v1.PendingCommentGoodsItem
-	(*GoodsCommentOverviewRequest)(nil),     // 9: shop.app.v1.GoodsCommentOverviewRequest
-	(*GoodsCommentOverviewResponse)(nil),    // 10: shop.app.v1.GoodsCommentOverviewResponse
-	(*GoodsCommentTagRequest)(nil),          // 11: shop.app.v1.GoodsCommentTagRequest
-	(*GoodsCommentTagResponse)(nil),         // 12: shop.app.v1.GoodsCommentTagResponse
-	(*PageGoodsCommentRequest)(nil),         // 13: shop.app.v1.PageGoodsCommentRequest
-	(*PageGoodsCommentResponse)(nil),        // 14: shop.app.v1.PageGoodsCommentResponse
-	(*PageCommentDiscussionRequest)(nil),    // 15: shop.app.v1.PageCommentDiscussionRequest
-	(*PageCommentDiscussionResponse)(nil),   // 16: shop.app.v1.PageCommentDiscussionResponse
-	(*CreateCommentDiscussionRequest)(nil),  // 17: shop.app.v1.CreateCommentDiscussionRequest
-	(*CreateCommentDiscussionResponse)(nil), // 18: shop.app.v1.CreateCommentDiscussionResponse
-	(*SaveCommentReactionRequest)(nil),      // 19: shop.app.v1.SaveCommentReactionRequest
-	(*SaveCommentReactionResponse)(nil),     // 20: shop.app.v1.SaveCommentReactionResponse
-	(*PagePendingCommentGoodsRequest)(nil),  // 21: shop.app.v1.PagePendingCommentGoodsRequest
-	(*PagePendingCommentGoodsResponse)(nil), // 22: shop.app.v1.PagePendingCommentGoodsResponse
-	(*CreateCommentRequest)(nil),            // 23: shop.app.v1.CreateCommentRequest
-	(*CreateCommentResponse)(nil),           // 24: shop.app.v1.CreateCommentResponse
-	(*PageMyCommentRequest)(nil),            // 25: shop.app.v1.PageMyCommentRequest
-	(*PageMyCommentResponse)(nil),           // 26: shop.app.v1.PageMyCommentResponse
+	(*PageCommentDiscussionRequest)(nil),    // 0: shop.app.v1.PageCommentDiscussionRequest
+	(*PageCommentDiscussionResponse)(nil),   // 1: shop.app.v1.PageCommentDiscussionResponse
+	(*PageGoodsCommentRequest)(nil),         // 2: shop.app.v1.PageGoodsCommentRequest
+	(*PageGoodsCommentResponse)(nil),        // 3: shop.app.v1.PageGoodsCommentResponse
+	(*PageMyCommentRequest)(nil),            // 4: shop.app.v1.PageMyCommentRequest
+	(*PageMyCommentResponse)(nil),           // 5: shop.app.v1.PageMyCommentResponse
+	(*PagePendingCommentGoodsRequest)(nil),  // 6: shop.app.v1.PagePendingCommentGoodsRequest
+	(*PagePendingCommentGoodsResponse)(nil), // 7: shop.app.v1.PagePendingCommentGoodsResponse
+	(*CreateCommentRequest)(nil),            // 8: shop.app.v1.CreateCommentRequest
+	(*CreateCommentResponse)(nil),           // 9: shop.app.v1.CreateCommentResponse
+	(*CreateCommentDiscussionRequest)(nil),  // 10: shop.app.v1.CreateCommentDiscussionRequest
+	(*CreateCommentDiscussionResponse)(nil), // 11: shop.app.v1.CreateCommentDiscussionResponse
+	(*DeleteCommentRequest)(nil),            // 12: shop.app.v1.DeleteCommentRequest
+	(*GoodsCommentOverviewRequest)(nil),     // 13: shop.app.v1.GoodsCommentOverviewRequest
+	(*GoodsCommentOverviewResponse)(nil),    // 14: shop.app.v1.GoodsCommentOverviewResponse
+	(*GoodsCommentTagRequest)(nil),          // 15: shop.app.v1.GoodsCommentTagRequest
+	(*GoodsCommentTagResponse)(nil),         // 16: shop.app.v1.GoodsCommentTagResponse
+	(*SaveCommentReactionRequest)(nil),      // 17: shop.app.v1.SaveCommentReactionRequest
+	(*SaveCommentReactionResponse)(nil),     // 18: shop.app.v1.SaveCommentReactionResponse
+	(*CommentTextSegment)(nil),              // 19: shop.app.v1.CommentTextSegment
+	(*CommentUserView)(nil),                 // 20: shop.app.v1.CommentUserView
+	(*CommentFilterItem)(nil),               // 21: shop.app.v1.CommentFilterItem
+	(*CommentTagItem)(nil),                  // 22: shop.app.v1.CommentTagItem
+	(*CommentItem)(nil),                     // 23: shop.app.v1.CommentItem
+	(*CommentSummary)(nil),                  // 24: shop.app.v1.CommentSummary
+	(*CommentDiscussionItem)(nil),           // 25: shop.app.v1.CommentDiscussionItem
+	(*PendingCommentGoodsItem)(nil),         // 26: shop.app.v1.PendingCommentGoodsItem
 	(v1.CommentFilterType)(0),               // 27: shop.common.v1.CommentFilterType
-	(v1.CommentStatus)(0),                   // 28: shop.common.v1.CommentStatus
-	(v1.CommentReactionType)(0),             // 29: shop.common.v1.CommentReactionType
-	(*v1.CommentSummaryContentItem)(nil),    // 30: shop.common.v1.CommentSummaryContentItem
-	(v1.CommentSortType)(0),                 // 31: shop.common.v1.CommentSortType
-	(v1.CommentReactionTargetType)(0),       // 32: shop.common.v1.CommentReactionTargetType
+	(v1.CommentSortType)(0),                 // 28: shop.common.v1.CommentSortType
+	(v1.CommentReactionTargetType)(0),       // 29: shop.common.v1.CommentReactionTargetType
+	(v1.CommentReactionType)(0),             // 30: shop.common.v1.CommentReactionType
+	(v1.CommentStatus)(0),                   // 31: shop.common.v1.CommentStatus
+	(*v1.CommentSummaryContentItem)(nil),    // 32: shop.common.v1.CommentSummaryContentItem
 	(*emptypb.Empty)(nil),                   // 33: google.protobuf.Empty
 }
 var file_shop_app_v1_comment_proto_depIdxs = []int32{
-	27, // 0: shop.app.v1.CommentFilterItem.filter_type:type_name -> shop.common.v1.CommentFilterType
-	2,  // 1: shop.app.v1.CommentItem.user:type_name -> shop.app.v1.CommentUserView
-	1,  // 2: shop.app.v1.CommentItem.content_segments:type_name -> shop.app.v1.CommentTextSegment
-	28, // 3: shop.app.v1.CommentItem.status:type_name -> shop.common.v1.CommentStatus
-	29, // 4: shop.app.v1.CommentItem.reaction_type:type_name -> shop.common.v1.CommentReactionType
-	30, // 5: shop.app.v1.CommentSummary.content:type_name -> shop.common.v1.CommentSummaryContentItem
-	29, // 6: shop.app.v1.CommentSummary.reaction_type:type_name -> shop.common.v1.CommentReactionType
-	2,  // 7: shop.app.v1.CommentDiscussionItem.user:type_name -> shop.app.v1.CommentUserView
-	29, // 8: shop.app.v1.CommentDiscussionItem.reaction_type:type_name -> shop.common.v1.CommentReactionType
-	6,  // 9: shop.app.v1.GoodsCommentOverviewResponse.comment_summary:type_name -> shop.app.v1.CommentSummary
-	5,  // 10: shop.app.v1.GoodsCommentOverviewResponse.preview_comments:type_name -> shop.app.v1.CommentItem
-	4,  // 11: shop.app.v1.GoodsCommentTagResponse.comment_tags:type_name -> shop.app.v1.CommentTagItem
-	27, // 12: shop.app.v1.PageGoodsCommentRequest.filter_type:type_name -> shop.common.v1.CommentFilterType
-	31, // 13: shop.app.v1.PageGoodsCommentRequest.sort_type:type_name -> shop.common.v1.CommentSortType
-	3,  // 14: shop.app.v1.PageGoodsCommentResponse.comment_filters:type_name -> shop.app.v1.CommentFilterItem
-	6,  // 15: shop.app.v1.PageGoodsCommentResponse.comment_summary:type_name -> shop.app.v1.CommentSummary
-	5,  // 16: shop.app.v1.PageGoodsCommentResponse.comments:type_name -> shop.app.v1.CommentItem
-	7,  // 17: shop.app.v1.PageCommentDiscussionResponse.comment_discussions:type_name -> shop.app.v1.CommentDiscussionItem
-	7,  // 18: shop.app.v1.CreateCommentDiscussionResponse.item:type_name -> shop.app.v1.CommentDiscussionItem
-	32, // 19: shop.app.v1.SaveCommentReactionRequest.target_type:type_name -> shop.common.v1.CommentReactionTargetType
-	29, // 20: shop.app.v1.SaveCommentReactionRequest.reaction_type:type_name -> shop.common.v1.CommentReactionType
-	32, // 21: shop.app.v1.SaveCommentReactionResponse.target_type:type_name -> shop.common.v1.CommentReactionTargetType
-	29, // 22: shop.app.v1.SaveCommentReactionResponse.reaction_type:type_name -> shop.common.v1.CommentReactionType
-	8,  // 23: shop.app.v1.PagePendingCommentGoodsResponse.pending_comment_goods:type_name -> shop.app.v1.PendingCommentGoodsItem
-	5,  // 24: shop.app.v1.PageMyCommentResponse.comments:type_name -> shop.app.v1.CommentItem
-	9,  // 25: shop.app.v1.CommentInfoService.GoodsCommentOverview:input_type -> shop.app.v1.GoodsCommentOverviewRequest
-	11, // 26: shop.app.v1.CommentInfoService.GoodsCommentTag:input_type -> shop.app.v1.GoodsCommentTagRequest
-	13, // 27: shop.app.v1.CommentInfoService.PageGoodsComment:input_type -> shop.app.v1.PageGoodsCommentRequest
-	15, // 28: shop.app.v1.CommentInfoService.PageCommentDiscussion:input_type -> shop.app.v1.PageCommentDiscussionRequest
-	17, // 29: shop.app.v1.CommentInfoService.CreateCommentDiscussion:input_type -> shop.app.v1.CreateCommentDiscussionRequest
-	19, // 30: shop.app.v1.CommentInfoService.SaveCommentReaction:input_type -> shop.app.v1.SaveCommentReactionRequest
-	21, // 31: shop.app.v1.CommentInfoService.PagePendingCommentGoods:input_type -> shop.app.v1.PagePendingCommentGoodsRequest
-	23, // 32: shop.app.v1.CommentInfoService.CreateComment:input_type -> shop.app.v1.CreateCommentRequest
-	0,  // 33: shop.app.v1.CommentInfoService.DeleteComment:input_type -> shop.app.v1.DeleteCommentRequest
-	25, // 34: shop.app.v1.CommentInfoService.PageMyComment:input_type -> shop.app.v1.PageMyCommentRequest
-	10, // 35: shop.app.v1.CommentInfoService.GoodsCommentOverview:output_type -> shop.app.v1.GoodsCommentOverviewResponse
-	12, // 36: shop.app.v1.CommentInfoService.GoodsCommentTag:output_type -> shop.app.v1.GoodsCommentTagResponse
-	14, // 37: shop.app.v1.CommentInfoService.PageGoodsComment:output_type -> shop.app.v1.PageGoodsCommentResponse
-	16, // 38: shop.app.v1.CommentInfoService.PageCommentDiscussion:output_type -> shop.app.v1.PageCommentDiscussionResponse
-	18, // 39: shop.app.v1.CommentInfoService.CreateCommentDiscussion:output_type -> shop.app.v1.CreateCommentDiscussionResponse
-	20, // 40: shop.app.v1.CommentInfoService.SaveCommentReaction:output_type -> shop.app.v1.SaveCommentReactionResponse
-	22, // 41: shop.app.v1.CommentInfoService.PagePendingCommentGoods:output_type -> shop.app.v1.PagePendingCommentGoodsResponse
-	24, // 42: shop.app.v1.CommentInfoService.CreateComment:output_type -> shop.app.v1.CreateCommentResponse
-	33, // 43: shop.app.v1.CommentInfoService.DeleteComment:output_type -> google.protobuf.Empty
-	26, // 44: shop.app.v1.CommentInfoService.PageMyComment:output_type -> shop.app.v1.PageMyCommentResponse
+	25, // 0: shop.app.v1.PageCommentDiscussionResponse.comment_discussions:type_name -> shop.app.v1.CommentDiscussionItem
+	27, // 1: shop.app.v1.PageGoodsCommentRequest.filter_type:type_name -> shop.common.v1.CommentFilterType
+	28, // 2: shop.app.v1.PageGoodsCommentRequest.sort_type:type_name -> shop.common.v1.CommentSortType
+	21, // 3: shop.app.v1.PageGoodsCommentResponse.comment_filters:type_name -> shop.app.v1.CommentFilterItem
+	24, // 4: shop.app.v1.PageGoodsCommentResponse.comment_summary:type_name -> shop.app.v1.CommentSummary
+	23, // 5: shop.app.v1.PageGoodsCommentResponse.comments:type_name -> shop.app.v1.CommentItem
+	23, // 6: shop.app.v1.PageMyCommentResponse.comments:type_name -> shop.app.v1.CommentItem
+	26, // 7: shop.app.v1.PagePendingCommentGoodsResponse.pending_comment_goods:type_name -> shop.app.v1.PendingCommentGoodsItem
+	25, // 8: shop.app.v1.CreateCommentDiscussionResponse.item:type_name -> shop.app.v1.CommentDiscussionItem
+	24, // 9: shop.app.v1.GoodsCommentOverviewResponse.comment_summary:type_name -> shop.app.v1.CommentSummary
+	23, // 10: shop.app.v1.GoodsCommentOverviewResponse.preview_comments:type_name -> shop.app.v1.CommentItem
+	22, // 11: shop.app.v1.GoodsCommentTagResponse.comment_tags:type_name -> shop.app.v1.CommentTagItem
+	29, // 12: shop.app.v1.SaveCommentReactionRequest.target_type:type_name -> shop.common.v1.CommentReactionTargetType
+	30, // 13: shop.app.v1.SaveCommentReactionRequest.reaction_type:type_name -> shop.common.v1.CommentReactionType
+	29, // 14: shop.app.v1.SaveCommentReactionResponse.target_type:type_name -> shop.common.v1.CommentReactionTargetType
+	30, // 15: shop.app.v1.SaveCommentReactionResponse.reaction_type:type_name -> shop.common.v1.CommentReactionType
+	27, // 16: shop.app.v1.CommentFilterItem.filter_type:type_name -> shop.common.v1.CommentFilterType
+	20, // 17: shop.app.v1.CommentItem.user:type_name -> shop.app.v1.CommentUserView
+	19, // 18: shop.app.v1.CommentItem.content_segments:type_name -> shop.app.v1.CommentTextSegment
+	31, // 19: shop.app.v1.CommentItem.status:type_name -> shop.common.v1.CommentStatus
+	30, // 20: shop.app.v1.CommentItem.reaction_type:type_name -> shop.common.v1.CommentReactionType
+	32, // 21: shop.app.v1.CommentSummary.content:type_name -> shop.common.v1.CommentSummaryContentItem
+	30, // 22: shop.app.v1.CommentSummary.reaction_type:type_name -> shop.common.v1.CommentReactionType
+	20, // 23: shop.app.v1.CommentDiscussionItem.user:type_name -> shop.app.v1.CommentUserView
+	30, // 24: shop.app.v1.CommentDiscussionItem.reaction_type:type_name -> shop.common.v1.CommentReactionType
+	0,  // 25: shop.app.v1.CommentInfoService.PageCommentDiscussion:input_type -> shop.app.v1.PageCommentDiscussionRequest
+	2,  // 26: shop.app.v1.CommentInfoService.PageGoodsComment:input_type -> shop.app.v1.PageGoodsCommentRequest
+	4,  // 27: shop.app.v1.CommentInfoService.PageMyComment:input_type -> shop.app.v1.PageMyCommentRequest
+	6,  // 28: shop.app.v1.CommentInfoService.PagePendingCommentGoods:input_type -> shop.app.v1.PagePendingCommentGoodsRequest
+	8,  // 29: shop.app.v1.CommentInfoService.CreateComment:input_type -> shop.app.v1.CreateCommentRequest
+	10, // 30: shop.app.v1.CommentInfoService.CreateCommentDiscussion:input_type -> shop.app.v1.CreateCommentDiscussionRequest
+	12, // 31: shop.app.v1.CommentInfoService.DeleteComment:input_type -> shop.app.v1.DeleteCommentRequest
+	13, // 32: shop.app.v1.CommentInfoService.GoodsCommentOverview:input_type -> shop.app.v1.GoodsCommentOverviewRequest
+	15, // 33: shop.app.v1.CommentInfoService.GoodsCommentTag:input_type -> shop.app.v1.GoodsCommentTagRequest
+	17, // 34: shop.app.v1.CommentInfoService.SaveCommentReaction:input_type -> shop.app.v1.SaveCommentReactionRequest
+	1,  // 35: shop.app.v1.CommentInfoService.PageCommentDiscussion:output_type -> shop.app.v1.PageCommentDiscussionResponse
+	3,  // 36: shop.app.v1.CommentInfoService.PageGoodsComment:output_type -> shop.app.v1.PageGoodsCommentResponse
+	5,  // 37: shop.app.v1.CommentInfoService.PageMyComment:output_type -> shop.app.v1.PageMyCommentResponse
+	7,  // 38: shop.app.v1.CommentInfoService.PagePendingCommentGoods:output_type -> shop.app.v1.PagePendingCommentGoodsResponse
+	9,  // 39: shop.app.v1.CommentInfoService.CreateComment:output_type -> shop.app.v1.CreateCommentResponse
+	11, // 40: shop.app.v1.CommentInfoService.CreateCommentDiscussion:output_type -> shop.app.v1.CreateCommentDiscussionResponse
+	33, // 41: shop.app.v1.CommentInfoService.DeleteComment:output_type -> google.protobuf.Empty
+	14, // 42: shop.app.v1.CommentInfoService.GoodsCommentOverview:output_type -> shop.app.v1.GoodsCommentOverviewResponse
+	16, // 43: shop.app.v1.CommentInfoService.GoodsCommentTag:output_type -> shop.app.v1.GoodsCommentTagResponse
+	18, // 44: shop.app.v1.CommentInfoService.SaveCommentReaction:output_type -> shop.app.v1.SaveCommentReactionResponse
 	35, // [35:45] is the sub-list for method output_type
 	25, // [25:35] is the sub-list for method input_type
 	25, // [25:25] is the sub-list for extension type_name
@@ -2379,7 +2379,7 @@ func file_shop_app_v1_comment_proto_init() {
 	if File_shop_app_v1_comment_proto != nil {
 		return
 	}
-	file_shop_app_v1_comment_proto_msgTypes[21].OneofWrappers = []any{}
+	file_shop_app_v1_comment_proto_msgTypes[6].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

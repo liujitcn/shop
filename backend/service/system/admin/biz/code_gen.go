@@ -84,6 +84,22 @@ func NewCodeGenCase(
 	}
 }
 
+// GetCodeGenTask 查询当前用户可访问的生成任务快照。
+func (c *CodeGenCase) GetCodeGenTask(ctx context.Context, taskID string) (*systemadminv1.CodeGenTask, error) {
+	if taskID == "" {
+		return nil, errorsx.InvalidArgument("生成任务ID不能为空")
+	}
+	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return nil, err
+	}
+	task, ok := c.progressManager.Snapshot(taskID, authInfo.UserId)
+	if !ok {
+		return nil, errorsx.ResourceNotFound("代码生成任务不存在或已过期")
+	}
+	return task, nil
+}
+
 // PreviewCodeGen 根据现有表、字段和Proto配置预览生成结果。
 func (c *CodeGenCase) PreviewCodeGen(ctx context.Context, tableID int64, requestedPaths *systemadminv1.CodeGenOutputPaths) (*systemadminv1.PreviewCodeGenResponse, error) {
 	table, columns, protos, err := c.loadCodeGenContext(ctx, tableID)
@@ -141,22 +157,6 @@ func (c *CodeGenCase) StartCodeGenTask(ctx context.Context, req *systemadminv1.S
 	}
 	go c.runCodeGenTask(context.WithoutCancel(ctx), task.GetTaskId(), req.GetTableIds(), req.GetRunCommands(), req.GetOutputPaths())
 	return &systemadminv1.StartCodeGenTaskResponse{TaskId: task.GetTaskId()}, nil
-}
-
-// GetCodeGenTask 查询当前用户可访问的生成任务快照。
-func (c *CodeGenCase) GetCodeGenTask(ctx context.Context, taskID string) (*systemadminv1.CodeGenTask, error) {
-	if taskID == "" {
-		return nil, errorsx.InvalidArgument("生成任务ID不能为空")
-	}
-	authInfo, err := c.GetAuthInfo(ctx)
-	if err != nil {
-		return nil, err
-	}
-	task, ok := c.progressManager.Snapshot(taskID, authInfo.UserId)
-	if !ok {
-		return nil, errorsx.ResourceNotFound("代码生成任务不存在或已过期")
-	}
-	return task, nil
 }
 
 // runCodeGenTask 串行执行批量任务并汇总最终状态。

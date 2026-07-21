@@ -15,34 +15,13 @@ import (
 
 // RegisterUserCartServiceMCPTools 注册App用户购物车管理服务的 MCP Tool。
 func RegisterUserCartServiceMCPTools(mcpServer *mcp.Server, userCartServiceServer UserCartServiceServer) {
-	RegisterUserCartServiceCountUserCartMCPTool(mcpServer, userCartServiceServer)
 	RegisterUserCartServiceListUserCartMCPTool(mcpServer, userCartServiceServer)
 	RegisterUserCartServiceCreateUserCartMCPTool(mcpServer, userCartServiceServer)
-	RegisterUserCartServiceSetUserCartSelectionMCPTool(mcpServer, userCartServiceServer)
 	RegisterUserCartServiceUpdateUserCartMCPTool(mcpServer, userCartServiceServer)
 	RegisterUserCartServiceDeleteUserCartMCPTool(mcpServer, userCartServiceServer)
+	RegisterUserCartServiceSetUserCartSelectionMCPTool(mcpServer, userCartServiceServer)
 	RegisterUserCartServiceSetUserCartStatusMCPTool(mcpServer, userCartServiceServer)
-}
-
-// RegisterUserCartServiceCountUserCartMCPTool 注册查询用户购物车数量的 MCP Tool。
-func RegisterUserCartServiceCountUserCartMCPTool(mcpServer *mcp.Server, userCartServiceServer UserCartServiceServer) {
-	mcp.AddTool[*CountUserCartRequest, *CountUserCartResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "shop_app_v1_user_cart_service_count_user_cart",
-			Description: "查询用户购物车数量",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *CountUserCartRequest) (*mcp.CallToolResult, *CountUserCartResponse, error) {
-			if input == nil {
-				input = &CountUserCartRequest{}
-			}
-			reply, err := userCartServiceServer.CountUserCart(ctx, input)
-			if err != nil {
-				return nil, nil, err
-			}
-			return nil, reply, nil
-		},
-	)
+	RegisterUserCartServiceCountUserCartMCPTool(mcpServer, userCartServiceServer)
 }
 
 // RegisterUserCartServiceListUserCartMCPTool 注册查询用户购物车列表的 MCP Tool。
@@ -79,27 +58,6 @@ func RegisterUserCartServiceCreateUserCartMCPTool(mcpServer *mcp.Server, userCar
 				input = &CreateUserCartRequest{}
 			}
 			reply, err := userCartServiceServer.CreateUserCart(ctx, input)
-			if err != nil {
-				return nil, nil, err
-			}
-			return nil, reply, nil
-		},
-	)
-}
-
-// RegisterUserCartServiceSetUserCartSelectionMCPTool 注册设置全选的 MCP Tool。
-func RegisterUserCartServiceSetUserCartSelectionMCPTool(mcpServer *mcp.Server, userCartServiceServer UserCartServiceServer) {
-	mcp.AddTool[*SetUserCartSelectionRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "shop_app_v1_user_cart_service_set_user_cart_selection",
-			Description: "设置全选",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *SetUserCartSelectionRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &SetUserCartSelectionRequest{}
-			}
-			reply, err := userCartServiceServer.SetUserCartSelection(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -150,6 +108,27 @@ func RegisterUserCartServiceDeleteUserCartMCPTool(mcpServer *mcp.Server, userCar
 	)
 }
 
+// RegisterUserCartServiceSetUserCartSelectionMCPTool 注册设置全选的 MCP Tool。
+func RegisterUserCartServiceSetUserCartSelectionMCPTool(mcpServer *mcp.Server, userCartServiceServer UserCartServiceServer) {
+	mcp.AddTool[*SetUserCartSelectionRequest, *emptypb.Empty](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "shop_app_v1_user_cart_service_set_user_cart_selection",
+			Description: "设置全选",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *SetUserCartSelectionRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
+			if input == nil {
+				input = &SetUserCartSelectionRequest{}
+			}
+			reply, err := userCartServiceServer.SetUserCartSelection(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
+}
+
 // RegisterUserCartServiceSetUserCartStatusMCPTool 注册设置状态的 MCP Tool。
 func RegisterUserCartServiceSetUserCartStatusMCPTool(mcpServer *mcp.Server, userCartServiceServer UserCartServiceServer) {
 	mcp.AddTool[*SetUserCartStatusRequest, *emptypb.Empty](
@@ -163,6 +142,27 @@ func RegisterUserCartServiceSetUserCartStatusMCPTool(mcpServer *mcp.Server, user
 				input = &SetUserCartStatusRequest{}
 			}
 			reply, err := userCartServiceServer.SetUserCartStatus(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
+}
+
+// RegisterUserCartServiceCountUserCartMCPTool 注册查询用户购物车数量的 MCP Tool。
+func RegisterUserCartServiceCountUserCartMCPTool(mcpServer *mcp.Server, userCartServiceServer UserCartServiceServer) {
+	mcp.AddTool[*CountUserCartRequest, *CountUserCartResponse](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "shop_app_v1_user_cart_service_count_user_cart",
+			Description: "查询用户购物车数量",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *CountUserCartRequest) (*mcp.CallToolResult, *CountUserCartResponse, error) {
+			if input == nil {
+				input = &CountUserCartRequest{}
+			}
+			reply, err := userCartServiceServer.CountUserCart(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

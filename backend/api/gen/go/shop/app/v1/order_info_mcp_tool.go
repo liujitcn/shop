@@ -15,104 +15,20 @@ import (
 
 // RegisterOrderInfoServiceMCPTools 注册App订单信息服务的 MCP Tool。
 func RegisterOrderInfoServiceMCPTools(mcpServer *mcp.Server, orderInfoServiceServer OrderInfoServiceServer) {
-	RegisterOrderInfoServiceConfirmOrderInfoMCPTool(mcpServer, orderInfoServiceServer)
-	RegisterOrderInfoServiceBuyNowOrderInfoMCPTool(mcpServer, orderInfoServiceServer)
-	RegisterOrderInfoServiceRepurchaseOrderInfoMCPTool(mcpServer, orderInfoServiceServer)
-	RegisterOrderInfoServiceCountOrderInfoMCPTool(mcpServer, orderInfoServiceServer)
 	RegisterOrderInfoServicePageOrderInfoMCPTool(mcpServer, orderInfoServiceServer)
-	RegisterOrderInfoServiceGetOrderInfoIdByOrderNoMCPTool(mcpServer, orderInfoServiceServer)
 	RegisterOrderInfoServiceGetOrderInfoByIdMCPTool(mcpServer, orderInfoServiceServer)
+	RegisterOrderInfoServiceGetOrderInfoIdByOrderNoMCPTool(mcpServer, orderInfoServiceServer)
 	RegisterOrderInfoServiceGetOrderTradeByIdMCPTool(mcpServer, orderInfoServiceServer)
 	RegisterOrderInfoServiceCreateOrderInfoMCPTool(mcpServer, orderInfoServiceServer)
 	RegisterOrderInfoServiceDeleteOrderInfoMCPTool(mcpServer, orderInfoServiceServer)
 	RegisterOrderInfoServiceDeleteOrderTradeMCPTool(mcpServer, orderInfoServiceServer)
+	RegisterOrderInfoServiceConfirmOrderInfoMCPTool(mcpServer, orderInfoServiceServer)
+	RegisterOrderInfoServiceBuyNowOrderInfoMCPTool(mcpServer, orderInfoServiceServer)
+	RegisterOrderInfoServiceRepurchaseOrderInfoMCPTool(mcpServer, orderInfoServiceServer)
+	RegisterOrderInfoServiceCountOrderInfoMCPTool(mcpServer, orderInfoServiceServer)
 	RegisterOrderInfoServiceCancelOrderInfoMCPTool(mcpServer, orderInfoServiceServer)
 	RegisterOrderInfoServiceRefundOrderInfoMCPTool(mcpServer, orderInfoServiceServer)
 	RegisterOrderInfoServiceReceiveOrderInfoMCPTool(mcpServer, orderInfoServiceServer)
-}
-
-// RegisterOrderInfoServiceConfirmOrderInfoMCPTool 注册确认订单信息的 MCP Tool。
-func RegisterOrderInfoServiceConfirmOrderInfoMCPTool(mcpServer *mcp.Server, orderInfoServiceServer OrderInfoServiceServer) {
-	mcp.AddTool[*ConfirmOrderInfoRequest, *ConfirmOrderInfoResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "shop_app_v1_order_info_service_confirm_order_info",
-			Description: "确认订单信息",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *ConfirmOrderInfoRequest) (*mcp.CallToolResult, *ConfirmOrderInfoResponse, error) {
-			if input == nil {
-				input = &ConfirmOrderInfoRequest{}
-			}
-			reply, err := orderInfoServiceServer.ConfirmOrderInfo(ctx, input)
-			if err != nil {
-				return nil, nil, err
-			}
-			return nil, reply, nil
-		},
-	)
-}
-
-// RegisterOrderInfoServiceBuyNowOrderInfoMCPTool 注册立即购买订单信息的 MCP Tool。
-func RegisterOrderInfoServiceBuyNowOrderInfoMCPTool(mcpServer *mcp.Server, orderInfoServiceServer OrderInfoServiceServer) {
-	mcp.AddTool[*BuyNowOrderInfoRequest, *BuyNowOrderInfoResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "shop_app_v1_order_info_service_buy_now_order_info",
-			Description: "立即购买订单信息",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *BuyNowOrderInfoRequest) (*mcp.CallToolResult, *BuyNowOrderInfoResponse, error) {
-			if input == nil {
-				input = &BuyNowOrderInfoRequest{}
-			}
-			reply, err := orderInfoServiceServer.BuyNowOrderInfo(ctx, input)
-			if err != nil {
-				return nil, nil, err
-			}
-			return nil, reply, nil
-		},
-	)
-}
-
-// RegisterOrderInfoServiceRepurchaseOrderInfoMCPTool 注册再次购买订单信息的 MCP Tool。
-func RegisterOrderInfoServiceRepurchaseOrderInfoMCPTool(mcpServer *mcp.Server, orderInfoServiceServer OrderInfoServiceServer) {
-	mcp.AddTool[*RepurchaseOrderInfoRequest, *RepurchaseOrderInfoResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "shop_app_v1_order_info_service_repurchase_order_info",
-			Description: "再次购买订单信息",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *RepurchaseOrderInfoRequest) (*mcp.CallToolResult, *RepurchaseOrderInfoResponse, error) {
-			if input == nil {
-				input = &RepurchaseOrderInfoRequest{}
-			}
-			reply, err := orderInfoServiceServer.RepurchaseOrderInfo(ctx, input)
-			if err != nil {
-				return nil, nil, err
-			}
-			return nil, reply, nil
-		},
-	)
-}
-
-// RegisterOrderInfoServiceCountOrderInfoMCPTool 注册查询订单信息数量汇总的 MCP Tool。
-func RegisterOrderInfoServiceCountOrderInfoMCPTool(mcpServer *mcp.Server, orderInfoServiceServer OrderInfoServiceServer) {
-	mcp.AddTool[*CountOrderInfoRequest, *CountOrderInfoResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "shop_app_v1_order_info_service_count_order_info",
-			Description: "查询订单信息数量汇总",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *CountOrderInfoRequest) (*mcp.CallToolResult, *CountOrderInfoResponse, error) {
-			if input == nil {
-				input = &CountOrderInfoRequest{}
-			}
-			reply, err := orderInfoServiceServer.CountOrderInfo(ctx, input)
-			if err != nil {
-				return nil, nil, err
-			}
-			return nil, reply, nil
-		},
-	)
 }
 
 // RegisterOrderInfoServicePageOrderInfoMCPTool 注册查询订单信息分页列表的 MCP Tool。
@@ -136,27 +52,6 @@ func RegisterOrderInfoServicePageOrderInfoMCPTool(mcpServer *mcp.Server, orderIn
 	)
 }
 
-// RegisterOrderInfoServiceGetOrderInfoIdByOrderNoMCPTool 注册根据订单信息编号查询订单信息id的 MCP Tool。
-func RegisterOrderInfoServiceGetOrderInfoIdByOrderNoMCPTool(mcpServer *mcp.Server, orderInfoServiceServer OrderInfoServiceServer) {
-	mcp.AddTool[*GetOrderInfoIdByOrderNoRequest, *GetOrderInfoIdByOrderNoResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "shop_app_v1_order_info_service_get_order_info_id_by_order_no",
-			Description: "根据订单信息编号查询订单信息id",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetOrderInfoIdByOrderNoRequest) (*mcp.CallToolResult, *GetOrderInfoIdByOrderNoResponse, error) {
-			if input == nil {
-				input = &GetOrderInfoIdByOrderNoRequest{}
-			}
-			reply, err := orderInfoServiceServer.GetOrderInfoIdByOrderNo(ctx, input)
-			if err != nil {
-				return nil, nil, err
-			}
-			return nil, reply, nil
-		},
-	)
-}
-
 // RegisterOrderInfoServiceGetOrderInfoByIdMCPTool 注册根据订单信息id查询订单信息的 MCP Tool。
 func RegisterOrderInfoServiceGetOrderInfoByIdMCPTool(mcpServer *mcp.Server, orderInfoServiceServer OrderInfoServiceServer) {
 	mcp.AddTool[*GetOrderInfoByIdRequest, *OrderInfoResponse](
@@ -170,6 +65,27 @@ func RegisterOrderInfoServiceGetOrderInfoByIdMCPTool(mcpServer *mcp.Server, orde
 				input = &GetOrderInfoByIdRequest{}
 			}
 			reply, err := orderInfoServiceServer.GetOrderInfoById(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
+}
+
+// RegisterOrderInfoServiceGetOrderInfoIdByOrderNoMCPTool 注册根据订单信息编号查询订单信息id的 MCP Tool。
+func RegisterOrderInfoServiceGetOrderInfoIdByOrderNoMCPTool(mcpServer *mcp.Server, orderInfoServiceServer OrderInfoServiceServer) {
+	mcp.AddTool[*GetOrderInfoIdByOrderNoRequest, *GetOrderInfoIdByOrderNoResponse](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "shop_app_v1_order_info_service_get_order_info_id_by_order_no",
+			Description: "根据订单信息编号查询订单信息id",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *GetOrderInfoIdByOrderNoRequest) (*mcp.CallToolResult, *GetOrderInfoIdByOrderNoResponse, error) {
+			if input == nil {
+				input = &GetOrderInfoIdByOrderNoRequest{}
+			}
+			reply, err := orderInfoServiceServer.GetOrderInfoIdByOrderNo(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -254,6 +170,90 @@ func RegisterOrderInfoServiceDeleteOrderTradeMCPTool(mcpServer *mcp.Server, orde
 				input = &DeleteOrderTradeRequest{}
 			}
 			reply, err := orderInfoServiceServer.DeleteOrderTrade(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
+}
+
+// RegisterOrderInfoServiceConfirmOrderInfoMCPTool 注册确认订单信息的 MCP Tool。
+func RegisterOrderInfoServiceConfirmOrderInfoMCPTool(mcpServer *mcp.Server, orderInfoServiceServer OrderInfoServiceServer) {
+	mcp.AddTool[*ConfirmOrderInfoRequest, *ConfirmOrderInfoResponse](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "shop_app_v1_order_info_service_confirm_order_info",
+			Description: "确认订单信息",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *ConfirmOrderInfoRequest) (*mcp.CallToolResult, *ConfirmOrderInfoResponse, error) {
+			if input == nil {
+				input = &ConfirmOrderInfoRequest{}
+			}
+			reply, err := orderInfoServiceServer.ConfirmOrderInfo(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
+}
+
+// RegisterOrderInfoServiceBuyNowOrderInfoMCPTool 注册立即购买订单信息的 MCP Tool。
+func RegisterOrderInfoServiceBuyNowOrderInfoMCPTool(mcpServer *mcp.Server, orderInfoServiceServer OrderInfoServiceServer) {
+	mcp.AddTool[*BuyNowOrderInfoRequest, *BuyNowOrderInfoResponse](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "shop_app_v1_order_info_service_buy_now_order_info",
+			Description: "立即购买订单信息",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *BuyNowOrderInfoRequest) (*mcp.CallToolResult, *BuyNowOrderInfoResponse, error) {
+			if input == nil {
+				input = &BuyNowOrderInfoRequest{}
+			}
+			reply, err := orderInfoServiceServer.BuyNowOrderInfo(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
+}
+
+// RegisterOrderInfoServiceRepurchaseOrderInfoMCPTool 注册再次购买订单信息的 MCP Tool。
+func RegisterOrderInfoServiceRepurchaseOrderInfoMCPTool(mcpServer *mcp.Server, orderInfoServiceServer OrderInfoServiceServer) {
+	mcp.AddTool[*RepurchaseOrderInfoRequest, *RepurchaseOrderInfoResponse](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "shop_app_v1_order_info_service_repurchase_order_info",
+			Description: "再次购买订单信息",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *RepurchaseOrderInfoRequest) (*mcp.CallToolResult, *RepurchaseOrderInfoResponse, error) {
+			if input == nil {
+				input = &RepurchaseOrderInfoRequest{}
+			}
+			reply, err := orderInfoServiceServer.RepurchaseOrderInfo(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
+}
+
+// RegisterOrderInfoServiceCountOrderInfoMCPTool 注册查询订单信息数量汇总的 MCP Tool。
+func RegisterOrderInfoServiceCountOrderInfoMCPTool(mcpServer *mcp.Server, orderInfoServiceServer OrderInfoServiceServer) {
+	mcp.AddTool[*CountOrderInfoRequest, *CountOrderInfoResponse](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "shop_app_v1_order_info_service_count_order_info",
+			Description: "查询订单信息数量汇总",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *CountOrderInfoRequest) (*mcp.CallToolResult, *CountOrderInfoResponse, error) {
+			if input == nil {
+				input = &CountOrderInfoRequest{}
+			}
+			reply, err := orderInfoServiceServer.CountOrderInfo(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

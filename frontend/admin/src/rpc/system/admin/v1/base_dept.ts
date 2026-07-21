@@ -9,6 +9,16 @@ import type { TreeOptionResponse } from "../../../common/v1/common";
 import type { Status } from "../../../common/v1/enum";
 import type { Empty } from "../../../google/protobuf/empty";
 
+/** 部门选项查询条件 */
+export interface OptionBaseDeptRequest {
+  /** 租户ID */
+  tenant_id?:
+    | number
+    | undefined;
+  /** 父级部门ID */
+  parent_id?: number | undefined;
+}
+
 /** 部门树查询条件 */
 export interface TreeBaseDeptRequest {
   /** 租户ID */
@@ -21,20 +31,30 @@ export interface TreeBaseDeptResponse {
   base_depts: BaseDept[];
 }
 
-/** 部门选项查询条件 */
-export interface OptionBaseDeptRequest {
-  /** 租户ID */
-  tenant_id?:
-    | number
-    | undefined;
-  /** 父级部门ID */
-  parent_id?: number | undefined;
-}
-
 /** 查询部门请求参数 */
 export interface GetBaseDeptRequest {
   /** 部门ID */
   id: number;
+}
+
+/** 部门表单 */
+export interface BaseDeptForm {
+  /** 部门ID */
+  id: number;
+  /** 租户ID */
+  tenant_id: number;
+  /** 父级部门ID */
+  parent_id?:
+    | number
+    | undefined;
+  /** 部门名称 */
+  name: string;
+  /** 排序 */
+  sort: number;
+  /** 状态 */
+  status: Status;
+  /** 备注 */
+  remark: string;
 }
 
 /** 创建部门请求参数 */
@@ -87,32 +107,12 @@ export interface BaseDept {
   children: BaseDept[];
 }
 
-/** 部门表单 */
-export interface BaseDeptForm {
-  /** 部门ID */
-  id: number;
-  /** 租户ID */
-  tenant_id: number;
-  /** 父级部门ID */
-  parent_id?:
-    | number
-    | undefined;
-  /** 部门名称 */
-  name: string;
-  /** 排序 */
-  sort: number;
-  /** 状态 */
-  status: Status;
-  /** 备注 */
-  remark: string;
-}
-
 /** Admin部门服务 */
 export interface BaseDeptService {
-  /** 查询部门树形列表 */
-  TreeBaseDept(request: TreeBaseDeptRequest): Promise<TreeBaseDeptResponse>;
   /** 查询部门树形选择 */
   OptionBaseDept(request: OptionBaseDeptRequest): Promise<TreeOptionResponse>;
+  /** 查询部门树形列表 */
+  TreeBaseDept(request: TreeBaseDeptRequest): Promise<TreeBaseDeptResponse>;
   /** 查询部门 */
   GetBaseDept(request: GetBaseDeptRequest): Promise<BaseDeptForm>;
   /** 创建部门 */

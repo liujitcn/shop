@@ -47,6 +47,44 @@ export interface PageRecommendRequestResponse {
   total: number;
 }
 
+/** 推荐请求事件查询条件 */
+export interface ListRecommendRequestEventRequest {
+  /** 推荐请求记录ID */
+  request_record_id: number;
+  /** 商品ID */
+  goods_id: number;
+  /** 结果位置 */
+  position: number;
+}
+
+/** 推荐请求事件响应 */
+export interface ListRecommendRequestEventResponse {
+  /** 事件数据 */
+  recommend_events: RecommendEvent[];
+  /** 总数 */
+  total: number;
+}
+
+/** 推荐请求详情查询条件 */
+export interface GetRecommendRequestRequest {
+  /** 推荐请求记录ID */
+  id: number;
+}
+
+/** 推荐请求详情响应 */
+export interface RecommendRequestDetailResponse {
+  /** 请求基础信息 */
+  request:
+    | RecommendRequest
+    | undefined;
+  /** 推荐上下文信息 */
+  context:
+    | RecommendRequestContext
+    | undefined;
+  /** 当前请求页的推荐商品列表 */
+  item_list: RecommendRequestItem[];
+}
+
 /** 推荐请求 */
 export interface RecommendRequest {
   /** 主键ID */
@@ -73,26 +111,6 @@ export interface RecommendRequest {
   request_at: string;
   /** 主体名称 */
   actor_name: string;
-}
-
-/** 推荐请求详情查询条件 */
-export interface GetRecommendRequestRequest {
-  /** 推荐请求记录ID */
-  id: number;
-}
-
-/** 推荐请求详情响应 */
-export interface RecommendRequestDetailResponse {
-  /** 请求基础信息 */
-  request:
-    | RecommendRequest
-    | undefined;
-  /** 推荐上下文信息 */
-  context:
-    | RecommendRequestContext
-    | undefined;
-  /** 当前请求页的推荐商品列表 */
-  item_list: RecommendRequestItem[];
 }
 
 /** 推荐请求上下文信息 */
@@ -151,24 +169,6 @@ export interface RecommendRequestItem {
   event_count: number;
 }
 
-/** 推荐请求事件查询条件 */
-export interface ListRecommendRequestEventRequest {
-  /** 推荐请求记录ID */
-  request_record_id: number;
-  /** 商品ID */
-  goods_id: number;
-  /** 结果位置 */
-  position: number;
-}
-
-/** 推荐请求事件响应 */
-export interface ListRecommendRequestEventResponse {
-  /** 事件数据 */
-  recommend_events: RecommendEvent[];
-  /** 总数 */
-  total: number;
-}
-
 /** 推荐事件 */
 export interface RecommendEvent {
   /** 主键ID */
@@ -197,8 +197,8 @@ export interface RecommendEvent {
 export interface RecommendRequestService {
   /** 查询推荐请求分页列表 */
   PageRecommendRequest(request: PageRecommendRequestRequest): Promise<PageRecommendRequestResponse>;
-  /** 查询推荐请求详情 */
-  GetRecommendRequest(request: GetRecommendRequestRequest): Promise<RecommendRequestDetailResponse>;
   /** 查询推荐请求商品关联事件 */
   ListRecommendRequestEvent(request: ListRecommendRequestEventRequest): Promise<ListRecommendRequestEventResponse>;
+  /** 查询推荐请求详情 */
+  GetRecommendRequest(request: GetRecommendRequestRequest): Promise<RecommendRequestDetailResponse>;
 }
