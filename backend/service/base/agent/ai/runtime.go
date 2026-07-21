@@ -144,7 +144,7 @@ func (r *Runtime) RunStream(ctx context.Context, input RuntimeInput, onDelta fun
 		if onDelta != nil {
 			onDelta(disabledCall.Content)
 		}
-		return r.buildResponse(aiAgenticMessage(disabledCall.Content), TokenUsage{}, []ToolUsage{disabledCall.Usage}), nil
+		return r.buildResponse(einoMessage.AIText(disabledCall.Content), TokenUsage{}, []ToolUsage{disabledCall.Usage}), nil
 	}
 	result, recorder, err := r.runADK(ctx, input, messages, toolInfos, true, onDelta)
 	if err != nil {
@@ -173,7 +173,7 @@ type disabledToolCall struct {
 func (r *Runtime) runGenerate(ctx context.Context, input RuntimeInput, messages []*einoMessage.AgenticMessage) (*einoMessage.AgenticMessage, TokenUsage, []ToolUsage, error) {
 	toolInfos := r.toolInfos(ctx, input)
 	if disabledCall := r.disabledToolCall(ctx, input, toolInfos); disabledCall != nil {
-		return aiAgenticMessage(disabledCall.Content), TokenUsage{}, []ToolUsage{disabledCall.Usage}, nil
+		return einoMessage.AIText(disabledCall.Content), TokenUsage{}, []ToolUsage{disabledCall.Usage}, nil
 	}
 	result, recorder, err := r.runADK(ctx, input, messages, toolInfos, false, nil)
 	if err != nil {
@@ -419,7 +419,7 @@ func (r *Runtime) buildMessages(ctx context.Context, input RuntimeInput) []*eino
 		if item.Content == "" {
 			continue
 		}
-		messages = append(messages, buildHistoryMessage(item.Role, item.Content))
+		messages = append(messages, einoMessage.TextByRole(item.Role, item.Content))
 		toolContext := buildHistoryToolContext(item.Tools, enabledNames)
 		if toolContext != "" {
 			messages = append(messages, einoMessage.SystemText(toolContext))
@@ -487,7 +487,7 @@ func (r *Runtime) buildUserMessage(input RuntimeInput) *einoMessage.AgenticMessa
 // buildResponse 将 Eino 消息收敛为业务层统一回复结构。
 func (r *Runtime) buildResponse(message *einoMessage.AgenticMessage, token TokenUsage, tools []ToolUsage) *Response {
 	return &Response{
-		Content:        runtimeMessageText(message),
+		Content:        einoMessage.Text(message),
 		Token:          token,
 		Tools:          normalizeToolUsages(tools),
 		Source:         "llm",
@@ -914,11 +914,6 @@ func limitHistoryToolText(content string) string {
 	return string(runes[:maxHistoryToolText]) + "...（已截断）"
 }
 
-// buildHistoryMessage 按消息角色追加历史上下文。
-func buildHistoryMessage(role string, content string) *einoMessage.AgenticMessage {
-	return einoMessage.TextByRole(role, content)
-}
-
 // normalizeAttachmentName 规范化模型提示词中展示的附件名称。
 func normalizeAttachmentName(name string) string {
 	trimmed := name
@@ -992,11 +987,6 @@ func buildUserMessageParts(content string, attachmentLines []string, images []ei
 	return einoMessage.UserTextWithImages(content, textSections, images)
 }
 
-// runtimeMessageText 提取 Eino 消息中的文本内容。
-func runtimeMessageText(message *einoMessage.AgenticMessage) string {
-	return einoMessage.Text(message)
-}
-
 // toolUsageFromCallResult 将 Eino 工具调用结果转换为助手协议工具卡。
 func toolUsageFromCallResult(result einoTool.CallResult) ToolUsage {
 	return ToolUsage{
@@ -1057,11 +1047,6 @@ func toolStatusRank(status string) int {
 	default:
 		return 0
 	}
-}
-
-// aiAgenticMessage 构造助手文本消息。
-func aiAgenticMessage(content string) *einoMessage.AgenticMessage {
-	return einoMessage.AIText(content)
 }
 
 // tokenFromCallback 将 Eino 调用统计转换为助手协议 token。

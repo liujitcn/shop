@@ -213,7 +213,7 @@ func (c *GoodsInfoCase) GetGoodsInfo(ctx context.Context, id int64) (*shopadminv
 		return nil, err
 	}
 	goodsForm.SpecList = specList.GetGoodsSpecs()
-	goodsForm.SkuList, err = c.GoodsSKUCaseList(ctx, goodsForm.Id)
+	goodsForm.SkuList, err = c.goodsSKUCase.ListGoodsSKUByGoodsID(ctx, goodsForm.Id)
 	if err != nil {
 		return nil, err
 	}
@@ -367,11 +367,6 @@ func (c *GoodsInfoCase) GoodsPropCaseList(ctx context.Context, goodsID int64) ([
 		return nil, err
 	}
 	return res, nil
-}
-
-// GoodsSKUCaseList 查询商品规格项列表
-func (c *GoodsInfoCase) GoodsSKUCaseList(ctx context.Context, goodsID int64) ([]*shopadminv1.GoodsSku, error) {
-	return c.goodsSKUCase.ListGoodsSKUsByGoodsID(ctx, goodsID)
 }
 
 // fillGoodsTenantByStore 根据门店归属补齐商品租户，并校验门店审核状态。

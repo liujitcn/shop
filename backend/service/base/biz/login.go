@@ -300,11 +300,6 @@ func (c *LoginCase) findTenantByCode(ctx context.Context, code string) (*models.
 	return c.baseTenantRepo.Find(ctx, opts...)
 }
 
-// SetRefreshTokenAuth 保存刷新令牌关联的认证信息，供刷新接口在访问令牌过期后独立续期。
-func (c *LoginCase) SetRefreshTokenAuth(refreshToken string, authInfo *authData.UserTokenPayload) error {
-	return c.setRefreshTokenAuth(refreshToken, authInfo)
-}
-
 // setRefreshTokenAuth 保存刷新令牌关联的认证信息。
 func (c *LoginCase) setRefreshTokenAuth(refreshToken string, authInfo *authData.UserTokenPayload) error {
 	if refreshToken == "" || authInfo == nil {

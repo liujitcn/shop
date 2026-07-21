@@ -1158,16 +1158,9 @@ func statusProtoType(column *CodeGenColumn) string {
 	return DefaultString(column.ProtoType, InferProtoType(column.DbType))
 }
 
-// statusMethodNameForColumn 根据状态字段数量生成兼容且唯一的方法名。
-func statusMethodNameForColumn(table *Table, column *CodeGenColumn, statusColumnCount int) string {
-	if statusColumnCount <= 1 {
-		return "Set" + table.EntityName + "Status"
-	}
-	fieldName := stringcase.ToPascalCase(column.ColumnName)
-	if strings.HasSuffix(fieldName, "Status") {
-		return "Set" + table.EntityName + fieldName
-	}
-	return "Set" + table.EntityName + fieldName + "Status"
+// statusMethodNameForColumn 根据实际状态字段名生成设置方法名。
+func statusMethodNameForColumn(table *Table, column *CodeGenColumn) string {
+	return "Set" + table.EntityName + stringcase.ToPascalCase(column.ColumnName)
 }
 
 // statusResourcePath 返回状态接口对应的 HTTP 子资源路径。
@@ -1600,9 +1593,10 @@ func dedupeProtoChecks(checks []*ProtoCheck) []*ProtoCheck {
 	return list
 }
 
-// findSavedProtoMethod 查找已保存的生成选择。
+// findSavedProtoMethod 查找已保存的生成选择，并兼容按字段保存的旧状态方法名。
 func findSavedProtoMethod(methods []*Proto, check *ProtoCheck) *Proto {
 	legacyMethodName := legacyPluralProtoMethodName(check.TargetEntityName, check.MethodName)
+	var savedStatusMethod *Proto
 	for _, method := range methods {
 		if method.ProtoFilePath != check.ProtoFilePath || method.TargetEntityName != check.TargetEntityName {
 			continue
@@ -1610,8 +1604,12 @@ func findSavedProtoMethod(methods []*Proto, check *ProtoCheck) *Proto {
 		if method.MethodName == check.MethodName || legacyMethodName != "" && method.MethodName == legacyMethodName {
 			return method
 		}
+		// 状态接口的旧方法名可能由字段数量推导，使用字段名继续关联已保存的生成选择。
+		if check.APIKind == APIKindStatus && method.APIKind == APIKindStatus && method.ColumnName == check.ColumnName {
+			savedStatusMethod = method
+		}
 	}
-	return nil
+	return savedStatusMethod
 }
 
 // legacyPluralProtoMethodName 返回旧版 Page、Tree、Option 复数契约名。

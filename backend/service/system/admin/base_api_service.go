@@ -38,7 +38,7 @@ func NewBaseApiService(
 
 // PageBaseApi 分页查询API列表
 func (s *BaseApiService) PageBaseApi(ctx context.Context, req *systemadminv1.PageBaseApiRequest) (*systemadminv1.PageBaseApiResponse, error) {
-	list, err := s.baseAPICase.PageBaseAPIs(ctx, req)
+	list, err := s.baseAPICase.PageBaseAPI(ctx, req)
 	if err != nil {
 		log.Error(fmt.Sprintf("PageBaseApi %v", err))
 		return nil, errorsx.WrapInternal(err, "分页查询API列表失败")
@@ -104,7 +104,7 @@ func (s *BaseApiService) UpdateBaseApi(ctx context.Context, req *systemadminv1.U
 
 // ListBaseApi 查询菜单分配API选项列表
 func (s *BaseApiService) ListBaseApi(ctx context.Context, req *systemadminv1.ListBaseApiRequest) (*systemadminv1.ListBaseApiResponse, error) {
-	list, err := s.baseAPICase.ListBaseAPIs(ctx, req)
+	list, err := s.baseAPICase.ListBaseAPI(ctx, req)
 	if err != nil {
 		log.Error(fmt.Sprintf("ListBaseApi %v", err))
 		return nil, errorsx.WrapInternal(err, "查询API选项列表失败")

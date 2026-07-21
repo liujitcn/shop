@@ -20,15 +20,8 @@
           </div>
         </div>
 
-        <el-table
-          :data="columns"
-          row-key="column_name"
-          border
-          stripe
-          table-layout="fixed"
-          class="code-gen-column-table"
-          empty-text="暂无字段配置"
-        >
+        <div ref="columnTableRef" class="code-gen-column-table">
+          <el-table :data="columns" row-key="column_name" border stripe table-layout="fixed" empty-text="暂无字段配置">
           <el-table-column label="数据库字段" min-width="320" fixed="left">
             <template #default="{ row, $index }">
               <div class="code-gen-field-cell">
@@ -68,24 +61,14 @@
                 </el-popover>
                 <div class="code-gen-field-order">
                   <span class="code-gen-field-order__index">{{ $index + 1 }}</span>
-                  <el-tooltip content="上移" placement="top">
+                  <el-tooltip content="拖拽排序" placement="top">
                     <el-button
-                      circle
+                      text
                       size="small"
-                      :icon="ArrowUp"
-                      :disabled="!canEdit || $index === 0"
-                      aria-label="上移字段"
-                      @click="moveColumn($index, -1)"
-                    />
-                  </el-tooltip>
-                  <el-tooltip content="下移" placement="top">
-                    <el-button
-                      circle
-                      size="small"
-                      :icon="ArrowDown"
-                      :disabled="!canEdit || $index === columns.length - 1"
-                      aria-label="下移字段"
-                      @click="moveColumn($index, 1)"
+                      :icon="List"
+                      :disabled="!canEdit"
+                      class="code-gen-field-order__drag"
+                      aria-label="拖拽调整字段顺序"
                     />
                   </el-tooltip>
                 </div>
@@ -222,7 +205,8 @@
               </div>
             </template>
           </el-table-column>
-        </el-table>
+          </el-table>
+        </div>
       </div>
       <el-empty v-else description="请先选择生成记录" />
     </el-card>
@@ -436,8 +420,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref, watch } from "vue";
-import { ArrowDown, ArrowUp, Delete, Document, Plus, Setting } from "@element-plus/icons-vue";
+import Sortable from "sortablejs";
+import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from "vue";
+import { Delete, Document, List, Plus, Setting } from "@element-plus/icons-vue";
 import { useRoute, useRouter } from "vue-router";
 import ProDialog from "@/components/Dialog/ProDialog.vue";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
@@ -487,6 +472,7 @@ const { BUTTONS } = useAuthButtons();
 
 const loading = ref(false);
 const columns = ref<CodeGenColumnView[]>([]);
+const columnTableRef = ref<HTMLElement>();
 const formData = reactive<CodeGenTableForm>(createDefaultCodeGenTableForm());
 const dictionaries = ref<OptionBaseDictResponse_BaseDict[]>([]);
 const databaseTables = ref<CodeGenDatabaseTable[]>([]);
@@ -497,6 +483,7 @@ const loadingDatabaseTables = ref(false);
 const loadingDatabaseColumns = reactive(new Set<string>());
 let dictionariesLoaded = false;
 let databaseTablesLoaded = false;
+let columnSortable: Sortable | undefined;
 
 /** 开关组件默认使用的状态字典和值。 */
 const codeGenDefaultSwitchOption = {
@@ -585,10 +572,16 @@ watch(tableId, () => {
   void handleQuery();
 });
 
+// 权限数据加载完成后再同步拖拽能力，避免只读用户创建可拖拽实例。
+watch(canEdit, () => {
+  void nextTick(initColumnSortable);
+});
+
 /** 查询生成对象字段配置。 */
 async function handleQuery() {
   loading.value = true;
   try {
+    destroyColumnSortable();
     Object.assign(formData, createDefaultCodeGenTableForm());
     columns.value = [];
     staticOptions.clear();
@@ -601,6 +594,8 @@ async function handleQuery() {
     // 字段配置和预览都保留数据库完整字段快照，由用户决定是否调整默认配置。
     columns.value = (response.code_gen_columns ?? []).map(normalizeColumn);
     syncWorkspaceTitle();
+    await nextTick();
+    initColumnSortable();
   } finally {
     loading.value = false;
   }
@@ -645,13 +640,33 @@ async function handleSaveColumns(showMessage = true) {
   return true;
 }
 
-/** 上下移动字段，并同步查询、列表和表单共用的排列顺序。 */
-function moveColumn(index: number, offset: -1 | 1) {
-  const targetIndex = index + offset;
-  if (targetIndex < 0 || targetIndex >= columns.value.length) return;
-  const [column] = columns.value.splice(index, 1);
-  columns.value.splice(targetIndex, 0, column);
-  syncColumnSorts();
+/** 初始化字段表格拖拽排序，并限制仅通过排序手柄触发。 */
+function initColumnSortable() {
+  destroyColumnSortable();
+  if (!canEdit.value) return;
+  const tbody =
+    columnTableRef.value?.querySelector<HTMLElement>(".el-table__fixed-body-wrapper tbody") ??
+    columnTableRef.value?.querySelector<HTMLElement>(".el-table__body-wrapper tbody");
+  if (!tbody) return;
+  columnSortable = Sortable.create(tbody, {
+    handle: ".code-gen-field-order__drag",
+    animation: 150,
+    ghostClass: "code-gen-column-sortable-ghost",
+    chosenClass: "code-gen-column-sortable-chosen",
+    onEnd({ newIndex, oldIndex }) {
+      if (oldIndex === undefined || newIndex === undefined || oldIndex === newIndex) return;
+      const column = columns.value.splice(oldIndex, 1)[0];
+      if (!column) return;
+      columns.value.splice(newIndex, 0, column);
+      syncColumnSorts();
+    }
+  });
+}
+
+/** 销毁字段表格拖拽实例，避免路由切换后保留 DOM 事件。 */
+function destroyColumnSortable() {
+  columnSortable?.destroy();
+  columnSortable = undefined;
 }
 
 /** 按当前字段表格行顺序更新持久化排序值。 */
@@ -1045,6 +1060,10 @@ onMounted(() => {
   syncWorkspaceTitle();
   void handleQuery();
 });
+
+onBeforeUnmount(() => {
+  destroyColumnSortable();
+});
 </script>
 
 <style scoped lang="scss">
@@ -1165,10 +1184,23 @@ onMounted(() => {
   text-align: right;
 }
 
-.code-gen-field-order .el-button {
+.code-gen-field-order__drag {
   width: 24px;
   height: 24px;
   padding: 0;
+  cursor: grab;
+}
+
+.code-gen-field-order__drag:active {
+  cursor: grabbing;
+}
+
+:deep(.code-gen-column-sortable-ghost > td) {
+  background: var(--admin-page-card-bg-soft);
+}
+
+:deep(.code-gen-column-sortable-chosen > td) {
+  background: var(--admin-page-card-bg-soft);
 }
 
 .code-gen-config-cell,

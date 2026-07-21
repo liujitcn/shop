@@ -32,8 +32,8 @@ func NewGoodsSKUCase(baseCase *biz.BaseCase, goodsSKURepo *data.GoodsSKUReposito
 	}
 }
 
-// ListGoodsSKUs 查询商品规格项列表
-func (c *GoodsSKUCase) ListGoodsSKUs(ctx context.Context, req *shopadminv1.PageGoodsSkuRequest) (*shopadminv1.PageGoodsSkuResponse, error) {
+// ListGoodsSKU 查询商品规格项列表
+func (c *GoodsSKUCase) ListGoodsSKU(ctx context.Context, req *shopadminv1.PageGoodsSkuRequest) (*shopadminv1.PageGoodsSkuResponse, error) {
 	query := c.Query(ctx).GoodsSKU
 	opts := make([]repository.QueryOption, 0, 3)
 	opts = append(opts, repository.Order(query.SKUCode.Asc()))
@@ -53,7 +53,7 @@ func (c *GoodsSKUCase) ListGoodsSKUs(ctx context.Context, req *shopadminv1.PageG
 
 	resList := make([]*shopadminv1.GoodsSku, 0, len(list))
 	for _, item := range list {
-		resList = append(resList, c.toGoodsSKU(item))
+		resList = append(resList, c.mapper.ToDTO(item))
 	}
 	return &shopadminv1.PageGoodsSkuResponse{GoodsSkus: resList, Total: int32(total)}, nil
 }
@@ -64,7 +64,7 @@ func (c *GoodsSKUCase) GetGoodsSKU(ctx context.Context, id int64) (*shopadminv1.
 	if err != nil {
 		return nil, err
 	}
-	return c.toGoodsSKU(goodsSKU), nil
+	return c.mapper.ToDTO(goodsSKU), nil
 }
 
 // UpdateGoodsSKU 更新商品规格项
@@ -85,8 +85,8 @@ func (c *GoodsSKUCase) UpdateGoodsSKU(ctx context.Context, req *shopadminv1.Good
 	return nil
 }
 
-// ListGoodsSKUsByGoodsID 按商品查询规格项列表
-func (c *GoodsSKUCase) ListGoodsSKUsByGoodsID(ctx context.Context, goodsID int64) ([]*shopadminv1.GoodsSku, error) {
+// ListGoodsSKUByGoodsID 按商品查询规格项列表
+func (c *GoodsSKUCase) ListGoodsSKUByGoodsID(ctx context.Context, goodsID int64) ([]*shopadminv1.GoodsSku, error) {
 	query := c.Query(ctx).GoodsSKU
 	opts := make([]repository.QueryOption, 0, 1)
 	opts = append(opts, repository.Where(query.GoodsID.Eq(goodsID)))
@@ -97,7 +97,7 @@ func (c *GoodsSKUCase) ListGoodsSKUsByGoodsID(ctx context.Context, goodsID int64
 
 	resList := make([]*shopadminv1.GoodsSku, 0, len(list))
 	for _, item := range list {
-		resList = append(resList, c.toGoodsSKU(item))
+		resList = append(resList, c.mapper.ToDTO(item))
 	}
 	return resList, nil
 }
@@ -109,9 +109,4 @@ func (c *GoodsSKUCase) toGoodsSKUModel(item *shopadminv1.GoodsSku) *models.Goods
 		return &models.GoodsSKU{}
 	}
 	return c.mapper.ToEntity(item)
-}
-
-// toGoodsSKU 转换商品规格项响应数据
-func (c *GoodsSKUCase) toGoodsSKU(item *models.GoodsSKU) *shopadminv1.GoodsSku {
-	return c.mapper.ToDTO(item)
 }

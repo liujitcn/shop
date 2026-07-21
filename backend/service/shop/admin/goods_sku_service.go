@@ -36,7 +36,7 @@ func NewGoodsSkuService(goodsSKUCase *biz.GoodsSKUCase) *GoodsSkuService {
 
 // PageGoodsSku 查询商品SKU列表
 func (s *GoodsSkuService) PageGoodsSku(ctx context.Context, req *shopadminv1.PageGoodsSkuRequest) (*shopadminv1.PageGoodsSkuResponse, error) {
-	page, err := s.goodsSKUCase.ListGoodsSKUs(ctx, req)
+	page, err := s.goodsSKUCase.ListGoodsSKU(ctx, req)
 	if err != nil {
 		log.Error(fmt.Sprintf("PageGoodsSku %v", err))
 		return nil, errorsx.WrapInternal(err, "查询商品SKU列表失败")

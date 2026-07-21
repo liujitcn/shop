@@ -41,18 +41,18 @@ func (r *Runtime) ReviewComment(ctx context.Context, req ReviewRequest) (*Review
 	rawPayload, err := json.Marshal(payload)
 	// payload 序列化失败时仍保留兜底提示词，让模型至少能基于图片完成审核。
 	if err != nil {
-		parts = append(parts, textInputPart("请审核以下商品评价图文，并返回审核结果和标签。"))
+		parts = append(parts, einoStructured.TextPart("请审核以下商品评价图文，并返回审核结果和标签。"))
 	} else {
-		parts = append(parts, textInputPart("请审核以下商品评价图文，并返回审核结果和标签：\n"+string(rawPayload)))
+		parts = append(parts, einoStructured.TextPart("请审核以下商品评价图文，并返回审核结果和标签：\n"+string(rawPayload)))
 	}
 	if len(existingTags) > 0 {
-		parts = append(parts, textInputPart("标签生成规则：tags 必须优先从 existingTags 中选择并原样返回；只有评价语义确实无法归入任何已有标签时，才允许生成新的短标签。"))
+		parts = append(parts, einoStructured.TextPart("标签生成规则：tags 必须优先从 existingTags 中选择并原样返回；只有评价语义确实无法归入任何已有标签时，才允许生成新的短标签。"))
 	}
 	for _, imageURL := range imageURLs {
-		parts = append(parts, imageURLInputPart(imageURL))
+		parts = append(parts, einoStructured.ImageURLPart(imageURL))
 	}
 	for _, image := range imageData {
-		parts = append(parts, imageDataInputPart(image.Bytes, reviewImageDataMIMEType(image.MIMEType, image.Name)))
+		parts = append(parts, einoStructured.ImageDataPart(image.Bytes, reviewImageDataMIMEType(image.MIMEType, image.Name)))
 	}
 
 	var outputSchema *einoStructured.Schema
@@ -69,7 +69,7 @@ func (r *Runtime) ReviewComment(ctx context.Context, req ReviewRequest) (*Review
 	// 拒绝结果必须能解释给运营和用户看；模型只返回泛化原因时，再带着原始输入追问一次。
 	if reviewNeedsConcreteReason(result) {
 		retryParts := append([]*einoStructured.Part(nil), parts...)
-		retryParts = append(retryParts, textInputPart("上一次审核结果缺少清晰结论或具体不通过原因。请重新审核：如果可以公开展示，approved 必须为 true，textRisk 和 imageRisk 必须为 false，riskReason 必须为空字符串；如果不通过，approved 必须为 false，riskReason 必须说明违规类别、命中的文本片段或图片序号、具体判定依据，例如“图片1疑似色情低俗：出现裸露身体部位，不适合公开展示”。不要只写“内容安全风险”或“审核不通过”。"))
+		retryParts = append(retryParts, einoStructured.TextPart("上一次审核结果缺少清晰结论或具体不通过原因。请重新审核：如果可以公开展示，approved 必须为 true，textRisk 和 imageRisk 必须为 false，riskReason 必须为空字符串；如果不通过，approved 必须为 false，riskReason 必须说明违规类别、命中的文本片段或图片序号、具体判定依据，例如“图片1疑似色情低俗：出现裸露身体部位，不适合公开展示”。不要只写“内容安全风险”或“审核不通过”。"))
 		err = r.generateStructured(ctx, commentReviewInstruction, retryParts, outputSchema, result)
 		if err != nil {
 			return nil, err
@@ -78,11 +78,6 @@ func (r *Runtime) ReviewComment(ctx context.Context, req ReviewRequest) (*Review
 	}
 	completeMissingSafeReviewVerdict(result)
 	return result, nil
-}
-
-// textInputPart 构造文本输入片段。
-func textInputPart(text string) *einoStructured.Part {
-	return einoStructured.TextPart(text)
 }
 
 // HasConcreteReviewReason 判断审核原因是否包含具体违规线索。
@@ -133,16 +128,6 @@ func (r *Runtime) normalizeReviewResult(result *ReviewResult) {
 	if result.TextRisk || result.ImageRisk {
 		result.Approved = false
 	}
-}
-
-// imageURLInputPart 构造远程图片输入片段。
-func imageURLInputPart(rawURL string) *einoStructured.Part {
-	return einoStructured.ImageURLPart(rawURL)
-}
-
-// imageDataInputPart 构造图片字节输入片段。
-func imageDataInputPart(data []byte, mimeType string) *einoStructured.Part {
-	return einoStructured.ImageDataPart(data, mimeType)
 }
 
 // cleanReviewImageData 清理评论审核图片字节列表。

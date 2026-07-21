@@ -75,8 +75,6 @@ func (c *renderer) buildExpectedProtoChecks(table *Table, columns []*CodeGenColu
 	entity := table.EntityName
 	leftTreeConfig := LeftTreeConfigFromTable(table)
 	parentColumn, labelColumn, valueColumn := EntityOptionColumns(table, columns)
-	statusColumnList := statusAPIColumns(columns)
-	statusColumnCount := len(statusColumnList)
 	checks := make([]*ProtoCheck, 0, 8)
 	if table.PageType == PageTypeTree {
 		checks = append(checks,
@@ -112,7 +110,7 @@ func (c *renderer) buildExpectedProtoChecks(table *Table, columns []*CodeGenColu
 					TriggerFieldStatus,
 					APIKindStatus,
 					entity,
-					statusMethodNameForColumn(table, column, statusColumnCount),
+					statusMethodNameForColumn(table, column),
 					protoPath,
 					"",
 					"",

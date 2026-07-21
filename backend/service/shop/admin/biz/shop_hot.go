@@ -132,33 +132,3 @@ func (c *ShopHotCase) SetShopHotStatus(ctx context.Context, req *shopadminv1.Set
 		Status: int32(req.GetStatus()),
 	})
 }
-
-// PageShopHotItem 查询热门专区项目列表
-func (c *ShopHotCase) PageShopHotItem(ctx context.Context, req *shopadminv1.PageShopHotItemRequest) (*shopadminv1.PageShopHotItemResponse, error) {
-	return c.shopHotItemCase.PageShopHotItem(ctx, req)
-}
-
-// GetShopHotItem 获取热门专区项目
-func (c *ShopHotCase) GetShopHotItem(ctx context.Context, id int64) (*shopadminv1.ShopHotItemForm, error) {
-	return c.shopHotItemCase.GetShopHotItem(ctx, id)
-}
-
-// CreateShopHotItem 创建热门专区项目
-func (c *ShopHotCase) CreateShopHotItem(ctx context.Context, req *shopadminv1.ShopHotItemForm) error {
-	return c.shopHotItemCase.CreateShopHotItem(ctx, req)
-}
-
-// UpdateShopHotItem 更新热门专区项目
-func (c *ShopHotCase) UpdateShopHotItem(ctx context.Context, req *shopadminv1.ShopHotItemForm) error {
-	return c.shopHotItemCase.UpdateShopHotItem(ctx, req)
-}
-
-// DeleteShopHotItem 删除热门专区项目
-func (c *ShopHotCase) DeleteShopHotItem(ctx context.Context, id string) error {
-	return c.shopHotItemCase.DeleteShopHotItem(ctx, id)
-}
-
-// SetShopHotItemStatus 设置热门专区项目状态
-func (c *ShopHotCase) SetShopHotItemStatus(ctx context.Context, req *shopadminv1.SetShopHotItemStatusRequest) error {
-	return c.shopHotItemCase.SetShopHotItemStatus(ctx, req)
-}

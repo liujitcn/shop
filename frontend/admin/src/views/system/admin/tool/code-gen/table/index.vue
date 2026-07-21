@@ -144,13 +144,14 @@ const leftTreeColumnOptions = computed<ProFormOption[]>(() => createDatabaseColu
 
 /** 代码生成表配置表单字段。 */
 const formFields = computed<ProFormField[]>(() => [
+  // 标签提示与当前生成器的实际读写逻辑保持一致，方便配置时判断影响范围。
   {
     prop: "name",
     label: "业务表名",
     component: "select",
     options: databaseTableOptions.value,
     colSpan: 24,
-    labelTooltip: "从当前数据库表中选择，已经配置的表不可重复选择。",
+    labelTooltip: "选择代码生成的源数据库表。生成器据此读取字段元数据、定位数据模型和生成目标；同一张表不能重复配置。",
     props: {
       placeholder: "请选择数据库表",
       clearable: true,
@@ -164,24 +165,51 @@ const formFields = computed<ProFormField[]>(() => [
     label: "业务表描述",
     component: "input",
     colSpan: 24,
+    labelTooltip: "业务的中文描述。生成器优先用它写入 Proto、后端和前端文案，并作为生成菜单标题；修改后在下次生成生效。",
     props: { placeholder: "选择业务表后自动带出，可修改" }
   },
-  { prop: "business_name", label: "业务名", component: "input", props: { placeholder: "如 base_dept" } },
-  { prop: "entity_name", label: "实体名", component: "input", props: { placeholder: "如 BaseDept" } },
-  { prop: "module_path", label: "模块路径", component: "input", props: { placeholder: "如 base" } },
+  {
+    prop: "business_name",
+    label: "业务名",
+    component: "input",
+    labelTooltip: "用于记录和检索此配置。当前生成器优先使用“业务表描述”作为代码中的中文名称，仅在描述为空时才使用本字段。",
+    props: { placeholder: "如 base_dept" }
+  },
+  {
+    prop: "entity_name",
+    label: "实体名",
+    component: "input",
+    labelTooltip: "使用大驼峰命名。它决定 Proto 消息与服务、Go Case/Service、TypeScript Service 的名称，以及由其转换出的文件名。",
+    props: { placeholder: "如 BaseDept" }
+  },
+  {
+    prop: "module_path",
+    label: "模块路径",
+    component: "input",
+    labelTooltip: "前端资源路径前缀。它参与生成页面目录、接口 URL 和菜单路由，实体名会转换为下划线形式后拼接在路径末尾。",
+    props: { placeholder: "如 base" }
+  },
   {
     prop: "api_path",
     label: "Proto目录",
     component: "select",
     options: protoDirectoryOptions.value,
+    labelTooltip: "选择已注册的协议模块。它决定 Proto 文件、后端 Biz/Service、前端 API 和页面所在的模块根目录。",
     props: { placeholder: "请选择Proto目录", filterable: true, style: { width: "100%" } }
   },
-  { prop: "permission_prefix", label: "权限前缀", component: "input", props: { placeholder: "如 base:dept" } },
+  {
+    prop: "permission_prefix",
+    label: "权限前缀",
+    component: "input",
+    labelTooltip: "生成页面按钮权限的前缀，例如会生成 create、update、delete、status 等权限标识；留空时由模块路径和实体名推导。",
+    props: { placeholder: "如 base:dept" }
+  },
   {
     prop: "parent_menu_id",
     label: "父级菜单",
     component: "tree-select",
     options: parentMenuOptions.value,
+    labelTooltip: "指定生成页面菜单挂载到哪个目录或菜单。仅当同时生成前端、开启“生成SQL”且页面接口完整时，生成流程才会同步菜单和按钮权限。",
     props: {
       placeholder: "请选择生成页面挂载菜单",
       clearable: true,
@@ -198,6 +226,7 @@ const formFields = computed<ProFormField[]>(() => [
     label: "页面类型",
     component: "segmented",
     options: codeGenPageTypeOptions,
+    labelTooltip: "普通表格生成分页 CRUD；树形表格生成树查询和层级列表；左树右表生成左侧树筛选与右侧列表。切换时会清理不适用的树配置。",
     props: { onChange: handlePageTypeChange }
   },
   {
@@ -205,6 +234,7 @@ const formFields = computed<ProFormField[]>(() => [
     label: "父节点字段",
     component: "select",
     options: databaseColumnOptions.value,
+    labelTooltip: "树形表格中指向父记录的字段，例如 parent_id。它决定生成的树查询和选项接口如何组织父子层级。",
     props: { placeholder: "请选择父节点字段", clearable: true, filterable: true, style: { width: "100%" } },
     visible: model => model.page_type === "tree"
   },
@@ -213,6 +243,7 @@ const formFields = computed<ProFormField[]>(() => [
     label: "树显示字段",
     component: "select",
     options: databaseColumnOptions.value,
+    labelTooltip: "树节点显示的文字字段，例如 name。它会写入生成的树查询和选项接口响应，并显示在前端树节点上。",
     props: { placeholder: "请选择树显示字段", clearable: true, filterable: true, style: { width: "100%" } },
     visible: model => model.page_type === "tree"
   },
@@ -221,6 +252,7 @@ const formFields = computed<ProFormField[]>(() => [
     label: "左树数据表",
     component: "select",
     options: leftTreeTableOptions.value,
+    labelTooltip: "左侧树的数据来源。它决定要调用哪个实体的树选项接口，并限定左树父、显示和值字段的可选范围。",
     props: {
       placeholder: "请选择左树数据表",
       clearable: true,
@@ -234,13 +266,14 @@ const formFields = computed<ProFormField[]>(() => [
     prop: "left_tree_config.comment",
     label: "左树描述",
     component: "input",
+    labelTooltip: "左侧树的中文说明。页面预览会优先显示该标题；它不改变生成接口、路由或文件路径。",
     props: { placeholder: "选择左树数据表后自动带出，可修改" },
     visible: model => model.page_type === "left_tree"
   },
   {
     prop: "left_tree_config.filter_column",
     label: "筛选字段",
-    labelTooltip: "选择当前业务表中用于关联左树节点值的字段。点击左树节点后，右侧列表将按该字段筛选。",
+    labelTooltip: "当前业务表中关联左树节点值的字段。点击左树节点后，生成页面会把节点值作为该字段的查询条件传给右侧列表。",
     component: "select",
     options: databaseColumnOptions.value,
     props: { placeholder: "请选择当前表筛选字段", clearable: true, filterable: true, style: { width: "100%" } },
@@ -251,6 +284,7 @@ const formFields = computed<ProFormField[]>(() => [
     label: "左树父字段",
     component: "select",
     options: leftTreeColumnOptions.value,
+    labelTooltip: "左树数据表中指向父节点的字段，例如 parent_id。它决定左侧选项接口如何返回层级 children。",
     props: { placeholder: "请选择左树父字段", clearable: true, filterable: true, style: { width: "100%" } },
     visible: model => model.page_type === "left_tree"
   },
@@ -259,6 +293,7 @@ const formFields = computed<ProFormField[]>(() => [
     label: "左树显示字段",
     component: "select",
     options: leftTreeColumnOptions.value,
+    labelTooltip: "左树节点显示的文字字段，例如 name。它会映射为左侧 TreeFilter 组件的节点标签。",
     props: { placeholder: "请选择左树显示字段", clearable: true, filterable: true, style: { width: "100%" } },
     visible: model => model.page_type === "left_tree"
   },
@@ -267,6 +302,7 @@ const formFields = computed<ProFormField[]>(() => [
     label: "左树值字段",
     component: "select",
     options: leftTreeColumnOptions.value,
+    labelTooltip: "左树节点的唯一值字段，通常为主键 id。它作为点击节点后传给右侧列表筛选字段的值。",
     props: { placeholder: "请选择左树值字段", clearable: true, filterable: true, style: { width: "100%" } },
     visible: model => model.page_type === "left_tree"
   },
@@ -274,6 +310,7 @@ const formFields = computed<ProFormField[]>(() => [
     prop: "gen_backend",
     label: "生成后端",
     component: "switch",
+    labelTooltip: "开启后生成 Proto、后端 Biz/Service 及注册代码；关闭后本次任务不会写入这些后端文件。",
     // 三个生成开关始终从新行开始并排展示。
     rowBreakBefore: true,
     colSpan: 8,
@@ -283,12 +320,34 @@ const formFields = computed<ProFormField[]>(() => [
     prop: "gen_frontend",
     label: "生成前端",
     component: "switch",
+    labelTooltip: "开启后生成前端 API 和 Vue 页面；同时它也是同步页面菜单与按钮权限的前置条件。",
     colSpan: 8,
     props: { activeText: "生成", inactiveText: "跳过" }
   },
-  { prop: "gen_sql", label: "生成SQL", component: "switch", colSpan: 8, props: { activeText: "生成", inactiveText: "跳过" } },
-  { prop: "status", label: "状态", component: "segmented", options: codeGenStatusOptions, colSpan: 24 },
-  { prop: "remark", label: "备注", component: "textarea", colSpan: 24, props: { placeholder: "请输入备注", rows: 3 } }
+  {
+    prop: "gen_sql",
+    label: "生成SQL",
+    component: "switch",
+    colSpan: 8,
+    labelTooltip: "当前实现不生成 SQL 文件。开启后在满足前端生成与页面接口完整的条件下，会把菜单和按钮权限直接同步到数据库。",
+    props: { activeText: "生成", inactiveText: "跳过" }
+  },
+  {
+    prop: "status",
+    label: "状态",
+    component: "segmented",
+    options: codeGenStatusOptions,
+    colSpan: 24,
+    labelTooltip: "草稿和已生成配置均可再次生成；停用后只能查看，生成任务会拒绝写入任何文件。成功生成后状态自动更新为“已生成”。"
+  },
+  {
+    prop: "remark",
+    label: "备注",
+    component: "textarea",
+    colSpan: 24,
+    labelTooltip: "仅保存给维护人员的配置备注，不参与生成文件、接口、路由或权限的命名。",
+    props: { placeholder: "请输入备注", rows: 3 }
+  }
 ]);
 
 /** 代码生成表配置列表列。 */

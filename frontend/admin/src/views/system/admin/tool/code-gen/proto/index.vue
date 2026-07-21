@@ -23,7 +23,7 @@
         >
           <template #method_name="{ row }">
             <div class="code-gen-proto-cell">
-              <strong class="code-gen-proto-cell__primary">{{ row.method_name }}</strong>
+              <strong class="code-gen-proto-cell__primary" :title="row.method_name">{{ row.method_name }}</strong>
               <div class="code-gen-proto-cell__tags">
                 <el-tag size="small" effect="plain">{{ resolveTriggerTypeLabel(row.trigger_type) }}</el-tag>
                 <el-tag size="small" type="info" effect="plain">{{ resolveAPIKindLabel(row.api_kind) }}</el-tag>
@@ -32,7 +32,7 @@
           </template>
           <template #target_entity_name="{ row }">
             <div class="code-gen-proto-cell">
-              <span class="code-gen-proto-cell__primary">{{ row.target_entity_name }}</span>
+              <span class="code-gen-proto-cell__primary" :title="row.target_entity_name">{{ row.target_entity_name }}</span>
               <span class="code-gen-proto-cell__path" :title="row.proto_file_path">{{ row.proto_file_path }}</span>
             </div>
           </template>
@@ -490,8 +490,11 @@ onMounted(() => {
   max-width: 280px;
 }
 .code-gen-proto-cell {
-  display: grid;
+  /* 将名称、标签和说明保持在同一行，长文本优先收缩并通过 title 保留完整内容。 */
+  display: flex;
   gap: 6px;
+  align-items: center;
+  justify-content: center;
   min-width: 0;
 }
 .code-gen-proto-cell__primary,
@@ -503,6 +506,7 @@ onMounted(() => {
   white-space: nowrap;
 }
 .code-gen-proto-cell__primary {
+  flex: 0 1 auto;
   font-weight: 600;
   color: var(--admin-page-text-primary);
 }
@@ -513,10 +517,17 @@ onMounted(() => {
   flex-wrap: wrap;
   gap: 8px;
   align-items: center;
+  /* 多行单元格与列标题保持居中，避免文本继承居中而 Flex 子项贴左。 */
+  justify-content: center;
   min-width: 0;
+}
+.code-gen-proto-cell__tags {
+  flex: 0 0 auto;
+  flex-wrap: nowrap;
 }
 .code-gen-proto-cell__secondary,
 .code-gen-proto-cell__path {
+  flex: 0 1 auto;
   font-size: 12px;
   line-height: 18px;
   color: var(--admin-page-text-secondary);
@@ -525,7 +536,7 @@ onMounted(() => {
   flex-wrap: nowrap;
 }
 .code-gen-proto-status .code-gen-proto-cell__secondary {
-  flex: 1;
+  flex: 0 1 auto;
 }
 .code-gen-proto-config-form :deep(.el-select) {
   width: 100%;

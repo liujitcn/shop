@@ -49,7 +49,7 @@ func (r *Runtime) GenerateSummary(ctx context.Context, req SummaryRequest) (*Sum
 	if err == nil {
 		commentSummaryPrompt = "请基于已审核通过的商品评价生成评价摘要：\n" + string(rawPayload)
 	}
-	err = r.generateStructured(ctx, commentSummaryInstruction, []*einoStructured.Part{textInputPart(commentSummaryPrompt)}, outputSchema, result)
+	err = r.generateStructured(ctx, commentSummaryInstruction, []*einoStructured.Part{einoStructured.TextPart(commentSummaryPrompt)}, outputSchema, result)
 	if err != nil {
 		return nil, err
 	}

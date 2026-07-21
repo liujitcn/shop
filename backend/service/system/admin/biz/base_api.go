@@ -47,8 +47,8 @@ func NewBaseAPICase(baseCase *biz.BaseCase, baseAPIRepo *data.BaseAPIRepository,
 	}
 }
 
-// PageBaseAPIs 分页查询接口列表
-func (c *BaseAPICase) PageBaseAPIs(ctx context.Context, req *systemadminv1.PageBaseApiRequest) (*systemadminv1.PageBaseApiResponse, error) {
+// PageBaseAPI 分页查询接口列表
+func (c *BaseAPICase) PageBaseAPI(ctx context.Context, req *systemadminv1.PageBaseApiRequest) (*systemadminv1.PageBaseApiResponse, error) {
 	query := c.Query(ctx).BaseAPI
 	opts := make([]repository.QueryOption, 0, 10)
 	opts = append(opts, repository.Order(query.ID.Desc()))
@@ -292,8 +292,8 @@ func parseToolPrompts(value string) []string {
 	return prompts
 }
 
-// ListBaseAPIs 查询菜单分配接口选项列表
-func (c *BaseAPICase) ListBaseAPIs(ctx context.Context, _ *systemadminv1.ListBaseApiRequest) (*systemadminv1.ListBaseApiResponse, error) {
+// ListBaseAPI 查询菜单分配接口选项列表
+func (c *BaseAPICase) ListBaseAPI(ctx context.Context, _ *systemadminv1.ListBaseApiRequest) (*systemadminv1.ListBaseApiResponse, error) {
 	query := c.Query(ctx).BaseAPI
 	opts := make([]repository.QueryOption, 0, 1)
 	opts = append(opts, repository.Order(query.ServiceName.Asc(), query.Operation.Asc()))

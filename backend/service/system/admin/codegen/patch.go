@@ -818,17 +818,17 @@ func goProviderEntitySortKey(providerName string) string {
 	providerName = strings.TrimPrefix(providerName, "New")
 	providerName = strings.TrimSuffix(providerName, "Case")
 	providerName = strings.TrimSuffix(providerName, "Service")
-	return goEntitySortKey(providerName)
+	return stringcase.ToSnakeCase(providerName)
 }
 
 // goServiceEntitySortKey 返回服务类型对应的实体排序键。
 func goServiceEntitySortKey(typeName string) string {
-	return goEntitySortKey(strings.TrimSuffix(typeName, "Service"))
+	return stringcase.ToSnakeCase(strings.TrimSuffix(typeName, "Service"))
 }
 
 // goServiceFieldEntitySortKey 返回管理端服务字段对应的实体排序键。
 func goServiceFieldEntitySortKey(fieldName string) string {
-	return goEntitySortKey(strings.TrimPrefix(fieldName, "admin"))
+	return stringcase.ToSnakeCase(strings.TrimPrefix(fieldName, "admin"))
 }
 
 // goRegistrationEntitySortKey 返回服务注册调用对应的实体排序键。
@@ -837,12 +837,7 @@ func goRegistrationEntitySortKey(callName string) string {
 	for _, suffix := range []string{"ServiceHTTPServer", "ServiceMCPTools", "ServiceServer"} {
 		callName = strings.TrimSuffix(callName, suffix)
 	}
-	return goEntitySortKey(callName)
-}
-
-// goEntitySortKey 将实体名转换为与生成资源一致的 snake_case 排序键。
-func goEntitySortKey(entityName string) string {
-	return stringcase.ToSnakeCase(entityName)
+	return stringcase.ToSnakeCase(callName)
 }
 
 // goIdentifierExists 判断 Go 源码是否已包含指定标识符，兼容缩写大小写差异。
