@@ -280,15 +280,13 @@ func (c *renderer) buildPreviewFiles(table *Table, columns []*CodeGenColumn, met
 		files = append(files, c.newAdminRegistrationPreviewFiles(table, generatedMethods)...)
 	}
 	if table.GenFrontend == 1 {
-		// 主实体前端 API 同样替换固定生成方法；页面仍仅在可确认归属时整体刷新。
+		// 主实体前端 API 替换固定生成方法，页面则按稳定功能键增量合并。
 		files = append(files, c.newPatchedPreviewFile(paths.GetFrontendApiFilePath(), c.renderFrontendAPIFile(table, columns, frontendMethods), func(content string) string {
 			return c.appendMainFrontendAPIMethods(content, table, columns, frontendMethods)
 		}))
 		pagePath := paths.GetFrontendPageFilePath()
 		if frontendPageMethodsComplete(table, frontendMethods) {
-			files = append(files, c.newManagedPreviewFile(pagePath, c.renderFrontendPageFile(table, columns, frontendMethods, paths), func(content string) bool {
-				return isManagedFrontendPageFile(content, table.EntityName)
-			}))
+			files = append(files, c.newMergedFrontendPagePreviewFile(pagePath, c.renderFrontendPageFile(table, columns, frontendMethods, paths)))
 		} else {
 			pageFile := c.newPreviewFile(pagePath, "")
 			pageFile.Action = "skip"

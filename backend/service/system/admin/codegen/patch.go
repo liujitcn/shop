@@ -13,7 +13,7 @@ import (
 	"github.com/liujitcn/go-utils/stringcase"
 )
 
-const unmanagedFrontendPageMessage = "已有文件无法确认由生成器管理，已跳过覆盖"
+const unmergeableFrontendPageMessage = "已有前端页面无法安全解析，已跳过增量合并"
 
 // --- 已有源码的增量分析与补丁 ---
 
@@ -73,8 +73,8 @@ func (c *renderer) newPatchedPreviewFile(path string, createContent string, patc
 	return &systemadminv1.CodeGenPreviewFile{Path: path, Action: "update", Content: patched, Exists: true, Message: "目标文件已存在，将替换生成方法并保留扩展方法"}
 }
 
-// newManagedPreviewFile 为可确认归属且不能安全进行方法级合并的生成文件重渲染最新配置。
-func (c *renderer) newManagedPreviewFile(path string, renderedContent string, isManaged func(string) bool) *systemadminv1.CodeGenPreviewFile {
+// newMergedFrontendPagePreviewFile 按功能顺序增量合并前端页面并保留已有扩展。
+func (c *renderer) newMergedFrontendPagePreviewFile(path string, renderedContent string) *systemadminv1.CodeGenPreviewFile {
 	_, pathErr := SafeRepoFilePath(path)
 	if pathErr != nil {
 		return &systemadminv1.CodeGenPreviewFile{Path: path, Action: "skip", Content: renderedContent, Exists: false, Message: pathErr.Error()}
@@ -85,16 +85,14 @@ func (c *renderer) newManagedPreviewFile(path string, renderedContent string, is
 		return c.newPreviewFile(path, renderedContent)
 	}
 	originalContent := string(content)
-	// 仅在可确认归属当前实体时整体刷新，保留无法归属的手写文件。
-	if isManaged != nil && isManaged(originalContent) {
-		// 内容未变化时保留 skip，避免无意义写入。
-		if originalContent == renderedContent {
-			return &systemadminv1.CodeGenPreviewFile{Path: path, Action: "skip", Content: originalContent, Exists: true, Message: "生成文件已与当前配置一致"}
-		}
-		return &systemadminv1.CodeGenPreviewFile{Path: path, Action: "update", Content: renderedContent, Exists: true, Message: "生成文件将按当前配置重新渲染"}
+	mergedContent, ok := mergeGeneratedFrontendPage(originalContent, renderedContent)
+	if !ok {
+		return &systemadminv1.CodeGenPreviewFile{Path: path, Action: "skip", Content: originalContent, Exists: true, Message: unmergeableFrontendPageMessage}
 	}
-	// 页面文件没有可安全追加的片段，无法确认归属时不覆盖。
-	return &systemadminv1.CodeGenPreviewFile{Path: path, Action: "skip", Content: originalContent, Exists: true, Message: unmanagedFrontendPageMessage}
+	if originalContent == mergedContent {
+		return &systemadminv1.CodeGenPreviewFile{Path: path, Action: "skip", Content: originalContent, Exists: true, Message: "生成页面已与当前配置和扩展功能一致"}
+	}
+	return &systemadminv1.CodeGenPreviewFile{Path: path, Action: "update", Content: mergedContent, Exists: true, Message: "生成页面将按功能顺序更新并保留已有扩展"}
 }
 
 // newAdminRegistrationPreviewFiles 创建管理端业务模块依赖注入与传输层注册补丁。
@@ -345,13 +343,6 @@ func (c *renderer) newPreviewFile(path string, content string) *systemadminv1.Co
 		Exists:  exists,
 		Message: message,
 	}
-}
-
-// isManagedFrontendPageFile 判断前端页面是否具备当前实体的生成页面特征。
-func isManagedFrontendPageFile(content string, entity string) bool {
-	return strings.Contains(content, "name: \""+entity+"\"") &&
-		strings.Contains(content, "const formFields = computed<ProFormField[]>") &&
-		strings.Contains(content, "request"+entity+"Table")
 }
 
 // goReceiverType 返回 Go 文件中指定后缀的首个方法接收者或结构体类型。

@@ -84,7 +84,7 @@ func PrepareBatchGeneration(inputs []BatchGenerationInput) (*BatchGeneration, er
 		}
 		initialGenerations = append(initialGenerations, generation)
 	}
-	if err := validateBatchManagedFrontendPages(initialGenerations); err != nil {
+	if err := validateBatchMergeableFrontendPages(initialGenerations); err != nil {
 		return nil, err
 	}
 	if err := validateBatchMethodConflicts(orderedInputs, initialGenerations); err != nil {
@@ -150,18 +150,18 @@ func PrepareBatchGeneration(inputs []BatchGenerationInput) (*BatchGeneration, er
 	return batch, nil
 }
 
-// validateBatchManagedFrontendPages 阻止未托管页面对应的模块被部分覆盖。
-func validateBatchManagedFrontendPages(generations []*Generation) error {
+// validateBatchMergeableFrontendPages 阻止无法安全解析的页面对应模块被部分覆盖。
+func validateBatchMergeableFrontendPages(generations []*Generation) error {
 	for _, generation := range generations {
 		if generation.Table == nil || generation.Table.GenFrontend != 1 || generation.OutputPaths == nil {
 			continue
 		}
 		pagePath := generation.OutputPaths.GetFrontendPageFilePath()
 		for _, file := range generation.Files {
-			if file.GetPath() != pagePath || file.GetMessage() != unmanagedFrontendPageMessage {
+			if file.GetPath() != pagePath || file.GetMessage() != unmergeableFrontendPageMessage {
 				continue
 			}
-			return fmt.Errorf("表%s的前端页面%s无法确认由生成器管理，已取消整个模块生成，避免部分覆盖", generation.Table.TableName_, pagePath)
+			return fmt.Errorf("表%s的前端页面%s无法安全解析，已取消整个模块生成，避免部分覆盖", generation.Table.TableName_, pagePath)
 		}
 	}
 	return nil
