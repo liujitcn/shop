@@ -132,19 +132,6 @@ func (c *BaseMenuCase) CreateBaseMenu(ctx context.Context, req *systemadminv1.Ba
 	})
 }
 
-// createBaseMenu 校验父级并按层级编号规则创建菜单。
-func (c *BaseMenuCase) createBaseMenu(ctx context.Context, baseMenu *models.BaseMenu) error {
-	if baseMenu.ParentID <= 0 {
-		return errorsx.InvalidArgument("新增菜单必须选择上级菜单")
-	}
-	menuID, err := c.allocateBaseMenuID(ctx, baseMenu.ParentID, baseMenu.Type)
-	if err != nil {
-		return err
-	}
-	baseMenu.ID = menuID
-	return c.Create(ctx, baseMenu)
-}
-
 // UpdateBaseMenu 更新菜单
 func (c *BaseMenuCase) UpdateBaseMenu(ctx context.Context, req *systemadminv1.BaseMenuForm) error {
 	baseMenu := c.formMapper.ToEntity(req)
@@ -245,6 +232,19 @@ func (c *BaseMenuCase) SetBaseMenuStatus(ctx context.Context, req *systemadminv1
 		ID:     req.GetId(),
 		Status: req.GetStatus(),
 	})
+}
+
+// createBaseMenu 校验父级并按层级编号规则创建菜单。
+func (c *BaseMenuCase) createBaseMenu(ctx context.Context, baseMenu *models.BaseMenu) error {
+	if baseMenu.ParentID <= 0 {
+		return errorsx.InvalidArgument("新增菜单必须选择上级菜单")
+	}
+	menuID, err := c.allocateBaseMenuID(ctx, baseMenu.ParentID, baseMenu.Type)
+	if err != nil {
+		return err
+	}
+	baseMenu.ID = menuID
+	return c.Create(ctx, baseMenu)
 }
 
 // listAssignableMenuIDs 根据真实角色归属查询当前操作可分配的菜单 ID 列表。
