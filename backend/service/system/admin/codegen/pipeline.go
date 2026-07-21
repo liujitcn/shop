@@ -267,16 +267,12 @@ func (c *renderer) buildPreviewFiles(table *Table, columns []*CodeGenColumn, met
 			seenProtoPaths[method.ProtoFilePath] = struct{}{}
 			files = append(files, c.newTargetProtoPreviewFile(table, columns, generatedMethods, method.ProtoFilePath))
 		}
-		// 主实体生成文件识别成功时会按最新配置整体重渲染，无法确认归属的文件仍只追加缺失方法。
+		// 主实体固定生成方法按最新配置整体替换，已有扩展方法原样后移保留。
 		files = append(files,
-			c.newManagedPreviewFile(paths.GetBackendBizFilePath(), c.renderBackendBizFile(table, columns, generatedMethods), func(content string) bool {
-				return isManagedBackendBizFile(content, table.EntityName)
-			}, func(content string) string {
+			c.newPatchedPreviewFile(paths.GetBackendBizFilePath(), c.renderBackendBizFile(table, columns, generatedMethods), func(content string) string {
 				return c.appendMainBizMethods(content, table, columns, generatedMethods)
 			}),
-			c.newManagedPreviewFile(paths.GetBackendServiceFilePath(), c.renderBackendServiceFile(table, columns, generatedMethods), func(content string) bool {
-				return isManagedBackendServiceFile(content, table.EntityName)
-			}, func(content string) string {
+			c.newPatchedPreviewFile(paths.GetBackendServiceFilePath(), c.renderBackendServiceFile(table, columns, generatedMethods), func(content string) string {
 				return c.appendMainServiceMethods(content, table, columns, generatedMethods)
 			}),
 		)
@@ -284,17 +280,15 @@ func (c *renderer) buildPreviewFiles(table *Table, columns []*CodeGenColumn, met
 		files = append(files, c.newAdminRegistrationPreviewFiles(table, generatedMethods)...)
 	}
 	if table.GenFrontend == 1 {
-		// 主实体前端生成文件同样优先按最新配置重渲染，未识别文件只追加缺失方法。
-		files = append(files, c.newManagedPreviewFile(paths.GetFrontendApiFilePath(), c.renderFrontendAPIFile(table, columns, frontendMethods), func(content string) bool {
-			return isManagedFrontendAPIFile(content, table.EntityName)
-		}, func(content string) string {
+		// 主实体前端 API 同样替换固定生成方法；页面仍仅在可确认归属时整体刷新。
+		files = append(files, c.newPatchedPreviewFile(paths.GetFrontendApiFilePath(), c.renderFrontendAPIFile(table, columns, frontendMethods), func(content string) string {
 			return c.appendMainFrontendAPIMethods(content, table, columns, frontendMethods)
 		}))
 		pagePath := paths.GetFrontendPageFilePath()
 		if frontendPageMethodsComplete(table, frontendMethods) {
 			files = append(files, c.newManagedPreviewFile(pagePath, c.renderFrontendPageFile(table, columns, frontendMethods, paths), func(content string) bool {
 				return isManagedFrontendPageFile(content, table.EntityName)
-			}, nil))
+			}))
 		} else {
 			pageFile := c.newPreviewFile(pagePath, "")
 			pageFile.Action = "skip"
@@ -306,9 +300,9 @@ func (c *renderer) buildPreviewFiles(table *Table, columns []*CodeGenColumn, met
 	return files
 }
 
-// appendMainBizMethods 根据业务文件自身内容追加尚未实现的方法及其树形辅助方法。
+// appendMainBizMethods 根据最新配置替换业务文件的固定生成方法并保留扩展方法。
 func (c *renderer) appendMainBizMethods(content string, table *Table, columns []*CodeGenColumn, methods []*Proto) string {
-	// 候选文件只用于提取当前配置下应存在的方法，已有文件仍是最终合并基准。
+	// 候选文件提供当前配置下生成方法的完整实现，已有文件只保留非生成扩展方法。
 	candidate := c.renderBackendBizFile(table, columns, methods)
 	generatedReceiver := table.EntityName + "Case"
 	existingReceiver := goReceiverType(content, "Case")
@@ -320,22 +314,19 @@ func (c *renderer) appendMainBizMethods(content string, table *Table, columns []
 	if !strings.Contains(content, "_time.") {
 		content = strings.Replace(content, "\t_time \"github.com/liujitcn/go-utils/time\"\n", "", 1)
 	}
-	methodNames := missingGoReceiverMethodNamesFold(candidate, content, generatedReceiver, existingReceiver)
-	if len(methodNames) == 0 {
-		return reorderGoReceiverMethods(content, existingReceiver)
-	}
 	// 已有业务文件可能采用不同实体名，先从接收者依赖中识别真实 Repository 类型。
 	_, repositoryType := goStructDependency(content, existingReceiver, "data", "Repository")
 	repositoryType = strings.TrimSuffix(repositoryType, "Repository")
 	if repositoryType == "" {
-		return reorderGoReceiverMethods(content, existingReceiver)
+		return content
 	}
 
+	methodNames := goReceiverMethodNames(candidate, generatedReceiver)
 	methodContent := strings.Join(extractGoMethods(candidate, methodNames), "\n\n")
 	if methodContent == "" {
-		return reorderGoReceiverMethods(content, existingReceiver)
+		return content
 	}
-	// 仅改写新追加的方法片段，避免替换已有业务代码中的同名标识符。
+	// 仅改写生成方法片段，避免替换已有扩展代码中的同名标识符。
 	entityVar := stringcase.ToCamelCase(table.EntityName)
 	methodContent = strings.ReplaceAll(methodContent, "*"+generatedReceiver, "*"+existingReceiver)
 	methodContent = strings.ReplaceAll(methodContent, "models."+table.EntityName, "models."+repositoryType)
@@ -344,67 +335,65 @@ func (c *renderer) appendMainBizMethods(content string, table *Table, columns []
 	methodContent = strings.ReplaceAll(methodContent, "c.formMapper.ToEntity(req)", "mapper.NewCopierMapper["+apiAlias+"."+table.EntityName+"Form, models."+repositoryType+"]().ToEntity(req)")
 	methodContent = strings.ReplaceAll(methodContent, "c.formMapper.ToDTO("+entityVar+")", "mapper.NewCopierMapper["+apiAlias+"."+table.EntityName+"Form, models."+repositoryType+"]().ToDTO("+entityVar+")")
 	methodContent = strings.ReplaceAll(methodContent, "c.mapper.ToDTO(item)", "mapper.NewCopierMapper["+apiAlias+"."+table.EntityName+", models."+repositoryType+"]().ToDTO(item)")
-	return reorderGoReceiverMethods(appendGeneratedGoMethods(content, methodContent), existingReceiver)
+	content = mergeGeneratedGoReceiverMethods(content, methodContent, existingReceiver)
+	if !strings.Contains(content, "_time.") {
+		content = strings.Replace(content, "\t_time \"github.com/liujitcn/go-utils/time\"\n", "", 1)
+	}
+	return content
 }
 
-// appendMainServiceMethods 向已有服务文件追加未实现的 RPC 方法。
+// appendMainServiceMethods 根据最新配置替换已有服务文件的固定生成方法。
 func (c *renderer) appendMainServiceMethods(content string, table *Table, columns []*CodeGenColumn, methods []*Proto) string {
-	// 服务层同样从完整候选文件中提取缺失方法，不重写已有实现。
+	// 服务层从完整候选文件中提取固定生成方法，已有同名实现必须整体替换。
 	candidate := c.renderBackendServiceFile(table, columns, methods)
 	generatedReceiver := table.EntityName + "Service"
 	existingReceiver := goReceiverType(content, "Service")
 	if existingReceiver == "" {
 		return content
 	}
-	methodNames := missingGoReceiverMethodNames(candidate, content, generatedReceiver, existingReceiver)
+	methodNames := goReceiverMethodNames(candidate, generatedReceiver)
 	methodContent := strings.Join(extractGoMethods(candidate, methodNames), "\n\n")
 	if methodContent == "" {
-		return reorderGoReceiverMethods(content, existingReceiver)
+		return content
 	}
 	// 根据已有 Service 的依赖字段改写候选接收者，兼容人工命名的 Case 字段。
 	existingCaseField, _ := goStructDependency(content, existingReceiver, "biz", "Case")
 	generatedCaseField := stringcase.ToCamelCase(table.EntityName) + "Case"
 	if existingCaseField == "" {
-		return reorderGoReceiverMethods(content, existingReceiver)
+		return content
 	}
 	methodContent = strings.ReplaceAll(methodContent, "*"+generatedReceiver, "*"+existingReceiver)
 	methodContent = strings.ReplaceAll(methodContent, "s."+generatedCaseField, "s."+existingCaseField)
-	return reorderGoReceiverMethods(appendGeneratedGoMethods(content, methodContent), existingReceiver)
+	return mergeGeneratedGoReceiverMethods(content, methodContent, existingReceiver)
 }
 
-// appendMainFrontendAPIMethods 向已有前端服务类追加缺失请求方法。
+// appendMainFrontendAPIMethods 根据最新配置替换前端服务类的固定生成方法。
 func (c *renderer) appendMainFrontendAPIMethods(content string, table *Table, columns []*CodeGenColumn, methods []*Proto) string {
 	candidate := c.renderFrontendAPIFile(table, columns, methods)
 	className := table.EntityName + "ServiceImpl"
 	if findTSClassEndIndex(content, className) < 0 {
 		return content
 	}
-	methodNames := goReceiverMethodNames(c.renderBackendServiceFile(table, columns, methods), table.EntityName+"Service")
-	methodContents := make([]string, 0, len(methodNames))
-	typeNames := make([]string, 0, len(methodNames)*2)
-	// 方法和请求响应类型同步收集，保证追加实现后 import 仍然完整。
-	for methodName := range methodNames {
-		if tsClassMethodExists(content, className, methodName) {
-			continue
-		}
-		methodContent := extractTSClassMethod(candidate, methodName)
-		if methodContent == "" {
-			continue
-		}
-		methodContents = append(methodContents, methodContent)
-		typeNames = append(typeNames, methodName+"Request")
+	methodBlocks, _, _, ok := tsClassMethodBlocks(candidate, className)
+	if !ok || len(methodBlocks) == 0 {
+		return content
+	}
+	typeNames := make([]string, 0, len(methodBlocks)*2)
+	methodContents := make([]string, 0, len(methodBlocks))
+	// 方法和请求响应类型同步收集，保证替换实现后 import 仍然完整。
+	for _, block := range methodBlocks {
+		methodContents = append(methodContents, block.Content)
+		typeNames = append(typeNames, block.Name+"Request")
+		methodContent := block.Content
 		if strings.Contains(methodContent, table.EntityName+"Form") {
 			typeNames = append(typeNames, table.EntityName+"Form")
 		}
-		if strings.Contains(methodContent, methodName+"Response") {
-			typeNames = append(typeNames, methodName+"Response")
+		if strings.Contains(methodContent, block.Name+"Response") {
+			typeNames = append(typeNames, block.Name+"Response")
 		}
 	}
-	if len(methodContents) == 0 {
-		return reorderTSClassMethods(content, className)
-	}
 
-	// 先补类型导入再定位类结尾，因为新增 import 会改变类在源码中的偏移量。
+	// 先补类型导入，因为新增 import 会改变类和方法在源码中的偏移量。
 	rpcPath := frontendRPCImportPath(c.defaultProtoPath(table))
 	content = ensureTSNamedTypeNames(content, rpcPath, typeNames)
 	joinedMethods := strings.Join(methodContents, "\n\n")
@@ -419,12 +408,7 @@ func (c *renderer) appendMainFrontendAPIMethods(content string, table *Table, co
 		commonTypes = append(commonTypes, "TreeOptionResponse")
 	}
 	content = ensureTSNamedTypeNames(content, "@/rpc/common/v1/common", commonTypes)
-	classEnd := findTSClassEndIndex(content, className)
-	if classEnd < 0 {
-		return content
-	}
-	content = content[:classEnd] + "\n" + joinedMethods + "\n" + content[classEnd:]
-	return reorderTSClassMethods(content, className)
+	return mergeGeneratedTSClassMethods(content, candidate, className)
 }
 
 // enabledCodeGenColumnOptions 返回当前字段各作用域实际启用的选项配置。

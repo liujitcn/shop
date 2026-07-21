@@ -317,34 +317,19 @@ func (c *renderer) renderExternalTargetFrontendAPIFile(table *Table, methods []*
 	})
 }
 
-// appendExternalTargetFrontendAPIMethods 向已有前端 API 文件追加外部目标选项方法。
+// appendExternalTargetFrontendAPIMethods 替换已有前端 API 文件的外部目标固定选项方法。
 func (c *renderer) appendExternalTargetFrontendAPIMethods(content string, table *Table, methods []*Proto) string {
 	className := table.EntityName + "ServiceImpl"
 	if findTSClassEndIndex(content, className) < 0 {
 		return content
 	}
-	missingMethods := make([]*Proto, 0, len(methods))
+	typeNames := make([]string, 0, len(methods))
 	for _, method := range methods {
-		if tsClassMethodExists(content, className, method.MethodName) {
-			continue
-		}
-		missingMethods = append(missingMethods, method)
-	}
-	if len(missingMethods) == 0 {
-		return content
-	}
-	typeNames := make([]string, 0, len(missingMethods))
-	for _, method := range missingMethods {
 		typeNames = append(typeNames, method.MethodName+"Request")
 	}
 	content = ensureTSNamedTypeNames(content, frontendRPCImportPath(c.defaultProtoPath(table)), typeNames)
-	content = ensureTSCommonOptionImport(content, missingMethods)
-	index := findTSClassEndIndex(content, className)
-	if index < 0 {
-		return content
-	}
-	content = content[:index] + "\n" + c.renderExternalTargetFrontendAPIMethods(table, missingMethods) + content[index:]
-	return reorderTSClassMethods(content, className)
+	content = ensureTSCommonOptionImport(content, methods)
+	return mergeGeneratedTSClassMethods(content, c.renderExternalTargetFrontendAPIFile(table, methods), className)
 }
 
 // renderExternalTargetFrontendAPIMethods 渲染外部目标实体选项 API 方法。

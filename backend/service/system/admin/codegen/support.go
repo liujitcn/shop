@@ -598,53 +598,10 @@ func reorderGoReceiverMethods(content string, receiverName string) string {
 
 // reorderTSClassMethods 重排指定服务类的连续方法，未知扩展方法保持在固定槽位之后。
 func reorderTSClassMethods(content string, className string) string {
-	classStart := strings.Index(content, "class "+className)
-	classEnd := findTSClassEndIndex(content, className)
-	if classStart < 0 || classEnd < 0 {
+	blocks, start, end, ok := tsClassMethodBlocks(content, className)
+	if !ok || len(blocks) < 2 {
 		return content
 	}
-	classContent := content[classStart : classEnd+1]
-	matches := tsClassMethodPattern.FindAllStringSubmatch(classContent, -1)
-	blocks := make([]CodeGenSourceMethodBlock, 0, len(matches))
-	searchOffset := 0
-	seen := make(map[string]struct{}, len(matches))
-	// 按源码位置逐个提取完整方法块，避免同名文本出现在方法体时定位错误。
-	for _, match := range matches {
-		methodName := match[1]
-		if _, ok := seen[methodName]; ok {
-			continue
-		}
-		seen[methodName] = struct{}{}
-		methodContent := extractTSClassMethod(classContent, methodName)
-		if methodContent == "" {
-			return content
-		}
-		startOffset := strings.Index(classContent[searchOffset:], methodContent)
-		if startOffset < 0 {
-			return content
-		}
-		startOffset += searchOffset
-		endOffset := startOffset + len(methodContent)
-		blocks = append(blocks, CodeGenSourceMethodBlock{
-			Name:          methodName,
-			Content:       methodContent,
-			Start:         classStart + startOffset,
-			End:           classStart + endOffset,
-			OriginalIndex: len(blocks),
-		})
-		searchOffset = endOffset
-	}
-	if len(blocks) < 2 {
-		return content
-	}
-	// 类字段或其他语句夹在方法之间时停止重排，避免改变类成员语义。
-	for i := 1; i < len(blocks); i++ {
-		if strings.TrimSpace(content[blocks[i-1].End:blocks[i].Start]) != "" {
-			return content
-		}
-	}
-	start := blocks[0].Start
-	end := blocks[len(blocks)-1].End
 	sortCodeGenSourceMethodBlocks(blocks)
 	methodContents := make([]string, 0, len(blocks))
 	for _, block := range blocks {

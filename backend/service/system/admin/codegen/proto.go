@@ -133,6 +133,222 @@ func (c *renderer) appendProtoPatch(content string, patch CodeGenProtoPatch) str
 	return appendMissingProtoMessages(content, patch.Messages)
 }
 
+// mergeGeneratedProtoFile 整体替换候选中的生成 RPC 和消息，并将已有扩展定义原样保留在后面。
+func mergeGeneratedProtoFile(content string, candidate string) string {
+	if strings.TrimSpace(candidate) == "" {
+		return content
+	}
+	for _, importLine := range protoImportLines(candidate) {
+		if !strings.Contains(content, importLine) {
+			content = insertProtoImport(content, importLine+"\n")
+		}
+	}
+	serviceNames := protoServiceNames(candidate)
+	for _, serviceName := range serviceNames {
+		content = mergeGeneratedProtoService(content, candidate, serviceName)
+	}
+	return mergeGeneratedProtoMessages(content, candidate)
+}
+
+// protoImportLines 返回 Proto 文件的全部 import 声明。
+func protoImportLines(content string) []string {
+	pattern := regexp.MustCompile(`(?m)^[\t ]*import[\t ]+"[^"]+";[\t ]*$`)
+	matches := pattern.FindAllString(content, -1)
+	lines := make([]string, 0, len(matches))
+	for _, match := range matches {
+		lines = append(lines, strings.TrimSpace(match))
+	}
+	return lines
+}
+
+// protoServiceNames 返回文件中的顶层 service 名称。
+func protoServiceNames(content string) []string {
+	pattern := regexp.MustCompile(`(?m)^[\t ]*service[\t ]+([A-Za-z_][A-Za-z0-9_]*)[\t ]*\{`)
+	matches := pattern.FindAllStringSubmatchIndex(content, -1)
+	names := make([]string, 0, len(matches))
+	for _, match := range matches {
+		if len(match) < 4 || protoBraceDepthAt(content, match[0]) != 0 {
+			continue
+		}
+		names = append(names, content[match[2]:match[3]])
+	}
+	return names
+}
+
+// mergeGeneratedProtoService 替换单个 service 的生成 RPC，并保持扩展 RPC 的内容和相对顺序。
+func mergeGeneratedProtoService(content string, candidate string, serviceName string) string {
+	candidateBlocks, _, _, _, _, ok := protoServiceRPCBlocks(candidate, serviceName)
+	if !ok || len(candidateBlocks) == 0 {
+		return content
+	}
+	existingBlocks, bodyStart, bodyEnd, prefix, suffix, ok := protoServiceRPCBlocks(content, serviceName)
+	if !ok {
+		return content
+	}
+	generatedNames := make(map[string]struct{}, len(candidateBlocks))
+	for _, block := range candidateBlocks {
+		generatedNames[block.Name] = struct{}{}
+	}
+	blocks := make([]CodeGenProtoRPCBlock, 0, len(candidateBlocks)+len(existingBlocks))
+	blocks = append(blocks, candidateBlocks...)
+	for _, block := range existingBlocks {
+		if _, generated := generatedNames[block.Name]; generated {
+			continue
+		}
+		blocks = append(blocks, block)
+	}
+	var builder strings.Builder
+	prefix = strings.TrimRight(prefix, "\r\n")
+	if prefix != "" {
+		builder.WriteString(prefix)
+		builder.WriteString("\n\n")
+	} else {
+		builder.WriteString("\n")
+	}
+	for index, block := range blocks {
+		if index > 0 {
+			builder.WriteString("\n\n")
+		}
+		builder.WriteString(strings.Trim(block.Content, "\r\n"))
+	}
+	suffix = strings.TrimLeft(suffix, "\r\n")
+	if suffix != "" {
+		builder.WriteString("\n\n")
+		builder.WriteString(suffix)
+	}
+	builder.WriteString("\n")
+	return content[:bodyStart] + builder.String() + content[bodyEnd:]
+}
+
+// protoServiceRPCBlocks 返回 service 内连续 RPC 块、正文边界及 RPC 前后的扩展内容。
+func protoServiceRPCBlocks(content string, serviceName string) ([]CodeGenProtoRPCBlock, int, int, string, string, bool) {
+	serviceStart, serviceEnd := findProtoServiceBounds(content, serviceName)
+	if serviceStart < 0 || serviceEnd < 0 {
+		return nil, -1, -1, "", "", false
+	}
+	bodyStart := serviceStart + 1
+	body := content[bodyStart:serviceEnd]
+	matches := protoRPCPattern.FindAllStringSubmatchIndex(body, -1)
+	blocks := make([]CodeGenProtoRPCBlock, 0, len(matches))
+	firstBlockStart := -1
+	lastBlockEnd := -1
+	for _, match := range matches {
+		if len(match) < 4 {
+			return nil, -1, -1, "", "", false
+		}
+		openOffset := strings.Index(body[match[0]:], "{")
+		if openOffset < 0 {
+			return nil, -1, -1, "", "", false
+		}
+		blockEnd := findProtoBlockEnd(body, match[0]+openOffset)
+		if blockEnd < 0 {
+			return nil, -1, -1, "", "", false
+		}
+		blockStart := protoDeclarationCommentStart(body, match[0])
+		if lastBlockEnd >= 0 && strings.TrimSpace(body[lastBlockEnd:blockStart]) != "" {
+			return nil, -1, -1, "", "", false
+		}
+		if firstBlockStart < 0 {
+			firstBlockStart = blockStart
+		}
+		lastBlockEnd = blockEnd + 1
+		blocks = append(blocks, CodeGenProtoRPCBlock{
+			Name:          body[match[2]:match[3]],
+			Content:       strings.Trim(body[blockStart:lastBlockEnd], "\r\n"),
+			OriginalIndex: len(blocks),
+		})
+	}
+	if len(blocks) == 0 {
+		return blocks, bodyStart, serviceEnd, body, "", true
+	}
+	return blocks, bodyStart, serviceEnd, body[:firstBlockStart], body[lastBlockEnd:], true
+}
+
+type protoMessageBlock struct {
+	name          string
+	content       string
+	start         int
+	end           int
+	originalIndex int
+}
+
+// mergeGeneratedProtoMessages 替换候选生成消息，并将已有扩展消息原样追加在后面。
+func mergeGeneratedProtoMessages(content string, candidate string) string {
+	candidateBlocks, _, _, ok := topLevelProtoMessageBlocks(candidate)
+	if !ok || len(candidateBlocks) == 0 {
+		return content
+	}
+	existingBlocks, firstStart, lastEnd, ok := topLevelProtoMessageBlocks(content)
+	if !ok {
+		return content
+	}
+	generatedNames := make(map[string]struct{}, len(candidateBlocks))
+	for _, block := range candidateBlocks {
+		generatedNames[block.name] = struct{}{}
+	}
+	blocks := make([]protoMessageBlock, 0, len(candidateBlocks)+len(existingBlocks))
+	blocks = append(blocks, candidateBlocks...)
+	for _, block := range existingBlocks {
+		if _, generated := generatedNames[block.name]; generated {
+			continue
+		}
+		blocks = append(blocks, block)
+	}
+	var builder strings.Builder
+	for index, block := range blocks {
+		if index > 0 {
+			builder.WriteString("\n\n")
+		}
+		builder.WriteString(strings.Trim(block.content, "\r\n"))
+	}
+	if len(existingBlocks) == 0 {
+		return strings.TrimRight(content, "\r\n") + "\n\n" + builder.String() + "\n"
+	}
+	prefix := strings.TrimRight(content[:firstStart], " \t\r\n")
+	suffix := strings.TrimLeft(content[lastEnd:], " \t\r\n")
+	if suffix == "" {
+		return prefix + "\n\n" + builder.String() + "\n"
+	}
+	return prefix + "\n\n" + builder.String() + "\n\n" + suffix
+}
+
+// topLevelProtoMessageBlocks 返回连续顶层 message 块及其文件位置。
+func topLevelProtoMessageBlocks(content string) ([]protoMessageBlock, int, int, bool) {
+	matches := protoMessagePattern.FindAllStringSubmatchIndex(content, -1)
+	blocks := make([]protoMessageBlock, 0, len(matches))
+	firstStart := -1
+	lastEnd := -1
+	for _, match := range matches {
+		if len(match) < 4 || protoBraceDepthAt(content, match[0]) != 0 {
+			continue
+		}
+		openOffset := strings.Index(content[match[0]:match[1]], "{")
+		if openOffset < 0 {
+			return nil, -1, -1, false
+		}
+		blockEnd := findProtoBlockEnd(content, match[0]+openOffset)
+		if blockEnd < 0 {
+			return nil, -1, -1, false
+		}
+		blockStart := protoDeclarationCommentStart(content, match[0])
+		if lastEnd >= 0 && strings.TrimSpace(content[lastEnd:blockStart]) != "" {
+			return nil, -1, -1, false
+		}
+		if firstStart < 0 {
+			firstStart = blockStart
+		}
+		lastEnd = blockEnd + 1
+		blocks = append(blocks, protoMessageBlock{
+			name:          content[match[2]:match[3]],
+			content:       strings.Trim(content[blockStart:lastEnd], "\r\n"),
+			start:         blockStart,
+			end:           lastEnd,
+			originalIndex: len(blocks),
+		})
+	}
+	return blocks, firstStart, lastEnd, true
+}
+
 // renderProtoRPC 渲染单个 RPC 契约。
 func (c *renderer) renderProtoRPC(table *Table, method *Proto, resourcePath string) string {
 	businessName := codeGenProtoMethodBusinessName(table, method)

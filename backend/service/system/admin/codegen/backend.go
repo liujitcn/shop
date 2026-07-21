@@ -211,7 +211,7 @@ func (c *renderer) renderBackendServiceFile(table *Table, columns []*CodeGenColu
 	return reorderGoReceiverMethods(removeGoReceiverMethods(content, missingCoreMethodNames(table, methods)), entity+"Service")
 }
 
-// appendExternalTargetBizMethods 向已有业务文件追加外部目标选项方法。
+// appendExternalTargetBizMethods 替换已有业务文件的外部目标固定选项方法。
 func (c *renderer) appendExternalTargetBizMethods(content string, table *Table, methods []*Proto) string {
 	candidate := c.renderExternalTargetBizFile(table, methods)
 	generatedReceiver := table.EntityName + "Case"
@@ -219,7 +219,7 @@ func (c *renderer) appendExternalTargetBizMethods(content string, table *Table, 
 	if existingReceiver == "" {
 		return content
 	}
-	methodNames := missingGoReceiverMethodNames(candidate, content, generatedReceiver, existingReceiver)
+	methodNames := goReceiverMethodNames(candidate, generatedReceiver)
 	methodContent := strings.Join(extractGoMethods(candidate, methodNames), "\n\n")
 	if methodContent == "" {
 		return content
@@ -232,7 +232,7 @@ func (c *renderer) appendExternalTargetBizMethods(content string, table *Table, 
 	methodContent = strings.ReplaceAll(methodContent, "*"+generatedReceiver, "*"+existingReceiver)
 	methodContent = strings.ReplaceAll(methodContent, "models."+table.EntityName, "models."+repositoryType)
 	methodContent = strings.ReplaceAll(methodContent, "c.Query(ctx)."+table.EntityName, "c.Query(ctx)."+repositoryType)
-	return reorderGoReceiverMethods(appendGeneratedGoMethods(content, methodContent), existingReceiver)
+	return mergeGeneratedGoReceiverMethods(content, methodContent, existingReceiver)
 }
 
 // renderExternalTargetBizFile 渲染外部目标实体的最小业务文件。
@@ -266,7 +266,7 @@ func (c *renderer) renderExternalTargetBizMethods(table *Table, methods []*Proto
 	return builder.String()
 }
 
-// appendExternalTargetServiceMethods 向已有服务文件追加外部目标选项方法。
+// appendExternalTargetServiceMethods 替换已有服务文件的外部目标固定选项方法。
 func (c *renderer) appendExternalTargetServiceMethods(content string, table *Table, methods []*Proto) string {
 	candidate := c.renderExternalTargetServiceFile(table, methods)
 	generatedReceiver := table.EntityName + "Service"
@@ -274,7 +274,7 @@ func (c *renderer) appendExternalTargetServiceMethods(content string, table *Tab
 	if existingReceiver == "" {
 		return content
 	}
-	methodNames := missingGoReceiverMethodNames(candidate, content, generatedReceiver, existingReceiver)
+	methodNames := goReceiverMethodNames(candidate, generatedReceiver)
 	methodContent := strings.Join(extractGoMethods(candidate, methodNames), "\n\n")
 	if methodContent == "" {
 		return content
@@ -286,7 +286,7 @@ func (c *renderer) appendExternalTargetServiceMethods(content string, table *Tab
 	}
 	methodContent = strings.ReplaceAll(methodContent, "*"+generatedReceiver, "*"+existingReceiver)
 	methodContent = strings.ReplaceAll(methodContent, "s."+generatedCaseField, "s."+existingCaseField)
-	return reorderGoReceiverMethods(appendGeneratedGoMethods(content, methodContent), existingReceiver)
+	return mergeGeneratedGoReceiverMethods(content, methodContent, existingReceiver)
 }
 
 // renderExternalTargetServiceFile 渲染外部目标实体的最小服务文件。

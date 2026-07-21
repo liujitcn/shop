@@ -5,7 +5,6 @@ import (
 	"go/parser"
 	"go/token"
 	"path/filepath"
-	"regexp"
 	"slices"
 	"strings"
 
@@ -52,7 +51,7 @@ func (c *renderer) newExternalTargetFrontendPreviewFiles(table *Table, methods [
 	return files
 }
 
-// newPatchedPreviewFile 创建支持已有文件追加的预览文件。
+// newPatchedPreviewFile 创建支持替换生成方法并保留扩展方法的预览文件。
 func (c *renderer) newPatchedPreviewFile(path string, createContent string, patch func(string) string) *systemadminv1.CodeGenPreviewFile {
 	// 所有预览文件先经过仓库边界校验，非法路径只返回 skip 结果，不触碰磁盘。
 	_, pathErr := SafeRepoFilePath(path)
@@ -67,13 +66,13 @@ func (c *renderer) newPatchedPreviewFile(path string, createContent string, patc
 	patched := patch(string(content))
 	if patched == string(content) {
 		// 内容相同必须标记为 skip，避免生成任务无意义地更新文件时间。
-		return &systemadminv1.CodeGenPreviewFile{Path: path, Action: "skip", Content: string(content), Exists: true, Message: "目标文件已存在，未发现需要追加的方法"}
+		return &systemadminv1.CodeGenPreviewFile{Path: path, Action: "skip", Content: string(content), Exists: true, Message: "目标文件已存在，生成方法已与当前配置一致"}
 	}
-	return &systemadminv1.CodeGenPreviewFile{Path: path, Action: "update", Content: patched, Exists: true, Message: "目标文件已存在，将追加缺失接口实现"}
+	return &systemadminv1.CodeGenPreviewFile{Path: path, Action: "update", Content: patched, Exists: true, Message: "目标文件已存在，将替换生成方法并保留扩展方法"}
 }
 
-// newManagedPreviewFile 为可确认归属的生成文件重渲染最新配置，其他已有文件仍走增量补丁。
-func (c *renderer) newManagedPreviewFile(path string, renderedContent string, isManaged func(string) bool, patch func(string) string) *systemadminv1.CodeGenPreviewFile {
+// newManagedPreviewFile 为可确认归属且不能安全进行方法级合并的生成文件重渲染最新配置。
+func (c *renderer) newManagedPreviewFile(path string, renderedContent string, isManaged func(string) bool) *systemadminv1.CodeGenPreviewFile {
 	_, pathErr := SafeRepoFilePath(path)
 	if pathErr != nil {
 		return &systemadminv1.CodeGenPreviewFile{Path: path, Action: "skip", Content: renderedContent, Exists: false, Message: pathErr.Error()}
@@ -93,14 +92,7 @@ func (c *renderer) newManagedPreviewFile(path string, renderedContent string, is
 		return &systemadminv1.CodeGenPreviewFile{Path: path, Action: "update", Content: renderedContent, Exists: true, Message: "生成文件将按当前配置重新渲染"}
 	}
 	// 页面文件没有可安全追加的片段，无法确认归属时不覆盖。
-	if patch == nil {
-		return &systemadminv1.CodeGenPreviewFile{Path: path, Action: "skip", Content: originalContent, Exists: true, Message: "已有文件无法确认由生成器管理，已跳过覆盖"}
-	}
-	patched := patch(originalContent)
-	if patched == originalContent {
-		return &systemadminv1.CodeGenPreviewFile{Path: path, Action: "skip", Content: originalContent, Exists: true, Message: "目标文件已存在，未发现需要追加的方法"}
-	}
-	return &systemadminv1.CodeGenPreviewFile{Path: path, Action: "update", Content: patched, Exists: true, Message: "目标文件已存在，将追加缺失接口实现"}
+	return &systemadminv1.CodeGenPreviewFile{Path: path, Action: "skip", Content: originalContent, Exists: true, Message: "已有文件无法确认由生成器管理，已跳过覆盖"}
 }
 
 // newAdminRegistrationPreviewFiles 创建管理端业务模块依赖注入与传输层注册补丁。
@@ -274,14 +266,14 @@ func (c *renderer) newTargetProtoPreviewFile(table *Table, columns []*CodeGenCol
 	}
 
 	originalContent := string(content)
-	// 主实体 Proto 可以完整识别时，以最新字段和接口配置整体刷新。
-	if path == c.defaultProtoPath(table) && isManagedProtoFile(originalContent, table.EntityName) {
-		renderedContent := c.renderProtoFile(table, columns, methods)
-		// 内容未变化时不写入磁盘。
-		if originalContent == renderedContent {
-			return &systemadminv1.CodeGenPreviewFile{Path: path, Action: "skip", Content: originalContent, Exists: true, Message: "生成Proto已与当前配置一致"}
-		}
-		return &systemadminv1.CodeGenPreviewFile{Path: path, Action: "update", Content: renderedContent, Exists: true, Message: "生成Proto将按当前配置重新渲染"}
+	renderedContent := c.renderTargetProtoFile(table, columns, methods, path)
+	if path == c.defaultProtoPath(table) {
+		renderedContent = c.renderProtoFile(table, columns, methods)
+	}
+	// 已有 Proto 只整体替换固定生成 RPC 与消息，自定义定义始终原样保留在后面。
+	mergedContent := mergeGeneratedProtoFile(originalContent, renderedContent)
+	if mergedContent != originalContent {
+		return &systemadminv1.CodeGenPreviewFile{Path: path, Action: "update", Content: mergedContent, Exists: true, Message: "Proto文件将替换生成接口并保留扩展定义"}
 	}
 	patch := c.renderProtoPatch(table, columns, methods, path)
 	normalizedContent := normalizeProtoMessageOrder(normalizeProtoRPCOrder(dedupeProtoMessageBlocks(originalContent), methods, path))
@@ -353,31 +345,6 @@ func (c *renderer) newPreviewFile(path string, content string) *systemadminv1.Co
 	}
 }
 
-// isManagedProtoFile 判断 Proto 是否具备当前实体的完整生成文件特征。
-func isManagedProtoFile(content string, entity string) bool {
-	return strings.Contains(content, "service "+entity+"Service {") &&
-		strings.Contains(content, "message "+entity+" {") &&
-		strings.Contains(content, "message "+entity+"Form {")
-}
-
-// isManagedBackendBizFile 判断 Go Biz 文件是否具备当前实体的生成文件特征。
-func isManagedBackendBizFile(content string, entity string) bool {
-	return strings.Contains(content, "type "+entity+"Case struct") &&
-		strings.Contains(content, "func New"+entity+"Case(")
-}
-
-// isManagedBackendServiceFile 判断 Go Service 文件是否具备当前实体的生成文件特征。
-func isManagedBackendServiceFile(content string, entity string) bool {
-	return strings.Contains(content, "type "+entity+"Service struct") &&
-		strings.Contains(content, "func New"+entity+"Service(")
-}
-
-// isManagedFrontendAPIFile 判断前端 API 文件是否具备当前实体的生成文件特征。
-func isManagedFrontendAPIFile(content string, entity string) bool {
-	return strings.Contains(content, "export class "+entity+"ServiceImpl implements "+entity+"Service") &&
-		strings.Contains(content, "def"+entity+"Service")
-}
-
 // isManagedFrontendPageFile 判断前端页面是否具备当前实体的生成页面特征。
 func isManagedFrontendPageFile(content string, entity string) bool {
 	return strings.Contains(content, "name: \""+entity+"\"") &&
@@ -417,30 +384,6 @@ func goReceiverType(content string, suffix string) string {
 		}
 	}
 	return ""
-}
-
-// missingGoReceiverMethodNames 返回目标 Go 文件中尚未实现的候选方法名。
-func missingGoReceiverMethodNames(candidateContent string, existingContent string, candidateReceiver string, existingReceiver string) map[string]struct{} {
-	methods := goReceiverMethodNames(candidateContent, candidateReceiver)
-	for methodName := range goReceiverMethodNames(existingContent, existingReceiver) {
-		delete(methods, methodName)
-	}
-	return methods
-}
-
-// missingGoReceiverMethodNamesFold 返回目标 Go 文件中未实现的方法名，并兼容 API 等缩写大小写差异。
-func missingGoReceiverMethodNamesFold(candidateContent string, existingContent string, candidateReceiver string, existingReceiver string) map[string]struct{} {
-	methods := goReceiverMethodNames(candidateContent, candidateReceiver)
-	existingMethods := goReceiverMethodNames(existingContent, existingReceiver)
-	for candidateName := range methods {
-		for existingName := range existingMethods {
-			if strings.EqualFold(candidateName, existingName) {
-				delete(methods, candidateName)
-				break
-			}
-		}
-	}
-	return methods
 }
 
 // goReceiverMethodNames 返回指定接收者类型的全部方法名。
@@ -527,6 +470,159 @@ func extractGoMethods(content string, methodNames map[string]struct{}) []string 
 		}
 	}
 	return methods
+}
+
+// mergeGeneratedGoReceiverMethods 按候选顺序替换生成方法，并将已有扩展方法原样保留在生成方法之后。
+func mergeGeneratedGoReceiverMethods(content string, methodContent string, receiverName string) string {
+	generatedBlocks := generatedGoReceiverMethodBlocks(methodContent, receiverName)
+	if len(generatedBlocks) == 0 {
+		return content
+	}
+	originalContent := content
+	content = ensureGeneratedGoImports(content, methodContent)
+	file, fileSet, err := parseGoSource(content)
+	if err != nil {
+		return originalContent
+	}
+	type sourceRange struct {
+		start            int
+		end              int
+		declarationIndex int
+	}
+	existingBlocks := make([]CodeGenSourceMethodBlock, 0)
+	ranges := make([]sourceRange, 0)
+	firstDeclarationIndex := -1
+	lastDeclarationIndex := -1
+	for declarationIndex, declaration := range file.Decls {
+		function, ok := declaration.(*ast.FuncDecl)
+		if !ok || function.Recv == nil || len(function.Recv.List) == 0 || goReceiverName(function.Recv.List[0].Type) != receiverName {
+			continue
+		}
+		start := fileSet.Position(function.Pos()).Offset
+		if function.Doc != nil {
+			start = fileSet.Position(function.Doc.Pos()).Offset
+		}
+		end := fileSet.Position(function.End()).Offset
+		if start < 0 || end > len(content) || start >= end {
+			return originalContent
+		}
+		existingBlocks = append(existingBlocks, CodeGenSourceMethodBlock{
+			Name:          function.Name.Name,
+			Content:       content[start:end],
+			Start:         start,
+			End:           end,
+			OriginalIndex: len(existingBlocks),
+		})
+		ranges = append(ranges, sourceRange{start: start, end: end, declarationIndex: declarationIndex})
+		if firstDeclarationIndex < 0 {
+			firstDeclarationIndex = declarationIndex
+		}
+		lastDeclarationIndex = declarationIndex
+	}
+	generatedNames := make(map[string]struct{}, len(generatedBlocks))
+	for _, block := range generatedBlocks {
+		generatedNames[strings.ToLower(block.Name)] = struct{}{}
+	}
+	customBlocks := make([]CodeGenSourceMethodBlock, 0, len(existingBlocks))
+	for _, block := range existingBlocks {
+		if _, generated := generatedNames[strings.ToLower(block.Name)]; generated {
+			continue
+		}
+		customBlocks = append(customBlocks, block)
+	}
+	methodContents := make([]string, 0, len(generatedBlocks)+len(customBlocks))
+	for _, block := range generatedBlocks {
+		methodContents = append(methodContents, strings.Trim(block.Content, "\r\n"))
+	}
+	for _, block := range customBlocks {
+		methodContents = append(methodContents, strings.Trim(block.Content, "\r\n"))
+	}
+	if len(ranges) == 0 {
+		patched := strings.TrimRight(content, "\r\n") + "\n\n" + strings.Join(methodContents, "\n\n") + "\n"
+		if _, _, err = parseGoSource(patched); err != nil {
+			return originalContent
+		}
+		return patched
+	}
+	// 只跨越普通包级辅助函数；其他声明仍作为人工组织边界，避免改变源码语义。
+	for declarationIndex := firstDeclarationIndex + 1; declarationIndex < lastDeclarationIndex; declarationIndex++ {
+		function, ok := file.Decls[declarationIndex].(*ast.FuncDecl)
+		if !ok {
+			return originalContent
+		}
+		if function.Recv != nil && len(function.Recv.List) > 0 && goReceiverName(function.Recv.List[0].Type) == receiverName {
+			continue
+		}
+		if function.Recv != nil || function.Name.Name == "init" {
+			return originalContent
+		}
+	}
+	start := ranges[0].start
+	for index := 1; index < len(ranges); index++ {
+		previousFunction, ok := file.Decls[ranges[index].declarationIndex-1].(*ast.FuncDecl)
+		if !ok || previousFunction.Recv != nil || previousFunction.Name.Name == "init" {
+			continue
+		}
+		for ranges[index].start > 0 {
+			character := content[ranges[index].start-1]
+			if character != ' ' && character != '\t' && character != '\r' && character != '\n' {
+				break
+			}
+			ranges[index].start--
+		}
+	}
+	for index := 0; index < len(ranges)-1; index++ {
+		for ranges[index].end < len(content) {
+			character := content[ranges[index].end]
+			if character != ' ' && character != '\t' && character != '\r' && character != '\n' {
+				break
+			}
+			ranges[index].end++
+		}
+	}
+	for index := len(ranges) - 1; index >= 0; index-- {
+		content = content[:ranges[index].start] + content[ranges[index].end:]
+	}
+	separator := ""
+	if start < len(content) && content[start] != '\r' && content[start] != '\n' {
+		separator = "\n\n"
+	}
+	patched := content[:start] + strings.Join(methodContents, "\n\n") + separator + content[start:]
+	if _, _, err = parseGoSource(patched); err != nil {
+		return originalContent
+	}
+	return patched
+}
+
+// generatedGoReceiverMethodBlocks 解析待写入的生成方法片段。
+func generatedGoReceiverMethodBlocks(methodContent string, receiverName string) []CodeGenSourceMethodBlock {
+	prefix := "package generated\n\n"
+	content := prefix + methodContent
+	file, fileSet, err := parseGoSource(content)
+	if err != nil {
+		return nil
+	}
+	blocks := make([]CodeGenSourceMethodBlock, 0)
+	for _, declaration := range file.Decls {
+		function, ok := declaration.(*ast.FuncDecl)
+		if !ok || function.Recv == nil || len(function.Recv.List) == 0 || goReceiverName(function.Recv.List[0].Type) != receiverName {
+			continue
+		}
+		start := fileSet.Position(function.Pos()).Offset
+		if function.Doc != nil {
+			start = fileSet.Position(function.Doc.Pos()).Offset
+		}
+		end := fileSet.Position(function.End()).Offset
+		if start < len(prefix) || end > len(content) || start >= end {
+			return nil
+		}
+		blocks = append(blocks, CodeGenSourceMethodBlock{
+			Name:          function.Name.Name,
+			Content:       strings.TrimSpace(content[start:end]),
+			OriginalIndex: len(blocks),
+		})
+	}
+	return blocks
 }
 
 // removeGoReceiverMethods 从 Go 源码中删除指定接收者方法。
@@ -1062,16 +1158,6 @@ func goSelectorType(expression ast.Expr) *ast.SelectorExpr {
 	return selector
 }
 
-// appendGeneratedGoMethods 补齐方法依赖的导入，且只在补丁保持 Go 语法有效时返回新内容。
-func appendGeneratedGoMethods(content string, methodContent string) string {
-	patched := ensureGeneratedGoImports(content, methodContent)
-	patched = strings.TrimRight(patched, "\n") + "\n\n" + strings.TrimSpace(methodContent) + "\n"
-	if _, _, err := parseGoSource(patched); err != nil {
-		return content
-	}
-	return patched
-}
-
 // parseGoSource 解析 Go 源文件并返回位置映射。
 func parseGoSource(content string) (*ast.File, *token.FileSet, error) {
 	fileSet := token.NewFileSet()
@@ -1163,15 +1249,89 @@ func extractTSClassMethod(content string, methodName string) string {
 	return ""
 }
 
-// tsClassMethodExists 判断指定 TypeScript 类中是否已经实现目标方法。
-func tsClassMethodExists(content string, className string, methodName string) bool {
-	classIndex := strings.Index(content, "class "+className)
-	classEnd := findTSClassEndIndex(content, className)
-	if classIndex < 0 || classEnd < 0 {
-		return false
+// mergeGeneratedTSClassMethods 按候选顺序替换生成方法，并将已有扩展方法原样保留在后面。
+func mergeGeneratedTSClassMethods(content string, candidate string, className string) string {
+	generatedBlocks, _, _, ok := tsClassMethodBlocks(candidate, className)
+	if !ok || len(generatedBlocks) == 0 {
+		return content
 	}
-	pattern := regexp.MustCompile(`(?m)^\s*` + regexp.QuoteMeta(methodName) + `\s*\(`)
-	return pattern.MatchString(content[classIndex:classEnd])
+	existingBlocks, firstStart, lastEnd, ok := tsClassMethodBlocks(content, className)
+	if !ok {
+		return content
+	}
+	generatedNames := make(map[string]struct{}, len(generatedBlocks))
+	for _, block := range generatedBlocks {
+		generatedNames[strings.ToLower(block.Name)] = struct{}{}
+	}
+	blocks := make([]CodeGenSourceMethodBlock, 0, len(generatedBlocks)+len(existingBlocks))
+	blocks = append(blocks, generatedBlocks...)
+	for _, block := range existingBlocks {
+		if _, generated := generatedNames[strings.ToLower(block.Name)]; generated {
+			continue
+		}
+		blocks = append(blocks, block)
+	}
+	methodContents := make([]string, 0, len(blocks))
+	for _, block := range blocks {
+		methodContents = append(methodContents, strings.Trim(block.Content, "\r\n"))
+	}
+	joinedMethods := strings.Join(methodContents, "\n\n")
+	if len(existingBlocks) == 0 {
+		classEnd := findTSClassEndIndex(content, className)
+		if classEnd < 0 {
+			return content
+		}
+		return content[:classEnd] + "\n" + joinedMethods + "\n" + content[classEnd:]
+	}
+	return content[:firstStart] + joinedMethods + content[lastEnd:]
+}
+
+// tsClassMethodBlocks 返回类中连续的方法块及其源码位置。
+func tsClassMethodBlocks(content string, className string) ([]CodeGenSourceMethodBlock, int, int, bool) {
+	classStart := strings.Index(content, "class "+className)
+	classEnd := findTSClassEndIndex(content, className)
+	if classStart < 0 || classEnd < 0 {
+		return nil, -1, -1, false
+	}
+	classContent := content[classStart : classEnd+1]
+	matches := tsClassMethodPattern.FindAllStringSubmatch(classContent, -1)
+	blocks := make([]CodeGenSourceMethodBlock, 0, len(matches))
+	searchOffset := 0
+	seen := make(map[string]struct{}, len(matches))
+	for _, match := range matches {
+		methodName := match[1]
+		if _, exists := seen[methodName]; exists {
+			continue
+		}
+		seen[methodName] = struct{}{}
+		methodContent := extractTSClassMethod(classContent, methodName)
+		if methodContent == "" {
+			return nil, -1, -1, false
+		}
+		startOffset := strings.Index(classContent[searchOffset:], methodContent)
+		if startOffset < 0 {
+			return nil, -1, -1, false
+		}
+		startOffset += searchOffset
+		endOffset := startOffset + len(methodContent)
+		blocks = append(blocks, CodeGenSourceMethodBlock{
+			Name:          methodName,
+			Content:       methodContent,
+			Start:         classStart + startOffset,
+			End:           classStart + endOffset,
+			OriginalIndex: len(blocks),
+		})
+		searchOffset = endOffset
+	}
+	for index := 1; index < len(blocks); index++ {
+		if strings.TrimSpace(content[blocks[index-1].End:blocks[index].Start]) != "" {
+			return nil, -1, -1, false
+		}
+	}
+	if len(blocks) == 0 {
+		return blocks, classEnd, classEnd, true
+	}
+	return blocks, blocks[0].Start, blocks[len(blocks)-1].End, true
 }
 
 // findTSClassEndIndex 查找 TypeScript 服务类的结束大括号。
