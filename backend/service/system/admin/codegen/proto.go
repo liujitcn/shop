@@ -69,6 +69,7 @@ func (c *renderer) renderTargetProtoFile(table *Table, columns []*CodeGenColumn,
 	builder.WriteString("syntax = \"proto3\";\n\n")
 	builder.WriteString("package " + protoTarget.PackageName + ";\n\n")
 	builder.WriteString("import \"common/v1/common.proto\";\n")
+	builder.WriteString("import \"buf/validate/validate.proto\";\n")
 	builder.WriteString("import \"gnostic/openapi/v3/annotations.proto\";\n")
 	builder.WriteString("import \"google/api/annotations.proto\";\n")
 	builder.WriteString("import \"google/protobuf/empty.proto\";\n\n")
@@ -248,7 +249,7 @@ func (c *renderer) renderProtoMessage(table *Table, columns []*CodeGenColumn, fo
 		if form && isFormTreeMultiple(column) {
 			builder.WriteString(c.renderFormTreeMultipleProtoField(column, fieldNo))
 		} else {
-			builder.WriteString(c.renderProtoField(column, fieldNo, form && column.IsPrimary != 1))
+			builder.WriteString(c.renderProtoField(column, fieldNo, form && column.IsPrimary != 1 && column.IsRequired != 1, form))
 		}
 		fieldNo++
 	}

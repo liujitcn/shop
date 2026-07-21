@@ -98,21 +98,17 @@ export interface ShopBannerForm {
   /** 主键id */
   id: number;
   /** 位置：枚举【ShopBannerSite】 */
-  site?:
-    | ShopBannerSite
-    | undefined;
+  site: ShopBannerSite;
   /** 图片链接 */
   picture: string;
   /** 跳转类型：枚举【ShopBannerType】 */
-  type?:
-    | ShopBannerType
-    | undefined;
+  type: ShopBannerType;
   /** 跳转地址 */
   href: string;
   /** 排序 */
   sort: number;
   /** 状态：枚举【Status】 */
-  status?: Status | undefined;
+  status: Status;
 }
 
 /** Admin商城轮播图服务 */

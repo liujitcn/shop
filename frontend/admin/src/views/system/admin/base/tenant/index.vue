@@ -71,9 +71,17 @@ const formData = reactive<BaseTenantForm>({
 
 /** 租户表单校验规则。 */
 const rules = reactive({
-  name: [{ required: true, message: "请输入租户名称", trigger: "blur" }],
-  contact_phone: [{ pattern: /^1[3-9]\d{9}$/, message: "请输入正确的联系电话", trigger: "blur" }],
-  status: [{ required: true, message: "请选择状态", trigger: "change" }]
+  name: [
+    { required: true, message: "请输入租户名称", trigger: "blur" },
+    { max: 100, message: "租户名称不能超过 100 个字符", trigger: "blur" }
+  ],
+  contact_name: [{ max: 50, message: "联系人不能超过 50 个字符", trigger: "blur" }],
+  contact_phone: [
+    { max: 20, message: "联系电话不能超过 20 个字符", trigger: "blur" },
+    { pattern: /^1[3-9]\d{9}$/, message: "请输入正确的联系电话", trigger: "blur" }
+  ],
+  status: [{ required: true, message: "请选择状态", trigger: "change" }],
+  remark: [{ max: 500, message: "备注不能超过 500 个字符", trigger: "blur" }]
 });
 
 const statusOptions: ProFormOption[] = [

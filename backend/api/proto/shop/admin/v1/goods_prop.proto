@@ -3,6 +3,7 @@ syntax = "proto3";
 package shop.admin.v1;
 
 import "gnostic/openapi/v3/annotations.proto";
+import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 
@@ -77,14 +78,14 @@ message GetGoodsPropRequest {
 
 // 商品属性创建条件
 message CreateGoodsPropRequest {
-  GoodsProp goods_prop = 1 [(gnostic.openapi.v3.property) = {description: "商品属性"}]; // 商品属性
+  GoodsProp goods_prop = 1 [(gnostic.openapi.v3.property) = {description: "商品属性"}, (buf.validate.field).required = true]; // 商品属性
 }
 
 // 商品属性更新条件
 message UpdateGoodsPropRequest {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "商品属性ID"}]; // 商品属性ID
 
-  GoodsProp goods_prop = 2 [(gnostic.openapi.v3.property) = {description: "商品属性"}]; // 商品属性
+  GoodsProp goods_prop = 2 [(gnostic.openapi.v3.property) = {description: "商品属性"}, (buf.validate.field).required = true]; // 商品属性
 }
 
 // 商品属性删除条件
@@ -96,11 +97,11 @@ message DeleteGoodsPropRequest {
 message GoodsProp {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "商品属性ID"}]; // 商品属性ID
 
-  int64 goods_id = 2 [(gnostic.openapi.v3.property) = {description: "商品id"}]; // 商品id
+  int64 goods_id = 2 [(gnostic.openapi.v3.property) = {description: "商品id"}, (buf.validate.field).cel = {id: "goods_prop.goods_id.required" message: "商品不能为空" expression: "this > 0"}]; // 商品id
 
-  string label = 3 [(gnostic.openapi.v3.property) = {description: "商品属性名称"}]; // 商品属性名称
+  string label = 3 [(gnostic.openapi.v3.property) = {description: "商品属性名称"}, (buf.validate.field).cel = {id: "goods_prop.label.length" message: "商品属性名称不能为空且不超过 255 个字符" expression: "this.size() > 0 && this.size() <= 255"}]; // 商品属性名称
 
-  string value = 4 [(gnostic.openapi.v3.property) = {description: "商品属性value"}]; // 商品属性value
+  string value = 4 [(gnostic.openapi.v3.property) = {description: "商品属性value"}, (buf.validate.field).cel = {id: "goods_prop.value.length" message: "商品属性值不能为空且不超过 500 个字符" expression: "this.size() > 0 && this.size() <= 500"}]; // 商品属性value
 
-  int32 sort = 5 [(gnostic.openapi.v3.property) = {description: "排序"}]; // 排序
+  int32 sort = 5 [(gnostic.openapi.v3.property) = {description: "排序"}, (buf.validate.field).cel = {id: "goods_prop.sort.required" message: "排序必须大于 0" expression: "this > 0"}]; // 排序
 }

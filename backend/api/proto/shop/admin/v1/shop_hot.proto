@@ -3,6 +3,7 @@ syntax = "proto3";
 package shop.admin.v1;
 
 import "common/v1/enum.proto";
+import "buf/validate/validate.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
@@ -136,14 +137,14 @@ message GetShopHotRequest {
 
 // 热门专区创建条件
 message CreateShopHotRequest {
-  ShopHotForm shop_hot = 1 [(gnostic.openapi.v3.property) = {description: "热门专区表单"}]; // 热门专区表单
+  ShopHotForm shop_hot = 1 [(gnostic.openapi.v3.property) = {description: "热门专区表单"}, (buf.validate.field).required = true]; // 热门专区表单
 }
 
 // 热门专区更新条件
 message UpdateShopHotRequest {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "商城热门推荐ID"}]; // 商城热门推荐ID
 
-  ShopHotForm shop_hot = 2 [(gnostic.openapi.v3.property) = {description: "热门专区表单"}]; // 热门专区表单
+  ShopHotForm shop_hot = 2 [(gnostic.openapi.v3.property) = {description: "热门专区表单"}, (buf.validate.field).required = true]; // 热门专区表单
 }
 
 // 热门专区删除条件
@@ -234,17 +235,17 @@ message ShopHot {
 message ShopHotForm {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "商城热门推荐ID"}]; // 商城热门推荐ID
 
-  string title = 2 [(gnostic.openapi.v3.property) = {description: "商城热门推荐标题"}]; // 商城热门推荐标题
+  string title = 2 [(gnostic.openapi.v3.property) = {description: "商城热门推荐标题"}, (buf.validate.field).cel = {id: "shop_hot.title.length" message: "热门推荐标题不能为空且不超过 100 个字符" expression: "this.size() > 0 && this.size() <= 100"}]; // 商城热门推荐标题
 
-  string desc = 3 [(gnostic.openapi.v3.property) = {description: "商城热门推荐描述"}]; // 商城热门推荐名称
+  string desc = 3 [(gnostic.openapi.v3.property) = {description: "商城热门推荐描述"}, (buf.validate.field).cel = {id: "shop_hot.desc.length" message: "热门推荐描述不能为空且不超过 100 个字符" expression: "this.size() > 0 && this.size() <= 100"}]; // 商城热门推荐名称
 
-  string banner = 4 [(gnostic.openapi.v3.property) = {description: "轮播图"}]; // 轮播图
+  string banner = 4 [(gnostic.openapi.v3.property) = {description: "轮播图"}, (buf.validate.field).cel = {id: "shop_hot.banner.max_len" message: "轮播图不能超过 1024 个字符" expression: "this.size() <= 1024"}]; // 轮播图
 
-  repeated string picture = 5 [(gnostic.openapi.v3.property) = {description: "图片"}]; // 图片
+  repeated string picture = 5 [(gnostic.openapi.v3.property) = {description: "图片"}, (buf.validate.field).cel = {id: "shop_hot.picture.required" message: "推荐图片不能为空" expression: "this.size() > 0"}]; // 图片
 
-  int32 sort = 6 [(gnostic.openapi.v3.property) = {description: "排序"}]; // 排序
+  int32 sort = 6 [(gnostic.openapi.v3.property) = {description: "排序"}, (buf.validate.field).cel = {id: "shop_hot.sort.required" message: "排序必须大于 0" expression: "this > 0"}]; // 排序
 
-  optional .common.v1.Status status = 51 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
+  .common.v1.Status status = 51 [(gnostic.openapi.v3.property) = {description: "状态"}, (buf.validate.field).enum = {defined_only: true}]; // 状态
 }
 
 // 热门专区项
@@ -270,9 +271,9 @@ message ShopHotItemForm {
 
   int64 hot_id = 2 [(gnostic.openapi.v3.property) = {description: "商城热门推荐ID"}]; // 商城热门推荐ID
 
-  string title = 3 [(gnostic.openapi.v3.property) = {description: "标题"}]; // 标题
+  string title = 3 [(gnostic.openapi.v3.property) = {description: "标题"}, (buf.validate.field).cel = {id: "shop_hot_item.title.length" message: "标题不能为空且不超过 64 个字符" expression: "this.size() > 0 && this.size() <= 64"}]; // 标题
 
-  int32 sort = 4 [(gnostic.openapi.v3.property) = {description: "排序"}]; // 排序
+  int32 sort = 4 [(gnostic.openapi.v3.property) = {description: "排序"}, (buf.validate.field).cel = {id: "shop_hot_item.sort.required" message: "排序必须大于 0" expression: "this > 0"}]; // 排序
 
   repeated int64 goods_ids = 5 [(gnostic.openapi.v3.property) = {description: "商品Id"}]; // 商品
 

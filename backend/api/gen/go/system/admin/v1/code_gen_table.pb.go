@@ -11,6 +11,7 @@ import (
 	sync "sync"
 	unsafe "unsafe"
 
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -1072,7 +1073,7 @@ var File_system_admin_v1_code_gen_table_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_code_gen_table_proto_rawDesc = "" +
 	"\n" +
-	"$system/admin/v1/code_gen_table.proto\x12\x0fsystem.admin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"!\n" +
+	"$system/admin/v1/code_gen_table.proto\x12\x0fsystem.admin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"!\n" +
 	"\x1fListCodeGenDatabaseTableRequest\"{\n" +
 	" ListCodeGenDatabaseTableResponse\x12W\n" +
 	"\x06tables\x18\x01 \x03(\v2%.system.admin.v1.CodeGenDatabaseTableB\x18\xbaG\x15\x92\x02\x12数据库表列表R\x06tables\"\"\n" +
@@ -1136,30 +1137,46 @@ const file_system_admin_v1_code_gen_table_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\v \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x121\n" +
 	"\n" +
-	"updated_at\x18\f \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\"\xb7\b\n" +
+	"updated_at\x18\f \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\"\xac\x13\n" +
 	"\x10CodeGenTableForm\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键IDR\x02id\x12&\n" +
-	"\x04name\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f业务表名R\x04name\x12/\n" +
-	"\acomment\x18\x03 \x01(\tB\x15\xbaG\x12\x92\x02\x0f业务表描述R\acomment\x124\n" +
-	"\rbusiness_name\x18\x04 \x01(\tB\x0f\xbaG\f\x92\x02\t业务名R\fbusinessName\x120\n" +
-	"\ventity_name\x18\x05 \x01(\tB\x0f\xbaG\f\x92\x02\t实体名R\n" +
-	"entityName\x123\n" +
-	"\vmodule_path\x18\x06 \x01(\tB\x12\xbaG\x0f\x92\x02\f模块路径R\n" +
-	"modulePath\x12,\n" +
-	"\bapi_path\x18\a \x01(\tB\x11\xbaG\x0e\x92\x02\vProto目录R\aapiPath\x12E\n" +
-	"\x11permission_prefix\x18\b \x01(\tB\x18\xbaG\x15\x92\x02\x12权限标识前缀R\x10permissionPrefix\x12:\n" +
-	"\x0eparent_menu_id\x18\t \x01(\x03B\x14\xbaG\x11\x92\x02\x0e父级菜单IDR\fparentMenuId\x12k\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键IDR\x02id\x12\xc0\x01\n" +
+	"\x04name\x18\x02 \x01(\tB\xab\x01\xbaG\x0f\x92\x02\f业务表名\xbaH\x95\x01\xba\x01@\n" +
+	"\x13field.name.required\x12\x18业务表名不能为空\x1a\x0fthis.size() > 0\xba\x01O\n" +
+	"\x11field.name.length\x12&业务表名不能超过 128 个字符\x1a\x12this.size() <= 128R\x04name\x12\x8a\x01\n" +
+	"\acomment\x18\x03 \x01(\tBp\xbaG\x12\x92\x02\x0f业务表描述\xbaHX\xba\x01U\n" +
+	"\x14field.comment.length\x12)业务表描述不能超过 128 个字符\x1a\x12this.size() <= 128R\acomment\x12\xd8\x01\n" +
+	"\rbusiness_name\x18\x04 \x01(\tB\xb2\x01\xbaG\f\x92\x02\t业务名\xbaH\x9f\x01\xba\x01F\n" +
+	"\x1cfield.business_name.required\x12\x15业务名不能为空\x1a\x0fthis.size() > 0\xba\x01S\n" +
+	"\x1afield.business_name.length\x12\"业务名不能超过 64 个字符\x1a\x11this.size() <= 64R\fbusinessName\x12\xd0\x01\n" +
+	"\ventity_name\x18\x05 \x01(\tB\xae\x01\xbaG\f\x92\x02\t实体名\xbaH\x9b\x01\xba\x01D\n" +
+	"\x1afield.entity_name.required\x12\x15实体名不能为空\x1a\x0fthis.size() > 0\xba\x01Q\n" +
+	"\x18field.entity_name.length\x12\"实体名不能超过 64 个字符\x1a\x11this.size() <= 64R\n" +
+	"entityName\x12\xdb\x01\n" +
+	"\vmodule_path\x18\x06 \x01(\tB\xb9\x01\xbaG\x0f\x92\x02\f模块路径\xbaH\xa3\x01\xba\x01G\n" +
+	"\x1afield.module_path.required\x12\x18模块路径不能为空\x1a\x0fthis.size() > 0\xba\x01V\n" +
+	"\x18field.module_path.length\x12&模块路径不能超过 128 个字符\x1a\x12this.size() <= 128R\n" +
+	"modulePath\x12\x84\x01\n" +
+	"\bapi_path\x18\a \x01(\tBi\xbaG\x0e\x92\x02\vProto目录\xbaHU\xba\x01R\n" +
+	"\x15field.api_path.length\x12%Proto目录不能超过 512 个字符\x1a\x12this.size() <= 512R\aapiPath\x12\xae\x01\n" +
+	"\x11permission_prefix\x18\b \x01(\tB\x80\x01\xbaG\x15\x92\x02\x12权限标识前缀\xbaHe\xba\x01b\n" +
+	"\x1efield.permission_prefix.length\x12,权限标识前缀不能超过 128 个字符\x1a\x12this.size() <= 128R\x10permissionPrefix\x12:\n" +
+	"\x0eparent_menu_id\x18\t \x01(\x03B\x14\xbaG\x11\x92\x02\x0e父级菜单IDR\fparentMenuId\x12\x8d\x02\n" +
 	"\tpage_type\x18\n" +
-	" \x01(\tBN\xbaGK\x92\x02H页面类型：normal普通表格 tree树形表格 left_tree左树右表R\bpageType\x12F\n" +
-	"\rparent_column\x18\v \x01(\tB!\xbaG\x1e\x92\x02\x1b树形表格父节点字段R\fparentColumn\x12G\n" +
-	"\x11tree_label_column\x18\f \x01(\tB\x1b\xbaG\x18\x92\x02\x15树节点显示字段R\x0ftreeLabelColumn\x12d\n" +
+	" \x01(\tB\xef\x01\xbaGK\x92\x02H页面类型：normal普通表格 tree树形表格 left_tree左树右表\xbaH\x9d\x01\xba\x01E\n" +
+	"\x18field.page_type.required\x12\x18页面类型不能为空\x1a\x0fthis.size() > 0\xba\x01R\n" +
+	"\x16field.page_type.length\x12%页面类型不能超过 32 个字符\x1a\x11this.size() <= 32R\bpageType\x12\xb2\x01\n" +
+	"\rparent_column\x18\v \x01(\tB\x8c\x01\xbaG\x1e\x92\x02\x1b树形表格父节点字段\xbaHh\xba\x01e\n" +
+	"\x1afield.parent_column.length\x124树形表格父节点字段不能超过 64 个字符\x1a\x11this.size() <= 64R\fparentColumn\x12\xb1\x01\n" +
+	"\x11tree_label_column\x18\f \x01(\tB\x84\x01\xbaG\x18\x92\x02\x15树节点显示字段\xbaHf\xba\x01c\n" +
+	"\x1efield.tree_label_column.length\x12.树节点显示字段不能超过 64 个字符\x1a\x11this.size() <= 64R\x0ftreeLabelColumn\x12d\n" +
 	"\x10left_tree_config\x18\r \x01(\v2&.system.admin.v1.CodeGenLeftTreeConfigB\x12\xbaG\x0f\x92\x02\f左树配置R\x0eleftTreeConfig\x129\n" +
 	"\vgen_backend\x18\x0e \x01(\bB\x18\xbaG\x15\x92\x02\x12是否生成后端R\n" +
 	"genBackend\x12;\n" +
 	"\fgen_frontend\x18\x0f \x01(\bB\x18\xbaG\x15\x92\x02\x12是否生成前端R\vgenFrontend\x124\n" +
 	"\agen_sql\x18\x10 \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否生成建表SQLR\x06genSql\x12$\n" +
-	"\x06status\x18\x11 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\x12$\n" +
-	"\x06remark\x18\x12 \x01(\tB\f\xbaG\t\x92\x02\x06备注R\x06remark\"\xff\x02\n" +
+	"\x06status\x18\x11 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\x12u\n" +
+	"\x06remark\x18\x12 \x01(\tB]\xbaG\t\x92\x02\x06备注\xbaHN\xba\x01K\n" +
+	"\x13field.remark.length\x12 备注不能超过 500 个字符\x1a\x12this.size() <= 500R\x06remark\"\xff\x02\n" +
 	"\x15CodeGenLeftTreeConfig\x127\n" +
 	"\n" +
 	"table_name\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12左树数据表名R\ttableName\x12F\n" +

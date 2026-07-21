@@ -72,11 +72,13 @@ const onSwitchChange: UniHelper.SwitchOnChange = (ev) => {
 // 定义校验规则
 const rules: UniHelper.UniFormsRules = {
   receiver: {
-    rules: [{ required: true, errorMessage: '请输入收货人姓名' }],
+    rules: [
+      { required: true, maxLength: 100, errorMessage: '请输入收货人姓名（不超过100个字符）' },
+    ],
   },
   contact: {
     rules: [
-      { required: true, errorMessage: '请输入联系方式' },
+      { required: true, maxLength: 100, errorMessage: '请输入联系方式（不超过100个字符）' },
       { pattern: /^1[3-9]\d{9}$/, errorMessage: '手机号格式不正确' },
     ],
   },
@@ -84,7 +86,7 @@ const rules: UniHelper.UniFormsRules = {
     rules: [{ required: true, errorMessage: '请选择所在地区' }],
   },
   detail: {
-    rules: [{ required: true, errorMessage: '请选择详细地址' }],
+    rules: [{ required: true, maxLength: 255, errorMessage: '请选择详细地址（不超过255个字符）' }],
   },
 }
 

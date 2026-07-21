@@ -14,29 +14,29 @@ const TableNameCodeGenTable = "code_gen_table"
 
 // CodeGenTable 代码生成对象表
 type CodeGenTable struct {
-	ID               int64          `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:主键ID" json:"id"`                                  // 主键ID
-	Name             string         `gorm:"column:name;type:varchar(128);uniqueIndex:idx_code_gen_table_table_name,priority:1;comment:业务表名" json:"name"` // 业务表名
-	Comment          string         `gorm:"column:comment;type:varchar(128);comment:业务表描述" json:"comment"`                                               // 业务表描述
-	BusinessName     string         `gorm:"column:business_name;type:varchar(64);comment:业务名" json:"business_name"`                                      // 业务名
-	EntityName       string         `gorm:"column:entity_name;type:varchar(64);comment:实体名" json:"entity_name"`                                          // 实体名
-	ModulePath       string         `gorm:"column:module_path;type:varchar(128);comment:模块路径" json:"module_path"`                                        // 模块路径
-	APIPath          string         `gorm:"column:api_path;type:varchar(255);comment:Proto目录" json:"api_path"`                                           // Proto目录
-	PermissionPrefix string         `gorm:"column:permission_prefix;type:varchar(128);comment:权限标识前缀" json:"permission_prefix"`                          // 权限标识前缀
-	ParentMenuID     int64          `gorm:"column:parent_menu_id;type:bigint;comment:父级菜单ID" json:"parent_menu_id"`                                      // 父级菜单ID
-	PageType         string         `gorm:"column:page_type;type:varchar(32);comment:页面类型：normal普通表格 tree树形表格 left_tree左树右表" json:"page_type"`           // 页面类型：normal普通表格 tree树形表格 left_tree左树右表
-	ParentColumn     string         `gorm:"column:parent_column;type:varchar(64);comment:树形表格父节点字段" json:"parent_column"`                                // 树形表格父节点字段
-	TreeLabelColumn  string         `gorm:"column:tree_label_column;type:varchar(64);comment:树节点显示字段" json:"tree_label_column"`                          // 树节点显示字段
-	LeftTreeConfig   string         `gorm:"column:left_tree_config;type:json;comment:左树配置JSON" json:"left_tree_config"`                                  // 左树配置JSON
-	GenBackend       int32          `gorm:"column:gen_backend;type:tinyint;comment:是否生成后端" json:"gen_backend"`                                           // 是否生成后端
-	GenFrontend      int32          `gorm:"column:gen_frontend;type:tinyint;comment:是否生成前端" json:"gen_frontend"`                                         // 是否生成前端
-	GenSql           int32          `gorm:"column:gen_sql;type:tinyint;comment:是否生成建表SQL" json:"gen_sql"`                                                // 是否生成建表SQL
-	Status           int32          `gorm:"column:status;type:tinyint;comment:状态：0草稿 1已生成 2停用" json:"status"`                                            // 状态：0草稿 1已生成 2停用
-	Remark           string         `gorm:"column:remark;type:varchar(500);comment:备注" json:"remark"`                                                    // 备注
-	CreatedBy        int64          `gorm:"column:created_by;type:bigint;comment:创建人ID" json:"created_by"`                                               // 创建人ID
-	UpdatedBy        int64          `gorm:"column:updated_by;type:bigint;comment:更新人ID" json:"updated_by"`                                               // 更新人ID
-	CreatedAt        time.Time      `gorm:"column:created_at;type:datetime;comment:创建时间" json:"created_at"`                                              // 创建时间
-	UpdatedAt        time.Time      `gorm:"column:updated_at;type:datetime;comment:更新时间" json:"updated_at"`                                              // 更新时间
-	DeletedAt        gorm.DeletedAt `gorm:"column:deleted_at;type:datetime;comment:删除时间" json:"deleted_at"`                                              // 删除时间
+	ID               int64          `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:主键ID" json:"id"`                                           // 主键ID
+	Name             string         `gorm:"column:name;type:varchar(128);not null;uniqueIndex:idx_code_gen_table_table_name,priority:1;comment:业务表名" json:"name"` // 业务表名
+	Comment          string         `gorm:"column:comment;type:varchar(128);comment:业务表描述" json:"comment"`                                                        // 业务表描述
+	BusinessName     string         `gorm:"column:business_name;type:varchar(64);not null;comment:业务名" json:"business_name"`                                      // 业务名
+	EntityName       string         `gorm:"column:entity_name;type:varchar(64);not null;comment:实体名" json:"entity_name"`                                          // 实体名
+	ModulePath       string         `gorm:"column:module_path;type:varchar(128);not null;comment:模块路径" json:"module_path"`                                        // 模块路径
+	APIPath          string         `gorm:"column:api_path;type:varchar(512);not null;comment:Proto目录" json:"api_path"`                                           // Proto目录
+	PermissionPrefix string         `gorm:"column:permission_prefix;type:varchar(128);not null;comment:权限标识前缀" json:"permission_prefix"`                          // 权限标识前缀
+	ParentMenuID     int64          `gorm:"column:parent_menu_id;type:bigint;not null;comment:父级菜单ID" json:"parent_menu_id"`                                      // 父级菜单ID
+	PageType         string         `gorm:"column:page_type;type:varchar(32);not null;comment:页面类型：normal普通表格 tree树形表格 left_tree左树右表" json:"page_type"`           // 页面类型：normal普通表格 tree树形表格 left_tree左树右表
+	ParentColumn     string         `gorm:"column:parent_column;type:varchar(64);comment:树形表格父节点字段" json:"parent_column"`                                         // 树形表格父节点字段
+	TreeLabelColumn  string         `gorm:"column:tree_label_column;type:varchar(64);comment:树节点显示字段" json:"tree_label_column"`                                   // 树节点显示字段
+	LeftTreeConfig   string         `gorm:"column:left_tree_config;type:json;comment:左树配置JSON" json:"left_tree_config"`                                           // 左树配置JSON
+	GenBackend       int32          `gorm:"column:gen_backend;type:tinyint;not null;comment:是否生成后端" json:"gen_backend"`                                           // 是否生成后端
+	GenFrontend      int32          `gorm:"column:gen_frontend;type:tinyint;not null;comment:是否生成前端" json:"gen_frontend"`                                         // 是否生成前端
+	GenSql           int32          `gorm:"column:gen_sql;type:tinyint;not null;comment:是否生成建表SQL" json:"gen_sql"`                                                // 是否生成建表SQL
+	Status           int32          `gorm:"column:status;type:tinyint;not null;comment:状态：0草稿 1已生成 2停用" json:"status"`                                            // 状态：0草稿 1已生成 2停用
+	Remark           string         `gorm:"column:remark;type:varchar(500);comment:备注" json:"remark"`                                                             // 备注
+	CreatedBy        int64          `gorm:"column:created_by;type:bigint;not null;comment:创建人ID" json:"created_by"`                                               // 创建人ID
+	UpdatedBy        int64          `gorm:"column:updated_by;type:bigint;not null;comment:更新人ID" json:"updated_by"`                                               // 更新人ID
+	CreatedAt        time.Time      `gorm:"column:created_at;type:datetime;not null;comment:创建时间" json:"created_at"`                                              // 创建时间
+	UpdatedAt        time.Time      `gorm:"column:updated_at;type:datetime;not null;comment:更新时间" json:"updated_at"`                                              // 更新时间
+	DeletedAt        gorm.DeletedAt `gorm:"column:deleted_at;type:datetime;comment:删除时间" json:"deleted_at"`                                                       // 删除时间
 }
 
 // TableName CodeGenTable's table name

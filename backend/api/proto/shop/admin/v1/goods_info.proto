@@ -6,6 +6,7 @@ import "shop/admin/v1/goods_prop.proto";
 import "shop/admin/v1/goods_sku.proto";
 import "shop/admin/v1/goods_spec.proto";
 import "shop/common/v1/enum.proto";
+import "buf/validate/validate.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
@@ -127,14 +128,14 @@ message GetGoodsInfoRequest {
 
 // 商品创建条件
 message CreateGoodsInfoRequest {
-  GoodsInfoForm goods_info = 1 [(gnostic.openapi.v3.property) = {description: "商品表单"}]; // 商品表单
+  GoodsInfoForm goods_info = 1 [(gnostic.openapi.v3.property) = {description: "商品表单"}, (buf.validate.field).required = true]; // 商品表单
 }
 
 // 商品更新条件
 message UpdateGoodsInfoRequest {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "商品ID"}]; // 商品ID
 
-  GoodsInfoForm goods_info = 2 [(gnostic.openapi.v3.property) = {description: "商品表单"}]; // 商品表单
+  GoodsInfoForm goods_info = 2 [(gnostic.openapi.v3.property) = {description: "商品表单"}, (buf.validate.field).required = true]; // 商品表单
 }
 
 // 商品删除条件
@@ -190,21 +191,21 @@ message GoodsInfoForm {
 
   int64 tenant_id = 2 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
 
-  int64 tenant_store_id = 3 [(gnostic.openapi.v3.property) = {description: "租户门店ID"}]; // 租户门店ID
+  int64 tenant_store_id = 3 [(gnostic.openapi.v3.property) = {description: "租户门店ID"}, (buf.validate.field).cel = {id: "goods_info.tenant_store_id.required" message: "所属门店不能为空" expression: "this > 0"}]; // 租户门店ID
 
-  repeated int64 category_id = 4 [(gnostic.openapi.v3.property) = {description: "分类ID列表"}]; // 分类ID列表
+  repeated int64 category_id = 4 [(gnostic.openapi.v3.property) = {description: "分类ID列表"}, (buf.validate.field).cel = {id: "goods_info.category_id.required" message: "商品分类不能为空" expression: "this.size() > 0"}]; // 分类ID列表
 
-  string name = 5 [(gnostic.openapi.v3.property) = {description: "名称"}]; // 名称
+  string name = 5 [(gnostic.openapi.v3.property) = {description: "名称"}, (buf.validate.field).cel = {id: "goods_info.name.length" message: "商品名称不能为空且不超过 255 个字符" expression: "this.size() > 0 && this.size() <= 255"}]; // 名称
 
-  string desc = 6 [(gnostic.openapi.v3.property) = {description: "描述"}]; // 描述
+  string desc = 6 [(gnostic.openapi.v3.property) = {description: "描述"}, (buf.validate.field).cel = {id: "goods_info.desc.length" message: "商品描述不能为空且不超过 255 个字符" expression: "this.size() > 0 && this.size() <= 255"}]; // 描述
 
-  string picture = 7 [(gnostic.openapi.v3.property) = {description: "商品图片"}]; // 商品图片
+  string picture = 7 [(gnostic.openapi.v3.property) = {description: "商品图片"}, (buf.validate.field).cel = {id: "goods_info.picture.length" message: "商品图片不能为空且不超过 1024 个字符" expression: "this.size() > 0 && this.size() <= 1024"}]; // 商品图片
 
-  repeated string banner = 8 [(gnostic.openapi.v3.property) = {description: "轮播图"}]; // 轮播图
+  repeated string banner = 8 [(gnostic.openapi.v3.property) = {description: "轮播图"}, (buf.validate.field).cel = {id: "goods_info.banner.required" message: "商品轮播图不能为空" expression: "this.size() > 0"}]; // 轮播图
 
-  repeated string detail = 9 [(gnostic.openapi.v3.property) = {description: "商品详情"}]; // 商品详情
+  repeated string detail = 9 [(gnostic.openapi.v3.property) = {description: "商品详情"}, (buf.validate.field).cel = {id: "goods_info.detail.required" message: "商品详情不能为空" expression: "this.size() > 0"}]; // 商品详情
 
-  optional .shop.common.v1.GoodsStatus status = 100 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
+  .shop.common.v1.GoodsStatus status = 100 [(gnostic.openapi.v3.property) = {description: "状态"}, (buf.validate.field).enum = {defined_only: true}]; // 状态
 
   repeated GoodsProp prop_list = 200 [(gnostic.openapi.v3.property) = {description: "商品属性"}]; // 商品属性
 

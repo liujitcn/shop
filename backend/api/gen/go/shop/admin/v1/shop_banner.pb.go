@@ -13,6 +13,7 @@ import (
 	sync "sync"
 	unsafe "unsafe"
 
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -510,13 +511,13 @@ func (x *ShopBanner) GetUpdatedAt() string {
 // 轮播图表单
 type ShopBannerForm struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                              // 主键id
-	Site          *v1.ShopBannerSite     `protobuf:"varint,2,opt,name=site,proto3,enum=shop.common.v1.ShopBannerSite,oneof" json:"site,omitempty"` // 位置：枚举【ShopBannerSite】
-	Picture       string                 `protobuf:"bytes,3,opt,name=picture,proto3" json:"picture,omitempty"`                                     // 图片链接
-	Type          *v1.ShopBannerType     `protobuf:"varint,4,opt,name=type,proto3,enum=shop.common.v1.ShopBannerType,oneof" json:"type,omitempty"` // 跳转类型：枚举【ShopBannerType】
-	Href          string                 `protobuf:"bytes,5,opt,name=href,proto3" json:"href,omitempty"`                                           // 跳转地址
-	Sort          int32                  `protobuf:"varint,6,opt,name=sort,proto3" json:"sort,omitempty"`                                          // 排序
-	Status        *v11.Status            `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"`        // 状态：枚举【Status】
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                        // 主键id
+	Site          v1.ShopBannerSite      `protobuf:"varint,2,opt,name=site,proto3,enum=shop.common.v1.ShopBannerSite" json:"site,omitempty"` // 位置：枚举【ShopBannerSite】
+	Picture       string                 `protobuf:"bytes,3,opt,name=picture,proto3" json:"picture,omitempty"`                               // 图片链接
+	Type          v1.ShopBannerType      `protobuf:"varint,4,opt,name=type,proto3,enum=shop.common.v1.ShopBannerType" json:"type,omitempty"` // 跳转类型：枚举【ShopBannerType】
+	Href          string                 `protobuf:"bytes,5,opt,name=href,proto3" json:"href,omitempty"`                                     // 跳转地址
+	Sort          int32                  `protobuf:"varint,6,opt,name=sort,proto3" json:"sort,omitempty"`                                    // 排序
+	Status        v11.Status             `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`        // 状态：枚举【Status】
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -559,8 +560,8 @@ func (x *ShopBannerForm) GetId() int64 {
 }
 
 func (x *ShopBannerForm) GetSite() v1.ShopBannerSite {
-	if x != nil && x.Site != nil {
-		return *x.Site
+	if x != nil {
+		return x.Site
 	}
 	return v1.ShopBannerSite(0)
 }
@@ -573,8 +574,8 @@ func (x *ShopBannerForm) GetPicture() string {
 }
 
 func (x *ShopBannerForm) GetType() v1.ShopBannerType {
-	if x != nil && x.Type != nil {
-		return *x.Type
+	if x != nil {
+		return x.Type
 	}
 	return v1.ShopBannerType(0)
 }
@@ -594,8 +595,8 @@ func (x *ShopBannerForm) GetSort() int32 {
 }
 
 func (x *ShopBannerForm) GetStatus() v11.Status {
-	if x != nil && x.Status != nil {
-		return *x.Status
+	if x != nil {
+		return x.Status
 	}
 	return v11.Status(0)
 }
@@ -604,7 +605,7 @@ var File_shop_admin_v1_shop_banner_proto protoreflect.FileDescriptor
 
 const file_shop_admin_v1_shop_banner_proto_rawDesc = "" +
 	"\n" +
-	"\x1fshop/admin/v1/shop_banner.proto\x12\rshop.admin.v1\x1a\x14common/v1/enum.proto\x1a\x19shop/common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xbe\x03\n" +
+	"\x1fshop/admin/v1/shop_banner.proto\x12\rshop.admin.v1\x1a\x14common/v1/enum.proto\x1a\x1bbuf/validate/validate.proto\x1a\x19shop/common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xbe\x03\n" +
 	"\x15PageShopBannerRequest\x12b\n" +
 	"\x04site\x18\x01 \x01(\x0e2\x1e.shop.common.v1.ShopBannerSiteB)\xbaG&\x92\x02#位置：枚举【ShopBannerSite】H\x00R\x04site\x88\x01\x01\x12h\n" +
 	"\x04type\x18\x02 \x01(\x0e2\x1e.shop.common.v1.ShopBannerTypeB/\xbaG,\x92\x02)跳转类型：枚举【ShopBannerType】H\x01R\x04type\x88\x01\x01\x12<\n" +
@@ -618,13 +619,13 @@ const file_shop_admin_v1_shop_banner_proto_rawDesc = "" +
 	"\fshop_banners\x18\x01 \x03(\v2\x19.shop.admin.v1.ShopBannerB\x15\xbaG\x12\x92\x02\x0f轮播图列表R\vshopBanners\x12\"\n" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"6\n" +
 	"\x14GetShopBannerRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键idR\x02id\"p\n" +
-	"\x17CreateShopBannerRequest\x12U\n" +
-	"\vshop_banner\x18\x01 \x01(\v2\x1d.shop.admin.v1.ShopBannerFormB\x15\xbaG\x12\x92\x02\x0f轮播图表单R\n" +
-	"shopBanner\"\x90\x01\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键idR\x02id\"v\n" +
+	"\x17CreateShopBannerRequest\x12[\n" +
+	"\vshop_banner\x18\x01 \x01(\v2\x1d.shop.admin.v1.ShopBannerFormB\x1b\xbaG\x12\x92\x02\x0f轮播图表单\xbaH\x03\xc8\x01\x01R\n" +
+	"shopBanner\"\x96\x01\n" +
 	"\x17UpdateShopBannerRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键idR\x02id\x12U\n" +
-	"\vshop_banner\x18\x02 \x01(\v2\x1d.shop.admin.v1.ShopBannerFormB\x15\xbaG\x12\x92\x02\x0f轮播图表单R\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键idR\x02id\x12[\n" +
+	"\vshop_banner\x18\x02 \x01(\v2\x1d.shop.admin.v1.ShopBannerFormB\x1b\xbaG\x12\x92\x02\x0f轮播图表单\xbaH\x03\xc8\x01\x01R\n" +
 	"shopBanner\"\\\n" +
 	"\x17DeleteShopBannerRequest\x12A\n" +
 	"\x03ids\x18\x01 \x01(\tB/\xbaG,\x92\x02)轮播图ID列表，多个用逗号分隔R\x03ids\"\x8a\x01\n" +
@@ -643,18 +644,18 @@ const file_shop_admin_v1_shop_banner_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
 	"\n" +
-	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\"\xe6\x03\n" +
+	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\"\x92\x06\n" +
 	"\x0eShopBannerForm\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键idR\x02id\x12b\n" +
-	"\x04site\x18\x02 \x01(\x0e2\x1e.shop.common.v1.ShopBannerSiteB)\xbaG&\x92\x02#位置：枚举【ShopBannerSite】H\x00R\x04site\x88\x01\x01\x12,\n" +
-	"\apicture\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f图片链接R\apicture\x12h\n" +
-	"\x04type\x18\x04 \x01(\x0e2\x1e.shop.common.v1.ShopBannerTypeB/\xbaG,\x92\x02)跳转类型：枚举【ShopBannerType】H\x01R\x04type\x88\x01\x01\x12&\n" +
-	"\x04href\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\f跳转地址R\x04href\x12 \n" +
-	"\x04sort\x18\x06 \x01(\x05B\f\xbaG\t\x92\x02\x06排序R\x04sort\x12Q\n" +
-	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB!\xbaG\x1e\x92\x02\x1b状态：枚举【Status】H\x02R\x06status\x88\x01\x01B\a\n" +
-	"\x05_siteB\a\n" +
-	"\x05_typeB\t\n" +
-	"\a_status2\xac\x06\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键idR\x02id\x12e\n" +
+	"\x04site\x18\x02 \x01(\x0e2\x1e.shop.common.v1.ShopBannerSiteB1\xbaG&\x92\x02#位置：枚举【ShopBannerSite】\xbaH\x05\x82\x01\x02\x10\x01R\x04site\x12\xac\x01\n" +
+	"\apicture\x18\x03 \x01(\tB\x91\x01\xbaG\x0f\x92\x02\f图片链接\xbaH|\xba\x01y\n" +
+	"\x1ashop_banner.picture.length\x123图片链接不能为空且不超过 1024 个字符\x1a&this.size() > 0 && this.size() <= 1024R\apicture\x12k\n" +
+	"\x04type\x18\x04 \x01(\x0e2\x1e.shop.common.v1.ShopBannerTypeB7\xbaG,\x92\x02)跳转类型：枚举【ShopBannerType】\xbaH\x05\x82\x01\x02\x10\x01R\x04type\x12\xa3\x01\n" +
+	"\x04href\x18\x05 \x01(\tB\x8e\x01\xbaG\x0f\x92\x02\f跳转地址\xbaHy\xba\x01v\n" +
+	"\x17shop_banner.href.length\x123跳转地址不能为空且不超过 1024 个字符\x1a&this.size() > 0 && this.size() <= 1024R\x04href\x12a\n" +
+	"\x04sort\x18\x06 \x01(\x05BM\xbaG\t\x92\x02\x06排序\xbaH>\xba\x01;\n" +
+	"\x19shop_banner.sort.required\x12\x14排序必须大于 0\x1a\bthis > 0R\x04sort\x12T\n" +
+	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB)\xbaG\x1e\x92\x02\x1b状态：枚举【Status】\xbaH\x05\x82\x01\x02\x10\x01R\x06status2\xac\x06\n" +
 	"\x11ShopBannerService\x12\x80\x01\n" +
 	"\x0ePageShopBanner\x12$.shop.admin.v1.PageShopBannerRequest\x1a%.shop.admin.v1.PageShopBannerResponse\"!\x82\xd3\xe4\x93\x02\x1b\x12\x19/api/v1/admin/shop/banner\x12{\n" +
 	"\rGetShopBanner\x12#.shop.admin.v1.GetShopBannerRequest\x1a\x1d.shop.admin.v1.ShopBannerForm\"&\x82\xd3\xe4\x93\x02 \x12\x1e/api/v1/admin/shop/banner/{id}\x12\x82\x01\n" +
@@ -731,7 +732,6 @@ func file_shop_admin_v1_shop_banner_proto_init() {
 		return
 	}
 	file_shop_admin_v1_shop_banner_proto_msgTypes[0].OneofWrappers = []any{}
-	file_shop_admin_v1_shop_banner_proto_msgTypes[8].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

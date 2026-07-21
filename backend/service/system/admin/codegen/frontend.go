@@ -808,14 +808,27 @@ func (c *renderer) renderFrontendResetForm(columns []*CodeGenColumn) string {
 func (c *renderer) renderFrontendRules(columns []*CodeGenColumn) string {
 	lines := make([]string, 0)
 	for _, column := range columns {
-		if !generatedFormIncludesColumn(column) || column.IsRequired != 1 {
+		if !generatedFormIncludesColumn(column) {
+			continue
+		}
+		isString := DefaultString(column.TsType, InferTSType(column.DbType)) == "string"
+		if column.IsRequired != 1 && (!isString || column.DbLength <= 0) {
 			continue
 		}
 		trigger := "blur"
 		if column.IsStatusField == 1 && column.StatusForm == 1 || column.FormComponent == "switch" || isSelectComponent(column.FormComponent) {
 			trigger = "change"
 		}
-		lines = append(lines, fmt.Sprintf("  %s: [{ required: true, message: \"%s不能为空\", trigger: %q }]", column.ColumnName, DefaultString(column.ColumnComment, column.ColumnName), trigger))
+		rules := fmt.Sprintf("{ required: true, message: \"%s不能为空\", trigger: %q }", DefaultString(column.ColumnComment, column.ColumnName), trigger)
+		if isString && column.DbLength > 0 {
+			maxRule := fmt.Sprintf("{ max: %d, message: \"%s不能超过 %d 个字符\", trigger: %q }", column.DbLength, DefaultString(column.ColumnComment, column.ColumnName), column.DbLength, trigger)
+			if column.IsRequired == 1 {
+				rules += ", " + maxRule
+			} else {
+				rules = maxRule
+			}
+		}
+		lines = append(lines, fmt.Sprintf("  %s: [%s]", column.ColumnName, rules))
 	}
 	return strings.Join(lines, ",\n")
 }

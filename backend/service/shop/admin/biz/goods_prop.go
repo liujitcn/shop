@@ -71,7 +71,7 @@ func (c *GoodsPropCase) GetGoodsProp(ctx context.Context, id int64) (*shopadminv
 
 // CreateGoodsProp 创建商品属性
 func (c *GoodsPropCase) CreateGoodsProp(ctx context.Context, req *shopadminv1.GoodsProp) error {
-	if req == nil || req.GetGoodsId() <= 0 || req.GetLabel() == "" {
+	if req.GetGoodsId() <= 0 {
 		return errorsx.InvalidArgument("商品属性参数不合法")
 	}
 	goodsProp := c.mapper.ToEntity(req)
@@ -94,7 +94,7 @@ func (c *GoodsPropCase) CreateGoodsProp(ctx context.Context, req *shopadminv1.Go
 
 // UpdateGoodsProp 更新商品属性
 func (c *GoodsPropCase) UpdateGoodsProp(ctx context.Context, req *shopadminv1.GoodsProp) error {
-	if req == nil || req.GetId() <= 0 || req.GetGoodsId() <= 0 || req.GetLabel() == "" {
+	if req.GetId() <= 0 || req.GetGoodsId() <= 0 {
 		return errorsx.InvalidArgument("商品属性参数不合法")
 	}
 	goodsProp := c.mapper.ToEntity(req)

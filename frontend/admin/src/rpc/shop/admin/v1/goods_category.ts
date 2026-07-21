@@ -96,7 +96,7 @@ export interface GoodsCategoryForm {
   /** 排序 */
   sort: number;
   /** 菜单状态 */
-  status?: Status | undefined;
+  status: Status;
 }
 
 /** Admin商品分类服务 */

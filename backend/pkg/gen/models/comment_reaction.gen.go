@@ -12,15 +12,15 @@ const TableNameCommentReaction = "comment_reaction"
 
 // CommentReaction 评价互动信息
 type CommentReaction struct {
-	ID            int64     `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:互动主键" json:"id"`                                                                                               // 互动主键
-	TenantID      int64     `gorm:"column:tenant_id;type:bigint;not null;index:idx_comment_reaction_tenant_id,priority:1;comment:租户ID" json:"tenant_id"`                                                      // 租户ID
-	TenantStoreID int64     `gorm:"column:tenant_store_id;type:bigint;not null;index:idx_comment_reaction_tenant_store_id,priority:1;comment:租户门店ID" json:"tenant_store_id"`                                  // 租户门店ID
-	TargetType    int32     `gorm:"column:target_type;type:tinyint;uniqueIndex:uk_comment_reaction_target_user,priority:1;comment:目标类型：枚举【CommentReactionTargetType】" json:"target_type"`                     // 目标类型：枚举【CommentReactionTargetType】
-	TargetID      int64     `gorm:"column:target_id;type:bigint;uniqueIndex:uk_comment_reaction_target_user,priority:2;comment:目标ID" json:"target_id"`                                                        // 目标ID
-	UserID        int64     `gorm:"column:user_id;type:bigint;uniqueIndex:uk_comment_reaction_target_user,priority:3;index:idx_comment_reaction_user_id_created_at,priority:1;comment:操作用户ID" json:"user_id"` // 操作用户ID
-	ReactionType  int32     `gorm:"column:reaction_type;type:tinyint;comment:互动类型：枚举【CommentReactionType】" json:"reaction_type"`                                                                              // 互动类型：枚举【CommentReactionType】
-	CreatedAt     time.Time `gorm:"column:created_at;type:datetime;index:idx_comment_reaction_user_id_created_at,priority:2;comment:创建时间" json:"created_at"`                                                  // 创建时间
-	UpdatedAt     time.Time `gorm:"column:updated_at;type:datetime;comment:最后更新时间" json:"updated_at"`                                                                                                         // 最后更新时间
+	ID            int64     `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:互动主键" json:"id"`                                                                                                        // 互动主键
+	TenantID      int64     `gorm:"column:tenant_id;type:bigint;not null;index:idx_comment_reaction_tenant_id,priority:1;comment:租户ID" json:"tenant_id"`                                                               // 租户ID
+	TenantStoreID int64     `gorm:"column:tenant_store_id;type:bigint;not null;index:idx_comment_reaction_tenant_store_id,priority:1;comment:租户门店ID" json:"tenant_store_id"`                                           // 租户门店ID
+	TargetType    int32     `gorm:"column:target_type;type:tinyint;not null;uniqueIndex:uk_comment_reaction_target_user,priority:1;comment:目标类型：枚举【CommentReactionTargetType】" json:"target_type"`                     // 目标类型：枚举【CommentReactionTargetType】
+	TargetID      int64     `gorm:"column:target_id;type:bigint;not null;uniqueIndex:uk_comment_reaction_target_user,priority:2;comment:目标ID" json:"target_id"`                                                        // 目标ID
+	UserID        int64     `gorm:"column:user_id;type:bigint;not null;uniqueIndex:uk_comment_reaction_target_user,priority:3;index:idx_comment_reaction_user_id_created_at,priority:1;comment:操作用户ID" json:"user_id"` // 操作用户ID
+	ReactionType  int32     `gorm:"column:reaction_type;type:tinyint;not null;comment:互动类型：枚举【CommentReactionType】" json:"reaction_type"`                                                                              // 互动类型：枚举【CommentReactionType】
+	CreatedAt     time.Time `gorm:"column:created_at;type:datetime;not null;index:idx_comment_reaction_user_id_created_at,priority:2;comment:创建时间" json:"created_at"`                                                  // 创建时间
+	UpdatedAt     time.Time `gorm:"column:updated_at;type:datetime;not null;comment:最后更新时间" json:"updated_at"`                                                                                                         // 最后更新时间
 }
 
 // TableName CommentReaction's table name

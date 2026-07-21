@@ -90,9 +90,6 @@ func (c *UserAddressCase) GetUserAddress(ctx context.Context, id int64) (*shopap
 
 // CreateUserAddress 创建用户地址
 func (c *UserAddressCase) CreateUserAddress(ctx context.Context, userAddress *shopappv1.UserAddressForm) error {
-	if userAddress == nil || userAddress.GetReceiver() == "" || userAddress.GetContact() == "" || len(userAddress.GetAddress()) == 0 || userAddress.GetDetail() == "" {
-		return errorsx.InvalidArgument("请填写完整的收货地址")
-	}
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return err
@@ -116,7 +113,7 @@ func (c *UserAddressCase) CreateUserAddress(ctx context.Context, userAddress *sh
 
 // UpdateUserAddress 更新用户地址
 func (c *UserAddressCase) UpdateUserAddress(ctx context.Context, userAddress *shopappv1.UserAddressForm) error {
-	if userAddress == nil || userAddress.GetId() <= 0 || userAddress.GetReceiver() == "" || userAddress.GetContact() == "" || len(userAddress.GetAddress()) == 0 || userAddress.GetDetail() == "" {
+	if userAddress.GetId() <= 0 {
 		return errorsx.InvalidArgument("收货地址参数不合法")
 	}
 	authInfo, err := c.GetAuthInfo(ctx)

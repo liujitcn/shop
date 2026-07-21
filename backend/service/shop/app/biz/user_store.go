@@ -78,9 +78,6 @@ func (c *UserStoreCase) GetUserStore(ctx context.Context) (*shopappv1.UserStore,
 
 // CreateUserStore 创建用户门店
 func (c *UserStoreCase) CreateUserStore(ctx context.Context, form *shopappv1.UserStoreForm) error {
-	if form == nil || form.GetName() == "" || len(form.GetAddress()) == 0 || form.GetDetail() == "" {
-		return errorsx.InvalidArgument("请填写完整的门店信息")
-	}
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return err
@@ -90,7 +87,7 @@ func (c *UserStoreCase) CreateUserStore(ctx context.Context, form *shopappv1.Use
 
 // UpdateUserStore 更新用户门店
 func (c *UserStoreCase) UpdateUserStore(ctx context.Context, form *shopappv1.UserStoreForm) error {
-	if form == nil || form.GetId() <= 0 || form.GetName() == "" || len(form.GetAddress()) == 0 || form.GetDetail() == "" {
+	if form.GetId() <= 0 {
 		return errorsx.InvalidArgument("门店参数不合法")
 	}
 	authInfo, err := c.GetAuthInfo(ctx)

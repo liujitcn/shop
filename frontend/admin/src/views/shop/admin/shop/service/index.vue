@@ -66,8 +66,15 @@ const formData = reactive<ShopServiceForm>({
 });
 
 const rules = reactive({
-  label: [{ required: true, message: "标签不能为空", trigger: "blur" }],
-  value: [{ required: true, message: "值不能为空", trigger: "blur" }]
+  label: [
+    { required: true, message: "标签不能为空", trigger: "blur" },
+    { max: 50, message: "标签不能超过 50 个字符", trigger: "blur" }
+  ],
+  value: [
+    { required: true, message: "值不能为空", trigger: "blur" },
+    { max: 500, message: "值不能超过 500 个字符", trigger: "blur" }
+  ],
+  sort: [{ required: true, type: "number", min: 1, message: "排序必须大于 0", trigger: "blur" }]
 });
 
 const statusOptions: ProFormOption[] = [

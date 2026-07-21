@@ -66,8 +66,14 @@ const formData = reactive<BaseDictForm>({
 });
 
 const rules = computed(() => ({
-  name: [{ required: true, message: "请输入字典名称", trigger: "blur" }],
-  code: [{ required: true, message: "请输入字典编码", trigger: "blur" }],
+  name: [
+    { required: true, message: "请输入字典名称", trigger: "blur" },
+    { max: 50, message: "字典名称不能超过 50 个字符", trigger: "blur" }
+  ],
+  code: [
+    { required: true, message: "请输入字典编码", trigger: "blur" },
+    { max: 50, message: "字典编号不能超过 50 个字符", trigger: "blur" }
+  ],
   status: [{ required: true, message: "状态不能为空", trigger: "change" }]
 }));
 

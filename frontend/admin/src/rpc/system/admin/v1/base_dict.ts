@@ -175,7 +175,7 @@ export interface BaseDictForm {
   /** 字典名称 */
   name: string;
   /** 状态 */
-  status?: Status | undefined;
+  status: Status;
 }
 
 /** 字典项 */
@@ -215,7 +215,7 @@ export interface BaseDictItemForm {
   /** 排序 */
   sort: number;
   /** 状态 */
-  status?: Status | undefined;
+  status: Status;
 }
 
 /** Admin字典服务 */

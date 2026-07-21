@@ -154,11 +154,18 @@ const formData = reactive<BaseRoleFormState>({
 
 const rules = reactive({
   tenant_id: [{ required: true, message: "请选择所属租户", trigger: "change" }],
-  name: [{ required: true, message: "请输入角色名称", trigger: "blur" }],
-  code: [{ required: true, message: "请输入角色编码", trigger: "blur" }],
+  name: [
+    { required: true, message: "请输入角色名称", trigger: "blur" },
+    { max: 30, message: "角色名称不能超过 30 个字符", trigger: "blur" }
+  ],
+  code: [
+    { required: true, message: "请输入角色编码", trigger: "blur" },
+    { max: 100, message: "角色编号不能超过 100 个字符", trigger: "blur" }
+  ],
   data_scope: [{ required: true, message: "请选择数据权限", trigger: "change" }],
   menus: [{ required: true, message: "请选择菜单权限", trigger: "change" }],
-  status: [{ required: true, message: "请选择状态", trigger: "change" }]
+  status: [{ required: true, message: "请选择状态", trigger: "change" }],
+  remark: [{ max: 500, message: "备注不能超过 500 个字符", trigger: "blur" }]
 });
 
 const checkedBaseRole = ref<CheckedBaseRole>({});

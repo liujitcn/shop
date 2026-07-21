@@ -213,9 +213,9 @@ func (c *renderer) renderProtoMessageByName(table *Table, columns []*CodeGenColu
 	case "Get" + entity + "Request":
 		return fmt.Sprintf("// %s详情查询条件\nmessage %s {\n  int64 id = 1 [(gnostic.openapi.v3.property) = {description: \"%sID\"}]; // %sID\n}\n", table.BusinessName, name, table.BusinessName, table.BusinessName)
 	case "Create" + entity + "Request":
-		return fmt.Sprintf("// %s创建条件\nmessage %s {\n  %sForm %s = 1 [(gnostic.openapi.v3.property) = {description: \"%s表单\"}]; // %s表单\n}\n", table.BusinessName, name, entity, stringcase.ToSnakeCase(entity), table.BusinessName, table.BusinessName)
+		return fmt.Sprintf("// %s创建条件\nmessage %s {\n  %sForm %s = 1 [(gnostic.openapi.v3.property) = {description: \"%s表单\"}, (buf.validate.field).required = true]; // %s表单\n}\n", table.BusinessName, name, entity, stringcase.ToSnakeCase(entity), table.BusinessName, table.BusinessName)
 	case "Update" + entity + "Request":
-		return fmt.Sprintf("// %s更新条件\nmessage %s {\n  int64 id = 1 [(gnostic.openapi.v3.property) = {description: \"%sID\"}]; // %sID\n\n  %sForm %s = 2 [(gnostic.openapi.v3.property) = {description: \"%s表单\"}]; // %s表单\n}\n", table.BusinessName, name, table.BusinessName, table.BusinessName, entity, stringcase.ToSnakeCase(entity), table.BusinessName, table.BusinessName)
+		return fmt.Sprintf("// %s更新条件\nmessage %s {\n  int64 id = 1 [(gnostic.openapi.v3.property) = {description: \"%sID\"}]; // %sID\n\n  %sForm %s = 2 [(gnostic.openapi.v3.property) = {description: \"%s表单\"}, (buf.validate.field).required = true]; // %s表单\n}\n", table.BusinessName, name, table.BusinessName, table.BusinessName, entity, stringcase.ToSnakeCase(entity), table.BusinessName, table.BusinessName)
 	case "Delete" + entity + "Request":
 		return fmt.Sprintf("// %s删除条件\nmessage %s {\n  string ids = 1 [(gnostic.openapi.v3.property) = {description: \"%sID列表，多个用逗号分隔\"}]; // %sID列表，多个用逗号分隔\n}\n", table.BusinessName, name, table.BusinessName, table.BusinessName)
 	case entity:
@@ -276,7 +276,7 @@ func (c *renderer) renderTreeProtoMessage(table *Table, method *Proto, columns [
 // renderQueryProtoField 渲染分页查询字段，区间查询使用数组承接起止值。
 func (c *renderer) renderQueryProtoField(column *CodeGenColumn, fieldNo int32) string {
 	if effectiveQueryOperator(column) != "between" {
-		return c.renderProtoField(column, fieldNo, true)
+		return c.renderProtoField(column, fieldNo, true, false)
 	}
 	protoType := DefaultString(column.ProtoType, InferProtoType(column.DbType))
 	comment := DefaultString(column.ColumnComment, column.ColumnName)
@@ -284,14 +284,24 @@ func (c *renderer) renderQueryProtoField(column *CodeGenColumn, fieldNo int32) s
 }
 
 // renderProtoField 渲染 Proto 字段。
-func (c *renderer) renderProtoField(column *CodeGenColumn, fieldNo int32, optional bool) string {
+func (c *renderer) renderProtoField(column *CodeGenColumn, fieldNo int32, optional bool, form bool) string {
 	protoType := DefaultString(column.ProtoType, InferProtoType(column.DbType))
 	comment := DefaultString(column.ColumnComment, column.ColumnName)
 	prefix := ""
 	if optional {
 		prefix = "optional "
 	}
-	return fmt.Sprintf("  %s%s %s = %d [(gnostic.openapi.v3.property) = {description: %q}]; // %s\n\n", prefix, protoType, column.ColumnName, fieldNo, comment, comment)
+	validation := ""
+	if form && DefaultString(column.TsType, InferTSType(column.DbType)) == "string" && column.DbLength > 0 {
+		expression := fmt.Sprintf("this.size() <= %d", column.DbLength)
+		message := fmt.Sprintf("%s不能超过 %d 个字符", comment, column.DbLength)
+		if column.IsRequired == 1 {
+			expression = fmt.Sprintf("this.size() > 0 && this.size() <= %d", column.DbLength)
+			message = fmt.Sprintf("%s不能为空且不超过 %d 个字符", comment, column.DbLength)
+		}
+		validation = fmt.Sprintf(", (buf.validate.field).cel = {id: %q message: %q expression: %q}", "field."+column.ColumnName+".length", message, expression)
+	}
+	return fmt.Sprintf("  %s%s %s = %d [(gnostic.openapi.v3.property) = {description: %q}%s]; // %s\n\n", prefix, protoType, column.ColumnName, fieldNo, comment, validation, comment)
 }
 
 // renderFormTreeMultipleProtoField 渲染多选树形字段的数组契约。

@@ -103,9 +103,7 @@ export interface BaseMenuForm {
     | number
     | undefined;
   /** 菜单类型 */
-  type?:
-    | BaseMenuType
-    | undefined;
+  type: BaseMenuType;
   /** 路由地址 */
   path: string;
   /** 路由命名，然后我们可以使用 name 而不是 path 来传递 to 属性给 <router-link>。 */
@@ -123,7 +121,7 @@ export interface BaseMenuForm {
   /** 排序 */
   sort: number;
   /** 状态 */
-  status?: Status | undefined;
+  status: Status;
 }
 
 /** 菜单元信息 */

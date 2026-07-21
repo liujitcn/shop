@@ -225,13 +225,13 @@ const onRegionChange: UniHelper.RegionPickerOnChange = (ev) => {
 // 定义校验规则
 const rules: UniHelper.UniFormsRules = {
   name: {
-    rules: [{ required: true, errorMessage: '请输入门店名称' }],
+    rules: [{ required: true, maxLength: 100, errorMessage: '请输入门店名称（不超过100个字符）' }],
   },
   address: {
     rules: [{ required: true, errorMessage: '请选择所在地区' }],
   },
   detail: {
-    rules: [{ required: true, errorMessage: '请选择详细地址' }],
+    rules: [{ required: true, maxLength: 255, errorMessage: '请选择详细地址（不超过255个字符）' }],
   },
   picture: {
     rules: [{ required: true, errorMessage: '请上传门店照片' }],

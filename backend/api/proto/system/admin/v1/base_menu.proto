@@ -8,6 +8,7 @@ import "system/common/v1/enum.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
+import "buf/validate/validate.proto";
 
 // Admin菜单管理服务
 service BaseMenuService {
@@ -141,15 +142,15 @@ message BaseMenuForm {
 
   optional int64 parent_id = 2 [(gnostic.openapi.v3.property) = {description: "父级菜单ID"}]; // 父级菜单ID
 
-  optional .system.common.v1.BaseMenuType type = 3 [(gnostic.openapi.v3.property) = {description: "菜单类型"}]; // 菜单类型
+  .system.common.v1.BaseMenuType type = 3 [(gnostic.openapi.v3.property) = {description: "菜单类型"}, (buf.validate.field).enum = {defined_only: true}]; // 菜单类型
 
-  string path = 4 [(gnostic.openapi.v3.property) = {description: "路由地址"}]; // 路由地址
+  string path = 4 [(gnostic.openapi.v3.property) = {description: "路由地址"}, (buf.validate.field).cel = {id: "base_menu.path.length" message: "路由地址不能为空且不超过 1024 个字符" expression: "this.size() > 0 && this.size() <= 1024"}]; // 路由地址
 
-  string name = 5 [(gnostic.openapi.v3.property) = {description: "路由命名，然后我们可以使用 name 而不是 path 来传递 to 属性给 <router-link>。"}]; // 路由命名，然后我们可以使用 name 而不是 path 来传递 to 属性给 <router-link>。
+  string name = 5 [(gnostic.openapi.v3.property) = {description: "路由命名，然后我们可以使用 name 而不是 path 来传递 to 属性给 <router-link>。"}, (buf.validate.field).cel = {id: "base_menu.name.max_len" message: "路由名称不能超过 255 个字符" expression: "this.size() <= 255"}]; // 路由命名，然后我们可以使用 name 而不是 path 来传递 to 属性给 <router-link>。
 
-  string component = 6 [(gnostic.openapi.v3.property) = {description: "组件路径"}]; // 组件路径
+  string component = 6 [(gnostic.openapi.v3.property) = {description: "组件路径"}, (buf.validate.field).cel = {id: "base_menu.component.max_len" message: "组件路径不能超过 255 个字符" expression: "this.size() <= 255"}]; // 组件路径
 
-  string redirect = 7 [(gnostic.openapi.v3.property) = {description: "重定向地址"}]; // 重定向地址
+  string redirect = 7 [(gnostic.openapi.v3.property) = {description: "重定向地址"}, (buf.validate.field).cel = {id: "base_menu.redirect.max_len" message: "重定向地址不能超过 1024 个字符" expression: "this.size() <= 1024"}]; // 重定向地址
 
   BaseMenuMeta meta = 8 [(gnostic.openapi.v3.property) = {description: "路由元信息"}]; // 路由元信息
 
@@ -157,7 +158,7 @@ message BaseMenuForm {
 
   int32 sort = 50 [(gnostic.openapi.v3.property) = {description: "排序"}]; // 排序
 
-  optional .common.v1.Status status = 101 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
+  .common.v1.Status status = 101 [(gnostic.openapi.v3.property) = {description: "状态"}, (buf.validate.field).enum = {defined_only: true}]; // 状态
 }
 
 // 菜单元信息

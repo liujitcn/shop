@@ -165,7 +165,7 @@ export interface TenantStoreForm {
   /** 备注 */
   remark: string;
   /** 审核状态：枚举【TenantStoreStatus】 */
-  status?: TenantStoreStatus | undefined;
+  status: TenantStoreStatus;
 }
 
 /** Admin租户门店服务 */

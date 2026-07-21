@@ -52,7 +52,7 @@ import WangEditor from "@/components/WangEditor/index.vue";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { defBaseConfigService } from "@/api/system/admin/base_config";
 import type { BaseConfig, BaseConfigForm, PageBaseConfigRequest } from "@/rpc/system/admin/v1/base_config";
-import { Status } from "@/rpc/common/v1/enum";
+import { BaseConfigSite, Status } from "@/rpc/common/v1/enum";
 import { BaseConfigType } from "@/rpc/system/common/v1/enum";
 import { buildPageRequest, normalizeSelectedIds } from "@/utils/proTable";
 
@@ -74,11 +74,11 @@ const formData = reactive<BaseConfigForm>({
   /** 配置ID */
   id: 0,
   /** 位置：枚举【BaseConfigSite】 */
-  site: undefined,
+  site: BaseConfigSite.UNKNOWN_BCS,
   /** 配置名称 */
   name: "",
   /** 配置类型：枚举【BaseConfigType】 */
-  type: undefined,
+  type: BaseConfigType.UNKNOWN_BCT,
   /** 配置key */
   key: "",
   /** 配置value */
@@ -89,9 +89,15 @@ const formData = reactive<BaseConfigForm>({
 
 const rules = reactive({
   site: [{ required: true, message: "请选择系统配置位置", trigger: "change" }],
-  name: [{ required: true, message: "请输入系统配置名称", trigger: "blur" }],
+  name: [
+    { required: true, message: "请输入系统配置名称", trigger: "blur" },
+    { max: 50, message: "配置名称不能超过 50 个字符", trigger: "blur" }
+  ],
   type: [{ required: true, message: "请选择系统配置类型", trigger: "change" }],
-  key: [{ required: true, message: "请输入系统配置编码", trigger: "blur" }],
+  key: [
+    { required: true, message: "请输入系统配置编码", trigger: "blur" },
+    { max: 50, message: "配置key不能超过 50 个字符", trigger: "blur" }
+  ],
   value: [{ required: true, message: "配置值不能为空", trigger: "blur" }],
   status: [{ required: true, message: "请选择状态", trigger: "change" }]
 });
@@ -267,9 +273,9 @@ function resetForm() {
   formDialogRef.value?.resetFields();
   formDialogRef.value?.clearValidate();
   formData.id = 0;
-  formData.site = undefined;
+  formData.site = BaseConfigSite.UNKNOWN_BCS;
   formData.name = "";
-  formData.type = undefined;
+  formData.type = BaseConfigType.UNKNOWN_BCT;
   formData.key = "";
   formData.value = "";
   formData.status = Status.ENABLE;

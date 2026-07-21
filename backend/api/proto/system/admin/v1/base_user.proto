@@ -9,6 +9,7 @@ import "common/v1/types.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
+import "buf/validate/validate.proto";
 
 // Admin用户管理服务
 service BaseUserService {
@@ -121,12 +122,12 @@ message GetBaseUserRequest {
 
 // 创建用户请求参数
 message CreateBaseUserRequest {
-  BaseUserForm base_user = 1 [(gnostic.openapi.v3.property) = {description: "用户表单"}]; // 用户表单
+  BaseUserForm base_user = 1 [(gnostic.openapi.v3.property) = {description: "用户表单"}, (buf.validate.field).required = true]; // 用户表单
 }
 
 // 更新用户请求参数
 message UpdateBaseUserRequest {
-  BaseUserForm base_user = 1 [(gnostic.openapi.v3.property) = {description: "用户表单"}]; // 用户表单
+  BaseUserForm base_user = 1 [(gnostic.openapi.v3.property) = {description: "用户表单"}, (buf.validate.field).required = true]; // 用户表单
 }
 
 // 删除用户请求参数
@@ -176,27 +177,27 @@ message BaseUser {
 message BaseUserForm {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "用户ID"}]; // 用户ID
 
-  int64 tenant_id = 2 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+  int64 tenant_id = 2 [(gnostic.openapi.v3.property) = {description: "租户ID"}, (buf.validate.field).cel = {id: "base_user.tenant_id.required" message: "所属租户不能为空" expression: "this > 0"}]; // 租户ID
 
-  string user_name = 3 [(gnostic.openapi.v3.property) = {description: "用户账号"}]; // 用户账号
+  string user_name = 3 [(gnostic.openapi.v3.property) = {description: "用户账号"}, (buf.validate.field).cel = {id: "base_user.user_name.length" message: "用户账号不能为空且不超过 50 个字符" expression: "this.size() > 0 && this.size() <= 50"}]; // 用户账号
 
-  string nick_name = 4 [(gnostic.openapi.v3.property) = {description: "用户昵称"}]; // 用户昵称
+  string nick_name = 4 [(gnostic.openapi.v3.property) = {description: "用户昵称"}, (buf.validate.field).cel = {id: "base_user.nick_name.max_len" message: "用户昵称不能超过 30 个字符" expression: "this.size() <= 30"}]; // 用户昵称
 
-  optional int64 role_id = 5 [(gnostic.openapi.v3.property) = {description: "角色ID"}]; // 角色ID
+  int64 role_id = 5 [(gnostic.openapi.v3.property) = {description: "角色ID"}, (buf.validate.field).cel = {id: "base_user.role_id.required" message: "角色不能为空" expression: "this > 0"}]; // 角色ID
 
-  optional int64 dept_id = 6 [(gnostic.openapi.v3.property) = {description: "部门ID"}]; // 部门ID
+  int64 dept_id = 6 [(gnostic.openapi.v3.property) = {description: "部门ID"}, (buf.validate.field).cel = {id: "base_user.dept_id.required" message: "部门不能为空" expression: "this > 0"}]; // 部门ID
 
-  string phone = 7 [(gnostic.openapi.v3.property) = {description: "手机号"}]; // 手机号
+  string phone = 7 [(gnostic.openapi.v3.property) = {description: "手机号"}, (buf.validate.field).cel = {id: "base_user.phone.max_len" message: "手机号不能超过 20 个字符" expression: "this.size() <= 20"}]; // 手机号
 
-  string avatar = 8 [(gnostic.openapi.v3.property) = {description: "头像"}]; // 头像
+  string avatar = 8 [(gnostic.openapi.v3.property) = {description: "头像"}, (buf.validate.field).cel = {id: "base_user.avatar.max_len" message: "头像不能超过 1024 个字符" expression: "this.size() <= 1024"}]; // 头像
 
-  optional .system.common.v1.BaseUserGender gender = 9 [(gnostic.openapi.v3.property) = {description: "性别"}]; // 性别
+  .system.common.v1.BaseUserGender gender = 9 [(gnostic.openapi.v3.property) = {description: "性别"}, (buf.validate.field).enum = {defined_only: true}]; // 性别
 
   .common.v1.PasswordCrypto pwd = 300 [(gnostic.openapi.v3.property) = {description: "密码"}]; // 密码
 
-  optional .common.v1.Status status = 101 [(gnostic.openapi.v3.property) = {description: "用户状态"}]; // 用户状态
+  .common.v1.Status status = 101 [(gnostic.openapi.v3.property) = {description: "用户状态"}, (buf.validate.field).enum = {defined_only: true}]; // 用户状态
 
-  string remark = 102 [(gnostic.openapi.v3.property) = {description: "备注名"}]; // 备注名
+  string remark = 102 [(gnostic.openapi.v3.property) = {description: "备注名"}, (buf.validate.field).cel = {id: "base_user.remark.max_len" message: "备注不能超过 500 个字符" expression: "this.size() <= 500"}]; // 备注名
 }
 
 // 重置用户密码请求参数

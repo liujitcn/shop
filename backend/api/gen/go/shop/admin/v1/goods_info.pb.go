@@ -12,6 +12,7 @@ import (
 	sync "sync"
 	unsafe "unsafe"
 
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -687,20 +688,20 @@ func (x *GoodsInfo) GetCategoryName() string {
 // 商品表单
 type GoodsInfoForm struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                 // 商品ID
-	TenantId      int64                  `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`                     // 租户ID
-	TenantStoreId int64                  `protobuf:"varint,3,opt,name=tenant_store_id,json=tenantStoreId,proto3" json:"tenant_store_id,omitempty"`    // 租户门店ID
-	CategoryId    []int64                `protobuf:"varint,4,rep,packed,name=category_id,json=categoryId,proto3" json:"category_id,omitempty"`        // 分类ID列表
-	Name          string                 `protobuf:"bytes,5,opt,name=name,proto3" json:"name,omitempty"`                                              // 名称
-	Desc          string                 `protobuf:"bytes,6,opt,name=desc,proto3" json:"desc,omitempty"`                                              // 描述
-	Picture       string                 `protobuf:"bytes,7,opt,name=picture,proto3" json:"picture,omitempty"`                                        // 商品图片
-	Banner        []string               `protobuf:"bytes,8,rep,name=banner,proto3" json:"banner,omitempty"`                                          // 轮播图
-	Detail        []string               `protobuf:"bytes,9,rep,name=detail,proto3" json:"detail,omitempty"`                                          // 商品详情
-	Status        *v1.GoodsStatus        `protobuf:"varint,100,opt,name=status,proto3,enum=shop.common.v1.GoodsStatus,oneof" json:"status,omitempty"` // 状态
-	PropList      []*GoodsProp           `protobuf:"bytes,200,rep,name=prop_list,json=propList,proto3" json:"prop_list,omitempty"`                    // 商品属性
-	SkuList       []*GoodsSku            `protobuf:"bytes,201,rep,name=sku_list,json=skuList,proto3" json:"sku_list,omitempty"`                       // 商品SKU
-	SpecList      []*GoodsSpec           `protobuf:"bytes,202,rep,name=spec_list,json=specList,proto3" json:"spec_list,omitempty"`                    // 商品规格
-	CategoryName  string                 `protobuf:"bytes,300,opt,name=category_name,json=categoryName,proto3" json:"category_name,omitempty"`        // 分类名称
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                              // 商品ID
+	TenantId      int64                  `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`                  // 租户ID
+	TenantStoreId int64                  `protobuf:"varint,3,opt,name=tenant_store_id,json=tenantStoreId,proto3" json:"tenant_store_id,omitempty"` // 租户门店ID
+	CategoryId    []int64                `protobuf:"varint,4,rep,packed,name=category_id,json=categoryId,proto3" json:"category_id,omitempty"`     // 分类ID列表
+	Name          string                 `protobuf:"bytes,5,opt,name=name,proto3" json:"name,omitempty"`                                           // 名称
+	Desc          string                 `protobuf:"bytes,6,opt,name=desc,proto3" json:"desc,omitempty"`                                           // 描述
+	Picture       string                 `protobuf:"bytes,7,opt,name=picture,proto3" json:"picture,omitempty"`                                     // 商品图片
+	Banner        []string               `protobuf:"bytes,8,rep,name=banner,proto3" json:"banner,omitempty"`                                       // 轮播图
+	Detail        []string               `protobuf:"bytes,9,rep,name=detail,proto3" json:"detail,omitempty"`                                       // 商品详情
+	Status        v1.GoodsStatus         `protobuf:"varint,100,opt,name=status,proto3,enum=shop.common.v1.GoodsStatus" json:"status,omitempty"`    // 状态
+	PropList      []*GoodsProp           `protobuf:"bytes,200,rep,name=prop_list,json=propList,proto3" json:"prop_list,omitempty"`                 // 商品属性
+	SkuList       []*GoodsSku            `protobuf:"bytes,201,rep,name=sku_list,json=skuList,proto3" json:"sku_list,omitempty"`                    // 商品SKU
+	SpecList      []*GoodsSpec           `protobuf:"bytes,202,rep,name=spec_list,json=specList,proto3" json:"spec_list,omitempty"`                 // 商品规格
+	CategoryName  string                 `protobuf:"bytes,300,opt,name=category_name,json=categoryName,proto3" json:"category_name,omitempty"`     // 分类名称
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -799,8 +800,8 @@ func (x *GoodsInfoForm) GetDetail() []string {
 }
 
 func (x *GoodsInfoForm) GetStatus() v1.GoodsStatus {
-	if x != nil && x.Status != nil {
-		return *x.Status
+	if x != nil {
+		return x.Status
 	}
 	return v1.GoodsStatus(0)
 }
@@ -906,7 +907,7 @@ var File_shop_admin_v1_goods_info_proto protoreflect.FileDescriptor
 
 const file_shop_admin_v1_goods_info_proto_rawDesc = "" +
 	"\n" +
-	"\x1eshop/admin/v1/goods_info.proto\x12\rshop.admin.v1\x1a\x1eshop/admin/v1/goods_prop.proto\x1a\x1dshop/admin/v1/goods_sku.proto\x1a\x1eshop/admin/v1/goods_spec.proto\x1a\x19shop/common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"@\n" +
+	"\x1eshop/admin/v1/goods_info.proto\x12\rshop.admin.v1\x1a\x1eshop/admin/v1/goods_prop.proto\x1a\x1dshop/admin/v1/goods_sku.proto\x1a\x1eshop/admin/v1/goods_spec.proto\x1a\x19shop/common/v1/enum.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"@\n" +
 	"\x16OptionGoodsInfoRequest\x12&\n" +
 	"\x04name\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f商品名称R\x04name\"\xbe\x02\n" +
 	"\x17OptionGoodsInfoResponse\x12k\n" +
@@ -941,14 +942,14 @@ const file_shop_admin_v1_goods_info_proto_rawDesc = "" +
 	"goodsInfos\x12\"\n" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"5\n" +
 	"\x13GetGoodsInfoRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\x02id\"i\n" +
-	"\x16CreateGoodsInfoRequest\x12O\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\x02id\"o\n" +
+	"\x16CreateGoodsInfoRequest\x12U\n" +
 	"\n" +
-	"goods_info\x18\x01 \x01(\v2\x1c.shop.admin.v1.GoodsInfoFormB\x12\xbaG\x0f\x92\x02\f商品表单R\tgoodsInfo\"\x89\x01\n" +
+	"goods_info\x18\x01 \x01(\v2\x1c.shop.admin.v1.GoodsInfoFormB\x18\xbaG\x0f\x92\x02\f商品表单\xbaH\x03\xc8\x01\x01R\tgoodsInfo\"\x8f\x01\n" +
 	"\x16UpdateGoodsInfoRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\x02id\x12O\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\x02id\x12U\n" +
 	"\n" +
-	"goods_info\x18\x02 \x01(\v2\x1c.shop.admin.v1.GoodsInfoFormB\x12\xbaG\x0f\x92\x02\f商品表单R\tgoodsInfo\"X\n" +
+	"goods_info\x18\x02 \x01(\v2\x1c.shop.admin.v1.GoodsInfoFormB\x18\xbaG\x0f\x92\x02\f商品表单\xbaH\x03\xc8\x01\x01R\tgoodsInfo\"X\n" +
 	"\x16DeleteGoodsInfoRequest\x12>\n" +
 	"\x03ids\x18\x01 \x01(\tB,\xbaG)\x92\x02&商品ID列表，多个用逗号分隔R\x03ids\"\x98\x01\n" +
 	"\x19SetGoodsInfoStatusRequest\x12\x1e\n" +
@@ -973,24 +974,30 @@ const file_shop_admin_v1_goods_info_proto_rawDesc = "" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
 	"\n" +
 	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x128\n" +
-	"\rcategory_name\x18\xac\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f分类名称R\fcategoryName\"\x83\x06\n" +
+	"\rcategory_name\x18\xac\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f分类名称R\fcategoryName\"\xb1\v\n" +
 	"\rGoodsInfoForm\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\x02id\x12+\n" +
-	"\ttenant_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDR\btenantId\x12<\n" +
-	"\x0ftenant_store_id\x18\x03 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDR\rtenantStoreId\x125\n" +
-	"\vcategory_id\x18\x04 \x03(\x03B\x14\xbaG\x11\x92\x02\x0e分类ID列表R\n" +
-	"categoryId\x12 \n" +
-	"\x04name\x18\x05 \x01(\tB\f\xbaG\t\x92\x02\x06名称R\x04name\x12 \n" +
-	"\x04desc\x18\x06 \x01(\tB\f\xbaG\t\x92\x02\x06描述R\x04desc\x12,\n" +
-	"\apicture\x18\a \x01(\tB\x12\xbaG\x0f\x92\x02\f商品图片R\apicture\x12'\n" +
-	"\x06banner\x18\b \x03(\tB\x0f\xbaG\f\x92\x02\t轮播图R\x06banner\x12*\n" +
-	"\x06detail\x18\t \x03(\tB\x12\xbaG\x0f\x92\x02\f商品详情R\x06detail\x12F\n" +
-	"\x06status\x18d \x01(\x0e2\x1b.shop.common.v1.GoodsStatusB\f\xbaG\t\x92\x02\x06状态H\x00R\x06status\x88\x01\x01\x12J\n" +
+	"\ttenant_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDR\btenantId\x12\x8b\x01\n" +
+	"\x0ftenant_store_id\x18\x03 \x01(\x03Bc\xbaG\x11\x92\x02\x0e租户门店ID\xbaHL\xba\x01I\n" +
+	"#goods_info.tenant_store_id.required\x12\x18所属门店不能为空\x1a\bthis > 0R\rtenantStoreId\x12\x87\x01\n" +
+	"\vcategory_id\x18\x04 \x03(\x03Bf\xbaG\x11\x92\x02\x0e分类ID列表\xbaHO\xba\x01L\n" +
+	"\x1fgoods_info.category_id.required\x12\x18商品分类不能为空\x1a\x0fthis.size() > 0R\n" +
+	"categoryId\x12\x9a\x01\n" +
+	"\x04name\x18\x05 \x01(\tB\x85\x01\xbaG\t\x92\x02\x06名称\xbaHv\xba\x01s\n" +
+	"\x16goods_info.name.length\x122商品名称不能为空且不超过 255 个字符\x1a%this.size() > 0 && this.size() <= 255R\x04name\x12\x9a\x01\n" +
+	"\x04desc\x18\x06 \x01(\tB\x85\x01\xbaG\t\x92\x02\x06描述\xbaHv\xba\x01s\n" +
+	"\x16goods_info.desc.length\x122商品描述不能为空且不超过 255 个字符\x1a%this.size() > 0 && this.size() <= 255R\x04desc\x12\xab\x01\n" +
+	"\apicture\x18\a \x01(\tB\x90\x01\xbaG\x0f\x92\x02\f商品图片\xbaH{\xba\x01x\n" +
+	"\x19goods_info.picture.length\x123商品图片不能为空且不超过 1024 个字符\x1a&this.size() > 0 && this.size() <= 1024R\apicture\x12w\n" +
+	"\x06banner\x18\b \x03(\tB_\xbaG\f\x92\x02\t轮播图\xbaHM\xba\x01J\n" +
+	"\x1agoods_info.banner.required\x12\x1b商品轮播图不能为空\x1a\x0fthis.size() > 0R\x06banner\x12w\n" +
+	"\x06detail\x18\t \x03(\tB_\xbaG\x0f\x92\x02\f商品详情\xbaHJ\xba\x01G\n" +
+	"\x1agoods_info.detail.required\x12\x18商品详情不能为空\x1a\x0fthis.size() > 0R\x06detail\x12I\n" +
+	"\x06status\x18d \x01(\x0e2\x1b.shop.common.v1.GoodsStatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\x12J\n" +
 	"\tprop_list\x18\xc8\x01 \x03(\v2\x18.shop.admin.v1.GoodsPropB\x12\xbaG\x0f\x92\x02\f商品属性R\bpropList\x12D\n" +
 	"\bsku_list\x18\xc9\x01 \x03(\v2\x17.shop.admin.v1.GoodsSkuB\x0f\xbaG\f\x92\x02\t商品SKUR\askuList\x12J\n" +
 	"\tspec_list\x18\xca\x01 \x03(\v2\x18.shop.admin.v1.GoodsSpecB\x12\xbaG\x0f\x92\x02\f商品规格R\bspecList\x128\n" +
-	"\rcategory_name\x18\xac\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f分类名称R\fcategoryNameB\t\n" +
-	"\a_status2\x9f\a\n" +
+	"\rcategory_name\x18\xac\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f分类名称R\fcategoryName2\x9f\a\n" +
 	"\x10GoodsInfoService\x12\x89\x01\n" +
 	"\x0fOptionGoodsInfo\x12%.shop.admin.v1.OptionGoodsInfoRequest\x1a&.shop.admin.v1.OptionGoodsInfoResponse\"'\x82\xd3\xe4\x93\x02!\x12\x1f/api/v1/admin/goods/info/option\x12|\n" +
 	"\rPageGoodsInfo\x12#.shop.admin.v1.PageGoodsInfoRequest\x1a$.shop.admin.v1.PageGoodsInfoResponse\" \x82\xd3\xe4\x93\x02\x1a\x12\x18/api/v1/admin/goods/info\x12w\n" +
@@ -1081,7 +1088,6 @@ func file_shop_admin_v1_goods_info_proto_init() {
 	file_shop_admin_v1_goods_sku_proto_init()
 	file_shop_admin_v1_goods_spec_proto_init()
 	file_shop_admin_v1_goods_info_proto_msgTypes[2].OneofWrappers = []any{}
-	file_shop_admin_v1_goods_info_proto_msgTypes[10].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

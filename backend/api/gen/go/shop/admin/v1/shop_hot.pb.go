@@ -12,6 +12,7 @@ import (
 	sync "sync"
 	unsafe "unsafe"
 
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -864,13 +865,13 @@ func (x *ShopHot) GetUpdatedAt() string {
 // 热门专区表单
 type ShopHotForm struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                      // 商城热门推荐ID
-	Title         string                 `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`                                 // 商城热门推荐标题
-	Desc          string                 `protobuf:"bytes,3,opt,name=desc,proto3" json:"desc,omitempty"`                                   // 商城热门推荐名称
-	Banner        string                 `protobuf:"bytes,4,opt,name=banner,proto3" json:"banner,omitempty"`                               // 轮播图
-	Picture       []string               `protobuf:"bytes,5,rep,name=picture,proto3" json:"picture,omitempty"`                             // 图片
-	Sort          int32                  `protobuf:"varint,6,opt,name=sort,proto3" json:"sort,omitempty"`                                  // 排序
-	Status        *v1.Status             `protobuf:"varint,51,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"` // 状态
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                // 商城热门推荐ID
+	Title         string                 `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`                           // 商城热门推荐标题
+	Desc          string                 `protobuf:"bytes,3,opt,name=desc,proto3" json:"desc,omitempty"`                             // 商城热门推荐名称
+	Banner        string                 `protobuf:"bytes,4,opt,name=banner,proto3" json:"banner,omitempty"`                         // 轮播图
+	Picture       []string               `protobuf:"bytes,5,rep,name=picture,proto3" json:"picture,omitempty"`                       // 图片
+	Sort          int32                  `protobuf:"varint,6,opt,name=sort,proto3" json:"sort,omitempty"`                            // 排序
+	Status        v1.Status              `protobuf:"varint,51,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"` // 状态
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -948,8 +949,8 @@ func (x *ShopHotForm) GetSort() int32 {
 }
 
 func (x *ShopHotForm) GetStatus() v1.Status {
-	if x != nil && x.Status != nil {
-		return *x.Status
+	if x != nil {
+		return x.Status
 	}
 	return v1.Status(0)
 }
@@ -1136,7 +1137,7 @@ var File_shop_admin_v1_shop_hot_proto protoreflect.FileDescriptor
 
 const file_shop_admin_v1_shop_hot_proto_rawDesc = "" +
 	"\n" +
-	"\x1cshop/admin/v1/shop_hot.proto\x12\rshop.admin.v1\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xd1\x02\n" +
+	"\x1cshop/admin/v1/shop_hot.proto\x12\rshop.admin.v1\x1a\x14common/v1/enum.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xd1\x02\n" +
 	"\x12PageShopHotRequest\x124\n" +
 	"\x05title\x18\x02 \x01(\tB\x1e\xbaG\x1b\x92\x02\x18商城热门推荐标题R\x05title\x122\n" +
 	"\x04desc\x18\x03 \x01(\tB\x1e\xbaG\x1b\x92\x02\x18商城热门推荐描述R\x04desc\x12H\n" +
@@ -1148,12 +1149,12 @@ const file_shop_admin_v1_shop_hot_proto_rawDesc = "" +
 	"\tshop_hots\x18\x01 \x03(\v2\x16.shop.admin.v1.ShopHotB\x18\xbaG\x15\x92\x02\x12热门专区列表R\bshopHots\x12\"\n" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"?\n" +
 	"\x11GetShopHotRequest\x12*\n" +
-	"\x02id\x18\x01 \x01(\x03B\x1a\xbaG\x17\x92\x02\x14商城热门推荐IDR\x02id\"g\n" +
-	"\x14CreateShopHotRequest\x12O\n" +
-	"\bshop_hot\x18\x01 \x01(\v2\x1a.shop.admin.v1.ShopHotFormB\x18\xbaG\x15\x92\x02\x12热门专区表单R\ashopHot\"\x93\x01\n" +
+	"\x02id\x18\x01 \x01(\x03B\x1a\xbaG\x17\x92\x02\x14商城热门推荐IDR\x02id\"m\n" +
+	"\x14CreateShopHotRequest\x12U\n" +
+	"\bshop_hot\x18\x01 \x01(\v2\x1a.shop.admin.v1.ShopHotFormB\x1e\xbaG\x15\x92\x02\x12热门专区表单\xbaH\x03\xc8\x01\x01R\ashopHot\"\x99\x01\n" +
 	"\x14UpdateShopHotRequest\x12*\n" +
-	"\x02id\x18\x01 \x01(\x03B\x1a\xbaG\x17\x92\x02\x14商城热门推荐IDR\x02id\x12O\n" +
-	"\bshop_hot\x18\x02 \x01(\v2\x1a.shop.admin.v1.ShopHotFormB\x18\xbaG\x15\x92\x02\x12热门专区表单R\ashopHot\"\\\n" +
+	"\x02id\x18\x01 \x01(\x03B\x1a\xbaG\x17\x92\x02\x14商城热门推荐IDR\x02id\x12U\n" +
+	"\bshop_hot\x18\x02 \x01(\v2\x1a.shop.admin.v1.ShopHotFormB\x1e\xbaG\x15\x92\x02\x12热门专区表单\xbaH\x03\xc8\x01\x01R\ashopHot\"\\\n" +
 	"\x14DeleteShopHotRequest\x12D\n" +
 	"\x03ids\x18\x01 \x01(\tB2\xbaG/\x92\x02,热门专区ID列表，多个用逗号分隔R\x03ids\"\x93\x01\n" +
 	"\x17SetShopHotStatusRequest\x12*\n" +
@@ -1190,16 +1191,20 @@ const file_shop_admin_v1_shop_hot_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
 	"\n" +
-	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\"\xdf\x02\n" +
+	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\"\xbb\x06\n" +
 	"\vShopHotForm\x12*\n" +
-	"\x02id\x18\x01 \x01(\x03B\x1a\xbaG\x17\x92\x02\x14商城热门推荐IDR\x02id\x124\n" +
-	"\x05title\x18\x02 \x01(\tB\x1e\xbaG\x1b\x92\x02\x18商城热门推荐标题R\x05title\x122\n" +
-	"\x04desc\x18\x03 \x01(\tB\x1e\xbaG\x1b\x92\x02\x18商城热门推荐描述R\x04desc\x12'\n" +
-	"\x06banner\x18\x04 \x01(\tB\x0f\xbaG\f\x92\x02\t轮播图R\x06banner\x12&\n" +
-	"\apicture\x18\x05 \x03(\tB\f\xbaG\t\x92\x02\x06图片R\apicture\x12 \n" +
-	"\x04sort\x18\x06 \x01(\x05B\f\xbaG\t\x92\x02\x06排序R\x04sort\x12<\n" +
-	"\x06status\x183 \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态H\x00R\x06status\x88\x01\x01B\t\n" +
-	"\a_status\"\xd3\x02\n" +
+	"\x02id\x18\x01 \x01(\x03B\x1a\xbaG\x17\x92\x02\x14商城热门推荐IDR\x02id\x12\xb3\x01\n" +
+	"\x05title\x18\x02 \x01(\tB\x9c\x01\xbaG\x1b\x92\x02\x18商城热门推荐标题\xbaH{\xba\x01x\n" +
+	"\x15shop_hot.title.length\x128热门推荐标题不能为空且不超过 100 个字符\x1a%this.size() > 0 && this.size() <= 100R\x05title\x12\xb0\x01\n" +
+	"\x04desc\x18\x03 \x01(\tB\x9b\x01\xbaG\x1b\x92\x02\x18商城热门推荐描述\xbaHz\xba\x01w\n" +
+	"\x14shop_hot.desc.length\x128热门推荐描述不能为空且不超过 100 个字符\x1a%this.size() > 0 && this.size() <= 100R\x04desc\x12\x81\x01\n" +
+	"\x06banner\x18\x04 \x01(\tBi\xbaG\f\x92\x02\t轮播图\xbaHW\xba\x01T\n" +
+	"\x17shop_hot.banner.max_len\x12$轮播图不能超过 1024 个字符\x1a\x13this.size() <= 1024R\x06banner\x12r\n" +
+	"\apicture\x18\x05 \x03(\tBX\xbaG\t\x92\x02\x06图片\xbaHI\xba\x01F\n" +
+	"\x19shop_hot.picture.required\x12\x18推荐图片不能为空\x1a\x0fthis.size() > 0R\apicture\x12^\n" +
+	"\x04sort\x18\x06 \x01(\x05BJ\xbaG\t\x92\x02\x06排序\xbaH;\xba\x018\n" +
+	"\x16shop_hot.sort.required\x12\x14排序必须大于 0\x1a\bthis > 0R\x04sort\x12?\n" +
+	"\x06status\x183 \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"\xd3\x02\n" +
 	"\vShopHotItem\x12*\n" +
 	"\x02id\x18\x01 \x01(\x03B\x1a\xbaG\x17\x92\x02\x14商城热门推荐IDR\x02id\x121\n" +
 	"\x06hot_id\x18\x02 \x01(\x03B\x1a\xbaG\x17\x92\x02\x14商城热门推荐IDR\x05hotId\x12\"\n" +
@@ -1209,12 +1214,14 @@ const file_shop_admin_v1_shop_hot_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
 	"\n" +
-	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\"\xc1\x02\n" +
+	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\"\xfb\x03\n" +
 	"\x0fShopHotItemForm\x12*\n" +
 	"\x02id\x18\x01 \x01(\x03B\x1a\xbaG\x17\x92\x02\x14商城热门推荐IDR\x02id\x121\n" +
-	"\x06hot_id\x18\x02 \x01(\x03B\x1a\xbaG\x17\x92\x02\x14商城热门推荐IDR\x05hotId\x12\"\n" +
-	"\x05title\x18\x03 \x01(\tB\f\xbaG\t\x92\x02\x06标题R\x05title\x12 \n" +
-	"\x04sort\x18\x04 \x01(\x05B\f\xbaG\t\x92\x02\x06排序R\x04sort\x12+\n" +
+	"\x06hot_id\x18\x02 \x01(\x03B\x1a\xbaG\x17\x92\x02\x14商城热门推荐IDR\x05hotId\x12\x98\x01\n" +
+	"\x05title\x18\x03 \x01(\tB\x81\x01\xbaG\t\x92\x02\x06标题\xbaHr\xba\x01o\n" +
+	"\x1ashop_hot_item.title.length\x12+标题不能为空且不超过 64 个字符\x1a$this.size() > 0 && this.size() <= 64R\x05title\x12c\n" +
+	"\x04sort\x18\x04 \x01(\x05BO\xbaG\t\x92\x02\x06排序\xbaH@\xba\x01=\n" +
+	"\x1bshop_hot_item.sort.required\x12\x14排序必须大于 0\x1a\bthis > 0R\x04sort\x12+\n" +
 	"\tgoods_ids\x18\x05 \x03(\x03B\x0e\xbaG\v\x92\x02\b商品IdR\bgoodsIds\x12Q\n" +
 	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB!\xbaG\x1e\x92\x02\x1b状态：枚举【Status】H\x00R\x06status\x88\x01\x01B\t\n" +
 	"\a_status2\x9c\f\n" +
@@ -1322,7 +1329,6 @@ func file_shop_admin_v1_shop_hot_proto_init() {
 	}
 	file_shop_admin_v1_shop_hot_proto_msgTypes[0].OneofWrappers = []any{}
 	file_shop_admin_v1_shop_hot_proto_msgTypes[7].OneofWrappers = []any{}
-	file_shop_admin_v1_shop_hot_proto_msgTypes[15].OneofWrappers = []any{}
 	file_shop_admin_v1_shop_hot_proto_msgTypes[17].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{

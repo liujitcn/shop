@@ -12,6 +12,7 @@ import (
 	sync "sync"
 	unsafe "unsafe"
 
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -922,10 +923,10 @@ func (x *BaseDict) GetUpdatedAt() string {
 // 字典表单
 type BaseDictForm struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                       // 字典ID
-	Code          string                 `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`                                    // 字典编号
-	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                    // 字典名称
-	Status        *v1.Status             `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"` // 状态
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                 // 字典ID
+	Code          string                 `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`                              // 字典编号
+	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                              // 字典名称
+	Status        v1.Status              `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"` // 状态
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -982,8 +983,8 @@ func (x *BaseDictForm) GetName() string {
 }
 
 func (x *BaseDictForm) GetStatus() v1.Status {
-	if x != nil && x.Status != nil {
-		return *x.Status
+	if x != nil {
+		return x.Status
 	}
 	return v1.Status(0)
 }
@@ -1100,13 +1101,13 @@ func (x *BaseDictItem) GetUpdatedAt() string {
 // 字典属性表单
 type BaseDictItemForm struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                       // 字典项ID
-	DictId        int64                  `protobuf:"varint,2,opt,name=dict_id,json=dictId,proto3" json:"dict_id,omitempty"`                 // 字典ID
-	Value         string                 `protobuf:"bytes,3,opt,name=value,proto3" json:"value,omitempty"`                                  // 字典项值
-	Label         string                 `protobuf:"bytes,4,opt,name=label,proto3" json:"label,omitempty"`                                  // 字典项标签
-	TagType       string                 `protobuf:"bytes,5,opt,name=tag_type,json=tagType,proto3" json:"tag_type,omitempty"`               // 标签类型，用于前端样式展示（如success、warning等）
-	Sort          int32                  `protobuf:"varint,6,opt,name=sort,proto3" json:"sort,omitempty"`                                   // 排序
-	Status        *v1.Status             `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"` // 状态
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                 // 字典项ID
+	DictId        int64                  `protobuf:"varint,2,opt,name=dict_id,json=dictId,proto3" json:"dict_id,omitempty"`           // 字典ID
+	Value         string                 `protobuf:"bytes,3,opt,name=value,proto3" json:"value,omitempty"`                            // 字典项值
+	Label         string                 `protobuf:"bytes,4,opt,name=label,proto3" json:"label,omitempty"`                            // 字典项标签
+	TagType       string                 `protobuf:"bytes,5,opt,name=tag_type,json=tagType,proto3" json:"tag_type,omitempty"`         // 标签类型，用于前端样式展示（如success、warning等）
+	Sort          int32                  `protobuf:"varint,6,opt,name=sort,proto3" json:"sort,omitempty"`                             // 排序
+	Status        v1.Status              `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"` // 状态
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1184,8 +1185,8 @@ func (x *BaseDictItemForm) GetSort() int32 {
 }
 
 func (x *BaseDictItemForm) GetStatus() v1.Status {
-	if x != nil && x.Status != nil {
-		return *x.Status
+	if x != nil {
+		return x.Status
 	}
 	return v1.Status(0)
 }
@@ -1316,7 +1317,7 @@ var File_system_admin_v1_base_dict_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_base_dict_proto_rawDesc = "" +
 	"\n" +
-	"\x1fsystem/admin/v1/base_dict.proto\x12\x0fsystem.admin.v1\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x17\n" +
+	"\x1fsystem/admin/v1/base_dict.proto\x12\x0fsystem.admin.v1\x1a\x14common/v1/enum.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x17\n" +
 	"\x15OptionBaseDictRequest\"\xac\x02\n" +
 	"\x13PageBaseDictRequest\x12&\n" +
 	"\x04code\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f字典编号R\x04code\x12&\n" +
@@ -1330,11 +1331,11 @@ const file_system_admin_v1_base_dict_proto_rawDesc = "" +
 	"base_dicts\x18\x01 \x03(\v2\x19.system.admin.v1.BaseDictB\x12\xbaG\x0f\x92\x02\f分页数据R\tbaseDicts\x12\"\n" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"4\n" +
 	"\x12GetBaseDictRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b字典IDR\x02id\"g\n" +
-	"\x15CreateBaseDictRequest\x12N\n" +
-	"\tbase_dict\x18\x01 \x01(\v2\x1d.system.admin.v1.BaseDictFormB\x12\xbaG\x0f\x92\x02\f字典表单R\bbaseDict\"g\n" +
-	"\x15UpdateBaseDictRequest\x12N\n" +
-	"\tbase_dict\x18\x01 \x01(\v2\x1d.system.admin.v1.BaseDictFormB\x12\xbaG\x0f\x92\x02\f字典表单R\bbaseDict\"=\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b字典IDR\x02id\"m\n" +
+	"\x15CreateBaseDictRequest\x12T\n" +
+	"\tbase_dict\x18\x01 \x01(\v2\x1d.system.admin.v1.BaseDictFormB\x18\xbaG\x0f\x92\x02\f字典表单\xbaH\x03\xc8\x01\x01R\bbaseDict\"m\n" +
+	"\x15UpdateBaseDictRequest\x12T\n" +
+	"\tbase_dict\x18\x01 \x01(\v2\x1d.system.admin.v1.BaseDictFormB\x18\xbaG\x0f\x92\x02\f字典表单\xbaH\x03\xc8\x01\x01R\bbaseDict\"=\n" +
 	"\x15DeleteBaseDictRequest\x12$\n" +
 	"\x02id\x18\x01 \x01(\tB\x14\xbaG\x11\x92\x02\x0e字典ID列表R\x02id\"`\n" +
 	"\x18SetBaseDictStatusRequest\x12\x1e\n" +
@@ -1351,11 +1352,11 @@ const file_system_admin_v1_base_dict_proto_rawDesc = "" +
 	"\x0fbase_dict_items\x18\x01 \x03(\v2\x1d.system.admin.v1.BaseDictItemB\x12\xbaG\x0f\x92\x02\f分页数据R\rbaseDictItems\x12\"\n" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\">\n" +
 	"\x16GetBaseDictItemRequest\x12$\n" +
-	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e字典属性IDR\x02id\"~\n" +
-	"\x19CreateBaseDictItemRequest\x12a\n" +
-	"\x0ebase_dict_item\x18\x01 \x01(\v2!.system.admin.v1.BaseDictItemFormB\x18\xbaG\x15\x92\x02\x12字典属性表单R\fbaseDictItem\"~\n" +
-	"\x19UpdateBaseDictItemRequest\x12a\n" +
-	"\x0ebase_dict_item\x18\x01 \x01(\v2!.system.admin.v1.BaseDictItemFormB\x18\xbaG\x15\x92\x02\x12字典属性表单R\fbaseDictItem\"G\n" +
+	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e字典属性IDR\x02id\"\x84\x01\n" +
+	"\x19CreateBaseDictItemRequest\x12g\n" +
+	"\x0ebase_dict_item\x18\x01 \x01(\v2!.system.admin.v1.BaseDictItemFormB\x1e\xbaG\x15\x92\x02\x12字典属性表单\xbaH\x03\xc8\x01\x01R\fbaseDictItem\"\x84\x01\n" +
+	"\x19UpdateBaseDictItemRequest\x12g\n" +
+	"\x0ebase_dict_item\x18\x01 \x01(\v2!.system.admin.v1.BaseDictItemFormB\x1e\xbaG\x15\x92\x02\x12字典属性表单\xbaH\x03\xc8\x01\x01R\fbaseDictItem\"G\n" +
 	"\x19DeleteBaseDictItemRequest\x12*\n" +
 	"\x02id\x18\x01 \x01(\tB\x1a\xbaG\x17\x92\x02\x14字典属性ID列表R\x02id\"j\n" +
 	"\x1cSetBaseDictItemStatusRequest\x12$\n" +
@@ -1371,43 +1372,48 @@ const file_system_admin_v1_base_dict_proto_rawDesc = "" +
 	"\bBaseDict\x12&\n" +
 	"\x04code\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f字典编号R\x04code\x12&\n" +
 	"\x04name\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f字典名称R\x04name\x12_\n" +
-	"\x05items\x18\xac\x02 \x03(\v24.system.admin.v1.OptionBaseDictResponse.BaseDictItemB\x12\xbaG\x0f\x92\x02\f字典属性R\x05items\"\x9b\x02\n" +
+	"\x05items\x18\xac\x02 \x03(\v24.system.admin.v1.OptionBaseDictResponse.BaseDictItemB\x12\xbaG\x0f\x92\x02\f字典属性R\x05items\"\x8b\x04\n" +
 	"\bBaseDict\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b字典IDR\x02id\x12&\n" +
-	"\x04code\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f字典编号R\x04code\x12&\n" +
-	"\x04name\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f字典名称R\x04name\x127\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b字典IDR\x02id\x12\x9d\x01\n" +
+	"\x04code\x18\x02 \x01(\tB\x88\x01\xbaG\x0f\x92\x02\f字典编号\xbaHs\xba\x01p\n" +
+	"\x15base_dict.code.length\x121字典编号不能为空且不超过 50 个字符\x1a$this.size() > 0 && this.size() <= 50R\x04code\x12\x9d\x01\n" +
+	"\x04name\x18\x03 \x01(\tB\x88\x01\xbaG\x0f\x92\x02\f字典名称\xbaHs\xba\x01p\n" +
+	"\x15base_dict.name.length\x121字典名称不能为空且不超过 50 个字符\x1a$this.size() > 0 && this.size() <= 50R\x04name\x127\n" +
 	"\x06status\x18e \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态R\x06status\x122\n" +
 	"\n" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
 	"\n" +
-	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\"\xc7\x01\n" +
+	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\"\xbf\x01\n" +
 	"\fBaseDictForm\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b字典IDR\x02id\x12&\n" +
 	"\x04code\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f字典编号R\x04code\x12&\n" +
-	"\x04name\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f字典名称R\x04name\x12<\n" +
-	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态H\x00R\x06status\x88\x01\x01B\t\n" +
-	"\a_status\"\xdb\x03\n" +
+	"\x04name\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f字典名称R\x04name\x12?\n" +
+	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"\xc8\a\n" +
 	"\fBaseDictItem\x12!\n" +
-	"\x02id\x18\x01 \x01(\x03B\x11\xbaG\x0e\x92\x02\v字典项IDR\x02id\x12'\n" +
-	"\adict_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b字典IDR\x06dictId\x12(\n" +
-	"\x05value\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f字典项值R\x05value\x12+\n" +
-	"\x05label\x18\x04 \x01(\tB\x15\xbaG\x12\x92\x02\x0f字典项标签R\x05label\x12e\n" +
-	"\btag_type\x18\x05 \x01(\tBJ\xbaGG\x92\x02D标签类型，用于前端样式展示（如success、warning等）R\atagType\x12 \n" +
-	"\x04sort\x18\x06 \x01(\x05B\f\xbaG\t\x92\x02\x06排序R\x04sort\x127\n" +
+	"\x02id\x18\x01 \x01(\x03B\x11\xbaG\x0e\x92\x02\v字典项IDR\x02id\x12l\n" +
+	"\adict_id\x18\x02 \x01(\x03BS\xbaG\v\x92\x02\b字典ID\xbaHB\xba\x01?\n" +
+	"\x1fbase_dict_item.dict_id.required\x12\x12字典不能为空\x1a\bthis > 0R\x06dictId\x12\xa5\x01\n" +
+	"\x05value\x18\x03 \x01(\tB\x8e\x01\xbaG\x0f\x92\x02\f字典项值\xbaHy\xba\x01v\n" +
+	"\x1bbase_dict_item.value.length\x121字典项值不能为空且不超过 50 个字符\x1a$this.size() > 0 && this.size() <= 50R\x05value\x12\xad\x01\n" +
+	"\x05label\x18\x04 \x01(\tB\x96\x01\xbaG\x12\x92\x02\x0f字典项标签\xbaH~\xba\x01{\n" +
+	"\x1bbase_dict_item.label.length\x125字典项标签不能为空且不超过 100 个字符\x1a%this.size() > 0 && this.size() <= 100R\x05label\x12\xc7\x01\n" +
+	"\btag_type\x18\x05 \x01(\tB\xab\x01\xbaGG\x92\x02D标签类型，用于前端样式展示（如success、warning等）\xbaH^\xba\x01[\n" +
+	"\x1fbase_dict_item.tag_type.max_len\x12%标签类型不能超过 50 个字符\x1a\x11this.size() <= 50R\atagType\x12d\n" +
+	"\x04sort\x18\x06 \x01(\x05BP\xbaG\t\x92\x02\x06排序\xbaHA\xba\x01>\n" +
+	"\x1cbase_dict_item.sort.required\x12\x14排序必须大于 0\x1a\bthis > 0R\x04sort\x127\n" +
 	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态R\x06status\x122\n" +
 	"\n" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
 	"\n" +
-	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\"\x87\x03\n" +
+	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\"\xff\x02\n" +
 	"\x10BaseDictItemForm\x12!\n" +
 	"\x02id\x18\x01 \x01(\x03B\x11\xbaG\x0e\x92\x02\v字典项IDR\x02id\x12'\n" +
 	"\adict_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b字典IDR\x06dictId\x12(\n" +
 	"\x05value\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f字典项值R\x05value\x12+\n" +
 	"\x05label\x18\x04 \x01(\tB\x15\xbaG\x12\x92\x02\x0f字典项标签R\x05label\x12e\n" +
 	"\btag_type\x18\x05 \x01(\tBJ\xbaGG\x92\x02D标签类型，用于前端样式展示（如success、warning等）R\atagType\x12 \n" +
-	"\x04sort\x18\x06 \x01(\x05B\f\xbaG\t\x92\x02\x06排序R\x04sort\x12<\n" +
-	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态H\x00R\x06status\x88\x01\x01B\t\n" +
-	"\a_status2\x8e\x0e\n" +
+	"\x04sort\x18\x06 \x01(\x05B\f\xbaG\t\x92\x02\x06排序R\x04sort\x12?\n" +
+	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status2\x8e\x0e\n" +
 	"\x0fBaseDictService\x12\x89\x01\n" +
 	"\x0eOptionBaseDict\x12&.system.admin.v1.OptionBaseDictRequest\x1a'.system.admin.v1.OptionBaseDictResponse\"&\x82\xd3\xe4\x93\x02 \x12\x1e/api/v1/admin/base/dict/option\x12|\n" +
 	"\fPageBaseDict\x12$.system.admin.v1.PageBaseDictRequest\x1a%.system.admin.v1.PageBaseDictResponse\"\x1f\x82\xd3\xe4\x93\x02\x19\x12\x17/api/v1/admin/base/dict\x12w\n" +
@@ -1518,8 +1524,6 @@ func file_system_admin_v1_base_dict_proto_init() {
 	}
 	file_system_admin_v1_base_dict_proto_msgTypes[1].OneofWrappers = []any{}
 	file_system_admin_v1_base_dict_proto_msgTypes[8].OneofWrappers = []any{}
-	file_system_admin_v1_base_dict_proto_msgTypes[17].OneofWrappers = []any{}
-	file_system_admin_v1_base_dict_proto_msgTypes[19].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

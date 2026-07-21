@@ -102,9 +102,7 @@ export interface BaseDeptForm {
   /** 排序 */
   sort: number;
   /** 状态 */
-  status?:
-    | Status
-    | undefined;
+  status: Status;
   /** 备注 */
   remark: string;
 }

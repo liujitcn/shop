@@ -13,6 +13,7 @@ import (
 	sync "sync"
 	unsafe "unsafe"
 
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -870,7 +871,7 @@ type BaseJobForm struct {
 	InvokeTarget   string                 `protobuf:"bytes,3,opt,name=invoke_target,json=invokeTarget,proto3" json:"invoke_target,omitempty"`       // 调用目标
 	Args           []*BaseJobArgs         `protobuf:"bytes,4,rep,name=args,proto3" json:"args,omitempty"`                                           // 目标参数
 	CronExpression string                 `protobuf:"bytes,5,opt,name=cron_expression,json=cronExpression,proto3" json:"cron_expression,omitempty"` // cron表达式
-	Status         *v1.Status             `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"`        // 状态
+	Status         v1.Status              `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`              // 状态
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -941,8 +942,8 @@ func (x *BaseJobForm) GetCronExpression() string {
 }
 
 func (x *BaseJobForm) GetStatus() v1.Status {
-	if x != nil && x.Status != nil {
-		return *x.Status
+	if x != nil {
+		return x.Status
 	}
 	return v1.Status(0)
 }
@@ -1052,7 +1053,7 @@ var File_system_admin_v1_base_job_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_base_job_proto_rawDesc = "" +
 	"\n" +
-	"\x1esystem/admin/v1/base_job.proto\x12\x0fsystem.admin.v1\x1a\x14common/v1/enum.proto\x1a\x1bsystem/common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xbc\x02\n" +
+	"\x1esystem/admin/v1/base_job.proto\x12\x0fsystem.admin.v1\x1a\x14common/v1/enum.proto\x1a\x1bsystem/common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1bbuf/validate/validate.proto\"\xbc\x02\n" +
 	"\x12PageBaseJobRequest\x12&\n" +
 	"\x04name\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f任务名称R\x04name\x127\n" +
 	"\rinvoke_target\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f调用目标R\finvokeTarget\x12<\n" +
@@ -1106,15 +1107,17 @@ const file_system_admin_v1_base_job_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
 	"\n" +
-	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\"\xdb\x02\n" +
+	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\"\xcf\x05\n" +
 	"\vBaseJobForm\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b任务IDR\x02id\x12&\n" +
-	"\x04name\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f任务名称R\x04name\x127\n" +
-	"\rinvoke_target\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f调用目标R\finvokeTarget\x12D\n" +
-	"\x04args\x18\x04 \x03(\v2\x1c.system.admin.v1.BaseJobArgsB\x12\xbaG\x0f\x92\x02\f目标参数R\x04args\x12<\n" +
-	"\x0fcron_expression\x18\x05 \x01(\tB\x13\xbaG\x10\x92\x02\rcron表达式R\x0ecronExpression\x12<\n" +
-	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态H\x00R\x06status\x88\x01\x01B\t\n" +
-	"\a_status\"\xb8\x03\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b任务IDR\x02id\x12\x9c\x01\n" +
+	"\x04name\x18\x02 \x01(\tB\x87\x01\xbaG\x0f\x92\x02\f任务名称\xbaHr\xba\x01o\n" +
+	"\x14base_job.name.length\x121任务名称不能为空且不超过 50 个字符\x1a$this.size() > 0 && this.size() <= 50R\x04name\x12\xb8\x01\n" +
+	"\rinvoke_target\x18\x03 \x01(\tB\x92\x01\xbaG\x0f\x92\x02\f调用目标\xbaH}\xba\x01z\n" +
+	"\x1dbase_job.invoke_target.length\x122调用目标不能为空且不超过 100 个字符\x1a%this.size() > 0 && this.size() <= 100R\finvokeTarget\x12D\n" +
+	"\x04args\x18\x04 \x03(\v2\x1c.system.admin.v1.BaseJobArgsB\x12\xbaG\x0f\x92\x02\f目标参数R\x04args\x12\xbe\x01\n" +
+	"\x0fcron_expression\x18\x05 \x01(\tB\x94\x01\xbaG\x10\x92\x02\rcron表达式\xbaH~\xba\x01{\n" +
+	"\x1fbase_job.cron_expression.length\x122cron表达式不能为空且不超过 50 个字符\x1a$this.size() > 0 && this.size() <= 50R\x0ecronExpression\x12?\n" +
+	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"\xb8\x03\n" +
 	"\n" +
 	"BaseJobLog\x12$\n" +
 	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e任务日志IDR\x02id\x12%\n" +
@@ -1224,7 +1227,6 @@ func file_system_admin_v1_base_job_proto_init() {
 	}
 	file_system_admin_v1_base_job_proto_msgTypes[0].OneofWrappers = []any{}
 	file_system_admin_v1_base_job_proto_msgTypes[10].OneofWrappers = []any{}
-	file_system_admin_v1_base_job_proto_msgTypes[15].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

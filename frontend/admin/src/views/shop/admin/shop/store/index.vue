@@ -156,11 +156,25 @@ const isDefaultTenant = computed(() => userStore.userInfo.tenant_code === DEFAUL
 const auditTenantName = computed(() => tenantOptions.value.find(item => item.value === auditDetail.value.tenant_id)?.label ?? "");
 
 const rules = reactive({
-  name: [{ required: true, message: "请输入门店名称", trigger: "blur" }],
-  logo: [{ required: true, message: "请上传门店LOGO", trigger: "change" }],
-  cover: [{ required: true, message: "请上传门店封面", trigger: "change" }],
-  intro: [{ required: true, message: "请输入门店简介", trigger: "blur" }],
-  business_license: [{ required: true, message: "请上传营业执照", trigger: "change" }]
+  name: [
+    { required: true, message: "请输入门店名称", trigger: "blur" },
+    { max: 100, message: "门店名称不能超过 100 个字符", trigger: "blur" }
+  ],
+  logo: [
+    { required: true, message: "请上传门店LOGO", trigger: "change" },
+    { max: 1024, message: "门店LOGO不能超过 1024 个字符", trigger: "change" }
+  ],
+  cover: [
+    { required: true, message: "请上传门店封面", trigger: "change" },
+    { max: 1024, message: "门店封面不能超过 1024 个字符", trigger: "change" }
+  ],
+  intro: [
+    { required: true, message: "请输入门店简介", trigger: "blur" },
+    { max: 500, message: "门店简介不能超过 500 个字符", trigger: "blur" }
+  ],
+  notice: [{ max: 500, message: "门店公告不能超过 500 个字符", trigger: "blur" }],
+  business_license: [{ required: true, message: "请上传营业执照", trigger: "change" }],
+  remark: [{ max: 500, message: "备注不能超过 500 个字符", trigger: "blur" }]
 });
 
 const auditRules = reactive({
@@ -332,6 +346,7 @@ function createDefaultFormData(): TenantStoreForm {
     intro: "",
     notice: "",
     business_license: [],
+    status: TenantStoreStatus.UNKNOWN_TSS,
     remark: ""
   };
 }

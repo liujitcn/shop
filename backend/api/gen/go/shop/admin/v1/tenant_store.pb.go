@@ -12,6 +12,7 @@ import (
 	sync "sync"
 	unsafe "unsafe"
 
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -721,15 +722,15 @@ func (x *TenantStore) GetUpdatedAt() string {
 // 租户门店表单
 type TenantStoreForm struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
-	Id              int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                       // 门店ID
-	Name            string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`                                                    // 门店名称
-	Logo            string                 `protobuf:"bytes,3,opt,name=logo,proto3" json:"logo,omitempty"`                                                    // 门店LOGO
-	Cover           string                 `protobuf:"bytes,4,opt,name=cover,proto3" json:"cover,omitempty"`                                                  // 门店封面
-	Intro           string                 `protobuf:"bytes,5,opt,name=intro,proto3" json:"intro,omitempty"`                                                  // 门店简介
-	Notice          string                 `protobuf:"bytes,6,opt,name=notice,proto3" json:"notice,omitempty"`                                                // 门店公告
-	BusinessLicense []string               `protobuf:"bytes,7,rep,name=business_license,json=businessLicense,proto3" json:"business_license,omitempty"`       // 营业执照
-	Remark          string                 `protobuf:"bytes,8,opt,name=remark,proto3" json:"remark,omitempty"`                                                // 备注
-	Status          *v1.TenantStoreStatus  `protobuf:"varint,100,opt,name=status,proto3,enum=shop.common.v1.TenantStoreStatus,oneof" json:"status,omitempty"` // 审核状态：枚举【TenantStoreStatus】
+	Id              int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                 // 门店ID
+	Name            string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`                                              // 门店名称
+	Logo            string                 `protobuf:"bytes,3,opt,name=logo,proto3" json:"logo,omitempty"`                                              // 门店LOGO
+	Cover           string                 `protobuf:"bytes,4,opt,name=cover,proto3" json:"cover,omitempty"`                                            // 门店封面
+	Intro           string                 `protobuf:"bytes,5,opt,name=intro,proto3" json:"intro,omitempty"`                                            // 门店简介
+	Notice          string                 `protobuf:"bytes,6,opt,name=notice,proto3" json:"notice,omitempty"`                                          // 门店公告
+	BusinessLicense []string               `protobuf:"bytes,7,rep,name=business_license,json=businessLicense,proto3" json:"business_license,omitempty"` // 营业执照
+	Remark          string                 `protobuf:"bytes,8,opt,name=remark,proto3" json:"remark,omitempty"`                                          // 备注
+	Status          v1.TenantStoreStatus   `protobuf:"varint,100,opt,name=status,proto3,enum=shop.common.v1.TenantStoreStatus" json:"status,omitempty"` // 审核状态：枚举【TenantStoreStatus】
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -821,8 +822,8 @@ func (x *TenantStoreForm) GetRemark() string {
 }
 
 func (x *TenantStoreForm) GetStatus() v1.TenantStoreStatus {
-	if x != nil && x.Status != nil {
-		return *x.Status
+	if x != nil {
+		return x.Status
 	}
 	return v1.TenantStoreStatus(0)
 }
@@ -969,7 +970,7 @@ var File_shop_admin_v1_tenant_store_proto protoreflect.FileDescriptor
 
 const file_shop_admin_v1_tenant_store_proto_rawDesc = "" +
 	"\n" +
-	" shop/admin/v1/tenant_store.proto\x12\rshop.admin.v1\x1a\x19shop/common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"Q\n" +
+	" shop/admin/v1/tenant_store.proto\x12\rshop.admin.v1\x1a\x19shop/common/v1/enum.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"Q\n" +
 	"\x18OptionTenantStoreRequest\x125\n" +
 	"\akeyword\x18\x01 \x01(\tB\x1b\xbaG\x18\x92\x02\x15门店名称关键字R\akeyword\"\xd4\x01\n" +
 	"\x19OptionTenantStoreResponse\x12]\n" +
@@ -1001,12 +1002,12 @@ const file_shop_admin_v1_tenant_store_proto_rawDesc = "" +
 	"\rtenant_stores\x18\x01 \x03(\v2\x1a.shop.admin.v1.TenantStoreB\x18\xbaG\x15\x92\x02\x12租户门店列表R\ftenantStores\x12\"\n" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"7\n" +
 	"\x15GetTenantStoreRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b门店IDR\x02id\"w\n" +
-	"\x18CreateTenantStoreRequest\x12[\n" +
-	"\ftenant_store\x18\x01 \x01(\v2\x1e.shop.admin.v1.TenantStoreFormB\x18\xbaG\x15\x92\x02\x12租户门店表单R\vtenantStore\"\x97\x01\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b门店IDR\x02id\"}\n" +
+	"\x18CreateTenantStoreRequest\x12a\n" +
+	"\ftenant_store\x18\x01 \x01(\v2\x1e.shop.admin.v1.TenantStoreFormB\x1e\xbaG\x15\x92\x02\x12租户门店表单\xbaH\x03\xc8\x01\x01R\vtenantStore\"\x9d\x01\n" +
 	"\x18UpdateTenantStoreRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b门店IDR\x02id\x12[\n" +
-	"\ftenant_store\x18\x02 \x01(\v2\x1e.shop.admin.v1.TenantStoreFormB\x18\xbaG\x15\x92\x02\x12租户门店表单R\vtenantStore\"Z\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b门店IDR\x02id\x12a\n" +
+	"\ftenant_store\x18\x02 \x01(\v2\x1e.shop.admin.v1.TenantStoreFormB\x1e\xbaG\x15\x92\x02\x12租户门店表单\xbaH\x03\xc8\x01\x01R\vtenantStore\"Z\n" +
 	"\x18DeleteTenantStoreRequest\x12>\n" +
 	"\x03ids\x18\x01 \x01(\tB,\xbaG)\x92\x02&门店ID列表，多个用逗号分隔R\x03ids\"\xd4\x01\n" +
 	"\x17AuditTenantStoreRequest\x12\x1e\n" +
@@ -1028,19 +1029,25 @@ const file_shop_admin_v1_tenant_store_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
 	"\n" +
-	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\"\xe3\x03\n" +
+	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\"\x89\t\n" +
 	"\x0fTenantStoreForm\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b门店IDR\x02id\x12&\n" +
-	"\x04name\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f门店名称R\x04name\x12$\n" +
-	"\x04logo\x18\x03 \x01(\tB\x10\xbaG\r\x92\x02\n" +
-	"门店LOGOR\x04logo\x12(\n" +
-	"\x05cover\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f门店封面R\x05cover\x12(\n" +
-	"\x05intro\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\f门店简介R\x05intro\x12*\n" +
-	"\x06notice\x18\x06 \x01(\tB\x12\xbaG\x0f\x92\x02\f门店公告R\x06notice\x12=\n" +
-	"\x10business_license\x18\a \x03(\tB\x12\xbaG\x0f\x92\x02\f营业执照R\x0fbusinessLicense\x12$\n" +
-	"\x06remark\x18\b \x01(\tB\f\xbaG\t\x92\x02\x06备注R\x06remark\x12r\n" +
-	"\x06status\x18d \x01(\x0e2!.shop.common.v1.TenantStoreStatusB2\xbaG/\x92\x02,审核状态：枚举【TenantStoreStatus】H\x00R\x06status\x88\x01\x01B\t\n" +
-	"\a_status2\xda\b\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b门店IDR\x02id\x12\xa2\x01\n" +
+	"\x04name\x18\x02 \x01(\tB\x8d\x01\xbaG\x0f\x92\x02\f门店名称\xbaHx\xba\x01u\n" +
+	"\x18tenant_store.name.length\x122门店名称不能为空且不超过 100 个字符\x1a%this.size() > 0 && this.size() <= 100R\x04name\x12\x81\x01\n" +
+	"\x04logo\x18\x03 \x01(\tBm\xbaG\r\x92\x02\n" +
+	"门店LOGO\xbaHZ\xba\x01W\n" +
+	"\x19tenant_store.logo.max_len\x12%门店LOGO不能超过 1024 个字符\x1a\x13this.size() <= 1024R\x04logo\x12\x88\x01\n" +
+	"\x05cover\x18\x04 \x01(\tBr\xbaG\x0f\x92\x02\f门店封面\xbaH]\xba\x01Z\n" +
+	"\x1atenant_store.cover.max_len\x12'门店封面不能超过 1024 个字符\x1a\x13this.size() <= 1024R\x05cover\x12\x86\x01\n" +
+	"\x05intro\x18\x05 \x01(\tBp\xbaG\x0f\x92\x02\f门店简介\xbaH[\xba\x01X\n" +
+	"\x1atenant_store.intro.max_len\x12&门店简介不能超过 500 个字符\x1a\x12this.size() <= 500R\x05intro\x12\x89\x01\n" +
+	"\x06notice\x18\x06 \x01(\tBq\xbaG\x0f\x92\x02\f门店公告\xbaH\\\xba\x01Y\n" +
+	"\x1btenant_store.notice.max_len\x12&门店公告不能超过 500 个字符\x1a\x12this.size() <= 500R\x06notice\x12\x96\x01\n" +
+	"\x10business_license\x18\a \x03(\tBk\xbaG\x0f\x92\x02\f营业执照\xbaHV\xba\x01S\n" +
+	"&tenant_store.business_license.required\x12\x18营业执照不能为空\x1a\x0fthis.size() > 0R\x0fbusinessLicense\x12}\n" +
+	"\x06remark\x18\b \x01(\tBe\xbaG\t\x92\x02\x06备注\xbaHV\xba\x01S\n" +
+	"\x1btenant_store.remark.max_len\x12 备注不能超过 500 个字符\x1a\x12this.size() <= 500R\x06remark\x12u\n" +
+	"\x06status\x18d \x01(\x0e2!.shop.common.v1.TenantStoreStatusB:\xbaG/\x92\x02,审核状态：枚举【TenantStoreStatus】\xbaH\x05\x82\x01\x02\x10\x01R\x06status2\xda\b\n" +
 	"\x12TenantStoreService\x12\x91\x01\n" +
 	"\x11OptionTenantStore\x12'.shop.admin.v1.OptionTenantStoreRequest\x1a(.shop.admin.v1.OptionTenantStoreResponse\")\x82\xd3\xe4\x93\x02#\x12!/api/v1/admin/tenant/store/option\x12\x89\x01\n" +
 	"\x0fTreeTenantStore\x12%.shop.admin.v1.TreeTenantStoreRequest\x1a&.shop.admin.v1.TreeTenantStoreResponse\"'\x82\xd3\xe4\x93\x02!\x12\x1f/api/v1/admin/tenant/store/tree\x12\x84\x01\n" +
@@ -1124,7 +1131,6 @@ func file_shop_admin_v1_tenant_store_proto_init() {
 		return
 	}
 	file_shop_admin_v1_tenant_store_proto_msgTypes[4].OneofWrappers = []any{}
-	file_shop_admin_v1_tenant_store_proto_msgTypes[12].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

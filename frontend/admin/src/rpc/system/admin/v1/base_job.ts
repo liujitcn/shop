@@ -156,7 +156,7 @@ export interface BaseJobForm {
   /** cron表达式 */
   cron_expression: string;
   /** 状态 */
-  status?: Status | undefined;
+  status: Status;
 }
 
 /** 定时任务日志 */

@@ -13,6 +13,7 @@ import (
 	sync "sync"
 	unsafe "unsafe"
 
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -555,13 +556,13 @@ func (x *BaseConfig) GetUpdatedAt() string {
 // 系统配置表单
 type BaseConfigForm struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                // 配置ID
-	Site          *v1.BaseConfigSite     `protobuf:"varint,2,opt,name=site,proto3,enum=common.v1.BaseConfigSite,oneof" json:"site,omitempty"`        // 位置：枚举【BaseConfigSite】
-	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                             // 配置名称
-	Type          *v11.BaseConfigType    `protobuf:"varint,4,opt,name=type,proto3,enum=system.common.v1.BaseConfigType,oneof" json:"type,omitempty"` // 配置类型：1、文本，2、图片，3、富文本，4、字典
-	Key           string                 `protobuf:"bytes,5,opt,name=key,proto3" json:"key,omitempty"`                                               // 配置key
-	Value         string                 `protobuf:"bytes,6,opt,name=value,proto3" json:"value,omitempty"`                                           // 配置value
-	Status        *v1.Status             `protobuf:"varint,51,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"`           // 状态
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                          // 配置ID
+	Site          v1.BaseConfigSite      `protobuf:"varint,2,opt,name=site,proto3,enum=common.v1.BaseConfigSite" json:"site,omitempty"`        // 位置：枚举【BaseConfigSite】
+	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                       // 配置名称
+	Type          v11.BaseConfigType     `protobuf:"varint,4,opt,name=type,proto3,enum=system.common.v1.BaseConfigType" json:"type,omitempty"` // 配置类型：1、文本，2、图片，3、富文本，4、字典
+	Key           string                 `protobuf:"bytes,5,opt,name=key,proto3" json:"key,omitempty"`                                         // 配置key
+	Value         string                 `protobuf:"bytes,6,opt,name=value,proto3" json:"value,omitempty"`                                     // 配置value
+	Status        v1.Status              `protobuf:"varint,51,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`           // 状态
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -604,8 +605,8 @@ func (x *BaseConfigForm) GetId() int64 {
 }
 
 func (x *BaseConfigForm) GetSite() v1.BaseConfigSite {
-	if x != nil && x.Site != nil {
-		return *x.Site
+	if x != nil {
+		return x.Site
 	}
 	return v1.BaseConfigSite(0)
 }
@@ -618,8 +619,8 @@ func (x *BaseConfigForm) GetName() string {
 }
 
 func (x *BaseConfigForm) GetType() v11.BaseConfigType {
-	if x != nil && x.Type != nil {
-		return *x.Type
+	if x != nil {
+		return x.Type
 	}
 	return v11.BaseConfigType(0)
 }
@@ -639,8 +640,8 @@ func (x *BaseConfigForm) GetValue() string {
 }
 
 func (x *BaseConfigForm) GetStatus() v1.Status {
-	if x != nil && x.Status != nil {
-		return *x.Status
+	if x != nil {
+		return x.Status
 	}
 	return v1.Status(0)
 }
@@ -649,7 +650,7 @@ var File_system_admin_v1_base_config_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_base_config_proto_rawDesc = "" +
 	"\n" +
-	"!system/admin/v1/base_config.proto\x12\x0fsystem.admin.v1\x1a\x14common/v1/enum.proto\x1a\x1bsystem/common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x1f\n" +
+	"!system/admin/v1/base_config.proto\x12\x0fsystem.admin.v1\x1a\x14common/v1/enum.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1bsystem/common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x1f\n" +
 	"\x1dRefreshBaseConfigCacheRequest\"\xb6\x04\n" +
 	"\x15PageBaseConfigRequest\x12]\n" +
 	"\x04site\x18\x02 \x01(\x0e2\x19.common.v1.BaseConfigSiteB)\xbaG&\x92\x02#位置：枚举【BaseConfigSite】H\x00R\x04site\x88\x01\x01\x12+\n" +
@@ -668,12 +669,12 @@ const file_system_admin_v1_base_config_proto_rawDesc = "" +
 	"\fbase_configs\x18\x01 \x03(\v2\x1b.system.admin.v1.BaseConfigB\x12\xbaG\x0f\x92\x02\f分页数据R\vbaseConfigs\x12\"\n" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"6\n" +
 	"\x14GetBaseConfigRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b配置IDR\x02id\"u\n" +
-	"\x17CreateBaseConfigRequest\x12Z\n" +
-	"\vbase_config\x18\x01 \x01(\v2\x1f.system.admin.v1.BaseConfigFormB\x18\xbaG\x15\x92\x02\x12系统配置表单R\n" +
-	"baseConfig\"u\n" +
-	"\x17UpdateBaseConfigRequest\x12Z\n" +
-	"\vbase_config\x18\x01 \x01(\v2\x1f.system.admin.v1.BaseConfigFormB\x18\xbaG\x15\x92\x02\x12系统配置表单R\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b配置IDR\x02id\"{\n" +
+	"\x17CreateBaseConfigRequest\x12`\n" +
+	"\vbase_config\x18\x01 \x01(\v2\x1f.system.admin.v1.BaseConfigFormB\x1e\xbaG\x15\x92\x02\x12系统配置表单\xbaH\x03\xc8\x01\x01R\n" +
+	"baseConfig\"{\n" +
+	"\x17UpdateBaseConfigRequest\x12`\n" +
+	"\vbase_config\x18\x01 \x01(\v2\x1f.system.admin.v1.BaseConfigFormB\x1e\xbaG\x15\x92\x02\x12系统配置表单\xbaH\x03\xc8\x01\x01R\n" +
 	"baseConfig\"?\n" +
 	"\x17DeleteBaseConfigRequest\x12$\n" +
 	"\x02id\x18\x01 \x01(\tB\x14\xbaG\x11\x92\x02\x0e配置ID列表R\x02id\"b\n" +
@@ -692,18 +693,18 @@ const file_system_admin_v1_base_config_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
 	"\n" +
-	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\"\xe5\x03\n" +
+	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\"\x8b\x06\n" +
 	"\x0eBaseConfigForm\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b配置IDR\x02id\x12]\n" +
-	"\x04site\x18\x02 \x01(\x0e2\x19.common.v1.BaseConfigSiteB)\xbaG&\x92\x02#位置：枚举【BaseConfigSite】H\x00R\x04site\x88\x01\x01\x12&\n" +
-	"\x04name\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f配置名称R\x04name\x12\x84\x01\n" +
-	"\x04type\x18\x04 \x01(\x0e2 .system.common.v1.BaseConfigTypeBI\xbaGF\x92\x02C配置类型：1、文本，2、图片，3、富文本，4、字典H\x01R\x04type\x88\x01\x01\x12!\n" +
-	"\x03key\x18\x05 \x01(\tB\x0f\xbaG\f\x92\x02\t配置keyR\x03key\x12'\n" +
-	"\x05value\x18\x06 \x01(\tB\x11\xbaG\x0e\x92\x02\v配置valueR\x05value\x12<\n" +
-	"\x06status\x183 \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态H\x02R\x06status\x88\x01\x01B\a\n" +
-	"\x05_siteB\a\n" +
-	"\x05_typeB\t\n" +
-	"\a_status2\xd6\a\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b配置IDR\x02id\x12`\n" +
+	"\x04site\x18\x02 \x01(\x0e2\x19.common.v1.BaseConfigSiteB1\xbaG&\x92\x02#位置：枚举【BaseConfigSite】\xbaH\x05\x82\x01\x02\x10\x01R\x04site\x12\x9f\x01\n" +
+	"\x04name\x18\x03 \x01(\tB\x8a\x01\xbaG\x0f\x92\x02\f配置名称\xbaHu\xba\x01r\n" +
+	"\x17base_config.name.length\x121配置名称不能为空且不超过 50 个字符\x1a$this.size() > 0 && this.size() <= 50R\x04name\x12\x87\x01\n" +
+	"\x04type\x18\x04 \x01(\x0e2 .system.common.v1.BaseConfigTypeBQ\xbaGF\x92\x02C配置类型：1、文本，2、图片，3、富文本，4、字典\xbaH\x05\x82\x01\x02\x10\x01R\x04type\x12\x96\x01\n" +
+	"\x03key\x18\x05 \x01(\tB\x83\x01\xbaG\f\x92\x02\t配置key\xbaHq\xba\x01n\n" +
+	"\x16base_config.key.length\x12.配置key不能为空且不超过 50 个字符\x1a$this.size() > 0 && this.size() <= 50R\x03key\x12q\n" +
+	"\x05value\x18\x06 \x01(\tB[\xbaG\x0e\x92\x02\v配置value\xbaHG\xba\x01D\n" +
+	"\x1abase_config.value.required\x12\x15配置值不能为空\x1a\x0fthis.size() > 0R\x05value\x12?\n" +
+	"\x06status\x183 \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status2\xd6\a\n" +
 	"\x11BaseConfigService\x12\x8c\x01\n" +
 	"\x16RefreshBaseConfigCache\x12..system.admin.v1.RefreshBaseConfigCacheRequest\x1a\x16.google.protobuf.Empty\"*\x82\xd3\xe4\x93\x02$:\x01*\x1a\x1f/api/v1/admin/base/config/cache\x12\x84\x01\n" +
 	"\x0ePageBaseConfig\x12&.system.admin.v1.PageBaseConfigRequest\x1a'.system.admin.v1.PageBaseConfigResponse\"!\x82\xd3\xe4\x93\x02\x1b\x12\x19/api/v1/admin/base/config\x12\x7f\n" +
@@ -783,7 +784,6 @@ func file_system_admin_v1_base_config_proto_init() {
 		return
 	}
 	file_system_admin_v1_base_config_proto_msgTypes[1].OneofWrappers = []any{}
-	file_system_admin_v1_base_config_proto_msgTypes[9].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

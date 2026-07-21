@@ -13,6 +13,7 @@ import (
 	sync "sync"
 	unsafe "unsafe"
 
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -539,17 +540,17 @@ func (x *BaseMenu) GetChildren() []*BaseMenu {
 // 菜单表单
 type BaseMenuForm struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                              // 菜单ID
-	ParentId      *int64                 `protobuf:"varint,2,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`            // 父级菜单ID
-	Type          *v1.BaseMenuType       `protobuf:"varint,3,opt,name=type,proto3,enum=system.common.v1.BaseMenuType,oneof" json:"type,omitempty"` // 菜单类型
-	Path          string                 `protobuf:"bytes,4,opt,name=path,proto3" json:"path,omitempty"`                                           // 路由地址
-	Name          string                 `protobuf:"bytes,5,opt,name=name,proto3" json:"name,omitempty"`                                           // 路由命名，然后我们可以使用 name 而不是 path 来传递 to 属性给 <router-link>。
-	Component     string                 `protobuf:"bytes,6,opt,name=component,proto3" json:"component,omitempty"`                                 // 组件路径
-	Redirect      string                 `protobuf:"bytes,7,opt,name=redirect,proto3" json:"redirect,omitempty"`                                   // 重定向地址
-	Meta          *BaseMenuMeta          `protobuf:"bytes,8,opt,name=meta,proto3" json:"meta,omitempty"`                                           // 路由元信息
-	Api           []string               `protobuf:"bytes,9,rep,name=api,proto3" json:"api,omitempty"`                                             // 分配的API列表
-	Sort          int32                  `protobuf:"varint,50,opt,name=sort,proto3" json:"sort,omitempty"`                                         // 排序
-	Status        *v11.Status            `protobuf:"varint,101,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"`        // 状态
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                        // 菜单ID
+	ParentId      *int64                 `protobuf:"varint,2,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`      // 父级菜单ID
+	Type          v1.BaseMenuType        `protobuf:"varint,3,opt,name=type,proto3,enum=system.common.v1.BaseMenuType" json:"type,omitempty"` // 菜单类型
+	Path          string                 `protobuf:"bytes,4,opt,name=path,proto3" json:"path,omitempty"`                                     // 路由地址
+	Name          string                 `protobuf:"bytes,5,opt,name=name,proto3" json:"name,omitempty"`                                     // 路由命名，然后我们可以使用 name 而不是 path 来传递 to 属性给 <router-link>。
+	Component     string                 `protobuf:"bytes,6,opt,name=component,proto3" json:"component,omitempty"`                           // 组件路径
+	Redirect      string                 `protobuf:"bytes,7,opt,name=redirect,proto3" json:"redirect,omitempty"`                             // 重定向地址
+	Meta          *BaseMenuMeta          `protobuf:"bytes,8,opt,name=meta,proto3" json:"meta,omitempty"`                                     // 路由元信息
+	Api           []string               `protobuf:"bytes,9,rep,name=api,proto3" json:"api,omitempty"`                                       // 分配的API列表
+	Sort          int32                  `protobuf:"varint,50,opt,name=sort,proto3" json:"sort,omitempty"`                                   // 排序
+	Status        v11.Status             `protobuf:"varint,101,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`        // 状态
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -599,8 +600,8 @@ func (x *BaseMenuForm) GetParentId() int64 {
 }
 
 func (x *BaseMenuForm) GetType() v1.BaseMenuType {
-	if x != nil && x.Type != nil {
-		return *x.Type
+	if x != nil {
+		return x.Type
 	}
 	return v1.BaseMenuType(0)
 }
@@ -655,8 +656,8 @@ func (x *BaseMenuForm) GetSort() int32 {
 }
 
 func (x *BaseMenuForm) GetStatus() v11.Status {
-	if x != nil && x.Status != nil {
-		return *x.Status
+	if x != nil {
+		return x.Status
 	}
 	return v11.Status(0)
 }
@@ -819,7 +820,7 @@ var File_system_admin_v1_base_menu_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_base_menu_proto_rawDesc = "" +
 	"\n" +
-	"\x1fsystem/admin/v1/base_menu.proto\x12\x0fsystem.admin.v1\x1a\x16common/v1/common.proto\x1a\x14common/v1/enum.proto\x1a\x1bsystem/common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x15\n" +
+	"\x1fsystem/admin/v1/base_menu.proto\x12\x0fsystem.admin.v1\x1a\x16common/v1/common.proto\x1a\x14common/v1/enum.proto\x1a\x1bsystem/common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1bbuf/validate/validate.proto\"\x15\n" +
 	"\x13TreeBaseMenuRequest\"a\n" +
 	"\x14TreeBaseMenuResponse\x12I\n" +
 	"\n" +
@@ -857,23 +858,25 @@ const file_system_admin_v1_base_menu_proto_rawDesc = "" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
 	"\n" +
 	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x12G\n" +
-	"\bchildren\x18\xac\x02 \x03(\v2\x19.system.admin.v1.BaseMenuB\x0f\xbaG\f\x92\x02\t子菜单R\bchildren\"\xb7\x05\n" +
+	"\bchildren\x18\xac\x02 \x03(\v2\x19.system.admin.v1.BaseMenuB\x0f\xbaG\f\x92\x02\t子菜单R\bchildren\"\xc5\b\n" +
 	"\fBaseMenuForm\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b菜单IDR\x02id\x126\n" +
-	"\tparent_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e父级菜单IDH\x00R\bparentId\x88\x01\x01\x12K\n" +
-	"\x04type\x18\x03 \x01(\x0e2\x1e.system.common.v1.BaseMenuTypeB\x12\xbaG\x0f\x92\x02\f菜单类型H\x01R\x04type\x88\x01\x01\x12&\n" +
-	"\x04path\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f路由地址R\x04path\x12}\n" +
-	"\x04name\x18\x05 \x01(\tBi\xbaGf\x92\x02c路由命名，然后我们可以使用 name 而不是 path 来传递 to 属性给 <router-link>。R\x04name\x120\n" +
-	"\tcomponent\x18\x06 \x01(\tB\x12\xbaG\x0f\x92\x02\f组件路径R\tcomponent\x121\n" +
-	"\bredirect\x18\a \x01(\tB\x15\xbaG\x12\x92\x02\x0f重定向地址R\bredirect\x12H\n" +
+	"\tparent_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e父级菜单IDH\x00R\bparentId\x88\x01\x01\x12N\n" +
+	"\x04type\x18\x03 \x01(\x0e2\x1e.system.common.v1.BaseMenuTypeB\x1a\xbaG\x0f\x92\x02\f菜单类型\xbaH\x05\x82\x01\x02\x10\x01R\x04type\x12\xa1\x01\n" +
+	"\x04path\x18\x04 \x01(\tB\x8c\x01\xbaG\x0f\x92\x02\f路由地址\xbaHw\xba\x01t\n" +
+	"\x15base_menu.path.length\x123路由地址不能为空且不超过 1024 个字符\x1a&this.size() > 0 && this.size() <= 1024R\x04path\x12\xd8\x01\n" +
+	"\x04name\x18\x05 \x01(\tB\xc3\x01\xbaGf\x92\x02c路由命名，然后我们可以使用 name 而不是 path 来传递 to 属性给 <router-link>。\xbaHW\xba\x01T\n" +
+	"\x16base_menu.name.max_len\x12&路由名称不能超过 255 个字符\x1a\x12this.size() <= 255R\x04name\x12\x8f\x01\n" +
+	"\tcomponent\x18\x06 \x01(\tBq\xbaG\x0f\x92\x02\f组件路径\xbaH\\\xba\x01Y\n" +
+	"\x1bbase_menu.component.max_len\x12&组件路径不能超过 255 个字符\x1a\x12this.size() <= 255R\tcomponent\x12\x94\x01\n" +
+	"\bredirect\x18\a \x01(\tBx\xbaG\x12\x92\x02\x0f重定向地址\xbaH`\xba\x01]\n" +
+	"\x1abase_menu.redirect.max_len\x12*重定向地址不能超过 1024 个字符\x1a\x13this.size() <= 1024R\bredirect\x12H\n" +
 	"\x04meta\x18\b \x01(\v2\x1d.system.admin.v1.BaseMenuMetaB\x15\xbaG\x12\x92\x02\x0f路由元信息R\x04meta\x12*\n" +
 	"\x03api\x18\t \x03(\tB\x18\xbaG\x15\x92\x02\x12分配的API列表R\x03api\x12 \n" +
-	"\x04sort\x182 \x01(\x05B\f\xbaG\t\x92\x02\x06排序R\x04sort\x12<\n" +
-	"\x06status\x18e \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态H\x02R\x06status\x88\x01\x01B\f\n" +
+	"\x04sort\x182 \x01(\x05B\f\xbaG\t\x92\x02\x06排序R\x04sort\x12?\n" +
+	"\x06status\x18e \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06statusB\f\n" +
 	"\n" +
-	"_parent_idB\a\n" +
-	"\x05_typeB\t\n" +
-	"\a_status\"\xa2\x05\n" +
+	"_parent_id\"\xa2\x05\n" +
 	"\fBaseMenuMeta\x12(\n" +
 	"\x05title\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f菜单标题R\x05title\x12+\n" +
 	"\x04icon\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f菜单图标H\x00R\x04icon\x88\x01\x01\x12_\n" +

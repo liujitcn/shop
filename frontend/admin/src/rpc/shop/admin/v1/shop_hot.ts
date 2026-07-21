@@ -157,7 +157,7 @@ export interface ShopHotForm {
   /** 排序 */
   sort: number;
   /** 状态 */
-  status?: Status | undefined;
+  status: Status;
 }
 
 /** 热门专区项 */

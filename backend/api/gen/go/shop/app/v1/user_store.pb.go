@@ -12,6 +12,7 @@ import (
 	sync "sync"
 	unsafe "unsafe"
 
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -367,7 +368,7 @@ var File_shop_app_v1_user_store_proto protoreflect.FileDescriptor
 
 const file_shop_app_v1_user_store_proto_rawDesc = "" +
 	"\n" +
-	"\x1cshop/app/v1/user_store.proto\x12\vshop.app.v1\x1a\x19shop/common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x15\n" +
+	"\x1cshop/app/v1/user_store.proto\x12\vshop.app.v1\x1a\x19shop/common/v1/enum.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x15\n" +
 	"\x13GetUserStoreRequest\"g\n" +
 	"\x16CreateUserStoreRequest\x12M\n" +
 	"\n" +
@@ -386,12 +387,16 @@ const file_shop_app_v1_user_store_proto_rawDesc = "" +
 	"\faddress_name\x18\n" +
 	" \x03(\tB\x0f\xbaG\f\x92\x02\t省市区R\vaddressName\x12E\n" +
 	"\x06status\x183 \x01(\x0e2\x1f.shop.common.v1.UserStoreStatusB\f\xbaG\t\x92\x02\x06状态R\x06status\x12'\n" +
-	"\x06remark\x184 \x01(\tB\x0f\xbaG\f\x92\x02\t备注名R\x06remark\"\xd5\x02\n" +
+	"\x06remark\x184 \x01(\tB\x0f\xbaG\f\x92\x02\t备注名R\x06remark\"\x8f\x05\n" +
 	"\rUserStoreForm\x12$\n" +
-	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e用户门店IDR\x02id\x12&\n" +
-	"\x04name\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f门店名称R\x04name\x12)\n" +
-	"\aaddress\x18\x03 \x03(\tB\x0f\xbaG\f\x92\x02\t省市区R\aaddress\x12*\n" +
-	"\x06detail\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f详细地址R\x06detail\x12,\n" +
+	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e用户门店IDR\x02id\x12\xc0\x01\n" +
+	"\x04name\x18\x02 \x01(\tB\xab\x01\xbaG\x0f\x92\x02\f门店名称\xbaH\x95\x01\xba\x01@\n" +
+	"\x13field.name.required\x12\x18门店名称不能为空\x1a\x0fthis.size() > 0\xba\x01O\n" +
+	"\x11field.name.length\x12&门店名称不能超过 100 个字符\x1a\x12this.size() <= 100R\x04name\x12)\n" +
+	"\aaddress\x18\x03 \x03(\tB\x0f\xbaG\f\x92\x02\t省市区R\aaddress\x12\xc8\x01\n" +
+	"\x06detail\x18\x04 \x01(\tB\xaf\x01\xbaG\x0f\x92\x02\f详细地址\xbaH\x99\x01\xba\x01B\n" +
+	"\x15field.detail.required\x12\x18详细地址不能为空\x1a\x0fthis.size() > 0\xba\x01Q\n" +
+	"\x13field.detail.length\x12&详细地址不能超过 255 个字符\x1a\x12this.size() <= 255R\x06detail\x12,\n" +
 	"\apicture\x18\x05 \x03(\tB\x12\xbaG\x0f\x92\x02\f门店照片R\apicture\x12=\n" +
 	"\x10business_license\x18\x06 \x03(\tB\x12\xbaG\x0f\x92\x02\f营业执照R\x0fbusinessLicense\x122\n" +
 	"\faddress_name\x18\n" +

@@ -114,7 +114,10 @@ function ensureSkuFormArrays() {
 
 const state = reactive({
   rules: {
-    sku_code: [{ required: true, message: "请输入规格编号", trigger: "blur" }],
+    sku_code: [
+      { required: true, message: "请输入规格编号", trigger: "blur" },
+      { max: 50, message: "SKU编码不能超过 50 个字符", trigger: "blur" }
+    ],
     price: [{ required: true, message: "请输入售价", trigger: "blur" }],
     discount_price: [{ required: true, message: "请输入折后价", trigger: "blur" }],
     inventory: [{ required: true, message: "请输入库存", trigger: "blur" }]

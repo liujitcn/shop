@@ -4,6 +4,7 @@ package shop.admin.v1;
 
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
+import "buf/validate/validate.proto";
 
 // Admin商品规格服务
 service GoodsSpecService {
@@ -31,9 +32,9 @@ message GoodsSpec {
 
   int64 goods_id = 2 [(gnostic.openapi.v3.property) = {description: "商品id"}]; // 商品id
 
-  string name = 3 [(gnostic.openapi.v3.property) = {description: "商品规格名称"}]; // 商品规格名称
+  string name = 3 [(gnostic.openapi.v3.property) = {description: "商品规格名称"}, (buf.validate.field).cel = {id: "goods_spec.name.length" message: "商品规格名称不能为空且不超过 255 个字符" expression: "this.size() > 0 && this.size() <= 255"}]; // 商品规格名称
 
-  repeated string item = 4 [(gnostic.openapi.v3.property) = {description: "商品规格内容"}]; // 商品规格内容
+  repeated string item = 4 [(gnostic.openapi.v3.property) = {description: "商品规格内容"}, (buf.validate.field).cel = {id: "goods_spec.item.required" message: "商品规格内容不能为空" expression: "this.size() > 0"}]; // 商品规格内容
 
-  int32 sort = 5 [(gnostic.openapi.v3.property) = {description: "排序"}]; // 排序
+  int32 sort = 5 [(gnostic.openapi.v3.property) = {description: "排序"}, (buf.validate.field).cel = {id: "goods_spec.sort.required" message: "排序必须大于 0" expression: "this > 0"}]; // 排序
 }

@@ -59,9 +59,18 @@ const state = reactive({
   rules: {
     tenant_store_id: [{ required: true, message: "请选择所属门店", trigger: "change" }],
     category_id: [{ required: true, message: "请选择商品分类", trigger: "change" }],
-    name: [{ required: true, message: "请输入商品名称", trigger: "blur" }],
-    desc: [{ required: true, message: "请输入商品描述", trigger: "blur" }],
-    picture: [{ required: true, message: "请上传商品主图", trigger: "change" }],
+    name: [
+      { required: true, message: "请输入商品名称", trigger: "blur" },
+      { max: 255, message: "商品名称不能超过 255 个字符", trigger: "blur" }
+    ],
+    desc: [
+      { required: true, message: "请输入商品描述", trigger: "blur" },
+      { max: 255, message: "商品描述不能超过 255 个字符", trigger: "blur" }
+    ],
+    picture: [
+      { required: true, message: "请上传商品主图", trigger: "change" },
+      { max: 1024, message: "商品图片不能超过 1024 个字符", trigger: "change" }
+    ],
     banner: [{ required: true, message: "请上传商品轮播图", trigger: "change" }],
     detail: [{ required: true, message: "请上传商品详情图", trigger: "change" }]
   }

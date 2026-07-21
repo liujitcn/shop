@@ -14,20 +14,20 @@ const TableNameOrderPayment = "order_payment"
 
 // OrderPayment 订单支付信息
 type OrderPayment struct {
-	ID             int64          `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:订单支付ID" json:"id"`                                   // 订单支付ID
-	TradeID        int64          `gorm:"column:trade_id;type:bigint;not null;uniqueIndex:unique_order_payment,priority:1;comment:交易单ID" json:"trade_id"` // 交易单ID
-	TradeNo        string         `gorm:"column:trade_no;type:varchar(20);index:idx_order_payment_trade_no,priority:1;comment:交易单编号" json:"trade_no"`     // 交易单编号
-	ThirdOrderNo   string         `gorm:"column:third_order_no;type:varchar(32);comment:三方订单编号" json:"third_order_no"`                                    // 三方订单编号
-	TradeType      string         `gorm:"column:trade_type;type:varchar(16);comment:交易类型" json:"trade_type"`                                              // 交易类型
-	TradeState     string         `gorm:"column:trade_state;type:varchar(32);comment:交易状态" json:"trade_state"`                                            // 交易状态
-	TradeStateDesc string         `gorm:"column:trade_state_desc;type:varchar(256);comment:交易状态描述" json:"trade_state_desc"`                               // 交易状态描述
-	BankType       string         `gorm:"column:bank_type;type:varchar(32);comment:银行类型" json:"bank_type"`                                                // 银行类型
-	SuccessTime    time.Time      `gorm:"column:success_time;type:datetime;comment:支付完成时间" json:"success_time"`                                           // 支付完成时间
-	Payer          string         `gorm:"column:payer;type:json;comment:支付者信息" json:"payer"`                                                              // 支付者信息
-	Amount         string         `gorm:"column:amount;type:json;comment:订单金额" json:"amount"`                                                             // 订单金额
-	SceneInfo      string         `gorm:"column:scene_info;type:json;comment:场景信息" json:"scene_info"`                                                     // 场景信息
-	Status         int32          `gorm:"column:status;type:tinyint;comment:对账状态：枚举【OrderBillStatus】" json:"status"`                                      // 对账状态：枚举【OrderBillStatus】
-	DeletedAt      gorm.DeletedAt `gorm:"column:deleted_at;type:datetime;comment:删除时间" json:"deleted_at"`                                                 // 删除时间
+	ID             int64          `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:订单支付ID" json:"id"`                                        // 订单支付ID
+	TradeID        int64          `gorm:"column:trade_id;type:bigint;not null;uniqueIndex:unique_order_payment,priority:1;comment:交易单ID" json:"trade_id"`      // 交易单ID
+	TradeNo        string         `gorm:"column:trade_no;type:varchar(20);not null;index:idx_order_payment_trade_no,priority:1;comment:交易单编号" json:"trade_no"` // 交易单编号
+	ThirdOrderNo   string         `gorm:"column:third_order_no;type:varchar(32);not null;comment:三方订单编号" json:"third_order_no"`                                // 三方订单编号
+	TradeType      string         `gorm:"column:trade_type;type:varchar(16);not null;comment:交易类型" json:"trade_type"`                                          // 交易类型
+	TradeState     string         `gorm:"column:trade_state;type:varchar(32);not null;comment:交易状态" json:"trade_state"`                                        // 交易状态
+	TradeStateDesc string         `gorm:"column:trade_state_desc;type:varchar(256);not null;comment:交易状态描述" json:"trade_state_desc"`                           // 交易状态描述
+	BankType       string         `gorm:"column:bank_type;type:varchar(32);not null;comment:银行类型" json:"bank_type"`                                            // 银行类型
+	SuccessTime    time.Time      `gorm:"column:success_time;type:datetime;not null;comment:支付完成时间" json:"success_time"`                                       // 支付完成时间
+	Payer          string         `gorm:"column:payer;type:json;not null;comment:支付者信息" json:"payer"`                                                          // 支付者信息
+	Amount         string         `gorm:"column:amount;type:json;not null;comment:订单金额" json:"amount"`                                                         // 订单金额
+	SceneInfo      string         `gorm:"column:scene_info;type:json;not null;comment:场景信息" json:"scene_info"`                                                 // 场景信息
+	Status         int32          `gorm:"column:status;type:tinyint;not null;comment:对账状态：枚举【OrderBillStatus】" json:"status"`                                  // 对账状态：枚举【OrderBillStatus】
+	DeletedAt      gorm.DeletedAt `gorm:"column:deleted_at;type:datetime;comment:删除时间" json:"deleted_at"`                                                      // 删除时间
 }
 
 // TableName OrderPayment's table name

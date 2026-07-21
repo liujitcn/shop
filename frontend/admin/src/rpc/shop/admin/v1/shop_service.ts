@@ -93,7 +93,7 @@ export interface ShopServiceForm {
   /** 排序 */
   sort: number;
   /** 状态：枚举【Status】 */
-  status?: Status | undefined;
+  status: Status;
 }
 
 /** Admin商城服务 */

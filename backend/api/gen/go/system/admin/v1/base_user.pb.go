@@ -13,6 +13,7 @@ import (
 	sync "sync"
 	unsafe "unsafe"
 
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -627,18 +628,18 @@ func (x *BaseUser) GetIsProtected() bool {
 // 用户表单
 type BaseUserForm struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                    // 用户ID
-	TenantId      int64                  `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`                        // 租户ID
-	UserName      string                 `protobuf:"bytes,3,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`                         // 用户账号
-	NickName      string                 `protobuf:"bytes,4,opt,name=nick_name,json=nickName,proto3" json:"nick_name,omitempty"`                         // 用户昵称
-	RoleId        *int64                 `protobuf:"varint,5,opt,name=role_id,json=roleId,proto3,oneof" json:"role_id,omitempty"`                        // 角色ID
-	DeptId        *int64                 `protobuf:"varint,6,opt,name=dept_id,json=deptId,proto3,oneof" json:"dept_id,omitempty"`                        // 部门ID
-	Phone         string                 `protobuf:"bytes,7,opt,name=phone,proto3" json:"phone,omitempty"`                                               // 手机号
-	Avatar        string                 `protobuf:"bytes,8,opt,name=avatar,proto3" json:"avatar,omitempty"`                                             // 头像
-	Gender        *v1.BaseUserGender     `protobuf:"varint,9,opt,name=gender,proto3,enum=system.common.v1.BaseUserGender,oneof" json:"gender,omitempty"` // 性别
-	Pwd           *v11.PasswordCrypto    `protobuf:"bytes,300,opt,name=pwd,proto3" json:"pwd,omitempty"`                                                 // 密码
-	Status        *v11.Status            `protobuf:"varint,101,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"`              // 用户状态
-	Remark        string                 `protobuf:"bytes,102,opt,name=remark,proto3" json:"remark,omitempty"`                                           // 备注名
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                              // 用户ID
+	TenantId      int64                  `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`                  // 租户ID
+	UserName      string                 `protobuf:"bytes,3,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`                   // 用户账号
+	NickName      string                 `protobuf:"bytes,4,opt,name=nick_name,json=nickName,proto3" json:"nick_name,omitempty"`                   // 用户昵称
+	RoleId        int64                  `protobuf:"varint,5,opt,name=role_id,json=roleId,proto3" json:"role_id,omitempty"`                        // 角色ID
+	DeptId        int64                  `protobuf:"varint,6,opt,name=dept_id,json=deptId,proto3" json:"dept_id,omitempty"`                        // 部门ID
+	Phone         string                 `protobuf:"bytes,7,opt,name=phone,proto3" json:"phone,omitempty"`                                         // 手机号
+	Avatar        string                 `protobuf:"bytes,8,opt,name=avatar,proto3" json:"avatar,omitempty"`                                       // 头像
+	Gender        v1.BaseUserGender      `protobuf:"varint,9,opt,name=gender,proto3,enum=system.common.v1.BaseUserGender" json:"gender,omitempty"` // 性别
+	Pwd           *v11.PasswordCrypto    `protobuf:"bytes,300,opt,name=pwd,proto3" json:"pwd,omitempty"`                                           // 密码
+	Status        v11.Status             `protobuf:"varint,101,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`              // 用户状态
+	Remark        string                 `protobuf:"bytes,102,opt,name=remark,proto3" json:"remark,omitempty"`                                     // 备注名
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -702,15 +703,15 @@ func (x *BaseUserForm) GetNickName() string {
 }
 
 func (x *BaseUserForm) GetRoleId() int64 {
-	if x != nil && x.RoleId != nil {
-		return *x.RoleId
+	if x != nil {
+		return x.RoleId
 	}
 	return 0
 }
 
 func (x *BaseUserForm) GetDeptId() int64 {
-	if x != nil && x.DeptId != nil {
-		return *x.DeptId
+	if x != nil {
+		return x.DeptId
 	}
 	return 0
 }
@@ -730,8 +731,8 @@ func (x *BaseUserForm) GetAvatar() string {
 }
 
 func (x *BaseUserForm) GetGender() v1.BaseUserGender {
-	if x != nil && x.Gender != nil {
-		return *x.Gender
+	if x != nil {
+		return x.Gender
 	}
 	return v1.BaseUserGender(0)
 }
@@ -744,8 +745,8 @@ func (x *BaseUserForm) GetPwd() *v11.PasswordCrypto {
 }
 
 func (x *BaseUserForm) GetStatus() v11.Status {
-	if x != nil && x.Status != nil {
-		return *x.Status
+	if x != nil {
+		return x.Status
 	}
 	return v11.Status(0)
 }
@@ -814,7 +815,7 @@ var File_system_admin_v1_base_user_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_base_user_proto_rawDesc = "" +
 	"\n" +
-	"\x1fsystem/admin/v1/base_user.proto\x12\x0fsystem.admin.v1\x1a\x16common/v1/common.proto\x1a\x14common/v1/enum.proto\x1a\x1bsystem/common/v1/enum.proto\x1a\x15common/v1/types.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x82\x01\n" +
+	"\x1fsystem/admin/v1/base_user.proto\x12\x0fsystem.admin.v1\x1a\x16common/v1/common.proto\x1a\x14common/v1/enum.proto\x1a\x1bsystem/common/v1/enum.proto\x1a\x15common/v1/types.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1bbuf/validate/validate.proto\"\x82\x01\n" +
 	"\x15OptionBaseUserRequest\x12)\n" +
 	"\akeyword\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t关键字R\akeyword\x120\n" +
 	"\ttenant_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01B\f\n" +
@@ -841,11 +842,11 @@ const file_system_admin_v1_base_user_proto_rawDesc = "" +
 	"base_users\x18\x01 \x03(\v2\x19.system.admin.v1.BaseUserB\x12\xbaG\x0f\x92\x02\f分页数据R\tbaseUsers\x12\"\n" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"4\n" +
 	"\x12GetBaseUserRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b用户IDR\x02id\"g\n" +
-	"\x15CreateBaseUserRequest\x12N\n" +
-	"\tbase_user\x18\x01 \x01(\v2\x1d.system.admin.v1.BaseUserFormB\x12\xbaG\x0f\x92\x02\f用户表单R\bbaseUser\"g\n" +
-	"\x15UpdateBaseUserRequest\x12N\n" +
-	"\tbase_user\x18\x01 \x01(\v2\x1d.system.admin.v1.BaseUserFormB\x12\xbaG\x0f\x92\x02\f用户表单R\bbaseUser\"=\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b用户IDR\x02id\"m\n" +
+	"\x15CreateBaseUserRequest\x12T\n" +
+	"\tbase_user\x18\x01 \x01(\v2\x1d.system.admin.v1.BaseUserFormB\x18\xbaG\x0f\x92\x02\f用户表单\xbaH\x03\xc8\x01\x01R\bbaseUser\"m\n" +
+	"\x15UpdateBaseUserRequest\x12T\n" +
+	"\tbase_user\x18\x01 \x01(\v2\x1d.system.admin.v1.BaseUserFormB\x18\xbaG\x0f\x92\x02\f用户表单\xbaH\x03\xc8\x01\x01R\bbaseUser\"=\n" +
 	"\x15DeleteBaseUserRequest\x12$\n" +
 	"\x02id\x18\x01 \x01(\tB\x14\xbaG\x11\x92\x02\x0e用户ID列表R\x02id\"`\n" +
 	"\x18SetBaseUserStatusRequest\x12\x1e\n" +
@@ -867,26 +868,28 @@ const file_system_admin_v1_base_user_proto_rawDesc = "" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
 	"\n" +
 	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x12N\n" +
-	"\fis_protected\x18\xac\x02 \x01(\bB*\xbaG'\x92\x02$是否禁止通过用户管理操作R\visProtected\"\x8a\x05\n" +
+	"\fis_protected\x18\xac\x02 \x01(\bB*\xbaG'\x92\x02$是否禁止通过用户管理操作R\visProtected\"\xff\t\n" +
 	"\fBaseUserForm\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b用户IDR\x02id\x12+\n" +
-	"\ttenant_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDR\btenantId\x12/\n" +
-	"\tuser_name\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户账号R\buserName\x12/\n" +
-	"\tnick_name\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户昵称R\bnickName\x12,\n" +
-	"\arole_id\x18\x05 \x01(\x03B\x0e\xbaG\v\x92\x02\b角色IDH\x00R\x06roleId\x88\x01\x01\x12,\n" +
-	"\adept_id\x18\x06 \x01(\x03B\x0e\xbaG\v\x92\x02\b部门IDH\x01R\x06deptId\x88\x01\x01\x12%\n" +
-	"\x05phone\x18\a \x01(\tB\x0f\xbaG\f\x92\x02\t手机号R\x05phone\x12$\n" +
-	"\x06avatar\x18\b \x01(\tB\f\xbaG\t\x92\x02\x06头像R\x06avatar\x12K\n" +
-	"\x06gender\x18\t \x01(\x0e2 .system.common.v1.BaseUserGenderB\f\xbaG\t\x92\x02\x06性别H\x02R\x06gender\x88\x01\x01\x12:\n" +
-	"\x03pwd\x18\xac\x02 \x01(\v2\x19.common.v1.PasswordCryptoB\f\xbaG\t\x92\x02\x06密码R\x03pwd\x12B\n" +
-	"\x06status\x18e \x01(\x0e2\x11.common.v1.StatusB\x12\xbaG\x0f\x92\x02\f用户状态H\x03R\x06status\x88\x01\x01\x12'\n" +
-	"\x06remark\x18f \x01(\tB\x0f\xbaG\f\x92\x02\t备注名R\x06remarkB\n" +
-	"\n" +
-	"\b_role_idB\n" +
-	"\n" +
-	"\b_dept_idB\t\n" +
-	"\a_genderB\t\n" +
-	"\a_status\"y\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b用户IDR\x02id\x12s\n" +
+	"\ttenant_id\x18\x02 \x01(\x03BV\xbaG\v\x92\x02\b租户ID\xbaHE\xba\x01B\n" +
+	"\x1cbase_user.tenant_id.required\x12\x18所属租户不能为空\x1a\bthis > 0R\btenantId\x12\xab\x01\n" +
+	"\tuser_name\x18\x03 \x01(\tB\x8d\x01\xbaG\x0f\x92\x02\f用户账号\xbaHx\xba\x01u\n" +
+	"\x1abase_user.user_name.length\x121用户账号不能为空且不超过 50 个字符\x1a$this.size() > 0 && this.size() <= 50R\buserName\x12\x8c\x01\n" +
+	"\tnick_name\x18\x04 \x01(\tBo\xbaG\x0f\x92\x02\f用户昵称\xbaHZ\xba\x01W\n" +
+	"\x1bbase_user.nick_name.max_len\x12%用户昵称不能超过 30 个字符\x1a\x11this.size() <= 30R\bnickName\x12g\n" +
+	"\arole_id\x18\x05 \x01(\x03BN\xbaG\v\x92\x02\b角色ID\xbaH=\xba\x01:\n" +
+	"\x1abase_user.role_id.required\x12\x12角色不能为空\x1a\bthis > 0R\x06roleId\x12g\n" +
+	"\adept_id\x18\x06 \x01(\x03BN\xbaG\v\x92\x02\b部门ID\xbaH=\xba\x01:\n" +
+	"\x1abase_user.dept_id.required\x12\x12部门不能为空\x1a\bthis > 0R\x06deptId\x12{\n" +
+	"\x05phone\x18\a \x01(\tBe\xbaG\f\x92\x02\t手机号\xbaHS\xba\x01P\n" +
+	"\x17base_user.phone.max_len\x12\"手机号不能超过 20 个字符\x1a\x11this.size() <= 20R\x05phone\x12|\n" +
+	"\x06avatar\x18\b \x01(\tBd\xbaG\t\x92\x02\x06头像\xbaHU\xba\x01R\n" +
+	"\x18base_user.avatar.max_len\x12!头像不能超过 1024 个字符\x1a\x13this.size() <= 1024R\x06avatar\x12N\n" +
+	"\x06gender\x18\t \x01(\x0e2 .system.common.v1.BaseUserGenderB\x14\xbaG\t\x92\x02\x06性别\xbaH\x05\x82\x01\x02\x10\x01R\x06gender\x12:\n" +
+	"\x03pwd\x18\xac\x02 \x01(\v2\x19.common.v1.PasswordCryptoB\f\xbaG\t\x92\x02\x06密码R\x03pwd\x12E\n" +
+	"\x06status\x18e \x01(\x0e2\x11.common.v1.StatusB\x1a\xbaG\x0f\x92\x02\f用户状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\x12}\n" +
+	"\x06remark\x18f \x01(\tBe\xbaG\f\x92\x02\t备注名\xbaHS\xba\x01P\n" +
+	"\x18base_user.remark.max_len\x12 备注不能超过 500 个字符\x1a\x12this.size() <= 500R\x06remark\"y\n" +
 	"\x1cResetBaseUserPasswordRequest\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b用户IDR\x02id\x129\n" +
 	"\x03pwd\x18\x02 \x01(\v2\x19.common.v1.PasswordCryptoB\f\xbaG\t\x92\x02\x06密码R\x03pwd2\xac\b\n" +
@@ -974,7 +977,6 @@ func file_system_admin_v1_base_user_proto_init() {
 	}
 	file_system_admin_v1_base_user_proto_msgTypes[0].OneofWrappers = []any{}
 	file_system_admin_v1_base_user_proto_msgTypes[1].OneofWrappers = []any{}
-	file_system_admin_v1_base_user_proto_msgTypes[9].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

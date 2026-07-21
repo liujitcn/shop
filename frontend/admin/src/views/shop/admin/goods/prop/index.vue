@@ -71,8 +71,15 @@ const formData = reactive<GoodsProp>({
 });
 
 const rules = reactive({
-  value: [{ required: true, message: "请输入商品属性值", trigger: "blur" }],
-  label: [{ required: true, message: "请输入商品属性标签", trigger: "blur" }]
+  value: [
+    { required: true, message: "请输入商品属性值", trigger: "blur" },
+    { max: 500, message: "商品属性值不能超过 500 个字符", trigger: "blur" }
+  ],
+  label: [
+    { required: true, message: "请输入商品属性标签", trigger: "blur" },
+    { max: 255, message: "商品属性名称不能超过 255 个字符", trigger: "blur" }
+  ],
+  sort: [{ required: true, type: "number", min: 1, message: "排序必须大于 0", trigger: "blur" }]
 });
 
 /** 商品属性表单字段配置。 */

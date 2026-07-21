@@ -132,29 +132,21 @@ export interface BaseUserForm {
   /** 用户昵称 */
   nick_name: string;
   /** 角色ID */
-  role_id?:
-    | number
-    | undefined;
+  role_id: number;
   /** 部门ID */
-  dept_id?:
-    | number
-    | undefined;
+  dept_id: number;
   /** 手机号 */
   phone: string;
   /** 头像 */
   avatar: string;
   /** 性别 */
-  gender?:
-    | BaseUserGender
-    | undefined;
+  gender: BaseUserGender;
   /** 密码 */
   pwd:
     | PasswordCrypto
     | undefined;
   /** 用户状态 */
-  status?:
-    | Status
-    | undefined;
+  status: Status;
   /** 备注名 */
   remark: string;
 }

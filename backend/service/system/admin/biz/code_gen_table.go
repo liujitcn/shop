@@ -255,20 +255,8 @@ func (c *CodeGenTableCase) listDatabaseTables(ctx context.Context, tableNames []
 	return tableInfos, err
 }
 
-// codeGenTableFormToModel 校验并转换代码生成表配置保存模型。
+// codeGenTableFormToModel 转换代码生成表配置保存模型，并校验生成所需的关联配置。
 func (c *CodeGenTableCase) codeGenTableFormToModel(ctx context.Context, currentID int64, req *systemadminv1.CodeGenTableForm) (*models.CodeGenTable, error) {
-	if req.GetName() == "" {
-		return nil, errorsx.InvalidArgument("业务表名不能为空")
-	}
-	if req.GetBusinessName() == "" {
-		return nil, errorsx.InvalidArgument("业务名不能为空")
-	}
-	if req.GetEntityName() == "" {
-		return nil, errorsx.InvalidArgument("实体名不能为空")
-	}
-	if req.GetModulePath() == "" {
-		return nil, errorsx.InvalidArgument("模块路径不能为空")
-	}
 	apiPath := req.GetApiPath()
 	if apiPath == "" {
 		apiPath = codegen.DefaultProtoDirectory

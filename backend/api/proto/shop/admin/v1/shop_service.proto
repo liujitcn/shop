@@ -3,6 +3,7 @@ syntax = "proto3";
 package shop.admin.v1;
 
 import "common/v1/enum.proto";
+import "buf/validate/validate.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
@@ -86,14 +87,14 @@ message GetShopServiceRequest {
 
 // 商城服务创建条件
 message CreateShopServiceRequest {
-  ShopServiceForm shop_service = 1 [(gnostic.openapi.v3.property) = {description: "商城服务表单"}]; // 商城服务表单
+  ShopServiceForm shop_service = 1 [(gnostic.openapi.v3.property) = {description: "商城服务表单"}, (buf.validate.field).required = true]; // 商城服务表单
 }
 
 // 商城服务更新条件
 message UpdateShopServiceRequest {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "服务ID"}]; // 服务ID
 
-  ShopServiceForm shop_service = 2 [(gnostic.openapi.v3.property) = {description: "商城服务表单"}]; // 商城服务表单
+  ShopServiceForm shop_service = 2 [(gnostic.openapi.v3.property) = {description: "商城服务表单"}, (buf.validate.field).required = true]; // 商城服务表单
 }
 
 // 商城服务删除条件
@@ -112,11 +113,11 @@ message SetShopServiceStatusRequest {
 message ShopService {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "服务ID"}]; // 服务ID
 
-  string label = 2 [(gnostic.openapi.v3.property) = {description: "标签"}]; // 标签
+  string label = 2 [(gnostic.openapi.v3.property) = {description: "标签"}, (buf.validate.field).cel = {id: "shop_service.label.length" message: "标签不能为空且不超过 50 个字符" expression: "this.size() > 0 && this.size() <= 50"}]; // 标签
 
-  string value = 3 [(gnostic.openapi.v3.property) = {description: "值"}]; // 值
+  string value = 3 [(gnostic.openapi.v3.property) = {description: "值"}, (buf.validate.field).cel = {id: "shop_service.value.length" message: "值不能为空且不超过 500 个字符" expression: "this.size() > 0 && this.size() <= 500"}]; // 值
 
-  int32 sort = 4 [(gnostic.openapi.v3.property) = {description: "排序"}]; // 排序
+  int32 sort = 4 [(gnostic.openapi.v3.property) = {description: "排序"}, (buf.validate.field).cel = {id: "shop_service.sort.required" message: "排序必须大于 0" expression: "this > 0"}]; // 排序
 
   .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
 
@@ -135,5 +136,5 @@ message ShopServiceForm {
 
   int32 sort = 4 [(gnostic.openapi.v3.property) = {description: "排序"}]; // 排序
 
-  optional .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态：枚举【Status】"}]; // 状态：枚举【Status】
+  .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态：枚举【Status】"}, (buf.validate.field).enum = {defined_only: true}]; // 状态：枚举【Status】
 }

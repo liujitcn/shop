@@ -90,8 +90,12 @@ const formData = reactive<ShopHotItemForm>({
 const goodsInfoList = ref<OptionGoodsInfoResponse_GoodsInfo[]>([]);
 
 const rules = computed(() => ({
-  title: [{ required: true, message: "请输入热门推荐选项标题", trigger: "blur" }],
-  status: [{ required: true, message: "状态不能为空", trigger: "blur" }]
+  title: [
+    { required: true, message: "请输入热门推荐选项标题", trigger: "blur" },
+    { max: 64, message: "标题不能超过 64 个字符", trigger: "blur" }
+  ],
+  status: [{ required: true, message: "状态不能为空", trigger: "blur" }],
+  sort: [{ required: true, type: "number", min: 1, message: "排序必须大于 0", trigger: "blur" }]
 }));
 
 const statusOptions: ProFormOption[] = [

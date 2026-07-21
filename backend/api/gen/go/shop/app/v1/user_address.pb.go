@@ -11,6 +11,7 @@ import (
 	sync "sync"
 	unsafe "unsafe"
 
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -477,7 +478,7 @@ var File_shop_app_v1_user_address_proto protoreflect.FileDescriptor
 
 const file_shop_app_v1_user_address_proto_rawDesc = "" +
 	"\n" +
-	"\x1eshop/app/v1/user_address.proto\x12\vshop.app.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x18\n" +
+	"\x1eshop/app/v1/user_address.proto\x12\vshop.app.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x18\n" +
 	"\x16ListUserAddressRequest\"=\n" +
 	"\x15GetUserAddressRequest\x12$\n" +
 	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e用户地址IDR\x02id\"o\n" +
@@ -497,13 +498,19 @@ const file_shop_app_v1_user_address_proto_rawDesc = "" +
 	"\aaddress\x18\x04 \x03(\tB\x15\xbaG\x12\x92\x02\x0f省市区名称R\aaddress\x12*\n" +
 	"\x06detail\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\f详细地址R\x06detail\x121\n" +
 	"\n" +
-	"is_default\x183 \x01(\bB\x12\xbaG\x0f\x92\x02\f是否默认R\tisDefault\"\xd0\x02\n" +
+	"is_default\x183 \x01(\bB\x12\xbaG\x0f\x92\x02\f是否默认R\tisDefault\"\xad\x06\n" +
 	"\x0fUserAddressForm\x12$\n" +
-	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e用户地址IDR\x02id\x12+\n" +
-	"\breceiver\x18\x02 \x01(\tB\x0f\xbaG\f\x92\x02\t联系人R\breceiver\x12,\n" +
-	"\acontact\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f联系方式R\acontact\x12)\n" +
-	"\aaddress\x18\x04 \x03(\tB\x0f\xbaG\f\x92\x02\t省市区R\aaddress\x12*\n" +
-	"\x06detail\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\f详细地址R\x06detail\x122\n" +
+	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e用户地址IDR\x02id\x12\xc7\x01\n" +
+	"\breceiver\x18\x02 \x01(\tB\xaa\x01\xbaG\f\x92\x02\t联系人\xbaH\x97\x01\xba\x01A\n" +
+	"\x17field.receiver.required\x12\x15联系人不能为空\x1a\x0fthis.size() > 0\xba\x01P\n" +
+	"\x15field.receiver.length\x12#联系人不能超过 100 个字符\x1a\x12this.size() <= 100R\breceiver\x12\xcc\x01\n" +
+	"\acontact\x18\x03 \x01(\tB\xb1\x01\xbaG\x0f\x92\x02\f联系方式\xbaH\x9b\x01\xba\x01C\n" +
+	"\x16field.contact.required\x12\x18联系方式不能为空\x1a\x0fthis.size() > 0\xba\x01R\n" +
+	"\x14field.contact.length\x12&联系方式不能超过 100 个字符\x1a\x12this.size() <= 100R\acontact\x12)\n" +
+	"\aaddress\x18\x04 \x03(\tB\x0f\xbaG\f\x92\x02\t省市区R\aaddress\x12\xc8\x01\n" +
+	"\x06detail\x18\x05 \x01(\tB\xaf\x01\xbaG\x0f\x92\x02\f详细地址\xbaH\x99\x01\xba\x01B\n" +
+	"\x15field.detail.required\x12\x18详细地址不能为空\x1a\x0fthis.size() > 0\xba\x01Q\n" +
+	"\x13field.detail.length\x12&详细地址不能超过 255 个字符\x1a\x12this.size() <= 255R\x06detail\x122\n" +
 	"\faddress_name\x18\n" +
 	" \x03(\tB\x0f\xbaG\f\x92\x02\t省市区R\vaddressName\x121\n" +
 	"\n" +

@@ -64,9 +64,18 @@ const formData = reactive<BaseJobForm>({
 });
 
 const rules = computed(() => ({
-  name: [{ required: true, message: "请输入任务名称", trigger: "blur" }],
-  cron_expression: [{ required: true, message: "请输入cron表达式", trigger: "blur" }],
-  invoke_target: [{ required: true, message: "请输入调用目标", trigger: "blur" }],
+  name: [
+    { required: true, message: "请输入任务名称", trigger: "blur" },
+    { max: 50, message: "任务名称不能超过 50 个字符", trigger: "blur" }
+  ],
+  cron_expression: [
+    { required: true, message: "请输入cron表达式", trigger: "blur" },
+    { max: 50, message: "cron表达式不能超过 50 个字符", trigger: "blur" }
+  ],
+  invoke_target: [
+    { required: true, message: "请输入调用目标", trigger: "blur" },
+    { max: 100, message: "调用目标不能超过 100 个字符", trigger: "blur" }
+  ],
   args: {
     validator: (rule: unknown, value: BaseJobArgs[], callback: (error?: Error) => void) => {
       if (value.some(arg => !arg.key)) callback(new Error("所有参数必须填写key"));

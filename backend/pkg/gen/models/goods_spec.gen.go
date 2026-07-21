@@ -17,14 +17,14 @@ type GoodsSpec struct {
 	ID            int64          `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:商品规格ID" json:"id"`                                                      // 商品规格ID
 	TenantID      int64          `gorm:"column:tenant_id;type:bigint;not null;index:idx_goods_spec_tenant_id,priority:1;comment:租户ID" json:"tenant_id"`                     // 租户ID
 	TenantStoreID int64          `gorm:"column:tenant_store_id;type:bigint;not null;index:idx_goods_spec_tenant_store_id,priority:1;comment:租户门店ID" json:"tenant_store_id"` // 租户门店ID
-	GoodsID       int64          `gorm:"column:goods_id;type:bigint;uniqueIndex:unique_goods_spec,priority:1;comment:商品ID" json:"goods_id"`                                 // 商品ID
-	Name          string         `gorm:"column:name;type:varchar(255);uniqueIndex:unique_goods_spec,priority:2;comment:规格标题" json:"name"`                                   // 规格标题
-	Item          string         `gorm:"column:item;type:json;comment:规格内容" json:"item"`                                                                                    // 规格内容
-	Sort          int32          `gorm:"column:sort;type:tinyint;comment:排序" json:"sort"`                                                                                   // 排序
-	CreatedBy     int64          `gorm:"column:created_by;type:bigint;comment:创建人ID" json:"created_by"`                                                                     // 创建人ID
-	UpdatedBy     int64          `gorm:"column:updated_by;type:bigint;comment:更新人ID" json:"updated_by"`                                                                     // 更新人ID
-	CreatedAt     time.Time      `gorm:"column:created_at;type:datetime;comment:创建时间" json:"created_at"`                                                                    // 创建时间
-	UpdatedAt     time.Time      `gorm:"column:updated_at;type:datetime;comment:更新时间" json:"updated_at"`                                                                    // 更新时间
+	GoodsID       int64          `gorm:"column:goods_id;type:bigint;not null;uniqueIndex:unique_goods_spec,priority:1;comment:商品ID" json:"goods_id"`                        // 商品ID
+	Name          string         `gorm:"column:name;type:varchar(255);not null;uniqueIndex:unique_goods_spec,priority:2;comment:规格标题" json:"name"`                          // 规格标题
+	Item          string         `gorm:"column:item;type:json;not null;comment:规格内容" json:"item"`                                                                           // 规格内容
+	Sort          int32          `gorm:"column:sort;type:tinyint;not null;comment:排序" json:"sort"`                                                                          // 排序
+	CreatedBy     int64          `gorm:"column:created_by;type:bigint;not null;comment:创建人ID" json:"created_by"`                                                            // 创建人ID
+	UpdatedBy     int64          `gorm:"column:updated_by;type:bigint;not null;comment:更新人ID" json:"updated_by"`                                                            // 更新人ID
+	CreatedAt     time.Time      `gorm:"column:created_at;type:datetime;not null;comment:创建时间" json:"created_at"`                                                           // 创建时间
+	UpdatedAt     time.Time      `gorm:"column:updated_at;type:datetime;not null;comment:更新时间" json:"updated_at"`                                                           // 更新时间
 	DeletedAt     gorm.DeletedAt `gorm:"column:deleted_at;type:datetime;comment:删除时间" json:"deleted_at"`                                                                    // 删除时间
 }
 

@@ -11,6 +11,7 @@ import (
 	sync "sync"
 	unsafe "unsafe"
 
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -195,18 +196,21 @@ var File_shop_admin_v1_goods_spec_proto protoreflect.FileDescriptor
 
 const file_shop_admin_v1_goods_spec_proto_rawDesc = "" +
 	"\n" +
-	"\x1eshop/admin/v1/goods_spec.proto\x12\rshop.admin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"A\n" +
+	"\x1eshop/admin/v1/goods_spec.proto\x12\rshop.admin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bbuf/validate/validate.proto\"A\n" +
 	"\x14ListGoodsSpecRequest\x12)\n" +
 	"\bgoods_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品idR\agoodsId\"l\n" +
 	"\x15ListGoodsSpecResponse\x12S\n" +
 	"\vgoods_specs\x18\x01 \x03(\v2\x18.shop.admin.v1.GoodsSpecB\x18\xbaG\x15\x92\x02\x12商品规格列表R\n" +
-	"goodsSpecs\"\xda\x01\n" +
+	"goodsSpecs\"\xec\x03\n" +
 	"\tGoodsSpec\x12$\n" +
 	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e商品规格IDR\x02id\x12)\n" +
-	"\bgoods_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品idR\agoodsId\x12,\n" +
-	"\x04name\x18\x03 \x01(\tB\x18\xbaG\x15\x92\x02\x12商品规格名称R\x04name\x12,\n" +
-	"\x04item\x18\x04 \x03(\tB\x18\xbaG\x15\x92\x02\x12商品规格内容R\x04item\x12 \n" +
-	"\x04sort\x18\x05 \x01(\x05B\f\xbaG\t\x92\x02\x06排序R\x04sort2\x90\x01\n" +
+	"\bgoods_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品idR\agoodsId\x12\xac\x01\n" +
+	"\x04name\x18\x03 \x01(\tB\x97\x01\xbaG\x15\x92\x02\x12商品规格名称\xbaH|\xba\x01y\n" +
+	"\x16goods_spec.name.length\x128商品规格名称不能为空且不超过 255 个字符\x1a%this.size() > 0 && this.size() <= 255R\x04name\x12}\n" +
+	"\x04item\x18\x04 \x03(\tBi\xbaG\x15\x92\x02\x12商品规格内容\xbaHN\xba\x01K\n" +
+	"\x18goods_spec.item.required\x12\x1e商品规格内容不能为空\x1a\x0fthis.size() > 0R\x04item\x12`\n" +
+	"\x04sort\x18\x05 \x01(\x05BL\xbaG\t\x92\x02\x06排序\xbaH=\xba\x01:\n" +
+	"\x18goods_spec.sort.required\x12\x14排序必须大于 0\x1a\bthis > 0R\x04sort2\x90\x01\n" +
 	"\x10GoodsSpecService\x12|\n" +
 	"\rListGoodsSpec\x12#.shop.admin.v1.ListGoodsSpecRequest\x1a$.shop.admin.v1.ListGoodsSpecResponse\" \x82\xd3\xe4\x93\x02\x1a\x12\x18/api/v1/admin/goods/specB\xa0\x01\n" +
 	"\x11com.shop.admin.v1B\x0eGoodsSpecProtoP\x01Z%shop/api/gen/go/shop/admin/v1;adminv1\xa2\x02\x03SAX\xaa\x02\rShop.Admin.V1\xca\x02\rShop\\Admin\\V1\xe2\x02\x19Shop\\Admin\\V1\\GPBMetadata\xea\x02\x0fShop::Admin::V1b\x06proto3"

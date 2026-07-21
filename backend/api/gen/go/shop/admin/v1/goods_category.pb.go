@@ -12,6 +12,7 @@ import (
 	sync "sync"
 	unsafe "unsafe"
 
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -506,12 +507,12 @@ func (x *GoodsCategory) GetChildren() []*GoodsCategory {
 // 商品分类表单
 type GoodsCategoryForm struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                      // 商品分类ID
-	ParentId      *int64                 `protobuf:"varint,2,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`    // 父级商品分类ID
-	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                   // 商品分类名称
-	Picture       string                 `protobuf:"bytes,4,opt,name=picture,proto3" json:"picture,omitempty"`                             // 商品分类图片
-	Sort          int32                  `protobuf:"varint,5,opt,name=sort,proto3" json:"sort,omitempty"`                                  // 排序
-	Status        *v1.Status             `protobuf:"varint,50,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"` // 菜单状态
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                   // 商品分类ID
+	ParentId      *int64                 `protobuf:"varint,2,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"` // 父级商品分类ID
+	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                // 商品分类名称
+	Picture       string                 `protobuf:"bytes,4,opt,name=picture,proto3" json:"picture,omitempty"`                          // 商品分类图片
+	Sort          int32                  `protobuf:"varint,5,opt,name=sort,proto3" json:"sort,omitempty"`                               // 排序
+	Status        v1.Status              `protobuf:"varint,50,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`    // 菜单状态
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -582,8 +583,8 @@ func (x *GoodsCategoryForm) GetSort() int32 {
 }
 
 func (x *GoodsCategoryForm) GetStatus() v1.Status {
-	if x != nil && x.Status != nil {
-		return *x.Status
+	if x != nil {
+		return x.Status
 	}
 	return v1.Status(0)
 }
@@ -592,7 +593,7 @@ var File_shop_admin_v1_goods_category_proto protoreflect.FileDescriptor
 
 const file_shop_admin_v1_goods_category_proto_rawDesc = "" +
 	"\n" +
-	"\"shop/admin/v1/goods_category.proto\x12\rshop.admin.v1\x1a\x16common/v1/common.proto\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x1a\n" +
+	"\"shop/admin/v1/goods_category.proto\x12\rshop.admin.v1\x1a\x16common/v1/common.proto\x1a\x14common/v1/enum.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x1a\n" +
 	"\x18TreeGoodsCategoryRequest\"~\n" +
 	"\x19TreeGoodsCategoryResponse\x12a\n" +
 	"\x10goods_categories\x18\x01 \x03(\v2\x1c.shop.admin.v1.GoodsCategoryB\x18\xbaG\x15\x92\x02\x12商品分类列表R\x0fgoodsCategories\"h\n" +
@@ -601,39 +602,41 @@ const file_shop_admin_v1_goods_category_proto_rawDesc = "" +
 	"\n" +
 	"_parent_id\"?\n" +
 	"\x17GetGoodsCategoryRequest\x12$\n" +
-	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e商品分类IDR\x02id\"\x7f\n" +
-	"\x1aCreateGoodsCategoryRequest\x12a\n" +
-	"\x0egoods_category\x18\x01 \x01(\v2 .shop.admin.v1.GoodsCategoryFormB\x18\xbaG\x15\x92\x02\x12商品分类表单R\rgoodsCategory\"\xa5\x01\n" +
+	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e商品分类IDR\x02id\"\x85\x01\n" +
+	"\x1aCreateGoodsCategoryRequest\x12g\n" +
+	"\x0egoods_category\x18\x01 \x01(\v2 .shop.admin.v1.GoodsCategoryFormB\x1e\xbaG\x15\x92\x02\x12商品分类表单\xbaH\x03\xc8\x01\x01R\rgoodsCategory\"\xab\x01\n" +
 	"\x1aUpdateGoodsCategoryRequest\x12$\n" +
-	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e商品分类IDR\x02id\x12a\n" +
-	"\x0egoods_category\x18\x02 \x01(\v2 .shop.admin.v1.GoodsCategoryFormB\x18\xbaG\x15\x92\x02\x12商品分类表单R\rgoodsCategory\"b\n" +
+	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e商品分类IDR\x02id\x12g\n" +
+	"\x0egoods_category\x18\x02 \x01(\v2 .shop.admin.v1.GoodsCategoryFormB\x1e\xbaG\x15\x92\x02\x12商品分类表单\xbaH\x03\xc8\x01\x01R\rgoodsCategory\"b\n" +
 	"\x1aDeleteGoodsCategoryRequest\x12D\n" +
 	"\x03ids\x18\x01 \x01(\tB2\xbaG/\x92\x02,商品分类ID列表，多个用逗号分隔R\x03ids\"\x93\x01\n" +
 	"\x1dSetGoodsCategoryStatusRequest\x12$\n" +
 	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e商品分类IDR\x02id\x12L\n" +
-	"\x06status\x18\x02 \x01(\x0e2\x11.common.v1.StatusB!\xbaG\x1e\x92\x02\x1b状态：枚举【Status】R\x06status\"\xe8\x03\n" +
+	"\x06status\x18\x02 \x01(\x0e2\x11.common.v1.StatusB!\xbaG\x1e\x92\x02\x1b状态：枚举【Status】R\x06status\"\x9e\x06\n" +
 	"\rGoodsCategory\x12$\n" +
 	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e商品分类IDR\x02id\x127\n" +
-	"\tparent_id\x18\x02 \x01(\x03B\x1a\xbaG\x17\x92\x02\x14父级商品分类IDR\bparentId\x12,\n" +
-	"\x04name\x18\x03 \x01(\tB\x18\xbaG\x15\x92\x02\x12商品分类名称R\x04name\x122\n" +
-	"\apicture\x18\x04 \x01(\tB\x18\xbaG\x15\x92\x02\x12商品分类图片R\apicture\x12 \n" +
-	"\x04sort\x18\x05 \x01(\x05B\f\xbaG\t\x92\x02\x06排序R\x04sort\x12=\n" +
+	"\tparent_id\x18\x02 \x01(\x03B\x1a\xbaG\x17\x92\x02\x14父级商品分类IDR\bparentId\x12\xb1\x01\n" +
+	"\x04name\x18\x03 \x01(\tB\x9c\x01\xbaG\x15\x92\x02\x12商品分类名称\xbaH\x80\x01\xba\x01}\n" +
+	"\x1agoods_category.name.length\x128商品分类名称不能为空且不超过 255 个字符\x1a%this.size() > 0 && this.size() <= 255R\x04name\x12\x9d\x01\n" +
+	"\apicture\x18\x04 \x01(\tB\x82\x01\xbaG\x15\x92\x02\x12商品分类图片\xbaHg\xba\x01d\n" +
+	"\x1egoods_category.picture.max_len\x12-商品分类图片不能超过 1024 个字符\x1a\x13this.size() <= 1024R\apicture\x12d\n" +
+	"\x04sort\x18\x05 \x01(\x05BP\xbaG\t\x92\x02\x06排序\xbaHA\xba\x01>\n" +
+	"\x1cgoods_category.sort.required\x12\x14排序必须大于 0\x1a\bthis > 0R\x04sort\x12=\n" +
 	"\x06status\x182 \x01(\x0e2\x11.common.v1.StatusB\x12\xbaG\x0f\x92\x02\f菜单状态R\x06status\x122\n" +
 	"\n" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
 	"\n" +
 	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x12M\n" +
-	"\bchildren\x18\xad\x02 \x03(\v2\x1c.shop.admin.v1.GoodsCategoryB\x12\xbaG\x0f\x92\x02\f子节点树R\bchildren\"\xd8\x02\n" +
+	"\bchildren\x18\xad\x02 \x03(\v2\x1c.shop.admin.v1.GoodsCategoryB\x12\xbaG\x0f\x92\x02\f子节点树R\bchildren\"\xd0\x02\n" +
 	"\x11GoodsCategoryForm\x12$\n" +
 	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e商品分类IDR\x02id\x12<\n" +
 	"\tparent_id\x18\x02 \x01(\x03B\x1a\xbaG\x17\x92\x02\x14父级商品分类IDH\x00R\bparentId\x88\x01\x01\x12,\n" +
 	"\x04name\x18\x03 \x01(\tB\x18\xbaG\x15\x92\x02\x12商品分类名称R\x04name\x122\n" +
 	"\apicture\x18\x04 \x01(\tB\x18\xbaG\x15\x92\x02\x12商品分类图片R\apicture\x12 \n" +
-	"\x04sort\x18\x05 \x01(\x05B\f\xbaG\t\x92\x02\x06排序R\x04sort\x12B\n" +
-	"\x06status\x182 \x01(\x0e2\x11.common.v1.StatusB\x12\xbaG\x0f\x92\x02\f菜单状态H\x01R\x06status\x88\x01\x01B\f\n" +
+	"\x04sort\x18\x05 \x01(\x05B\f\xbaG\t\x92\x02\x06排序R\x04sort\x12E\n" +
+	"\x06status\x182 \x01(\x0e2\x11.common.v1.StatusB\x1a\xbaG\x0f\x92\x02\f菜单状态\xbaH\x05\x82\x01\x02\x10\x01R\x06statusB\f\n" +
 	"\n" +
-	"_parent_idB\t\n" +
-	"\a_status2\x87\b\n" +
+	"_parent_id2\x87\b\n" +
 	"\x14GoodsCategoryService\x12\x91\x01\n" +
 	"\x11TreeGoodsCategory\x12'.shop.admin.v1.TreeGoodsCategoryRequest\x1a(.shop.admin.v1.TreeGoodsCategoryResponse\")\x82\xd3\xe4\x93\x02#\x12!/api/v1/admin/goods/category/tree\x12\x8c\x01\n" +
 	"\x13OptionGoodsCategory\x12).shop.admin.v1.OptionGoodsCategoryRequest\x1a\x1d.common.v1.TreeOptionResponse\"+\x82\xd3\xe4\x93\x02%\x12#/api/v1/admin/goods/category/option\x12\x87\x01\n" +

@@ -5,6 +5,7 @@ package shop.admin.v1;
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
+import "buf/validate/validate.proto";
 
 // Admin商品SKU服务
 service GoodsSkuService {
@@ -64,7 +65,7 @@ message GetGoodsSkuRequest {
 message UpdateGoodsSkuRequest {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "商品SKUID"}]; // 商品SKUID
 
-  GoodsSku goods_sku = 2 [(gnostic.openapi.v3.property) = {description: "商品SKU"}]; // 商品SKU
+  GoodsSku goods_sku = 2 [(gnostic.openapi.v3.property) = {description: "商品SKU"}, (buf.validate.field).required = true]; // 商品SKU
 }
 
 // 商品SKU
@@ -73,11 +74,11 @@ message GoodsSku {
 
   int64 goods_id = 2 [(gnostic.openapi.v3.property) = {description: "商品id"}]; // 商品id
 
-  string picture = 3 [(gnostic.openapi.v3.property) = {description: "商品图片"}]; // 商品图片
+  string picture = 3 [(gnostic.openapi.v3.property) = {description: "商品图片"}, (buf.validate.field).cel = {id: "goods_sku.picture.max_len" message: "商品图片不能超过 1024 个字符" expression: "this.size() <= 1024"}]; // 商品图片
 
   repeated string spec_item = 4 [(gnostic.openapi.v3.property) = {description: "SKU组成，需要与商品规格数组顺序对应"}]; // SKU组成，需要与商品规格数组顺序对应
 
-  string sku_code = 5 [(gnostic.openapi.v3.property) = {description: "SKU编码"}]; // SKU编码
+  string sku_code = 5 [(gnostic.openapi.v3.property) = {description: "SKU编码"}, (buf.validate.field).cel = {id: "goods_sku.sku_code.length" message: "SKU编码不能为空且不超过 50 个字符" expression: "this.size() > 0 && this.size() <= 50"}]; // SKU编码
 
   int64 price = 6 [(gnostic.openapi.v3.property) = {description: "当前价格(分)"}]; // 当前价格(分)
 

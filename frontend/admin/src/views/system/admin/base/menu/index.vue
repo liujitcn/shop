@@ -502,6 +502,7 @@ const rules = computed<FormRules>(() => ({
     }
   ],
   path: [
+    { max: 1024, message: "路由地址不能超过 1024 个字符", trigger: "blur" },
     {
       validator: (_rule, value, callback) => {
         if (value) return callback();
@@ -513,6 +514,7 @@ const rules = computed<FormRules>(() => ({
     }
   ],
   name: [
+    { max: 255, message: "路由名称不能超过 255 个字符", trigger: "blur" },
     {
       validator: (_rule, value, callback) => {
         if (formData.type !== BaseMenuType.MENU) return callback();
@@ -523,6 +525,7 @@ const rules = computed<FormRules>(() => ({
     }
   ],
   component: [
+    { max: 255, message: "组件路径不能超过 255 个字符", trigger: "blur" },
     {
       validator: (_rule, value, callback) => {
         if (formData.type !== BaseMenuType.MENU) return callback();
@@ -532,7 +535,7 @@ const rules = computed<FormRules>(() => ({
       trigger: "blur"
     }
   ],
-  sort: [{ required: true, message: "请输入排序值", trigger: "blur" }],
+  sort: [{ required: true, type: "number", min: 1, message: "排序必须大于 0", trigger: "blur" }],
   status: [{ required: true, message: "请选择状态", trigger: "change" }]
 }));
 

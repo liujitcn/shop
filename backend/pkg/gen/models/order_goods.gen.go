@@ -16,19 +16,19 @@ type OrderGoods struct {
 	TenantID      int64          `gorm:"column:tenant_id;type:bigint;not null;index:idx_order_goods_tenant_id,priority:1;comment:租户ID" json:"tenant_id"`                                                 // 租户ID
 	TenantStoreID int64          `gorm:"column:tenant_store_id;type:bigint;not null;index:idx_order_goods_tenant_store_id,priority:1;comment:租户门店ID" json:"tenant_store_id"`                             // 租户门店ID
 	OrderID       int64          `gorm:"column:order_id;type:bigint;not null;index:idx_order_goods_order_id,priority:1;index:idx_order_goods_order_id_goods_id,priority:1;comment:订单ID" json:"order_id"` // 订单ID
-	GoodsID       int64          `gorm:"column:goods_id;type:bigint;index:idx_order_goods_goods_id,priority:1;index:idx_order_goods_order_id_goods_id,priority:2;comment:商品ID" json:"goods_id"`          // 商品ID
-	SKUCode       string         `gorm:"column:sku_code;type:varchar(50);comment:规格编号" json:"sku_code"`                                                                                                  // 规格编号
-	SpecItem      string         `gorm:"column:spec_item;type:json;comment:SKU 规格组成, 注意：需要与 goods_spec 数组顺序对应" json:"spec_item"`                                                                         // SKU 规格组成, 注意：需要与 goods_spec 数组顺序对应
-	Picture       string         `gorm:"column:picture;type:varchar(255);comment:商品图片" json:"picture"`                                                                                                   // 商品图片
-	Name          string         `gorm:"column:name;type:varchar(255);comment:商品名称" json:"name"`                                                                                                         // 商品名称
-	Num           int64          `gorm:"column:num;type:bigint;comment:数量" json:"num"`                                                                                                                   // 数量
-	Price         int64          `gorm:"column:price;type:bigint;comment:当前价格(分)" json:"price"`                                                                                                          // 当前价格(分)
-	PayPrice      int64          `gorm:"column:pay_price;type:bigint;comment:支付价格（分）" json:"pay_price"`                                                                                                  // 支付价格（分）
-	TotalPrice    int64          `gorm:"column:total_price;type:bigint;comment:当前金额汇总" json:"total_price"`                                                                                               // 当前金额汇总
-	TotalPayPrice int64          `gorm:"column:total_pay_price;type:bigint;comment:支付金额汇总" json:"total_pay_price"`                                                                                       // 支付金额汇总
-	Scene         int32          `gorm:"column:scene;type:tinyint;comment:推荐场景：枚举【RecommendScene】" json:"scene"`                                                                                         // 推荐场景：枚举【RecommendScene】
-	RequestID     int64          `gorm:"column:request_id;type:bigint;comment:推荐请求ID" json:"request_id"`                                                                                                 // 推荐请求ID
-	Position      int32          `gorm:"column:position;type:int;comment:推荐位序号" json:"position"`                                                                                                         // 推荐位序号
+	GoodsID       int64          `gorm:"column:goods_id;type:bigint;not null;index:idx_order_goods_goods_id,priority:1;index:idx_order_goods_order_id_goods_id,priority:2;comment:商品ID" json:"goods_id"` // 商品ID
+	SKUCode       string         `gorm:"column:sku_code;type:varchar(50);not null;comment:规格编号" json:"sku_code"`                                                                                         // 规格编号
+	SpecItem      string         `gorm:"column:spec_item;type:json;not null;comment:SKU 规格组成, 注意：需要与 goods_spec 数组顺序对应" json:"spec_item"`                                                                // SKU 规格组成, 注意：需要与 goods_spec 数组顺序对应
+	Picture       string         `gorm:"column:picture;type:varchar(1024);not null;comment:商品图片" json:"picture"`                                                                                         // 商品图片
+	Name          string         `gorm:"column:name;type:varchar(255);not null;comment:商品名称" json:"name"`                                                                                                // 商品名称
+	Num           int64          `gorm:"column:num;type:bigint;not null;comment:数量" json:"num"`                                                                                                          // 数量
+	Price         int64          `gorm:"column:price;type:bigint;not null;comment:当前价格(分)" json:"price"`                                                                                                 // 当前价格(分)
+	PayPrice      int64          `gorm:"column:pay_price;type:bigint;not null;comment:支付价格（分）" json:"pay_price"`                                                                                         // 支付价格（分）
+	TotalPrice    int64          `gorm:"column:total_price;type:bigint;not null;comment:当前金额汇总" json:"total_price"`                                                                                      // 当前金额汇总
+	TotalPayPrice int64          `gorm:"column:total_pay_price;type:bigint;not null;comment:支付金额汇总" json:"total_pay_price"`                                                                              // 支付金额汇总
+	Scene         int32          `gorm:"column:scene;type:tinyint;not null;comment:推荐场景：枚举【RecommendScene】" json:"scene"`                                                                                // 推荐场景：枚举【RecommendScene】
+	RequestID     int64          `gorm:"column:request_id;type:bigint;not null;comment:推荐请求ID" json:"request_id"`                                                                                        // 推荐请求ID
+	Position      int32          `gorm:"column:position;type:int;not null;comment:推荐位序号" json:"position"`                                                                                                // 推荐位序号
 	DeletedAt     gorm.DeletedAt `gorm:"column:deleted_at;type:datetime;comment:删除时间" json:"deleted_at"`                                                                                                 // 删除时间
 }
 

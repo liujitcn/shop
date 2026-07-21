@@ -73,16 +73,13 @@ func (c *ShopBannerCase) GetShopBanner(ctx context.Context, id int64) (*shopadmi
 
 // CreateShopBanner 创建商城轮播图
 func (c *ShopBannerCase) CreateShopBanner(ctx context.Context, req *shopadminv1.ShopBannerForm) error {
-	if req == nil || req.GetPicture() == "" {
-		return errorsx.InvalidArgument("轮播图图片不能为空")
-	}
 	shopBanner := c.formMapper.ToEntity(req)
 	return c.Create(ctx, shopBanner)
 }
 
 // UpdateShopBanner 更新商城轮播图
 func (c *ShopBannerCase) UpdateShopBanner(ctx context.Context, req *shopadminv1.ShopBannerForm) error {
-	if req == nil || req.GetId() <= 0 || req.GetPicture() == "" {
+	if req.GetId() <= 0 {
 		return errorsx.InvalidArgument("轮播图参数不合法")
 	}
 	shopBanner := c.formMapper.ToEntity(req)

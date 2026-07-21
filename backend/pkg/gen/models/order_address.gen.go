@@ -14,10 +14,10 @@ const TableNameOrderAddress = "order_address"
 type OrderAddress struct {
 	ID        int64          `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:订单地址ID" json:"id"`                                   // 订单地址ID
 	TradeID   int64          `gorm:"column:trade_id;type:bigint;not null;uniqueIndex:unique_order_address,priority:1;comment:交易单ID" json:"trade_id"` // 交易单ID
-	Receiver  string         `gorm:"column:receiver;type:varchar(100);comment:联系人" json:"receiver"`                                                  // 联系人
-	Contact   string         `gorm:"column:contact;type:varchar(100);comment:联系方式" json:"contact"`                                                   // 联系方式
-	Address   string         `gorm:"column:address;type:json;comment:省市区" json:"address"`                                                            // 省市区
-	Detail    string         `gorm:"column:detail;type:varchar(255);comment:详细地址" json:"detail"`                                                     // 详细地址
+	Receiver  string         `gorm:"column:receiver;type:varchar(100);not null;comment:联系人" json:"receiver"`                                         // 联系人
+	Contact   string         `gorm:"column:contact;type:varchar(100);not null;comment:联系方式" json:"contact"`                                          // 联系方式
+	Address   string         `gorm:"column:address;type:json;not null;comment:省市区" json:"address"`                                                   // 省市区
+	Detail    string         `gorm:"column:detail;type:varchar(255);not null;comment:详细地址" json:"detail"`                                            // 详细地址
 	DeletedAt gorm.DeletedAt `gorm:"column:deleted_at;type:datetime;comment:删除时间" json:"deleted_at"`                                                 // 删除时间
 }
 

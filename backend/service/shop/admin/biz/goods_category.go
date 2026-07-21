@@ -78,9 +78,6 @@ func (c *GoodsCategoryCase) GetGoodsCategory(ctx context.Context, id int64) (*sh
 
 // CreateGoodsCategory 创建分类
 func (c *GoodsCategoryCase) CreateGoodsCategory(ctx context.Context, req *shopadminv1.GoodsCategoryForm) error {
-	if req == nil || req.GetName() == "" {
-		return errorsx.InvalidArgument("商品分类名称不能为空")
-	}
 	goodsCategory := c.formMapper.ToEntity(req)
 	// 根分类直接挂在虚拟根节点下。
 	if goodsCategory.ParentID == 0 {
@@ -97,7 +94,7 @@ func (c *GoodsCategoryCase) CreateGoodsCategory(ctx context.Context, req *shopad
 
 // UpdateGoodsCategory 更新分类
 func (c *GoodsCategoryCase) UpdateGoodsCategory(ctx context.Context, req *shopadminv1.GoodsCategoryForm) error {
-	if req == nil || req.GetId() <= 0 || req.GetName() == "" {
+	if req.GetId() <= 0 {
 		return errorsx.InvalidArgument("商品分类参数不合法")
 	}
 	goodsCategory, err := c.FindByID(ctx, req.GetId())

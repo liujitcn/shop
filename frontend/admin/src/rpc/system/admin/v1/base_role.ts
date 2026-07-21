@@ -113,15 +113,11 @@ export interface BaseRoleForm {
   /** 角色编号 */
   code: string;
   /** 数据权限：0全部数据1部门及子部门数据2本部门数据3本人数据 */
-  data_scope?:
-    | BaseRoleDataScope
-    | undefined;
+  data_scope: BaseRoleDataScope;
   /** 分配的菜单列表 */
   menus: number[];
   /** 状态 */
-  status?:
-    | Status
-    | undefined;
+  status: Status;
   /** 备注 */
   remark: string;
 }

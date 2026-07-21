@@ -12,6 +12,7 @@ import (
 	sync "sync"
 	unsafe "unsafe"
 
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -485,11 +486,11 @@ func (x *ShopService) GetUpdatedAt() string {
 // 商城服务表单
 type ShopServiceForm struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                       // 服务ID
-	Label         string                 `protobuf:"bytes,2,opt,name=label,proto3" json:"label,omitempty"`                                  // 标签
-	Value         string                 `protobuf:"bytes,3,opt,name=value,proto3" json:"value,omitempty"`                                  // 值
-	Sort          int32                  `protobuf:"varint,4,opt,name=sort,proto3" json:"sort,omitempty"`                                   // 排序
-	Status        *v1.Status             `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"` // 状态：枚举【Status】
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                 // 服务ID
+	Label         string                 `protobuf:"bytes,2,opt,name=label,proto3" json:"label,omitempty"`                            // 标签
+	Value         string                 `protobuf:"bytes,3,opt,name=value,proto3" json:"value,omitempty"`                            // 值
+	Sort          int32                  `protobuf:"varint,4,opt,name=sort,proto3" json:"sort,omitempty"`                             // 排序
+	Status        v1.Status              `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"` // 状态：枚举【Status】
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -553,8 +554,8 @@ func (x *ShopServiceForm) GetSort() int32 {
 }
 
 func (x *ShopServiceForm) GetStatus() v1.Status {
-	if x != nil && x.Status != nil {
-		return *x.Status
+	if x != nil {
+		return x.Status
 	}
 	return v1.Status(0)
 }
@@ -563,7 +564,7 @@ var File_shop_admin_v1_shop_service_proto protoreflect.FileDescriptor
 
 const file_shop_admin_v1_shop_service_proto_rawDesc = "" +
 	"\n" +
-	" shop/admin/v1/shop_service.proto\x12\rshop.admin.v1\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x83\x02\n" +
+	" shop/admin/v1/shop_service.proto\x12\rshop.admin.v1\x1a\x14common/v1/enum.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x83\x02\n" +
 	"\x16PageShopServiceRequest\x12\"\n" +
 	"\x05label\x18\x01 \x01(\tB\f\xbaG\t\x92\x02\x06标签R\x05label\x12<\n" +
 	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态H\x00R\x06status\x88\x01\x01\x129\n" +
@@ -574,34 +575,36 @@ const file_shop_admin_v1_shop_service_proto_rawDesc = "" +
 	"\rshop_services\x18\x01 \x03(\v2\x1a.shop.admin.v1.ShopServiceB\x18\xbaG\x15\x92\x02\x12商城服务列表R\fshopServices\x12\"\n" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"7\n" +
 	"\x15GetShopServiceRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b服务IDR\x02id\"w\n" +
-	"\x18CreateShopServiceRequest\x12[\n" +
-	"\fshop_service\x18\x01 \x01(\v2\x1e.shop.admin.v1.ShopServiceFormB\x18\xbaG\x15\x92\x02\x12商城服务表单R\vshopService\"\x97\x01\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b服务IDR\x02id\"}\n" +
+	"\x18CreateShopServiceRequest\x12a\n" +
+	"\fshop_service\x18\x01 \x01(\v2\x1e.shop.admin.v1.ShopServiceFormB\x1e\xbaG\x15\x92\x02\x12商城服务表单\xbaH\x03\xc8\x01\x01R\vshopService\"\x9d\x01\n" +
 	"\x18UpdateShopServiceRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b服务IDR\x02id\x12[\n" +
-	"\fshop_service\x18\x02 \x01(\v2\x1e.shop.admin.v1.ShopServiceFormB\x18\xbaG\x15\x92\x02\x12商城服务表单R\vshopService\"Z\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b服务IDR\x02id\x12a\n" +
+	"\fshop_service\x18\x02 \x01(\v2\x1e.shop.admin.v1.ShopServiceFormB\x1e\xbaG\x15\x92\x02\x12商城服务表单\xbaH\x03\xc8\x01\x01R\vshopService\"Z\n" +
 	"\x18DeleteShopServiceRequest\x12>\n" +
 	"\x03ids\x18\x01 \x01(\tB,\xbaG)\x92\x02&服务ID列表，多个用逗号分隔R\x03ids\"\x8b\x01\n" +
 	"\x1bSetShopServiceStatusRequest\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b服务IDR\x02id\x12L\n" +
-	"\x06status\x18\x02 \x01(\x0e2\x11.common.v1.StatusB!\xbaG\x1e\x92\x02\x1b状态：枚举【Status】R\x06status\"\xb5\x02\n" +
+	"\x06status\x18\x02 \x01(\x0e2\x11.common.v1.StatusB!\xbaG\x1e\x92\x02\x1b状态：枚举【Status】R\x06status\"\xe1\x04\n" +
 	"\vShopService\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b服务IDR\x02id\x12\"\n" +
-	"\x05label\x18\x02 \x01(\tB\f\xbaG\t\x92\x02\x06标签R\x05label\x12\x1f\n" +
-	"\x05value\x18\x03 \x01(\tB\t\xbaG\x06\x92\x02\x03值R\x05value\x12 \n" +
-	"\x04sort\x18\x04 \x01(\x05B\f\xbaG\t\x92\x02\x06排序R\x04sort\x127\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b服务IDR\x02id\x12\x97\x01\n" +
+	"\x05label\x18\x02 \x01(\tB\x80\x01\xbaG\t\x92\x02\x06标签\xbaHq\xba\x01n\n" +
+	"\x19shop_service.label.length\x12+标签不能为空且不超过 50 个字符\x1a$this.size() > 0 && this.size() <= 50R\x05label\x12\x92\x01\n" +
+	"\x05value\x18\x03 \x01(\tB|\xbaG\x06\x92\x02\x03值\xbaHp\xba\x01m\n" +
+	"\x19shop_service.value.length\x12)值不能为空且不超过 500 个字符\x1a%this.size() > 0 && this.size() <= 500R\x05value\x12b\n" +
+	"\x04sort\x18\x04 \x01(\x05BN\xbaG\t\x92\x02\x06排序\xbaH?\xba\x01<\n" +
+	"\x1ashop_service.sort.required\x12\x14排序必须大于 0\x1a\bthis > 0R\x04sort\x127\n" +
 	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态R\x06status\x122\n" +
 	"\n" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
 	"\n" +
-	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\"\xf6\x01\n" +
+	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\"\xee\x01\n" +
 	"\x0fShopServiceForm\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b服务IDR\x02id\x12\"\n" +
 	"\x05label\x18\x02 \x01(\tB\f\xbaG\t\x92\x02\x06标签R\x05label\x12\x1f\n" +
 	"\x05value\x18\x03 \x01(\tB\t\xbaG\x06\x92\x02\x03值R\x05value\x12 \n" +
-	"\x04sort\x18\x04 \x01(\x05B\f\xbaG\t\x92\x02\x06排序R\x04sort\x12Q\n" +
-	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB!\xbaG\x1e\x92\x02\x1b状态：枚举【Status】H\x00R\x06status\x88\x01\x01B\t\n" +
-	"\a_status2\xc3\x06\n" +
+	"\x04sort\x18\x04 \x01(\x05B\f\xbaG\t\x92\x02\x06排序R\x04sort\x12T\n" +
+	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB)\xbaG\x1e\x92\x02\x1b状态：枚举【Status】\xbaH\x05\x82\x01\x02\x10\x01R\x06status2\xc3\x06\n" +
 	"\x12ShopServiceService\x12\x84\x01\n" +
 	"\x0fPageShopService\x12%.shop.admin.v1.PageShopServiceRequest\x1a&.shop.admin.v1.PageShopServiceResponse\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/v1/admin/shop/service\x12\x7f\n" +
 	"\x0eGetShopService\x12$.shop.admin.v1.GetShopServiceRequest\x1a\x1e.shop.admin.v1.ShopServiceForm\"'\x82\xd3\xe4\x93\x02!\x12\x1f/api/v1/admin/shop/service/{id}\x12\x86\x01\n" +
@@ -670,7 +673,6 @@ func file_shop_admin_v1_shop_service_proto_init() {
 		return
 	}
 	file_shop_admin_v1_shop_service_proto_msgTypes[0].OneofWrappers = []any{}
-	file_shop_admin_v1_shop_service_proto_msgTypes[8].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

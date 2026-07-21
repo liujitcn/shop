@@ -123,7 +123,10 @@ const specDialog = reactive({
     sort: 1
   } as GoodsSpec,
   rules: {
-    name: [{ required: true, message: "请输入规格名称", trigger: "blur" }],
+    name: [
+      { required: true, message: "请输入规格名称", trigger: "blur" },
+      { max: 255, message: "商品规格名称不能超过 255 个字符", trigger: "blur" }
+    ],
     item: [
       {
         validator: (_rule: unknown, value: string[], callback: (error?: Error) => void) => {

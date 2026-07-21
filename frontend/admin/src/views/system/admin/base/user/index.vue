@@ -141,9 +141,9 @@ const formData = reactive<BaseUserFormState>({
   /** 用户昵称 */
   nick_name: "",
   /** 角色ID */
-  role_id: undefined,
+  role_id: 0,
   /** 部门ID */
-  dept_id: undefined,
+  dept_id: 0,
   /** 手机号 */
   phone: "",
   /** 密码 */
@@ -165,11 +165,18 @@ const resetPwdTargetName = ref("");
 
 const rules = reactive({
   tenant_id: [{ required: true, message: "所属租户不能为空", trigger: "change" }],
-  user_name: [{ required: true, message: "用户账号不能为空", trigger: "blur" }],
-  nick_name: [{ required: true, message: "用户昵称不能为空", trigger: "blur" }],
+  user_name: [
+    { required: true, message: "用户账号不能为空", trigger: "blur" },
+    { max: 50, message: "用户账号不能超过 50 个字符", trigger: "blur" }
+  ],
+  nick_name: [
+    { required: true, message: "用户昵称不能为空", trigger: "blur" },
+    { max: 30, message: "用户昵称不能超过 30 个字符", trigger: "blur" }
+  ],
   dept_id: [{ required: true, message: "用户部门不能为空", trigger: "change" }],
   role_id: [{ required: true, message: "用户角色不能为空", trigger: "change" }],
   phone: [
+    { max: 20, message: "手机号不能超过 20 个字符", trigger: "blur" },
     {
       pattern: /^1[3|4|5|6|7|8|9][0-9]\d{8}$/,
       message: "请输入正确的手机号码",
@@ -180,7 +187,8 @@ const rules = reactive({
     { required: true, message: "请输入密码", trigger: "blur" },
     { validator: validatePasswordField, trigger: "blur" }
   ],
-  status: [{ required: true, message: "用户状态不能为空", trigger: "change" }]
+  status: [{ required: true, message: "用户状态不能为空", trigger: "change" }],
+  remark: [{ max: 500, message: "备注不能超过 500 个字符", trigger: "blur" }]
 });
 const resetPwdRules = reactive({
   pwd: [
@@ -529,8 +537,8 @@ function resetForm() {
   formData.tenant_id = undefined;
   formData.user_name = "";
   formData.nick_name = "";
-  formData.role_id = undefined;
-  formData.dept_id = undefined;
+  formData.role_id = 0;
+  formData.dept_id = 0;
   formData.phone = "";
   formData.pwd = "";
   formData.gender = 3;
@@ -573,8 +581,8 @@ async function loadTenantOptions() {
  * 切换用户表单租户时，清空角色和部门并重新加载选项。
  */
 async function handleFormTenantChange() {
-  formData.role_id = undefined;
-  formData.dept_id = undefined;
+  formData.role_id = 0;
+  formData.dept_id = 0;
   await loadFormOptions();
 }
 

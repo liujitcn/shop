@@ -3,6 +3,7 @@ syntax = "proto3";
 package shop.admin.v1;
 
 import "common/v1/enum.proto";
+import "buf/validate/validate.proto";
 import "shop/common/v1/enum.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
@@ -89,14 +90,14 @@ message GetShopBannerRequest {
 
 // 轮播图创建条件
 message CreateShopBannerRequest {
-  ShopBannerForm shop_banner = 1 [(gnostic.openapi.v3.property) = {description: "轮播图表单"}]; // 轮播图表单
+  ShopBannerForm shop_banner = 1 [(gnostic.openapi.v3.property) = {description: "轮播图表单"}, (buf.validate.field).required = true]; // 轮播图表单
 }
 
 // 轮播图更新条件
 message UpdateShopBannerRequest {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "主键id"}]; // 主键id
 
-  ShopBannerForm shop_banner = 2 [(gnostic.openapi.v3.property) = {description: "轮播图表单"}]; // 轮播图表单
+  ShopBannerForm shop_banner = 2 [(gnostic.openapi.v3.property) = {description: "轮播图表单"}, (buf.validate.field).required = true]; // 轮播图表单
 }
 
 // 轮播图删除条件
@@ -136,15 +137,15 @@ message ShopBanner {
 message ShopBannerForm {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "主键id"}]; // 主键id
 
-  optional .shop.common.v1.ShopBannerSite site = 2 [(gnostic.openapi.v3.property) = {description: "位置：枚举【ShopBannerSite】"}]; // 位置：枚举【ShopBannerSite】
+  .shop.common.v1.ShopBannerSite site = 2 [(gnostic.openapi.v3.property) = {description: "位置：枚举【ShopBannerSite】"}, (buf.validate.field).enum = {defined_only: true}]; // 位置：枚举【ShopBannerSite】
 
-  string picture = 3 [(gnostic.openapi.v3.property) = {description: "图片链接"}]; // 图片链接
+  string picture = 3 [(gnostic.openapi.v3.property) = {description: "图片链接"}, (buf.validate.field).cel = {id: "shop_banner.picture.length" message: "图片链接不能为空且不超过 1024 个字符" expression: "this.size() > 0 && this.size() <= 1024"}]; // 图片链接
 
-  optional .shop.common.v1.ShopBannerType type = 4 [(gnostic.openapi.v3.property) = {description: "跳转类型：枚举【ShopBannerType】"}]; // 跳转类型：枚举【ShopBannerType】
+  .shop.common.v1.ShopBannerType type = 4 [(gnostic.openapi.v3.property) = {description: "跳转类型：枚举【ShopBannerType】"}, (buf.validate.field).enum = {defined_only: true}]; // 跳转类型：枚举【ShopBannerType】
 
-  string href = 5 [(gnostic.openapi.v3.property) = {description: "跳转地址"}]; // 跳转地址
+  string href = 5 [(gnostic.openapi.v3.property) = {description: "跳转地址"}, (buf.validate.field).cel = {id: "shop_banner.href.length" message: "跳转地址不能为空且不超过 1024 个字符" expression: "this.size() > 0 && this.size() <= 1024"}]; // 跳转地址
 
-  int32 sort = 6 [(gnostic.openapi.v3.property) = {description: "排序"}]; // 排序
+  int32 sort = 6 [(gnostic.openapi.v3.property) = {description: "排序"}, (buf.validate.field).cel = {id: "shop_banner.sort.required" message: "排序必须大于 0" expression: "this > 0"}]; // 排序
 
-  optional .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态：枚举【Status】"}]; // 状态：枚举【Status】
+  .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态：枚举【Status】"}, (buf.validate.field).enum = {defined_only: true}]; // 状态：枚举【Status】
 }

@@ -4,6 +4,7 @@ package system.admin.v1;
 
 import "common/v1/common.proto";
 import "common/v1/enum.proto";
+import "buf/validate/validate.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
@@ -87,12 +88,12 @@ message GetBaseDeptRequest {
 
 // 创建部门请求参数
 message CreateBaseDeptRequest {
-  BaseDeptForm base_dept = 1 [(gnostic.openapi.v3.property) = {description: "部门表单"}]; // 部门表单
+  BaseDeptForm base_dept = 1 [(gnostic.openapi.v3.property) = {description: "部门表单"}, (buf.validate.field).required = true]; // 部门表单
 }
 
 // 更新部门请求参数
 message UpdateBaseDeptRequest {
-  BaseDeptForm base_dept = 1 [(gnostic.openapi.v3.property) = {description: "部门表单"}]; // 部门表单
+  BaseDeptForm base_dept = 1 [(gnostic.openapi.v3.property) = {description: "部门表单"}, (buf.validate.field).required = true]; // 部门表单
 }
 
 // 删除部门请求参数
@@ -111,13 +112,13 @@ message SetBaseDeptStatusRequest {
 message BaseDept {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "部门ID"}]; // 部门ID
 
-  int64 tenant_id = 2 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+  int64 tenant_id = 2 [(gnostic.openapi.v3.property) = {description: "租户ID"}, (buf.validate.field).cel = {id: "base_dept.tenant_id.required" message: "所属租户不能为空" expression: "this > 0"}]; // 租户ID
 
   int64 parent_id = 3 [(gnostic.openapi.v3.property) = {description: "父级部门ID"}]; // 父级部门ID
 
-  string name = 4 [(gnostic.openapi.v3.property) = {description: "部门名称"}]; // 部门名称
+  string name = 4 [(gnostic.openapi.v3.property) = {description: "部门名称"}, (buf.validate.field).cel = {id: "base_dept.name.length" message: "部门名称不能为空且不超过 255 个字符" expression: "this.size() > 0 && this.size() <= 255"}]; // 部门名称
 
-  int32 sort = 5 [(gnostic.openapi.v3.property) = {description: "排序"}]; // 排序
+  int32 sort = 5 [(gnostic.openapi.v3.property) = {description: "排序"}, (buf.validate.field).cel = {id: "base_dept.sort.required" message: "排序必须大于 0" expression: "this > 0"}]; // 排序
 
   .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
 
@@ -142,7 +143,7 @@ message BaseDeptForm {
 
   int32 sort = 5 [(gnostic.openapi.v3.property) = {description: "排序"}]; // 排序
 
-  optional .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
+  .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态"}, (buf.validate.field).enum = {defined_only: true}]; // 状态
 
-  string remark = 101 [(gnostic.openapi.v3.property) = {description: "备注"}]; // 备注
+  string remark = 101 [(gnostic.openapi.v3.property) = {description: "备注"}, (buf.validate.field).cel = {id: "base_dept.remark.max_len" message: "备注不能超过 500 个字符" expression: "this.size() <= 500"}]; // 备注
 }

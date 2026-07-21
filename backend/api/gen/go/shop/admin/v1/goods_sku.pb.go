@@ -11,6 +11,7 @@ import (
 	sync "sync"
 	unsafe "unsafe"
 
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -366,7 +367,7 @@ var File_shop_admin_v1_goods_sku_proto protoreflect.FileDescriptor
 
 const file_shop_admin_v1_goods_sku_proto_rawDesc = "" +
 	"\n" +
-	"\x1dshop/admin/v1/goods_sku.proto\x12\rshop.admin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xf0\x01\n" +
+	"\x1dshop/admin/v1/goods_sku.proto\x12\rshop.admin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1bbuf/validate/validate.proto\"\xf0\x01\n" +
 	"\x13PageGoodsSkuRequest\x12)\n" +
 	"\bgoods_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品idR\agoodsId\x120\n" +
 	"\bsku_code\x18\x05 \x01(\tB\x15\xbaG\x12\x92\x02\x0f商品SKU编号R\askuCode\x129\n" +
@@ -377,16 +378,18 @@ const file_shop_admin_v1_goods_sku_proto_rawDesc = "" +
 	"goods_skus\x18\x01 \x03(\v2\x17.shop.admin.v1.GoodsSkuB\x15\xbaG\x12\x92\x02\x0f商品SKU列表R\tgoodsSkus\x12\"\n" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"7\n" +
 	"\x12GetGoodsSkuRequest\x12!\n" +
-	"\x02id\x18\x01 \x01(\x03B\x11\xbaG\x0e\x92\x02\v商品SKUIDR\x02id\"\x81\x01\n" +
+	"\x02id\x18\x01 \x01(\x03B\x11\xbaG\x0e\x92\x02\v商品SKUIDR\x02id\"\x87\x01\n" +
 	"\x15UpdateGoodsSkuRequest\x12!\n" +
-	"\x02id\x18\x01 \x01(\x03B\x11\xbaG\x0e\x92\x02\v商品SKUIDR\x02id\x12E\n" +
-	"\tgoods_sku\x18\x02 \x01(\v2\x17.shop.admin.v1.GoodsSkuB\x0f\xbaG\f\x92\x02\t商品SKUR\bgoodsSku\"\xa5\x04\n" +
+	"\x02id\x18\x01 \x01(\x03B\x11\xbaG\x0e\x92\x02\v商品SKUIDR\x02id\x12K\n" +
+	"\tgoods_sku\x18\x02 \x01(\v2\x17.shop.admin.v1.GoodsSkuB\x15\xbaG\f\x92\x02\t商品SKU\xbaH\x03\xc8\x01\x01R\bgoodsSku\"\xfe\x05\n" +
 	"\bGoodsSku\x12!\n" +
 	"\x02id\x18\x01 \x01(\x03B\x11\xbaG\x0e\x92\x02\v商品SKUIDR\x02id\x12)\n" +
-	"\bgoods_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品idR\agoodsId\x12,\n" +
-	"\apicture\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f商品图片R\apicture\x12V\n" +
-	"\tspec_item\x18\x04 \x03(\tB9\xbaG6\x92\x023SKU组成，需要与商品规格数组顺序对应R\bspecItem\x12*\n" +
-	"\bsku_code\x18\x05 \x01(\tB\x0f\xbaG\f\x92\x02\tSKU编码R\askuCode\x12-\n" +
+	"\bgoods_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品idR\agoodsId\x12\x8b\x01\n" +
+	"\apicture\x18\x03 \x01(\tBq\xbaG\x0f\x92\x02\f商品图片\xbaH\\\xba\x01Y\n" +
+	"\x19goods_sku.picture.max_len\x12'商品图片不能超过 1024 个字符\x1a\x13this.size() <= 1024R\apicture\x12V\n" +
+	"\tspec_item\x18\x04 \x03(\tB9\xbaG6\x92\x023SKU组成，需要与商品规格数组顺序对应R\bspecItem\x12\xa2\x01\n" +
+	"\bsku_code\x18\x05 \x01(\tB\x86\x01\xbaG\f\x92\x02\tSKU编码\xbaHt\xba\x01q\n" +
+	"\x19goods_sku.sku_code.length\x12.SKU编码不能为空且不超过 50 个字符\x1a$this.size() > 0 && this.size() <= 50R\askuCode\x12-\n" +
 	"\x05price\x18\x06 \x01(\x03B\x17\xbaG\x14\x92\x02\x11当前价格(分)R\x05price\x12B\n" +
 	"\x0ediscount_price\x18\a \x01(\x03B\x1b\xbaG\x18\x92\x02\x15折扣价格（分）R\rdiscountPrice\x126\n" +
 	"\rinit_sale_num\x18\b \x01(\x03B\x12\xbaG\x0f\x92\x02\f初始销量R\vinitSaleNum\x12<\n" +

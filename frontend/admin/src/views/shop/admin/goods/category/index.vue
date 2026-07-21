@@ -79,8 +79,12 @@ const formData = reactive<GoodsCategoryForm>({
 
 const rules = computed(() => ({
   parent_id: [{ required: true, message: "上级分类不能为空", trigger: "change" }],
-  name: [{ required: true, message: "分类名称不能为空", trigger: "blur" }],
+  name: [
+    { required: true, message: "分类名称不能为空", trigger: "blur" },
+    { max: 255, message: "分类名称不能超过 255 个字符", trigger: "blur" }
+  ],
   picture: [
+    { max: 1024, message: "商品分类图片不能超过 1024 个字符", trigger: "change" },
     {
       validator: (_rule: unknown, value: string, callback: (error?: Error) => void) => {
         if (formData.parent_id !== 0 && !value) {
@@ -92,7 +96,7 @@ const rules = computed(() => ({
       trigger: "change"
     }
   ],
-  sort: [{ required: true, message: "排序不能为空", trigger: "blur" }],
+  sort: [{ required: true, type: "number", min: 1, message: "排序必须大于 0", trigger: "blur" }],
   status: [{ required: true, message: "状态不能为空", trigger: "change" }]
 }));
 

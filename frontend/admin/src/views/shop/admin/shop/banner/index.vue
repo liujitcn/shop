@@ -38,7 +38,7 @@ import type { PageShopBannerRequest, ShopBanner, ShopBannerForm } from "@/rpc/sh
 import type { OptionGoodsInfoResponse_GoodsInfo } from "@/rpc/shop/admin/v1/goods_info";
 import { defGoodsInfoService } from "@/api/shop/admin/goods_info";
 import { Status } from "@/rpc/common/v1/enum";
-import { ShopBannerType } from "@/rpc/shop/common/v1/enum";
+import { ShopBannerSite, ShopBannerType } from "@/rpc/shop/common/v1/enum";
 import type { TreeOptionResponse_Option } from "@/rpc/common/v1/common";
 import { defGoodsCategoryService } from "@/api/shop/admin/goods_category";
 import { buildPageRequest, normalizeSelectedIds } from "@/utils/proTable";
@@ -106,13 +106,13 @@ const formData = reactive<ShopBannerForm>({
   /** 主键id */
   id: 0,
   /** 位置：枚举【ShopBannerSite】 */
-  site: undefined,
+  site: ShopBannerSite.UNKNOWN_SBS,
   /** 图片链接 */
   picture: "",
   /** 跳转地址 */
   href: "",
   /** 跳转类型：枚举【ShopBannerType】 */
-  type: undefined,
+  type: ShopBannerType.UNKNOWN_SBT,
   /** 排序 */
   sort: 1,
   /** 状态：枚举【Status】 */
@@ -311,10 +311,10 @@ function resetForm() {
   formDialogRef.value?.resetFields();
   formDialogRef.value?.clearValidate();
   formData.id = 0;
-  formData.site = undefined;
+  formData.site = ShopBannerSite.UNKNOWN_SBS;
   formData.picture = "";
   formData.href = "";
-  formData.type = undefined;
+  formData.type = ShopBannerType.UNKNOWN_SBT;
   formData.sort = 1;
   formData.status = Status.ENABLE;
 }

@@ -109,9 +109,6 @@ func (c *BaseConfigCase) GetBaseConfig(ctx context.Context, id int64) (*systemad
 
 // CreateBaseConfig 创建配置
 func (c *BaseConfigCase) CreateBaseConfig(ctx context.Context, req *systemadminv1.BaseConfigForm) error {
-	if req == nil || req.GetName() == "" || req.GetKey() == "" {
-		return errorsx.InvalidArgument("请填写完整的系统配置信息")
-	}
 	entity := c.formMapper.ToEntity(req)
 	err := c.Create(ctx, entity)
 	if err != nil {
@@ -130,7 +127,7 @@ func (c *BaseConfigCase) CreateBaseConfig(ctx context.Context, req *systemadminv
 
 // UpdateBaseConfig 更新配置
 func (c *BaseConfigCase) UpdateBaseConfig(ctx context.Context, req *systemadminv1.BaseConfigForm) error {
-	if req == nil || req.GetId() <= 0 || req.GetName() == "" || req.GetKey() == "" {
+	if req.GetId() <= 0 {
 		return errorsx.InvalidArgument("系统配置参数不合法")
 	}
 	oldConfig, err := c.FindByID(ctx, req.GetId())

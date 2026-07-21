@@ -108,21 +108,17 @@ export interface BaseConfigForm {
   /** 配置ID */
   id: number;
   /** 位置：枚举【BaseConfigSite】 */
-  site?:
-    | BaseConfigSite
-    | undefined;
+  site: BaseConfigSite;
   /** 配置名称 */
   name: string;
   /** 配置类型：1、文本，2、图片，3、富文本，4、字典 */
-  type?:
-    | BaseConfigType
-    | undefined;
+  type: BaseConfigType;
   /** 配置key */
   key: string;
   /** 配置value */
   value: string;
   /** 状态 */
-  status?: Status | undefined;
+  status: Status;
 }
 
 /** Admin系统配置服务 */

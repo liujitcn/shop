@@ -10,7 +10,7 @@ const TableNameShopHotGoods = "shop_hot_goods"
 type ShopHotGoods struct {
 	HotItemID int64 `gorm:"column:hot_item_id;type:bigint;primaryKey;comment:热门推荐选项ID" json:"hot_item_id"` // 热门推荐选项ID
 	GoodsID   int64 `gorm:"column:goods_id;type:bigint;primaryKey;comment:商品ID" json:"goods_id"`           // 商品ID
-	Sort      int64 `gorm:"column:sort;type:bigint;comment:排序" json:"sort"`                                // 排序
+	Sort      int64 `gorm:"column:sort;type:bigint;not null;comment:排序" json:"sort"`                       // 排序
 }
 
 // TableName ShopHotGoods's table name

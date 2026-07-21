@@ -168,9 +168,7 @@ export interface GoodsInfoForm {
   /** 商品详情 */
   detail: string[];
   /** 状态 */
-  status?:
-    | GoodsStatus
-    | undefined;
+  status: GoodsStatus;
   /** 商品属性 */
   prop_list: GoodsProp[];
   /** 商品SKU */

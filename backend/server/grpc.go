@@ -38,6 +38,7 @@ func NewGRPCMiddleware(
 		ms = append(ms, logging.Server(ctx.GetLogger(), baseUserRepo, authenticator))
 	}
 	ms = append(ms, appMiddleware.NewAuthMiddleware(authenticator, authorizer, userToken, jwtCfg))
+	ms = append(ms, appMiddleware.NewValidateMiddleware())
 	return ms
 }
 

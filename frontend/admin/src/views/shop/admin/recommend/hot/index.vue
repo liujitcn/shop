@@ -67,11 +67,18 @@ const formData = reactive<ShopHotForm>({
 });
 
 const rules = computed(() => ({
-  title: [{ required: true, message: "请输入热门推荐标题", trigger: "blur" }],
-  desc: [{ required: true, message: "请输入热门推荐描述", trigger: "blur" }],
+  title: [
+    { required: true, message: "请输入热门推荐标题", trigger: "blur" },
+    { max: 100, message: "热门推荐标题不能超过 100 个字符", trigger: "blur" }
+  ],
+  desc: [
+    { required: true, message: "请输入热门推荐描述", trigger: "blur" },
+    { max: 100, message: "热门推荐描述不能超过 100 个字符", trigger: "blur" }
+  ],
   banner: [{ required: true, message: "请上传轮播图", trigger: "blur" }],
   picture: [{ required: true, message: "请上传推荐图片", trigger: "blur" }],
-  status: [{ required: true, message: "状态不能为空", trigger: "blur" }]
+  status: [{ required: true, message: "状态不能为空", trigger: "blur" }],
+  sort: [{ required: true, type: "number", min: 1, message: "排序必须大于 0", trigger: "blur" }]
 }));
 
 const statusOptions: ProFormOption[] = [

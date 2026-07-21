@@ -3,6 +3,7 @@ syntax = "proto3";
 package system.admin.v1;
 
 import "gnostic/openapi/v3/annotations.proto";
+import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 
@@ -183,27 +184,27 @@ message CodeGenTable {
 message CodeGenTableForm {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "主键ID"}]; // 主键ID
 
-  string name = 2 [(gnostic.openapi.v3.property) = {description: "业务表名"}]; // 业务表名
+  string name = 2 [(gnostic.openapi.v3.property) = {description: "业务表名"}, (buf.validate.field).cel = {id: "field.name.required", message: "业务表名不能为空", expression: "this.size() > 0"}, (buf.validate.field).cel = {id: "field.name.length", message: "业务表名不能超过 128 个字符", expression: "this.size() <= 128"}]; // 业务表名
 
-  string comment = 3 [(gnostic.openapi.v3.property) = {description: "业务表描述"}]; // 业务表描述
+  string comment = 3 [(gnostic.openapi.v3.property) = {description: "业务表描述"}, (buf.validate.field).cel = {id: "field.comment.length", message: "业务表描述不能超过 128 个字符", expression: "this.size() <= 128"}]; // 业务表描述
 
-  string business_name = 4 [(gnostic.openapi.v3.property) = {description: "业务名"}]; // 业务名
+  string business_name = 4 [(gnostic.openapi.v3.property) = {description: "业务名"}, (buf.validate.field).cel = {id: "field.business_name.required", message: "业务名不能为空", expression: "this.size() > 0"}, (buf.validate.field).cel = {id: "field.business_name.length", message: "业务名不能超过 64 个字符", expression: "this.size() <= 64"}]; // 业务名
 
-  string entity_name = 5 [(gnostic.openapi.v3.property) = {description: "实体名"}]; // 实体名
+  string entity_name = 5 [(gnostic.openapi.v3.property) = {description: "实体名"}, (buf.validate.field).cel = {id: "field.entity_name.required", message: "实体名不能为空", expression: "this.size() > 0"}, (buf.validate.field).cel = {id: "field.entity_name.length", message: "实体名不能超过 64 个字符", expression: "this.size() <= 64"}]; // 实体名
 
-  string module_path = 6 [(gnostic.openapi.v3.property) = {description: "模块路径"}]; // 模块路径
+  string module_path = 6 [(gnostic.openapi.v3.property) = {description: "模块路径"}, (buf.validate.field).cel = {id: "field.module_path.required", message: "模块路径不能为空", expression: "this.size() > 0"}, (buf.validate.field).cel = {id: "field.module_path.length", message: "模块路径不能超过 128 个字符", expression: "this.size() <= 128"}]; // 模块路径
 
-  string api_path = 7 [(gnostic.openapi.v3.property) = {description: "Proto目录"}]; // Proto目录
+  string api_path = 7 [(gnostic.openapi.v3.property) = {description: "Proto目录"}, (buf.validate.field).cel = {id: "field.api_path.length", message: "Proto目录不能超过 512 个字符", expression: "this.size() <= 512"}]; // Proto目录
 
-  string permission_prefix = 8 [(gnostic.openapi.v3.property) = {description: "权限标识前缀"}]; // 权限标识前缀
+  string permission_prefix = 8 [(gnostic.openapi.v3.property) = {description: "权限标识前缀"}, (buf.validate.field).cel = {id: "field.permission_prefix.length", message: "权限标识前缀不能超过 128 个字符", expression: "this.size() <= 128"}]; // 权限标识前缀
 
   int64 parent_menu_id = 9 [(gnostic.openapi.v3.property) = {description: "父级菜单ID"}]; // 父级菜单ID
 
-  string page_type = 10 [(gnostic.openapi.v3.property) = {description: "页面类型：normal普通表格 tree树形表格 left_tree左树右表"}]; // 页面类型：normal普通表格 tree树形表格 left_tree左树右表
+  string page_type = 10 [(gnostic.openapi.v3.property) = {description: "页面类型：normal普通表格 tree树形表格 left_tree左树右表"}, (buf.validate.field).cel = {id: "field.page_type.required", message: "页面类型不能为空", expression: "this.size() > 0"}, (buf.validate.field).cel = {id: "field.page_type.length", message: "页面类型不能超过 32 个字符", expression: "this.size() <= 32"}]; // 页面类型：normal普通表格 tree树形表格 left_tree左树右表
 
-  string parent_column = 11 [(gnostic.openapi.v3.property) = {description: "树形表格父节点字段"}]; // 树形表格父节点字段
+  string parent_column = 11 [(gnostic.openapi.v3.property) = {description: "树形表格父节点字段"}, (buf.validate.field).cel = {id: "field.parent_column.length", message: "树形表格父节点字段不能超过 64 个字符", expression: "this.size() <= 64"}]; // 树形表格父节点字段
 
-  string tree_label_column = 12 [(gnostic.openapi.v3.property) = {description: "树节点显示字段"}]; // 树节点显示字段
+  string tree_label_column = 12 [(gnostic.openapi.v3.property) = {description: "树节点显示字段"}, (buf.validate.field).cel = {id: "field.tree_label_column.length", message: "树节点显示字段不能超过 64 个字符", expression: "this.size() <= 64"}]; // 树节点显示字段
 
   CodeGenLeftTreeConfig left_tree_config = 13 [(gnostic.openapi.v3.property) = {description: "左树配置"}]; // 左树配置
 
@@ -215,7 +216,7 @@ message CodeGenTableForm {
 
   int32 status = 17 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
 
-  string remark = 18 [(gnostic.openapi.v3.property) = {description: "备注"}]; // 备注
+  string remark = 18 [(gnostic.openapi.v3.property) = {description: "备注"}, (buf.validate.field).cel = {id: "field.remark.length", message: "备注不能超过 500 个字符", expression: "this.size() <= 500"}]; // 备注
 }
 
 // 左树右表页面配置
