@@ -118,7 +118,7 @@ func (c *CodeGenProtoCase) ListCodeGenProto(ctx context.Context, tableID int64) 
 	}, nil
 }
 
-// SaveCodeGenProto 保存代码生成 Proto 接口配置快照。
+// SaveCodeGenProto 按当前 Proto 能力清单同步接口配置。
 func (c *CodeGenProtoCase) SaveCodeGenProto(ctx context.Context, req *systemadminv1.SaveCodeGenProtoRequest) error {
 	table, err := c.codeGenTableRepo.FindByID(ctx, req.GetTableId())
 	if err != nil {
@@ -177,14 +177,56 @@ func (c *CodeGenProtoCase) SaveCodeGenProto(ctx context.Context, req *systemadmi
 	}
 	return c.tx.Transaction(ctx, func(ctx context.Context) error {
 		query := c.Query(ctx).CodeGenProto
-		if err = c.Delete(ctx, repository.Where(query.TableID.Eq(req.GetTableId()))); err != nil {
+		opts := make([]repository.QueryOption, 0, 2)
+		opts = append(opts, repository.Where(query.TableID.Eq(req.GetTableId())))
+		opts = append(opts, repository.Order(query.ID.Asc()))
+		var savedProtos []*models.CodeGenProto
+		savedProtos, err = c.List(ctx, opts...)
+		if err != nil {
 			return err
 		}
-		// 没有待生成接口时仅清理旧快照。
-		if len(protos) == 0 {
-			return nil
+		usedIDs := make(map[int64]struct{}, len(protos))
+		for _, proto := range protos {
+			key := codeGenProtoKey(proto.ProtoFilePath, proto.TargetEntityName, proto.MethodName)
+			check := expectedByKey[key]
+			var saved *models.CodeGenProto
+			for _, candidate := range savedProtos {
+				if _, used := usedIDs[candidate.ID]; used || !savedCodeGenProtoMatches(candidate, check) {
+					continue
+				}
+				saved = candidate
+				break
+			}
+			if saved == nil {
+				if err = c.Create(ctx, proto); err != nil {
+					return err
+				}
+				continue
+			}
+			proto.ID = saved.ID
+			usedIDs[saved.ID] = struct{}{}
+			_, err = query.WithContext(ctx).Where(query.ID.Eq(proto.ID)).UpdateSimple(
+				query.TriggerType.Value(proto.TriggerType),
+				query.APIKind.Value(proto.APIKind),
+				query.TargetEntityName.Value(proto.TargetEntityName),
+				query.MethodName.Value(proto.MethodName),
+				query.ProtoFilePath.Value(proto.ProtoFilePath),
+				query.GenerateWhenMissing.Value(proto.GenerateWhenMissing),
+				query.Config.Value(proto.Config),
+				query.Sort.Value(proto.Sort),
+			)
+			if err != nil {
+				return err
+			}
 		}
-		return c.BatchCreate(ctx, protos)
+		deleteIDs := make([]int64, 0, len(savedProtos)-len(usedIDs))
+		for _, saved := range savedProtos {
+			// 当前推导清单不再需要、接口已经存在或历史重复的配置统一删除。
+			if _, used := usedIDs[saved.ID]; !used {
+				deleteIDs = append(deleteIDs, saved.ID)
+			}
+		}
+		return c.DeleteByIDs(ctx, deleteIDs)
 	})
 }
 

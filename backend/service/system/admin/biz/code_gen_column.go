@@ -90,7 +90,7 @@ func (c *CodeGenColumnCase) ListCodeGenColumn(ctx context.Context, tableID int64
 	}, nil
 }
 
-// SaveCodeGenColumn 保存代码生成字段配置快照。
+// SaveCodeGenColumn 按最新数据库字段同步代码生成字段配置。
 func (c *CodeGenColumnCase) SaveCodeGenColumn(ctx context.Context, req *systemadminv1.SaveCodeGenColumnRequest) error {
 	if req.GetTableId() <= 0 {
 		return errorsx.InvalidArgument("代码生成表配置ID不能为空")
@@ -119,41 +119,74 @@ func (c *CodeGenColumnCase) SaveCodeGenColumn(ctx context.Context, req *systemad
 		}
 		requestColumns[column.GetColumnName()] = column
 	}
-	columns := make([]*models.CodeGenColumn, 0, len(databaseColumns))
-	for index, databaseColumn := range databaseColumns {
-		column := requestColumns[databaseColumn.ColumnName]
-		// 前端未提交的系统字段按元数据默认值保存，保证数据库字段快照完整。
-		if column == nil {
-			column = newDefaultCodeGenColumn(req.GetTableId(), databaseColumn, int32(index+1))
-		}
-		normalizeCodeGenColumnConfig(column, databaseColumn)
-		if err = validateCodeGenColumnConfig(column, databaseColumn); err != nil {
+	return c.tx.Transaction(ctx, func(ctx context.Context) error {
+		query := c.Query(ctx).CodeGenColumn
+		opts := make([]repository.QueryOption, 0, 2)
+		opts = append(opts, repository.Where(query.TableID.Eq(req.GetTableId())))
+		opts = append(opts, repository.Order(query.ID.Asc()))
+		var savedColumns []*models.CodeGenColumn
+		savedColumns, err = c.List(ctx, opts...)
+		if err != nil {
 			return err
 		}
-		item := c.mapper.ToEntity(column)
-		item.ID = 0
-		item.TableID = req.GetTableId()
-		item.ColumnName = databaseColumn.ColumnName
-		// 未传排序值时沿用数据库字段顺序，兼容历史配置与系统字段。
-		if item.Sort <= 0 {
-			item.Sort = int32(index + 1)
+		savedByName := make(map[string]*models.CodeGenColumn, len(savedColumns))
+		deleteIDs := make([]int64, 0)
+		for _, saved := range savedColumns {
+			// 历史重复配置只保留最早记录，其余记录在本轮同步中删除。
+			if _, exists := savedByName[saved.ColumnName]; exists {
+				deleteIDs = append(deleteIDs, saved.ID)
+				continue
+			}
+			savedByName[saved.ColumnName] = saved
 		}
-		columns = append(columns, item)
-		delete(requestColumns, databaseColumn.ColumnName)
-	}
-	// 数据库元数据中不存在的请求字段不能写入配置快照。
-	if len(requestColumns) > 0 {
+		for index, databaseColumn := range databaseColumns {
+			saved := savedByName[databaseColumn.ColumnName]
+			column := requestColumns[databaseColumn.ColumnName]
+			// 前端不展示的系统字段沿用已有配置；新增字段才使用元数据默认值。
+			if column == nil {
+				column = newDefaultCodeGenColumn(req.GetTableId(), databaseColumn, int32(index+1))
+				c.mergeSavedCodeGenColumn(column, saved)
+			}
+			normalizeCodeGenColumnConfig(column, databaseColumn)
+			if err = validateCodeGenColumnConfig(column, databaseColumn); err != nil {
+				return err
+			}
+			item := c.mapper.ToEntity(column)
+			item.TableID = req.GetTableId()
+			item.ColumnName = databaseColumn.ColumnName
+			// 新字段或历史零排序按数据库字段位置初始化，已有字段沿用页面提交或数据库保存的排序。
+			if item.Sort <= 0 {
+				item.Sort = int32(index + 1)
+			}
+			if saved == nil {
+				if err = c.Create(ctx, item); err != nil {
+					return err
+				}
+			} else {
+				item.ID = saved.ID
+				_, err = query.WithContext(ctx).Where(query.ID.Eq(item.ID)).UpdateSimple(
+					query.ColumnComment.Value(item.ColumnComment),
+					query.QueryConfig.Value(item.QueryConfig),
+					query.ListConfig.Value(item.ListConfig),
+					query.FormConfig.Value(item.FormConfig),
+					query.Sort.Value(item.Sort),
+				)
+				if err != nil {
+					return err
+				}
+			}
+			delete(savedByName, databaseColumn.ColumnName)
+			delete(requestColumns, databaseColumn.ColumnName)
+		}
+		// 请求中出现非数据库字段时拒绝保存，避免写入失效配置。
 		for columnName := range requestColumns {
 			return errorsx.InvalidArgument("字段" + columnName + "不存在")
 		}
-	}
-	return c.tx.Transaction(ctx, func(ctx context.Context) error {
-		// 使用完整快照替换旧字段配置，确保排序和默认值一致。
-		query := c.Query(ctx).CodeGenColumn
-		if err = c.Delete(ctx, repository.Where(query.TableID.Eq(req.GetTableId()))); err != nil {
-			return err
+		// 数据库已删除的字段配置以及历史重复配置同步删除。
+		for _, saved := range savedByName {
+			deleteIDs = append(deleteIDs, saved.ID)
 		}
-		return c.BatchCreate(ctx, columns)
+		return c.DeleteByIDs(ctx, deleteIDs)
 	})
 }
 
@@ -222,19 +255,8 @@ func (c *CodeGenColumnCase) mergeCodeGenColumns(tableID int64, databaseColumns [
 	columns := make([]*systemadminv1.CodeGenColumn, 0, len(databaseColumns))
 	for index, databaseColumn := range databaseColumns {
 		column := newDefaultCodeGenColumn(tableID, databaseColumn, int32(index+1))
-		// 已保存配置只覆盖用户可编辑部分，数据库字段属性始终以实时元数据为准。
-		if saved := savedByName[databaseColumn.ColumnName]; saved != nil {
-			savedColumn := c.mapper.ToDTO(saved)
-			column.Id = savedColumn.GetId()
-			column.ColumnComment = savedColumn.GetColumnComment()
-			column.QueryConfig = savedColumn.GetQueryConfig()
-			column.ListConfig = savedColumn.GetListConfig()
-			column.FormConfig = savedColumn.GetFormConfig()
-			// 排序值为正时覆盖数据库默认顺序，旧配置仍按数据库字段顺序展示。
-			if savedColumn.GetSort() > 0 {
-				column.Sort = savedColumn.GetSort()
-			}
-		}
+		// 已保存配置覆盖可编辑部分和排序，数据库字段属性始终以实时元数据为准。
+		c.mergeSavedCodeGenColumn(column, savedByName[databaseColumn.ColumnName])
 		normalizeCodeGenColumnConfig(column, databaseColumn)
 		columns = append(columns, column)
 	}
@@ -249,6 +271,22 @@ func (c *CodeGenColumnCase) mergeCodeGenColumns(tableID int64, databaseColumns [
 		return 0
 	})
 	return columns
+}
+
+// mergeSavedCodeGenColumn 将已有字段配置合并到最新数据库字段模型。
+func (c *CodeGenColumnCase) mergeSavedCodeGenColumn(column *systemadminv1.CodeGenColumn, saved *models.CodeGenColumn) {
+	if saved == nil {
+		return
+	}
+	savedColumn := c.mapper.ToDTO(saved)
+	column.Id = savedColumn.GetId()
+	column.ColumnComment = savedColumn.GetColumnComment()
+	column.QueryConfig = savedColumn.GetQueryConfig()
+	column.ListConfig = savedColumn.GetListConfig()
+	column.FormConfig = savedColumn.GetFormConfig()
+	if savedColumn.GetSort() > 0 {
+		column.Sort = savedColumn.GetSort()
+	}
 }
 
 // filterConfigurableCodeGenColumns 过滤字段配置接口不允许维护的数据库字段。
