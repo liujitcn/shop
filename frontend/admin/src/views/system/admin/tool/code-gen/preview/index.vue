@@ -358,20 +358,8 @@ function applyPreviewListComponent(result: ColumnProps, column: CodeGenColumn, o
     return;
   }
   if (component === "switch") {
-    const option = column.list_config?.option;
-    const activeOption = options.find(item => item.value === option?.active_value);
-    const inactiveOption = options.find(item => item.value === option?.inactive_value);
-    result.cellType = "status";
     result.width = 110;
-    result.statusProps = {
-      activeValue: option?.active_value || "",
-      inactiveValue: option?.inactive_value || "",
-      activeText: activeOption?.label || option?.active_value || "开启",
-      inactiveText: inactiveOption?.label || option?.inactive_value || "关闭",
-      onChange: () => {
-        ElMessage.success("状态已更新");
-      }
-    };
+    result.render = scope => renderPreviewOptionValue(scope, column.column_name, options);
     return;
   }
   if (options.length) {

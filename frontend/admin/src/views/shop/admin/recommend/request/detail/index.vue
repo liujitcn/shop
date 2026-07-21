@@ -270,7 +270,13 @@ const itemColumns: ColumnProps[] = [
     }
   },
   { prop: "goods_name", label: "商品名称", minWidth: 220, showOverflowTooltip: false },
-  { prop: "position", label: "结果位置", minWidth: 100, align: "right" },
+  {
+    prop: "position",
+    label: "结果位置",
+    minWidth: 100,
+    align: "right",
+    render: scope => String((scope.row as RecommendRequestItem).position ?? 0)
+  },
   {
     prop: "price",
     label: "当前价格（元）",

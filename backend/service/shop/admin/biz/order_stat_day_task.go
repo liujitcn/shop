@@ -8,10 +8,10 @@ import (
 
 	shopappv1 "shop/api/gen/go/shop/app/v1"
 
-	_const "shop/service/shop/consts"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 	"shop/pkg/job"
+	_const "shop/service/shop/consts"
 
 	"github.com/go-kratos/kratos/v3/log"
 	"github.com/liujitcn/gorm-kit/repository"
@@ -115,7 +115,8 @@ func (t *OrderStatDay) Exec(args map[string]string) ([]string, error) {
 			}
 		}
 
-		paidTradeMap, err := listPaidTradesByFactTime(ctx, startAt, endAt, t.orderTradeRepo, t.orderPaymentRepo)
+		var paidTradeMap map[int64]*models.OrderTrade
+		paidTradeMap, err = listPaidTradesByFactTime(ctx, startAt, endAt, t.orderTradeRepo, t.orderPaymentRepo)
 		if err != nil {
 			return err
 		}

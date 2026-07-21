@@ -1019,20 +1019,32 @@ export default {
       let maxStock = 0
       let that = this
       let { selectShop = {}, goodsInfo = {}, skuListName, stockName } = that
-      if (selectShop[stockName]) {
-        maxStock = selectShop[stockName]
+      if (selectShop[stockName] !== undefined && selectShop[stockName] !== null) {
+        const selectedStock = Number(selectShop[stockName])
+        maxStock = Number.isFinite(selectedStock) ? selectedStock : 0
       } else {
         let skuList = goodsInfo[skuListName]
         if (skuList && skuList.length > 0) {
-          let valueArr = []
-          skuList.map((skuItem, index) => {
-            valueArr.push(skuItem[stockName])
-          })
-          let max = Math.max(...valueArr)
-          maxStock = max
+          const valueArr = that.getValidNumericValues(skuList, stockName)
+          maxStock = valueArr.length > 0 ? Math.max(...valueArr) : 0
         }
       }
       return maxStock
+    },
+    /** 从 SKU 列表中提取有效数值，避免空库存参与 Math.min/Math.max。 */
+    getValidNumericValues(list, fieldName) {
+      const values = []
+      list.forEach((item) => {
+        const rawValue = item[fieldName]
+        if (rawValue === undefined || rawValue === null || rawValue === '') {
+          return
+        }
+        const value = Number(rawValue)
+        if (Number.isFinite(value)) {
+          values.push(value)
+        }
+      })
+      return values
     },
     numChange(e) {
       this.$emit('num-change', e.value)
@@ -1085,10 +1097,10 @@ export default {
       } else {
         let skuList = goodsInfo[skuListName]
         if (skuList && skuList.length > 0) {
-          let valueArr = []
-          skuList.map((skuItem, index) => {
-            valueArr.push(skuItem.price)
-          })
+          const valueArr = that.getValidNumericValues(skuList, 'price')
+          if (valueArr.length === 0) {
+            return ''
+          }
           let min = that.priceFilter(Math.min(...valueArr))
           let max = that.priceFilter(Math.max(...valueArr))
           if (min === max) {
@@ -1110,10 +1122,10 @@ export default {
       } else {
         let skuList = goodsInfo[skuListName]
         if (skuList && skuList.length > 0) {
-          let valueArr = []
-          skuList.map((skuItem, index) => {
-            valueArr.push(skuItem[stockName])
-          })
+          const valueArr = that.getValidNumericValues(skuList, stockName)
+          if (valueArr.length === 0) {
+            return '暂无库存'
+          }
           let min = Math.min(...valueArr)
           let max = Math.max(...valueArr)
           if (min === max) {

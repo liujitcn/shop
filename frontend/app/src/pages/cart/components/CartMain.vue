@@ -155,6 +155,8 @@ const onChangeCount = async (ev: InputNumberBoxEvent) => {
       id: Number(ev.index),
       num: ev.value,
     })
+    // 更新成功后重新拉取服务端结果，确保数量、库存和合计金额保持一致。
+    await getUserCartData()
   } catch {
     await getUserCartData()
   }

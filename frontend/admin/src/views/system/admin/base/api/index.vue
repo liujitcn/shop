@@ -14,7 +14,8 @@
         <el-descriptions-item label="工具名">{{ detailData.tool_name }}</el-descriptions-item>
         <el-descriptions-item label="工具提示词">
           <div class="tool-prompts">
-            <el-tag v-for="prompt in detailData.tool_prompts" :key="prompt" effect="plain">{{ prompt }}</el-tag>
+            <el-tag v-for="prompt in detailToolPrompts" :key="prompt" effect="plain">{{ prompt }}</el-tag>
+            <span v-if="!detailToolPrompts.length">--</span>
           </div>
         </el-descriptions-item>
         <el-descriptions-item label="MCP工具">{{ detailData.mcp_enabled ? "启用" : "禁用" }}</el-descriptions-item>
@@ -158,6 +159,7 @@ const requestBodyRows = computed(() => schemaRows(detailDoc.value?.request_body)
 /** 将 ProtoJSON 省略的空重复字段固定为数组，供详情区域安全渲染。 */
 const detailParameters = computed(() => detailDoc.value?.parameters ?? []);
 const detailResponses = computed(() => detailDoc.value?.responses ?? []);
+const detailToolPrompts = computed(() => detailData.value?.tool_prompts ?? []);
 
 /** API 编辑表单字段配置。 */
 const editFields: ProFormField[] = [

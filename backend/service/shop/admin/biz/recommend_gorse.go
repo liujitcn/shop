@@ -19,6 +19,16 @@ import (
 // RECOMMEND_GORSE_ADVANCE_PAGE_SIZE 表示 Gorse 推荐分页预取大小。
 const RECOMMEND_GORSE_ADVANCE_PAGE_SIZE = 100
 
+const gorseConfigSecretMask = "******"
+
+var gorseConfigSecretPaths = [][]string{
+	{"database", "data_store"},
+	{"database", "cache_store"},
+	{"master", "dashboard_password"},
+	{"recommend", "ranker", "reranker_api", "auth_token"},
+	{"openai", "auth_token"},
+}
+
 // RecommendGorseCase Gorse 推荐管理业务实例。
 type RecommendGorseCase struct {
 	dashboard *gorse.Dashboard
@@ -446,6 +456,11 @@ func (c *RecommendGorseCase) GetConfig(ctx context.Context) (*shopadminv1.Config
 		return nil, err
 	}
 
+	data, err = redactGorseConfig(data)
+	if err != nil {
+		return nil, err
+	}
+
 	config := new(shopadminv1.ConfigResponse)
 	err = (protojson.UnmarshalOptions{DiscardUnknown: true}).Unmarshal(data, config)
 	if err != nil {
@@ -460,9 +475,18 @@ func (c *RecommendGorseCase) SaveConfig(ctx context.Context, req *shopadminv1.Co
 	if err != nil {
 		return nil, err
 	}
+	body, err = c.restoreMaskedGorseConfig(ctx, body)
+	if err != nil {
+		return nil, err
+	}
 
 	var data []byte
 	data, err = c.dashboard.SaveConfig(ctx, string(body))
+	if err != nil {
+		return nil, err
+	}
+
+	data, err = redactGorseConfig(data)
 	if err != nil {
 		return nil, err
 	}
@@ -473,6 +497,28 @@ func (c *RecommendGorseCase) SaveConfig(ctx context.Context, req *shopadminv1.Co
 		return nil, err
 	}
 	return config, nil
+}
+
+// restoreMaskedGorseConfig 将前端回传的脱敏占位符恢复为当前真实配置，避免保存编排时覆盖凭据。
+func (c *RecommendGorseCase) restoreMaskedGorseConfig(ctx context.Context, body []byte) ([]byte, error) {
+	currentBody, err := c.dashboard.Config(ctx)
+	if err != nil {
+		return nil, err
+	}
+	var currentConfig map[string]interface{}
+	currentConfig, err = unmarshalGorseConfigMap(currentBody)
+	if err != nil {
+		return nil, err
+	}
+	var nextConfig map[string]interface{}
+	nextConfig, err = unmarshalGorseConfigMap(body)
+	if err != nil {
+		return nil, err
+	}
+	for _, path := range gorseConfigSecretPaths {
+		restoreMaskedGorseConfigValue(nextConfig, currentConfig, path)
+	}
+	return json.Marshal(nextConfig)
 }
 
 // ResetConfig 重置 Gorse 推荐配置。
@@ -773,6 +819,83 @@ func marshalGorseConfig(config *shopadminv1.ConfigResponse) ([]byte, error) {
 		return nil, err
 	}
 	return data, nil
+}
+
+// redactGorseConfig 将 Gorse 配置中的基础设施凭据替换为固定占位符。
+func redactGorseConfig(data []byte) ([]byte, error) {
+	record, err := unmarshalGorseConfigMap(data)
+	if err != nil {
+		return nil, err
+	}
+	for _, path := range gorseConfigSecretPaths {
+		redactGorseConfigValue(record, path)
+	}
+	return json.Marshal(record)
+}
+
+// unmarshalGorseConfigMap 将 Gorse 配置 JSON 转成可按路径处理的对象。
+func unmarshalGorseConfigMap(data []byte) (map[string]interface{}, error) {
+	record := make(map[string]interface{})
+	err := json.Unmarshal(data, &record)
+	if err != nil {
+		return nil, err
+	}
+	return record, nil
+}
+
+// redactGorseConfigValue 对存在的敏感字段设置脱敏占位符。
+func redactGorseConfigValue(record map[string]interface{}, path []string) {
+	value, ok := readGorseConfigPath(record, path)
+	if !ok || value == nil || value == "" {
+		return
+	}
+	setGorseConfigPath(record, path, gorseConfigSecretMask)
+}
+
+// restoreMaskedGorseConfigValue 仅在新配置仍为脱敏占位符时恢复真实值。
+func restoreMaskedGorseConfigValue(nextConfig map[string]interface{}, currentConfig map[string]interface{}, path []string) {
+	nextValue, ok := readGorseConfigPath(nextConfig, path)
+	if !ok || nextValue != gorseConfigSecretMask {
+		return
+	}
+	currentValue, ok := readGorseConfigPath(currentConfig, path)
+	if !ok {
+		return
+	}
+	setGorseConfigPath(nextConfig, path, currentValue)
+}
+
+// readGorseConfigPath 从配置对象中按路径读取字段值。
+func readGorseConfigPath(record map[string]interface{}, path []string) (interface{}, bool) {
+	var value interface{} = record
+	for _, key := range path {
+		currentRecord, ok := value.(map[string]interface{})
+		if !ok {
+			return nil, false
+		}
+		value, ok = currentRecord[key]
+		if !ok {
+			return nil, false
+		}
+	}
+	return value, true
+}
+
+// setGorseConfigPath 从配置对象中按路径写入字段值。
+func setGorseConfigPath(record map[string]interface{}, path []string, value interface{}) {
+	if len(path) == 0 {
+		return
+	}
+	currentRecord := record
+	for _, key := range path[:len(path)-1] {
+		nextRecord, ok := currentRecord[key].(map[string]interface{})
+		if !ok {
+			nextRecord = make(map[string]interface{})
+			currentRecord[key] = nextRecord
+		}
+		currentRecord = nextRecord
+	}
+	currentRecord[path[len(path)-1]] = value
 }
 
 // renameJSONKey 重命名 JSON 对象字段。

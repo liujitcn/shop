@@ -13,6 +13,7 @@
       }"
       @touchstart.prevent="btnTouchStart('minus')"
       @touchend.stop.prevent="clearTimer"
+      @click.stop.prevent="btnClick('minus')"
     >
       <view :style="'font-size:' + (Number(size) + 10) + 'rpx'" class="num-btn">－</view>
     </view>
@@ -44,6 +45,7 @@
       }"
       @touchstart.prevent="btnTouchStart('plus')"
       @touchend.stop.prevent="clearTimer"
+      @click.stop.prevent="btnClick('plus')"
     >
       <view :style="'font-size:' + (Number(size) + 10) + 'rpx'" class="num-btn">＋</view>
     </view>
@@ -233,6 +235,7 @@ export default {
       timer: null, // 用作长按的定时器
       changeFromInner: false, // 值发生变化，是来自内部还是外部
       innerChangeTimer: null, // 内部定时器
+      lastTouchAt: 0, // 最近一次触摸时间，用于忽略触屏设备随后合成的点击事件
     }
   },
   created() {
@@ -256,6 +259,7 @@ export default {
   methods: {
     // 点击退格键
     btnTouchStart(callback) {
+      this.lastTouchAt = Date.now()
       // 先执行一遍方法，否则会造成松开手时，就执行了clearTimer，导致无法实现功能
       this[callback]()
       // 如果没开启长按功能，直接返回
@@ -266,6 +270,11 @@ export default {
         // 执行加或减函数
         this[callback]()
       }, this.pressTime)
+    },
+    // 桌面 H5 使用鼠标点击时不会触发 touchstart，这里补充单次加减并避免触屏重复执行。
+    btnClick(callback) {
+      if (Date.now() - this.lastTouchAt < 500) return
+      this[callback]()
     },
     clearTimer() {
       this.$nextTick(() => {

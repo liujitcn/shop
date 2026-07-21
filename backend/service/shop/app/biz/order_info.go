@@ -371,7 +371,8 @@ func (c *OrderInfoCase) claimOrderRefund(ctx context.Context, orderInfo *models.
 				"NONE_ORS|PARTIAL_REFUND_ORS|CLOSED_OR_FAILED_ORS",
 			)
 		}
-		return c.orderRefundCase.Create(ctx, orderRefund)
+		refundQuery := c.orderRefundCase.Query(ctx).OrderRefund
+		return refundQuery.WithContext(ctx).Omit(refundQuery.SuccessTime).Create(orderRefund)
 	})
 }
 

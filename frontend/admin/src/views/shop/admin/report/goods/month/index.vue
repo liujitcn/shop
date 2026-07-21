@@ -170,9 +170,13 @@ const reportSummary = computed<SummaryGoodsMonthReportResponse>(() => {
   return report.summary ?? emptySummary();
 });
 
-/** 统一将千分比指标格式化成 1 位小数百分比。 */
-function formatRatio(value: number) {
-  return `${(value / 10).toFixed(1)}%`;
+/** 统一将千分比指标格式化成 1 位小数百分比，缺失值按零处理。 */
+function formatRatio(value: number | null | undefined) {
+  const numericValue = Number(value);
+  if (!Number.isFinite(numericValue)) {
+    return "0.0%";
+  }
+  return `${(numericValue / 10).toFixed(1)}%`;
 }
 
 const metricItems = computed<MetricCardItem[]>(() => [

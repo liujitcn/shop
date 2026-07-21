@@ -149,21 +149,21 @@
             <div class="refund-metrics">
               <div class="refund-metric-card">
                 <span class="refund-metric-card__label">支付金额</span>
-                <strong class="refund-metric-card__value">{{ formatPrice(dataRefund.payment?.amount?.payer_total) }} 元</strong>
+                <strong class="refund-metric-card__value">{{ formatPrice(refundOrderPayMoney) }} 元</strong>
               </div>
               <div class="refund-metric-card">
                 <span class="refund-metric-card__label">订单总额</span>
-                <strong class="refund-metric-card__value">{{ formatPrice(dataRefund.payment?.amount?.total) }} 元</strong>
+                <strong class="refund-metric-card__value">{{ formatPrice(refundOrderTotalMoney) }} 元</strong>
               </div>
               <div class="refund-metric-card">
                 <span class="refund-metric-card__label">支付状态</span>
-                <strong class="refund-metric-card__value">{{
-                  dataRefund.payment?.trade_state_desc || dataRefund.payment?.trade_state || "-"
-                }}</strong>
+                <strong class="refund-metric-card__value">
+                  <DictLabel v-model="refundOrderTradeStatus" code="order_trade_status" />
+                </strong>
               </div>
               <div class="refund-metric-card">
                 <span class="refund-metric-card__label">对帐状态</span>
-                <strong class="refund-metric-card__value">{{ dataRefund.payment ? "已获取" : "-" }}</strong>
+                <strong class="refund-metric-card__value">{{ refundReconciliationStatus }}</strong>
               </div>
             </div>
           </div>
@@ -262,7 +262,7 @@ import type {
 } from "@/rpc/shop/admin/v1/order_info";
 import type { SelectOptionResponse_Option } from "@/rpc/common/v1/common";
 import router from "@/routers";
-import { OrderInfoStatus, OrderRefundStatus, OrderTradeStatus } from "@/rpc/shop/common/v1/enum";
+import { OrderInfoStatus, OrderPayType, OrderRefundStatus, OrderTradeStatus } from "@/rpc/shop/common/v1/enum";
 import { buildPageRequest } from "@/utils/proTable";
 import { navigateTo } from "@/utils/router";
 import { formatPrice } from "@/utils/utils";
@@ -298,7 +298,11 @@ const dataFormRefShipped = ref<ProFormInstance>();
 const dataFormRefRefund = ref<ProFormInstance>();
 const userOptions = ref<SelectOptionResponse_Option[]>([]);
 const tenantStoreDisplayMap = ref(new Map<number, TenantStoreDisplayInfo>());
+// 当前退款订单的金额与支付状态来自订单列表，避免货到付款缺少三方支付记录时摘要显示零值。
 const refundOrderPayMoney = ref(0);
+const refundOrderTotalMoney = ref(0);
+const refundOrderTradeStatus = ref(OrderTradeStatus.UNKNOWN_OTS);
+const refundOrderPayType = ref(OrderPayType.UNKNOWN_OPT);
 
 /** 订单列表搜索参数，兼容租户门店树筛选展示值。 */
 type OrderInfoSearchParams = PageOrderInfoRequest & {
@@ -552,6 +556,13 @@ const hasRefundPaymentSection = computed(() => {
       dataRefund.payment.trade_state_desc ||
       dataRefund.payment.success_time)
   );
+});
+
+/** 根据支付方式和三方支付记录显示当前退款订单的对账状态。 */
+const refundReconciliationStatus = computed(() => {
+  if (hasRefundPaymentSection.value) return "已获取";
+  if (refundOrderPayType.value === OrderPayType.CASH_ON_DELIVERY) return "无需对账";
+  return "-";
 });
 
 const maxRefundMoney = computed(() => {
@@ -1029,12 +1040,17 @@ function handleOpenRefundDialog(row: OrderInfo, title: string) {
   dialogRefund.loading = true;
   formDataRefund.order_id = row.id;
   refundOrderPayMoney.value = row.pay_money;
+  refundOrderTotalMoney.value = row.total_money;
+  refundOrderTradeStatus.value = row.trade_status;
+  refundOrderPayType.value = row.pay_type;
   const requestId = ++dialogRefund.requestId;
   defOrderInfoService
     .GetOrderInfoRefund({ id: row.id })
     .then(data => {
       if (requestId !== dialogRefund.requestId || !dialogRefund.visible) return;
       Object.assign(dataRefund, data);
+      // 退款弹窗默认填入当前订单剩余可退金额，避免控件最小值与订单金额不一致。
+      formDataRefund.refund_money = maxRefundMoney.value;
     })
     .catch(() => {
       if (requestId !== dialogRefund.requestId) return;
@@ -1067,6 +1083,9 @@ function resetRefundDialog() {
   formDataRefund.reason = undefined;
   formDataRefund.refund_money = 0;
   refundOrderPayMoney.value = 0;
+  refundOrderTotalMoney.value = 0;
+  refundOrderTradeStatus.value = OrderTradeStatus.UNKNOWN_OTS;
+  refundOrderPayType.value = OrderPayType.UNKNOWN_OPT;
   dataRefund.payment = undefined;
   dataRefund.refund = [];
 }
@@ -1081,7 +1100,7 @@ function handleRefundSubmitClick() {
       if (!isValid) return;
 
       const submitData = JSON.parse(JSON.stringify(formDataRefund)) as RefundOrderInfoRequest;
-      submitData.refund_money = submitData.refund_money * 100;
+      submitData.refund_money = Math.round(submitData.refund_money * 100);
       defOrderInfoService.RefundOrderInfo(submitData).then(() => {
         ElMessage.success("退款申请已提交");
         handleCloseRefundDialog();

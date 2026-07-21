@@ -13,6 +13,10 @@
       <template #real_sale_num="scope">
         {{ scope.row.real_sale_num || 0 }}
       </template>
+
+      <template #inventory="scope">
+        {{ scope.row.inventory ?? 0 }}
+      </template>
     </ProTable>
 
     <FormDialog
@@ -107,7 +111,7 @@ const formFields = computed<ProFormField[]>(() => [
     label: "库存",
     component: "input-number",
     props: {
-      min: 1,
+      min: 0,
       controlsPosition: "right",
       precision: 0,
       step: 1,
@@ -217,6 +221,7 @@ function handleOpenDialog(skuId: number) {
   defGoodsSkuService.GetGoodsSku({ id: skuId }).then(data => {
     data.price = data.price / 100;
     data.discount_price = data.discount_price / 100;
+    data.inventory = data.inventory ?? 0;
     Object.assign(formData, data);
   });
 }

@@ -69,7 +69,11 @@ func (c *GoodsSKUCase) GetGoodsSKU(ctx context.Context, id int64) (*shopadminv1.
 
 // UpdateGoodsSKU 更新商品规格项
 func (c *GoodsSKUCase) UpdateGoodsSKU(ctx context.Context, req *shopadminv1.GoodsSku) error {
-	err := c.UpdateByID(ctx, c.toGoodsSKUModel(req))
+	query := c.Query(ctx).GoodsSKU
+	_, err := query.WithContext(ctx).
+		Where(query.ID.Eq(req.GetId())).
+		Select(query.Inventory, query.Price, query.DiscountPrice).
+		Updates(c.toGoodsSKUModel(req))
 	if err != nil {
 		// 命中 SKU 编码唯一索引冲突时，返回稳定的业务冲突错误。
 		if errorsx.IsMySQLDuplicateKey(err) {

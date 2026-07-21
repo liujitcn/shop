@@ -248,7 +248,8 @@ function formatTimestamp(value: string) {
 
 /** 格式化推荐商品分数。 */
 function formatScore(value: number) {
-  return Number(value || 0).toFixed(5);
+  const score = Number(value || 0);
+  return Number.isFinite(score) && score >= 0 ? score.toFixed(5) : "--";
 }
 
 onMounted(() => {

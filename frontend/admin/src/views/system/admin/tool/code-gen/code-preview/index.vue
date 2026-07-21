@@ -9,8 +9,9 @@
         </div>
       </div>
 
+      <el-alert v-if="previewError" class="code-gen-code-preview-alert" :title="previewError" type="warning" :closable="false" />
       <CodePreviewPane v-if="loading || files.length" class="code-gen-code-preview-table" :files="files" :loading="loading" />
-      <el-empty v-else class="code-gen-code-preview-empty" description="暂无生成文件" />
+      <el-empty v-else class="code-gen-code-preview-empty" description="暂无生成文件，请先确认表配置和 Proto 接口配置后再生成或预览" />
     </el-card>
 
     <CodeGenProgressDialog
@@ -52,6 +53,7 @@ const { BUTTONS } = useAuthButtons();
 const table = ref<CodeGenTableForm>();
 const files = ref<CodeGenPreviewFile[]>([]);
 const loading = ref(false);
+const previewError = ref("");
 const progressTaskId = ref(typeof window === "undefined" ? "" : (window.sessionStorage.getItem(codeGenTaskStorageKey) ?? ""));
 const progressDialogVisible = ref(
   !!progressTaskId.value &&
@@ -84,15 +86,20 @@ watch(
 async function loadCodePreview() {
   table.value = undefined;
   files.value = [];
+  previewError.value = "";
   if (!tableId.value) return;
   loading.value = true;
   try {
-    const [currentTable, preview] = await Promise.all([
-      defCodeGenTableService.GetCodeGenTable({ id: tableId.value }),
-      defCodeGenService.PreviewCodeGen({ table_id: tableId.value, output_paths: undefined })
-    ]);
+    const currentTable = await defCodeGenTableService.GetCodeGenTable({ id: tableId.value });
     table.value = currentTable;
-    files.value = preview.files ?? [];
+    try {
+      const preview = await defCodeGenService.PreviewCodeGen({ table_id: tableId.value, output_paths: undefined });
+      files.value = preview.files ?? [];
+      if (!files.value.length) previewError.value = "当前没有可预览的生成文件，请先检查是否已配置生成字段、接口和输出路径。";
+    } catch {
+      // 预览错误在页面内转成可操作提示，避免全局错误弹窗只显示“系统出错”。
+      previewError.value = "代码预览加载失败，请先检查表配置、字段配置、Proto 接口配置和父级菜单是否完整。";
+    }
     syncWorkspaceTitle();
   } finally {
     loading.value = false;
@@ -235,6 +242,10 @@ onMounted(() => {
 .code-gen-code-preview-empty {
   flex: 1;
   min-height: 0;
+}
+.code-gen-code-preview-alert {
+  flex: none;
+  margin-bottom: 12px;
 }
 
 @media (width <= 640px) {

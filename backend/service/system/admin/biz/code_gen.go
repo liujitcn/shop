@@ -739,7 +739,8 @@ func (c *CodeGenCase) upsertGeneratedPageMenu(ctx context.Context, spec codegen.
 		return nil, err
 	}
 	if len(menus) == 0 {
-		menuID, err := allocateGeneratedMenuID(nextMenuID, menuIDEnd)
+		var menuID int64
+		menuID, err = allocateGeneratedMenuID(nextMenuID, menuIDEnd)
 		if err != nil {
 			return nil, err
 		}

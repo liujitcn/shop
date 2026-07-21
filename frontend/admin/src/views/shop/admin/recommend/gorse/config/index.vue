@@ -62,6 +62,8 @@ interface ConfigFieldMeta {
   tags?: boolean;
   /** 是否按多行文本展示。 */
   multiline?: boolean;
+  /** 是否属于敏感配置，页面只展示脱敏值。 */
+  sensitive?: boolean;
 }
 
 /** 配置字段展示项。 */
@@ -103,7 +105,10 @@ const activeSection = ref("");
 const recommendGorseStore = useRecommendGorseStore();
 const configSections = computed(() => buildConfigSections(recommendGorseStore.config));
 
-const databaseFields: ConfigFieldMeta[] = [field("数据存储数据库", "data_store"), field("缓存存储数据库", "cache_store")];
+const databaseFields: ConfigFieldMeta[] = [
+  sensitiveField("数据存储数据库", "data_store"),
+  sensitiveField("缓存存储数据库", "cache_store")
+];
 
 const mysqlFields: ConfigFieldMeta[] = [
   field("事务隔离级别", "isolation_level"),
@@ -197,7 +202,7 @@ const rankerFields: ConfigFieldMeta[] = [
   textareaField("大语言模型重排查询模板", "query_template"),
   textareaField("大语言模型重排文档模板", "document_template"),
   field("早停等待轮数", "early_stopping.patience"),
-  field("重排API密钥", "reranker_api.auth_token"),
+  sensitiveField("重排API密钥", "reranker_api.auth_token"),
   field("重排模型", "reranker_api.model"),
   field("重排API地址", "reranker_api.url")
 ];
@@ -210,7 +215,7 @@ const tracingFields: ConfigFieldMeta[] = [field("追踪导出器类型", "export
 
 const openaiFields: ConfigFieldMeta[] = [
   field("基础地址", "base_url"),
-  field("认证令牌", "auth_token"),
+  sensitiveField("认证令牌", "auth_token"),
   field("对话模型", "chat_completion_model")
 ];
 
@@ -259,6 +264,11 @@ function tagField(label: string, key: ConfigFieldKey): ConfigFieldMeta {
 /** 构建多行文本字段配置。 */
 function textareaField(label: string, key: ConfigFieldKey): ConfigFieldMeta {
   return { ...field(label, key), multiline: true };
+}
+
+/** 构建敏感字段配置，页面只展示固定脱敏占位符。 */
+function sensitiveField(label: string, key: ConfigFieldKey): ConfigFieldMeta {
+  return { ...field(label, key), sensitive: true };
 }
 
 /** 按当前固定返回结构构建页面页签。 */
@@ -372,7 +382,7 @@ function buildListGroups(key: string, label: string, list: ConfigRecord[], metas
 function buildDisplayField(record: ConfigRecord, meta: ConfigFieldMeta): ConfigDisplayField {
   const value = readValue(record, meta.key);
   const tags = meta.tags ? formatTags(value) : undefined;
-  const text = formatValue(value);
+  const text = meta.sensitive ? formatSensitiveValue(value) : formatValue(value);
   return {
     label: meta.label,
     text,
@@ -438,6 +448,11 @@ function formatValue(value: unknown) {
   if (typeof value === "boolean") return value ? "是" : "否";
   if (typeof value === "object") return "未配置";
   return String(value);
+}
+
+/** 格式化敏感配置值，避免旧接口或缓存里的完整凭据在页面明文展示。 */
+function formatSensitiveValue(value: unknown) {
+  return value === undefined || value === null || value === "" ? "未配置" : "******";
 }
 
 onMounted(() => {
