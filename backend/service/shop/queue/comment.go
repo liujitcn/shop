@@ -1,8 +1,8 @@
 package queue
 
 import (
-	_const "shop/service/shop/consts"
 	corequeue "shop/pkg/queue"
+	_const "shop/service/shop/consts"
 )
 
 // CommentAuditEvent 表示评价或讨论审核队列消息。

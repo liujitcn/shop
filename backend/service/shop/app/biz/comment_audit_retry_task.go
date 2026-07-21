@@ -8,10 +8,10 @@ import (
 	"sync"
 	"time"
 
-	_const "shop/service/shop/consts"
 	"shop/pkg/errorsx"
 	"shop/pkg/gen/models"
 	"shop/pkg/job"
+	_const "shop/service/shop/consts"
 
 	"github.com/go-kratos/kratos/v3/log"
 	"github.com/liujitcn/gorm-kit/repository"

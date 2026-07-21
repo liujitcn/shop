@@ -10,10 +10,10 @@ import (
 	shopadminv1 "shop/api/gen/go/shop/admin/v1"
 	shopcommonv1 "shop/api/gen/go/shop/common/v1"
 	"shop/pkg/biz"
-	_const "shop/service/shop/consts"
 	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
+	_const "shop/service/shop/consts"
 	"shop/service/shop/queue"
 	"shop/service/shop/workspaceevent"
 

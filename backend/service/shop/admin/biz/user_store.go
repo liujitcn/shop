@@ -9,9 +9,9 @@ import (
 
 	shopadminv1 "shop/api/gen/go/shop/admin/v1"
 	"shop/pkg/biz"
-	_const "shop/service/shop/consts"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
+	_const "shop/service/shop/consts"
 	systemadminbiz "shop/service/system/admin/biz"
 
 	"github.com/liujitcn/go-utils/mapper"

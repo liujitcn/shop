@@ -6,8 +6,8 @@ import (
 	shopcommonv1 "shop/api/gen/go/shop/common/v1"
 
 	shopappv1 "shop/api/gen/go/shop/app/v1"
-	_const "shop/service/shop/consts"
 	corequeue "shop/pkg/queue"
+	_const "shop/service/shop/consts"
 	"shop/service/shop/recommend/dto"
 )
 

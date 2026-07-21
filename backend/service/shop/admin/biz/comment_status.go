@@ -1,8 +1,8 @@
 package biz
 
 import (
-	_const "shop/service/shop/consts"
 	"shop/pkg/errorsx"
+	_const "shop/service/shop/consts"
 )
 
 // validateCommentStatus 校验人工评论审核目标状态。

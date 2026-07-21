@@ -6,9 +6,9 @@ import (
 
 	shopappv1 "shop/api/gen/go/shop/app/v1"
 
-	_const "shop/service/shop/consts"
 	"shop/pkg/gen/models"
 	"shop/service/shop/admin/dto"
+	_const "shop/service/shop/consts"
 	orderutils "shop/service/shop/utils"
 
 	"github.com/liujitcn/gorm-kit/repository"

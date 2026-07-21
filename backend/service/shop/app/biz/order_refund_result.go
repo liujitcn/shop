@@ -8,10 +8,10 @@ import (
 	"time"
 
 	shopappv1 "shop/api/gen/go/shop/app/v1"
-	_const "shop/service/shop/consts"
 	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
+	_const "shop/service/shop/consts"
 
 	_string "github.com/liujitcn/go-utils/string"
 	_time "github.com/liujitcn/go-utils/time"

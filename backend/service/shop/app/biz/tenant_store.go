@@ -5,9 +5,9 @@ import (
 
 	shopappv1 "shop/api/gen/go/shop/app/v1"
 	"shop/pkg/biz"
-	_const "shop/service/shop/consts"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
+	_const "shop/service/shop/consts"
 
 	"github.com/liujitcn/go-utils/mapper"
 	"github.com/liujitcn/gorm-kit/repository"

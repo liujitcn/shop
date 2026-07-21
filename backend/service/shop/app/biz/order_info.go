@@ -9,8 +9,8 @@ import (
 	"strconv"
 	"time"
 
-	_const "shop/service/shop/consts"
 	"shop/service/shop/config"
+	_const "shop/service/shop/consts"
 
 	"shop/pkg/biz"
 	"shop/pkg/errorsx"

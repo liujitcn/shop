@@ -8,10 +8,10 @@ import (
 
 	shopcommonv1 "shop/api/gen/go/shop/common/v1"
 
-	_const "shop/service/shop/consts"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 	"shop/pkg/queue"
+	_const "shop/service/shop/consts"
 
 	client "github.com/gorse-io/gorse-go"
 	queueData "github.com/liujitcn/kratos-kit/queue/data"
