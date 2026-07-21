@@ -217,17 +217,6 @@ func (c *AiMessageCase) RegenerateAiMessage(ctx context.Context, req *basev1.Reg
 	return c.regenerateAiMessage(ctx, session, message)
 }
 
-// ListAiShortcut 查询当前终端可用的 AI 助手快捷入口。
-func (c *AiMessageCase) ListAiShortcut(ctx context.Context, req *basev1.ListAiShortcutRequest) (*basev1.ListAiShortcutResponse, error) {
-	terminal := ai.NormalizeTerminal(req.GetTerminal())
-	terminalName := ai.NormalizeTerminalString(terminal)
-	if c.aiRuntime == nil {
-		return &basev1.ListAiShortcutResponse{}, nil
-	}
-	enabledTools := c.aiRuntime.EnabledToolNames(ctx, terminalName)
-	return &basev1.ListAiShortcutResponse{Shortcuts: c.aiRuntime.FixedFlowShortcuts(terminal, enabledTools)}, nil
-}
-
 // ListAiMessage 查询指定会话的消息列表。
 func (c *AiMessageCase) ListAiMessage(ctx context.Context, req *basev1.ListAiMessageRequest) (*basev1.ListAiMessageResponse, error) {
 	session, err := c.aiSessionCase.FindCurrentUserSessionByRawID(ctx, req.GetSessionId())
@@ -815,7 +804,7 @@ func toAiMessageDTO(model *models.AiMessage) *basev1.AiMessage {
 		CreatedAt:     timestamppb.New(model.CreatedAt),
 		Status:        commonv1.AiMessageStatus(model.Status),
 		Token:         toAiToken(token),
-		Tools:         toAiTools(ai.ParseTools(model.Tools)),
+		Tools:         toAiToolCalls(ai.ParseTools(model.Tools)),
 		FirstTokenMs:  model.FirstTokenMs,
 		DurationMs:    model.DurationMs,
 	}
@@ -982,14 +971,14 @@ func toAiToken(value ai.TokenUsage) *basev1.AiToken {
 	}
 }
 
-// toAiTools 转换工具使用记录为接口对象。
-func toAiTools(values []ai.ToolUsage) []*basev1.AiTool {
+// toAiToolCalls 转换工具使用记录为接口对象。
+func toAiToolCalls(values []ai.ToolUsage) []*basev1.AiToolCall {
 	if len(values) == 0 {
-		return []*basev1.AiTool{}
+		return []*basev1.AiToolCall{}
 	}
-	tools := make([]*basev1.AiTool, 0, len(values))
+	tools := make([]*basev1.AiToolCall, 0, len(values))
 	for _, item := range values {
-		tools = append(tools, &basev1.AiTool{
+		tools = append(tools, &basev1.AiToolCall{
 			Type:   item.Type,
 			Name:   item.Name,
 			Title:  item.Title,

@@ -4,15 +4,11 @@ import { computed, nextTick, onBeforeUnmount, ref } from 'vue'
 import { defBaseAreaService } from '@/api/system/app/base_area'
 import { defAiMessageService, StreamAiMessageByChunkedRequest } from '@/api/base/ai_message'
 import { defAiSessionService } from '@/api/base/ai_session'
+import { defAiToolService } from '@/api/base/ai_tool'
 import type { AiAction } from '@/rpc/base/v1/ai_message'
 import type { AppTreeOptionResponse_Option } from '@/rpc/common/v1/common'
-import type {
-  AiAttachment,
-  AiMessage,
-  AiShortcut,
-  AiSession,
-  AiTool,
-} from '@/rpc/base/v1/ai_session'
+import type { AiAttachment, AiMessage, AiSession } from '@/rpc/base/v1/ai_session'
+import type { AiShortcut, AiToolCall } from '@/rpc/base/v1/ai_tool'
 import { AiMessageStatus, Terminal } from '@/rpc/common/v1/enum'
 import { uploadFile } from '@/utils/file'
 import { formatSrc } from '@/utils/index'
@@ -72,7 +68,7 @@ type ChatMessageItem = AiMessage & {
   role: ChatRole
   content: string
   status: AiMessageStatus
-  tools: AiTool[]
+  tools: AiToolCall[]
   model: string
   replySource: string
   fallback: boolean
@@ -1038,7 +1034,7 @@ const onAddressCityChange = (
   block.form.address_name = values.map((item) => String(item.text))
 }
 
-const formatTools = (tools: AiTool[]) => {
+const formatTools = (tools: AiToolCall[]) => {
   return tools.map((item) => item.title || item.name).join(' · ')
 }
 
@@ -1076,7 +1072,7 @@ async function loadAiShortcuts() {
 
   loadingShortcuts.value = true
   try {
-    const response = await defAiSessionService.ListAiShortcut({
+    const response = await defAiToolService.ListAiShortcut({
       terminal: AI_TERMINAL,
     })
     starterShortcuts.value = normalizeStarterShortcuts(response.shortcuts)

@@ -1,6 +1,6 @@
 import { http } from '@/utils/http'
 import type {
-  AiService,
+  AiSessionService,
   CreateAiSessionBranchRequest,
   CreateAiSessionBranchResponse,
   CreateAiSessionRequest,
@@ -9,29 +9,16 @@ import type {
   DeleteAiSessionResponse,
   ListAiMessageRequest,
   ListAiMessageResponse,
-  ListAiShortcutRequest,
-  ListAiShortcutResponse,
   ListAiSessionRequest,
   ListAiSessionResponse,
   UpdateAiSessionRequest,
   UpdateAiSessionResponse,
 } from '@/rpc/base/v1/ai_session'
 
-const AI_SHORTCUT_URL = '/v1/base/ai/shortcut'
 const AI_SESSION_URL = '/v1/base/ai/session'
 
 /** AI 助手会话服务。 */
-export class AiSessionServiceImpl implements AiService {
-  /** 查询 AI 助手快捷入口列表。 */
-  ListAiShortcut(request: ListAiShortcutRequest): Promise<ListAiShortcutResponse> {
-    return http<ListAiShortcutResponse>({
-      url: AI_SHORTCUT_URL,
-      method: 'GET',
-      authMode: 'required',
-      data: request,
-    })
-  }
-
+export class AiSessionServiceImpl implements AiSessionService {
   /** 查询 AI 助手会话列表。 */
   ListAiSession(request: ListAiSessionRequest): Promise<ListAiSessionResponse> {
     return http<ListAiSessionResponse>({

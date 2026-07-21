@@ -143,7 +143,9 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	responsesClient := model.NewResponsesClient(ai_Model)
 	runtime := ai.NewRuntime(responsesClient)
 	aiMessageCase := biz2.NewAiMessageCase(baseCase, transaction, aiMessageRepository, aiSessionCase, baseAPIRepository, baseUserCase, runtime)
-	aiService := base.NewAiService(aiSessionCase, aiMessageCase)
+	aiSessionService := base.NewAiSessionService(aiSessionCase, aiMessageCase)
+	aiToolCase := biz2.NewAiToolCase(runtime)
+	aiToolService := base.NewAiToolService(aiToolCase)
 	aiMessageService := base.NewAiMessageService(aiMessageCase)
 	baseConfigRepository := data.NewBaseConfigRepository(dataData)
 	configCase := biz2.NewConfigCase(baseConfigRepository)
@@ -216,7 +218,8 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	}
 	sseService := base.NewSseService(sseCase)
 	services := base2.Services{
-		Ai:        aiService,
+		AiSession: aiSessionService,
+		AiTool:    aiToolService,
 		AiMessage: aiMessageService,
 		Config:    configService,
 		File:      fileService,

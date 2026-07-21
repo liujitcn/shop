@@ -325,11 +325,10 @@ import type { FilesCardProps } from "vue-element-plus-x/types/FilesCard";
 import { ChatDotRound, Check, CopyDocument, DataAnalysis, Delete, EditPen, Goods, Link, Memo, PieChart, Refresh, Sell, ShoppingCart, User } from "@element-plus/icons-vue";
 import { ElMessage } from "element-plus";
 import {
-  type AiShortcut,
   type AiAttachment,
-  type AiSession,
-  type AiTool
+  type AiSession
 } from "@/rpc/base/v1/ai_session";
+import type { AiShortcut, AiToolCall } from "@/rpc/base/v1/ai_tool";
 import type { AiAction } from "@/rpc/base/v1/ai_message";
 import { AiMessageStatus } from "@/rpc/common/v1/enum";
 import XSender from "./XSender.vue";
@@ -768,7 +767,7 @@ function formatNumber(value?: number) {
 }
 
 /** 生成工具标签稳定键。 */
-function resolveToolKey(tool: AiTool, index?: number) {
+function resolveToolKey(tool: AiToolCall, index?: number) {
   return `${tool.type || "tool"}:${tool.name || tool.title}:${index ?? 0}`;
 }
 
@@ -796,12 +795,12 @@ function resolveVisibleTools(item: ChatMessageItem) {
 }
 
 /** 生成工具展示名称。 */
-function resolveToolTitle(tool: AiTool) {
+function resolveToolTitle(tool: AiToolCall) {
   return tool.title || tool.name || "工具";
 }
 
 /** 返回工具真实名称，用于排障时识别具体 Agent Tool。 */
-function resolveToolName(tool: AiTool) {
+function resolveToolName(tool: AiToolCall) {
   return String(tool.name ?? "").trim();
 }
 
@@ -839,7 +838,7 @@ function formatToolPayload(payload?: string) {
 }
 
 /** 格式化工具请求报文，展开态始终保留稳定内容区。 */
-function formatToolRequest(tool: AiTool) {
+function formatToolRequest(tool: AiToolCall) {
   const input = String(tool.input ?? "");
   if (!hasToolPayloadValue(input)) return "{}";
   if (!isJSONLikeText(input) && !hasToolPayloadValue(tool.output)) return "{}";
@@ -847,7 +846,7 @@ function formatToolRequest(tool: AiTool) {
 }
 
 /** 格式化工具出参，兼容历史结果落在 input 的消息。 */
-function formatToolResponse(tool: AiTool) {
+function formatToolResponse(tool: AiToolCall) {
   if (hasToolPayloadValue(tool.output)) return formatToolPayload(tool.output);
   if (hasToolPayloadValue(tool.input) && !isJSONLikeText(tool.input)) return formatToolPayload(tool.input);
   return "{}";
@@ -888,7 +887,7 @@ function formatToolArgumentValue(value: unknown) {
 }
 
 /** 复制工具请求报文，点击时不触发展开收起。 */
-async function handleCopyToolRequest(tool: AiTool) {
+async function handleCopyToolRequest(tool: AiToolCall) {
   try {
     await navigator.clipboard.writeText(formatToolRequest(tool));
     ElMessage.success("请求报文已复制");

@@ -14,7 +14,8 @@ import (
 
 // Services 汇总 base.v1 的服务实现。
 type Services struct {
-	Ai        *baseService.AiService
+	AiSession *baseService.AiSessionService
+	AiTool    *baseService.AiToolService
 	AiMessage *baseService.AiMessageService
 	Config    *baseService.ConfigService
 	File      *baseService.FileService
@@ -31,7 +32,8 @@ var ProviderSet = wire.NewSet(wire.Struct(new(Services), "*"))
 
 // RegisterGRPC 注册 base.v1 的 gRPC 服务。
 func (s Services) RegisterGRPC(srv *grpc.Server) {
-	basev1.RegisterAiServiceServer(srv, s.Ai)
+	basev1.RegisterAiSessionServiceServer(srv, s.AiSession)
+	basev1.RegisterAiToolServiceServer(srv, s.AiTool)
 	basev1.RegisterAiMessageServiceServer(srv, s.AiMessage)
 	basev1.RegisterConfigServiceServer(srv, s.Config)
 	basev1.RegisterFileServiceServer(srv, s.File)
@@ -43,7 +45,8 @@ func (s Services) RegisterGRPC(srv *grpc.Server) {
 
 // RegisterHTTP 注册 base.v1 的 HTTP 服务。
 func (s Services) RegisterHTTP(srv *kratosHTTP.Server) {
-	basev1.RegisterAiServiceHTTPServer(srv, s.Ai)
+	basev1.RegisterAiSessionServiceHTTPServer(srv, s.AiSession)
+	basev1.RegisterAiToolServiceHTTPServer(srv, s.AiTool)
 	// AI 助手消息发送使用直连 SSE，避免占用工作台共用 /events 流。
 	baseService.RegisterAiMessageServiceHTTPServer(srv, s.AiMessage)
 	basev1.RegisterConfigServiceHTTPServer(srv, s.Config)
@@ -60,7 +63,8 @@ func (s Services) RegisterHTTP(srv *kratosHTTP.Server) {
 // RegisterMCP 注册 base.v1 的 MCP 工具。
 func (s Services) RegisterMCP(server *mcpserver.Server) {
 	mcpSrv := server.MCPServer()
-	basev1.RegisterAiServiceMCPTools(mcpSrv, s.Ai)
+	basev1.RegisterAiSessionServiceMCPTools(mcpSrv, s.AiSession)
+	basev1.RegisterAiToolServiceMCPTools(mcpSrv, s.AiTool)
 	basev1.RegisterAiMessageServiceMCPTools(mcpSrv, s.AiMessage)
 	basev1.RegisterConfigServiceMCPTools(mcpSrv, s.Config)
 	basev1.RegisterFileServiceMCPTools(mcpSrv, s.File)

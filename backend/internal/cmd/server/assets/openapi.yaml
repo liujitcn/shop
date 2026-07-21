@@ -6408,9 +6408,9 @@ paths:
     /api/v1/base/ai/session:
         get:
             tags:
-                - AiService
+                - AiSessionService
             description: 查询 AI 助手会话列表
-            operationId: AiService_ListAiSession
+            operationId: AiSessionService_ListAiSession
             parameters:
                 - name: terminal
                   in: query
@@ -6430,9 +6430,9 @@ paths:
                                 $ref: '#/components/schemas/base.v1.ListAiSessionResponse'
         post:
             tags:
-                - AiService
+                - AiSessionService
             description: 创建 AI 助手会话
-            operationId: AiService_CreateAiSession
+            operationId: AiSessionService_CreateAiSession
             requestBody:
                 content:
                     application/json:
@@ -6449,9 +6449,9 @@ paths:
     /api/v1/base/ai/session/{id}:
         put:
             tags:
-                - AiService
+                - AiSessionService
             description: 更新 AI 助手会话
-            operationId: AiService_UpdateAiSession
+            operationId: AiSessionService_UpdateAiSession
             parameters:
                 - name: id
                   in: path
@@ -6473,9 +6473,9 @@ paths:
                                 $ref: '#/components/schemas/base.v1.UpdateAiSessionResponse'
         delete:
             tags:
-                - AiService
+                - AiSessionService
             description: 删除 AI 助手会话
-            operationId: AiService_DeleteAiSession
+            operationId: AiSessionService_DeleteAiSession
             parameters:
                 - name: id
                   in: path
@@ -6492,9 +6492,9 @@ paths:
     /api/v1/base/ai/session/{session_id}/message:
         get:
             tags:
-                - AiService
+                - AiSessionService
             description: 查询 AI 助手消息列表
-            operationId: AiService_ListAiMessage
+            operationId: AiSessionService_ListAiMessage
             parameters:
                 - name: session_id
                   in: path
@@ -6648,9 +6648,9 @@ paths:
     /api/v1/base/ai/session/{source_session_id}/branch:
         post:
             tags:
-                - AiService
+                - AiSessionService
             description: 从指定消息创建 AI 助手分支会话
-            operationId: AiService_CreateAiSessionBranch
+            operationId: AiSessionService_CreateAiSessionBranch
             parameters:
                 - name: source_session_id
                   in: path
@@ -6673,9 +6673,9 @@ paths:
     /api/v1/base/ai/shortcut:
         get:
             tags:
-                - AiService
+                - AiToolService
             description: 查询 AI 助手快捷入口列表
-            operationId: AiService_ListAiShortcut
+            operationId: AiToolService_ListAiShortcut
             parameters:
                 - name: terminal
                   in: query
@@ -7235,8 +7235,8 @@ components:
                 tools:
                     type: array
                     items:
-                        $ref: '#/components/schemas/base.v1.AiTool'
-                    description: 本次消息使用的工具列表
+                        $ref: '#/components/schemas/base.v1.AiToolCall'
+                    description: 本次消息使用的工具调用记录
                 first_token_ms:
                     type: integer
                     description: 首 Token 耗时毫秒
@@ -7365,7 +7365,7 @@ components:
                     description: 总 Token 数
                     format: int32
             description: AI 助手 Token 统计
-        base.v1.AiTool:
+        base.v1.AiToolCall:
             type: object
             properties:
                 type:
@@ -15781,8 +15781,10 @@ components:
 tags:
     - name: AiMessageService
       description: Base AI 助手消息服务
-    - name: AiService
+    - name: AiSessionService
       description: Base AI 助手会话服务
+    - name: AiToolService
+      description: Base AI 助手工具服务
     - name: AuthService
       description: Admin用户登录认证服务
     - name: AuthService
@@ -15830,9 +15832,9 @@ tags:
     - name: GoodsAnalyticsService
       description: Admin商品分析服务
     - name: GoodsCategoryService
-      description: App商品分类服务
-    - name: GoodsCategoryService
       description: Admin商品分类服务
+    - name: GoodsCategoryService
+      description: App商品分类服务
     - name: GoodsInfoService
       description: App商品信息服务
     - name: GoodsInfoService
@@ -15878,15 +15880,15 @@ tags:
     - name: ShopHotService
       description: App热门推荐服务
     - name: ShopServiceService
-      description: App商城服务说明服务
-    - name: ShopServiceService
       description: Admin商城服务
+    - name: ShopServiceService
+      description: App商城服务说明服务
     - name: SseService
       description: Base SSE服务
     - name: TenantStoreService
-      description: App租户门店服务
-    - name: TenantStoreService
       description: Admin租户门店服务
+    - name: TenantStoreService
+      description: App租户门店服务
     - name: UserAddressService
       description: App用户地址管理服务
     - name: UserAnalyticsService

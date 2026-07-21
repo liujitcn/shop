@@ -13,48 +13,42 @@ import (
 	utils "github.com/cloudwego/eino/components/tool/utils"
 )
 
-// NewAiServiceAgentTools 创建Base AI 助手会话服务的 Agent Tool。
-func NewAiServiceAgentTools(aiServiceServer AiServiceServer) ([]tool.InvokableTool, error) {
+// NewAiSessionServiceAgentTools 创建Base AI 助手会话服务的 Agent Tool。
+func NewAiSessionServiceAgentTools(aiSessionServiceServer AiSessionServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error
-	var listAiShortcutTool tool.InvokableTool
-	listAiShortcutTool, err = NewAiServiceListAiShortcutAgentTool(aiServiceServer)
-	if err != nil {
-		return nil, err
-	}
-	ts = append(ts, listAiShortcutTool)
 	var listAiSessionTool tool.InvokableTool
-	listAiSessionTool, err = NewAiServiceListAiSessionAgentTool(aiServiceServer)
+	listAiSessionTool, err = NewAiSessionServiceListAiSessionAgentTool(aiSessionServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, listAiSessionTool)
 	var createAiSessionTool tool.InvokableTool
-	createAiSessionTool, err = NewAiServiceCreateAiSessionAgentTool(aiServiceServer)
+	createAiSessionTool, err = NewAiSessionServiceCreateAiSessionAgentTool(aiSessionServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, createAiSessionTool)
 	var updateAiSessionTool tool.InvokableTool
-	updateAiSessionTool, err = NewAiServiceUpdateAiSessionAgentTool(aiServiceServer)
+	updateAiSessionTool, err = NewAiSessionServiceUpdateAiSessionAgentTool(aiSessionServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, updateAiSessionTool)
 	var deleteAiSessionTool tool.InvokableTool
-	deleteAiSessionTool, err = NewAiServiceDeleteAiSessionAgentTool(aiServiceServer)
+	deleteAiSessionTool, err = NewAiSessionServiceDeleteAiSessionAgentTool(aiSessionServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, deleteAiSessionTool)
 	var listAiMessageTool tool.InvokableTool
-	listAiMessageTool, err = NewAiServiceListAiMessageAgentTool(aiServiceServer)
+	listAiMessageTool, err = NewAiSessionServiceListAiMessageAgentTool(aiSessionServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, listAiMessageTool)
 	var createAiSessionBranchTool tool.InvokableTool
-	createAiSessionBranchTool, err = NewAiServiceCreateAiSessionBranchAgentTool(aiServiceServer)
+	createAiSessionBranchTool, err = NewAiSessionServiceCreateAiSessionBranchAgentTool(aiSessionServiceServer)
 	if err != nil {
 		return nil, err
 	}
@@ -62,100 +56,86 @@ func NewAiServiceAgentTools(aiServiceServer AiServiceServer) ([]tool.InvokableTo
 	return ts, nil
 }
 
-// NewAiServiceListAiShortcutAgentTool 创建查询 AI 助手快捷入口列表的 Agent Tool。
-func NewAiServiceListAiShortcutAgentTool(aiServiceServer AiServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*ListAiShortcutRequest, *ListAiShortcutResponse](
-		"base_v1_ai_service_list_ai_shortcut",
-		"查询 AI 助手快捷入口列表",
-		func(ctx context.Context, req *ListAiShortcutRequest) (*ListAiShortcutResponse, error) {
-			if req == nil {
-				req = &ListAiShortcutRequest{}
-			}
-			return aiServiceServer.ListAiShortcut(ctx, req)
-		},
-	)
-}
-
-// NewAiServiceListAiSessionAgentTool 创建查询 AI 助手会话列表的 Agent Tool。
-func NewAiServiceListAiSessionAgentTool(aiServiceServer AiServiceServer) (tool.InvokableTool, error) {
+// NewAiSessionServiceListAiSessionAgentTool 创建查询 AI 助手会话列表的 Agent Tool。
+func NewAiSessionServiceListAiSessionAgentTool(aiSessionServiceServer AiSessionServiceServer) (tool.InvokableTool, error) {
 	return utils.InferTool[*ListAiSessionRequest, *ListAiSessionResponse](
-		"base_v1_ai_service_list_ai_session",
+		"base_v1_ai_session_service_list_ai_session",
 		"查询 AI 助手会话列表",
 		func(ctx context.Context, req *ListAiSessionRequest) (*ListAiSessionResponse, error) {
 			if req == nil {
 				req = &ListAiSessionRequest{}
 			}
-			return aiServiceServer.ListAiSession(ctx, req)
+			return aiSessionServiceServer.ListAiSession(ctx, req)
 		},
 	)
 }
 
-// NewAiServiceCreateAiSessionAgentTool 创建创建 AI 助手会话的 Agent Tool。
-func NewAiServiceCreateAiSessionAgentTool(aiServiceServer AiServiceServer) (tool.InvokableTool, error) {
+// NewAiSessionServiceCreateAiSessionAgentTool 创建创建 AI 助手会话的 Agent Tool。
+func NewAiSessionServiceCreateAiSessionAgentTool(aiSessionServiceServer AiSessionServiceServer) (tool.InvokableTool, error) {
 	return utils.InferTool[*CreateAiSessionRequest, *CreateAiSessionResponse](
-		"base_v1_ai_service_create_ai_session",
+		"base_v1_ai_session_service_create_ai_session",
 		"创建 AI 助手会话",
 		func(ctx context.Context, req *CreateAiSessionRequest) (*CreateAiSessionResponse, error) {
 			if req == nil {
 				req = &CreateAiSessionRequest{}
 			}
-			return aiServiceServer.CreateAiSession(ctx, req)
+			return aiSessionServiceServer.CreateAiSession(ctx, req)
 		},
 	)
 }
 
-// NewAiServiceUpdateAiSessionAgentTool 创建更新 AI 助手会话的 Agent Tool。
-func NewAiServiceUpdateAiSessionAgentTool(aiServiceServer AiServiceServer) (tool.InvokableTool, error) {
+// NewAiSessionServiceUpdateAiSessionAgentTool 创建更新 AI 助手会话的 Agent Tool。
+func NewAiSessionServiceUpdateAiSessionAgentTool(aiSessionServiceServer AiSessionServiceServer) (tool.InvokableTool, error) {
 	return utils.InferTool[*UpdateAiSessionRequest, *UpdateAiSessionResponse](
-		"base_v1_ai_service_update_ai_session",
+		"base_v1_ai_session_service_update_ai_session",
 		"更新 AI 助手会话",
 		func(ctx context.Context, req *UpdateAiSessionRequest) (*UpdateAiSessionResponse, error) {
 			if req == nil {
 				req = &UpdateAiSessionRequest{}
 			}
-			return aiServiceServer.UpdateAiSession(ctx, req)
+			return aiSessionServiceServer.UpdateAiSession(ctx, req)
 		},
 	)
 }
 
-// NewAiServiceDeleteAiSessionAgentTool 创建删除 AI 助手会话的 Agent Tool。
-func NewAiServiceDeleteAiSessionAgentTool(aiServiceServer AiServiceServer) (tool.InvokableTool, error) {
+// NewAiSessionServiceDeleteAiSessionAgentTool 创建删除 AI 助手会话的 Agent Tool。
+func NewAiSessionServiceDeleteAiSessionAgentTool(aiSessionServiceServer AiSessionServiceServer) (tool.InvokableTool, error) {
 	return utils.InferTool[*DeleteAiSessionRequest, *DeleteAiSessionResponse](
-		"base_v1_ai_service_delete_ai_session",
+		"base_v1_ai_session_service_delete_ai_session",
 		"删除 AI 助手会话",
 		func(ctx context.Context, req *DeleteAiSessionRequest) (*DeleteAiSessionResponse, error) {
 			if req == nil {
 				req = &DeleteAiSessionRequest{}
 			}
-			return aiServiceServer.DeleteAiSession(ctx, req)
+			return aiSessionServiceServer.DeleteAiSession(ctx, req)
 		},
 	)
 }
 
-// NewAiServiceListAiMessageAgentTool 创建查询 AI 助手消息列表的 Agent Tool。
-func NewAiServiceListAiMessageAgentTool(aiServiceServer AiServiceServer) (tool.InvokableTool, error) {
+// NewAiSessionServiceListAiMessageAgentTool 创建查询 AI 助手消息列表的 Agent Tool。
+func NewAiSessionServiceListAiMessageAgentTool(aiSessionServiceServer AiSessionServiceServer) (tool.InvokableTool, error) {
 	return utils.InferTool[*ListAiMessageRequest, *ListAiMessageResponse](
-		"base_v1_ai_service_list_ai_message",
+		"base_v1_ai_session_service_list_ai_message",
 		"查询 AI 助手消息列表",
 		func(ctx context.Context, req *ListAiMessageRequest) (*ListAiMessageResponse, error) {
 			if req == nil {
 				req = &ListAiMessageRequest{}
 			}
-			return aiServiceServer.ListAiMessage(ctx, req)
+			return aiSessionServiceServer.ListAiMessage(ctx, req)
 		},
 	)
 }
 
-// NewAiServiceCreateAiSessionBranchAgentTool 创建从指定消息创建 AI 助手分支会话的 Agent Tool。
-func NewAiServiceCreateAiSessionBranchAgentTool(aiServiceServer AiServiceServer) (tool.InvokableTool, error) {
+// NewAiSessionServiceCreateAiSessionBranchAgentTool 创建从指定消息创建 AI 助手分支会话的 Agent Tool。
+func NewAiSessionServiceCreateAiSessionBranchAgentTool(aiSessionServiceServer AiSessionServiceServer) (tool.InvokableTool, error) {
 	return utils.InferTool[*CreateAiSessionBranchRequest, *CreateAiSessionBranchResponse](
-		"base_v1_ai_service_create_ai_session_branch",
+		"base_v1_ai_session_service_create_ai_session_branch",
 		"从指定消息创建 AI 助手分支会话",
 		func(ctx context.Context, req *CreateAiSessionBranchRequest) (*CreateAiSessionBranchResponse, error) {
 			if req == nil {
 				req = &CreateAiSessionBranchRequest{}
 			}
-			return aiServiceServer.CreateAiSessionBranch(ctx, req)
+			return aiSessionServiceServer.CreateAiSessionBranch(ctx, req)
 		},
 	)
 }

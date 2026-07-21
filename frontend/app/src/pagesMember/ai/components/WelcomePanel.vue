@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { AiShortcut } from '@/rpc/base/v1/ai_session'
+import type { AiShortcut } from '@/rpc/base/v1/ai_tool'
 
 defineProps<{
   greetingMessage: string

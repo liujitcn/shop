@@ -135,7 +135,7 @@ make gen
 - `../frontend/admin/src/rpc`
 - `../frontend/app/src/rpc`
 
-当前 `base` 公共接口内已包含 AI 助手接口，路径前缀为 `/api/v1/base/ai`。会话与消息会持久化到 `ai_session`、`ai_message` 两张表；对话主链已经切到 `github.com/cloudwego/eino` 的消息与模型接口，并明确使用以下能力：
+当前 `base` 公共接口内已包含 AI 助手接口，路径前缀为 `/api/v1/base/ai`。`AiToolService` 提供快捷入口，`AiSessionService` 提供会话与消息列表，`AiMessageService` 提供消息发送及消息操作；会话与消息会持久化到 `ai_session`、`ai_message` 两张表。对话主链已经切到 `github.com/cloudwego/eino` 的消息与模型接口，并明确使用以下能力：
 
 - `context`：每轮调用会把当前终端、用户名称、会话标题、摘要和历史消息组装为 Eino 消息列表。
 - `tools`：AI 助手启动时会注册 `api/gen/go` 下已生成的 `system` / `shop` Admin、App Agent 工具，并从当前终端可用工具中挑选相关内部 function tool，在需要时执行工具调用后回填结果；消息完成后会保存工具名称、状态、原始入参与原始出参，便于后台排查。
@@ -149,7 +149,7 @@ make gen
 
 其中 `ai_session.terminal` 已统一为终端枚举整型字段：`1` 表示商城端，`2` 表示管理端；对应的 proto 字段使用 `common.v1.Terminal`。
 
-消息结构按一轮一条记录返回：`input_content` 保存输入类型与正文，`output_content` 保存输出类型、正文、回复来源、模型名、是否降级和降级原因，`attachments` 保存附件列表，`tools` 保存本轮实际使用的工具列表及工具原始请求/响应，`token` 保存模型真实输入、输出、缓存和总 Token 统计，`first_token_ms` 与 `duration_ms` 分别保存首 Token 耗时和总耗时。管理端附件会先走 `/api/v1/base/file/multi` 上传到 OSS，再由 AI 助手在服务端读取图片附件字节作为多模态视觉输入，文本、JSON、XML、CSV 类附件内容会直接拼入当前用户消息供模型参考。
+消息结构按一轮一条记录返回：`input_content` 保存输入类型与正文，`output_content` 保存输出类型、正文、回复来源、模型名、是否降级和降级原因，`attachments` 保存附件列表，`tools` 使用 `AiToolCall` 保存本轮实际工具调用及其原始请求/响应，`token` 保存模型真实输入、输出、缓存和总 Token 统计，`first_token_ms` 与 `duration_ms` 分别保存首 Token 耗时和总耗时。管理端附件会先走 `/api/v1/base/file/multi` 上传到 OSS，再由 AI 助手在服务端读取图片附件字节作为多模态视觉输入，文本、JSON、XML、CSV 类附件内容会直接拼入当前用户消息供模型参考。
 
 AI 助手默认通过 `github.com/liujitcn/kratos-kit/ai/eino` 创建 OpenAI Responses AgenticModel，并启用 Responses 内置 `web_search` 服务端工具；评论审核与摘要通过同一组件创建 OpenAI Chat Completions AgenticModel。该能力要求配置的 `ai.model.cloud.baseUrl` 支持 OpenAI 兼容接口；AI 助手使用 `/responses`，普通只兼容 Chat Completions 的代理可能不支持。
 

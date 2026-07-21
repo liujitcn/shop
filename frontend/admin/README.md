@@ -159,6 +159,7 @@ src/rpc
 当前管理后台 AI助手会复用：
 
 - `src/api/base/ai_session.ts`：助手会话查询、创建、重命名和删除接口封装。
+- `src/api/base/ai_tool.ts`：助手快捷入口工具接口封装。
 - `src/api/base/ai_message.ts`：助手消息查询和流式发送接口封装。
 - `src/views/base/ai`：基于 `vue-element-plus-x` 组件能力封装的当前系统专用 AI助手页面。
 - `src/views/base/ai/index.vue`：隐藏的 AI助手页面入口，默认由顶部导航工具栏最左侧图标触发。

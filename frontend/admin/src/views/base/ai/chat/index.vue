@@ -37,7 +37,9 @@ import { DArrowRight } from "@element-plus/icons-vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { defAiMessageService } from "@/api/base/ai_message";
 import { defAiSessionService } from "@/api/base/ai_session";
-import { type AiSession, type AiShortcut } from "@/rpc/base/v1/ai_session";
+import { defAiToolService } from "@/api/base/ai_tool";
+import type { AiSession } from "@/rpc/base/v1/ai_session";
+import type { AiShortcut } from "@/rpc/base/v1/ai_tool";
 import type { AiAction } from "@/rpc/base/v1/ai_message";
 import { AiMessageStatus, Terminal } from "@/rpc/common/v1/enum";
 import ChatPanel from "./components/ChatPanel.vue";
@@ -613,7 +615,7 @@ async function loadAiShortcuts() {
   if (loadingShortcuts.value) return;
   loadingShortcuts.value = true;
   try {
-    const response = await defAiSessionService.ListAiShortcut({ terminal: Terminal.TERMINAL_ADMIN });
+    const response = await defAiToolService.ListAiShortcut({ terminal: Terminal.TERMINAL_ADMIN });
     starterShortcuts.value = normalizeStarterShortcuts(response.shortcuts);
   } catch {
     starterShortcuts.value = [];

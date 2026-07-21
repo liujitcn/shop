@@ -7,50 +7,7 @@
 /* eslint-disable */
 import type { AiMessageStatus, Terminal } from "../../common/v1/enum";
 import type { Timestamp } from "../../google/protobuf/timestamp";
-
-/** AI 助手快捷入口列表查询条件 */
-export interface ListAiShortcutRequest {
-  /** 终端类型：枚举【Terminal】 */
-  terminal: Terminal;
-}
-
-/** AI 助手快捷入口列表响应 */
-export interface ListAiShortcutResponse {
-  /** 快捷入口列表 */
-  shortcuts: AiShortcut[];
-}
-
-/** AI 助手快捷入口 */
-export interface AiShortcut {
-  /** 快捷入口标识 */
-  key: string;
-  /** 展示标题 */
-  title: string;
-  /** 发送给助手的提示词 */
-  prompt: string;
-  /** 快捷入口动作 */
-  action:
-    | AiShortcutAction
-    | undefined;
-  /** 依赖工具列表 */
-  required_tools: string[];
-  /** 排序值 */
-  sort: number;
-  /** 分组名称 */
-  group: string;
-}
-
-/** AI 助手快捷入口动作 */
-export interface AiShortcutAction {
-  /** 流程标识 */
-  flow: string;
-  /** 流程步骤 */
-  step: string;
-  /** 动作类型 */
-  type: string;
-  /** 动作负载JSON */
-  payload_json: string;
-}
+import type { AiToolCall } from "./ai_tool";
 
 /** AI 助手会话列表查询条件 */
 export interface ListAiSessionRequest {
@@ -176,8 +133,8 @@ export interface AiMessage {
   token:
     | AiToken
     | undefined;
-  /** 本次消息使用的工具列表 */
-  tools: AiTool[];
+  /** 本次消息使用的工具调用记录 */
+  tools: AiToolCall[];
   /** 首 Token 耗时毫秒 */
   first_token_ms: number;
   /** 总耗时毫秒 */
@@ -240,26 +197,8 @@ export interface AiAttachment {
   mime_type: string;
 }
 
-/** AI 助手工具调用记录 */
-export interface AiTool {
-  /** 工具类型：function/server */
-  type: string;
-  /** 工具名称 */
-  name: string;
-  /** 工具展示名称 */
-  title: string;
-  /** 工具调用状态 */
-  status: string;
-  /** 工具原始入参JSON */
-  input: string;
-  /** 工具原始出参JSON */
-  output: string;
-}
-
 /** Base AI 助手会话服务 */
-export interface AiService {
-  /** 查询 AI 助手快捷入口列表 */
-  ListAiShortcut(request: ListAiShortcutRequest): Promise<ListAiShortcutResponse>;
+export interface AiSessionService {
   /** 查询 AI 助手会话列表 */
   ListAiSession(request: ListAiSessionRequest): Promise<ListAiSessionResponse>;
   /** 创建 AI 助手会话 */
