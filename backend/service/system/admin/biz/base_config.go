@@ -222,12 +222,12 @@ func (c *BaseConfigCase) syncBaseConfigCache(item *models.BaseConfig) error {
 	return sdk.Runtime.GetCache().Set(c.makeBaseConfigCacheKey(item.Key), item.Value, -1)
 }
 
-// makeBaseConfigCacheKey 生成配置缓存键
-func (c *BaseConfigCase) makeBaseConfigCacheKey(key string) string {
-	return BASE_CONFIG_CACHE_PREFIX + key
-}
-
 // clearBaseConfigCache 删除单个配置缓存
 func (c *BaseConfigCase) clearBaseConfigCache(key string) error {
 	return sdk.Runtime.GetCache().Del(c.makeBaseConfigCacheKey(key))
+}
+
+// makeBaseConfigCacheKey 生成配置缓存键
+func (c *BaseConfigCase) makeBaseConfigCacheKey(key string) string {
+	return BASE_CONFIG_CACHE_PREFIX + key
 }

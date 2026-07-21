@@ -90,33 +90,6 @@ func (c *CodeGenColumnCase) ListCodeGenColumn(ctx context.Context, tableID int64
 	}, nil
 }
 
-// listCodeGenColumns 查询数据库字段与已保存生成配置的完整合并结果。
-func (c *CodeGenColumnCase) listCodeGenColumns(ctx context.Context, tableID int64) ([]*systemadminv1.CodeGenColumn, error) {
-	if tableID <= 0 {
-		return nil, errorsx.InvalidArgument("代码生成表配置ID不能为空")
-	}
-	table, err := c.codeGenTableRepo.FindByID(ctx, tableID)
-	if err != nil {
-		return nil, err
-	}
-	var databaseColumns []dto.CodeGenDatabaseColumn
-	databaseColumns, err = c.listDatabaseColumns(ctx, table.Name)
-	if err != nil {
-		return nil, err
-	}
-	query := c.Query(ctx).CodeGenColumn
-	opts := make([]repository.QueryOption, 0, 3)
-	opts = append(opts, repository.Where(query.TableID.Eq(tableID)))
-	opts = append(opts, repository.Order(query.Sort.Asc()))
-	opts = append(opts, repository.Order(query.ID.Asc()))
-	var savedColumns []*models.CodeGenColumn
-	savedColumns, err = c.List(ctx, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return c.mergeCodeGenColumns(tableID, databaseColumns, savedColumns), nil
-}
-
 // SaveCodeGenColumn 保存代码生成字段配置快照。
 func (c *CodeGenColumnCase) SaveCodeGenColumn(ctx context.Context, req *systemadminv1.SaveCodeGenColumnRequest) error {
 	if req.GetTableId() <= 0 {
@@ -191,6 +164,33 @@ func (c *CodeGenColumnCase) DeleteByTableIDs(ctx context.Context, tableIDs []int
 	}
 	query := c.Query(ctx).CodeGenColumn
 	return c.Delete(ctx, repository.Where(query.TableID.In(tableIDs...)))
+}
+
+// listCodeGenColumns 查询数据库字段与已保存生成配置的完整合并结果。
+func (c *CodeGenColumnCase) listCodeGenColumns(ctx context.Context, tableID int64) ([]*systemadminv1.CodeGenColumn, error) {
+	if tableID <= 0 {
+		return nil, errorsx.InvalidArgument("代码生成表配置ID不能为空")
+	}
+	table, err := c.codeGenTableRepo.FindByID(ctx, tableID)
+	if err != nil {
+		return nil, err
+	}
+	var databaseColumns []dto.CodeGenDatabaseColumn
+	databaseColumns, err = c.listDatabaseColumns(ctx, table.Name)
+	if err != nil {
+		return nil, err
+	}
+	query := c.Query(ctx).CodeGenColumn
+	opts := make([]repository.QueryOption, 0, 3)
+	opts = append(opts, repository.Where(query.TableID.Eq(tableID)))
+	opts = append(opts, repository.Order(query.Sort.Asc()))
+	opts = append(opts, repository.Order(query.ID.Asc()))
+	var savedColumns []*models.CodeGenColumn
+	savedColumns, err = c.List(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return c.mergeCodeGenColumns(tableID, databaseColumns, savedColumns), nil
 }
 
 // listDatabaseColumns 查询数据库字段生成所需的完整元数据。

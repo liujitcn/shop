@@ -322,6 +322,37 @@ func (c *renderer) newTargetProtoPreviewFile(table *Table, columns []*CodeGenCol
 	}
 }
 
+// newPreviewFile 创建预览文件并标记处理动作。
+func (c *renderer) newPreviewFile(path string, content string) *systemadminv1.CodeGenPreviewFile {
+	_, pathErr := SafeRepoFilePath(path)
+	if pathErr != nil {
+		return &systemadminv1.CodeGenPreviewFile{
+			Path:    path,
+			Action:  "skip",
+			Content: content,
+			Exists:  false,
+			Message: pathErr.Error(),
+		}
+	}
+	exists, err := c.repoFileExists(path)
+	if err != nil {
+		exists = false
+	}
+	action := "create"
+	message := "将新增"
+	if exists {
+		action = "skip"
+		message = "已存在，不覆盖"
+	}
+	return &systemadminv1.CodeGenPreviewFile{
+		Path:    path,
+		Action:  action,
+		Content: content,
+		Exists:  exists,
+		Message: message,
+	}
+}
+
 // isManagedProtoFile 判断 Proto 是否具备当前实体的完整生成文件特征。
 func isManagedProtoFile(content string, entity string) bool {
 	return strings.Contains(content, "service "+entity+"Service {") &&
@@ -352,37 +383,6 @@ func isManagedFrontendPageFile(content string, entity string) bool {
 	return strings.Contains(content, "name: \""+entity+"\"") &&
 		strings.Contains(content, "const formFields = computed<ProFormField[]>") &&
 		strings.Contains(content, "request"+entity+"Table")
-}
-
-// newPreviewFile 创建预览文件并标记处理动作。
-func (c *renderer) newPreviewFile(path string, content string) *systemadminv1.CodeGenPreviewFile {
-	_, pathErr := SafeRepoFilePath(path)
-	if pathErr != nil {
-		return &systemadminv1.CodeGenPreviewFile{
-			Path:    path,
-			Action:  "skip",
-			Content: content,
-			Exists:  false,
-			Message: pathErr.Error(),
-		}
-	}
-	exists, err := c.repoFileExists(path)
-	if err != nil {
-		exists = false
-	}
-	action := "create"
-	message := "将新增"
-	if exists {
-		action = "skip"
-		message = "已存在，不覆盖"
-	}
-	return &systemadminv1.CodeGenPreviewFile{
-		Path:    path,
-		Action:  action,
-		Content: content,
-		Exists:  exists,
-		Message: message,
-	}
 }
 
 // goReceiverType 返回 Go 文件中指定后缀的首个方法接收者或结构体类型。

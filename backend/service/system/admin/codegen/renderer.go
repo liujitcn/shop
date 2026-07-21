@@ -90,18 +90,6 @@ type renderer struct {
 	readFile     func(string) ([]byte, error)
 }
 
-// readRepoFile 读取当前渲染上下文中的仓库文件。
-func (c *renderer) readRepoFile(path string) ([]byte, error) {
-	if c.readFile != nil {
-		return c.readFile(path)
-	}
-	fullPath, err := SafeRepoFilePath(path)
-	if err != nil {
-		return nil, err
-	}
-	return os.ReadFile(fullPath)
-}
-
 // repoFileExists 判断当前渲染上下文中是否存在目标仓库文件。
 func (c *renderer) repoFileExists(path string) (bool, error) {
 	_, err := c.readRepoFile(path)
@@ -127,4 +115,16 @@ func (c *renderer) protoMethodExists(protoPath string, targetEntity string, meth
 		return true, "已存在"
 	}
 	return false, "缺少，可选择生成"
+}
+
+// readRepoFile 读取当前渲染上下文中的仓库文件。
+func (c *renderer) readRepoFile(path string) ([]byte, error) {
+	if c.readFile != nil {
+		return c.readFile(path)
+	}
+	fullPath, err := SafeRepoFilePath(path)
+	if err != nil {
+		return nil, err
+	}
+	return os.ReadFile(fullPath)
 }

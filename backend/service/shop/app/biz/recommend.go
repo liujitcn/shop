@@ -202,27 +202,6 @@ func (c *RecommendCase) RecommendEventReport(ctx context.Context, req *shopappv1
 	return c.recommendEventCase.persistRecommendEventReport(ctx, actor, req, time.Now())
 }
 
-// getRecommendAnonymousIDFromHeader 从请求头中解析匿名主体编号。
-func (c *RecommendCase) getRecommendAnonymousIDFromHeader(ctx context.Context) (int64, error) {
-	serverTransport, ok := transport.FromServerContext(ctx)
-	// 非服务端请求上下文时，不存在可读取的请求头。
-	if !ok {
-		return 0, nil
-	}
-
-	headerValue := serverTransport.RequestHeader().Get(RECOMMEND_ANONYMOUS_ACTOR_HEADER_KEY)
-	// 未传入匿名主体请求头时，返回 0 表示当前请求未使用匿名身份。
-	if headerValue == "" {
-		return 0, nil
-	}
-
-	anonymousID, err := strconv.ParseInt(headerValue, 10, 64)
-	if err != nil || anonymousID <= 0 {
-		return 0, errorsx.InvalidArgument("匿名推荐主体无效")
-	}
-	return anonymousID, nil
-}
-
 // bindRecommendAnonymousActor 绑定匿名推荐主体到当前用户。
 func (c *RecommendCase) bindRecommendAnonymousActor(ctx context.Context, userID, anonymousID int64) error {
 	// 当前未携带匿名主体或用户编号非法时，无需继续绑定。
@@ -380,6 +359,27 @@ func (c *RecommendCase) resolveRecommendActor(ctx context.Context, allowAnonymou
 		ActorType: shopcommonv1.RecommendActorType(_const.RECOMMEND_ACTOR_TYPE_ANONYMOUS),
 		ActorID:   anonymousID,
 	}, nil
+}
+
+// getRecommendAnonymousIDFromHeader 从请求头中解析匿名主体编号。
+func (c *RecommendCase) getRecommendAnonymousIDFromHeader(ctx context.Context) (int64, error) {
+	serverTransport, ok := transport.FromServerContext(ctx)
+	// 非服务端请求上下文时，不存在可读取的请求头。
+	if !ok {
+		return 0, nil
+	}
+
+	headerValue := serverTransport.RequestHeader().Get(RECOMMEND_ANONYMOUS_ACTOR_HEADER_KEY)
+	// 未传入匿名主体请求头时，返回 0 表示当前请求未使用匿名身份。
+	if headerValue == "" {
+		return 0, nil
+	}
+
+	anonymousID, err := strconv.ParseInt(headerValue, 10, 64)
+	if err != nil || anonymousID <= 0 {
+		return 0, errorsx.InvalidArgument("匿名推荐主体无效")
+	}
+	return anonymousID, nil
 }
 
 // listRecommendContextGoodsIDs 查询当前推荐请求的上下文商品编号列表。

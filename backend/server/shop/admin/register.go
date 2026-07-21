@@ -147,16 +147,6 @@ func (s Services) RegisterMCP(server *mcpserver.Server) {
 	shopadminv1.RegisterWorkspaceServiceMCPTools(mcpSrv, s.Workspace)
 }
 
-// Tasks 返回商城管理端需要调度运行时执行的具名任务。
-func (s TaskSet) Tasks() []job.Task {
-	return []job.Task{
-		{Name: "TradeBill", Exec: s.tradeBill},
-		{Name: "OrderStatDay", Exec: s.orderStatDay},
-		{Name: "GoodsStatDay", Exec: s.goodsStatDay},
-		{Name: "RecommendSync", Exec: s.recommendSync},
-	}
-}
-
 // AdminAgentTools 创建 shop.admin.v1 的管理端 AI 助手工具。
 func (s Services) AdminAgentTools() ([]einoTool.Invokable, error) {
 	var tools []einoTool.Invokable
@@ -229,4 +219,14 @@ func (s Services) AdminAgentTools() ([]einoTool.Invokable, error) {
 		return nil, err
 	}
 	return tools, nil
+}
+
+// Tasks 返回商城管理端需要调度运行时执行的具名任务。
+func (s TaskSet) Tasks() []job.Task {
+	return []job.Task{
+		{Name: "TradeBill", Exec: s.tradeBill},
+		{Name: "OrderStatDay", Exec: s.orderStatDay},
+		{Name: "GoodsStatDay", Exec: s.goodsStatDay},
+		{Name: "RecommendSync", Exec: s.recommendSync},
+	}
 }

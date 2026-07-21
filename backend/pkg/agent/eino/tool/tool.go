@@ -135,6 +135,65 @@ func NewCatalogTool(options CatalogOptions) Invokable {
 	}
 }
 
+// ExecuteCall 执行单个函数工具调用并输出稳定记录字段。
+func ExecuteCall(ctx context.Context, toolMap map[string]Invokable, infos []*Info, call Call, options ...CallOption) CallResult {
+	config := callConfig{}
+	for _, option := range options {
+		option(&config)
+	}
+	result := newCallResult(infos, call)
+	// 除内置目录工具外，直接调用也必须受本轮已启用工具定义约束。
+	if call.Name != config.catalogName && !HasInfo(infos, call.Name) {
+		result.Status = "error"
+		result.Output = MarshalError(DisabledMessage(call.Name))
+		return result.withContent(result.Output)
+	}
+	item := toolMap[call.Name]
+	// 工具定义存在但执行器缺失时返回稳定错误 JSON，便于调用方展示工具卡。
+	if item == nil {
+		result.Status = "error"
+		result.Output = MarshalError(fmt.Sprintf("tool %s is not available", call.Name))
+		return result.withContent(result.Output)
+	}
+	output, err := item.InvokableRun(ctx, call.Arguments)
+	// 工具内部错误也转成 JSON 文本返回，保持直接调用与 ADK 调用协议一致。
+	if err != nil {
+		result.Status = "error"
+		result.Output = MarshalError(err.Error())
+		return result.withContent(result.Output)
+	}
+	// 空输出统一表示为成功空对象，避免调用方难以区分“无数据”和“未执行”。
+	if output == "" {
+		output = "{}"
+	}
+	result.Output = output
+	return result.withContent(output)
+}
+
+// WithCatalogName 设置内置工具目录名称。
+func WithCatalogName(name string) CallOption {
+	return func(config *callConfig) {
+		config.catalogName = name
+	}
+}
+
+// MarshalError 将工具错误转换成稳定 JSON 文本。
+func MarshalError(message string) string {
+	return einoMiddleware.MarshalToolError(message)
+}
+
+// CallOption 表示工具调用执行配置。
+type CallOption func(*callConfig)
+
+type callConfig struct {
+	catalogName string
+}
+
+// DisabledMessage 返回 Agent 工具禁用提示。
+func DisabledMessage(name string) string {
+	return einoMiddleware.DisabledToolMessage(name)
+}
+
 // Info 返回工具目录查询工具定义。
 func (t *catalogTool) Info(context.Context) (*Info, error) {
 	return &Info{
@@ -179,53 +238,10 @@ func (t *catalogTool) InvokableRun(context.Context, string, ...Option) (string, 
 	return string(raw), nil
 }
 
-// ExecuteCall 执行单个函数工具调用并输出稳定记录字段。
-func ExecuteCall(ctx context.Context, toolMap map[string]Invokable, infos []*Info, call Call, options ...CallOption) CallResult {
-	config := callConfig{}
-	for _, option := range options {
-		option(&config)
-	}
-	result := newCallResult(infos, call)
-	// 除内置目录工具外，直接调用也必须受本轮已启用工具定义约束。
-	if call.Name != config.catalogName && !HasInfo(infos, call.Name) {
-		result.Status = "error"
-		result.Output = MarshalError(DisabledMessage(call.Name))
-		return result.withContent(result.Output)
-	}
-	item := toolMap[call.Name]
-	// 工具定义存在但执行器缺失时返回稳定错误 JSON，便于调用方展示工具卡。
-	if item == nil {
-		result.Status = "error"
-		result.Output = MarshalError(fmt.Sprintf("tool %s is not available", call.Name))
-		return result.withContent(result.Output)
-	}
-	output, err := item.InvokableRun(ctx, call.Arguments)
-	// 工具内部错误也转成 JSON 文本返回，保持直接调用与 ADK 调用协议一致。
-	if err != nil {
-		result.Status = "error"
-		result.Output = MarshalError(err.Error())
-		return result.withContent(result.Output)
-	}
-	// 空输出统一表示为成功空对象，避免调用方难以区分“无数据”和“未执行”。
-	if output == "" {
-		output = "{}"
-	}
-	result.Output = output
-	return result.withContent(output)
-}
-
-// CallOption 表示工具调用执行配置。
-type CallOption func(*callConfig)
-
-type callConfig struct {
-	catalogName string
-}
-
-// WithCatalogName 设置内置工具目录名称。
-func WithCatalogName(name string) CallOption {
-	return func(config *callConfig) {
-		config.catalogName = name
-	}
+// withContent 写入供模型消费的工具结果文本。
+func (r CallResult) withContent(content string) CallResult {
+	r.Content = content
+	return r
 }
 
 // newCallResult 构造函数工具调用的基础记录。
@@ -250,20 +266,4 @@ func newCallResult(infos []*Info, call Call) CallResult {
 		Status: "success",
 		Input:  call.Arguments,
 	}
-}
-
-// withContent 写入供模型消费的工具结果文本。
-func (r CallResult) withContent(content string) CallResult {
-	r.Content = content
-	return r
-}
-
-// MarshalError 将工具错误转换成稳定 JSON 文本。
-func MarshalError(message string) string {
-	return einoMiddleware.MarshalToolError(message)
-}
-
-// DisabledMessage 返回 Agent 工具禁用提示。
-func DisabledMessage(name string) string {
-	return einoMiddleware.DisabledToolMessage(name)
 }

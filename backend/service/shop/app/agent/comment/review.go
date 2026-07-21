@@ -18,6 +18,40 @@ const (
 	commentReviewDefaultImageName = "comment-image"
 )
 
+// HasConcreteReviewReason 判断审核原因是否包含具体违规线索。
+func HasConcreteReviewReason(reason string) bool {
+	if reason == "" {
+		return false
+	}
+	genericReasons := []string{
+		"审核不通过",
+		"LLM审核不通过",
+		"内容安全风险",
+		"评价内容未通过内容安全审核",
+		"评价文本命中内容安全风险",
+		"评价图片命中内容安全风险",
+	}
+	// 这些文案只能说明“失败了”，不能说明为什么失败，不能作为最终审核结论保存给运营。
+	for _, genericReason := range genericReasons {
+		// 完全等于泛化文案时，不能作为可解释拒绝原因。
+		if strings.EqualFold(reason, genericReason) {
+			return false
+		}
+	}
+	evidenceKeywords := []string{
+		"色情", "低俗", "裸露", "暴力", "血腥", "违法", "违禁", "政治", "辱骂", "攻击", "广告", "引流", "二维码", "联系方式", "隐私", "无关",
+		"文本", "片段", "图片", "第", "疑似", "出现", "包含", "涉及", "命中",
+	}
+	// 命中风险类别、证据位置或判定动作类关键词时，认为该原因已经具备人工复核价值。
+	for _, keyword := range evidenceKeywords {
+		if strings.Contains(reason, keyword) {
+			return true
+		}
+	}
+	// 较长的非泛化原因通常已包含一定解释信息，避免过度要求固定关键词导致正常拒绝结论被反复重试。
+	return len([]rune(reason)) >= 12
+}
+
 // ReviewComment 审核评论内容。
 func (r *Runtime) ReviewComment(ctx context.Context, req ReviewRequest) (*ReviewResult, error) {
 	content := req.Content
@@ -78,40 +112,6 @@ func (r *Runtime) ReviewComment(ctx context.Context, req ReviewRequest) (*Review
 	}
 	completeMissingSafeReviewVerdict(result)
 	return result, nil
-}
-
-// HasConcreteReviewReason 判断审核原因是否包含具体违规线索。
-func HasConcreteReviewReason(reason string) bool {
-	if reason == "" {
-		return false
-	}
-	genericReasons := []string{
-		"审核不通过",
-		"LLM审核不通过",
-		"内容安全风险",
-		"评价内容未通过内容安全审核",
-		"评价文本命中内容安全风险",
-		"评价图片命中内容安全风险",
-	}
-	// 这些文案只能说明“失败了”，不能说明为什么失败，不能作为最终审核结论保存给运营。
-	for _, genericReason := range genericReasons {
-		// 完全等于泛化文案时，不能作为可解释拒绝原因。
-		if strings.EqualFold(reason, genericReason) {
-			return false
-		}
-	}
-	evidenceKeywords := []string{
-		"色情", "低俗", "裸露", "暴力", "血腥", "违法", "违禁", "政治", "辱骂", "攻击", "广告", "引流", "二维码", "联系方式", "隐私", "无关",
-		"文本", "片段", "图片", "第", "疑似", "出现", "包含", "涉及", "命中",
-	}
-	// 命中风险类别、证据位置或判定动作类关键词时，认为该原因已经具备人工复核价值。
-	for _, keyword := range evidenceKeywords {
-		if strings.Contains(reason, keyword) {
-			return true
-		}
-	}
-	// 较长的非泛化原因通常已包含一定解释信息，避免过度要求固定关键词导致正常拒绝结论被反复重试。
-	return len([]rune(reason)) >= 12
 }
 
 // normalizeReviewResult 规范化评论审核结果。

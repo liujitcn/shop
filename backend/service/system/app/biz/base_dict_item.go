@@ -28,17 +28,6 @@ func NewBaseDictItemCase(baseCase *biz.BaseCase, baseDictRepo *data.BaseDictRepo
 	}
 }
 
-// 按字典编号列表查询启用中的字典项
-func (c *BaseDictItemCase) findByDictIDs(ctx context.Context, dictIDs []int64) ([]*models.BaseDictItem, error) {
-	query := c.Query(ctx).BaseDictItem
-	opts := make([]repository.QueryOption, 0, 4)
-	opts = append(opts, repository.Order(query.Sort.Asc()))
-	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
-	opts = append(opts, repository.Where(query.DictID.In(dictIDs...)))
-	opts = append(opts, repository.Where(query.Status.Eq(_const.STATUS_ENABLE)))
-	return c.List(ctx, opts...)
-}
-
 // FindLabelByCodeAndValue 按字典编码和值查询标签。
 func (c *BaseDictItemCase) FindLabelByCodeAndValue(ctx context.Context, code, value string) (string, error) {
 	baseDictItemQuery := c.Query(ctx).BaseDictItem
@@ -51,4 +40,15 @@ func (c *BaseDictItemCase) FindLabelByCodeAndValue(ctx context.Context, code, va
 	var label string
 	err := query.Scan(&label)
 	return label, err
+}
+
+// 按字典编号列表查询启用中的字典项
+func (c *BaseDictItemCase) findByDictIDs(ctx context.Context, dictIDs []int64) ([]*models.BaseDictItem, error) {
+	query := c.Query(ctx).BaseDictItem
+	opts := make([]repository.QueryOption, 0, 4)
+	opts = append(opts, repository.Order(query.Sort.Asc()))
+	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
+	opts = append(opts, repository.Where(query.DictID.In(dictIDs...)))
+	opts = append(opts, repository.Where(query.Status.Eq(_const.STATUS_ENABLE)))
+	return c.List(ctx, opts...)
 }

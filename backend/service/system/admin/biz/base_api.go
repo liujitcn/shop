@@ -116,47 +116,6 @@ func (c *BaseAPICase) PageBaseAPI(ctx context.Context, req *systemadminv1.PageBa
 	}, nil
 }
 
-// filterBaseAPIsByToolPrompt 按工具提示词内容过滤接口列表。
-func filterBaseAPIsByToolPrompt(list []*models.BaseAPI, keyword string) []*models.BaseAPI {
-	if keyword == "" {
-		return list
-	}
-	values := make([]*models.BaseAPI, 0, len(list))
-	for _, item := range list {
-		if item == nil {
-			continue
-		}
-		prompts := parseToolPrompts(item.ToolPrompts)
-		for _, prompt := range prompts {
-			if !strings.Contains(prompt, keyword) {
-				continue
-			}
-			values = append(values, item)
-			break
-		}
-	}
-	return values
-}
-
-// pageBaseAPIRecords 对 Go 侧过滤后的接口列表进行分页。
-func pageBaseAPIRecords(list []*models.BaseAPI, pageNum, pageSize int64) []*models.BaseAPI {
-	if pageSize <= 0 {
-		return list
-	}
-	if pageNum <= 0 {
-		pageNum = 1
-	}
-	start := (pageNum - 1) * pageSize
-	if start >= int64(len(list)) {
-		return []*models.BaseAPI{}
-	}
-	end := start + pageSize
-	if end > int64(len(list)) {
-		end = int64(len(list))
-	}
-	return list[start:end]
-}
-
 // GetBaseAPI 根据主键查询接口详情
 func (c *BaseAPICase) GetBaseAPI(ctx context.Context, id int64) (*systemadminv1.BaseApi, error) {
 	query := c.Query(ctx).BaseAPI
@@ -258,6 +217,74 @@ func (c *BaseAPICase) UpdateBaseAPI(ctx context.Context, req *systemadminv1.Upda
 	return err
 }
 
+// ListBaseAPI 查询菜单分配接口选项列表
+func (c *BaseAPICase) ListBaseAPI(ctx context.Context, _ *systemadminv1.ListBaseApiRequest) (*systemadminv1.ListBaseApiResponse, error) {
+	query := c.Query(ctx).BaseAPI
+	opts := make([]repository.QueryOption, 0, 1)
+	opts = append(opts, repository.Order(query.ServiceName.Asc(), query.Operation.Asc()))
+	list, err := c.List(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	baseAPIs := make([]*systemadminv1.BaseApi, 0, len(list))
+	for _, item := range list {
+		// 命中免 token 或可选鉴权规则的接口，不再返回给菜单管理页面。
+		if c.jwtCfg != nil {
+			isNoTokenOperation := matchAuthWhiteList(c.jwtCfg.GetWhiteList(), item.Operation) ||
+				matchAuthWhiteList(c.jwtCfg.GetOptionalAuth(), item.Operation)
+			if isNoTokenOperation {
+				continue
+			}
+		}
+		baseAPI := c.mapper.ToDTO(item)
+		baseAPIs = append(baseAPIs, baseAPI)
+	}
+
+	return &systemadminv1.ListBaseApiResponse{BaseApis: baseAPIs}, nil
+}
+
+// filterBaseAPIsByToolPrompt 按工具提示词内容过滤接口列表。
+func filterBaseAPIsByToolPrompt(list []*models.BaseAPI, keyword string) []*models.BaseAPI {
+	if keyword == "" {
+		return list
+	}
+	values := make([]*models.BaseAPI, 0, len(list))
+	for _, item := range list {
+		if item == nil {
+			continue
+		}
+		prompts := parseToolPrompts(item.ToolPrompts)
+		for _, prompt := range prompts {
+			if !strings.Contains(prompt, keyword) {
+				continue
+			}
+			values = append(values, item)
+			break
+		}
+	}
+	return values
+}
+
+// pageBaseAPIRecords 对 Go 侧过滤后的接口列表进行分页。
+func pageBaseAPIRecords(list []*models.BaseAPI, pageNum, pageSize int64) []*models.BaseAPI {
+	if pageSize <= 0 {
+		return list
+	}
+	if pageNum <= 0 {
+		pageNum = 1
+	}
+	start := (pageNum - 1) * pageSize
+	if start >= int64(len(list)) {
+		return []*models.BaseAPI{}
+	}
+	end := start + pageSize
+	if end > int64(len(list)) {
+		end = int64(len(list))
+	}
+	return list[start:end]
+}
+
 // normalizeToolPrompts 清理空工具提示词，保留非空提示词的原始内容。
 func normalizeToolPrompts(prompts []string) []string {
 	values := make([]string, 0, len(prompts))
@@ -290,33 +317,6 @@ func parseToolPrompts(value string) []string {
 		return nil
 	}
 	return prompts
-}
-
-// ListBaseAPI 查询菜单分配接口选项列表
-func (c *BaseAPICase) ListBaseAPI(ctx context.Context, _ *systemadminv1.ListBaseApiRequest) (*systemadminv1.ListBaseApiResponse, error) {
-	query := c.Query(ctx).BaseAPI
-	opts := make([]repository.QueryOption, 0, 1)
-	opts = append(opts, repository.Order(query.ServiceName.Asc(), query.Operation.Asc()))
-	list, err := c.List(ctx, opts...)
-	if err != nil {
-		return nil, err
-	}
-
-	baseAPIs := make([]*systemadminv1.BaseApi, 0, len(list))
-	for _, item := range list {
-		// 命中免 token 或可选鉴权规则的接口，不再返回给菜单管理页面。
-		if c.jwtCfg != nil {
-			isNoTokenOperation := matchAuthWhiteList(c.jwtCfg.GetWhiteList(), item.Operation) ||
-				matchAuthWhiteList(c.jwtCfg.GetOptionalAuth(), item.Operation)
-			if isNoTokenOperation {
-				continue
-			}
-		}
-		baseAPI := c.mapper.ToDTO(item)
-		baseAPIs = append(baseAPIs, baseAPI)
-	}
-
-	return &systemadminv1.ListBaseApiResponse{BaseApis: baseAPIs}, nil
 }
 
 // buildBaseAPIDocParameters 构建请求参数文档。

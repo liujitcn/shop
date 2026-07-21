@@ -272,97 +272,6 @@ func (r *Runtime) toolInfos(ctx context.Context, input RuntimeInput) []*einoTool
 	return selectToolInfos(input, infos)
 }
 
-// enabledToolInfos 按 base_api.agent_enabled 过滤当前终端可暴露给 Agent 的工具。
-func (r *Runtime) enabledToolInfos(ctx context.Context, input RuntimeInput, infos []*einoTool.Info) []*einoTool.Info {
-	if len(infos) == 0 || r == nil || r.toolGate == nil {
-		return infos
-	}
-	names := make([]string, 0, len(infos))
-	for _, info := range infos {
-		if info == nil || info.Name == "" {
-			continue
-		}
-		names = append(names, info.Name)
-	}
-	toolConfigs, err := r.toolGate.ToolConfigs(ctx, input.Terminal, names)
-	if err != nil {
-		return nil
-	}
-	result := make([]*einoTool.Info, 0, len(infos))
-	for _, info := range infos {
-		if info == nil || info.Name == "" {
-			continue
-		}
-		config := toolConfigs[info.Name]
-		if !config.Enabled {
-			continue
-		}
-		result = append(result, withToolInfoConfig(info, config))
-	}
-	return result
-}
-
-// toolInfoConfigs 查询当前终端完整工具配置。
-func (r *Runtime) toolInfoConfigs(ctx context.Context, input RuntimeInput, infos []*einoTool.Info) map[string]ToolConfig {
-	result := make(map[string]ToolConfig, len(infos))
-	if len(infos) == 0 || r == nil || r.toolGate == nil {
-		for _, info := range infos {
-			if info == nil || info.Name == "" {
-				continue
-			}
-			result[info.Name] = ToolConfig{Enabled: true}
-		}
-		return result
-	}
-	names := make([]string, 0, len(infos))
-	for _, info := range infos {
-		if info == nil || info.Name == "" {
-			continue
-		}
-		names = append(names, info.Name)
-	}
-	toolConfigs, err := r.toolGate.ToolConfigs(ctx, input.Terminal, names)
-	if err != nil {
-		return result
-	}
-	return toolConfigs
-}
-
-// allToolInfos 收集当前终端完整工具定义，不做本轮相关性筛选。
-func (r *Runtime) allToolInfos(ctx context.Context, input RuntimeInput) []*einoTool.Info {
-	tools := r.terminalTools(input.Terminal)
-	if len(tools) == 0 {
-		return nil
-	}
-	infos := make([]*einoTool.Info, 0, len(tools))
-	seen := make(map[string]struct{}, len(tools))
-	for _, item := range tools {
-		if item == nil {
-			continue
-		}
-		info, err := item.Info(ctx)
-		if err != nil || info == nil || info.Name == "" {
-			continue
-		}
-		if _, ok := seen[info.Name]; ok {
-			continue
-		}
-		seen[info.Name] = struct{}{}
-		infos = append(infos, info)
-	}
-	toolConfigs := r.toolInfoConfigs(ctx, input, infos)
-	if len(toolConfigs) == 0 {
-		return infos
-	}
-	for index, info := range infos {
-		if info == nil {
-			continue
-		}
-		infos[index] = withToolInfoConfig(info, toolConfigs[info.Name])
-	}
-	return infos
-}
-
 // toolMap 按工具名构造本地执行索引。
 func (r *Runtime) toolMap(ctx context.Context, input RuntimeInput) map[string]einoTool.Invokable {
 	registeredInfos := r.allToolInfos(ctx, input)
@@ -400,17 +309,6 @@ func (r *Runtime) toolMap(ctx context.Context, input RuntimeInput) map[string]ei
 	return result
 }
 
-// terminalTools 按终端选择当前智能体可用工具。
-func (r *Runtime) terminalTools(terminal string) []einoTool.Invokable {
-	if r == nil {
-		return nil
-	}
-	if terminal == "app" {
-		return r.appTools
-	}
-	return r.adminTools
-}
-
 // buildMessages 构建当前轮次发送给 Eino 模型的消息列表。
 func (r *Runtime) buildMessages(ctx context.Context, input RuntimeInput) []*einoMessage.AgenticMessage {
 	messages := []*einoMessage.AgenticMessage{einoMessage.SystemText(r.resolvePrompt(input))}
@@ -427,6 +325,108 @@ func (r *Runtime) buildMessages(ctx context.Context, input RuntimeInput) []*eino
 	}
 	messages = append(messages, r.buildUserMessage(input))
 	return messages
+}
+
+// enabledToolInfos 按 base_api.agent_enabled 过滤当前终端可暴露给 Agent 的工具。
+func (r *Runtime) enabledToolInfos(ctx context.Context, input RuntimeInput, infos []*einoTool.Info) []*einoTool.Info {
+	if len(infos) == 0 || r == nil || r.toolGate == nil {
+		return infos
+	}
+	names := make([]string, 0, len(infos))
+	for _, info := range infos {
+		if info == nil || info.Name == "" {
+			continue
+		}
+		names = append(names, info.Name)
+	}
+	toolConfigs, err := r.toolGate.ToolConfigs(ctx, input.Terminal, names)
+	if err != nil {
+		return nil
+	}
+	result := make([]*einoTool.Info, 0, len(infos))
+	for _, info := range infos {
+		if info == nil || info.Name == "" {
+			continue
+		}
+		config := toolConfigs[info.Name]
+		if !config.Enabled {
+			continue
+		}
+		result = append(result, withToolInfoConfig(info, config))
+	}
+	return result
+}
+
+// allToolInfos 收集当前终端完整工具定义，不做本轮相关性筛选。
+func (r *Runtime) allToolInfos(ctx context.Context, input RuntimeInput) []*einoTool.Info {
+	tools := r.terminalTools(input.Terminal)
+	if len(tools) == 0 {
+		return nil
+	}
+	infos := make([]*einoTool.Info, 0, len(tools))
+	seen := make(map[string]struct{}, len(tools))
+	for _, item := range tools {
+		if item == nil {
+			continue
+		}
+		info, err := item.Info(ctx)
+		if err != nil || info == nil || info.Name == "" {
+			continue
+		}
+		if _, ok := seen[info.Name]; ok {
+			continue
+		}
+		seen[info.Name] = struct{}{}
+		infos = append(infos, info)
+	}
+	toolConfigs := r.toolInfoConfigs(ctx, input, infos)
+	if len(toolConfigs) == 0 {
+		return infos
+	}
+	for index, info := range infos {
+		if info == nil {
+			continue
+		}
+		infos[index] = withToolInfoConfig(info, toolConfigs[info.Name])
+	}
+	return infos
+}
+
+// toolInfoConfigs 查询当前终端完整工具配置。
+func (r *Runtime) toolInfoConfigs(ctx context.Context, input RuntimeInput, infos []*einoTool.Info) map[string]ToolConfig {
+	result := make(map[string]ToolConfig, len(infos))
+	if len(infos) == 0 || r == nil || r.toolGate == nil {
+		for _, info := range infos {
+			if info == nil || info.Name == "" {
+				continue
+			}
+			result[info.Name] = ToolConfig{Enabled: true}
+		}
+		return result
+	}
+	names := make([]string, 0, len(infos))
+	for _, info := range infos {
+		if info == nil || info.Name == "" {
+			continue
+		}
+		names = append(names, info.Name)
+	}
+	toolConfigs, err := r.toolGate.ToolConfigs(ctx, input.Terminal, names)
+	if err != nil {
+		return result
+	}
+	return toolConfigs
+}
+
+// terminalTools 按终端选择当前智能体可用工具。
+func (r *Runtime) terminalTools(terminal string) []einoTool.Invokable {
+	if r == nil {
+		return nil
+	}
+	if terminal == "app" {
+		return r.appTools
+	}
+	return r.adminTools
 }
 
 // resolvePrompt 渲染 AI 助手提示词。

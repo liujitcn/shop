@@ -264,29 +264,6 @@ func (c *RecommendRequestCase) parseRecommendContext(rawJSON string) *recommendD
 	return contextRecord
 }
 
-// resolveFinalProviderName 解析最终命中的推荐器名称。
-func (c *RecommendRequestCase) resolveFinalProviderName(contextRecord *recommendDto.RecommendContext) string {
-	// 上下文为空时，不存在可解析的最终推荐器。
-	if contextRecord == nil {
-		return ""
-	}
-	// 上下文已显式记录推荐器时，优先使用该值作为最终推荐器。
-	if contextRecord.ProviderName != "" {
-		return contextRecord.ProviderName
-	}
-	for _, item := range contextRecord.Trace {
-		// 链路节点为空时，直接跳过无效节点。
-		if item == nil {
-			continue
-		}
-		// 链路命中结果时，将当前节点视为最终命中的推荐器。
-		if item.Hit && item.ProviderName != "" {
-			return item.ProviderName
-		}
-	}
-	return ""
-}
-
 // toRecommendRequestContext 转换推荐上下文响应数据。
 func (c *RecommendRequestCase) toRecommendRequestContext(
 	contextRecord *recommendDto.RecommendContext,
@@ -324,4 +301,27 @@ func (c *RecommendRequestCase) toRecommendRequestContext(
 		Trace:             traceList,
 		RawJson:           rawJSON,
 	}
+}
+
+// resolveFinalProviderName 解析最终命中的推荐器名称。
+func (c *RecommendRequestCase) resolveFinalProviderName(contextRecord *recommendDto.RecommendContext) string {
+	// 上下文为空时，不存在可解析的最终推荐器。
+	if contextRecord == nil {
+		return ""
+	}
+	// 上下文已显式记录推荐器时，优先使用该值作为最终推荐器。
+	if contextRecord.ProviderName != "" {
+		return contextRecord.ProviderName
+	}
+	for _, item := range contextRecord.Trace {
+		// 链路节点为空时，直接跳过无效节点。
+		if item == nil {
+			continue
+		}
+		// 链路命中结果时，将当前节点视为最终命中的推荐器。
+		if item.Hit && item.ProviderName != "" {
+			return item.ProviderName
+		}
+	}
+	return ""
 }

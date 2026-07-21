@@ -166,11 +166,6 @@ func DecryptPassword(password *commonv1.PasswordCrypto, scene commonv1.PasswordC
 	return string(plaintext), nil
 }
 
-// makePasswordCryptoCacheKey 生成临时密码密钥缓存键。
-func makePasswordCryptoCacheKey(keyID string) string {
-	return passwordCryptoKeyPrefix + keyID
-}
-
 // GetDefaultPassword 生成默认密码
 func GetDefaultPassword(userName, phone string) string {
 	prefix := phone
@@ -181,4 +176,9 @@ func GetDefaultPassword(userName, phone string) string {
 	// 不足4位左补0
 	prefix = ("0000" + prefix)[len(prefix):]
 	return fmt.Sprintf("%s@%s", userName, prefix)
+}
+
+// makePasswordCryptoCacheKey 生成临时密码密钥缓存键。
+func makePasswordCryptoCacheKey(keyID string) string {
+	return passwordCryptoKeyPrefix + keyID
 }

@@ -212,6 +212,18 @@ func (r *Registry[T]) lookup(request LookupRequest) LookupResult {
 	return LookupResult{Definition: r.definitions[action.Flow], Action: action, Found: true}
 }
 
+// executeAction 执行已路由到具体节点的固定流程动作。
+func (r *Registry[T]) executeAction(ctx context.Context, request ActionRequest, lookup LookupResult, handler ActionHandler[T]) (ActionResult[T], error) {
+	if !lookup.Found {
+		return ActionResult[T]{Definition: lookup.Definition, Action: lookup.Action}, nil
+	}
+	if handler == nil {
+		return ActionResult[T]{Definition: lookup.Definition, Action: lookup.Action, Found: true}, fmt.Errorf("固定流程动作处理器未配置")
+	}
+	output, err := handler(ctx, lookup.Action, request.Payload)
+	return ActionResult[T]{Definition: lookup.Definition, Action: lookup.Action, Output: output, Found: true}, err
+}
+
 // validateDefinitions 校验模块流程定义，避免运行期发现路由配置错误。
 func validateDefinitions(definitions []Definition, scope string) error {
 	flows := make(map[FlowName]bool, len(definitions))
@@ -308,23 +320,12 @@ func compileActionGraph[T any](registry *Registry[T], graphName string) (compose
 	if err != nil {
 		return nil, fmt.Errorf("注册固定流程路由分支失败: %w", err)
 	}
-	runnable, err := graph.Compile(context.Background(), compose.WithGraphName(graphName))
+	var runnable compose.Runnable[ActionRequest, LookupResult]
+	runnable, err = graph.Compile(context.Background(), compose.WithGraphName(graphName))
 	if err != nil {
 		return nil, fmt.Errorf("编译固定流程动作图失败: %w", err)
 	}
 	return runnable, nil
-}
-
-// executeAction 执行已路由到具体节点的固定流程动作。
-func (r *Registry[T]) executeAction(ctx context.Context, request ActionRequest, lookup LookupResult, handler ActionHandler[T]) (ActionResult[T], error) {
-	if !lookup.Found {
-		return ActionResult[T]{Definition: lookup.Definition, Action: lookup.Action}, nil
-	}
-	if handler == nil {
-		return ActionResult[T]{Definition: lookup.Definition, Action: lookup.Action, Found: true}, fmt.Errorf("固定流程动作处理器未配置")
-	}
-	output, err := handler(ctx, lookup.Action, request.Payload)
-	return ActionResult[T]{Definition: lookup.Definition, Action: lookup.Action, Output: output, Found: true}, err
 }
 
 // actionKey 返回流程和动作类型的复合索引键。

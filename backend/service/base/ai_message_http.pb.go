@@ -48,6 +48,29 @@ func RegisterAiMessageServiceHTTPServer(s *kratosHTTP.Server, srv AiMessageServi
 	r.POST("/api/v1/base/ai/session/{session_id}/message/{message_id}/regeneration", _AiMessageService_RegenerateAiMessage0_HTTP_Handler(srv))
 }
 
+// EmitAiStream 写入单条 AI 助手 SSE 事件。
+func (e *aiStreamEmitter) EmitAiStream(event dto.AiStreamEvent, payload dto.AiStreamPayload) error {
+	if e == nil || e.writer == nil {
+		return fmt.Errorf("AI助手流式响应写入器未初始化")
+	}
+	data, err := json.Marshal(payload)
+	if err != nil {
+		return err
+	}
+	e.mutex.Lock()
+	defer e.mutex.Unlock()
+	if _, err = fmt.Fprintf(e.writer, "event: %s\n", event); err != nil {
+		return err
+	}
+	if _, err = fmt.Fprintf(e.writer, "data: %s\n\n", data); err != nil {
+		return err
+	}
+	if e.flusher != nil {
+		e.flusher.Flush()
+	}
+	return nil
+}
+
 // _AiMessageService_SendAiMessage0_HTTP_Handler 处理 AI 助手消息发送流式请求。
 func _AiMessageService_SendAiMessage0_HTTP_Handler(srv AiMessageServiceHTTPServer) func(ctx kratosHTTP.Context) error {
 	return func(ctx kratosHTTP.Context) error {
@@ -156,6 +179,12 @@ func _AiMessageService_RetryAiUserMessage0_HTTP_Handler(srv AiMessageServiceHTTP
 	}
 }
 
+type aiStreamEmitter struct {
+	writer  http.ResponseWriter
+	flusher http.Flusher
+	mutex   sync.Mutex
+}
+
 // _AiMessageService_RegenerateAiMessage0_HTTP_Handler 处理 AI 助手输出重新生成请求。
 func _AiMessageService_RegenerateAiMessage0_HTTP_Handler(srv AiMessageServiceHTTPServer) func(ctx kratosHTTP.Context) error {
 	return func(ctx kratosHTTP.Context) error {
@@ -179,33 +208,4 @@ func _AiMessageService_RegenerateAiMessage0_HTTP_Handler(srv AiMessageServiceHTT
 		}
 		return ctx.Result(200, out.(*basev1.SendAiMessageResponse))
 	}
-}
-
-type aiStreamEmitter struct {
-	writer  http.ResponseWriter
-	flusher http.Flusher
-	mutex   sync.Mutex
-}
-
-// EmitAiStream 写入单条 AI 助手 SSE 事件。
-func (e *aiStreamEmitter) EmitAiStream(event dto.AiStreamEvent, payload dto.AiStreamPayload) error {
-	if e == nil || e.writer == nil {
-		return fmt.Errorf("AI助手流式响应写入器未初始化")
-	}
-	data, err := json.Marshal(payload)
-	if err != nil {
-		return err
-	}
-	e.mutex.Lock()
-	defer e.mutex.Unlock()
-	if _, err = fmt.Fprintf(e.writer, "event: %s\n", event); err != nil {
-		return err
-	}
-	if _, err = fmt.Fprintf(e.writer, "data: %s\n\n", data); err != nil {
-		return err
-	}
-	if e.flusher != nil {
-		e.flusher.Flush()
-	}
-	return nil
 }

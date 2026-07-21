@@ -23,6 +23,15 @@ type TaskContributor interface {
 // Modules 表示当前进程启用的业务模块集合。
 type Modules []Module
 
+// RegisterTasks 汇总模块任务并注册到调度运行时。
+func RegisterTasks(registry *job.Registry, contributors ...TaskContributor) error {
+	tasks := make([]job.Task, 0)
+	for _, contributor := range contributors {
+		tasks = append(tasks, contributor.Tasks()...)
+	}
+	return registry.Register(tasks...)
+}
+
 // RegisterGRPC 将全部业务模块注册到 GRPC 服务。
 func (modules Modules) RegisterGRPC(srv *grpc.Server) {
 	for _, module := range modules {
@@ -42,13 +51,4 @@ func (modules Modules) RegisterMCP(srv *mcpserver.Server) {
 	for _, module := range modules {
 		module.RegisterMCP(srv)
 	}
-}
-
-// RegisterTasks 汇总模块任务并注册到调度运行时。
-func RegisterTasks(registry *job.Registry, contributors ...TaskContributor) error {
-	tasks := make([]job.Task, 0)
-	for _, contributor := range contributors {
-		tasks = append(tasks, contributor.Tasks()...)
-	}
-	return registry.Register(tasks...)
 }

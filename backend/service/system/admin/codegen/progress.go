@@ -56,6 +56,11 @@ func NewCodeGenSSEStream(manager *Manager) *CodeGenSSEStream {
 	return &CodeGenSSEStream{manager: manager}
 }
 
+// StreamID 返回指定代码生成任务的 SSE 流标识。
+func StreamID(taskID string) string {
+	return fmt.Sprintf("%s:%s", SSEStreamCodeGen, taskID)
+}
+
 // ID 返回代码生成 SSE 流标识。
 func (s *CodeGenSSEStream) ID() string {
 	return SSEStreamCodeGen
@@ -70,11 +75,6 @@ func (s *CodeGenSSEStream) Resolve(channelID string, userID int64) (string, erro
 		return "", errorsx.PermissionDenied("无权订阅代码生成任务")
 	}
 	return StreamID(channelID), nil
-}
-
-// StreamID 返回指定代码生成任务的 SSE 流标识。
-func StreamID(taskID string) string {
-	return fmt.Sprintf("%s:%s", SSEStreamCodeGen, taskID)
 }
 
 // SetPublisher 设置任务快照发布方法。

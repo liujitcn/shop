@@ -499,28 +499,6 @@ func (c *RecommendGorseCase) SaveConfig(ctx context.Context, req *shopadminv1.Co
 	return config, nil
 }
 
-// restoreMaskedGorseConfig 将前端回传的脱敏占位符恢复为当前真实配置，避免保存编排时覆盖凭据。
-func (c *RecommendGorseCase) restoreMaskedGorseConfig(ctx context.Context, body []byte) ([]byte, error) {
-	currentBody, err := c.dashboard.Config(ctx)
-	if err != nil {
-		return nil, err
-	}
-	var currentConfig map[string]interface{}
-	currentConfig, err = unmarshalGorseConfigMap(currentBody)
-	if err != nil {
-		return nil, err
-	}
-	var nextConfig map[string]interface{}
-	nextConfig, err = unmarshalGorseConfigMap(body)
-	if err != nil {
-		return nil, err
-	}
-	for _, path := range gorseConfigSecretPaths {
-		restoreMaskedGorseConfigValue(nextConfig, currentConfig, path)
-	}
-	return json.Marshal(nextConfig)
-}
-
 // ResetConfig 重置 Gorse 推荐配置。
 func (c *RecommendGorseCase) ResetConfig(ctx context.Context) error {
 	_, err := c.dashboard.ResetConfig(ctx)
@@ -583,6 +561,28 @@ func (c *RecommendGorseCase) PreviewRankerPrompt(ctx context.Context, req *shopa
 		return nil, err
 	}
 	return response, nil
+}
+
+// restoreMaskedGorseConfig 将前端回传的脱敏占位符恢复为当前真实配置，避免保存编排时覆盖凭据。
+func (c *RecommendGorseCase) restoreMaskedGorseConfig(ctx context.Context, body []byte) ([]byte, error) {
+	currentBody, err := c.dashboard.Config(ctx)
+	if err != nil {
+		return nil, err
+	}
+	var currentConfig map[string]interface{}
+	currentConfig, err = unmarshalGorseConfigMap(currentBody)
+	if err != nil {
+		return nil, err
+	}
+	var nextConfig map[string]interface{}
+	nextConfig, err = unmarshalGorseConfigMap(body)
+	if err != nil {
+		return nil, err
+	}
+	for _, path := range gorseConfigSecretPaths {
+		restoreMaskedGorseConfigValue(nextConfig, currentConfig, path)
+	}
+	return json.Marshal(nextConfig)
 }
 
 // exportRecommendGorseUsers 导出 Gorse 推荐用户 JSONL。

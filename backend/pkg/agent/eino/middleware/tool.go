@@ -38,6 +38,14 @@ func NewToolFilterHandler(toolInfos []*schema.ToolInfo) *ToolFilterHandler {
 	}
 }
 
+// NewToolMetricsHandler 创建工具统计中间件。
+func NewToolMetricsHandler(titleResolver ToolTitleResolver) *ToolMetricsHandler {
+	return &ToolMetricsHandler{
+		TypedBaseChatModelAgentMiddleware: &einoadk.TypedBaseChatModelAgentMiddleware[*schema.AgenticMessage]{},
+		titleResolver:                     titleResolver,
+	}
+}
+
 // BeforeModelRewriteState 将工具列表限制在当前轮允许暴露的集合内。
 func (h *ToolFilterHandler) BeforeModelRewriteState(
 	ctx context.Context,
@@ -85,6 +93,12 @@ func (h *ToolFilterHandler) BeforeAgent(
 	return ctx, runCtx, nil
 }
 
+// ToolMetricsHandler 统一记录函数工具调用、耗时、入参、出参和错误 JSON。
+type ToolMetricsHandler struct {
+	*einoadk.TypedBaseChatModelAgentMiddleware[*schema.AgenticMessage]
+	titleResolver ToolTitleResolver
+}
+
 func (h *ToolFilterHandler) filter(infos []*schema.ToolInfo) []*schema.ToolInfo {
 	// 没有工具定义时直接返回原切片，减少无意义分配。
 	if len(infos) == 0 {
@@ -102,20 +116,6 @@ func (h *ToolFilterHandler) filter(infos []*schema.ToolInfo) []*schema.ToolInfo 
 		}
 	}
 	return result
-}
-
-// ToolMetricsHandler 统一记录函数工具调用、耗时、入参、出参和错误 JSON。
-type ToolMetricsHandler struct {
-	*einoadk.TypedBaseChatModelAgentMiddleware[*schema.AgenticMessage]
-	titleResolver ToolTitleResolver
-}
-
-// NewToolMetricsHandler 创建工具统计中间件。
-func NewToolMetricsHandler(titleResolver ToolTitleResolver) *ToolMetricsHandler {
-	return &ToolMetricsHandler{
-		TypedBaseChatModelAgentMiddleware: &einoadk.TypedBaseChatModelAgentMiddleware[*schema.AgenticMessage]{},
-		titleResolver:                     titleResolver,
-	}
 }
 
 // WrapInvokableToolCall 包装普通函数工具调用。

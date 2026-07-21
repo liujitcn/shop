@@ -307,17 +307,6 @@ func (c *OrderAnalyticsCase) queryGlobalOrderTradeSummary(ctx context.Context, t
 	return summaryMap, axisData, nil
 }
 
-// appendPaidFactSales 将支付事实金额写入对应的分析趋势桶位。
-func appendPaidFactSales(summaryMap map[int64]*dto.OrderSummary, timeType commonv1.AnalyticsTimeType, paidFacts []*dto.OrderPaidFact) {
-	for _, fact := range paidFacts {
-		key := utils.GetAnalyticsTimeKey(timeType, fact.PaidAt)
-		if summaryMap[key] == nil {
-			summaryMap[key] = &dto.OrderSummary{Key: key}
-		}
-		summaryMap[key].SaleAmount += fact.PayMoney
-	}
-}
-
 // queryOrderStatusSummary 查询指定时间范围内的订单状态分布。
 func (c *OrderAnalyticsCase) queryOrderStatusSummary(ctx context.Context, tenantID, tenantStoreID int64, startAt, endAt time.Time) ([]*dto.OrderStatusSummary, error) {
 	res := make([]*dto.OrderStatusSummary, 0)
@@ -341,4 +330,15 @@ func (c *OrderAnalyticsCase) queryOrderStatusSummary(ctx context.Context, tenant
 		Group(query.Status).
 		Scan(&res)
 	return res, err
+}
+
+// appendPaidFactSales 将支付事实金额写入对应的分析趋势桶位。
+func appendPaidFactSales(summaryMap map[int64]*dto.OrderSummary, timeType commonv1.AnalyticsTimeType, paidFacts []*dto.OrderPaidFact) {
+	for _, fact := range paidFacts {
+		key := utils.GetAnalyticsTimeKey(timeType, fact.PaidAt)
+		if summaryMap[key] == nil {
+			summaryMap[key] = &dto.OrderSummary{Key: key}
+		}
+		summaryMap[key].SaleAmount += fact.PayMoney
+	}
 }

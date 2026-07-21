@@ -59,7 +59,8 @@ func (s Services) AppAgentTools() ([]einoTool.Invokable, error) {
 		return nil, err
 	}
 	tools = append(tools, tool)
-	values, err := systemappv1.NewBaseAreaServiceAgentTools(s.BaseArea)
+	var values []einoTool.Invokable
+	values, err = systemappv1.NewBaseAreaServiceAgentTools(s.BaseArea)
 	if err != nil {
 		return nil, err
 	}

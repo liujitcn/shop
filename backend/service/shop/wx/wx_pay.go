@@ -77,6 +77,65 @@ func NewWxPayCase(baseCase *biz.BaseCase, wxPay *configv1.WxPay) (*WxPayCase, er
 	}, nil
 }
 
+// IsPayOrderNotExist 判断微信支付侧是否尚未创建指定交易的支付单。
+func IsPayOrderNotExist(err error) bool {
+	apiErr, ok := errors.AsType[*wxPayCore.APIError](err)
+	return ok && apiErr.Code == "ORDER_NOT_EXIST"
+}
+
+// IsRefundCreateResultUncertain 判断退款创建错误是否需要保留原退款号等待补查。
+func IsRefundCreateResultUncertain(err error) bool {
+	if err == nil {
+		return false
+	}
+	apiErr, ok := errors.AsType[*wxPayCore.APIError](err)
+	return !ok || apiErr.Code == "SYSTEM_ERROR"
+}
+
+// ConvertRefundResource 将微信退款响应转换为项目内退款资源。
+func ConvertRefundResource(resp *refunddomestic.Refund) *shopappv1.RefundResource {
+	if resp == nil {
+		return nil
+	}
+	refundResource := &shopappv1.RefundResource{
+		TransactionId:       trans.StringValue(resp.TransactionId),
+		OutTradeNo:          trans.StringValue(resp.OutTradeNo),
+		RefundId:            trans.StringValue(resp.RefundId),
+		OutRefundNo:         trans.StringValue(resp.OutRefundNo),
+		UserReceivedAccount: trans.StringValue(resp.UserReceivedAccount),
+	}
+
+	// 退款状态需要显式映射，避免依赖字符串反序列化带来的未知字段问题。
+	switch fmt.Sprint(resp.Status) {
+	case shopappv1.RefundResource_RefundStatus(_const.REFUND_RESOURCE_STATUS_SUCCESS).String():
+		refundResource.RefundStatus = shopappv1.RefundResource_RefundStatus(_const.REFUND_RESOURCE_STATUS_SUCCESS)
+	case shopappv1.RefundResource_RefundStatus(_const.REFUND_RESOURCE_STATUS_CLOSED).String():
+		refundResource.RefundStatus = shopappv1.RefundResource_RefundStatus(_const.REFUND_RESOURCE_STATUS_CLOSED)
+	case shopappv1.RefundResource_RefundStatus(_const.REFUND_RESOURCE_STATUS_PROCESSING).String():
+		refundResource.RefundStatus = shopappv1.RefundResource_RefundStatus(_const.REFUND_RESOURCE_STATUS_PROCESSING)
+	case shopappv1.RefundResource_RefundStatus(_const.REFUND_RESOURCE_STATUS_ABNORMAL).String():
+		refundResource.RefundStatus = shopappv1.RefundResource_RefundStatus(_const.REFUND_RESOURCE_STATUS_ABNORMAL)
+	default:
+		refundResource.RefundStatus = shopappv1.RefundResource_RefundStatus(_const.REFUND_RESOURCE_STATUS_UNSPECIFIED)
+	}
+
+	// 微信退款返回金额信息时，按项目内资源结构回填。
+	if resp.Amount != nil {
+		refundResource.Amount = &shopappv1.RefundResource_Amount{
+			Total:       int32(trans.Int64Value(resp.Amount.Total)),
+			Refund:      int32(trans.Int64Value(resp.Amount.Refund)),
+			PayerTotal:  int32(trans.Int64Value(resp.Amount.PayerTotal)),
+			PayerRefund: int32(trans.Int64Value(resp.Amount.PayerRefund)),
+		}
+	}
+
+	// 微信退款 SDK 已将成功时间解析为 time.Time，这里统一转换为 protobuf 时间戳。
+	if resp.SuccessTime != nil {
+		refundResource.SuccessTime = timestamppb.New(*resp.SuccessTime)
+	}
+	return refundResource
+}
+
 // JsapiPay 创建 JSAPI 支付预下单信息。
 func (c *WxPayCase) JsapiPay(req jsapi.PrepayRequest) (*shopappv1.JsapiPayResponse, error) {
 	// 拼接公共参数。
@@ -154,12 +213,6 @@ func (c *WxPayCase) TradeBill(req bill.TradeBillRequest) (*bill.TradeBillRespons
 func (c *WxPayCase) DownloadBill(url string) ([]byte, error) {
 	svc := bill.BillService{Client: c.client}
 	return svc.DownloadBill(c.ctx, url)
-}
-
-// IsPayOrderNotExist 判断微信支付侧是否尚未创建指定交易的支付单。
-func IsPayOrderNotExist(err error) bool {
-	apiErr, ok := errors.AsType[*wxPayCore.APIError](err)
-	return ok && apiErr.Code == "ORDER_NOT_EXIST"
 }
 
 // QueryOrderByOutTradeNo 根据商户订单号查询支付订单并转换为项目内支付资源结构。
@@ -309,59 +362,6 @@ func (c *WxPayCase) Refund(req refunddomestic.CreateRequest) (*refunddomestic.Re
 	}
 
 	return resp, err
-}
-
-// IsRefundCreateResultUncertain 判断退款创建错误是否需要保留原退款号等待补查。
-func IsRefundCreateResultUncertain(err error) bool {
-	if err == nil {
-		return false
-	}
-	apiErr, ok := errors.AsType[*wxPayCore.APIError](err)
-	return !ok || apiErr.Code == "SYSTEM_ERROR"
-}
-
-// ConvertRefundResource 将微信退款响应转换为项目内退款资源。
-func ConvertRefundResource(resp *refunddomestic.Refund) *shopappv1.RefundResource {
-	if resp == nil {
-		return nil
-	}
-	refundResource := &shopappv1.RefundResource{
-		TransactionId:       trans.StringValue(resp.TransactionId),
-		OutTradeNo:          trans.StringValue(resp.OutTradeNo),
-		RefundId:            trans.StringValue(resp.RefundId),
-		OutRefundNo:         trans.StringValue(resp.OutRefundNo),
-		UserReceivedAccount: trans.StringValue(resp.UserReceivedAccount),
-	}
-
-	// 退款状态需要显式映射，避免依赖字符串反序列化带来的未知字段问题。
-	switch fmt.Sprint(resp.Status) {
-	case shopappv1.RefundResource_RefundStatus(_const.REFUND_RESOURCE_STATUS_SUCCESS).String():
-		refundResource.RefundStatus = shopappv1.RefundResource_RefundStatus(_const.REFUND_RESOURCE_STATUS_SUCCESS)
-	case shopappv1.RefundResource_RefundStatus(_const.REFUND_RESOURCE_STATUS_CLOSED).String():
-		refundResource.RefundStatus = shopappv1.RefundResource_RefundStatus(_const.REFUND_RESOURCE_STATUS_CLOSED)
-	case shopappv1.RefundResource_RefundStatus(_const.REFUND_RESOURCE_STATUS_PROCESSING).String():
-		refundResource.RefundStatus = shopappv1.RefundResource_RefundStatus(_const.REFUND_RESOURCE_STATUS_PROCESSING)
-	case shopappv1.RefundResource_RefundStatus(_const.REFUND_RESOURCE_STATUS_ABNORMAL).String():
-		refundResource.RefundStatus = shopappv1.RefundResource_RefundStatus(_const.REFUND_RESOURCE_STATUS_ABNORMAL)
-	default:
-		refundResource.RefundStatus = shopappv1.RefundResource_RefundStatus(_const.REFUND_RESOURCE_STATUS_UNSPECIFIED)
-	}
-
-	// 微信退款返回金额信息时，按项目内资源结构回填。
-	if resp.Amount != nil {
-		refundResource.Amount = &shopappv1.RefundResource_Amount{
-			Total:       int32(trans.Int64Value(resp.Amount.Total)),
-			Refund:      int32(trans.Int64Value(resp.Amount.Refund)),
-			PayerTotal:  int32(trans.Int64Value(resp.Amount.PayerTotal)),
-			PayerRefund: int32(trans.Int64Value(resp.Amount.PayerRefund)),
-		}
-	}
-
-	// 微信退款 SDK 已将成功时间解析为 time.Time，这里统一转换为 protobuf 时间戳。
-	if resp.SuccessTime != nil {
-		refundResource.SuccessTime = timestamppb.New(*resp.SuccessTime)
-	}
-	return refundResource
 }
 
 // QueryByOutRefundNo 根据商户退款单号查询退款单并转换为项目内退款资源结构。

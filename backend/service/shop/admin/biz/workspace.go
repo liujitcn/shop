@@ -267,23 +267,6 @@ func (c *WorkspaceCase) SummaryWorkspaceRisk(ctx context.Context, req *shopadmin
 	}, nil
 }
 
-// countWorkspaceAbnormalPayBills 统计平台账单异常，租户管理员不展示平台账单风险。
-func (c *WorkspaceCase) countWorkspaceAbnormalPayBills(ctx context.Context) (int64, error) {
-	authInfo, err := c.payBillCase.GetAuthInfo(ctx)
-	if err != nil {
-		return 0, err
-	}
-	// 租户管理员不维护平台支付账单，工作台不展示账单异常入口。
-	if authInfo.RoleCode == _const.BASE_ROLE_CODE_TENANT {
-		return 0, nil
-	}
-
-	query := c.payBillCase.Query(ctx).PayBill
-	return query.WithContext(ctx).
-		Where(query.Status.Eq(_const.PAY_BILL_STATUS_HAS_ERROR)).
-		Count()
-}
-
 // SummaryWorkspaceReputation 查询工作台口碑洞察。
 func (c *WorkspaceCase) SummaryWorkspaceReputation(ctx context.Context, req *shopadminv1.SummaryWorkspaceReputationRequest) (*shopadminv1.SummaryWorkspaceReputationResponse, error) {
 	now := time.Now()
@@ -351,6 +334,23 @@ func (c *WorkspaceCase) ListWorkspacePendingComment(ctx context.Context, req *sh
 		})
 	}
 	return &shopadminv1.ListWorkspacePendingCommentResponse{PendingComments: pendingComments}, nil
+}
+
+// countWorkspaceAbnormalPayBills 统计平台账单异常，租户管理员不展示平台账单风险。
+func (c *WorkspaceCase) countWorkspaceAbnormalPayBills(ctx context.Context) (int64, error) {
+	authInfo, err := c.payBillCase.GetAuthInfo(ctx)
+	if err != nil {
+		return 0, err
+	}
+	// 租户管理员不维护平台支付账单，工作台不展示账单异常入口。
+	if authInfo.RoleCode == _const.BASE_ROLE_CODE_TENANT {
+		return 0, nil
+	}
+
+	query := c.payBillCase.Query(ctx).PayBill
+	return query.WithContext(ctx).
+		Where(query.Status.Eq(_const.PAY_BILL_STATUS_HAS_ERROR)).
+		Count()
 }
 
 // countDistinctOrderUsers 统计时间范围内下单用户数。
@@ -630,25 +630,6 @@ func (c *WorkspaceCase) countLowInventorySKU(ctx context.Context, tenantID, tena
 	return count, err
 }
 
-// listPutOnGoodsIDs 查询当前上架商品编号。
-func (c *WorkspaceCase) listPutOnGoodsIDs(ctx context.Context, tenantID, tenantStoreID int64) ([]int64, error) {
-	query := c.goodsInfoCase.Query(ctx).GoodsInfo
-	goodsIDs := make([]int64, 0)
-	dao := query.WithContext(ctx).
-		Where(
-			query.DeletedAt.IsNull(),
-			query.Status.Eq(_const.GOODS_STATUS_PUT_ON),
-		)
-	if tenantID > 0 {
-		dao = dao.Where(query.TenantID.Eq(tenantID))
-	}
-	if tenantStoreID > 0 {
-		dao = dao.Where(query.TenantStoreID.Eq(tenantStoreID))
-	}
-	err := dao.Pluck(query.ID, &goodsIDs)
-	return goodsIDs, err
-}
-
 // countPendingComments 统计待审核评价数。
 func (c *WorkspaceCase) countPendingComments(ctx context.Context, tenantID, tenantStoreID int64) (int64, error) {
 	query := c.commentInfoCase.Query(ctx).CommentInfo
@@ -711,6 +692,25 @@ func (c *WorkspaceCase) countZeroInventoryPutOnSKU(ctx context.Context, tenantID
 	var count int64
 	count, err = dao.Count()
 	return count, err
+}
+
+// listPutOnGoodsIDs 查询当前上架商品编号。
+func (c *WorkspaceCase) listPutOnGoodsIDs(ctx context.Context, tenantID, tenantStoreID int64) ([]int64, error) {
+	query := c.goodsInfoCase.Query(ctx).GoodsInfo
+	goodsIDs := make([]int64, 0)
+	dao := query.WithContext(ctx).
+		Where(
+			query.DeletedAt.IsNull(),
+			query.Status.Eq(_const.GOODS_STATUS_PUT_ON),
+		)
+	if tenantID > 0 {
+		dao = dao.Where(query.TenantID.Eq(tenantID))
+	}
+	if tenantStoreID > 0 {
+		dao = dao.Where(query.TenantStoreID.Eq(tenantStoreID))
+	}
+	err := dao.Pluck(query.ID, &goodsIDs)
+	return goodsIDs, err
 }
 
 // countAbnormalPriceSKU 统计价格配置异常SKU数量。

@@ -139,21 +139,6 @@ func (c *renderer) buildExpectedProtoChecks(table *Table, columns []*CodeGenColu
 	return dedupeProtoChecks(checks)
 }
 
-// enabledCodeGenColumnOptions 返回当前字段各作用域实际启用的选项配置。
-func enabledCodeGenColumnOptions(column *CodeGenColumn) []CodeGenColumnOptionConfig {
-	options := make([]CodeGenColumnOptionConfig, 0, 3)
-	if column.IsQuery == 1 && column.QueryOption.Kind != "" {
-		options = append(options, column.QueryOption)
-	}
-	if column.IsList == 1 && column.ListOption.Kind != "" {
-		options = append(options, column.ListOption)
-	}
-	if column.IsForm == 1 && column.FormOption.Kind != "" {
-		options = append(options, column.FormOption)
-	}
-	return options
-}
-
 // newProtoCheck 创建 Proto 检查项。
 func (c *renderer) newProtoCheck(tableID int64, columnName string, triggerType, apiKind, targetEntity, methodName, protoPath, parentColumn, labelColumn, valueColumn string, generate bool) *ProtoCheck {
 	return &ProtoCheck{
@@ -440,4 +425,19 @@ func (c *renderer) appendMainFrontendAPIMethods(content string, table *Table, co
 	}
 	content = content[:classEnd] + "\n" + joinedMethods + "\n" + content[classEnd:]
 	return reorderTSClassMethods(content, className)
+}
+
+// enabledCodeGenColumnOptions 返回当前字段各作用域实际启用的选项配置。
+func enabledCodeGenColumnOptions(column *CodeGenColumn) []CodeGenColumnOptionConfig {
+	options := make([]CodeGenColumnOptionConfig, 0, 3)
+	if column.IsQuery == 1 && column.QueryOption.Kind != "" {
+		options = append(options, column.QueryOption)
+	}
+	if column.IsList == 1 && column.ListOption.Kind != "" {
+		options = append(options, column.ListOption)
+	}
+	if column.IsForm == 1 && column.FormOption.Kind != "" {
+		options = append(options, column.FormOption)
+	}
+	return options
 }

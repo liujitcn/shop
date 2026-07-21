@@ -44,75 +44,6 @@ func NewRecommendEventCase(
 	return c
 }
 
-// persistRecommendEventReport 持久化推荐事件。
-func (c *RecommendEventCase) persistRecommendEventReport(
-	ctx context.Context,
-	actor *dto.RecommendActor,
-	req *shopappv1.RecommendEventReportRequest,
-	eventTime time.Time,
-) error {
-	// 主体缺失或主体编号非法时，当前事件无法归因。
-	if actor == nil || !actor.IsValid() {
-		return errorsx.InvalidArgument("推荐主体不能为空")
-	}
-	// 事件类型未知时，不写入推荐事件表。
-	if req.GetEventType() == shopcommonv1.RecommendEventType(_const.RECOMMEND_EVENT_TYPE_UNKNOWN) {
-		return errorsx.InvalidArgument("推荐事件类型不能为空")
-	}
-	// 调用方未显式传入事件时间时，统一回退到当前时间。
-	if eventTime.IsZero() {
-		eventTime = time.Now()
-	}
-
-	recommendContext := req.GetRecommendContext()
-	scene := int32(0)
-	requestID := int64(0)
-	// 请求携带推荐归因上下文时，再补齐场景和请求编号。
-	if recommendContext != nil {
-		scene = int32(recommendContext.GetScene())
-		requestID = recommendContext.GetRequestId()
-	}
-
-	eventList := make([]*models.RecommendEvent, 0, len(req.GetItems()))
-	for _, item := range req.GetItems() {
-		// 非法商品项直接跳过，避免把脏数据写入推荐链路。
-		if item == nil || item.GetGoodsId() <= 0 {
-			continue
-		}
-
-		goodsNum := item.GetGoodsNum()
-		// 未显式传入商品数量时，统一按 1 处理。
-		if goodsNum <= 0 {
-			goodsNum = 1
-		}
-
-		eventList = append(eventList, &models.RecommendEvent{
-			ActorType: int32(actor.ActorType),
-			ActorID:   actor.ActorID,
-			Scene:     scene,
-			EventType: int32(req.GetEventType()),
-			GoodsID:   item.GetGoodsId(),
-			GoodsNum:  int32(goodsNum),
-			RequestID: requestID,
-			Position:  item.GetPosition(),
-			EventAt:   eventTime,
-		})
-	}
-	// 经过清洗后没有可写入事件时，直接结束。
-	if len(eventList) == 0 {
-		return nil
-	}
-
-	err := c.RecommendEventRepository.BatchCreate(ctx, eventList)
-	if err != nil {
-		return errorsx.Internal("保存推荐事件失败").WithCause(err)
-	}
-
-	// 本地推荐事件落库成功后，再异步投递到推荐系统，避免推荐系统异常阻塞主流程。
-	queue.DispatchRecommendEventList(eventList)
-	return nil
-}
-
 // listRecentRecommendEventGoodsIDs 查询当前主体最近的推荐行为商品编号列表。
 func (c *RecommendEventCase) listRecentRecommendEventGoodsIDs(ctx context.Context, actor *dto.RecommendActor) ([]int64, error) {
 	goodsIDs := make([]int64, 0)
@@ -193,4 +124,73 @@ func (c *RecommendEventCase) saveRecommendEventReport(message queueData.Message)
 		Items: items,
 	}
 	return c.persistRecommendEventReport(context.TODO(), recommendEvent.RecommendActor, recommendEventReport, recommendEvent.EventTime)
+}
+
+// persistRecommendEventReport 持久化推荐事件。
+func (c *RecommendEventCase) persistRecommendEventReport(
+	ctx context.Context,
+	actor *dto.RecommendActor,
+	req *shopappv1.RecommendEventReportRequest,
+	eventTime time.Time,
+) error {
+	// 主体缺失或主体编号非法时，当前事件无法归因。
+	if actor == nil || !actor.IsValid() {
+		return errorsx.InvalidArgument("推荐主体不能为空")
+	}
+	// 事件类型未知时，不写入推荐事件表。
+	if req.GetEventType() == shopcommonv1.RecommendEventType(_const.RECOMMEND_EVENT_TYPE_UNKNOWN) {
+		return errorsx.InvalidArgument("推荐事件类型不能为空")
+	}
+	// 调用方未显式传入事件时间时，统一回退到当前时间。
+	if eventTime.IsZero() {
+		eventTime = time.Now()
+	}
+
+	recommendContext := req.GetRecommendContext()
+	scene := int32(0)
+	requestID := int64(0)
+	// 请求携带推荐归因上下文时，再补齐场景和请求编号。
+	if recommendContext != nil {
+		scene = int32(recommendContext.GetScene())
+		requestID = recommendContext.GetRequestId()
+	}
+
+	eventList := make([]*models.RecommendEvent, 0, len(req.GetItems()))
+	for _, item := range req.GetItems() {
+		// 非法商品项直接跳过，避免把脏数据写入推荐链路。
+		if item == nil || item.GetGoodsId() <= 0 {
+			continue
+		}
+
+		goodsNum := item.GetGoodsNum()
+		// 未显式传入商品数量时，统一按 1 处理。
+		if goodsNum <= 0 {
+			goodsNum = 1
+		}
+
+		eventList = append(eventList, &models.RecommendEvent{
+			ActorType: int32(actor.ActorType),
+			ActorID:   actor.ActorID,
+			Scene:     scene,
+			EventType: int32(req.GetEventType()),
+			GoodsID:   item.GetGoodsId(),
+			GoodsNum:  int32(goodsNum),
+			RequestID: requestID,
+			Position:  item.GetPosition(),
+			EventAt:   eventTime,
+		})
+	}
+	// 经过清洗后没有可写入事件时，直接结束。
+	if len(eventList) == 0 {
+		return nil
+	}
+
+	err := c.RecommendEventRepository.BatchCreate(ctx, eventList)
+	if err != nil {
+		return errorsx.Internal("保存推荐事件失败").WithCause(err)
+	}
+
+	// 本地推荐事件落库成功后，再异步投递到推荐系统，避免推荐系统异常阻塞主流程。
+	queue.DispatchRecommendEventList(eventList)
+	return nil
 }

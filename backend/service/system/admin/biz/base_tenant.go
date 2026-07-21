@@ -272,19 +272,6 @@ func (c *BaseTenantCase) SetBaseTenantStatus(ctx context.Context, req *systemadm
 	})
 }
 
-// validateBaseTenantManagementTarget 校验目标租户是否允许通过租户管理接口操作。
-func validateBaseTenantManagementTarget(baseTenant *models.BaseTenant) error {
-	if isBaseTenantProtected(baseTenant) {
-		return errorsx.ProtectedResourceConflict("操作租户失败，默认租户不能操作", "base_tenant")
-	}
-	return nil
-}
-
-// isBaseTenantProtected 判断租户是否禁止通过租户管理操作。
-func isBaseTenantProtected(baseTenant *models.BaseTenant) bool {
-	return baseTenant.Code == databaseGorm.DefaultTenantCode
-}
-
 // getNextBaseTenantCode 获取下一个可用租户编号。
 func (c *BaseTenantCase) getNextBaseTenantCode(ctx context.Context) (string, error) {
 	query := c.Query(ctx).BaseTenant
@@ -500,4 +487,17 @@ func (c *BaseTenantCase) deleteTenantData(ctx context.Context, tenantIDs []int64
 		return nil, err
 	}
 	return userIDs, nil
+}
+
+// validateBaseTenantManagementTarget 校验目标租户是否允许通过租户管理接口操作。
+func validateBaseTenantManagementTarget(baseTenant *models.BaseTenant) error {
+	if isBaseTenantProtected(baseTenant) {
+		return errorsx.ProtectedResourceConflict("操作租户失败，默认租户不能操作", "base_tenant")
+	}
+	return nil
+}
+
+// isBaseTenantProtected 判断租户是否禁止通过租户管理操作。
+func isBaseTenantProtected(baseTenant *models.BaseTenant) bool {
+	return baseTenant.Code == databaseGorm.DefaultTenantCode
 }

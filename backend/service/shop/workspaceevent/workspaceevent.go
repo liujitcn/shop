@@ -73,16 +73,6 @@ func NewSSEReady(registry *transportSSE.Registry, publisher *transportSSE.Publis
 	return SSEReady{}, nil
 }
 
-// ID 返回商城工作台 SSE 流标识。
-func (workspaceSSEStream) ID() string {
-	return SSEStreamAdminWorkspace
-}
-
-// Resolve 返回商城工作台固定的传输流标识。
-func (workspaceSSEStream) Resolve(_ string, _ int64) (string, error) {
-	return SSEStreamAdminWorkspace, nil
-}
-
 // SetPublisher 设置工作台刷新消息发布函数。
 func SetPublisher(fn Publisher) {
 	publisherMu.Lock()
@@ -113,6 +103,16 @@ func Publish(ctx context.Context, reason shopcommonv1.SseRefreshReason, targets 
 	if err != nil {
 		log.Error(fmt.Sprintf("publish workspace refresh event: %v", err.Error()))
 	}
+}
+
+// ID 返回商城工作台 SSE 流标识。
+func (workspaceSSEStream) ID() string {
+	return SSEStreamAdminWorkspace
+}
+
+// Resolve 返回商城工作台固定的传输流标识。
+func (workspaceSSEStream) Resolve(_ string, _ int64) (string, error) {
+	return SSEStreamAdminWorkspace, nil
 }
 
 // normalizeTargets 去重并过滤非法工作台刷新目标。

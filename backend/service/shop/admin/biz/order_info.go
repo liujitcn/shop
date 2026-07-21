@@ -259,35 +259,6 @@ func (c *OrderInfoCase) GetOrderInfoRefund(ctx context.Context, id int64) (*shop
 	return res, nil
 }
 
-// restrictOrderTradeAmounts 限制普通租户只能看到当前门店子订单对应的支付与退款总额。
-func (c *OrderInfoCase) restrictOrderTradeAmounts(
-	ctx context.Context,
-	orderInfo *models.OrderInfo,
-	payment *shopadminv1.OrderPayment,
-	refunds []*shopadminv1.OrderRefund,
-) error {
-	authInfo, err := c.GetAuthInfo(ctx)
-	if err != nil {
-		return err
-	}
-	// 默认租户负责全局运营，可以查看渠道记录中的整笔交易金额。
-	if authInfo.TenantCode == databaseGorm.DefaultTenantCode {
-		return nil
-	}
-	if payment.GetAmount() != nil {
-		payment.Amount.Total = orderInfo.PayMoney
-		payment.Amount.PayerTotal = orderInfo.PayMoney
-	}
-	for _, refund := range refunds {
-		if refund.GetAmount() == nil {
-			continue
-		}
-		refund.Amount.Total = orderInfo.PayMoney
-		refund.Amount.PayerTotal = orderInfo.PayMoney
-	}
-	return nil
-}
-
 // RefundOrderInfo 退款订单
 func (c *OrderInfoCase) RefundOrderInfo(ctx context.Context, req *shopadminv1.RefundOrderInfoRequest) error {
 	orderInfo, err := c.FindByID(ctx, req.GetOrderId())
@@ -422,42 +393,6 @@ func (c *OrderInfoCase) RefundOrderInfo(ctx context.Context, req *shopadminv1.Re
 	return nil
 }
 
-// claimOrderRefund 抢占门店订单退款权并创建待处理退款记录。
-func (c *OrderInfoCase) claimOrderRefund(ctx context.Context, orderInfo *models.OrderInfo, orderRefund *models.OrderRefund) error {
-	return c.tx.Transaction(ctx, func(ctx context.Context) error {
-		query := c.Query(ctx).OrderInfo
-		result, err := query.WithContext(ctx).
-			Where(
-				query.ID.Eq(orderInfo.ID),
-				query.Status.In(
-					_const.ORDER_INFO_STATUS_WAIT_SHIPMENT,
-					_const.ORDER_INFO_STATUS_SHIPPED,
-					_const.ORDER_INFO_STATUS_WAIT_REVIEW,
-					_const.ORDER_INFO_STATUS_COMPLETED,
-				),
-				query.RefundStatus.In(
-					_const.ORDER_REFUND_STATUS_NONE,
-					_const.ORDER_REFUND_STATUS_PARTIAL_REFUND,
-					_const.ORDER_REFUND_STATUS_CLOSED_OR_FAILED,
-				),
-			).
-			Update(query.RefundStatus, _const.ORDER_REFUND_STATUS_PROCESSING)
-		if err != nil {
-			return err
-		}
-		if result.RowsAffected == 0 {
-			return errorsx.StateConflict(
-				"当前订单退款状态不允许再次退款",
-				"order_info",
-				shopcommonv1.OrderRefundStatus(orderInfo.RefundStatus).String(),
-				"NONE_ORS|PARTIAL_REFUND_ORS|CLOSED_OR_FAILED_ORS",
-			)
-		}
-		refundQuery := c.orderRefundCase.Query(ctx).OrderRefund
-		return refundQuery.WithContext(ctx).Omit(refundQuery.SuccessTime).Create(orderRefund)
-	})
-}
-
 // GetOrderInfoShipment 获取订单发货信息
 func (c *OrderInfoCase) GetOrderInfoShipment(ctx context.Context, id int64) (*shopadminv1.OrderInfoShipmentForm, error) {
 	orderInfo, err := c.FindByID(ctx, id)
@@ -549,6 +484,71 @@ func (c *OrderInfoCase) ShipOrderInfo(ctx context.Context, req *shopadminv1.Ship
 	}
 	workspaceevent.Publish(ctx, workspaceevent.ReasonOrderChanged, workspaceevent.AreaTodo)
 	return nil
+}
+
+// restrictOrderTradeAmounts 限制普通租户只能看到当前门店子订单对应的支付与退款总额。
+func (c *OrderInfoCase) restrictOrderTradeAmounts(
+	ctx context.Context,
+	orderInfo *models.OrderInfo,
+	payment *shopadminv1.OrderPayment,
+	refunds []*shopadminv1.OrderRefund,
+) error {
+	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return err
+	}
+	// 默认租户负责全局运营，可以查看渠道记录中的整笔交易金额。
+	if authInfo.TenantCode == databaseGorm.DefaultTenantCode {
+		return nil
+	}
+	if payment.GetAmount() != nil {
+		payment.Amount.Total = orderInfo.PayMoney
+		payment.Amount.PayerTotal = orderInfo.PayMoney
+	}
+	for _, refund := range refunds {
+		if refund.GetAmount() == nil {
+			continue
+		}
+		refund.Amount.Total = orderInfo.PayMoney
+		refund.Amount.PayerTotal = orderInfo.PayMoney
+	}
+	return nil
+}
+
+// claimOrderRefund 抢占门店订单退款权并创建待处理退款记录。
+func (c *OrderInfoCase) claimOrderRefund(ctx context.Context, orderInfo *models.OrderInfo, orderRefund *models.OrderRefund) error {
+	return c.tx.Transaction(ctx, func(ctx context.Context) error {
+		query := c.Query(ctx).OrderInfo
+		result, err := query.WithContext(ctx).
+			Where(
+				query.ID.Eq(orderInfo.ID),
+				query.Status.In(
+					_const.ORDER_INFO_STATUS_WAIT_SHIPMENT,
+					_const.ORDER_INFO_STATUS_SHIPPED,
+					_const.ORDER_INFO_STATUS_WAIT_REVIEW,
+					_const.ORDER_INFO_STATUS_COMPLETED,
+				),
+				query.RefundStatus.In(
+					_const.ORDER_REFUND_STATUS_NONE,
+					_const.ORDER_REFUND_STATUS_PARTIAL_REFUND,
+					_const.ORDER_REFUND_STATUS_CLOSED_OR_FAILED,
+				),
+			).
+			Update(query.RefundStatus, _const.ORDER_REFUND_STATUS_PROCESSING)
+		if err != nil {
+			return err
+		}
+		if result.RowsAffected == 0 {
+			return errorsx.StateConflict(
+				"当前订单退款状态不允许再次退款",
+				"order_info",
+				shopcommonv1.OrderRefundStatus(orderInfo.RefundStatus).String(),
+				"NONE_ORS|PARTIAL_REFUND_ORS|CLOSED_OR_FAILED_ORS",
+			)
+		}
+		refundQuery := c.orderRefundCase.Query(ctx).OrderRefund
+		return refundQuery.WithContext(ctx).Omit(refundQuery.SuccessTime).Create(orderRefund)
+	})
 }
 
 // claimOrderShipment 通过履约和退款状态条件抢占门店订单发货权。

@@ -289,6 +289,64 @@ func (c *OauthCase) CreateOauthSession(ctx context.Context, req *basev1.CreateOa
 	}, nil
 }
 
+// ListOauthBinding 查询当前用户的三方账号绑定状态。
+func (c *OauthCase) ListOauthBinding(ctx context.Context, req *basev1.ListOauthBindingRequest) (*basev1.ListOauthBindingResponse, error) {
+	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var providerRes *basev1.ListOauthProviderResponse
+	providerRes, err = c.ListOauthProvider(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var thirdAccounts []*models.BaseThirdAccount
+	thirdAccounts, err = c.baseThirdAccountCase.ListByUserID(ctx, authInfo.UserId)
+	if err != nil {
+		return nil, errorsx.Internal("查询三方账号绑定失败").WithCause(err)
+	}
+	boundProviderSet := make(map[string]struct{}, len(thirdAccounts))
+	for _, item := range thirdAccounts {
+		boundProviderSet[item.Provider] = struct{}{}
+	}
+
+	bindings := make([]*basev1.OauthBinding, 0, len(providerRes.GetProviders()))
+	for _, item := range providerRes.GetProviders() {
+		_, bound := boundProviderSet[item.GetProvider()]
+		bindings = append(bindings, &basev1.OauthBinding{
+			Provider: item.GetProvider(),
+			Bound:    bound,
+		})
+	}
+	return &basev1.ListOauthBindingResponse{Bindings: bindings}, nil
+}
+
+// UnbindOauthAccount 解绑当前用户三方账号。
+func (c *OauthCase) UnbindOauthAccount(ctx context.Context, req *basev1.UnbindOauthAccountRequest) error {
+	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return err
+	}
+	if req.GetProvider() == "" {
+		return errorsx.InvalidArgument("登录方式标识不能为空")
+	}
+
+	_, err = c.baseThirdAccountCase.FindByUserProvider(ctx, authInfo.UserId, req.GetProvider())
+	if err != nil {
+		if stderrors.Is(err, gorm.ErrRecordNotFound) {
+			return errorsx.ResourceNotFound("三方账号未绑定")
+		}
+		return errorsx.Internal("解绑三方账号失败").WithCause(err)
+	}
+	err = c.baseThirdAccountCase.DeleteByUserProvider(ctx, authInfo.UserId, req.GetProvider())
+	if err != nil {
+		return errorsx.Internal("解绑三方账号失败").WithCause(err)
+	}
+	return nil
+}
+
 // findOrCreateWechatMiniUser 按微信小程序授权码查找或自动创建本地用户。
 func (c *OauthCase) findOrCreateWechatMiniUser(ctx context.Context, code string) (*models.BaseUser, error) {
 	var err error
@@ -377,71 +435,6 @@ func (c *OauthCase) consumeOauthLoginTicket(ticket string) (string, error) {
 		return "", errorsx.Internal("三方登录票据消费失败").WithCause(err)
 	}
 	return value, nil
-}
-
-// oauthLoginTicketLock 返回三方登录票据消费分片锁。
-func oauthLoginTicketLock(ticket string) *sync.Mutex {
-	hash := fnv.New32a()
-	_, _ = hash.Write([]byte(ticket))
-	return &oauthLoginTicketLocks[hash.Sum32()%oauthLoginTicketLockShardCount]
-}
-
-// ListOauthBinding 查询当前用户的三方账号绑定状态。
-func (c *OauthCase) ListOauthBinding(ctx context.Context, req *basev1.ListOauthBindingRequest) (*basev1.ListOauthBindingResponse, error) {
-	authInfo, err := c.GetAuthInfo(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	var providerRes *basev1.ListOauthProviderResponse
-	providerRes, err = c.ListOauthProvider(ctx, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	var thirdAccounts []*models.BaseThirdAccount
-	thirdAccounts, err = c.baseThirdAccountCase.ListByUserID(ctx, authInfo.UserId)
-	if err != nil {
-		return nil, errorsx.Internal("查询三方账号绑定失败").WithCause(err)
-	}
-	boundProviderSet := make(map[string]struct{}, len(thirdAccounts))
-	for _, item := range thirdAccounts {
-		boundProviderSet[item.Provider] = struct{}{}
-	}
-
-	bindings := make([]*basev1.OauthBinding, 0, len(providerRes.GetProviders()))
-	for _, item := range providerRes.GetProviders() {
-		_, bound := boundProviderSet[item.GetProvider()]
-		bindings = append(bindings, &basev1.OauthBinding{
-			Provider: item.GetProvider(),
-			Bound:    bound,
-		})
-	}
-	return &basev1.ListOauthBindingResponse{Bindings: bindings}, nil
-}
-
-// UnbindOauthAccount 解绑当前用户三方账号。
-func (c *OauthCase) UnbindOauthAccount(ctx context.Context, req *basev1.UnbindOauthAccountRequest) error {
-	authInfo, err := c.GetAuthInfo(ctx)
-	if err != nil {
-		return err
-	}
-	if req.GetProvider() == "" {
-		return errorsx.InvalidArgument("登录方式标识不能为空")
-	}
-
-	_, err = c.baseThirdAccountCase.FindByUserProvider(ctx, authInfo.UserId, req.GetProvider())
-	if err != nil {
-		if stderrors.Is(err, gorm.ErrRecordNotFound) {
-			return errorsx.ResourceNotFound("三方账号未绑定")
-		}
-		return errorsx.Internal("解绑三方账号失败").WithCause(err)
-	}
-	err = c.baseThirdAccountCase.DeleteByUserProvider(ctx, authInfo.UserId, req.GetProvider())
-	if err != nil {
-		return errorsx.Internal("解绑三方账号失败").WithCause(err)
-	}
-	return nil
 }
 
 // handleOauthBindingCallback 校验三方账号并写入当前用户绑定关系。
@@ -565,6 +558,13 @@ func (c *OauthCase) oauthBindingRedirectPayload(payload *kitOauth.StatePayload, 
 
 	redirectURL := appendOauthBindingRedirectQuery(payload.RedirectURL, providerName, errorMessage)
 	return kratosHTTP.NewRedirect(redirectURL, stdhttp.StatusFound)
+}
+
+// oauthLoginTicketLock 返回三方登录票据消费分片锁。
+func oauthLoginTicketLock(ticket string) *sync.Mutex {
+	hash := fnv.New32a()
+	_, _ = hash.Write([]byte(ticket))
+	return &oauthLoginTicketLocks[hash.Sum32()%oauthLoginTicketLockShardCount]
 }
 
 // appendOauthRedirectQuery 为登录页地址追加 OAuth 登录结果参数。

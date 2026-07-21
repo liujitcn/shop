@@ -24,6 +24,24 @@ type ExecJob struct {
 	ErrMsg       string
 }
 
+// LogJobFailureWithInput 使用原始入参记录任务失败日志。
+func LogJobFailureWithInput(jobID int64, input string, err error) {
+	// 没有实际错误时，无需生成失败日志。
+	if err == nil {
+		return
+	}
+
+	baseJobLog := models.BaseJobLog{
+		JobID:       jobID,      // 定时任务id
+		Input:       input,      // 任务参数
+		ExecuteTime: time.Now(), // 执行时间
+	}
+	baseJobLog.Status = _const.BASE_JOB_LOG_STATUS_FAIL
+	baseJobLog.Error = err.Error()
+	baseJobLog.ProcessTime = int32(time.Since(baseJobLog.ExecuteTime).Milliseconds())
+	queue.AddQueue(_const.JOB_LOG, baseJobLog)
+}
+
 // Execute 执行任务并写入任务日志。
 func (e *ExecJob) Execute() (err error) {
 	baseJobLog := models.BaseJobLog{
@@ -55,22 +73,4 @@ func (e *ExecJob) Execute() (err error) {
 
 	ret, err = e.InvokeTarget.Exec(e.Args)
 	return err
-}
-
-// LogJobFailureWithInput 使用原始入参记录任务失败日志。
-func LogJobFailureWithInput(jobID int64, input string, err error) {
-	// 没有实际错误时，无需生成失败日志。
-	if err == nil {
-		return
-	}
-
-	baseJobLog := models.BaseJobLog{
-		JobID:       jobID,      // 定时任务id
-		Input:       input,      // 任务参数
-		ExecuteTime: time.Now(), // 执行时间
-	}
-	baseJobLog.Status = _const.BASE_JOB_LOG_STATUS_FAIL
-	baseJobLog.Error = err.Error()
-	baseJobLog.ProcessTime = int32(time.Since(baseJobLog.ExecuteTime).Milliseconds())
-	queue.AddQueue(_const.JOB_LOG, baseJobLog)
 }

@@ -116,31 +116,6 @@ func IsAdminEntryAction(flow string, actionType string) bool {
 	return actionType != "" && adminFlowRegistry.EntryAction(einoWorkflow.FlowName(flow)) == actionType
 }
 
-// handleAdminFlowAction 推进管理端闭环流程。
-func (r *AdminRunner) handleAdminFlowAction(ctx context.Context, action *basev1.AiAction) (*ai.Response, error) {
-	payload, err := parseAiActionPayload(action.GetPayloadJson())
-	if err != nil {
-		return nil, err
-	}
-	var result einoWorkflow.ActionResult[*ai.Response]
-	result, err = adminFlowRegistry.Run(ctx, einoWorkflow.ActionRequest{
-		Flow:       einoWorkflow.FlowName(action.GetFlow()),
-		ActionType: action.GetType(),
-		Payload:    payload,
-	}, r.ExecuteAdminWorkflowAction)
-	if err != nil {
-		return nil, err
-	}
-	// 固定流程动作先经过 Eino Graph 路由，避免前端传入未注册动作直接进入业务分支。
-	if action.GetType() != "" && !result.Found {
-		return nil, errorsx.InvalidArgument("管理端助手动作不支持")
-	}
-	if result.Output == nil {
-		return nil, errorsx.Internal("管理端助手动作结果无效")
-	}
-	return result.Output, nil
-}
-
 // ExecuteAdminWorkflowAction 执行 Eino Graph 路由后的管理端流程动作。
 func (r *AdminRunner) ExecuteAdminWorkflowAction(ctx context.Context, action einoWorkflow.Action, payload map[string]any) (*ai.Response, error) {
 	switch action.Type {
@@ -203,6 +178,31 @@ func (r *AdminRunner) ExecuteAdminWorkflowAction(ctx context.Context, action ein
 	}
 }
 
+// handleAdminFlowAction 推进管理端闭环流程。
+func (r *AdminRunner) handleAdminFlowAction(ctx context.Context, action *basev1.AiAction) (*ai.Response, error) {
+	payload, err := parseAiActionPayload(action.GetPayloadJson())
+	if err != nil {
+		return nil, err
+	}
+	var result einoWorkflow.ActionResult[*ai.Response]
+	result, err = adminFlowRegistry.Run(ctx, einoWorkflow.ActionRequest{
+		Flow:       einoWorkflow.FlowName(action.GetFlow()),
+		ActionType: action.GetType(),
+		Payload:    payload,
+	}, r.ExecuteAdminWorkflowAction)
+	if err != nil {
+		return nil, err
+	}
+	// 固定流程动作先经过 Eino Graph 路由，避免前端传入未注册动作直接进入业务分支。
+	if action.GetType() != "" && !result.Found {
+		return nil, errorsx.InvalidArgument("管理端助手动作不支持")
+	}
+	if result.Output == nil {
+		return nil, errorsx.Internal("管理端助手动作结果无效")
+	}
+	return result.Output, nil
+}
+
 // adminNotImplementedResponse 构造未实现流程的占位回复。
 func (r *AdminRunner) adminNotImplementedResponse(flow string, step string) *ai.Response {
 	return r.adminFlowResponse(flow, step, "该功能正在开发中，敬请期待。", []map[string]any{
@@ -248,63 +248,6 @@ func (r *AdminRunner) openAdminWorkspaceOverviewFlow(ctx context.Context) (*ai.R
 
 	return r.adminFlowResponse(adminFlowWorkspaceOverview, "overview", "经营总览数据已加载。", blocks, tools), nil
 }
-
-// buildAdminMetricsBlock 构造经营指标卡片。
-func buildAdminMetricsBlock(output map[string]any) map[string]any {
-	items := adminMetricItems(output, []adminMetricField{
-		{label: "今日订单", key: "today_order_count", unit: "单"},
-		{label: "今日成交额", key: "today_sale_amount", unit: "元", format: formatAmount},
-		{label: "客单价", key: "average_order_amount", unit: "元", format: formatAmount},
-		{label: "支付转化率", key: "pay_conversion_rate", unit: "‰"},
-		{label: "今日下单用户", key: "today_order_user_count", unit: "人"},
-		{label: "今日新增用户", key: "today_new_user_count", unit: "人"},
-		{label: "今日销量", key: "today_sale_count", unit: "件"},
-		{label: "动销商品", key: "active_goods_count", unit: "个"},
-		{label: "今日评价", key: "today_comment_count", unit: "条"},
-		{label: "近7日平均评分", key: "average_comment_score", unit: "分"},
-	})
-	return map[string]any{
-		"type":  "metric_panel",
-		"title": "经营指标",
-		"items": items,
-	}
-}
-
-// buildAdminTodoBlock 构造待办事项卡片。
-func buildAdminTodoBlock(output map[string]any) map[string]any {
-	items := adminMetricItems(output, []adminMetricField{
-		{label: "待支付订单", key: "pending_pay_order_count", unit: "单"},
-		{label: "待发货订单", key: "pending_shipped_order_count", unit: "单"},
-		{label: "低库存SKU", key: "low_inventory_sku_count", unit: "个"},
-		{label: "待上架商品", key: "pending_put_on_goods_count", unit: "个"},
-		{label: "待审核评价", key: "pending_comment_count", unit: "条"},
-		{label: "待审核讨论", key: "pending_comment_discussion_count", unit: "条"},
-	})
-	return map[string]any{
-		"type":  "todo_list",
-		"title": "待办事项",
-		"items": items,
-	}
-}
-
-// buildAdminRiskBlock 构造风险预警卡片。
-func buildAdminRiskBlock(output map[string]any) map[string]any {
-	items := adminMetricItems(output, []adminMetricField{
-		{label: "对账异常", key: "abnormal_pay_bill_count", unit: "笔"},
-		{label: "零库存仍上架", key: "zero_inventory_put_on_sku_count", unit: "个"},
-		{label: "价格异常", key: "abnormal_price_sku_count", unit: "个"},
-		{label: "近7日低分评价", key: "low_score_comment_count", unit: "条"},
-	})
-	return map[string]any{
-		"type":  "risk_alerts",
-		"title": "风险预警",
-		"items": items,
-	}
-}
-
-// =========================================================================
-// P0 Flow: 待发货 (pending_shipment)
-// =========================================================================
 
 // openAdminPendingShipmentFlow 打开待发货流程。
 func (r *AdminRunner) openAdminPendingShipmentFlow(ctx context.Context) (*ai.Response, error) {
@@ -376,7 +319,7 @@ func (r *AdminRunner) confirmAdminShipment(ctx context.Context, payload map[stri
 }
 
 // =========================================================================
-// P0 Flow: 评价审核 (comment_review)
+// P0 Flow: 待发货 (pending_shipment)
 // =========================================================================
 
 // openAdminCommentReviewFlow 打开评价审核流程。
@@ -441,7 +384,7 @@ func (r *AdminRunner) confirmAdminCommentReview(ctx context.Context, payload map
 }
 
 // =========================================================================
-// P0 Flow: 库存预警 (goods_inventory_alert)
+// P0 Flow: 评价审核 (comment_review)
 // =========================================================================
 
 // openAdminGoodsInventoryAlertFlow 打开库存预警流程。
@@ -504,7 +447,7 @@ func (r *AdminRunner) confirmAdminGoodsStatus(ctx context.Context, payload map[s
 }
 
 // =========================================================================
-// P1 Flow: 退款记录查看 (order_refund)
+// P0 Flow: 库存预警 (goods_inventory_alert)
 // =========================================================================
 
 // openAdminOrderRefundFlow 打开退款记录流程。
@@ -562,10 +505,6 @@ func (r *AdminRunner) viewAdminRefundDetail(ctx context.Context, payload map[str
 	block := buildAdminRefundDetailBlock(orderOutput, refundOutput)
 	return r.adminFlowResponse(adminFlowOrderRefund, "detail", "退款详情已加载。", []map[string]any{block}, tools), nil
 }
-
-// =========================================================================
-// P1 Flow: 商品分析 (goods_analytics)
-// =========================================================================
 
 // openAdminGoodsAnalyticsFlow 打开商品分析流程。
 //
@@ -631,7 +570,7 @@ func (r *AdminRunner) openAdminGoodsAnalyticsFlow(ctx context.Context) (*ai.Resp
 }
 
 // =========================================================================
-// P1 Flow: 订单分析 (order_analytics)
+// P1 Flow: 退款记录查看 (order_refund)
 // =========================================================================
 
 // openAdminOrderAnalyticsFlow 打开订单分析流程。
@@ -681,10 +620,6 @@ func (r *AdminRunner) openAdminOrderAnalyticsFlow(ctx context.Context) (*ai.Resp
 	return r.adminFlowResponse(adminFlowOrderAnalytics, "overview", "订单分析数据已加载。", blocks, tools), nil
 }
 
-// =========================================================================
-// P1 Flow: 门店入驻审核 (store_audit)
-// =========================================================================
-
 // openAdminStoreAuditFlow 打开门店审核流程。
 func (r *AdminRunner) openAdminStoreAuditFlow(ctx context.Context) (*ai.Response, error) {
 	output, usage, err := r.invokeAdminFlowTool(ctx, adminToolPageUserStore, map[string]any{
@@ -699,6 +634,10 @@ func (r *AdminRunner) openAdminStoreAuditFlow(ctx context.Context) (*ai.Response
 	block := buildAdminStoreAuditListBlock(adminFlowStoreAudit, output)
 	return r.adminFlowResponse(adminFlowStoreAudit, "list", "这些门店等待审核，选择一个查看详情。", []map[string]any{block}, tools), nil
 }
+
+// =========================================================================
+// P1 Flow: 商品分析 (goods_analytics)
+// =========================================================================
 
 // viewAdminStoreDetail 查看门店审核详情。
 func (r *AdminRunner) viewAdminStoreDetail(ctx context.Context, payload map[string]any) (*ai.Response, error) {
@@ -717,6 +656,10 @@ func (r *AdminRunner) viewAdminStoreDetail(ctx context.Context, payload map[stri
 	block := buildAdminStoreDetailBlock(adminFlowStoreAudit, output)
 	return r.adminFlowResponse(adminFlowStoreAudit, "detail", "门店详情已加载，可以选择通过或拒绝。", []map[string]any{block}, tools), nil
 }
+
+// =========================================================================
+// P1 Flow: 订单分析 (order_analytics)
+// =========================================================================
 
 // confirmAdminStoreAudit 确认门店审核。
 func (r *AdminRunner) confirmAdminStoreAudit(ctx context.Context, payload map[string]any) (*ai.Response, error) {
@@ -747,7 +690,7 @@ func (r *AdminRunner) confirmAdminStoreAudit(ctx context.Context, payload map[st
 }
 
 // =========================================================================
-// P1 Flow: 推荐效果总览 (recommend_dashboard)
+// P1 Flow: 门店入驻审核 (store_audit)
 // =========================================================================
 
 // openAdminRecommendDashboardFlow 打开推荐效果总览流程。
@@ -783,10 +726,6 @@ func (r *AdminRunner) openAdminRecommendDashboardFlow(ctx context.Context) (*ai.
 	return r.adminFlowResponse(adminFlowRecommendDashboard, "overview", "推荐效果数据已加载。", blocks, tools), nil
 }
 
-// =========================================================================
-// P2 Flow: 口碑洞察 (reputation_insight)
-// =========================================================================
-
 // openAdminReputationInsightFlow 打开口碑洞察流程。
 func (r *AdminRunner) openAdminReputationInsightFlow(ctx context.Context) (*ai.Response, error) {
 	output, usage, err := r.invokeAdminFlowTool(ctx, adminToolSummaryWorkspaceReputation, map[string]any{})
@@ -797,10 +736,6 @@ func (r *AdminRunner) openAdminReputationInsightFlow(ctx context.Context) (*ai.R
 	block := buildAdminReputationBlock(output)
 	return r.adminFlowResponse(adminFlowReputationInsight, "overview", "口碑洞察数据已加载。", []map[string]any{block}, tools), nil
 }
-
-// =========================================================================
-// P2 Flow: 对账检查 (pay_bill_check)
-// =========================================================================
 
 // openAdminPayBillCheckFlow 打开对账检查流程。
 func (r *AdminRunner) openAdminPayBillCheckFlow(ctx context.Context) (*ai.Response, error) {
@@ -818,7 +753,7 @@ func (r *AdminRunner) openAdminPayBillCheckFlow(ctx context.Context) (*ai.Respon
 }
 
 // =========================================================================
-// P2 Flow: 经营报表总览 (report_overview)
+// P1 Flow: 推荐效果总览 (recommend_dashboard)
 // =========================================================================
 
 // openAdminReportOverviewFlow 打开经营报表总览流程。
@@ -880,7 +815,7 @@ func (r *AdminRunner) openAdminReportOverviewFlow(ctx context.Context, payload m
 }
 
 // =========================================================================
-// 管理端 Flow 辅助方法
+// P2 Flow: 口碑洞察 (reputation_insight)
 // =========================================================================
 
 // invokeAdminFlowTool 通过生成的 Agent Tool 调用管理端业务能力。
@@ -906,6 +841,21 @@ func (r *AdminRunner) invokeAdminFlowTool(ctx context.Context, name string, inpu
 	return output, result.Usage, err
 }
 
+// =========================================================================
+// P2 Flow: 对账检查 (pay_bill_check)
+// =========================================================================
+
+// adminFlowErrorResponse 构造管理端流程失败提示。
+func (r *AdminRunner) adminFlowErrorResponse(flow string, step string, tools []ai.ToolUsage) *ai.Response {
+	return r.adminFlowResponse(flow, step, "这个操作暂时没有完成，可以稍后再试或换一种方式继续。", []map[string]any{
+		adminNoticeBlock("操作未完成", "当前步骤没有成功返回结果。"),
+	}, tools)
+}
+
+// =========================================================================
+// P2 Flow: 经营报表总览 (report_overview)
+// =========================================================================
+
 // adminFlowResponse 构造管理端流程回复。
 func (r *AdminRunner) adminFlowResponse(flow string, step string, content string, blocks []map[string]any, tools []ai.ToolUsage) *ai.Response {
 	model := ""
@@ -927,11 +877,61 @@ func (r *AdminRunner) adminFlowResponse(flow string, step string, content string
 	}
 }
 
-// adminFlowErrorResponse 构造管理端流程失败提示。
-func (r *AdminRunner) adminFlowErrorResponse(flow string, step string, tools []ai.ToolUsage) *ai.Response {
-	return r.adminFlowResponse(flow, step, "这个操作暂时没有完成，可以稍后再试或换一种方式继续。", []map[string]any{
-		adminNoticeBlock("操作未完成", "当前步骤没有成功返回结果。"),
-	}, tools)
+// =========================================================================
+// 管理端 Flow 辅助方法
+// =========================================================================
+
+// buildAdminMetricsBlock 构造经营指标卡片。
+func buildAdminMetricsBlock(output map[string]any) map[string]any {
+	items := adminMetricItems(output, []adminMetricField{
+		{label: "今日订单", key: "today_order_count", unit: "单"},
+		{label: "今日成交额", key: "today_sale_amount", unit: "元", format: formatAmount},
+		{label: "客单价", key: "average_order_amount", unit: "元", format: formatAmount},
+		{label: "支付转化率", key: "pay_conversion_rate", unit: "‰"},
+		{label: "今日下单用户", key: "today_order_user_count", unit: "人"},
+		{label: "今日新增用户", key: "today_new_user_count", unit: "人"},
+		{label: "今日销量", key: "today_sale_count", unit: "件"},
+		{label: "动销商品", key: "active_goods_count", unit: "个"},
+		{label: "今日评价", key: "today_comment_count", unit: "条"},
+		{label: "近7日平均评分", key: "average_comment_score", unit: "分"},
+	})
+	return map[string]any{
+		"type":  "metric_panel",
+		"title": "经营指标",
+		"items": items,
+	}
+}
+
+// buildAdminTodoBlock 构造待办事项卡片。
+func buildAdminTodoBlock(output map[string]any) map[string]any {
+	items := adminMetricItems(output, []adminMetricField{
+		{label: "待支付订单", key: "pending_pay_order_count", unit: "单"},
+		{label: "待发货订单", key: "pending_shipped_order_count", unit: "单"},
+		{label: "低库存SKU", key: "low_inventory_sku_count", unit: "个"},
+		{label: "待上架商品", key: "pending_put_on_goods_count", unit: "个"},
+		{label: "待审核评价", key: "pending_comment_count", unit: "条"},
+		{label: "待审核讨论", key: "pending_comment_discussion_count", unit: "条"},
+	})
+	return map[string]any{
+		"type":  "todo_list",
+		"title": "待办事项",
+		"items": items,
+	}
+}
+
+// buildAdminRiskBlock 构造风险预警卡片。
+func buildAdminRiskBlock(output map[string]any) map[string]any {
+	items := adminMetricItems(output, []adminMetricField{
+		{label: "对账异常", key: "abnormal_pay_bill_count", unit: "笔"},
+		{label: "零库存仍上架", key: "zero_inventory_put_on_sku_count", unit: "个"},
+		{label: "价格异常", key: "abnormal_price_sku_count", unit: "个"},
+		{label: "近7日低分评价", key: "low_score_comment_count", unit: "条"},
+	})
+	return map[string]any{
+		"type":  "risk_alerts",
+		"title": "风险预警",
+		"items": items,
+	}
 }
 
 // matchAdminFlowIntent 根据用户文本识别管理端闭环流程。

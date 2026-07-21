@@ -124,6 +124,30 @@ func FromContext(ctx context.Context) *Recorder {
 	return recorder
 }
 
+// MergeToken 合并 token 统计。
+func MergeToken(left TokenUsage, right TokenUsage) TokenUsage {
+	return TokenUsage{
+		Input:  left.Input + right.Input,
+		Output: left.Output + right.Output,
+		Cache:  left.Cache + right.Cache,
+		Total:  left.Total + right.Total,
+	}
+}
+
+// TokenFromMessage 提取模型消息中的 token 消耗。
+func TokenFromMessage(value *message.AgenticMessage) TokenUsage {
+	usage := message.Usage(value)
+	if usage == nil {
+		return TokenUsage{}
+	}
+	return TokenUsage{
+		Input:  int32(usage.PromptTokens),
+		Output: int32(usage.CompletionTokens),
+		Cache:  int32(usage.PromptTokenDetails.CachedTokens),
+		Total:  int32(usage.TotalTokens),
+	}
+}
+
 // RecordModel 记录一次模型调用。
 func (r *Recorder) RecordModel(call ModelCall) {
 	if r == nil {
@@ -216,30 +240,6 @@ func (r *Recorder) TotalToken() TokenUsage {
 		total = MergeToken(total, call.Token)
 	}
 	return total
-}
-
-// MergeToken 合并 token 统计。
-func MergeToken(left TokenUsage, right TokenUsage) TokenUsage {
-	return TokenUsage{
-		Input:  left.Input + right.Input,
-		Output: left.Output + right.Output,
-		Cache:  left.Cache + right.Cache,
-		Total:  left.Total + right.Total,
-	}
-}
-
-// TokenFromMessage 提取模型消息中的 token 消耗。
-func TokenFromMessage(value *message.AgenticMessage) TokenUsage {
-	usage := message.Usage(value)
-	if usage == nil {
-		return TokenUsage{}
-	}
-	return TokenUsage{
-		Input:  int32(usage.PromptTokens),
-		Output: int32(usage.CompletionTokens),
-		Cache:  int32(usage.PromptTokenDetails.CachedTokens),
-		Total:  int32(usage.TotalTokens),
-	}
 }
 
 // tokenFromAgenticCallbackOutput 从 Eino AgenticModel callback 输出中提取 token。

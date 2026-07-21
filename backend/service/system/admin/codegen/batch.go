@@ -52,57 +52,6 @@ type BatchGeneration struct {
 	Files []*BatchFile
 }
 
-// GenerationForTable 返回指定表在批次中的生成结果。
-func (b *BatchGeneration) GenerationForTable(tableID int64) *Generation {
-	for _, generation := range b.Generations {
-		if generation.Table != nil && generation.Table.ID == tableID {
-			return generation
-		}
-	}
-	return nil
-}
-
-type batchDefinition struct {
-	tableName   string
-	fingerprint string
-}
-
-type batchFileOverlay struct {
-	contents map[string]string
-}
-
-var protoHTTPRoutePattern = regexp.MustCompile(`(?m)^\s*(get|post|put|delete):\s*"([^"]+)"`)
-
-// validateGeneratedProtoHTTPRoutes 拒绝向已有 Proto 写入与其他 RPC 冲突的 HTTP 路由。
-func (c *renderer) validateGeneratedProtoHTTPRoutes(table *Table, methods []*Proto) error {
-	for _, method := range methods {
-		targetEntity := DefaultString(method.TargetEntityName, table.EntityName)
-		exists, _ := c.protoMethodExists(method.ProtoFilePath, targetEntity, method.MethodName)
-		// 已有同名 RPC 会在完整渲染或增量补丁中复用，无需重复判定路由。
-		if exists {
-			continue
-		}
-		rpcContent := c.renderProtoRPC(table, method, resourcePathByEntity(targetEntity))
-		route := protoHTTPRoutePattern.FindStringSubmatch(rpcContent)
-		// 未声明 HTTP 映射的 RPC 不参与 HTTP 路由冲突检查。
-		if len(route) != 3 {
-			continue
-		}
-		content, err := c.readRepoFile(method.ProtoFilePath)
-		// 文件尚不存在时由本次生成创建，不会与历史路由冲突。
-		if err != nil {
-			continue
-		}
-		for _, existingRoute := range protoHTTPRoutePattern.FindAllStringSubmatch(string(content), -1) {
-			// 同一 HTTP 方法与路径只能属于一个 RPC，阻止产生不可访问的新接口。
-			if len(existingRoute) == 3 && existingRoute[1] == route[1] && existingRoute[2] == route[2] {
-				return fmt.Errorf("Proto文件%s中的HTTP路由%s %s已被其他RPC使用", method.ProtoFilePath, route[1], route[2])
-			}
-		}
-	}
-	return nil
-}
-
 // PrepareBatchGeneration 在内存中预检并合并一批生成内容，不会写入工作区。
 func PrepareBatchGeneration(inputs []BatchGenerationInput) (*BatchGeneration, error) {
 	if len(inputs) == 0 {
@@ -198,6 +147,108 @@ func PrepareBatchGeneration(inputs []BatchGenerationInput) (*BatchGeneration, er
 	return batch, nil
 }
 
+type batchDefinition struct {
+	tableName   string
+	fingerprint string
+}
+
+type batchFileOverlay struct {
+	contents map[string]string
+}
+
+var protoHTTPRoutePattern = regexp.MustCompile(`(?m)^\s*(get|post|put|delete):\s*"([^"]+)"`)
+
+// GenerationForTable 返回指定表在批次中的生成结果。
+func (b *BatchGeneration) GenerationForTable(tableID int64) *Generation {
+	for _, generation := range b.Generations {
+		if generation.Table != nil && generation.Table.ID == tableID {
+			return generation
+		}
+	}
+	return nil
+}
+
+// validateGeneratedProtoHTTPRoutes 拒绝向已有 Proto 写入与其他 RPC 冲突的 HTTP 路由。
+func (c *renderer) validateGeneratedProtoHTTPRoutes(table *Table, methods []*Proto) error {
+	for _, method := range methods {
+		targetEntity := DefaultString(method.TargetEntityName, table.EntityName)
+		exists, _ := c.protoMethodExists(method.ProtoFilePath, targetEntity, method.MethodName)
+		// 已有同名 RPC 会在完整渲染或增量补丁中复用，无需重复判定路由。
+		if exists {
+			continue
+		}
+		rpcContent := c.renderProtoRPC(table, method, resourcePathByEntity(targetEntity))
+		route := protoHTTPRoutePattern.FindStringSubmatch(rpcContent)
+		// 未声明 HTTP 映射的 RPC 不参与 HTTP 路由冲突检查。
+		if len(route) != 3 {
+			continue
+		}
+		content, err := c.readRepoFile(method.ProtoFilePath)
+		// 文件尚不存在时由本次生成创建，不会与历史路由冲突。
+		if err != nil {
+			continue
+		}
+		for _, existingRoute := range protoHTTPRoutePattern.FindAllStringSubmatch(string(content), -1) {
+			// 同一 HTTP 方法与路径只能属于一个 RPC，阻止产生不可访问的新接口。
+			if len(existingRoute) == 3 && existingRoute[1] == route[1] && existingRoute[2] == route[2] {
+				return fmt.Errorf("Proto文件%s中的HTTP路由%s %s已被其他RPC使用", method.ProtoFilePath, route[1], route[2])
+			}
+		}
+	}
+	return nil
+}
+
+// batchProtoMethodFingerprint 返回用于比较 Proto 方法、消息和路由的稳定内容指纹。
+func (c *renderer) batchProtoMethodFingerprint(table *Table, columns []*CodeGenColumn, method *Proto) string {
+	var builder strings.Builder
+	targetEntity := DefaultString(method.TargetEntityName, table.EntityName)
+	builder.WriteString(normalizeBatchProtoDefinition(c.renderProtoRPC(table, method, resourcePathByEntity(targetEntity))))
+	// 选项接口的触发来源和外键字段只描述调用方，不会改变目标实体的接口实现。
+	// 目标实体及其树形、显示和取值字段才决定可复用的接口定义。
+	semanticParts := []string{
+		method.APIKind,
+		targetEntity,
+		method.ParentColumn,
+		method.LabelColumn,
+		method.ValueColumn,
+	}
+	// 状态接口的状态字段会改变更新逻辑，必须继续参与冲突判断。
+	if method.APIKind == APIKindStatus {
+		semanticParts = append(semanticParts, method.ColumnName)
+	}
+	builder.WriteString("\nsemantic:")
+	builder.WriteString(strings.Join(semanticParts, "\x00"))
+	for _, messageName := range c.protoMessageNamesForMethod(table, method) {
+		builder.WriteString("\n")
+		builder.WriteString(normalizeBatchProtoDefinition(c.renderProtoMessageByName(table, columns, method, messageName)))
+	}
+	return builder.String()
+}
+
+// fileExists 判断批次虚拟文件视图或工作区中是否存在目标文件。
+func (o *batchFileOverlay) fileExists(path string) (bool, error) {
+	_, err := o.readFile(path)
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return false, err
+}
+
+// readFile 从批次虚拟文件视图读取内容，未覆盖的路径回退到工作区。
+func (o *batchFileOverlay) readFile(path string) ([]byte, error) {
+	if content, exists := o.contents[path]; exists {
+		return []byte(content), nil
+	}
+	fullPath, err := SafeRepoFilePath(path)
+	if err != nil {
+		return nil, err
+	}
+	return os.ReadFile(fullPath)
+}
+
 // validateBatchTableIDs 校验批次内不会重复引用同一生成配置。
 func validateBatchTableIDs(inputs []BatchGenerationInput) error {
 	seen := make(map[int64]struct{}, len(inputs))
@@ -287,33 +338,6 @@ func compareBatchDefinition(definitions map[string]batchDefinition, key string, 
 	return fmt.Errorf("批量生成冲突：表%s与表%s在%s中定义了不同的%s", previous.tableName, current.tableName, key, kind)
 }
 
-// batchProtoMethodFingerprint 返回用于比较 Proto 方法、消息和路由的稳定内容指纹。
-func (c *renderer) batchProtoMethodFingerprint(table *Table, columns []*CodeGenColumn, method *Proto) string {
-	var builder strings.Builder
-	targetEntity := DefaultString(method.TargetEntityName, table.EntityName)
-	builder.WriteString(normalizeBatchProtoDefinition(c.renderProtoRPC(table, method, resourcePathByEntity(targetEntity))))
-	// 选项接口的触发来源和外键字段只描述调用方，不会改变目标实体的接口实现。
-	// 目标实体及其树形、显示和取值字段才决定可复用的接口定义。
-	semanticParts := []string{
-		method.APIKind,
-		targetEntity,
-		method.ParentColumn,
-		method.LabelColumn,
-		method.ValueColumn,
-	}
-	// 状态接口的状态字段会改变更新逻辑，必须继续参与冲突判断。
-	if method.APIKind == APIKindStatus {
-		semanticParts = append(semanticParts, method.ColumnName)
-	}
-	builder.WriteString("\nsemantic:")
-	builder.WriteString(strings.Join(semanticParts, "\x00"))
-	for _, messageName := range c.protoMessageNamesForMethod(table, method) {
-		builder.WriteString("\n")
-		builder.WriteString(normalizeBatchProtoDefinition(c.renderProtoMessageByName(table, columns, method, messageName)))
-	}
-	return builder.String()
-}
-
 // normalizeBatchProtoDefinition 移除不影响接口语义的独立 Proto 注释行。
 func normalizeBatchProtoDefinition(content string) string {
 	lines := strings.Split(content, "\n")
@@ -349,28 +373,4 @@ func isBatchMergeableFile(path string) bool {
 		}
 	}
 	return false
-}
-
-// readFile 从批次虚拟文件视图读取内容，未覆盖的路径回退到工作区。
-func (o *batchFileOverlay) readFile(path string) ([]byte, error) {
-	if content, exists := o.contents[path]; exists {
-		return []byte(content), nil
-	}
-	fullPath, err := SafeRepoFilePath(path)
-	if err != nil {
-		return nil, err
-	}
-	return os.ReadFile(fullPath)
-}
-
-// fileExists 判断批次虚拟文件视图或工作区中是否存在目标文件。
-func (o *batchFileOverlay) fileExists(path string) (bool, error) {
-	_, err := o.readFile(path)
-	if err == nil {
-		return true, nil
-	}
-	if os.IsNotExist(err) {
-		return false, nil
-	}
-	return false, err
 }

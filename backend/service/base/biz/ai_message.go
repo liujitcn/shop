@@ -308,48 +308,6 @@ func (c *AiMessageCase) ToolConfigs(ctx context.Context, terminal string, names 
 	return result, nil
 }
 
-// parseToolPrompts 解析工具提示词 JSON。
-func parseToolPrompts(value string) []string {
-	if value == "" {
-		return nil
-	}
-	var prompts []string
-	err := json.Unmarshal([]byte(value), &prompts)
-	if err != nil {
-		return nil
-	}
-	values := make([]string, 0, len(prompts))
-	for _, item := range prompts {
-		if item == "" {
-			continue
-		}
-		values = append(values, item)
-	}
-	return values
-}
-
-// toAiMessageDTO 转换消息模型到接口对象。
-func toAiMessageDTO(model *models.AiMessage) *basev1.AiMessage {
-	if model == nil {
-		return nil
-	}
-	inputContent := ai.ParseInputContent(model.InputContent)
-	outputContent := ai.ParseOutputContent(model.OutputContent)
-	token := ai.ParseTokenUsage(model.Token)
-	return &basev1.AiMessage{
-		Id:            strconv.FormatInt(model.ID, 10),
-		InputContent:  toAiInputContent(inputContent),
-		OutputContent: toAiOutputContent(outputContent),
-		Attachments:   ai.ParseAttachments(model.Attachments),
-		CreatedAt:     timestamppb.New(model.CreatedAt),
-		Status:        commonv1.AiMessageStatus(model.Status),
-		Token:         toAiToken(token),
-		Tools:         toAiTools(ai.ParseTools(model.Tools)),
-		FirstTokenMs:  model.FirstTokenMs,
-		DurationMs:    model.DurationMs,
-	}
-}
-
 // prepareNewAiMessage 校验请求并创建生成中的消息记录。
 func (c *AiMessageCase) prepareNewAiMessage(ctx context.Context, req *basev1.SendAiMessageRequest) (*models.AiSession, *models.AiMessage, string, []*basev1.AiAttachment, []ai.Attachment, []ai.Message, string, error) {
 	session, err := c.aiSessionCase.FindCurrentUserSessionByRawID(ctx, req.GetSessionId())
@@ -410,6 +368,74 @@ func (c *AiMessageCase) prepareNewAiMessage(ctx context.Context, req *basev1.Sen
 	return session, message, content, attachments, aiAttachments, history, userName, nil
 }
 
+// buildHistory 构造问答历史上下文。
+func (c *AiMessageCase) buildHistory(ctx context.Context, sessionID int64, historySize int) ([]ai.Message, error) {
+	query := c.aiMessageRepo.Query(ctx).AiMessage
+	opts := make([]repository.QueryOption, 0, 4)
+	opts = append(opts, repository.Where(query.SessionID.Eq(sessionID)))
+	opts = append(opts, repository.Where(query.Status.Eq(int32(commonv1.AiMessageStatus_SUCCESS_AAMS))))
+	opts = append(opts, repository.Order(query.CreatedAt.Desc(), query.ID.Desc()))
+	opts = append(opts, repository.Limit(historySize))
+	list, err := c.aiMessageRepo.List(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return buildHistoryFromMessages(list), nil
+}
+
+// regenerateAiMessage 使用已有输入重新生成当前轮次输出。
+func (c *AiMessageCase) regenerateAiMessage(ctx context.Context, session *models.AiSession, message *models.AiMessage) (*basev1.SendAiMessageResponse, error) {
+	input := ai.ParseInputContent(message.InputContent)
+	content := input.Content
+	return c.regenerateAiMessageWithContent(ctx, session, message, content)
+}
+
+// regenerateAiMessageWithContent 使用指定输入内容重新生成当前轮次输出。
+func (c *AiMessageCase) regenerateAiMessageWithContent(ctx context.Context, session *models.AiSession, message *models.AiMessage, content string) (*basev1.SendAiMessageResponse, error) {
+	attachments := ai.ParseAttachments(message.Attachments)
+
+	var err error
+	var aiAttachments []ai.Attachment
+	aiAttachments, err = c.buildAiAttachments(ctx, attachments)
+	if err != nil {
+		return nil, err
+	}
+	var userName string
+	userName, err = c.baseUserCase.FindUserNameByID(ctx, session.UserID)
+	if err != nil {
+		return nil, err
+	}
+	var history []ai.Message
+	history, err = c.buildHistoryBeforeMessage(ctx, session.ID, message, aiHistorySize)
+	if err != nil {
+		return nil, err
+	}
+
+	now := time.Now()
+	if err = c.markAiMessageGenerating(ctx, message, content, attachments, now); err != nil {
+		return nil, err
+	}
+	startAt := time.Now()
+	var reply *ai.Response
+	reply, err = c.generateAiReply(ctx, session, userName, content, nil, attachments, aiAttachments, history, nil)
+	finishAt := time.Now()
+	durationMs := durationMilliseconds(startAt, finishAt)
+	firstTokenMs := durationMs
+	status := int32(commonv1.AiMessageStatus_SUCCESS_AAMS)
+	if err != nil {
+		reply = c.buildAiFailedReply(reply, err)
+		status = int32(commonv1.AiMessageStatus_FAILED_AAMS)
+	}
+	err = c.finishAiMessage(ctx, session, message, reply, finishAt, firstTokenMs, durationMs, status)
+	if err != nil {
+		return nil, err
+	}
+	return &basev1.SendAiMessageResponse{
+		Messages: []*basev1.AiMessage{c.ToDTO(message)},
+		Session:  c.aiSessionCase.ToDTO(session),
+	}, nil
+}
+
 // buildAiAttachments 读取附件内容，构造 AI 助手输入附件。
 func (c *AiMessageCase) buildAiAttachments(ctx context.Context, attachments []*basev1.AiAttachment) ([]ai.Attachment, error) {
 	if len(attachments) == 0 {
@@ -452,21 +478,6 @@ func (c *AiMessageCase) buildAiAttachments(ctx context.Context, attachments []*b
 		result = append(result, next)
 	}
 	return result, nil
-}
-
-// buildHistory 构造问答历史上下文。
-func (c *AiMessageCase) buildHistory(ctx context.Context, sessionID int64, historySize int) ([]ai.Message, error) {
-	query := c.aiMessageRepo.Query(ctx).AiMessage
-	opts := make([]repository.QueryOption, 0, 4)
-	opts = append(opts, repository.Where(query.SessionID.Eq(sessionID)))
-	opts = append(opts, repository.Where(query.Status.Eq(int32(commonv1.AiMessageStatus_SUCCESS_AAMS))))
-	opts = append(opts, repository.Order(query.CreatedAt.Desc(), query.ID.Desc()))
-	opts = append(opts, repository.Limit(historySize))
-	list, err := c.aiMessageRepo.List(ctx, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return buildHistoryFromMessages(list), nil
 }
 
 // buildHistoryBeforeMessage 构造指定消息之前的上下文。
@@ -540,6 +551,27 @@ func (c *AiMessageCase) generateAiReply(
 	return c.buildAiFallbackResponse(content, attachments, err), err
 }
 
+// buildAiFailedReply 构造可展示和可排障的助手异常回复。
+func (c *AiMessageCase) buildAiFailedReply(reply *ai.Response, cause error) *ai.Response {
+	failedReply := reply
+	if failedReply == nil {
+		failedReply = c.buildAiFallbackResponse("", nil, cause)
+	}
+	reason := failedReply.FallbackReason
+	if reason == "" && cause != nil {
+		reason = cause.Error()
+	}
+	return &ai.Response{
+		Content:        failedReply.Content,
+		Token:          failedReply.Token,
+		Tools:          failedReply.Tools,
+		Source:         "fallback",
+		Model:          failedReply.Model,
+		Fallback:       true,
+		FallbackReason: reason,
+	}
+}
+
 // buildAiFallbackResponse 构造 AI 助手降级回复。
 func (c *AiMessageCase) buildAiFallbackResponse(
 	content string,
@@ -563,80 +595,6 @@ func (c *AiMessageCase) buildAiFallbackResponse(
 		Fallback:       true,
 		FallbackReason: fallbackReason,
 	}
-}
-
-// buildAiFailedReply 构造可展示和可排障的助手异常回复。
-func (c *AiMessageCase) buildAiFailedReply(reply *ai.Response, cause error) *ai.Response {
-	failedReply := reply
-	if failedReply == nil {
-		failedReply = c.buildAiFallbackResponse("", nil, cause)
-	}
-	reason := failedReply.FallbackReason
-	if reason == "" && cause != nil {
-		reason = cause.Error()
-	}
-	return &ai.Response{
-		Content:        failedReply.Content,
-		Token:          failedReply.Token,
-		Tools:          failedReply.Tools,
-		Source:         "fallback",
-		Model:          failedReply.Model,
-		Fallback:       true,
-		FallbackReason: reason,
-	}
-}
-
-// regenerateAiMessage 使用已有输入重新生成当前轮次输出。
-func (c *AiMessageCase) regenerateAiMessage(ctx context.Context, session *models.AiSession, message *models.AiMessage) (*basev1.SendAiMessageResponse, error) {
-	input := ai.ParseInputContent(message.InputContent)
-	content := input.Content
-	return c.regenerateAiMessageWithContent(ctx, session, message, content)
-}
-
-// regenerateAiMessageWithContent 使用指定输入内容重新生成当前轮次输出。
-func (c *AiMessageCase) regenerateAiMessageWithContent(ctx context.Context, session *models.AiSession, message *models.AiMessage, content string) (*basev1.SendAiMessageResponse, error) {
-	attachments := ai.ParseAttachments(message.Attachments)
-
-	var err error
-	var aiAttachments []ai.Attachment
-	aiAttachments, err = c.buildAiAttachments(ctx, attachments)
-	if err != nil {
-		return nil, err
-	}
-	var userName string
-	userName, err = c.baseUserCase.FindUserNameByID(ctx, session.UserID)
-	if err != nil {
-		return nil, err
-	}
-	var history []ai.Message
-	history, err = c.buildHistoryBeforeMessage(ctx, session.ID, message, aiHistorySize)
-	if err != nil {
-		return nil, err
-	}
-
-	now := time.Now()
-	if err = c.markAiMessageGenerating(ctx, message, content, attachments, now); err != nil {
-		return nil, err
-	}
-	startAt := time.Now()
-	var reply *ai.Response
-	reply, err = c.generateAiReply(ctx, session, userName, content, nil, attachments, aiAttachments, history, nil)
-	finishAt := time.Now()
-	durationMs := durationMilliseconds(startAt, finishAt)
-	firstTokenMs := durationMs
-	status := int32(commonv1.AiMessageStatus_SUCCESS_AAMS)
-	if err != nil {
-		reply = c.buildAiFailedReply(reply, err)
-		status = int32(commonv1.AiMessageStatus_FAILED_AAMS)
-	}
-	err = c.finishAiMessage(ctx, session, message, reply, finishAt, firstTokenMs, durationMs, status)
-	if err != nil {
-		return nil, err
-	}
-	return &basev1.SendAiMessageResponse{
-		Messages: []*basev1.AiMessage{c.ToDTO(message)},
-		Session:  c.aiSessionCase.ToDTO(session),
-	}, nil
 }
 
 // finishAiMessage 回填当前轮次输出、工具、token 与耗时。
@@ -773,6 +731,96 @@ func (c *AiMessageCase) markAiMessageGenerating(ctx context.Context, message *mo
 	return nil
 }
 
+// findCurrentUserMessage 查询当前用户当前会话下的消息。
+func (c *AiMessageCase) findCurrentUserMessage(ctx context.Context, rawSessionID string, rawMessageID string) (*models.AiMessage, *models.AiSession, error) {
+	session, err := c.aiSessionCase.FindCurrentUserSessionByRawID(ctx, rawSessionID)
+	if err != nil {
+		return nil, nil, err
+	}
+	var messageID int64
+	messageID, err = strconv.ParseInt(rawMessageID, 10, 64)
+	if err != nil || messageID <= 0 {
+		return nil, nil, errorsx.InvalidArgument("消息编号不合法")
+	}
+
+	query := c.aiMessageRepo.Query(ctx).AiMessage
+	opts := make([]repository.QueryOption, 0, 4)
+	opts = append(opts, repository.Where(query.ID.Eq(messageID)))
+	opts = append(opts, repository.Where(query.SessionID.Eq(session.ID)))
+	opts = append(opts, repository.Where(query.UserID.Eq(session.UserID)))
+	var message *models.AiMessage
+	message, err = c.aiMessageRepo.Find(ctx, opts...)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil, errorsx.ResourceNotFound("消息不存在")
+		}
+		return nil, nil, err
+	}
+	return message, session, nil
+}
+
+// ensureLastAiMessage 确认当前消息是会话最后一轮消息。
+func (c *AiMessageCase) ensureLastAiMessage(ctx context.Context, sessionID int64, messageID int64) error {
+	query := c.aiMessageRepo.Query(ctx).AiMessage
+	opts := make([]repository.QueryOption, 0, 3)
+	opts = append(opts, repository.Where(query.SessionID.Eq(sessionID)))
+	opts = append(opts, repository.Order(query.CreatedAt.Desc(), query.ID.Desc()))
+	opts = append(opts, repository.Limit(1))
+	lastMessage, err := c.aiMessageRepo.Find(ctx, opts...)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errorsx.ResourceNotFound("消息不存在")
+		}
+		return err
+	}
+	if lastMessage.ID != messageID {
+		return errorsx.StateConflict("只能编辑最后一条消息", "ai_message", strconv.FormatInt(messageID, 10), strconv.FormatInt(lastMessage.ID, 10))
+	}
+	return nil
+}
+
+// parseToolPrompts 解析工具提示词 JSON。
+func parseToolPrompts(value string) []string {
+	if value == "" {
+		return nil
+	}
+	var prompts []string
+	err := json.Unmarshal([]byte(value), &prompts)
+	if err != nil {
+		return nil
+	}
+	values := make([]string, 0, len(prompts))
+	for _, item := range prompts {
+		if item == "" {
+			continue
+		}
+		values = append(values, item)
+	}
+	return values
+}
+
+// toAiMessageDTO 转换消息模型到接口对象。
+func toAiMessageDTO(model *models.AiMessage) *basev1.AiMessage {
+	if model == nil {
+		return nil
+	}
+	inputContent := ai.ParseInputContent(model.InputContent)
+	outputContent := ai.ParseOutputContent(model.OutputContent)
+	token := ai.ParseTokenUsage(model.Token)
+	return &basev1.AiMessage{
+		Id:            strconv.FormatInt(model.ID, 10),
+		InputContent:  toAiInputContent(inputContent),
+		OutputContent: toAiOutputContent(outputContent),
+		Attachments:   ai.ParseAttachments(model.Attachments),
+		CreatedAt:     timestamppb.New(model.CreatedAt),
+		Status:        commonv1.AiMessageStatus(model.Status),
+		Token:         toAiToken(token),
+		Tools:         toAiTools(ai.ParseTools(model.Tools)),
+		FirstTokenMs:  model.FirstTokenMs,
+		DurationMs:    model.DurationMs,
+	}
+}
+
 // injectAiActionState 为流程动作补充来源消息和状态版本。
 func injectAiActionState(response *ai.Response, messageID int64) {
 	if response == nil || response.BlocksJSON == "" || messageID <= 0 {
@@ -899,54 +947,6 @@ func aiActionInt64Value(value any) int64 {
 	default:
 		return 0
 	}
-}
-
-// findCurrentUserMessage 查询当前用户当前会话下的消息。
-func (c *AiMessageCase) findCurrentUserMessage(ctx context.Context, rawSessionID string, rawMessageID string) (*models.AiMessage, *models.AiSession, error) {
-	session, err := c.aiSessionCase.FindCurrentUserSessionByRawID(ctx, rawSessionID)
-	if err != nil {
-		return nil, nil, err
-	}
-	var messageID int64
-	messageID, err = strconv.ParseInt(rawMessageID, 10, 64)
-	if err != nil || messageID <= 0 {
-		return nil, nil, errorsx.InvalidArgument("消息编号不合法")
-	}
-
-	query := c.aiMessageRepo.Query(ctx).AiMessage
-	opts := make([]repository.QueryOption, 0, 4)
-	opts = append(opts, repository.Where(query.ID.Eq(messageID)))
-	opts = append(opts, repository.Where(query.SessionID.Eq(session.ID)))
-	opts = append(opts, repository.Where(query.UserID.Eq(session.UserID)))
-	var message *models.AiMessage
-	message, err = c.aiMessageRepo.Find(ctx, opts...)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil, errorsx.ResourceNotFound("消息不存在")
-		}
-		return nil, nil, err
-	}
-	return message, session, nil
-}
-
-// ensureLastAiMessage 确认当前消息是会话最后一轮消息。
-func (c *AiMessageCase) ensureLastAiMessage(ctx context.Context, sessionID int64, messageID int64) error {
-	query := c.aiMessageRepo.Query(ctx).AiMessage
-	opts := make([]repository.QueryOption, 0, 3)
-	opts = append(opts, repository.Where(query.SessionID.Eq(sessionID)))
-	opts = append(opts, repository.Order(query.CreatedAt.Desc(), query.ID.Desc()))
-	opts = append(opts, repository.Limit(1))
-	lastMessage, err := c.aiMessageRepo.Find(ctx, opts...)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return errorsx.ResourceNotFound("消息不存在")
-		}
-		return err
-	}
-	if lastMessage.ID != messageID {
-		return errorsx.StateConflict("只能编辑最后一条消息", "ai_message", strconv.FormatInt(messageID, 10), strconv.FormatInt(lastMessage.ID, 10))
-	}
-	return nil
 }
 
 // matchAgentToolPrefix 判断工具名是否属于当前终端或公共 Base 工具。

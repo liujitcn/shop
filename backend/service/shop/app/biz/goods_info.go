@@ -180,20 +180,6 @@ func (c *GoodsInfoCase) PageGoodsInfo(ctx context.Context, req *shopappv1.PageGo
 	}, nil
 }
 
-// convertToProto 转换单个商品为接口返回结构
-func (c *GoodsInfoCase) convertToProto(item *models.GoodsInfo, member bool) *shopappv1.GoodsInfo {
-	goodsInfo := c.listMapper.ToDTO(item)
-	// 会员使用会员价，普通用户返回标准售价。
-	// 会员访问时，优先返回会员价。
-	if member {
-		goodsInfo.Price = item.DiscountPrice
-	} else {
-		goodsInfo.Price = item.Price
-	}
-	goodsInfo.SaleNum = item.InitSaleNum + item.RealSaleNum
-	return goodsInfo
-}
-
 // listByGoodsIDs 按商品 ID 顺序查询商品信息。
 func (c *GoodsInfoCase) listByGoodsIDs(ctx context.Context, goodsIDs []int64) ([]*shopappv1.GoodsInfo, error) {
 	// 是否会员
@@ -229,6 +215,20 @@ func (c *GoodsInfoCase) listByGoodsIDs(ctx context.Context, goodsIDs []int64) ([
 		result = append(result, goodsInfo)
 	}
 	return result, nil
+}
+
+// convertToProto 转换单个商品为接口返回结构
+func (c *GoodsInfoCase) convertToProto(item *models.GoodsInfo, member bool) *shopappv1.GoodsInfo {
+	goodsInfo := c.listMapper.ToDTO(item)
+	// 会员使用会员价，普通用户返回标准售价。
+	// 会员访问时，优先返回会员价。
+	if member {
+		goodsInfo.Price = item.DiscountPrice
+	} else {
+		goodsInfo.Price = item.Price
+	}
+	goodsInfo.SaleNum = item.InitSaleNum + item.RealSaleNum
+	return goodsInfo
 }
 
 // mapByGoodsIDs 按商品编号批量查询可展示商品并组装映射。

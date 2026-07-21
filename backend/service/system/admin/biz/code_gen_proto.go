@@ -188,6 +188,15 @@ func (c *CodeGenProtoCase) SaveCodeGenProto(ctx context.Context, req *systemadmi
 	})
 }
 
+// DeleteByTableIDs 删除多个代码生成表配置关联的 Proto 接口配置。
+func (c *CodeGenProtoCase) DeleteByTableIDs(ctx context.Context, tableIDs []int64) error {
+	if len(tableIDs) == 0 {
+		return nil
+	}
+	query := c.Query(ctx).CodeGenProto
+	return c.Delete(ctx, repository.Where(query.TableID.In(tableIDs...)))
+}
+
 // validateCodeGenProtoColumns 校验待生成 Proto 接口的类型配置和数据库字段。
 func (c *CodeGenProtoCase) validateCodeGenProtoColumns(ctx context.Context, tableName string, proto *systemadminv1.CodeGenProto, columnNamesByTable map[string]map[string]struct{}) error {
 	// 未勾选生成的接口不消费类型配置，无需校验字段。
@@ -216,34 +225,6 @@ func (c *CodeGenProtoCase) validateCodeGenProtoColumns(ctx context.Context, tabl
 		}
 	}
 	return nil
-}
-
-// loadCodeGenProtoColumnNames 加载并缓存目标表字段名。
-func (c *CodeGenProtoCase) loadCodeGenProtoColumnNames(ctx context.Context, tableName string, columnNamesByTable map[string]map[string]struct{}) (map[string]struct{}, error) {
-	columnNames := columnNamesByTable[tableName]
-	// 同一目标表已加载时直接复用字段集合。
-	if columnNames != nil {
-		return columnNames, nil
-	}
-	databaseColumns, err := c.codeGenColumnCase.listDatabaseColumns(ctx, tableName)
-	if err != nil {
-		return nil, err
-	}
-	columnNames = make(map[string]struct{}, len(databaseColumns))
-	for _, column := range databaseColumns {
-		columnNames[column.ColumnName] = struct{}{}
-	}
-	columnNamesByTable[tableName] = columnNames
-	return columnNames, nil
-}
-
-// DeleteByTableIDs 删除多个代码生成表配置关联的 Proto 接口配置。
-func (c *CodeGenProtoCase) DeleteByTableIDs(ctx context.Context, tableIDs []int64) error {
-	if len(tableIDs) == 0 {
-		return nil
-	}
-	query := c.Query(ctx).CodeGenProto
-	return c.Delete(ctx, repository.Where(query.TableID.In(tableIDs...)))
 }
 
 // inspectCodeGenProtos 推导当前配置需要的 Proto 接口并检查仓库与目标表状态。
@@ -298,6 +279,25 @@ func (c *CodeGenProtoCase) inspectCodeGenProtos(ctx context.Context, table *mode
 		}
 	}
 	return checks, nil
+}
+
+// loadCodeGenProtoColumnNames 加载并缓存目标表字段名。
+func (c *CodeGenProtoCase) loadCodeGenProtoColumnNames(ctx context.Context, tableName string, columnNamesByTable map[string]map[string]struct{}) (map[string]struct{}, error) {
+	columnNames := columnNamesByTable[tableName]
+	// 同一目标表已加载时直接复用字段集合。
+	if columnNames != nil {
+		return columnNames, nil
+	}
+	databaseColumns, err := c.codeGenColumnCase.listDatabaseColumns(ctx, tableName)
+	if err != nil {
+		return nil, err
+	}
+	columnNames = make(map[string]struct{}, len(databaseColumns))
+	for _, column := range databaseColumns {
+		columnNames[column.ColumnName] = struct{}{}
+	}
+	columnNamesByTable[tableName] = columnNames
+	return columnNames, nil
 }
 
 // buildExpectedCodeGenProtos 根据表与字段配置推导所需 Proto 接口。

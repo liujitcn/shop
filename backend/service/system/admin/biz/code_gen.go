@@ -661,31 +661,6 @@ func (c *CodeGenCase) findNextGeneratedMenuID(ctx context.Context, parentMenuID 
 	return maxMenuID + codeGenGeneratedMenuIDReservation, generatedMenuIDRangeEnd(maxMenuID), nil
 }
 
-// generatedMenuIDRangeEnd 根据当前最大菜单 ID 的位数计算本级菜单编号区间上限。
-func generatedMenuIDRangeEnd(maxMenuID int64) int64 {
-	// 根节点尚无子菜单时，从两位菜单 ID 区间开始分配。
-	if maxMenuID == 0 {
-		return 99
-	}
-	rangeSize := int64(10)
-	// 区间按最大 ID 的最高位划分，例如 100 对应 100-199。
-	for maxMenuID/rangeSize >= 10 {
-		rangeSize *= 10
-	}
-	return (maxMenuID/rangeSize+1)*rangeSize - 1
-}
-
-// allocateGeneratedMenuID 分配本轮新建菜单的 ID，并校验不会越过父级菜单的编号区间。
-func allocateGeneratedMenuID(nextMenuID *int64, menuIDEnd int64) (int64, error) {
-	// 到达下一父级菜单区间时，终止生成并由事务回滚已创建菜单。
-	if *nextMenuID > menuIDEnd {
-		return 0, errorsx.StateConflict(fmt.Sprintf("菜单ID已达到区间上限%d，不能继续生成", menuIDEnd), "base_menu", "range_exhausted", "available_id")
-	}
-	menuID := *nextMenuID
-	*nextMenuID++
-	return menuID, nil
-}
-
 // disableStaleGeneratedStatusMenus 停用本轮不再需要的状态按钮权限。
 func (c *CodeGenCase) disableStaleGeneratedStatusMenus(ctx context.Context, pageMenuID int64, table *codegen.Table, buttonSpecs []codegen.CodeGenMenuSpec) error {
 	expectedPaths := make(map[string]struct{}, len(buttonSpecs))
@@ -780,7 +755,8 @@ func (c *CodeGenCase) upsertGeneratedButtonMenu(ctx context.Context, spec codege
 		}
 		return c.baseMenuCase.casbinRuleCase.RebuildCasbinRuleByMenuID(ctx, spec.Menu.ID)
 	}
-	menuID, err := allocateGeneratedMenuID(nextMenuID, menuIDEnd)
+	var menuID int64
+	menuID, err = allocateGeneratedMenuID(nextMenuID, menuIDEnd)
 	if err != nil {
 		return err
 	}
@@ -794,6 +770,31 @@ func (r *codeGenProgressReporter) updateStep(ctx context.Context, stepID string,
 		return
 	}
 	r.manager.UpdateStep(ctx, r.taskID, r.tableID, stepID, status, message, output)
+}
+
+// generatedMenuIDRangeEnd 根据当前最大菜单 ID 的位数计算本级菜单编号区间上限。
+func generatedMenuIDRangeEnd(maxMenuID int64) int64 {
+	// 根节点尚无子菜单时，从两位菜单 ID 区间开始分配。
+	if maxMenuID == 0 {
+		return 99
+	}
+	rangeSize := int64(10)
+	// 区间按最大 ID 的最高位划分，例如 100 对应 100-199。
+	for maxMenuID/rangeSize >= 10 {
+		rangeSize *= 10
+	}
+	return (maxMenuID/rangeSize+1)*rangeSize - 1
+}
+
+// allocateGeneratedMenuID 分配本轮新建菜单的 ID，并校验不会越过父级菜单的编号区间。
+func allocateGeneratedMenuID(nextMenuID *int64, menuIDEnd int64) (int64, error) {
+	// 到达下一父级菜单区间时，终止生成并由事务回滚已创建菜单。
+	if *nextMenuID > menuIDEnd {
+		return 0, errorsx.StateConflict(fmt.Sprintf("菜单ID已达到区间上限%d，不能继续生成", menuIDEnd), "base_menu", "range_exhausted", "available_id")
+	}
+	menuID := *nextMenuID
+	*nextMenuID++
+	return menuID, nil
 }
 
 // codeGenTableToSnapshot 将现有表配置转换为生成器只读快照。

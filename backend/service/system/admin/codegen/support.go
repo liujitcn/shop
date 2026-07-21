@@ -116,23 +116,6 @@ func BuildProgressSteps(files []*systemadminv1.CodeGenPreviewFile, syncMenus boo
 	return steps
 }
 
-// renderDefaultOrderOption 根据字段快照渲染默认排序，优先创建时间，其次主键。
-func renderDefaultOrderOption(columns []*CodeGenColumn) string {
-	var primaryColumn *CodeGenColumn
-	for _, column := range columns {
-		if column.ColumnName == "created_at" {
-			return "\topts = append(opts, repository.Order(query." + modelFieldName(column.ColumnName) + ".Desc()))\n"
-		}
-		if primaryColumn == nil && column.IsPrimary == 1 {
-			primaryColumn = column
-		}
-	}
-	if primaryColumn == nil {
-		return ""
-	}
-	return "\topts = append(opts, repository.Order(query." + modelFieldName(primaryColumn.ColumnName) + ".Desc()))\n"
-}
-
 // FileStepID 返回文件步骤的稳定标识。
 func FileStepID(index int) string {
 	return fmt.Sprintf("file:%d", index)
@@ -472,6 +455,23 @@ func (s *%sService) %s(ctx context.Context, req *systemadminv1.%sRequest) %s {
 	%s
 }
 `, method.MethodName, errorMessage, table.EntityName, method.MethodName, method.MethodName, returnType, assign, caseCall, method.MethodName, errorMessage, successReturn)
+}
+
+// renderDefaultOrderOption 根据字段快照渲染默认排序，优先创建时间，其次主键。
+func renderDefaultOrderOption(columns []*CodeGenColumn) string {
+	var primaryColumn *CodeGenColumn
+	for _, column := range columns {
+		if column.ColumnName == "created_at" {
+			return "\topts = append(opts, repository.Order(query." + modelFieldName(column.ColumnName) + ".Desc()))\n"
+		}
+		if primaryColumn == nil && column.IsPrimary == 1 {
+			primaryColumn = column
+		}
+	}
+	if primaryColumn == nil {
+		return ""
+	}
+	return "\topts = append(opts, repository.Order(query." + modelFieldName(primaryColumn.ColumnName) + ".Desc()))\n"
 }
 
 // resourcePathByEntity 根据实体名推导管理端资源路径。

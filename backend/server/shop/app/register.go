@@ -109,14 +109,6 @@ func (s Services) RegisterMCP(server *mcpserver.Server) {
 	shopappv1.RegisterUserStoreServiceMCPTools(mcpSrv, s.UserStore)
 }
 
-// Tasks 返回商城端需要调度运行时执行的具名任务。
-func (s TaskSet) Tasks() []job.Task {
-	return []job.Task{
-		{Name: "CommentAuditRetry", Exec: s.commentAuditRetry},
-		{Name: "OrderRefundRetry", Exec: s.orderRefundRetry},
-	}
-}
-
 // AppAgentTools 创建 shop.app.v1 的商城端 AI 助手工具。
 func (s Services) AppAgentTools() ([]einoTool.Invokable, error) {
 	var tools []einoTool.Invokable
@@ -186,4 +178,12 @@ func (s Services) AppAgentTools() ([]einoTool.Invokable, error) {
 		return nil, err
 	}
 	return tools, nil
+}
+
+// Tasks 返回商城端需要调度运行时执行的具名任务。
+func (s TaskSet) Tasks() []job.Task {
+	return []job.Task{
+		{Name: "CommentAuditRetry", Exec: s.commentAuditRetry},
+		{Name: "OrderRefundRetry", Exec: s.orderRefundRetry},
+	}
 }

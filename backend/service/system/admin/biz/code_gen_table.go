@@ -129,53 +129,6 @@ func (c *CodeGenTableCase) ListCodeGenProtoDirectory(_ context.Context) (*system
 	return &systemadminv1.ListCodeGenProtoDirectoryResponse{Directories: items}, nil
 }
 
-// listCodeGenProtoDirectories 查询 Proto 根目录下实际包含 Proto 文件的目录。
-func (c *CodeGenTableCase) listCodeGenProtoDirectories() ([]string, error) {
-	protoRoot := filepath.Join(codegen.BackendDir(), "api", "proto")
-	directorySet := make(map[string]struct{})
-	err := filepath.WalkDir(protoRoot, func(path string, entry os.DirEntry, walkErr error) error {
-		if walkErr != nil {
-			return walkErr
-		}
-		if entry.IsDir() || filepath.Ext(entry.Name()) != ".proto" {
-			return nil
-		}
-		directory, err := filepath.Rel(protoRoot, filepath.Dir(path))
-		if err != nil {
-			return err
-		}
-		directory = filepath.ToSlash(directory)
-		if _, ok := codegen.ProtoTargetByDirectory(directory); ok {
-			directorySet[directory] = struct{}{}
-		}
-		return nil
-	})
-	if err != nil {
-		return nil, err
-	}
-	directories := make([]string, 0, len(directorySet))
-	for directory := range directorySet {
-		directories = append(directories, directory)
-	}
-	sort.Strings(directories)
-	return directories, nil
-}
-
-// listDatabaseTables 查询当前数据库的表名与表描述，可按表名缩小范围。
-func (c *CodeGenTableCase) listDatabaseTables(ctx context.Context, tableNames []string) ([]dto.CodeGenDatabaseTable, error) {
-	query := c.dbClient.DB.WithContext(ctx).
-		Table("information_schema.tables").
-		Select("table_name, table_comment").
-		Where("table_schema = DATABASE()").
-		Where("table_type = ?", "BASE TABLE")
-	if len(tableNames) > 0 {
-		query = query.Where("table_name IN ?", tableNames)
-	}
-	var tableInfos []dto.CodeGenDatabaseTable
-	err := query.Order("table_name").Find(&tableInfos).Error
-	return tableInfos, err
-}
-
 // PageCodeGenTable 查询代码生成表配置分页数据。
 func (c *CodeGenTableCase) PageCodeGenTable(ctx context.Context, req *systemadminv1.PageCodeGenTableRequest) (*systemadminv1.PageCodeGenTableResponse, error) {
 	query := c.Query(ctx).CodeGenTable
@@ -287,6 +240,21 @@ func (c *CodeGenTableCase) DeleteCodeGenTable(ctx context.Context, ids string) e
 	})
 }
 
+// listDatabaseTables 查询当前数据库的表名与表描述，可按表名缩小范围。
+func (c *CodeGenTableCase) listDatabaseTables(ctx context.Context, tableNames []string) ([]dto.CodeGenDatabaseTable, error) {
+	query := c.dbClient.DB.WithContext(ctx).
+		Table("information_schema.tables").
+		Select("table_name, table_comment").
+		Where("table_schema = DATABASE()").
+		Where("table_type = ?", "BASE TABLE")
+	if len(tableNames) > 0 {
+		query = query.Where("table_name IN ?", tableNames)
+	}
+	var tableInfos []dto.CodeGenDatabaseTable
+	err := query.Order("table_name").Find(&tableInfos).Error
+	return tableInfos, err
+}
+
 // codeGenTableFormToModel 校验并转换代码生成表配置保存模型。
 func (c *CodeGenTableCase) codeGenTableFormToModel(ctx context.Context, currentID int64, req *systemadminv1.CodeGenTableForm) (*models.CodeGenTable, error) {
 	if req.GetName() == "" {
@@ -317,7 +285,8 @@ func (c *CodeGenTableCase) codeGenTableFormToModel(ctx context.Context, currentI
 	if parentMenuID <= 0 {
 		return nil, errorsx.InvalidArgument("请选择父级菜单")
 	}
-	menu, err := c.baseMenuCase.FindByID(ctx, parentMenuID)
+	var menu *models.BaseMenu
+	menu, err = c.baseMenuCase.FindByID(ctx, parentMenuID)
 	if err != nil {
 		return nil, errorsx.InvalidArgument("父级菜单不存在").WithCause(err)
 	}
@@ -350,4 +319,36 @@ func (c *CodeGenTableCase) codeGenTableFormToModel(ctx context.Context, currentI
 		item.LeftTreeConfig = ""
 	}
 	return item, nil
+}
+
+// listCodeGenProtoDirectories 查询 Proto 根目录下实际包含 Proto 文件的目录。
+func (c *CodeGenTableCase) listCodeGenProtoDirectories() ([]string, error) {
+	protoRoot := filepath.Join(codegen.BackendDir(), "api", "proto")
+	directorySet := make(map[string]struct{})
+	err := filepath.WalkDir(protoRoot, func(path string, entry os.DirEntry, walkErr error) error {
+		if walkErr != nil {
+			return walkErr
+		}
+		if entry.IsDir() || filepath.Ext(entry.Name()) != ".proto" {
+			return nil
+		}
+		directory, err := filepath.Rel(protoRoot, filepath.Dir(path))
+		if err != nil {
+			return err
+		}
+		directory = filepath.ToSlash(directory)
+		if _, ok := codegen.ProtoTargetByDirectory(directory); ok {
+			directorySet[directory] = struct{}{}
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	directories := make([]string, 0, len(directorySet))
+	for directory := range directorySet {
+		directories = append(directories, directory)
+	}
+	sort.Strings(directories)
+	return directories, nil
 }

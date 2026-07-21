@@ -124,6 +124,23 @@ func (r *Recommend) resolveAnchorGoodsID(goodsID int64, contextGoodsIDs []int64)
 	return 0
 }
 
+// buildPaginationQuery 构建命名推荐器统一分页查询参数。
+func (r *Recommend) buildPaginationQuery(limit int64) string {
+	query := url.Values{}
+	query.Set("n", strconv.FormatInt(limit+1, 10))
+	query.Set("offset", "0")
+	return query.Encode()
+}
+
+// buildPageResultFromScores 将评分列表转换为项目分页结果。
+func (r *Recommend) buildPageResultFromScores(scores []client.Score, limit, pageNum, pageSize int64, excludedGoods map[int64]struct{}) ([]int64, int64, error) {
+	goodsIDs, hasMore, err := r.buildGoodsIDsFromScores(scores, limit, excludedGoods)
+	if err != nil {
+		return nil, 0, err
+	}
+	return r.buildRecommendPageResult(goodsIDs, hasMore, pageNum, pageSize)
+}
+
 // buildGoodsIDsFromScores 清洗评分列表中的商品编号。
 func (r *Recommend) buildGoodsIDsFromScores(scores []client.Score, limit int64, excludedGoods map[int64]struct{}) ([]int64, bool, error) {
 	rawIDs := make([]string, 0, len(scores))
@@ -142,21 +159,4 @@ func (r *Recommend) buildGoodsIDsFromScores(scores []client.Score, limit int64, 
 		rawIDs = append(rawIDs, score.Id)
 	}
 	return r.buildRecommendGoodsIDs(rawIDs, limit)
-}
-
-// buildPaginationQuery 构建命名推荐器统一分页查询参数。
-func (r *Recommend) buildPaginationQuery(limit int64) string {
-	query := url.Values{}
-	query.Set("n", strconv.FormatInt(limit+1, 10))
-	query.Set("offset", "0")
-	return query.Encode()
-}
-
-// buildPageResultFromScores 将评分列表转换为项目分页结果。
-func (r *Recommend) buildPageResultFromScores(scores []client.Score, limit, pageNum, pageSize int64, excludedGoods map[int64]struct{}) ([]int64, int64, error) {
-	goodsIDs, hasMore, err := r.buildGoodsIDsFromScores(scores, limit, excludedGoods)
-	if err != nil {
-		return nil, 0, err
-	}
-	return r.buildRecommendPageResult(goodsIDs, hasMore, pageNum, pageSize)
 }

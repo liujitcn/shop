@@ -257,89 +257,6 @@ func (t *TradeBill) payment(billDate, billType string) (tradeBillCheckResult, er
 	return result, nil
 }
 
-// downloadBill 下载并初始化对账单记录
-func (t *TradeBill) downloadBill(billDate, billType string) (*models.PayBill, error) {
-	// 获取当前定时账单日期
-	query := t.data.Query(t.ctx).PayBill
-	opts := make([]repository.QueryOption, 0, 2)
-	opts = append(opts, repository.Where(query.BillDate.Eq(billDate)))
-	opts = append(opts, repository.Where(query.BillType.Eq(billType)))
-	first, err := t.payBillRepo.Find(
-		t.ctx,
-		opts...,
-	)
-	// 已存在的账单查询出现非“未找到”错误时，直接返回。
-	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, err
-	}
-	// 账单记录不存在时，先向微信申请并落本地账单文件。
-	if errors.Is(err, gorm.ErrRecordNotFound) || first == nil {
-		// 申请账单
-		var tradeBill *bill.TradeBillResponse
-		tradeBill, err = t.wxPayCase.TradeBill(bill.TradeBillRequest{
-			BillDate: &billDate,
-			BillType: &billType,
-		})
-		if err != nil {
-			return nil, err
-		}
-
-		// 下载账单
-		var billByte []byte
-		billByte, err = t.wxPayCase.DownloadBill(trans.StringValue(tradeBill.DownloadURL))
-		if err != nil {
-			return nil, err
-		}
-
-		// 校验Hash
-		hashValue := trans.StringValue(tradeBill.HashValue)
-		err = t.checkHash(billByte, hashValue)
-		if err != nil {
-			return nil, err
-		}
-
-		var path string
-		path, err = t.oss.UploadByByte(fmt.Sprintf("%s.csv", billType), fmt.Sprintf("bill/file/%s", strings.ReplaceAll(billDate, "-", "/")), billByte)
-		if err != nil {
-			return nil, err
-		}
-
-		first = &models.PayBill{
-			BillDate:  billDate,
-			BillType:  billType,
-			FilePath:  path,
-			HashType:  trans.StringValue(tradeBill.HashType),
-			HashValue: hashValue,
-		}
-		err = t.payBillRepo.Create(t.ctx, first)
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		// 重新计算
-		first.TotalCount = 0
-		first.TotalAmount = 0
-		first.ThirdTotalCount = 0
-		first.ThirdTotalAmount = 0
-		first.Status = 0
-	}
-	return first, nil
-}
-
-// checkHash 校验账单文件哈希值
-func (t *TradeBill) checkHash(fileBytes []byte, hashValue string) error {
-	hash := sha1.New()
-	hash.Write(fileBytes)
-	hashSum := hash.Sum(nil) // 返回 [20]byte 的切片
-	// 将哈希值转换为十六进制字符串（与常见工具格式一致）
-	hashHex := fmt.Sprintf("%x", hashSum)
-	// 账单内容与期望哈希不一致时，视为文件校验失败。
-	if hashHex != hashValue {
-		return errorsx.Internal("校验账单文件失败")
-	}
-	return nil
-}
-
 // refund 核对退款账单
 func (t *TradeBill) refund(billDate, billType string) (tradeBillCheckResult, error) {
 	result := tradeBillCheckResult{name: "退款账单"}
@@ -477,6 +394,89 @@ func (t *TradeBill) refund(billDate, billType string) (tradeBillCheckResult, err
 	result.thirdAmount = payBill.ThirdTotalAmount
 	result.thirdCount = payBill.ThirdTotalCount
 	return result, nil
+}
+
+// downloadBill 下载并初始化对账单记录
+func (t *TradeBill) downloadBill(billDate, billType string) (*models.PayBill, error) {
+	// 获取当前定时账单日期
+	query := t.data.Query(t.ctx).PayBill
+	opts := make([]repository.QueryOption, 0, 2)
+	opts = append(opts, repository.Where(query.BillDate.Eq(billDate)))
+	opts = append(opts, repository.Where(query.BillType.Eq(billType)))
+	first, err := t.payBillRepo.Find(
+		t.ctx,
+		opts...,
+	)
+	// 已存在的账单查询出现非“未找到”错误时，直接返回。
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, err
+	}
+	// 账单记录不存在时，先向微信申请并落本地账单文件。
+	if errors.Is(err, gorm.ErrRecordNotFound) || first == nil {
+		// 申请账单
+		var tradeBill *bill.TradeBillResponse
+		tradeBill, err = t.wxPayCase.TradeBill(bill.TradeBillRequest{
+			BillDate: &billDate,
+			BillType: &billType,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		// 下载账单
+		var billByte []byte
+		billByte, err = t.wxPayCase.DownloadBill(trans.StringValue(tradeBill.DownloadURL))
+		if err != nil {
+			return nil, err
+		}
+
+		// 校验Hash
+		hashValue := trans.StringValue(tradeBill.HashValue)
+		err = t.checkHash(billByte, hashValue)
+		if err != nil {
+			return nil, err
+		}
+
+		var path string
+		path, err = t.oss.UploadByByte(fmt.Sprintf("%s.csv", billType), fmt.Sprintf("bill/file/%s", strings.ReplaceAll(billDate, "-", "/")), billByte)
+		if err != nil {
+			return nil, err
+		}
+
+		first = &models.PayBill{
+			BillDate:  billDate,
+			BillType:  billType,
+			FilePath:  path,
+			HashType:  trans.StringValue(tradeBill.HashType),
+			HashValue: hashValue,
+		}
+		err = t.payBillRepo.Create(t.ctx, first)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		// 重新计算
+		first.TotalCount = 0
+		first.TotalAmount = 0
+		first.ThirdTotalCount = 0
+		first.ThirdTotalAmount = 0
+		first.Status = 0
+	}
+	return first, nil
+}
+
+// checkHash 校验账单文件哈希值
+func (t *TradeBill) checkHash(fileBytes []byte, hashValue string) error {
+	hash := sha1.New()
+	hash.Write(fileBytes)
+	hashSum := hash.Sum(nil) // 返回 [20]byte 的切片
+	// 将哈希值转换为十六进制字符串（与常见工具格式一致）
+	hashHex := fmt.Sprintf("%x", hashSum)
+	// 账单内容与期望哈希不一致时，视为文件校验失败。
+	if hashHex != hashValue {
+		return errorsx.Internal("校验账单文件失败")
+	}
+	return nil
 }
 
 // formatMessage 格式化交易账单核对结果。

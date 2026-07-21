@@ -161,39 +161,6 @@ func (c *CommentTagCase) listVisibleByGoodsID(ctx context.Context, goodsID int64
 	return c.List(ctx, opts...)
 }
 
-// cleanCommentTagNames 清理 LLM 返回的标签名称。
-func cleanCommentTagNames(tagNames []string) []string {
-	cleanNames := make([]string, 0, len(tagNames))
-	seen := make(map[string]struct{}, len(tagNames))
-	for _, tagName := range tagNames {
-		cleanName := tagName
-		// 空标签不写入标签库。
-		if cleanName == "" {
-			continue
-		}
-		runes := []rune(cleanName)
-		// 标签最长保留 8 个字符，避免模型输出过长短语污染筛选项。
-		if len(runes) > 8 {
-			cleanName = string(runes[:8])
-		}
-		// 重复标签只保留一次。
-		if _, ok := seen[cleanName]; ok {
-			continue
-		}
-		seen[cleanName] = struct{}{}
-		cleanNames = append(cleanNames, cleanName)
-		if len(cleanNames) >= 5 {
-			break
-		}
-	}
-	return cleanNames
-}
-
-// jsonStringTagNames 将标签名称转为 JSON 数组字符串。
-func jsonStringTagNames(tagNames []string) string {
-	return _string.ConvertAnyToJsonString(cleanCommentTagNames(tagNames))
-}
-
 // upsertTagByName 根据标签名称创建或复用商品标签。
 func (c *CommentTagCase) upsertTagByName(ctx context.Context, tenantID, tenantStoreID, goodsID int64, tagName string) (int64, error) {
 	query := c.Query(ctx).CommentTag
@@ -242,4 +209,37 @@ func (c *CommentTagCase) upsertTagByName(ctx context.Context, tenantID, tenantSt
 		return 0, err
 	}
 	return record.ID, nil
+}
+
+// cleanCommentTagNames 清理 LLM 返回的标签名称。
+func cleanCommentTagNames(tagNames []string) []string {
+	cleanNames := make([]string, 0, len(tagNames))
+	seen := make(map[string]struct{}, len(tagNames))
+	for _, tagName := range tagNames {
+		cleanName := tagName
+		// 空标签不写入标签库。
+		if cleanName == "" {
+			continue
+		}
+		runes := []rune(cleanName)
+		// 标签最长保留 8 个字符，避免模型输出过长短语污染筛选项。
+		if len(runes) > 8 {
+			cleanName = string(runes[:8])
+		}
+		// 重复标签只保留一次。
+		if _, ok := seen[cleanName]; ok {
+			continue
+		}
+		seen[cleanName] = struct{}{}
+		cleanNames = append(cleanNames, cleanName)
+		if len(cleanNames) >= 5 {
+			break
+		}
+	}
+	return cleanNames
+}
+
+// jsonStringTagNames 将标签名称转为 JSON 数组字符串。
+func jsonStringTagNames(tagNames []string) string {
+	return _string.ConvertAnyToJsonString(cleanCommentTagNames(tagNames))
 }

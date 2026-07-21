@@ -132,6 +132,133 @@ func (c *renderer) appendProtoPatch(content string, patch CodeGenProtoPatch) str
 	return appendMissingProtoMessages(content, patch.Messages)
 }
 
+// renderProtoRPC 渲染单个 RPC 契约。
+func (c *renderer) renderProtoRPC(table *Table, method *Proto, resourcePath string) string {
+	businessName := codeGenProtoMethodBusinessName(table, method)
+	switch method.APIKind {
+	case APIKindList:
+		return fmt.Sprintf(`  // 查询%s分页列表
+  rpc %s(%sRequest) returns (%sResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/%s"
+    };
+  }
+`, table.BusinessName, method.MethodName, method.MethodName, method.MethodName, resourcePath)
+	case APIKindTree:
+		if method.TriggerType == TriggerEntityOption || method.TriggerType == TriggerFieldOption || method.TriggerType == TriggerLeftTree {
+			return fmt.Sprintf(`  // 查询%s树形选择
+  rpc %s(%sRequest) returns (.common.v1.TreeOptionResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/%s/option"
+    };
+  }
+`, businessName, method.MethodName, method.MethodName, resourcePath)
+		}
+		return fmt.Sprintf(`  // 查询%s树形列表
+  rpc %s(%sRequest) returns (%sResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/%s/tree"
+    };
+  }
+`, table.BusinessName, method.MethodName, method.MethodName, method.MethodName, resourcePath)
+	case APIKindOption:
+		return fmt.Sprintf(`  // 查询%s下拉选择
+  rpc %s(%sRequest) returns (.common.v1.SelectOptionResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/%s/option"
+    };
+  }
+`, businessName, method.MethodName, method.MethodName, resourcePath)
+	case APIKindStatus:
+		return fmt.Sprintf(`  // 设置状态
+  rpc %s(%sRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/v1/admin/%s/{id}/%s"
+      body: "*"
+    };
+  }
+`, method.MethodName, method.MethodName, resourcePath, statusResourcePath(table, method))
+	}
+	return c.renderCRUDProtoRPC(table, method, resourcePath)
+}
+
+// renderCRUDProtoRPC 渲染标准 CRUD RPC。
+func (c *renderer) renderCRUDProtoRPC(table *Table, method *Proto, resourcePath string) string {
+	entity := table.EntityName
+	switch method.MethodName {
+	case "Get" + entity:
+		return fmt.Sprintf(`  // 查询%s详情
+  rpc Get%s(Get%sRequest) returns (%sForm) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/%s/{id}"
+    };
+  }
+`, table.BusinessName, entity, entity, entity, resourcePath)
+	case "Create" + entity:
+		return fmt.Sprintf(`  // 创建%s
+  rpc Create%s(Create%sRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/api/v1/admin/%s"
+      body: "%s"
+    };
+  }
+`, table.BusinessName, entity, entity, resourcePath, stringcase.ToSnakeCase(entity))
+	case "Update" + entity:
+		return fmt.Sprintf(`  // 更新%s
+  rpc Update%s(Update%sRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/v1/admin/%s/{id}"
+      body: "%s"
+    };
+  }
+`, table.BusinessName, entity, entity, resourcePath, stringcase.ToSnakeCase(entity))
+	case "Delete" + entity:
+		return fmt.Sprintf(`  // 删除%s
+  rpc Delete%s(Delete%sRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/api/v1/admin/%s/{ids}"
+    };
+  }
+`, table.BusinessName, entity, entity, resourcePath)
+	default:
+		return ""
+	}
+}
+
+// renderProtoMessage 渲染 Proto 数据消息。
+func (c *renderer) renderProtoMessage(table *Table, columns []*CodeGenColumn, form bool) string {
+	entity := table.EntityName
+	name := entity
+	title := table.BusinessName
+	if form {
+		name += "Form"
+		title += "表单"
+	}
+	var builder strings.Builder
+	builder.WriteString("// " + title + "\n")
+	builder.WriteString("message " + name + " {\n")
+	fieldNo := int32(1)
+	for _, column := range columns {
+		if !form && (column.ColumnName == "deleted_at" || !generatedListIncludesColumn(column) && column.IsPrimary != 1 && column.ColumnName != "created_at" && column.ColumnName != "updated_at") {
+			continue
+		}
+		if form && !generatedFormIncludesColumn(column) && column.IsPrimary != 1 {
+			continue
+		}
+		if form && isFormTreeMultiple(column) {
+			builder.WriteString(c.renderFormTreeMultipleProtoField(column, fieldNo))
+		} else {
+			builder.WriteString(c.renderProtoField(column, fieldNo, form && column.IsPrimary != 1))
+		}
+		fieldNo++
+	}
+	if !form && table.PageType == PageTypeTree {
+		builder.WriteString(fmt.Sprintf("\n  repeated %s children = 300 [(gnostic.openapi.v3.property) = {description: \"子节点树\"}]; // 子节点树\n", entity))
+	}
+	builder.WriteString("}\n")
+	return builder.String()
+}
+
 // appendMissingProtoMessages 补齐缺失 message 和字段，并按 RPC 顺序整理消息位置。
 func appendMissingProtoMessages(content string, messages []string) string {
 	missingMessages := make([]string, 0, len(messages))
@@ -152,6 +279,16 @@ func appendMissingProtoMessages(content string, messages []string) string {
 	}
 	content = strings.TrimRight(content, "\n") + "\n\n" + strings.TrimSpace(strings.Join(missingMessages, "\n")) + "\n"
 	return normalizeProtoMessageOrder(content)
+}
+
+type protoMessageField struct {
+	name        string
+	number      int
+	numberStart int
+	numberEnd   int
+	content     string
+	start       int
+	end         int
 }
 
 // normalizeProtoMessageOrder 按文件内 RPC 顺序整理顶层请求和响应消息，其他消息保持相对顺序。
@@ -274,16 +411,6 @@ func appendMissingProtoMessageFields(content string, messageStart, messageEnd in
 	}
 	body := renderProtoMessageFields(fields)
 	return content[:messageStart+1] + body + content[messageEnd:]
-}
-
-type protoMessageField struct {
-	name        string
-	number      int
-	numberStart int
-	numberEnd   int
-	content     string
-	start       int
-	end         int
 }
 
 // protoMessageFields 返回 message 中可由生成器维护的字段声明和原始位置。
@@ -444,133 +571,6 @@ func findProtoMessageBounds(content string, messageName string) (int, int) {
 		return -1, -1
 	}
 	return openIndex, closeIndex
-}
-
-// renderProtoRPC 渲染单个 RPC 契约。
-func (c *renderer) renderProtoRPC(table *Table, method *Proto, resourcePath string) string {
-	businessName := codeGenProtoMethodBusinessName(table, method)
-	switch method.APIKind {
-	case APIKindList:
-		return fmt.Sprintf(`  // 查询%s分页列表
-  rpc %s(%sRequest) returns (%sResponse) {
-    option (google.api.http) = {
-      get: "/api/v1/admin/%s"
-    };
-  }
-`, table.BusinessName, method.MethodName, method.MethodName, method.MethodName, resourcePath)
-	case APIKindTree:
-		if method.TriggerType == TriggerEntityOption || method.TriggerType == TriggerFieldOption || method.TriggerType == TriggerLeftTree {
-			return fmt.Sprintf(`  // 查询%s树形选择
-  rpc %s(%sRequest) returns (.common.v1.TreeOptionResponse) {
-    option (google.api.http) = {
-      get: "/api/v1/admin/%s/option"
-    };
-  }
-`, businessName, method.MethodName, method.MethodName, resourcePath)
-		}
-		return fmt.Sprintf(`  // 查询%s树形列表
-  rpc %s(%sRequest) returns (%sResponse) {
-    option (google.api.http) = {
-      get: "/api/v1/admin/%s/tree"
-    };
-  }
-`, table.BusinessName, method.MethodName, method.MethodName, method.MethodName, resourcePath)
-	case APIKindOption:
-		return fmt.Sprintf(`  // 查询%s下拉选择
-  rpc %s(%sRequest) returns (.common.v1.SelectOptionResponse) {
-    option (google.api.http) = {
-      get: "/api/v1/admin/%s/option"
-    };
-  }
-`, businessName, method.MethodName, method.MethodName, resourcePath)
-	case APIKindStatus:
-		return fmt.Sprintf(`  // 设置状态
-  rpc %s(%sRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      put: "/api/v1/admin/%s/{id}/%s"
-      body: "*"
-    };
-  }
-`, method.MethodName, method.MethodName, resourcePath, statusResourcePath(table, method))
-	}
-	return c.renderCRUDProtoRPC(table, method, resourcePath)
-}
-
-// renderCRUDProtoRPC 渲染标准 CRUD RPC。
-func (c *renderer) renderCRUDProtoRPC(table *Table, method *Proto, resourcePath string) string {
-	entity := table.EntityName
-	switch method.MethodName {
-	case "Get" + entity:
-		return fmt.Sprintf(`  // 查询%s详情
-  rpc Get%s(Get%sRequest) returns (%sForm) {
-    option (google.api.http) = {
-      get: "/api/v1/admin/%s/{id}"
-    };
-  }
-`, table.BusinessName, entity, entity, entity, resourcePath)
-	case "Create" + entity:
-		return fmt.Sprintf(`  // 创建%s
-  rpc Create%s(Create%sRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      post: "/api/v1/admin/%s"
-      body: "%s"
-    };
-  }
-`, table.BusinessName, entity, entity, resourcePath, stringcase.ToSnakeCase(entity))
-	case "Update" + entity:
-		return fmt.Sprintf(`  // 更新%s
-  rpc Update%s(Update%sRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      put: "/api/v1/admin/%s/{id}"
-      body: "%s"
-    };
-  }
-`, table.BusinessName, entity, entity, resourcePath, stringcase.ToSnakeCase(entity))
-	case "Delete" + entity:
-		return fmt.Sprintf(`  // 删除%s
-  rpc Delete%s(Delete%sRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      delete: "/api/v1/admin/%s/{ids}"
-    };
-  }
-`, table.BusinessName, entity, entity, resourcePath)
-	default:
-		return ""
-	}
-}
-
-// renderProtoMessage 渲染 Proto 数据消息。
-func (c *renderer) renderProtoMessage(table *Table, columns []*CodeGenColumn, form bool) string {
-	entity := table.EntityName
-	name := entity
-	title := table.BusinessName
-	if form {
-		name += "Form"
-		title += "表单"
-	}
-	var builder strings.Builder
-	builder.WriteString("// " + title + "\n")
-	builder.WriteString("message " + name + " {\n")
-	fieldNo := int32(1)
-	for _, column := range columns {
-		if !form && (column.ColumnName == "deleted_at" || !generatedListIncludesColumn(column) && column.IsPrimary != 1 && column.ColumnName != "created_at" && column.ColumnName != "updated_at") {
-			continue
-		}
-		if form && !generatedFormIncludesColumn(column) && column.IsPrimary != 1 {
-			continue
-		}
-		if form && isFormTreeMultiple(column) {
-			builder.WriteString(c.renderFormTreeMultipleProtoField(column, fieldNo))
-		} else {
-			builder.WriteString(c.renderProtoField(column, fieldNo, form && column.IsPrimary != 1))
-		}
-		fieldNo++
-	}
-	if !form && table.PageType == PageTypeTree {
-		builder.WriteString(fmt.Sprintf("\n  repeated %s children = 300 [(gnostic.openapi.v3.property) = {description: \"子节点树\"}]; // 子节点树\n", entity))
-	}
-	builder.WriteString("}\n")
-	return builder.String()
 }
 
 // normalizeProtoRPCOrder 按服务分别整理已有 RPC，未识别的方法保持原有相对顺序。

@@ -20,6 +20,24 @@ func NewRunner(client *einoModel.ChatClient) *Runner {
 	return &Runner{client: client}
 }
 
+// DecodeContent 解码模型返回的结构化 JSON 文本。
+func DecodeContent(content string, out any) error {
+	cleanContent := content
+	// 大部分模型在配置 JSON Schema 后会直接返回纯 JSON，先走最快路径。
+	err := json.Unmarshal([]byte(cleanContent), out)
+	if err == nil {
+		return nil
+	}
+	// 少数模型仍可能包一层说明文字或 Markdown 围栏，这里只提取可被 JSON decoder 接受的片段。
+	for _, jsonCandidate := range findJSONCandidates(cleanContent) {
+		// 任一候选能成功解析即可返回，保留原始错误仅用于全部失败后的排障。
+		if json.Unmarshal([]byte(jsonCandidate), out) == nil {
+			return nil
+		}
+	}
+	return err
+}
+
 // Enabled 判断结构化输出运行器是否可用。
 func (r *Runner) Enabled() bool {
 	return r != nil && r.client != nil && r.client.Enabled()
@@ -72,24 +90,6 @@ func (r *Runner) Generate(ctx context.Context, instruction string, parts []*Part
 		return fmt.Errorf("decode agent structured response: %w", err)
 	}
 	return nil
-}
-
-// DecodeContent 解码模型返回的结构化 JSON 文本。
-func DecodeContent(content string, out any) error {
-	cleanContent := content
-	// 大部分模型在配置 JSON Schema 后会直接返回纯 JSON，先走最快路径。
-	err := json.Unmarshal([]byte(cleanContent), out)
-	if err == nil {
-		return nil
-	}
-	// 少数模型仍可能包一层说明文字或 Markdown 围栏，这里只提取可被 JSON decoder 接受的片段。
-	for _, jsonCandidate := range findJSONCandidates(cleanContent) {
-		// 任一候选能成功解析即可返回，保留原始错误仅用于全部失败后的排障。
-		if json.Unmarshal([]byte(jsonCandidate), out) == nil {
-			return nil
-		}
-	}
-	return err
 }
 
 // findJSONCandidates 从模型额外说明文本中提取可能的 JSON 片段。

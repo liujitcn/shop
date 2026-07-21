@@ -45,25 +45,6 @@ func NewChatClient(modelCfg *bootstrapConfigv1.AI_Model) *ChatClient {
 	return client
 }
 
-// Enabled 判断聊天模型客户端是否可用。
-func (c *ChatClient) Enabled() bool {
-	return c != nil && c.AgenticModel != nil
-}
-
-// Name 返回当前聊天模型名称。
-func (c *ChatClient) Name() string {
-	if c == nil {
-		return ""
-	}
-	return c.name
-}
-
-// ResponsesClient 表示 AI 助手专用 Responses 模型客户端。
-type ResponsesClient struct {
-	componentsModel.AgenticModel
-	name string
-}
-
 // NewResponsesClient 创建 AI 助手专用 Responses 模型客户端。
 func NewResponsesClient(modelCfg *bootstrapConfigv1.AI_Model) *ResponsesClient {
 	client := &ResponsesClient{}
@@ -78,6 +59,25 @@ func NewResponsesClient(modelCfg *bootstrapConfigv1.AI_Model) *ResponsesClient {
 	client.name = modelCfg.GetModelName()
 	client.AgenticModel = agenticModel
 	return client
+}
+
+// Enabled 判断聊天模型客户端是否可用。
+func (c *ChatClient) Enabled() bool {
+	return c != nil && c.AgenticModel != nil
+}
+
+// ResponsesClient 表示 AI 助手专用 Responses 模型客户端。
+type ResponsesClient struct {
+	componentsModel.AgenticModel
+	name string
+}
+
+// Name 返回当前聊天模型名称。
+func (c *ChatClient) Name() string {
+	if c == nil {
+		return ""
+	}
+	return c.name
 }
 
 // Enabled 判断 Responses 模型客户端是否可用。

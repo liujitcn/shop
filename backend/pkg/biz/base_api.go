@@ -106,6 +106,19 @@ func NewBaseAPICase(baseAPIRepo *data.BaseAPIRepository) *BaseAPICase {
 	return &BaseAPICase{BaseAPIRepository: baseAPIRepo}
 }
 
+// ParseOpenAPI 解析 OpenAPI YAML 文档。
+//
+// 该方法只做 YAML 解码并完整保留 paths、tags 与 schemas，业务层可同时复用同一份文档
+// 生成权限数据和展示接口文档。
+func ParseOpenAPI(openAPIData []byte) (*OpenAPI, error) {
+	var api OpenAPI
+	err := yaml.Unmarshal(openAPIData, &api)
+	if err != nil {
+		return nil, err
+	}
+	return &api, nil
+}
+
 // openAPIDataToBaseAPI 将 OpenAPI 文档转换为待持久化的接口模型。
 //
 // 此方法只负责内存转换，不访问数据库。转换分为两阶段：先按“终端 + 服务名”
@@ -154,19 +167,6 @@ func (c *BaseAPICase) batchCreateBaseAPI(ctx context.Context, apis []*models.Bas
 		return err
 	}
 	return c.BatchCreate(ctx, apis)
-}
-
-// ParseOpenAPI 解析 OpenAPI YAML 文档。
-//
-// 该方法只做 YAML 解码并完整保留 paths、tags 与 schemas，业务层可同时复用同一份文档
-// 生成权限数据和展示接口文档。
-func ParseOpenAPI(openAPIData []byte) (*OpenAPI, error) {
-	var api OpenAPI
-	err := yaml.Unmarshal(openAPIData, &api)
-	if err != nil {
-		return nil, err
-	}
-	return &api, nil
 }
 
 // Operation 按精确的 HTTP path 和 method 查询 OpenAPI 操作定义。

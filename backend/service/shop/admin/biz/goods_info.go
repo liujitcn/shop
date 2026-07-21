@@ -388,21 +388,6 @@ func (c *GoodsInfoCase) fillGoodsTenantByStore(ctx context.Context, goodsInfo *m
 	return nil
 }
 
-// parseCategoryIDs 解析商品分类编号列表。
-func (c *GoodsInfoCase) parseCategoryIDs(rawCategoryIDs string) []int64 {
-	// 分类字段为空时，直接返回空分类列表。
-	if rawCategoryIDs == "" {
-		return []int64{}
-	}
-
-	categoryIDs := make([]int64, 0)
-	// 分类 JSON 解析失败时，回退为空列表，避免后台列表因单条脏数据整体失败。
-	if err := json.Unmarshal([]byte(rawCategoryIDs), &categoryIDs); err != nil {
-		return []int64{}
-	}
-	return categoryIDs
-}
-
 // getCategoryNameMap 查询分类名称映射
 func (c *GoodsInfoCase) getCategoryNameMap(ctx context.Context) (map[int64]string, error) {
 	query := c.goodsCategoryCase.Query(ctx).GoodsCategory
@@ -535,6 +520,21 @@ func (c *GoodsInfoCase) findGoodsIDsByCategoryIDs(ctx context.Context, categoryI
 	return goodsIDList, nil
 }
 
+// parseCategoryIDs 解析商品分类编号列表。
+func (c *GoodsInfoCase) parseCategoryIDs(rawCategoryIDs string) []int64 {
+	// 分类字段为空时，直接返回空分类列表。
+	if rawCategoryIDs == "" {
+		return []int64{}
+	}
+
+	categoryIDs := make([]int64, 0)
+	// 分类 JSON 解析失败时，回退为空列表，避免后台列表因单条脏数据整体失败。
+	if err := json.Unmarshal([]byte(rawCategoryIDs), &categoryIDs); err != nil {
+		return []int64{}
+	}
+	return categoryIDs
+}
+
 // findGoodsIDsByInventoryAlert 查询命中库存预警的商品标识。
 func (c *GoodsInfoCase) findGoodsIDsByInventoryAlert(ctx context.Context, inventoryAlert shopcommonv1.GoodsInventoryAlert) ([]int64, error) {
 	// 非支持的库存预警类型不返回商品集合。
@@ -572,16 +572,6 @@ func (c *GoodsInfoCase) findGoodsIDsByInventoryAlert(ctx context.Context, invent
 	return goodsIDList, err
 }
 
-// listNonDeletedGoodsIDs 查询未删除商品编号。
-func (c *GoodsInfoCase) listNonDeletedGoodsIDs(ctx context.Context) ([]int64, error) {
-	query := c.Query(ctx).GoodsInfo
-	goodsIDs := make([]int64, 0)
-	err := query.WithContext(ctx).
-		Where(query.DeletedAt.IsNull()).
-		Pluck(query.ID, &goodsIDs)
-	return goodsIDs, err
-}
-
 // findGoodsIDsByAbnormalPrice 查询命中异常价格预警的商品标识。
 func (c *GoodsInfoCase) findGoodsIDsByAbnormalPrice(ctx context.Context) ([]int64, error) {
 	availableGoodsIDs, err := c.listNonDeletedGoodsIDs(ctx)
@@ -611,6 +601,16 @@ func (c *GoodsInfoCase) findGoodsIDsByAbnormalPrice(ctx context.Context) ([]int6
 		Distinct(query.GoodsID).
 		Pluck(query.GoodsID, &goodsIDList)
 	return goodsIDList, err
+}
+
+// listNonDeletedGoodsIDs 查询未删除商品编号。
+func (c *GoodsInfoCase) listNonDeletedGoodsIDs(ctx context.Context) ([]int64, error) {
+	query := c.Query(ctx).GoodsInfo
+	goodsIDs := make([]int64, 0)
+	err := query.WithContext(ctx).
+		Where(query.DeletedAt.IsNull()).
+		Pluck(query.ID, &goodsIDs)
+	return goodsIDs, err
 }
 
 // batchCreateGoodsProp 批量创建商品属性

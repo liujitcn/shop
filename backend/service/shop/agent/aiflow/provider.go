@@ -17,6 +17,15 @@ func NewProvider() *Provider {
 	return &Provider{}
 }
 
+// NewRegistration 将商城固定流程显式注册到基础 AI 运行时。
+func NewRegistration(runtime *ai.Runtime, provider *Provider) (Registration, error) {
+	err := runtime.RegisterFixedFlow(provider)
+	if err != nil {
+		return Registration{}, err
+	}
+	return Registration{}, nil
+}
+
 // FlowNames 返回商城固定流程标识。
 func (p *Provider) FlowNames() []string {
 	return []string{
@@ -40,19 +49,10 @@ func (p *Provider) IsFixedFlowEntryAction(terminal int32, flow string, actionTyp
 	return IsEntryAction(terminal, flow, actionType)
 }
 
-// FixedFlowShortcuts 返回商城快捷入口。
-func (p *Provider) FixedFlowShortcuts(terminal int32, enabledTools map[string]bool) []*basev1.AiShortcut {
-	return BuildShortcuts(terminal, enabledTools)
-}
-
 // Registration 表示商城固定流程已在组合根注册。
 type Registration struct{}
 
-// NewRegistration 将商城固定流程显式注册到基础 AI 运行时。
-func NewRegistration(runtime *ai.Runtime, provider *Provider) (Registration, error) {
-	err := runtime.RegisterFixedFlow(provider)
-	if err != nil {
-		return Registration{}, err
-	}
-	return Registration{}, nil
+// FixedFlowShortcuts 返回商城快捷入口。
+func (p *Provider) FixedFlowShortcuts(terminal int32, enabledTools map[string]bool) []*basev1.AiShortcut {
+	return BuildShortcuts(terminal, enabledTools)
 }

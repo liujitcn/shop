@@ -16,16 +16,6 @@ type RecommendActor struct {
 	ActorID   int64                           `json:"actor_id"`   // 推荐主体编号
 }
 
-// IsValid 判断当前推荐主体是否有效。
-func (r *RecommendActor) IsValid() bool {
-	return r != nil && r.ActorID > 0
-}
-
-// IsUser 判断当前推荐主体是否为登录用户。
-func (r *RecommendActor) IsUser() bool {
-	return r != nil && r.ActorType == shopcommonv1.RecommendActorType(_const.RECOMMEND_ACTOR_TYPE_USER) && r.ActorID > 0
-}
-
 // FormatRecommendStrategyCode 将推荐策略枚举转换为稳定的策略编码。
 func FormatRecommendStrategyCode(strategy shopcommonv1.RecommendStrategy) string {
 	switch strategy {
@@ -99,6 +89,16 @@ func ParseRecommendStrategyRaw(raw json.RawMessage) shopcommonv1.RecommendStrate
 		return shopcommonv1.RecommendStrategy(_const.RECOMMEND_STRATEGY_UNKNOWN)
 	}
 	return NormalizeRecommendStrategy(shopcommonv1.RecommendStrategy(value))
+}
+
+// IsValid 判断当前推荐主体是否有效。
+func (r *RecommendActor) IsValid() bool {
+	return r != nil && r.ActorID > 0
+}
+
+// IsUser 判断当前推荐主体是否为登录用户。
+func (r *RecommendActor) IsUser() bool {
+	return r != nil && r.ActorType == shopcommonv1.RecommendActorType(_const.RECOMMEND_ACTOR_TYPE_USER) && r.ActorID > 0
 }
 
 // MarshalJSON 将推荐上下文序列化为兼容历史数据的 JSON 结构。

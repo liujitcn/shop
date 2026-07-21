@@ -29,6 +29,11 @@ func NewRegistry() *Registry {
 	}
 }
 
+// NewPublisher 创建 SSE JSON 发布器。
+func NewPublisher(server *sseServer.Server) *Publisher {
+	return &Publisher{server: server}
+}
+
 // Register 注册一个 SSE 流，并拒绝空标识和重复标识。
 func (r *Registry) Register(stream Stream) error {
 	streamID := stream.ID()
@@ -45,6 +50,11 @@ func (r *Registry) Register(stream Stream) error {
 	return nil
 }
 
+// Publisher 将结构化消息发布到已声明的 SSE 流。
+type Publisher struct {
+	server *sseServer.Server
+}
+
 // Resolve 解析订阅请求对应的传输流标识。
 func (r *Registry) Resolve(streamID, channelID string, userID int64) (string, bool, error) {
 	r.mu.RLock()
@@ -58,16 +68,6 @@ func (r *Registry) Resolve(streamID, channelID string, userID int64) (string, bo
 		return "", true, err
 	}
 	return transportID, true, nil
-}
-
-// Publisher 将结构化消息发布到已声明的 SSE 流。
-type Publisher struct {
-	server *sseServer.Server
-}
-
-// NewPublisher 创建 SSE JSON 发布器。
-func NewPublisher(server *sseServer.Server) *Publisher {
-	return &Publisher{server: server}
 }
 
 // PublishJSON 编码并发布一条 SSE JSON 消息。

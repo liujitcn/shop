@@ -121,31 +121,6 @@ func IsEntryAction(terminal int32, flow string, actionType string) bool {
 	return aiFlowRegistry.EntryAction(einoWorkflow.FlowName(flow)) == actionType
 }
 
-// handleAiFlowAction 推进移动端闭环流程。
-func (r *Runner) handleAiFlowAction(ctx context.Context, action *basev1.AiAction) (*ai.Response, error) {
-	payload, err := parseAiActionPayload(action.GetPayloadJson())
-	if err != nil {
-		return nil, err
-	}
-	var result einoWorkflow.ActionResult[*ai.Response]
-	result, err = aiFlowRegistry.Run(ctx, einoWorkflow.ActionRequest{
-		Flow:       einoWorkflow.FlowName(action.GetFlow()),
-		ActionType: action.GetType(),
-		Payload:    payload,
-	}, r.ExecuteWorkflowAction)
-	if err != nil {
-		return nil, err
-	}
-	// 固定流程动作先经过 Eino Graph 路由，避免前端传入未注册动作直接进入业务分支。
-	if action.GetType() != "" && !result.Found {
-		return nil, errorsx.InvalidArgument("助手动作不支持")
-	}
-	if result.Output == nil {
-		return nil, errorsx.Internal("助手动作结果无效")
-	}
-	return result.Output, nil
-}
-
 // ExecuteWorkflowAction 执行 Eino Graph 路由后的移动端流程动作。
 func (r *Runner) ExecuteWorkflowAction(ctx context.Context, action einoWorkflow.Action, payload map[string]any) (*ai.Response, error) {
 	// 按前端按钮提交的动作类型进入对应流程步骤；动作合法性由 eino/workflow 的 Graph 分支负责。
@@ -201,6 +176,31 @@ func (r *Runner) ExecuteWorkflowAction(ctx context.Context, action einoWorkflow.
 	default:
 		return nil, errorsx.InvalidArgument("助手动作不支持")
 	}
+}
+
+// handleAiFlowAction 推进移动端闭环流程。
+func (r *Runner) handleAiFlowAction(ctx context.Context, action *basev1.AiAction) (*ai.Response, error) {
+	payload, err := parseAiActionPayload(action.GetPayloadJson())
+	if err != nil {
+		return nil, err
+	}
+	var result einoWorkflow.ActionResult[*ai.Response]
+	result, err = aiFlowRegistry.Run(ctx, einoWorkflow.ActionRequest{
+		Flow:       einoWorkflow.FlowName(action.GetFlow()),
+		ActionType: action.GetType(),
+		Payload:    payload,
+	}, r.ExecuteWorkflowAction)
+	if err != nil {
+		return nil, err
+	}
+	// 固定流程动作先经过 Eino Graph 路由，避免前端传入未注册动作直接进入业务分支。
+	if action.GetType() != "" && !result.Found {
+		return nil, errorsx.InvalidArgument("助手动作不支持")
+	}
+	if result.Output == nil {
+		return nil, errorsx.Internal("助手动作结果无效")
+	}
+	return result.Output, nil
 }
 
 // openAiShoppingFlow 打开推荐下单流程。
@@ -699,6 +699,13 @@ func (r *Runner) invokeAiFlowTool(ctx context.Context, name string, input map[st
 	return output, result.Usage, err
 }
 
+// aiFlowErrorResponse 构造移动端流程失败提示。
+func (r *Runner) aiFlowErrorResponse(flow string, step string, tools []ai.ToolUsage) *ai.Response {
+	return r.aiFlowResponse(flow, step, "这个操作暂时没有完成，可以稍后再试或换一种方式继续。", []map[string]any{
+		{"type": "notice", "title": "操作未完成", "desc": "当前步骤没有成功返回结果。"},
+	}, tools)
+}
+
 // aiFlowResponse 构造移动端流程回复。
 func (r *Runner) aiFlowResponse(flow string, step string, content string, blocks []map[string]any, tools []ai.ToolUsage) *ai.Response {
 	model := ""
@@ -718,13 +725,6 @@ func (r *Runner) aiFlowResponse(flow string, step string, content string, blocks
 		Step:       step,
 		BlocksJSON: string(raw),
 	}
-}
-
-// aiFlowErrorResponse 构造移动端流程失败提示。
-func (r *Runner) aiFlowErrorResponse(flow string, step string, tools []ai.ToolUsage) *ai.Response {
-	return r.aiFlowResponse(flow, step, "这个操作暂时没有完成，可以稍后再试或换一种方式继续。", []map[string]any{
-		{"type": "notice", "title": "操作未完成", "desc": "当前步骤没有成功返回结果。"},
-	}, tools)
 }
 
 // buildAiGoodsListBlock 构造商品推荐卡片。

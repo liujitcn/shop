@@ -184,26 +184,6 @@ func (h *McpCase) applyMcpToolPrompts(ctx context.Context, tools []*mcp.Tool) er
 	return nil
 }
 
-// toolPromptsDescription 将多条工具提示词合并为运行时工具描述。
-func toolPromptsDescription(value string) string {
-	if value == "" {
-		return ""
-	}
-	var prompts []string
-	err := json.Unmarshal([]byte(value), &prompts)
-	if err != nil {
-		return ""
-	}
-	values := make([]string, 0, len(prompts))
-	for _, item := range prompts {
-		if item == "" {
-			continue
-		}
-		values = append(values, item)
-	}
-	return strings.Join(values, "\n")
-}
-
 // filterToolCall 拦截未启用或不属于当前终端的工具调用。
 func (h *McpCase) filterToolCall(ctx context.Context, req mcp.Request, next mcp.MethodHandler) (mcp.Result, error) {
 	callReq, ok := req.(*mcp.CallToolRequest)
@@ -237,6 +217,26 @@ func (h *McpCase) findEnabledBaseAPI(ctx context.Context, req mcp.Request, toolN
 		return nil, err
 	}
 	return list[0], nil
+}
+
+// toolPromptsDescription 将多条工具提示词合并为运行时工具描述。
+func toolPromptsDescription(value string) string {
+	if value == "" {
+		return ""
+	}
+	var prompts []string
+	err := json.Unmarshal([]byte(value), &prompts)
+	if err != nil {
+		return ""
+	}
+	values := make([]string, 0, len(prompts))
+	for _, item := range prompts {
+		if item == "" {
+			continue
+		}
+		values = append(values, item)
+	}
+	return strings.Join(values, "\n")
 }
 
 // matchMcpToolPrefix 判断工具名是否匹配当前服务前缀。

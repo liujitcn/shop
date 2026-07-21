@@ -427,17 +427,6 @@ func (c *BaseUserCase) ResetBaseUserPassword(ctx context.Context, req *systemadm
 	})
 }
 
-// roleProtectionQueryContext 构造仅用于内置角色保护判定的全部数据范围查询上下文。
-func (c *BaseUserCase) roleProtectionQueryContext(ctx context.Context) (context.Context, error) {
-	authInfo, err := c.GetAuthInfo(ctx)
-	if err != nil {
-		return nil, err
-	}
-	roleAuthInfo := *authInfo
-	roleAuthInfo.DataScope = databaseGorm.DataScopeAll
-	return authnEngine.ContextWithAuthClaims(ctx, roleAuthInfo.MakeAuthClaims()), nil
-}
-
 // validateUserManagementTarget 校验目标用户是否允许通过用户管理接口操作。
 func (c *BaseUserCase) validateUserManagementTarget(ctx context.Context, baseUser *models.BaseUser) error {
 	queryCtx, err := c.roleProtectionQueryContext(ctx)
@@ -458,4 +447,15 @@ func (c *BaseUserCase) validateUserManagementTarget(ctx context.Context, baseUse
 		return errorsx.ProtectedResourceConflict("操作用户失败，内置管理员账号只能通过个人中心修改", "base_user")
 	}
 	return nil
+}
+
+// roleProtectionQueryContext 构造仅用于内置角色保护判定的全部数据范围查询上下文。
+func (c *BaseUserCase) roleProtectionQueryContext(ctx context.Context) (context.Context, error) {
+	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return nil, err
+	}
+	roleAuthInfo := *authInfo
+	roleAuthInfo.DataScope = databaseGorm.DataScopeAll
+	return authnEngine.ContextWithAuthClaims(ctx, roleAuthInfo.MakeAuthClaims()), nil
 }

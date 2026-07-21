@@ -182,26 +182,6 @@ func (c *PayCase) JSAPIPay(ctx context.Context, req *shopappv1.JsapiPayRequest) 
 	return jsapiPayResponse, nil
 }
 
-// findWechatMiniOpenID 查询当前用户绑定的微信小程序 OpenID。
-func (c *PayCase) findWechatMiniOpenID(ctx context.Context, userID int64) (string, error) {
-	query := c.baseThirdAccountRepo.Query(ctx).BaseThirdAccount
-	opts := make([]repository.QueryOption, 0, 2)
-	opts = append(opts, repository.Where(query.UserID.Eq(userID)))
-	opts = append(opts, repository.Where(query.Provider.Eq(string(kitOauth.WechatMini))))
-	account, err := c.baseThirdAccountRepo.Find(ctx, opts...)
-	if err != nil {
-		// 用户未绑定微信小程序时，无法创建 JSAPI 支付预下单。
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return "", errorsx.PermissionDenied("用户未绑定微信小程序")
-		}
-		return "", errorsx.Internal("小程序支付失败").WithCause(err)
-	}
-	if account.Identifier == "" {
-		return "", errorsx.Internal("小程序支付失败")
-	}
-	return account.Identifier, nil
-}
-
 // H5Pay 创建 H5 支付预下单信息
 func (c *PayCase) H5Pay(ctx context.Context, req *shopappv1.H5PayRequest) (*shopappv1.H5PayResponse, error) {
 	authInfo, err := c.GetAuthInfo(ctx)
@@ -467,6 +447,26 @@ func (c *PayCase) FailPendingRefund(ctx context.Context, orderRefund *models.Ord
 	return nil
 }
 
+// findWechatMiniOpenID 查询当前用户绑定的微信小程序 OpenID。
+func (c *PayCase) findWechatMiniOpenID(ctx context.Context, userID int64) (string, error) {
+	query := c.baseThirdAccountRepo.Query(ctx).BaseThirdAccount
+	opts := make([]repository.QueryOption, 0, 2)
+	opts = append(opts, repository.Where(query.UserID.Eq(userID)))
+	opts = append(opts, repository.Where(query.Provider.Eq(string(kitOauth.WechatMini))))
+	account, err := c.baseThirdAccountRepo.Find(ctx, opts...)
+	if err != nil {
+		// 用户未绑定微信小程序时，无法创建 JSAPI 支付预下单。
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return "", errorsx.PermissionDenied("用户未绑定微信小程序")
+		}
+		return "", errorsx.Internal("小程序支付失败").WithCause(err)
+	}
+	if account.Identifier == "" {
+		return "", errorsx.Internal("小程序支付失败")
+	}
+	return account.Identifier, nil
+}
+
 // findTradeByTradeNo 根据交易单编号查询交易单。
 func (c *PayCase) findTradeByTradeNo(ctx context.Context, tradeNo string) (*models.OrderTrade, error) {
 	query := c.orderTradeRepo.Query(ctx).OrderTrade
@@ -587,28 +587,6 @@ func (c *PayCase) listGoodsByTradeID(ctx context.Context, tradeID int64) ([]*mod
 	return c.orderGoodsRepo.List(ctx, goodsOpts...)
 }
 
-// validatePaymentSuccess 校验渠道支付成功结果与本地交易事实一致。
-func validatePaymentSuccess(orderTrade *models.OrderTrade, paymentResource *shopappv1.PaymentResource) error {
-	if paymentResource.GetTradeState() != shopappv1.PaymentResource_SUCCESS {
-		return errorsx.StateConflict(
-			"支付结果不是成功状态",
-			"payment_resource",
-			paymentResource.GetTradeState().String(),
-			shopappv1.PaymentResource_SUCCESS.String(),
-		)
-	}
-	if paymentResource.GetOutTradeNo() != orderTrade.TradeNo {
-		return errorsx.Internal("支付结果交易单号与本地交易不一致")
-	}
-	if paymentResource.GetAmount() == nil {
-		return errorsx.Internal("支付结果缺少金额信息")
-	}
-	if paymentResource.GetAmount().GetTotal() != orderTrade.PayMoney {
-		return errorsx.Internal("支付结果金额与本地交易不一致")
-	}
-	return nil
-}
-
 // dispatchRecommendPayEvent 根据已支付订单商品快照回写推荐支付事件。
 func (c *PayCase) dispatchRecommendPayEvent(userID int64, goodsList []*models.OrderGoods, eventTime time.Time) {
 	// 主体编号非法或订单商品为空时，无法构建可归因的推荐支付事件。
@@ -642,4 +620,26 @@ func (c *PayCase) dispatchRecommendPayEvent(userID int64, goodsList []*models.Or
 			ActorID:   userID,
 		}, payEventReport, eventTime)
 	}
+}
+
+// validatePaymentSuccess 校验渠道支付成功结果与本地交易事实一致。
+func validatePaymentSuccess(orderTrade *models.OrderTrade, paymentResource *shopappv1.PaymentResource) error {
+	if paymentResource.GetTradeState() != shopappv1.PaymentResource_SUCCESS {
+		return errorsx.StateConflict(
+			"支付结果不是成功状态",
+			"payment_resource",
+			paymentResource.GetTradeState().String(),
+			shopappv1.PaymentResource_SUCCESS.String(),
+		)
+	}
+	if paymentResource.GetOutTradeNo() != orderTrade.TradeNo {
+		return errorsx.Internal("支付结果交易单号与本地交易不一致")
+	}
+	if paymentResource.GetAmount() == nil {
+		return errorsx.Internal("支付结果缺少金额信息")
+	}
+	if paymentResource.GetAmount().GetTotal() != orderTrade.PayMoney {
+		return errorsx.Internal("支付结果金额与本地交易不一致")
+	}
+	return nil
 }
