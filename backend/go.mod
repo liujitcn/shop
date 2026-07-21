@@ -12,7 +12,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/google/wire v0.7.0
 	github.com/gorse-io/gorse-go v0.5.0-alpha.3
-	github.com/liujitcn/go-utils v0.0.31
+	github.com/liujitcn/go-utils v0.0.32
 	github.com/liujitcn/go-utils/crypto v0.0.10
 	github.com/liujitcn/go-utils/geoip v0.0.3
 	github.com/liujitcn/go-utils/http v0.0.4

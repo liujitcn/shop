@@ -885,7 +885,7 @@ func modelFieldName(columnName string) string {
 		return "ID"
 	}
 	if strings.HasSuffix(columnName, "_id") {
-		return strings.TrimSuffix(stringcase.ToPascalCase(strings.TrimSuffix(columnName, "_id")), "Id") + "ID"
+		return stringcase.ToGoPascalCase(strings.TrimSuffix(columnName, "_id")) + "ID"
 	}
-	return stringcase.ToPascalCase(columnName)
+	return stringcase.ToGoPascalCase(columnName)
 }

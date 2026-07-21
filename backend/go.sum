@@ -379,8 +379,8 @@ github.com/kylelemons/godebug v1.1.0 h1:RPNrshWIDI6G2gRW9EHilWtl7Z6Sb1BR0xunSBf0
 github.com/kylelemons/godebug v1.1.0/go.mod h1:9/0rRGxNHcop5bhtWyNeEfOS8JIWk580+fNqagV/RAw=
 github.com/lithammer/shortuuid/v4 v4.2.0 h1:LMFOzVB3996a7b8aBuEXxqOBflbfPQAiVzkIcHO0h8c=
 github.com/lithammer/shortuuid/v4 v4.2.0/go.mod h1:D5noHZ2oFw/YaKCfGy0YxyE7M0wMbezmMjPdhyEFe6Y=
-github.com/liujitcn/go-utils v0.0.31 h1:ixhlyxWgRlbCbYItrvFs7cp8EB4qxli1cCVFUNZ99lg=
-github.com/liujitcn/go-utils v0.0.31/go.mod h1:jB5HqQaSLJxfXVVzhRhA0Ie1B9nf1FmgAvMYQyLH/QI=
+github.com/liujitcn/go-utils v0.0.32 h1:+vigEkljeT090KfRRdQ9xqDfPMxEiOkGEd7zqq+geoQ=
+github.com/liujitcn/go-utils v0.0.32/go.mod h1:jB5HqQaSLJxfXVVzhRhA0Ie1B9nf1FmgAvMYQyLH/QI=
 github.com/liujitcn/go-utils/crypto v0.0.10 h1:1735xKVs+Ie49cnnBuSFS21uu+bOGbtipzhcXY9/rmM=
 github.com/liujitcn/go-utils/crypto v0.0.10/go.mod h1:BRCLZJf2IGqpcgSOIEoEjQjwiAAC0F3spzPSlHzG7OI=
 github.com/liujitcn/go-utils/geoip v0.0.3 h1:kZ7ep+aGl64jZlsiAXgUdfhyUTTGUt9m/tuSAsEQYKU=
