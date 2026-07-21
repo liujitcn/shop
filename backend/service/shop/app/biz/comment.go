@@ -29,6 +29,7 @@ import (
 	"github.com/go-kratos/kratos/v3/log"
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repository"
+	bootstrapConfigv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 	queueData "github.com/liujitcn/kratos-kit/queue/data"
 	"github.com/liujitcn/kratos-kit/sdk"
 )
@@ -54,6 +55,7 @@ type CommentCase struct {
 	orderGoodsCase        *OrderGoodsCase
 	baseUserCase          *systemappbiz.BaseUserCase
 	commentRuntime        *comment.Runtime
+	appInfo               *bootstrapConfigv1.AppInfo
 }
 
 // NewCommentCase 创建评价业务编排对象。
@@ -70,6 +72,7 @@ func NewCommentCase(
 	orderGoodsCase *OrderGoodsCase,
 	baseUserCase *systemappbiz.BaseUserCase,
 	commentRuntime *comment.Runtime,
+	appInfo *bootstrapConfigv1.AppInfo,
 ) *CommentCase {
 	c := &CommentCase{
 		BaseCase:              baseCase,
@@ -84,6 +87,7 @@ func NewCommentCase(
 		orderGoodsCase:        orderGoodsCase,
 		baseUserCase:          baseUserCase,
 		commentRuntime:        commentRuntime,
+		appInfo:               appInfo,
 	}
 	// 注册评价审核与 评价摘要刷新异步消费者，避免提交评价时阻塞用户主流程。
 	c.RegisterQueueConsumer(_const.COMMENT_AUDIT, c.consumeCommentAudit)
@@ -764,7 +768,7 @@ func (c *CommentCase) buildCommentReviewImages(rawImages string) ([]string, []co
 			continue
 		}
 		// 绝对地址和 data URL 可直接交给模型服务识别。
-		if isLLMImageURL(image) {
+		if c.isLLMImageURL(image) {
 			imageURLs = append(imageURLs, image)
 			continue
 		}
@@ -1019,7 +1023,7 @@ func (c *CommentCase) refreshGoodsCommentSummary(ctx context.Context, goodsID in
 }
 
 // isLLMImageURL 判断图片地址是否可直接作为多模态 URL 输入。
-func isLLMImageURL(imageURL string) bool {
+func (c *CommentCase) isLLMImageURL(imageURL string) bool {
 	parsedURL, err := url.Parse(imageURL)
 	if err != nil {
 		return false
@@ -1027,7 +1031,7 @@ func isLLMImageURL(imageURL string) bool {
 	// HTTP(S) 绝对地址和 data URL 是 OpenAI 兼容 image_url 接口可识别的格式。
 	switch strings.ToLower(parsedURL.Scheme) {
 	case "http", "https":
-		return parsedURL.Host != "" && !isLocalShopImageURL(parsedURL)
+		return parsedURL.Host != "" && !c.isLocalProjectImageURL(parsedURL)
 	case "data":
 		return strings.HasPrefix(strings.ToLower(imageURL), "data:image/")
 	default:
@@ -1044,9 +1048,9 @@ func commentReviewImagePath(imagePath string) string {
 	return parsedURL.Path
 }
 
-// isLocalShopImageURL 判断图片是否为本服务托管的本地静态资源。
-func isLocalShopImageURL(parsedURL *url.URL) bool {
-	if parsedURL == nil || !strings.HasPrefix(parsedURL.Path, "/shop/") {
+// isLocalProjectImageURL 判断图片是否为本服务托管的本地静态资源。
+func (c *CommentCase) isLocalProjectImageURL(parsedURL *url.URL) bool {
+	if parsedURL == nil || !strings.HasPrefix(parsedURL.Path, "/"+c.appInfo.GetProject()+"/") {
 		return false
 	}
 	host := parsedURL.Hostname()

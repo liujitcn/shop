@@ -53,6 +53,7 @@ func NewHTTPMiddleware(
 // NewHTTPServer 创建 HTTP Server 并注册已启用业务模块与前端静态路由。
 func NewHTTPServer(
 	ctx *bootstrap.Context,
+	appInfo *bootstrapConfigv1.AppInfo,
 	middlewares HTTPMiddlewares,
 	modules Modules,
 	_ MCPToolsReady,
@@ -76,10 +77,12 @@ func NewHTTPServer(
 	if cfg.GetOss() != nil && cfg.GetOss().GetRootDirectory() != "" {
 		ossRootDirectory = cfg.GetOss().GetRootDirectory()
 	}
-	var shopStaticDirectory = filepath.Join(ossRootDirectory, "shop")
-	// 将本地 OSS 目录暴露为静态资源目录 访问 /shop/* 时直接映射到 ./data/shop/*
-	staticHandler := stdhttp.StripPrefix("/shop/", stdhttp.FileServer(stdhttp.Dir(shopStaticDirectory)))
-	srv.HandlePrefix("/shop/", staticHandler)
+	projectName := appInfo.GetProject()
+	staticPrefix := "/" + projectName + "/"
+	staticDirectory := filepath.Join(ossRootDirectory, projectName)
+	// 将本地 OSS 目录暴露为静态资源目录，默认访问 /shop/* 时映射到 ./data/shop/*。
+	staticHandler := stdhttp.StripPrefix(staticPrefix, stdhttp.FileServer(stdhttp.Dir(staticDirectory)))
+	srv.HandlePrefix(staticPrefix, staticHandler)
 
 	// 自动发现本地 OSS 根目录下的前端入口，按子目录名称挂载为 SPA 路由。
 	registerLocalSPARoutes(srv, ossRootDirectory)

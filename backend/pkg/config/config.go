@@ -7,6 +7,11 @@ import (
 	"github.com/liujitcn/kratos-kit/bootstrap"
 )
 
+// GetAppInfo 获取当前服务的应用信息。
+func GetAppInfo(ctx *bootstrap.Context) *bootstrapConfigv1.AppInfo {
+	return ctx.GetAppInfo()
+}
+
 // ParseAIModel 解析大模型配置。
 func ParseAIModel(ctx *bootstrap.Context) *bootstrapConfigv1.AI_Model {
 	cfg := ctx.GetConfig()

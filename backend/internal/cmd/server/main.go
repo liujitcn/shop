@@ -4,8 +4,9 @@ import (
 	"context"
 
 	configv1 "shop/api/gen/go/shop/config/v1"
+	systemConfig "shop/pkg/config"
+	_const "shop/pkg/const"
 	"shop/pkg/job"
-	"shop/service/shop/config"
 
 	bootstrapConfigv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 
@@ -83,7 +84,9 @@ func main() {
 			Version: version,
 		},
 	)
-	ctx.RegisterCustomConfig(config.WRAPPER_CONFIG_KEY, &configv1.ShopConfigWrapper{})
+	appInfo := systemConfig.GetAppInfo(ctx)
+	_const.BASE_PATH = appInfo.GetProject()
+	ctx.RegisterCustomConfig(appInfo.GetProject(), &configv1.ShopConfigWrapper{})
 
 	// 应用启动失败时直接中止进程，避免服务以异常状态继续运行。
 	if err := bootstrap.RunApp(ctx, initApp); err != nil {

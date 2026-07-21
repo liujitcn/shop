@@ -409,8 +409,8 @@ github.com/liujitcn/kratos-kit/auth/authz/engine/casbin v0.0.15 h1:2kA+FrtbizfNX
 github.com/liujitcn/kratos-kit/auth/authz/engine/casbin v0.0.15/go.mod h1:Nf/eshqLFmYZ2Zmct5b+NCEHb6Iu5EF/YKgddeomkCk=
 github.com/liujitcn/kratos-kit/auth/authz/middleware v0.0.13 h1:b+2CDEVzGXZEK47fabCY1mNR1ffrpjQBQF1x3xCvB4Q=
 github.com/liujitcn/kratos-kit/auth/authz/middleware v0.0.13/go.mod h1:sScLnDPOZfSbuLAXFFzCpa2XODAlu+LLqjMXB6JbGEk=
-github.com/liujitcn/kratos-kit/bootstrap v0.0.14 h1:dOvSHKA2StVGLbm+VjcqlTGsV4vnFLFO15nWHXTAbIU=
-github.com/liujitcn/kratos-kit/bootstrap v0.0.14/go.mod h1:pB2pECAzJ25n9gCTwfCCtqSdzsHR3SPX8aS1HFFGlfM=
+github.com/liujitcn/kratos-kit/bootstrap v0.0.15 h1:NlBCCqK7nrYu9UQyHqjhOqM+yl93dSgXZ10Dzyiz0MY=
+github.com/liujitcn/kratos-kit/bootstrap v0.0.15/go.mod h1:pB2pECAzJ25n9gCTwfCCtqSdzsHR3SPX8aS1HFFGlfM=
 github.com/liujitcn/kratos-kit/broker v0.0.6 h1:O9gV6hDptw8AnhwqAGEWuSH+c1flHKq+dax4pnxwi1c=
 github.com/liujitcn/kratos-kit/broker v0.0.6/go.mod h1:dInGNKznYsZAMz+0w5b8BNjFKOBQu8vg2YJVsP3HMR8=
 github.com/liujitcn/kratos-kit/cache v0.0.14 h1:bflJLqvQe9ipT/Nw04yeMdMP+bRJRX4Ki6xRdLwOAK4=

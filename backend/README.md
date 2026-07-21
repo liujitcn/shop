@@ -65,6 +65,8 @@ cd backend
 go run ./internal/cmd/server --conf ./configs
 ```
 
+项目标识定义在 `internal/cmd/server/main.go` 的 `AppInfo.Project`。`pkg/config.GetAppInfo(ctx)` 会从 Bootstrap Context 读取该值，并通过依赖注入提供给应用注册名、自定义配置包装键、文件上传目录和静态资源前缀；不会改变 Go import、Proto package 或已发布的业务接口路径。
+
 默认地址：
 
 - HTTP：`http://localhost:7001`

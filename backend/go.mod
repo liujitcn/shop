@@ -3,6 +3,8 @@ module shop
 go 1.26.0
 
 require (
+	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.11-20260415201107-50325440f8f2.1
+	buf.build/go/protovalidate v1.2.0
 	github.com/cloudwego/eino v0.9.2
 	github.com/cloudwego/eino-ext/components/model/agenticopenai v0.2.1
 	github.com/go-kratos/kratos/v3 v3.0.0
@@ -27,7 +29,7 @@ require (
 	github.com/liujitcn/kratos-kit/auth/authz v0.0.17
 	github.com/liujitcn/kratos-kit/auth/authz/engine/casbin v0.0.15
 	github.com/liujitcn/kratos-kit/auth/authz/middleware v0.0.13
-	github.com/liujitcn/kratos-kit/bootstrap v0.0.14
+	github.com/liujitcn/kratos-kit/bootstrap v0.0.15
 	github.com/liujitcn/kratos-kit/cache v0.0.14
 	github.com/liujitcn/kratos-kit/captcha v0.0.16
 	github.com/liujitcn/kratos-kit/database/gorm v0.0.30
@@ -59,8 +61,6 @@ require (
 )
 
 require (
-	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.11-20260415201107-50325440f8f2.1 // indirect
-	buf.build/go/protovalidate v1.2.0 // indirect
 	cel.dev/expr v0.25.2 // indirect
 	filippo.io/edwards25519 v1.2.0 // indirect
 	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.17.0 // indirect

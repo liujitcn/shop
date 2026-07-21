@@ -9,12 +9,10 @@ import (
 	configv1 "shop/api/gen/go/shop/config/v1"
 	"shop/pkg/errorsx"
 
+	bootstrapConfigv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 	"github.com/liujitcn/kratos-kit/bootstrap"
 	"github.com/liujitcn/kratos-kit/sdk"
 )
-
-// WRAPPER_CONFIG_KEY 表示商城业务配置在自定义配置中的包装键。
-const WRAPPER_CONFIG_KEY = "Shop"
 
 var payTimeoutMinutes = 30
 
@@ -22,8 +20,8 @@ var payTimeoutMinutes = 30
 const CACHE_KEY_PAY_TIMEOUT = "payTimeout"
 
 // NewShopConfig 获取商城业务配置。
-func NewShopConfig(ctx *bootstrap.Context) *configv1.ShopConfig {
-	cfg, ok := ctx.GetCustomConfig(WRAPPER_CONFIG_KEY)
+func NewShopConfig(ctx *bootstrap.Context, appInfo *bootstrapConfigv1.AppInfo) *configv1.ShopConfig {
+	cfg, ok := ctx.GetCustomConfig(appInfo.GetProject())
 	// 自定义包装配置存在时，优先返回包装中的商城配置。
 	if ok {
 		wrapperCfg := cfg.(*configv1.ShopConfigWrapper)

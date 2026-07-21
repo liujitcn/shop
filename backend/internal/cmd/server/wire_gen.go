@@ -363,7 +363,8 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	orderRefundCase := biz5.NewOrderRefundCase(baseCase, orderRefundRepository)
 	orderInventoryCase := biz6.NewOrderInventoryCase(orderGoodsRepository, goodsInfoRepository, goodsSKURepository)
 	orderRefundResultCase := biz6.NewOrderRefundResultCase(transaction, orderTradeRepository, orderInfoRepository, orderRefundRepository, orderInventoryCase)
-	shopConfig := config2.NewShopConfig(context)
+	appInfo := config.GetAppInfo(context)
+	shopConfig := config2.NewShopConfig(context, appInfo)
 	wxPay, err := config2.ParseWxPay(shopConfig)
 	if err != nil {
 		cleanup4()
@@ -488,7 +489,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	chatClient := model.NewChatClient(ai_Model)
 	runner := structured.NewRunner(chatClient)
 	commentRuntime := comment.NewRuntime(runner)
-	commentCase := biz6.NewCommentCase(baseCase, transaction, bizCommentInfoCase, bizCommentSummaryCase, bizCommentTagCase, bizCommentReviewCase, bizCommentDiscussionCase, commentReactionCase, bizOrderInfoCase, bizOrderGoodsCase, baseUserCase2, commentRuntime)
+	commentCase := biz6.NewCommentCase(baseCase, transaction, bizCommentInfoCase, bizCommentSummaryCase, bizCommentTagCase, bizCommentReviewCase, bizCommentDiscussionCase, commentReactionCase, bizOrderInfoCase, bizOrderGoodsCase, baseUserCase2, commentRuntime, appInfo)
 	appCommentInfoService := app3.NewCommentInfoService(commentCase)
 	appGoodsCategoryService := app3.NewGoodsCategoryService(bizGoodsCategoryCase)
 	appGoodsInfoService := app3.NewGoodsInfoService(bizGoodsInfoCase)
@@ -602,7 +603,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 		return nil, nil, err
 	}
 	httpMiddlewares := server.NewHTTPMiddleware(context, authenticator, baseUserRepository, engine, userToken, authentication_Jwt)
-	httpServer, err := server.NewHTTPServer(context, httpMiddlewares, modules, mcpToolsReady, agentToolsReady)
+	httpServer, err := server.NewHTTPServer(context, appInfo, httpMiddlewares, modules, mcpToolsReady, agentToolsReady)
 	if err != nil {
 		cleanup4()
 		cleanup3()
