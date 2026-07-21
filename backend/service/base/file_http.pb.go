@@ -13,6 +13,7 @@ import (
 	_const "shop/pkg/const"
 
 	basev1 "shop/api/gen/go/base/v1"
+	"shop/pkg/errorsx"
 
 	"github.com/go-kratos/kratos/v3/log"
 	"github.com/go-kratos/kratos/v3/transport/http"
@@ -49,32 +50,36 @@ func RegisterFileServiceHTTPServer(s *http.Server, srv FileServiceHTTPServer) {
 func _FileService_MultiUploadFile0_HTTP_Handler(srv FileServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in basev1.MultiUploadFileRequest
-		r := ctx.Request()
-		if r.MultipartForm == nil {
-			err := r.ParseMultipartForm(32 << 20)
-			if err != nil {
-				return err
-			}
-		}
-		if r.MultipartForm != nil && r.MultipartForm.File != nil {
-			for _, item := range r.MultipartForm.File {
-				fhs := item[0]
-				formFile, err := fhs.Open()
-				if err != nil {
-					return err
-				}
-				contentType := fhs.Header.Get("Content-Type")
-				var uploadFileInfo *basev1.UploadFileInfo
-				uploadFileInfo, err = convertUploadFileInfo(formFile, r.FormValue("fileType"), contentType, fhs.Filename)
-				if err != nil {
-					return err
-				}
-				in.Files = append(in.Files, uploadFileInfo)
-			}
-		}
 		http.SetOperation(ctx, OperationFileServiceMultiUploadFile)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.MultiUploadFile(ctx, req.(*basev1.MultiUploadFileRequest))
+		h := ctx.Middleware(func(requestCtx context.Context, req interface{}) (interface{}, error) {
+			r := ctx.Request()
+			if r.MultipartForm == nil {
+				err := r.ParseMultipartForm(32 << 20)
+				if err != nil {
+					return nil, errorsx.InvalidArgument("上传文件格式错误").WithCause(err)
+				}
+			}
+			request := req.(*basev1.MultiUploadFileRequest)
+			if r.MultipartForm != nil && r.MultipartForm.File != nil {
+				for _, item := range r.MultipartForm.File {
+					if len(item) == 0 {
+						continue
+					}
+					fhs := item[0]
+					formFile, err := fhs.Open()
+					if err != nil {
+						return nil, errorsx.InvalidArgument("上传文件打开失败").WithCause(err)
+					}
+					contentType := fhs.Header.Get("Content-Type")
+					var uploadFileInfo *basev1.UploadFileInfo
+					uploadFileInfo, err = convertUploadFileInfo(formFile, r.FormValue("fileType"), contentType, fhs.Filename)
+					if err != nil {
+						return nil, errorsx.InvalidArgument("上传文件解析失败").WithCause(err)
+					}
+					request.Files = append(request.Files, uploadFileInfo)
+				}
+			}
+			return srv.MultiUploadFile(requestCtx, request)
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -87,25 +92,24 @@ func _FileService_MultiUploadFile0_HTTP_Handler(srv FileServiceHTTPServer) func(
 
 func _FileService_UploadFile0_HTTP_Handler(srv FileServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		r := ctx.Request()
-		// 修改获取文件内容方法
-		formFile, header, err := r.FormFile("file")
-		if err != nil {
-			return err
-		}
-		contentType := header.Header.Get("Content-Type")
-		var uploadFileInfo *basev1.UploadFileInfo
-		uploadFileInfo, err = convertUploadFileInfo(formFile, r.FormValue("fileType"), contentType, header.Filename)
-		if err != nil {
-			return err
-		}
-		in := &basev1.UploadFileRequest{File: uploadFileInfo}
 		http.SetOperation(ctx, OperationFileServiceUploadFile)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.UploadFile(ctx, req.(*basev1.UploadFileRequest))
+		h := ctx.Middleware(func(requestCtx context.Context, req interface{}) (interface{}, error) {
+			r := ctx.Request()
+			formFile, header, err := r.FormFile("file")
+			if err != nil {
+				return nil, errorsx.InvalidArgument("未上传文件").WithCause(err)
+			}
+			contentType := header.Header.Get("Content-Type")
+			var uploadFileInfo *basev1.UploadFileInfo
+			uploadFileInfo, err = convertUploadFileInfo(formFile, r.FormValue("fileType"), contentType, header.Filename)
+			if err != nil {
+				return nil, errorsx.InvalidArgument("上传文件解析失败").WithCause(err)
+			}
+			request := req.(*basev1.UploadFileRequest)
+			request.File = uploadFileInfo
+			return srv.UploadFile(requestCtx, request)
 		})
-		var out interface{}
-		out, err = h(ctx, in)
+		out, err := h(ctx, new(basev1.UploadFileRequest))
 		if err != nil {
 			return err
 		}

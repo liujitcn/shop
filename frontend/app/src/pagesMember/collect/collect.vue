@@ -4,7 +4,15 @@ import { ref } from 'vue'
 import type { PageUserCollectRequest, UserCollect } from '@/rpc/shop/app/v1/user_collect'
 import { defUserCollectService } from '@/api/shop/app/user_collect'
 import { formatSrc, formatPrice } from '@/utils'
-import { goodsDetailUrl, switchTabToHome, tenantStoreUrl } from '@/utils/navigation'
+import {
+  goodsDetailUrl,
+  navigateToLogin,
+  switchTabToHome,
+  tenantStoreUrl,
+} from '@/utils/navigation'
+import { useUserStore } from '@/stores'
+
+const userStore = useUserStore()
 // 分页参数
 const pageParams: PageUserCollectRequest = {
   page_num: 1,
@@ -39,6 +47,10 @@ const getCollectData = async () => {
 
 // 组件挂载完毕
 onLoad(async () => {
+  if (!userStore.ensureAuthenticated()) {
+    navigateToLogin()
+    return
+  }
   await getCollectData()
 })
 

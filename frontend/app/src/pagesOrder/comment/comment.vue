@@ -2,6 +2,11 @@
 import { computed, ref } from 'vue'
 import { defCommentInfoService } from '@/api/shop/app/comment'
 import { uploadFileList } from '@/utils/file'
+import { onLoad } from '@dcloudio/uni-app'
+import { useUserStore } from '@/stores'
+import { navigateToLogin } from '@/utils/navigation'
+
+const userStore = useUserStore()
 
 const COMMENT_CENTER_DONE_PAGE = '/pagesOrder/comment/center?tab=done'
 const query = defineProps<{
@@ -34,6 +39,12 @@ const ratingMap = ref<Record<string, number>>({
 
 const reviewLength = computed(() => reviewText.value.length)
 const canAddImage = computed(() => reviewImages.value.length < maxImageCount)
+
+onLoad(() => {
+  if (!userStore.ensureAuthenticated()) {
+    navigateToLogin()
+  }
+})
 
 const toNumber = (value?: string | number) => {
   const result = Number(value)

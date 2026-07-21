@@ -5,6 +5,10 @@ import { ref } from 'vue'
 import { defBaseAreaService } from '@/api/system/app/base_area'
 import type { AppTreeOptionResponse_Option } from '@/rpc/common/v1/common'
 import type { UserAddressForm } from '@/rpc/shop/app/v1/user_address'
+import { useUserStore } from '@/stores'
+import { navigateToLogin } from '@/utils/navigation'
+
+const userStore = useUserStore()
 // 表单数据
 const form = ref<UserAddressForm>({
   /** 用户地址ID */
@@ -31,6 +35,10 @@ const query = defineProps<{
 const localData = ref<AppTreeOptionResponse_Option[]>([])
 // 页面加载
 onLoad(async () => {
+  if (!userStore.ensureAuthenticated()) {
+    navigateToLogin()
+    return
+  }
   // #ifdef H5 || APP-PLUS
   const tree = await defBaseAreaService.TreeBaseArea({})
   localData.value = tree.areas || []

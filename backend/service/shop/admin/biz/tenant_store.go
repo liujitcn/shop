@@ -150,6 +150,9 @@ func (c *TenantStoreCase) GetTenantStore(ctx context.Context, id int64) (*shopad
 
 // CreateTenantStore 创建租户门店。
 func (c *TenantStoreCase) CreateTenantStore(ctx context.Context, req *shopadminv1.TenantStoreForm) error {
+	if req == nil || req.GetName() == "" {
+		return errorsx.InvalidArgument("门店名称不能为空")
+	}
 	tenantStore := c.formMapper.ToEntity(req)
 	tenantStore.Status = _const.TENANT_STORE_STATUS_PENDING_REVIEW
 	tenantStore.Remark = ""
@@ -162,6 +165,9 @@ func (c *TenantStoreCase) CreateTenantStore(ctx context.Context, req *shopadminv
 
 // UpdateTenantStore 更新租户门店。
 func (c *TenantStoreCase) UpdateTenantStore(ctx context.Context, req *shopadminv1.TenantStoreForm) error {
+	if req == nil || req.GetId() <= 0 || req.GetName() == "" {
+		return errorsx.InvalidArgument("门店参数不合法")
+	}
 	oldTenantStore, err := c.FindByID(ctx, req.GetId())
 	if err != nil {
 		return err

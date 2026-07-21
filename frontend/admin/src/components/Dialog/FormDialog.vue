@@ -32,8 +32,13 @@
       </template>
     </ProForm>
 
-    <template v-if="$slots.footer" #footer>
-      <slot name="footer" />
+    <template #footer>
+      <slot name="footer">
+        <div class="dialog-footer">
+          <el-button @click="handleCancel">{{ cancelText }}</el-button>
+          <el-button type="primary" :loading="confirmLoading" @click="handleConfirm">{{ confirmText }}</el-button>
+        </div>
+      </slot>
     </template>
   </ProDialog>
 </template>
@@ -107,8 +112,9 @@ function handleConfirm() {
   emit("confirm");
 }
 
-/** 对外透传取消事件，保持页面关闭逻辑可控。 */
+/** 关闭弹窗并对外透传取消事件。 */
 function handleCancel() {
+  emit("update:modelValue", false);
   emit("cancel");
 }
 

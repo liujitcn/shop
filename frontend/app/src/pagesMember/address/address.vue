@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { defUserAddressService } from '@/api/shop/app/user_address'
-import { useAddressStore } from '@/stores'
+import { useAddressStore, useUserStore } from '@/stores'
 import type { UserAddress } from '@/rpc/shop/app/v1/user_address'
 import { onShow } from '@dcloudio/uni-app'
 import { ref } from 'vue'
+import { navigateToLogin } from '@/utils/navigation'
 
 // 修改地址
 const addressStore = useAddressStore()
+const userStore = useUserStore()
 
 // 获取收货地址列表数据
 const addressList = ref<UserAddress[]>([])
@@ -17,7 +19,11 @@ const getUserAddressData = async () => {
 
 // 初始化调用(页面显示)
 onShow(() => {
-  getUserAddressData()
+  if (!userStore.ensureAuthenticated()) {
+    navigateToLogin()
+    return
+  }
+  void getUserAddressData()
 })
 
 // 删除收货地址

@@ -3,7 +3,9 @@ package biz
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"strconv"
+	"strings"
 
 	shopcommonv1 "shop/api/gen/go/shop/common/v1"
 
@@ -60,20 +62,24 @@ func (c *ShopBannerCase) convertToProto(ctx context.Context, item *models.ShopBa
 	// 按轮播图类型把后台配置值转换成前端可直接消费的跳转参数。
 	switch shopcommonv1.ShopBannerType(item.Type) {
 	case shopcommonv1.ShopBannerType(_const.SHOP_BANNER_TYPE_BANNER_GOODS_DETAIL):
-		href = fmt.Sprintf("id=%s", item.Href)
+		id := parseBannerTargetID(item.Href, []string{"id", "goods_id"}, "goods")
+		// 商品目标有效时，统一输出商品详情页使用的参数名。
+		if id > 0 {
+			href = fmt.Sprintf("id=%d", id)
+		}
 	case shopcommonv1.ShopBannerType(_const.SHOP_BANNER_TYPE_CATEGORY_DETAIL):
-		// 商城轮播图分类需要把分类 ID 转成前端可直接使用的跳转参数
-		id, err := strconv.ParseInt(item.Href, 10, 64)
-		// 分类编号解析成功时，再继续查询分类名称拼装跳转参数。
-		if err == nil {
+		id := parseBannerTargetID(item.Href, []string{"category_id", "categoryId"}, "category")
+		// 分类编号解析成功时，再确认目标分类存在。
+		if id > 0 {
 			var find *models.GoodsCategory
 			query := c.goodsCategoryCase.Query(ctx).GoodsCategory
 			opts := make([]repository.QueryOption, 0, 1)
 			opts = append(opts, repository.Where(query.ID.Eq(id)))
+			var err error
 			find, err = c.goodsCategoryCase.Find(ctx, opts...)
 			// 分类存在且查询成功时，使用分类参数覆盖原始链接。
 			if err == nil && find != nil {
-				href = fmt.Sprintf("categoryId=%d&categoryName=%s", find.ID, find.Name)
+				href = fmt.Sprintf("category_id=%d", find.ID)
 			}
 		}
 	default:
@@ -92,4 +98,49 @@ func (c *ShopBannerCase) listBySite(ctx context.Context, site int32) ([]*models.
 	opts = append(opts, repository.Where(query.Site.Eq(site)))
 	opts = append(opts, repository.Where(query.Status.Eq(_const.STATUS_ENABLE)))
 	return c.List(ctx, opts...)
+}
+
+// parseBannerTargetID 兼容纯编号、结构化参数和历史路径格式的轮播目标。
+func parseBannerTargetID(href string, queryKeys []string, legacySegment string) int64 {
+	normalizedHref := strings.TrimSpace(href)
+	id, err := strconv.ParseInt(normalizedHref, 10, 64)
+	// 初始化数据只保存目标编号时可直接返回。
+	if err == nil && id > 0 {
+		return id
+	}
+
+	var parsedURL *url.URL
+	parsedURL, err = url.Parse(normalizedHref)
+	if err != nil {
+		return 0
+	}
+
+	values := parsedURL.Query()
+	// 兼容未带问号、只保存 query 内容的结构化配置。
+	if parsedURL.RawQuery == "" && strings.Contains(normalizedHref, "=") {
+		values, err = url.ParseQuery(strings.TrimLeft(normalizedHref, "?#&"))
+		if err != nil {
+			return 0
+		}
+	}
+	for _, key := range queryKeys {
+		id, err = strconv.ParseInt(values.Get(key), 10, 64)
+		// 找到首个有效参数后即可确定跳转目标。
+		if err == nil && id > 0 {
+			return id
+		}
+	}
+
+	segments := strings.Split(strings.Trim(parsedURL.Path, "/"), "/")
+	// 兼容历史的 /goods/{id} 与 /category/{id} 路径配置。
+	for index := 0; index+1 < len(segments); index++ {
+		if segments[index] != legacySegment {
+			continue
+		}
+		id, err = strconv.ParseInt(segments[index+1], 10, 64)
+		if err == nil && id > 0 {
+			return id
+		}
+	}
+	return 0
 }

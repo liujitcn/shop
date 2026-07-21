@@ -1,7 +1,6 @@
 <template>
-  <div class="table-box gorse-item-page">
+  <div v-loading="loading || categoryLoading" class="table-box gorse-item-page">
     <ProTable
-      v-loading="loading || categoryLoading"
       ref="proTable"
       row-key="item_id"
       :data="filteredItemList"

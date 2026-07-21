@@ -5,9 +5,12 @@ import { defOrderService } from '@/api/shop/app/order_info'
 import type { OrderGoods, OrderInfo } from '@/rpc/shop/app/v1/order_info'
 import { OrderRefundStatus } from '@/rpc/shop/common/v1/enum'
 import { formatPrice, formatSrc } from '@/utils'
-import { orderDetailUrl } from '@/utils/navigation'
+import { navigateToLogin, orderDetailUrl } from '@/utils/navigation'
 import type { OrderListFilter } from '@/utils/order'
 import RefundOrderPopup from '../components/RefundOrderPopup.vue'
+import { useUserStore } from '@/stores'
+
+const userStore = useUserStore()
 
 const query = defineProps<{
   tab?: string
@@ -164,6 +167,10 @@ const onRefundSuccess = (order_id: number) => {
 }
 
 onShow(() => {
+  if (!userStore.ensureAuthenticated()) {
+    navigateToLogin()
+    return
+  }
   void loadOrders(activeTab.value, true)
 })
 </script>

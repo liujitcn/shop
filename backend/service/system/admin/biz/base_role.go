@@ -135,6 +135,9 @@ func (c *BaseRoleCase) GetBaseRole(ctx context.Context, id int64) (*systemadminv
 
 // CreateBaseRole 创建角色
 func (c *BaseRoleCase) CreateBaseRole(ctx context.Context, req *systemadminv1.BaseRoleForm) error {
+	if req == nil || req.GetName() == "" || req.GetCode() == "" {
+		return errorsx.InvalidArgument("请填写完整的角色信息")
+	}
 	baseRole := c.formMapper.ToEntity(req)
 	err := c.validateCreateBaseRole(ctx, baseRole)
 	if err != nil {
@@ -174,6 +177,9 @@ func (c *BaseRoleCase) CreateBaseRole(ctx context.Context, req *systemadminv1.Ba
 
 // UpdateBaseRole 更新角色
 func (c *BaseRoleCase) UpdateBaseRole(ctx context.Context, req *systemadminv1.BaseRoleForm) error {
+	if req == nil || req.GetId() <= 0 || req.GetName() == "" || req.GetCode() == "" {
+		return errorsx.InvalidArgument("角色参数不合法")
+	}
 	oldBaseRole, err := c.FindByID(ctx, req.GetId())
 	if err != nil {
 		return err

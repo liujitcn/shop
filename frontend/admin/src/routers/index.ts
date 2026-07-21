@@ -39,7 +39,7 @@ const router = createRouter({
 /**
  * @description 路由拦截 beforeEach
  * */
-router.beforeEach(async (to, from, next) => {
+router.beforeEach(async to => {
   const authStore = useAuthStore();
   const redirectQuery = typeof to.query.redirect === "string" ? to.query.redirect : "";
 
@@ -57,49 +57,49 @@ router.beforeEach(async (to, from, next) => {
     const hasOauthCallback = typeof to.query.oauth_ticket === "string" || typeof to.query.oauth_error === "string";
     if (hasOauthCallback) {
       resetRouter();
-      return next();
+      return true;
     }
     if (hasAccessToken) {
       // 登录态访问登录页时优先回到显式 redirect，避免 from 为根路径时触发重复重定向。
       const targetPath = redirectQuery && redirectQuery !== LOGIN_URL ? redirectQuery : HOME_URL;
-      return next(targetPath);
+      return targetPath;
     }
     resetRouter();
-    return next();
+    return true;
   }
 
   // 4.判断访问页面是否在路由白名单地址(静态路由)中，如果存在直接放行
-  if (ROUTER_WHITE_LIST.includes(to.path)) return next();
+  if (ROUTER_WHITE_LIST.includes(to.path)) return true;
 
   // 5.判断是否有可用 Token，没有重定向到 login 页面
   if (!hasAccessToken) {
     const redirect = to.path === LOGIN_URL ? undefined : to.fullPath;
-    return next({
+    return {
       path: LOGIN_URL,
       query: redirect ? { redirect } : undefined,
       replace: true
-    });
+    };
   }
 
   // 6.如果没有菜单列表，就重新请求菜单列表并添加动态路由
   if (!authStore.authMenuListGet.length) {
     await initDynamicRouter();
-    if (isUnmatchedRoute(router, to.path)) return next(getFirstAccessibleRoutePath());
-    return next({ ...to, replace: true });
+    if (isUnmatchedRoute(router, to.path)) return getFirstAccessibleRoutePath();
+    return { ...to, replace: true };
   }
 
   // 6.1 菜单已恢复但路由实例尚未重新挂载时，补跑一次动态路由注册，避免刷新或登录首跳直接命中 404。
   if (isUnmatchedRoute(router, to.path)) {
     await initDynamicRouter();
-    if (isUnmatchedRoute(router, to.path)) return next(getFirstAccessibleRoutePath());
-    return next({ ...to, replace: true });
+    if (isUnmatchedRoute(router, to.path)) return getFirstAccessibleRoutePath();
+    return { ...to, replace: true };
   }
 
   // 7.存储 routerName 做按钮权限筛选
   authStore.setRouteName(to.name as string);
 
   // 8.正常访问页面
-  next();
+  return true;
 });
 
 /**

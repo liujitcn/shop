@@ -239,9 +239,9 @@
         <div v-if="optionDialog.formConfig" class="code-gen-popover-form__row">
           <span class="code-gen-popover-form__label">选择模式</span>
           <el-radio-group v-model="optionDialog.formConfig.multiple" :disabled="!canEdit">
-            <el-radio-button :label="false">单选</el-radio-button>
+            <el-radio-button :value="false">单选</el-radio-button>
             <el-tooltip content="多选仅支持 JSON 字段" :disabled="optionDialog.isJSONColumn" placement="top">
-              <el-radio-button :label="true" :disabled="!optionDialog.isJSONColumn">多选</el-radio-button>
+              <el-radio-button :value="true" :disabled="!optionDialog.isJSONColumn">多选</el-radio-button>
             </el-tooltip>
           </el-radio-group>
         </div>

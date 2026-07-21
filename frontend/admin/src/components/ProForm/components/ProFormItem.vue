@@ -32,7 +32,7 @@
   </el-select>
 
   <el-radio-group v-else-if="field.component === 'radio-group'" v-model="fieldValue" v-bind="fieldProps">
-    <el-radio v-for="option in fieldOptions" :key="String(option.value)" :label="option.value" :disabled="option.disabled">
+    <el-radio v-for="option in fieldOptions" :key="String(option.value)" :value="option.value" :disabled="option.disabled">
       {{ option.label }}
     </el-radio>
   </el-radio-group>

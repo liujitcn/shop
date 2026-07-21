@@ -8,6 +8,7 @@ import (
 
 	shopappv1 "shop/api/gen/go/shop/app/v1"
 	"shop/pkg/biz"
+	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 	"shop/service/shop/app/utils"
@@ -135,6 +136,9 @@ func (c *UserCollectCase) GetIsCollect(ctx context.Context, req *shopappv1.GetIs
 
 // CreateUserCollect 创建用户收藏
 func (c *UserCollectCase) CreateUserCollect(ctx context.Context, userCollect *shopappv1.UserCollectForm) error {
+	if userCollect == nil || userCollect.GetGoodsId() <= 0 {
+		return errorsx.InvalidArgument("商品编号不能为空")
+	}
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return err
@@ -157,7 +161,7 @@ func (c *UserCollectCase) CreateUserCollect(ctx context.Context, userCollect *sh
 		var goodsInfo *models.GoodsInfo
 		goodsInfo, err = c.goodsInfoCase.GoodsInfoRepository.FindByID(ctx, userCollect.GetGoodsId())
 		if err != nil {
-			return err
+			return errorsx.ResourceNotFound("商品不存在").WithCause(err)
 		}
 		price := goodsInfo.Price
 		// 会员用户收藏商品时，优先记录会员价快照。

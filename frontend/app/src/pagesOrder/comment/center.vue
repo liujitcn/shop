@@ -6,7 +6,10 @@ import { defBaseDictService } from '@/api/system/app/base_dict'
 import type { CommentItem, PendingCommentGoodsItem } from '@/rpc/shop/app/v1/comment'
 import type { BaseDictForm_DictItem } from '@/rpc/system/app/v1/base_dict'
 import { formatSrc } from '@/utils'
-import { orderCommentWriteUrl } from '@/utils/navigation'
+import { navigateToLogin, orderCommentWriteUrl } from '@/utils/navigation'
+import { useUserStore } from '@/stores'
+
+const userStore = useUserStore()
 
 const query = defineProps<{
   tab?: string
@@ -278,6 +281,10 @@ const onDeleteComment = (item: DoneCommentItem) => {
 }
 
 onShow(() => {
+  if (!userStore.ensureAuthenticated()) {
+    navigateToLogin()
+    return
+  }
   void Promise.all([loadPendingCommentList(true), loadMyCommentList(true), loadCommentStatusDict()])
 })
 </script>

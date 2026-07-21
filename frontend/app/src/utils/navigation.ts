@@ -325,9 +325,21 @@ export const saveCurrentRoute = () => {
   uni.setStorageSync(LAST_ROUTE_KEY, currentRoute)
 }
 
+/** 保存指定页面路由，供登录成功后继续原访问目标。 */
+export const saveLoginRedirectUrl = (url: string) => {
+  const normalizedUrl = url.startsWith('/') ? url : `/${url}`
+  if (!normalizedUrl.startsWith(LOGIN_PAGE)) {
+    uni.setStorageSync(LAST_ROUTE_KEY, normalizedUrl)
+  }
+}
+
 /** 跳转到登录页，并在跳转前记录当前页面。 */
-export const navigateToLogin = () => {
-  saveCurrentRoute()
+export const navigateToLogin = (redirectUrl?: string) => {
+  if (redirectUrl) {
+    saveLoginRedirectUrl(redirectUrl)
+  } else {
+    saveCurrentRoute()
+  }
   uni.navigateTo({
     url: LOGIN_PAGE,
     fail: () => {

@@ -234,9 +234,12 @@ func (c *BaseUserCase) GetBaseUser(ctx context.Context, id int64) (*systemadminv
 
 // CreateBaseUser 创建用户
 func (c *BaseUserCase) CreateBaseUser(ctx context.Context, req *systemadminv1.BaseUserForm) error {
+	if req == nil || req.GetUserName() == "" || req.GetRoleId() <= 0 || req.GetDeptId() <= 0 {
+		return errorsx.InvalidArgument("请填写完整的用户信息")
+	}
 	baseRole, err := c.baseRoleCase.FindByID(ctx, req.GetRoleId())
 	if err != nil {
-		return errorsx.Internal("校验用户角色失败").WithCause(err)
+		return errorsx.ResourceNotFound("用户角色不存在").WithCause(err)
 	}
 	if _const.IsDefaultBaseRole(baseRole.Code) {
 		return errorsx.ProtectedResourceConflict("创建用户失败，不能选择内置角色", "base_user")
@@ -244,7 +247,7 @@ func (c *BaseUserCase) CreateBaseUser(ctx context.Context, req *systemadminv1.Ba
 	var baseDept *models.BaseDept
 	baseDept, err = c.baseDeptRepo.FindByID(ctx, req.GetDeptId())
 	if err != nil {
-		return errorsx.Internal("校验用户部门失败").WithCause(err)
+		return errorsx.ResourceNotFound("用户部门不存在").WithCause(err)
 	}
 	if baseRole.TenantID != baseDept.TenantID {
 		return errorsx.InvalidArgument("用户角色与部门所属租户不一致")
@@ -287,6 +290,9 @@ func (c *BaseUserCase) CreateBaseUser(ctx context.Context, req *systemadminv1.Ba
 
 // UpdateBaseUser 更新用户
 func (c *BaseUserCase) UpdateBaseUser(ctx context.Context, req *systemadminv1.BaseUserForm) error {
+	if req == nil || req.GetId() <= 0 || req.GetUserName() == "" || req.GetRoleId() <= 0 || req.GetDeptId() <= 0 {
+		return errorsx.InvalidArgument("用户参数不合法")
+	}
 	oldBaseUser, err := c.FindByID(ctx, req.GetId())
 	if err != nil {
 		return errorsx.ResourceNotFound("更新用户失败，用户信息不存在").WithCause(err)
@@ -302,7 +308,7 @@ func (c *BaseUserCase) UpdateBaseUser(ctx context.Context, req *systemadminv1.Ba
 	var newBaseRole *models.BaseRole
 	newBaseRole, err = c.baseRoleCase.FindByID(ctx, req.GetRoleId())
 	if err != nil {
-		return errorsx.Internal("校验用户角色失败").WithCause(err)
+		return errorsx.ResourceNotFound("用户角色不存在").WithCause(err)
 	}
 	if _const.IsDefaultBaseRole(newBaseRole.Code) {
 		return errorsx.ProtectedResourceConflict("更新用户失败，不能选择内置角色", "base_user")
@@ -313,7 +319,7 @@ func (c *BaseUserCase) UpdateBaseUser(ctx context.Context, req *systemadminv1.Ba
 	var newBaseDept *models.BaseDept
 	newBaseDept, err = c.baseDeptRepo.FindByID(ctx, req.GetDeptId())
 	if err != nil {
-		return errorsx.Internal("校验用户部门失败").WithCause(err)
+		return errorsx.ResourceNotFound("用户部门不存在").WithCause(err)
 	}
 	if newBaseDept.TenantID != oldBaseUser.TenantID {
 		return errorsx.InvalidArgument("用户部门与所属租户不一致")

@@ -9,6 +9,10 @@ import { Status } from '@/rpc/common/v1/enum'
 import { UserStoreStatus } from '@/rpc/shop/common/v1/enum'
 import type { UserStore, UserStoreForm } from '@/rpc/shop/app/v1/user_store'
 import { getFileInfo, multiUploadFile, uploadFileList } from '@/utils/file.ts'
+import { useUserStore } from '@/stores'
+import { navigateToLogin } from '@/utils/navigation'
+
+const userStore = useUserStore()
 
 const imageStyles = {
   width: 100,
@@ -82,6 +86,10 @@ const form = ref<UserStoreForm>({
 const localData = ref<AppTreeOptionResponse_Option[]>([])
 // 页面加载
 onLoad(async () => {
+  if (!userStore.ensureAuthenticated()) {
+    navigateToLogin()
+    return
+  }
   // #ifdef H5 || APP-PLUS
   const tree = await defBaseAreaService.TreeBaseArea({})
   localData.value = tree.areas || []

@@ -100,9 +100,9 @@
               :placeholder="previewSearchPlaceholder"
             />
             <el-radio-group v-model="previewStatusFilter" size="small">
-              <el-radio-button label="all">全部 {{ previewRecordCount }}</el-radio-button>
-              <el-radio-button label="success">通过 {{ previewSuccessCount }}</el-radio-button>
-              <el-radio-button label="failed">失败 {{ previewFailedCount }}</el-radio-button>
+              <el-radio-button value="all">全部 {{ previewRecordCount }}</el-radio-button>
+              <el-radio-button value="success">通过 {{ previewSuccessCount }}</el-radio-button>
+              <el-radio-button value="failed">失败 {{ previewFailedCount }}</el-radio-button>
             </el-radio-group>
           </div>
         </div>

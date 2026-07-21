@@ -1,9 +1,8 @@
 <template>
   <div class="gorse-detail-page">
-    <div class="table-box gorse-user-recommend-table">
+    <div v-loading="loading" class="table-box gorse-user-recommend-table">
       <ProTable
         ref="proTable"
-        v-loading="loading"
         row-key="item_id"
         :data="recommendList"
         :columns="columns"

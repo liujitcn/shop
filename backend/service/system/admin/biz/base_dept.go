@@ -80,6 +80,9 @@ func (c *BaseDeptCase) GetBaseDept(ctx context.Context, id int64) (*systemadminv
 
 // CreateBaseDept 创建部门
 func (c *BaseDeptCase) CreateBaseDept(ctx context.Context, req *systemadminv1.BaseDeptForm) error {
+	if req == nil || req.GetName() == "" {
+		return errorsx.InvalidArgument("部门名称不能为空")
+	}
 	baseDept := c.formMapper.ToEntity(req)
 
 	parentID := req.GetParentId()
@@ -113,6 +116,9 @@ func (c *BaseDeptCase) CreateBaseDept(ctx context.Context, req *systemadminv1.Ba
 
 // UpdateBaseDept 更新部门
 func (c *BaseDeptCase) UpdateBaseDept(ctx context.Context, req *systemadminv1.BaseDeptForm) error {
+	if req == nil || req.GetId() <= 0 || req.GetName() == "" {
+		return errorsx.InvalidArgument("部门参数不合法")
+	}
 	oldBaseDept, err := c.FindByID(ctx, req.GetId())
 	if err != nil {
 		return err

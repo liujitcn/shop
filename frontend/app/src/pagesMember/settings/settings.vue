@@ -60,10 +60,6 @@ const onLogout = () => {
       <button hover-class="none" class="item arrow" open-type="contact">联系我们</button>
     </view>
     <!-- #endif -->
-    <!-- 列表3 -->
-    <view class="list">
-      <button hover-class="none" class="item arrow">关于海沃丰</button>
-    </view>
     <!-- 操作按钮 -->
     <view class="action" v-if="userStore.isAuthenticated()">
       <view @tap="onLogout" class="button">退出登录</view>

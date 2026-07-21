@@ -69,7 +69,12 @@ func (s *ShopBannerService) CreateShopBanner(ctx context.Context, req *shopadmin
 
 // UpdateShopBanner 更新商城轮播图
 func (s *ShopBannerService) UpdateShopBanner(ctx context.Context, req *shopadminv1.UpdateShopBannerRequest) (*emptypb.Empty, error) {
-	err := s.bannerCase.UpdateShopBanner(ctx, req.GetShopBanner())
+	shopBanner := req.GetShopBanner()
+	if shopBanner == nil {
+		return nil, errorsx.InvalidArgument("请填写轮播图信息")
+	}
+	shopBanner.Id = req.GetId()
+	err := s.bannerCase.UpdateShopBanner(ctx, shopBanner)
 	if err != nil {
 		log.Error(fmt.Sprintf("UpdateShopBanner %v", err))
 		return nil, errorsx.WrapInternal(err, "更新商城轮播图失败")

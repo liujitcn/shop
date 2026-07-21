@@ -71,10 +71,13 @@ func (c *GoodsPropCase) GetGoodsProp(ctx context.Context, id int64) (*shopadminv
 
 // CreateGoodsProp 创建商品属性
 func (c *GoodsPropCase) CreateGoodsProp(ctx context.Context, req *shopadminv1.GoodsProp) error {
+	if req == nil || req.GetGoodsId() <= 0 || req.GetLabel() == "" {
+		return errorsx.InvalidArgument("商品属性参数不合法")
+	}
 	goodsProp := c.mapper.ToEntity(req)
 	goodsInfo, err := c.goodsInfoRepo.FindByID(ctx, req.GetGoodsId())
 	if err != nil {
-		return err
+		return errorsx.ResourceNotFound("商品不存在").WithCause(err)
 	}
 	goodsProp.TenantID = goodsInfo.TenantID
 	goodsProp.TenantStoreID = goodsInfo.TenantStoreID
@@ -91,6 +94,9 @@ func (c *GoodsPropCase) CreateGoodsProp(ctx context.Context, req *shopadminv1.Go
 
 // UpdateGoodsProp 更新商品属性
 func (c *GoodsPropCase) UpdateGoodsProp(ctx context.Context, req *shopadminv1.GoodsProp) error {
+	if req == nil || req.GetId() <= 0 || req.GetGoodsId() <= 0 || req.GetLabel() == "" {
+		return errorsx.InvalidArgument("商品属性参数不合法")
+	}
 	goodsProp := c.mapper.ToEntity(req)
 	err := c.UpdateByID(ctx, goodsProp)
 	if err != nil {

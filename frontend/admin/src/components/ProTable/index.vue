@@ -79,7 +79,7 @@
               <slot v-else :name="item.type" v-bind="scope" />
             </template>
             <!-- radio -->
-            <el-radio v-if="item.type == 'radio'" v-model="radio" :label="scope.row[rowKey]">
+            <el-radio v-if="item.type == 'radio'" v-model="radio" :value="scope.row[rowKey]">
               <i></i>
             </el-radio>
             <!-- sort -->

@@ -82,7 +82,8 @@ const formRules = computed(() => {
 
 /** 校验表单。 */
 async function validate() {
-  return formRef.value?.validate();
+  if (!formRef.value) return false;
+  return formRef.value.validate().catch(() => false);
 }
 
 /** 重置表单。 */

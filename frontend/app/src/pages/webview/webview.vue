@@ -47,6 +47,11 @@ const emptyDesc = computed(() => {
 
 onLoad((query) => {
   url.value = decodeURIComponent(query?.url || '')
+  const title = decodeURIComponent(query?.title || '')
+  // 调用方传入标题时同步更新原生导航栏，避免继续显示页面注册时的空标题。
+  if (title) {
+    void uni.setNavigationBarTitle({ title })
+  }
 
   // #ifdef H5
   isH5.value = true

@@ -5,15 +5,23 @@ import { defOrderService } from '@/api/shop/app/order_info'
 import { useGuessList } from '@/composables'
 import type { OrderInfoResponse } from '@/rpc/shop/app/v1/order_info'
 import { OrderPayType, OrderTradeStatus, RecommendScene } from '@/rpc/shop/common/v1/enum'
-import { homeTabPage, orderDetailUrl } from '@/utils/navigation'
+import { homeTabPage, navigateToLogin, orderDetailUrl, orderListUrl } from '@/utils/navigation'
+import { useUserStore } from '@/stores'
+
+const userStore = useUserStore()
 
 // 获取页面参数
 const query = defineProps<{
-  trade_id: string
+  trade_id?: string
 }>()
 
 const orderData = ref<OrderInfoResponse>()
 const loadError = ref(false)
+const routeError = ref('')
+const tradeID = computed(() => {
+  const value = Number(query.trade_id)
+  return Number.isSafeInteger(value) && value > 0 ? value : 0
+})
 const maxPollAttempts = 8
 const pollInterval = 1500
 let pollAttempts = 0
@@ -23,6 +31,15 @@ let isPollingActive = false
 // 根据后端订单状态生成支付结果，避免仅凭前端支付回调展示成功。
 const paymentState = computed(() => {
   const order = orderData.value?.order
+  if (routeError.value) {
+    return {
+      title: '支付参数无效',
+      tips: routeError.value,
+      tone: 'unknown',
+      success: false,
+      showRecommendation: false,
+    }
+  }
   if (loadError.value) {
     return {
       title: '支付结果查询失败',
@@ -110,7 +127,7 @@ const loadPaymentResult = async () => {
   loadError.value = false
   try {
     orderData.value = await defOrderService.GetOrderTradeById({
-      trade_id: Number(query.trade_id),
+      trade_id: tradeID.value,
     })
     const status = orderData.value.order?.trade_status
     return Boolean(
@@ -149,6 +166,14 @@ const pollPaymentResult = async () => {
 const { guessRef, onScrollToLower } = useGuessList()
 
 onLoad(() => {
+  if (!userStore.ensureAuthenticated()) {
+    navigateToLogin()
+    return
+  }
+  if (!tradeID.value) {
+    routeError.value = '未找到有效交易单，请从订单列表重新进入'
+    return
+  }
   pollAttempts = 0
   isPollingActive = true
   void pollPaymentResult()
@@ -178,12 +203,22 @@ onUnload(() => {
           返回首页
         </navigator>
         <navigator
+          v-if="tradeID"
           hover-class="none"
           class="button navigator"
-          :url="orderDetailUrl({ trade_id: query.trade_id })"
+          :url="orderDetailUrl({ trade_id: tradeID })"
           open-type="redirect"
         >
           查看订单
+        </navigator>
+        <navigator
+          v-else
+          hover-class="none"
+          class="button navigator"
+          :url="orderListUrl()"
+          open-type="redirect"
+        >
+          订单列表
         </navigator>
       </view>
     </view>
@@ -194,7 +229,7 @@ onUnload(() => {
       ref="guessRef"
       title="顺手再带两件"
       :scene="RecommendScene.ORDER_PAID"
-      :trade-id="Number(query.trade_id)"
+      :trade-id="tradeID"
     />
   </scroll-view>
 </template>

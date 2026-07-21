@@ -147,7 +147,7 @@
                   <el-link
                     v-if="scope.row.goods_id"
                     type="primary"
-                    :underline="false"
+                    underline="never"
                     @click.stop="handleOpenGoodsDetail(scope.row)"
                   >
                     {{ scope.row.goods_name || "--" }}
@@ -160,7 +160,7 @@
                     <el-link
                       v-if="Number(scope.row.event_count || 0) > 0"
                       type="primary"
-                      :underline="false"
+                      underline="never"
                       @click.stop="handleOpenEventDialog(scope.row)"
                     >
                       {{ scope.row.event_count ?? 0 }}

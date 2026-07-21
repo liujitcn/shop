@@ -80,7 +80,12 @@ func (s *GoodsCategoryService) CreateGoodsCategory(ctx context.Context, req *sho
 
 // UpdateGoodsCategory 更新商品分类
 func (s *GoodsCategoryService) UpdateGoodsCategory(ctx context.Context, req *shopadminv1.UpdateGoodsCategoryRequest) (*emptypb.Empty, error) {
-	err := s.goodsCategoryCase.UpdateGoodsCategory(ctx, req.GetGoodsCategory())
+	goodsCategory := req.GetGoodsCategory()
+	if goodsCategory == nil {
+		return nil, errorsx.InvalidArgument("请填写商品分类信息")
+	}
+	goodsCategory.Id = req.GetId()
+	err := s.goodsCategoryCase.UpdateGoodsCategory(ctx, goodsCategory)
 	if err != nil {
 		log.Error(fmt.Sprintf("UpdateGoodsCategory %v", err))
 		return nil, errorsx.WrapInternal(err, "更新商品分类失败")

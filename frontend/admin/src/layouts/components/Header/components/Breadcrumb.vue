@@ -2,7 +2,7 @@
   <div :class="['breadcrumb-box mask-image', !globalStore.breadcrumbIcon && 'no-icon']">
     <el-breadcrumb :separator-icon="ArrowRight">
       <transition-group name="breadcrumb">
-        <el-breadcrumb-item v-for="(item, index) in breadcrumbList" :key="item.path">
+        <el-breadcrumb-item v-for="(item, index) in breadcrumbList" :key="`${item.path}-${item.name || index}`">
           <div
             class="el-breadcrumb__inner is-link"
             :class="{ 'item-no-icon': !getRouteMetaIcon(item.meta) }"

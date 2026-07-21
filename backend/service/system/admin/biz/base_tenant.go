@@ -156,6 +156,9 @@ func (c *BaseTenantCase) GetBaseTenant(ctx context.Context, id int64) (*systemad
 
 // CreateBaseTenant 创建租户。
 func (c *BaseTenantCase) CreateBaseTenant(ctx context.Context, req *systemadminv1.BaseTenantForm) error {
+	if req == nil || req.GetName() == "" {
+		return errorsx.InvalidArgument("租户名称不能为空")
+	}
 	baseTenant := c.formMapper.ToEntity(req)
 	return c.tx.Transaction(ctx, func(ctx context.Context) error {
 		code, err := c.getNextBaseTenantCode(ctx)
@@ -183,6 +186,9 @@ func (c *BaseTenantCase) CreateBaseTenant(ctx context.Context, req *systemadminv
 
 // UpdateBaseTenant 更新租户。
 func (c *BaseTenantCase) UpdateBaseTenant(ctx context.Context, req *systemadminv1.BaseTenantForm) error {
+	if req == nil || req.GetId() <= 0 || req.GetName() == "" {
+		return errorsx.InvalidArgument("租户参数不合法")
+	}
 	oldBaseTenant, err := c.FindByID(ctx, req.GetId())
 	if err != nil {
 		return err

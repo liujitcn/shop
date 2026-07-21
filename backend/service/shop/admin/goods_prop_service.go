@@ -69,7 +69,12 @@ func (s *GoodsPropService) CreateGoodsProp(ctx context.Context, req *shopadminv1
 
 // UpdateGoodsProp 更新商品属性
 func (s *GoodsPropService) UpdateGoodsProp(ctx context.Context, req *shopadminv1.UpdateGoodsPropRequest) (*emptypb.Empty, error) {
-	err := s.goodsPropCase.UpdateGoodsProp(ctx, req.GetGoodsProp())
+	goodsProp := req.GetGoodsProp()
+	if goodsProp == nil {
+		return nil, errorsx.InvalidArgument("请填写商品属性信息")
+	}
+	goodsProp.Id = req.GetId()
+	err := s.goodsPropCase.UpdateGoodsProp(ctx, goodsProp)
 	if err != nil {
 		log.Error(fmt.Sprintf("UpdateGoodsProp %v", err))
 		return nil, errorsx.WrapInternal(err, "更新商品属性失败")

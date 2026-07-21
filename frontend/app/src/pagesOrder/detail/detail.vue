@@ -20,6 +20,7 @@ import {
   orderCreateUrl,
   orderDetailUrl,
   orderListUrl,
+  navigateToLogin,
   tenantStoreUrl,
 } from '@/utils/navigation'
 import { startOrderPayment } from '@/utils/payment'
@@ -31,6 +32,9 @@ import {
   isPayableTrade,
 } from '@/utils/order'
 import { openPendingOrderComment } from '@/utils/comment'
+import { useUserStore } from '@/stores'
+
+const userStore = useUserStore()
 // 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync()
 // 猜你喜欢
@@ -169,7 +173,11 @@ const getDictData = async () => {
   cancelReasonList.value = cancelReasonDict.items || []
 }
 onLoad(() => {
-  Promise.all([getUserOrderById(), getDictData()])
+  if (!userStore.ensureAuthenticated()) {
+    navigateToLogin()
+    return
+  }
+  void Promise.all([getUserOrderById(), getDictData()])
 })
 
 const onTimeUpFlag = ref(false)

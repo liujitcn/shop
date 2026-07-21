@@ -71,6 +71,9 @@ func (c *FileCase) UploadFile(req *basev1.UploadFileRequest) (*basev1.FileInfo, 
 
 // DownloadFile 下载文件内容。
 func (c *FileCase) DownloadFile(req *basev1.DownloadFileRequest) (*wrapperspb.BytesValue, error) {
+	if req.GetPath() == "" {
+		return nil, errorsx.InvalidArgument("文件路径不能为空")
+	}
 	fileByte, err := c.GetFileByte(req.GetPath())
 	if err != nil {
 		return nil, errorsx.Internal("文件下载失败").WithCause(err)
