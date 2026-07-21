@@ -336,14 +336,6 @@ func buildExpectedCodeGenProtos(table *models.CodeGenTable, form *systemadminv1.
 			defaultTargetCodeGenProtoPath(table, target),
 		))
 	}
-	statusCount := 0
-	// 状态接口数量决定方法名是否需要带字段名以避免冲突。
-	for _, column := range columns {
-		listConfig := column.GetListConfig()
-		if listConfig.GetEnabled() && listConfig.GetComponent() == "switch" {
-			statusCount++
-		}
-	}
 	for _, column := range columns {
 		listConfig := column.GetListConfig()
 		// 列表使用开关时为当前字段补充状态变更 RPC。
@@ -353,7 +345,7 @@ func buildExpectedCodeGenProtos(table *models.CodeGenTable, form *systemadminv1.
 				codeGenTriggerFieldStatus,
 				codeGenAPIKindStatus,
 				entity,
-				codeGenStatusMethodName(entity, column.GetColumnName(), statusCount),
+				codeGenStatusMethodName(entity, column.GetColumnName()),
 				protoPath,
 			))
 		}
@@ -574,18 +566,9 @@ func pluralizeCodeGenEntity(value string) string {
 	return value + "s"
 }
 
-// codeGenStatusMethodName 返回状态字段对应的方法名。
-func codeGenStatusMethodName(entity string, columnName string, statusCount int) string {
-	// 只有一个状态字段时沿用简洁的统一方法名。
-	if statusCount <= 1 {
-		return "Set" + entity + "Status"
-	}
-	fieldName := stringcase.ToPascalCase(columnName)
-	// 字段名已带 Status 后缀时避免重复拼接。
-	if strings.HasSuffix(fieldName, "Status") {
-		return "Set" + entity + fieldName
-	}
-	return "Set" + entity + fieldName + "Status"
+// codeGenStatusMethodName 按 Set{Entity}{FieldPascalCase} 生成字段设置方法名。
+func codeGenStatusMethodName(entity string, columnName string) string {
+	return "Set" + entity + stringcase.ToPascalCase(columnName)
 }
 
 // codeGenProtoKey 返回 Proto 接口配置稳定键。

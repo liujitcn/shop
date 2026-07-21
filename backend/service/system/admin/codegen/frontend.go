@@ -1158,7 +1158,7 @@ func statusProtoType(column *CodeGenColumn) string {
 	return DefaultString(column.ProtoType, InferProtoType(column.DbType))
 }
 
-// statusMethodNameForColumn 根据实际状态字段名生成设置方法名。
+// statusMethodNameForColumn 按 Set{Entity}{FieldPascalCase} 生成字段设置方法名。
 func statusMethodNameForColumn(table *Table, column *CodeGenColumn) string {
 	return "Set" + table.EntityName + stringcase.ToPascalCase(column.ColumnName)
 }

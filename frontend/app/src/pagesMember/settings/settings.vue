@@ -1,10 +1,22 @@
 <script setup lang="ts">
 import { useUserStore } from '@/stores'
+import { onLoad } from '@dcloudio/uni-app'
 import { ref } from 'vue'
+import { navigateToLogin } from '@/utils/navigation'
 
 const MY_COMMENT_PAGE = '/pagesOrder/comment/center?tab=done'
 const userStore = useUserStore()
 const logoutLoading = ref(false)
+
+// #ifndef MP-WEIXIN
+// 非微信小程序端未登录时没有可用设置项，直接引导登录以避免显示空白页面。
+onLoad(() => {
+  if (!userStore.ensureAuthenticated()) {
+    navigateToLogin()
+  }
+})
+// #endif
+
 // 退出登录
 const onLogout = () => {
   if (logoutLoading.value) {

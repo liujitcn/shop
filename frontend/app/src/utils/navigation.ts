@@ -335,7 +335,8 @@ export const saveLoginRedirectUrl = (url: string) => {
 
 /** 跳转到登录页，并在跳转前记录当前页面。 */
 export const navigateToLogin = (redirectUrl?: string) => {
-  if (redirectUrl) {
+  // 模板直接绑定时会传入点击事件对象，只有字符串才是明确的回跳地址。
+  if (typeof redirectUrl === 'string' && redirectUrl) {
     saveLoginRedirectUrl(redirectUrl)
   } else {
     saveCurrentRoute()

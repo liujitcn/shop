@@ -2,6 +2,7 @@ package message
 
 import (
 	"encoding/base64"
+	"fmt"
 	"strings"
 
 	"github.com/cloudwego/eino/schema"
@@ -134,9 +135,84 @@ func FunctionToolResultMessage(callID string, name string, content string) *Agen
 	}
 }
 
-// Concat 合并流式 Agentic 消息片段。
+// Concat 合并流式 Agentic 消息片段，兼容服务端工具块与文本块混合返回。
 func Concat(chunks []*AgenticMessage) (*AgenticMessage, error) {
-	return schema.ConcatAgenticMessages(chunks)
+	result, err := schema.ConcatAgenticMessages(chunks)
+	if err == nil || !hasMixedStreamingBlocks(chunks) {
+		return result, err
+	}
+	return concatMixedStreamingBlocks(chunks)
+}
+
+// hasMixedStreamingBlocks 判断消息流是否同时携带普通块和流式块。
+func hasMixedStreamingBlocks(chunks []*AgenticMessage) bool {
+	var hasStreaming bool
+	var hasNonStreaming bool
+	for _, chunk := range chunks {
+		if chunk == nil {
+			continue
+		}
+		for _, block := range chunk.ContentBlocks {
+			if block == nil {
+				continue
+			}
+			if block.StreamingMeta == nil {
+				hasNonStreaming = true
+			} else {
+				hasStreaming = true
+			}
+		}
+	}
+	return hasStreaming && hasNonStreaming
+}
+
+// concatMixedStreamingBlocks 分别合并流式块并保留服务端返回的普通工具块。
+func concatMixedStreamingBlocks(chunks []*AgenticMessage) (*AgenticMessage, error) {
+	streamingChunks := make([]*AgenticMessage, 0, len(chunks))
+	nonStreamingBlocks := make([]*ContentBlock, 0)
+	var role schema.AgenticRoleType
+	for index, chunk := range chunks {
+		if chunk == nil {
+			return nil, fmt.Errorf("message at index %d is nil", index)
+		}
+		if chunk.Role != "" {
+			if role == "" {
+				role = chunk.Role
+			} else if role != chunk.Role {
+				return nil, fmt.Errorf("cannot concat messages with different roles: got '%s' and '%s'", role, chunk.Role)
+			}
+		}
+
+		streamingChunk := &AgenticMessage{
+			Role:         chunk.Role,
+			ResponseMeta: chunk.ResponseMeta,
+			Extra:        chunk.Extra,
+		}
+		for _, block := range chunk.ContentBlocks {
+			if block == nil {
+				continue
+			}
+			if block.StreamingMeta == nil {
+				nonStreamingBlocks = append(nonStreamingBlocks, block)
+				continue
+			}
+			streamingChunk.ContentBlocks = append(streamingChunk.ContentBlocks, block)
+		}
+		if len(streamingChunk.ContentBlocks) > 0 || streamingChunk.ResponseMeta != nil || streamingChunk.Extra != nil {
+			streamingChunks = append(streamingChunks, streamingChunk)
+		}
+	}
+
+	streamingResult, err := schema.ConcatAgenticMessages(streamingChunks)
+	if err != nil {
+		return nil, err
+	}
+	return &AgenticMessage{
+		Role:          role,
+		ResponseMeta:  streamingResult.ResponseMeta,
+		ContentBlocks: append(nonStreamingBlocks, streamingResult.ContentBlocks...),
+		Extra:         streamingResult.Extra,
+	}, nil
 }
 
 // Text 提取 Agentic 消息中的文本内容。

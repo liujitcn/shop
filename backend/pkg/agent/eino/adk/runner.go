@@ -88,8 +88,9 @@ func (r *Runner) Run(ctx context.Context, request Request) (*Result, error) {
 		return nil, err
 	}
 	runner := einoadk.NewTypedRunner(einoadk.TypedRunnerConfig[*schema.AgenticMessage]{
-		Agent:           agent,
-		EnableStreaming: request.Stream,
+		Agent: agent,
+		// OpenAI 兼容网关会在同一 Agent 流混合服务端工具块与文本块，当前 Eino 版本无法合并该序列。
+		EnableStreaming: false,
 	})
 	iter := runner.Run(ctx, request.Messages, einoadk.WithCallbacks(callback.NewHandler()))
 	var messageValue *schema.AgenticMessage
@@ -210,6 +211,10 @@ func consumeMessageStream(
 		if errors.Is(err, io.EOF) {
 			break
 		}
+		// 部分 OpenAI 兼容网关会在 completed 事件后直接断开 SSE，忽略此时的非标准 EOF。
+		if errors.Is(err, io.ErrUnexpectedEOF) && hasCompletedOpenAIResponse(chunks) {
+			break
+		}
 		// 真实流错误需要向上返回，由调用层决定是否失败或重试。
 		if err != nil {
 			return nil, err
@@ -236,6 +241,19 @@ func consumeMessageStream(
 		return nil, nil
 	}
 	return message.Concat(chunks)
+}
+
+// hasCompletedOpenAIResponse 判断流中是否已收到 OpenAI Responses 的完成状态。
+func hasCompletedOpenAIResponse(chunks []*schema.AgenticMessage) bool {
+	for _, chunk := range chunks {
+		if chunk == nil || chunk.ResponseMeta == nil || chunk.ResponseMeta.OpenAIExtension == nil {
+			continue
+		}
+		if string(chunk.ResponseMeta.OpenAIExtension.Status) == "completed" {
+			return true
+		}
+	}
+	return false
 }
 
 // hasToolCall 判断消息中是否包含函数工具调用。

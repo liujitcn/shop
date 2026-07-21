@@ -14,6 +14,7 @@ const { safeAreaInsets } = uni.getSystemInfoSync()
 const COMMENT_CENTER_PENDING_PAGE = '/pagesOrder/comment/center?tab=pending'
 const AFTERSALE_APPLY_PAGE = '/pagesOrder/aftersale/aftersale?tab=apply'
 const AI_PAGE = '/pagesMember/ai/index'
+const SETTINGS_PAGE = '/pagesMember/settings/settings'
 
 /** 我的页面订单入口展示项。 */
 type OrderCountEntry = {
@@ -130,6 +131,17 @@ const navigateToAi = () => {
   })
 }
 
+/** 打开设置页，未登录时先进入登录流程。 */
+const navigateToSettings = () => {
+  if (!userStore.ensureAuthenticated()) {
+    navigateToLogin()
+    return
+  }
+  uni.navigateTo({
+    url: SETTINGS_PAGE,
+  })
+}
+
 // 初始化调用: 页面显示触发
 onShow(() => {
   if (canLoadOrderData()) {
@@ -174,9 +186,7 @@ onShow(() => {
           </view>
         </view>
       </view>
-      <navigator class="settings" url="/pagesMember/settings/settings" hover-class="none">
-        设置
-      </navigator>
+      <view class="settings" @tap="navigateToSettings">设置</view>
     </view>
     <!-- 我的订单 -->
     <view class="orders">
