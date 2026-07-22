@@ -997,9 +997,10 @@ const file_system_admin_v1_auth_proto_rawDesc = "" +
 	" \x01(\tB\x0f\xbaG\f\x92\x02\t角色名R\broleName\x12,\n" +
 	"\tdept_name\x18\v \x01(\tB\x0f\xbaG\f\x92\x02\t部门名R\bdeptName\x122\n" +
 	"\n" +
-	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\"\x83\x01\n" +
-	"\x19UpdateUserPasswordRequest\x12f\n" +
-	"\ruser_password\x18\x01 \x01(\v2!.system.admin.v1.UserPasswordFormB\x1e\xbaG\x15\x92\x02\x12个人中心密码\xbaH\x03\xc8\x01\x01R\fuserPassword\"z\n" +
+	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\"\xce\x01\n" +
+	"\x19UpdateUserPasswordRequest\x12`\n" +
+	"\ruser_password\x18\x01 \x01(\v2!.system.admin.v1.UserPasswordFormB\x18\xbaG\x15\x92\x02\x12个人中心密码R\fuserPassword:O\xbaHL\x1aJ\n" +
+	"\x1bauth.user_password.required\x12\x12请输入原密码\x1a\x17has(this.user_password)\"z\n" +
 	"\x16UpdateUserPhoneRequest\x12`\n" +
 	"\n" +
 	"user_phone\x18\x01 \x01(\v2\x1e.system.admin.v1.UserPhoneFormB!\xbaG\x18\x92\x02\x15个人中心手机号\xbaH\x03\xc8\x01\x01R\tuserPhone\"\x7f\n" +
@@ -1045,10 +1046,12 @@ const file_system_admin_v1_auth_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tB\t\xbaG\x06\x92\x02\x03keyH\x00R\x03key\x88\x01\x01\x12&\n" +
 	"\x05value\x18\x02 \x01(\tB\v\xbaG\b\x92\x02\x05valueH\x01R\x05value\x88\x01\x01B\x06\n" +
 	"\x04_keyB\b\n" +
-	"\x06_value\"\xa8\x01\n" +
-	"\x10UserPasswordForm\x12I\n" +
-	"\aold_pwd\x18\x01 \x01(\v2\x19.common.v1.PasswordCryptoB\x15\xbaG\f\x92\x02\t原密码\xbaH\x03\xc8\x01\x01R\x06oldPwd\x12I\n" +
-	"\anew_pwd\x18\x02 \x01(\v2\x19.common.v1.PasswordCryptoB\x15\xbaG\f\x92\x02\t新密码\xbaH\x03\xc8\x01\x01R\x06newPwd\"\xc5\x02\n" +
+	"\x06_value\"\xbf\x02\n" +
+	"\x10UserPasswordForm\x12C\n" +
+	"\aold_pwd\x18\x01 \x01(\v2\x19.common.v1.PasswordCryptoB\x0f\xbaG\f\x92\x02\t原密码R\x06oldPwd\x12C\n" +
+	"\anew_pwd\x18\x02 \x01(\v2\x19.common.v1.PasswordCryptoB\x0f\xbaG\f\x92\x02\t新密码R\x06newPwd:\xa0\x01\xbaH\x9c\x01\x1aL\n" +
+	"#auth.user_password.old_pwd.required\x12\x12请输入原密码\x1a\x11has(this.old_pwd)\x1aL\n" +
+	"#auth.user_password.new_pwd.required\x12\x12请输入新密码\x1a\x11has(this.new_pwd)\"\xc5\x02\n" +
 	"\rUserPhoneForm\x12\xc9\x01\n" +
 	"\x05phone\x18\x01 \x01(\tB\xb2\x01\xbaG\f\x92\x02\t手机号\xbaH\x9f\x01\xba\x01@\n" +
 	"\x19user_phone.phone.required\x12\x12请输入手机号\x1a\x0fthis.size() > 0\xba\x01Y\n" +

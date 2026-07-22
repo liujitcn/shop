@@ -842,9 +842,10 @@ const file_system_admin_v1_base_user_proto_rawDesc = "" +
 	"base_users\x18\x01 \x03(\v2\x19.system.admin.v1.BaseUserB\x12\xbaG\x0f\x92\x02\f分页数据R\tbaseUsers\x12\"\n" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"4\n" +
 	"\x12GetBaseUserRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b用户IDR\x02id\"m\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b用户IDR\x02id\"\xce\x01\n" +
 	"\x15CreateBaseUserRequest\x12T\n" +
-	"\tbase_user\x18\x01 \x01(\v2\x1d.system.admin.v1.BaseUserFormB\x18\xbaG\x0f\x92\x02\f用户表单\xbaH\x03\xc8\x01\x01R\bbaseUser\"m\n" +
+	"\tbase_user\x18\x01 \x01(\v2\x1d.system.admin.v1.BaseUserFormB\x18\xbaG\x0f\x92\x02\f用户表单\xbaH\x03\xc8\x01\x01R\bbaseUser:_\xbaH\\\x1aZ\n" +
+	"\x16base_user.pwd.required\x12\x0f请输入密码\x1a/!has(this.base_user) || has(this.base_user.pwd)\"m\n" +
 	"\x15UpdateBaseUserRequest\x12T\n" +
 	"\tbase_user\x18\x01 \x01(\v2\x1d.system.admin.v1.BaseUserFormB\x18\xbaG\x0f\x92\x02\f用户表单\xbaH\x03\xc8\x01\x01R\bbaseUser\"=\n" +
 	"\x15DeleteBaseUserRequest\x12$\n" +
@@ -891,10 +892,11 @@ const file_system_admin_v1_base_user_proto_rawDesc = "" +
 	"\x03pwd\x18\xac\x02 \x01(\v2\x19.common.v1.PasswordCryptoB\f\xbaG\t\x92\x02\x06密码R\x03pwd\x12E\n" +
 	"\x06status\x18e \x01(\x0e2\x11.common.v1.StatusB\x1a\xbaG\x0f\x92\x02\f用户状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\x12}\n" +
 	"\x06remark\x18f \x01(\tBe\xbaG\f\x92\x02\t备注名\xbaHS\xba\x01P\n" +
-	"\x18base_user.remark.max_len\x12 备注不能超过 500 个字符\x1a\x12this.size() <= 500R\x06remark\"\x7f\n" +
+	"\x18base_user.remark.max_len\x12 备注不能超过 500 个字符\x1a\x12this.size() <= 500R\x06remark\"\xc1\x01\n" +
 	"\x1cResetBaseUserPasswordRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b用户IDR\x02id\x12?\n" +
-	"\x03pwd\x18\x02 \x01(\v2\x19.common.v1.PasswordCryptoB\x12\xbaG\t\x92\x02\x06密码\xbaH\x03\xc8\x01\x01R\x03pwd2\xac\b\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b用户IDR\x02id\x129\n" +
+	"\x03pwd\x18\x02 \x01(\v2\x19.common.v1.PasswordCryptoB\f\xbaG\t\x92\x02\x06密码R\x03pwd:F\xbaHC\x1aA\n" +
+	"\x1cbase_user.reset_pwd.required\x12\x12请输入新密码\x1a\rhas(this.pwd)2\xac\b\n" +
 	"\x0fBaseUserService\x12\x81\x01\n" +
 	"\x0eOptionBaseUser\x12&.system.admin.v1.OptionBaseUserRequest\x1a\x1f.common.v1.SelectOptionResponse\"&\x82\xd3\xe4\x93\x02 \x12\x1e/api/v1/admin/base/user/option\x12|\n" +
 	"\fPageBaseUser\x12$.system.admin.v1.PageBaseUserRequest\x1a%.system.admin.v1.PageBaseUserResponse\"\x1f\x82\xd3\xe4\x93\x02\x19\x12\x17/api/v1/admin/base/user\x12w\n" +

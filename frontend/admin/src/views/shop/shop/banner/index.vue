@@ -121,9 +121,15 @@ const formData = reactive<ShopBannerForm>({
 
 const rules = reactive({
   site: [{ required: true, message: "请选择位置", trigger: "change" }],
-  picture: [{ required: true, message: "请选择上传图片", trigger: "change" }],
+  picture: [
+    { required: true, message: "请选择上传图片", trigger: "change" },
+    { max: 1024, message: "图片链接不能超过 1024 个字符", trigger: "change" }
+  ],
   type: [{ required: true, message: "请选择跳转类型", trigger: "change" }],
-  href: [{ required: true, message: "跳转地址不能为空", trigger: "blur" }]
+  href: [
+    { required: true, message: "跳转地址不能为空", trigger: "blur" },
+    { max: 1024, message: "跳转地址不能超过 1024 个字符", trigger: "blur" }
+  ]
 });
 
 const statusOptions: ProFormOption[] = [

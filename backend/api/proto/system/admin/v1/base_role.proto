@@ -123,7 +123,7 @@ message BaseRoleForm {
 
   .system.common.v1.BaseRoleDataScope data_scope = 5 [(gnostic.openapi.v3.property) = {description: "数据权限：0全部数据1部门及子部门数据2本部门数据3本人数据"}, (buf.validate.field).enum = {defined_only: true}, (buf.validate.field).cel = {id: "base_role.data_scope.required" message: "请选择数据权限" expression: "this != 0"}]; // 数据权限：0全部数据1部门及子部门数据2本部门数据3本人数据
 
-  repeated int64 menus = 6 [(gnostic.openapi.v3.property) = {description: "分配的菜单列表"}, (buf.validate.field).repeated = {unique: true, min_items: 1}]; // 分配的菜单列表
+  repeated int64 menus = 6 [(gnostic.openapi.v3.property) = {description: "分配的菜单列表"}, (buf.validate.field).cel = {id: "base_role.menus.required" message: "请选择菜单权限" expression: "this.size() > 0"}, (buf.validate.field).cel = {id: "base_role.menus.unique" message: "菜单权限不能重复" expression: "this.unique()"}]; // 分配的菜单列表
 
   .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态"}, (buf.validate.field).enum = {defined_only: true}]; // 状态
 
@@ -149,7 +149,7 @@ message DeleteBaseRoleRequest {
 message SetBaseRoleMenuRequest {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "角色ID"}]; // 角色ID
 
-  repeated int64 menus = 2 [(gnostic.openapi.v3.property) = {description: "分配的菜单列表"}, (buf.validate.field).repeated = {min_items: 1}]; // 分配的菜单列表
+  repeated int64 menus = 2 [(gnostic.openapi.v3.property) = {description: "分配的菜单列表"}, (buf.validate.field).cel = {id: "base_role.menus.required" message: "请选择菜单权限" expression: "this.size() > 0"}, (buf.validate.field).cel = {id: "base_role.menus.unique" message: "菜单权限不能重复" expression: "this.unique()"}]; // 分配的菜单列表
 }
 
 // 设置角色状态请求参数

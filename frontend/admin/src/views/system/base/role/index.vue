@@ -163,7 +163,20 @@ const rules = reactive({
     { max: 100, message: "角色编号不能超过 100 个字符", trigger: "blur" }
   ],
   data_scope: [{ required: true, message: "请选择数据权限", trigger: "change" }],
-  menus: [{ required: true, message: "请选择菜单权限", trigger: "change" }],
+  menus: [
+    { required: true, message: "请选择菜单权限", trigger: "change" },
+    {
+      validator: (_rule: unknown, value: unknown, callback: (error?: Error) => void) => {
+        const menuIds = Array.isArray(value) ? value : [];
+        if (new Set(menuIds).size !== menuIds.length) {
+          callback(new Error("菜单权限不能重复"));
+          return;
+        }
+        callback();
+      },
+      trigger: "change"
+    }
+  ],
   status: [{ required: true, message: "请选择状态", trigger: "change" }],
   remark: [{ max: 500, message: "备注不能超过 500 个字符", trigger: "blur" }]
 });
@@ -529,6 +542,14 @@ function handleAssignPermSubmit() {
 
   const checkedNodes = (permTreeRef.value?.getCheckedNodes(false, true) as Array<{ value: number }> | undefined) ?? [];
   const checkedMenuIds = checkedNodes.map(node => Number(node.value));
+  if (!checkedMenuIds.length) {
+    ElMessage.warning("请选择菜单权限");
+    return;
+  }
+  if (new Set(checkedMenuIds).size !== checkedMenuIds.length) {
+    ElMessage.warning("菜单权限不能重复");
+    return;
+  }
   defBaseRoleService.SetBaseRoleMenu({ id: roleId, menus: checkedMenuIds }).then(() => {
     ElMessage.success("分配权限成功");
     assignPermDialogVisible.value = false;

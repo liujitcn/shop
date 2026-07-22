@@ -86,7 +86,7 @@ message GetGoodsCategoryRequest {
 message GoodsCategoryForm {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "商品分类ID"}]; // 商品分类ID
 
-  optional int64 parent_id = 2 [(gnostic.openapi.v3.property) = {description: "父级商品分类ID"}, (buf.validate.field).cel = {id: "goods_category.parent_id.required" message: "上级分类不能为空" expression: "this >= 0"}]; // 父级商品分类ID
+  optional int64 parent_id = 2 [(gnostic.openapi.v3.property) = {description: "父级商品分类ID"}, (buf.validate.field).cel = {id: "goods_category.parent_id.non_negative" message: "上级分类不能小于 0" expression: "this >= 0"}]; // 父级商品分类ID
 
   string name = 3 [(gnostic.openapi.v3.property) = {description: "商品分类名称"}, (buf.validate.field).cel = {id: "goods_category.name.required" message: "分类名称不能为空" expression: "this.size() > 0"}, (buf.validate.field).cel = {id: "goods_category.name.max_len" message: "分类名称不能超过 255 个字符" expression: "this.size() <= 255"}]; // 商品分类名称
 
