@@ -52,6 +52,21 @@ type codeGenBatchContext struct {
 	columnsByTable map[int64][]*codegen.CodeGenColumn
 }
 
+// codeGenFileSnapshot 保存生成事务开始前的单个文件状态。
+type codeGenFileSnapshot struct {
+	fullPath string
+	exists   bool
+	content  []byte
+	mode     os.FileMode
+}
+
+// codeGenFileTransaction 保存本批写入文件的快照，用于数据库或文件失败时恢复工作区。
+type codeGenFileTransaction struct {
+	snapshots    map[string]codeGenFileSnapshot
+	writtenPaths []string
+	committed    bool
+}
+
 // CodeGenCase 管理代码预览、批量生成与任务进度。
 type CodeGenCase struct {
 	*coreBiz.BaseCase
@@ -191,27 +206,41 @@ func (c *CodeGenCase) runCodeGenTask(
 	}
 	workflowCtx, cancelWorkflow := context.WithTimeout(context.WithoutCancel(ctx), codegen.WorkflowTimeout)
 	defer cancelWorkflow()
-	if err = c.writeCodeGenBatchFiles(workflowCtx, batch.plan, reporters); err != nil {
+	var fileTransaction *codeGenFileTransaction
+	err = c.tx.Transaction(workflowCtx, func(txCtx context.Context) error {
+		for _, tableID := range tableIDs {
+			generation := batch.plan.GenerationForTable(tableID)
+			if !codegen.ShouldSyncMenus(generation.Table, generation.GeneratedMethods) {
+				continue
+			}
+			reporters[tableID].updateStep(txCtx, codegen.MenuStepID, systemadminv1.CodeGenTaskStepStatus_CODE_GEN_TASK_STEP_STATUS_RUNNING, "正在同步", "")
+			err = c.syncGeneratedMenus(txCtx, generation.Table, batch.columnsByTable[tableID], generation.GeneratedMethods, codegen.FrontendPageComponentPath(generation.OutputPaths.GetFrontendPageFilePath()))
+			if err != nil {
+				return err
+			}
+		}
+		fileTransaction, err = newCodeGenFileTransaction(batch.plan.Files)
+		if err != nil {
+			return err
+		}
+		return c.writeCodeGenBatchFiles(txCtx, batch.plan, reporters, fileTransaction)
+	})
+	if err != nil {
+		rollbackErr := fileTransaction.rollback()
+		if rollbackErr != nil {
+			err = errors.Join(err, fmt.Errorf("还原生成内容失败: %w", rollbackErr))
+		}
 		c.failCodeGenTask(ctx, taskID, tableIDs, err)
 		return
 	}
+	fileTransaction.commit()
+	c.completeCodeGenBatchSteps(workflowCtx, batch.plan, reporters)
 
 	failedCount := 0
 	commandTargets := make([]codeGenCommandTarget, 0, len(tableIDs))
 	for _, tableID := range tableIDs {
 		generation := batch.plan.GenerationForTable(tableID)
 		reporter := reporters[tableID]
-		if codegen.ShouldSyncMenus(generation.Table, generation.GeneratedMethods) {
-			reporter.updateStep(workflowCtx, codegen.MenuStepID, systemadminv1.CodeGenTaskStepStatus_CODE_GEN_TASK_STEP_STATUS_RUNNING, "正在同步", "")
-			err = c.syncGeneratedMenus(workflowCtx, generation.Table, batch.columnsByTable[tableID], generation.GeneratedMethods, codegen.FrontendPageComponentPath(generation.OutputPaths.GetFrontendPageFilePath()))
-			if err != nil {
-				failedCount++
-				reporter.updateStep(workflowCtx, codegen.MenuStepID, systemadminv1.CodeGenTaskStepStatus_CODE_GEN_TASK_STEP_STATUS_FAILED, err.Error(), "")
-				c.progressManager.MarkTableCompleted(ctx, taskID, tableID, systemadminv1.CodeGenTaskStatus_CODE_GEN_TASK_STATUS_FAILED, codegen.FailureRemark(err))
-				continue
-			}
-			reporter.updateStep(workflowCtx, codegen.MenuStepID, systemadminv1.CodeGenTaskStepStatus_CODE_GEN_TASK_STEP_STATUS_SUCCEEDED, "同步完成", "")
-		}
 		if runCommands && generation.Table.GenBackend == 1 {
 			commandTargets = append(commandTargets, codeGenCommandTarget{tableID: tableID, tableName: generation.Table.TableName_, progress: reporter})
 			continue
@@ -310,8 +339,8 @@ func (c *CodeGenCase) prepareCodeGenBatch(ctx context.Context, tableIDs []int64,
 	return &codeGenBatchContext{plan: plan, columnsByTable: columnsByTable}, nil
 }
 
-// writeCodeGenBatchFiles 将批次合并后的每个文件原子写入一次，并同步全部来源步骤。
-func (c *CodeGenCase) writeCodeGenBatchFiles(ctx context.Context, plan *codegen.BatchGeneration, reporters map[int64]*codeGenProgressReporter) error {
+// writeCodeGenBatchFiles 将批次合并后的每个文件原子写入一次，成功步骤在事务提交后统一完成。
+func (c *CodeGenCase) writeCodeGenBatchFiles(ctx context.Context, plan *codegen.BatchGeneration, reporters map[int64]*codeGenProgressReporter, fileTransaction *codeGenFileTransaction) error {
 	for _, file := range plan.Files {
 		for _, ref := range file.Refs {
 			reporter := reporters[ref.TableID]
@@ -323,6 +352,9 @@ func (c *CodeGenCase) writeCodeGenBatchFiles(ctx context.Context, plan *codegen.
 		if err == nil {
 			err = writeGeneratedFile(fullPath, []byte(file.Content), file.Action)
 		}
+		if err == nil {
+			fileTransaction.recordWritten(fullPath)
+		}
 		for _, ref := range file.Refs {
 			reporter := reporters[ref.TableID]
 			if reporter == nil {
@@ -330,15 +362,30 @@ func (c *CodeGenCase) writeCodeGenBatchFiles(ctx context.Context, plan *codegen.
 			}
 			if err != nil {
 				reporter.updateStep(ctx, codegen.FileStepID(ref.FileIndex), systemadminv1.CodeGenTaskStepStatus_CODE_GEN_TASK_STEP_STATUS_FAILED, err.Error(), "")
-				continue
 			}
-			reporter.updateStep(ctx, codegen.FileStepID(ref.FileIndex), systemadminv1.CodeGenTaskStepStatus_CODE_GEN_TASK_STEP_STATUS_SUCCEEDED, "已合并写入", "")
 		}
 		if err != nil {
 			return err
 		}
 	}
 	return nil
+}
+
+// completeCodeGenBatchSteps 在菜单和文件事务提交后更新成功步骤。
+func (c *CodeGenCase) completeCodeGenBatchSteps(ctx context.Context, plan *codegen.BatchGeneration, reporters map[int64]*codeGenProgressReporter) {
+	for _, generation := range plan.Generations {
+		if codegen.ShouldSyncMenus(generation.Table, generation.GeneratedMethods) {
+			reporters[generation.Table.ID].updateStep(ctx, codegen.MenuStepID, systemadminv1.CodeGenTaskStepStatus_CODE_GEN_TASK_STEP_STATUS_SUCCEEDED, "同步完成", "")
+		}
+	}
+	for _, file := range plan.Files {
+		for _, ref := range file.Refs {
+			reporter := reporters[ref.TableID]
+			if reporter != nil {
+				reporter.updateStep(ctx, codegen.FileStepID(ref.FileIndex), systemadminv1.CodeGenTaskStepStatus_CODE_GEN_TASK_STEP_STATUS_SUCCEEDED, "已合并写入", "")
+			}
+		}
+	}
 }
 
 // failCodeGenTask 将整批预检或写入失败同步到任务和每个表的进度状态。
@@ -602,22 +649,20 @@ func (c *CodeGenCase) validateCodeGenParentMenu(ctx context.Context, parentMenuI
 	return validateBaseMenuChild(menu, _const.BASE_MENU_TYPE_MENU)
 }
 
-// syncGeneratedMenus 幂等同步生成页面及按钮权限菜单。
+// syncGeneratedMenus 在当前事务中幂等同步生成页面及按钮权限菜单。
 func (c *CodeGenCase) syncGeneratedMenus(ctx context.Context, table *codegen.Table, columns []*codegen.CodeGenColumn, methods []*codegen.Proto, resourcePath string) error {
 	pageSpec, buttonSpecs := codegen.MenuSpecs(table, columns, methods, resourcePath, table.TableComment)
-	return c.tx.Transaction(ctx, func(ctx context.Context) error {
-		pageMenu, err := c.upsertGeneratedPageMenu(ctx, pageSpec)
-		if err != nil {
+	pageMenu, err := c.upsertGeneratedPageMenu(ctx, pageSpec)
+	if err != nil {
+		return err
+	}
+	for _, buttonSpec := range buttonSpecs {
+		buttonSpec.Menu.ParentID = pageMenu.ID
+		if err = c.upsertGeneratedButtonMenu(ctx, buttonSpec); err != nil {
 			return err
 		}
-		for _, buttonSpec := range buttonSpecs {
-			buttonSpec.Menu.ParentID = pageMenu.ID
-			if err = c.upsertGeneratedButtonMenu(ctx, buttonSpec); err != nil {
-				return err
-			}
-		}
-		return c.disableStaleGeneratedStatusMenus(ctx, pageMenu.ID, table, buttonSpecs)
-	})
+	}
+	return c.disableStaleGeneratedStatusMenus(ctx, pageMenu.ID, table, buttonSpecs)
 }
 
 // disableStaleGeneratedStatusMenus 停用本轮不再需要的状态按钮权限。
@@ -909,15 +954,90 @@ func validateOptionIntegerColumn(method *codegen.Proto, columns []*codegen.CodeG
 	return nil
 }
 
+// newCodeGenFileTransaction 在写入前保存本批目标文件快照。
+func newCodeGenFileTransaction(files []*codegen.BatchFile) (*codeGenFileTransaction, error) {
+	transaction := &codeGenFileTransaction{snapshots: make(map[string]codeGenFileSnapshot, len(files))}
+	for _, file := range files {
+		fullPath, err := codegen.SafeRepoFilePath(file.Path)
+		if err != nil {
+			return nil, err
+		}
+		if _, exists := transaction.snapshots[fullPath]; exists {
+			continue
+		}
+		var fileInfo os.FileInfo
+		fileInfo, err = os.Stat(fullPath)
+		if os.IsNotExist(err) {
+			transaction.snapshots[fullPath] = codeGenFileSnapshot{fullPath: fullPath}
+			continue
+		}
+		if err != nil {
+			return nil, err
+		}
+		var content []byte
+		content, err = os.ReadFile(fullPath)
+		if err != nil {
+			return nil, err
+		}
+		transaction.snapshots[fullPath] = codeGenFileSnapshot{
+			fullPath: fullPath,
+			exists:   true,
+			content:  content,
+			mode:     fileInfo.Mode().Perm(),
+		}
+	}
+	return transaction, nil
+}
+
+// recordWritten 记录已被当前生成事务成功写入的文件。
+func (t *codeGenFileTransaction) recordWritten(fullPath string) {
+	if t == nil || t.committed {
+		return
+	}
+	t.writtenPaths = append(t.writtenPaths, fullPath)
+}
+
+// commit 提交文件生成事务，使已写入内容保留在工作区。
+func (t *codeGenFileTransaction) commit() {
+	if t == nil {
+		return
+	}
+	t.committed = true
+	t.writtenPaths = nil
+}
+
+// rollback 恢复本次生成已经写入的文件，并删除本次新建的文件。
+func (t *codeGenFileTransaction) rollback() error {
+	if t == nil || t.committed {
+		return nil
+	}
+	var rollbackErr error
+	for index := len(t.writtenPaths) - 1; index >= 0; index-- {
+		snapshot, exists := t.snapshots[t.writtenPaths[index]]
+		if !exists {
+			continue
+		}
+		var err error
+		if snapshot.exists {
+			err = writeGeneratedFileAtomically(snapshot.fullPath, snapshot.content, snapshot.mode, false)
+		} else {
+			err = os.Remove(snapshot.fullPath)
+			if os.IsNotExist(err) {
+				err = nil
+			}
+		}
+		if err != nil {
+			rollbackErr = errors.Join(rollbackErr, err)
+		}
+	}
+	return rollbackErr
+}
+
 // writeGeneratedFile 通过同目录临时文件原子写入生成内容。
 func writeGeneratedFile(fullPath string, content []byte, action string) error {
-	err := os.MkdirAll(filepath.Dir(fullPath), 0o755)
-	if err != nil {
-		return err
-	}
 	mode := os.FileMode(0o644)
 	var fileInfo os.FileInfo
-	fileInfo, err = os.Stat(fullPath)
+	fileInfo, err := os.Stat(fullPath)
 	// 创建动作禁止覆盖已有文件，更新动作保留原文件权限。
 	switch action {
 	case "create":
@@ -934,6 +1054,15 @@ func writeGeneratedFile(fullPath string, content []byte, action string) error {
 		mode = fileInfo.Mode().Perm()
 	default:
 		return fmt.Errorf("不支持的生成动作: %s", action)
+	}
+	return writeGeneratedFileAtomically(fullPath, content, mode, action == "create")
+}
+
+// writeGeneratedFileAtomically 将内容写入临时文件后替换目标文件。
+func writeGeneratedFileAtomically(fullPath string, content []byte, mode os.FileMode, createOnly bool) error {
+	err := os.MkdirAll(filepath.Dir(fullPath), 0o755)
+	if err != nil {
+		return err
 	}
 	var tempFile *os.File
 	tempFile, err = os.CreateTemp(filepath.Dir(fullPath), "."+filepath.Base(fullPath)+".tmp-*")
@@ -959,7 +1088,7 @@ func writeGeneratedFile(fullPath string, content []byte, action string) error {
 	if err = tempFile.Close(); err != nil {
 		return err
 	}
-	if action == "create" {
+	if createOnly {
 		return os.Link(tempPath, fullPath)
 	}
 	return os.Rename(tempPath, fullPath)
