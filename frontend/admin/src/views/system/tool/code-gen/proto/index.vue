@@ -53,9 +53,30 @@
       :title="`${configDialog.methodName} - ${resolveAPIKindLabel(configDialog.apiKind)}配置`"
       width="min(520px, calc(100vw - 32px))"
       destroy-on-close
+      :show-close="false"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
       :show-footer="false"
       @closed="handleProtoConfigDialogClosed"
     >
+      <template #header="{ titleId, titleClass }">
+        <div class="code-gen-config-dialog__header">
+          <span :id="titleId" :class="titleClass">
+            {{ `${configDialog.methodName} - ${resolveAPIKindLabel(configDialog.apiKind)}配置` }}
+          </span>
+          <el-tooltip content="保存并关闭" placement="top">
+            <el-button
+              type="primary"
+              text
+              :icon="Document"
+              :disabled="!canEdit"
+              aria-label="保存并关闭"
+              @click="handleSaveProtoConfigDialog"
+            />
+          </el-tooltip>
+        </div>
+      </template>
+
       <ProForm
         :model="protoConfigFormModel"
         :fields="protoConfigFields"
@@ -341,9 +362,14 @@ function openProtoConfigDialog(row: CodeGenProtoCheck) {
   configDialog.visible = true;
 }
 
-/** 关闭配置弹窗时保存页面草稿并清理弹窗上下文。 */
-function handleProtoConfigDialogClosed() {
+/** 保存 Proto 配置草稿并关闭弹窗。 */
+function handleSaveProtoConfigDialog() {
   if (configDialog.row) configDialog.row.config = normalizeCodeGenProtoConfig(configDialog.config);
+  configDialog.visible = false;
+}
+
+/** 清理 Proto 配置弹窗上下文。 */
+function handleProtoConfigDialogClosed() {
   configDialog.row = undefined;
   configDialog.methodName = "";
   configDialog.apiKind = "";
@@ -448,6 +474,15 @@ onMounted(() => {
   border-radius: var(--admin-page-radius);
   box-shadow: var(--admin-page-shadow);
 }
+
+.code-gen-config-dialog__header {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
 :deep(.code-gen-toolbar) {
   display: flex;
   flex-wrap: wrap;

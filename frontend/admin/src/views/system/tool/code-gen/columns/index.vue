@@ -117,15 +117,21 @@
                     :value="item.value"
                   />
                 </el-select>
-                <el-button
+                <el-tooltip
                   v-if="shouldShowOptionEntry(row.query_config, 'query')"
-                  size="small"
-                  :type="hasOptionConfig(row.query_config.option) ? 'primary' : 'default'"
-                  :icon="Setting"
-                  @click="openOptionDialog(row, 'query')"
+                  :content="optionEntryTip(row.query_config.option)"
+                  placement="top"
                 >
-                  选项
-                </el-button>
+                  <el-button
+                    size="small"
+                    :type="hasOptionConfig(row.query_config.option) ? 'primary' : 'default'"
+                    :icon="Setting"
+                    :disabled="!canEdit"
+                    @click="openOptionDialog(row, 'query')"
+                  >
+                    选项
+                  </el-button>
+                </el-tooltip>
               </div>
             </template>
           </el-table-column>
@@ -153,15 +159,21 @@
                     :value="item.value"
                   />
                 </el-select>
-                <el-button
+                <el-tooltip
                   v-if="shouldShowOptionEntry(row.list_config, 'list')"
-                  size="small"
-                  :type="hasOptionConfig(row.list_config.option) ? 'primary' : 'default'"
-                  :icon="Setting"
-                  @click="openOptionDialog(row, 'list')"
+                  :content="optionEntryTip(row.list_config.option)"
+                  placement="top"
                 >
-                  选项
-                </el-button>
+                  <el-button
+                    size="small"
+                    :type="hasOptionConfig(row.list_config.option) ? 'primary' : 'default'"
+                    :icon="Setting"
+                    :disabled="!canEdit"
+                    @click="openOptionDialog(row, 'list')"
+                  >
+                    选项
+                  </el-button>
+                </el-tooltip>
               </div>
             </template>
           </el-table-column>
@@ -193,15 +205,21 @@
                 <el-checkbox v-model="row.form_config.required" :disabled="!canEdit || !row.form_config.enabled"
                   >必填</el-checkbox
                 >
-                <el-button
+                <el-tooltip
                   v-if="shouldShowOptionEntry(row.form_config, 'form')"
-                  size="small"
-                  :type="hasOptionConfig(row.form_config.option) ? 'primary' : 'default'"
-                  :icon="Setting"
-                  @click="openOptionDialog(row, 'form')"
+                  :content="optionEntryTip(row.form_config.option)"
+                  placement="top"
                 >
-                  选项
-                </el-button>
+                  <el-button
+                    size="small"
+                    :type="hasOptionConfig(row.form_config.option) ? 'primary' : 'default'"
+                    :icon="Setting"
+                    :disabled="!canEdit"
+                    @click="openOptionDialog(row, 'form')"
+                  >
+                    选项
+                  </el-button>
+                </el-tooltip>
               </div>
             </template>
           </el-table-column>
@@ -216,9 +234,28 @@
       :title="`${optionDialog.scopeLabel}选项 - ${optionDialog.columnName}`"
       width="min(560px, calc(100vw - 32px))"
       destroy-on-close
+      :show-close="false"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
       :show-footer="false"
       @closed="handleOptionDialogClosed"
     >
+      <template #header="{ titleId, titleClass }">
+        <div class="code-gen-config-dialog__header">
+          <span :id="titleId" :class="titleClass">{{ `${optionDialog.scopeLabel}选项 - ${optionDialog.columnName}` }}</span>
+          <el-tooltip content="保存并关闭" placement="top">
+            <el-button
+              type="primary"
+              text
+              :icon="Document"
+              :disabled="!canEdit"
+              aria-label="保存并关闭"
+              @click="handleSaveOptionDialog"
+            />
+          </el-tooltip>
+        </div>
+      </template>
+
       <div v-if="optionDialog.option" class="code-gen-option-dialog">
         <div v-if="optionDialog.formConfig" class="code-gen-popover-form__row">
           <span class="code-gen-popover-form__label">选择模式</span>
@@ -444,7 +481,8 @@ import {
   copyCodeGenOptionToEmptyMatches,
   copyFirstMatchingCodeGenOption,
   fillMissingCodeGenOptionConfigs,
-  getCodeGenOptionContainer
+  getCodeGenOptionContainer,
+  isCompleteCodeGenOptionConfig
 } from "./option-copy";
 import type { CodeGenOptionContainer, CodeGenOptionScope } from "./option-copy";
 import {
@@ -734,10 +772,15 @@ async function openOptionDialog(row: CodeGenColumnView, scope: CodeGenOptionScop
   await prepareOptionEditor();
 }
 
-/** 选项编辑完成后，用当前完整配置补齐同组件的空配置。 */
-function handleOptionDialogClosed() {
+/** 保存选项配置并关闭弹窗。 */
+function handleSaveOptionDialog() {
   const row = columns.value.find(item => item.name === optionDialog.columnName);
   if (row) copyCodeGenOptionToEmptyMatches(row, optionDialog.scope);
+  optionDialog.visible = false;
+}
+
+/** 清理选项配置弹窗上下文。 */
+function handleOptionDialogClosed() {
   optionDialog.option = null;
   optionDialog.formConfig = null;
 }
@@ -994,7 +1037,12 @@ function shouldShowOptionEntry(config: CodeGenOptionContainer, scope: CodeGenOpt
 
 /** 判断当前范围是否已经填写选项配置。 */
 function hasOptionConfig(option: CodeGenColumnOptionConfig) {
-  return !!option.source_type;
+  return isCompleteCodeGenOptionConfig(option);
+}
+
+/** 返回选项入口的当前状态提示。 */
+function optionEntryTip(option: CodeGenColumnOptionConfig) {
+  return hasOptionConfig(option) ? "已配置，可直接保存；需要覆盖时可打开修改" : "配置选项";
 }
 
 /** 判断组件是否依赖选择数据源。 */
@@ -1291,6 +1339,14 @@ onBeforeUnmount(() => {
 .code-gen-static-options__list {
   display: grid;
   gap: 10px;
+}
+
+.code-gen-config-dialog__header {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
 }
 
 .code-gen-popover-form__row {

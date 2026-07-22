@@ -12,6 +12,10 @@
     @close="handleClose"
     @closed="handleClosed"
   >
+    <template v-if="$slots.header" #header="headerProps">
+      <slot name="header" v-bind="headerProps" />
+    </template>
+
     <slot />
 
     <template v-if="showFooter && $slots.footer" #footer>
