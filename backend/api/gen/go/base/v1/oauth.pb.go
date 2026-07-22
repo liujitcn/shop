@@ -11,6 +11,7 @@ import (
 	sync "sync"
 	unsafe "unsafe"
 
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -996,58 +997,72 @@ var File_base_v1_oauth_proto protoreflect.FileDescriptor
 
 const file_base_v1_oauth_proto_rawDesc = "" +
 	"\n" +
-	"\x13base/v1/oauth.proto\x12\abase.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x19\n" +
+	"\x13base/v1/oauth.proto\x12\abase.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x19\n" +
 	"\x17ListOauthBindingRequest\"m\n" +
 	"\x18ListOauthBindingResponse\x12Q\n" +
 	"\bbindings\x18\x01 \x03(\v2\x15.base.v1.OauthBindingB\x1e\xbaG\x1b\x92\x02\x18三方账号绑定列表R\bbindings\"\x1a\n" +
 	"\x18ListOauthProviderRequest\"q\n" +
 	"\x19ListOauthProviderResponse\x12T\n" +
-	"\tproviders\x18\x01 \x03(\v2\x16.base.v1.OauthProviderB\x1e\xbaG\x1b\x92\x02\x18三方登录方式列表R\tproviders\"\xac\x01\n" +
-	"\x1fCreateOauthAuthorizationRequest\x124\n" +
-	"\bprovider\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12登录方式标识R\bprovider\x12S\n" +
-	"\fredirect_url\x18\x02 \x01(\tB0\xbaG-\x92\x02*三方登录完成后的前端接收地址R\vredirectUrl\"i\n" +
+	"\tproviders\x18\x01 \x03(\v2\x16.base.v1.OauthProviderB\x1e\xbaG\x1b\x92\x02\x18三方登录方式列表R\tproviders\"\xfa\x02\n" +
+	"\x1fCreateOauthAuthorizationRequest\x12\x99\x01\n" +
+	"\bprovider\x18\x01 \x01(\tB}\xbaG\x15\x92\x02\x12登录方式标识\xbaHb\xba\x01_\n" +
+	",create_oauth_authorization.provider.required\x12\x1e登录方式标识不能为空\x1a\x0fthis.size() > 0R\bprovider\x12\xba\x01\n" +
+	"\fredirect_url\x18\x02 \x01(\tB\x96\x01\xbaG-\x92\x02*三方登录完成后的前端接收地址\xbaHc\xba\x01`\n" +
+	"0create_oauth_authorization.redirect_url.required\x12\x1b登录页地址不能为空\x1a\x0fthis.size() > 0R\vredirectUrl\"i\n" +
 	" CreateOauthAuthorizationResponse\x12E\n" +
-	"\x11authorization_url\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12三方授权地址R\x10authorizationUrl\"\xa4\x01\n" +
-	"&CreateOauthBindingAuthorizationRequest\x124\n" +
-	"\bprovider\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12登录方式标识R\bprovider\x12D\n" +
-	"\fredirect_url\x18\x02 \x01(\tB!\xbaG\x1e\x92\x02\x1b绑定完成后回跳地址R\vredirectUrl\"p\n" +
+	"\x11authorization_url\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12三方授权地址R\x10authorizationUrl\"\x8f\x03\n" +
+	"&CreateOauthBindingAuthorizationRequest\x12\xa2\x01\n" +
+	"\bprovider\x18\x01 \x01(\tB\x85\x01\xbaG\x15\x92\x02\x12登录方式标识\xbaHj\xba\x01g\n" +
+	"4create_oauth_binding_authorization.provider.required\x12\x1e登录方式标识不能为空\x1a\x0fthis.size() > 0R\bprovider\x12\xbf\x01\n" +
+	"\fredirect_url\x18\x02 \x01(\tB\x9b\x01\xbaG\x1e\x92\x02\x1b绑定完成后回跳地址\xbaHw\xba\x01t\n" +
+	"8create_oauth_binding_authorization.redirect_url.required\x12'绑定完成后回跳地址不能为空\x1a\x0fthis.size() > 0R\vredirectUrl\"p\n" +
 	"'CreateOauthBindingAuthorizationResponse\x12E\n" +
-	"\x11authorization_url\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12三方授权地址R\x10authorizationUrl\"|\n" +
-	"\x19CreateOauthSessionRequest\x124\n" +
-	"\bprovider\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12登录方式标识R\bprovider\x12)\n" +
-	"\x04code\x18\x02 \x01(\tB\x15\xbaG\x12\x92\x02\x0f三方授权码R\x04code\"\xe7\x06\n" +
+	"\x11authorization_url\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12三方授权地址R\x10authorizationUrl\"\xb5\x02\n" +
+	"\x19CreateOauthSessionRequest\x12\x93\x01\n" +
+	"\bprovider\x18\x01 \x01(\tBw\xbaG\x15\x92\x02\x12登录方式标识\xbaH\\\xba\x01Y\n" +
+	"&create_oauth_session.provider.required\x12\x1e登录方式标识不能为空\x1a\x0fthis.size() > 0R\bprovider\x12\x81\x01\n" +
+	"\x04code\x18\x02 \x01(\tBm\xbaG\x12\x92\x02\x0f三方授权码\xbaHU\xba\x01R\n" +
+	"\"create_oauth_session.code.required\x12\x1b三方授权码不能为空\x1a\x0fthis.size() > 0R\x04code\"\xe7\x06\n" +
 	"\x1aCreateOauthSessionResponse\x12t\n" +
 	"\faccess_token\x18\x01 \x01(\tBQ\xbaGN\x92\x02K访问令牌，必选项。授权服务器颁发的访问令牌字符串。R\vaccessToken\x12\xbc\x02\n" +
 	"\rrefresh_token\x18\x02 \x01(\tB\x96\x02\xbaG\x92\x02\x92\x02\x8e\x02更新令牌，用来获取下一次的访问令牌，可选项。如果访问令牌将过期，则返回刷新令牌很有用，应用程序可以使用该刷新令牌来获取另一个访问令牌。但是，通过隐式授予颁发的令牌不能颁发刷新令牌。R\frefreshToken\x12\xb4\x01\n" +
 	"\n" +
 	"token_type\x18\x03 \x01(\tB\x94\x01\xbaG\x90\x01\x8a\x02\b\x1a\x06Bearer\x92\x02\x81\x01令牌的类型，该值大小写不敏感，必选项，可以是bearer类型或mac类型，通常只是字符串“Bearer”。R\ttokenType\x12\xdc\x01\n" +
 	"\n" +
-	"expires_in\x18\x04 \x01(\x03B\xbc\x01\xbaG\xb8\x01\x92\x02\xb4\x01令牌有效时间，单位为秒。如果访问令牌过期，服务器应回复授予访问令牌的持续时间。如果省略该参数，必须其他方式设置过期时间。R\texpiresIn\"\x9e\x02\n" +
-	"\x1aHandleOauthCallbackRequest\x124\n" +
-	"\bprovider\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12登录方式标识R\bprovider\x12)\n" +
-	"\x04code\x18\x02 \x01(\tB\x15\xbaG\x12\x92\x02\x0f三方授权码R\x04code\x12+\n" +
-	"\x05state\x18\x03 \x01(\tB\x15\xbaG\x12\x92\x02\x0f授权状态码R\x05state\x12+\n" +
+	"expires_in\x18\x04 \x01(\x03B\xbc\x01\xbaG\xb8\x01\x92\x02\xb4\x01令牌有效时间，单位为秒。如果访问令牌过期，服务器应回复授予访问令牌的持续时间。如果省略该参数，必须其他方式设置过期时间。R\texpiresIn\"\xde\x04\n" +
+	"\x1aHandleOauthCallbackRequest\x12\x94\x01\n" +
+	"\bprovider\x18\x01 \x01(\tBx\xbaG\x15\x92\x02\x12登录方式标识\xbaH]\xba\x01Z\n" +
+	"'handle_oauth_callback.provider.required\x12\x1e登录方式标识不能为空\x1a\x0fthis.size() > 0R\bprovider\x12)\n" +
+	"\x04code\x18\x02 \x01(\tB\x15\xbaG\x12\x92\x02\x0f三方授权码R\x04code\x12\x85\x01\n" +
+	"\x05state\x18\x03 \x01(\tBo\xbaG\x12\x92\x02\x0f授权状态码\xbaHW\xba\x01T\n" +
+	"$handle_oauth_callback.state.required\x12\x1b授权状态码不能为空\x1a\x0fthis.size() > 0R\x05state\x12+\n" +
 	"\x05error\x18\x04 \x01(\tB\x15\xbaG\x12\x92\x02\x0f三方错误码R\x05error\x12E\n" +
-	"\x11error_description\x18\x05 \x01(\tB\x18\xbaG\x15\x92\x02\x12三方错误描述R\x10errorDescription\"\x1d\n" +
-	"\x1bHandleOauthCallbackResponse\"N\n" +
-	"\x1aExchangeOauthTicketRequest\x120\n" +
-	"\x06ticket\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12三方登录票据R\x06ticket\"\xe8\x06\n" +
+	"\x11error_description\x18\x05 \x01(\tB\x18\xbaG\x15\x92\x02\x12三方错误描述R\x10errorDescription:\x81\x01\xbaH~\x1a|\n" +
+	".handle_oauth_callback.code.required_on_success\x12\x1b三方授权码不能为空\x1a-this.error.size() > 0 || this.code.size() > 0\"\x1d\n" +
+	"\x1bHandleOauthCallbackResponse\"\xad\x01\n" +
+	"\x1aExchangeOauthTicketRequest\x12\x8e\x01\n" +
+	"\x06ticket\x18\x01 \x01(\tBv\xbaG\x15\x92\x02\x12三方登录票据\xbaH[\xba\x01X\n" +
+	"%exchange_oauth_ticket.ticket.required\x12\x1e三方登录票据不能为空\x1a\x0fthis.size() > 0R\x06ticket\"\xe8\x06\n" +
 	"\x1bExchangeOauthTicketResponse\x12t\n" +
 	"\faccess_token\x18\x01 \x01(\tBQ\xbaGN\x92\x02K访问令牌，必选项。授权服务器颁发的访问令牌字符串。R\vaccessToken\x12\xbc\x02\n" +
 	"\rrefresh_token\x18\x02 \x01(\tB\x96\x02\xbaG\x92\x02\x92\x02\x8e\x02更新令牌，用来获取下一次的访问令牌，可选项。如果访问令牌将过期，则返回刷新令牌很有用，应用程序可以使用该刷新令牌来获取另一个访问令牌。但是，通过隐式授予颁发的令牌不能颁发刷新令牌。R\frefreshToken\x12\xb4\x01\n" +
 	"\n" +
 	"token_type\x18\x03 \x01(\tB\x94\x01\xbaG\x90\x01\x8a\x02\b\x1a\x06Bearer\x92\x02\x81\x01令牌的类型，该值大小写不敏感，必选项，可以是bearer类型或mac类型，通常只是字符串“Bearer”。R\ttokenType\x12\xdc\x01\n" +
 	"\n" +
-	"expires_in\x18\x04 \x01(\x03B\xbc\x01\xbaG\xb8\x01\x92\x02\xb4\x01令牌有效时间，单位为秒。如果访问令牌过期，服务器应回复授予访问令牌的持续时间。如果省略该参数，必须其他方式设置过期时间。R\texpiresIn\"\xa5\x02\n" +
-	"!HandleOauthBindingCallbackRequest\x124\n" +
-	"\bprovider\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12登录方式标识R\bprovider\x12)\n" +
-	"\x04code\x18\x02 \x01(\tB\x15\xbaG\x12\x92\x02\x0f三方授权码R\x04code\x12+\n" +
-	"\x05state\x18\x03 \x01(\tB\x15\xbaG\x12\x92\x02\x0f授权状态码R\x05state\x12+\n" +
+	"expires_in\x18\x04 \x01(\x03B\xbc\x01\xbaG\xb8\x01\x92\x02\xb4\x01令牌有效时间，单位为秒。如果访问令牌过期，服务器应回复授予访问令牌的持续时间。如果省略该参数，必须其他方式设置过期时间。R\texpiresIn\"\x80\x05\n" +
+	"!HandleOauthBindingCallbackRequest\x12\x9d\x01\n" +
+	"\bprovider\x18\x01 \x01(\tB\x80\x01\xbaG\x15\x92\x02\x12登录方式标识\xbaHe\xba\x01b\n" +
+	"/handle_oauth_binding_callback.provider.required\x12\x1e登录方式标识不能为空\x1a\x0fthis.size() > 0R\bprovider\x12)\n" +
+	"\x04code\x18\x02 \x01(\tB\x15\xbaG\x12\x92\x02\x0f三方授权码R\x04code\x12\x8d\x01\n" +
+	"\x05state\x18\x03 \x01(\tBw\xbaG\x12\x92\x02\x0f授权状态码\xbaH_\xba\x01\\\n" +
+	",handle_oauth_binding_callback.state.required\x12\x1b授权状态码不能为空\x1a\x0fthis.size() > 0R\x05state\x12+\n" +
 	"\x05error\x18\x04 \x01(\tB\x15\xbaG\x12\x92\x02\x0f三方错误码R\x05error\x12E\n" +
-	"\x11error_description\x18\x05 \x01(\tB\x18\xbaG\x15\x92\x02\x12三方错误描述R\x10errorDescription\"$\n" +
-	"\"HandleOauthBindingCallbackResponse\"Q\n" +
-	"\x19UnbindOauthAccountRequest\x124\n" +
-	"\bprovider\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12登录方式标识R\bprovider\"E\n" +
+	"\x11error_description\x18\x05 \x01(\tB\x18\xbaG\x15\x92\x02\x12三方错误描述R\x10errorDescription:\x8b\x01\xbaH\x87\x01\x1a\x84\x01\n" +
+	"6handle_oauth_binding_callback.code.required_on_success\x12\x1b三方授权码不能为空\x1a-this.error.size() > 0 || this.code.size() > 0\"$\n" +
+	"\"HandleOauthBindingCallbackResponse\"\xb1\x01\n" +
+	"\x19UnbindOauthAccountRequest\x12\x93\x01\n" +
+	"\bprovider\x18\x01 \x01(\tBw\xbaG\x15\x92\x02\x12登录方式标识\xbaH\\\xba\x01Y\n" +
+	"&unbind_oauth_account.provider.required\x12\x1e登录方式标识不能为空\x1a\x0fthis.size() > 0R\bprovider\"E\n" +
 	"\rOauthProvider\x124\n" +
 	"\bprovider\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12登录方式标识R\bprovider\"q\n" +
 	"\fOauthBinding\x124\n" +

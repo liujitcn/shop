@@ -11,6 +11,7 @@ import (
 	sync "sync"
 	unsafe "unsafe"
 
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -475,13 +476,15 @@ var File_system_admin_v1_code_gen_proto_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_code_gen_proto_proto_rawDesc = "" +
 	"\n" +
-	"$system/admin/v1/code_gen_proto.proto\x12\x0fsystem.admin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"S\n" +
-	"\x17ListCodeGenProtoRequest\x128\n" +
-	"\btable_id\x18\x01 \x01(\x03B\x1d\xbaG\x1a\x92\x02\x17代码生成表配置IDR\atableId\"\x91\x01\n" +
+	"$system/admin/v1/code_gen_proto.proto\x12\x0fsystem.admin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xb0\x01\n" +
+	"\x17ListCodeGenProtoRequest\x12\x94\x01\n" +
+	"\btable_id\x18\x01 \x01(\x03By\xbaG\x1a\x92\x02\x17代码生成表配置ID\xbaHY\xba\x01V\n" +
+	"%list_code_gen_proto.table_id.required\x12#代码生成表配置ID不能为空\x1a\bthis > 0R\atableId\"\x91\x01\n" +
 	"\x18ListCodeGenProtoResponse\x12u\n" +
-	"\x0fcode_gen_protos\x18\x01 \x03(\v2\".system.admin.v1.CodeGenProtoCheckB)\xbaG&\x92\x02#代码生成Proto接口检查列表R\rcodeGenProtos\"\xc5\x01\n" +
-	"\x17SaveCodeGenProtoRequest\x128\n" +
-	"\btable_id\x18\x01 \x01(\x03B\x1d\xbaG\x1a\x92\x02\x17代码生成表配置IDR\atableId\x12p\n" +
+	"\x0fcode_gen_protos\x18\x01 \x03(\v2\".system.admin.v1.CodeGenProtoCheckB)\xbaG&\x92\x02#代码生成Proto接口检查列表R\rcodeGenProtos\"\xa2\x02\n" +
+	"\x17SaveCodeGenProtoRequest\x12\x94\x01\n" +
+	"\btable_id\x18\x01 \x01(\x03By\xbaG\x1a\x92\x02\x17代码生成表配置ID\xbaHY\xba\x01V\n" +
+	"%save_code_gen_proto.table_id.required\x12#代码生成表配置ID不能为空\x1a\bthis > 0R\atableId\x12p\n" +
 	"\x0fcode_gen_protos\x18\x02 \x03(\v2\x1d.system.admin.v1.CodeGenProtoB)\xbaG&\x92\x02#代码生成Proto接口配置列表R\rcodeGenProtos\"\xd0\x04\n" +
 	"\fCodeGenProto\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键IDR\x02id\x128\n" +

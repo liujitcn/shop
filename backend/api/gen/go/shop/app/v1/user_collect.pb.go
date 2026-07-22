@@ -11,6 +11,7 @@ import (
 	sync "sync"
 	unsafe "unsafe"
 
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -485,9 +486,10 @@ var File_shop_app_v1_user_collect_proto protoreflect.FileDescriptor
 
 const file_shop_app_v1_user_collect_proto_rawDesc = "" +
 	"\n" +
-	"\x1eshop/app/v1/user_collect.proto\x12\vshop.app.v1\x1a\x1bshop/app/v1/recommend.proto\x1a\x1eshop/app/v1/tenant_store.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"@\n" +
-	"\x13GetIsCollectRequest\x12)\n" +
-	"\bgoods_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\agoodsId\"P\n" +
+	"\x1eshop/app/v1/user_collect.proto\x12\vshop.app.v1\x1a\x1bshop/app/v1/recommend.proto\x1a\x1eshop/app/v1/tenant_store.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x8c\x01\n" +
+	"\x13GetIsCollectRequest\x12u\n" +
+	"\bgoods_id\x18\x01 \x01(\x03BZ\xbaG\v\x92\x02\b商品ID\xbaHI\xba\x01F\n" +
+	" get_is_collect.goods_id.required\x12\x18商品编号不能为空\x1a\bthis > 0R\agoodsId\"P\n" +
 	"\x14GetIsCollectResponse\x128\n" +
 	"\fis_collected\x18\x01 \x01(\bB\x15\xbaG\x12\x92\x02\x0f是否已收藏R\visCollected\"\x96\x01\n" +
 	"\x16PageUserCollectRequest\x129\n" +
@@ -497,11 +499,13 @@ const file_shop_app_v1_user_collect_proto_rawDesc = "" +
 	"\ruser_collects\x18\x01 \x03(\v2\x18.shop.app.v1.UserCollectB\x18\xbaG\x15\x92\x02\x12用户收藏列表R\fuserCollects\x12\"\n" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"o\n" +
 	"\x18CreateUserCollectRequest\x12S\n" +
-	"\fuser_collect\x18\x01 \x01(\v2\x1c.shop.app.v1.UserCollectFormB\x12\xbaG\x0f\x92\x02\f用户收藏R\vuserCollect\"H\n" +
-	"\x18DeleteUserCollectRequest\x12,\n" +
-	"\x03ids\x18\x01 \x01(\tB\x1a\xbaG\x17\x92\x02\x14用户收藏ID列表R\x03ids\"\x9f\x01\n" +
-	"\x0fUserCollectForm\x12)\n" +
-	"\bgoods_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\agoodsId\x12a\n" +
+	"\fuser_collect\x18\x01 \x01(\v2\x1c.shop.app.v1.UserCollectFormB\x12\xbaG\x0f\x92\x02\f用户收藏R\vuserCollect\"\xa4\x01\n" +
+	"\x18DeleteUserCollectRequest\x12\x87\x01\n" +
+	"\x03ids\x18\x01 \x01(\tBu\xbaG\x17\x92\x02\x14用户收藏ID列表\xbaHX\xba\x01U\n" +
+	" delete_user_collect.ids.required\x12 用户收藏ID列表不能为空\x1a\x0fthis.size() > 0R\x03ids\"\xee\x01\n" +
+	"\x0fUserCollectForm\x12x\n" +
+	"\bgoods_id\x18\x01 \x01(\x03B]\xbaG\v\x92\x02\b商品ID\xbaHL\xba\x01I\n" +
+	"#user_collect_form.goods_id.required\x12\x18商品编号不能为空\x1a\bthis > 0R\agoodsId\x12a\n" +
 	"\x11recommend_context\x18\x02 \x01(\v2\x1d.shop.app.v1.RecommendContextB\x15\xbaG\x12\x92\x02\x0f推荐上下文R\x10recommendContext\"\xdc\x03\n" +
 	"\vUserCollect\x12$\n" +
 	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e用户收藏IDR\x02id\x126\n" +

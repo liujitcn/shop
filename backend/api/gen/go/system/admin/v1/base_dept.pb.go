@@ -631,9 +631,10 @@ const file_system_admin_v1_base_dept_proto_rawDesc = "" +
 	"_tenant_id\"a\n" +
 	"\x14TreeBaseDeptResponse\x12I\n" +
 	"\n" +
-	"base_depts\x18\x01 \x03(\v2\x19.system.admin.v1.BaseDeptB\x0f\xbaG\f\x92\x02\t部门树R\tbaseDepts\"4\n" +
-	"\x12GetBaseDeptRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b部门IDR\x02id\"\xa3\x06\n" +
+	"base_depts\x18\x01 \x03(\v2\x19.system.admin.v1.BaseDeptB\x0f\xbaG\f\x92\x02\t部门树R\tbaseDepts\"u\n" +
+	"\x12GetBaseDeptRequest\x12_\n" +
+	"\x02id\x18\x01 \x01(\x03BO\xbaG\v\x92\x02\b部门ID\xbaH>\xba\x01;\n" +
+	"\x19get_base_dept.id.required\x12\x14部门ID不能为空\x1a\bthis > 0R\x02id\"\xa3\x06\n" +
 	"\fBaseDeptForm\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b部门IDR\x02id\x12s\n" +
 	"\ttenant_id\x18\x02 \x01(\x03BV\xbaG\v\x92\x02\b租户ID\xbaHE\xba\x01B\n" +
@@ -651,13 +652,16 @@ const file_system_admin_v1_base_dept_proto_rawDesc = "" +
 	"\n" +
 	"_parent_id\"m\n" +
 	"\x15CreateBaseDeptRequest\x12T\n" +
-	"\tbase_dept\x18\x01 \x01(\v2\x1d.system.admin.v1.BaseDeptFormB\x18\xbaG\x0f\x92\x02\f部门表单\xbaH\x03\xc8\x01\x01R\bbaseDept\"m\n" +
+	"\tbase_dept\x18\x01 \x01(\v2\x1d.system.admin.v1.BaseDeptFormB\x18\xbaG\x0f\x92\x02\f部门表单\xbaH\x03\xc8\x01\x01R\bbaseDept\"\xbf\x01\n" +
 	"\x15UpdateBaseDeptRequest\x12T\n" +
-	"\tbase_dept\x18\x01 \x01(\v2\x1d.system.admin.v1.BaseDeptFormB\x18\xbaG\x0f\x92\x02\f部门表单\xbaH\x03\xc8\x01\x01R\bbaseDept\"=\n" +
-	"\x15DeleteBaseDeptRequest\x12$\n" +
-	"\x02id\x18\x01 \x01(\tB\x14\xbaG\x11\x92\x02\x0e部门ID列表R\x02id\"`\n" +
-	"\x18SetBaseDeptStatusRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b部门IDR\x02id\x12$\n" +
+	"\tbase_dept\x18\x01 \x01(\v2\x1d.system.admin.v1.BaseDeptFormB\x18\xbaG\x0f\x92\x02\f部门表单\xbaH\x03\xc8\x01\x01R\bbaseDept:P\xbaHM\x1aK\n" +
+	"\x1cupdate_base_dept.id.required\x12\x14部门ID不能为空\x1a\x15this.base_dept.id > 0\"\x8e\x01\n" +
+	"\x15DeleteBaseDeptRequest\x12u\n" +
+	"\x02id\x18\x01 \x01(\tBe\xbaG\x11\x92\x02\x0e部门ID列表\xbaHN\xba\x01K\n" +
+	"\x1cdelete_base_dept.id.required\x12\x1a部门ID列表不能为空\x1a\x0fthis.size() > 0R\x02id\"\xa8\x01\n" +
+	"\x18SetBaseDeptStatusRequest\x12f\n" +
+	"\x02id\x18\x01 \x01(\x03BV\xbaG\v\x92\x02\b部门ID\xbaHE\xba\x01B\n" +
+	" set_base_dept_status.id.required\x12\x14部门ID不能为空\x1a\bthis > 0R\x02id\x12$\n" +
 	"\x06status\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\"\xe5\x05\n" +
 	"\bBaseDept\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b部门IDR\x02id\x12s\n" +

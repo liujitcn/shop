@@ -52,7 +52,7 @@ message ListUserAddressRequest {}
 
 // 查询用户地址请求参数
 message GetUserAddressRequest {
-  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "用户地址ID"}]; // 用户地址ID
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "用户地址ID"}, (buf.validate.field).cel = {id: "get_user_address.id.required" message: "用户地址ID不能为空" expression: "this > 0"}]; // 用户地址ID
 }
 
 // 创建用户地址请求参数
@@ -62,14 +62,14 @@ message CreateUserAddressRequest {
 
 // 更新用户地址请求参数
 message UpdateUserAddressRequest {
-  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "用户地址ID"}]; // 用户地址ID
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "用户地址ID"}, (buf.validate.field).cel = {id: "update_user_address.id.required" message: "用户地址ID不能为空" expression: "this > 0"}]; // 用户地址ID
 
   UserAddressForm user_address = 2 [(gnostic.openapi.v3.property) = {description: "用户地址"}]; // 用户地址
 }
 
 // 删除用户地址请求参数
 message DeleteUserAddressRequest {
-  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "用户地址ID"}]; // 用户地址ID
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "用户地址ID"}, (buf.validate.field).cel = {id: "delete_user_address.id.required" message: "用户地址ID不能为空" expression: "this > 0"}]; // 用户地址ID
 }
 
 // 用户地址列表响应

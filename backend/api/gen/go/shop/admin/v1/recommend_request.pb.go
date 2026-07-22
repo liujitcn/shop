@@ -12,6 +12,7 @@ import (
 	sync "sync"
 	unsafe "unsafe"
 
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -932,7 +933,7 @@ var File_shop_admin_v1_recommend_request_proto protoreflect.FileDescriptor
 
 const file_shop_admin_v1_recommend_request_proto_rawDesc = "" +
 	"\n" +
-	"%shop/admin/v1/recommend_request.proto\x12\rshop.admin.v1\x1a\x19shop/common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\xf8\x04\n" +
+	"%shop/admin/v1/recommend_request.proto\x12\rshop.admin.v1\x1a\x19shop/common/v1/enum.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\xf8\x04\n" +
 	"\x1bPageRecommendRequestRequest\x128\n" +
 	"\n" +
 	"request_id\x18\x01 \x01(\tB\x14\xbaG\x11\x92\x02\x0e推荐请求IDH\x00R\trequestId\x88\x01\x01\x12}\n" +
@@ -950,16 +951,19 @@ const file_shop_admin_v1_recommend_request_proto_rawDesc = "" +
 	"\x06_scene\"\xa6\x01\n" +
 	"\x1cPageRecommendRequestResponse\x12b\n" +
 	"\x12recommend_requests\x18\x01 \x03(\v2\x1f.shop.admin.v1.RecommendRequestB\x12\xbaG\x0f\x92\x02\f分页数据R\x11recommendRequests\x12\"\n" +
-	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\xc5\x01\n" +
-	" ListRecommendRequestEventRequest\x12F\n" +
-	"\x11request_record_id\x18\x01 \x01(\x03B\x1a\xbaG\x17\x92\x02\x14推荐请求记录IDR\x0frequestRecordId\x12)\n" +
-	"\bgoods_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\agoodsId\x12.\n" +
+	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\x91\x03\n" +
+	" ListRecommendRequestEventRequest\x12\xb6\x01\n" +
+	"\x11request_record_id\x18\x01 \x01(\x03B\x89\x01\xbaG\x17\x92\x02\x14推荐请求记录ID\xbaHl\xba\x01i\n" +
+	"7list_recommend_request_event.request_record_id.required\x12$推荐请求记录编号不能为空\x1a\bthis > 0R\x0frequestRecordId\x12\x83\x01\n" +
+	"\bgoods_id\x18\x02 \x01(\x03Bh\xbaG\v\x92\x02\b商品ID\xbaHW\xba\x01T\n" +
+	".list_recommend_request_event.goods_id.required\x12\x18商品编号不能为空\x1a\bthis > 0R\agoodsId\x12.\n" +
 	"\bposition\x18\x03 \x01(\x05B\x12\xbaG\x0f\x92\x02\f结果位置R\bposition\"\xa5\x01\n" +
 	"!ListRecommendRequestEventResponse\x12\\\n" +
 	"\x10recommend_events\x18\x01 \x03(\v2\x1d.shop.admin.v1.RecommendEventB\x12\xbaG\x0f\x92\x02\f事件数据R\x0frecommendEvents\x12\"\n" +
-	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"H\n" +
-	"\x1aGetRecommendRequestRequest\x12*\n" +
-	"\x02id\x18\x01 \x01(\x03B\x1a\xbaG\x17\x92\x02\x14推荐请求记录IDR\x02id\"\xc2\x02\n" +
+	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\xa2\x01\n" +
+	"\x1aGetRecommendRequestRequest\x12\x83\x01\n" +
+	"\x02id\x18\x01 \x01(\x03Bs\xbaG\x17\x92\x02\x14推荐请求记录ID\xbaHV\xba\x01S\n" +
+	"!get_recommend_request.id.required\x12$推荐请求记录编号不能为空\x1a\bthis > 0R\x02id\"\xc2\x02\n" +
 	"\x1eRecommendRequestDetailResponse\x12S\n" +
 	"\arequest\x18\x01 \x01(\v2\x1f.shop.admin.v1.RecommendRequestB\x18\xbaG\x15\x92\x02\x12请求基础信息R\arequest\x12]\n" +
 	"\acontext\x18\x02 \x01(\v2&.shop.admin.v1.RecommendRequestContextB\x1b\xbaG\x18\x92\x02\x15推荐上下文信息R\acontext\x12l\n" +

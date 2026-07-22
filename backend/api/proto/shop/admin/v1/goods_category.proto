@@ -79,7 +79,7 @@ message TreeGoodsCategoryResponse {
 
 // 商品分类详情查询条件
 message GetGoodsCategoryRequest {
-  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "商品分类ID"}]; // 商品分类ID
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "商品分类ID"}, (buf.validate.field).cel = {id: "get_goods_category.id.required" message: "商品分类ID不能为空" expression: "this > 0"}]; // 商品分类ID
 }
 
 // 商品分类表单
@@ -104,7 +104,7 @@ message CreateGoodsCategoryRequest {
 
 // 商品分类更新条件
 message UpdateGoodsCategoryRequest {
-  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "商品分类ID"}]; // 商品分类ID
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "商品分类ID"}, (buf.validate.field).cel = {id: "update_goods_category.id.required" message: "商品分类ID不能为空" expression: "this > 0"}]; // 商品分类ID
 
   GoodsCategoryForm goods_category = 2 [(gnostic.openapi.v3.property) = {description: "商品分类表单"}, (buf.validate.field).required = true]; // 商品分类表单
 }
@@ -116,7 +116,7 @@ message DeleteGoodsCategoryRequest {
 
 // 商品分类状态设置条件
 message SetGoodsCategoryStatusRequest {
-  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "商品分类ID"}]; // 商品分类ID
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "商品分类ID"}, (buf.validate.field).cel = {id: "set_goods_category_status.id.required" message: "商品分类ID不能为空" expression: "this > 0"}]; // 商品分类ID
 
   .common.v1.Status status = 2 [(gnostic.openapi.v3.property) = {description: "状态：枚举【Status】"}]; // 状态：枚举【Status】
 }

@@ -12,6 +12,7 @@ import (
 	sync "sync"
 	unsafe "unsafe"
 
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -172,9 +173,10 @@ var File_base_v1_config_proto protoreflect.FileDescriptor
 
 const file_base_v1_config_proto_rawDesc = "" +
 	"\n" +
-	"\x14base/v1/config.proto\x12\abase.v1\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"l\n" +
-	"\x10GetConfigRequest\x12X\n" +
-	"\x04site\x18\x02 \x01(\x0e2\x19.common.v1.BaseConfigSiteB)\xbaG&\x92\x02#位置：枚举【BaseConfigSite】R\x04site\"X\n" +
+	"\x14base/v1/config.proto\x12\abase.v1\x1a\x14common/v1/enum.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\xb1\x01\n" +
+	"\x10GetConfigRequest\x12\x9c\x01\n" +
+	"\x04site\x18\x02 \x01(\x0e2\x19.common.v1.BaseConfigSiteBm\xbaG&\x92\x02#位置：枚举【BaseConfigSite】\xbaHA\xba\x019\n" +
+	"\x18get_config.site.required\x12\x12位置不能为空\x1a\tthis != 0\x82\x01\x02\x10\x01R\x04site\"X\n" +
 	"\n" +
 	"ConfigItem\x12!\n" +
 	"\x03key\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t配置keyR\x03key\x12'\n" +

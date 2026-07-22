@@ -181,6 +181,9 @@ func (c *CommentInfoCase) CreateComment(ctx context.Context, tenantID int64, ten
 
 	err := c.Create(ctx, record)
 	if err != nil {
+		if errorsx.IsMySQLDuplicateKey(err) {
+			return nil, errorsx.UniqueConflict("当前订单商品已评价", "comment_info", "", "unique_comment_info").WithCause(err)
+		}
 		return nil, err
 	}
 	return record, nil
@@ -354,27 +357,6 @@ func (c *CommentInfoCase) BuildCommentedOrderGoodsMap(ctx context.Context, userI
 		commentedOrderGoodsMap[utils.BuildOrderGoodsCommentKey(item.OrderID, item.GoodsID, item.SKUCode)] = true
 	}
 	return commentedOrderGoodsMap, nil
-}
-
-// IsOrderGoodsCommented 判断当前用户订单商品是否已经评价。
-func (c *CommentInfoCase) IsOrderGoodsCommented(ctx context.Context, userID int64, orderID int64, goodsID int64, skuCode string) (bool, error) {
-	// 用户编号非法时，不命中任何已评价记录。
-	if userID <= 0 {
-		return false, nil
-	}
-
-	query := c.Query(ctx).CommentInfo
-	opts := make([]repository.QueryOption, 0, 5)
-	opts = append(opts, repository.Unscoped())
-	opts = append(opts, repository.Where(query.UserID.Eq(userID)))
-	opts = append(opts, repository.Where(query.OrderID.Eq(orderID)))
-	opts = append(opts, repository.Where(query.GoodsID.Eq(goodsID)))
-	opts = append(opts, repository.Where(query.SKUCode.Eq(skuCode)))
-	count, err := c.Count(ctx, opts...)
-	if err != nil {
-		return false, err
-	}
-	return count > 0, nil
 }
 
 // AreAllOrderGoodsCommented 判断当前用户订单下商品是否全部完成评价。

@@ -101,9 +101,6 @@ func NewCodeGenCase(
 
 // GetCodeGenTask 查询当前用户可访问的生成任务快照。
 func (c *CodeGenCase) GetCodeGenTask(ctx context.Context, taskID string) (*systemadminv1.CodeGenTask, error) {
-	if taskID == "" {
-		return nil, errorsx.InvalidArgument("生成任务ID不能为空")
-	}
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return nil, err
@@ -137,12 +134,6 @@ func (c *CodeGenCase) PreviewCodeGen(ctx context.Context, tableID int64, request
 
 // StartCodeGenTask 校验生成对象并创建后台批量任务。
 func (c *CodeGenCase) StartCodeGenTask(ctx context.Context, req *systemadminv1.StartCodeGenTaskRequest) (*systemadminv1.StartCodeGenTaskResponse, error) {
-	if len(req.GetTableIds()) == 0 {
-		return nil, errorsx.InvalidArgument("请选择生成对象")
-	}
-	if len(req.GetTableIds()) > 1 && req.GetOutputPaths() != nil {
-		return nil, errorsx.InvalidArgument("批量生成不支持自定义输出路径")
-	}
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return nil, err

@@ -617,20 +617,23 @@ const file_shop_admin_v1_shop_banner_proto_rawDesc = "" +
 	"\a_status\"\x91\x01\n" +
 	"\x16PageShopBannerResponse\x12S\n" +
 	"\fshop_banners\x18\x01 \x03(\v2\x19.shop.admin.v1.ShopBannerB\x15\xbaG\x12\x92\x02\x0f轮播图列表R\vshopBanners\x12\"\n" +
-	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"6\n" +
-	"\x14GetShopBannerRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键idR\x02id\"v\n" +
+	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"y\n" +
+	"\x14GetShopBannerRequest\x12a\n" +
+	"\x02id\x18\x01 \x01(\x03BQ\xbaG\v\x92\x02\b主键id\xbaH@\xba\x01=\n" +
+	"\x1bget_shop_banner.id.required\x12\x14主键ID不能为空\x1a\bthis > 0R\x02id\"v\n" +
 	"\x17CreateShopBannerRequest\x12[\n" +
 	"\vshop_banner\x18\x01 \x01(\v2\x1d.shop.admin.v1.ShopBannerFormB\x1b\xbaG\x12\x92\x02\x0f轮播图表单\xbaH\x03\xc8\x01\x01R\n" +
-	"shopBanner\"\x96\x01\n" +
-	"\x17UpdateShopBannerRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键idR\x02id\x12[\n" +
+	"shopBanner\"\xdc\x01\n" +
+	"\x17UpdateShopBannerRequest\x12d\n" +
+	"\x02id\x18\x01 \x01(\x03BT\xbaG\v\x92\x02\b主键id\xbaHC\xba\x01@\n" +
+	"\x1eupdate_shop_banner.id.required\x12\x14主键ID不能为空\x1a\bthis > 0R\x02id\x12[\n" +
 	"\vshop_banner\x18\x02 \x01(\v2\x1d.shop.admin.v1.ShopBannerFormB\x1b\xbaG\x12\x92\x02\x0f轮播图表单\xbaH\x03\xc8\x01\x01R\n" +
 	"shopBanner\"\\\n" +
 	"\x17DeleteShopBannerRequest\x12A\n" +
-	"\x03ids\x18\x01 \x01(\tB/\xbaG,\x92\x02)轮播图ID列表，多个用逗号分隔R\x03ids\"\x8a\x01\n" +
-	"\x1aSetShopBannerStatusRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键idR\x02id\x12L\n" +
+	"\x03ids\x18\x01 \x01(\tB/\xbaG,\x92\x02)轮播图ID列表，多个用逗号分隔R\x03ids\"\xd4\x01\n" +
+	"\x1aSetShopBannerStatusRequest\x12h\n" +
+	"\x02id\x18\x01 \x01(\x03BX\xbaG\v\x92\x02\b主键id\xbaHG\xba\x01D\n" +
+	"\"set_shop_banner_status.id.required\x12\x14主键ID不能为空\x1a\bthis > 0R\x02id\x12L\n" +
 	"\x06status\x18\x02 \x01(\x0e2\x11.common.v1.StatusB!\xbaG\x1e\x92\x02\x1b状态：枚举【Status】R\x06status\"\x89\x04\n" +
 	"\n" +
 	"ShopBanner\x12\x1e\n" +

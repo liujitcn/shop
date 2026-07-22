@@ -11,6 +11,7 @@ import (
 	sync "sync"
 	unsafe "unsafe"
 
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -347,21 +348,22 @@ var File_base_v1_file_proto protoreflect.FileDescriptor
 
 const file_base_v1_file_proto_rawDesc = "" +
 	"\n" +
-	"\x12base/v1/file.proto\x12\abase.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1egoogle/protobuf/wrappers.proto\"a\n" +
-	"\x16MultiUploadFileRequest\x12G\n" +
-	"\x05files\x18\x01 \x03(\v2\x17.base.v1.UploadFileInfoB\x18\xbaG\x15\x92\x02\x12上传文件信息R\x05files\"\\\n" +
+	"\x12base/v1/file.proto\x12\abase.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1egoogle/protobuf/wrappers.proto\"i\n" +
+	"\x16MultiUploadFileRequest\x12O\n" +
+	"\x05files\x18\x01 \x03(\v2\x17.base.v1.UploadFileInfoB \xbaG\x15\x92\x02\x12上传文件信息\xbaH\x05\x92\x01\x02\b\x01R\x05files\"\\\n" +
 	"\x17MultiUploadFileResponse\x12A\n" +
-	"\x05files\x18\x01 \x03(\v2\x11.base.v1.FileInfoB\x18\xbaG\x15\x92\x02\x12文件上传结果R\x05files\"Z\n" +
-	"\x11UploadFileRequest\x12E\n" +
-	"\x04file\x18\x01 \x01(\v2\x17.base.v1.UploadFileInfoB\x18\xbaG\x15\x92\x02\x12上传文件信息R\x04file\"\xdd\x01\n" +
+	"\x05files\x18\x01 \x03(\v2\x11.base.v1.FileInfoB\x18\xbaG\x15\x92\x02\x12文件上传结果R\x05files\"`\n" +
+	"\x11UploadFileRequest\x12K\n" +
+	"\x04file\x18\x01 \x01(\v2\x17.base.v1.UploadFileInfoB\x1e\xbaG\x15\x92\x02\x12上传文件信息\xbaH\x03\xc8\x01\x01R\x04file\"\xdd\x01\n" +
 	"\x0eUploadFileInfo\x12#\n" +
 	"\x04name\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t文件名R\x04name\x12/\n" +
 	"\aextname\x18\x02 \x01(\tB\x15\xbaG\x12\x92\x02\x0f文件扩展名R\aextname\x12&\n" +
 	"\x04path\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f文件路径R\x04path\x12M\n" +
-	"\acontent\x18\x04 \x01(\fB3\xbaG0\x92\x02- 二进制内容将通过 base64 编码传输R\acontent\"b\n" +
+	"\acontent\x18\x04 \x01(\fB3\xbaG0\x92\x02- 二进制内容将通过 base64 编码传输R\acontent\"\xb0\x01\n" +
 	"\x13DownloadFileRequest\x12#\n" +
-	"\x04name\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t文件名R\x04name\x12&\n" +
-	"\x04path\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f文件路径R\x04path\"\x86\x01\n" +
+	"\x04name\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t文件名R\x04name\x12t\n" +
+	"\x04path\x18\x02 \x01(\tB`\xbaG\x0f\x92\x02\f文件路径\xbaHK\xba\x01H\n" +
+	"\x1bdownload_file.path.required\x12\x18文件路径不能为空\x1a\x0fthis.size() > 0R\x04path\"\x86\x01\n" +
 	"\bFileInfo\x12$\n" +
 	"\x03url\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f文件路径R\x03url\x12#\n" +
 	"\x04name\x18\x02 \x01(\tB\x0f\xbaG\f\x92\x02\t文件名R\x04name\x12/\n" +

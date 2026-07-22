@@ -83,7 +83,7 @@ message TreeBaseDeptResponse {
 
 // 查询部门请求参数
 message GetBaseDeptRequest {
-  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "部门ID"}]; // 部门ID
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "部门ID"}, (buf.validate.field).cel = {id: "get_base_dept.id.required" message: "部门ID不能为空" expression: "this > 0"}]; // 部门ID
 }
 
 // 部门表单
@@ -110,17 +110,19 @@ message CreateBaseDeptRequest {
 
 // 更新部门请求参数
 message UpdateBaseDeptRequest {
+  option (buf.validate.message).cel = {id: "update_base_dept.id.required" message: "部门ID不能为空" expression: "this.base_dept.id > 0"};
+
   BaseDeptForm base_dept = 1 [(gnostic.openapi.v3.property) = {description: "部门表单"}, (buf.validate.field).required = true]; // 部门表单
 }
 
 // 删除部门请求参数
 message DeleteBaseDeptRequest {
-  string id = 1 [(gnostic.openapi.v3.property) = {description: "部门ID列表"}]; // 部门ID列表
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "部门ID列表"}, (buf.validate.field).cel = {id: "delete_base_dept.id.required" message: "部门ID列表不能为空" expression: "this.size() > 0"}]; // 部门ID列表
 }
 
 // 设置部门状态请求参数
 message SetBaseDeptStatusRequest {
-  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "部门ID"}]; // 部门ID
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "部门ID"}, (buf.validate.field).cel = {id: "set_base_dept_status.id.required" message: "部门ID不能为空" expression: "this > 0"}]; // 部门ID
 
   int32 status = 2 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
 }

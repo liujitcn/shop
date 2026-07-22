@@ -109,14 +109,14 @@ message ListCodeGenProtoDirectoryResponse {
 
 // 代码生成表配置详情查询条件
 message GetCodeGenTableRequest {
-  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "主键ID"}]; // 主键ID
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "主键ID"}, (buf.validate.field).cel = {id: "get_code_gen_table.id.required" message: "主键ID不能为空" expression: "this > 0"}]; // 主键ID
 }
 
 // 代码生成表配置表单
 message CodeGenTableForm {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "主键ID"}]; // 主键ID
 
-  string name = 2 [(gnostic.openapi.v3.property) = {description: "业务表名"}, (buf.validate.field).cel = {id: "field.name.required", message: "业务表名不能为空", expression: "this.size() > 0"}, (buf.validate.field).cel = {id: "field.name.length", message: "业务表名不能超过 128 个字符", expression: "this.size() <= 128"}]; // 业务表名
+  string name = 2 [(gnostic.openapi.v3.property) = {description: "业务表名"}, (buf.validate.field).cel = {id: "field.name.required", message: "业务表名不能为空", expression: "this.size() > 0"}, (buf.validate.field).cel = {id: "field.name.length", message: "业务表名不能超过 128 个字符", expression: "this.size() <= 128"}, (buf.validate.field).cel = {id: "field.name.pattern", message: "业务表名格式不正确", expression: "this.matches('^[a-z][a-z0-9_]*$')"}]; // 业务表名
 
   string comment = 3 [(gnostic.openapi.v3.property) = {description: "业务表描述"}, (buf.validate.field).cel = {id: "field.comment.length", message: "业务表描述不能超过 128 个字符", expression: "this.size() <= 128"}]; // 业务表描述
 
@@ -130,7 +130,7 @@ message CodeGenTableForm {
 
   string permission_prefix = 8 [(gnostic.openapi.v3.property) = {description: "权限标识前缀"}, (buf.validate.field).cel = {id: "field.permission_prefix.length", message: "权限标识前缀不能超过 128 个字符", expression: "this.size() <= 128"}]; // 权限标识前缀
 
-  int64 parent_menu_id = 9 [(gnostic.openapi.v3.property) = {description: "父级菜单ID"}]; // 父级菜单ID
+  int64 parent_menu_id = 9 [(gnostic.openapi.v3.property) = {description: "父级菜单ID"}, (buf.validate.field).cel = {id: "field.parent_menu_id.required", message: "请选择父级菜单", expression: "this > 0"}]; // 父级菜单ID
 
   string page_type = 10 [(gnostic.openapi.v3.property) = {description: "页面类型：normal普通表格 tree树形表格 left_tree左树右表"}, (buf.validate.field).cel = {id: "field.page_type.required", message: "页面类型不能为空", expression: "this.size() > 0"}, (buf.validate.field).cel = {id: "field.page_type.length", message: "页面类型不能超过 32 个字符", expression: "this.size() <= 32"}]; // 页面类型：normal普通表格 tree树形表格 left_tree左树右表
 
@@ -153,14 +153,14 @@ message CodeGenTableForm {
 
 // 代码生成表配置创建条件
 message CreateCodeGenTableRequest {
-  CodeGenTableForm code_gen_table = 1 [(gnostic.openapi.v3.property) = {description: "代码生成表配置表单"}]; // 代码生成表配置表单
+  CodeGenTableForm code_gen_table = 1 [(gnostic.openapi.v3.property) = {description: "代码生成表配置表单"}, (buf.validate.field).required = true]; // 代码生成表配置表单
 }
 
 // 代码生成表配置更新条件
 message UpdateCodeGenTableRequest {
-  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "主键ID"}]; // 主键ID
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "主键ID"}, (buf.validate.field).cel = {id: "update_code_gen_table.id.required" message: "主键ID不能为空" expression: "this > 0"}]; // 主键ID
 
-  CodeGenTableForm code_gen_table = 2 [(gnostic.openapi.v3.property) = {description: "代码生成表配置表单"}]; // 代码生成表配置表单
+  CodeGenTableForm code_gen_table = 2 [(gnostic.openapi.v3.property) = {description: "代码生成表配置表单"}, (buf.validate.field).required = true]; // 代码生成表配置表单
 }
 
 // 代码生成表配置删除条件

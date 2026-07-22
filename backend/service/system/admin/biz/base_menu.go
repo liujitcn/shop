@@ -2,7 +2,6 @@ package biz
 
 import (
 	"context"
-	"strings"
 
 	systemcommonv1 "shop/api/gen/go/system/common/v1"
 
@@ -249,9 +248,6 @@ func (c *BaseMenuCase) SetBaseMenuStatus(ctx context.Context, req *systemadminv1
 
 // createBaseMenu 校验父级并按层级编号规则创建菜单。
 func (c *BaseMenuCase) createBaseMenu(ctx context.Context, baseMenu *models.BaseMenu) error {
-	if baseMenu.ParentID <= 0 {
-		return errorsx.InvalidArgument("新增菜单必须选择上级菜单")
-	}
 	menuID, err := c.allocateBaseMenuID(ctx, baseMenu.ParentID, baseMenu.Type)
 	if err != nil {
 		return err
@@ -263,30 +259,8 @@ func (c *BaseMenuCase) createBaseMenu(ctx context.Context, baseMenu *models.Base
 	return c.Create(ctx, baseMenu)
 }
 
-// validateBaseMenuIdentity 校验菜单路径和路由名称的类型约束及唯一性。
+// validateBaseMenuIdentity 校验菜单路径和路由名称的唯一性。
 func (c *BaseMenuCase) validateBaseMenuIdentity(ctx context.Context, menu *models.BaseMenu, currentID int64) error {
-	if menu.Type == _const.BASE_MENU_TYPE_FOLDER {
-		if menu.Path != "" || menu.Name != "" {
-			return errorsx.InvalidArgument("目录不能填写路径和路由名称")
-		}
-	} else if menu.Type != _const.BASE_MENU_TYPE_MENU && menu.Name != "" {
-		return errorsx.InvalidArgument("只有菜单类型可以填写路由名称")
-	}
-	if menu.Type == _const.BASE_MENU_TYPE_MENU && menu.Name == "" {
-		return errorsx.InvalidArgument("菜单类型必须填写路由名称")
-	}
-	if menu.Type != _const.BASE_MENU_TYPE_FOLDER && menu.Path == "" {
-		return errorsx.InvalidArgument("非目录菜单必须填写路径")
-	}
-	if menu.Type == _const.BASE_MENU_TYPE_EXT_LINK {
-		if strings.HasPrefix(menu.Path, "http://") || strings.HasPrefix(menu.Path, "https://") {
-			return errorsx.InvalidArgument("外链路径必须使用内部唯一路径")
-		}
-		if !strings.HasPrefix(menu.Redirect, "http://") && !strings.HasPrefix(menu.Redirect, "https://") {
-			return errorsx.InvalidArgument("外链必须填写完整的 HTTP 地址")
-		}
-	}
-
 	query := c.Query(ctx).BaseMenu
 	pathOpts := make([]repository.QueryOption, 0, 3)
 	pathOpts = append(pathOpts, repository.Where(query.Type.Neq(_const.BASE_MENU_TYPE_FOLDER)))

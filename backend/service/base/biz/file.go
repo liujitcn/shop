@@ -46,10 +46,6 @@ func (c *FileCase) DeleteFile(oldFile string, newFile string) {
 func (c *FileCase) MultiUploadFile(req *basev1.MultiUploadFileRequest) (*basev1.MultiUploadFileResponse, error) {
 	files := make([]*basev1.FileInfo, 0)
 	uploadFiles := req.GetFiles()
-	// 未传入上传文件时，直接返回错误。
-	if len(uploadFiles) == 0 {
-		return nil, errorsx.InvalidArgument("未上传文件")
-	}
 	for _, item := range uploadFiles {
 		url, err := c.UploadByByte(item.GetName(), item.GetPath(), item.GetContent())
 		if err != nil {
@@ -67,10 +63,6 @@ func (c *FileCase) MultiUploadFile(req *basev1.MultiUploadFileRequest) (*basev1.
 // UploadFile 上传单个文件。
 func (c *FileCase) UploadFile(req *basev1.UploadFileRequest) (*basev1.FileInfo, error) {
 	file := req.GetFile()
-	// 未传入上传文件时，直接返回错误。
-	if file == nil {
-		return nil, errorsx.InvalidArgument("未上传文件")
-	}
 	url, err := c.UploadByByte(file.GetName(), file.GetPath(), file.GetContent())
 	if err != nil {
 		return nil, errorsx.Internal("文件上传失败").WithCause(err)
@@ -84,9 +76,6 @@ func (c *FileCase) UploadFile(req *basev1.UploadFileRequest) (*basev1.FileInfo, 
 
 // DownloadFile 下载文件内容。
 func (c *FileCase) DownloadFile(req *basev1.DownloadFileRequest) (*wrapperspb.BytesValue, error) {
-	if req.GetPath() == "" {
-		return nil, errorsx.InvalidArgument("文件路径不能为空")
-	}
 	fileByte, err := c.GetFileByte(req.GetPath())
 	if err != nil {
 		return nil, errorsx.Internal("文件下载失败").WithCause(err)

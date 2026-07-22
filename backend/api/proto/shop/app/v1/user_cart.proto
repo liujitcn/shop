@@ -4,6 +4,7 @@ package shop.app.v1;
 
 import "shop/app/v1/recommend.proto";
 import "shop/app/v1/tenant_store.proto";
+import "buf/validate/validate.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
@@ -74,25 +75,25 @@ message ListUserCartResponse {
 
 // 创建购物车请求参数
 message CreateUserCartRequest {
-  int64 goods_id = 1 [(gnostic.openapi.v3.property) = {description: "商品ID"}]; // 商品ID
+  int64 goods_id = 1 [(gnostic.openapi.v3.property) = {description: "商品ID"}, (buf.validate.field).cel = {id: "create_user_cart.goods_id.required" message: "商品编号不能为空" expression: "this > 0"}]; // 商品ID
 
-  string sku_code = 2 [(gnostic.openapi.v3.property) = {description: "规格编号"}]; // 规格编号
+  string sku_code = 2 [(gnostic.openapi.v3.property) = {description: "规格编号"}, (buf.validate.field).cel = {id: "create_user_cart.sku_code.required" message: "SKU编码不能为空" expression: "this.size() > 0"}]; // 规格编号
 
-  int64 num = 3 [(gnostic.openapi.v3.property) = {description: "数量"}]; // 数量
+  int64 num = 3 [(gnostic.openapi.v3.property) = {description: "数量"}, (buf.validate.field).cel = {id: "create_user_cart.num.required" message: "商品购买数量必须大于0" expression: "this > 0"}]; // 数量
 
   RecommendContext recommend_context = 4 [(gnostic.openapi.v3.property) = {description: "推荐上下文"}]; // 推荐上下文
 }
 
 // 更新用户购物车请求参数
 message UpdateUserCartRequest {
-  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "购物车ID"}]; // 购物车ID
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "购物车ID"}, (buf.validate.field).cel = {id: "update_user_cart.id.required" message: "购物车ID不能为空" expression: "this > 0"}]; // 购物车ID
 
   UserCartForm user_cart = 2 [(gnostic.openapi.v3.property) = {description: "用户购物车"}]; // 用户购物车
 }
 
 // 删除用户购物车请求参数
 message DeleteUserCartRequest {
-  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "购物车ID"}]; // 购物车ID
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "购物车ID"}, (buf.validate.field).cel = {id: "delete_user_cart.id.required" message: "购物车ID不能为空" expression: "this > 0"}]; // 购物车ID
 }
 
 // 设置购物车选中状态请求参数
@@ -102,7 +103,7 @@ message SetUserCartSelectionRequest {
 
 // 设置用户购物车选中状态请求参数
 message SetUserCartStatusRequest {
-  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "购物车ID"}]; // 购物车ID
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "购物车ID"}, (buf.validate.field).cel = {id: "set_user_cart_status.id.required" message: "购物车ID不能为空" expression: "this > 0"}]; // 购物车ID
 
   bool is_checked = 2 [(gnostic.openapi.v3.property) = {description: "是否选中"}]; // 是否选中
 }
@@ -154,7 +155,7 @@ message UserCart {
 
 // 用户购物车表单
 message UserCartForm {
-  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "购物车ID"}]; // 购物车ID
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "购物车ID"}, (buf.validate.field).cel = {id: "user_cart_form.id.required" message: "购物车ID不能为空" expression: "this > 0"}]; // 购物车ID
 
-  int64 num = 2 [(gnostic.openapi.v3.property) = {description: "数量"}]; // 数量
+  int64 num = 2 [(gnostic.openapi.v3.property) = {description: "数量"}, (buf.validate.field).cel = {id: "user_cart_form.num.required" message: "商品购买数量必须大于0" expression: "this > 0"}]; // 数量
 }

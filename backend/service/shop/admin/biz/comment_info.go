@@ -149,10 +149,6 @@ func (c *CommentInfoCase) GetCommentInfo(ctx context.Context, commentID int64) (
 
 // GetGoodsCommentInfo 按商品查询评论聚合信息。
 func (c *CommentInfoCase) GetGoodsCommentInfo(ctx context.Context, goodsID int64) (*shopadminv1.GoodsCommentInfoResponse, error) {
-	// 商品编号为空时，无法定位评论聚合范围。
-	if goodsID <= 0 {
-		return nil, errorsx.InvalidArgument("商品ID不能为空")
-	}
 	query := c.Query(ctx).CommentInfo
 	opts := make([]repository.QueryOption, 0, 2)
 	opts = append(opts, repository.Where(query.GoodsID.Eq(goodsID)))
@@ -197,11 +193,8 @@ func (c *CommentInfoCase) GetGoodsCommentInfo(ctx context.Context, goodsID int64
 
 // SetCommentInfoStatus 设置评论审核状态。
 func (c *CommentInfoCase) SetCommentInfoStatus(ctx context.Context, req *shopadminv1.SetCommentInfoStatusRequest) error {
-	err := validateCommentStatus(int32(req.GetStatus()))
-	if err != nil {
-		return err
-	}
 	var authInfo *authData.UserTokenPayload
+	var err error
 	authInfo, err = c.GetAuthInfo(ctx)
 	if err != nil {
 		return err

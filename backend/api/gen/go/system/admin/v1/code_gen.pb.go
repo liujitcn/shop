@@ -11,6 +11,7 @@ import (
 	sync "sync"
 	unsafe "unsafe"
 
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -857,9 +858,10 @@ var File_system_admin_v1_code_gen_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_code_gen_proto_rawDesc = "" +
 	"\n" +
-	"\x1esystem/admin/v1/code_gen.proto\x12\x0fsystem.admin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"F\n" +
-	"\x15GetCodeGenTaskRequest\x12-\n" +
-	"\atask_id\x18\x01 \x01(\tB\x14\xbaG\x11\x92\x02\x0e生成任务IDR\x06taskId\"\xcf\x04\n" +
+	"\x1esystem/admin/v1/code_gen.proto\x12\x0fsystem.admin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\"\x9e\x01\n" +
+	"\x15GetCodeGenTaskRequest\x12\x84\x01\n" +
+	"\atask_id\x18\x01 \x01(\tBk\xbaG\x11\x92\x02\x0e生成任务ID\xbaHT\xba\x01Q\n" +
+	"\"get_code_gen_task.task_id.required\x12\x1a生成任务ID不能为空\x1a\x0fthis.size() > 0R\x06taskId\"\xcf\x04\n" +
 	"\vCodeGenTask\x12-\n" +
 	"\atask_id\x18\x01 \x01(\tB\x14\xbaG\x11\x92\x02\x0e生成任务IDR\x06taskId\x12N\n" +
 	"\x06status\x18\x02 \x01(\x0e2\".system.admin.v1.CodeGenTaskStatusB\x12\xbaG\x0f\x92\x02\f任务状态R\x06status\x123\n" +
@@ -872,17 +874,20 @@ const file_system_admin_v1_code_gen_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\b \x01(\tB\x18\xbaG\x15\x92\x02\x12任务创建时间R\tcreatedAt\x129\n" +
 	"\vfinished_at\x18\t \x01(\tB\x18\xbaG\x15\x92\x02\x12任务完成时间R\n" +
-	"finishedAt\"\xb9\x01\n" +
-	"\x15PreviewCodeGenRequest\x128\n" +
-	"\btable_id\x18\x01 \x01(\x03B\x1d\xbaG\x1a\x92\x02\x17代码生成表配置IDR\atableId\x12f\n" +
+	"finishedAt\"\x93\x02\n" +
+	"\x15PreviewCodeGenRequest\x12\x91\x01\n" +
+	"\btable_id\x18\x01 \x01(\x03Bv\xbaG\x1a\x92\x02\x17代码生成表配置ID\xbaHV\xba\x01S\n" +
+	"\"preview_code_gen.table_id.required\x12#代码生成表配置ID不能为空\x1a\bthis > 0R\atableId\x12f\n" +
 	"\foutput_paths\x18\x02 \x01(\v2#.system.admin.v1.CodeGenOutputPathsB\x1e\xbaG\x1b\x92\x02\x18本次生成输出路径R\voutputPaths\"\xd5\x01\n" +
 	"\x16PreviewCodeGenResponse\x12S\n" +
 	"\x05files\x18\x01 \x03(\v2#.system.admin.v1.CodeGenPreviewFileB\x18\xbaG\x15\x92\x02\x12预览文件列表R\x05files\x12f\n" +
-	"\foutput_paths\x18\x02 \x01(\v2#.system.admin.v1.CodeGenOutputPathsB\x1e\xbaG\x1b\x92\x02\x18本次生效输出路径R\voutputPaths\"\x8c\x02\n" +
-	"\x17StartCodeGenTaskRequest\x12@\n" +
-	"\ttable_ids\x18\x01 \x03(\x03B#\xbaG \x92\x02\x1d代码生成表配置ID列表R\btableIds\x12A\n" +
+	"\foutput_paths\x18\x02 \x01(\v2#.system.admin.v1.CodeGenOutputPathsB\x1e\xbaG\x1b\x92\x02\x18本次生效输出路径R\voutputPaths\"\xa1\x04\n" +
+	"\x17StartCodeGenTaskRequest\x12\xb7\x01\n" +
+	"\ttable_ids\x18\x01 \x03(\x03B\x99\x01\xbaG \x92\x02\x1d代码生成表配置ID列表\xbaHs\xba\x01i\n" +
+	"&start_code_gen_task.table_ids.positive\x12%代码生成表配置ID必须大于 0\x1a\x18this.all(item, item > 0)\x92\x01\x04\b\x01\x18\x01R\btableIds\x12A\n" +
 	"\frun_commands\x18\x02 \x01(\bB\x1e\xbaG\x1b\x92\x02\x18是否执行生成命令R\vrunCommands\x12l\n" +
-	"\foutput_paths\x18\x03 \x01(\v2#.system.admin.v1.CodeGenOutputPathsB$\xbaG!\x92\x02\x1e单项任务本次输出路径R\voutputPaths\"I\n" +
+	"\foutput_paths\x18\x03 \x01(\v2#.system.admin.v1.CodeGenOutputPathsB$\xbaG!\x92\x02\x1e单项任务本次输出路径R\voutputPaths:\x9a\x01\xbaH\x96\x01\x1a\x93\x01\n" +
+	",start_code_gen_task.output_paths.single_only\x12*批量生成不支持自定义输出路径\x1a7this.table_ids.size() <= 1 || this.output_paths == null\"I\n" +
 	"\x18StartCodeGenTaskResponse\x12-\n" +
 	"\atask_id\x18\x01 \x01(\tB\x14\xbaG\x11\x92\x02\x0e生成任务IDR\x06taskId\"\xdf\x02\n" +
 	"\x0fCodeGenTaskStep\x12\x1e\n" +

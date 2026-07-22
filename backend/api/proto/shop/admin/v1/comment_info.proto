@@ -4,6 +4,7 @@ package shop.admin.v1;
 
 import "shop/common/v1/common.proto";
 import "shop/common/v1/enum.proto";
+import "buf/validate/validate.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
@@ -145,7 +146,7 @@ message ListCommentReviewResponse {
 
 // 评论详情查询条件
 message GetCommentInfoRequest {
-  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "评论ID"}]; // 评论ID
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "评论ID"}, (buf.validate.field).cel = {id: "get_comment_info.id.required" message: "评论ID不能为空" expression: "this > 0"}]; // 评论ID
 }
 
 // 评论详情
@@ -163,7 +164,7 @@ message CommentInfoDetail {
 
 // 商品评论聚合查询条件
 message GetGoodsCommentInfoRequest {
-  int64 goods_id = 1 [(gnostic.openapi.v3.property) = {description: "商品ID"}]; // 商品ID
+  int64 goods_id = 1 [(gnostic.openapi.v3.property) = {description: "商品ID"}, (buf.validate.field).cel = {id: "get_goods_comment_info.goods_id.required" message: "商品ID不能为空" expression: "this > 0"}]; // 商品ID
 }
 
 // 商品评论聚合响应
@@ -179,18 +180,18 @@ message GoodsCommentInfoResponse {
 
 // 评论讨论状态设置条件
 message SetCommentDiscussionStatusRequest {
-  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "讨论ID"}]; // 讨论ID
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "讨论ID"}, (buf.validate.field).cel = {id: "set_comment_discussion_status.id.required" message: "讨论ID不能为空" expression: "this > 0"}]; // 讨论ID
 
-  .shop.common.v1.CommentStatus status = 2 [(gnostic.openapi.v3.property) = {description: "审核状态：枚举【CommentStatus】"}]; // 审核状态：枚举【CommentStatus】
+  .shop.common.v1.CommentStatus status = 2 [(gnostic.openapi.v3.property) = {description: "审核状态：枚举【CommentStatus】"}, (buf.validate.field).enum = {defined_only: true}, (buf.validate.field).cel = {id: "set_comment_discussion_status.status.allowed" message: "审核状态仅支持通过或不通过" expression: "this == 2 || this == 3"}]; // 审核状态：枚举【CommentStatus】
 
   string reason = 3 [(gnostic.openapi.v3.property) = {description: "人工审核备注或不通过原因"}]; // 人工审核备注或不通过原因
 }
 
 // 评论状态设置条件
 message SetCommentInfoStatusRequest {
-  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "评论ID"}]; // 评论ID
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "评论ID"}, (buf.validate.field).cel = {id: "set_comment_info_status.id.required" message: "评论ID不能为空" expression: "this > 0"}]; // 评论ID
 
-  .shop.common.v1.CommentStatus status = 2 [(gnostic.openapi.v3.property) = {description: "审核状态：枚举【CommentStatus】"}]; // 审核状态：枚举【CommentStatus】
+  .shop.common.v1.CommentStatus status = 2 [(gnostic.openapi.v3.property) = {description: "审核状态：枚举【CommentStatus】"}, (buf.validate.field).enum = {defined_only: true}, (buf.validate.field).cel = {id: "set_comment_info_status.status.allowed" message: "审核状态仅支持通过或不通过" expression: "this == 2 || this == 3"}]; // 审核状态：枚举【CommentStatus】
 
   string reason = 3 [(gnostic.openapi.v3.property) = {description: "人工审核备注或不通过原因"}]; // 人工审核备注或不通过原因
 }

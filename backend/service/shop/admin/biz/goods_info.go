@@ -676,11 +676,11 @@ func (c *GoodsInfoCase) wrapGoodsInfoDuplicateConflict(err error) error {
 	// 根据唯一索引落在哪张子表上，返回对应的业务冲突错误。
 	switch {
 	case strings.Contains(mysqlErr.Message, models.TableNameGoodsProp):
-		return errorsx.UniqueConflict("商品属性重复", "goods_prop", "label", "unique_goods_prop").WithCause(err)
+		return errorsx.UniqueConflict("同一商品的属性标题重复", "goods_prop", "", "unique_goods_prop").WithCause(err)
 	case strings.Contains(mysqlErr.Message, models.TableNameGoodsSKU):
 		return errorsx.UniqueConflict("SKU编码重复", "goods_sku", "sku_code", "unique_goods_sku").WithCause(err)
 	case strings.Contains(mysqlErr.Message, models.TableNameGoodsSpec):
-		return errorsx.UniqueConflict("商品规格重复", "goods_spec", "name", "unique_goods_spec").WithCause(err)
+		return errorsx.UniqueConflict("同一商品的规格标题重复", "goods_spec", "", "unique_goods_spec").WithCause(err)
 	default:
 		return errorsx.UniqueConflict("商品信息存在重复数据", "goods_info", "", "").WithCause(err)
 	}

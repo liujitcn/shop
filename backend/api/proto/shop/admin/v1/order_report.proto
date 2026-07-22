@@ -3,6 +3,7 @@ syntax = "proto3";
 package shop.admin.v1;
 
 import "gnostic/openapi/v3/annotations.proto";
+import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
 
 // Admin订单报表服务
@@ -38,13 +39,17 @@ service OrderReportService {
 
 // 订单日报列表请求参数
 message ListOrderDayReportRequest {
+  option (buf.validate.message).cel = {id: "list_order_day_report.date.range" message: "结束日期不能早于开始日期" expression: "this.end_date >= this.start_date"};
+
   optional int64 tenant_id = 1 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
   optional int64 tenant_store_id = 2 [(gnostic.openapi.v3.property) = {description: "租户门店ID"}]; // 租户门店ID
   string start_date = 3 [
-    (gnostic.openapi.v3.property) = {description: "开始日期，格式：YYYY-MM-DD"}
+    (gnostic.openapi.v3.property) = {description: "开始日期，格式：YYYY-MM-DD"},
+    (buf.validate.field).cel = {id: "list_order_day_report.start_date.format" message: "开始日期格式错误" expression: "this.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')"}
   ]; // 开始日期，格式：YYYY-MM-DD
   string end_date = 4 [
-    (gnostic.openapi.v3.property) = {description: "结束日期，格式：YYYY-MM-DD"}
+    (gnostic.openapi.v3.property) = {description: "结束日期，格式：YYYY-MM-DD"},
+    (buf.validate.field).cel = {id: "list_order_day_report.end_date.format" message: "结束日期格式错误" expression: "this.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')"}
   ]; // 结束日期，格式：YYYY-MM-DD
   int32 pay_type = 5 [
     (gnostic.openapi.v3.property) = {description: "支付方式：枚举【OrderPayType】，0 表示全部"}
@@ -61,13 +66,17 @@ message ListOrderDayReportResponse {
 
 // 订单月报列表请求参数
 message ListOrderMonthReportRequest {
+  option (buf.validate.message).cel = {id: "list_order_month_report.month.range" message: "结束月份不能早于开始月份" expression: "this.end_month >= this.start_month"};
+
   optional int64 tenant_id = 1 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
   optional int64 tenant_store_id = 2 [(gnostic.openapi.v3.property) = {description: "租户门店ID"}]; // 租户门店ID
   string start_month = 3 [
-    (gnostic.openapi.v3.property) = {description: "开始月份，格式：YYYY-MM"}
+    (gnostic.openapi.v3.property) = {description: "开始月份，格式：YYYY-MM"},
+    (buf.validate.field).cel = {id: "list_order_month_report.start_month.format" message: "开始月份格式错误" expression: "this.matches('^[0-9]{4}-[0-9]{2}$')"}
   ]; // 开始月份，格式：YYYY-MM
   string end_month = 4 [
-    (gnostic.openapi.v3.property) = {description: "结束月份，格式：YYYY-MM"}
+    (gnostic.openapi.v3.property) = {description: "结束月份，格式：YYYY-MM"},
+    (buf.validate.field).cel = {id: "list_order_month_report.end_month.format" message: "结束月份格式错误" expression: "this.matches('^[0-9]{4}-[0-9]{2}$')"}
   ]; // 结束月份，格式：YYYY-MM
   int32 pay_type = 5 [
     (gnostic.openapi.v3.property) = {description: "支付方式：枚举【OrderPayType】，0 表示全部"}
@@ -84,13 +93,17 @@ message ListOrderMonthReportResponse {
 
 // 订单月报汇总查询条件
 message SummaryOrderMonthReportRequest {
+  option (buf.validate.message).cel = {id: "summary_order_month_report.month.range" message: "结束月份不能早于开始月份" expression: "this.end_month >= this.start_month"};
+
   optional int64 tenant_id = 1 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
   optional int64 tenant_store_id = 2 [(gnostic.openapi.v3.property) = {description: "租户门店ID"}]; // 租户门店ID
   string start_month = 3 [
-    (gnostic.openapi.v3.property) = {description: "开始月份，格式：YYYY-MM"}
+    (gnostic.openapi.v3.property) = {description: "开始月份，格式：YYYY-MM"},
+    (buf.validate.field).cel = {id: "summary_order_month_report.start_month.format" message: "开始月份格式错误" expression: "this.matches('^[0-9]{4}-[0-9]{2}$')"}
   ]; // 开始月份，格式：YYYY-MM
   string end_month = 4 [
-    (gnostic.openapi.v3.property) = {description: "结束月份，格式：YYYY-MM"}
+    (gnostic.openapi.v3.property) = {description: "结束月份，格式：YYYY-MM"},
+    (buf.validate.field).cel = {id: "summary_order_month_report.end_month.format" message: "结束月份格式错误" expression: "this.matches('^[0-9]{4}-[0-9]{2}$')"}
   ]; // 结束月份，格式：YYYY-MM
   int32 pay_type = 5 [
     (gnostic.openapi.v3.property) = {description: "支付方式：枚举【OrderPayType】，0 表示全部"}
@@ -130,13 +143,17 @@ message SummaryOrderMonthReportResponse {
 
 // 订单日报汇总查询条件
 message SummaryOrderDayReportRequest {
+  option (buf.validate.message).cel = {id: "summary_order_day_report.date.range" message: "结束日期不能早于开始日期" expression: "this.end_date >= this.start_date"};
+
   optional int64 tenant_id = 1 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
   optional int64 tenant_store_id = 2 [(gnostic.openapi.v3.property) = {description: "租户门店ID"}]; // 租户门店ID
   string start_date = 3 [
-    (gnostic.openapi.v3.property) = {description: "开始日期，格式：YYYY-MM-DD"}
+    (gnostic.openapi.v3.property) = {description: "开始日期，格式：YYYY-MM-DD"},
+    (buf.validate.field).cel = {id: "summary_order_day_report.start_date.format" message: "开始日期格式错误" expression: "this.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')"}
   ]; // 开始日期，格式：YYYY-MM-DD
   string end_date = 4 [
-    (gnostic.openapi.v3.property) = {description: "结束日期，格式：YYYY-MM-DD"}
+    (gnostic.openapi.v3.property) = {description: "结束日期，格式：YYYY-MM-DD"},
+    (buf.validate.field).cel = {id: "summary_order_day_report.end_date.format" message: "结束日期格式错误" expression: "this.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')"}
   ]; // 结束日期，格式：YYYY-MM-DD
   int32 pay_type = 5 [
     (gnostic.openapi.v3.property) = {description: "支付方式：枚举【OrderPayType】，0 表示全部"}

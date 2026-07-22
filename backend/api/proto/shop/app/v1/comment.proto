@@ -4,6 +4,7 @@ package shop.app.v1;
 
 import "shop/common/v1/common.proto";
 import "shop/common/v1/enum.proto";
+import "buf/validate/validate.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
@@ -86,7 +87,7 @@ service CommentInfoService {
 
 // 评价讨论分页查询条件
 message PageCommentDiscussionRequest {
-  int64 comment_id = 1 [(gnostic.openapi.v3.property) = {description: "评价ID"}]; // 评价ID
+  int64 comment_id = 1 [(gnostic.openapi.v3.property) = {description: "评价ID"}, (buf.validate.field).cel = {id: "page_comment_discussion.comment_id.required" message: "评价编号不能为空" expression: "this > 0"}]; // 评价ID
 
   int64 page_num = 101 [(gnostic.openapi.v3.property) = {
     description: "当前页码"
@@ -116,7 +117,7 @@ message PageCommentDiscussionResponse {
 
 // 商品评价分页查询条件
 message PageGoodsCommentRequest {
-  int64 goods_id = 1 [(gnostic.openapi.v3.property) = {description: "商品ID"}]; // 商品ID
+  int64 goods_id = 1 [(gnostic.openapi.v3.property) = {description: "商品ID"}, (buf.validate.field).cel = {id: "page_goods_comment.goods_id.required" message: "商品编号不能为空" expression: "this > 0"}]; // 商品ID
 
   string sku_code = 2 [(gnostic.openapi.v3.property) = {description: "SKU编码，仅当前商品筛选时使用"}]; // SKU编码，仅当前商品筛选时使用
 
@@ -218,23 +219,23 @@ message PagePendingCommentGoodsResponse {
 
 // 发布商品评价请求参数
 message CreateCommentRequest {
-  int64 order_id = 1 [(gnostic.openapi.v3.property) = {description: "订单ID"}]; // 订单ID
+  int64 order_id = 1 [(gnostic.openapi.v3.property) = {description: "订单ID"}, (buf.validate.field).cel = {id: "create_comment.order_id.required" message: "订单编号不能为空" expression: "this > 0"}]; // 订单ID
 
-  int64 goods_id = 2 [(gnostic.openapi.v3.property) = {description: "商品ID"}]; // 商品ID
+  int64 goods_id = 2 [(gnostic.openapi.v3.property) = {description: "商品ID"}, (buf.validate.field).cel = {id: "create_comment.goods_id.required" message: "商品编号不能为空" expression: "this > 0"}]; // 商品ID
 
-  string sku_code = 3 [(gnostic.openapi.v3.property) = {description: "SKU编码"}]; // SKU编码
+  string sku_code = 3 [(gnostic.openapi.v3.property) = {description: "SKU编码"}, (buf.validate.field).cel = {id: "create_comment.sku_code.required" message: "SKU编码不能为空" expression: "this.size() > 0"}]; // SKU编码
 
-  string content = 4 [(gnostic.openapi.v3.property) = {description: "评价正文"}]; // 评价正文
+  string content = 4 [(gnostic.openapi.v3.property) = {description: "评价正文"}, (buf.validate.field).cel = {id: "create_comment.content.max_len" message: "评价正文不能超过500字" expression: "this.size() <= 500"}]; // 评价正文
 
-  repeated string img = 5 [(gnostic.openapi.v3.property) = {description: "评价图片数组"}]; // 评价图片数组
+  repeated string img = 5 [(gnostic.openapi.v3.property) = {description: "评价图片数组"}, (buf.validate.field).repeated = {max_items: 6}]; // 评价图片数组
 
   bool is_anonymous = 6 [(gnostic.openapi.v3.property) = {description: "是否匿名展示"}]; // 是否匿名展示
 
-  int32 goods_score = 7 [(gnostic.openapi.v3.property) = {description: "商品评价评分，范围1到5"}]; // 商品评价评分，范围1到5
+  int32 goods_score = 7 [(gnostic.openapi.v3.property) = {description: "商品评价评分，范围1到5"}, (buf.validate.field).cel = {id: "create_comment.goods_score.range" message: "商品评分范围必须在1到5之间" expression: "this >= 1 && this <= 5"}]; // 商品评价评分，范围1到5
 
-  int32 package_score = 8 [(gnostic.openapi.v3.property) = {description: "包装评价评分，范围1到5"}]; // 包装评价评分，范围1到5
+  int32 package_score = 8 [(gnostic.openapi.v3.property) = {description: "包装评价评分，范围1到5"}, (buf.validate.field).cel = {id: "create_comment.package_score.range" message: "包装评分范围必须在1到5之间" expression: "this >= 1 && this <= 5"}]; // 包装评价评分，范围1到5
 
-  int32 delivery_score = 9 [(gnostic.openapi.v3.property) = {description: "送货评价评分，范围1到5"}]; // 送货评价评分，范围1到5
+  int32 delivery_score = 9 [(gnostic.openapi.v3.property) = {description: "送货评价评分，范围1到5"}, (buf.validate.field).cel = {id: "create_comment.delivery_score.range" message: "送货评分范围必须在1到5之间" expression: "this >= 1 && this <= 5"}]; // 送货评价评分，范围1到5
 }
 
 // 发布商品评价响应
@@ -248,9 +249,9 @@ message CreateCommentResponse {
 
 // 发布评价讨论请求参数
 message CreateCommentDiscussionRequest {
-  int64 comment_id = 1 [(gnostic.openapi.v3.property) = {description: "所属评价ID"}]; // 所属评价ID
+  int64 comment_id = 1 [(gnostic.openapi.v3.property) = {description: "所属评价ID"}, (buf.validate.field).cel = {id: "create_comment_discussion.comment_id.required" message: "评价编号不能为空" expression: "this > 0"}]; // 所属评价ID
 
-  string content = 2 [(gnostic.openapi.v3.property) = {description: "讨论内容"}]; // 讨论内容
+  string content = 2 [(gnostic.openapi.v3.property) = {description: "讨论内容"}, (buf.validate.field).cel = {id: "create_comment_discussion.content.required" message: "讨论内容不能为空" expression: "this.size() > 0"}]; // 讨论内容
 
   int64 parent_id = 3 [(gnostic.openapi.v3.property) = {description: "父级讨论ID，可为空"}]; // 父级讨论ID，可为空
 
@@ -268,12 +269,12 @@ message CreateCommentDiscussionResponse {
 
 // 删除商品评价条件
 message DeleteCommentRequest {
-  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "评价ID"}]; // 评价ID
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "评价ID"}, (buf.validate.field).cel = {id: "delete_comment.id.required" message: "评价编号不能为空" expression: "this > 0"}]; // 评价ID
 }
 
 // 商品评价摘要查询条件
 message GoodsCommentOverviewRequest {
-  int64 goods_id = 1 [(gnostic.openapi.v3.property) = {description: "商品ID"}]; // 商品ID
+  int64 goods_id = 1 [(gnostic.openapi.v3.property) = {description: "商品ID"}, (buf.validate.field).cel = {id: "goods_comment_overview.goods_id.required" message: "商品编号不能为空" expression: "this > 0"}]; // 商品ID
 
   int32 preview_limit = 2 [(gnostic.openapi.v3.property) = {
     description: "评价预览数量"
@@ -296,7 +297,7 @@ message GoodsCommentOverviewResponse {
 
 // 商品评价标签查询条件
 message GoodsCommentTagRequest {
-  int64 goods_id = 1 [(gnostic.openapi.v3.property) = {description: "商品ID"}]; // 商品ID
+  int64 goods_id = 1 [(gnostic.openapi.v3.property) = {description: "商品ID"}, (buf.validate.field).cel = {id: "goods_comment_tag.goods_id.required" message: "商品编号不能为空" expression: "this > 0"}]; // 商品ID
 
   int32 limit = 2 [(gnostic.openapi.v3.property) = {
     description: "标签展示数量"
@@ -311,11 +312,11 @@ message GoodsCommentTagResponse {
 
 // 保存评价互动状态请求参数
 message SaveCommentReactionRequest {
-  .shop.common.v1.CommentReactionTargetType target_type = 1 [(gnostic.openapi.v3.property) = {description: "互动目标类型：枚举【CommentReactionTargetType】"}]; // 互动目标类型：枚举【CommentReactionTargetType】
+  .shop.common.v1.CommentReactionTargetType target_type = 1 [(gnostic.openapi.v3.property) = {description: "互动目标类型：枚举【CommentReactionTargetType】"}, (buf.validate.field).enum = {defined_only: true}]; // 互动目标类型：枚举【CommentReactionTargetType】
 
-  int64 target_id = 2 [(gnostic.openapi.v3.property) = {description: "互动目标ID"}]; // 互动目标ID
+  int64 target_id = 2 [(gnostic.openapi.v3.property) = {description: "互动目标ID"}, (buf.validate.field).cel = {id: "save_comment_reaction.target_id.required" message: "互动目标编号不能为空" expression: "this > 0"}]; // 互动目标ID
 
-  .shop.common.v1.CommentReactionType reaction_type = 3 [(gnostic.openapi.v3.property) = {description: "互动类型：枚举【CommentReactionType】"}]; // 互动类型：枚举【CommentReactionType】
+  .shop.common.v1.CommentReactionType reaction_type = 3 [(gnostic.openapi.v3.property) = {description: "互动类型：枚举【CommentReactionType】"}, (buf.validate.field).enum = {defined_only: true}]; // 互动类型：枚举【CommentReactionType】
 
   bool active = 4 [(gnostic.openapi.v3.property) = {description: "是否设置当前互动状态"}]; // 是否设置当前互动状态
 }

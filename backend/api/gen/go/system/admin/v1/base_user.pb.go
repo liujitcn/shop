@@ -840,21 +840,26 @@ const file_system_admin_v1_base_user_proto_rawDesc = "" +
 	"\x14PageBaseUserResponse\x12L\n" +
 	"\n" +
 	"base_users\x18\x01 \x03(\v2\x19.system.admin.v1.BaseUserB\x12\xbaG\x0f\x92\x02\f分页数据R\tbaseUsers\x12\"\n" +
-	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"4\n" +
-	"\x12GetBaseUserRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b用户IDR\x02id\"\xce\x01\n" +
+	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"u\n" +
+	"\x12GetBaseUserRequest\x12_\n" +
+	"\x02id\x18\x01 \x01(\x03BO\xbaG\v\x92\x02\b用户ID\xbaH>\xba\x01;\n" +
+	"\x19get_base_user.id.required\x12\x14用户ID不能为空\x1a\bthis > 0R\x02id\"\xce\x01\n" +
 	"\x15CreateBaseUserRequest\x12T\n" +
 	"\tbase_user\x18\x01 \x01(\v2\x1d.system.admin.v1.BaseUserFormB\x18\xbaG\x0f\x92\x02\f用户表单\xbaH\x03\xc8\x01\x01R\bbaseUser:_\xbaH\\\x1aZ\n" +
-	"\x16base_user.pwd.required\x12\x0f请输入密码\x1a/!has(this.base_user) || has(this.base_user.pwd)\"m\n" +
+	"\x16base_user.pwd.required\x12\x0f请输入密码\x1a/!has(this.base_user) || has(this.base_user.pwd)\"\xbf\x01\n" +
 	"\x15UpdateBaseUserRequest\x12T\n" +
-	"\tbase_user\x18\x01 \x01(\v2\x1d.system.admin.v1.BaseUserFormB\x18\xbaG\x0f\x92\x02\f用户表单\xbaH\x03\xc8\x01\x01R\bbaseUser\"=\n" +
-	"\x15DeleteBaseUserRequest\x12$\n" +
-	"\x02id\x18\x01 \x01(\tB\x14\xbaG\x11\x92\x02\x0e用户ID列表R\x02id\"`\n" +
-	"\x18SetBaseUserStatusRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b用户IDR\x02id\x12$\n" +
-	"\x06status\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\"\xc0\x05\n" +
-	"\bBaseUser\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b用户IDR\x02id\x12+\n" +
+	"\tbase_user\x18\x01 \x01(\v2\x1d.system.admin.v1.BaseUserFormB\x18\xbaG\x0f\x92\x02\f用户表单\xbaH\x03\xc8\x01\x01R\bbaseUser:P\xbaHM\x1aK\n" +
+	"\x1cupdate_base_user.id.required\x12\x14用户ID不能为空\x1a\x15this.base_user.id > 0\"\x8e\x01\n" +
+	"\x15DeleteBaseUserRequest\x12u\n" +
+	"\x02id\x18\x01 \x01(\tBe\xbaG\x11\x92\x02\x0e用户ID列表\xbaHN\xba\x01K\n" +
+	"\x1cdelete_base_user.id.required\x12\x1a用户ID列表不能为空\x1a\x0fthis.size() > 0R\x02id\"\xa8\x01\n" +
+	"\x18SetBaseUserStatusRequest\x12f\n" +
+	"\x02id\x18\x01 \x01(\x03BV\xbaG\v\x92\x02\b用户ID\xbaHE\xba\x01B\n" +
+	" set_base_user_status.id.required\x12\x14用户ID不能为空\x1a\bthis > 0R\x02id\x12$\n" +
+	"\x06status\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\"\x8c\x06\n" +
+	"\bBaseUser\x12j\n" +
+	"\x02id\x18\x01 \x01(\x03BZ\xbaG\v\x92\x02\b用户ID\xbaHI\xba\x01F\n" +
+	"$reset_base_user_password.id.required\x12\x14用户ID不能为空\x1a\bthis > 0R\x02id\x12+\n" +
 	"\ttenant_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDR\btenantId\x12/\n" +
 	"\tuser_name\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户账号R\buserName\x12/\n" +
 	"\tnick_name\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户昵称R\bnickName\x12'\n" +

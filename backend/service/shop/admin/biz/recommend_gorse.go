@@ -159,11 +159,6 @@ func (c *RecommendGorseCase) GetConfig(ctx context.Context) (*shopadminv1.Config
 
 // GetItem 查询 Gorse 推荐商品。
 func (c *RecommendGorseCase) GetItem(ctx context.Context, id string) (*shopadminv1.Item, error) {
-	// 商品编号为空时，无法继续代理 Gorse商品详情接口。
-	if id == "" {
-		return nil, errorsx.InvalidArgument("商品编号不能为空")
-	}
-
 	data, err := c.dashboard.Item(ctx, id)
 	if err != nil {
 		return nil, err
@@ -179,11 +174,6 @@ func (c *RecommendGorseCase) GetItem(ctx context.Context, id string) (*shopadmin
 
 // GetItemSimilar 查询 Gorse 推荐相似商品。
 func (c *RecommendGorseCase) GetItemSimilar(ctx context.Context, id, recommender, category string) (*shopadminv1.ItemListResponse, error) {
-	// 商品编号为空时，无法继续代理 Gorse相似商品接口。
-	if id == "" {
-		return nil, errorsx.InvalidArgument("商品编号不能为空")
-	}
-
 	data, err := c.dashboard.ItemSimilar(ctx, id, recommender, category)
 	if err != nil {
 		return nil, err
@@ -207,11 +197,6 @@ func (c *RecommendGorseCase) GetItemSimilar(ctx context.Context, id, recommender
 
 // GetTimeSeries 查询 Gorse 推荐单项时间序列。
 func (c *RecommendGorseCase) GetTimeSeries(ctx context.Context, name, begin, end string) (*shopadminv1.TimeSeriesResponse, error) {
-	// 指标名称为空时，无法拼装Gorse 仪表盘 API 路径。
-	if name == "" {
-		return nil, errorsx.InvalidArgument("指标名称不能为空")
-	}
-
 	data, err := c.dashboard.TimeSeries(ctx, name, begin, end)
 	if err != nil {
 		return nil, err
@@ -235,11 +220,6 @@ func (c *RecommendGorseCase) GetTimeSeries(ctx context.Context, name, begin, end
 
 // GetUser 查询 Gorse 推荐用户。
 func (c *RecommendGorseCase) GetUser(ctx context.Context, id string) (*shopadminv1.UserResponse, error) {
-	// 用户编号为空时，无法继续代理 Gorse用户详情接口。
-	if id == "" {
-		return nil, errorsx.InvalidArgument("用户编号不能为空")
-	}
-
 	data, err := c.dashboard.User(ctx, id)
 	if err != nil {
 		return nil, err
@@ -261,11 +241,6 @@ func (c *RecommendGorseCase) GetUserFeedback(
 	offset int32,
 	n int32,
 ) (*shopadminv1.FeedbackResponse, error) {
-	// 用户编号为空时，无法继续代理 Gorse用户反馈接口。
-	if id == "" {
-		return nil, errorsx.InvalidArgument("用户编号不能为空")
-	}
-
 	data, err := c.dashboard.UserFeedback(ctx, id, feedbackType, offset, n)
 	if err != nil {
 		return nil, err
@@ -295,11 +270,6 @@ func (c *RecommendGorseCase) GetUserRecommend(
 	category string,
 	n int32,
 ) (*shopadminv1.ItemListResponse, error) {
-	// 用户编号为空时，无法继续代理 Gorse用户推荐接口。
-	if id == "" {
-		return nil, errorsx.InvalidArgument("用户编号不能为空")
-	}
-
 	data, err := c.dashboard.UserRecommend(ctx, id, recommender, category, n)
 	if err != nil {
 		return nil, err
@@ -323,11 +293,6 @@ func (c *RecommendGorseCase) GetUserRecommend(
 
 // GetUserSimilar 查询 Gorse 推荐相似用户。
 func (c *RecommendGorseCase) GetUserSimilar(ctx context.Context, id, recommender string) (*shopadminv1.UserSimilarResponse, error) {
-	// 用户编号为空时，无法继续代理 Gorse相似用户接口。
-	if id == "" {
-		return nil, errorsx.InvalidArgument("用户编号不能为空")
-	}
-
 	data, err := c.dashboard.UserSimilar(ctx, id, recommender)
 	if err != nil {
 		return nil, err
@@ -351,11 +316,6 @@ func (c *RecommendGorseCase) GetUserSimilar(ctx context.Context, id, recommender
 
 // DeleteItem 删除 Gorse 推荐商品。
 func (c *RecommendGorseCase) DeleteItem(ctx context.Context, id string) error {
-	// 商品编号为空时，无法继续代理 Gorse商品删除接口。
-	if id == "" {
-		return errorsx.InvalidArgument("商品编号不能为空")
-	}
-
 	_, err := c.dashboard.DeleteItem(ctx, id)
 	if err != nil {
 		return err
@@ -365,11 +325,6 @@ func (c *RecommendGorseCase) DeleteItem(ctx context.Context, id string) error {
 
 // DeleteUser 删除 Gorse 推荐用户。
 func (c *RecommendGorseCase) DeleteUser(ctx context.Context, id string) error {
-	// 用户编号为空时，无法继续代理 Gorse用户删除接口。
-	if id == "" {
-		return errorsx.InvalidArgument("用户编号不能为空")
-	}
-
 	_, err := c.dashboard.DeleteUser(ctx, id)
 	if err != nil {
 		return err
@@ -382,11 +337,6 @@ func (c *RecommendGorseCase) ExportData(
 	ctx context.Context,
 	req *shopadminv1.ExportDataRequest,
 ) (*shopadminv1.ExportDataResponse, error) {
-	// 数据类型非法时，无法确定需要导出的Gorse 推荐数据集。
-	if req.GetDataType() == shopcommonv1.AdvanceDataType(_const.ADVANCE_DATA_TYPE_UNKNOWN) {
-		return nil, errorsx.InvalidArgument("导出数据类型不能为空")
-	}
-
 	var err error
 	// 不同高级调试数据类型分别走各自的 JSONL 导出逻辑。
 	switch req.GetDataType() {
@@ -430,15 +380,6 @@ func (c *RecommendGorseCase) ImportData(
 	ctx context.Context,
 	req *shopadminv1.ImportDataRequest,
 ) (*shopadminv1.ImportDataResponse, error) {
-	// 数据类型非法时，无法确定 JSONL 应该写入哪类Gorse 推荐数据。
-	if req.GetDataType() == shopcommonv1.AdvanceDataType(_const.ADVANCE_DATA_TYPE_UNKNOWN) {
-		return nil, errorsx.InvalidArgument("导入数据类型不能为空")
-	}
-	// 文件内容为空时，没有可供导入的Gorse 推荐数据行。
-	if req.GetContent() == "" {
-		return nil, errorsx.InvalidArgument("导入文件内容不能为空")
-	}
-
 	recordList, err := parseRecommendGorseJSONRecords(req.GetContent())
 	if err != nil {
 		return nil, err
@@ -511,11 +452,6 @@ func (c *RecommendGorseCase) ResetConfig(ctx context.Context) error {
 // PreviewExternal 预览 Gorse 推荐外部推荐脚本。
 func (c *RecommendGorseCase) PreviewExternal(ctx context.Context, req *shopadminv1.PreviewExternalRequest) (*shopadminv1.PreviewExternalResponse, error) {
 	script := req.GetScript()
-	// 外部推荐脚本为空时，Gorse 预览接口会执行失败，提前按参数错误拦截。
-	if script == "" {
-		return nil, errorsx.InvalidArgument("外部推荐脚本不能为空")
-	}
-
 	data, err := c.dashboard.ExternalPreview(ctx, req.GetUserId(), script)
 	if err != nil {
 		return nil, err
@@ -541,11 +477,6 @@ func (c *RecommendGorseCase) PreviewExternal(ctx context.Context, req *shopadmin
 func (c *RecommendGorseCase) PreviewRankerPrompt(ctx context.Context, req *shopadminv1.PreviewRankerPromptRequest) (*shopadminv1.PreviewRankerPromptResponse, error) {
 	queryTemplate := req.GetQueryTemplate()
 	documentTemplate := req.GetDocumentTemplate()
-	// 排序提示词预览只适用于大语言模型排序器，必须同时提供查询模板与文档模板。
-	if queryTemplate == "" || documentTemplate == "" {
-		return nil, errorsx.InvalidArgument("查询模板和文档模板不能为空")
-	}
-
 	data, err := c.dashboard.RankerPrompt(ctx, req.GetUserId(), queryTemplate, documentTemplate)
 	if err != nil {
 		return nil, err

@@ -162,9 +162,6 @@ func (c *CodeGenTableCase) ListCodeGenProtoDirectory(_ context.Context) (*system
 
 // GetCodeGenTable 查询代码生成表配置。
 func (c *CodeGenTableCase) GetCodeGenTable(ctx context.Context, id int64) (*systemadminv1.CodeGenTableForm, error) {
-	if id <= 0 {
-		return nil, errorsx.InvalidArgument("代码生成表配置ID不能为空")
-	}
 	item, err := c.FindByID(ctx, id)
 	if err != nil {
 		return nil, err
@@ -178,20 +175,24 @@ func (c *CodeGenTableCase) GetCodeGenTable(ctx context.Context, id int64) (*syst
 
 // CreateCodeGenTable 创建代码生成表配置。
 func (c *CodeGenTableCase) CreateCodeGenTable(ctx context.Context, req *systemadminv1.CodeGenTableForm) error {
-	item, err := c.codeGenTableFormToModel(ctx, 0, req)
+	item, err := c.codeGenTableFormToModel(ctx, req)
 	if err != nil {
 		return err
 	}
 	item.ID = 0
-	return c.Create(ctx, item)
+	err = c.Create(ctx, item)
+	if err != nil {
+		if errorsx.IsMySQLDuplicateKey(err) {
+			return errorsx.UniqueConflict("业务表已被代码生成表配置选择", "code_gen_table", "", "unique_code_gen_table").WithCause(err)
+		}
+		return err
+	}
+	return nil
 }
 
 // UpdateCodeGenTable 更新代码生成表配置。
 func (c *CodeGenTableCase) UpdateCodeGenTable(ctx context.Context, id int64, req *systemadminv1.CodeGenTableForm) error {
-	if id <= 0 {
-		return errorsx.InvalidArgument("代码生成表配置ID不能为空")
-	}
-	item, err := c.codeGenTableFormToModel(ctx, id, req)
+	item, err := c.codeGenTableFormToModel(ctx, req)
 	if err != nil {
 		return err
 	}
@@ -218,7 +219,14 @@ func (c *CodeGenTableCase) UpdateCodeGenTable(ctx context.Context, id int64, req
 		query.Status,
 		query.Remark,
 	))
-	return c.Update(ctx, item, opts...)
+	err = c.Update(ctx, item, opts...)
+	if err != nil {
+		if errorsx.IsMySQLDuplicateKey(err) {
+			return errorsx.UniqueConflict("业务表已被代码生成表配置选择", "code_gen_table", "", "unique_code_gen_table").WithCause(err)
+		}
+		return err
+	}
+	return nil
 }
 
 // DeleteCodeGenTable 删除代码生成表配置。
@@ -256,7 +264,7 @@ func (c *CodeGenTableCase) listDatabaseTables(ctx context.Context, tableNames []
 }
 
 // codeGenTableFormToModel 转换代码生成表配置保存模型，并校验生成所需的关联配置。
-func (c *CodeGenTableCase) codeGenTableFormToModel(ctx context.Context, currentID int64, req *systemadminv1.CodeGenTableForm) (*models.CodeGenTable, error) {
+func (c *CodeGenTableCase) codeGenTableFormToModel(ctx context.Context, req *systemadminv1.CodeGenTableForm) (*models.CodeGenTable, error) {
 	apiPath := req.GetApiPath()
 	if apiPath == "" {
 		apiPath = codegen.DefaultProtoDirectory
@@ -280,21 +288,6 @@ func (c *CodeGenTableCase) codeGenTableFormToModel(ctx context.Context, currentI
 	}
 	if err = validateBaseMenuChild(menu, _const.BASE_MENU_TYPE_MENU); err != nil {
 		return nil, err
-	}
-	query := c.Query(ctx).CodeGenTable
-	opts := make([]repository.QueryOption, 0, 2)
-	opts = append(opts, repository.Where(query.Name.Eq(req.GetName())))
-	if currentID > 0 {
-		opts = append(opts, repository.Where(query.ID.Neq(currentID)))
-	}
-	var count int64
-	count, err = c.Count(ctx, opts...)
-	if err != nil {
-		return nil, err
-	}
-	// 同一数据库表只能对应一条配置，避免后续生成路径相互覆盖。
-	if count > 0 {
-		return nil, errorsx.UniqueConflict("业务表已被代码生成表配置选择", "code_gen_table", "name", "")
 	}
 	item := c.formMapper.ToEntity(req)
 	item.APIPath = apiPath

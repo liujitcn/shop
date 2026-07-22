@@ -101,9 +101,6 @@ func (c *CodeGenColumnCase) DeleteByTableIDs(ctx context.Context, tableIDs []int
 
 // SaveCodeGenColumn 按最新数据库字段同步代码生成字段配置。
 func (c *CodeGenColumnCase) SaveCodeGenColumn(ctx context.Context, req *systemadminv1.SaveCodeGenColumnRequest) error {
-	if req.GetTableId() <= 0 {
-		return errorsx.InvalidArgument("代码生成表配置ID不能为空")
-	}
 	table, err := c.codeGenTableRepo.FindByID(ctx, req.GetTableId())
 	if err != nil {
 		return err

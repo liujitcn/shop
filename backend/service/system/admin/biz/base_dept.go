@@ -113,9 +113,6 @@ func (c *BaseDeptCase) CreateBaseDept(ctx context.Context, req *systemadminv1.Ba
 
 // UpdateBaseDept 更新部门
 func (c *BaseDeptCase) UpdateBaseDept(ctx context.Context, req *systemadminv1.BaseDeptForm) error {
-	if req.GetId() <= 0 {
-		return errorsx.InvalidArgument("部门参数不合法")
-	}
 	oldBaseDept, err := c.FindByID(ctx, req.GetId())
 	if err != nil {
 		return err

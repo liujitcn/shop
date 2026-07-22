@@ -277,7 +277,7 @@ func (c *BaseUserCase) CreateBaseUser(ctx context.Context, req *systemadminv1.Ba
 	if err != nil {
 		// 命中用户账号唯一索引冲突时，返回稳定的业务冲突错误。
 		if errorsx.IsMySQLDuplicateKey(err) {
-			return errorsx.UniqueConflict("用户账号重复", "base_user", "user_name", "unique_base_user").WithCause(err)
+			return errorsx.UniqueConflict("同一租户的用户账号重复", "base_user", "", "unique_base_user").WithCause(err)
 		}
 		return err
 	}
@@ -288,9 +288,6 @@ func (c *BaseUserCase) CreateBaseUser(ctx context.Context, req *systemadminv1.Ba
 
 // UpdateBaseUser 更新用户
 func (c *BaseUserCase) UpdateBaseUser(ctx context.Context, req *systemadminv1.BaseUserForm) error {
-	if req.GetId() <= 0 {
-		return errorsx.InvalidArgument("用户参数不合法")
-	}
 	oldBaseUser, err := c.FindByID(ctx, req.GetId())
 	if err != nil {
 		return errorsx.ResourceNotFound("更新用户失败，用户信息不存在").WithCause(err)
@@ -331,7 +328,7 @@ func (c *BaseUserCase) UpdateBaseUser(ctx context.Context, req *systemadminv1.Ba
 	if err != nil {
 		// 命中用户账号唯一索引冲突时，返回稳定的业务冲突错误。
 		if errorsx.IsMySQLDuplicateKey(err) {
-			return errorsx.UniqueConflict("用户账号重复", "base_user", "user_name", "unique_base_user").WithCause(err)
+			return errorsx.UniqueConflict("同一租户的用户账号重复", "base_user", "", "unique_base_user").WithCause(err)
 		}
 		return err
 	}

@@ -126,9 +126,6 @@ func (c *OauthCase) ListOauthProvider(ctx context.Context, req *basev1.ListOauth
 
 // CreateOauthAuthorization 创建三方登录授权地址。
 func (c *OauthCase) CreateOauthAuthorization(ctx context.Context, req *basev1.CreateOauthAuthorizationRequest) (*basev1.CreateOauthAuthorizationResponse, error) {
-	if req.GetRedirectUrl() == "" {
-		return nil, errorsx.InvalidArgument("登录页地址不能为空")
-	}
 	var err error
 	var redirectURL string
 	redirectURL, err = normalizeOauthLoginURL(ctx, req.GetRedirectUrl())
@@ -169,9 +166,6 @@ func (c *OauthCase) CreateOauthBindingAuthorization(ctx context.Context, req *ba
 	if authInfo.UserId <= 0 {
 		return nil, errorsx.Unauthenticated("用户认证失败")
 	}
-	if req.GetRedirectUrl() == "" {
-		return nil, errorsx.InvalidArgument("绑定完成后回跳地址不能为空")
-	}
 	var safeRedirectURL string
 	safeRedirectURL, err = normalizeOauthReturnURL(ctx, req.GetRedirectUrl(), true)
 	if err != nil {
@@ -210,10 +204,6 @@ func (c *OauthCase) CreateOauthSession(ctx context.Context, req *basev1.CreateOa
 	if req.GetProvider() != string(kitOauth.WechatMini) {
 		return nil, errorsx.InvalidArgument("登录方式不支持")
 	}
-	if req.GetCode() == "" {
-		return nil, errorsx.InvalidArgument("三方授权码不能为空")
-	}
-
 	user, err := c.findOrCreateWechatMiniUser(ctx, req.GetCode())
 	if err != nil {
 		return nil, err
@@ -252,10 +242,6 @@ func (c *OauthCase) HandleOauthCallback(ctx context.Context, req *basev1.HandleO
 	if req.GetError() != "" {
 		return nil, c.oauthRedirectPayload(payload, "", "三方授权失败")
 	}
-	if req.GetCode() == "" {
-		return nil, c.oauthRedirectPayload(payload, "", "三方授权码不能为空")
-	}
-
 	var identifier string
 	identifier, err = c.fetchOauthIdentifier(ctx, oauthType, req.GetCode(), payload.PKCE)
 	if err != nil {
@@ -301,10 +287,6 @@ func (c *OauthCase) HandleOauthBindingCallback(ctx context.Context, req *basev1.
 
 // ExchangeOauthTicket 兑换三方登录一次性票据。
 func (c *OauthCase) ExchangeOauthTicket(ctx context.Context, req *basev1.ExchangeOauthTicketRequest) (*basev1.ExchangeOauthTicketResponse, error) {
-	if req.GetTicket() == "" {
-		return nil, errorsx.InvalidArgument("三方登录票据不能为空")
-	}
-
 	value, err := c.consumeOauthLoginTicket(req.GetTicket())
 	if err != nil {
 		return nil, err
@@ -329,10 +311,6 @@ func (c *OauthCase) UnbindOauthAccount(ctx context.Context, req *basev1.UnbindOa
 	if err != nil {
 		return err
 	}
-	if req.GetProvider() == "" {
-		return errorsx.InvalidArgument("登录方式标识不能为空")
-	}
-
 	_, err = c.baseThirdAccountCase.FindByUserProvider(ctx, authInfo.UserId, req.GetProvider())
 	if err != nil {
 		if stderrors.Is(err, gorm.ErrRecordNotFound) {

@@ -833,11 +833,12 @@ const file_system_admin_v1_base_menu_proto_rawDesc = "" +
 	"\n" +
 	"base_menus\x18\x01 \x03(\v2\x19.system.admin.v1.BaseMenuB\x0f\xbaG\f\x92\x02\t菜单树R\tbaseMenus\"4\n" +
 	"\x12GetBaseMenuRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b菜单IDR\x02id\"\xf8\f\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b菜单IDR\x02id\"\xd3\x0f\n" +
 	"\fBaseMenuForm\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b菜单IDR\x02id\x126\n" +
-	"\tparent_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e父级菜单IDH\x00R\bparentId\x88\x01\x01\x12N\n" +
-	"\x04type\x18\x03 \x01(\x0e2\x1e.system.common.v1.BaseMenuTypeB\x1a\xbaG\x0f\x92\x02\f菜单类型\xbaH\x05\x82\x01\x02\x10\x01R\x04type\x12\xb8\x01\n" +
+	"\tparent_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e父级菜单IDH\x00R\bparentId\x88\x01\x01\x12\x8f\x01\n" +
+	"\x04type\x18\x03 \x01(\x0e2\x1e.system.common.v1.BaseMenuTypeB[\xbaG\x0f\x92\x02\f菜单类型\xbaHF\xba\x01>\n" +
+	"\x17base_menu.type.required\x12\x18菜单类型不能为空\x1a\tthis != 0\x82\x01\x02\x10\x01R\x04type\x12\xb8\x01\n" +
 	"\x04path\x18\x04 \x01(\tB\xa3\x01\xbaGK\x92\x02H菜单路径、按钮权限标识或外链内部路径，目录可为空\xbaHR\xba\x01O\n" +
 	"\x15base_menu.path.length\x12!路径不能超过 1024 个字符\x1a\x13this.size() <= 1024R\x04path\x12\xd8\x01\n" +
 	"\x04name\x18\x05 \x01(\tB\xc3\x01\xbaGf\x92\x02c路由命名，然后我们可以使用 name 而不是 path 来传递 to 属性给 <router-link>。\xbaHW\xba\x01T\n" +
@@ -850,22 +851,28 @@ const file_system_admin_v1_base_menu_proto_rawDesc = "" +
 	"\x03api\x18\t \x03(\tB\x18\xbaG\x15\x92\x02\x12分配的API列表R\x03api\x12_\n" +
 	"\x04sort\x182 \x01(\x05BK\xbaG\t\x92\x02\x06排序\xbaH<\xba\x019\n" +
 	"\x17base_menu.sort.required\x12\x14排序必须大于 0\x1a\bthis > 0R\x04sort\x12?\n" +
-	"\x06status\x18e \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status:\xc7\x03\xbaH\xc3\x03\x1ad\n" +
+	"\x06status\x18e \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status:\xe0\x05\xbaH\xdc\x05\x1ad\n" +
 	"\x17base_menu.path.required\x12!非目录菜单必须填写路径\x1a&this.type == 1 || this.path.size() > 0\x1ag\n" +
 	"\x17base_menu.name.required\x12$菜单类型必须填写路由名称\x1a&this.type != 2 || this.name.size() > 0\x1ao\n" +
 	"\x18base_menu.name.menu_only\x12*只有菜单类型可以填写路由名称\x1a'this.type == 2 || this.name.size() == 0\x1a\x80\x01\n" +
-	"\x1bbase_menu.redirect.external\x12'外链必须填写完整的 HTTP 地址\x1a8this.type != 4 || this.redirect.matches('^https?://.+$')B\f\n" +
+	"\x1bbase_menu.redirect.external\x12'外链必须填写完整的 HTTP 地址\x1a8this.type != 4 || this.redirect.matches('^https?://.+$')\x1a\x8e\x01\n" +
+	"\x1fbase_menu.folder.identity_empty\x12'目录不能填写路径和路由名称\x1aBthis.type != 1 || (this.path.size() == 0 && this.name.size() == 0)\x1a\x85\x01\n" +
+	" base_menu.external.path_internal\x12*外链路径必须使用内部唯一路径\x1a5this.type != 4 || !this.path.matches('^https?://.*$')B\f\n" +
 	"\n" +
-	"_parent_id\"m\n" +
+	"_parent_id\"\x81\x02\n" +
 	"\x15CreateBaseMenuRequest\x12T\n" +
-	"\tbase_menu\x18\x01 \x01(\v2\x1d.system.admin.v1.BaseMenuFormB\x18\xbaG\x0f\x92\x02\f菜单表单\xbaH\x03\xc8\x01\x01R\bbaseMenu\"m\n" +
+	"\tbase_menu\x18\x01 \x01(\v2\x1d.system.admin.v1.BaseMenuFormB\x18\xbaG\x0f\x92\x02\f菜单表单\xbaH\x03\xc8\x01\x01R\bbaseMenu:\x91\x01\xbaH\x8d\x01\x1a\x8a\x01\n" +
+	"#create_base_menu.parent_id.required\x12$新增菜单必须选择上级菜单\x1a=has(this.base_menu.parent_id) && this.base_menu.parent_id > 0\"m\n" +
 	"\x15UpdateBaseMenuRequest\x12T\n" +
-	"\tbase_menu\x18\x01 \x01(\v2\x1d.system.admin.v1.BaseMenuFormB\x18\xbaG\x0f\x92\x02\f菜单表单\xbaH\x03\xc8\x01\x01R\bbaseMenu\"=\n" +
-	"\x15DeleteBaseMenuRequest\x12$\n" +
-	"\x02id\x18\x01 \x01(\tB\x14\xbaG\x11\x92\x02\x0e菜单ID列表R\x02id\"`\n" +
-	"\x18SetBaseMenuStatusRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b菜单IDR\x02id\x12$\n" +
-	"\x06status\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\"\x87\x06\n" +
+	"\tbase_menu\x18\x01 \x01(\v2\x1d.system.admin.v1.BaseMenuFormB\x18\xbaG\x0f\x92\x02\f菜单表单\xbaH\x03\xc8\x01\x01R\bbaseMenu\"\x8e\x01\n" +
+	"\x15DeleteBaseMenuRequest\x12u\n" +
+	"\x02id\x18\x01 \x01(\tBe\xbaG\x11\x92\x02\x0e菜单ID列表\xbaHN\xba\x01K\n" +
+	"\x1cdelete_base_menu.id.required\x12\x1a菜单ID列表不能为空\x1a\x0fthis.size() > 0R\x02id\"\xf3\x01\n" +
+	"\x18SetBaseMenuStatusRequest\x12f\n" +
+	"\x02id\x18\x01 \x01(\x03BV\xbaG\v\x92\x02\b菜单ID\xbaHE\xba\x01B\n" +
+	" set_base_menu_status.id.required\x12\x14菜单ID不能为空\x1a\bthis > 0R\x02id\x12o\n" +
+	"\x06status\x18\x02 \x01(\x05BW\xbaG\t\x92\x02\x06状态\xbaHH\xba\x01E\n" +
+	"$set_base_menu_status.status.required\x12\x12状态不能为空\x1a\tthis != 0R\x06status\"\x87\x06\n" +
 	"\bBaseMenu\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b菜单IDR\x02id\x121\n" +
 	"\tparent_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e父级菜单IDR\bparentId\x12F\n" +

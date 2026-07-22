@@ -11,6 +11,7 @@ import (
 	sync "sync"
 	unsafe "unsafe"
 
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -705,25 +706,31 @@ var File_shop_app_v1_user_cart_proto protoreflect.FileDescriptor
 
 const file_shop_app_v1_user_cart_proto_rawDesc = "" +
 	"\n" +
-	"\x1bshop/app/v1/user_cart.proto\x12\vshop.app.v1\x1a\x1bshop/app/v1/recommend.proto\x1a\x1eshop/app/v1/tenant_store.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x15\n" +
+	"\x1bshop/app/v1/user_cart.proto\x12\vshop.app.v1\x1a\x1bshop/app/v1/recommend.proto\x1a\x1eshop/app/v1/tenant_store.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x15\n" +
 	"\x13ListUserCartRequest\"\x8b\x01\n" +
 	"\x14ListUserCartResponse\x12s\n" +
-	"\x10user_cart_stores\x18\x01 \x03(\v2\x1a.shop.app.v1.UserCartStoreB-\xbaG*\x92\x02'按店铺分组的用户购物车列表R\x0euserCartStores\"\xf4\x01\n" +
-	"\x15CreateUserCartRequest\x12)\n" +
-	"\bgoods_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\agoodsId\x12-\n" +
-	"\bsku_code\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f规格编号R\askuCode\x12\x1e\n" +
-	"\x03num\x18\x03 \x01(\x03B\f\xbaG\t\x92\x02\x06数量R\x03num\x12a\n" +
-	"\x11recommend_context\x18\x04 \x01(\v2\x1d.shop.app.v1.RecommendContextB\x15\xbaG\x12\x92\x02\x0f推荐上下文R\x10recommendContext\"\x89\x01\n" +
-	"\x15UpdateUserCartRequest\x12!\n" +
-	"\x02id\x18\x01 \x01(\x03B\x11\xbaG\x0e\x92\x02\v购物车IDR\x02id\x12M\n" +
-	"\tuser_cart\x18\x02 \x01(\v2\x19.shop.app.v1.UserCartFormB\x15\xbaG\x12\x92\x02\x0f用户购物车R\buserCart\":\n" +
-	"\x15DeleteUserCartRequest\x12!\n" +
-	"\x02id\x18\x01 \x01(\x03B\x11\xbaG\x0e\x92\x02\v购物车IDR\x02id\"P\n" +
+	"\x10user_cart_stores\x18\x01 \x03(\v2\x1a.shop.app.v1.UserCartStoreB-\xbaG*\x92\x02'按店铺分组的用户购物车列表R\x0euserCartStores\"\xe4\x03\n" +
+	"\x15CreateUserCartRequest\x12w\n" +
+	"\bgoods_id\x18\x01 \x01(\x03B\\\xbaG\v\x92\x02\b商品ID\xbaHK\xba\x01H\n" +
+	"\"create_user_cart.goods_id.required\x12\x18商品编号不能为空\x1a\bthis > 0R\agoodsId\x12\x7f\n" +
+	"\bsku_code\x18\x02 \x01(\tBd\xbaG\x0f\x92\x02\f规格编号\xbaHO\xba\x01L\n" +
+	"\"create_user_cart.sku_code.required\x12\x15SKU编码不能为空\x1a\x0fthis.size() > 0R\askuCode\x12n\n" +
+	"\x03num\x18\x03 \x01(\x03B\\\xbaG\t\x92\x02\x06数量\xbaHM\xba\x01J\n" +
+	"\x1dcreate_user_cart.num.required\x12\x1f商品购买数量必须大于0\x1a\bthis > 0R\x03num\x12a\n" +
+	"\x11recommend_context\x18\x04 \x01(\v2\x1d.shop.app.v1.RecommendContextB\x15\xbaG\x12\x92\x02\x0f推荐上下文R\x10recommendContext\"\xd0\x01\n" +
+	"\x15UpdateUserCartRequest\x12h\n" +
+	"\x02id\x18\x01 \x01(\x03BX\xbaG\x0e\x92\x02\v购物车ID\xbaHD\xba\x01A\n" +
+	"\x1cupdate_user_cart.id.required\x12\x17购物车ID不能为空\x1a\bthis > 0R\x02id\x12M\n" +
+	"\tuser_cart\x18\x02 \x01(\v2\x19.shop.app.v1.UserCartFormB\x15\xbaG\x12\x92\x02\x0f用户购物车R\buserCart\"\x81\x01\n" +
+	"\x15DeleteUserCartRequest\x12h\n" +
+	"\x02id\x18\x01 \x01(\x03BX\xbaG\x0e\x92\x02\v购物车ID\xbaHD\xba\x01A\n" +
+	"\x1cdelete_user_cart.id.required\x12\x17购物车ID不能为空\x1a\bthis > 0R\x02id\"P\n" +
 	"\x1bSetUserCartSelectionRequest\x121\n" +
 	"\n" +
-	"is_checked\x18\x01 \x01(\bB\x12\xbaG\x0f\x92\x02\f是否选中R\tisChecked\"p\n" +
-	"\x18SetUserCartStatusRequest\x12!\n" +
-	"\x02id\x18\x01 \x01(\x03B\x11\xbaG\x0e\x92\x02\v购物车IDR\x02id\x121\n" +
+	"is_checked\x18\x01 \x01(\bB\x12\xbaG\x0f\x92\x02\f是否选中R\tisChecked\"\xbb\x01\n" +
+	"\x18SetUserCartStatusRequest\x12l\n" +
+	"\x02id\x18\x01 \x01(\x03B\\\xbaG\x0e\x92\x02\v购物车ID\xbaHH\xba\x01E\n" +
+	" set_user_cart_status.id.required\x12\x17购物车ID不能为空\x1a\bthis > 0R\x02id\x121\n" +
 	"\n" +
 	"is_checked\x18\x02 \x01(\bB\x12\xbaG\x0f\x92\x02\f是否选中R\tisChecked\"\x16\n" +
 	"\x14CountUserCartRequest\"D\n" +
@@ -747,10 +754,12 @@ const file_shop_app_v1_user_cart_proto_rawDesc = "" +
 	"join_price\x18( \x01(\x03B\x15\xbaG\x12\x92\x02\x0f加入时价格R\tjoinPrice\x121\n" +
 	"\n" +
 	"is_checked\x183 \x01(\bB\x12\xbaG\x0f\x92\x02\f是否选中R\tisChecked\x12a\n" +
-	"\x11recommend_context\x184 \x01(\v2\x1d.shop.app.v1.RecommendContextB\x15\xbaG\x12\x92\x02\x0f推荐上下文R\x10recommendContext\"Q\n" +
-	"\fUserCartForm\x12!\n" +
-	"\x02id\x18\x01 \x01(\x03B\x11\xbaG\x0e\x92\x02\v购物车IDR\x02id\x12\x1e\n" +
-	"\x03num\x18\x02 \x01(\x03B\f\xbaG\t\x92\x02\x06数量R\x03num2\xeb\x06\n" +
+	"\x11recommend_context\x184 \x01(\v2\x1d.shop.app.v1.RecommendContextB\x15\xbaG\x12\x92\x02\x0f推荐上下文R\x10recommendContext\"\xe4\x01\n" +
+	"\fUserCartForm\x12f\n" +
+	"\x02id\x18\x01 \x01(\x03BV\xbaG\x0e\x92\x02\v购物车ID\xbaHB\xba\x01?\n" +
+	"\x1auser_cart_form.id.required\x12\x17购物车ID不能为空\x1a\bthis > 0R\x02id\x12l\n" +
+	"\x03num\x18\x02 \x01(\x03BZ\xbaG\t\x92\x02\x06数量\xbaHK\xba\x01H\n" +
+	"\x1buser_cart_form.num.required\x12\x1f商品购买数量必须大于0\x1a\bthis > 0R\x03num2\xeb\x06\n" +
 	"\x0fUserCartService\x12r\n" +
 	"\fListUserCart\x12 .shop.app.v1.ListUserCartRequest\x1a!.shop.app.v1.ListUserCartResponse\"\x1d\x82\xd3\xe4\x93\x02\x17\x12\x15/api/v1/app/user/cart\x12n\n" +
 	"\x0eCreateUserCart\x12\".shop.app.v1.CreateUserCartRequest\x1a\x16.google.protobuf.Empty\" \x82\xd3\xe4\x93\x02\x1a:\x01*\"\x15/api/v1/app/user/cart\x12{\n" +

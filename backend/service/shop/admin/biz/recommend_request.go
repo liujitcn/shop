@@ -11,7 +11,6 @@ import (
 
 	shopadminv1 "shop/api/gen/go/shop/admin/v1"
 	"shop/pkg/biz"
-	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 	recommendDto "shop/service/shop/recommend/dto"
@@ -121,15 +120,6 @@ func (c *RecommendRequestCase) ListRecommendRequestEvent(
 	goodsID int64,
 	position int32,
 ) (*shopadminv1.ListRecommendRequestEventResponse, error) {
-	// 请求记录编号非法时，无法定位推荐请求事件范围。
-	if requestRecordID <= 0 {
-		return nil, errorsx.InvalidArgument("推荐请求记录编号不能为空")
-	}
-	// 商品编号非法时，无法定位推荐请求事件范围。
-	if goodsID <= 0 {
-		return nil, errorsx.InvalidArgument("商品编号不能为空")
-	}
-
 	requestModel, err := c.RecommendRequestRepository.FindByID(ctx, requestRecordID)
 	if err != nil {
 		return nil, err
@@ -140,11 +130,6 @@ func (c *RecommendRequestCase) ListRecommendRequestEvent(
 
 // GetRecommendRequest 查询推荐请求详情。
 func (c *RecommendRequestCase) GetRecommendRequest(ctx context.Context, id int64) (*shopadminv1.RecommendRequestDetailResponse, error) {
-	// 请求记录编号非法时，无法定位推荐请求详情。
-	if id <= 0 {
-		return nil, errorsx.InvalidArgument("推荐请求记录编号不能为空")
-	}
-
 	requestModel, err := c.RecommendRequestRepository.FindByID(ctx, id)
 	if err != nil {
 		return nil, err

@@ -661,19 +661,23 @@ const file_system_admin_v1_base_tenant_proto_rawDesc = "" +
 	"\a_status\"\x90\x01\n" +
 	"\x16PageBaseTenantResponse\x12R\n" +
 	"\fbase_tenants\x18\x01 \x03(\v2\x1b.system.admin.v1.BaseTenantB\x12\xbaG\x0f\x92\x02\f分页数据R\vbaseTenants\x12\"\n" +
-	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"6\n" +
-	"\x14GetBaseTenantRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDR\x02id\"u\n" +
+	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"y\n" +
+	"\x14GetBaseTenantRequest\x12a\n" +
+	"\x02id\x18\x01 \x01(\x03BQ\xbaG\v\x92\x02\b租户ID\xbaH@\xba\x01=\n" +
+	"\x1bget_base_tenant.id.required\x12\x14租户ID不能为空\x1a\bthis > 0R\x02id\"u\n" +
 	"\x17CreateBaseTenantRequest\x12Z\n" +
 	"\vbase_tenant\x18\x01 \x01(\v2\x1f.system.admin.v1.BaseTenantFormB\x18\xbaG\x0f\x92\x02\f租户表单\xbaH\x03\xc8\x01\x01R\n" +
-	"baseTenant\"u\n" +
+	"baseTenant\"\xcb\x01\n" +
 	"\x17UpdateBaseTenantRequest\x12Z\n" +
 	"\vbase_tenant\x18\x01 \x01(\v2\x1f.system.admin.v1.BaseTenantFormB\x18\xbaG\x0f\x92\x02\f租户表单\xbaH\x03\xc8\x01\x01R\n" +
-	"baseTenant\"?\n" +
-	"\x17DeleteBaseTenantRequest\x12$\n" +
-	"\x02id\x18\x01 \x01(\tB\x14\xbaG\x11\x92\x02\x0e租户ID列表R\x02id\"b\n" +
-	"\x1aSetBaseTenantStatusRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDR\x02id\x12$\n" +
+	"baseTenant:T\xbaHQ\x1aO\n" +
+	"\x1eupdate_base_tenant.id.required\x12\x14租户ID不能为空\x1a\x17this.base_tenant.id > 0\"\x92\x01\n" +
+	"\x17DeleteBaseTenantRequest\x12w\n" +
+	"\x02id\x18\x01 \x01(\tBg\xbaG\x11\x92\x02\x0e租户ID列表\xbaHP\xba\x01M\n" +
+	"\x1edelete_base_tenant.id.required\x12\x1a租户ID列表不能为空\x1a\x0fthis.size() > 0R\x02id\"\xac\x01\n" +
+	"\x1aSetBaseTenantStatusRequest\x12h\n" +
+	"\x02id\x18\x01 \x01(\x03BX\xbaG\v\x92\x02\b租户ID\xbaHG\xba\x01D\n" +
+	"\"set_base_tenant_status.id.required\x12\x14租户ID不能为空\x1a\bthis > 0R\x02id\x12$\n" +
 	"\x06status\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\"\xba\a\n" +
 	"\n" +
 	"BaseTenant\x12\x1e\n" +

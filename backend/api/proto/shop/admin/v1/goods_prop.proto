@@ -73,7 +73,7 @@ message PageGoodsPropResponse {
 
 // 商品属性详情查询条件
 message GetGoodsPropRequest {
-  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "商品属性ID"}]; // 商品属性ID
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "商品属性ID"}, (buf.validate.field).cel = {id: "get_goods_prop.id.required" message: "商品属性ID不能为空" expression: "this > 0"}]; // 商品属性ID
 }
 
 // 商品属性创建条件
@@ -83,7 +83,7 @@ message CreateGoodsPropRequest {
 
 // 商品属性更新条件
 message UpdateGoodsPropRequest {
-  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "商品属性ID"}]; // 商品属性ID
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "商品属性ID"}, (buf.validate.field).cel = {id: "update_goods_prop.id.required" message: "商品属性ID不能为空" expression: "this > 0"}]; // 商品属性ID
 
   GoodsProp goods_prop = 2 [(gnostic.openapi.v3.property) = {description: "商品属性"}, (buf.validate.field).required = true]; // 商品属性
 }

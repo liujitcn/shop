@@ -12,6 +12,7 @@ import (
 	sync "sync"
 	unsafe "unsafe"
 
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -539,13 +540,14 @@ var File_shop_app_v1_recommend_proto protoreflect.FileDescriptor
 
 const file_shop_app_v1_recommend_proto_rawDesc = "" +
 	"\n" +
-	"\x1bshop/app/v1/recommend.proto\x12\vshop.app.v1\x1a\x1cshop/app/v1/goods_info.proto\x1a\x19shop/common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\" \n" +
+	"\x1bshop/app/v1/recommend.proto\x12\vshop.app.v1\x1a\x1cshop/app/v1/goods_info.proto\x1a\x19shop/common/v1/enum.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\" \n" +
 	"\x1eRecommendAnonymousActorRequest\"`\n" +
 	"\x1fRecommendAnonymousActorResponse\x12=\n" +
 	"\fanonymous_id\x18\x01 \x01(\x03B\x1a\xbaG\x17\x92\x02\x14匿名推荐主体IDR\vanonymousId\"$\n" +
-	"\"BindRecommendAnonymousActorRequest\"\x92\x03\n" +
-	"\x15RecommendGoodsRequest\x12H\n" +
-	"\x05scene\x18\x01 \x01(\x0e2\x1e.shop.common.v1.RecommendSceneB\x12\xbaG\x0f\x92\x02\f推荐场景R\x05scene\x12)\n" +
+	"\"BindRecommendAnonymousActorRequest\"\xe3\x03\n" +
+	"\x15RecommendGoodsRequest\x12\x98\x01\n" +
+	"\x05scene\x18\x01 \x01(\x0e2\x1e.shop.common.v1.RecommendSceneBb\xbaG\x0f\x92\x02\f推荐场景\xbaHM\xba\x01E\n" +
+	"\x1erecommend_goods.scene.required\x12\x18推荐场景不能为空\x1a\tthis != 0\x82\x01\x02\x10\x01R\x05scene\x12)\n" +
 	"\border_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单IDR\aorderId\x12)\n" +
 	"\bgoods_id\x18\x03 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\agoodsId\x123\n" +
 	"\n" +
@@ -571,10 +573,11 @@ const file_shop_app_v1_recommend_proto_rawDesc = "" +
 	"\x12RecommendEventItem\x12)\n" +
 	"\bgoods_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\agoodsId\x12/\n" +
 	"\tgoods_num\x18\x02 \x01(\x03B\x12\xbaG\x0f\x92\x02\f商品数量R\bgoodsNum\x121\n" +
-	"\bposition\x18\x03 \x01(\x05B\x15\xbaG\x12\x92\x02\x0f推荐位序号R\bposition\"\xbc\x02\n" +
-	"\x1bRecommendEventReportRequest\x12[\n" +
+	"\bposition\x18\x03 \x01(\x05B\x15\xbaG\x12\x92\x02\x0f推荐位序号R\bposition\"\x9f\x03\n" +
+	"\x1bRecommendEventReportRequest\x12\xbd\x01\n" +
 	"\n" +
-	"event_type\x18\x01 \x01(\x0e2\".shop.common.v1.RecommendEventTypeB\x18\xbaG\x15\x92\x02\x12推荐事件类型R\teventType\x12l\n" +
+	"event_type\x18\x01 \x01(\x0e2\".shop.common.v1.RecommendEventTypeBz\xbaG\x15\x92\x02\x12推荐事件类型\xbaH_\xba\x01W\n" +
+	"*recommend_event_report.event_type.required\x12\x1e推荐事件类型不能为空\x1a\tthis != 0\x82\x01\x02\x10\x01R\teventType\x12l\n" +
 	"\x11recommend_context\x18\x02 \x01(\v2\".shop.app.v1.RecommendEventContextB\x1b\xbaG\x18\x92\x02\x15推荐归因上下文R\x10recommendContext\x12R\n" +
 	"\x05items\x18\x03 \x03(\v2\x1f.shop.app.v1.RecommendEventItemB\x1b\xbaG\x18\x92\x02\x15推荐事件商品项R\x05items2\xd4\x04\n" +
 	"\x10RecommendService\x12\xa3\x01\n" +

@@ -479,16 +479,19 @@ var File_shop_app_v1_user_address_proto protoreflect.FileDescriptor
 const file_shop_app_v1_user_address_proto_rawDesc = "" +
 	"\n" +
 	"\x1eshop/app/v1/user_address.proto\x12\vshop.app.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x18\n" +
-	"\x16ListUserAddressRequest\"=\n" +
-	"\x15GetUserAddressRequest\x12$\n" +
-	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e用户地址IDR\x02id\"o\n" +
+	"\x16ListUserAddressRequest\"\x87\x01\n" +
+	"\x15GetUserAddressRequest\x12n\n" +
+	"\x02id\x18\x01 \x01(\x03B^\xbaG\x11\x92\x02\x0e用户地址ID\xbaHG\xba\x01D\n" +
+	"\x1cget_user_address.id.required\x12\x1a用户地址ID不能为空\x1a\bthis > 0R\x02id\"o\n" +
 	"\x18CreateUserAddressRequest\x12S\n" +
-	"\fuser_address\x18\x01 \x01(\v2\x1c.shop.app.v1.UserAddressFormB\x12\xbaG\x0f\x92\x02\f用户地址R\vuserAddress\"\x95\x01\n" +
-	"\x18UpdateUserAddressRequest\x12$\n" +
-	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e用户地址IDR\x02id\x12S\n" +
-	"\fuser_address\x18\x02 \x01(\v2\x1c.shop.app.v1.UserAddressFormB\x12\xbaG\x0f\x92\x02\f用户地址R\vuserAddress\"@\n" +
-	"\x18DeleteUserAddressRequest\x12$\n" +
-	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e用户地址IDR\x02id\"t\n" +
+	"\fuser_address\x18\x01 \x01(\v2\x1c.shop.app.v1.UserAddressFormB\x12\xbaG\x0f\x92\x02\f用户地址R\vuserAddress\"\xe2\x01\n" +
+	"\x18UpdateUserAddressRequest\x12q\n" +
+	"\x02id\x18\x01 \x01(\x03Ba\xbaG\x11\x92\x02\x0e用户地址ID\xbaHJ\xba\x01G\n" +
+	"\x1fupdate_user_address.id.required\x12\x1a用户地址ID不能为空\x1a\bthis > 0R\x02id\x12S\n" +
+	"\fuser_address\x18\x02 \x01(\v2\x1c.shop.app.v1.UserAddressFormB\x12\xbaG\x0f\x92\x02\f用户地址R\vuserAddress\"\x8d\x01\n" +
+	"\x18DeleteUserAddressRequest\x12q\n" +
+	"\x02id\x18\x01 \x01(\x03Ba\xbaG\x11\x92\x02\x0e用户地址ID\xbaHJ\xba\x01G\n" +
+	"\x1fdelete_user_address.id.required\x12\x1a用户地址ID不能为空\x1a\bthis > 0R\x02id\"t\n" +
 	"\x17ListUserAddressResponse\x12Y\n" +
 	"\x0euser_addresses\x18\x01 \x03(\v2\x18.shop.app.v1.UserAddressB\x18\xbaG\x15\x92\x02\x12用户地址列表R\ruserAddresses\"\x9e\x02\n" +
 	"\vUserAddress\x12$\n" +

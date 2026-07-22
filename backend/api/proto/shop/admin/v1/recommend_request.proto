@@ -3,6 +3,7 @@ syntax = "proto3";
 package shop.admin.v1;
 
 import "shop/common/v1/enum.proto";
+import "buf/validate/validate.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 
@@ -62,9 +63,9 @@ message PageRecommendRequestResponse {
 
 // 推荐请求事件查询条件
 message ListRecommendRequestEventRequest {
-  int64 request_record_id = 1 [(gnostic.openapi.v3.property) = {description: "推荐请求记录ID"}]; // 推荐请求记录ID
+  int64 request_record_id = 1 [(gnostic.openapi.v3.property) = {description: "推荐请求记录ID"}, (buf.validate.field).cel = {id: "list_recommend_request_event.request_record_id.required" message: "推荐请求记录编号不能为空" expression: "this > 0"}]; // 推荐请求记录ID
 
-  int64 goods_id = 2 [(gnostic.openapi.v3.property) = {description: "商品ID"}]; // 商品ID
+  int64 goods_id = 2 [(gnostic.openapi.v3.property) = {description: "商品ID"}, (buf.validate.field).cel = {id: "list_recommend_request_event.goods_id.required" message: "商品编号不能为空" expression: "this > 0"}]; // 商品ID
 
   int32 position = 3 [(gnostic.openapi.v3.property) = {description: "结果位置"}]; // 结果位置
 }
@@ -78,7 +79,7 @@ message ListRecommendRequestEventResponse {
 
 // 推荐请求详情查询条件
 message GetRecommendRequestRequest {
-  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "推荐请求记录ID"}]; // 推荐请求记录ID
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "推荐请求记录ID"}, (buf.validate.field).cel = {id: "get_recommend_request.id.required" message: "推荐请求记录编号不能为空" expression: "this > 0"}]; // 推荐请求记录ID
 }
 
 // 推荐请求详情响应

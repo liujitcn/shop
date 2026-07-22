@@ -2,11 +2,14 @@ package biz
 
 import (
 	"context"
+	"errors"
+	"strings"
 
 	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 
+	"github.com/go-sql-driver/mysql"
 	"github.com/liujitcn/gorm-kit/repository"
 )
 
@@ -38,9 +41,22 @@ func (c *BaseThirdAccountCase) CreateBinding(ctx context.Context, userID int64, 
 		Identifier: identifier,
 	})
 	if err != nil {
-		// 唯一键冲突表示该三方账号或该用户同 provider 已绑定。
 		if errorsx.IsMySQLDuplicateKey(err) {
-			return errorsx.UniqueConflict("三方账号已绑定", "base_third_account", "provider", "unique_base_third_account").WithCause(err)
+			message := "三方账号绑定关系已存在"
+			constraint := ""
+			var mysqlErr *mysql.MySQLError
+			if errors.As(err, &mysqlErr) {
+				// 根据数据库实际命中的唯一索引返回对应的绑定关系描述。
+				switch {
+				case strings.Contains(mysqlErr.Message, "unique_base_third_account_user"):
+					message = "当前用户已绑定该登录方式"
+					constraint = "unique_base_third_account_user"
+				case strings.Contains(mysqlErr.Message, "unique_base_third_account"):
+					message = "三方账号已被其他用户绑定"
+					constraint = "unique_base_third_account"
+				}
+			}
+			return errorsx.UniqueConflict(message, "base_third_account", "", constraint).WithCause(err)
 		}
 		return err
 	}

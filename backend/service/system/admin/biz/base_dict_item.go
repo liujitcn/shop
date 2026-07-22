@@ -80,9 +80,9 @@ func (c *BaseDictItemCase) CreateBaseDictItem(ctx context.Context, req *systemad
 	baseDictItem := c.formMapper.ToEntity(req)
 	err := c.Create(ctx, baseDictItem)
 	if err != nil {
-		// 命中字典项编码唯一索引冲突时，返回稳定的业务冲突错误。
+		// 命中字典项属性值唯一索引冲突时，返回稳定的业务冲突错误。
 		if errorsx.IsMySQLDuplicateKey(err) {
-			return errorsx.UniqueConflict("字典属性编码重复", "base_dict_item", "value", "unique_base_dict").WithCause(err)
+			return errorsx.UniqueConflict("同一字典的属性值重复", "base_dict_item", "", "unique_base_dict").WithCause(err)
 		}
 		return err
 	}
@@ -94,9 +94,9 @@ func (c *BaseDictItemCase) UpdateBaseDictItem(ctx context.Context, req *systemad
 	baseDictItem := c.formMapper.ToEntity(req)
 	err := c.UpdateByID(ctx, baseDictItem)
 	if err != nil {
-		// 命中字典项编码唯一索引冲突时，返回稳定的业务冲突错误。
+		// 命中字典项属性值唯一索引冲突时，返回稳定的业务冲突错误。
 		if errorsx.IsMySQLDuplicateKey(err) {
-			return errorsx.UniqueConflict("字典属性编码重复", "base_dict_item", "value", "unique_base_dict").WithCause(err)
+			return errorsx.UniqueConflict("同一字典的属性值重复", "base_dict_item", "", "unique_base_dict").WithCause(err)
 		}
 		return err
 	}

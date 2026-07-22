@@ -46,11 +46,6 @@ func (c *GoodsReportCase) ListGoodsDayReport(ctx context.Context, req *shopadmin
 		return nil, err
 	}
 
-	// 结束日期早于开始日期时，不允许继续统计日报。
-	if endDate.Before(startDate) {
-		return nil, errorsx.InvalidArgument("结束日期不能早于开始日期")
-	}
-
 	var rows []*dto.GoodsDayReportRow
 	rows, err = c.queryGoodsDayReportRows(ctx, startDate, endDate.AddDate(0, 0, 1))
 	if err != nil {
@@ -87,11 +82,6 @@ func (c *GoodsReportCase) ListGoodsMonthReport(ctx context.Context, req *shopadm
 	endMonth, err = c.parseMonth(req.GetEndMonth())
 	if err != nil {
 		return nil, err
-	}
-
-	// 结束月份早于开始月份时，不允许继续统计月报。
-	if endMonth.Before(startMonth) {
-		return nil, errorsx.InvalidArgument("结束月份不能早于开始月份")
 	}
 
 	var rows []*dto.GoodsMonthReportRow
@@ -132,11 +122,6 @@ func (c *GoodsReportCase) SummaryGoodsMonthReport(ctx context.Context, req *shop
 		return nil, err
 	}
 
-	// 结束月份早于开始月份时，不允许继续统计月报。
-	if endMonth.Before(startMonth) {
-		return nil, errorsx.InvalidArgument("结束月份不能早于开始月份")
-	}
-
 	var rows []*dto.GoodsMonthReportRow
 	rows, err = c.queryGoodsMonthReportRows(ctx, req.GetTenantId(), req.GetTenantStoreId(), startMonth, endMonth.AddDate(0, 1, 0))
 	if err != nil {
@@ -168,11 +153,6 @@ func (c *GoodsReportCase) SummaryGoodsDayReport(ctx context.Context, req *shopad
 		return nil, err
 	}
 
-	// 结束日期早于开始日期时，不允许继续统计日报。
-	if endDate.Before(startDate) {
-		return nil, errorsx.InvalidArgument("结束日期不能早于开始日期")
-	}
-
 	var rows []*dto.GoodsDayReportRow
 	rows, err = c.queryGoodsDayReportRows(ctx, startDate, endDate.AddDate(0, 0, 1))
 	if err != nil {
@@ -193,11 +173,6 @@ func (c *GoodsReportCase) SummaryGoodsDayReport(ctx context.Context, req *shopad
 
 // parseMonth 解析月份字符串并归一化到当月第一天。
 func (c *GoodsReportCase) parseMonth(month string) (time.Time, error) {
-	// 月份为空时，无法继续解析月报范围。
-	if month == "" {
-		return time.Time{}, errorsx.InvalidArgument("月份不能为空")
-	}
-
 	location := time.Now().Location()
 	parsedTime, err := time.ParseInLocation("2006-01", month, location)
 	if err != nil {
@@ -219,11 +194,6 @@ func (c *GoodsReportCase) appendMonthReportSummary(summary *shopadminv1.SummaryG
 
 // parseDate 解析日期字符串并归一化到当天零点。
 func (c *GoodsReportCase) parseDate(date string) (time.Time, error) {
-	// 日期为空时，无法继续解析日报范围。
-	if date == "" {
-		return time.Time{}, errorsx.InvalidArgument("日期不能为空")
-	}
-
 	location := time.Now().Location()
 	parsedTime, err := time.ParseInLocation("2006-01-02", date, location)
 	if err != nil {

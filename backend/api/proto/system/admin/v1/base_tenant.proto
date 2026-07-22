@@ -97,7 +97,7 @@ message PageBaseTenantResponse {
 
 // 查询租户请求参数
 message GetBaseTenantRequest {
-  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "租户ID"}, (buf.validate.field).cel = {id: "get_base_tenant.id.required" message: "租户ID不能为空" expression: "this > 0"}]; // 租户ID
 }
 
 // 创建租户请求参数
@@ -107,17 +107,19 @@ message CreateBaseTenantRequest {
 
 // 更新租户请求参数
 message UpdateBaseTenantRequest {
+  option (buf.validate.message).cel = {id: "update_base_tenant.id.required" message: "租户ID不能为空" expression: "this.base_tenant.id > 0"};
+
   BaseTenantForm base_tenant = 1 [(gnostic.openapi.v3.property) = {description: "租户表单"}, (buf.validate.field).required = true]; // 租户表单
 }
 
 // 删除租户请求参数
 message DeleteBaseTenantRequest {
-  string id = 1 [(gnostic.openapi.v3.property) = {description: "租户ID列表"}]; // 租户ID列表
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "租户ID列表"}, (buf.validate.field).cel = {id: "delete_base_tenant.id.required" message: "租户ID列表不能为空" expression: "this.size() > 0"}]; // 租户ID列表
 }
 
 // 设置租户状态请求参数
 message SetBaseTenantStatusRequest {
-  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "租户ID"}, (buf.validate.field).cel = {id: "set_base_tenant_status.id.required" message: "租户ID不能为空" expression: "this > 0"}]; // 租户ID
 
   int32 status = 2 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
 }

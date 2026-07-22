@@ -5,7 +5,6 @@ import (
 
 	shopappv1 "shop/api/gen/go/shop/app/v1"
 	"shop/pkg/biz"
-	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 	systemappbiz "shop/service/system/app/biz"
@@ -113,9 +112,6 @@ func (c *UserAddressCase) CreateUserAddress(ctx context.Context, userAddress *sh
 
 // UpdateUserAddress 更新用户地址
 func (c *UserAddressCase) UpdateUserAddress(ctx context.Context, userAddress *shopappv1.UserAddressForm) error {
-	if userAddress.GetId() <= 0 {
-		return errorsx.InvalidArgument("收货地址参数不合法")
-	}
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return err

@@ -522,17 +522,10 @@ func (c *OrderInfoCase) CreateOrderInfo(ctx context.Context, request *shopappv1.
 	if err != nil {
 		return nil, err
 	}
-	if request.PayType != shopcommonv1.OrderPayType_ONLINE_PAY && request.PayType != shopcommonv1.OrderPayType_CASH_ON_DELIVERY {
-		return nil, errorsx.InvalidArgument("支付方式无效")
-	}
 	payChannel := request.PayChannel
 	// 货到付款不归属线上支付渠道，避免统计时被错误计入微信或银联。
 	if request.PayType == shopcommonv1.OrderPayType_CASH_ON_DELIVERY {
 		payChannel = shopcommonv1.OrderPayChannel_UNKNOWN_OPC
-	} else if payChannel == shopcommonv1.OrderPayChannel_UNKNOWN_OPC {
-		return nil, errorsx.InvalidArgument("支付渠道不能为空")
-	} else if payChannel != shopcommonv1.OrderPayChannel_WX_PAY {
-		return nil, errorsx.InvalidArgument("当前仅支持微信支付")
 	}
 	tradeStatus := _const.ORDER_TRADE_STATUS_PENDING_PAYMENT
 	orderStatus := _const.ORDER_INFO_STATUS_NOT_STARTED
@@ -562,15 +555,9 @@ func (c *OrderInfoCase) CreateOrderInfo(ctx context.Context, request *shopappv1.
 		if storeOptions[goodsInfo.TenantStoreID] == nil {
 			return nil, errorsx.InvalidArgument("门店配送信息不能为空")
 		}
-		if storeOptions[goodsInfo.TenantStoreID].GetDeliveryTime() == shopcommonv1.OrderDeliveryTime_UNKNOWN_ODT {
-			return nil, errorsx.InvalidArgument("门店配送时间不能为空")
-		}
 		orderGoods.TenantStoreID = goodsInfo.TenantStoreID
 		orderGoodsByStore[goodsInfo.TenantStoreID] = append(orderGoodsByStore[goodsInfo.TenantStoreID], orderGoods)
 		storeTenantIDs[goodsInfo.TenantStoreID] = goodsInfo.TenantID
-	}
-	if len(orderGoodsByStore) == 0 {
-		return nil, errorsx.InvalidArgument("订单商品信息不能为空")
 	}
 
 	orderTrade := &models.OrderTrade{

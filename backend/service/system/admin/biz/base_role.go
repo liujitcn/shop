@@ -2,6 +2,7 @@ package biz
 
 import (
 	"context"
+	"errors"
 
 	commonv1 "shop/api/gen/go/common/v1"
 	systemadminv1 "shop/api/gen/go/system/admin/v1"
@@ -16,6 +17,7 @@ import (
 	"github.com/liujitcn/gorm-kit/repository"
 	authData "github.com/liujitcn/kratos-kit/auth/data"
 	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
+	"gorm.io/gorm"
 )
 
 // BaseRoleCase 角色业务实例
@@ -144,15 +146,25 @@ func (c *BaseRoleCase) CreateBaseRole(ctx context.Context, req *systemadminv1.Ba
 	}
 	baseRole.Menus = _string.ConvertInt64ArrayToString(req.GetMenus())
 	return c.tx.Transaction(ctx, func(ctx context.Context) error {
-		err = c.Create(ctx, baseRole)
-		if err != nil {
-			// 命中角色编码唯一索引冲突时，返回稳定的业务冲突错误。
-			if errorsx.IsMySQLDuplicateKey(err) {
-				return errorsx.UniqueConflict("角色编码重复", "base_role", "code", "unique_base_role").WithCause(err)
+		var restored bool
+		// 默认租户重新创建 tenant 模板时，恢复软删除记录以复用原角色编号。
+		if baseRole.Code == _const.BASE_ROLE_CODE_TENANT {
+			restored, err = c.restoreDeletedTenantRole(ctx, baseRole)
+			if err != nil {
+				return err
 			}
-			return err
 		}
-		// 创建默认 tenant 模板后，将菜单重新同步到普通租户副本。
+		if !restored {
+			err = c.Create(ctx, baseRole)
+			if err != nil {
+				// 命中角色编码唯一索引冲突时，返回稳定的业务冲突错误。
+				if errorsx.IsMySQLDuplicateKey(err) {
+					return errorsx.UniqueConflict("同一租户的角色编码重复", "base_role", "", "unique_base_role").WithCause(err)
+				}
+				return err
+			}
+		}
+		// 恢复或创建默认 tenant 模板后，将菜单重新同步到普通租户副本。
 		if baseRole.Code == _const.BASE_ROLE_CODE_TENANT {
 			return c.syncTenantRoleMenus(ctx, baseRole)
 		}
@@ -162,9 +174,6 @@ func (c *BaseRoleCase) CreateBaseRole(ctx context.Context, req *systemadminv1.Ba
 
 // UpdateBaseRole 更新角色
 func (c *BaseRoleCase) UpdateBaseRole(ctx context.Context, req *systemadminv1.BaseRoleForm) error {
-	if req.GetId() <= 0 {
-		return errorsx.InvalidArgument("角色参数不合法")
-	}
 	oldBaseRole, err := c.FindByID(ctx, req.GetId())
 	if err != nil {
 		return err
@@ -193,7 +202,7 @@ func (c *BaseRoleCase) UpdateBaseRole(ctx context.Context, req *systemadminv1.Ba
 		if err != nil {
 			// 命中角色编码唯一索引冲突时，返回稳定的业务冲突错误。
 			if errorsx.IsMySQLDuplicateKey(err) {
-				return errorsx.UniqueConflict("角色编码重复", "base_role", "code", "unique_base_role").WithCause(err)
+				return errorsx.UniqueConflict("同一租户的角色编码重复", "base_role", "", "unique_base_role").WithCause(err)
 			}
 			return err
 		}
@@ -318,7 +327,7 @@ func (c *BaseRoleCase) validateCreateBaseRole(ctx context.Context, baseRole *mod
 	if err != nil {
 		return err
 	}
-	// tenant 模板只允许默认租户在自己的租户范围内创建。
+	// tenant 模板只允许默认租户在自己的租户范围内创建或恢复。
 	if authInfo.TenantCode != databaseGorm.DefaultTenantCode || baseRole.TenantID != authInfo.TenantId {
 		return errorsx.ProtectedResourceConflict("创建角色失败，不能使用内置角色编码", "base_role")
 	}
@@ -370,6 +379,35 @@ func (c *BaseRoleCase) validateAssignableMenus(ctx context.Context, targetTenant
 		}
 	}
 	return nil
+}
+
+// restoreDeletedTenantRole 恢复默认租户已软删除的 tenant 模板。
+func (c *BaseRoleCase) restoreDeletedTenantRole(ctx context.Context, baseRole *models.BaseRole) (bool, error) {
+	query := c.Query(ctx).BaseRole
+	opts := make([]repository.QueryOption, 0, 3)
+	opts = append(opts, repository.Unscoped())
+	opts = append(opts, repository.Where(query.TenantID.Eq(baseRole.TenantID)))
+	opts = append(opts, repository.Where(query.Code.Eq(_const.BASE_ROLE_CODE_TENANT)))
+	deletedRole, err := c.Find(ctx, opts...)
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return false, nil
+	}
+	if err != nil {
+		return false, errorsx.Internal("恢复租户内置角色失败").WithCause(err)
+	}
+	if deletedRole.DeletedAt == 0 {
+		return false, nil
+	}
+
+	baseRole.ID = deletedRole.ID
+	baseRole.CreatedBy = deletedRole.CreatedBy
+	baseRole.CreatedAt = deletedRole.CreatedAt
+	baseRole.DeletedAt = 0
+	err = query.WithContext(ctx).Unscoped().Save(baseRole)
+	if err != nil {
+		return false, errorsx.Internal("恢复租户内置角色失败").WithCause(err)
+	}
+	return true, nil
 }
 
 // syncTenantRoleMenus 同步默认租户管理员角色菜单到所有租户副本并重建权限。

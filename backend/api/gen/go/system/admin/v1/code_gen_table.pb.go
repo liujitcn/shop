@@ -1097,14 +1097,16 @@ const file_system_admin_v1_code_gen_table_proto_rawDesc = "" +
 	"\x06tables\x18\x01 \x03(\v2%.system.admin.v1.CodeGenDatabaseTableB\x18\xbaG\x15\x92\x02\x12数据库表列表R\x06tables\"\"\n" +
 	" ListCodeGenProtoDirectoryRequest\"\x86\x01\n" +
 	"!ListCodeGenProtoDirectoryResponse\x12a\n" +
-	"\vdirectories\x18\x01 \x03(\v2&.system.admin.v1.CodeGenProtoDirectoryB\x17\xbaG\x14\x92\x02\x11Proto目录列表R\vdirectories\"8\n" +
-	"\x16GetCodeGenTableRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键IDR\x02id\"\xac\x13\n" +
+	"\vdirectories\x18\x01 \x03(\v2&.system.admin.v1.CodeGenProtoDirectoryB\x17\xbaG\x14\x92\x02\x11Proto目录列表R\vdirectories\"~\n" +
+	"\x16GetCodeGenTableRequest\x12d\n" +
+	"\x02id\x18\x01 \x01(\x03BT\xbaG\v\x92\x02\b主键ID\xbaHC\xba\x01@\n" +
+	"\x1eget_code_gen_table.id.required\x12\x14主键ID不能为空\x1a\bthis > 0R\x02id\"\xca\x14\n" +
 	"\x10CodeGenTableForm\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键IDR\x02id\x12\xc0\x01\n" +
-	"\x04name\x18\x02 \x01(\tB\xab\x01\xbaG\x0f\x92\x02\f业务表名\xbaH\x95\x01\xba\x01@\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键IDR\x02id\x12\x97\x02\n" +
+	"\x04name\x18\x02 \x01(\tB\x82\x02\xbaG\x0f\x92\x02\f业务表名\xbaH\xec\x01\xba\x01@\n" +
 	"\x13field.name.required\x12\x18业务表名不能为空\x1a\x0fthis.size() > 0\xba\x01O\n" +
-	"\x11field.name.length\x12&业务表名不能超过 128 个字符\x1a\x12this.size() <= 128R\x04name\x12\x8a\x01\n" +
+	"\x11field.name.length\x12&业务表名不能超过 128 个字符\x1a\x12this.size() <= 128\xba\x01T\n" +
+	"\x12field.name.pattern\x12\x1b业务表名格式不正确\x1a!this.matches('^[a-z][a-z0-9_]*$')R\x04name\x12\x8a\x01\n" +
 	"\acomment\x18\x03 \x01(\tBp\xbaG\x12\x92\x02\x0f业务表描述\xbaHX\xba\x01U\n" +
 	"\x14field.comment.length\x12)业务表描述不能超过 128 个字符\x1a\x12this.size() <= 128R\acomment\x12\xd8\x01\n" +
 	"\rbusiness_name\x18\x04 \x01(\tB\xb2\x01\xbaG\f\x92\x02\t业务名\xbaH\x9f\x01\xba\x01F\n" +
@@ -1121,8 +1123,9 @@ const file_system_admin_v1_code_gen_table_proto_rawDesc = "" +
 	"\bapi_path\x18\a \x01(\tBi\xbaG\x0e\x92\x02\vProto目录\xbaHU\xba\x01R\n" +
 	"\x15field.api_path.length\x12%Proto目录不能超过 512 个字符\x1a\x12this.size() <= 512R\aapiPath\x12\xae\x01\n" +
 	"\x11permission_prefix\x18\b \x01(\tB\x80\x01\xbaG\x15\x92\x02\x12权限标识前缀\xbaHe\xba\x01b\n" +
-	"\x1efield.permission_prefix.length\x12,权限标识前缀不能超过 128 个字符\x1a\x12this.size() <= 128R\x10permissionPrefix\x12:\n" +
-	"\x0eparent_menu_id\x18\t \x01(\x03B\x14\xbaG\x11\x92\x02\x0e父级菜单IDR\fparentMenuId\x12\x8d\x02\n" +
+	"\x1efield.permission_prefix.length\x12,权限标识前缀不能超过 128 个字符\x1a\x12this.size() <= 128R\x10permissionPrefix\x12\x80\x01\n" +
+	"\x0eparent_menu_id\x18\t \x01(\x03BZ\xbaG\x11\x92\x02\x0e父级菜单ID\xbaHC\xba\x01@\n" +
+	"\x1dfield.parent_menu_id.required\x12\x15请选择父级菜单\x1a\bthis > 0R\fparentMenuId\x12\x8d\x02\n" +
 	"\tpage_type\x18\n" +
 	" \x01(\tB\xef\x01\xbaGK\x92\x02H页面类型：normal普通表格 tree树形表格 left_tree左树右表\xbaH\x9d\x01\xba\x01E\n" +
 	"\x18field.page_type.required\x12\x18页面类型不能为空\x1a\x0fthis.size() > 0\xba\x01R\n" +
@@ -1138,12 +1141,13 @@ const file_system_admin_v1_code_gen_table_proto_rawDesc = "" +
 	"\agen_sql\x18\x10 \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否生成建表SQLR\x06genSql\x12$\n" +
 	"\x06status\x18\x11 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\x12u\n" +
 	"\x06remark\x18\x12 \x01(\tB]\xbaG\t\x92\x02\x06备注\xbaHN\xba\x01K\n" +
-	"\x13field.remark.length\x12 备注不能超过 500 个字符\x1a\x12this.size() <= 500R\x06remark\"\x87\x01\n" +
-	"\x19CreateCodeGenTableRequest\x12j\n" +
-	"\x0ecode_gen_table\x18\x01 \x01(\v2!.system.admin.v1.CodeGenTableFormB!\xbaG\x1e\x92\x02\x1b代码生成表配置表单R\fcodeGenTable\"\xa7\x01\n" +
-	"\x19UpdateCodeGenTableRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键IDR\x02id\x12j\n" +
-	"\x0ecode_gen_table\x18\x02 \x01(\v2!.system.admin.v1.CodeGenTableFormB!\xbaG\x1e\x92\x02\x1b代码生成表配置表单R\fcodeGenTable\"j\n" +
+	"\x13field.remark.length\x12 备注不能超过 500 个字符\x1a\x12this.size() <= 500R\x06remark\"\x8d\x01\n" +
+	"\x19CreateCodeGenTableRequest\x12p\n" +
+	"\x0ecode_gen_table\x18\x01 \x01(\v2!.system.admin.v1.CodeGenTableFormB'\xbaG\x1e\x92\x02\x1b代码生成表配置表单\xbaH\x03\xc8\x01\x01R\fcodeGenTable\"\xf6\x01\n" +
+	"\x19UpdateCodeGenTableRequest\x12g\n" +
+	"\x02id\x18\x01 \x01(\x03BW\xbaG\v\x92\x02\b主键ID\xbaHF\xba\x01C\n" +
+	"!update_code_gen_table.id.required\x12\x14主键ID不能为空\x1a\bthis > 0R\x02id\x12p\n" +
+	"\x0ecode_gen_table\x18\x02 \x01(\v2!.system.admin.v1.CodeGenTableFormB'\xbaG\x1e\x92\x02\x1b代码生成表配置表单\xbaH\x03\xc8\x01\x01R\fcodeGenTable\"j\n" +
 	"\x19DeleteCodeGenTableRequest\x12M\n" +
 	"\x03ids\x18\x01 \x01(\tB;\xbaG8\x92\x025代码生成表配置ID列表，多个用逗号分隔R\x03ids\"\xd2\x03\n" +
 	"\x14CodeGenDatabaseTable\x12)\n" +

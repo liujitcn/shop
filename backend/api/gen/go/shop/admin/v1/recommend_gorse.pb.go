@@ -12,6 +12,7 @@ import (
 	sync "sync"
 	unsafe "unsafe"
 
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -4333,7 +4334,7 @@ var File_shop_admin_v1_recommend_gorse_proto protoreflect.FileDescriptor
 
 const file_shop_admin_v1_recommend_gorse_proto_rawDesc = "" +
 	"\n" +
-	"#shop/admin/v1/recommend_gorse.proto\x12\rshop.admin.v1\x1a\x19shop/common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x17\n" +
+	"#shop/admin/v1/recommend_gorse.proto\x12\rshop.admin.v1\x1a\x19shop/common/v1/enum.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x17\n" +
 	"\x15OptionCategoryRequest\"L\n" +
 	"\x16OptionCategoryResponse\x122\n" +
 	"\n" +
@@ -4539,9 +4540,10 @@ const file_shop_admin_v1_recommend_gorse_proto_rawDesc = "" +
 	"\rembedding_rpm\x18\b \x01(\x05B!\xbaG\x1e\x92\x02\x1bEmbedding每分钟请求数R\rembedding_rpm\x12F\n" +
 	"\rembedding_tpm\x18\t \x01(\x05B \xbaG\x1d\x92\x02\x1aEmbedding每分钟Token数R\rembedding_tpm\x12.\n" +
 	"\blog_file\x18\n" +
-	" \x01(\tB\x12\xbaG\x0f\x92\x02\f日志文件R\blog_file\"4\n" +
-	"\x0eGetItemRequest\x12\"\n" +
-	"\x02id\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f商品编号R\x02id\"\xd6\x02\n" +
+	" \x01(\tB\x12\xbaG\x0f\x92\x02\f日志文件R\blog_file\"{\n" +
+	"\x0eGetItemRequest\x12i\n" +
+	"\x02id\x18\x01 \x01(\tBY\xbaG\x0f\x92\x02\f商品编号\xbaHD\xba\x01A\n" +
+	"\x14get_item.id.required\x12\x18商品编号不能为空\x1a\x0fthis.size() > 0R\x02id\"\xd6\x02\n" +
 	"\x04Item\x12+\n" +
 	"\aitem_id\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f商品编号R\x06ItemId\x12/\n" +
 	"\tis_hidden\x18\x02 \x01(\bB\x12\xbaG\x0f\x92\x02\f是否隐藏R\bIsHidden\x122\n" +
@@ -4551,73 +4553,89 @@ const file_shop_admin_v1_recommend_gorse_proto_rawDesc = "" +
 	"\ttimestamp\x18\x04 \x01(\tB\f\xbaG\t\x92\x02\x06时间R\tTimestamp\x12D\n" +
 	"\x06labels\x18\x05 \x01(\v2\x18.shop.admin.v1.ItemLabelB\x12\xbaG\x0f\x92\x02\f标签信息R\x06Labels\x12&\n" +
 	"\acomment\x18\x06 \x01(\tB\f\xbaG\t\x92\x02\x06备注R\aComment\x12\"\n" +
-	"\x05score\x18\a \x01(\x01B\f\xbaG\t\x92\x02\x06分数R\x05Score\"\x9e\x01\n" +
-	"\x15GetItemSimilarRequest\x12\"\n" +
-	"\x02id\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f商品编号R\x02id\x127\n" +
+	"\x05score\x18\a \x01(\x01B\f\xbaG\t\x92\x02\x06分数R\x05Score\"\xed\x01\n" +
+	"\x15GetItemSimilarRequest\x12q\n" +
+	"\x02id\x18\x01 \x01(\tBa\xbaG\x0f\x92\x02\f商品编号\xbaHL\xba\x01I\n" +
+	"\x1cget_item_similar.id.required\x12\x18商品编号不能为空\x1a\x0fthis.size() > 0R\x02id\x127\n" +
 	"\vrecommender\x18\x02 \x01(\tB\x15\xbaG\x12\x92\x02\x0f推荐器名称R\vrecommender\x12(\n" +
 	"\bcategory\x18\x03 \x01(\tB\f\xbaG\t\x92\x02\x06分类R\bcategory\"Q\n" +
 	"\x10ItemListResponse\x12=\n" +
-	"\x05items\x18\x01 \x03(\v2\x13.shop.admin.v1.ItemB\x12\xbaG\x0f\x92\x02\f商品列表R\x05Items\"\x88\x01\n" +
-	"\x14GetTimeSeriesRequest\x12 \n" +
-	"\x04name\x18\x01 \x01(\tB\f\xbaG\t\x92\x02\x06名称R\x04name\x12(\n" +
+	"\x05items\x18\x01 \x03(\v2\x13.shop.admin.v1.ItemB\x12\xbaG\x0f\x92\x02\f商品列表R\x05Items\"\xd8\x01\n" +
+	"\x14GetTimeSeriesRequest\x12p\n" +
+	"\x04name\x18\x01 \x01(\tB\\\xbaG\t\x92\x02\x06名称\xbaHM\xba\x01J\n" +
+	"\x1dget_time_series.name.required\x12\x18指标名称不能为空\x1a\x0fthis.size() > 0R\x04name\x12(\n" +
 	"\x05begin\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f开始时间R\x05begin\x12$\n" +
 	"\x03end\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f结束时间R\x03end\"i\n" +
 	"\x12TimeSeriesResponse\x12S\n" +
-	"\x06points\x18\x01 \x03(\v2\x1e.shop.admin.v1.TimeSeriesPointB\x1b\xbaG\x18\x92\x02\x15时间序列点列表R\x06Points\"4\n" +
-	"\x0eGetUserRequest\x12\"\n" +
-	"\x02id\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户编号R\x02id\"\xd5\x02\n" +
+	"\x06points\x18\x01 \x03(\v2\x1e.shop.admin.v1.TimeSeriesPointB\x1b\xbaG\x18\x92\x02\x15时间序列点列表R\x06Points\"{\n" +
+	"\x0eGetUserRequest\x12i\n" +
+	"\x02id\x18\x01 \x01(\tBY\xbaG\x0f\x92\x02\f用户编号\xbaHD\xba\x01A\n" +
+	"\x14get_user.id.required\x12\x18用户编号不能为空\x1a\x0fthis.size() > 0R\x02id\"\xd5\x02\n" +
 	"\fUserResponse\x12+\n" +
 	"\auser_id\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户编号R\x06UserId\x12D\n" +
 	"\x06labels\x18\x02 \x01(\v2\x18.shop.admin.v1.UserLabelB\x12\xbaG\x0f\x92\x02\f标签信息R\x06Labels\x12&\n" +
 	"\acomment\x18\x03 \x01(\tB\f\xbaG\t\x92\x02\x06备注R\aComment\x12B\n" +
 	"\x10last_active_time\x18\x04 \x01(\tB\x18\xbaG\x15\x92\x02\x12最后活跃时间R\x0eLastActiveTime\x12B\n" +
 	"\x10last_update_time\x18\x05 \x01(\tB\x18\xbaG\x15\x92\x02\x12最后更新时间R\x0eLastUpdateTime\x12\"\n" +
-	"\x05score\x18\x06 \x01(\x01B\f\xbaG\t\x92\x02\x06分数R\x05Score\"\xc1\x01\n" +
-	"\x16GetUserFeedbackRequest\x12\"\n" +
-	"\x02id\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户编号R\x02id\x128\n" +
+	"\x05score\x18\x06 \x01(\x01B\f\xbaG\t\x92\x02\x06分数R\x05Score\"\x91\x02\n" +
+	"\x16GetUserFeedbackRequest\x12r\n" +
+	"\x02id\x18\x01 \x01(\tBb\xbaG\x0f\x92\x02\f用户编号\xbaHM\xba\x01J\n" +
+	"\x1dget_user_feedback.id.required\x12\x18用户编号不能为空\x1a\x0fthis.size() > 0R\x02id\x128\n" +
 	"\rfeedback_type\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f反馈类型R\rfeedback_type\x12'\n" +
 	"\x06offset\x18\x03 \x01(\x05B\x0f\xbaG\f\x92\x02\t偏移量R\x06offset\x12 \n" +
 	"\x01n\x18\x04 \x01(\x05B\x12\xbaG\x0f\x92\x02\f查询数量R\x01n\"[\n" +
 	"\x10FeedbackResponse\x12G\n" +
-	"\bfeedback\x18\x01 \x03(\v2\x17.shop.admin.v1.FeedbackB\x12\xbaG\x0f\x92\x02\f反馈列表R\bFeedback\"\xc2\x01\n" +
-	"\x17GetUserRecommendRequest\x12\"\n" +
-	"\x02id\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户编号R\x02id\x127\n" +
+	"\bfeedback\x18\x01 \x03(\v2\x17.shop.admin.v1.FeedbackB\x12\xbaG\x0f\x92\x02\f反馈列表R\bFeedback\"\x93\x02\n" +
+	"\x17GetUserRecommendRequest\x12s\n" +
+	"\x02id\x18\x01 \x01(\tBc\xbaG\x0f\x92\x02\f用户编号\xbaHN\xba\x01K\n" +
+	"\x1eget_user_recommend.id.required\x12\x18用户编号不能为空\x1a\x0fthis.size() > 0R\x02id\x127\n" +
 	"\vrecommender\x18\x02 \x01(\tB\x15\xbaG\x12\x92\x02\x0f推荐器名称R\vrecommender\x12(\n" +
 	"\bcategory\x18\x03 \x01(\tB\f\xbaG\t\x92\x02\x06分类R\bcategory\x12 \n" +
-	"\x01n\x18\x04 \x01(\x05B\x12\xbaG\x0f\x92\x02\f查询数量R\x01n\"\x9e\x01\n" +
-	"\x15GetUserSimilarRequest\x12\"\n" +
-	"\x02id\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户编号R\x02id\x127\n" +
+	"\x01n\x18\x04 \x01(\x05B\x12\xbaG\x0f\x92\x02\f查询数量R\x01n\"\xed\x01\n" +
+	"\x15GetUserSimilarRequest\x12q\n" +
+	"\x02id\x18\x01 \x01(\tBa\xbaG\x0f\x92\x02\f用户编号\xbaHL\xba\x01I\n" +
+	"\x1cget_user_similar.id.required\x12\x18用户编号不能为空\x1a\x0fthis.size() > 0R\x02id\x127\n" +
 	"\vrecommender\x18\x02 \x01(\tB\x15\xbaG\x12\x92\x02\x0f推荐器名称R\vrecommender\x12(\n" +
 	"\bcategory\x18\x03 \x01(\tB\f\xbaG\t\x92\x02\x06分类R\bcategory\"b\n" +
 	"\x13UserSimilarResponse\x12K\n" +
-	"\x05users\x18\x01 \x03(\v2\x1b.shop.admin.v1.UserResponseB\x18\xbaG\x15\x92\x02\x12相似用户列表R\x05Users\"7\n" +
-	"\x11DeleteItemRequest\x12\"\n" +
-	"\x02id\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f商品编号R\x02id\"7\n" +
-	"\x11DeleteUserRequest\x12\"\n" +
-	"\x02id\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户编号R\x02id\"\x83\x01\n" +
-	"\x11ExportDataRequest\x12n\n" +
-	"\tdata_type\x18\x01 \x01(\x0e2\x1f.shop.common.v1.AdvanceDataTypeB0\xbaG-\x92\x02*数据类型：枚举【AdvanceDataType】R\bdataType\"u\n" +
+	"\x05users\x18\x01 \x03(\v2\x1b.shop.admin.v1.UserResponseB\x18\xbaG\x15\x92\x02\x12相似用户列表R\x05Users\"\x81\x01\n" +
+	"\x11DeleteItemRequest\x12l\n" +
+	"\x02id\x18\x01 \x01(\tB\\\xbaG\x0f\x92\x02\f商品编号\xbaHG\xba\x01D\n" +
+	"\x17delete_item.id.required\x12\x18商品编号不能为空\x1a\x0fthis.size() > 0R\x02id\"\x81\x01\n" +
+	"\x11DeleteUserRequest\x12l\n" +
+	"\x02id\x18\x01 \x01(\tB\\\xbaG\x0f\x92\x02\f用户编号\xbaHG\xba\x01D\n" +
+	"\x17delete_user.id.required\x12\x18用户编号不能为空\x1a\x0fthis.size() > 0R\x02id\"\xdb\x01\n" +
+	"\x11ExportDataRequest\x12\xc5\x01\n" +
+	"\tdata_type\x18\x01 \x01(\x0e2\x1f.shop.common.v1.AdvanceDataTypeB\x86\x01\xbaG-\x92\x02*数据类型：枚举【AdvanceDataType】\xbaHS\xba\x01K\n" +
+	"\x1eexport_data.data_type.required\x12\x1e导出数据类型不能为空\x1a\tthis != 0\x82\x01\x02\x10\x01R\bdataType\"u\n" +
 	"\x12ExportDataResponse\x12,\n" +
 	"\tfile_name\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t文件名R\bfileName\x121\n" +
-	"\acontent\x18\x02 \x01(\tB\x17\xbaG\x14\x92\x02\x11JSONL文件内容R\acontent\"\xe4\x01\n" +
-	"\x11ImportDataRequest\x12n\n" +
-	"\tdata_type\x18\x01 \x01(\x0e2\x1f.shop.common.v1.AdvanceDataTypeB0\xbaG-\x92\x02*数据类型：枚举【AdvanceDataType】R\bdataType\x12,\n" +
-	"\tfile_name\x18\x02 \x01(\tB\x0f\xbaG\f\x92\x02\t文件名R\bfileName\x121\n" +
-	"\acontent\x18\x03 \x01(\tB\x17\xbaG\x14\x92\x02\x11JSONL文件内容R\acontent\"S\n" +
+	"\acontent\x18\x02 \x01(\tB\x17\xbaG\x14\x92\x02\x11JSONL文件内容R\acontent\"\x92\x03\n" +
+	"\x11ImportDataRequest\x12\xc5\x01\n" +
+	"\tdata_type\x18\x01 \x01(\x0e2\x1f.shop.common.v1.AdvanceDataTypeB\x86\x01\xbaG-\x92\x02*数据类型：枚举【AdvanceDataType】\xbaHS\xba\x01K\n" +
+	"\x1eimport_data.data_type.required\x12\x1e导入数据类型不能为空\x1a\tthis != 0\x82\x01\x02\x10\x01R\bdataType\x12,\n" +
+	"\tfile_name\x18\x02 \x01(\tB\x0f\xbaG\f\x92\x02\t文件名R\bfileName\x12\x86\x01\n" +
+	"\acontent\x18\x03 \x01(\tBl\xbaG\x14\x92\x02\x11JSONL文件内容\xbaHR\xba\x01O\n" +
+	"\x1cimport_data.content.required\x12\x1e导入文件内容不能为空\x1a\x0fthis.size() > 0R\acontent\"S\n" +
 	"\x12ImportDataResponse\x12=\n" +
 	"\rsuccess_count\x18\x01 \x01(\x05B\x18\xbaG\x15\x92\x02\x12成功导入数量R\fsuccessCount\"d\n" +
 	"\x11SaveConfigRequest\x12O\n" +
 	"\x06config\x18\x01 \x01(\v2\x1d.shop.admin.v1.ConfigResponseB\x18\xbaG\x15\x92\x02\x12Gorse 推荐配置R\x06config\"\x14\n" +
-	"\x12ResetConfigRequest\"w\n" +
-	"\x16PreviewExternalRequest\x12+\n" +
-	"\auser_id\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户编号R\x06userId\x120\n" +
-	"\x06script\x18\x02 \x01(\tB\x18\xbaG\x15\x92\x02\x12外部推荐脚本R\x06script\"O\n" +
+	"\x12ResetConfigRequest\"\xa5\x02\n" +
+	"\x16PreviewExternalRequest\x12\x7f\n" +
+	"\auser_id\x18\x01 \x01(\tBf\xbaG\x0f\x92\x02\f用户编号\xbaHQ\xba\x01N\n" +
+	"!preview_external.user_id.required\x12\x18用户编号不能为空\x1a\x0fthis.size() > 0R\x06userId\x12\x89\x01\n" +
+	"\x06script\x18\x02 \x01(\tBq\xbaG\x15\x92\x02\x12外部推荐脚本\xbaHV\xba\x01S\n" +
+	" preview_external.script.required\x12\x1e外部推荐脚本不能为空\x1a\x0fthis.size() > 0R\x06script\"O\n" +
 	"\x17PreviewExternalResponse\x124\n" +
-	"\x05items\x18\x01 \x03(\tB\x1e\xbaG\x1b\x92\x02\x18推荐商品编号列表R\x05items\"\xc5\x01\n" +
-	"\x1aPreviewRankerPromptRequest\x12+\n" +
-	"\auser_id\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户编号R\x06userId\x129\n" +
-	"\x0equery_template\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f查询模板R\rqueryTemplate\x12?\n" +
-	"\x11document_template\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f文档模板R\x10documentTemplate\"\x85\x01\n" +
+	"\x05items\x18\x01 \x03(\tB\x1e\xbaG\x1b\x92\x02\x18推荐商品编号列表R\x05items\"\xe4\x03\n" +
+	"\x1aPreviewRankerPromptRequest\x12\x84\x01\n" +
+	"\auser_id\x18\x01 \x01(\tBk\xbaG\x0f\x92\x02\f用户编号\xbaHV\xba\x01S\n" +
+	"&preview_ranker_prompt.user_id.required\x12\x18用户编号不能为空\x1a\x0fthis.size() > 0R\x06userId\x12\x99\x01\n" +
+	"\x0equery_template\x18\x02 \x01(\tBr\xbaG\x0f\x92\x02\f查询模板\xbaH]\xba\x01Z\n" +
+	"-preview_ranker_prompt.query_template.required\x12\x18查询模板不能为空\x1a\x0fthis.size() > 0R\rqueryTemplate\x12\xa2\x01\n" +
+	"\x11document_template\x18\x03 \x01(\tBu\xbaG\x0f\x92\x02\f文档模板\xbaH`\xba\x01]\n" +
+	"0preview_ranker_prompt.document_template.required\x12\x18文档模板不能为空\x1a\x0fthis.size() > 0R\x10documentTemplate\"\x85\x01\n" +
 	"\x1bPreviewRankerPromptResponse\x12+\n" +
 	"\x05query\x18\x01 \x01(\tB\x15\xbaG\x12\x92\x02\x0f查询提示词R\x05query\x129\n" +
 	"\tdocuments\x18\x02 \x03(\tB\x1b\xbaG\x18\x92\x02\x15文档提示词列表R\tdocuments\"\x83\x01\n" +

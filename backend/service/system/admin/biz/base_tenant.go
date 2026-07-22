@@ -182,9 +182,6 @@ func (c *BaseTenantCase) CreateBaseTenant(ctx context.Context, req *systemadminv
 
 // UpdateBaseTenant 更新租户。
 func (c *BaseTenantCase) UpdateBaseTenant(ctx context.Context, req *systemadminv1.BaseTenantForm) error {
-	if req.GetId() <= 0 {
-		return errorsx.InvalidArgument("租户参数不合法")
-	}
 	oldBaseTenant, err := c.FindByID(ctx, req.GetId())
 	if err != nil {
 		return err
@@ -350,7 +347,7 @@ func (c *BaseTenantCase) initTenantDefaults(ctx context.Context, baseTenant *mod
 	if err != nil {
 		// 命中角色编码唯一索引冲突时，返回稳定的业务冲突错误。
 		if errorsx.IsMySQLDuplicateKey(err) {
-			return errorsx.UniqueConflict("角色编码重复", "base_role", "code", "unique_base_role").WithCause(err)
+			return errorsx.UniqueConflict("同一租户的角色编码重复", "base_role", "", "unique_base_role").WithCause(err)
 		}
 		return errorsx.Internal("初始化租户管理员角色失败").WithCause(err)
 	}
@@ -377,7 +374,7 @@ func (c *BaseTenantCase) initTenantDefaults(ctx context.Context, baseTenant *mod
 	if err != nil {
 		// 命中用户账号唯一索引冲突时，返回稳定的业务冲突错误。
 		if errorsx.IsMySQLDuplicateKey(err) {
-			return errorsx.UniqueConflict("用户账号重复", "base_user", "user_name", "unique_base_user").WithCause(err)
+			return errorsx.UniqueConflict("同一租户的用户账号重复", "base_user", "", "unique_base_user").WithCause(err)
 		}
 		return errorsx.Internal("初始化租户管理员账号失败").WithCause(err)
 	}

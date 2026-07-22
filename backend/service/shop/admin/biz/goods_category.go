@@ -8,7 +8,6 @@ import (
 	commonv1 "shop/api/gen/go/common/v1"
 	shopadminv1 "shop/api/gen/go/shop/admin/v1"
 	"shop/pkg/biz"
-	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 
@@ -94,9 +93,6 @@ func (c *GoodsCategoryCase) CreateGoodsCategory(ctx context.Context, req *shopad
 
 // UpdateGoodsCategory 更新分类
 func (c *GoodsCategoryCase) UpdateGoodsCategory(ctx context.Context, req *shopadminv1.GoodsCategoryForm) error {
-	if req.GetId() <= 0 {
-		return errorsx.InvalidArgument("商品分类参数不合法")
-	}
 	goodsCategory, err := c.FindByID(ctx, req.GetId())
 	if err != nil {
 		return err

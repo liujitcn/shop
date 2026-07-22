@@ -104,11 +104,6 @@ func (c *CommentDiscussionCase) CreateDiscussion(
 	user *models.BaseUser,
 	req *shopappv1.CreateCommentDiscussionRequest,
 ) (*models.CommentDiscussion, error) {
-	// 讨论内容为空时，不允许创建空讨论。
-	if req.GetContent() == "" {
-		return nil, errorsx.InvalidArgument("讨论内容不能为空")
-	}
-
 	userID := int64(0)
 	userName := ANONYMOUS_USER_NAME
 	userAvatar := ""

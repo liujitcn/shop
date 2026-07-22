@@ -12,6 +12,7 @@ import (
 	sync "sync"
 	unsafe "unsafe"
 
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -1788,7 +1789,7 @@ var File_shop_admin_v1_order_info_proto protoreflect.FileDescriptor
 
 const file_shop_admin_v1_order_info_proto_rawDesc = "" +
 	"\n" +
-	"\x1eshop/admin/v1/order_info.proto\x12\rshop.admin.v1\x1a\x19shop/common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x8b\b\n" +
+	"\x1eshop/admin/v1/order_info.proto\x12\rshop.admin.v1\x1a\x19shop/common/v1/enum.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x8b\b\n" +
 	"\x14PageOrderInfoRequest\x120\n" +
 	"\ttenant_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12A\n" +
 	"\x0ftenant_store_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDH\x01R\rtenantStoreId\x88\x01\x01\x12-\n" +
@@ -1832,23 +1833,30 @@ const file_shop_admin_v1_order_info_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单IDR\x02id\"\xac\x01\n" +
 	"\x17OrderInfoRefundResponse\x12I\n" +
 	"\apayment\x18h \x01(\v2\x1b.shop.admin.v1.OrderPaymentB\x12\xbaG\x0f\x92\x02\f支付信息R\apayment\x12F\n" +
-	"\x06refund\x18i \x03(\v2\x1a.shop.admin.v1.OrderRefundB\x12\xbaG\x0f\x92\x02\f退款信息R\x06refund\"=\n" +
-	"\x1bGetOrderInfoShipmentRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单IDR\x02id\"\xf8\x01\n" +
+	"\x06refund\x18i \x03(\v2\x1a.shop.admin.v1.OrderRefundB\x12\xbaG\x0f\x92\x02\f退款信息R\x06refund\"\x88\x01\n" +
+	"\x1bGetOrderInfoShipmentRequest\x12i\n" +
+	"\x02id\x18\x01 \x01(\x03BY\xbaG\v\x92\x02\b订单ID\xbaHH\xba\x01E\n" +
+	"#get_order_info_shipment.id.required\x12\x14订单ID不能为空\x1a\bthis > 0R\x02id\"\xf8\x01\n" +
 	"\x15OrderInfoShipmentForm\x12I\n" +
 	"\aaddress\x18d \x01(\v2\x1b.shop.admin.v1.OrderAddressB\x12\xbaG\x0f\x92\x02\f地址信息R\aaddress\x12C\n" +
 	"\x05goods\x18f \x03(\v2\x19.shop.admin.v1.OrderGoodsB\x12\xbaG\x0f\x92\x02\f商品信息R\x05goods\x12O\n" +
-	"\tlogistics\x18g \x01(\v2\x1d.shop.admin.v1.OrderLogisticsB\x12\xbaG\x0f\x92\x02\f物流信息R\tlogistics\"\xf9\x01\n" +
-	"\x16RefundOrderInfoRequest\x12)\n" +
-	"\border_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单idR\aorderId\x12r\n" +
-	"\x06reason\x18\x02 \x01(\x0e2!.shop.common.v1.OrderRefundReasonB2\xbaG/\x92\x02,退款原因：枚举【OrderRefundReason】H\x00R\x06reason\x88\x01\x01\x125\n" +
-	"\frefund_money\x18\x03 \x01(\x03B\x12\xbaG\x0f\x92\x02\f退款金额R\vrefundMoneyB\t\n" +
-	"\a_reason\"\xbe\x01\n" +
-	"\x14ShipOrderInfoRequest\x12)\n" +
-	"\border_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单idR\aorderId\x12)\n" +
-	"\x04name\x18\x02 \x01(\tB\x15\xbaG\x12\x92\x02\x0f物流公司名R\x04name\x12\"\n" +
-	"\x02no\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f物流单号R\x02no\x12,\n" +
-	"\acontact\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f联系方式R\acontact\"\xd4\v\n" +
+	"\tlogistics\x18g \x01(\v2\x1d.shop.admin.v1.OrderLogisticsB\x12\xbaG\x0f\x92\x02\f物流信息R\tlogistics\"\xa2\x03\n" +
+	"\x16RefundOrderInfoRequest\x12t\n" +
+	"\border_id\x18\x01 \x01(\x03BY\xbaG\v\x92\x02\b订单id\xbaHH\xba\x01E\n" +
+	"#refund_order_info.order_id.required\x12\x14订单ID不能为空\x1a\bthis > 0R\aorderId\x12z\n" +
+	"\x06reason\x18\x02 \x01(\x0e2!.shop.common.v1.OrderRefundReasonB:\xbaG/\x92\x02,退款原因：枚举【OrderRefundReason】\xbaH\x05\x82\x01\x02\x10\x01H\x00R\x06reason\x88\x01\x01\x12\x8a\x01\n" +
+	"\frefund_money\x18\x03 \x01(\x03Bg\xbaG\x0f\x92\x02\f退款金额\xbaHR\xba\x01O\n" +
+	"'refund_order_info.refund_money.required\x12\x1a退款金额必须大于 0\x1a\bthis > 0R\vrefundMoneyB\t\n" +
+	"\a_reason\"\xfb\x03\n" +
+	"\x14ShipOrderInfoRequest\x12r\n" +
+	"\border_id\x18\x01 \x01(\x03BW\xbaG\v\x92\x02\b订单id\xbaHF\xba\x01C\n" +
+	"!ship_order_info.order_id.required\x12\x14订单ID不能为空\x1a\bthis > 0R\aorderId\x12|\n" +
+	"\x04name\x18\x02 \x01(\tBh\xbaG\x12\x92\x02\x0f物流公司名\xbaHP\xba\x01M\n" +
+	"\x1dship_order_info.name.required\x12\x1b物流公司名不能为空\x1a\x0fthis.size() > 0R\x04name\x12p\n" +
+	"\x02no\x18\x03 \x01(\tB`\xbaG\x0f\x92\x02\f物流单号\xbaHK\xba\x01H\n" +
+	"\x1bship_order_info.no.required\x12\x18物流单号不能为空\x1a\x0fthis.size() > 0R\x02no\x12\x7f\n" +
+	"\acontact\x18\x04 \x01(\tBe\xbaG\x0f\x92\x02\f联系方式\xbaHP\xba\x01M\n" +
+	" ship_order_info.contact.required\x12\x18联系方式不能为空\x1a\x0fthis.size() > 0R\acontact\"\xd4\v\n" +
 	"\tOrderInfo\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单idR\x02id\x12,\n" +
 	"\btrade_id\x18\x02 \x01(\x03B\x11\xbaG\x0e\x92\x02\v交易单IDR\atradeId\x12+\n" +

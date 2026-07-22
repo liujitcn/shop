@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"math/rand/v2"
-	"regexp"
 	"time"
 
 	commonv1 "shop/api/gen/go/common/v1"
@@ -28,8 +27,6 @@ import (
 
 // UPDATE_PHONE_CODE_CACHE_PREFIX 表示修改手机号验证码缓存前缀。
 const UPDATE_PHONE_CODE_CACHE_PREFIX = "admin:update:phone:code:"
-
-var phoneRegexp = regexp.MustCompile(`^1[3-9]\d{9}$`)
 
 // AuthCase 认证业务实例
 type AuthCase struct {
@@ -315,15 +312,6 @@ func (c *AuthCase) UpdateUserPhone(ctx context.Context, req *systemadminv1.UserP
 	if err != nil {
 		return err
 	}
-	// 手机号格式非法时，不允许继续修改。
-	if !phoneRegexp.MatchString(req.GetPhone()) {
-		return errorsx.InvalidArgument("手机号格式错误")
-	}
-	// 验证码为空时，不允许继续修改。
-	if req.GetCode() == "" {
-		return errorsx.InvalidArgument("验证码不能为空")
-	}
-
 	cacheKey := c.makeUpdatePhoneCodeCacheKey(authInfo.UserId, req.GetPhone())
 	var cacheCode string
 	cacheCode, err = sdk.Runtime.GetCache().Get(cacheKey)
@@ -402,11 +390,6 @@ func (c *AuthCase) SendPhoneCode(ctx context.Context, req *systemadminv1.SendPho
 	if err != nil {
 		return err
 	}
-	// 手机号格式非法时，不继续发送验证码。
-	if !phoneRegexp.MatchString(req.GetPhone()) {
-		return errorsx.InvalidArgument("手机号格式错误")
-	}
-
 	var userID int64
 	userID, err = c.findUserIDByPhone(ctx, req.GetPhone())
 	// 手机号占用查询异常时，统一返回发送失败。

@@ -9,7 +9,6 @@ import (
 
 	shopappv1 "shop/api/gen/go/shop/app/v1"
 	"shop/pkg/biz"
-	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 	"shop/service/shop/app/utils"
@@ -164,10 +163,6 @@ func (c *UserCartCase) CreateUserCart(ctx context.Context, userCart *shopappv1.C
 		return err
 	}
 	member := utils.IsMemberByAuthInfo(authInfo)
-	// 购物车数量非法时，直接拦截当前请求。
-	if userCart.GetNum() <= 0 {
-		return errorsx.InvalidArgument("商品购买数量必须大于0")
-	}
 	recommendContext := userCart.GetRecommendContext()
 	// 加购请求未携带推荐上下文时，统一回退到空上下文，避免空指针并保持事件结构稳定。
 	if recommendContext == nil {
@@ -268,10 +263,6 @@ func (c *UserCartCase) UpdateUserCart(ctx context.Context, req *shopappv1.UserCa
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return err
-	}
-	// 购物车数量非法时，直接拦截当前请求。
-	if req.GetNum() <= 0 {
-		return errorsx.InvalidArgument("商品购买数量必须大于0")
 	}
 	query := c.Query(ctx).UserCart
 	opts := make([]repository.QueryOption, 0, 2)

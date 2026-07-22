@@ -113,11 +113,6 @@ func (c *RecommendCase) BindRecommendAnonymousActor(ctx context.Context, _ *shop
 
 // RecommendGoods 查询推荐商品列表。
 func (c *RecommendCase) RecommendGoods(ctx context.Context, req *shopappv1.RecommendGoodsRequest) (*shopappv1.RecommendGoodsResponse, error) {
-	// 场景未指定时，无法确定推荐兜底口径。
-	if req.GetScene() == shopcommonv1.RecommendScene(_const.RECOMMEND_SCENE_UNKNOWN) {
-		return nil, errorsx.InvalidArgument("推荐场景不能为空")
-	}
-
 	actor, err := c.resolveRecommendActor(ctx, true)
 	if err != nil {
 		return nil, err

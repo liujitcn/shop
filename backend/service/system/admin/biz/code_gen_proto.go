@@ -87,9 +87,6 @@ func NewCodeGenProtoCase(
 
 // ListCodeGenProto 查询当前生成配置需要的 Proto 接口。
 func (c *CodeGenProtoCase) ListCodeGenProto(ctx context.Context, tableID int64) (*systemadminv1.ListCodeGenProtoResponse, error) {
-	if tableID <= 0 {
-		return nil, errorsx.InvalidArgument("代码生成表配置ID不能为空")
-	}
 	table, err := c.codeGenTableRepo.FindByID(ctx, tableID)
 	if err != nil {
 		return nil, err

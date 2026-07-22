@@ -12,6 +12,7 @@ import (
 	sync "sync"
 	unsafe "unsafe"
 
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -1112,10 +1113,11 @@ var File_base_v1_ai_session_proto protoreflect.FileDescriptor
 
 const file_base_v1_ai_session_proto_rawDesc = "" +
 	"\n" +
-	"\x18base/v1/ai_session.proto\x12\abase.v1\x1a\x15base/v1/ai_tool.proto\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"E\n" +
-	"\x14ListAiMessageRequest\x12-\n" +
+	"\x18base/v1/ai_session.proto\x12\abase.v1\x1a\x15base/v1/ai_tool.proto\x1a\x14common/v1/enum.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xa7\x01\n" +
+	"\x14ListAiMessageRequest\x12\x8e\x01\n" +
 	"\n" +
-	"session_id\x18\x01 \x01(\tB\x0e\xbaG\v\x92\x02\b会话IDR\tsessionId\"[\n" +
+	"session_id\x18\x01 \x01(\tBo\xbaG\v\x92\x02\b会话ID\xbaH^\xba\x01[\n" +
+	"#list_ai_message.session_id.positive\x12\x15会话编号不合法\x1a\x1dthis.matches('^[1-9][0-9]*$')R\tsessionId\"[\n" +
 	"\x15ListAiMessageResponse\x12B\n" +
 	"\bmessages\x18\x01 \x03(\v2\x12.base.v1.AiMessageB\x12\xbaG\x0f\x92\x02\f消息列表R\bmessages\"r\n" +
 	"\x14ListAiSessionRequest\x12Z\n" +
@@ -1126,22 +1128,28 @@ const file_base_v1_ai_session_proto_rawDesc = "" +
 	"\x05title\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f会话标题R\x05title\x12Z\n" +
 	"\bterminal\x18\x02 \x01(\x0e2\x13.common.v1.TerminalB)\xbaG&\x92\x02#终端类型：枚举【Terminal】R\bterminal\"[\n" +
 	"\x17CreateAiSessionResponse\x12@\n" +
-	"\asession\x18\x01 \x01(\v2\x12.base.v1.AiSessionB\x12\xbaG\x0f\x92\x02\f会话信息R\asession\"\xb4\x02\n" +
-	"\x1cCreateAiSessionBranchRequest\x12@\n" +
-	"\x11source_session_id\x18\x01 \x01(\tB\x14\xbaG\x11\x92\x02\x0e来源会话IDR\x0fsourceSessionId\x12F\n" +
-	"\x11anchor_message_id\x18\x02 \x01(\tB\x1a\xbaG\x17\x92\x02\x14分支锚点消息IDR\x0fanchorMessageId\x12.\n" +
-	"\x05title\x18\x03 \x01(\tB\x18\xbaG\x15\x92\x02\x12分支会话标题R\x05title\x12Z\n" +
+	"\asession\x18\x01 \x01(\v2\x12.base.v1.AiSessionB\x12\xbaG\x0f\x92\x02\f会话信息R\asession\"\x81\x05\n" +
+	"\x1cCreateAiSessionBranchRequest\x12\xb2\x01\n" +
+	"\x11source_session_id\x18\x01 \x01(\tB\x85\x01\xbaG\x11\x92\x02\x0e来源会话ID\xbaHn\xba\x01k\n" +
+	"3create_ai_session_branch.source_session_id.positive\x12\x15会话编号不合法\x1a\x1dthis.matches('^[1-9][0-9]*$')R\x0fsourceSessionId\x12\xc4\x01\n" +
+	"\x11anchor_message_id\x18\x02 \x01(\tB\x97\x01\xbaG\x17\x92\x02\x14分支锚点消息ID\xbaHz\xba\x01w\n" +
+	"3create_ai_session_branch.anchor_message_id.positive\x12!分支锚点消息编号不合法\x1a\x1dthis.matches('^[1-9][0-9]*$')R\x0fanchorMessageId\x12\x88\x01\n" +
+	"\x05title\x18\x03 \x01(\tBr\xbaG\x15\x92\x02\x12分支会话标题\xbaHW\xba\x01T\n" +
+	"'create_ai_session_branch.title.required\x12\x18会话标题不能为空\x1a\x0fthis.size() > 0R\x05title\x12Z\n" +
 	"\bterminal\x18\x04 \x01(\x0e2\x13.common.v1.TerminalB)\xbaG&\x92\x02#终端类型：枚举【Terminal】R\bterminal\"\xb1\x01\n" +
 	"\x1dCreateAiSessionBranchResponse\x12C\n" +
 	"\asession\x18\x01 \x01(\v2\x12.base.v1.AiSessionB\x15\xbaG\x12\x92\x02\x0f新会话信息R\asession\x12K\n" +
-	"\bmessages\x18\x02 \x03(\v2\x12.base.v1.AiMessageB\x1b\xbaG\x18\x92\x02\x15新会话消息列表R\bmessages\"b\n" +
-	"\x16UpdateAiSessionRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\tB\x0e\xbaG\v\x92\x02\b会话IDR\x02id\x12(\n" +
-	"\x05title\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f会话标题R\x05title\"[\n" +
+	"\bmessages\x18\x02 \x03(\v2\x12.base.v1.AiMessageB\x1b\xbaG\x18\x92\x02\x15新会话消息列表R\bmessages\"\x90\x02\n" +
+	"\x16UpdateAiSessionRequest\x12y\n" +
+	"\x02id\x18\x01 \x01(\tBi\xbaG\v\x92\x02\b会话ID\xbaHX\xba\x01U\n" +
+	"\x1dupdate_ai_session.id.positive\x12\x15会话编号不合法\x1a\x1dthis.matches('^[1-9][0-9]*$')R\x02id\x12{\n" +
+	"\x05title\x18\x02 \x01(\tBe\xbaG\x0f\x92\x02\f会话标题\xbaHP\xba\x01M\n" +
+	" update_ai_session.title.required\x12\x18会话标题不能为空\x1a\x0fthis.size() > 0R\x05title\"[\n" +
 	"\x17UpdateAiSessionResponse\x12@\n" +
-	"\asession\x18\x01 \x01(\v2\x12.base.v1.AiSessionB\x12\xbaG\x0f\x92\x02\f会话信息R\asession\"8\n" +
-	"\x16DeleteAiSessionRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\tB\x0e\xbaG\v\x92\x02\b会话IDR\x02id\"\x19\n" +
+	"\asession\x18\x01 \x01(\v2\x12.base.v1.AiSessionB\x12\xbaG\x0f\x92\x02\f会话信息R\asession\"\x93\x01\n" +
+	"\x16DeleteAiSessionRequest\x12y\n" +
+	"\x02id\x18\x01 \x01(\tBi\xbaG\v\x92\x02\b会话ID\xbaHX\xba\x01U\n" +
+	"\x1ddelete_ai_session.id.positive\x12\x15会话编号不合法\x1a\x1dthis.matches('^[1-9][0-9]*$')R\x02id\"\x19\n" +
 	"\x17DeleteAiSessionResponse\"\xae\x02\n" +
 	"\tAiSession\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\tB\x0e\xbaG\v\x92\x02\b会话IDR\x02id\x12(\n" +

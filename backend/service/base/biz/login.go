@@ -87,11 +87,6 @@ func (c *LoginCase) Captcha(ctx context.Context, req *basev1.CaptchaRequest) (*b
 
 // VerifyCaptcha 预校验验证码并签发一次性登录令牌。
 func (c *LoginCase) VerifyCaptcha(ctx context.Context, req *basev1.VerifyCaptchaRequest) (*basev1.VerifyCaptchaResponse, error) {
-	// 验证码标识或答案缺失时，不允许继续签发登录令牌。
-	if req.GetCaptchaId() == "" || req.GetCaptchaCode() == "" {
-		return nil, errorsx.InvalidArgument("验证码不能为空")
-	}
-
 	driverType, ok := c.captchaDriverTypeByID(req.GetCaptchaId())
 	// 验证码类型缺失时，说明验证码已过期或不是当前系统签发。
 	if !ok {
@@ -148,10 +143,6 @@ func (c *LoginCase) Logout(ctx context.Context, req *basev1.LogoutRequest) error
 // RefreshToken 刷新认证令牌。
 func (c *LoginCase) RefreshToken(ctx context.Context, req *basev1.RefreshTokenRequest) (*basev1.RefreshTokenResponse, error) {
 	refreshToken := req.GetRefreshToken()
-	if refreshToken == "" {
-		return nil, errorsx.Unauthenticated("刷新认证令牌失败")
-	}
-
 	authInfo, err := c.getAuthInfoByRefreshToken(refreshToken)
 	if err != nil {
 		return nil, err
@@ -176,11 +167,6 @@ func (c *LoginCase) RefreshToken(ctx context.Context, req *basev1.RefreshTokenRe
 
 // Login 执行登录。
 func (c *LoginCase) Login(ctx context.Context, req *basev1.LoginRequest) (*basev1.LoginResponse, error) {
-	// 验证码标识或验证码缺失时，不允许继续登录。
-	if req.GetCaptchaId() == "" || req.GetCaptchaCode() == "" {
-		return nil, errorsx.InvalidArgument("验证码不能为空")
-	}
-
 	err := c.verifyLoginCaptcha(ctx, req.GetCaptchaId(), req.GetCaptchaCode())
 	if err != nil {
 		return nil, err

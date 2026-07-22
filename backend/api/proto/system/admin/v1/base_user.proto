@@ -117,7 +117,7 @@ message PageBaseUserResponse {
 
 // 查询用户请求参数
 message GetBaseUserRequest {
-  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "用户ID"}]; // 用户ID
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "用户ID"}, (buf.validate.field).cel = {id: "get_base_user.id.required" message: "用户ID不能为空" expression: "this > 0"}]; // 用户ID
 }
 
 // 创建用户请求参数
@@ -133,24 +133,26 @@ message CreateBaseUserRequest {
 
 // 更新用户请求参数
 message UpdateBaseUserRequest {
+  option (buf.validate.message).cel = {id: "update_base_user.id.required" message: "用户ID不能为空" expression: "this.base_user.id > 0"};
+
   BaseUserForm base_user = 1 [(gnostic.openapi.v3.property) = {description: "用户表单"}, (buf.validate.field).required = true]; // 用户表单
 }
 
 // 删除用户请求参数
 message DeleteBaseUserRequest {
-  string id = 1 [(gnostic.openapi.v3.property) = {description: "用户ID列表"}]; // 用户ID列表
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "用户ID列表"}, (buf.validate.field).cel = {id: "delete_base_user.id.required" message: "用户ID列表不能为空" expression: "this.size() > 0"}]; // 用户ID列表
 }
 
 // 设置用户状态请求参数
 message SetBaseUserStatusRequest {
-  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "用户ID"}]; // 用户ID
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "用户ID"}, (buf.validate.field).cel = {id: "set_base_user_status.id.required" message: "用户ID不能为空" expression: "this > 0"}]; // 用户ID
 
   int32 status = 2 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
 }
 
 // 用户
 message BaseUser {
-  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "用户ID"}]; // 用户ID
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "用户ID"}, (buf.validate.field).cel = {id: "reset_base_user_password.id.required" message: "用户ID不能为空" expression: "this > 0"}]; // 用户ID
 
   int64 tenant_id = 2 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
 

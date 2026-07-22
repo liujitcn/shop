@@ -109,11 +109,8 @@ func (c *CommentDiscussionCase) ListByCommentIDs(ctx context.Context, commentIDs
 
 // SetCommentDiscussionStatus 设置评论讨论审核状态。
 func (c *CommentDiscussionCase) SetCommentDiscussionStatus(ctx context.Context, req *shopadminv1.SetCommentDiscussionStatusRequest) error {
-	err := validateCommentStatus(int32(req.GetStatus()))
-	if err != nil {
-		return err
-	}
 	var authInfo *authData.UserTokenPayload
+	var err error
 	authInfo, err = c.GetAuthInfo(ctx)
 	if err != nil {
 		return err

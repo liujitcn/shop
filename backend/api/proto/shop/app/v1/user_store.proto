@@ -44,7 +44,7 @@ message CreateUserStoreRequest {
 
 // 更新用户门店请求参数
 message UpdateUserStoreRequest {
-  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "用户门店ID"}]; // 用户门店ID
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "用户门店ID"}, (buf.validate.field).cel = {id: "update_user_store.id.required" message: "用户门店ID不能为空" expression: "this > 0"}]; // 用户门店ID
 
   UserStoreForm user_store = 2 [(gnostic.openapi.v3.property) = {description: "用户门店"}]; // 用户门店
 }

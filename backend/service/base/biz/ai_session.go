@@ -93,9 +93,6 @@ func (c *AiSessionCase) CreateAiSession(ctx context.Context, req *basev1.CreateA
 		UpdatedAt: now,
 	}
 	if err = c.Create(ctx, model); err != nil {
-		if errorsx.IsMySQLDuplicateKey(err) {
-			return nil, errorsx.UniqueConflict("AI助手会话创建失败", "ai_session", "id", "")
-		}
 		return nil, err
 	}
 	return c.ToDTO(model), nil
@@ -199,10 +196,6 @@ func (c *AiSessionCase) CreateAiSessionBranch(ctx context.Context, req *basev1.C
 // UpdateAiSession 更新当前用户的会话标题。
 func (c *AiSessionCase) UpdateAiSession(ctx context.Context, req *basev1.UpdateAiSessionRequest) (*basev1.AiSession, error) {
 	title := req.GetTitle()
-	if title == "" {
-		return nil, errorsx.InvalidArgument("会话标题不能为空")
-	}
-
 	session, err := c.FindCurrentUserSessionByRawID(ctx, req.GetId())
 	if err != nil {
 		return nil, err

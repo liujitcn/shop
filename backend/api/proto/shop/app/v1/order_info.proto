@@ -5,6 +5,7 @@ package shop.app.v1;
 import "shop/app/v1/recommend.proto";
 import "shop/app/v1/tenant_store.proto";
 import "shop/common/v1/enum.proto";
+import "buf/validate/validate.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
@@ -188,7 +189,7 @@ message OrderInfoResponse {
 
 // 订单编号查询订单ID条件
 message GetOrderInfoIdByOrderNoRequest {
-  string order_no = 1 [(gnostic.openapi.v3.property) = {description: "订单编号"}]; // 订单编号
+  string order_no = 1 [(gnostic.openapi.v3.property) = {description: "订单编号"}, (buf.validate.field).cel = {id: "get_order_info_id_by_order_no.order_no.required" message: "订单编号不能为空" expression: "this.size() > 0"}]; // 订单编号
 }
 
 // 订单编号查询订单ID响应
@@ -198,22 +199,28 @@ message GetOrderInfoIdByOrderNoResponse {
 
 // 交易单详情查询条件
 message GetOrderTradeByIdRequest {
-  int64 trade_id = 1 [(gnostic.openapi.v3.property) = {description: "交易单ID"}]; // 交易单ID
+  int64 trade_id = 1 [(gnostic.openapi.v3.property) = {description: "交易单ID"}, (buf.validate.field).cel = {id: "get_order_trade_by_id.trade_id.required" message: "交易单ID不能为空" expression: "this > 0"}]; // 交易单ID
 }
 
 // 创建订单请求参数
 message CreateOrderInfoRequest {
-  int64 address_id = 1 [(gnostic.openapi.v3.property) = {description: "地址id"}]; // 地址id
+  option (buf.validate.message).cel = {
+    id: "create_order_info.pay_channel.compatible"
+    message: "支付方式与支付渠道不匹配"
+    expression: "(this.pay_type == 1 && this.pay_channel == 1) || (this.pay_type == 2 && this.pay_channel == 0)"
+  };
+
+  int64 address_id = 1 [(gnostic.openapi.v3.property) = {description: "地址id"}, (buf.validate.field).cel = {id: "create_order_info.address_id.required" message: "收货地址不能为空" expression: "this > 0"}]; // 地址id
 
   bool clear_cart = 3 [(gnostic.openapi.v3.property) = {description: "是否清空购物车"}]; // 是否清空购物车
 
-  .shop.common.v1.OrderPayType pay_type = 8 [(gnostic.openapi.v3.property) = {description: "支付方式：枚举【OrderPayType】"}]; // 支付方式：枚举【OrderPayType】
+  .shop.common.v1.OrderPayType pay_type = 8 [(gnostic.openapi.v3.property) = {description: "支付方式：枚举【OrderPayType】"}, (buf.validate.field).enum = {defined_only: true}, (buf.validate.field).cel = {id: "create_order_info.pay_type.required" message: "支付方式无效" expression: "this != 0"}]; // 支付方式：枚举【OrderPayType】
 
-  .shop.common.v1.OrderPayChannel pay_channel = 9 [(gnostic.openapi.v3.property) = {description: "支付渠道：枚举【OrderPayChannel】"}]; // 支付渠道：枚举【OrderPayChannel】
+  .shop.common.v1.OrderPayChannel pay_channel = 9 [(gnostic.openapi.v3.property) = {description: "支付渠道：枚举【OrderPayChannel】"}, (buf.validate.field).enum = {defined_only: true}]; // 支付渠道：枚举【OrderPayChannel】
 
   repeated OrderStoreOption order_store_options = 10 [(gnostic.openapi.v3.property) = {description: "门店订单选项"}]; // 门店订单选项
 
-  repeated CreateOrderInfoGoods goods = 40 [(gnostic.openapi.v3.property) = {description: "商品信息"}]; // 商品信息
+  repeated CreateOrderInfoGoods goods = 40 [(gnostic.openapi.v3.property) = {description: "商品信息"}, (buf.validate.field).repeated = {min_items: 1}]; // 商品信息
 }
 
 // 创建订单响应
@@ -225,12 +232,12 @@ message CreateOrderInfoResponse {
 
 // 删除订单条件
 message DeleteOrderInfoRequest {
-  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "订单ID"}]; // 订单ID
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "订单ID"}, (buf.validate.field).cel = {id: "delete_order_info.id.required" message: "订单ID不能为空" expression: "this > 0"}]; // 订单ID
 }
 
 // 删除交易单条件
 message DeleteOrderTradeRequest {
-  int64 trade_id = 1 [(gnostic.openapi.v3.property) = {description: "交易单ID"}]; // 交易单ID
+  int64 trade_id = 1 [(gnostic.openapi.v3.property) = {description: "交易单ID"}, (buf.validate.field).cel = {id: "delete_order_trade.trade_id.required" message: "交易单ID不能为空" expression: "this > 0"}]; // 交易单ID
 }
 
 // 确认订单查询条件
@@ -246,9 +253,9 @@ message ConfirmOrderInfoResponse {
 
 // 立即购买订单请求参数
 message BuyNowOrderInfoRequest {
-  int64 goods_id = 1 [(gnostic.openapi.v3.property) = {description: "商品id"}]; // 商品id
-  string sku_code = 2 [(gnostic.openapi.v3.property) = {description: "规格编号"}]; // 规格编号
-  int64 num = 3 [(gnostic.openapi.v3.property) = {description: "数量"}]; // 数量
+  int64 goods_id = 1 [(gnostic.openapi.v3.property) = {description: "商品id"}, (buf.validate.field).cel = {id: "buy_now_order_info.goods_id.required" message: "商品编号不能为空" expression: "this > 0"}]; // 商品id
+  string sku_code = 2 [(gnostic.openapi.v3.property) = {description: "规格编号"}, (buf.validate.field).cel = {id: "buy_now_order_info.sku_code.required" message: "SKU编码不能为空" expression: "this.size() > 0"}]; // 规格编号
+  int64 num = 3 [(gnostic.openapi.v3.property) = {description: "数量"}, (buf.validate.field).cel = {id: "buy_now_order_info.num.required" message: "商品购买数量必须大于0" expression: "this > 0"}]; // 数量
 
   RecommendContext recommend_context = 4 [(gnostic.openapi.v3.property) = {description: "推荐上下文"}]; // 推荐上下文
 }
@@ -263,7 +270,7 @@ message BuyNowOrderInfoResponse {
 
 // 再次购买订单请求参数
 message RepurchaseOrderInfoRequest {
-  int64 order_id = 1 [(gnostic.openapi.v3.property) = {description: "订单id"}]; // 订单id
+  int64 order_id = 1 [(gnostic.openapi.v3.property) = {description: "订单id"}, (buf.validate.field).cel = {id: "repurchase_order_info.order_id.required" message: "订单ID不能为空" expression: "this > 0"}]; // 订单id
 }
 
 // 再次购买订单响应
@@ -293,34 +300,34 @@ message CountOrderInfoResponse {
 
 // 取消订单请求参数
 message CancelOrderInfoRequest {
-  int64 trade_id = 1 [(gnostic.openapi.v3.property) = {description: "交易单ID"}]; // 交易单ID
-  .shop.common.v1.OrderCancelReason reason = 2 [(gnostic.openapi.v3.property) = {description: "取消原因"}]; // 取消原因
+  int64 trade_id = 1 [(gnostic.openapi.v3.property) = {description: "交易单ID"}, (buf.validate.field).cel = {id: "cancel_order_info.trade_id.required" message: "交易单ID不能为空" expression: "this > 0"}]; // 交易单ID
+  .shop.common.v1.OrderCancelReason reason = 2 [(gnostic.openapi.v3.property) = {description: "取消原因"}, (buf.validate.field).enum = {defined_only: true}, (buf.validate.field).cel = {id: "cancel_order_info.reason.required" message: "取消原因不能为空" expression: "this != 0"}]; // 取消原因
 }
 
 // 订单退款请求参数
 message RefundOrderInfoRequest {
-  int64 order_id = 1 [(gnostic.openapi.v3.property) = {description: "订单id"}]; // 订单id
-  .shop.common.v1.OrderRefundReason reason = 2 [(gnostic.openapi.v3.property) = {description: "退款原因"}]; // 退款原因
+  int64 order_id = 1 [(gnostic.openapi.v3.property) = {description: "订单id"}, (buf.validate.field).cel = {id: "refund_order_info.order_id.required" message: "订单ID不能为空" expression: "this > 0"}]; // 订单id
+  .shop.common.v1.OrderRefundReason reason = 2 [(gnostic.openapi.v3.property) = {description: "退款原因"}, (buf.validate.field).enum = {defined_only: true}, (buf.validate.field).cel = {id: "refund_order_info.reason.required" message: "退款原因不能为空" expression: "this != 0"}]; // 退款原因
 }
 
 // 确认收货请求参数
 message ReceiveOrderInfoRequest {
-  int64 order_id = 1 [(gnostic.openapi.v3.property) = {description: "订单id"}]; // 订单id
+  int64 order_id = 1 [(gnostic.openapi.v3.property) = {description: "订单id"}, (buf.validate.field).cel = {id: "receive_order_info.order_id.required" message: "订单ID不能为空" expression: "this > 0"}]; // 订单id
 }
 
 // 下单商品
 message CreateOrderInfoGoods {
-  int64 goods_id = 1 [(gnostic.openapi.v3.property) = {description: "商品id"}]; // 商品id
-  string sku_code = 2 [(gnostic.openapi.v3.property) = {description: "规格编号"}]; // 规格编号
-  int64 num = 3 [(gnostic.openapi.v3.property) = {description: "数量"}]; // 数量
+  int64 goods_id = 1 [(gnostic.openapi.v3.property) = {description: "商品id"}, (buf.validate.field).cel = {id: "create_order_info_goods.goods_id.required" message: "商品编号不能为空" expression: "this > 0"}]; // 商品id
+  string sku_code = 2 [(gnostic.openapi.v3.property) = {description: "规格编号"}, (buf.validate.field).cel = {id: "create_order_info_goods.sku_code.required" message: "SKU编码不能为空" expression: "this.size() > 0"}]; // 规格编号
+  int64 num = 3 [(gnostic.openapi.v3.property) = {description: "数量"}, (buf.validate.field).cel = {id: "create_order_info_goods.num.required" message: "商品购买数量必须大于0" expression: "this > 0"}]; // 数量
 
   RecommendContext recommend_context = 4 [(gnostic.openapi.v3.property) = {description: "推荐上下文"}]; // 推荐上下文
 }
 
 // 门店订单选项
 message OrderStoreOption {
-  int64 tenant_store_id = 1 [(gnostic.openapi.v3.property) = {description: "租户门店ID"}]; // 租户门店ID
-  .shop.common.v1.OrderDeliveryTime delivery_time = 2 [(gnostic.openapi.v3.property) = {description: "配送时间：枚举【OrderDeliveryTime】"}]; // 配送时间：枚举【OrderDeliveryTime】
+  int64 tenant_store_id = 1 [(gnostic.openapi.v3.property) = {description: "租户门店ID"}, (buf.validate.field).cel = {id: "order_store_option.tenant_store_id.required" message: "门店编号不能为空" expression: "this > 0"}]; // 租户门店ID
+  .shop.common.v1.OrderDeliveryTime delivery_time = 2 [(gnostic.openapi.v3.property) = {description: "配送时间：枚举【OrderDeliveryTime】"}, (buf.validate.field).enum = {defined_only: true}, (buf.validate.field).cel = {id: "order_store_option.delivery_time.required" message: "门店配送时间不能为空" expression: "this != 0"}]; // 配送时间：枚举【OrderDeliveryTime】
   string remark = 3 [(gnostic.openapi.v3.property) = {description: "订单备注"}]; // 订单备注
 }
 

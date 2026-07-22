@@ -136,9 +136,6 @@ func (c *UserCollectCase) GetIsCollect(ctx context.Context, req *shopappv1.GetIs
 
 // CreateUserCollect 创建用户收藏
 func (c *UserCollectCase) CreateUserCollect(ctx context.Context, userCollect *shopappv1.UserCollectForm) error {
-	if userCollect == nil || userCollect.GetGoodsId() <= 0 {
-		return errorsx.InvalidArgument("商品编号不能为空")
-	}
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return err

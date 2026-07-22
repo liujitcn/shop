@@ -61,9 +61,6 @@ func (h *SseCase) SubscribeSse(ctx context.Context, req *basev1.SubscribeSseRequ
 	if h == nil || h.sse == nil {
 		return nil, errorsx.Internal("SSE服务未初始化")
 	}
-	if req.GetStream() == "" {
-		return nil, errorsx.InvalidArgument("SSE流不支持")
-	}
 	w, ok := kratosHTTP.ResponseWriterFromServerContext(ctx)
 	if !ok || w == nil {
 		return nil, errorsx.InvalidArgument("SSE订阅仅支持HTTP访问")

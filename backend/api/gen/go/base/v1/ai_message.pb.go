@@ -11,6 +11,7 @@ import (
 	sync "sync"
 	unsafe "unsafe"
 
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -500,38 +501,48 @@ var File_base_v1_ai_message_proto protoreflect.FileDescriptor
 
 const file_base_v1_ai_message_proto_rawDesc = "" +
 	"\n" +
-	"\x18base/v1/ai_message.proto\x12\abase.v1\x1a\x18base/v1/ai_session.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\xb0\x01\n" +
-	"\x16UpdateAiMessageRequest\x12-\n" +
+	"\x18base/v1/ai_message.proto\x12\abase.v1\x1a\x18base/v1/ai_session.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\xce\x03\n" +
+	"\x16UpdateAiMessageRequest\x12\x90\x01\n" +
 	"\n" +
-	"session_id\x18\x01 \x01(\tB\x0e\xbaG\v\x92\x02\b会话IDR\tsessionId\x12-\n" +
+	"session_id\x18\x01 \x01(\tBq\xbaG\v\x92\x02\b会话ID\xbaH`\xba\x01]\n" +
+	"%update_ai_message.session_id.positive\x12\x15会话编号不合法\x1a\x1dthis.matches('^[1-9][0-9]*$')R\tsessionId\x12\x90\x01\n" +
 	"\n" +
-	"message_id\x18\x02 \x01(\tB\x0e\xbaG\v\x92\x02\b消息IDR\tmessageId\x128\n" +
-	"\acontent\x18\x03 \x01(\tB\x1e\xbaG\x1b\x92\x02\x18更新后的消息内容R\acontent\"\xa9\x01\n" +
+	"message_id\x18\x02 \x01(\tBq\xbaG\v\x92\x02\b消息ID\xbaH`\xba\x01]\n" +
+	"%update_ai_message.message_id.positive\x12\x15消息编号不合法\x1a\x1dthis.matches('^[1-9][0-9]*$')R\tmessageId\x12\x8d\x01\n" +
+	"\acontent\x18\x03 \x01(\tBs\xbaG\x1b\x92\x02\x18更新后的消息内容\xbaHR\xba\x01O\n" +
+	"\"update_ai_message.content.required\x12\x18消息内容不能为空\x1a\x0fthis.size() > 0R\acontent\"\xa9\x01\n" +
 	"\x15SendAiMessageResponse\x12H\n" +
 	"\bmessages\x18\x01 \x03(\v2\x12.base.v1.AiMessageB\x18\xbaG\x15\x92\x02\x12新增消息列表R\bmessages\x12F\n" +
-	"\asession\x18\x02 \x01(\v2\x12.base.v1.AiSessionB\x18\xbaG\x15\x92\x02\x12最新会话信息R\asession\"v\n" +
-	"\x16DeleteAiMessageRequest\x12-\n" +
+	"\asession\x18\x02 \x01(\v2\x12.base.v1.AiSessionB\x18\xbaG\x15\x92\x02\x12最新会话信息R\asession\"\xbe\x02\n" +
+	"\x16DeleteAiMessageRequest\x12\x90\x01\n" +
 	"\n" +
-	"session_id\x18\x01 \x01(\tB\x0e\xbaG\v\x92\x02\b会话IDR\tsessionId\x12-\n" +
+	"session_id\x18\x01 \x01(\tBq\xbaG\v\x92\x02\b会话ID\xbaH`\xba\x01]\n" +
+	"%delete_ai_message.session_id.positive\x12\x15会话编号不合法\x1a\x1dthis.matches('^[1-9][0-9]*$')R\tsessionId\x12\x90\x01\n" +
 	"\n" +
-	"message_id\x18\x02 \x01(\tB\x0e\xbaG\v\x92\x02\b消息IDR\tmessageId\"\x19\n" +
-	"\x17DeleteAiMessageResponse\"\xff\x01\n" +
-	"\x14SendAiMessageRequest\x12-\n" +
+	"message_id\x18\x02 \x01(\tBq\xbaG\v\x92\x02\b消息ID\xbaH`\xba\x01]\n" +
+	"%delete_ai_message.message_id.positive\x12\x15消息编号不合法\x1a\x1dthis.matches('^[1-9][0-9]*$')R\tmessageId\"\x19\n" +
+	"\x17DeleteAiMessageResponse\"\xe1\x02\n" +
+	"\x14SendAiMessageRequest\x12\x8e\x01\n" +
 	"\n" +
-	"session_id\x18\x01 \x01(\tB\x0e\xbaG\v\x92\x02\b会话IDR\tsessionId\x12,\n" +
+	"session_id\x18\x01 \x01(\tBo\xbaG\v\x92\x02\b会话ID\xbaH^\xba\x01[\n" +
+	"#send_ai_message.session_id.positive\x12\x15会话编号不合法\x1a\x1dthis.matches('^[1-9][0-9]*$')R\tsessionId\x12,\n" +
 	"\acontent\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f消息内容R\acontent\x12K\n" +
 	"\vattachments\x18\x03 \x03(\v2\x15.base.v1.AiAttachmentB\x12\xbaG\x0f\x92\x02\f附件列表R\vattachments\x12=\n" +
-	"\x06action\x18\x04 \x01(\v2\x11.base.v1.AiActionB\x12\xbaG\x0f\x92\x02\f助手动作R\x06action\"\x7f\n" +
-	"\x19RetryAiUserMessageRequest\x12-\n" +
+	"\x06action\x18\x04 \x01(\v2\x11.base.v1.AiActionB\x12\xbaG\x0f\x92\x02\f助手动作R\x06action\"\xc5\x02\n" +
+	"\x19RetryAiUserMessageRequest\x12\x8f\x01\n" +
 	"\n" +
-	"session_id\x18\x01 \x01(\tB\x0e\xbaG\v\x92\x02\b会话IDR\tsessionId\x123\n" +
+	"session_id\x18\x01 \x01(\tBp\xbaG\v\x92\x02\b会话ID\xbaH_\xba\x01\\\n" +
+	"$retry_ai_message.session_id.positive\x12\x15会话编号不合法\x1a\x1dthis.matches('^[1-9][0-9]*$')R\tsessionId\x12\x95\x01\n" +
 	"\n" +
-	"message_id\x18\x02 \x01(\tB\x14\xbaG\x11\x92\x02\x0e失败消息IDR\tmessageId\"z\n" +
-	"\x1aRegenerateAiMessageRequest\x12-\n" +
+	"message_id\x18\x02 \x01(\tBv\xbaG\x11\x92\x02\x0e失败消息ID\xbaH_\xba\x01\\\n" +
+	"$retry_ai_message.message_id.positive\x12\x15消息编号不合法\x1a\x1dthis.matches('^[1-9][0-9]*$')R\tmessageId\"\xca\x02\n" +
+	"\x1aRegenerateAiMessageRequest\x12\x94\x01\n" +
 	"\n" +
-	"session_id\x18\x01 \x01(\tB\x0e\xbaG\v\x92\x02\b会话IDR\tsessionId\x12-\n" +
+	"session_id\x18\x01 \x01(\tBu\xbaG\v\x92\x02\b会话ID\xbaHd\xba\x01a\n" +
+	")regenerate_ai_message.session_id.positive\x12\x15会话编号不合法\x1a\x1dthis.matches('^[1-9][0-9]*$')R\tsessionId\x12\x94\x01\n" +
 	"\n" +
-	"message_id\x18\x02 \x01(\tB\x0e\xbaG\v\x92\x02\b消息IDR\tmessageId\"\xf5\x02\n" +
+	"message_id\x18\x02 \x01(\tBu\xbaG\v\x92\x02\b消息ID\xbaHd\xba\x01a\n" +
+	")regenerate_ai_message.message_id.positive\x12\x15消息编号不合法\x1a\x1dthis.matches('^[1-9][0-9]*$')R\tmessageId\"\xf5\x02\n" +
 	"\bAiAction\x12&\n" +
 	"\x04flow\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f流程标识R\x04flow\x12&\n" +
 	"\x04step\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f流程步骤R\x04step\x12&\n" +

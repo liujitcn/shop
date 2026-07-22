@@ -12,6 +12,7 @@ import (
 	sync "sync"
 	unsafe "unsafe"
 
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -2077,10 +2078,11 @@ var File_shop_app_v1_comment_proto protoreflect.FileDescriptor
 
 const file_shop_app_v1_comment_proto_rawDesc = "" +
 	"\n" +
-	"\x19shop/app/v1/comment.proto\x12\vshop.app.v1\x1a\x1bshop/common/v1/common.proto\x1a\x19shop/common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xc5\x01\n" +
-	"\x1cPageCommentDiscussionRequest\x12-\n" +
+	"\x19shop/app/v1/comment.proto\x12\vshop.app.v1\x1a\x1bshop/common/v1/common.proto\x1a\x19shop/common/v1/enum.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x9d\x02\n" +
+	"\x1cPageCommentDiscussionRequest\x12\x84\x01\n" +
 	"\n" +
-	"comment_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b评价IDR\tcommentId\x129\n" +
+	"comment_id\x18\x01 \x01(\x03Be\xbaG\v\x92\x02\b评价ID\xbaHT\xba\x01Q\n" +
+	"+page_comment_discussion.comment_id.required\x12\x18评价编号不能为空\x1a\bthis > 0R\tcommentId\x129\n" +
 	"\bpage_num\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12;\n" +
 	"\tpage_size\x18f \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x004@\x92\x02\f每页数量R\bpageSize\"\xf9\x02\n" +
 	"\x1dPageCommentDiscussionResponse\x12-\n" +
@@ -2090,9 +2092,10 @@ const file_shop_app_v1_comment_proto_rawDesc = "" +
 	"\x05total\x18\x03 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\x12-\n" +
 	"\bpage_num\x18\x04 \x01(\x03B\x12\xbaG\x0f\x92\x02\f当前页码R\apageNum\x12/\n" +
 	"\tpage_size\x18\x05 \x01(\x03B\x12\xbaG\x0f\x92\x02\f每页数量R\bpageSize\x126\n" +
-	"\bhas_more\x18\x06 \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否还有下一页R\ahasMore\"\xf9\x04\n" +
-	"\x17PageGoodsCommentRequest\x12)\n" +
-	"\bgoods_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\agoodsId\x12K\n" +
+	"\bhas_more\x18\x06 \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否还有下一页R\ahasMore\"\xc9\x05\n" +
+	"\x17PageGoodsCommentRequest\x12y\n" +
+	"\bgoods_id\x18\x01 \x01(\x03B^\xbaG\v\x92\x02\b商品ID\xbaHM\xba\x01J\n" +
+	"$page_goods_comment.goods_id.required\x12\x18商品编号不能为空\x1a\bthis > 0R\agoodsId\x12K\n" +
 	"\bsku_code\x18\x02 \x01(\tB0\xbaG-\x92\x02*SKU编码，仅当前商品筛选时使用R\askuCode\x12m\n" +
 	"\vfilter_type\x18\x03 \x01(\x0e2!.shop.common.v1.CommentFilterTypeB)\xbaG&\x8a\x02\x14\x1a\x12COMMENT_FILTER_ALL\x92\x02\f筛选类型R\n" +
 	"filterType\x12C\n" +
@@ -2128,37 +2131,48 @@ const file_shop_app_v1_comment_proto_rawDesc = "" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\x12-\n" +
 	"\bpage_num\x18\x03 \x01(\x03B\x12\xbaG\x0f\x92\x02\f当前页码R\apageNum\x12/\n" +
 	"\tpage_size\x18\x04 \x01(\x03B\x12\xbaG\x0f\x92\x02\f每页数量R\bpageSize\x126\n" +
-	"\bhas_more\x18\x05 \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否还有下一页R\ahasMore\"\x94\x04\n" +
-	"\x14CreateCommentRequest\x12)\n" +
-	"\border_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单IDR\aorderId\x12)\n" +
-	"\bgoods_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\agoodsId\x12*\n" +
-	"\bsku_code\x18\x03 \x01(\tB\x0f\xbaG\f\x92\x02\tSKU编码R\askuCode\x12,\n" +
-	"\acontent\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f评价正文R\acontent\x12*\n" +
-	"\x03img\x18\x05 \x03(\tB\x18\xbaG\x15\x92\x02\x12评价图片数组R\x03img\x12;\n" +
-	"\fis_anonymous\x18\x06 \x01(\bB\x18\xbaG\x15\x92\x02\x12是否匿名展示R\visAnonymous\x12G\n" +
-	"\vgoods_score\x18\a \x01(\x05B&\xbaG#\x92\x02 商品评价评分，范围1到5R\n" +
-	"goodsScore\x12K\n" +
-	"\rpackage_score\x18\b \x01(\x05B&\xbaG#\x92\x02 包装评价评分，范围1到5R\fpackageScore\x12M\n" +
-	"\x0edelivery_score\x18\t \x01(\x05B&\xbaG#\x92\x02 送货评价评分，范围1到5R\rdeliveryScore\"\xe1\x01\n" +
+	"\bhas_more\x18\x05 \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否还有下一页R\ahasMore\"\xa2\t\n" +
+	"\x14CreateCommentRequest\x12u\n" +
+	"\border_id\x18\x01 \x01(\x03BZ\xbaG\v\x92\x02\b订单ID\xbaHI\xba\x01F\n" +
+	" create_comment.order_id.required\x12\x18订单编号不能为空\x1a\bthis > 0R\aorderId\x12u\n" +
+	"\bgoods_id\x18\x02 \x01(\x03BZ\xbaG\v\x92\x02\b商品ID\xbaHI\xba\x01F\n" +
+	" create_comment.goods_id.required\x12\x18商品编号不能为空\x1a\bthis > 0R\agoodsId\x12z\n" +
+	"\bsku_code\x18\x03 \x01(\tB_\xbaG\f\x92\x02\tSKU编码\xbaHM\xba\x01J\n" +
+	" create_comment.sku_code.required\x12\x15SKU编码不能为空\x1a\x0fthis.size() > 0R\askuCode\x12\x86\x01\n" +
+	"\acontent\x18\x04 \x01(\tBl\xbaG\x0f\x92\x02\f评价正文\xbaHW\xba\x01T\n" +
+	"\x1ecreate_comment.content.max_len\x12\x1e评价正文不能超过500字\x1a\x12this.size() <= 500R\acontent\x122\n" +
+	"\x03img\x18\x05 \x03(\tB \xbaG\x15\x92\x02\x12评价图片数组\xbaH\x05\x92\x01\x02\x10\x06R\x03img\x12;\n" +
+	"\fis_anonymous\x18\x06 \x01(\bB\x18\xbaG\x15\x92\x02\x12是否匿名展示R\visAnonymous\x12\xb0\x01\n" +
+	"\vgoods_score\x18\a \x01(\x05B\x8e\x01\xbaG#\x92\x02 商品评价评分，范围1到5\xbaHe\xba\x01b\n" +
+	" create_comment.goods_score.range\x12&商品评分范围必须在1到5之间\x1a\x16this >= 1 && this <= 5R\n" +
+	"goodsScore\x12\xb6\x01\n" +
+	"\rpackage_score\x18\b \x01(\x05B\x90\x01\xbaG#\x92\x02 包装评价评分，范围1到5\xbaHg\xba\x01d\n" +
+	"\"create_comment.package_score.range\x12&包装评分范围必须在1到5之间\x1a\x16this >= 1 && this <= 5R\fpackageScore\x12\xb9\x01\n" +
+	"\x0edelivery_score\x18\t \x01(\x05B\x91\x01\xbaG#\x92\x02 送货评价评分，范围1到5\xbaHh\xba\x01e\n" +
+	"#create_comment.delivery_score.range\x12&送货评分范围必须在1到5之间\x1a\x16this >= 1 && this <= 5R\rdeliveryScore\"\xe1\x01\n" +
 	"\x15CreateCommentResponse\x123\n" +
 	"\n" +
 	"comment_id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e新建评价IDR\tcommentId\x12)\n" +
 	"\border_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单IDR\aorderId\x12h\n" +
-	"\x0forder_completed\x18\x03 \x01(\bB?\xbaG<\x92\x029订单是否已因全部评价完成而流转为已完成R\x0eorderCompleted\"\xd9\x02\n" +
-	"\x1eCreateCommentDiscussionRequest\x123\n" +
+	"\x0forder_completed\x18\x03 \x01(\bB?\xbaG<\x92\x029订单是否已因全部评价完成而流转为已完成R\x0eorderCompleted\"\x91\x04\n" +
+	"\x1eCreateCommentDiscussionRequest\x12\x8c\x01\n" +
 	"\n" +
-	"comment_id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e所属评价IDR\tcommentId\x12,\n" +
-	"\acontent\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f讨论内容R\acontent\x12=\n" +
+	"comment_id\x18\x01 \x01(\x03Bm\xbaG\x11\x92\x02\x0e所属评价ID\xbaHV\xba\x01S\n" +
+	"-create_comment_discussion.comment_id.required\x12\x18评价编号不能为空\x1a\bthis > 0R\tcommentId\x12\x89\x01\n" +
+	"\acontent\x18\x02 \x01(\tBo\xbaG\x0f\x92\x02\f讨论内容\xbaHZ\xba\x01W\n" +
+	"*create_comment_discussion.content.required\x12\x18讨论内容不能为空\x1a\x0fthis.size() > 0R\acontent\x12=\n" +
 	"\tparent_id\x18\x03 \x01(\x03B \xbaG\x1d\x92\x02\x1a父级讨论ID，可为空R\bparentId\x12X\n" +
 	"\x16reply_to_discussion_id\x18\x04 \x01(\x03B#\xbaG \x92\x02\x1d被回复讨论ID，可为空R\x13replyToDiscussionId\x12;\n" +
 	"\fis_anonymous\x18\x05 \x01(\bB\x18\xbaG\x15\x92\x02\x12是否匿名讨论R\visAnonymous\"\xbe\x01\n" +
 	"\x1fCreateCommentDiscussionResponse\x12P\n" +
 	"\x04item\x18\x01 \x01(\v2\".shop.app.v1.CommentDiscussionItemB\x18\xbaG\x15\x92\x02\x12新创建的讨论R\x04item\x12I\n" +
-	"\x10discussion_count\x18\x02 \x01(\x05B\x1e\xbaG\x1b\x92\x02\x18发布后的讨论总数R\x0fdiscussionCount\"6\n" +
-	"\x14DeleteCommentRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b评价IDR\x02id\"\x93\x01\n" +
-	"\x1bGoodsCommentOverviewRequest\x12)\n" +
-	"\bgoods_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\agoodsId\x12I\n" +
+	"\x10discussion_count\x18\x02 \x01(\x05B\x1e\xbaG\x1b\x92\x02\x18发布后的讨论总数R\x0fdiscussionCount\"|\n" +
+	"\x14DeleteCommentRequest\x12d\n" +
+	"\x02id\x18\x01 \x01(\x03BT\xbaG\v\x92\x02\b评价ID\xbaHC\xba\x01@\n" +
+	"\x1adelete_comment.id.required\x12\x18评价编号不能为空\x1a\bthis > 0R\x02id\"\xe7\x01\n" +
+	"\x1bGoodsCommentOverviewRequest\x12}\n" +
+	"\bgoods_id\x18\x01 \x01(\x03Bb\xbaG\v\x92\x02\b商品ID\xbaHQ\xba\x01N\n" +
+	"(goods_comment_overview.goods_id.required\x12\x18商品编号不能为空\x1a\bthis > 0R\agoodsId\x12I\n" +
 	"\rpreview_limit\x18\x02 \x01(\x05B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\x00@\x92\x02\x12评价预览数量R\fpreviewLimit\"\xa7\x03\n" +
 	"\x1cGoodsCommentOverviewResponse\x123\n" +
 	"\vtotal_count\x18\x01 \x01(\x05B\x12\xbaG\x0f\x92\x02\f评价总数R\n" +
@@ -2167,17 +2181,19 @@ const file_shop_app_v1_comment_proto_rawDesc = "" +
 	"recentDays\x12O\n" +
 	"\x10recent_good_rate\x18\x03 \x01(\x05B%\xbaG\"\x92\x02\x1f近N天好评率百分比整数R\x0erecentGoodRate\x12d\n" +
 	"\x0fcomment_summary\x18\x04 \x01(\v2\x1b.shop.app.v1.CommentSummaryB\x1e\xbaG\x1b\x92\x02\x18商品详情评价摘要R\x0ecommentSummary\x12]\n" +
-	"\x10preview_comments\x18\x06 \x03(\v2\x18.shop.app.v1.CommentItemB\x18\xbaG\x15\x92\x02\x12评价预览列表R\x0fpreviewComments\"\x7f\n" +
-	"\x16GoodsCommentTagRequest\x12)\n" +
-	"\bgoods_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\agoodsId\x12:\n" +
+	"\x10preview_comments\x18\x06 \x03(\v2\x18.shop.app.v1.CommentItemB\x18\xbaG\x15\x92\x02\x12评价预览列表R\x0fpreviewComments\"\xce\x01\n" +
+	"\x16GoodsCommentTagRequest\x12x\n" +
+	"\bgoods_id\x18\x01 \x01(\x03B]\xbaG\v\x92\x02\b商品ID\xbaHL\xba\x01I\n" +
+	"#goods_comment_tag.goods_id.required\x12\x18商品编号不能为空\x1a\bthis > 0R\agoodsId\x12:\n" +
 	"\x05limit\x18\x02 \x01(\x05B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x004@\x92\x02\x12标签展示数量R\x05limit\"s\n" +
 	"\x17GoodsCommentTagResponse\x12X\n" +
-	"\fcomment_tags\x18\x01 \x03(\v2\x1b.shop.app.v1.CommentTagItemB\x18\xbaG\x15\x92\x02\x12评价标签列表R\vcommentTags\"\x9c\x03\n" +
-	"\x1aSaveCommentReactionRequest\x12\x8c\x01\n" +
-	"\vtarget_type\x18\x01 \x01(\x0e2).shop.common.v1.CommentReactionTargetTypeB@\xbaG=\x92\x02:互动目标类型：枚举【CommentReactionTargetType】R\n" +
-	"targetType\x121\n" +
-	"\ttarget_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e互动目标IDR\btargetId\x12~\n" +
-	"\rreaction_type\x18\x03 \x01(\x0e2#.shop.common.v1.CommentReactionTypeB4\xbaG1\x92\x02.互动类型：枚举【CommentReactionType】R\freactionType\x12<\n" +
+	"\fcomment_tags\x18\x01 \x03(\v2\x1b.shop.app.v1.CommentTagItemB\x18\xbaG\x15\x92\x02\x12评价标签列表R\vcommentTags\"\x88\x04\n" +
+	"\x1aSaveCommentReactionRequest\x12\x94\x01\n" +
+	"\vtarget_type\x18\x01 \x01(\x0e2).shop.common.v1.CommentReactionTargetTypeBH\xbaG=\x92\x02:互动目标类型：枚举【CommentReactionTargetType】\xbaH\x05\x82\x01\x02\x10\x01R\n" +
+	"targetType\x12\x8b\x01\n" +
+	"\ttarget_id\x18\x02 \x01(\x03Bn\xbaG\x11\x92\x02\x0e互动目标ID\xbaHW\xba\x01T\n" +
+	"(save_comment_reaction.target_id.required\x12\x1e互动目标编号不能为空\x1a\bthis > 0R\btargetId\x12\x86\x01\n" +
+	"\rreaction_type\x18\x03 \x01(\x0e2#.shop.common.v1.CommentReactionTypeB<\xbaG1\x92\x02.互动类型：枚举【CommentReactionType】\xbaH\x05\x82\x01\x02\x10\x01R\freactionType\x12<\n" +
 	"\x06active\x18\x04 \x01(\bB$\xbaG!\x92\x02\x1e是否设置当前互动状态R\x06active\"\xd2\x03\n" +
 	"\x1bSaveCommentReactionResponse\x12\x8c\x01\n" +
 	"\vtarget_type\x18\x01 \x01(\x0e2).shop.common.v1.CommentReactionTargetTypeB@\xbaG=\x92\x02:互动目标类型：枚举【CommentReactionTargetType】R\n" +

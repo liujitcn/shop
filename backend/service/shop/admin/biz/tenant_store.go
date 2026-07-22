@@ -178,9 +178,6 @@ func (c *TenantStoreCase) CreateTenantStore(ctx context.Context, req *shopadminv
 
 // UpdateTenantStore 更新租户门店。
 func (c *TenantStoreCase) UpdateTenantStore(ctx context.Context, req *shopadminv1.TenantStoreForm) error {
-	if req.GetId() <= 0 {
-		return errorsx.InvalidArgument("门店参数不合法")
-	}
 	oldTenantStore, err := c.FindByID(ctx, req.GetId())
 	if err != nil {
 		return err
@@ -234,14 +231,6 @@ func (c *TenantStoreCase) AuditTenantStore(ctx context.Context, req *shopadminv1
 	}
 
 	status := int32(req.GetStatus())
-	// 租户门店审核只允许设置最终审核结果，待审核状态由提交流程创建。
-	if status != _const.TENANT_STORE_STATUS_APPROVED && status != _const.TENANT_STORE_STATUS_FAILED_REVIEW {
-		return errorsx.InvalidArgument("审核状态仅支持通过或不通过")
-	}
-	if status == _const.TENANT_STORE_STATUS_FAILED_REVIEW && req.GetRemark() == "" {
-		return errorsx.InvalidArgument("审核不通过时请填写审核备注")
-	}
-
 	goodsStatus := _const.GOODS_STATUS_DISABLED_BY_STORE
 	currentGoodsStatus := _const.GOODS_STATUS_PUT_ON
 	if status == _const.TENANT_STORE_STATUS_APPROVED {

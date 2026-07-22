@@ -12,6 +12,7 @@ import (
 	sync "sync"
 	unsafe "unsafe"
 
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -1531,7 +1532,7 @@ var File_shop_admin_v1_comment_info_proto protoreflect.FileDescriptor
 
 const file_shop_admin_v1_comment_info_proto_rawDesc = "" +
 	"\n" +
-	" shop/admin/v1/comment_info.proto\x12\rshop.admin.v1\x1a\x1bshop/common/v1/common.proto\x1a\x19shop/common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xd1\x03\n" +
+	" shop/admin/v1/comment_info.proto\x12\rshop.admin.v1\x1a\x1bshop/common/v1/common.proto\x1a\x19shop/common/v1/enum.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xd1\x03\n" +
 	"\x1cPageCommentDiscussionRequest\x123\n" +
 	"\n" +
 	"comment_id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e所属评价IDR\tcommentId\x12:\n" +
@@ -1583,29 +1584,35 @@ const file_shop_admin_v1_comment_info_proto_rawDesc = "" +
 	"targetType\x121\n" +
 	"\ttarget_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e审核目标IDR\btargetId\"|\n" +
 	"\x19ListCommentReviewResponse\x12_\n" +
-	"\x0fcomment_reviews\x18\x01 \x03(\v2\x1c.shop.admin.v1.CommentReviewB\x18\xbaG\x15\x92\x02\x12审核记录列表R\x0ecommentReviews\"7\n" +
-	"\x15GetCommentInfoRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b评论IDR\x02id\"\xe9\x03\n" +
+	"\x0fcomment_reviews\x18\x01 \x03(\v2\x1c.shop.admin.v1.CommentReviewB\x18\xbaG\x15\x92\x02\x12审核记录列表R\x0ecommentReviews\"{\n" +
+	"\x15GetCommentInfoRequest\x12b\n" +
+	"\x02id\x18\x01 \x01(\x03BR\xbaG\v\x92\x02\b评论ID\xbaHA\xba\x01>\n" +
+	"\x1cget_comment_info.id.required\x12\x14评论ID不能为空\x1a\bthis > 0R\x02id\"\xe9\x03\n" +
 	"\x11CommentInfoDetail\x12H\n" +
 	"\acomment\x18\x01 \x01(\v2\x1a.shop.admin.v1.CommentInfoB\x12\xbaG\x0f\x92\x02\f评论内容R\acomment\x12V\n" +
 	"\fcomment_tags\x18\x02 \x03(\v2\x19.shop.admin.v1.CommentTagB\x18\xbaG\x15\x92\x02\x12商品评论标签R\vcommentTags\x12k\n" +
 	"\x13comment_discussions\x18\x03 \x03(\v2 .shop.admin.v1.CommentDiscussionB\x18\xbaG\x15\x92\x02\x12评论讨论列表R\x12commentDiscussions\x12d\n" +
 	"\x11comment_summaries\x18\x04 \x03(\v2\x1d.shop.admin.v1.CommentSummaryB\x18\xbaG\x15\x92\x02\x12商品评论摘要R\x10commentSummaries\x12_\n" +
-	"\x0fcomment_reviews\x18\x05 \x03(\v2\x1c.shop.admin.v1.CommentReviewB\x18\xbaG\x15\x92\x02\x12评论审核记录R\x0ecommentReviews\"G\n" +
-	"\x1aGetGoodsCommentInfoRequest\x12)\n" +
-	"\bgoods_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\agoodsId\"\x9a\x03\n" +
+	"\x0fcomment_reviews\x18\x05 \x03(\v2\x1c.shop.admin.v1.CommentReviewB\x18\xbaG\x15\x92\x02\x12评论审核记录R\x0ecommentReviews\"\x97\x01\n" +
+	"\x1aGetGoodsCommentInfoRequest\x12y\n" +
+	"\bgoods_id\x18\x01 \x01(\x03B^\xbaG\v\x92\x02\b商品ID\xbaHM\xba\x01J\n" +
+	"(get_goods_comment_info.goods_id.required\x12\x14商品ID不能为空\x1a\bthis > 0R\agoodsId\"\x9a\x03\n" +
 	"\x18GoodsCommentInfoResponse\x12S\n" +
 	"\rcomment_infos\x18\x01 \x03(\v2\x1a.shop.admin.v1.CommentInfoB\x12\xbaG\x0f\x92\x02\f评论列表R\fcommentInfos\x12V\n" +
 	"\fcomment_tags\x18\x02 \x03(\v2\x19.shop.admin.v1.CommentTagB\x18\xbaG\x15\x92\x02\x12商品评论标签R\vcommentTags\x12k\n" +
 	"\x13comment_discussions\x18\x03 \x03(\v2 .shop.admin.v1.CommentDiscussionB\x18\xbaG\x15\x92\x02\x12评论讨论列表R\x12commentDiscussions\x12d\n" +
-	"\x11comment_summaries\x18\x04 \x03(\v2\x1d.shop.admin.v1.CommentSummaryB\x18\xbaG\x15\x92\x02\x12商品评论摘要R\x10commentSummaries\"\xee\x01\n" +
-	"!SetCommentDiscussionStatusRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b讨论IDR\x02id\x12e\n" +
-	"\x06status\x18\x02 \x01(\x0e2\x1d.shop.common.v1.CommentStatusB.\xbaG+\x92\x02(审核状态：枚举【CommentStatus】R\x06status\x12B\n" +
-	"\x06reason\x18\x03 \x01(\tB*\xbaG'\x92\x02$人工审核备注或不通过原因R\x06reason\"\xe8\x01\n" +
-	"\x1bSetCommentInfoStatusRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b评论IDR\x02id\x12e\n" +
-	"\x06status\x18\x02 \x01(\x0e2\x1d.shop.common.v1.CommentStatusB.\xbaG+\x92\x02(审核状态：枚举【CommentStatus】R\x06status\x12B\n" +
+	"\x11comment_summaries\x18\x04 \x03(\v2\x1d.shop.admin.v1.CommentSummaryB\x18\xbaG\x15\x92\x02\x12商品评论摘要R\x10commentSummaries\"\xbb\x03\n" +
+	"!SetCommentDiscussionStatusRequest\x12o\n" +
+	"\x02id\x18\x01 \x01(\x03B_\xbaG\v\x92\x02\b讨论ID\xbaHN\xba\x01K\n" +
+	")set_comment_discussion_status.id.required\x12\x14讨论ID不能为空\x1a\bthis > 0R\x02id\x12\xe0\x01\n" +
+	"\x06status\x18\x02 \x01(\x0e2\x1d.shop.common.v1.CommentStatusB\xa8\x01\xbaG+\x92\x02(审核状态：枚举【CommentStatus】\xbaHw\xba\x01o\n" +
+	",set_comment_discussion_status.status.allowed\x12'审核状态仅支持通过或不通过\x1a\x16this == 2 || this == 3\x82\x01\x02\x10\x01R\x06status\x12B\n" +
+	"\x06reason\x18\x03 \x01(\tB*\xbaG'\x92\x02$人工审核备注或不通过原因R\x06reason\"\xa9\x03\n" +
+	"\x1bSetCommentInfoStatusRequest\x12i\n" +
+	"\x02id\x18\x01 \x01(\x03BY\xbaG\v\x92\x02\b评论ID\xbaHH\xba\x01E\n" +
+	"#set_comment_info_status.id.required\x12\x14评论ID不能为空\x1a\bthis > 0R\x02id\x12\xda\x01\n" +
+	"\x06status\x18\x02 \x01(\x0e2\x1d.shop.common.v1.CommentStatusB\xa2\x01\xbaG+\x92\x02(审核状态：枚举【CommentStatus】\xbaHq\xba\x01i\n" +
+	"&set_comment_info_status.status.allowed\x12'审核状态仅支持通过或不通过\x1a\x16this == 2 || this == 3\x82\x01\x02\x10\x01R\x06status\x12B\n" +
 	"\x06reason\x18\x03 \x01(\tB*\xbaG'\x92\x02$人工审核备注或不通过原因R\x06reason\"\xdb\f\n" +
 	"\vCommentInfo\x12\"\n" +
 	"\x02id\x18\x01 \x01(\x03B\x12\xbaG\x0f\x92\x02\f评价主键R\x02id\x12+\n" +

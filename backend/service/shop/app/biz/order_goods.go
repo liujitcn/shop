@@ -9,7 +9,6 @@ import (
 
 	shopappv1 "shop/api/gen/go/shop/app/v1"
 	"shop/pkg/biz"
-	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 
@@ -79,10 +78,6 @@ func (c *OrderGoodsCase) listByOrderID(ctx context.Context, orderID int64) ([]*m
 
 // createByOrder 批量创建订单商品记录
 func (c *OrderGoodsCase) createByOrder(ctx context.Context, orderInfo *models.OrderInfo, goods []*models.OrderGoods) error {
-	// 订单商品为空时，禁止继续创建订单明细。
-	if len(goods) == 0 {
-		return errorsx.InvalidArgument("订单商品信息不能为空")
-	}
 	for _, item := range goods {
 		item.TenantID = orderInfo.TenantID
 		item.TenantStoreID = orderInfo.TenantStoreID
@@ -121,15 +116,6 @@ func (c *OrderGoodsCase) toOrderGoods(item *models.OrderGoods) *shopappv1.OrderG
 
 // convertToModel 将下单商品请求转换为订单商品模型。
 func (c *OrderGoodsCase) convertToModel(ctx context.Context, member bool, goods *shopappv1.CreateOrderInfoGoods) (*models.OrderGoods, *models.GoodsInfo, error) {
-	// 下单商品明细为空时，无法继续生成订单快照。
-	if goods == nil {
-		return nil, nil, errorsx.InvalidArgument("订单商品信息不能为空")
-	}
-	// 购买数量非法时，直接拦截当前下单请求。
-	if goods.Num <= 0 {
-		return nil, nil, errorsx.InvalidArgument("商品购买数量必须大于0")
-	}
-
 	// 查询商品信息和规格信息
 	goodsQuery := c.goodsInfoCase.Query(ctx).GoodsInfo
 	goodsOpts := make([]repository.QueryOption, 0, 2)

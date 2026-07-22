@@ -12,6 +12,7 @@ import (
 	sync "sync"
 	unsafe "unsafe"
 
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -2187,7 +2188,7 @@ var File_shop_app_v1_order_info_proto protoreflect.FileDescriptor
 
 const file_shop_app_v1_order_info_proto_rawDesc = "" +
 	"\n" +
-	"\x1cshop/app/v1/order_info.proto\x12\vshop.app.v1\x1a\x1bshop/app/v1/recommend.proto\x1a\x1eshop/app/v1/tenant_store.proto\x1a\x19shop/common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x92\x05\n" +
+	"\x1cshop/app/v1/order_info.proto\x12\vshop.app.v1\x1a\x1bshop/app/v1/recommend.proto\x1a\x1eshop/app/v1/tenant_store.proto\x1a\x19shop/common/v1/enum.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x92\x05\n" +
 	"\x14PageOrderInfoRequest\x12V\n" +
 	"\x06status\x18\x01 \x01(\x0e2\x1f.shop.common.v1.OrderInfoStatusB\x18\xbaG\x15\x92\x02\x12订单履约状态H\x00R\x06status\x88\x01\x01\x12b\n" +
 	"\ftrade_status\x18\x02 \x01(\x0e2 .shop.common.v1.OrderTradeStatusB\x18\xbaG\x15\x92\x02\x12交易支付状态H\x01R\vtradeStatus\x88\x01\x01\x12e\n" +
@@ -2231,50 +2232,61 @@ const file_shop_app_v1_order_info_proto_rawDesc = "" +
 	"\x04text\x18\x02 \x01(\tB\f\xbaG\t\x92\x02\x06动态R\x04text\x1ah\n" +
 	"\fRelatedOrder\x12)\n" +
 	"\border_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单IDR\aorderId\x12-\n" +
-	"\border_no\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f订单编号R\aorderNo\"O\n" +
-	"\x1eGetOrderInfoIdByOrderNoRequest\x12-\n" +
-	"\border_no\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f订单编号R\aorderNo\"L\n" +
+	"\border_no\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f订单编号R\aorderNo\"\xb2\x01\n" +
+	"\x1eGetOrderInfoIdByOrderNoRequest\x12\x8f\x01\n" +
+	"\border_no\x18\x01 \x01(\tBt\xbaG\x0f\x92\x02\f订单编号\xbaH_\xba\x01\\\n" +
+	"/get_order_info_id_by_order_no.order_no.required\x12\x18订单编号不能为空\x1a\x0fthis.size() > 0R\aorderNo\"L\n" +
 	"\x1fGetOrderInfoIdByOrderNoResponse\x12)\n" +
-	"\border_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单IDR\aorderId\"H\n" +
-	"\x18GetOrderTradeByIdRequest\x12,\n" +
-	"\btrade_id\x18\x01 \x01(\x03B\x11\xbaG\x0e\x92\x02\v交易单IDR\atradeId\"\x95\x04\n" +
-	"\x16CreateOrderInfoRequest\x12-\n" +
+	"\border_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单IDR\aorderId\"\x9a\x01\n" +
+	"\x18GetOrderTradeByIdRequest\x12~\n" +
+	"\btrade_id\x18\x01 \x01(\x03Bc\xbaG\x0e\x92\x02\v交易单ID\xbaHO\xba\x01L\n" +
+	"'get_order_trade_by_id.trade_id.required\x12\x17交易单ID不能为空\x1a\bthis > 0R\atradeId\"\x80\a\n" +
+	"\x16CreateOrderInfoRequest\x12~\n" +
 	"\n" +
-	"address_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b地址idR\taddressId\x12:\n" +
+	"address_id\x18\x01 \x01(\x03B_\xbaG\v\x92\x02\b地址id\xbaHN\xba\x01K\n" +
+	"%create_order_info.address_id.required\x12\x18收货地址不能为空\x1a\bthis > 0R\taddressId\x12:\n" +
 	"\n" +
-	"clear_cart\x18\x03 \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否清空购物车R\tclearCart\x12f\n" +
-	"\bpay_type\x18\b \x01(\x0e2\x1c.shop.common.v1.OrderPayTypeB-\xbaG*\x92\x02'支付方式：枚举【OrderPayType】R\apayType\x12r\n" +
-	"\vpay_channel\x18\t \x01(\x0e2\x1f.shop.common.v1.OrderPayChannelB0\xbaG-\x92\x02*支付渠道：枚举【OrderPayChannel】R\n" +
+	"clear_cart\x18\x03 \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否清空购物车R\tclearCart\x12\xb5\x01\n" +
+	"\bpay_type\x18\b \x01(\x0e2\x1c.shop.common.v1.OrderPayTypeB|\xbaG*\x92\x02'支付方式：枚举【OrderPayType】\xbaHL\xba\x01D\n" +
+	"#create_order_info.pay_type.required\x12\x12支付方式无效\x1a\tthis != 0\x82\x01\x02\x10\x01R\apayType\x12z\n" +
+	"\vpay_channel\x18\t \x01(\x0e2\x1f.shop.common.v1.OrderPayChannelB8\xbaG-\x92\x02*支付渠道：枚举【OrderPayChannel】\xbaH\x05\x82\x01\x02\x10\x01R\n" +
 	"payChannel\x12g\n" +
 	"\x13order_store_options\x18\n" +
-	" \x03(\v2\x1d.shop.app.v1.OrderStoreOptionB\x18\xbaG\x15\x92\x02\x12门店订单选项R\x11orderStoreOptions\x12K\n" +
-	"\x05goods\x18( \x03(\v2!.shop.app.v1.CreateOrderInfoGoodsB\x12\xbaG\x0f\x92\x02\f商品信息R\x05goods\"\xac\x01\n" +
+	" \x03(\v2\x1d.shop.app.v1.OrderStoreOptionB\x18\xbaG\x15\x92\x02\x12门店订单选项R\x11orderStoreOptions\x12S\n" +
+	"\x05goods\x18( \x03(\v2!.shop.app.v1.CreateOrderInfoGoodsB\x1a\xbaG\x0f\x92\x02\f商品信息\xbaH\x05\x92\x01\x02\b\x01R\x05goods:\xb7\x01\xbaH\xb3\x01\x1a\xb0\x01\n" +
+	"(create_order_info.pay_channel.compatible\x12$支付方式与支付渠道不匹配\x1a^(this.pay_type == 1 && this.pay_channel == 1) || (this.pay_type == 2 && this.pay_channel == 0)\"\xac\x01\n" +
 	"\x17CreateOrderInfoResponse\x12,\n" +
 	"\btrade_id\x18\x01 \x01(\x03B\x11\xbaG\x0e\x92\x02\v交易单IDR\atradeId\x120\n" +
 	"\btrade_no\x18\x02 \x01(\tB\x15\xbaG\x12\x92\x02\x0f交易单编号R\atradeNo\x121\n" +
-	"\torder_ids\x18\x03 \x03(\x03B\x14\xbaG\x11\x92\x02\x0e门店订单IDR\borderIds\"8\n" +
-	"\x16DeleteOrderInfoRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单IDR\x02id\"G\n" +
-	"\x17DeleteOrderTradeRequest\x12,\n" +
-	"\btrade_id\x18\x01 \x01(\x03B\x11\xbaG\x0e\x92\x02\v交易单IDR\atradeId\"\x19\n" +
+	"\torder_ids\x18\x03 \x03(\x03B\x14\xbaG\x11\x92\x02\x0e门店订单IDR\borderIds\"}\n" +
+	"\x16DeleteOrderInfoRequest\x12c\n" +
+	"\x02id\x18\x01 \x01(\x03BS\xbaG\v\x92\x02\b订单ID\xbaHB\xba\x01?\n" +
+	"\x1ddelete_order_info.id.required\x12\x14订单ID不能为空\x1a\bthis > 0R\x02id\"\x96\x01\n" +
+	"\x17DeleteOrderTradeRequest\x12{\n" +
+	"\btrade_id\x18\x01 \x01(\x03B`\xbaG\x0e\x92\x02\v交易单ID\xbaHL\xba\x01I\n" +
+	"$delete_order_trade.trade_id.required\x12\x17交易单ID不能为空\x1a\bthis > 0R\atradeId\"\x19\n" +
 	"\x17ConfirmOrderInfoRequest\"\x91\x02\n" +
 	"\x18ConfirmOrderInfoResponse\x12p\n" +
 	"\x12order_goods_stores\x18\x01 \x03(\v2\x1c.shop.app.v1.OrderGoodsStoreB$\xbaG!\x92\x02\x1e按门店分组的商品信息R\x10orderGoodsStores\x12G\n" +
 	"\asummary\x18\x02 \x01(\v2\x19.shop.app.v1.OrderSummaryB\x12\xbaG\x0f\x92\x02\f汇总信息R\asummary\x12:\n" +
 	"\n" +
-	"clear_cart\x18\x03 \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否清空购物车R\tclearCart\"\xf5\x01\n" +
-	"\x16BuyNowOrderInfoRequest\x12)\n" +
-	"\bgoods_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品idR\agoodsId\x12-\n" +
-	"\bsku_code\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f规格编号R\askuCode\x12\x1e\n" +
-	"\x03num\x18\x03 \x01(\x03B\f\xbaG\t\x92\x02\x06数量R\x03num\x12a\n" +
+	"clear_cart\x18\x03 \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否清空购物车R\tclearCart\"\xec\x03\n" +
+	"\x16BuyNowOrderInfoRequest\x12y\n" +
+	"\bgoods_id\x18\x01 \x01(\x03B^\xbaG\v\x92\x02\b商品id\xbaHM\xba\x01J\n" +
+	"$buy_now_order_info.goods_id.required\x12\x18商品编号不能为空\x1a\bthis > 0R\agoodsId\x12\x81\x01\n" +
+	"\bsku_code\x18\x02 \x01(\tBf\xbaG\x0f\x92\x02\f规格编号\xbaHQ\xba\x01N\n" +
+	"$buy_now_order_info.sku_code.required\x12\x15SKU编码不能为空\x1a\x0fthis.size() > 0R\askuCode\x12p\n" +
+	"\x03num\x18\x03 \x01(\x03B^\xbaG\t\x92\x02\x06数量\xbaHO\xba\x01L\n" +
+	"\x1fbuy_now_order_info.num.required\x12\x1f商品购买数量必须大于0\x1a\bthis > 0R\x03num\x12a\n" +
 	"\x11recommend_context\x18\x04 \x01(\v2\x1d.shop.app.v1.RecommendContextB\x15\xbaG\x12\x92\x02\x0f推荐上下文R\x10recommendContext\"\x90\x02\n" +
 	"\x17BuyNowOrderInfoResponse\x12p\n" +
 	"\x12order_goods_stores\x18\x01 \x03(\v2\x1c.shop.app.v1.OrderGoodsStoreB$\xbaG!\x92\x02\x1e按门店分组的商品信息R\x10orderGoodsStores\x12G\n" +
 	"\asummary\x18\x02 \x01(\v2\x19.shop.app.v1.OrderSummaryB\x12\xbaG\x0f\x92\x02\f汇总信息R\asummary\x12:\n" +
 	"\n" +
-	"clear_cart\x18\x03 \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否清空购物车R\tclearCart\"G\n" +
-	"\x1aRepurchaseOrderInfoRequest\x12)\n" +
-	"\border_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单idR\aorderId\"\x94\x02\n" +
+	"clear_cart\x18\x03 \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否清空购物车R\tclearCart\"\x96\x01\n" +
+	"\x1aRepurchaseOrderInfoRequest\x12x\n" +
+	"\border_id\x18\x01 \x01(\x03B]\xbaG\v\x92\x02\b订单id\xbaHL\xba\x01I\n" +
+	"'repurchase_order_info.order_id.required\x12\x14订单ID不能为空\x1a\bthis > 0R\aorderId\"\x94\x02\n" +
 	"\x1bRepurchaseOrderInfoResponse\x12p\n" +
 	"\x12order_goods_stores\x18\x01 \x03(\v2\x1c.shop.app.v1.OrderGoodsStoreB$\xbaG!\x92\x02\x1e按门店分组的商品信息R\x10orderGoodsStores\x12G\n" +
 	"\asummary\x18\x02 \x01(\v2\x19.shop.app.v1.OrderSummaryB\x12\xbaG\x0f\x92\x02\f汇总信息R\asummary\x12:\n" +
@@ -2290,23 +2302,33 @@ const file_shop_app_v1_order_info_proto_rawDesc = "" +
 	"\rrefund_status\x18\x04 \x01(\x0e2!.shop.common.v1.OrderRefundStatusB\x18\xbaG\x15\x92\x02\x12订单退款状态R\frefundStatus\x12J\n" +
 	"\n" +
 	"refundable\x18\x05 \x01(\bB*\xbaG'\x92\x02$是否为可申请售后订单统计R\n" +
-	"refundable\"\x95\x01\n" +
-	"\x16CancelOrderInfoRequest\x12,\n" +
-	"\btrade_id\x18\x01 \x01(\x03B\x11\xbaG\x0e\x92\x02\v交易单IDR\atradeId\x12M\n" +
-	"\x06reason\x18\x02 \x01(\x0e2!.shop.common.v1.OrderCancelReasonB\x12\xbaG\x0f\x92\x02\f取消原因R\x06reason\"\x92\x01\n" +
-	"\x16RefundOrderInfoRequest\x12)\n" +
-	"\border_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单idR\aorderId\x12M\n" +
-	"\x06reason\x18\x02 \x01(\x0e2!.shop.common.v1.OrderRefundReasonB\x12\xbaG\x0f\x92\x02\f退款原因R\x06reason\"D\n" +
-	"\x17ReceiveOrderInfoRequest\x12)\n" +
-	"\border_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单idR\aorderId\"\xf3\x01\n" +
-	"\x14CreateOrderInfoGoods\x12)\n" +
-	"\bgoods_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品idR\agoodsId\x12-\n" +
-	"\bsku_code\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f规格编号R\askuCode\x12\x1e\n" +
-	"\x03num\x18\x03 \x01(\x03B\f\xbaG\t\x92\x02\x06数量R\x03num\x12a\n" +
-	"\x11recommend_context\x18\x04 \x01(\v2\x1d.shop.app.v1.RecommendContextB\x15\xbaG\x12\x92\x02\x0f推荐上下文R\x10recommendContext\"\xf8\x01\n" +
-	"\x10OrderStoreOption\x12<\n" +
-	"\x0ftenant_store_id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDR\rtenantStoreId\x12z\n" +
-	"\rdelivery_time\x18\x02 \x01(\x0e2!.shop.common.v1.OrderDeliveryTimeB2\xbaG/\x92\x02,配送时间：枚举【OrderDeliveryTime】R\fdeliveryTime\x12*\n" +
+	"refundable\"\xb7\x02\n" +
+	"\x16CancelOrderInfoRequest\x12z\n" +
+	"\btrade_id\x18\x01 \x01(\x03B_\xbaG\x0e\x92\x02\v交易单ID\xbaHK\xba\x01H\n" +
+	"#cancel_order_info.trade_id.required\x12\x17交易单ID不能为空\x1a\bthis > 0R\atradeId\x12\xa0\x01\n" +
+	"\x06reason\x18\x02 \x01(\x0e2!.shop.common.v1.OrderCancelReasonBe\xbaG\x0f\x92\x02\f取消原因\xbaHP\xba\x01H\n" +
+	"!cancel_order_info.reason.required\x12\x18取消原因不能为空\x1a\tthis != 0\x82\x01\x02\x10\x01R\x06reason\"\xb1\x02\n" +
+	"\x16RefundOrderInfoRequest\x12t\n" +
+	"\border_id\x18\x01 \x01(\x03BY\xbaG\v\x92\x02\b订单id\xbaHH\xba\x01E\n" +
+	"#refund_order_info.order_id.required\x12\x14订单ID不能为空\x1a\bthis > 0R\aorderId\x12\xa0\x01\n" +
+	"\x06reason\x18\x02 \x01(\x0e2!.shop.common.v1.OrderRefundReasonBe\xbaG\x0f\x92\x02\f退款原因\xbaHP\xba\x01H\n" +
+	"!refund_order_info.reason.required\x12\x18退款原因不能为空\x1a\tthis != 0\x82\x01\x02\x10\x01R\x06reason\"\x90\x01\n" +
+	"\x17ReceiveOrderInfoRequest\x12u\n" +
+	"\border_id\x18\x01 \x01(\x03BZ\xbaG\v\x92\x02\b订单id\xbaHI\xba\x01F\n" +
+	"$receive_order_info.order_id.required\x12\x14订单ID不能为空\x1a\bthis > 0R\aorderId\"\xf9\x03\n" +
+	"\x14CreateOrderInfoGoods\x12~\n" +
+	"\bgoods_id\x18\x01 \x01(\x03Bc\xbaG\v\x92\x02\b商品id\xbaHR\xba\x01O\n" +
+	")create_order_info_goods.goods_id.required\x12\x18商品编号不能为空\x1a\bthis > 0R\agoodsId\x12\x86\x01\n" +
+	"\bsku_code\x18\x02 \x01(\tBk\xbaG\x0f\x92\x02\f规格编号\xbaHV\xba\x01S\n" +
+	")create_order_info_goods.sku_code.required\x12\x15SKU编码不能为空\x1a\x0fthis.size() > 0R\askuCode\x12u\n" +
+	"\x03num\x18\x03 \x01(\x03Bc\xbaG\t\x92\x02\x06数量\xbaHT\xba\x01Q\n" +
+	"$create_order_info_goods.num.required\x12\x1f商品购买数量必须大于0\x1a\bthis > 0R\x03num\x12a\n" +
+	"\x11recommend_context\x18\x04 \x01(\v2\x1d.shop.app.v1.RecommendContextB\x15\xbaG\x12\x92\x02\x0f推荐上下文R\x10recommendContext\"\xb3\x03\n" +
+	"\x10OrderStoreOption\x12\x93\x01\n" +
+	"\x0ftenant_store_id\x18\x01 \x01(\x03Bk\xbaG\x11\x92\x02\x0e租户门店ID\xbaHT\xba\x01Q\n" +
+	"+order_store_option.tenant_store_id.required\x12\x18门店编号不能为空\x1a\bthis > 0R\rtenantStoreId\x12\xdc\x01\n" +
+	"\rdelivery_time\x18\x02 \x01(\x0e2!.shop.common.v1.OrderDeliveryTimeB\x93\x01\xbaG/\x92\x02,配送时间：枚举【OrderDeliveryTime】\xbaH^\xba\x01V\n" +
+	")order_store_option.delivery_time.required\x12\x1e门店配送时间不能为空\x1a\tthis != 0\x82\x01\x02\x10\x01R\fdeliveryTime\x12*\n" +
 	"\x06remark\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f订单备注R\x06remark\"\xbc\x04\n" +
 	"\n" +
 	"OrderGoods\x12)\n" +

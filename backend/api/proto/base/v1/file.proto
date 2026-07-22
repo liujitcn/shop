@@ -3,6 +3,7 @@ syntax = "proto3";
 package base.v1;
 
 import "gnostic/openapi/v3/annotations.proto";
+import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/wrappers.proto";
 
@@ -32,7 +33,7 @@ service FileService {
 
 // 批量上传文件请求参数
 message MultiUploadFileRequest {
-  repeated UploadFileInfo files = 1 [(gnostic.openapi.v3.property) = {description: "上传文件信息"}]; // 文件名
+  repeated UploadFileInfo files = 1 [(gnostic.openapi.v3.property) = {description: "上传文件信息"}, (buf.validate.field).repeated = {min_items: 1}]; // 文件名
 }
 
 // 批量上传文件响应
@@ -42,7 +43,7 @@ message MultiUploadFileResponse {
 
 // 单文件上传请求参数
 message UploadFileRequest {
-  UploadFileInfo file = 1 [(gnostic.openapi.v3.property) = {description: "上传文件信息"}]; // 上传文件信息
+  UploadFileInfo file = 1 [(gnostic.openapi.v3.property) = {description: "上传文件信息"}, (buf.validate.field).required = true]; // 上传文件信息
 }
 
 // 上传文件信息
@@ -57,7 +58,7 @@ message UploadFileInfo {
 // 下载文件请求参数
 message DownloadFileRequest {
   string name = 1 [(gnostic.openapi.v3.property) = {description: "文件名"}]; // 文件名
-  string path = 2 [(gnostic.openapi.v3.property) = {description: "文件路径"}]; // 文件路径
+  string path = 2 [(gnostic.openapi.v3.property) = {description: "文件路径"}, (buf.validate.field).cel = {id: "download_file.path.required" message: "文件路径不能为空" expression: "this.size() > 0"}]; // 文件路径
 }
 
 // File信息

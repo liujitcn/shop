@@ -666,9 +666,10 @@ const file_system_admin_v1_base_config_proto_rawDesc = "" +
 	"\a_status\"\x90\x01\n" +
 	"\x16PageBaseConfigResponse\x12R\n" +
 	"\fbase_configs\x18\x01 \x03(\v2\x1b.system.admin.v1.BaseConfigB\x12\xbaG\x0f\x92\x02\f分页数据R\vbaseConfigs\x12\"\n" +
-	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"6\n" +
-	"\x14GetBaseConfigRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b配置IDR\x02id\"\xf6\a\n" +
+	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"y\n" +
+	"\x14GetBaseConfigRequest\x12a\n" +
+	"\x02id\x18\x01 \x01(\x03BQ\xbaG\v\x92\x02\b配置ID\xbaH@\xba\x01=\n" +
+	"\x1bget_base_config.id.required\x12\x14配置ID不能为空\x1a\bthis > 0R\x02id\"\xf6\a\n" +
 	"\x0eBaseConfigForm\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b配置IDR\x02id\x12\xa6\x01\n" +
 	"\x04site\x18\x02 \x01(\x0e2\x19.common.v1.BaseConfigSiteBw\xbaG&\x92\x02#位置：枚举【BaseConfigSite】\xbaHK\xba\x01C\n" +
@@ -686,14 +687,17 @@ const file_system_admin_v1_base_config_proto_rawDesc = "" +
 	"\x06status\x183 \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"{\n" +
 	"\x17CreateBaseConfigRequest\x12`\n" +
 	"\vbase_config\x18\x01 \x01(\v2\x1f.system.admin.v1.BaseConfigFormB\x1e\xbaG\x15\x92\x02\x12系统配置表单\xbaH\x03\xc8\x01\x01R\n" +
-	"baseConfig\"{\n" +
+	"baseConfig\"\xd1\x01\n" +
 	"\x17UpdateBaseConfigRequest\x12`\n" +
 	"\vbase_config\x18\x01 \x01(\v2\x1f.system.admin.v1.BaseConfigFormB\x1e\xbaG\x15\x92\x02\x12系统配置表单\xbaH\x03\xc8\x01\x01R\n" +
-	"baseConfig\"?\n" +
-	"\x17DeleteBaseConfigRequest\x12$\n" +
-	"\x02id\x18\x01 \x01(\tB\x14\xbaG\x11\x92\x02\x0e配置ID列表R\x02id\"b\n" +
-	"\x1aSetBaseConfigStatusRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b配置IDR\x02id\x12$\n" +
+	"baseConfig:T\xbaHQ\x1aO\n" +
+	"\x1eupdate_base_config.id.required\x12\x14配置ID不能为空\x1a\x17this.base_config.id > 0\"\x92\x01\n" +
+	"\x17DeleteBaseConfigRequest\x12w\n" +
+	"\x02id\x18\x01 \x01(\tBg\xbaG\x11\x92\x02\x0e配置ID列表\xbaHP\xba\x01M\n" +
+	"\x1edelete_base_config.id.required\x12\x1a配置ID列表不能为空\x1a\x0fthis.size() > 0R\x02id\"\xac\x01\n" +
+	"\x1aSetBaseConfigStatusRequest\x12h\n" +
+	"\x02id\x18\x01 \x01(\x03BX\xbaG\v\x92\x02\b配置ID\xbaHG\xba\x01D\n" +
+	"\"set_base_config_status.id.required\x12\x14配置ID不能为空\x1a\bthis > 0R\x02id\x12$\n" +
 	"\x06status\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\"\x1f\n" +
 	"\x1dRefreshBaseConfigCacheRequest\"\x97\x04\n" +
 	"\n" +

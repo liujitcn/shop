@@ -11,6 +11,7 @@ import (
 	sync "sync"
 	unsafe "unsafe"
 
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -878,30 +879,39 @@ var File_shop_admin_v1_goods_report_proto protoreflect.FileDescriptor
 
 const file_shop_admin_v1_goods_report_proto_rawDesc = "" +
 	"\n" +
-	" shop/admin/v1/goods_report.proto\x12\rshop.admin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\xa9\x01\n" +
-	"\x19ListGoodsDayReportRequest\x12G\n" +
+	" shop/admin/v1/goods_report.proto\x12\rshop.admin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\"\x8a\x04\n" +
+	"\x19ListGoodsDayReportRequest\x12\xbf\x01\n" +
 	"\n" +
-	"start_date\x18\x01 \x01(\tB(\xbaG%\x92\x02\"开始日期，格式：YYYY-MM-DDR\tstartDate\x12C\n" +
-	"\bend_date\x18\x02 \x01(\tB(\xbaG%\x92\x02\"结束日期，格式：YYYY-MM-DDR\aendDate\"\x85\x01\n" +
+	"start_date\x18\x01 \x01(\tB\x9f\x01\xbaG%\x92\x02\"开始日期，格式：YYYY-MM-DD\xbaHt\xba\x01q\n" +
+	"'list_goods_day_report.start_date.format\x12\x18开始日期格式错误\x1a,this.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')R\tstartDate\x12\xb9\x01\n" +
+	"\bend_date\x18\x02 \x01(\tB\x9d\x01\xbaG%\x92\x02\"结束日期，格式：YYYY-MM-DD\xbaHr\xba\x01o\n" +
+	"%list_goods_day_report.end_date.format\x12\x18结束日期格式错误\x1a,this.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')R\aendDate:o\xbaHl\x1aj\n" +
+	" list_goods_day_report.date.range\x12$结束日期不能早于开始日期\x1a this.end_date >= this.start_date\"\x85\x01\n" +
 	"\x1aListGoodsDayReportResponse\x12g\n" +
-	"\x11goods_day_reports\x18\x01 \x03(\v2!.shop.admin.v1.GoodsDayReportItemB\x18\xbaG\x15\x92\x02\x12商品日报明细R\x0fgoodsDayReports\"\xc0\x02\n" +
+	"\x11goods_day_reports\x18\x01 \x03(\v2!.shop.admin.v1.GoodsDayReportItemB\x18\xbaG\x15\x92\x02\x12商品日报明细R\x0fgoodsDayReports\"\x9a\x05\n" +
 	"\x1bListGoodsMonthReportRequest\x120\n" +
 	"\ttenant_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12A\n" +
-	"\x0ftenant_store_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDH\x01R\rtenantStoreId\x88\x01\x01\x12F\n" +
-	"\vstart_month\x18\x03 \x01(\tB%\xbaG\"\x92\x02\x1f开始月份，格式：YYYY-MMR\n" +
-	"startMonth\x12B\n" +
-	"\tend_month\x18\x04 \x01(\tB%\xbaG\"\x92\x02\x1f结束月份，格式：YYYY-MMR\bendMonthB\f\n" +
+	"\x0ftenant_store_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDH\x01R\rtenantStoreId\x88\x01\x01\x12\xb8\x01\n" +
+	"\vstart_month\x18\x03 \x01(\tB\x96\x01\xbaG\"\x92\x02\x1f开始月份，格式：YYYY-MM\xbaHn\xba\x01k\n" +
+	"*list_goods_month_report.start_month.format\x12\x18开始月份格式错误\x1a#this.matches('^[0-9]{4}-[0-9]{2}$')R\n" +
+	"startMonth\x12\xb2\x01\n" +
+	"\tend_month\x18\x04 \x01(\tB\x94\x01\xbaG\"\x92\x02\x1f结束月份，格式：YYYY-MM\xbaHl\xba\x01i\n" +
+	"(list_goods_month_report.end_month.format\x12\x18结束月份格式错误\x1a#this.matches('^[0-9]{4}-[0-9]{2}$')R\bendMonth:t\xbaHq\x1ao\n" +
+	"#list_goods_month_report.month.range\x12$结束月份不能早于开始月份\x1a\"this.end_month >= this.start_monthB\f\n" +
 	"\n" +
 	"_tenant_idB\x12\n" +
 	"\x10_tenant_store_id\"\x8d\x01\n" +
 	"\x1cListGoodsMonthReportResponse\x12m\n" +
-	"\x13goods_month_reports\x18\x01 \x03(\v2#.shop.admin.v1.GoodsMonthReportItemB\x18\xbaG\x15\x92\x02\x12商品月报明细R\x11goodsMonthReports\"\xc3\x02\n" +
+	"\x13goods_month_reports\x18\x01 \x03(\v2#.shop.admin.v1.GoodsMonthReportItemB\x18\xbaG\x15\x92\x02\x12商品月报明细R\x11goodsMonthReports\"\xa6\x05\n" +
 	"\x1eSummaryGoodsMonthReportRequest\x120\n" +
 	"\ttenant_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12A\n" +
-	"\x0ftenant_store_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDH\x01R\rtenantStoreId\x88\x01\x01\x12F\n" +
-	"\vstart_month\x18\x03 \x01(\tB%\xbaG\"\x92\x02\x1f开始月份，格式：YYYY-MMR\n" +
-	"startMonth\x12B\n" +
-	"\tend_month\x18\x04 \x01(\tB%\xbaG\"\x92\x02\x1f结束月份，格式：YYYY-MMR\bendMonthB\f\n" +
+	"\x0ftenant_store_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDH\x01R\rtenantStoreId\x88\x01\x01\x12\xbb\x01\n" +
+	"\vstart_month\x18\x03 \x01(\tB\x99\x01\xbaG\"\x92\x02\x1f开始月份，格式：YYYY-MM\xbaHq\xba\x01n\n" +
+	"-summary_goods_month_report.start_month.format\x12\x18开始月份格式错误\x1a#this.matches('^[0-9]{4}-[0-9]{2}$')R\n" +
+	"startMonth\x12\xb5\x01\n" +
+	"\tend_month\x18\x04 \x01(\tB\x97\x01\xbaG\"\x92\x02\x1f结束月份，格式：YYYY-MM\xbaHo\xba\x01l\n" +
+	"+summary_goods_month_report.end_month.format\x12\x18结束月份格式错误\x1a#this.matches('^[0-9]{4}-[0-9]{2}$')R\bendMonth:w\xbaHt\x1ar\n" +
+	"&summary_goods_month_report.month.range\x12$结束月份不能早于开始月份\x1a\"this.end_month >= this.start_monthB\f\n" +
 	"\n" +
 	"_tenant_idB\x12\n" +
 	"\x10_tenant_store_id\"\xd3\x05\n" +
@@ -921,11 +931,14 @@ const file_shop_admin_v1_goods_report_proto_rawDesc = "" +
 	"\x15order_conversion_rate\x18\n" +
 	" \x01(\x03B\x1b\xbaG\x18\x92\x02\x15加购下单转化率R\x13orderConversionRate\x12K\n" +
 	"\x13pay_conversion_rate\x18\v \x01(\x03B\x1b\xbaG\x18\x92\x02\x15浏览支付转化率R\x11payConversionRate\x12G\n" +
-	"\x0epay_unit_price\x18\f \x01(\x03B!\xbaG\x1e\x92\x02\x1b件均成交价，单位分R\fpayUnitPrice\"\xac\x01\n" +
-	"\x1cSummaryGoodsDayReportRequest\x12G\n" +
+	"\x0epay_unit_price\x18\f \x01(\x03B!\xbaG\x1e\x92\x02\x1b件均成交价，单位分R\fpayUnitPrice\"\x96\x04\n" +
+	"\x1cSummaryGoodsDayReportRequest\x12\xc2\x01\n" +
 	"\n" +
-	"start_date\x18\x01 \x01(\tB(\xbaG%\x92\x02\"开始日期，格式：YYYY-MM-DDR\tstartDate\x12C\n" +
-	"\bend_date\x18\x02 \x01(\tB(\xbaG%\x92\x02\"结束日期，格式：YYYY-MM-DDR\aendDate\"\xd1\x05\n" +
+	"start_date\x18\x01 \x01(\tB\xa2\x01\xbaG%\x92\x02\"开始日期，格式：YYYY-MM-DD\xbaHw\xba\x01t\n" +
+	"*summary_goods_day_report.start_date.format\x12\x18开始日期格式错误\x1a,this.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')R\tstartDate\x12\xbc\x01\n" +
+	"\bend_date\x18\x02 \x01(\tB\xa0\x01\xbaG%\x92\x02\"结束日期，格式：YYYY-MM-DD\xbaHu\xba\x01r\n" +
+	"(summary_goods_day_report.end_date.format\x12\x18结束日期格式错误\x1a,this.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')R\aendDate:r\xbaHo\x1am\n" +
+	"#summary_goods_day_report.date.range\x12$结束日期不能早于开始日期\x1a this.end_date >= this.start_date\"\xd1\x05\n" +
 	"\x1dSummaryGoodsDayReportResponse\x121\n" +
 	"\n" +
 	"view_count\x18\x01 \x01(\x03B\x12\xbaG\x0f\x92\x02\f浏览次数R\tviewCount\x127\n" +

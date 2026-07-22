@@ -111,11 +111,23 @@ message BaseMenuForm {
     expression: "this.type != 4 || this.redirect.matches('^https?://.+$')"
   };
 
+  option (buf.validate.message).cel = {
+    id: "base_menu.folder.identity_empty"
+    message: "目录不能填写路径和路由名称"
+    expression: "this.type != 1 || (this.path.size() == 0 && this.name.size() == 0)"
+  };
+
+  option (buf.validate.message).cel = {
+    id: "base_menu.external.path_internal"
+    message: "外链路径必须使用内部唯一路径"
+    expression: "this.type != 4 || !this.path.matches('^https?://.*$')"
+  };
+
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "菜单ID"}]; // 菜单ID
 
   optional int64 parent_id = 2 [(gnostic.openapi.v3.property) = {description: "父级菜单ID"}]; // 父级菜单ID
 
-  .system.common.v1.BaseMenuType type = 3 [(gnostic.openapi.v3.property) = {description: "菜单类型"}, (buf.validate.field).enum = {defined_only: true}]; // 菜单类型
+  .system.common.v1.BaseMenuType type = 3 [(gnostic.openapi.v3.property) = {description: "菜单类型"}, (buf.validate.field).enum = {defined_only: true}, (buf.validate.field).cel = {id: "base_menu.type.required" message: "菜单类型不能为空" expression: "this != 0"}]; // 菜单类型
 
   string path = 4 [(gnostic.openapi.v3.property) = {description: "菜单路径、按钮权限标识或外链内部路径，目录可为空"}, (buf.validate.field).cel = {id: "base_menu.path.length" message: "路径不能超过 1024 个字符" expression: "this.size() <= 1024"}]; // 菜单路径、按钮权限标识或外链内部路径，目录可为空
 
@@ -136,6 +148,12 @@ message BaseMenuForm {
 
 // 创建菜单请求参数
 message CreateBaseMenuRequest {
+  option (buf.validate.message).cel = {
+    id: "create_base_menu.parent_id.required"
+    message: "新增菜单必须选择上级菜单"
+    expression: "has(this.base_menu.parent_id) && this.base_menu.parent_id > 0"
+  };
+
   BaseMenuForm base_menu = 1 [(gnostic.openapi.v3.property) = {description: "菜单表单"}, (buf.validate.field).required = true]; // 菜单表单
 }
 
@@ -146,14 +164,14 @@ message UpdateBaseMenuRequest {
 
 // 删除菜单请求参数
 message DeleteBaseMenuRequest {
-  string id = 1 [(gnostic.openapi.v3.property) = {description: "菜单ID列表"}]; // 菜单ID列表
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "菜单ID列表"}, (buf.validate.field).cel = {id: "delete_base_menu.id.required" message: "菜单ID列表不能为空" expression: "this.size() > 0"}]; // 菜单ID列表
 }
 
 // 设置菜单状态请求参数
 message SetBaseMenuStatusRequest {
-  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "菜单ID"}]; // 菜单ID
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "菜单ID"}, (buf.validate.field).cel = {id: "set_base_menu_status.id.required" message: "菜单ID不能为空" expression: "this > 0"}]; // 菜单ID
 
-  int32 status = 2 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
+  int32 status = 2 [(gnostic.openapi.v3.property) = {description: "状态"}, (buf.validate.field).cel = {id: "set_base_menu_status.status.required" message: "状态不能为空" expression: "this != 0"}]; // 状态
 }
 
 // 菜单

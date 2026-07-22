@@ -600,9 +600,10 @@ const file_shop_admin_v1_goods_category_proto_rawDesc = "" +
 	"_parent_id\"\x1a\n" +
 	"\x18TreeGoodsCategoryRequest\"~\n" +
 	"\x19TreeGoodsCategoryResponse\x12a\n" +
-	"\x10goods_categories\x18\x01 \x03(\v2\x1c.shop.admin.v1.GoodsCategoryB\x18\xbaG\x15\x92\x02\x12商品分类列表R\x0fgoodsCategories\"?\n" +
-	"\x17GetGoodsCategoryRequest\x12$\n" +
-	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e商品分类IDR\x02id\"\x83\x06\n" +
+	"\x10goods_categories\x18\x01 \x03(\v2\x1c.shop.admin.v1.GoodsCategoryB\x18\xbaG\x15\x92\x02\x12商品分类列表R\x0fgoodsCategories\"\x8b\x01\n" +
+	"\x17GetGoodsCategoryRequest\x12p\n" +
+	"\x02id\x18\x01 \x01(\x03B`\xbaG\x11\x92\x02\x0e商品分类ID\xbaHI\xba\x01F\n" +
+	"\x1eget_goods_category.id.required\x12\x1a商品分类ID不能为空\x1a\bthis > 0R\x02id\"\x83\x06\n" +
 	"\x11GoodsCategoryForm\x12$\n" +
 	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e商品分类IDR\x02id\x12\x90\x01\n" +
 	"\tparent_id\x18\x02 \x01(\x03Bn\xbaG\x17\x92\x02\x14父级商品分类ID\xbaHQ\xba\x01N\n" +
@@ -618,14 +619,16 @@ const file_shop_admin_v1_goods_category_proto_rawDesc = "" +
 	"\n" +
 	"_parent_id\"\x85\x01\n" +
 	"\x1aCreateGoodsCategoryRequest\x12g\n" +
-	"\x0egoods_category\x18\x01 \x01(\v2 .shop.admin.v1.GoodsCategoryFormB\x1e\xbaG\x15\x92\x02\x12商品分类表单\xbaH\x03\xc8\x01\x01R\rgoodsCategory\"\xab\x01\n" +
-	"\x1aUpdateGoodsCategoryRequest\x12$\n" +
-	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e商品分类IDR\x02id\x12g\n" +
+	"\x0egoods_category\x18\x01 \x01(\v2 .shop.admin.v1.GoodsCategoryFormB\x1e\xbaG\x15\x92\x02\x12商品分类表单\xbaH\x03\xc8\x01\x01R\rgoodsCategory\"\xfa\x01\n" +
+	"\x1aUpdateGoodsCategoryRequest\x12s\n" +
+	"\x02id\x18\x01 \x01(\x03Bc\xbaG\x11\x92\x02\x0e商品分类ID\xbaHL\xba\x01I\n" +
+	"!update_goods_category.id.required\x12\x1a商品分类ID不能为空\x1a\bthis > 0R\x02id\x12g\n" +
 	"\x0egoods_category\x18\x02 \x01(\v2 .shop.admin.v1.GoodsCategoryFormB\x1e\xbaG\x15\x92\x02\x12商品分类表单\xbaH\x03\xc8\x01\x01R\rgoodsCategory\"b\n" +
 	"\x1aDeleteGoodsCategoryRequest\x12D\n" +
-	"\x03ids\x18\x01 \x01(\tB2\xbaG/\x92\x02,商品分类ID列表，多个用逗号分隔R\x03ids\"\x93\x01\n" +
-	"\x1dSetGoodsCategoryStatusRequest\x12$\n" +
-	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e商品分类IDR\x02id\x12L\n" +
+	"\x03ids\x18\x01 \x01(\tB2\xbaG/\x92\x02,商品分类ID列表，多个用逗号分隔R\x03ids\"\xe6\x01\n" +
+	"\x1dSetGoodsCategoryStatusRequest\x12w\n" +
+	"\x02id\x18\x01 \x01(\x03Bg\xbaG\x11\x92\x02\x0e商品分类ID\xbaHP\xba\x01M\n" +
+	"%set_goods_category_status.id.required\x12\x1a商品分类ID不能为空\x1a\bthis > 0R\x02id\x12L\n" +
 	"\x06status\x18\x02 \x01(\x0e2\x11.common.v1.StatusB!\xbaG\x1e\x92\x02\x1b状态：枚举【Status】R\x06status\"\x9e\x06\n" +
 	"\rGoodsCategory\x12$\n" +
 	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e商品分类IDR\x02id\x127\n" +

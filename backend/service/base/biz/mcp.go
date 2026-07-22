@@ -74,9 +74,6 @@ func (h *McpCase) HandleMcp(ctx context.Context, req *basev1.HandleMcpRequest) (
 		return nil, errorsx.Internal("MCP服务未初始化")
 	}
 	terminal := req.GetTerminal()
-	if terminal == "" {
-		return nil, errorsx.InvalidArgument("MCP服务标识不能为空")
-	}
 	w, ok := kratosHTTP.ResponseWriterFromServerContext(ctx)
 	if !ok || w == nil {
 		return nil, errorsx.InvalidArgument("MCP请求仅支持HTTP访问")

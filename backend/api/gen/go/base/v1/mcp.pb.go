@@ -11,6 +11,7 @@ import (
 	sync "sync"
 	unsafe "unsafe"
 
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -74,9 +75,10 @@ var File_base_v1_mcp_proto protoreflect.FileDescriptor
 
 const file_base_v1_mcp_proto_rawDesc = "" +
 	"\n" +
-	"\x11base/v1/mcp.proto\x12\abase.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x82\x01\n" +
-	"\x10HandleMcpRequest\x12n\n" +
-	"\bterminal\x18\x01 \x01(\tBR\xbaGO\x92\x02L服务筛选关键字，必填，支持 app、admin 或任意服务关键字R\bterminal2\x8f\x01\n" +
+	"\x11base/v1/mcp.proto\x12\abase.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xd6\x01\n" +
+	"\x10HandleMcpRequest\x12\xc1\x01\n" +
+	"\bterminal\x18\x01 \x01(\tB\xa4\x01\xbaGO\x92\x02L服务筛选关键字，必填，支持 app、admin 或任意服务关键字\xbaHO\xba\x01L\n" +
+	"\x1chandle_mcp.terminal.required\x12\x1bMCP服务标识不能为空\x1a\x0fthis.size() > 0R\bterminal2\x8f\x01\n" +
 	"\n" +
 	"McpService\x12\x80\x01\n" +
 	"\tHandleMcp\x12\x19.base.v1.HandleMcpRequest\x1a\x16.google.protobuf.Empty\"@\x82\xd3\xe4\x93\x02::\x01*Z\x11\x12\x0f/mcp/{terminal}Z\x11*\x0f/mcp/{terminal}\"\x0f/mcp/{terminal}Bt\n" +

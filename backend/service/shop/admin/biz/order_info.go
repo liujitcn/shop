@@ -312,9 +312,6 @@ func (c *OrderInfoCase) RefundOrderInfo(ctx context.Context, req *shopadminv1.Re
 			"NONE_ORS|PARTIAL_REFUND_ORS|CLOSED_OR_FAILED_ORS",
 		)
 	}
-	if req.GetRefundMoney() <= 0 {
-		return errorsx.InvalidArgument("退款金额必须大于 0")
-	}
 	var orderTrade *models.OrderTrade
 	orderTrade, err = c.findOrderTrade(ctx, orderInfo.TradeID)
 	if err != nil {

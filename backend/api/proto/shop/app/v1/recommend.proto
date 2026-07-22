@@ -4,6 +4,7 @@ package shop.app.v1;
 
 import "shop/app/v1/goods_info.proto";
 import "shop/common/v1/enum.proto";
+import "buf/validate/validate.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
@@ -54,7 +55,7 @@ message BindRecommendAnonymousActorRequest {}
 
 // 推荐商品请求参数
 message RecommendGoodsRequest {
-  .shop.common.v1.RecommendScene scene = 1 [(gnostic.openapi.v3.property) = {description: "推荐场景"}]; // 推荐场景
+  .shop.common.v1.RecommendScene scene = 1 [(gnostic.openapi.v3.property) = {description: "推荐场景"}, (buf.validate.field).enum = {defined_only: true}, (buf.validate.field).cel = {id: "recommend_goods.scene.required" message: "推荐场景不能为空" expression: "this != 0"}]; // 推荐场景
 
   int64 order_id = 2 [(gnostic.openapi.v3.property) = {description: "订单ID"}]; // 订单ID
 
@@ -111,7 +112,7 @@ message RecommendEventItem {
 
 // 推荐事件上报请求参数
 message RecommendEventReportRequest {
-  .shop.common.v1.RecommendEventType event_type = 1 [(gnostic.openapi.v3.property) = {description: "推荐事件类型"}]; // 推荐事件类型
+  .shop.common.v1.RecommendEventType event_type = 1 [(gnostic.openapi.v3.property) = {description: "推荐事件类型"}, (buf.validate.field).enum = {defined_only: true}, (buf.validate.field).cel = {id: "recommend_event_report.event_type.required" message: "推荐事件类型不能为空" expression: "this != 0"}]; // 推荐事件类型
 
   RecommendEventContext recommend_context = 2 [(gnostic.openapi.v3.property) = {description: "推荐归因上下文"}]; // 推荐归因上下文
 

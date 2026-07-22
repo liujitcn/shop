@@ -372,9 +372,10 @@ const file_shop_app_v1_user_store_proto_rawDesc = "" +
 	"\x13GetUserStoreRequest\"g\n" +
 	"\x16CreateUserStoreRequest\x12M\n" +
 	"\n" +
-	"user_store\x18\x01 \x01(\v2\x1a.shop.app.v1.UserStoreFormB\x12\xbaG\x0f\x92\x02\f用户门店R\tuserStore\"\x8d\x01\n" +
-	"\x16UpdateUserStoreRequest\x12$\n" +
-	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e用户门店IDR\x02id\x12M\n" +
+	"user_store\x18\x01 \x01(\v2\x1a.shop.app.v1.UserStoreFormB\x12\xbaG\x0f\x92\x02\f用户门店R\tuserStore\"\xd8\x01\n" +
+	"\x16UpdateUserStoreRequest\x12o\n" +
+	"\x02id\x18\x01 \x01(\x03B_\xbaG\x11\x92\x02\x0e用户门店ID\xbaHH\xba\x01E\n" +
+	"\x1dupdate_user_store.id.required\x12\x1a用户门店ID不能为空\x1a\bthis > 0R\x02id\x12M\n" +
 	"\n" +
 	"user_store\x18\x02 \x01(\v2\x1a.shop.app.v1.UserStoreFormB\x12\xbaG\x0f\x92\x02\f用户门店R\tuserStore\"\xc1\x03\n" +
 	"\tUserStore\x12$\n" +

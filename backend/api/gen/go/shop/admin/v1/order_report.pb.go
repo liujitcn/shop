@@ -11,6 +11,7 @@ import (
 	sync "sync"
 	unsafe "unsafe"
 
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -878,44 +879,53 @@ var File_shop_admin_v1_order_report_proto protoreflect.FileDescriptor
 
 const file_shop_admin_v1_order_report_proto_rawDesc = "" +
 	"\n" +
-	" shop/admin/v1/order_report.proto\x12\rshop.admin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\xff\x03\n" +
+	" shop/admin/v1/order_report.proto\x12\rshop.admin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\"\xe0\x06\n" +
 	"\x19ListOrderDayReportRequest\x120\n" +
 	"\ttenant_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12A\n" +
-	"\x0ftenant_store_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDH\x01R\rtenantStoreId\x88\x01\x01\x12G\n" +
+	"\x0ftenant_store_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDH\x01R\rtenantStoreId\x88\x01\x01\x12\xbf\x01\n" +
 	"\n" +
-	"start_date\x18\x03 \x01(\tB(\xbaG%\x92\x02\"开始日期，格式：YYYY-MM-DDR\tstartDate\x12C\n" +
-	"\bend_date\x18\x04 \x01(\tB(\xbaG%\x92\x02\"结束日期，格式：YYYY-MM-DDR\aendDate\x12Y\n" +
+	"start_date\x18\x03 \x01(\tB\x9f\x01\xbaG%\x92\x02\"开始日期，格式：YYYY-MM-DD\xbaHt\xba\x01q\n" +
+	"'list_order_day_report.start_date.format\x12\x18开始日期格式错误\x1a,this.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')R\tstartDate\x12\xb9\x01\n" +
+	"\bend_date\x18\x04 \x01(\tB\x9d\x01\xbaG%\x92\x02\"结束日期，格式：YYYY-MM-DD\xbaHr\xba\x01o\n" +
+	"%list_order_day_report.end_date.format\x12\x18结束日期格式错误\x1a,this.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')R\aendDate\x12Y\n" +
 	"\bpay_type\x18\x05 \x01(\x05B>\xbaG;\x92\x028支付方式：枚举【OrderPayType】，0 表示全部R\apayType\x12b\n" +
 	"\vpay_channel\x18\x06 \x01(\x05BA\xbaG>\x92\x02;支付渠道：枚举【OrderPayChannel】，0 表示全部R\n" +
-	"payChannelB\f\n" +
+	"payChannel:o\xbaHl\x1aj\n" +
+	" list_order_day_report.date.range\x12$结束日期不能早于开始日期\x1a this.end_date >= this.start_dateB\f\n" +
 	"\n" +
 	"_tenant_idB\x12\n" +
 	"\x10_tenant_store_id\"\x7f\n" +
 	"\x1aListOrderDayReportResponse\x12a\n" +
-	"\x11order_day_reports\x18\x01 \x03(\v2!.shop.admin.v1.OrderDayReportItemB\x12\xbaG\x0f\x92\x02\f日报明细R\x0forderDayReports\"\xff\x03\n" +
+	"\x11order_day_reports\x18\x01 \x03(\v2!.shop.admin.v1.OrderDayReportItemB\x12\xbaG\x0f\x92\x02\f日报明细R\x0forderDayReports\"\xd9\x06\n" +
 	"\x1bListOrderMonthReportRequest\x120\n" +
 	"\ttenant_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12A\n" +
-	"\x0ftenant_store_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDH\x01R\rtenantStoreId\x88\x01\x01\x12F\n" +
-	"\vstart_month\x18\x03 \x01(\tB%\xbaG\"\x92\x02\x1f开始月份，格式：YYYY-MMR\n" +
-	"startMonth\x12B\n" +
-	"\tend_month\x18\x04 \x01(\tB%\xbaG\"\x92\x02\x1f结束月份，格式：YYYY-MMR\bendMonth\x12Y\n" +
+	"\x0ftenant_store_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDH\x01R\rtenantStoreId\x88\x01\x01\x12\xb8\x01\n" +
+	"\vstart_month\x18\x03 \x01(\tB\x96\x01\xbaG\"\x92\x02\x1f开始月份，格式：YYYY-MM\xbaHn\xba\x01k\n" +
+	"*list_order_month_report.start_month.format\x12\x18开始月份格式错误\x1a#this.matches('^[0-9]{4}-[0-9]{2}$')R\n" +
+	"startMonth\x12\xb2\x01\n" +
+	"\tend_month\x18\x04 \x01(\tB\x94\x01\xbaG\"\x92\x02\x1f结束月份，格式：YYYY-MM\xbaHl\xba\x01i\n" +
+	"(list_order_month_report.end_month.format\x12\x18结束月份格式错误\x1a#this.matches('^[0-9]{4}-[0-9]{2}$')R\bendMonth\x12Y\n" +
 	"\bpay_type\x18\x05 \x01(\x05B>\xbaG;\x92\x028支付方式：枚举【OrderPayType】，0 表示全部R\apayType\x12b\n" +
 	"\vpay_channel\x18\x06 \x01(\x05BA\xbaG>\x92\x02;支付渠道：枚举【OrderPayChannel】，0 表示全部R\n" +
-	"payChannelB\f\n" +
+	"payChannel:t\xbaHq\x1ao\n" +
+	"#list_order_month_report.month.range\x12$结束月份不能早于开始月份\x1a\"this.end_month >= this.start_monthB\f\n" +
 	"\n" +
 	"_tenant_idB\x12\n" +
 	"\x10_tenant_store_id\"\x87\x01\n" +
 	"\x1cListOrderMonthReportResponse\x12g\n" +
-	"\x13order_month_reports\x18\x01 \x03(\v2#.shop.admin.v1.OrderMonthReportItemB\x12\xbaG\x0f\x92\x02\f月报明细R\x11orderMonthReports\"\x82\x04\n" +
+	"\x13order_month_reports\x18\x01 \x03(\v2#.shop.admin.v1.OrderMonthReportItemB\x12\xbaG\x0f\x92\x02\f月报明细R\x11orderMonthReports\"\xe5\x06\n" +
 	"\x1eSummaryOrderMonthReportRequest\x120\n" +
 	"\ttenant_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12A\n" +
-	"\x0ftenant_store_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDH\x01R\rtenantStoreId\x88\x01\x01\x12F\n" +
-	"\vstart_month\x18\x03 \x01(\tB%\xbaG\"\x92\x02\x1f开始月份，格式：YYYY-MMR\n" +
-	"startMonth\x12B\n" +
-	"\tend_month\x18\x04 \x01(\tB%\xbaG\"\x92\x02\x1f结束月份，格式：YYYY-MMR\bendMonth\x12Y\n" +
+	"\x0ftenant_store_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDH\x01R\rtenantStoreId\x88\x01\x01\x12\xbb\x01\n" +
+	"\vstart_month\x18\x03 \x01(\tB\x99\x01\xbaG\"\x92\x02\x1f开始月份，格式：YYYY-MM\xbaHq\xba\x01n\n" +
+	"-summary_order_month_report.start_month.format\x12\x18开始月份格式错误\x1a#this.matches('^[0-9]{4}-[0-9]{2}$')R\n" +
+	"startMonth\x12\xb5\x01\n" +
+	"\tend_month\x18\x04 \x01(\tB\x97\x01\xbaG\"\x92\x02\x1f结束月份，格式：YYYY-MM\xbaHo\xba\x01l\n" +
+	"+summary_order_month_report.end_month.format\x12\x18结束月份格式错误\x1a#this.matches('^[0-9]{4}-[0-9]{2}$')R\bendMonth\x12Y\n" +
 	"\bpay_type\x18\x05 \x01(\x05B>\xbaG;\x92\x028支付方式：枚举【OrderPayType】，0 表示全部R\apayType\x12b\n" +
 	"\vpay_channel\x18\x06 \x01(\x05BA\xbaG>\x92\x02;支付渠道：枚举【OrderPayChannel】，0 表示全部R\n" +
-	"payChannelB\f\n" +
+	"payChannel:w\xbaHt\x1ar\n" +
+	"&summary_order_month_report.month.range\x12$结束月份不能早于开始月份\x1a\"this.end_month >= this.start_monthB\f\n" +
 	"\n" +
 	"_tenant_idB\x12\n" +
 	"\x10_tenant_store_id\"\xe6\x04\n" +
@@ -928,16 +938,19 @@ const file_shop_admin_v1_order_report_proto_rawDesc = "" +
 	"\x0fpaid_user_count\x18\x06 \x01(\x03B\x15\xbaG\x12\x92\x02\x0f支付用户数R\rpaidUserCount\x123\n" +
 	"\vgoods_count\x18\a \x01(\x03B\x12\xbaG\x0f\x92\x02\f商品件数R\n" +
 	"goodsCount\x12K\n" +
-	"\x13customer_unit_price\x18\b \x01(\x03B\x1b\xbaG\x18\x92\x02\x15客单价，单位分R\x11customerUnitPrice\"\x82\x04\n" +
+	"\x13customer_unit_price\x18\b \x01(\x03B\x1b\xbaG\x18\x92\x02\x15客单价，单位分R\x11customerUnitPrice\"\xec\x06\n" +
 	"\x1cSummaryOrderDayReportRequest\x120\n" +
 	"\ttenant_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12A\n" +
-	"\x0ftenant_store_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDH\x01R\rtenantStoreId\x88\x01\x01\x12G\n" +
+	"\x0ftenant_store_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDH\x01R\rtenantStoreId\x88\x01\x01\x12\xc2\x01\n" +
 	"\n" +
-	"start_date\x18\x03 \x01(\tB(\xbaG%\x92\x02\"开始日期，格式：YYYY-MM-DDR\tstartDate\x12C\n" +
-	"\bend_date\x18\x04 \x01(\tB(\xbaG%\x92\x02\"结束日期，格式：YYYY-MM-DDR\aendDate\x12Y\n" +
+	"start_date\x18\x03 \x01(\tB\xa2\x01\xbaG%\x92\x02\"开始日期，格式：YYYY-MM-DD\xbaHw\xba\x01t\n" +
+	"*summary_order_day_report.start_date.format\x12\x18开始日期格式错误\x1a,this.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')R\tstartDate\x12\xbc\x01\n" +
+	"\bend_date\x18\x04 \x01(\tB\xa0\x01\xbaG%\x92\x02\"结束日期，格式：YYYY-MM-DD\xbaHu\xba\x01r\n" +
+	"(summary_order_day_report.end_date.format\x12\x18结束日期格式错误\x1a,this.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')R\aendDate\x12Y\n" +
 	"\bpay_type\x18\x05 \x01(\x05B>\xbaG;\x92\x028支付方式：枚举【OrderPayType】，0 表示全部R\apayType\x12b\n" +
 	"\vpay_channel\x18\x06 \x01(\x05BA\xbaG>\x92\x02;支付渠道：枚举【OrderPayChannel】，0 表示全部R\n" +
-	"payChannelB\f\n" +
+	"payChannel:r\xbaHo\x1am\n" +
+	"#summary_order_day_report.date.range\x12$结束日期不能早于开始日期\x1a this.end_date >= this.start_dateB\f\n" +
 	"\n" +
 	"_tenant_idB\x12\n" +
 	"\x10_tenant_store_id\"\xe4\x04\n" +

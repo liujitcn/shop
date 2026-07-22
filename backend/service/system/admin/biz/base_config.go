@@ -95,7 +95,7 @@ func (c *BaseConfigCase) CreateBaseConfig(ctx context.Context, req *systemadminv
 	if err != nil {
 		// 命中配置键唯一索引冲突时，返回稳定的业务冲突错误。
 		if errorsx.IsMySQLDuplicateKey(err) {
-			return errorsx.UniqueConflict("配置key重复", "base_config", "key", "unique_base_config").WithCause(err)
+			return errorsx.UniqueConflict("同一位置的配置键重复", "base_config", "", "unique_base_config").WithCause(err)
 		}
 		return err
 	}
@@ -108,9 +108,6 @@ func (c *BaseConfigCase) CreateBaseConfig(ctx context.Context, req *systemadminv
 
 // UpdateBaseConfig 更新配置
 func (c *BaseConfigCase) UpdateBaseConfig(ctx context.Context, req *systemadminv1.BaseConfigForm) error {
-	if req.GetId() <= 0 {
-		return errorsx.InvalidArgument("系统配置参数不合法")
-	}
 	oldConfig, err := c.FindByID(ctx, req.GetId())
 	if err != nil {
 		return err
@@ -121,7 +118,7 @@ func (c *BaseConfigCase) UpdateBaseConfig(ctx context.Context, req *systemadminv
 	if err != nil {
 		// 命中配置键唯一索引冲突时，返回稳定的业务冲突错误。
 		if errorsx.IsMySQLDuplicateKey(err) {
-			return errorsx.UniqueConflict("配置key重复", "base_config", "key", "unique_base_config").WithCause(err)
+			return errorsx.UniqueConflict("同一位置的配置键重复", "base_config", "", "unique_base_config").WithCause(err)
 		}
 		return err
 	}

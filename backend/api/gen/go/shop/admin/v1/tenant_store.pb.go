@@ -1031,11 +1031,14 @@ const file_shop_admin_v1_tenant_store_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b门店IDR\x02id\x12a\n" +
 	"\ftenant_store\x18\x02 \x01(\v2\x1e.shop.admin.v1.TenantStoreFormB\x1e\xbaG\x15\x92\x02\x12租户门店表单\xbaH\x03\xc8\x01\x01R\vtenantStore\"Z\n" +
 	"\x18DeleteTenantStoreRequest\x12>\n" +
-	"\x03ids\x18\x01 \x01(\tB,\xbaG)\x92\x02&门店ID列表，多个用逗号分隔R\x03ids\"\xd4\x01\n" +
-	"\x17AuditTenantStoreRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b门店IDR\x02id\x12m\n" +
-	"\x06status\x183 \x01(\x0e2!.shop.common.v1.TenantStoreStatusB2\xbaG/\x92\x02,审核状态：枚举【TenantStoreStatus】R\x06status\x12*\n" +
-	"\x06remark\x184 \x01(\tB\x12\xbaG\x0f\x92\x02\f审核备注R\x06remark\"\xe4\x04\n" +
+	"\x03ids\x18\x01 \x01(\tB,\xbaG)\x92\x02&门店ID列表，多个用逗号分隔R\x03ids\"\xa3\x04\n" +
+	"\x17AuditTenantStoreRequest\x12d\n" +
+	"\x02id\x18\x01 \x01(\x03BT\xbaG\v\x92\x02\b门店ID\xbaHC\xba\x01@\n" +
+	"\x1eaudit_tenant_store.id.required\x12\x14门店ID不能为空\x1a\bthis > 0R\x02id\x12u\n" +
+	"\x06status\x183 \x01(\x0e2!.shop.common.v1.TenantStoreStatusB:\xbaG/\x92\x02,审核状态：枚举【TenantStoreStatus】\xbaH\x05\x82\x01\x02\x10\x01R\x06status\x12*\n" +
+	"\x06remark\x184 \x01(\tB\x12\xbaG\x0f\x92\x02\f审核备注R\x06remark:\xfe\x01\xbaH\xfa\x01\x1ar\n" +
+	"!audit_tenant_store.status.allowed\x12'审核状态仅支持通过或不通过\x1a$this.status == 2 || this.status == 3\x1a\x83\x01\n" +
+	",audit_tenant_store.remark.required_on_failed\x12'审核不通过时请填写审核备注\x1a*this.status != 2 || this.remark.size() > 0\"\xe4\x04\n" +
 	"\vTenantStore\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b门店IDR\x02id\x12+\n" +
 	"\ttenant_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDR\btenantId\x12&\n" +

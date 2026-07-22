@@ -98,11 +98,6 @@ func NewCommentCase(
 
 // PageCommentDiscussion 查询评价讨论分页列表。
 func (c *CommentCase) PageCommentDiscussion(ctx context.Context, req *shopappv1.PageCommentDiscussionRequest) (*shopappv1.PageCommentDiscussionResponse, error) {
-	// 评价编号非法时，无法继续查询评价讨论列表。
-	if req.GetCommentId() <= 0 {
-		return nil, errorsx.InvalidArgument("评价编号不能为空")
-	}
-
 	_, err := c.commentInfoCase.FindByID(ctx, req.GetCommentId())
 	if err != nil {
 		return nil, err
@@ -136,11 +131,6 @@ func (c *CommentCase) PageCommentDiscussion(ctx context.Context, req *shopappv1.
 
 // PageGoodsComment 查询商品评价分页列表。
 func (c *CommentCase) PageGoodsComment(ctx context.Context, req *shopappv1.PageGoodsCommentRequest) (*shopappv1.PageGoodsCommentResponse, error) {
-	// 商品编号非法时，无法继续查询商品评价列表。
-	if req.GetGoodsId() <= 0 {
-		return nil, errorsx.InvalidArgument("商品编号不能为空")
-	}
-
 	userID := int64(0)
 	authInfo, authErr := c.GetAuthInfo(ctx)
 	// 当前请求带有登录信息时，补齐当前用户编号用于互动状态回显。
@@ -303,39 +293,6 @@ func (c *CommentCase) PagePendingCommentGoods(ctx context.Context, req *shopappv
 
 // CreateComment 发布商品评价。
 func (c *CommentCase) CreateComment(ctx context.Context, req *shopappv1.CreateCommentRequest) (*shopappv1.CreateCommentResponse, error) {
-	// 订单编号非法时，无法继续创建评价。
-	if req.GetOrderId() <= 0 {
-		return nil, errorsx.InvalidArgument("订单编号不能为空")
-	}
-	// 商品编号非法时，无法继续创建评价。
-	if req.GetGoodsId() <= 0 {
-		return nil, errorsx.InvalidArgument("商品编号不能为空")
-	}
-	// SKU 编码为空时，无法继续创建评价。
-	if req.GetSkuCode() == "" {
-		return nil, errorsx.InvalidArgument("SKU编码不能为空")
-	}
-	// 评价图片超过当前页面允许的最大数量时，拒绝当前发布请求。
-	if len(req.GetImg()) > 6 {
-		return nil, errorsx.InvalidArgument("评价图片最多上传6张")
-	}
-	// 评价正文超过当前页面允许的最大长度时，拒绝当前发布请求。
-	if len([]rune(req.GetContent())) > 500 {
-		return nil, errorsx.InvalidArgument("评价正文不能超过500字")
-	}
-	// 商品评分超出 1 到 5 分范围时，拒绝当前发布请求。
-	if req.GetGoodsScore() < 1 || req.GetGoodsScore() > 5 {
-		return nil, errorsx.InvalidArgument("商品评分范围必须在1到5之间")
-	}
-	// 包装评分超出 1 到 5 分范围时，拒绝当前发布请求。
-	if req.GetPackageScore() < 1 || req.GetPackageScore() > 5 {
-		return nil, errorsx.InvalidArgument("包装评分范围必须在1到5之间")
-	}
-	// 送货评分超出 1 到 5 分范围时，拒绝当前发布请求。
-	if req.GetDeliveryScore() < 1 || req.GetDeliveryScore() > 5 {
-		return nil, errorsx.InvalidArgument("送货评分范围必须在1到5之间")
-	}
-
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return nil, err
@@ -361,16 +318,6 @@ func (c *CommentCase) CreateComment(ctx context.Context, req *shopappv1.CreateCo
 	if err != nil {
 		return nil, errorsx.ResourceNotFound("订单商品不存在").WithCause(err)
 	}
-	// 当前订单商品已经评价过时，不允许继续重复评价。
-	isCommented := false
-	isCommented, err = c.commentInfoCase.IsOrderGoodsCommented(ctx, authInfo.UserId, req.GetOrderId(), req.GetGoodsId(), req.GetSkuCode())
-	if err != nil {
-		return nil, err
-	}
-	if isCommented {
-		return nil, errorsx.InvalidArgument("当前商品已评价")
-	}
-
 	var user *models.BaseUser
 	user, err = c.baseUserCase.FindByID(ctx, authInfo.UserId)
 	if err != nil {
@@ -427,11 +374,6 @@ func (c *CommentCase) CreateComment(ctx context.Context, req *shopappv1.CreateCo
 
 // CreateCommentDiscussion 发布评价讨论。
 func (c *CommentCase) CreateCommentDiscussion(ctx context.Context, req *shopappv1.CreateCommentDiscussionRequest) (*shopappv1.CreateCommentDiscussionResponse, error) {
-	// 评价编号非法时，无法继续创建评价讨论。
-	if req.GetCommentId() <= 0 {
-		return nil, errorsx.InvalidArgument("评价编号不能为空")
-	}
-
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return nil, err
@@ -475,11 +417,6 @@ func (c *CommentCase) CreateCommentDiscussion(ctx context.Context, req *shopappv
 
 // DeleteComment 删除商品评价。
 func (c *CommentCase) DeleteComment(ctx context.Context, commentID int64) error {
-	// 评价编号非法时，无法继续删除评价。
-	if commentID <= 0 {
-		return errorsx.InvalidArgument("评价编号不能为空")
-	}
-
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return err
@@ -516,11 +453,6 @@ func (c *CommentCase) DeleteComment(ctx context.Context, commentID int64) error 
 
 // GoodsCommentOverview 查询商品评价摘要。
 func (c *CommentCase) GoodsCommentOverview(ctx context.Context, req *shopappv1.GoodsCommentOverviewRequest) (*shopappv1.GoodsCommentOverviewResponse, error) {
-	// 商品编号非法时，无法继续查询商品评价摘要。
-	if req.GetGoodsId() <= 0 {
-		return nil, errorsx.InvalidArgument("商品编号不能为空")
-	}
-
 	userID := int64(0)
 	authInfo, authErr := c.GetAuthInfo(ctx)
 	// 当前请求带有登录信息时，补齐当前用户编号用于互动状态回显。
@@ -565,11 +497,6 @@ func (c *CommentCase) GoodsCommentOverview(ctx context.Context, req *shopappv1.G
 
 // GoodsCommentTag 查询商品评价标签列表。
 func (c *CommentCase) GoodsCommentTag(ctx context.Context, req *shopappv1.GoodsCommentTagRequest) (*shopappv1.GoodsCommentTagResponse, error) {
-	// 商品编号非法时，无法继续查询商品评价标签。
-	if req.GetGoodsId() <= 0 {
-		return nil, errorsx.InvalidArgument("商品编号不能为空")
-	}
-
 	commentTags, err := c.commentTagCase.ListTags(ctx, req.GetGoodsId(), req.GetLimit())
 	if err != nil {
 		return nil, err
@@ -581,10 +508,6 @@ func (c *CommentCase) GoodsCommentTag(ctx context.Context, req *shopappv1.GoodsC
 
 // SaveCommentReaction 保存评价互动状态。
 func (c *CommentCase) SaveCommentReaction(ctx context.Context, req *shopappv1.SaveCommentReactionRequest) (*shopappv1.SaveCommentReactionResponse, error) {
-	// 互动目标编号非法时，无法继续保存互动状态。
-	if req.GetTargetId() <= 0 {
-		return nil, errorsx.InvalidArgument("互动目标编号不能为空")
-	}
 	// 互动类型非法时，无法继续保存互动状态。
 	if req.GetReactionType() != shopcommonv1.CommentReactionType(_const.COMMENT_REACTION_TYPE_LIKE) &&
 		req.GetReactionType() != shopcommonv1.CommentReactionType(_const.COMMENT_REACTION_TYPE_DISLIKE) {
