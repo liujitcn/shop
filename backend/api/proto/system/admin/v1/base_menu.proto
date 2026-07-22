@@ -108,7 +108,7 @@ message BaseMenuForm {
   option (buf.validate.message).cel = {
     id: "base_menu.redirect.external"
     message: "外链必须填写完整的 HTTP 地址"
-    expression: "this.type != 4 || this.redirect.matches('^https?://[^\\s]+$')"
+    expression: "this.type != 4 || this.redirect.matches('^https?://.+$')"
   };
 
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "菜单ID"}]; // 菜单ID

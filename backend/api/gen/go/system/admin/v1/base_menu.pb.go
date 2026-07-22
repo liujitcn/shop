@@ -833,7 +833,7 @@ const file_system_admin_v1_base_menu_proto_rawDesc = "" +
 	"\n" +
 	"base_menus\x18\x01 \x03(\v2\x19.system.admin.v1.BaseMenuB\x0f\xbaG\f\x92\x02\t菜单树R\tbaseMenus\"4\n" +
 	"\x12GetBaseMenuRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b菜单IDR\x02id\"\xfc\f\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b菜单IDR\x02id\"\xf8\f\n" +
 	"\fBaseMenuForm\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b菜单IDR\x02id\x126\n" +
 	"\tparent_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e父级菜单IDH\x00R\bparentId\x88\x01\x01\x12N\n" +
@@ -850,11 +850,11 @@ const file_system_admin_v1_base_menu_proto_rawDesc = "" +
 	"\x03api\x18\t \x03(\tB\x18\xbaG\x15\x92\x02\x12分配的API列表R\x03api\x12_\n" +
 	"\x04sort\x182 \x01(\x05BK\xbaG\t\x92\x02\x06排序\xbaH<\xba\x019\n" +
 	"\x17base_menu.sort.required\x12\x14排序必须大于 0\x1a\bthis > 0R\x04sort\x12?\n" +
-	"\x06status\x18e \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status:\xcb\x03\xbaH\xc7\x03\x1ad\n" +
+	"\x06status\x18e \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status:\xc7\x03\xbaH\xc3\x03\x1ad\n" +
 	"\x17base_menu.path.required\x12!非目录菜单必须填写路径\x1a&this.type == 1 || this.path.size() > 0\x1ag\n" +
 	"\x17base_menu.name.required\x12$菜单类型必须填写路由名称\x1a&this.type != 2 || this.name.size() > 0\x1ao\n" +
-	"\x18base_menu.name.menu_only\x12*只有菜单类型可以填写路由名称\x1a'this.type == 2 || this.name.size() == 0\x1a\x84\x01\n" +
-	"\x1bbase_menu.redirect.external\x12'外链必须填写完整的 HTTP 地址\x1a<this.type != 4 || this.redirect.matches('^https?://[^\\s]+$')B\f\n" +
+	"\x18base_menu.name.menu_only\x12*只有菜单类型可以填写路由名称\x1a'this.type == 2 || this.name.size() == 0\x1a\x80\x01\n" +
+	"\x1bbase_menu.redirect.external\x12'外链必须填写完整的 HTTP 地址\x1a8this.type != 4 || this.redirect.matches('^https?://.+$')B\f\n" +
 	"\n" +
 	"_parent_id\"m\n" +
 	"\x15CreateBaseMenuRequest\x12T\n" +

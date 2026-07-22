@@ -14200,7 +14200,7 @@ components:
                     format: enum
                 path:
                     type: string
-                    description: 路由地址
+                    description: 菜单路径、按钮权限标识或外链内部路径，目录可为空
                 name:
                     type: string
                     description: 路由命名，然后我们可以使用 name 而不是 path 来传递 to 属性给 <router-link>。
@@ -14209,7 +14209,7 @@ components:
                     description: 组件路径
                 redirect:
                     type: string
-                    description: 重定向地址
+                    description: 目录跳转路由或外链地址
                 meta:
                     $ref: '#/components/schemas/system.admin.v1.BaseMenuMeta'
                 api:
@@ -15371,6 +15371,16 @@ components:
                     description: 指向的组件
                 meta:
                     $ref: '#/components/schemas/system.admin.v1.RouteMeta'
+                type:
+                    enum:
+                        - UNKNOWN_MT
+                        - FOLDER
+                        - MENU
+                        - BUTTON
+                        - EXT_LINK
+                    type: string
+                    description: 菜单类型
+                    format: enum
                 children:
                     type: array
                     items:
