@@ -85,9 +85,11 @@ import { DEFAULT_TENANT_CODE, requestTenantOptions } from "@/utils/tenant";
 import { useUserStore } from "@/stores/modules/user";
 
 /** 用户表单状态，前端保留明文密码并在提交前加密。 */
-interface BaseUserFormState extends Omit<BaseUserForm, "pwd" | "tenant_id"> {
+interface BaseUserFormState extends Omit<BaseUserForm, "dept_id" | "pwd" | "tenant_id"> {
   /** 租户ID，默认租户新增时必须由管理员显式选择。 */
   tenant_id?: number;
+  /** 部门ID，未选择时保持空白。 */
+  dept_id?: number;
   /** 密码明文只保留在前端表单中，提交前转换为密码密文。 */
   pwd: string;
 }
@@ -143,7 +145,7 @@ const formData = reactive<BaseUserFormState>({
   /** 角色ID */
   role_id: 0,
   /** 部门ID */
-  dept_id: 0,
+  dept_id: undefined,
   /** 手机号 */
   phone: "",
   /** 密码 */
@@ -538,7 +540,7 @@ function resetForm() {
   formData.user_name = "";
   formData.nick_name = "";
   formData.role_id = 0;
-  formData.dept_id = 0;
+  formData.dept_id = undefined;
   formData.phone = "";
   formData.pwd = "";
   formData.gender = 3;
@@ -582,7 +584,7 @@ async function loadTenantOptions() {
  */
 async function handleFormTenantChange() {
   formData.role_id = 0;
-  formData.dept_id = 0;
+  formData.dept_id = undefined;
   await loadFormOptions();
 }
 

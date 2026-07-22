@@ -106,7 +106,7 @@ function createDefaultMenuMeta(): BaseMenuMeta {
 function createDefaultMenuForm(): MenuFormState {
   return {
     id: 0,
-    parent_id: 0,
+    parent_id: undefined,
     type: BaseMenuType.FOLDER,
     path: "",
     name: "",
@@ -332,6 +332,7 @@ const formFields = computed<ProFormField[]>(() => [
       checkStrictly: true,
       clearable: false,
       filterable: true,
+      placeholder: "请选择上级菜单",
       disabled: dialog.parentLocked,
       style: { width: "100%" }
     })
@@ -528,7 +529,7 @@ const formFields = computed<ProFormField[]>(() => [
 ]);
 
 const rules = computed<FormRules>(() => ({
-  parent_id: [{ required: true, type: "number", min: 1, message: "请选择上级菜单", trigger: "change" }],
+  parent_id: formData.id ? [] : [{ required: true, type: "number", min: 1, message: "请选择上级菜单", trigger: "change" }],
   type: [{ required: true, message: "请选择菜单类型", trigger: "change" }],
   "meta.title": [
     {
@@ -660,7 +661,7 @@ function normalizeMenuForm(data?: Partial<BaseMenuForm>): MenuFormState {
   return {
     ...defaultForm,
     ...data,
-    parent_id: data?.parent_id ?? 0,
+    parent_id: data?.parent_id === 0 ? undefined : data?.parent_id,
     type: data?.type ?? BaseMenuType.FOLDER,
     status: data?.status ?? Status.ENABLE,
     api: normalizeMenuApiSelection(data?.api),
@@ -698,6 +699,8 @@ function buildMenuOptions(menuList: BaseMenu[] = []) {
 /** 根据菜单类型清理无效字段，避免提交脏数据。 */
 function buildSubmitPayload(): BaseMenuForm {
   const payload = normalizeMenuForm(formData);
+  // 一级菜单在表单中保持空白，提交时仍按接口约定传回根节点标识。
+  if (payload.id > 0 && payload.parent_id === undefined) payload.parent_id = 0;
   payload.meta.params = (payload.meta.params ?? []).filter(item => item.key || item.value);
 
   if (payload.type === BaseMenuType.BUTTON) {
@@ -797,7 +800,7 @@ async function handleOpenDialog(parentMenu?: BaseMenu, menuId?: number) {
   await loadDialogResources();
   dialog.parentLocked = Boolean(parentMenu || menuId);
   dialog.parentType = parentMenu?.type ?? BaseMenuType.UNKNOWN_MT;
-  resetForm(menuId ? undefined : { parent_id: parentMenu?.id ?? 0 });
+  resetForm(menuId ? undefined : { parent_id: parentMenu?.id });
   dialog.visible = true;
 
   if (menuId) {

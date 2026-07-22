@@ -82,6 +82,12 @@ type CodeGenDeleteTarget = number | string | Array<number | string> | CodeGenTab
 /** 代码生成单项或批量目标。 */
 type CodeGenGenerateTarget = CodeGenTable | CodeGenTable[];
 
+/** 代码生成表配置弹窗状态，未选择父级菜单时保持空白。 */
+type CodeGenTableFormState = Omit<CodeGenTableForm, "parent_menu_id"> & {
+  /** 父级菜单ID。 */
+  parent_menu_id?: number;
+};
+
 const codeGenTaskStorageKey = "code-gen-progress-task-id";
 const codeGenProgressDialogVisibleStorageKey = "code-gen-progress-dialog-visible";
 const codeGenProgressSelectedTableIdsStorageKey = "code-gen-progress-selected-table-ids";
@@ -112,7 +118,7 @@ const dialog = reactive({
   visible: false
 });
 
-const formData = reactive<CodeGenTableForm>(createDefaultCodeGenTableForm());
+const formData = reactive<CodeGenTableFormState>({ ...createDefaultCodeGenTableForm(), parent_menu_id: undefined });
 
 /** 当前业务表选择项。 */
 const databaseTableOptions = computed<ProFormOption[]>(() =>
@@ -215,8 +221,6 @@ const formFields = computed<ProFormField[]>(() => [
       placeholder: "请选择生成页面挂载菜单",
       clearable: true,
       filterable: true,
-      emptyValues: [0, undefined, null, ""],
-      valueOnClear: 0,
       checkStrictly: true,
       renderAfterExpand: false,
       style: { width: "100%" }
@@ -596,6 +600,7 @@ async function handleOpenDialog(tableId?: number) {
   if (tableId) {
     const detail = await defCodeGenTableService.GetCodeGenTable({ id: tableId });
     Object.assign(formData, detail);
+    formData.parent_menu_id = detail.parent_menu_id || undefined;
     formData.api_path ||= "system/admin/v1";
     formData.left_tree_config ??= createDefaultCodeGenLeftTreeConfig();
     await Promise.all([loadDatabaseColumns(databaseColumns, formData.name), loadLeftTreeDatabaseColumns()]);
@@ -647,13 +652,16 @@ async function handleLeftTreeTableNameChange(tableName: string) {
 async function handleSubmit() {
   const valid = await formDialogRef.value?.validate();
   if (!valid) return;
+  if (!formData.parent_menu_id) return;
+
+  const payload: CodeGenTableForm = { ...formData, parent_menu_id: formData.parent_menu_id };
   saving.value = true;
   try {
     if (formData.id) {
-      await defCodeGenTableService.UpdateCodeGenTable({ id: formData.id, code_gen_table: { ...formData } });
+      await defCodeGenTableService.UpdateCodeGenTable({ id: formData.id, code_gen_table: payload });
       ElMessage.success("编辑代码生成表配置成功");
     } else {
-      await defCodeGenTableService.CreateCodeGenTable({ code_gen_table: { ...formData } });
+      await defCodeGenTableService.CreateCodeGenTable({ code_gen_table: payload });
       ElMessage.success("新增代码生成表配置成功");
     }
     handleCloseDialog();
@@ -781,7 +789,7 @@ function ensureLeftTreeConfig() {
 
 /** 重置弹窗表单和字段选项。 */
 function resetForm() {
-  Object.assign(formData, createDefaultCodeGenTableForm());
+  Object.assign(formData, { ...createDefaultCodeGenTableForm(), parent_menu_id: undefined });
   databaseColumns.value = [];
   leftTreeDatabaseColumns.value = [];
   void nextTick(() => {
