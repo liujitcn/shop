@@ -25,8 +25,10 @@ import (
 // BaseUserCase 用户业务实例
 type BaseUserCase struct {
 	*biz.BaseCase
+	tx data.Transaction
 	*data.BaseUserRepository
 	baseDeptRepo  *data.BaseDeptRepository
+	basePostRepo  *data.BasePostRepository
 	orderInfoRepo *data.OrderInfoRepository
 	baseRoleCase  *BaseRoleCase
 	baseDeptCase  *BaseDeptCase
@@ -39,8 +41,10 @@ type BaseUserCase struct {
 // NewBaseUserCase 创建用户业务实例
 func NewBaseUserCase(
 	baseCase *biz.BaseCase,
+	tx data.Transaction,
 	baseUserRepo *data.BaseUserRepository,
 	baseDeptRepo *data.BaseDeptRepository,
+	basePostRepo *data.BasePostRepository,
 	orderInfoRepo *data.OrderInfoRepository,
 	baseRoleCase *BaseRoleCase,
 	baseDeptCase *BaseDeptCase,
@@ -49,8 +53,10 @@ func NewBaseUserCase(
 ) *BaseUserCase {
 	return &BaseUserCase{
 		BaseCase:           baseCase,
+		tx:                 tx,
 		BaseUserRepository: baseUserRepo,
 		baseDeptRepo:       baseDeptRepo,
+		basePostRepo:       basePostRepo,
 		orderInfoRepo:      orderInfoRepo,
 		baseRoleCase:       baseRoleCase,
 		baseDeptCase:       baseDeptCase,
@@ -159,6 +165,9 @@ func (c *BaseUserCase) PageBaseUser(ctx context.Context, req *systemadminv1.Page
 	if req.Gender != nil {
 		opts = append(opts, repository.Where(query.Gender.Eq(int32(req.GetGender()))))
 	}
+	if req.PostId != nil && req.GetPostId() > 0 {
+		opts = append(opts, repository.Where(query.PostID.Eq(req.GetPostId())))
+	}
 	// 传入用户名关键字时，按用户名模糊匹配。
 	if req.GetUserName() != "" {
 		opts = append(opts, repository.Where(query.UserName.Like("%"+req.GetUserName()+"%")))
@@ -210,11 +219,35 @@ func (c *BaseUserCase) PageBaseUser(ctx context.Context, req *systemadminv1.Page
 			}
 		}
 	}
+	postIDs := make([]int64, 0, len(list))
+	postIDSet := make(map[int64]struct{}, len(list))
+	for _, item := range list {
+		if item.PostID == 0 {
+			continue
+		}
+		if _, exists := postIDSet[item.PostID]; exists {
+			continue
+		}
+		postIDSet[item.PostID] = struct{}{}
+		postIDs = append(postIDs, item.PostID)
+	}
+	postNameMap := make(map[int64]string, len(postIDs))
+	if len(postIDs) > 0 {
+		var basePosts []*models.BasePost
+		basePosts, err = c.basePostRepo.ListByIDs(ctx, postIDs)
+		if err != nil {
+			return nil, errorsx.Internal("查询用户岗位失败").WithCause(err)
+		}
+		for _, basePost := range basePosts {
+			postNameMap[basePost.ID] = basePost.Name
+		}
+	}
 
 	resList := make([]*systemadminv1.BaseUser, 0, len(list))
 	for _, item := range list {
 		baseUser := c.mapper.ToDTO(item)
 		_, baseUser.IsProtected = protectedRoleIDs[item.RoleID]
+		baseUser.PostName = postNameMap[item.PostID]
 		resList = append(resList, baseUser)
 	}
 	return &systemadminv1.PageBaseUserResponse{BaseUsers: resList, Total: int32(total)}, nil
@@ -253,6 +286,10 @@ func (c *BaseUserCase) CreateBaseUser(ctx context.Context, req *systemadminv1.Ba
 	if req.GetTenantId() > 0 && req.GetTenantId() != baseDept.TenantID {
 		return errorsx.InvalidArgument("用户所属租户与部门不一致")
 	}
+	_, err = c.validateBasePost(ctx, req.GetPostId(), baseDept.TenantID, 0)
+	if err != nil {
+		return err
+	}
 
 	var passwordStr string
 	// 未显式传入密码时，回退到系统默认密码规则。
@@ -273,12 +310,18 @@ func (c *BaseUserCase) CreateBaseUser(ctx context.Context, req *systemadminv1.Ba
 	baseUser := c.formMapper.ToEntity(req)
 	baseUser.Password = password
 	baseUser.TenantID = baseDept.TenantID
-	err = c.Create(ctx, baseUser)
-	if err != nil {
-		// 命中用户账号唯一索引冲突时，返回稳定的业务冲突错误。
-		if errorsx.IsMySQLDuplicateKey(err) {
-			return errorsx.UniqueConflict("同一租户的用户账号重复", "base_user", "", "unique_base_user").WithCause(err)
+	err = c.tx.Transaction(ctx, func(ctx context.Context) error {
+		err = c.Create(ctx, baseUser)
+		if err != nil {
+			// 命中用户账号唯一索引冲突时，返回稳定的业务冲突错误。
+			if errorsx.IsMySQLDuplicateKey(err) {
+				return errorsx.UniqueConflict("同一租户的用户账号重复", "base_user", "", "unique_base_user").WithCause(err)
+			}
+			return err
 		}
+		return c.updateBaseUserPostID(ctx, baseUser.ID, req.GetPostId())
+	})
+	if err != nil {
 		return err
 	}
 	// 用户写库成功后，通知已装配模块处理用户资料变更。
@@ -319,17 +362,27 @@ func (c *BaseUserCase) UpdateBaseUser(ctx context.Context, req *systemadminv1.Ba
 	if newBaseDept.TenantID != oldBaseUser.TenantID {
 		return errorsx.InvalidArgument("用户部门与所属租户不一致")
 	}
+	_, err = c.validateBasePost(ctx, req.GetPostId(), oldBaseUser.TenantID, oldBaseUser.PostID)
+	if err != nil {
+		return err
+	}
 
 	baseUser := c.formMapper.ToEntity(req)
 	baseUser.Password = oldBaseUser.Password
 	baseUser.TenantID = oldBaseUser.TenantID
 	baseUser.UserName = oldBaseUser.UserName
-	err = c.UpdateByID(ctx, baseUser)
-	if err != nil {
-		// 命中用户账号唯一索引冲突时，返回稳定的业务冲突错误。
-		if errorsx.IsMySQLDuplicateKey(err) {
-			return errorsx.UniqueConflict("同一租户的用户账号重复", "base_user", "", "unique_base_user").WithCause(err)
+	err = c.tx.Transaction(ctx, func(ctx context.Context) error {
+		err = c.UpdateByID(ctx, baseUser)
+		if err != nil {
+			// 命中用户账号唯一索引冲突时，返回稳定的业务冲突错误。
+			if errorsx.IsMySQLDuplicateKey(err) {
+				return errorsx.UniqueConflict("同一租户的用户账号重复", "base_user", "", "unique_base_user").WithCause(err)
+			}
+			return err
 		}
+		return c.updateBaseUserPostID(ctx, baseUser.ID, req.GetPostId())
+	})
+	if err != nil {
 		return err
 	}
 	// 用户更新成功后，通知已装配模块处理用户资料变更。
@@ -453,4 +506,34 @@ func (c *BaseUserCase) roleProtectionQueryContext(ctx context.Context) (context.
 	roleAuthInfo := *authInfo
 	roleAuthInfo.DataScope = databaseGorm.DataScopeAll
 	return authnEngine.ContextWithAuthClaims(ctx, roleAuthInfo.MakeAuthClaims()), nil
+}
+
+// validateBasePost 校验用户岗位属于用户租户，且新选择的岗位处于启用状态。
+func (c *BaseUserCase) validateBasePost(ctx context.Context, postID int64, tenantID int64, oldPostID int64) (*models.BasePost, error) {
+	if postID == 0 {
+		return nil, nil
+	}
+	basePost, err := c.basePostRepo.FindByID(ctx, postID)
+	if err != nil {
+		return nil, errorsx.ResourceNotFound("用户岗位不存在").WithCause(err)
+	}
+	if basePost.TenantID != tenantID {
+		return nil, errorsx.InvalidArgument("用户岗位与所属租户不一致")
+	}
+	if basePost.Status != _const.STATUS_ENABLE && basePost.ID != oldPostID {
+		return nil, errorsx.PermissionDenied("岗位已被禁用，不能选择")
+	}
+	return basePost, nil
+}
+
+// updateBaseUserPostID 保存用户岗位，未选择岗位时将字段清空为 NULL。
+func (c *BaseUserCase) updateBaseUserPostID(ctx context.Context, userID int64, postID int64) error {
+	query := c.Query(ctx).BaseUser
+	var err error
+	if postID > 0 {
+		_, err = query.WithContext(ctx).Where(query.ID.Eq(userID)).UpdateSimple(query.PostID.Value(postID))
+		return err
+	}
+	_, err = query.WithContext(ctx).Where(query.ID.Eq(userID)).UpdateSimple(query.PostID.Null())
+	return err
 }

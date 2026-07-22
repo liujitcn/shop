@@ -135,10 +135,10 @@ func (c *UserStoreCase) AuditUserStore(ctx context.Context, req *shopadminv1.Aud
 			return err
 		}
 
-		code := _const.BASE_ROLE_CODE_GUEST
-		// 审核通过时，将用户角色切换为正式用户角色。
+		code := _const.BASE_ROLE_CODE_USER
+		// 审核通过时，将用户角色切换为认证用户角色。
 		if req.GetStatus() == shopcommonv1.UserStoreStatus(_const.USER_STORE_STATUS_APPROVED) {
-			code = _const.BASE_ROLE_CODE_USER
+			code = _const.BASE_ROLE_CODE_AUTHUSER
 		}
 
 		query := c.baseRoleCase.Query(ctx).BaseRole

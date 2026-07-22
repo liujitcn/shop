@@ -94,8 +94,8 @@ func (h *SseCase) authorizeRequest(r *http.Request) (*authData.UserTokenPayload,
 	if err != nil || userToken == nil || userToken.UserId == 0 {
 		return nil, false
 	}
-	// 工作台只面向管理后台，商城端用户和游客令牌不能订阅后台刷新流。
-	if userToken.RoleCode == _const.BASE_ROLE_CODE_USER || userToken.RoleCode == _const.BASE_ROLE_CODE_GUEST {
+	// 工作台只面向管理后台，商城端用户令牌不能订阅后台刷新流。
+	if userToken.RoleCode == _const.BASE_ROLE_CODE_USER || userToken.RoleCode == _const.BASE_ROLE_CODE_AUTHUSER {
 		return nil, false
 	}
 	return userToken, true

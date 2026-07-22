@@ -370,7 +370,7 @@ func (c *OauthCase) findOrCreateWechatMiniUser(ctx context.Context, code string)
 func (c *OauthCase) createWechatMiniUser(ctx context.Context, openID string) (*models.BaseUser, error) {
 	user := &models.BaseUser{
 		UserName: id.NewXID(),
-		RoleID:   4,
+		RoleID:   5,
 		DeptID:   5,
 		Phone:    "",
 		Password: "",

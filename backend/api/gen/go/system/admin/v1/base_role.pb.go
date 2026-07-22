@@ -748,17 +748,17 @@ const file_system_admin_v1_base_role_proto_rawDesc = "" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"u\n" +
 	"\x12GetBaseRoleRequest\x12_\n" +
 	"\x02id\x18\x01 \x01(\x03BO\xbaG\v\x92\x02\b角色ID\xbaH>\xba\x01;\n" +
-	"\x19get_base_role.id.required\x12\x14角色ID不能为空\x1a\bthis > 0R\x02id\"\x9b\t\n" +
+	"\x19get_base_role.id.required\x12\x14角色ID不能为空\x1a\bthis > 0R\x02id\"\x99\t\n" +
 	"\fBaseRoleForm\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b角色IDR\x02id\x12p\n" +
 	"\ttenant_id\x18\x02 \x01(\x03BS\xbaG\v\x92\x02\b租户ID\xbaHB\xba\x01?\n" +
 	"\x1cbase_role.tenant_id.required\x12\x15请选择所属租户\x1a\bthis > 0R\btenantId\x12\xc4\x01\n" +
 	"\x04name\x18\x03 \x01(\tB\xaf\x01\xbaG\x0f\x92\x02\f角色名称\xbaH\x99\x01\xba\x01A\n" +
 	"\x17base_role.name.required\x12\x15请输入角色名称\x1a\x0fthis.size() > 0\xba\x01R\n" +
-	"\x16base_role.name.max_len\x12%角色名称不能超过 30 个字符\x1a\x11this.size() <= 30R\x04name\x12\xc6\x01\n" +
-	"\x04code\x18\x04 \x01(\tB\xb1\x01\xbaG\x0f\x92\x02\f角色编号\xbaH\x9b\x01\xba\x01A\n" +
-	"\x17base_role.code.required\x12\x15请输入角色编码\x1a\x0fthis.size() > 0\xba\x01T\n" +
-	"\x16base_role.code.max_len\x12&角色编号不能超过 100 个字符\x1a\x12this.size() <= 100R\x04code\x12\xe9\x01\n" +
+	"\x16base_role.name.max_len\x12%角色名称不能超过 30 个字符\x1a\x11this.size() <= 30R\x04name\x12\xc4\x01\n" +
+	"\x04code\x18\x04 \x01(\tB\xaf\x01\xbaG\x0f\x92\x02\f角色编号\xbaH\x99\x01\xba\x01A\n" +
+	"\x17base_role.code.required\x12\x15请输入角色编码\x1a\x0fthis.size() > 0\xba\x01R\n" +
+	"\x16base_role.code.max_len\x12%角色编号不能超过 20 个字符\x1a\x11this.size() <= 20R\x04code\x12\xe9\x01\n" +
 	"\n" +
 	"data_scope\x18\x05 \x01(\x0e2#.system.common.v1.BaseRoleDataScopeB\xa4\x01\xbaGU\x92\x02R数据权限：0全部数据1部门及子部门数据2本部门数据3本人数据\xbaHI\xba\x01A\n" +
 	"\x1dbase_role.data_scope.required\x12\x15请选择数据权限\x1a\tthis != 0\x82\x01\x02\x10\x01R\tdataScope\x12\xbf\x01\n" +

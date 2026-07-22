@@ -22,6 +22,7 @@ type Services struct {
 	BaseJob       *systemadmin.BaseJobService
 	BaseLog       *systemadmin.BaseLogService
 	BaseMenu      *systemadmin.BaseMenuService
+	BasePost      *systemadmin.BasePostService
 	BaseRole      *systemadmin.BaseRoleService
 	BaseTenant    *systemadmin.BaseTenantService
 	BaseUser      *systemadmin.BaseUserService
@@ -46,6 +47,7 @@ func (s Services) RegisterGRPC(srv *grpc.Server) {
 	systemadminv1.RegisterBaseJobServiceServer(srv, s.BaseJob)
 	systemadminv1.RegisterBaseLogServiceServer(srv, s.BaseLog)
 	systemadminv1.RegisterBaseMenuServiceServer(srv, s.BaseMenu)
+	systemadminv1.RegisterBasePostServiceServer(srv, s.BasePost)
 	systemadminv1.RegisterBaseRoleServiceServer(srv, s.BaseRole)
 	systemadminv1.RegisterBaseTenantServiceServer(srv, s.BaseTenant)
 	systemadminv1.RegisterBaseUserServiceServer(srv, s.BaseUser)
@@ -65,6 +67,7 @@ func (s Services) RegisterHTTP(srv *kratosHTTP.Server) {
 	systemadminv1.RegisterBaseJobServiceHTTPServer(srv, s.BaseJob)
 	systemadminv1.RegisterBaseLogServiceHTTPServer(srv, s.BaseLog)
 	systemadminv1.RegisterBaseMenuServiceHTTPServer(srv, s.BaseMenu)
+	systemadminv1.RegisterBasePostServiceHTTPServer(srv, s.BasePost)
 	systemadminv1.RegisterBaseRoleServiceHTTPServer(srv, s.BaseRole)
 	systemadminv1.RegisterBaseTenantServiceHTTPServer(srv, s.BaseTenant)
 	systemadminv1.RegisterBaseUserServiceHTTPServer(srv, s.BaseUser)
@@ -85,6 +88,7 @@ func (s Services) RegisterMCP(server *mcpserver.Server) {
 	systemadminv1.RegisterBaseJobServiceMCPTools(mcpSrv, s.BaseJob)
 	systemadminv1.RegisterBaseLogServiceMCPTools(mcpSrv, s.BaseLog)
 	systemadminv1.RegisterBaseMenuServiceMCPTools(mcpSrv, s.BaseMenu)
+	systemadminv1.RegisterBasePostServiceMCPTools(mcpSrv, s.BasePost)
 	systemadminv1.RegisterBaseRoleServiceMCPTools(mcpSrv, s.BaseRole)
 	systemadminv1.RegisterBaseUserServiceMCPTools(mcpSrv, s.BaseUser)
 	systemadminv1.RegisterCodeGenServiceMCPTools(mcpSrv, s.CodeGen)

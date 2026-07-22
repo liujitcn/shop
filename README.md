@@ -63,7 +63,7 @@
 
 - 接口契约位于 `backend/api/proto`，按 `base`、`common`、`system`、`shop` 分域；后端服务、前端 API 和生成 RPC 类型使用相同分层。
 - 初始化 SQL 位于 `sql`：`default-data.sql` 维护默认租户、菜单和固定角色；后端每次启动使用 GORM 清空 `base_api`、`casbin_rule` 并重置自增 ID，根据当前 OpenAPI 重新生成接口元数据，再按角色菜单和接口数据重建权限策略。
-- 默认角色固定为 `super(1)`、`tenant(2)`、`admin(3)`、`user(4)`、`guest(5)`；`tenant` 角色用于租户管理员，不能在角色管理中修改。
+- 默认角色固定为 `super(1)`、`tenant(2)`、`admin(3)`、`authuser(4)`、`user(5)`；商城用户注册时使用 `user`，认证通过后切换为 `authuser`；`tenant` 角色用于租户管理员，`admin`、`authuser`、`user` 角色不允许在角色管理中启用、禁用或删除。
 - Casbin 策略使用租户化字段，并按真实 HTTP Method 根据所有角色的菜单权限生成。
 - 后端会托管 `backend/data/admin` 与 `backend/data/app` 下的前端构建产物，分别对应 `/admin` 和 `/app`。
 - 推荐服务为可选联调模块；未启动 Gorse 时，推荐链路应依赖后端本地兜底策略保证页面可用。

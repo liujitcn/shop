@@ -1621,6 +1621,160 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/base/post:
+        get:
+            tags:
+                - BasePostService
+            description: 查询岗位分页列表
+            operationId: BasePostService_PageBasePost
+            parameters:
+                - name: name
+                  in: query
+                  schema:
+                    type: string
+                - name: code
+                  in: query
+                  schema:
+                    type: string
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - UNKNOWN
+                        - ENABLE
+                        - DISABLE
+                    type: string
+                    format: enum
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBasePostResponse'
+        post:
+            tags:
+                - BasePostService
+            description: 创建岗位
+            operationId: BasePostService_CreateBasePost
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BasePostForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/post/option:
+        get:
+            tags:
+                - BasePostService
+            description: 查询岗位下拉选择
+            operationId: BasePostService_OptionBasePost
+            parameters:
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/common.v1.SelectOptionResponse'
+    /api/v1/admin/base/post/{base_post.id}:
+        put:
+            tags:
+                - BasePostService
+            description: 更新岗位
+            operationId: BasePostService_UpdateBasePost
+            parameters:
+                - name: base_post.id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BasePostForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/post/{id}:
+        get:
+            tags:
+                - BasePostService
+            description: 查询岗位
+            operationId: BasePostService_GetBasePost
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BasePostForm'
+        delete:
+            tags:
+                - BasePostService
+            description: 删除岗位
+            operationId: BasePostService_DeleteBasePost
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/post/{id}/status:
+        put:
+            tags:
+                - BasePostService
+            description: 设置岗位状态
+            operationId: BasePostService_SetBasePostStatus
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.SetBasePostStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
     /api/v1/admin/base/role:
         get:
             tags:
@@ -1984,6 +2138,10 @@ paths:
                         - GIRL
                     type: string
                     format: enum
+                - name: post_id
+                  in: query
+                  schema:
+                    type: string
                 - name: status
                   in: query
                   schema:
@@ -14270,6 +14428,74 @@ components:
                     type: string
                     description: 参数value
             description: 菜单参数
+        system.admin.v1.BasePost:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 岗位ID
+                tenant_id:
+                    type: string
+                    description: 租户ID
+                name:
+                    type: string
+                    description: 岗位名称
+                code:
+                    type: string
+                    description: 岗位编号
+                sort:
+                    type: integer
+                    description: 显示顺序
+                    format: int32
+                status:
+                    enum:
+                        - UNKNOWN
+                        - ENABLE
+                        - DISABLE
+                    type: string
+                    description: 状态
+                    format: enum
+                remark:
+                    type: string
+                    description: 备注
+                created_at:
+                    type: string
+                    description: 创建时间
+                updated_at:
+                    type: string
+                    description: 更新时间
+            description: 岗位
+        system.admin.v1.BasePostForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 岗位ID
+                tenant_id:
+                    type: string
+                    description: 租户ID
+                name:
+                    type: string
+                    description: 岗位名称
+                code:
+                    type: string
+                    description: 岗位编号
+                sort:
+                    type: integer
+                    description: 显示顺序
+                    format: int32
+                status:
+                    enum:
+                        - UNKNOWN
+                        - ENABLE
+                        - DISABLE
+                    type: string
+                    description: 状态
+                    format: enum
+                remark:
+                    type: string
+                    description: 备注
+            description: 岗位表单
         system.admin.v1.BaseRole:
             type: object
             properties:
@@ -14453,6 +14679,12 @@ components:
                 dept_id:
                     type: string
                     description: 部门ID
+                post_id:
+                    type: string
+                    description: 岗位ID
+                post_name:
+                    type: string
+                    description: 岗位名称
                 phone:
                     type: string
                     description: 手机号
@@ -14510,6 +14742,9 @@ components:
                 dept_id:
                     type: string
                     description: 部门ID
+                post_id:
+                    type: string
+                    description: 岗位ID
                 phone:
                     type: string
                     description: 手机号
@@ -15269,6 +15504,19 @@ components:
                     description: 总数
                     format: int32
             description: 日志分页响应
+        system.admin.v1.PageBasePostResponse:
+            type: object
+            properties:
+                base_posts:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BasePost'
+                    description: 分页数据
+                total:
+                    type: integer
+                    description: 总数
+                    format: int32
+            description: 岗位分页响应
         system.admin.v1.PageBaseRoleResponse:
             type: object
             properties:
@@ -15554,6 +15802,17 @@ components:
                     description: 状态
                     format: int32
             description: 设置菜单状态请求参数
+        system.admin.v1.SetBasePostStatusRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 岗位ID
+                status:
+                    type: integer
+                    description: 状态
+                    format: int32
+            description: 设置岗位状态请求参数
         system.admin.v1.SetBaseRoleMenuRequest:
             type: object
             properties:
@@ -15857,6 +16116,8 @@ tags:
       description: Admin日志服务
     - name: BaseMenuService
       description: Admin菜单管理服务
+    - name: BasePostService
+      description: Admin岗位管理服务
     - name: BaseRoleService
       description: Admin角色管理服务
     - name: BaseTenantService
@@ -15926,9 +16187,9 @@ tags:
     - name: ShopBannerService
       description: Admin商城轮播图服务
     - name: ShopHotService
-      description: Admin商城热门推荐服务
-    - name: ShopHotService
       description: App热门推荐服务
+    - name: ShopHotService
+      description: Admin商城热门推荐服务
     - name: ShopServiceService
       description: Admin商城服务
     - name: ShopServiceService

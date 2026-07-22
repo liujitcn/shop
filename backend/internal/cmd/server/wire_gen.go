@@ -228,6 +228,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 		Mcp:       mcpService,
 		Sse:       sseService,
 	}
+	basePostRepository := data.NewBasePostRepository(dataData)
 	orderInfoRepository := data.NewOrderInfoRepository(dataData)
 	bizBaseAPICase := biz3.NewBaseAPICase(baseCase, baseAPIRepository, authentication_Jwt)
 	bizCasbinRuleCase, err := biz3.NewCasbinRuleCase(baseCase, transaction, casbinRuleRepository, baseMenuRepository, baseRoleRepository, baseTenantRepository, bizBaseAPICase)
@@ -241,7 +242,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	bizBaseRoleCase := biz3.NewBaseRoleCase(baseCase, transaction, baseRoleRepository, baseTenantRepository, bizCasbinRuleCase)
 	bizBaseDeptCase := biz3.NewBaseDeptCase(baseCase, baseDeptRepository)
 	baseMenuCase := biz3.NewBaseMenuCase(baseCase, transaction, baseMenuRepository, baseRoleRepository, bizCasbinRuleCase)
-	bizBaseUserCase := biz3.NewBaseUserCase(baseCase, baseUserRepository, baseDeptRepository, orderInfoRepository, bizBaseRoleCase, bizBaseDeptCase, baseMenuCase, userEvents)
+	bizBaseUserCase := biz3.NewBaseUserCase(baseCase, transaction, baseUserRepository, baseDeptRepository, basePostRepository, orderInfoRepository, bizBaseRoleCase, bizBaseDeptCase, baseMenuCase, userEvents)
 	tenantStoreRepository := data.NewTenantStoreRepository(dataData)
 	goodsInfoRepository := data.NewGoodsInfoRepository(dataData)
 	commentInfoRepository := data.NewCommentInfoRepository(dataData)
@@ -272,6 +273,8 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	baseLogCase := biz3.NewBaseLogCase(baseCase, baseLogRepository)
 	baseLogService := admin.NewBaseLogService(baseLogCase)
 	baseMenuService := admin.NewBaseMenuService(baseMenuCase)
+	basePostCase := biz3.NewBasePostCase(baseCase, transaction, basePostRepository, baseUserRepository)
+	basePostService := admin.NewBasePostService(basePostCase)
 	baseRoleService := admin.NewBaseRoleService(bizBaseRoleCase)
 	baseTenantService := admin.NewBaseTenantService(bizBaseTenantCase)
 	baseUserService := admin.NewBaseUserService(bizBaseUserCase)
@@ -295,6 +298,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 		BaseJob:       baseJobService,
 		BaseLog:       baseLogService,
 		BaseMenu:      baseMenuService,
+		BasePost:      basePostService,
 		BaseRole:      baseRoleService,
 		BaseTenant:    baseTenantService,
 		BaseUser:      baseUserService,

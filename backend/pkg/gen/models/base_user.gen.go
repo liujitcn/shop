@@ -19,8 +19,8 @@ type BaseUser struct {
 	UserName  string                `gorm:"column:user_name;type:varchar(50);not null;uniqueIndex:unique_base_user,priority:2;comment:用户账号" json:"user_name"`                                     // 用户账号
 	NickName  string                `gorm:"column:nick_name;type:varchar(30);comment:用户昵称" json:"nick_name"`                                                                                      // 用户昵称
 	RoleID    int64                 `gorm:"column:role_id;type:bigint;not null;comment:角色ID" json:"role_id"`                                                                                      // 角色ID
-	PostID    int64                 `gorm:"column:post_id;type:bigint;not null;comment:岗位ID" json:"post_id"`                                                                                      // 岗位ID
 	DeptID    int64                 `gorm:"column:dept_id;type:bigint;not null;comment:部门ID" json:"dept_id"`                                                                                      // 部门ID
+	PostID    int64                 `gorm:"column:post_id;type:bigint;comment:岗位ID" json:"post_id"`                                                                                               // 岗位ID
 	Phone     string                `gorm:"column:phone;type:varchar(20);comment:手机号码" json:"phone"`                                                                                              // 手机号码
 	Password  string                `gorm:"column:password;type:varchar(100);comment:密码" json:"password"`                                                                                         // 密码
 	Gender    int32                 `gorm:"column:gender;type:tinyint;not null;comment:用户性别：枚举【BaseUserGender】" json:"gender"`                                                                    // 用户性别：枚举【BaseUserGender】

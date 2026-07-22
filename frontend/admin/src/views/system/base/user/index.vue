@@ -75,6 +75,7 @@ import { defBaseUserService } from "@/api/system/base_user";
 import type { BaseUser, BaseUserForm, PageBaseUserRequest, ResetBaseUserPasswordRequest } from "@/rpc/system/admin/v1/base_user";
 import { defBaseDeptService } from "@/api/system/base_dept";
 import { defBaseRoleService } from "@/api/system/base_role";
+import { defBasePostService } from "@/api/system/base_post";
 import { defBaseTenantService } from "@/api/system/base_tenant";
 import type { SelectOptionResponse_Option, TreeOptionResponse_Option } from "@/rpc/common/v1/common";
 import { Status } from "@/rpc/common/v1/enum";
@@ -85,11 +86,13 @@ import { DEFAULT_TENANT_CODE, requestTenantOptions } from "@/utils/tenant";
 import { useUserStore } from "@/stores/modules/user";
 
 /** 用户表单状态，前端保留明文密码并在提交前加密。 */
-interface BaseUserFormState extends Omit<BaseUserForm, "dept_id" | "pwd" | "tenant_id"> {
+interface BaseUserFormState extends Omit<BaseUserForm, "dept_id" | "post_id" | "pwd" | "tenant_id"> {
   /** 租户ID，默认租户新增时必须由管理员显式选择。 */
   tenant_id?: number;
   /** 部门ID，未选择时保持空白。 */
   dept_id?: number;
+  /** 岗位ID，未选择时保持空白。 */
+  post_id?: number;
   /** 密码明文只保留在前端表单中，提交前转换为密码密文。 */
   pwd: string;
 }
@@ -146,6 +149,8 @@ const formData = reactive<BaseUserFormState>({
   role_id: 0,
   /** 部门ID */
   dept_id: undefined,
+  /** 岗位ID */
+  post_id: undefined,
   /** 手机号 */
   phone: "",
   /** 密码 */
@@ -201,6 +206,7 @@ const resetPwdRules = reactive({
 
 const basedDeptOptions = ref<TreeOptionResponse_Option[]>([]);
 const baseRoleOptions = ref<SelectOptionResponse_Option[]>([]);
+const basePostOptions = ref<SelectOptionResponse_Option[]>([]);
 const tenantOptions = ref<SelectOptionResponse_Option[]>([]);
 const statusOptions: ProFormOption[] = [
   { label: "启用", value: Status.ENABLE },
@@ -275,6 +281,13 @@ const formFields = computed<ProFormField[]>(() => [
       style: { width: "100%" }
     }
   },
+  {
+    prop: "post_id",
+    label: "用户岗位",
+    component: "select",
+    options: basePostOptions.value.map(item => ({ label: item.label, value: item.value, disabled: item.disabled })),
+    props: { placeholder: "请选择用户岗位", clearable: true, filterable: true }
+  },
   { prop: "phone", label: "手机号码", component: "input", props: { placeholder: "请输入手机号码" } },
   {
     prop: "pwd",
@@ -319,6 +332,13 @@ const columns = computed<ColumnProps[]>(() => [
   { prop: "user_name", label: "用户账号", minWidth: 140, search: { el: "input" } },
   { prop: "nick_name", label: "昵称", minWidth: 100, search: { el: "input" } },
   { prop: "phone", label: "手机号码", minWidth: 130, align: "center", search: { el: "input" } },
+  {
+    prop: "post_name",
+    label: "岗位",
+    minWidth: 120,
+    search: { el: "select", key: "post_id", props: { filterable: true, clearable: true }, order: 4 },
+    enum: requestPostOptions
+  },
   { prop: "gender", label: "性别", minWidth: 90, align: "center", dictCode: "base_user_gender", search: { el: "select" } },
   {
     prop: "status",
@@ -443,6 +463,17 @@ async function requestBaseUserTable(params: PageBaseUserRequest) {
   return { data: { list: data.base_users ?? [], total: data.total } };
 }
 
+/** 请求岗位筛选选项。 */
+async function requestPostOptions() {
+  const response = await defBasePostService.OptionBasePost({ tenant_id: isDefaultTenant.value ? paramsTenantId() : undefined });
+  return { data: response.list ?? [] };
+}
+
+/** 读取当前用户列表筛选的租户。 */
+function paramsTenantId() {
+  return selectedTenantId.value;
+}
+
 /**
  * 刷新用户表格数据。
  */
@@ -541,6 +572,7 @@ function resetForm() {
   formData.nick_name = "";
   formData.role_id = 0;
   formData.dept_id = undefined;
+  formData.post_id = undefined;
   formData.phone = "";
   formData.pwd = "";
   formData.gender = 3;
@@ -548,6 +580,7 @@ function resetForm() {
   formData.status = Status.ENABLE;
   formData.remark = "";
   baseRoleOptions.value = [];
+  basePostOptions.value = [];
   basedDeptOptions.value = [];
 }
 
@@ -558,15 +591,18 @@ async function loadFormOptions() {
   // 默认租户必须先选择目标租户，避免角色和部门选项跨租户混用。
   if (isDefaultTenant.value && !formData.tenant_id) {
     baseRoleOptions.value = [];
+    basePostOptions.value = [];
     basedDeptOptions.value = [];
     return;
   }
   const tenantId = isDefaultTenant.value ? formData.tenant_id : undefined;
-  const [optionBaseRoleResponse, optionBaseDeptResponse] = await Promise.all([
+  const [optionBaseRoleResponse, optionBaseDeptResponse, optionBasePostResponse] = await Promise.all([
     defBaseRoleService.OptionBaseRole({ tenant_id: tenantId }),
-    defBaseDeptService.OptionBaseDept({ tenant_id: tenantId })
+    defBaseDeptService.OptionBaseDept({ tenant_id: tenantId }),
+    defBasePostService.OptionBasePost({ tenant_id: tenantId })
   ]);
   baseRoleOptions.value = optionBaseRoleResponse.list || [];
+  basePostOptions.value = optionBasePostResponse.list || [];
   basedDeptOptions.value = optionBaseDeptResponse.list || [];
 }
 
@@ -585,6 +621,7 @@ async function loadTenantOptions() {
 async function handleFormTenantChange() {
   formData.role_id = 0;
   formData.dept_id = undefined;
+  formData.post_id = undefined;
   await loadFormOptions();
 }
 

@@ -21,12 +21,12 @@ func IsMember(ctx context.Context) bool {
 
 // IsMemberByAuthInfo 根据登录载荷判断当前用户是否为会员
 func IsMemberByAuthInfo(authInfo *data.UserTokenPayload) bool {
-	// 游客或空角色码一律按非会员处理
-	if len(authInfo.RoleCode) == 0 || authInfo.RoleCode == _const.BASE_ROLE_CODE_GUEST {
+	// 普通用户或空角色码一律按非会员处理
+	if len(authInfo.RoleCode) == 0 || authInfo.RoleCode == _const.BASE_ROLE_CODE_USER {
 		return false
 	}
-	// 当前只有普通用户角色享受会员价
-	if authInfo.RoleCode == _const.BASE_ROLE_CODE_USER {
+	// 当前只有认证用户角色享受会员价
+	if authInfo.RoleCode == _const.BASE_ROLE_CODE_AUTHUSER {
 		return true
 	}
 	return false

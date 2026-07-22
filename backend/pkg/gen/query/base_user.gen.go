@@ -32,8 +32,8 @@ func newBaseUser(db *gorm.DB, opts ...gen.DOOption) baseUser {
 	_baseUser.UserName = field.NewString(tableName, "user_name")
 	_baseUser.NickName = field.NewString(tableName, "nick_name")
 	_baseUser.RoleID = field.NewInt64(tableName, "role_id")
-	_baseUser.PostID = field.NewInt64(tableName, "post_id")
 	_baseUser.DeptID = field.NewInt64(tableName, "dept_id")
+	_baseUser.PostID = field.NewInt64(tableName, "post_id")
 	_baseUser.Phone = field.NewString(tableName, "phone")
 	_baseUser.Password = field.NewString(tableName, "password")
 	_baseUser.Gender = field.NewInt32(tableName, "gender")
@@ -61,8 +61,8 @@ type baseUser struct {
 	UserName  field.String // 用户账号
 	NickName  field.String // 用户昵称
 	RoleID    field.Int64  // 角色ID
-	PostID    field.Int64  // 岗位ID
 	DeptID    field.Int64  // 部门ID
+	PostID    field.Int64  // 岗位ID
 	Phone     field.String // 手机号码
 	Password  field.String // 密码
 	Gender    field.Int32  // 用户性别：枚举【BaseUserGender】
@@ -95,8 +95,8 @@ func (b *baseUser) updateTableName(table string) *baseUser {
 	b.UserName = field.NewString(table, "user_name")
 	b.NickName = field.NewString(table, "nick_name")
 	b.RoleID = field.NewInt64(table, "role_id")
-	b.PostID = field.NewInt64(table, "post_id")
 	b.DeptID = field.NewInt64(table, "dept_id")
+	b.PostID = field.NewInt64(table, "post_id")
 	b.Phone = field.NewString(table, "phone")
 	b.Password = field.NewString(table, "password")
 	b.Gender = field.NewInt32(table, "gender")
@@ -138,8 +138,8 @@ func (b *baseUser) fillFieldMap() {
 	b.fieldMap["user_name"] = b.UserName
 	b.fieldMap["nick_name"] = b.NickName
 	b.fieldMap["role_id"] = b.RoleID
-	b.fieldMap["post_id"] = b.PostID
 	b.fieldMap["dept_id"] = b.DeptID
+	b.fieldMap["post_id"] = b.PostID
 	b.fieldMap["phone"] = b.Phone
 	b.fieldMap["password"] = b.Password
 	b.fieldMap["gender"] = b.Gender

@@ -132,6 +132,7 @@ const statusOptions: ProFormOption[] = [
   { label: "启用", value: Status.ENABLE },
   { label: "禁用", value: Status.DISABLE }
 ];
+const protectedRoleCodes = new Set(["admin", "authuser", "user"]);
 
 const formData = reactive<BaseRoleFormState>({
   /** 角色ID */
@@ -160,7 +161,7 @@ const rules = reactive({
   ],
   code: [
     { required: true, message: "请输入角色编码", trigger: "blur" },
-    { max: 100, message: "角色编号不能超过 100 个字符", trigger: "blur" }
+    { max: 20, message: "角色编号不能超过 20 个字符", trigger: "blur" }
   ],
   data_scope: [{ required: true, message: "请选择数据权限", trigger: "change" }],
   menus: [
@@ -229,12 +230,18 @@ const formFields = computed<ProFormField[]>(() => [
     }
   },
   { prop: "remark", label: "备注", component: "textarea", props: { placeholder: "请输入备注" } },
-  { prop: "status", label: "状态", component: "radio-group", options: statusOptions }
+  {
+    prop: "status",
+    label: "状态",
+    component: "radio-group",
+    options: statusOptions,
+    props: { disabled: isRoleProtected(formData.code) }
+  }
 ]);
 
 /** 角色表格列配置。 */
 const columns = computed<ColumnProps[]>(() => [
-  { type: "selection", width: 55, selectable: row => canManageRole(row as BaseRole) },
+  { type: "selection", width: 55, selectable: row => canDeleteRole(row as BaseRole) },
   ...(isDefaultTenant.value
     ? ([
         {
@@ -262,7 +269,7 @@ const columns = computed<ColumnProps[]>(() => [
       inactiveValue: Status.DISABLE,
       activeText: "启用",
       inactiveText: "禁用",
-      disabled: scope => !canManageRole(scope.row as BaseRole) || !BUTTONS.value["base:role:status"],
+      disabled: scope => !canChangeRoleStatus(scope.row as BaseRole) || !BUTTONS.value["base:role:status"],
       beforeChange: scope => handleBeforeSetStatus(scope.row as BaseRole)
     }
   },
@@ -297,7 +304,7 @@ const columns = computed<ColumnProps[]>(() => [
         type: "danger",
         link: true,
         icon: Delete,
-        hidden: scope => !canManageRole(scope.row as BaseRole) || !BUTTONS.value["base:role:delete"],
+        hidden: scope => !canDeleteRole(scope.row as BaseRole) || !BUTTONS.value["base:role:delete"],
         onClick: scope => handleDelete(scope.row as BaseRole)
       }
     ]
@@ -346,6 +353,21 @@ function refreshTable() {
  */
 function canManageRole(row?: BaseRole) {
   return Boolean(row?.code && !row.is_protected);
+}
+
+/** 判断角色是否禁止切换状态和删除。 */
+function isRoleProtected(code?: string) {
+  return Boolean(code && protectedRoleCodes.has(code));
+}
+
+/** 判断当前账号是否允许切换目标角色状态。 */
+function canChangeRoleStatus(row?: BaseRole) {
+  return canManageRole(row) && !isRoleProtected(row?.code);
+}
+
+/** 判断当前账号是否允许删除目标角色。 */
+function canDeleteRole(row?: BaseRole) {
+  return canManageRole(row) && !isRoleProtected(row?.code);
 }
 
 /**
@@ -448,8 +470,8 @@ function resetForm() {
  * 在角色状态切换前先完成确认与接口调用，避免首屏渲染触发误操作。
  */
 async function handleBeforeSetStatus(row: BaseRole) {
-  if (!canManageRole(row)) {
-    ElMessage.warning("当前租户不能修改该内置角色状态");
+  if (!canChangeRoleStatus(row)) {
+    ElMessage.warning("默认角色不允许修改状态");
     return false;
   }
 
@@ -480,8 +502,8 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
     : selected && typeof selected === "object"
       ? [selected as BaseRole]
       : [];
-  if (roleList.some(role => !canManageRole(role))) {
-    ElMessage.warning("当前租户不能删除该内置角色");
+  if (roleList.some(role => !canDeleteRole(role))) {
+    ElMessage.warning("默认角色不允许删除");
     return;
   }
 
