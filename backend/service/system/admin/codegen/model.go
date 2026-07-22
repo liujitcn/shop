@@ -56,6 +56,19 @@ func ProtoTargetForTable(table *Table) ProtoTarget {
 	return target
 }
 
+// ProtoTargetForProtoPath 根据 Proto 文件路径推导代码生成目标。
+func ProtoTargetForProtoPath(protoPath string) (ProtoTarget, bool) {
+	relativePath := strings.TrimPrefix(filepath.ToSlash(filepath.Clean(protoPath)), ProtoRootPath+"/")
+	if relativePath == protoPath || filepath.Base(relativePath) == relativePath {
+		return ProtoTarget{}, false
+	}
+	parts := strings.Split(relativePath, "/")
+	if len(parts) != 4 || parts[1] != "admin" || parts[2] != "v1" || filepath.Ext(parts[3]) != ".proto" {
+		return ProtoTarget{}, false
+	}
+	return ProtoTargetForBusinessModule(parts[0])
+}
+
 // ProtoFilePath 根据 Proto 目录和实体名称生成仓库相对 Proto 文件路径。
 func ProtoFilePath(directory string, entityName string) string {
 	return filepath.ToSlash(filepath.Join(ProtoRootPath, directory, stringcase.ToSnakeCase(entityName)+".proto"))

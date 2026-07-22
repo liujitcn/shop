@@ -5,7 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"go/ast"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"slices"
 	"strings"
 
@@ -47,6 +49,44 @@ func NormalizeQueryOperator(operator string) string {
 	default:
 		return "eq"
 	}
+}
+
+// goMethodName 将 Proto 方法名转换为 Go 方法名并保留常见缩写。
+func goMethodName(methodName string) string {
+	return stringcase.ToGoPascalCase(methodName)
+}
+
+// ExistingProtoFilePath 查找仓库中已定义目标 RPC 的 Proto 文件。
+func ExistingProtoFilePath(targetEntity string, methodName string, excludedModule string) (string, bool) {
+	if targetEntity == "" || methodName == "" {
+		return "", false
+	}
+	root := repoRoot()
+	pattern := filepath.Join(root, ProtoRootPath, "*", "admin", "v1", stringcase.ToSnakeCase(targetEntity)+".proto")
+	paths, err := filepath.Glob(pattern)
+	if err != nil {
+		return "", false
+	}
+	for _, skipExcluded := range []bool{true, false} {
+		for _, path := range paths {
+			relativeDir, relativeErr := filepath.Rel(root, filepath.Dir(path))
+			if relativeErr != nil {
+				continue
+			}
+			module := strings.TrimSuffix(strings.TrimPrefix(filepath.ToSlash(relativeDir), ProtoRootPath+"/"), "/admin/v1")
+			if skipExcluded && module == excludedModule {
+				continue
+			}
+			content, readErr := os.ReadFile(path)
+			if readErr == nil && protoServiceMethodExists(string(content), targetEntity+"Service", methodName) {
+				relativePath, relativeErr := filepath.Rel(root, path)
+				if relativeErr == nil {
+					return filepath.ToSlash(relativePath), true
+				}
+			}
+		}
+	}
+	return "", false
 }
 
 // FailureRemark 提取适合保存和展示的生成错误信息。
@@ -125,6 +165,9 @@ func FileStepID(index int) string {
 func (c *renderer) defaultTargetProtoPath(table *Table, target string) string {
 	if target == table.EntityName {
 		return c.defaultProtoPath(table)
+	}
+	if path, ok := ExistingProtoFilePath(target, "Option"+target, table.BusinessModule); ok {
+		return path
 	}
 	return ProtoFilePath(ProtoTargetForTable(table).Directory, target)
 }
@@ -374,7 +417,7 @@ func (c *%sCase) %s(ctx context.Context, _ *systemadminv1.%sRequest) (*commonv1.
 	return &commonv1.SelectOptionResponse{List: options}, nil
 }
 
-`, method.MethodName, table.BusinessName, table.EntityName, method.MethodName, method.MethodName, queryDeclaration, orderOptionCount, defaultOrderOption, labelField, valueExpr)
+`, goMethodName(method.MethodName), table.BusinessName, table.EntityName, goMethodName(method.MethodName), method.MethodName, queryDeclaration, orderOptionCount, defaultOrderOption, labelField, valueExpr)
 }
 
 // renderTreeOptionBizMethod 渲染树形选择业务方法。
@@ -417,11 +460,12 @@ func (c *%sCase) build%sOption(list []*models.%s, parentID int64) []*commonv1.Tr
 	return res
 }
 
-`, method.MethodName, table.BusinessName, table.EntityName, method.MethodName, method.MethodName, queryDeclaration, orderOptionCount, defaultOrderOption, method.MethodName, parentGetter, method.MethodName, table.BusinessName, table.EntityName, method.MethodName, table.EntityName, parentField, labelField, valueExpr, method.MethodName, valueExpr)
+`, goMethodName(method.MethodName), table.BusinessName, table.EntityName, goMethodName(method.MethodName), method.MethodName, queryDeclaration, orderOptionCount, defaultOrderOption, goMethodName(method.MethodName), parentGetter, goMethodName(method.MethodName), table.BusinessName, table.EntityName, goMethodName(method.MethodName), table.EntityName, parentField, labelField, valueExpr, goMethodName(method.MethodName), valueExpr)
 }
 
 // renderServiceMethod 渲染服务层方法。
 func (c *renderer) renderServiceMethod(table *Table, method *Proto, entityVar string, returnKind string, errorMessage string) string {
+	goName := goMethodName(method.MethodName)
 	returnType := "(*emptypb.Empty, error)"
 	successReturn := "return new(emptypb.Empty), nil"
 	callArgs := "ctx, req"
@@ -444,15 +488,15 @@ func (c *renderer) renderServiceMethod(table *Table, method *Proto, entityVar st
 		}
 		successReturn = "return res, nil"
 	}
-	caseCall := fmt.Sprintf("s.%sCase.%s(%s)", entityVar, method.MethodName, callArgs)
+	caseCall := fmt.Sprintf("s.%sCase.%s(%s)", entityVar, goName, callArgs)
 	if method.MethodName == "Create"+table.EntityName {
-		caseCall = fmt.Sprintf("s.%sCase.%s(ctx, req.Get%s())", entityVar, method.MethodName, table.EntityName)
+		caseCall = fmt.Sprintf("s.%sCase.%s(ctx, req.Get%s())", entityVar, goName, table.EntityName)
 	}
 	if method.MethodName == "Update"+table.EntityName {
-		caseCall = fmt.Sprintf("s.%sCase.%s(ctx, req.GetId(), req.Get%s())", entityVar, method.MethodName, table.EntityName)
+		caseCall = fmt.Sprintf("s.%sCase.%s(ctx, req.GetId(), req.Get%s())", entityVar, goName, table.EntityName)
 	}
 	if method.MethodName == "Delete"+table.EntityName {
-		caseCall = fmt.Sprintf("s.%sCase.%s(ctx, req.GetIds())", entityVar, method.MethodName)
+		caseCall = fmt.Sprintf("s.%sCase.%s(ctx, req.GetIds())", entityVar, goName)
 	}
 	assign := "res, err :="
 	if returnKind == "empty" {
@@ -468,7 +512,7 @@ func (s *%sService) %s(ctx context.Context, req *systemadminv1.%sRequest) %s {
 	}
 	%s
 }
-`, method.MethodName, errorMessage, table.EntityName, method.MethodName, method.MethodName, returnType, assign, caseCall, method.MethodName, errorMessage, successReturn)
+`, goName, errorMessage, table.EntityName, goName, method.MethodName, returnType, assign, caseCall, goName, errorMessage, successReturn)
 }
 
 // renderDefaultOrderOption 根据字段快照渲染默认排序，优先创建时间，其次主键。
@@ -778,6 +822,7 @@ func missingCoreMethodNames(table *Table, methods []*Proto) map[string]struct{} 
 	for _, methodName := range candidates {
 		if _, ok := methodNames[methodName]; !ok {
 			missing[methodName] = struct{}{}
+			missing[goMethodName(methodName)] = struct{}{}
 		}
 	}
 	return missing

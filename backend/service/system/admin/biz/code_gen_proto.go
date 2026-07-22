@@ -544,6 +544,9 @@ func defaultTargetCodeGenProtoPath(table *models.CodeGenTable, target string) st
 	if target == stringcase.ToPascalCase(table.Name) {
 		return defaultCodeGenProtoPath(table)
 	}
+	if path, ok := codegen.ExistingProtoFilePath(target, "Option"+target, table.BusinessModule); ok {
+		return path
+	}
 	targetConfig, _ := codegen.ProtoTargetForBusinessModule(table.BusinessModule)
 	return codegen.ProtoFilePath(targetConfig.Directory, target)
 }

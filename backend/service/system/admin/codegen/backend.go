@@ -45,7 +45,7 @@ func (c *%sCase) %s(ctx context.Context, req *systemadminv1.%sRequest) (*systema
 	return &systemadminv1.%sResponse{%s: c.build%sTree(list, 0)}, nil
 }
 
-`, treeMethod.MethodName, table.BusinessName, entity, treeMethod.MethodName, treeMethod.MethodName, treeMethod.MethodName, queryName, countQueryColumns(columns)+orderOptionCount, defaultOrderOption, c.renderQueryOptions(columns), treeMethod.MethodName, listField, entity))
+`, goMethodName(treeMethod.MethodName), table.BusinessName, entity, goMethodName(treeMethod.MethodName), treeMethod.MethodName, treeMethod.MethodName, queryName, countQueryColumns(columns)+orderOptionCount, defaultOrderOption, c.renderQueryOptions(columns), goMethodName(treeMethod.MethodName), listField, entity))
 	}
 	for _, method := range optionMethods {
 		if method.APIKind == APIKindOption {
@@ -100,7 +100,7 @@ func (c *%sCase) Update%s(ctx context.Context, id int64, req *systemadminv1.%sFo
 func (c *%sCase) Delete%s(ctx context.Context, ids string) error {
 	return c.DeleteByIDs(ctx, _string.ConvertStringToInt64Array(ids))
 }
-	`, pageMethod, table.BusinessName, entity, pageMethod, pageMethod, pageResponse, queryName, countQueryColumns(columns)+orderOptionCount, defaultOrderOption, c.renderQueryOptions(columns), entity, pageResponse, listField, entity, table.BusinessName, entity, entity, entity, entityVar, entityVar, entity, table.BusinessName, entity, entity, entity, entityVar, entityVar, entity, table.BusinessName, entity, entity, entity, entityVar, entityVar, entityVar, entity, table.BusinessName, entity, entity)
+	`, goMethodName(pageMethod), table.BusinessName, entity, goMethodName(pageMethod), pageMethod, pageResponse, queryName, countQueryColumns(columns)+orderOptionCount, defaultOrderOption, c.renderQueryOptions(columns), entity, pageResponse, listField, goMethodName(entity), table.BusinessName, entity, goMethodName(entity), entity, entityVar, entityVar, goMethodName(entity), table.BusinessName, entity, goMethodName(entity), entity, entityVar, entityVar, goMethodName(entity), table.BusinessName, entity, goMethodName(entity), entity, entityVar, entityVar, entityVar, goMethodName(entity), table.BusinessName, entity, goMethodName(entity))
 	formGetAssignments := renderBackendFormMultipleGetAssignments(columns, entityVar)
 	if formGetAssignments != "" {
 		mainMethods = strings.Replace(
@@ -115,7 +115,7 @@ func (c *%sCase) Delete%s(ctx context.Context, ids string) error {
 		mainMethods = strings.ReplaceAll(mainMethods, "\t"+entityVar+" := c.formMapper.ToEntity(req)\n", "\t"+entityVar+" := c.formMapper.ToEntity(req)\n"+formEntityAssignments)
 	}
 	if treeMethod != nil {
-		getMethodIndex := strings.Index(mainMethods, "// Get"+entity)
+		getMethodIndex := strings.Index(mainMethods, "// "+goMethodName("Get"+entity))
 		if getMethodIndex >= 0 {
 			mainMethods = mainMethods[getMethodIndex:]
 		}
@@ -134,7 +134,7 @@ func (c *%sCase) %s(ctx context.Context, req *systemadminv1.%sRequest) error {
 		%s: req.GetStatus(),
 	})
 }
-`, statusMethod.MethodName, DefaultString(statusColumn.Comment, statusColumn.Name), entity, statusMethod.MethodName, statusMethod.MethodName, entity, modelFieldName(statusColumn.Name)))
+`, goMethodName(statusMethod.MethodName), DefaultString(statusColumn.Comment, statusColumn.Name), entity, goMethodName(statusMethod.MethodName), statusMethod.MethodName, entity, modelFieldName(statusColumn.Name)))
 	}
 	if treeMethod != nil {
 		parentField := DefaultString(table.ParentColumn, "parent_id")
@@ -152,7 +152,7 @@ func (c *%sCase) build%sTree(list []*models.%s, parentID int64) []*systemadminv1
 	}
 	return res
 }
-`, entity, table.BusinessName, entity, entity, entity, entity, entity, modelFieldName(parentField), entityVar, entityVar, entity, entityVar))
+`, goMethodName(entity), table.BusinessName, entity, goMethodName(entity), entity, entity, entity, modelFieldName(parentField), entityVar, entityVar, goMethodName(entity), entityVar))
 	}
 	content := renderTemplate("backend_biz.tmpl", backendBizTemplateData{
 		Entity:       entity,
