@@ -14,7 +14,7 @@ import (
 	"gorm.io/gen/field"
 )
 
-// ShopServiceRepository 定义 ShopService 的基础仓储能力。
+// ShopServiceRepository 定义 商城服务信息 的基础仓储能力。
 type ShopServiceRepository struct {
 	repository.BaseRepository[models.ShopService]
 	*Data

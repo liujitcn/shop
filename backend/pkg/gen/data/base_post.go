@@ -14,7 +14,7 @@ import (
 	"gorm.io/gen/field"
 )
 
-// BasePostRepository 定义 BasePost 的基础仓储能力。
+// BasePostRepository 定义 岗位信息 的基础仓储能力。
 type BasePostRepository struct {
 	repository.BaseRepository[models.BasePost]
 	*Data

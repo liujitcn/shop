@@ -14,7 +14,7 @@ import (
 	"gorm.io/gen/field"
 )
 
-// CommentReactionRepository 定义 CommentReaction 的基础仓储能力。
+// CommentReactionRepository 定义 评价互动信息 的基础仓储能力。
 type CommentReactionRepository struct {
 	repository.BaseRepository[models.CommentReaction]
 	*Data

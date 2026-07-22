@@ -14,7 +14,7 @@ import (
 	"gorm.io/gen/field"
 )
 
-// CommentInfoRepository 定义 CommentInfo 的基础仓储能力。
+// CommentInfoRepository 定义 评价信息 的基础仓储能力。
 type CommentInfoRepository struct {
 	repository.BaseRepository[models.CommentInfo]
 	*Data

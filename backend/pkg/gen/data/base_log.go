@@ -14,7 +14,7 @@ import (
 	"gorm.io/gen/field"
 )
 
-// BaseLogRepository 定义 BaseLog 的基础仓储能力。
+// BaseLogRepository 定义 系统日志信息 的基础仓储能力。
 type BaseLogRepository struct {
 	repository.BaseRepository[models.BaseLog]
 	*Data

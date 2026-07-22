@@ -14,7 +14,7 @@ import (
 	"gorm.io/gen/field"
 )
 
-// UserCollectRepository 定义 UserCollect 的基础仓储能力。
+// UserCollectRepository 定义 用户收藏信息 的基础仓储能力。
 type UserCollectRepository struct {
 	repository.BaseRepository[models.UserCollect]
 	*Data

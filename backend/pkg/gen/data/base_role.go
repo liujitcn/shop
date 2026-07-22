@@ -14,7 +14,7 @@ import (
 	"gorm.io/gen/field"
 )
 
-// BaseRoleRepository 定义 BaseRole 的基础仓储能力。
+// BaseRoleRepository 定义 角色信息 的基础仓储能力。
 type BaseRoleRepository struct {
 	repository.BaseRepository[models.BaseRole]
 	*Data

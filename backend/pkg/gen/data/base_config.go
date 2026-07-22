@@ -14,7 +14,7 @@ import (
 	"gorm.io/gen/field"
 )
 
-// BaseConfigRepository 定义 BaseConfig 的基础仓储能力。
+// BaseConfigRepository 定义 参数配置 的基础仓储能力。
 type BaseConfigRepository struct {
 	repository.BaseRepository[models.BaseConfig]
 	*Data

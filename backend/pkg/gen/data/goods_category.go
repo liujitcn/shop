@@ -14,7 +14,7 @@ import (
 	"gorm.io/gen/field"
 )
 
-// GoodsCategoryRepository 定义 GoodsCategory 的基础仓储能力。
+// GoodsCategoryRepository 定义 商品分类信息 的基础仓储能力。
 type GoodsCategoryRepository struct {
 	repository.BaseRepository[models.GoodsCategory]
 	*Data

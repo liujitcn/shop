@@ -14,7 +14,7 @@ import (
 	"gorm.io/gen/field"
 )
 
-// CommentSummaryRepository 定义 CommentSummary 的基础仓储能力。
+// CommentSummaryRepository 定义 评价摘要信息 的基础仓储能力。
 type CommentSummaryRepository struct {
 	repository.BaseRepository[models.CommentSummary]
 	*Data

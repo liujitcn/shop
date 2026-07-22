@@ -14,7 +14,7 @@ import (
 	"gorm.io/gen/field"
 )
 
-// UserCartRepository 定义 UserCart 的基础仓储能力。
+// UserCartRepository 定义 用户购物车信息 的基础仓储能力。
 type UserCartRepository struct {
 	repository.BaseRepository[models.UserCart]
 	*Data

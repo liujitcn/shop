@@ -14,7 +14,7 @@ import (
 	"gorm.io/gen/field"
 )
 
-// OrderGoodsRepository 定义 OrderGoods 的基础仓储能力。
+// OrderGoodsRepository 定义 订单商品信息 的基础仓储能力。
 type OrderGoodsRepository struct {
 	repository.BaseRepository[models.OrderGoods]
 	*Data

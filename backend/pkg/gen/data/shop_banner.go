@@ -14,7 +14,7 @@ import (
 	"gorm.io/gen/field"
 )
 
-// ShopBannerRepository 定义 ShopBanner 的基础仓储能力。
+// ShopBannerRepository 定义 商城轮播图信息 的基础仓储能力。
 type ShopBannerRepository struct {
 	repository.BaseRepository[models.ShopBanner]
 	*Data

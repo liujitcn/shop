@@ -14,7 +14,7 @@ import (
 	"gorm.io/gen/field"
 )
 
-// BaseDeptRepository 定义 BaseDept 的基础仓储能力。
+// BaseDeptRepository 定义 部门信息 的基础仓储能力。
 type BaseDeptRepository struct {
 	repository.BaseRepository[models.BaseDept]
 	*Data

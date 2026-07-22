@@ -14,7 +14,7 @@ import (
 	"gorm.io/gen/field"
 )
 
-// UserAddressRepository 定义 UserAddress 的基础仓储能力。
+// UserAddressRepository 定义 用户地址信息 的基础仓储能力。
 type UserAddressRepository struct {
 	repository.BaseRepository[models.UserAddress]
 	*Data

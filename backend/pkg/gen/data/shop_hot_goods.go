@@ -14,7 +14,7 @@ import (
 	"gorm.io/gen/field"
 )
 
-// ShopHotGoodsRepository 定义 ShopHotGoods 的基础仓储能力。
+// ShopHotGoodsRepository 定义 商城热门推荐商品信息 的基础仓储能力。
 type ShopHotGoodsRepository struct {
 	repository.BaseRepository[models.ShopHotGoods]
 	*Data

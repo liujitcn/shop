@@ -14,7 +14,7 @@ import (
 	"gorm.io/gen/field"
 )
 
-// CasbinRuleRepository 定义 CasbinRule 的基础仓储能力。
+// CasbinRuleRepository 定义 Casbin权限信息 的基础仓储能力。
 type CasbinRuleRepository struct {
 	repository.BaseRepository[models.CasbinRule]
 	*Data

@@ -14,7 +14,7 @@ import (
 	"gorm.io/gen/field"
 )
 
-// RecommendEventRepository 定义 RecommendEvent 的基础仓储能力。
+// RecommendEventRepository 定义 推荐行为事件信息 的基础仓储能力。
 type RecommendEventRepository struct {
 	repository.BaseRepository[models.RecommendEvent]
 	*Data

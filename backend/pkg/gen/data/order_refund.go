@@ -14,7 +14,7 @@ import (
 	"gorm.io/gen/field"
 )
 
-// OrderRefundRepository 定义 OrderRefund 的基础仓储能力。
+// OrderRefundRepository 定义 订单退款信息 的基础仓储能力。
 type OrderRefundRepository struct {
 	repository.BaseRepository[models.OrderRefund]
 	*Data

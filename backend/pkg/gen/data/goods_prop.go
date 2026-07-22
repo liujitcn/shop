@@ -14,7 +14,7 @@ import (
 	"gorm.io/gen/field"
 )
 
-// GoodsPropRepository 定义 GoodsProp 的基础仓储能力。
+// GoodsPropRepository 定义 商品属性信息 的基础仓储能力。
 type GoodsPropRepository struct {
 	repository.BaseRepository[models.GoodsProp]
 	*Data

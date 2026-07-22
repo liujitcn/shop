@@ -14,7 +14,7 @@ import (
 	"gorm.io/gen/field"
 )
 
-// CommentTagRepository 定义 CommentTag 的基础仓储能力。
+// CommentTagRepository 定义 评价标签信息 的基础仓储能力。
 type CommentTagRepository struct {
 	repository.BaseRepository[models.CommentTag]
 	*Data

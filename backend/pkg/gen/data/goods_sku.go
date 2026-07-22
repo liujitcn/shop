@@ -14,7 +14,7 @@ import (
 	"gorm.io/gen/field"
 )
 
-// GoodsSKURepository 定义 GoodsSKU 的基础仓储能力。
+// GoodsSKURepository 定义 商品SKU信息 的基础仓储能力。
 type GoodsSKURepository struct {
 	repository.BaseRepository[models.GoodsSKU]
 	*Data

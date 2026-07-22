@@ -14,7 +14,7 @@ import (
 	"gorm.io/gen/field"
 )
 
-// OrderPaymentRepository 定义 OrderPayment 的基础仓储能力。
+// OrderPaymentRepository 定义 订单支付信息 的基础仓储能力。
 type OrderPaymentRepository struct {
 	repository.BaseRepository[models.OrderPayment]
 	*Data

@@ -14,7 +14,7 @@ import (
 	"gorm.io/gen/field"
 )
 
-// CommentReviewRepository 定义 CommentReview 的基础仓储能力。
+// CommentReviewRepository 定义 评价审核信息 的基础仓储能力。
 type CommentReviewRepository struct {
 	repository.BaseRepository[models.CommentReview]
 	*Data

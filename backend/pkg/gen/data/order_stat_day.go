@@ -14,7 +14,7 @@ import (
 	"gorm.io/gen/field"
 )
 
-// OrderStatDayRepository 定义 OrderStatDay 的基础仓储能力。
+// OrderStatDayRepository 定义 订单日统计表 的基础仓储能力。
 type OrderStatDayRepository struct {
 	repository.BaseRepository[models.OrderStatDay]
 	*Data

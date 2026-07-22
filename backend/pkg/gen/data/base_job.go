@@ -14,7 +14,7 @@ import (
 	"gorm.io/gen/field"
 )
 
-// BaseJobRepository 定义 BaseJob 的基础仓储能力。
+// BaseJobRepository 定义 定时任务信息 的基础仓储能力。
 type BaseJobRepository struct {
 	repository.BaseRepository[models.BaseJob]
 	*Data

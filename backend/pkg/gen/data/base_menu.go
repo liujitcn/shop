@@ -14,7 +14,7 @@ import (
 	"gorm.io/gen/field"
 )
 
-// BaseMenuRepository 定义 BaseMenu 的基础仓储能力。
+// BaseMenuRepository 定义 菜单信息 的基础仓储能力。
 type BaseMenuRepository struct {
 	repository.BaseRepository[models.BaseMenu]
 	*Data

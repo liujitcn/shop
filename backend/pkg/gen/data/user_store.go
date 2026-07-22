@@ -14,7 +14,7 @@ import (
 	"gorm.io/gen/field"
 )
 
-// UserStoreRepository 定义 UserStore 的基础仓储能力。
+// UserStoreRepository 定义 用户门店信息 的基础仓储能力。
 type UserStoreRepository struct {
 	repository.BaseRepository[models.UserStore]
 	*Data

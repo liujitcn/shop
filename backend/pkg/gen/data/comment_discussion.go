@@ -14,7 +14,7 @@ import (
 	"gorm.io/gen/field"
 )
 
-// CommentDiscussionRepository 定义 CommentDiscussion 的基础仓储能力。
+// CommentDiscussionRepository 定义 评价讨论信息 的基础仓储能力。
 type CommentDiscussionRepository struct {
 	repository.BaseRepository[models.CommentDiscussion]
 	*Data

@@ -14,7 +14,7 @@ import (
 	"gorm.io/gen/field"
 )
 
-// OrderCancelRepository 定义 OrderCancel 的基础仓储能力。
+// OrderCancelRepository 定义 订单取消信息 的基础仓储能力。
 type OrderCancelRepository struct {
 	repository.BaseRepository[models.OrderCancel]
 	*Data

@@ -14,7 +14,7 @@ import (
 	"gorm.io/gen/field"
 )
 
-// GoodsInfoRepository 定义 GoodsInfo 的基础仓储能力。
+// GoodsInfoRepository 定义 商品信息 的基础仓储能力。
 type GoodsInfoRepository struct {
 	repository.BaseRepository[models.GoodsInfo]
 	*Data

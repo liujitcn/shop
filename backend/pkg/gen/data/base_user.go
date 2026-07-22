@@ -14,7 +14,7 @@ import (
 	"gorm.io/gen/field"
 )
 
-// BaseUserRepository 定义 BaseUser 的基础仓储能力。
+// BaseUserRepository 定义 用户信息 的基础仓储能力。
 type BaseUserRepository struct {
 	repository.BaseRepository[models.BaseUser]
 	*Data

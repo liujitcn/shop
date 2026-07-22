@@ -14,7 +14,7 @@ import (
 	"gorm.io/gen/field"
 )
 
-// OrderInfoRepository 定义 OrderInfo 的基础仓储能力。
+// OrderInfoRepository 定义 门店订单信息表 的基础仓储能力。
 type OrderInfoRepository struct {
 	repository.BaseRepository[models.OrderInfo]
 	*Data

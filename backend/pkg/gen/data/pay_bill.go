@@ -14,7 +14,7 @@ import (
 	"gorm.io/gen/field"
 )
 
-// PayBillRepository 定义 PayBill 的基础仓储能力。
+// PayBillRepository 定义 支付对帐单信息 的基础仓储能力。
 type PayBillRepository struct {
 	repository.BaseRepository[models.PayBill]
 	*Data

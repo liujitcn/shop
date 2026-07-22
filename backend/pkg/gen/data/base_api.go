@@ -14,7 +14,7 @@ import (
 	"gorm.io/gen/field"
 )
 
-// BaseAPIRepository 定义 BaseAPI 的基础仓储能力。
+// BaseAPIRepository 定义 API信息 的基础仓储能力。
 type BaseAPIRepository struct {
 	repository.BaseRepository[models.BaseAPI]
 	*Data

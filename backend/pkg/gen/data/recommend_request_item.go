@@ -14,7 +14,7 @@ import (
 	"gorm.io/gen/field"
 )
 
-// RecommendRequestItemRepository 定义 RecommendRequestItem 的基础仓储能力。
+// RecommendRequestItemRepository 定义 推荐请求结果明细信息 的基础仓储能力。
 type RecommendRequestItemRepository struct {
 	repository.BaseRepository[models.RecommendRequestItem]
 	*Data

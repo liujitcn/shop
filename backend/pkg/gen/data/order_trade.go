@@ -14,7 +14,7 @@ import (
 	"gorm.io/gen/field"
 )
 
-// OrderTradeRepository 定义 OrderTrade 的基础仓储能力。
+// OrderTradeRepository 定义 订单交易单 的基础仓储能力。
 type OrderTradeRepository struct {
 	repository.BaseRepository[models.OrderTrade]
 	*Data

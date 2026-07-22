@@ -14,7 +14,7 @@ import (
 	"gorm.io/gen/field"
 )
 
-// BaseDictRepository 定义 BaseDict 的基础仓储能力。
+// BaseDictRepository 定义 字典信息 的基础仓储能力。
 type BaseDictRepository struct {
 	repository.BaseRepository[models.BaseDict]
 	*Data

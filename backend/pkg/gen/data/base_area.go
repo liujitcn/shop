@@ -14,7 +14,7 @@ import (
 	"gorm.io/gen/field"
 )
 
-// BaseAreaRepository 定义 BaseArea 的基础仓储能力。
+// BaseAreaRepository 定义 行政区域信息 的基础仓储能力。
 type BaseAreaRepository struct {
 	repository.BaseRepository[models.BaseArea]
 	*Data

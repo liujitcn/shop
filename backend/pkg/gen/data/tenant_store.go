@@ -14,7 +14,7 @@ import (
 	"gorm.io/gen/field"
 )
 
-// TenantStoreRepository 定义 TenantStore 的基础仓储能力。
+// TenantStoreRepository 定义 租户门店信息 的基础仓储能力。
 type TenantStoreRepository struct {
 	repository.BaseRepository[models.TenantStore]
 	*Data

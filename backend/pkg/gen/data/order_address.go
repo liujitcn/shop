@@ -14,7 +14,7 @@ import (
 	"gorm.io/gen/field"
 )
 
-// OrderAddressRepository 定义 OrderAddress 的基础仓储能力。
+// OrderAddressRepository 定义 订单地址信息 的基础仓储能力。
 type OrderAddressRepository struct {
 	repository.BaseRepository[models.OrderAddress]
 	*Data
