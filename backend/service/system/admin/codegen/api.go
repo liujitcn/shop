@@ -62,7 +62,7 @@ func applySavedProtoMethod(check *ProtoCheck, saved *Proto) {
 	if saved.ValueColumn != "" {
 		check.ValueColumn = saved.ValueColumn
 	}
-	if saved.APIKind == APIKindStatus && saved.ColumnName != "" {
-		check.ColumnName = saved.ColumnName
+	if saved.APIKind == APIKindStatus && saved.Name != "" {
+		check.Name = saved.Name
 	}
 }

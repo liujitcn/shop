@@ -122,7 +122,7 @@ func (c *%sCase) Delete%s(ctx context.Context, ids string) error {
 	}
 	methodsBuilder.WriteString(mainMethods)
 	for _, statusMethod := range methodsByKinds(methods, APIKindStatus) {
-		statusColumn := findStatusColumn(columns, statusMethod.ColumnName)
+		statusColumn := findStatusColumn(columns, statusMethod.Name)
 		if statusColumn == nil {
 			continue
 		}
@@ -134,7 +134,7 @@ func (c *%sCase) %s(ctx context.Context, req *systemadminv1.%sRequest) error {
 		%s: req.GetStatus(),
 	})
 }
-`, statusMethod.MethodName, DefaultString(statusColumn.ColumnComment, statusColumn.ColumnName), entity, statusMethod.MethodName, statusMethod.MethodName, entity, modelFieldName(statusColumn.ColumnName)))
+`, statusMethod.MethodName, DefaultString(statusColumn.Comment, statusColumn.Name), entity, statusMethod.MethodName, statusMethod.MethodName, entity, modelFieldName(statusColumn.Name)))
 	}
 	if treeMethod != nil {
 		parentField := DefaultString(table.ParentColumn, "parent_id")
@@ -242,7 +242,8 @@ func (c *renderer) appendExternalTargetBizMethods(content string, table *Table, 
 	methodContent = strings.ReplaceAll(methodContent, "*"+generatedReceiver, "*"+existingReceiver)
 	methodContent = strings.ReplaceAll(methodContent, "models."+table.EntityName, "models."+repositoryType)
 	methodContent = strings.ReplaceAll(methodContent, "c.Query(ctx)."+table.EntityName, "c.Query(ctx)."+repositoryType)
-	return mergeGeneratedGoReceiverMethods(content, methodContent, existingReceiver)
+	target := ProtoTargetForTable(table)
+	return mergeGeneratedGoReceiverMethods(content, methodContent, existingReceiver, target.GoAlias+" \""+target.GoImportPath+"\"")
 }
 
 // renderExternalTargetBizFile 渲染外部目标实体的最小业务文件。
@@ -306,7 +307,8 @@ func (c *renderer) appendExternalTargetServiceMethods(content string, table *Tab
 	}
 	methodContent = strings.ReplaceAll(methodContent, "*"+generatedReceiver, "*"+existingReceiver)
 	methodContent = strings.ReplaceAll(methodContent, "s."+generatedCaseField, "s."+existingCaseField)
-	return mergeGeneratedGoReceiverMethods(content, methodContent, existingReceiver)
+	target := ProtoTargetForTable(table)
+	return mergeGeneratedGoReceiverMethods(content, methodContent, existingReceiver, target.GoAlias+" \""+target.GoImportPath+"\"")
 }
 
 // renderExternalTargetServiceFile 渲染外部目标实体的最小服务文件。
@@ -336,7 +338,7 @@ func renderBackendFormMultipleGetAssignments(columns []*CodeGenColumn, entityVar
 		if !isFormTreeMultiple(column) {
 			continue
 		}
-		field := modelFieldName(column.ColumnName)
+		field := modelFieldName(column.Name)
 		builder.WriteString(fmt.Sprintf("\tres.%s = _string.ConvertJsonStringToInt64Array(%s.%s)\n", field, entityVar, field))
 	}
 	return builder.String()
@@ -349,7 +351,7 @@ func renderBackendFormMultipleEntityAssignments(columns []*CodeGenColumn, entity
 		if !isFormTreeMultiple(column) {
 			continue
 		}
-		field := modelFieldName(column.ColumnName)
+		field := modelFieldName(column.Name)
 		builder.WriteString(fmt.Sprintf("\t%s.%s = _string.ConvertInt64ArrayToString(req.Get%s())\n", entityVar, field, field))
 	}
 	return builder.String()

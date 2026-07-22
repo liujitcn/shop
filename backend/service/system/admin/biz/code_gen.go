@@ -505,6 +505,10 @@ func (c *CodeGenCase) loadCodeGenContext(ctx context.Context, tableID int64) (*c
 	if err != nil {
 		return nil, nil, nil, err
 	}
+	err = c.codeGenTableCase.ValidateBusinessModule(ctx, tableModel.BusinessModule)
+	if err != nil {
+		return nil, nil, nil, err
+	}
 	var table *codegen.Table
 	table, err = codeGenTableToSnapshot(tableModel)
 	if err != nil {
@@ -521,59 +525,17 @@ func (c *CodeGenCase) loadCodeGenContext(ctx context.Context, tableID int64) (*c
 		return nil, nil, nil, err
 	}
 	columns := codeGenColumnsToSnapshots(columnConfigs, databaseColumns)
-	query := c.codeGenProtoCase.Query(ctx).CodeGenProto
-	opts := make([]repository.QueryOption, 0, 2)
-	opts = append(opts, repository.Where(query.TableID.Eq(tableID)))
-	opts = append(opts, repository.Order(query.Sort.Asc()))
-	var protoModels []*models.CodeGenProto
-	protoModels, err = c.codeGenProtoCase.List(ctx, opts...)
+	var protoChecks *systemadminv1.ListCodeGenProtoResponse
+	protoChecks, err = c.codeGenProtoCase.ListCodeGenProto(ctx, tableID)
 	if err != nil {
 		return nil, nil, nil, err
 	}
 	var protos []*codegen.Proto
-	protos, err = codeGenProtosToSnapshots(protoModels)
+	protos, err = codeGenProtosToSnapshots(protoChecks.GetCodeGenProtos())
 	if err != nil {
-		return nil, nil, nil, err
-	}
-	if err = c.loadProtoTargetBusinessNames(ctx, table, protos); err != nil {
 		return nil, nil, nil, err
 	}
 	return table, columns, protos, nil
-}
-
-// loadProtoTargetBusinessNames 从现有代码生成表配置补充外部接口目标描述。
-func (c *CodeGenCase) loadProtoTargetBusinessNames(ctx context.Context, table *codegen.Table, protos []*codegen.Proto) error {
-	tableNameByEntity := make(map[string]string)
-	tableNames := make([]string, 0)
-	for _, proto := range protos {
-		if proto.TargetEntityName == "" || proto.TargetEntityName == table.EntityName {
-			continue
-		}
-		if _, exists := tableNameByEntity[proto.TargetEntityName]; exists {
-			continue
-		}
-		tableName := stringcase.ToSnakeCase(proto.TargetEntityName)
-		tableNameByEntity[proto.TargetEntityName] = tableName
-		tableNames = append(tableNames, tableName)
-	}
-	if len(tableNames) == 0 {
-		return nil
-	}
-	query := c.codeGenTableCase.Query(ctx).CodeGenTable
-	opts := make([]repository.QueryOption, 0, 1)
-	opts = append(opts, repository.Where(query.Name.In(tableNames...)))
-	tableConfigs, err := c.codeGenTableCase.List(ctx, opts...)
-	if err != nil {
-		return err
-	}
-	commentByTableName := make(map[string]string, len(tableConfigs))
-	for _, tableConfig := range tableConfigs {
-		commentByTableName[tableConfig.Name] = tableConfig.Comment
-	}
-	for _, proto := range protos {
-		proto.TargetBusinessName = commentByTableName[tableNameByEntity[proto.TargetEntityName]]
-	}
-	return nil
 }
 
 // validateGeneratedOptionMethods 校验选项接口字段能安全写入公共响应类型。
@@ -760,6 +722,17 @@ func (r *codeGenProgressReporter) updateStep(ctx context.Context, stepID string,
 
 // codeGenTableToSnapshot 将现有表配置转换为生成器只读快照。
 func codeGenTableToSnapshot(item *models.CodeGenTable) (*codegen.Table, error) {
+	target, ok := codegen.ProtoTargetForBusinessModule(item.BusinessModule)
+	if !ok {
+		return nil, errorsx.InvalidArgument("业务模块不能为空或格式不正确")
+	}
+	pathSegments := strings.Split(item.Name, "_")
+	modulePath := item.Name
+	if len(pathSegments) > 1 {
+		modulePath = strings.Join(pathSegments[:len(pathSegments)-1], "/")
+	}
+	entityName := stringcase.ToPascalCase(item.Name)
+	businessName := codegen.DefaultString(item.Comment, item.Name)
 	leftTreeConfig := ""
 	if item.LeftTreeConfig != "" {
 		var config systemadminv1.CodeGenLeftTreeConfig
@@ -786,11 +759,12 @@ func codeGenTableToSnapshot(item *models.CodeGenTable) (*codegen.Table, error) {
 		ID:               item.ID,
 		TableName_:       item.Name,
 		TableComment:     item.Comment,
-		BusinessName:     codegen.DefaultString(item.Comment, item.BusinessName),
-		EntityName:       item.EntityName,
-		ModulePath:       item.ModulePath,
-		APIPath:          item.APIPath,
-		PermissionPrefix: item.PermissionPrefix,
+		BusinessModule:   item.BusinessModule,
+		BusinessName:     businessName,
+		EntityName:       entityName,
+		ModulePath:       modulePath,
+		APIPath:          target.Directory,
+		PermissionPrefix: strings.Join(pathSegments, ":"),
 		ParentMenuID:     item.ParentMenuID,
 		PageType:         item.PageType,
 		ParentColumn:     item.ParentColumn,
@@ -809,11 +783,11 @@ func codeGenTableToSnapshot(item *models.CodeGenTable) (*codegen.Table, error) {
 func codeGenColumnsToSnapshots(configs []*systemadminv1.CodeGenColumn, databaseColumns []dto.CodeGenDatabaseColumn) []*codegen.CodeGenColumn {
 	configByName := make(map[string]*systemadminv1.CodeGenColumn, len(configs))
 	for _, config := range configs {
-		configByName[config.GetColumnName()] = config
+		configByName[config.GetName()] = config
 	}
 	columns := make([]*codegen.CodeGenColumn, 0, len(databaseColumns))
 	for index, databaseColumn := range databaseColumns {
-		config := configByName[databaseColumn.ColumnName]
+		config := configByName[databaseColumn.Name]
 		if config == nil {
 			config = newDefaultCodeGenColumn(0, databaseColumn, int32(index+1))
 		}
@@ -832,8 +806,8 @@ func codeGenColumnsToSnapshots(configs []*systemadminv1.CodeGenColumn, databaseC
 		column := &codegen.CodeGenColumn{
 			ID:                  config.GetId(),
 			TableID:             config.GetTableId(),
-			ColumnName:          databaseColumn.ColumnName,
-			ColumnComment:       config.GetColumnComment(),
+			Name:                databaseColumn.Name,
+			Comment:             config.GetComment(),
 			DbType:              databaseColumn.DataType,
 			ColumnType:          databaseColumn.ColumnType,
 			DbLength:            config.GetDbLength(),
@@ -892,33 +866,28 @@ func codeGenOptionToSnapshot(option *systemadminv1.CodeGenColumnOptionConfig) co
 }
 
 // codeGenProtosToSnapshots 将现有Proto配置转换为生成器只读快照。
-func codeGenProtosToSnapshots(items []*models.CodeGenProto) ([]*codegen.Proto, error) {
+func codeGenProtosToSnapshots(items []*systemadminv1.CodeGenProtoCheck) ([]*codegen.Proto, error) {
 	protos := make([]*codegen.Proto, 0, len(items))
 	for _, item := range items {
-		var config systemadminv1.CodeGenProtoConfig
-		if item.Config != "" {
-			if err := json.Unmarshal([]byte(item.Config), &config); err != nil {
-				return nil, errorsx.Internal("Proto配置格式错误").WithCause(err)
-			}
-		}
+		config := item.GetConfig()
 		columnName := ""
-		if item.APIKind == codegen.APIKindStatus {
+		if item.GetApiKind() == codegen.APIKindStatus {
 			columnName = config.GetStatusColumn()
 		}
 		protos = append(protos, &codegen.Proto{
-			ID:                  item.ID,
-			TableID:             item.TableID,
-			ColumnName:          columnName,
-			TriggerType:         item.TriggerType,
-			APIKind:             item.APIKind,
-			TargetEntityName:    item.TargetEntityName,
-			MethodName:          item.MethodName,
-			ProtoFilePath:       item.ProtoFilePath,
+			TableID:             item.GetTableId(),
+			Name:                columnName,
+			TriggerType:         item.GetTriggerType(),
+			APIKind:             item.GetApiKind(),
+			TargetEntityName:    item.GetTargetEntityName(),
+			TargetBusinessName:  item.GetTargetEntityName(),
+			MethodName:          item.GetMethodName(),
+			ProtoFilePath:       item.GetProtoFilePath(),
 			ParentColumn:        config.GetParentColumn(),
 			LabelColumn:         config.GetLabelColumn(),
 			ValueColumn:         config.GetValueColumn(),
-			GenerateWhenMissing: item.GenerateWhenMissing,
-			Sort:                item.Sort,
+			GenerateWhenMissing: codegen.BoolToInt32(item.GetGenerateWhenMissing()),
+			Sort:                item.GetSort(),
 		})
 	}
 	return protos, nil

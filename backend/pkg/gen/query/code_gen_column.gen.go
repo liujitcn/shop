@@ -29,8 +29,8 @@ func newCodeGenColumn(db *gorm.DB, opts ...gen.DOOption) codeGenColumn {
 	_codeGenColumn.ALL = field.NewAsterisk(tableName)
 	_codeGenColumn.ID = field.NewInt64(tableName, "id")
 	_codeGenColumn.TableID = field.NewInt64(tableName, "table_id")
-	_codeGenColumn.ColumnName = field.NewString(tableName, "column_name")
-	_codeGenColumn.ColumnComment = field.NewString(tableName, "column_comment")
+	_codeGenColumn.Name = field.NewString(tableName, "name")
+	_codeGenColumn.Comment = field.NewString(tableName, "comment")
 	_codeGenColumn.QueryConfig = field.NewString(tableName, "query_config")
 	_codeGenColumn.ListConfig = field.NewString(tableName, "list_config")
 	_codeGenColumn.FormConfig = field.NewString(tableName, "form_config")
@@ -50,20 +50,20 @@ func newCodeGenColumn(db *gorm.DB, opts ...gen.DOOption) codeGenColumn {
 type codeGenColumn struct {
 	codeGenColumnDo codeGenColumnDo
 
-	ALL           field.Asterisk
-	ID            field.Int64  // 主键ID
-	TableID       field.Int64  // 生成对象ID
-	ColumnName    field.String // 字段名
-	ColumnComment field.String // 字段描述
-	QueryConfig   field.String // 查询条件配置JSON
-	ListConfig    field.String // 列表展示配置JSON
-	FormConfig    field.String // 表单录入配置JSON
-	Sort          field.Int32  // 排序
-	CreatedBy     field.Int64  // 创建人ID
-	UpdatedBy     field.Int64  // 更新人ID
-	CreatedAt     field.Time   // 创建时间
-	UpdatedAt     field.Time   // 更新时间
-	DeletedAt     field.Field
+	ALL         field.Asterisk
+	ID          field.Int64  // 主键ID
+	TableID     field.Int64  // 生成对象ID
+	Name        field.String // 字段名
+	Comment     field.String // 字段描述
+	QueryConfig field.String // 查询条件配置JSON
+	ListConfig  field.String // 列表展示配置JSON
+	FormConfig  field.String // 表单录入配置JSON
+	Sort        field.Int32  // 排序
+	CreatedBy   field.Int64  // 创建人ID
+	UpdatedBy   field.Int64  // 更新人ID
+	CreatedAt   field.Time   // 创建时间
+	UpdatedAt   field.Time   // 更新时间
+	DeletedAt   field.Field
 
 	fieldMap map[string]field.Expr
 }
@@ -82,8 +82,8 @@ func (c *codeGenColumn) updateTableName(table string) *codeGenColumn {
 	c.ALL = field.NewAsterisk(table)
 	c.ID = field.NewInt64(table, "id")
 	c.TableID = field.NewInt64(table, "table_id")
-	c.ColumnName = field.NewString(table, "column_name")
-	c.ColumnComment = field.NewString(table, "column_comment")
+	c.Name = field.NewString(table, "name")
+	c.Comment = field.NewString(table, "comment")
 	c.QueryConfig = field.NewString(table, "query_config")
 	c.ListConfig = field.NewString(table, "list_config")
 	c.FormConfig = field.NewString(table, "form_config")
@@ -124,8 +124,8 @@ func (c *codeGenColumn) fillFieldMap() {
 	c.fieldMap = make(map[string]field.Expr, 13)
 	c.fieldMap["id"] = c.ID
 	c.fieldMap["table_id"] = c.TableID
-	c.fieldMap["column_name"] = c.ColumnName
-	c.fieldMap["column_comment"] = c.ColumnComment
+	c.fieldMap["name"] = c.Name
+	c.fieldMap["comment"] = c.Comment
 	c.fieldMap["query_config"] = c.QueryConfig
 	c.fieldMap["list_config"] = c.ListConfig
 	c.fieldMap["form_config"] = c.FormConfig

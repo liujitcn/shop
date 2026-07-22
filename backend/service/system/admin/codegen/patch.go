@@ -157,20 +157,21 @@ func (c *renderer) externalTargetTable(table *Table, target string, methods []*P
 		}
 	}
 	return &Table{
-		TableName_:    stringcase.ToSnakeCase(target),
-		TableComment:  businessName,
-		BusinessName:  businessName,
-		EntityName:    target,
-		ModulePath:    resourcePathByEntity(target),
-		APIPath:       table.APIPath,
-		ProtoFilePath: c.defaultTargetProtoPath(table, target),
-		PageType:      "normal",
-		GenBackend:    1,
-		GenFrontend:   1,
-		GenSql:        0,
-		Status:        StatusDraft,
-		CreatedAt:     table.CreatedAt,
-		UpdatedAt:     table.UpdatedAt,
+		TableName_:     stringcase.ToSnakeCase(target),
+		TableComment:   businessName,
+		BusinessModule: table.BusinessModule,
+		BusinessName:   businessName,
+		EntityName:     target,
+		ModulePath:     resourcePathByEntity(target),
+		APIPath:        table.APIPath,
+		ProtoFilePath:  c.defaultTargetProtoPath(table, target),
+		PageType:       "normal",
+		GenBackend:     1,
+		GenFrontend:    1,
+		GenSql:         0,
+		Status:         StatusDraft,
+		CreatedAt:      table.CreatedAt,
+		UpdatedAt:      table.UpdatedAt,
 	}
 }
 
@@ -230,7 +231,7 @@ func (c *renderer) frontendProtoMethods(table *Table, columns []*CodeGenColumn, 
 func (c *renderer) protoCheckToModel(check *ProtoCheck) *Proto {
 	return &Proto{
 		TableID:             check.TableID,
-		ColumnName:          check.ColumnName,
+		Name:                check.Name,
 		TriggerType:         check.TriggerType,
 		APIKind:             check.APIKind,
 		TargetEntityName:    check.TargetEntityName,
@@ -466,12 +467,15 @@ func extractGoMethods(content string, methodNames map[string]struct{}) []string 
 }
 
 // mergeGeneratedGoReceiverMethods 按候选顺序替换生成方法，并将已有扩展方法原样保留在生成方法之后。
-func mergeGeneratedGoReceiverMethods(content string, methodContent string, receiverName string) string {
+func mergeGeneratedGoReceiverMethods(content string, methodContent string, receiverName string, importLines ...string) string {
 	generatedBlocks := generatedGoReceiverMethodBlocks(methodContent, receiverName)
 	if len(generatedBlocks) == 0 {
 		return content
 	}
 	originalContent := content
+	for _, importLine := range importLines {
+		content = ensureGoImport(content, importLine)
+	}
 	content = ensureGeneratedGoImports(content, methodContent)
 	file, fileSet, err := parseGoSource(content)
 	if err != nil {
@@ -1176,17 +1180,6 @@ func ensureGeneratedGoImports(content string, methodContent string) string {
 		{marker: "repository.", importLine: `"github.com/liujitcn/gorm-kit/repository"`, importPath: "github.com/liujitcn/gorm-kit/repository"},
 		{marker: "log.", importLine: `"github.com/go-kratos/kratos/v3/log"`, importPath: "github.com/go-kratos/kratos/v3/log"},
 		{marker: "emptypb.", importLine: `"google.golang.org/protobuf/types/known/emptypb"`, importPath: "google.golang.org/protobuf/types/known/emptypb"},
-	}
-	for _, target := range ProtoTargets() {
-		imports = append(imports, struct {
-			marker     string
-			importLine string
-			importPath string
-		}{
-			marker:     target.GoAlias + ".",
-			importLine: target.GoAlias + ` "` + target.GoImportPath + `"`,
-			importPath: target.GoImportPath,
-		})
 	}
 	for _, item := range imports {
 		if strings.Contains(methodContent, item.marker) && !strings.Contains(content, `"`+item.importPath+`"`) {

@@ -1,11 +1,8 @@
 package codegen
 
 import (
-	"fmt"
 	"path/filepath"
-	"sort"
 	"strings"
-	"sync"
 	"time"
 
 	"shop/pkg/gen/models"
@@ -16,8 +13,6 @@ import (
 const (
 	// ProtoRootPath 表示仓库内 Proto 根目录。
 	ProtoRootPath = "backend/api/proto"
-	// DefaultProtoDirectory 表示代码生成器默认写入的 Proto 目录。
-	DefaultProtoDirectory = "system/admin/v1"
 )
 
 // ProtoTarget 描述代码生成器支持的 Proto 与后端服务分组。
@@ -33,112 +28,37 @@ type ProtoTarget struct {
 	FrontendPageDirectory  string // 前端页面目录
 }
 
-// TargetRegistry 保存已由组合根启用的代码生成目标。
-type TargetRegistry struct {
-	mu      sync.RWMutex
-	targets map[string]ProtoTarget
-}
-
-var defaultTargetRegistry = NewTargetRegistry()
-
-// NewTargetRegistry 创建只包含基础系统目标的代码生成目标注册表。
-func NewTargetRegistry() *TargetRegistry {
-	registry := &TargetRegistry{targets: make(map[string]ProtoTarget)}
-	registry.targets[DefaultProtoDirectory] = systemAdminProtoTarget()
-	return registry
-}
-
-// RegisterProtoTarget 将模块目标显式注册到当前进程的代码生成器。
-func RegisterProtoTarget(target ProtoTarget) (TargetRegistration, error) {
-	err := defaultTargetRegistry.Register(target)
-	if err != nil {
-		return TargetRegistration{}, err
+// ProtoTargetForBusinessModule 根据业务模块值推导代码生成目标。
+func ProtoTargetForBusinessModule(module string) (ProtoTarget, bool) {
+	module = filepath.ToSlash(filepath.Clean(module))
+	if module == "." || module == "" || strings.Contains(module, "/") || strings.Contains(module, "\\") {
+		return ProtoTarget{}, false
 	}
-	return TargetRegistration{}, nil
+	return ProtoTarget{
+		Directory:              module + "/admin/v1",
+		PackageName:            module + ".admin.v1",
+		GoAlias:                strings.ReplaceAll(module, "_", "") + "adminv1",
+		GoImportPath:           "shop/api/gen/go/" + module + "/admin/v1",
+		ServiceImportAlias:     strings.ReplaceAll(module, "_", "") + "admin",
+		BackendModuleDirectory: "backend/service/" + module + "/admin",
+		ModuleRegisterPath:     "backend/server/" + module + "/admin/register.go",
+		FrontendAPIDirectory:   "frontend/admin/src/api/" + module,
+		FrontendPageDirectory:  "frontend/admin/src/views/" + module,
+	}, true
 }
 
-// ProtoTargets 返回当前进程可用的全部代码生成目标。
-func ProtoTargets() []ProtoTarget {
-	return defaultTargetRegistry.Targets()
-}
-
-// ProtoTargetByDirectory 根据 Proto 目录返回生成器支持的目标分组。
-func ProtoTargetByDirectory(directory string) (ProtoTarget, bool) {
-	return defaultTargetRegistry.TargetByDirectory(directory)
-}
-
-// TargetRegistration 表示模块代码生成目标已在组合根注册。
-type TargetRegistration struct{}
-
-// ProtoTargetForTable 返回表配置对应的 Proto 目标，旧配置使用默认目录。
+// ProtoTargetForTable 返回表配置对应的动态代码生成目标。
 func ProtoTargetForTable(table *Table) ProtoTarget {
-	directory := DefaultProtoDirectory
-	if table != nil && table.APIPath != "" {
-		directory = table.APIPath
+	if table == nil {
+		return ProtoTarget{}
 	}
-	if target, ok := ProtoTargetByDirectory(directory); ok {
-		return target
-	}
-	target, _ := ProtoTargetByDirectory(DefaultProtoDirectory)
+	target, _ := ProtoTargetForBusinessModule(table.BusinessModule)
 	return target
 }
 
 // ProtoFilePath 根据 Proto 目录和实体名称生成仓库相对 Proto 文件路径。
 func ProtoFilePath(directory string, entityName string) string {
-	if directory == "" {
-		directory = DefaultProtoDirectory
-	}
 	return filepath.ToSlash(filepath.Join(ProtoRootPath, directory, stringcase.ToSnakeCase(entityName)+".proto"))
-}
-
-// Register 注册模块代码生成目标，并拒绝重复目录。
-func (r *TargetRegistry) Register(target ProtoTarget) error {
-	if r == nil {
-		return fmt.Errorf("代码生成目标注册表未初始化")
-	}
-	target.Directory = filepath.ToSlash(filepath.Clean(target.Directory))
-	if target.Directory == "." || target.Directory == "" {
-		return fmt.Errorf("代码生成目标目录不能为空")
-	}
-	if target.PackageName == "" || target.GoAlias == "" || target.GoImportPath == "" {
-		return fmt.Errorf("代码生成目标配置不完整: %s", target.Directory)
-	}
-	r.mu.Lock()
-	defer r.mu.Unlock()
-	if _, exists := r.targets[target.Directory]; exists {
-		return fmt.Errorf("代码生成目标目录重复: %s", target.Directory)
-	}
-	r.targets[target.Directory] = target
-	return nil
-}
-
-// TargetByDirectory 根据 Proto 目录查询已启用代码生成目标。
-func (r *TargetRegistry) TargetByDirectory(directory string) (ProtoTarget, bool) {
-	if r == nil {
-		return ProtoTarget{}, false
-	}
-	directory = filepath.ToSlash(filepath.Clean(directory))
-	r.mu.RLock()
-	target, exists := r.targets[directory]
-	r.mu.RUnlock()
-	return target, exists
-}
-
-// Targets 返回已启用代码生成目标的稳定快照。
-func (r *TargetRegistry) Targets() []ProtoTarget {
-	if r == nil {
-		return nil
-	}
-	r.mu.RLock()
-	targets := make([]ProtoTarget, 0, len(r.targets))
-	for _, target := range r.targets {
-		targets = append(targets, target)
-	}
-	r.mu.RUnlock()
-	sort.Slice(targets, func(i int, j int) bool {
-		return targets[i].Directory < targets[j].Directory
-	})
-	return targets
 }
 
 // BackendBizFilePath 返回目标分组内的 Biz 文件路径。
@@ -166,6 +86,7 @@ type Table struct {
 	ID               int64     // 代码生成表配置 ID
 	TableName_       string    // 业务表名
 	TableComment     string    // 业务表描述
+	BusinessModule   string    // 业务模块
 	BusinessName     string    // 业务名称
 	EntityName       string    // 实体名称
 	ModulePath       string    // 模块路径
@@ -189,7 +110,7 @@ type Table struct {
 type Proto struct {
 	ID                  int64  // Proto 配置 ID
 	TableID             int64  // 代码生成表配置 ID
-	ColumnName          string // 触发字段名
+	Name                string // 触发字段名
 	TriggerType         string // 触发来源
 	APIKind             string // 接口类型
 	TargetEntityName    string // 目标实体名
@@ -206,7 +127,7 @@ type Proto struct {
 // ProtoCheck 描述渲染阶段推导出的 Proto 接口检查项。
 type ProtoCheck struct {
 	TableID             int64  // 代码生成表配置 ID
-	ColumnName          string // 触发字段名
+	Name                string // 触发字段名
 	TriggerType         string // 触发来源
 	APIKind             string // 接口类型
 	TargetEntityName    string // 目标实体名
@@ -241,21 +162,6 @@ func (p CodeGenProtoPatch) CommonImportRequired() bool {
 		}
 	}
 	return false
-}
-
-// systemAdminProtoTarget 返回基础系统代码生成目标。
-func systemAdminProtoTarget() ProtoTarget {
-	return ProtoTarget{
-		Directory:              DefaultProtoDirectory,
-		PackageName:            "system.admin.v1",
-		GoAlias:                "systemadminv1",
-		GoImportPath:           "shop/api/gen/go/system/admin/v1",
-		ServiceImportAlias:     "systemadmin",
-		BackendModuleDirectory: "backend/service/system/admin",
-		ModuleRegisterPath:     "backend/server/system/admin/register.go",
-		FrontendAPIDirectory:   "frontend/admin/src/api/system/admin",
-		FrontendPageDirectory:  "frontend/admin/src/views/system/admin",
-	}
 }
 
 // CodeGenProtoRPCBlock 描述 Proto service 中可重排的单个 RPC 块。
@@ -310,10 +216,10 @@ type CodeGenColumn struct {
 	ID int64
 	// TableID 生成对象 ID。
 	TableID int64
-	// ColumnName 字段名称。
-	ColumnName string
-	// ColumnComment 字段注释。
-	ColumnComment string
+	// Name 字段名称。
+	Name string
+	// Comment 字段注释。
+	Comment string
 	// DbType 数据库基础类型。
 	DbType string
 	// ColumnType 数据库完整类型。

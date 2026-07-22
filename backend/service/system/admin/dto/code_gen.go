@@ -10,8 +10,8 @@ type CodeGenDatabaseTable struct {
 
 // CodeGenDatabaseColumn 承载数据库字段元数据查询结果。
 type CodeGenDatabaseColumn struct {
-	ColumnName             string         `gorm:"column:column_name"`              // 数据库字段名
-	ColumnComment          string         `gorm:"column:column_comment"`           // 数据库字段注释
+	Name                   string         `gorm:"column:column_name"`              // 数据库字段名
+	Comment                string         `gorm:"column:column_comment"`           // 数据库字段注释
 	DataType               string         `gorm:"column:data_type"`                // 数据库字段类型
 	ColumnType             string         `gorm:"column:column_type"`              // 数据库完整字段类型
 	ColumnKey              string         `gorm:"column:column_key"`               // 数据库字段索引类型

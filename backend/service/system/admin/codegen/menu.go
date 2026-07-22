@@ -68,11 +68,11 @@ func MenuSpecs(table *Table, columns []*CodeGenColumn, methods []*Proto, resourc
 		}
 		permissionSuffix := "status"
 		if len(statusColumnList) > 1 {
-			permissionSuffix += ":" + strings.ReplaceAll(column.ColumnName, "_", ":")
+			permissionSuffix += ":" + strings.ReplaceAll(column.Name, "_", ":")
 		}
 		buttonSpecs = append(buttonSpecs, newButtonMenuSpec(
 			permission+":"+permissionSuffix,
-			"设置"+DefaultString(column.ColumnComment, column.ColumnName),
+			"设置"+DefaultString(column.Comment, column.Name),
 			int32(len(buttonSpecs)+1),
 			GeneratedRPCPath(table, method),
 		))

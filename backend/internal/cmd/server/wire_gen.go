@@ -36,7 +36,6 @@ import (
 	biz2 "shop/service/base/biz"
 	admin3 "shop/service/shop/admin"
 	biz5 "shop/service/shop/admin/biz"
-	codegen2 "shop/service/shop/admin/codegen"
 	"shop/service/shop/agent/aiflow"
 	app3 "shop/service/shop/app"
 	"shop/service/shop/app/agent/comment"
@@ -283,7 +282,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	codeGenColumnCase := biz3.NewCodeGenColumnCase(codeGenColumnRepository, client, transaction, codeGenTableRepository)
 	codeGenProtoRepository := data.NewCodeGenProtoRepository(dataData)
 	codeGenProtoCase := biz3.NewCodeGenProtoCase(codeGenProtoRepository, transaction, codeGenTableRepository, codeGenColumnCase)
-	codeGenTableCase := biz3.NewCodeGenTableCase(codeGenTableRepository, client, transaction, baseMenuCase, codeGenColumnCase, codeGenProtoCase)
+	codeGenTableCase := biz3.NewCodeGenTableCase(codeGenTableRepository, client, transaction, baseDictRepository, baseDictItemRepository, baseMenuCase, codeGenColumnCase, codeGenProtoCase)
 	codeGenCase := biz3.NewCodeGenCase(baseCase, transaction, codeGenTableCase, codeGenColumnCase, codeGenProtoCase, baseMenuCase, codegenManager)
 	codeGenService := admin.NewCodeGenService(codeGenCase)
 	codeGenColumnService := admin.NewCodeGenColumnService(codeGenColumnCase)
@@ -565,14 +564,6 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	codegenRegistration, err := codegen2.NewRegistration()
-	if err != nil {
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
 	sseReady, err := workspaceevent.NewSSEReady(sseRegistry, publisher)
 	if err != nil {
 		cleanup4()
@@ -581,7 +572,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	modules, err := newModules(services, adminServices, appServices, services2, services3, userEvents, recommendUserEventSubscriber, registry, taskSet, appTaskSet, registration, codegenRegistration, sseReady)
+	modules, err := newModules(services, adminServices, appServices, services2, services3, userEvents, recommendUserEventSubscriber, registry, taskSet, appTaskSet, registration, sseReady)
 	if err != nil {
 		cleanup4()
 		cleanup3()

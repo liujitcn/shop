@@ -2,25 +2,22 @@ package biz
 
 import (
 	"context"
-	"os"
-	"path/filepath"
-	"sort"
-	"strings"
+	"regexp"
 
 	systemadminv1 "shop/api/gen/go/system/admin/v1"
 	_const "shop/pkg/const"
 	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
-	"shop/service/system/admin/codegen"
 	"shop/service/system/admin/dto"
 
 	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
-	"github.com/liujitcn/go-utils/stringcase"
 	"github.com/liujitcn/gorm-kit/repository"
 	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
 )
+
+var codeGenBusinessModulePattern = regexp.MustCompile(`^[a-z][a-z0-9_]*$`)
 
 const (
 	// codeGenPageTypeNormal 表示普通表格页面。
@@ -32,6 +29,8 @@ type CodeGenTableCase struct {
 	*data.CodeGenTableRepository
 	dbClient          *databaseGorm.Client // 数据库元数据客户端
 	tx                data.Transaction
+	baseDictRepo      *data.BaseDictRepository
+	baseDictItemRepo  *data.BaseDictItemRepository
 	baseMenuCase      *BaseMenuCase
 	codeGenColumnCase *CodeGenColumnCase
 	codeGenProtoCase  *CodeGenProtoCase
@@ -44,6 +43,8 @@ func NewCodeGenTableCase(
 	codeGenTableRepo *data.CodeGenTableRepository,
 	dbClient *databaseGorm.Client,
 	tx data.Transaction,
+	baseDictRepo *data.BaseDictRepository,
+	baseDictItemRepo *data.BaseDictItemRepository,
 	baseMenuCase *BaseMenuCase,
 	codeGenColumnCase *CodeGenColumnCase,
 	codeGenProtoCase *CodeGenProtoCase,
@@ -67,6 +68,8 @@ func NewCodeGenTableCase(
 		CodeGenTableRepository: codeGenTableRepo,
 		dbClient:               dbClient,
 		tx:                     tx,
+		baseDictRepo:           baseDictRepo,
+		baseDictItemRepo:       baseDictItemRepo,
 		baseMenuCase:           baseMenuCase,
 		codeGenColumnCase:      codeGenColumnCase,
 		codeGenProtoCase:       codeGenProtoCase,
@@ -78,16 +81,13 @@ func NewCodeGenTableCase(
 // PageCodeGenTable 查询代码生成表配置分页数据。
 func (c *CodeGenTableCase) PageCodeGenTable(ctx context.Context, req *systemadminv1.PageCodeGenTableRequest) (*systemadminv1.PageCodeGenTableResponse, error) {
 	query := c.Query(ctx).CodeGenTable
-	opts := make([]repository.QueryOption, 0, 6)
+	opts := make([]repository.QueryOption, 0, 4)
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
 	if req.Name != nil {
 		opts = append(opts, repository.Where(query.Name.Like("%"+req.GetName()+"%")))
 	}
-	if req.BusinessName != nil {
-		opts = append(opts, repository.Where(query.BusinessName.Like("%"+req.GetBusinessName()+"%")))
-	}
-	if req.ModulePath != nil {
-		opts = append(opts, repository.Where(query.ModulePath.Like("%"+req.GetModulePath()+"%")))
+	if req.BusinessModule != nil {
+		opts = append(opts, repository.Where(query.BusinessModule.Eq(req.GetBusinessModule())))
 	}
 	if req.PageType != nil {
 		opts = append(opts, repository.Where(query.PageType.Eq(req.GetPageType())))
@@ -126,38 +126,13 @@ func (c *CodeGenTableCase) ListCodeGenDatabaseTable(ctx context.Context) (*syste
 	}
 	tables := make([]*systemadminv1.CodeGenDatabaseTable, 0, len(tableInfos))
 	for _, tableInfo := range tableInfos {
-		businessName := tableInfo.TableName
-		pathSegments := strings.Split(businessName, "_")
-		modulePath := businessName
-		// 多段表名默认将最后一段作为资源名，其余部分作为模块路径。
-		if len(pathSegments) > 1 {
-			modulePath = strings.Join(pathSegments[:len(pathSegments)-1], "/")
-		}
 		tables = append(tables, &systemadminv1.CodeGenDatabaseTable{
-			Name:             tableInfo.TableName,
-			Comment:          tableInfo.TableComment,
-			Disabled:         usedTableNames[tableInfo.TableName],
-			BusinessName:     businessName,
-			EntityName:       stringcase.ToPascalCase(businessName),
-			ModulePath:       modulePath,
-			ApiPath:          codegen.DefaultProtoDirectory,
-			PermissionPrefix: strings.Join(pathSegments, ":"),
+			Name:     tableInfo.TableName,
+			Comment:  tableInfo.TableComment,
+			Disabled: usedTableNames[tableInfo.TableName],
 		})
 	}
 	return &systemadminv1.ListCodeGenDatabaseTableResponse{Tables: tables}, nil
-}
-
-// ListCodeGenProtoDirectory 查询可用于代码生成的 Proto 目录。
-func (c *CodeGenTableCase) ListCodeGenProtoDirectory(_ context.Context) (*systemadminv1.ListCodeGenProtoDirectoryResponse, error) {
-	directories, err := c.listCodeGenProtoDirectories()
-	if err != nil {
-		return nil, err
-	}
-	items := make([]*systemadminv1.CodeGenProtoDirectory, 0, len(directories))
-	for _, directory := range directories {
-		items = append(items, &systemadminv1.CodeGenProtoDirectory{Path: directory})
-	}
-	return &systemadminv1.ListCodeGenProtoDirectoryResponse{Directories: items}, nil
 }
 
 // GetCodeGenTable 查询代码生成表配置。
@@ -171,6 +146,24 @@ func (c *CodeGenTableCase) GetCodeGenTable(ctx context.Context, id int64) (*syst
 		form.LeftTreeConfig = &systemadminv1.CodeGenLeftTreeConfig{}
 	}
 	return form, nil
+}
+
+// ValidateBusinessModule 校验业务模块是否为启用的数据字典项。
+func (c *CodeGenTableCase) ValidateBusinessModule(ctx context.Context, module string) error {
+	if !codeGenBusinessModulePattern.MatchString(module) {
+		return errorsx.InvalidArgument("业务模块格式不正确")
+	}
+	dictQuery := c.baseDictRepo.Query(ctx).BaseDict
+	dict, err := c.baseDictRepo.Find(ctx, repository.Where(dictQuery.Code.Eq("business_module")), repository.Where(dictQuery.Status.Eq(_const.STATUS_ENABLE)))
+	if err != nil {
+		return errorsx.InvalidArgument("业务模块字典不存在").WithCause(err)
+	}
+	itemQuery := c.baseDictItemRepo.Query(ctx).BaseDictItem
+	_, err = c.baseDictItemRepo.Find(ctx, repository.Where(itemQuery.DictID.Eq(dict.ID)), repository.Where(itemQuery.Value.Eq(module)), repository.Where(itemQuery.Status.Eq(_const.STATUS_ENABLE)))
+	if err != nil {
+		return errorsx.InvalidArgument("请选择启用的业务模块").WithCause(err)
+	}
+	return nil
 }
 
 // CreateCodeGenTable 创建代码生成表配置。
@@ -203,11 +196,7 @@ func (c *CodeGenTableCase) UpdateCodeGenTable(ctx context.Context, id int64, req
 	opts = append(opts, repository.Select(
 		query.Name,
 		query.Comment,
-		query.BusinessName,
-		query.EntityName,
-		query.ModulePath,
-		query.APIPath,
-		query.PermissionPrefix,
+		query.BusinessModule,
 		query.ParentMenuID,
 		query.PageType,
 		query.ParentColumn,
@@ -265,17 +254,10 @@ func (c *CodeGenTableCase) listDatabaseTables(ctx context.Context, tableNames []
 
 // codeGenTableFormToModel 转换代码生成表配置保存模型，并校验生成所需的关联配置。
 func (c *CodeGenTableCase) codeGenTableFormToModel(ctx context.Context, req *systemadminv1.CodeGenTableForm) (*models.CodeGenTable, error) {
-	apiPath := req.GetApiPath()
-	if apiPath == "" {
-		apiPath = codegen.DefaultProtoDirectory
-	}
-	directories, err := c.listCodeGenProtoDirectories()
+	module := req.GetBusinessModule()
+	err := c.ValidateBusinessModule(ctx, module)
 	if err != nil {
 		return nil, err
-	}
-	directoryIndex := sort.SearchStrings(directories, apiPath)
-	if directoryIndex == len(directories) || directories[directoryIndex] != apiPath {
-		return nil, errorsx.InvalidArgument("请选择有效的Proto目录")
 	}
 	parentMenuID := req.GetParentMenuId()
 	if parentMenuID <= 0 {
@@ -290,7 +272,6 @@ func (c *CodeGenTableCase) codeGenTableFormToModel(ctx context.Context, req *sys
 		return nil, err
 	}
 	item := c.formMapper.ToEntity(req)
-	item.APIPath = apiPath
 	// 未指定页面类型时使用最通用的普通表格。
 	if item.PageType == "" {
 		item.PageType = codeGenPageTypeNormal
@@ -299,36 +280,4 @@ func (c *CodeGenTableCase) codeGenTableFormToModel(ctx context.Context, req *sys
 		item.LeftTreeConfig = ""
 	}
 	return item, nil
-}
-
-// listCodeGenProtoDirectories 查询 Proto 根目录下实际包含 Proto 文件的目录。
-func (c *CodeGenTableCase) listCodeGenProtoDirectories() ([]string, error) {
-	protoRoot := filepath.Join(codegen.BackendDir(), "api", "proto")
-	directorySet := make(map[string]struct{})
-	err := filepath.WalkDir(protoRoot, func(path string, entry os.DirEntry, walkErr error) error {
-		if walkErr != nil {
-			return walkErr
-		}
-		if entry.IsDir() || filepath.Ext(entry.Name()) != ".proto" {
-			return nil
-		}
-		directory, err := filepath.Rel(protoRoot, filepath.Dir(path))
-		if err != nil {
-			return err
-		}
-		directory = filepath.ToSlash(directory)
-		if _, ok := codegen.ProtoTargetByDirectory(directory); ok {
-			directorySet[directory] = struct{}{}
-		}
-		return nil
-	})
-	if err != nil {
-		return nil, err
-	}
-	directories := make([]string, 0, len(directorySet))
-	for directory := range directorySet {
-		directories = append(directories, directory)
-	}
-	sort.Strings(directories)
-	return directories, nil
 }

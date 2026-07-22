@@ -9,7 +9,6 @@ import (
 	shopadminserver "shop/server/shop/admin"
 	shopappserver "shop/server/shop/app"
 	"shop/service/shop/admin"
-	shopcodegen "shop/service/shop/admin/codegen"
 	"shop/service/shop/agent/aiflow"
 	"shop/service/shop/app"
 	commentagent "shop/service/shop/app/agent/comment"
@@ -26,7 +25,6 @@ import (
 var shopProviderSet = wire.NewSet(
 	aiflow.NewProvider,
 	aiflow.NewRegistration,
-	shopcodegen.NewRegistration,
 	einoModel.NewChatClient,
 	einoStructured.NewRunner,
 	commentagent.NewRuntime,

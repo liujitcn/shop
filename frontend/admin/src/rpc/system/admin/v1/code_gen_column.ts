@@ -42,9 +42,9 @@ export interface SaveCodeGenColumnRequest {
 /** 数据库字段元数据 */
 export interface CodeGenDatabaseColumn {
   /** 数据库字段名 */
-  column_name: string;
+  name: string;
   /** 数据库字段注释 */
-  column_comment: string;
+  comment: string;
   /** 数据库字段类型 */
   db_type: string;
   /** 数据库完整字段类型 */
@@ -62,9 +62,9 @@ export interface CodeGenColumn {
   /** 代码生成表配置ID */
   table_id: number;
   /** 数据库字段名 */
-  column_name: string;
+  name: string;
   /** 数据库字段注释 */
-  column_comment: string;
+  comment: string;
   /** 数据库字段类型 */
   db_type: string;
   /** 数据库字段长度 */

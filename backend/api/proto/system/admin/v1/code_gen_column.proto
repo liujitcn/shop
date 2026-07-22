@@ -61,9 +61,9 @@ message SaveCodeGenColumnRequest {
 
 // 数据库字段元数据
 message CodeGenDatabaseColumn {
-  string column_name = 1 [(gnostic.openapi.v3.property) = {description: "数据库字段名"}]; // 数据库字段名
+  string name = 1 [(gnostic.openapi.v3.property) = {description: "数据库字段名"}]; // 数据库字段名
 
-  string column_comment = 2 [(gnostic.openapi.v3.property) = {description: "数据库字段注释"}]; // 数据库字段注释
+  string comment = 2 [(gnostic.openapi.v3.property) = {description: "数据库字段注释"}]; // 数据库字段注释
 
   string db_type = 3 [(gnostic.openapi.v3.property) = {description: "数据库字段类型"}]; // 数据库字段类型
 
@@ -80,9 +80,9 @@ message CodeGenColumn {
 
   int64 table_id = 2 [(gnostic.openapi.v3.property) = {description: "代码生成表配置ID"}]; // 代码生成表配置ID
 
-  string column_name = 3 [(gnostic.openapi.v3.property) = {description: "数据库字段名"}]; // 数据库字段名
+  string name = 3 [(gnostic.openapi.v3.property) = {description: "数据库字段名"}]; // 数据库字段名
 
-  string column_comment = 4 [(gnostic.openapi.v3.property) = {description: "数据库字段注释"}]; // 数据库字段注释
+  string comment = 4 [(gnostic.openapi.v3.property) = {description: "数据库字段注释"}]; // 数据库字段注释
 
   string db_type = 5 [(gnostic.openapi.v3.property) = {description: "数据库字段类型"}]; // 数据库字段类型
 

@@ -15,27 +15,12 @@
         </div>
 
         <ProTable
-          row-key="method_name"
+          row-key="sort"
           :data="protoChecks"
           :columns="protoColumns"
           :pagination="false"
           :tool-button="false"
         >
-          <template #method_name="{ row }">
-            <div class="code-gen-proto-cell">
-              <strong class="code-gen-proto-cell__primary" :title="row.method_name">{{ row.method_name }}</strong>
-              <div class="code-gen-proto-cell__tags">
-                <el-tag size="small" effect="plain">{{ resolveTriggerTypeLabel(row.trigger_type) }}</el-tag>
-                <el-tag size="small" type="info" effect="plain">{{ resolveAPIKindLabel(row.api_kind) }}</el-tag>
-              </div>
-            </div>
-          </template>
-          <template #target_entity_name="{ row }">
-            <div class="code-gen-proto-cell">
-              <span class="code-gen-proto-cell__primary" :title="row.target_entity_name">{{ row.target_entity_name }}</span>
-              <span class="code-gen-proto-cell__path" :title="row.proto_file_path">{{ row.proto_file_path }}</span>
-            </div>
-          </template>
           <template #exists="{ row }">
             <div class="code-gen-proto-status">
               <el-tag :type="row.exists ? 'success' : 'warning'">{{ row.exists ? "已存在" : "缺失" }}</el-tag>
@@ -155,8 +140,8 @@ const configDialog = reactive<CodeGenProtoConfigDialog>({
 
 /** Proto 检查结果表格列配置。 */
 const protoColumns: ColumnProps[] = [
-  { prop: "method_name", label: "接口信息", minWidth: 260 },
-  { prop: "target_entity_name", label: "目标位置", minWidth: 330 },
+  { prop: "trigger_type", label: "触发来源", minWidth: 150, render: scope => resolveTriggerTypeLabel(String(scope.row.trigger_type)) },
+  { prop: "api_kind", label: "接口类型", minWidth: 150, render: scope => resolveAPIKindLabel(String(scope.row.api_kind)) },
   { prop: "exists", label: "状态", minWidth: 210 },
   { prop: "generate_when_missing", label: "生成设置", minWidth: 230 }
 ];
@@ -278,8 +263,8 @@ async function loadProtoChecks() {
 
 /** 根据检查项目标实体返回真实数据库表名。 */
 function resolveTargetTableName(row: CodeGenProtoCheck) {
-  if (row.target_entity_name === formData.entity_name) return formData.name;
-  return databaseTables.value.find(item => item.entity_name === row.target_entity_name)?.name ?? "";
+  if (row.target_entity_name === toPascalCase(formData.name)) return formData.name;
+  return databaseTables.value.find(item => toPascalCase(item.name) === row.target_entity_name)?.name ?? "";
 }
 
 /** 返回检查项目标表对应的字段选项。 */
@@ -405,12 +390,12 @@ async function loadTargetColumnOptions(tableName: string) {
 }
 
 /** 将数据库字段或生成字段转换成下拉选项。 */
-function createColumnOptions(columns: Array<{ column_name: string; column_comment: string }>) {
+function createColumnOptions(columns: Array<{ name: string; comment: string }>) {
   return columns
-    .filter(item => item.column_name)
+    .filter(item => item.name)
     .map(item => ({
-      label: item.column_comment ? `${item.column_name}（${item.column_comment}）` : item.column_name,
-      value: item.column_name
+      label: item.comment ? `${item.name}（${item.comment}）` : item.name,
+      value: item.name
     }));
 }
 
@@ -425,9 +410,6 @@ async function handleSaveProtoMethods(showMessage = true) {
     table_id: formData.id,
     trigger_type: item.trigger_type,
     api_kind: item.api_kind,
-    target_entity_name: item.target_entity_name,
-    method_name: item.method_name,
-    proto_file_path: item.proto_file_path,
     config: normalizeCodeGenProtoConfig(item.config),
     generate_when_missing: !item.exists && item.generate_when_missing,
     sort: index + 1
@@ -442,6 +424,15 @@ async function handleSaveProtoMethods(showMessage = true) {
   await router.push("/code/gen/table");
   await tabsStore.removeTabs(currentPath, false);
   return true;
+}
+
+/** 将数据库表名转换为生成器使用的实体名。 */
+function toPascalCase(value: string) {
+  return value
+    .split("_")
+    .filter(Boolean)
+    .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+    .join("");
 }
 
 onMounted(() => {

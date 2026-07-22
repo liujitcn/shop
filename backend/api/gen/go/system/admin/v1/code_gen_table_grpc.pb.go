@@ -21,13 +21,12 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	CodeGenTableService_PageCodeGenTable_FullMethodName          = "/system.admin.v1.CodeGenTableService/PageCodeGenTable"
-	CodeGenTableService_ListCodeGenDatabaseTable_FullMethodName  = "/system.admin.v1.CodeGenTableService/ListCodeGenDatabaseTable"
-	CodeGenTableService_ListCodeGenProtoDirectory_FullMethodName = "/system.admin.v1.CodeGenTableService/ListCodeGenProtoDirectory"
-	CodeGenTableService_GetCodeGenTable_FullMethodName           = "/system.admin.v1.CodeGenTableService/GetCodeGenTable"
-	CodeGenTableService_CreateCodeGenTable_FullMethodName        = "/system.admin.v1.CodeGenTableService/CreateCodeGenTable"
-	CodeGenTableService_UpdateCodeGenTable_FullMethodName        = "/system.admin.v1.CodeGenTableService/UpdateCodeGenTable"
-	CodeGenTableService_DeleteCodeGenTable_FullMethodName        = "/system.admin.v1.CodeGenTableService/DeleteCodeGenTable"
+	CodeGenTableService_PageCodeGenTable_FullMethodName         = "/system.admin.v1.CodeGenTableService/PageCodeGenTable"
+	CodeGenTableService_ListCodeGenDatabaseTable_FullMethodName = "/system.admin.v1.CodeGenTableService/ListCodeGenDatabaseTable"
+	CodeGenTableService_GetCodeGenTable_FullMethodName          = "/system.admin.v1.CodeGenTableService/GetCodeGenTable"
+	CodeGenTableService_CreateCodeGenTable_FullMethodName       = "/system.admin.v1.CodeGenTableService/CreateCodeGenTable"
+	CodeGenTableService_UpdateCodeGenTable_FullMethodName       = "/system.admin.v1.CodeGenTableService/UpdateCodeGenTable"
+	CodeGenTableService_DeleteCodeGenTable_FullMethodName       = "/system.admin.v1.CodeGenTableService/DeleteCodeGenTable"
 )
 
 // CodeGenTableServiceClient is the client API for CodeGenTableService service.
@@ -40,8 +39,6 @@ type CodeGenTableServiceClient interface {
 	PageCodeGenTable(ctx context.Context, in *PageCodeGenTableRequest, opts ...grpc.CallOption) (*PageCodeGenTableResponse, error)
 	// 查询数据库表列表
 	ListCodeGenDatabaseTable(ctx context.Context, in *ListCodeGenDatabaseTableRequest, opts ...grpc.CallOption) (*ListCodeGenDatabaseTableResponse, error)
-	// 查询Proto目录列表
-	ListCodeGenProtoDirectory(ctx context.Context, in *ListCodeGenProtoDirectoryRequest, opts ...grpc.CallOption) (*ListCodeGenProtoDirectoryResponse, error)
 	// 查询代码生成表配置
 	GetCodeGenTable(ctx context.Context, in *GetCodeGenTableRequest, opts ...grpc.CallOption) (*CodeGenTableForm, error)
 	// 创建代码生成表配置
@@ -74,16 +71,6 @@ func (c *codeGenTableServiceClient) ListCodeGenDatabaseTable(ctx context.Context
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListCodeGenDatabaseTableResponse)
 	err := c.cc.Invoke(ctx, CodeGenTableService_ListCodeGenDatabaseTable_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *codeGenTableServiceClient) ListCodeGenProtoDirectory(ctx context.Context, in *ListCodeGenProtoDirectoryRequest, opts ...grpc.CallOption) (*ListCodeGenProtoDirectoryResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListCodeGenProtoDirectoryResponse)
-	err := c.cc.Invoke(ctx, CodeGenTableService_ListCodeGenProtoDirectory_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -140,8 +127,6 @@ type CodeGenTableServiceServer interface {
 	PageCodeGenTable(context.Context, *PageCodeGenTableRequest) (*PageCodeGenTableResponse, error)
 	// 查询数据库表列表
 	ListCodeGenDatabaseTable(context.Context, *ListCodeGenDatabaseTableRequest) (*ListCodeGenDatabaseTableResponse, error)
-	// 查询Proto目录列表
-	ListCodeGenProtoDirectory(context.Context, *ListCodeGenProtoDirectoryRequest) (*ListCodeGenProtoDirectoryResponse, error)
 	// 查询代码生成表配置
 	GetCodeGenTable(context.Context, *GetCodeGenTableRequest) (*CodeGenTableForm, error)
 	// 创建代码生成表配置
@@ -165,9 +150,6 @@ func (UnimplementedCodeGenTableServiceServer) PageCodeGenTable(context.Context, 
 }
 func (UnimplementedCodeGenTableServiceServer) ListCodeGenDatabaseTable(context.Context, *ListCodeGenDatabaseTableRequest) (*ListCodeGenDatabaseTableResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListCodeGenDatabaseTable not implemented")
-}
-func (UnimplementedCodeGenTableServiceServer) ListCodeGenProtoDirectory(context.Context, *ListCodeGenProtoDirectoryRequest) (*ListCodeGenProtoDirectoryResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method ListCodeGenProtoDirectory not implemented")
 }
 func (UnimplementedCodeGenTableServiceServer) GetCodeGenTable(context.Context, *GetCodeGenTableRequest) (*CodeGenTableForm, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetCodeGenTable not implemented")
@@ -234,24 +216,6 @@ func _CodeGenTableService_ListCodeGenDatabaseTable_Handler(srv interface{}, ctx 
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CodeGenTableServiceServer).ListCodeGenDatabaseTable(ctx, req.(*ListCodeGenDatabaseTableRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _CodeGenTableService_ListCodeGenProtoDirectory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListCodeGenProtoDirectoryRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(CodeGenTableServiceServer).ListCodeGenProtoDirectory(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: CodeGenTableService_ListCodeGenProtoDirectory_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CodeGenTableServiceServer).ListCodeGenProtoDirectory(ctx, req.(*ListCodeGenProtoDirectoryRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -342,10 +306,6 @@ var CodeGenTableService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListCodeGenDatabaseTable",
 			Handler:    _CodeGenTableService_ListCodeGenDatabaseTable_Handler,
-		},
-		{
-			MethodName: "ListCodeGenProtoDirectory",
-			Handler:    _CodeGenTableService_ListCodeGenProtoDirectory_Handler,
 		},
 		{
 			MethodName: "GetCodeGenTable",

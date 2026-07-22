@@ -126,7 +126,7 @@ func (c *renderer) defaultTargetProtoPath(table *Table, target string) string {
 	if target == table.EntityName {
 		return c.defaultProtoPath(table)
 	}
-	return ProtoFilePath(table.APIPath, target)
+	return ProtoFilePath(ProtoTargetForTable(table).Directory, target)
 }
 
 // renderGeneratedProtoMessages 渲染勾选补齐接口所需 message。
@@ -243,7 +243,7 @@ func (c *renderer) renderGeneratedProtoMessage(table *Table, columns []*CodeGenC
 		}
 		return c.renderTreeProtoMessage(table, method, columns, method.MethodName+"Request") + "\n" + c.renderTreeProtoMessage(table, method, columns, method.MethodName+"Response")
 	case APIKindStatus:
-		statusColumn := findStatusColumn(columns, method.ColumnName)
+		statusColumn := findStatusColumn(columns, method.Name)
 		return fmt.Sprintf("// %s状态设置条件\nmessage %sRequest {\n  int64 id = 1 [(gnostic.openapi.v3.property) = {description: \"%sID\"}]; // %sID\n\n  %s status = 2 [(gnostic.openapi.v3.property) = {description: \"状态\"}]; // 状态\n}\n\n", table.BusinessName, method.MethodName, table.BusinessName, table.BusinessName, statusProtoType(statusColumn))
 	default:
 		return ""
@@ -279,14 +279,14 @@ func (c *renderer) renderQueryProtoField(column *CodeGenColumn, fieldNo int32) s
 		return c.renderProtoField(column, fieldNo, true, false)
 	}
 	protoType := DefaultString(column.ProtoType, InferProtoType(column.DbType))
-	comment := DefaultString(column.ColumnComment, column.ColumnName)
-	return fmt.Sprintf("  repeated %s %s = %d [(gnostic.openapi.v3.property) = {description: %q}]; // %s\n\n", protoType, column.ColumnName, fieldNo, comment, comment)
+	comment := DefaultString(column.Comment, column.Name)
+	return fmt.Sprintf("  repeated %s %s = %d [(gnostic.openapi.v3.property) = {description: %q}]; // %s\n\n", protoType, column.Name, fieldNo, comment, comment)
 }
 
 // renderProtoField 渲染 Proto 字段。
 func (c *renderer) renderProtoField(column *CodeGenColumn, fieldNo int32, optional bool, form bool) string {
 	protoType := DefaultString(column.ProtoType, InferProtoType(column.DbType))
-	comment := DefaultString(column.ColumnComment, column.ColumnName)
+	comment := DefaultString(column.Comment, column.Name)
 	prefix := ""
 	if optional {
 		prefix = "optional "
@@ -299,15 +299,15 @@ func (c *renderer) renderProtoField(column *CodeGenColumn, fieldNo int32, option
 			expression = fmt.Sprintf("this.size() > 0 && this.size() <= %d", column.DbLength)
 			message = fmt.Sprintf("%s不能为空且不超过 %d 个字符", comment, column.DbLength)
 		}
-		validation = fmt.Sprintf(", (buf.validate.field).cel = {id: %q message: %q expression: %q}", "field."+column.ColumnName+".length", message, expression)
+		validation = fmt.Sprintf(", (buf.validate.field).cel = {id: %q message: %q expression: %q}", "field."+column.Name+".length", message, expression)
 	}
-	return fmt.Sprintf("  %s%s %s = %d [(gnostic.openapi.v3.property) = {description: %q}%s]; // %s\n\n", prefix, protoType, column.ColumnName, fieldNo, comment, validation, comment)
+	return fmt.Sprintf("  %s%s %s = %d [(gnostic.openapi.v3.property) = {description: %q}%s]; // %s\n\n", prefix, protoType, column.Name, fieldNo, comment, validation, comment)
 }
 
 // renderFormTreeMultipleProtoField 渲染多选树形字段的数组契约。
 func (c *renderer) renderFormTreeMultipleProtoField(column *CodeGenColumn, fieldNo int32) string {
-	comment := DefaultString(column.ColumnComment, column.ColumnName)
-	return fmt.Sprintf("  repeated int64 %s = %d [(gnostic.openapi.v3.property) = {description: %q}]; // %s\n\n", column.ColumnName, fieldNo, comment, comment)
+	comment := DefaultString(column.Comment, column.Name)
+	return fmt.Sprintf("  repeated int64 %s = %d [(gnostic.openapi.v3.property) = {description: %q}]; // %s\n\n", column.Name, fieldNo, comment, comment)
 }
 
 // renderQueryOptions 渲染后端分页查询条件。
@@ -317,14 +317,14 @@ func (c *renderer) renderQueryOptions(columns []*CodeGenColumn) string {
 		if !generatedQueryIncludesColumn(column) {
 			continue
 		}
-		modelField := modelFieldName(column.ColumnName)
-		requestField := stringcase.ToPascalCase(column.ColumnName)
+		modelField := modelFieldName(column.Name)
+		requestField := stringcase.ToPascalCase(column.Name)
 		getter := "Get" + requestField + "()"
 		switch effectiveQueryOperator(column) {
 		case "like":
 			builder.WriteString(fmt.Sprintf("\tif req.%s != \"\" {\n\t\topts = append(opts, repository.Where(query.%s.Like(\"%%\"+req.%s+\"%%\")))\n\t}\n", getter, modelField, getter))
 		case "between":
-			rangeVar := stringcase.ToCamelCase(column.ColumnName) + "Range"
+			rangeVar := stringcase.ToCamelCase(column.Name) + "Range"
 			builder.WriteString(fmt.Sprintf(`	%s := req.%s
 	// 仅在传入完整时间区间时追加范围条件。
 	if len(%s) == 2 {
@@ -475,8 +475,8 @@ func (s *%sService) %s(ctx context.Context, req *systemadminv1.%sRequest) %s {
 func renderDefaultOrderOption(columns []*CodeGenColumn) string {
 	var primaryColumn *CodeGenColumn
 	for _, column := range columns {
-		if column.ColumnName == "created_at" {
-			return "\topts = append(opts, repository.Order(query." + modelFieldName(column.ColumnName) + ".Desc()))\n"
+		if column.Name == "created_at" {
+			return "\topts = append(opts, repository.Order(query." + modelFieldName(column.Name) + ".Desc()))\n"
 		}
 		if primaryColumn == nil && column.IsPrimary == 1 {
 			primaryColumn = column
@@ -485,7 +485,7 @@ func renderDefaultOrderOption(columns []*CodeGenColumn) string {
 	if primaryColumn == nil {
 		return ""
 	}
-	return "\topts = append(opts, repository.Order(query." + modelFieldName(primaryColumn.ColumnName) + ".Desc()))\n"
+	return "\topts = append(opts, repository.Order(query." + modelFieldName(primaryColumn.Name) + ".Desc()))\n"
 }
 
 // resourcePathByEntity 根据实体名推导管理端资源路径。

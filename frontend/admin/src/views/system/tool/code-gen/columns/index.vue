@@ -21,20 +21,20 @@
         </div>
 
         <div ref="columnTableRef" class="code-gen-column-table">
-          <el-table :data="columns" row-key="column_name" border stripe table-layout="fixed" empty-text="暂无字段配置">
+          <el-table :data="columns" row-key="name" border stripe table-layout="fixed" empty-text="暂无字段配置">
           <el-table-column label="数据库字段" min-width="320" fixed="left">
             <template #default="{ row, $index }">
               <div class="code-gen-field-cell">
                 <el-popover trigger="hover" placement="right-start" :width="320" :show-after="250">
                   <template #reference>
                     <div class="code-gen-field-trigger">
-                      <span class="code-gen-field-trigger__name">{{ row.column_name }}</span>
+                      <span class="code-gen-field-trigger__name">{{ row.name }}</span>
                     </div>
                   </template>
                   <div class="code-gen-field-popover">
                     <div class="code-gen-field-popover__header">
-                      <strong>{{ row.column_name }}</strong>
-                      <span>{{ row.column_comment || row.column_name }}</span>
+                      <strong>{{ row.name }}</strong>
+                      <span>{{ row.comment || row.name }}</span>
                     </div>
                     <div class="code-gen-field-popover__types">
                       <div>
@@ -78,7 +78,7 @@
 
           <el-table-column label="字段描述" min-width="280">
             <template #default="{ row }">
-              <el-input v-model="row.column_comment" :disabled="!canEdit" maxlength="255" placeholder="请输入字段描述" />
+              <el-input v-model="row.comment" :disabled="!canEdit" maxlength="255" placeholder="请输入字段描述" />
             </template>
           </el-table-column>
 
@@ -339,9 +339,9 @@
             >
               <el-option
                 v-for="item in databaseColumnsForEditor"
-                :key="item.column_name"
+                :key="item.name"
                 :label="formatDatabaseColumn(item)"
-                :value="item.column_name"
+                :value="item.name"
               />
             </el-select>
           </div>
@@ -359,9 +359,9 @@
             >
               <el-option
                 v-for="item in databaseColumnsForEditor"
-                :key="item.column_name"
+                :key="item.name"
                 :label="formatDatabaseColumn(item)"
-                :value="item.column_name"
+                :value="item.name"
               />
             </el-select>
           </div>
@@ -379,9 +379,9 @@
             >
               <el-option
                 v-for="item in databaseColumnsForEditor"
-                :key="item.column_name"
+                :key="item.name"
                 :label="formatDatabaseColumn(item)"
-                :value="item.column_name"
+                :value="item.name"
               />
             </el-select>
           </div>
@@ -614,7 +614,7 @@ async function handleSaveColumns(showMessage = true) {
   if (!formData.id) return false;
   syncColumnSorts();
   columns.value.forEach(syncColumnOptionKinds);
-  if (columns.value.some(item => !item.column_name || !item.db_type)) {
+  if (columns.value.some(item => !item.name || !item.db_type)) {
     ElMessage.warning("字段名和数据库类型不能为空");
     return false;
   }
@@ -724,10 +724,10 @@ async function openOptionDialog(row: CodeGenColumnView, scope: CodeGenOptionScop
   syncOptionKind(config, scope);
   optionDialog.scope = scope;
   optionDialog.scopeLabel = scope === "query" ? "查询" : scope === "list" ? "列表" : "表单";
-  optionDialog.columnName = row.column_name;
+  optionDialog.columnName = row.name;
   optionDialog.component = config.component;
   optionDialog.isJSONColumn = row.db_type.trim().toLowerCase() === "json";
-  optionDialog.cacheKey = `${row.table_id}:${row.column_name}:${scope}`;
+  optionDialog.cacheKey = `${row.table_id}:${row.name}:${scope}`;
   optionDialog.option = config.option;
   optionDialog.formConfig = scope === "form" && config.component === "tree-select" ? row.form_config : null;
   optionDialog.visible = true;
@@ -736,7 +736,7 @@ async function openOptionDialog(row: CodeGenColumnView, scope: CodeGenOptionScop
 
 /** 选项编辑完成后，用当前完整配置补齐同组件的空配置。 */
 function handleOptionDialogClosed() {
-  const row = columns.value.find(item => item.column_name === optionDialog.columnName);
+  const row = columns.value.find(item => item.name === optionDialog.columnName);
   if (row) copyCodeGenOptionToEmptyMatches(row, optionDialog.scope);
   optionDialog.option = null;
   optionDialog.formConfig = null;
@@ -848,7 +848,7 @@ async function loadDatabaseColumns(tableName: string) {
 /** 为下拉或树形选项补充所选数据表中存在的常用字段。 */
 function applyTableOptionDefaultFields(option: CodeGenColumnOptionConfig, component: string) {
   if (!option.source_value) return;
-  const columnNames = new Set((databaseColumns[option.source_value] ?? []).map(item => item.column_name));
+  const columnNames = new Set((databaseColumns[option.source_value] ?? []).map(item => item.name));
   if (option.kind === "tree") {
     if (!option.parent_field && columnNames.has("parent_id")) option.parent_field = "parent_id";
     if (!option.label_field && columnNames.has("name")) option.label_field = "name";
@@ -863,9 +863,9 @@ function applyTableOptionDefaultFields(option: CodeGenColumnOptionConfig, compon
 /** 格式化数据表字段选项。 */
 function formatDatabaseColumn(column: CodeGenDatabaseColumn) {
   const columnType = column.column_type || column.db_type;
-  return column.column_comment
-    ? `${column.column_name}（${column.column_comment} / ${columnType}）`
-    : `${column.column_name}（${columnType}）`;
+  return column.comment
+    ? `${column.name}（${column.comment} / ${columnType}）`
+    : `${column.name}（${columnType}）`;
 }
 
 /** 添加一条空白静态选项。 */
@@ -940,7 +940,7 @@ function findCodeGenColumnOptionIssue(items: CodeGenColumnView[]): CodeGenColumn
     ];
     for (const [scope, option] of optionConfigs) {
       const scopeLabel = scope === "query" ? "查询" : scope === "list" ? "列表" : "表单";
-      const message = getCodeGenOptionValidationMessage(column.column_name, scopeLabel, option);
+      const message = getCodeGenOptionValidationMessage(column.name, scopeLabel, option);
       if (message) return { row: column, scope, message };
     }
   }

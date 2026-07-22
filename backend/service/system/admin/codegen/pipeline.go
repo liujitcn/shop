@@ -34,7 +34,7 @@ func EntityOptionColumns(table *Table, columns []*CodeGenColumn) (string, string
 	valueColumn := "id"
 	for _, column := range columns {
 		if column.IsPrimary == 1 {
-			valueColumn = column.ColumnName
+			valueColumn = column.Name
 			break
 		}
 	}
@@ -43,12 +43,12 @@ func EntityOptionColumns(table *Table, columns []*CodeGenColumn) (string, string
 	}
 	for _, candidate := range []string{"name", "title", "label", "code"} {
 		if column := FindColumnByName(columns, candidate); column != nil {
-			return parentColumn, column.ColumnName, valueColumn
+			return parentColumn, column.Name, valueColumn
 		}
 	}
 	for _, column := range columns {
-		if IsStringColumn(column) && column.ColumnName != "created_by" && column.ColumnName != "updated_by" && column.ColumnName != "created_at" && column.ColumnName != "updated_at" && column.ColumnName != "deleted_at" {
-			return parentColumn, column.ColumnName, valueColumn
+		if IsStringColumn(column) && column.Name != "created_by" && column.Name != "updated_by" && column.Name != "created_at" && column.Name != "updated_at" && column.Name != "deleted_at" {
+			return parentColumn, column.Name, valueColumn
 		}
 	}
 	return parentColumn, valueColumn, valueColumn
@@ -57,7 +57,7 @@ func EntityOptionColumns(table *Table, columns []*CodeGenColumn) (string, string
 // FindColumnByName 按数据库字段名查找生成字段配置。
 func FindColumnByName(columns []*CodeGenColumn, columnName string) *CodeGenColumn {
 	for _, column := range columns {
-		if column.ColumnName == columnName {
+		if column.Name == columnName {
 			return column
 		}
 	}
@@ -106,15 +106,15 @@ func (c *renderer) buildExpectedProtoChecks(table *Table, columns []*CodeGenColu
 			checks = append(checks,
 				c.newProtoCheck(
 					table.ID,
-					column.ColumnName,
+					column.Name,
 					TriggerFieldStatus,
 					APIKindStatus,
 					entity,
-					"Set"+table.EntityName+stringcase.ToPascalCase(column.ColumnName),
+					"Set"+table.EntityName+stringcase.ToPascalCase(column.Name),
 					protoPath,
 					"",
 					"",
-					column.ColumnName,
+					column.Name,
 					true,
 				),
 			)
@@ -127,12 +127,12 @@ func (c *renderer) buildExpectedProtoChecks(table *Table, columns []*CodeGenColu
 			targetProtoPath := c.defaultTargetProtoPath(table, target)
 			if option.Kind == APIKindTree {
 				checks = append(checks,
-					c.newProtoCheck(table.ID, column.ColumnName, TriggerFieldOption, APIKindTree, target, "Option"+target, targetProtoPath, option.ParentField, option.LabelField, option.ValueField, false),
+					c.newProtoCheck(table.ID, column.Name, TriggerFieldOption, APIKindTree, target, "Option"+target, targetProtoPath, option.ParentField, option.LabelField, option.ValueField, false),
 				)
 				continue
 			}
 			checks = append(checks,
-				c.newProtoCheck(table.ID, column.ColumnName, TriggerFieldOption, APIKindOption, target, "Option"+target, targetProtoPath, "", option.LabelField, option.ValueField, false),
+				c.newProtoCheck(table.ID, column.Name, TriggerFieldOption, APIKindOption, target, "Option"+target, targetProtoPath, "", option.LabelField, option.ValueField, false),
 			)
 		}
 	}
@@ -143,7 +143,7 @@ func (c *renderer) buildExpectedProtoChecks(table *Table, columns []*CodeGenColu
 func (c *renderer) newProtoCheck(tableID int64, columnName string, triggerType, apiKind, targetEntity, methodName, protoPath, parentColumn, labelColumn, valueColumn string, generate bool) *ProtoCheck {
 	return &ProtoCheck{
 		TableID:             tableID,
-		ColumnName:          columnName,
+		Name:                columnName,
 		TriggerType:         triggerType,
 		APIKind:             apiKind,
 		TargetEntityName:    targetEntity,
@@ -159,7 +159,7 @@ func (c *renderer) newProtoCheck(tableID int64, columnName string, triggerType, 
 // resolveCodeGenOutputPaths 合并本次请求路径和默认路径，并校验启用的生成目标。
 func (c *renderer) resolveCodeGenOutputPaths(table *Table, requested *systemadminv1.CodeGenOutputPaths) (*systemadminv1.CodeGenOutputPaths, error) {
 	snakeEntity := stringcase.ToSnakeCase(table.EntityName)
-	target, ok := ProtoTargetByDirectory(table.APIPath)
+	target, ok := ProtoTargetForBusinessModule(table.BusinessModule)
 	if !ok {
 		return nil, errorsx.InvalidArgument("请选择有效的Proto目录")
 	}
@@ -333,7 +333,8 @@ func (c *renderer) appendMainBizMethods(content string, table *Table, columns []
 	methodContent = strings.ReplaceAll(methodContent, "c.formMapper.ToEntity(req)", "mapper.NewCopierMapper["+apiAlias+"."+table.EntityName+"Form, models."+repositoryType+"]().ToEntity(req)")
 	methodContent = strings.ReplaceAll(methodContent, "c.formMapper.ToDTO("+entityVar+")", "mapper.NewCopierMapper["+apiAlias+"."+table.EntityName+"Form, models."+repositoryType+"]().ToDTO("+entityVar+")")
 	methodContent = strings.ReplaceAll(methodContent, "c.mapper.ToDTO(item)", "mapper.NewCopierMapper["+apiAlias+"."+table.EntityName+", models."+repositoryType+"]().ToDTO(item)")
-	content = mergeGeneratedGoReceiverMethods(content, methodContent, existingReceiver)
+	target := ProtoTargetForTable(table)
+	content = mergeGeneratedGoReceiverMethods(content, methodContent, existingReceiver, target.GoAlias+" \""+target.GoImportPath+"\"")
 	if !strings.Contains(content, "_time.") {
 		content = strings.Replace(content, "\t_time \"github.com/liujitcn/go-utils/time\"\n", "", 1)
 	}
@@ -362,7 +363,8 @@ func (c *renderer) appendMainServiceMethods(content string, table *Table, column
 	}
 	methodContent = strings.ReplaceAll(methodContent, "*"+generatedReceiver, "*"+existingReceiver)
 	methodContent = strings.ReplaceAll(methodContent, "s."+generatedCaseField, "s."+existingCaseField)
-	return mergeGeneratedGoReceiverMethods(content, methodContent, existingReceiver)
+	target := ProtoTargetForTable(table)
+	return mergeGeneratedGoReceiverMethods(content, methodContent, existingReceiver, target.GoAlias+" \""+target.GoImportPath+"\"")
 }
 
 // appendMainFrontendAPIMethods 根据最新配置替换前端服务类的固定生成方法。

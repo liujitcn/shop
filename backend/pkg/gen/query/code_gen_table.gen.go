@@ -30,11 +30,7 @@ func newCodeGenTable(db *gorm.DB, opts ...gen.DOOption) codeGenTable {
 	_codeGenTable.ID = field.NewInt64(tableName, "id")
 	_codeGenTable.Name = field.NewString(tableName, "name")
 	_codeGenTable.Comment = field.NewString(tableName, "comment")
-	_codeGenTable.BusinessName = field.NewString(tableName, "business_name")
-	_codeGenTable.EntityName = field.NewString(tableName, "entity_name")
-	_codeGenTable.ModulePath = field.NewString(tableName, "module_path")
-	_codeGenTable.APIPath = field.NewString(tableName, "api_path")
-	_codeGenTable.PermissionPrefix = field.NewString(tableName, "permission_prefix")
+	_codeGenTable.BusinessModule = field.NewString(tableName, "business_module")
 	_codeGenTable.ParentMenuID = field.NewInt64(tableName, "parent_menu_id")
 	_codeGenTable.PageType = field.NewString(tableName, "page_type")
 	_codeGenTable.ParentColumn = field.NewString(tableName, "parent_column")
@@ -60,30 +56,26 @@ func newCodeGenTable(db *gorm.DB, opts ...gen.DOOption) codeGenTable {
 type codeGenTable struct {
 	codeGenTableDo codeGenTableDo
 
-	ALL              field.Asterisk
-	ID               field.Int64  // 主键ID
-	Name             field.String // 业务表名
-	Comment          field.String // 业务表描述
-	BusinessName     field.String // 业务名
-	EntityName       field.String // 实体名
-	ModulePath       field.String // 模块路径
-	APIPath          field.String // Proto目录
-	PermissionPrefix field.String // 权限标识前缀
-	ParentMenuID     field.Int64  // 父级菜单ID
-	PageType         field.String // 页面类型：normal普通表格 tree树形表格 left_tree左树右表
-	ParentColumn     field.String // 树形表格父节点字段
-	TreeLabelColumn  field.String // 树节点显示字段
-	LeftTreeConfig   field.String // 左树配置JSON
-	GenBackend       field.Int32  // 是否生成后端
-	GenFrontend      field.Int32  // 是否生成前端
-	GenSql           field.Int32  // 是否生成建表SQL
-	Status           field.Int32  // 状态：0草稿 1已生成 2停用
-	Remark           field.String // 备注
-	CreatedBy        field.Int64  // 创建人ID
-	UpdatedBy        field.Int64  // 更新人ID
-	CreatedAt        field.Time   // 创建时间
-	UpdatedAt        field.Time   // 更新时间
-	DeletedAt        field.Field
+	ALL             field.Asterisk
+	ID              field.Int64  // 主键ID
+	Name            field.String // 业务表名
+	Comment         field.String // 业务表描述
+	BusinessModule  field.String // 业务模块
+	ParentMenuID    field.Int64  // 父级菜单ID
+	PageType        field.String // 页面类型：normal普通表格 tree树形表格 left_tree左树右表
+	ParentColumn    field.String // 树形表格父节点字段
+	TreeLabelColumn field.String // 树节点显示字段
+	LeftTreeConfig  field.String // 左树配置JSON
+	GenBackend      field.Int32  // 是否生成后端
+	GenFrontend     field.Int32  // 是否生成前端
+	GenSql          field.Int32  // 是否生成建表SQL
+	Status          field.Int32  // 状态：0草稿 1已生成 2停用
+	Remark          field.String // 备注
+	CreatedBy       field.Int64  // 创建人ID
+	UpdatedBy       field.Int64  // 更新人ID
+	CreatedAt       field.Time   // 创建时间
+	UpdatedAt       field.Time   // 更新时间
+	DeletedAt       field.Field
 
 	fieldMap map[string]field.Expr
 }
@@ -103,11 +95,7 @@ func (c *codeGenTable) updateTableName(table string) *codeGenTable {
 	c.ID = field.NewInt64(table, "id")
 	c.Name = field.NewString(table, "name")
 	c.Comment = field.NewString(table, "comment")
-	c.BusinessName = field.NewString(table, "business_name")
-	c.EntityName = field.NewString(table, "entity_name")
-	c.ModulePath = field.NewString(table, "module_path")
-	c.APIPath = field.NewString(table, "api_path")
-	c.PermissionPrefix = field.NewString(table, "permission_prefix")
+	c.BusinessModule = field.NewString(table, "business_module")
 	c.ParentMenuID = field.NewInt64(table, "parent_menu_id")
 	c.PageType = field.NewString(table, "page_type")
 	c.ParentColumn = field.NewString(table, "parent_column")
@@ -151,15 +139,11 @@ func (c *codeGenTable) GetFieldByName(fieldName string) (field.OrderExpr, bool) 
 }
 
 func (c *codeGenTable) fillFieldMap() {
-	c.fieldMap = make(map[string]field.Expr, 23)
+	c.fieldMap = make(map[string]field.Expr, 19)
 	c.fieldMap["id"] = c.ID
 	c.fieldMap["name"] = c.Name
 	c.fieldMap["comment"] = c.Comment
-	c.fieldMap["business_name"] = c.BusinessName
-	c.fieldMap["entity_name"] = c.EntityName
-	c.fieldMap["module_path"] = c.ModulePath
-	c.fieldMap["api_path"] = c.APIPath
-	c.fieldMap["permission_prefix"] = c.PermissionPrefix
+	c.fieldMap["business_module"] = c.BusinessModule
 	c.fieldMap["parent_menu_id"] = c.ParentMenuID
 	c.fieldMap["page_type"] = c.PageType
 	c.fieldMap["parent_column"] = c.ParentColumn

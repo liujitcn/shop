@@ -31,9 +31,6 @@ func newCodeGenProto(db *gorm.DB, opts ...gen.DOOption) codeGenProto {
 	_codeGenProto.TableID = field.NewInt64(tableName, "table_id")
 	_codeGenProto.TriggerType = field.NewString(tableName, "trigger_type")
 	_codeGenProto.APIKind = field.NewString(tableName, "api_kind")
-	_codeGenProto.TargetEntityName = field.NewString(tableName, "target_entity_name")
-	_codeGenProto.MethodName = field.NewString(tableName, "method_name")
-	_codeGenProto.ProtoFilePath = field.NewString(tableName, "proto_file_path")
 	_codeGenProto.GenerateWhenMissing = field.NewInt32(tableName, "generate_when_missing")
 	_codeGenProto.Config = field.NewString(tableName, "config")
 	_codeGenProto.Sort = field.NewInt32(tableName, "sort")
@@ -57,9 +54,6 @@ type codeGenProto struct {
 	TableID             field.Int64  // 生成对象ID
 	TriggerType         field.String // 触发来源：crud page_tree left_tree field_option field_status
 	APIKind             field.String // 接口类型：crud list option tree status
-	TargetEntityName    field.String // 目标实体名
-	MethodName          field.String // 方法名
-	ProtoFilePath       field.String // Proto文件路径
 	GenerateWhenMissing field.Int32  // 缺失时是否生成
 	Config              field.String // 接口类型配置JSON
 	Sort                field.Int32  // 排序
@@ -88,9 +82,6 @@ func (c *codeGenProto) updateTableName(table string) *codeGenProto {
 	c.TableID = field.NewInt64(table, "table_id")
 	c.TriggerType = field.NewString(table, "trigger_type")
 	c.APIKind = field.NewString(table, "api_kind")
-	c.TargetEntityName = field.NewString(table, "target_entity_name")
-	c.MethodName = field.NewString(table, "method_name")
-	c.ProtoFilePath = field.NewString(table, "proto_file_path")
 	c.GenerateWhenMissing = field.NewInt32(table, "generate_when_missing")
 	c.Config = field.NewString(table, "config")
 	c.Sort = field.NewInt32(table, "sort")
@@ -127,14 +118,11 @@ func (c *codeGenProto) GetFieldByName(fieldName string) (field.OrderExpr, bool) 
 }
 
 func (c *codeGenProto) fillFieldMap() {
-	c.fieldMap = make(map[string]field.Expr, 15)
+	c.fieldMap = make(map[string]field.Expr, 12)
 	c.fieldMap["id"] = c.ID
 	c.fieldMap["table_id"] = c.TableID
 	c.fieldMap["trigger_type"] = c.TriggerType
 	c.fieldMap["api_kind"] = c.APIKind
-	c.fieldMap["target_entity_name"] = c.TargetEntityName
-	c.fieldMap["method_name"] = c.MethodName
-	c.fieldMap["proto_file_path"] = c.ProtoFilePath
 	c.fieldMap["generate_when_missing"] = c.GenerateWhenMissing
 	c.fieldMap["config"] = c.Config
 	c.fieldMap["sort"] = c.Sort

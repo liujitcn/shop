@@ -48,18 +48,19 @@ import FormDialog from "@/components/Dialog/FormDialog.vue";
 import type { ProFormField, ProFormOption } from "@/components/ProForm/interface";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { defBaseMenuService } from "@/api/system/base_menu";
+import { defBaseDictService } from "@/api/system/base_dict";
 import { defCodeGenService } from "@/api/system/code_gen";
 import { defCodeGenColumnService } from "@/api/system/code_gen_column";
 import { defCodeGenTableService } from "@/api/system/code_gen_table";
 import type { CodeGenDatabaseColumn } from "@/rpc/system/admin/v1/code_gen_column";
 import type {
   CodeGenDatabaseTable,
-  CodeGenProtoDirectory,
   CodeGenTable,
   CodeGenTableForm,
   PageCodeGenTableRequest
 } from "@/rpc/system/admin/v1/code_gen_table";
 import type { BaseMenu } from "@/rpc/system/admin/v1/base_menu";
+import type { OptionBaseDictResponse_BaseDictItem } from "@/rpc/system/admin/v1/base_dict";
 import { BaseMenuType } from "@/rpc/system/common/v1/enum";
 import { buildPageRequest, normalizeSelectedIds } from "@/utils/proTable";
 import CodeGenProgressDialog from "../components/CodeGenProgressDialog.vue";
@@ -92,6 +93,8 @@ const codeGenTaskStorageKey = "code-gen-progress-task-id";
 const codeGenProgressDialogVisibleStorageKey = "code-gen-progress-dialog-visible";
 const codeGenProgressSelectedTableIdsStorageKey = "code-gen-progress-selected-table-ids";
 const codeGenStatusDisabled = 2;
+// 当前代码生成配置页仅用于校验和生成，新增、编辑入口暂不开放。
+const codeGenTableEditingEnabled = false;
 
 const { BUTTONS } = useAuthButtons();
 const router = useRouter();
@@ -99,7 +102,7 @@ const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 const saving = ref(false);
 const databaseTables = ref<CodeGenDatabaseTable[]>([]);
-const protoDirectories = ref<CodeGenProtoDirectory[]>([]);
+const businessModuleItems = ref<OptionBaseDictResponse_BaseDictItem[]>([]);
 const databaseColumns = ref<CodeGenDatabaseColumn[]>([]);
 const leftTreeDatabaseColumns = ref<CodeGenDatabaseColumn[]>([]);
 const parentMenuOptions = ref<ProFormOption[]>([]);
@@ -137,10 +140,14 @@ const leftTreeTableOptions = computed<ProFormOption[]>(() =>
   }))
 );
 
-/** Proto目录选择项。 */
-const protoDirectoryOptions = computed<ProFormOption[]>(() =>
-  protoDirectories.value.map(item => ({ label: item.path, value: item.path }))
-);
+/** 业务模块选择项，仅允许新增或编辑时选择启用项；已保存的停用项保留为只读选项。 */
+const businessModuleOptions = computed<ProFormOption[]>(() => {
+  const options: ProFormOption[] = businessModuleItems.value.map(item => ({ label: item.label, value: item.value }));
+  if (formData.business_module && !options.some(item => item.value === formData.business_module)) {
+    options.push({ label: `${formData.business_module}（已停用）`, value: formData.business_module, disabled: true });
+  }
+  return options;
+});
 
 /** 当前业务表字段选择项。 */
 const databaseColumnOptions = computed<ProFormOption[]>(() => createDatabaseColumnOptions(databaseColumns.value));
@@ -175,40 +182,12 @@ const formFields = computed<ProFormField[]>(() => [
     props: { placeholder: "选择业务表后自动带出，可修改" }
   },
   {
-    prop: "business_name",
-    label: "业务名",
-    component: "input",
-    labelTooltip: "用于记录和检索此配置。当前生成器优先使用“业务表描述”作为代码中的中文名称，仅在描述为空时才使用本字段。",
-    props: { placeholder: "如 base_dept" }
-  },
-  {
-    prop: "entity_name",
-    label: "实体名",
-    component: "input",
-    labelTooltip: "使用大驼峰命名。它决定 Proto 消息与服务、Go Case/Service、TypeScript Service 的名称，以及由其转换出的文件名。",
-    props: { placeholder: "如 BaseDept" }
-  },
-  {
-    prop: "module_path",
-    label: "模块路径",
-    component: "input",
-    labelTooltip: "前端资源路径前缀。它参与生成页面目录、接口 URL 和菜单路由，实体名会转换为下划线形式后拼接在路径末尾。",
-    props: { placeholder: "如 base" }
-  },
-  {
-    prop: "api_path",
-    label: "Proto目录",
+    prop: "business_module",
+    label: "业务模块",
     component: "select",
-    options: protoDirectoryOptions.value,
-    labelTooltip: "选择已注册的协议模块。它决定 Proto 文件、后端 Biz/Service、前端 API 和页面所在的模块根目录。",
-    props: { placeholder: "请选择Proto目录", filterable: true, style: { width: "100%" } }
-  },
-  {
-    prop: "permission_prefix",
-    label: "权限前缀",
-    component: "input",
-    labelTooltip: "生成页面按钮权限的前缀，例如会生成 create、update、delete、status 等权限标识；留空时由模块路径和实体名推导。",
-    props: { placeholder: "如 base:dept" }
+    options: businessModuleOptions.value,
+    labelTooltip: "选择业务模块后，Proto、后端服务、前端 API 与页面路径均由模块和表名自动推导。",
+    props: { placeholder: "请选择业务模块", filterable: true, style: { width: "100%" } }
   },
   {
     prop: "parent_menu_id",
@@ -360,10 +339,7 @@ const columns: ColumnProps[] = [
   { type: "selection", width: 55 },
   { prop: "name", label: "业务表名", minWidth: 160, search: { el: "input" } },
   { prop: "comment", label: "业务表描述", minWidth: 160, showOverflowTooltip: true },
-  { prop: "business_name", label: "业务名", minWidth: 140, search: { el: "input" } },
-  { prop: "entity_name", label: "实体名", minWidth: 140 },
-  { prop: "module_path", label: "模块路径", minWidth: 140, search: { el: "input" } },
-  { prop: "api_path", label: "Proto目录", minWidth: 170, showOverflowTooltip: true },
+  { prop: "business_module", label: "业务模块", minWidth: 140, search: { el: "input" } },
   { prop: "page_type", label: "页面类型", minWidth: 120, enum: codeGenPageTypeOptions, search: { el: "select" } },
   { prop: "status", label: "状态", width: 100, enum: codeGenStatusOptions, search: { el: "select" }, tag: true },
   { prop: "remark", label: "备注", minWidth: 180, showOverflowTooltip: true },
@@ -421,7 +397,7 @@ const columns: ColumnProps[] = [
         type: "primary",
         link: true,
         icon: EditPen,
-        hidden: () => !BUTTONS.value["tool:code-gen-table:update"],
+        hidden: () => !codeGenTableEditingEnabled || !BUTTONS.value["tool:code-gen-table:update"],
         onClick: scope => handleOpenDialog((scope.row as CodeGenTable).id)
       },
       {
@@ -457,7 +433,7 @@ const headerActions: HeaderActionProps[] = [
     label: "新增",
     type: "success",
     icon: CirclePlus,
-    hidden: () => !BUTTONS.value["tool:code-gen-table:create"],
+    hidden: () => !codeGenTableEditingEnabled || !BUTTONS.value["tool:code-gen-table:create"],
     onClick: () => handleOpenDialog()
   },
   {
@@ -589,19 +565,18 @@ async function requestCodeGenTable(params: PageCodeGenTableRequest) {
 /** 打开新增或编辑弹窗，并加载当前表单所需选项。 */
 async function handleOpenDialog(tableId?: number) {
   resetForm();
-  const [tableData, menuData, protoDirectoryData] = await Promise.all([
+  const [tableData, menuData, dictionaryData] = await Promise.all([
     defCodeGenTableService.ListCodeGenDatabaseTable({}),
     defBaseMenuService.TreeBaseMenu({}),
-    defCodeGenTableService.ListCodeGenProtoDirectory({})
+    defBaseDictService.OptionBaseDict({})
   ]);
   databaseTables.value = tableData.tables ?? [];
   parentMenuOptions.value = convertMenuOptions(menuData.base_menus ?? []);
-  protoDirectories.value = protoDirectoryData.directories ?? [];
+  businessModuleItems.value = dictionaryData.base_dicts?.find(item => item.code === "business_module")?.items ?? [];
   if (tableId) {
     const detail = await defCodeGenTableService.GetCodeGenTable({ id: tableId });
     Object.assign(formData, detail);
     formData.parent_menu_id = detail.parent_menu_id || undefined;
-    formData.api_path ||= "system/admin/v1";
     formData.left_tree_config ??= createDefaultCodeGenLeftTreeConfig();
     await Promise.all([loadDatabaseColumns(databaseColumns, formData.name), loadLeftTreeDatabaseColumns()]);
     dialog.title = "编辑代码生成表配置";
@@ -615,10 +590,6 @@ async function handleOpenDialog(tableId?: number) {
 async function handleTableNameChange(tableName: string) {
   const table = databaseTables.value.find(item => item.name === tableName);
   formData.comment = table?.comment ?? "";
-  formData.business_name = table?.business_name ?? "";
-  formData.entity_name = table?.entity_name ?? "";
-  formData.module_path = table?.module_path ?? "";
-  formData.permission_prefix = table?.permission_prefix ?? "";
   await loadDatabaseColumns(databaseColumns, tableName);
   resetUnavailableTableColumns();
   formData.parent_column = resolveDefaultColumn(databaseColumns.value, "parent_id");
@@ -725,16 +696,16 @@ async function loadLeftTreeDatabaseColumns() {
 /** 转换数据库字段为 ProForm 选择项。 */
 function createDatabaseColumnOptions(columns: CodeGenDatabaseColumn[]): ProFormOption[] {
   return columns.map(item => ({
-    label: item.column_comment
-      ? `${item.column_name}（${item.column_comment} / ${item.column_type || item.db_type}）`
-      : `${item.column_name}（${item.column_type || item.db_type}）`,
-    value: item.column_name
+    label: item.comment
+      ? `${item.name}（${item.comment} / ${item.column_type || item.db_type}）`
+      : `${item.name}（${item.column_type || item.db_type}）`,
+    value: item.name
   }));
 }
 
 /** 从字段列表中解析存在的约定默认字段。 */
 function resolveDefaultColumn(columns: CodeGenDatabaseColumn[], columnName: string) {
-  return columns.some(item => item.column_name === columnName) ? columnName : "";
+  return columns.some(item => item.name === columnName) ? columnName : "";
 }
 
 /** 转换菜单树为 ProForm 树形选择项。 */
@@ -751,7 +722,7 @@ function convertMenuOptions(options: BaseMenu[]): ProFormOption[] {
 
 /** 清理当前业务表已不存在的字段配置。 */
 function resetUnavailableTableColumns() {
-  const columnNames = new Set(databaseColumns.value.map(item => item.column_name));
+  const columnNames = new Set(databaseColumns.value.map(item => item.name));
   if (formData.parent_column && !columnNames.has(formData.parent_column)) formData.parent_column = "";
   if (formData.tree_label_column && !columnNames.has(formData.tree_label_column)) formData.tree_label_column = "";
   const config = ensureLeftTreeConfig();
@@ -762,7 +733,7 @@ function resetUnavailableTableColumns() {
 
 /** 清理左树来源表已不存在的字段配置。 */
 function resetUnavailableLeftTreeColumns() {
-  const columnNames = new Set(leftTreeDatabaseColumns.value.map(item => item.column_name));
+  const columnNames = new Set(leftTreeDatabaseColumns.value.map(item => item.name));
   const config = ensureLeftTreeConfig();
   if (config.parent_column && !columnNames.has(config.parent_column)) {
     config.parent_column = "";

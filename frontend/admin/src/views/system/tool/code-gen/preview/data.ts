@@ -36,7 +36,7 @@ export function createCodeGenPreviewOptionMap(
 ): CodeGenPreviewOptionMap {
   const dictionaryMap = new Map(dictionaries.map(dictionary => [dictionary.code, dictionary]));
   return columns.reduce<CodeGenPreviewOptionMap>((optionMap, column) => {
-    const label = column.column_comment || column.column_name;
+    const label = column.comment || column.name;
     const configs: Array<[CodeGenPreviewScope, CodeGenColumnOptionConfig | undefined, boolean]> = [
       [
         "query",
@@ -55,7 +55,7 @@ export function createCodeGenPreviewOptionMap(
       ]
     ];
     configs.forEach(([scope, option, enabled]) => {
-      optionMap[createCodeGenPreviewOptionKey(column.column_name, scope)] = enabled
+      optionMap[createCodeGenPreviewOptionKey(column.name, scope)] = enabled
         ? createCodeGenPreviewOptions(label, option, dictionaryMap)
         : [];
     });
@@ -92,7 +92,7 @@ export function createCodeGenPreviewRows(
     const row: CodeGenPreviewRow = {};
     columns.forEach(column => {
       const options = resolveColumnPreviewOptions(optionMap, column);
-      row[column.column_name] = createCodeGenPreviewValue(column, rowIndex, options);
+      row[column.name] = createCodeGenPreviewValue(column, rowIndex, options);
     });
     if (!(primaryColumn in row)) row[primaryColumn] = rowIndex + 1;
     if (table.page_type === "left_tree" && table.left_tree_config?.filter_column && leftTreeValues.length) {
@@ -120,9 +120,9 @@ export function filterCodeGenPreviewRows(rows: CodeGenPreviewRow[], columns: Cod
   const queryColumns = columns.filter(column => column.query_config?.enabled);
   return rows.filter(row =>
     queryColumns.every(column => {
-      const queryValue = params[column.column_name];
+      const queryValue = params[column.name];
       if (isEmptyPreviewValue(queryValue)) return true;
-      return matchCodeGenPreviewValue(row[column.column_name], queryValue, column.query_config);
+      return matchCodeGenPreviewValue(row[column.name], queryValue, column.query_config);
     })
   );
 }
@@ -152,7 +152,7 @@ export function flattenCodeGenPreviewOptions(options: ProFormOption[]): ProFormO
 
 /** 返回当前表的真实主键字段，缺少主键时使用预览内部编号。 */
 export function resolveCodeGenPrimaryColumn(columns: CodeGenColumn[]) {
-  return columns.find(column => column.is_primary)?.column_name || "__preview_id";
+  return columns.find(column => column.is_primary)?.name || "__preview_id";
 }
 
 /** 返回指定字段范围的模拟选项。 */
@@ -243,7 +243,7 @@ function normalizeStaticOptions(options: unknown[]): ProFormOption[] {
 /** 按表单、列表、查询的优先级选择模拟记录使用的字段选项。 */
 function resolveColumnPreviewOptions(optionMap: CodeGenPreviewOptionMap, column: CodeGenColumn) {
   for (const scope of ["list", "query", "form"] as const) {
-    const options = resolveCodeGenPreviewOptions(optionMap, column.column_name, scope);
+    const options = resolveCodeGenPreviewOptions(optionMap, column.name, scope);
     if (options.length) return flattenCodeGenPreviewOptions(options);
   }
   return [];
@@ -255,7 +255,7 @@ function createCodeGenPreviewValue(column: CodeGenColumn, rowIndex: number, opti
   const optionValue = options[rowIndex % Math.max(options.length, 1)]?.value;
   if (optionValue !== undefined) return optionValue;
   if (column.is_primary) return sequence;
-  if (column.column_name === "created_at" || column.column_name === "updated_at" || isDateTimeColumn(column)) {
+  if (column.name === "created_at" || column.name === "updated_at" || isDateTimeColumn(column)) {
     return `2026-07-${String((rowIndex % 28) + 1).padStart(2, "0")} ${String(8 + (rowIndex % 10)).padStart(2, "0")}:30:00`;
   }
   if (["image", "image-upload", "images-upload"].includes(column.list_config?.component || column.form_config?.component || "")) {
@@ -263,10 +263,10 @@ function createCodeGenPreviewValue(column: CodeGenColumn, rowIndex: number, opti
   }
   if (isBooleanColumn(column)) return rowIndex % 2 === 0;
   if (isNumericColumn(column)) return column.list_config?.component === "money" ? 12000 + rowIndex * 1350 : sequence;
-  if (/phone|mobile/.test(column.column_name)) return `1380000${String(sequence).padStart(4, "0")}`;
-  if (column.column_name.includes("email")) return `preview${sequence}@example.com`;
-  if (column.column_name.includes("code")) return `CODE_${String(sequence).padStart(3, "0")}`;
-  const label = column.column_comment || column.column_name;
+  if (/phone|mobile/.test(column.name)) return `1380000${String(sequence).padStart(4, "0")}`;
+  if (column.name.includes("email")) return `preview${sequence}@example.com`;
+  if (column.name.includes("code")) return `CODE_${String(sequence).padStart(3, "0")}`;
+  const label = column.comment || column.name;
   return `${label}${String(sequence).padStart(2, "0")}`;
 }
 

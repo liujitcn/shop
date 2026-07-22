@@ -52,17 +52,11 @@ message CodeGenProto {
 
   string api_kind = 4 [(gnostic.openapi.v3.property) = {description: "接口类型"}]; // 接口类型
 
-  string target_entity_name = 5 [(gnostic.openapi.v3.property) = {description: "目标实体名"}]; // 目标实体名
+  bool generate_when_missing = 5 [(gnostic.openapi.v3.property) = {description: "缺失时是否生成"}]; // 缺失时是否生成
 
-  string method_name = 6 [(gnostic.openapi.v3.property) = {description: "方法名"}]; // 方法名
+  CodeGenProtoConfig config = 6 [(gnostic.openapi.v3.property) = {description: "接口类型配置"}]; // 接口类型配置
 
-  string proto_file_path = 7 [(gnostic.openapi.v3.property) = {description: "Proto文件路径"}]; // Proto文件路径
-
-  bool generate_when_missing = 8 [(gnostic.openapi.v3.property) = {description: "缺失时是否生成"}]; // 缺失时是否生成
-
-  CodeGenProtoConfig config = 9 [(gnostic.openapi.v3.property) = {description: "接口类型配置"}]; // 接口类型配置
-
-  int32 sort = 10 [(gnostic.openapi.v3.property) = {description: "排序"}]; // 排序
+  int32 sort = 7 [(gnostic.openapi.v3.property) = {description: "排序"}]; // 排序
 }
 
 // 代码生成Proto接口检查项
@@ -86,6 +80,8 @@ message CodeGenProtoCheck {
   CodeGenProtoConfig config = 9 [(gnostic.openapi.v3.property) = {description: "接口类型配置"}]; // 接口类型配置
 
   string message = 10 [(gnostic.openapi.v3.property) = {description: "检查说明"}]; // 检查说明
+
+  int32 sort = 11 [(gnostic.openapi.v3.property) = {description: "排序"}]; // 排序
 }
 
 // 代码生成Proto接口类型配置

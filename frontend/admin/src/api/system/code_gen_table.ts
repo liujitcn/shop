@@ -7,8 +7,6 @@ import {
   type GetCodeGenTableRequest,
   type ListCodeGenDatabaseTableRequest,
   type ListCodeGenDatabaseTableResponse,
-  type ListCodeGenProtoDirectoryRequest,
-  type ListCodeGenProtoDirectoryResponse,
   type PageCodeGenTableRequest,
   type PageCodeGenTableResponse,
   type UpdateCodeGenTableRequest
@@ -17,7 +15,6 @@ import type { Empty } from "@/rpc/google/protobuf/empty";
 
 const CODE_GEN_TABLE_URL = "/v1/admin/code-gen/table";
 const CODE_GEN_DATABASE_TABLE_URL = "/v1/admin/code-gen/database/table";
-const CODE_GEN_PROTO_DIRECTORY_URL = "/v1/admin/code-gen/proto/directory";
 
 /** Admin代码生成表配置服务。 */
 export class CodeGenTableServiceImpl implements CodeGenTableService {
@@ -25,15 +22,6 @@ export class CodeGenTableServiceImpl implements CodeGenTableService {
   ListCodeGenDatabaseTable(request: ListCodeGenDatabaseTableRequest): Promise<ListCodeGenDatabaseTableResponse> {
     return service<ListCodeGenDatabaseTableRequest, ListCodeGenDatabaseTableResponse>({
       url: CODE_GEN_DATABASE_TABLE_URL,
-      method: "get",
-      params: request
-    });
-  }
-
-  /** 查询Proto目录列表。 */
-  ListCodeGenProtoDirectory(request: ListCodeGenProtoDirectoryRequest): Promise<ListCodeGenProtoDirectoryResponse> {
-    return service<ListCodeGenProtoDirectoryRequest, ListCodeGenProtoDirectoryResponse>({
-      url: CODE_GEN_PROTO_DIRECTORY_URL,
       method: "get",
       params: request
     });

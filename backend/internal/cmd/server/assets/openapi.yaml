@@ -2335,19 +2335,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/system.admin.v1.ListCodeGenDatabaseColumnResponse'
-    /api/v1/admin/code-gen/proto/directory:
-        get:
-            tags:
-                - CodeGenTableService
-            description: 查询Proto目录列表
-            operationId: CodeGenTableService_ListCodeGenProtoDirectory
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/system.admin.v1.ListCodeGenProtoDirectoryResponse'
     /api/v1/admin/code-gen/table:
         get:
             tags:
@@ -2359,11 +2346,7 @@ paths:
                   in: query
                   schema:
                     type: string
-                - name: business_name
-                  in: query
-                  schema:
-                    type: string
-                - name: module_path
+                - name: business_module
                   in: query
                   schema:
                     type: string
@@ -14783,10 +14766,10 @@ components:
                 table_id:
                     type: string
                     description: 代码生成表配置ID
-                column_name:
+                name:
                     type: string
                     description: 数据库字段名
-                column_comment:
+                comment:
                     type: string
                     description: 数据库字段注释
                 db_type:
@@ -14905,10 +14888,10 @@ components:
         system.admin.v1.CodeGenDatabaseColumn:
             type: object
             properties:
-                column_name:
+                name:
                     type: string
                     description: 数据库字段名
-                column_comment:
+                comment:
                     type: string
                     description: 数据库字段注释
                 db_type:
@@ -14936,21 +14919,6 @@ components:
                 disabled:
                     type: boolean
                     description: 是否已被选择
-                business_name:
-                    type: string
-                    description: 默认业务名
-                entity_name:
-                    type: string
-                    description: 默认实体名
-                module_path:
-                    type: string
-                    description: 默认模块路径
-                api_path:
-                    type: string
-                    description: 默认Proto目录
-                permission_prefix:
-                    type: string
-                    description: 默认权限前缀
             description: 数据库表元数据
         system.admin.v1.CodeGenLeftTreeConfig:
             type: object
@@ -15030,15 +14998,6 @@ components:
                 api_kind:
                     type: string
                     description: 接口类型
-                target_entity_name:
-                    type: string
-                    description: 目标实体名
-                method_name:
-                    type: string
-                    description: 方法名
-                proto_file_path:
-                    type: string
-                    description: Proto文件路径
                 generate_when_missing:
                     type: boolean
                     description: 缺失时是否生成
@@ -15081,6 +15040,10 @@ components:
                 message:
                     type: string
                     description: 检查说明
+                sort:
+                    type: integer
+                    description: 排序
+                    format: int32
             description: 代码生成Proto接口检查项
         system.admin.v1.CodeGenProtoConfig:
             type: object
@@ -15098,13 +15061,6 @@ components:
                     type: string
                     description: 状态字段
             description: 代码生成Proto接口类型配置
-        system.admin.v1.CodeGenProtoDirectory:
-            type: object
-            properties:
-                path:
-                    type: string
-                    description: 相对Proto根目录的目录路径
-            description: Proto目录
         system.admin.v1.CodeGenTable:
             type: object
             properties:
@@ -15117,18 +15073,9 @@ components:
                 comment:
                     type: string
                     description: 业务表描述
-                business_name:
+                business_module:
                     type: string
-                    description: 业务名
-                entity_name:
-                    type: string
-                    description: 实体名
-                module_path:
-                    type: string
-                    description: 模块路径
-                api_path:
-                    type: string
-                    description: Proto目录
+                    description: 业务模块
                 page_type:
                     type: string
                     description: 页面类型
@@ -15158,21 +15105,9 @@ components:
                 comment:
                     type: string
                     description: 业务表描述
-                business_name:
+                business_module:
                     type: string
-                    description: 业务名
-                entity_name:
-                    type: string
-                    description: 实体名
-                module_path:
-                    type: string
-                    description: 模块路径
-                api_path:
-                    type: string
-                    description: Proto目录
-                permission_prefix:
-                    type: string
-                    description: 权限标识前缀
+                    description: 业务模块
                 parent_menu_id:
                     type: string
                     description: 父级菜单ID
@@ -15358,15 +15293,6 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.CodeGenDatabaseTable'
                     description: 数据库表列表
             description: 数据库表列表响应
-        system.admin.v1.ListCodeGenProtoDirectoryResponse:
-            type: object
-            properties:
-                directories:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/system.admin.v1.CodeGenProtoDirectory'
-                    description: Proto目录列表
-            description: Proto目录列表查询响应
         system.admin.v1.ListCodeGenProtoResponse:
             type: object
             properties:

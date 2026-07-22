@@ -456,7 +456,7 @@ func (c *renderer) renderProtoMessage(table *Table, columns []*CodeGenColumn, fo
 	builder.WriteString("message " + name + " {\n")
 	fieldNo := int32(1)
 	for _, column := range columns {
-		if !form && (column.ColumnName == "deleted_at" || !generatedListIncludesColumn(column) && column.IsPrimary != 1 && column.ColumnName != "created_at" && column.ColumnName != "updated_at") {
+		if !form && (column.Name == "deleted_at" || !generatedListIncludesColumn(column) && column.IsPrimary != 1 && column.Name != "created_at" && column.Name != "updated_at") {
 			continue
 		}
 		if form && !generatedFormIncludesColumn(column) && column.IsPrimary != 1 {

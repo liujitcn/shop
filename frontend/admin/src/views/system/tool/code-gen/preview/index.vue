@@ -164,14 +164,14 @@ const leftTreeTitle = computed(
 
 /** 当前实体已经存在或已经选择生成的 Proto 维护能力。 */
 const protoCapabilities = computed(() =>
-  resolveCodeGenPreviewCapabilities(snapshot.value?.table.entity_name ?? "", protoChecks.value)
+  resolveCodeGenPreviewCapabilities(toPascalCase(snapshot.value?.table.name ?? ""), protoChecks.value)
 );
 
 /** 根据字段配置生成最终页面的查询项和列表列。 */
 const tableColumns = computed<ColumnProps[]>(() => {
   const columns = snapshot.value?.columns ?? [];
   const configuredColumns = columns
-    .filter(column => column.column_name !== "deleted_at" && (column.list_config?.enabled || column.query_config?.enabled))
+    .filter(column => column.name !== "deleted_at" && (column.list_config?.enabled || column.query_config?.enabled))
     .sort((left, right) => left.sort - right.sort)
     .map(column => createPreviewTableColumn(column));
   const result: ColumnProps[] = [...configuredColumns];
@@ -236,19 +236,19 @@ const formFields = computed<ProFormField[]>(() => {
   return (snapshot.value?.columns ?? [])
     .filter(
       column =>
-        !column.is_primary && !column.is_auto_increment && column.column_name !== "deleted_at" && column.form_config?.enabled
+        !column.is_primary && !column.is_auto_increment && column.name !== "deleted_at" && column.form_config?.enabled
     )
     .sort((left, right) => left.sort - right.sort)
     .map(column => {
-      const label = column.column_comment || column.column_name;
-      const isTreeParent = pageType.value === "tree" && column.column_name === snapshot.value?.table.parent_column;
+      const label = column.comment || column.name;
+      const isTreeParent = pageType.value === "tree" && column.name === snapshot.value?.table.parent_column;
       const component = isTreeParent ? "tree-select" : resolvePreviewFormComponent(column.form_config?.component);
       const isMultipleTreeSelect = component === "tree-select" && Boolean(column.form_config?.multiple);
       const options = isTreeParent
         ? treeParentOptions.value
-        : resolveCodeGenPreviewOptions(optionMap.value, column.column_name, "form");
+        : resolveCodeGenPreviewOptions(optionMap.value, column.name, "form");
       return {
-        prop: column.column_name,
+        prop: column.name,
         label,
         component,
         props: createPreviewFormProps(component, label, column.form_config?.option, isMultipleTreeSelect),
@@ -313,13 +313,22 @@ function syncWorkspaceTitle() {
   document.title = `${title} - ${import.meta.env.VITE_GLOB_APP_TITLE}`;
 }
 
+/** 将数据库表名转换为生成器使用的实体名。 */
+function toPascalCase(value: string) {
+  return value
+    .split("_")
+    .filter(Boolean)
+    .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+    .join("");
+}
+
 /** 创建最终 ProTable 单列配置。 */
 function createPreviewTableColumn(column: CodeGenColumn): ColumnProps {
-  const label = column.column_comment || column.column_name;
-  const listOptions = resolveCodeGenPreviewOptions(optionMap.value, column.column_name, "list");
-  const queryOptions = resolveCodeGenPreviewOptions(optionMap.value, column.column_name, "query");
+  const label = column.comment || column.name;
+  const listOptions = resolveCodeGenPreviewOptions(optionMap.value, column.name, "list");
+  const queryOptions = resolveCodeGenPreviewOptions(optionMap.value, column.name, "query");
   const result: ColumnProps = {
-    prop: column.column_name,
+    prop: column.name,
     label,
     minWidth: resolvePreviewColumnWidth(column),
     isShow: Boolean(column.list_config?.enabled),
@@ -346,7 +355,7 @@ function applyPreviewListComponent(result: ColumnProps, column: CodeGenColumn, o
       width: 52,
       height: 52,
       src: scope => {
-        const value = scope.row[column.column_name];
+        const value = scope.row[column.name];
         return Array.isArray(value) ? String(value[0] ?? "") : String(value ?? "");
       }
     };
@@ -359,11 +368,11 @@ function applyPreviewListComponent(result: ColumnProps, column: CodeGenColumn, o
   }
   if (component === "switch") {
     result.width = 110;
-    result.render = scope => renderPreviewOptionValue(scope, column.column_name, options);
+    result.render = scope => renderPreviewOptionValue(scope, column.name, options);
     return;
   }
   if (options.length) {
-    result.render = scope => renderPreviewOptionValue(scope, column.column_name, options);
+    result.render = scope => renderPreviewOptionValue(scope, column.name, options);
   }
 }
 
@@ -632,7 +641,7 @@ function resolvePreviewColSpan(component: ProFormComponentType) {
 
 /** 根据列表组件和字段名称分配稳定列宽。 */
 function resolvePreviewColumnWidth(column: CodeGenColumn) {
-  if (["created_at", "updated_at"].includes(column.column_name) || column.list_config?.component === "date") return 180;
+  if (["created_at", "updated_at"].includes(column.name) || column.list_config?.component === "date") return 180;
   if (column.list_config?.component === "image") return 120;
   if (column.list_config?.component === "switch") return 110;
   return 150;

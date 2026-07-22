@@ -752,7 +752,7 @@ func (c *renderer) defaultProtoPath(table *Table) string {
 	if table.ProtoFilePath != "" {
 		return table.ProtoFilePath
 	}
-	return ProtoFilePath(table.APIPath, table.EntityName)
+	return ProtoFilePath(ProtoTargetForTable(table).Directory, table.EntityName)
 }
 
 // frontendResourcePath 获取前端接口资源路径。
@@ -778,7 +778,7 @@ func (c *renderer) renderFrontendColumns(table *Table, columns []*CodeGenColumn,
 	list := make([]string, 0, len(columns))
 	statusColumnCount := len(statusColumns(columns))
 	for _, column := range columns {
-		if (!generatedListIncludesColumn(column) && !generatedQueryIncludesColumn(column)) || column.IsPrimary == 1 || column.ColumnName == "deleted_at" {
+		if (!generatedListIncludesColumn(column) && !generatedQueryIncludesColumn(column)) || column.IsPrimary == 1 || column.Name == "deleted_at" {
 			continue
 		}
 		list = append(list, renderFrontendColumn(table.EntityName, column, findStatusMethodForColumn(column, methods), statusColumnCount))
@@ -793,7 +793,7 @@ func renderFrontendFormStateType(table *Table, columns []*CodeGenColumn) string 
 		if (!generatedFormIncludesColumn(column) && column.IsPrimary != 1) || frontendDefaultValue(column) != "undefined" {
 			continue
 		}
-		optionalFields = append(optionalFields, fmt.Sprintf("%q", column.ColumnName))
+		optionalFields = append(optionalFields, fmt.Sprintf("%q", column.Name))
 	}
 	if len(optionalFields) == 0 {
 		return ""
@@ -813,7 +813,7 @@ func (c *renderer) renderFrontendFormDefaults(columns []*CodeGenColumn) string {
 		if !generatedFormIncludesColumn(column) && column.IsPrimary != 1 {
 			continue
 		}
-		lines = append(lines, fmt.Sprintf("  %s: %s", column.ColumnName, frontendDefaultValue(column)))
+		lines = append(lines, fmt.Sprintf("  %s: %s", column.Name, frontendDefaultValue(column)))
 	}
 	return strings.Join(lines, ",\n")
 }
@@ -825,7 +825,7 @@ func (c *renderer) renderFrontendResetForm(columns []*CodeGenColumn) string {
 		if !generatedFormIncludesColumn(column) && column.IsPrimary != 1 {
 			continue
 		}
-		lines = append(lines, fmt.Sprintf("  formData.%s = %s;", column.ColumnName, frontendDefaultValue(column)))
+		lines = append(lines, fmt.Sprintf("  formData.%s = %s;", column.Name, frontendDefaultValue(column)))
 	}
 	return strings.Join(lines, "\n")
 }
@@ -845,16 +845,16 @@ func (c *renderer) renderFrontendRules(columns []*CodeGenColumn) string {
 		if column.IsStatusField == 1 && column.StatusForm == 1 || column.FormComponent == "switch" || isSelectComponent(column.FormComponent) {
 			trigger = "change"
 		}
-		rules := fmt.Sprintf("{ required: true, message: \"%s不能为空\", trigger: %q }", DefaultString(column.ColumnComment, column.ColumnName), trigger)
+		rules := fmt.Sprintf("{ required: true, message: \"%s不能为空\", trigger: %q }", DefaultString(column.Comment, column.Name), trigger)
 		if isString && column.DbLength > 0 {
-			maxRule := fmt.Sprintf("{ max: %d, message: \"%s不能超过 %d 个字符\", trigger: %q }", column.DbLength, DefaultString(column.ColumnComment, column.ColumnName), column.DbLength, trigger)
+			maxRule := fmt.Sprintf("{ max: %d, message: \"%s不能超过 %d 个字符\", trigger: %q }", column.DbLength, DefaultString(column.Comment, column.Name), column.DbLength, trigger)
 			if column.IsRequired == 1 {
 				rules += ", " + maxRule
 			} else {
 				rules = maxRule
 			}
 		}
-		lines = append(lines, fmt.Sprintf("  %s: [%s]", column.ColumnName, rules))
+		lines = append(lines, fmt.Sprintf("  %s: [%s]", column.Name, rules))
 	}
 	return strings.Join(lines, ",\n")
 }
@@ -891,10 +891,10 @@ func (c *renderer) renderFrontendFormFields(columns []*CodeGenColumn) string {
 // renderFrontendFormField 渲染单个 ProForm 字段。
 func (c *renderer) renderFrontendFormField(column *CodeGenColumn) string {
 	component := DefaultString(column.FormComponent, "input")
-	label := DefaultString(column.ColumnComment, column.ColumnName)
+	label := DefaultString(column.Comment, column.Name)
 	if component == "switch" {
 		// 开关提交值由表单范围的独立配置决定。
-		return fmt.Sprintf(`  { prop: "%s", label: "%s", component: "switch", props: { activeValue: %s, inactiveValue: %s } }`, column.ColumnName, label, statusValueExpression(column, column.FormOption.ActiveValue, "1"), statusValueExpression(column, column.FormOption.InactiveValue, "2"))
+		return fmt.Sprintf(`  { prop: "%s", label: "%s", component: "switch", props: { activeValue: %s, inactiveValue: %s } }`, column.Name, label, statusValueExpression(column, column.FormOption.ActiveValue, "1"), statusValueExpression(column, column.FormOption.InactiveValue, "2"))
 	}
 	option := column.FormOption
 	if option.Kind != "" && isSelectComponent(component) {
@@ -907,30 +907,30 @@ func (c *renderer) renderFrontendFormField(column *CodeGenColumn) string {
 		case OptionSourceDict:
 			if option.SourceValue != "" {
 				if component == "radio-group" {
-					return fmt.Sprintf(`  { prop: "%s", label: "%s", component: "dict", props: { code: %q, codeType: %q, type: "radio" } }`, column.ColumnName, label, option.SourceValue, frontendDictValueType(column))
+					return fmt.Sprintf(`  { prop: "%s", label: "%s", component: "dict", props: { code: %q, codeType: %q, type: "radio" } }`, column.Name, label, option.SourceValue, frontendDictValueType(column))
 				}
 				if component == "checkbox-group" {
-					return fmt.Sprintf(`  { prop: "%s", label: "%s", component: "dict", props: { code: %q, codeType: %q, type: "checkbox" } }`, column.ColumnName, label, option.SourceValue, frontendDictValueType(column))
+					return fmt.Sprintf(`  { prop: "%s", label: "%s", component: "dict", props: { code: %q, codeType: %q, type: "checkbox" } }`, column.Name, label, option.SourceValue, frontendDictValueType(column))
 				}
-				return fmt.Sprintf(`  { prop: "%s", label: "%s", component: "dict", props: { code: %q, codeType: %q } }`, column.ColumnName, label, option.SourceValue, frontendDictValueType(column))
+				return fmt.Sprintf(`  { prop: "%s", label: "%s", component: "dict", props: { code: %q, codeType: %q } }`, column.Name, label, option.SourceValue, frontendDictValueType(column))
 			}
 		case OptionSourceStatic:
-			return fmt.Sprintf(`  { prop: "%s", label: "%s", component: "%s", options: %sOptions, %s }`, column.ColumnName, label, component, frontendOptionVar(column, "form"), props)
+			return fmt.Sprintf(`  { prop: "%s", label: "%s", component: "%s", options: %sOptions, %s }`, column.Name, label, component, frontendOptionVar(column, "form"), props)
 		case OptionSourceTable:
-			return fmt.Sprintf(`  { prop: "%s", label: "%s", component: "%s", options: %sOptions.value, %s }`, column.ColumnName, label, component, frontendOptionVar(column, "form"), props)
+			return fmt.Sprintf(`  { prop: "%s", label: "%s", component: "%s", options: %sOptions.value, %s }`, column.Name, label, component, frontendOptionVar(column, "form"), props)
 		}
 	}
 	if component == "input-number" {
-		return fmt.Sprintf(`  { prop: "%s", label: "%s", component: "input-number", props: { min: 0, precision: %d, controlsPosition: "right", style: { width: "100%%" } } }`, column.ColumnName, label, column.DbScale)
+		return fmt.Sprintf(`  { prop: "%s", label: "%s", component: "input-number", props: { min: 0, precision: %d, controlsPosition: "right", style: { width: "100%%" } } }`, column.Name, label, column.DbScale)
 	}
 	if component == "date-picker" {
 		dbType := strings.ToLower(DefaultString(column.ColumnType, column.DbType))
 		if strings.Contains(dbType, "datetime") || strings.Contains(dbType, "timestamp") {
-			return fmt.Sprintf(`  { prop: "%s", label: "%s", component: "date-picker", props: { type: "datetime", valueFormat: "YYYY-MM-DD HH:mm:ss", placeholder: "请选择%s", style: { width: "100%%" } } }`, column.ColumnName, label, label)
+			return fmt.Sprintf(`  { prop: "%s", label: "%s", component: "date-picker", props: { type: "datetime", valueFormat: "YYYY-MM-DD HH:mm:ss", placeholder: "请选择%s", style: { width: "100%%" } } }`, column.Name, label, label)
 		}
-		return fmt.Sprintf(`  { prop: "%s", label: "%s", component: "date-picker", props: { type: "date", valueFormat: "YYYY-MM-DD", placeholder: "请选择%s", style: { width: "100%%" } } }`, column.ColumnName, label, label)
+		return fmt.Sprintf(`  { prop: "%s", label: "%s", component: "date-picker", props: { type: "date", valueFormat: "YYYY-MM-DD", placeholder: "请选择%s", style: { width: "100%%" } } }`, column.Name, label, label)
 	}
-	return fmt.Sprintf(`  { prop: "%s", label: "%s", component: "%s", props: { placeholder: "请输入%s" } }`, column.ColumnName, label, component, label)
+	return fmt.Sprintf(`  { prop: "%s", label: "%s", component: "%s", props: { placeholder: "请输入%s" } }`, column.Name, label, component, label)
 }
 
 // renderFrontendOptionState 渲染静态选项、数据表选项状态与加载方法。
@@ -1075,7 +1075,7 @@ async function %s(row: %s) {
     return false;
   }
 }
-`, DefaultString(column.ColumnComment, column.ColumnName), handlerName, table.EntityName, column.ColumnName, enabled, disabled, enabled, enabled, table.BusinessName, table.EntityName, statusMethod.MethodName, statusMethod.MethodName)
+`, DefaultString(column.Comment, column.Name), handlerName, table.EntityName, column.Name, enabled, disabled, enabled, enabled, table.BusinessName, table.EntityName, statusMethod.MethodName, statusMethod.MethodName)
 }
 
 // findTSFunctionEndIndex 查找 TypeScript 函数体结束位置。
@@ -1115,11 +1115,11 @@ func validateCodeGenOutputPathLayout(target ProtoTarget, paths *systemadminv1.Co
 	if filepath.Dir(paths.GetBackendServiceFilePath()) != target.BackendModuleDirectory || filepath.Ext(paths.GetBackendServiceFilePath()) != ".go" {
 		return errorsx.InvalidArgument("后端Service文件必须位于所选Proto目录对应的服务目录且使用.go扩展名")
 	}
-	if !strings.HasPrefix(paths.GetFrontendApiFilePath(), "frontend/admin/src/") || filepath.Ext(paths.GetFrontendApiFilePath()) != ".ts" {
-		return errorsx.InvalidArgument("前端API文件必须位于frontend/admin/src目录且使用.ts扩展名")
+	if filepath.Dir(paths.GetFrontendApiFilePath()) != target.FrontendAPIDirectory || filepath.Ext(paths.GetFrontendApiFilePath()) != ".ts" {
+		return errorsx.InvalidArgument("前端API文件必须位于所选业务模块目录且使用.ts扩展名")
 	}
-	if !strings.HasPrefix(paths.GetFrontendPageFilePath(), "frontend/admin/src/views/") || !strings.HasSuffix(paths.GetFrontendPageFilePath(), "/index.vue") {
-		return errorsx.InvalidArgument("前端页面文件必须位于frontend/admin/src/views目录且文件名为index.vue")
+	if !strings.HasPrefix(paths.GetFrontendPageFilePath(), target.FrontendPageDirectory+"/") || !strings.HasSuffix(paths.GetFrontendPageFilePath(), "/index.vue") {
+		return errorsx.InvalidArgument("前端页面文件必须位于所选业务模块目录且文件名为index.vue")
 	}
 	if filepath.Ext(paths.GetSqlFilePath()) != ".sql" {
 		return errorsx.InvalidArgument("SQL文件必须使用.sql扩展名")
@@ -1136,10 +1136,8 @@ func frontendRPCImportPath(protoPath string) string {
 // frontendAPIImportPathForMethod 根据接口所属 Proto 目标推导前端 API 导入路径。
 func frontendAPIImportPathForMethod(method *Proto) string {
 	protoDirectory := strings.TrimPrefix(filepath.ToSlash(filepath.Dir(method.ProtoFilePath)), ProtoRootPath+"/")
-	target, ok := ProtoTargetByDirectory(protoDirectory)
-	if !ok {
-		target, _ = ProtoTargetByDirectory(DefaultProtoDirectory)
-	}
+	module := strings.TrimSuffix(strings.TrimSuffix(protoDirectory, "/v1"), "/admin")
+	target, _ := ProtoTargetForBusinessModule(module)
 	apiPath := strings.TrimPrefix(target.FrontendAPIFilePath(method.TargetEntityName), "frontend/admin/src/")
 	return "@/" + strings.TrimSuffix(apiPath, filepath.Ext(apiPath))
 }
@@ -1183,7 +1181,7 @@ func statusAPIColumns(columns []*CodeGenColumn) []*CodeGenColumn {
 func findStatusColumn(columns []*CodeGenColumn, columnName string) *CodeGenColumn {
 	if columnName != "" {
 		for _, column := range columns {
-			if column.ColumnName == columnName && column.IsStatusField == 1 {
+			if column.Name == columnName && column.IsStatusField == 1 {
 				return column
 			}
 		}
@@ -1205,16 +1203,16 @@ func statusProtoType(column *CodeGenColumn) string {
 
 // statusResourcePath 返回状态接口对应的 HTTP 子资源路径。
 func statusResourcePath(table *Table, method *Proto) string {
-	if method.MethodName == "Set"+table.EntityName+"Status" || method.ColumnName == "" {
+	if method.MethodName == "Set"+table.EntityName+"Status" || method.Name == "" {
 		return "status"
 	}
-	return "status/" + strings.ReplaceAll(method.ColumnName, "_", "-")
+	return "status/" + strings.ReplaceAll(method.Name, "_", "-")
 }
 
 // renderFrontendDateImport 仅在列表包含日期展示列时引入前端格式化依赖。
 func renderFrontendDateImport(columns []*CodeGenColumn) string {
 	for _, column := range columns {
-		if generatedListIncludesColumn(column) && column.IsPrimary != 1 && column.ColumnName != "deleted_at" && column.ListComponent == "date" &&
+		if generatedListIncludesColumn(column) && column.IsPrimary != 1 && column.Name != "deleted_at" && column.ListComponent == "date" &&
 			(column.IsStatusField != 1 || column.StatusTableColumn != 1 && column.StatusSearch != 1) {
 			return `import dayjs from "dayjs";`
 		}
@@ -1251,21 +1249,21 @@ func renderFrontendColumn(entityName string, column *CodeGenColumn, statusMethod
       inactiveText: "禁用"%s,
       beforeChange: scope => %s(scope.row as %s)
     }
-  }`, column.ColumnName, column.ColumnComment, dictConfig, search, visibility, statusValueExpression(column, column.StatusEnabledValue, "1"), statusValueExpression(column, column.StatusDisabledValue, "2"), "", statusHandlerName(column, statusColumnCount), entityName)
+  }`, column.Name, column.Comment, dictConfig, search, visibility, statusValueExpression(column, column.StatusEnabledValue, "1"), statusValueExpression(column, column.StatusDisabledValue, "2"), "", statusHandlerName(column, statusColumnCount), entityName)
 		}
 		if statusUsesDictionary(column) {
-			return fmt.Sprintf(`  { prop: "%s", label: "%s"%s%s%s }`, column.ColumnName, column.ColumnComment, dictConfig, search, visibility)
+			return fmt.Sprintf(`  { prop: "%s", label: "%s"%s%s%s }`, column.Name, column.Comment, dictConfig, search, visibility)
 		}
-		return fmt.Sprintf(`  { prop: "%s", label: "%s", enum: %s%s%s }`, column.ColumnName, column.ColumnComment, statusOptionsVariable(column, statusColumnCount), search, visibility)
+		return fmt.Sprintf(`  { prop: "%s", label: "%s", enum: %s%s%s }`, column.Name, column.Comment, statusOptionsVariable(column, statusColumnCount), search, visibility)
 	}
 	optionConfig := frontendColumnOptionConfig(column)
 	searchConfig := frontendSearchConfig(column)
 	// 仅作为普通查询条件的字段保留搜索配置，但不展示为列表列。
 	if !generatedListIncludesColumn(column) && generatedQueryIncludesColumn(column) {
-		return fmt.Sprintf(`  { prop: "%s", label: "%s"%s%s, isShow: false, isSetting: false }`, column.ColumnName, column.ColumnComment, optionConfig, searchConfig)
+		return fmt.Sprintf(`  { prop: "%s", label: "%s"%s%s, isShow: false, isSetting: false }`, column.Name, column.Comment, optionConfig, searchConfig)
 	}
 	if column.ListComponent == "image" {
-		return fmt.Sprintf(`  { prop: "%s", label: "%s", cellType: "image"%s%s }`, column.ColumnName, column.ColumnComment, optionConfig, searchConfig)
+		return fmt.Sprintf(`  { prop: "%s", label: "%s", cellType: "image"%s%s }`, column.Name, column.Comment, optionConfig, searchConfig)
 	}
 	if column.ListComponent == "date" {
 		dbType := strings.ToLower(DefaultString(column.ColumnType, column.DbType))
@@ -1275,9 +1273,9 @@ func renderFrontendColumn(entityName string, column *CodeGenColumn, statusMethod
 		} else if strings.Contains(dbType, "time") {
 			format = "HH:mm:ss"
 		}
-		return fmt.Sprintf(`  { prop: "%s", label: "%s", render: scope => scope.row.%s ? dayjs(scope.row.%s).format(%q) : "--"%s%s }`, column.ColumnName, column.ColumnComment, column.ColumnName, column.ColumnName, format, optionConfig, searchConfig)
+		return fmt.Sprintf(`  { prop: "%s", label: "%s", render: scope => scope.row.%s ? dayjs(scope.row.%s).format(%q) : "--"%s%s }`, column.Name, column.Comment, column.Name, column.Name, format, optionConfig, searchConfig)
 	}
-	return fmt.Sprintf(`  { prop: "%s", label: "%s"%s%s }`, column.ColumnName, column.ColumnComment, optionConfig, searchConfig)
+	return fmt.Sprintf(`  { prop: "%s", label: "%s"%s%s }`, column.Name, column.Comment, optionConfig, searchConfig)
 }
 
 // frontendColumnOptionConfig 渲染列表或查询选择组件的数据源配置。
@@ -1334,7 +1332,7 @@ func statusOptionsVariable(column *CodeGenColumn, statusColumnCount int) string 
 	if statusColumnCount <= 1 {
 		return "statusOptions"
 	}
-	return stringcase.ToCamelCase(column.ColumnName) + "StatusOptions"
+	return stringcase.ToCamelCase(column.Name) + "StatusOptions"
 }
 
 // renderFrontendStaticOptions 将静态选项 JSON 渲染为安全的 TypeScript 字面量。
@@ -1391,7 +1389,7 @@ func findStatusMethodForColumn(column *CodeGenColumn, methods []*Proto) *Proto {
 		}
 		statusMethodCount++
 		onlyStatusMethod = method
-		if method.ColumnName == column.ColumnName {
+		if method.Name == column.Name {
 			return method
 		}
 	}
@@ -1406,7 +1404,7 @@ func statusHandlerName(column *CodeGenColumn, statusColumnCount int) string {
 	if statusColumnCount <= 1 {
 		return "handleBeforeSetStatus"
 	}
-	return "handleBeforeSet" + stringcase.ToPascalCase(column.ColumnName) + "Status"
+	return "handleBeforeSet" + stringcase.ToPascalCase(column.Name) + "Status"
 }
 
 // statusNeedsFrontendOptions 判断状态字段是否需要生成前端静态选项。
@@ -1454,7 +1452,7 @@ func generatedRequestIncludesColumn(table *Table, column *CodeGenColumn) bool {
 		return true
 	}
 	leftTreeConfig := LeftTreeConfigFromTable(table)
-	return leftTreeConfig.Enabled && leftTreeConfig.FilterColumn != "" && column.ColumnName == leftTreeConfig.FilterColumn
+	return leftTreeConfig.Enabled && leftTreeConfig.FilterColumn != "" && column.Name == leftTreeConfig.FilterColumn
 }
 
 // codeGenRequestColumns 为后端查询模板补入左树隐式关联字段。
@@ -1465,7 +1463,7 @@ func codeGenRequestColumns(table *Table, columns []*CodeGenColumn) []*CodeGenCol
 	}
 	list := make([]*CodeGenColumn, 0, len(columns))
 	for _, column := range columns {
-		if column.ColumnName != leftTreeConfig.FilterColumn || generatedQueryIncludesColumn(column) {
+		if column.Name != leftTreeConfig.FilterColumn || generatedQueryIncludesColumn(column) {
 			list = append(list, column)
 			continue
 		}
@@ -1560,7 +1558,7 @@ func statusUsesEnumImport(column *CodeGenColumn) bool {
 
 // frontendOptionVar 返回字段指定作用域的选择项状态变量前缀。
 func frontendOptionVar(column *CodeGenColumn, scope string) string {
-	return stringcase.ToCamelCase(column.ColumnName) + stringcase.ToPascalCase(scope)
+	return stringcase.ToCamelCase(column.Name) + stringcase.ToPascalCase(scope)
 }
 
 // isSelectComponent 判断组件是否属于选择型控件。
@@ -1645,7 +1643,7 @@ func findSavedProtoMethod(methods []*Proto, check *ProtoCheck) *Proto {
 			return method
 		}
 		// 状态接口的旧方法名可能由字段数量推导，使用字段名继续关联已保存的生成选择。
-		if check.APIKind == APIKindStatus && method.APIKind == APIKindStatus && method.ColumnName == check.ColumnName {
+		if check.APIKind == APIKindStatus && method.APIKind == APIKindStatus && method.Name == check.Name {
 			savedStatusMethod = method
 		}
 	}

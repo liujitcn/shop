@@ -9,7 +9,6 @@ import (
 	shopappserver "shop/server/shop/app"
 	systemadminserver "shop/server/system/admin"
 	systemappserver "shop/server/system/app"
-	shopcodegen "shop/service/shop/admin/codegen"
 	"shop/service/shop/agent/aiflow"
 	"shop/service/shop/queue"
 	"shop/service/shop/workspaceevent"
@@ -28,7 +27,6 @@ func newModules(
 	shopAdminTasks shopadminserver.TaskSet,
 	shopAppTasks shopappserver.TaskSet,
 	_ aiflow.Registration,
-	_ shopcodegen.Registration,
 	_ workspaceevent.SSEReady,
 ) (host.Modules, error) {
 	err := host.RegisterTasks(taskRegistry, shopAdminTasks, shopAppTasks)

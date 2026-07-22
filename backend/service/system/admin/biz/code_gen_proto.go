@@ -135,26 +135,19 @@ func (c *CodeGenProtoCase) SaveCodeGenProto(ctx context.Context, req *systemadmi
 	if err != nil {
 		return err
 	}
-	expectedByKey := make(map[string]*systemadminv1.CodeGenProtoCheck, len(checks.GetCodeGenProtos()))
-	for _, check := range checks.GetCodeGenProtos() {
-		expectedByKey[codeGenProtoKey(check.GetProtoFilePath(), check.GetTargetEntityName(), check.GetMethodName())] = check
-	}
 	protos := make([]*models.CodeGenProto, 0, len(req.GetCodeGenProtos()))
-	seen := make(map[string]struct{}, len(req.GetCodeGenProtos()))
 	columnNamesByTable := make(map[string]map[string]struct{})
 	for index, input := range req.GetCodeGenProtos() {
 		if input == nil {
 			return errorsx.InvalidArgument("Proto接口配置不能为空")
 		}
-		key := codeGenProtoKey(input.GetProtoFilePath(), input.GetTargetEntityName(), input.GetMethodName())
-		check := expectedByKey[key]
-		if check == nil {
-			return errorsx.InvalidArgument("Proto接口" + input.GetMethodName() + "不在当前检查结果中")
+		if index >= len(checks.GetCodeGenProtos()) {
+			return errorsx.InvalidArgument("Proto接口配置不在当前检查结果中")
 		}
-		if _, exists := seen[key]; exists {
-			return errorsx.InvalidArgument("Proto接口" + input.GetMethodName() + "配置重复")
+		check := checks.GetCodeGenProtos()[index]
+		if input.GetTriggerType() != check.GetTriggerType() || input.GetApiKind() != check.GetApiKind() {
+			return errorsx.InvalidArgument("Proto接口配置顺序或类型不正确")
 		}
-		seen[key] = struct{}{}
 		// 已存在的接口不保存补齐选择，避免后续生成流程重复处理。
 		if check.GetExists() {
 			continue
@@ -163,9 +156,6 @@ func (c *CodeGenProtoCase) SaveCodeGenProto(ctx context.Context, req *systemadmi
 			TableId:             req.GetTableId(),
 			TriggerType:         check.GetTriggerType(),
 			ApiKind:             check.GetApiKind(),
-			TargetEntityName:    check.GetTargetEntityName(),
-			MethodName:          check.GetMethodName(),
-			ProtoFilePath:       check.GetProtoFilePath(),
 			Config:              mergeCodeGenProtoConfig(check.GetApiKind(), input.GetConfig(), check.GetConfig()),
 			GenerateWhenMissing: input.GetGenerateWhenMissing(),
 			Sort:                input.GetSort(),
@@ -174,7 +164,7 @@ func (c *CodeGenProtoCase) SaveCodeGenProto(ctx context.Context, req *systemadmi
 			proto.Sort = int32(index + 1)
 		}
 		targetTableName := codeGenProtoTargetTableName(table, check.GetTargetEntityName())
-		if err = c.validateCodeGenProtoColumns(ctx, targetTableName, proto, columnNamesByTable); err != nil {
+		if err = c.validateCodeGenProtoColumns(ctx, targetTableName, check.GetMethodName(), proto, columnNamesByTable); err != nil {
 			return err
 		}
 		item := c.mapper.ToEntity(proto)
@@ -193,11 +183,9 @@ func (c *CodeGenProtoCase) SaveCodeGenProto(ctx context.Context, req *systemadmi
 		}
 		usedIDs := make(map[int64]struct{}, len(protos))
 		for _, proto := range protos {
-			key := codeGenProtoKey(proto.ProtoFilePath, proto.TargetEntityName, proto.MethodName)
-			check := expectedByKey[key]
 			var saved *models.CodeGenProto
 			for _, candidate := range savedProtos {
-				if _, used := usedIDs[candidate.ID]; used || !savedCodeGenProtoMatches(candidate, check) {
+				if _, used := usedIDs[candidate.ID]; used || candidate.Sort != proto.Sort {
 					continue
 				}
 				saved = candidate
@@ -214,9 +202,6 @@ func (c *CodeGenProtoCase) SaveCodeGenProto(ctx context.Context, req *systemadmi
 			_, err = query.WithContext(ctx).Where(query.ID.Eq(proto.ID)).UpdateSimple(
 				query.TriggerType.Value(proto.TriggerType),
 				query.APIKind.Value(proto.APIKind),
-				query.TargetEntityName.Value(proto.TargetEntityName),
-				query.MethodName.Value(proto.MethodName),
-				query.ProtoFilePath.Value(proto.ProtoFilePath),
 				query.GenerateWhenMissing.Value(proto.GenerateWhenMissing),
 				query.Config.Value(proto.Config),
 				query.Sort.Value(proto.Sort),
@@ -237,7 +222,7 @@ func (c *CodeGenProtoCase) SaveCodeGenProto(ctx context.Context, req *systemadmi
 }
 
 // validateCodeGenProtoColumns 校验待生成 Proto 接口的类型配置和数据库字段。
-func (c *CodeGenProtoCase) validateCodeGenProtoColumns(ctx context.Context, tableName string, proto *systemadminv1.CodeGenProto, columnNamesByTable map[string]map[string]struct{}) error {
+func (c *CodeGenProtoCase) validateCodeGenProtoColumns(ctx context.Context, tableName string, methodName string, proto *systemadminv1.CodeGenProto, columnNamesByTable map[string]map[string]struct{}) error {
 	// 未勾选生成的接口不消费类型配置，无需校验字段。
 	if !proto.GetGenerateWhenMissing() {
 		return nil
@@ -245,22 +230,22 @@ func (c *CodeGenProtoCase) validateCodeGenProtoColumns(ctx context.Context, tabl
 	fields, supported := codeGenProtoConfigFields(proto.GetApiKind(), proto.GetConfig())
 	// 未知接口类型没有可用的生成模板。
 	if !supported {
-		return errorsx.InvalidArgument("Proto接口" + proto.GetMethodName() + "的接口类型不支持")
+		return errorsx.InvalidArgument("Proto接口" + methodName + "的接口类型不支持")
 	}
 	// 基础接口没有类型配置字段，无需读取数据库元数据。
 	if len(fields) == 0 {
 		return nil
 	}
-	columnNames, err := c.loadCodeGenProtoColumnNames(ctx, tableName, columnNamesByTable)
+	columnNames, err := c.loadCodeGenProtoNames(ctx, tableName, columnNamesByTable)
 	if err != nil {
 		return err
 	}
 	for _, field := range fields {
 		if field.value == "" {
-			return errorsx.InvalidArgument("请选择Proto接口" + proto.GetMethodName() + "的" + field.label)
+			return errorsx.InvalidArgument("请选择Proto接口" + methodName + "的" + field.label)
 		}
 		if _, exists := columnNames[field.value]; !exists {
-			return errorsx.InvalidArgument("Proto接口" + proto.GetMethodName() + "的" + field.label + field.value + "不属于目标表" + tableName)
+			return errorsx.InvalidArgument("Proto接口" + methodName + "的" + field.label + field.value + "不属于目标表" + tableName)
 		}
 	}
 	return nil
@@ -272,7 +257,6 @@ func (c *CodeGenProtoCase) inspectCodeGenProtos(ctx context.Context, table *mode
 	columnNamesByTable := make(map[string]map[string]struct{})
 	for _, check := range checks {
 		for _, saved := range savedProtos {
-			// 兼容读取旧版复数方法名保存的选择，但检查结果始终输出当前单数契约名。
 			if !savedCodeGenProtoMatches(saved, check) {
 				continue
 			}
@@ -308,7 +292,7 @@ func (c *CodeGenProtoCase) inspectCodeGenProtos(ctx context.Context, table *mode
 		if len(fields) == 0 {
 			continue
 		}
-		columnNames, err := c.loadCodeGenProtoColumnNames(ctx, targetTableName, columnNamesByTable)
+		columnNames, err := c.loadCodeGenProtoNames(ctx, targetTableName, columnNamesByTable)
 		if err != nil {
 			return nil, err
 		}
@@ -320,8 +304,8 @@ func (c *CodeGenProtoCase) inspectCodeGenProtos(ctx context.Context, table *mode
 	return checks, nil
 }
 
-// loadCodeGenProtoColumnNames 加载并缓存目标表字段名。
-func (c *CodeGenProtoCase) loadCodeGenProtoColumnNames(ctx context.Context, tableName string, columnNamesByTable map[string]map[string]struct{}) (map[string]struct{}, error) {
+// loadCodeGenProtoNames 加载并缓存目标表字段名。
+func (c *CodeGenProtoCase) loadCodeGenProtoNames(ctx context.Context, tableName string, columnNamesByTable map[string]map[string]struct{}) (map[string]struct{}, error) {
 	columnNames := columnNamesByTable[tableName]
 	// 同一目标表已加载时直接复用字段集合。
 	if columnNames != nil {
@@ -333,7 +317,7 @@ func (c *CodeGenProtoCase) loadCodeGenProtoColumnNames(ctx context.Context, tabl
 	}
 	columnNames = make(map[string]struct{}, len(databaseColumns))
 	for _, column := range databaseColumns {
-		columnNames[column.ColumnName] = struct{}{}
+		columnNames[column.Name] = struct{}{}
 	}
 	columnNamesByTable[tableName] = columnNames
 	return columnNames, nil
@@ -342,7 +326,7 @@ func (c *CodeGenProtoCase) loadCodeGenProtoColumnNames(ctx context.Context, tabl
 // buildExpectedCodeGenProtos 根据表与字段配置推导所需 Proto 接口。
 func buildExpectedCodeGenProtos(table *models.CodeGenTable, form *systemadminv1.CodeGenTableForm, columns []*systemadminv1.CodeGenColumn) []*systemadminv1.CodeGenProtoCheck {
 	protoPath := defaultCodeGenProtoPath(table)
-	entity := table.EntityName
+	entity := stringcase.ToPascalCase(table.Name)
 	checks := make([]*systemadminv1.CodeGenProtoCheck, 0, 10)
 	// 树形页面使用树接口，普通页面使用分页与平铺选项接口。
 	if table.PageType == "tree" {
@@ -384,7 +368,7 @@ func buildExpectedCodeGenProtos(table *models.CodeGenTable, form *systemadminv1.
 				codeGenTriggerFieldStatus,
 				codeGenAPIKindStatus,
 				entity,
-				"Set"+entity+stringcase.ToPascalCase(column.GetColumnName()),
+				"Set"+entity+stringcase.ToPascalCase(column.GetName()),
 				protoPath,
 			))
 		}
@@ -433,6 +417,7 @@ func buildExpectedCodeGenProtos(table *models.CodeGenTable, form *systemadminv1.
 			continue
 		}
 		seen[key] = struct{}{}
+		check.Sort = int32(len(list) + 1)
 		list = append(list, check)
 	}
 	return list
@@ -549,22 +534,24 @@ func mergeCodeGenProtoConfig(apiKind string, preferred *systemadminv1.CodeGenPro
 
 // defaultCodeGenProtoPath 返回当前实体默认 Proto 文件路径。
 func defaultCodeGenProtoPath(table *models.CodeGenTable) string {
-	return codegen.ProtoFilePath(table.APIPath, table.EntityName)
+	target, _ := codegen.ProtoTargetForBusinessModule(table.BusinessModule)
+	return codegen.ProtoFilePath(target.Directory, stringcase.ToPascalCase(table.Name))
 }
 
 // defaultTargetCodeGenProtoPath 返回关联实体默认 Proto 文件路径。
 func defaultTargetCodeGenProtoPath(table *models.CodeGenTable, target string) string {
 	// 关联目标就是当前实体时复用当前实体默认路径。
-	if target == table.EntityName {
+	if target == stringcase.ToPascalCase(table.Name) {
 		return defaultCodeGenProtoPath(table)
 	}
-	return codegen.ProtoFilePath(table.APIPath, target)
+	targetConfig, _ := codegen.ProtoTargetForBusinessModule(table.BusinessModule)
+	return codegen.ProtoFilePath(targetConfig.Directory, target)
 }
 
 // codeGenProtoTargetTableName 返回接口目标实体对应的数据库表名。
 func codeGenProtoTargetTableName(table *models.CodeGenTable, targetEntity string) string {
 	// 当前实体保留代码生成配置中的原始表名。
-	if targetEntity == table.EntityName {
+	if targetEntity == stringcase.ToPascalCase(table.Name) {
 		return table.Name
 	}
 	return stringcase.ToSnakeCase(targetEntity)
@@ -572,37 +559,7 @@ func codeGenProtoTargetTableName(table *models.CodeGenTable, targetEntity string
 
 // savedCodeGenProtoMatches 判断已保存配置是否对应当前检查项，并兼容旧版复数契约名。
 func savedCodeGenProtoMatches(saved *models.CodeGenProto, check *systemadminv1.CodeGenProtoCheck) bool {
-	if saved.ProtoFilePath != check.GetProtoFilePath() || saved.TargetEntityName != check.GetTargetEntityName() {
-		return false
-	}
-	if saved.MethodName == check.GetMethodName() {
-		return true
-	}
-	legacyMethodName := legacyPluralCodeGenMethodName(check.GetTargetEntityName(), check.GetMethodName())
-	return legacyMethodName != "" && saved.MethodName == legacyMethodName
-}
-
-// legacyPluralCodeGenMethodName 返回旧版 Page、Tree、Option 复数契约名。
-func legacyPluralCodeGenMethodName(entity string, methodName string) string {
-	for _, prefix := range []string{"Page", "Tree", "Option"} {
-		if methodName == prefix+entity {
-			return prefix + pluralizeCodeGenEntity(entity)
-		}
-	}
-	return ""
-}
-
-// pluralizeCodeGenEntity 返回兼容旧版配置所需的实体复数形式。
-func pluralizeCodeGenEntity(value string) string {
-	// 以 s 结尾的实体名追加 es。
-	if strings.HasSuffix(value, "s") {
-		return value + "es"
-	}
-	// 以 y 结尾的实体名使用 ies 形式。
-	if strings.HasSuffix(value, "y") {
-		return strings.TrimSuffix(value, "y") + "ies"
-	}
-	return value + "s"
+	return saved.Sort == check.GetSort()
 }
 
 // codeGenProtoKey 返回 Proto 接口配置稳定键。

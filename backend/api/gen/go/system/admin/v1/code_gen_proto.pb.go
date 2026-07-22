@@ -176,12 +176,9 @@ type CodeGenProto struct {
 	TableId             int64                  `protobuf:"varint,2,opt,name=table_id,json=tableId,proto3" json:"table_id,omitempty"`                                       // 代码生成表配置ID
 	TriggerType         string                 `protobuf:"bytes,3,opt,name=trigger_type,json=triggerType,proto3" json:"trigger_type,omitempty"`                            // 触发来源
 	ApiKind             string                 `protobuf:"bytes,4,opt,name=api_kind,json=apiKind,proto3" json:"api_kind,omitempty"`                                        // 接口类型
-	TargetEntityName    string                 `protobuf:"bytes,5,opt,name=target_entity_name,json=targetEntityName,proto3" json:"target_entity_name,omitempty"`           // 目标实体名
-	MethodName          string                 `protobuf:"bytes,6,opt,name=method_name,json=methodName,proto3" json:"method_name,omitempty"`                               // 方法名
-	ProtoFilePath       string                 `protobuf:"bytes,7,opt,name=proto_file_path,json=protoFilePath,proto3" json:"proto_file_path,omitempty"`                    // Proto文件路径
-	GenerateWhenMissing bool                   `protobuf:"varint,8,opt,name=generate_when_missing,json=generateWhenMissing,proto3" json:"generate_when_missing,omitempty"` // 缺失时是否生成
-	Config              *CodeGenProtoConfig    `protobuf:"bytes,9,opt,name=config,proto3" json:"config,omitempty"`                                                         // 接口类型配置
-	Sort                int32                  `protobuf:"varint,10,opt,name=sort,proto3" json:"sort,omitempty"`                                                           // 排序
+	GenerateWhenMissing bool                   `protobuf:"varint,5,opt,name=generate_when_missing,json=generateWhenMissing,proto3" json:"generate_when_missing,omitempty"` // 缺失时是否生成
+	Config              *CodeGenProtoConfig    `protobuf:"bytes,6,opt,name=config,proto3" json:"config,omitempty"`                                                         // 接口类型配置
+	Sort                int32                  `protobuf:"varint,7,opt,name=sort,proto3" json:"sort,omitempty"`                                                            // 排序
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
 }
@@ -244,27 +241,6 @@ func (x *CodeGenProto) GetApiKind() string {
 	return ""
 }
 
-func (x *CodeGenProto) GetTargetEntityName() string {
-	if x != nil {
-		return x.TargetEntityName
-	}
-	return ""
-}
-
-func (x *CodeGenProto) GetMethodName() string {
-	if x != nil {
-		return x.MethodName
-	}
-	return ""
-}
-
-func (x *CodeGenProto) GetProtoFilePath() string {
-	if x != nil {
-		return x.ProtoFilePath
-	}
-	return ""
-}
-
 func (x *CodeGenProto) GetGenerateWhenMissing() bool {
 	if x != nil {
 		return x.GenerateWhenMissing
@@ -299,6 +275,7 @@ type CodeGenProtoCheck struct {
 	GenerateWhenMissing bool                   `protobuf:"varint,8,opt,name=generate_when_missing,json=generateWhenMissing,proto3" json:"generate_when_missing,omitempty"` // 缺失时是否生成
 	Config              *CodeGenProtoConfig    `protobuf:"bytes,9,opt,name=config,proto3" json:"config,omitempty"`                                                         // 接口类型配置
 	Message             string                 `protobuf:"bytes,10,opt,name=message,proto3" json:"message,omitempty"`                                                      // 检查说明
+	Sort                int32                  `protobuf:"varint,11,opt,name=sort,proto3" json:"sort,omitempty"`                                                           // 排序
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
 }
@@ -403,6 +380,13 @@ func (x *CodeGenProtoCheck) GetMessage() string {
 	return ""
 }
 
+func (x *CodeGenProtoCheck) GetSort() int32 {
+	if x != nil {
+		return x.Sort
+	}
+	return 0
+}
+
 // 代码生成Proto接口类型配置
 type CodeGenProtoConfig struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -485,20 +469,15 @@ const file_system_admin_v1_code_gen_proto_proto_rawDesc = "" +
 	"\x17SaveCodeGenProtoRequest\x12\x94\x01\n" +
 	"\btable_id\x18\x01 \x01(\x03By\xbaG\x1a\x92\x02\x17代码生成表配置ID\xbaHY\xba\x01V\n" +
 	"%save_code_gen_proto.table_id.required\x12#代码生成表配置ID不能为空\x1a\bthis > 0R\atableId\x12p\n" +
-	"\x0fcode_gen_protos\x18\x02 \x03(\v2\x1d.system.admin.v1.CodeGenProtoB)\xbaG&\x92\x02#代码生成Proto接口配置列表R\rcodeGenProtos\"\xd0\x04\n" +
+	"\x0fcode_gen_protos\x18\x02 \x03(\v2\x1d.system.admin.v1.CodeGenProtoB)\xbaG&\x92\x02#代码生成Proto接口配置列表R\rcodeGenProtos\"\x98\x03\n" +
 	"\fCodeGenProto\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键IDR\x02id\x128\n" +
 	"\btable_id\x18\x02 \x01(\x03B\x1d\xbaG\x1a\x92\x02\x17代码生成表配置IDR\atableId\x125\n" +
 	"\ftrigger_type\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f触发来源R\vtriggerType\x12-\n" +
-	"\bapi_kind\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f接口类型R\aapiKind\x12C\n" +
-	"\x12target_entity_name\x18\x05 \x01(\tB\x15\xbaG\x12\x92\x02\x0f目标实体名R\x10targetEntityName\x120\n" +
-	"\vmethod_name\x18\x06 \x01(\tB\x0f\xbaG\f\x92\x02\t方法名R\n" +
-	"methodName\x12?\n" +
-	"\x0fproto_file_path\x18\a \x01(\tB\x17\xbaG\x14\x92\x02\x11Proto文件路径R\rprotoFilePath\x12O\n" +
-	"\x15generate_when_missing\x18\b \x01(\bB\x1b\xbaG\x18\x92\x02\x15缺失时是否生成R\x13generateWhenMissing\x12U\n" +
-	"\x06config\x18\t \x01(\v2#.system.admin.v1.CodeGenProtoConfigB\x18\xbaG\x15\x92\x02\x12接口类型配置R\x06config\x12 \n" +
-	"\x04sort\x18\n" +
-	" \x01(\x05B\f\xbaG\t\x92\x02\x06排序R\x04sort\"\xf6\x04\n" +
+	"\bapi_kind\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f接口类型R\aapiKind\x12O\n" +
+	"\x15generate_when_missing\x18\x05 \x01(\bB\x1b\xbaG\x18\x92\x02\x15缺失时是否生成R\x13generateWhenMissing\x12U\n" +
+	"\x06config\x18\x06 \x01(\v2#.system.admin.v1.CodeGenProtoConfigB\x18\xbaG\x15\x92\x02\x12接口类型配置R\x06config\x12 \n" +
+	"\x04sort\x18\a \x01(\x05B\f\xbaG\t\x92\x02\x06排序R\x04sort\"\x98\x05\n" +
 	"\x11CodeGenProtoCheck\x128\n" +
 	"\btable_id\x18\x01 \x01(\x03B\x1d\xbaG\x1a\x92\x02\x17代码生成表配置IDR\atableId\x125\n" +
 	"\ftrigger_type\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f触发来源R\vtriggerType\x12-\n" +
@@ -511,7 +490,8 @@ const file_system_admin_v1_code_gen_proto_proto_rawDesc = "" +
 	"\x15generate_when_missing\x18\b \x01(\bB\x1b\xbaG\x18\x92\x02\x15缺失时是否生成R\x13generateWhenMissing\x12U\n" +
 	"\x06config\x18\t \x01(\v2#.system.admin.v1.CodeGenProtoConfigB\x18\xbaG\x15\x92\x02\x12接口类型配置R\x06config\x12,\n" +
 	"\amessage\x18\n" +
-	" \x01(\tB\x12\xbaG\x0f\x92\x02\f检查说明R\amessage\"\x89\x02\n" +
+	" \x01(\tB\x12\xbaG\x0f\x92\x02\f检查说明R\amessage\x12 \n" +
+	"\x04sort\x18\v \x01(\x05B\f\xbaG\t\x92\x02\x06排序R\x04sort\"\x89\x02\n" +
 	"\x12CodeGenProtoConfig\x12C\n" +
 	"\rparent_column\x18\x01 \x01(\tB\x1e\xbaG\x1b\x92\x02\x18树接口父节点字段R\fparentColumn\x12;\n" +
 	"\flabel_column\x18\x02 \x01(\tB\x18\xbaG\x15\x92\x02\x12选项显示字段R\vlabelColumn\x128\n" +

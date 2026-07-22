@@ -46,16 +46,6 @@ func (s *CodeGenTableService) ListCodeGenDatabaseTable(ctx context.Context, _ *s
 	return res, nil
 }
 
-// ListCodeGenProtoDirectory 查询代码生成可选的Proto目录。
-func (s *CodeGenTableService) ListCodeGenProtoDirectory(ctx context.Context, _ *systemadminv1.ListCodeGenProtoDirectoryRequest) (*systemadminv1.ListCodeGenProtoDirectoryResponse, error) {
-	res, err := s.codeGenTableCase.ListCodeGenProtoDirectory(ctx)
-	if err != nil {
-		log.Error(fmt.Sprintf("ListCodeGenProtoDirectory %v", err))
-		return nil, errorsx.WrapInternal(err, "查询Proto目录列表失败")
-	}
-	return res, nil
-}
-
 // GetCodeGenTable 查询代码生成表配置。
 func (s *CodeGenTableService) GetCodeGenTable(ctx context.Context, req *systemadminv1.GetCodeGenTableRequest) (*systemadminv1.CodeGenTableForm, error) {
 	item, err := s.codeGenTableCase.GetCodeGenTable(ctx, req.GetId())

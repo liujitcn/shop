@@ -17,7 +17,6 @@ import (
 func RegisterCodeGenTableServiceMCPTools(mcpServer *mcp.Server, codeGenTableServiceServer CodeGenTableServiceServer) {
 	RegisterCodeGenTableServicePageCodeGenTableMCPTool(mcpServer, codeGenTableServiceServer)
 	RegisterCodeGenTableServiceListCodeGenDatabaseTableMCPTool(mcpServer, codeGenTableServiceServer)
-	RegisterCodeGenTableServiceListCodeGenProtoDirectoryMCPTool(mcpServer, codeGenTableServiceServer)
 	RegisterCodeGenTableServiceGetCodeGenTableMCPTool(mcpServer, codeGenTableServiceServer)
 	RegisterCodeGenTableServiceCreateCodeGenTableMCPTool(mcpServer, codeGenTableServiceServer)
 	RegisterCodeGenTableServiceUpdateCodeGenTableMCPTool(mcpServer, codeGenTableServiceServer)
@@ -58,27 +57,6 @@ func RegisterCodeGenTableServiceListCodeGenDatabaseTableMCPTool(mcpServer *mcp.S
 				input = &ListCodeGenDatabaseTableRequest{}
 			}
 			reply, err := codeGenTableServiceServer.ListCodeGenDatabaseTable(ctx, input)
-			if err != nil {
-				return nil, nil, err
-			}
-			return nil, reply, nil
-		},
-	)
-}
-
-// RegisterCodeGenTableServiceListCodeGenProtoDirectoryMCPTool 注册查询Proto目录列表的 MCP Tool。
-func RegisterCodeGenTableServiceListCodeGenProtoDirectoryMCPTool(mcpServer *mcp.Server, codeGenTableServiceServer CodeGenTableServiceServer) {
-	mcp.AddTool[*ListCodeGenProtoDirectoryRequest, *ListCodeGenProtoDirectoryResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_code_gen_table_service_list_code_gen_proto_directory",
-			Description: "查询Proto目录列表",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *ListCodeGenProtoDirectoryRequest) (*mcp.CallToolResult, *ListCodeGenProtoDirectoryResponse, error) {
-			if input == nil {
-				input = &ListCodeGenProtoDirectoryRequest{}
-			}
-			reply, err := codeGenTableServiceServer.ListCodeGenProtoDirectory(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

@@ -13,12 +13,8 @@ export interface PageCodeGenTableRequest {
   name?:
     | string
     | undefined;
-  /** 业务名 */
-  business_name?:
-    | string
-    | undefined;
-  /** 模块路径 */
-  module_path?:
+  /** 业务模块 */
+  business_module?:
     | string
     | undefined;
   /** 页面类型 */
@@ -53,16 +49,6 @@ export interface ListCodeGenDatabaseTableResponse {
   tables: CodeGenDatabaseTable[];
 }
 
-/** Proto目录列表查询条件 */
-export interface ListCodeGenProtoDirectoryRequest {
-}
-
-/** Proto目录列表查询响应 */
-export interface ListCodeGenProtoDirectoryResponse {
-  /** Proto目录列表 */
-  directories: CodeGenProtoDirectory[];
-}
-
 /** 代码生成表配置详情查询条件 */
 export interface GetCodeGenTableRequest {
   /** 主键ID */
@@ -77,16 +63,8 @@ export interface CodeGenTableForm {
   name: string;
   /** 业务表描述 */
   comment: string;
-  /** 业务名 */
-  business_name: string;
-  /** 实体名 */
-  entity_name: string;
-  /** 模块路径 */
-  module_path: string;
-  /** Proto目录 */
-  api_path: string;
-  /** 权限标识前缀 */
-  permission_prefix: string;
+  /** 业务模块 */
+  business_module: string;
   /** 父级菜单ID */
   parent_menu_id: number;
   /** 页面类型：normal普通表格 tree树形表格 left_tree左树右表 */
@@ -139,22 +117,6 @@ export interface CodeGenDatabaseTable {
   comment: string;
   /** 是否已被选择 */
   disabled: boolean;
-  /** 默认业务名 */
-  business_name: string;
-  /** 默认实体名 */
-  entity_name: string;
-  /** 默认模块路径 */
-  module_path: string;
-  /** 默认Proto目录 */
-  api_path: string;
-  /** 默认权限前缀 */
-  permission_prefix: string;
-}
-
-/** Proto目录 */
-export interface CodeGenProtoDirectory {
-  /** 相对Proto根目录的目录路径 */
-  path: string;
 }
 
 /** 代码生成表配置 */
@@ -165,14 +127,8 @@ export interface CodeGenTable {
   name: string;
   /** 业务表描述 */
   comment: string;
-  /** 业务名 */
-  business_name: string;
-  /** 实体名 */
-  entity_name: string;
-  /** 模块路径 */
-  module_path: string;
-  /** Proto目录 */
-  api_path: string;
+  /** 业务模块 */
+  business_module: string;
   /** 页面类型 */
   page_type: string;
   /** 状态 */
@@ -207,8 +163,6 @@ export interface CodeGenTableService {
   PageCodeGenTable(request: PageCodeGenTableRequest): Promise<PageCodeGenTableResponse>;
   /** 查询数据库表列表 */
   ListCodeGenDatabaseTable(request: ListCodeGenDatabaseTableRequest): Promise<ListCodeGenDatabaseTableResponse>;
-  /** 查询Proto目录列表 */
-  ListCodeGenProtoDirectory(request: ListCodeGenProtoDirectoryRequest): Promise<ListCodeGenProtoDirectoryResponse>;
   /** 查询代码生成表配置 */
   GetCodeGenTable(request: GetCodeGenTableRequest): Promise<CodeGenTableForm>;
   /** 创建代码生成表配置 */

@@ -30,12 +30,6 @@ func NewCodeGenTableServiceAgentTools(codeGenTableServiceServer CodeGenTableServ
 		return nil, err
 	}
 	ts = append(ts, listCodeGenDatabaseTableTool)
-	var listCodeGenProtoDirectoryTool tool.InvokableTool
-	listCodeGenProtoDirectoryTool, err = NewCodeGenTableServiceListCodeGenProtoDirectoryAgentTool(codeGenTableServiceServer)
-	if err != nil {
-		return nil, err
-	}
-	ts = append(ts, listCodeGenProtoDirectoryTool)
 	var getCodeGenTableTool tool.InvokableTool
 	getCodeGenTableTool, err = NewCodeGenTableServiceGetCodeGenTableAgentTool(codeGenTableServiceServer)
 	if err != nil {
@@ -87,20 +81,6 @@ func NewCodeGenTableServiceListCodeGenDatabaseTableAgentTool(codeGenTableService
 				req = &ListCodeGenDatabaseTableRequest{}
 			}
 			return codeGenTableServiceServer.ListCodeGenDatabaseTable(ctx, req)
-		},
-	)
-}
-
-// NewCodeGenTableServiceListCodeGenProtoDirectoryAgentTool 创建查询Proto目录列表的 Agent Tool。
-func NewCodeGenTableServiceListCodeGenProtoDirectoryAgentTool(codeGenTableServiceServer CodeGenTableServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*ListCodeGenProtoDirectoryRequest, *ListCodeGenProtoDirectoryResponse](
-		"system_admin_v1_code_gen_table_service_list_code_gen_proto_directory",
-		"查询Proto目录列表",
-		func(ctx context.Context, req *ListCodeGenProtoDirectoryRequest) (*ListCodeGenProtoDirectoryResponse, error) {
-			if req == nil {
-				req = &ListCodeGenProtoDirectoryRequest{}
-			}
-			return codeGenTableServiceServer.ListCodeGenProtoDirectory(ctx, req)
 		},
 	)
 }

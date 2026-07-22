@@ -37,12 +37,6 @@ export interface CodeGenProto {
   trigger_type: string;
   /** 接口类型 */
   api_kind: string;
-  /** 目标实体名 */
-  target_entity_name: string;
-  /** 方法名 */
-  method_name: string;
-  /** Proto文件路径 */
-  proto_file_path: string;
   /** 缺失时是否生成 */
   generate_when_missing: boolean;
   /** 接口类型配置 */
@@ -77,6 +71,8 @@ export interface CodeGenProtoCheck {
     | undefined;
   /** 检查说明 */
   message: string;
+  /** 排序 */
+  sort: number;
 }
 
 /** 代码生成Proto接口类型配置 */

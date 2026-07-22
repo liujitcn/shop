@@ -234,7 +234,7 @@ func (c *renderer) batchProtoMethodFingerprint(table *Table, columns []*CodeGenC
 	}
 	// 状态接口的状态字段会改变更新逻辑，必须继续参与冲突判断。
 	if method.APIKind == APIKindStatus {
-		semanticParts = append(semanticParts, method.ColumnName)
+		semanticParts = append(semanticParts, method.Name)
 	}
 	builder.WriteString("\nsemantic:")
 	builder.WriteString(strings.Join(semanticParts, "\x00"))
@@ -378,19 +378,8 @@ func isBatchMergeableFile(path string) bool {
 	if strings.HasSuffix(path, ".proto") {
 		return true
 	}
-	for _, target := range ProtoTargets() {
-		if strings.HasPrefix(path, target.BackendModuleDirectory+"/biz/") && strings.HasSuffix(path, ".go") {
-			return true
-		}
-		if strings.HasPrefix(path, target.BackendModuleDirectory+"/") && strings.HasSuffix(path, "_service.go") {
-			return true
-		}
-		if strings.HasPrefix(path, target.FrontendAPIDirectory+"/") && strings.HasSuffix(path, ".ts") {
-			return true
-		}
-		if path == target.BackendModuleDirectory+"/init.go" || path == target.ModuleRegisterPath {
-			return true
-		}
-	}
-	return false
+	return strings.HasPrefix(path, "backend/service/") && (strings.HasSuffix(path, ".go") || strings.HasSuffix(path, ".ts")) ||
+		strings.HasPrefix(path, "frontend/admin/src/api/") && strings.HasSuffix(path, ".ts") ||
+		strings.HasPrefix(path, "frontend/admin/src/views/") && strings.HasSuffix(path, ".vue") ||
+		strings.HasPrefix(path, "backend/server/") && strings.HasSuffix(path, ".go")
 }

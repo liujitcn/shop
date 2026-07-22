@@ -91,12 +91,10 @@ export const codeGenFormComponentOptions: ProFormOption[] = (
 /** 代码生成表配置校验规则。 */
 export const codeGenTableRules: FormRules = {
   name: [{ required: true, max: 128, message: "请选择业务表", trigger: "change" }],
-  business_name: [{ required: true, max: 64, message: "业务名不能为空且不能超过64个字符", trigger: "blur" }],
-  entity_name: [{ required: true, max: 64, message: "实体名不能为空且不能超过64个字符", trigger: "blur" }],
-  module_path: [{ required: true, max: 128, message: "模块路径不能为空且不能超过128个字符", trigger: "blur" }],
-  api_path: [{ required: true, max: 512, message: "请选择Proto目录", trigger: "change" }],
+  business_module: [
+    { required: true, max: 64, pattern: /^[a-z][a-z0-9_]*$/, message: "请选择有效业务模块", trigger: "change" }
+  ],
   comment: [{ max: 128, message: "业务表描述不能超过128个字符", trigger: "blur" }],
-  permission_prefix: [{ max: 128, message: "权限标识前缀不能超过128个字符", trigger: "blur" }],
   parent_menu_id: [{ required: true, type: "number", min: 1, message: "请选择父级菜单", trigger: "change" }],
   page_type: [{ required: true, max: 32, message: "请选择页面类型", trigger: "change" }],
   parent_column: [{ required: true, max: 64, message: "请选择父节点字段", trigger: "change" }],
@@ -127,11 +125,7 @@ export function createDefaultCodeGenTableForm(): CodeGenTableForm {
     id: 0,
     name: "",
     comment: "",
-    business_name: "",
-    entity_name: "",
-    module_path: "",
-    api_path: "system/admin/v1",
-    permission_prefix: "",
+    business_module: "system",
     page_type: "normal",
     parent_column: "",
     tree_label_column: "",

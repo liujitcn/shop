@@ -262,12 +262,12 @@ func (x *SaveCodeGenColumnRequest) GetCodeGenColumns() []*CodeGenColumn {
 // 数据库字段元数据
 type CodeGenDatabaseColumn struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	ColumnName    string                 `protobuf:"bytes,1,opt,name=column_name,json=columnName,proto3" json:"column_name,omitempty"`          // 数据库字段名
-	ColumnComment string                 `protobuf:"bytes,2,opt,name=column_comment,json=columnComment,proto3" json:"column_comment,omitempty"` // 数据库字段注释
-	DbType        string                 `protobuf:"bytes,3,opt,name=db_type,json=dbType,proto3" json:"db_type,omitempty"`                      // 数据库字段类型
-	ColumnType    string                 `protobuf:"bytes,4,opt,name=column_type,json=columnType,proto3" json:"column_type,omitempty"`          // 数据库完整字段类型
-	IsPrimary     bool                   `protobuf:"varint,5,opt,name=is_primary,json=isPrimary,proto3" json:"is_primary,omitempty"`            // 是否主键
-	IsNullable    bool                   `protobuf:"varint,6,opt,name=is_nullable,json=isNullable,proto3" json:"is_nullable,omitempty"`         // 是否允许为空
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`                                // 数据库字段名
+	Comment       string                 `protobuf:"bytes,2,opt,name=comment,proto3" json:"comment,omitempty"`                          // 数据库字段注释
+	DbType        string                 `protobuf:"bytes,3,opt,name=db_type,json=dbType,proto3" json:"db_type,omitempty"`              // 数据库字段类型
+	ColumnType    string                 `protobuf:"bytes,4,opt,name=column_type,json=columnType,proto3" json:"column_type,omitempty"`  // 数据库完整字段类型
+	IsPrimary     bool                   `protobuf:"varint,5,opt,name=is_primary,json=isPrimary,proto3" json:"is_primary,omitempty"`    // 是否主键
+	IsNullable    bool                   `protobuf:"varint,6,opt,name=is_nullable,json=isNullable,proto3" json:"is_nullable,omitempty"` // 是否允许为空
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -302,16 +302,16 @@ func (*CodeGenDatabaseColumn) Descriptor() ([]byte, []int) {
 	return file_system_admin_v1_code_gen_column_proto_rawDescGZIP(), []int{5}
 }
 
-func (x *CodeGenDatabaseColumn) GetColumnName() string {
+func (x *CodeGenDatabaseColumn) GetName() string {
 	if x != nil {
-		return x.ColumnName
+		return x.Name
 	}
 	return ""
 }
 
-func (x *CodeGenDatabaseColumn) GetColumnComment() string {
+func (x *CodeGenDatabaseColumn) GetComment() string {
 	if x != nil {
-		return x.ColumnComment
+		return x.Comment
 	}
 	return ""
 }
@@ -349,8 +349,8 @@ type CodeGenColumn struct {
 	state           protoimpl.MessageState    `protogen:"open.v1"`
 	Id              int64                     `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                    // 主键ID
 	TableId         int64                     `protobuf:"varint,2,opt,name=table_id,json=tableId,proto3" json:"table_id,omitempty"`                           // 代码生成表配置ID
-	ColumnName      string                    `protobuf:"bytes,3,opt,name=column_name,json=columnName,proto3" json:"column_name,omitempty"`                   // 数据库字段名
-	ColumnComment   string                    `protobuf:"bytes,4,opt,name=column_comment,json=columnComment,proto3" json:"column_comment,omitempty"`          // 数据库字段注释
+	Name            string                    `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                                 // 数据库字段名
+	Comment         string                    `protobuf:"bytes,4,opt,name=comment,proto3" json:"comment,omitempty"`                                           // 数据库字段注释
 	DbType          string                    `protobuf:"bytes,5,opt,name=db_type,json=dbType,proto3" json:"db_type,omitempty"`                               // 数据库字段类型
 	DbLength        int32                     `protobuf:"varint,6,opt,name=db_length,json=dbLength,proto3" json:"db_length,omitempty"`                        // 数据库字段长度
 	DbScale         int32                     `protobuf:"varint,7,opt,name=db_scale,json=dbScale,proto3" json:"db_scale,omitempty"`                           // 数据库字段小数位
@@ -412,16 +412,16 @@ func (x *CodeGenColumn) GetTableId() int64 {
 	return 0
 }
 
-func (x *CodeGenColumn) GetColumnName() string {
+func (x *CodeGenColumn) GetName() string {
 	if x != nil {
-		return x.ColumnName
+		return x.Name
 	}
 	return ""
 }
 
-func (x *CodeGenColumn) GetColumnComment() string {
+func (x *CodeGenColumn) GetComment() string {
 	if x != nil {
-		return x.ColumnComment
+		return x.Comment
 	}
 	return ""
 }
@@ -845,24 +845,22 @@ const file_system_admin_v1_code_gen_column_proto_rawDesc = "" +
 	"\x18SaveCodeGenColumnRequest\x12\x95\x01\n" +
 	"\btable_id\x18\x01 \x01(\x03Bz\xbaG\x1a\x92\x02\x17代码生成表配置ID\xbaHZ\xba\x01W\n" +
 	"&save_code_gen_column.table_id.required\x12#代码生成表配置ID不能为空\x1a\bthis > 0R\atableId\x12n\n" +
-	"\x10code_gen_columns\x18\x02 \x03(\v2\x1e.system.admin.v1.CodeGenColumnB$\xbaG!\x92\x02\x1e代码生成字段配置列表R\x0ecodeGenColumns\"\xfe\x02\n" +
-	"\x15CodeGenDatabaseColumn\x129\n" +
-	"\vcolumn_name\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12数据库字段名R\n" +
-	"columnName\x12B\n" +
-	"\x0ecolumn_comment\x18\x02 \x01(\tB\x1b\xbaG\x18\x92\x02\x15数据库字段注释R\rcolumnComment\x124\n" +
+	"\x10code_gen_columns\x18\x02 \x03(\v2\x1e.system.admin.v1.CodeGenColumnB$\xbaG!\x92\x02\x1e代码生成字段配置列表R\x0ecodeGenColumns\"\xe4\x02\n" +
+	"\x15CodeGenDatabaseColumn\x12,\n" +
+	"\x04name\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12数据库字段名R\x04name\x125\n" +
+	"\acomment\x18\x02 \x01(\tB\x1b\xbaG\x18\x92\x02\x15数据库字段注释R\acomment\x124\n" +
 	"\adb_type\x18\x03 \x01(\tB\x1b\xbaG\x18\x92\x02\x15数据库字段类型R\x06dbType\x12B\n" +
 	"\vcolumn_type\x18\x04 \x01(\tB!\xbaG\x1e\x92\x02\x1b数据库完整字段类型R\n" +
 	"columnType\x121\n" +
 	"\n" +
 	"is_primary\x18\x05 \x01(\bB\x12\xbaG\x0f\x92\x02\f是否主键R\tisPrimary\x129\n" +
 	"\vis_nullable\x18\x06 \x01(\bB\x18\xbaG\x15\x92\x02\x12是否允许为空R\n" +
-	"isNullable\"\xb3\b\n" +
+	"isNullable\"\x99\b\n" +
 	"\rCodeGenColumn\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键IDR\x02id\x128\n" +
-	"\btable_id\x18\x02 \x01(\x03B\x1d\xbaG\x1a\x92\x02\x17代码生成表配置IDR\atableId\x129\n" +
-	"\vcolumn_name\x18\x03 \x01(\tB\x18\xbaG\x15\x92\x02\x12数据库字段名R\n" +
-	"columnName\x12B\n" +
-	"\x0ecolumn_comment\x18\x04 \x01(\tB\x1b\xbaG\x18\x92\x02\x15数据库字段注释R\rcolumnComment\x124\n" +
+	"\btable_id\x18\x02 \x01(\x03B\x1d\xbaG\x1a\x92\x02\x17代码生成表配置IDR\atableId\x12,\n" +
+	"\x04name\x18\x03 \x01(\tB\x18\xbaG\x15\x92\x02\x12数据库字段名R\x04name\x125\n" +
+	"\acomment\x18\x04 \x01(\tB\x1b\xbaG\x18\x92\x02\x15数据库字段注释R\acomment\x124\n" +
 	"\adb_type\x18\x05 \x01(\tB\x1b\xbaG\x18\x92\x02\x15数据库字段类型R\x06dbType\x128\n" +
 	"\tdb_length\x18\x06 \x01(\x05B\x1b\xbaG\x18\x92\x02\x15数据库字段长度R\bdbLength\x129\n" +
 	"\bdb_scale\x18\a \x01(\x05B\x1e\xbaG\x1b\x92\x02\x18数据库字段小数位R\adbScale\x121\n" +
