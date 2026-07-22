@@ -233,7 +233,8 @@ const behaviorCaptchaData = reactive<BehaviorCaptchaData>({
   image: "",
   thumb: ""
 });
-const currentCaptchaType = computed(() => configStore.captcha.type || "digit");
+const configuredCaptchaType = computed(() => configStore.captcha.type || "digit");
+const currentCaptchaType = ref(configuredCaptchaType.value);
 const isBehaviorCaptcha = computed(() => behaviorCaptchaTypeSet.has(currentCaptchaType.value));
 const behaviorCaptchaDisplayWidth = 340;
 const rotateCaptchaDisplaySize = 300;
@@ -431,7 +432,12 @@ const consumeOauthTicket = async () => {
 
 /** 获取验证码 */
 const getCaptcha = async () => {
-  const data = await defLoginService.Captcha({ type: currentCaptchaType.value });
+  const requestedCaptchaType = configuredCaptchaType.value;
+  const data = await defLoginService.Captcha({ type: requestedCaptchaType });
+  currentCaptchaType.value = data.type || requestedCaptchaType;
+  if (!isBehaviorCaptcha.value) {
+    behaviorDialogVisible.value = false;
+  }
   loginForm.captcha_id = data.captcha_id;
   loginForm.captcha_code = "";
   captchaImageWidth.value = `${defaultCaptchaImageWidth}px`;

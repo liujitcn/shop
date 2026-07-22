@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math/rand/v2"
 	"time"
 
 	"shop/pkg/biz"
@@ -30,6 +31,17 @@ const loginCaptchaTokenKeyPrefix = "login_captcha_token"
 const loginCaptchaTypeKeyPrefix = "login_captcha_type"
 const refreshTokenAuthKeyPrefix = "refresh_token_auth"
 const loginCaptchaTokenExpire = 2 * time.Minute
+const loginCaptchaRandomType = "random"
+
+var supportedCaptchaDriverTypes = [...]captcha.DriverType{
+	captcha.DriverDigit,
+	captcha.DriverString,
+	captcha.DriverMath,
+	captcha.DriverChinese,
+	captcha.DriverSlide,
+	captcha.DriverClick,
+	captcha.DriverRotate,
+}
 
 // LoginCase 处理基础登录认证业务。
 type LoginCase struct {
@@ -82,6 +94,7 @@ func (c *LoginCase) Captcha(ctx context.Context, req *basev1.CaptchaRequest) (*b
 	return &basev1.CaptchaResponse{
 		CaptchaId:     challenge.ID,
 		CaptchaBase64: challenge.Payload,
+		Type:          string(driverType),
 	}, nil
 }
 
@@ -391,6 +404,8 @@ func captchaDriverType(captchaType string) (captcha.DriverType, bool) {
 		return captcha.DriverClick, true
 	case string(captcha.DriverRotate):
 		return captcha.DriverRotate, true
+	case loginCaptchaRandomType:
+		return supportedCaptchaDriverTypes[rand.IntN(len(supportedCaptchaDriverTypes))], true
 	default:
 		return captcha.DriverDigit, false
 	}

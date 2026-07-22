@@ -59,7 +59,7 @@ service LoginService {
 
 // 验证码获取条件
 message CaptchaRequest {
-  string type = 1 [(gnostic.openapi.v3.property) = {description: "验证码类型"}]; // 验证码类型
+  string type = 1 [(gnostic.openapi.v3.property) = {description: "验证码类型，random 表示随机选择当前支持的验证码类型"}]; // 验证码类型，random 表示随机选择当前支持的验证码类型
 }
 
 // 密码临时公钥获取条件
@@ -75,6 +75,8 @@ message CaptchaResponse {
   string captcha_id = 1 [(gnostic.openapi.v3.property) = {description: "验证码ID"}]; // 验证码ID。
 
   string captcha_base64 = 2 [(gnostic.openapi.v3.property) = {description: "验证码base64"}]; // 验证码base64
+
+  string type = 3 [(gnostic.openapi.v3.property) = {description: "本次验证码实际类型"}]; // 本次验证码实际类型
 }
 
 // 验证码预校验请求

@@ -7547,6 +7547,9 @@ components:
                 captcha_base64:
                     type: string
                     description: 验证码base64
+                type:
+                    type: string
+                    description: 本次验证码实际类型
             description: 验证码响应
         base.v1.ConfigItem:
             type: object

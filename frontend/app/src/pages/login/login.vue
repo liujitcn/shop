@@ -106,7 +106,8 @@ type BehaviorCaptchaData = {
   angle?: number
 }
 const behaviorCaptchaTypeSet = new Set(['slide', 'click', 'rotate'])
-const currentCaptchaType = computed(() => settingStore.getData('captchaType') || 'digit')
+const configuredCaptchaType = computed(() => settingStore.getData('captchaType') || 'digit')
+const currentCaptchaType = ref(configuredCaptchaType.value)
 const isBehaviorCaptcha = computed(() => behaviorCaptchaTypeSet.has(currentCaptchaType.value))
 const behaviorCaptchaData = reactive<BehaviorCaptchaData>({
   image: '',
@@ -195,7 +196,12 @@ const behaviorCaptchaTheme = {
 }
 // 获取验证码
 const getCaptcha = async () => {
-  const data = await defLoginService.Captcha({ type: currentCaptchaType.value })
+  const requestedCaptchaType = configuredCaptchaType.value
+  const data = await defLoginService.Captcha({ type: requestedCaptchaType })
+  currentCaptchaType.value = data.type || requestedCaptchaType
+  if (!isBehaviorCaptcha.value) {
+    behaviorDialogVisible.value = false
+  }
   form.value.captcha_id = data.captcha_id
   form.value.captcha_code = ''
   captchaImageWidth.value = `${defaultCaptchaImageWidth}rpx`
@@ -429,6 +435,7 @@ onLoad(async () => {
   if (!settingStore.getData('captchaType')) {
     await settingStore.loadData()
   }
+  currentCaptchaType.value = configuredCaptchaType.value
   await loadPageCaptcha()
   // #endif
 })

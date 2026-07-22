@@ -11,7 +11,7 @@ import type { Empty } from "../../google/protobuf/empty";
 
 /** 验证码获取条件 */
 export interface CaptchaRequest {
-  /** 验证码类型 */
+  /** 验证码类型，random 表示随机选择当前支持的验证码类型 */
   type: string;
 }
 
@@ -31,6 +31,8 @@ export interface CaptchaResponse {
   captcha_id: string;
   /** 验证码base64 */
   captcha_base64: string;
+  /** 本次验证码实际类型 */
+  type: string;
 }
 
 /** 验证码预校验请求 */

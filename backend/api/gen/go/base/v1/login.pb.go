@@ -30,7 +30,7 @@ const (
 // 验证码获取条件
 type CaptchaRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Type          string                 `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"` // 验证码类型
+	Type          string                 `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"` // 验证码类型，random 表示随机选择当前支持的验证码类型
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -159,6 +159,7 @@ type CaptchaResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	CaptchaId     string                 `protobuf:"bytes,1,opt,name=captcha_id,json=captchaId,proto3" json:"captcha_id,omitempty"`             // 验证码ID。
 	CaptchaBase64 string                 `protobuf:"bytes,2,opt,name=captcha_base64,json=captchaBase64,proto3" json:"captcha_base64,omitempty"` // 验证码base64
+	Type          string                 `protobuf:"bytes,3,opt,name=type,proto3" json:"type,omitempty"`                                        // 本次验证码实际类型
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -203,6 +204,13 @@ func (x *CaptchaResponse) GetCaptchaId() string {
 func (x *CaptchaResponse) GetCaptchaBase64() string {
 	if x != nil {
 		return x.CaptchaBase64
+	}
+	return ""
+}
+
+func (x *CaptchaResponse) GetType() string {
+	if x != nil {
+		return x.Type
 	}
 	return ""
 }
@@ -654,16 +662,17 @@ var File_base_v1_login_proto protoreflect.FileDescriptor
 
 const file_base_v1_login_proto_rawDesc = "" +
 	"\n" +
-	"\x13base/v1/login.proto\x12\abase.v1\x1a\x14common/v1/enum.proto\x1a\x15common/v1/types.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\";\n" +
-	"\x0eCaptchaRequest\x12)\n" +
-	"\x04type\x18\x01 \x01(\tB\x15\xbaG\x12\x92\x02\x0f验证码类型R\x04type\"d\n" +
+	"\x13base/v1/login.proto\x12\abase.v1\x1a\x14common/v1/enum.proto\x1a\x15common/v1/types.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"u\n" +
+	"\x0eCaptchaRequest\x12c\n" +
+	"\x04type\x18\x01 \x01(\tBO\xbaGL\x92\x02I验证码类型，random 表示随机选择当前支持的验证码类型R\x04type\"d\n" +
 	"\x18PasswordPublicKeyRequest\x12H\n" +
 	"\x05scene\x18\x01 \x01(\x0e2\x1e.common.v1.PasswordCryptoSceneB\x12\xbaG\x0f\x92\x02\f使用场景R\x05scene\"\x0f\n" +
-	"\rLogoutRequest\"\x81\x01\n" +
+	"\rLogoutRequest\"\xb8\x01\n" +
 	"\x0fCaptchaResponse\x120\n" +
 	"\n" +
 	"captcha_id\x18\x01 \x01(\tB\x11\xbaG\x0e\x92\x02\v验证码IDR\tcaptchaId\x12<\n" +
-	"\x0ecaptcha_base64\x18\x02 \x01(\tB\x15\xbaG\x12\x92\x02\x0f验证码base64R\rcaptchaBase64\"\xaa\x02\n" +
+	"\x0ecaptcha_base64\x18\x02 \x01(\tB\x15\xbaG\x12\x92\x02\x0f验证码base64R\rcaptchaBase64\x125\n" +
+	"\x04type\x18\x03 \x01(\tB!\xbaG\x1e\x92\x02\x1b本次验证码实际类型R\x04type\"\xaa\x02\n" +
 	"\x14VerifyCaptchaRequest\x12\x82\x01\n" +
 	"\n" +
 	"captcha_id\x18\x01 \x01(\tBc\xbaG\x0e\x92\x02\v验证码ID\xbaHO\xba\x01L\n" +
