@@ -247,7 +247,7 @@
             <el-button
               type="primary"
               text
-              :icon="Document"
+              :icon="DocumentChecked"
               :disabled="!canEdit"
               aria-label="保存并关闭"
               @click="handleSaveOptionDialog"
@@ -459,7 +459,7 @@
 <script setup lang="ts">
 import Sortable from "sortablejs";
 import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from "vue";
-import { Delete, Document, List, Plus, Setting } from "@element-plus/icons-vue";
+import { Delete, Document, DocumentChecked, List, Plus, Setting } from "@element-plus/icons-vue";
 import { useRoute, useRouter } from "vue-router";
 import ProDialog from "@/components/Dialog/ProDialog.vue";
 import { useAuthButtons } from "@/hooks/useAuthButtons";

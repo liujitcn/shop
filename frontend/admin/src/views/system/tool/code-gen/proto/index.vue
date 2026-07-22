@@ -68,7 +68,7 @@
             <el-button
               type="primary"
               text
-              :icon="Document"
+              :icon="DocumentChecked"
               :disabled="!canEdit"
               aria-label="保存并关闭"
               @click="handleSaveProtoConfigDialog"
@@ -89,7 +89,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref, watch } from "vue";
-import { Document, Setting } from "@element-plus/icons-vue";
+import { Document, DocumentChecked, Setting } from "@element-plus/icons-vue";
 import { useRoute, useRouter } from "vue-router";
 import ProDialog from "@/components/Dialog/ProDialog.vue";
 import ProForm from "@/components/ProForm/index.vue";
