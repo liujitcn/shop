@@ -84,10 +84,6 @@ export interface PreviewCodeGenResponse {
 export interface StartCodeGenTaskRequest {
   /** 代码生成表配置ID列表 */
   table_ids: number[];
-  /** 是否执行生成命令 */
-  run_commands: boolean;
-  /** 单项任务本次输出路径 */
-  output_paths: CodeGenOutputPaths | undefined;
 }
 
 /** 启动代码生成任务响应 */

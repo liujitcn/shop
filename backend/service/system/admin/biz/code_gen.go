@@ -139,7 +139,7 @@ func (c *CodeGenCase) StartCodeGenTask(ctx context.Context, req *systemadminv1.S
 		return nil, err
 	}
 	var batch *codeGenBatchContext
-	batch, err = c.prepareCodeGenBatch(ctx, req.GetTableIds(), req.GetOutputPaths())
+	batch, err = c.prepareCodeGenBatch(ctx, req.GetTableIds())
 	if err != nil {
 		return nil, err
 	}
@@ -154,14 +154,14 @@ func (c *CodeGenCase) StartCodeGenTask(ctx context.Context, req *systemadminv1.S
 			TableName: generation.Table.TableName_,
 			Status:    systemadminv1.CodeGenTaskStatus_CODE_GEN_TASK_STATUS_PENDING,
 			Message:   "等待执行",
-			Steps:     codegen.BuildProgressSteps(generation.Files, codegen.ShouldSyncMenus(generation.Table, generation.GeneratedMethods), req.GetRunCommands() && generation.Table.GenBackend == 1),
+			Steps:     codegen.BuildProgressSteps(generation.Files, codegen.ShouldSyncMenus(generation.Table, generation.GeneratedMethods), generation.Table.GenBackend == 1),
 		})
 	}
 	task, created := c.progressManager.Create(authInfo.UserId, tables)
 	if !created {
 		return nil, errorsx.StateConflict("已有代码生成任务正在执行", "code_gen_task", "running", "completed")
 	}
-	go c.runCodeGenTask(context.WithoutCancel(ctx), task.GetTaskId(), req.GetTableIds(), req.GetRunCommands(), req.GetOutputPaths())
+	go c.runCodeGenTask(context.WithoutCancel(ctx), task.GetTaskId(), req.GetTableIds())
 	return &systemadminv1.StartCodeGenTaskResponse{TaskId: task.GetTaskId()}, nil
 }
 
@@ -170,15 +170,13 @@ func (c *CodeGenCase) runCodeGenTask(
 	ctx context.Context,
 	taskID string,
 	tableIDs []int64,
-	runCommands bool,
-	requestedPaths *systemadminv1.CodeGenOutputPaths,
 ) {
 	// 文件、生成产物和格式化都会改写共享工作树，整批任务必须串行执行。
 	codeGenGenerationProcessLock.Lock()
 	defer codeGenGenerationProcessLock.Unlock()
 	c.progressManager.MarkTaskRunning(ctx, taskID)
 
-	batch, err := c.prepareCodeGenBatch(ctx, tableIDs, requestedPaths)
+	batch, err := c.prepareCodeGenBatch(ctx, tableIDs)
 	if err != nil {
 		c.failCodeGenTask(ctx, taskID, tableIDs, err)
 		return
@@ -193,7 +191,7 @@ func (c *CodeGenCase) runCodeGenTask(
 		reporter := &codeGenProgressReporter{manager: c.progressManager, taskID: taskID, tableID: tableID}
 		reporters[tableID] = reporter
 		c.progressManager.MarkTableRunning(ctx, taskID, tableID)
-		c.progressManager.RegisterSteps(ctx, taskID, tableID, codegen.BuildProgressSteps(generation.Files, codegen.ShouldSyncMenus(generation.Table, generation.GeneratedMethods), runCommands && generation.Table.GenBackend == 1))
+		c.progressManager.RegisterSteps(ctx, taskID, tableID, codegen.BuildProgressSteps(generation.Files, codegen.ShouldSyncMenus(generation.Table, generation.GeneratedMethods), generation.Table.GenBackend == 1))
 	}
 	workflowCtx, cancelWorkflow := context.WithTimeout(context.WithoutCancel(ctx), codegen.WorkflowTimeout)
 	defer cancelWorkflow()
@@ -232,7 +230,7 @@ func (c *CodeGenCase) runCodeGenTask(
 	for _, tableID := range tableIDs {
 		generation := batch.plan.GenerationForTable(tableID)
 		reporter := reporters[tableID]
-		if runCommands && generation.Table.GenBackend == 1 {
+		if generation.Table.GenBackend == 1 {
 			commandTargets = append(commandTargets, codeGenCommandTarget{tableID: tableID, tableName: generation.Table.TableName_, progress: reporter})
 			continue
 		}
@@ -273,7 +271,7 @@ func (c *CodeGenCase) runCodeGenTask(
 }
 
 // prepareCodeGenBatch 加载并校验整批生成快照，所有文件冲突均在写入前返回。
-func (c *CodeGenCase) prepareCodeGenBatch(ctx context.Context, tableIDs []int64, requestedPaths *systemadminv1.CodeGenOutputPaths) (*codeGenBatchContext, error) {
+func (c *CodeGenCase) prepareCodeGenBatch(ctx context.Context, tableIDs []int64) (*codeGenBatchContext, error) {
 	inputs := make([]codegen.BatchGenerationInput, 0, len(tableIDs))
 	columnsByTable := make(map[int64][]*codegen.CodeGenColumn, len(tableIDs))
 	tableIDSet := make(map[int64]struct{}, len(tableIDs))
@@ -297,11 +295,10 @@ func (c *CodeGenCase) prepareCodeGenBatch(ctx context.Context, tableIDs []int64,
 			return nil, errorsx.InvalidArgument("业务表名只能包含小写字母、数字和下划线，且必须以字母开头")
 		}
 		inputs = append(inputs, codegen.BatchGenerationInput{
-			Table:          table,
-			Columns:        columns,
-			Methods:        protos,
-			RequestedPaths: requestedPaths,
-			TableComment:   table.TableComment,
+			Table:        table,
+			Columns:      columns,
+			Methods:      protos,
+			TableComment: table.TableComment,
 		})
 		columnsByTable[tableID] = columns
 	}

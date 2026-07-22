@@ -496,9 +496,7 @@ async function handleGenerate(selected: CodeGenGenerateTarget) {
   generating.value = true;
   try {
     const data = await defCodeGenService.StartCodeGenTask({
-      table_ids: tables.map(table => table.id),
-      run_commands: true,
-      output_paths: undefined
+      table_ids: tables.map(table => table.id)
     });
     progressTaskId.value = data.task_id;
     progressTaskAvailable.value = true;

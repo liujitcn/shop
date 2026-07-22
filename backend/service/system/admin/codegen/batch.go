@@ -6,8 +6,6 @@ import (
 	"regexp"
 	"slices"
 	"strings"
-
-	systemadminv1 "shop/api/gen/go/system/admin/v1"
 )
 
 // BatchGenerationInput 描述批量生成中单个表的只读生成快照。
@@ -18,8 +16,6 @@ type BatchGenerationInput struct {
 	Columns []*CodeGenColumn
 	// Methods 是已保存的接口生成选项快照。
 	Methods []*Proto
-	// RequestedPaths 是单表自定义输出路径。
-	RequestedPaths *systemadminv1.CodeGenOutputPaths
 	// TableComment 是数据库表注释。
 	TableComment string
 }
@@ -78,7 +74,7 @@ func PrepareBatchGeneration(inputs []BatchGenerationInput) (*BatchGeneration, er
 
 	initialGenerations := make([]*Generation, 0, len(orderedInputs))
 	for _, input := range orderedInputs {
-		generation, err := PrepareGeneration(input.Table, input.Columns, input.Methods, input.RequestedPaths, input.TableComment)
+		generation, err := PrepareGeneration(input.Table, input.Columns, input.Methods, nil, input.TableComment)
 		if err != nil {
 			return nil, err
 		}
@@ -98,7 +94,7 @@ func PrepareBatchGeneration(inputs []BatchGenerationInput) (*BatchGeneration, er
 	batch := &BatchGeneration{Generations: make([]*Generation, 0, len(orderedInputs))}
 	filesByPath := make(map[string]*BatchFile)
 	for _, input := range orderedInputs {
-		generation, err := prepareGenerationWithRenderer(input.Table, input.Columns, input.Methods, input.RequestedPaths, &renderer{
+		generation, err := prepareGenerationWithRenderer(input.Table, input.Columns, input.Methods, nil, &renderer{
 			tableComment: input.TableComment,
 			readFile:     overlay.readFile,
 		})

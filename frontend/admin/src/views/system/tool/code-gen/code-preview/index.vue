@@ -132,9 +132,7 @@ async function handleGenerate() {
   generating.value = true;
   try {
     const data = await defCodeGenService.StartCodeGenTask({
-      table_ids: [table.value.id],
-      run_commands: true,
-      output_paths: undefined
+      table_ids: [table.value.id]
     });
     progressTaskId.value = data.task_id;
     progressTaskAvailable.value = true;

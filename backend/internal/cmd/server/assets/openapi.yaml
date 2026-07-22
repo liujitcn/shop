@@ -15799,11 +15799,6 @@ components:
                     items:
                         type: string
                     description: 代码生成表配置ID列表
-                run_commands:
-                    type: boolean
-                    description: 是否执行生成命令
-                output_paths:
-                    $ref: '#/components/schemas/system.admin.v1.CodeGenOutputPaths'
             description: 启动代码生成任务条件
         system.admin.v1.StartCodeGenTaskResponse:
             type: object

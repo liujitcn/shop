@@ -403,9 +403,7 @@ func (x *PreviewCodeGenResponse) GetOutputPaths() *CodeGenOutputPaths {
 // 启动代码生成任务条件
 type StartCodeGenTaskRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	TableIds      []int64                `protobuf:"varint,1,rep,packed,name=table_ids,json=tableIds,proto3" json:"table_ids,omitempty"`   // 代码生成表配置ID列表
-	RunCommands   bool                   `protobuf:"varint,2,opt,name=run_commands,json=runCommands,proto3" json:"run_commands,omitempty"` // 是否执行生成命令
-	OutputPaths   *CodeGenOutputPaths    `protobuf:"bytes,3,opt,name=output_paths,json=outputPaths,proto3" json:"output_paths,omitempty"`  // 单项任务本次输出路径
+	TableIds      []int64                `protobuf:"varint,1,rep,packed,name=table_ids,json=tableIds,proto3" json:"table_ids,omitempty"` // 代码生成表配置ID列表
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -443,20 +441,6 @@ func (*StartCodeGenTaskRequest) Descriptor() ([]byte, []int) {
 func (x *StartCodeGenTaskRequest) GetTableIds() []int64 {
 	if x != nil {
 		return x.TableIds
-	}
-	return nil
-}
-
-func (x *StartCodeGenTaskRequest) GetRunCommands() bool {
-	if x != nil {
-		return x.RunCommands
-	}
-	return false
-}
-
-func (x *StartCodeGenTaskRequest) GetOutputPaths() *CodeGenOutputPaths {
-	if x != nil {
-		return x.OutputPaths
 	}
 	return nil
 }
@@ -873,13 +857,10 @@ const file_system_admin_v1_code_gen_proto_rawDesc = "" +
 	"\foutput_paths\x18\x02 \x01(\v2#.system.admin.v1.CodeGenOutputPathsB\x1e\xbaG\x1b\x92\x02\x18本次生成输出路径R\voutputPaths\"\xd5\x01\n" +
 	"\x16PreviewCodeGenResponse\x12S\n" +
 	"\x05files\x18\x01 \x03(\v2#.system.admin.v1.CodeGenPreviewFileB\x18\xbaG\x15\x92\x02\x12预览文件列表R\x05files\x12f\n" +
-	"\foutput_paths\x18\x02 \x01(\v2#.system.admin.v1.CodeGenOutputPathsB\x1e\xbaG\x1b\x92\x02\x18本次生效输出路径R\voutputPaths\"\xa1\x04\n" +
+	"\foutput_paths\x18\x02 \x01(\v2#.system.admin.v1.CodeGenOutputPathsB\x1e\xbaG\x1b\x92\x02\x18本次生效输出路径R\voutputPaths\"\xd3\x01\n" +
 	"\x17StartCodeGenTaskRequest\x12\xb7\x01\n" +
 	"\ttable_ids\x18\x01 \x03(\x03B\x99\x01\xbaG \x92\x02\x1d代码生成表配置ID列表\xbaHs\xba\x01i\n" +
-	"&start_code_gen_task.table_ids.positive\x12%代码生成表配置ID必须大于 0\x1a\x18this.all(item, item > 0)\x92\x01\x04\b\x01\x18\x01R\btableIds\x12A\n" +
-	"\frun_commands\x18\x02 \x01(\bB\x1e\xbaG\x1b\x92\x02\x18是否执行生成命令R\vrunCommands\x12l\n" +
-	"\foutput_paths\x18\x03 \x01(\v2#.system.admin.v1.CodeGenOutputPathsB$\xbaG!\x92\x02\x1e单项任务本次输出路径R\voutputPaths:\x9a\x01\xbaH\x96\x01\x1a\x93\x01\n" +
-	",start_code_gen_task.output_paths.single_only\x12*批量生成不支持自定义输出路径\x1a7this.table_ids.size() <= 1 || this.output_paths == null\"I\n" +
+	"&start_code_gen_task.table_ids.positive\x12%代码生成表配置ID必须大于 0\x1a\x18this.all(item, item > 0)\x92\x01\x04\b\x01\x18\x01R\btableIds\"I\n" +
 	"\x18StartCodeGenTaskResponse\x12-\n" +
 	"\atask_id\x18\x01 \x01(\tB\x14\xbaG\x11\x92\x02\x0e生成任务IDR\x06taskId\"\xdf\x02\n" +
 	"\x0fCodeGenTaskStep\x12\x1e\n" +
@@ -965,21 +946,20 @@ var file_system_admin_v1_code_gen_proto_depIdxs = []int32{
 	11, // 2: system.admin.v1.PreviewCodeGenRequest.output_paths:type_name -> system.admin.v1.CodeGenOutputPaths
 	10, // 3: system.admin.v1.PreviewCodeGenResponse.files:type_name -> system.admin.v1.CodeGenPreviewFile
 	11, // 4: system.admin.v1.PreviewCodeGenResponse.output_paths:type_name -> system.admin.v1.CodeGenOutputPaths
-	11, // 5: system.admin.v1.StartCodeGenTaskRequest.output_paths:type_name -> system.admin.v1.CodeGenOutputPaths
-	1,  // 6: system.admin.v1.CodeGenTaskStep.status:type_name -> system.admin.v1.CodeGenTaskStepStatus
-	0,  // 7: system.admin.v1.CodeGenTaskTable.status:type_name -> system.admin.v1.CodeGenTaskStatus
-	8,  // 8: system.admin.v1.CodeGenTaskTable.steps:type_name -> system.admin.v1.CodeGenTaskStep
-	2,  // 9: system.admin.v1.CodeGenService.GetCodeGenTask:input_type -> system.admin.v1.GetCodeGenTaskRequest
-	4,  // 10: system.admin.v1.CodeGenService.PreviewCodeGen:input_type -> system.admin.v1.PreviewCodeGenRequest
-	6,  // 11: system.admin.v1.CodeGenService.StartCodeGenTask:input_type -> system.admin.v1.StartCodeGenTaskRequest
-	3,  // 12: system.admin.v1.CodeGenService.GetCodeGenTask:output_type -> system.admin.v1.CodeGenTask
-	5,  // 13: system.admin.v1.CodeGenService.PreviewCodeGen:output_type -> system.admin.v1.PreviewCodeGenResponse
-	7,  // 14: system.admin.v1.CodeGenService.StartCodeGenTask:output_type -> system.admin.v1.StartCodeGenTaskResponse
-	12, // [12:15] is the sub-list for method output_type
-	9,  // [9:12] is the sub-list for method input_type
-	9,  // [9:9] is the sub-list for extension type_name
-	9,  // [9:9] is the sub-list for extension extendee
-	0,  // [0:9] is the sub-list for field type_name
+	1,  // 5: system.admin.v1.CodeGenTaskStep.status:type_name -> system.admin.v1.CodeGenTaskStepStatus
+	0,  // 6: system.admin.v1.CodeGenTaskTable.status:type_name -> system.admin.v1.CodeGenTaskStatus
+	8,  // 7: system.admin.v1.CodeGenTaskTable.steps:type_name -> system.admin.v1.CodeGenTaskStep
+	2,  // 8: system.admin.v1.CodeGenService.GetCodeGenTask:input_type -> system.admin.v1.GetCodeGenTaskRequest
+	4,  // 9: system.admin.v1.CodeGenService.PreviewCodeGen:input_type -> system.admin.v1.PreviewCodeGenRequest
+	6,  // 10: system.admin.v1.CodeGenService.StartCodeGenTask:input_type -> system.admin.v1.StartCodeGenTaskRequest
+	3,  // 11: system.admin.v1.CodeGenService.GetCodeGenTask:output_type -> system.admin.v1.CodeGenTask
+	5,  // 12: system.admin.v1.CodeGenService.PreviewCodeGen:output_type -> system.admin.v1.PreviewCodeGenResponse
+	7,  // 13: system.admin.v1.CodeGenService.StartCodeGenTask:output_type -> system.admin.v1.StartCodeGenTaskResponse
+	11, // [11:14] is the sub-list for method output_type
+	8,  // [8:11] is the sub-list for method input_type
+	8,  // [8:8] is the sub-list for extension type_name
+	8,  // [8:8] is the sub-list for extension extendee
+	0,  // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_system_admin_v1_code_gen_proto_init() }
