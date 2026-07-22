@@ -130,11 +130,11 @@ message ShopService {
 message ShopServiceForm {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "服务ID"}]; // 服务ID
 
-  string label = 2 [(gnostic.openapi.v3.property) = {description: "标签"}]; // 标签
+  string label = 2 [(gnostic.openapi.v3.property) = {description: "标签"}, (buf.validate.field).cel = {id: "shop_service.label.required" message: "标签不能为空" expression: "this.size() > 0"}, (buf.validate.field).cel = {id: "shop_service.label.max_len" message: "标签不能超过 50 个字符" expression: "this.size() <= 50"}]; // 标签
 
-  string value = 3 [(gnostic.openapi.v3.property) = {description: "值"}]; // 值
+  string value = 3 [(gnostic.openapi.v3.property) = {description: "值"}, (buf.validate.field).cel = {id: "shop_service.value.required" message: "值不能为空" expression: "this.size() > 0"}, (buf.validate.field).cel = {id: "shop_service.value.max_len" message: "值不能超过 500 个字符" expression: "this.size() <= 500"}]; // 值
 
-  int32 sort = 4 [(gnostic.openapi.v3.property) = {description: "排序"}]; // 排序
+  int32 sort = 4 [(gnostic.openapi.v3.property) = {description: "排序"}, (buf.validate.field).cel = {id: "shop_service.sort.required" message: "排序必须大于 0" expression: "this > 0"}]; // 排序
 
   .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态：枚举【Status】"}, (buf.validate.field).enum = {defined_only: true}]; // 状态：枚举【Status】
 }

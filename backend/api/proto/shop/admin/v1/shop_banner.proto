@@ -139,11 +139,11 @@ message ShopBannerForm {
 
   .shop.common.v1.ShopBannerSite site = 2 [(gnostic.openapi.v3.property) = {description: "位置：枚举【ShopBannerSite】"}, (buf.validate.field).enum = {defined_only: true}]; // 位置：枚举【ShopBannerSite】
 
-  string picture = 3 [(gnostic.openapi.v3.property) = {description: "图片链接"}, (buf.validate.field).cel = {id: "shop_banner.picture.length" message: "图片链接不能为空且不超过 1024 个字符" expression: "this.size() > 0 && this.size() <= 1024"}]; // 图片链接
+  string picture = 3 [(gnostic.openapi.v3.property) = {description: "图片链接"}, (buf.validate.field).cel = {id: "shop_banner.picture.required" message: "请选择上传图片" expression: "this.size() > 0"}, (buf.validate.field).cel = {id: "shop_banner.picture.max_len" message: "图片链接不能超过 1024 个字符" expression: "this.size() <= 1024"}]; // 图片链接
 
   .shop.common.v1.ShopBannerType type = 4 [(gnostic.openapi.v3.property) = {description: "跳转类型：枚举【ShopBannerType】"}, (buf.validate.field).enum = {defined_only: true}]; // 跳转类型：枚举【ShopBannerType】
 
-  string href = 5 [(gnostic.openapi.v3.property) = {description: "跳转地址"}, (buf.validate.field).cel = {id: "shop_banner.href.length" message: "跳转地址不能为空且不超过 1024 个字符" expression: "this.size() > 0 && this.size() <= 1024"}]; // 跳转地址
+  string href = 5 [(gnostic.openapi.v3.property) = {description: "跳转地址"}, (buf.validate.field).cel = {id: "shop_banner.href.required" message: "跳转地址不能为空" expression: "this.size() > 0"}, (buf.validate.field).cel = {id: "shop_banner.href.max_len" message: "跳转地址不能超过 1024 个字符" expression: "this.size() <= 1024"}]; // 跳转地址
 
   int32 sort = 6 [(gnostic.openapi.v3.property) = {description: "排序"}, (buf.validate.field).cel = {id: "shop_banner.sort.required" message: "排序必须大于 0" expression: "this > 0"}]; // 排序
 

@@ -868,31 +868,33 @@ const file_system_admin_v1_base_user_proto_rawDesc = "" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
 	"\n" +
 	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x12N\n" +
-	"\fis_protected\x18\xac\x02 \x01(\bB*\xbaG'\x92\x02$是否禁止通过用户管理操作R\visProtected\"\xff\t\n" +
+	"\fis_protected\x18\xac\x02 \x01(\bB*\xbaG'\x92\x02$是否禁止通过用户管理操作R\visProtected\"\xbf\v\n" +
 	"\fBaseUserForm\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b用户IDR\x02id\x12s\n" +
 	"\ttenant_id\x18\x02 \x01(\x03BV\xbaG\v\x92\x02\b租户ID\xbaHE\xba\x01B\n" +
 	"\x1cbase_user.tenant_id.required\x12\x18所属租户不能为空\x1a\bthis > 0R\btenantId\x12\xab\x01\n" +
 	"\tuser_name\x18\x03 \x01(\tB\x8d\x01\xbaG\x0f\x92\x02\f用户账号\xbaHx\xba\x01u\n" +
-	"\x1abase_user.user_name.length\x121用户账号不能为空且不超过 50 个字符\x1a$this.size() > 0 && this.size() <= 50R\buserName\x12\x8c\x01\n" +
-	"\tnick_name\x18\x04 \x01(\tBo\xbaG\x0f\x92\x02\f用户昵称\xbaHZ\xba\x01W\n" +
+	"\x1abase_user.user_name.length\x121用户账号不能为空且不超过 50 个字符\x1a$this.size() > 0 && this.size() <= 50R\buserName\x12\xda\x01\n" +
+	"\tnick_name\x18\x04 \x01(\tB\xbc\x01\xbaG\x0f\x92\x02\f用户昵称\xbaH\xa6\x01\xba\x01I\n" +
+	"\x1cbase_user.nick_name.required\x12\x18用户昵称不能为空\x1a\x0fthis.size() > 0\xba\x01W\n" +
 	"\x1bbase_user.nick_name.max_len\x12%用户昵称不能超过 30 个字符\x1a\x11this.size() <= 30R\bnickName\x12g\n" +
 	"\arole_id\x18\x05 \x01(\x03BN\xbaG\v\x92\x02\b角色ID\xbaH=\xba\x01:\n" +
 	"\x1abase_user.role_id.required\x12\x12角色不能为空\x1a\bthis > 0R\x06roleId\x12g\n" +
 	"\adept_id\x18\x06 \x01(\x03BN\xbaG\v\x92\x02\b部门ID\xbaH=\xba\x01:\n" +
-	"\x1abase_user.dept_id.required\x12\x12部门不能为空\x1a\bthis > 0R\x06deptId\x12{\n" +
-	"\x05phone\x18\a \x01(\tBe\xbaG\f\x92\x02\t手机号\xbaHS\xba\x01P\n" +
-	"\x17base_user.phone.max_len\x12\"手机号不能超过 20 个字符\x1a\x11this.size() <= 20R\x05phone\x12|\n" +
+	"\x1abase_user.dept_id.required\x12\x12部门不能为空\x1a\bthis > 0R\x06deptId\x12\xec\x01\n" +
+	"\x05phone\x18\a \x01(\tB\xd5\x01\xbaG\f\x92\x02\t手机号\xbaH\xc2\x01\xba\x01P\n" +
+	"\x17base_user.phone.max_len\x12\"手机号不能超过 20 个字符\x1a\x11this.size() <= 20\xba\x01l\n" +
+	"\x16base_user.phone.format\x12\x1e请输入正确的手机号码\x1a2this.size() == 0 || this.matches('^1[3-9]\\\\d{9}$')R\x05phone\x12|\n" +
 	"\x06avatar\x18\b \x01(\tBd\xbaG\t\x92\x02\x06头像\xbaHU\xba\x01R\n" +
 	"\x18base_user.avatar.max_len\x12!头像不能超过 1024 个字符\x1a\x13this.size() <= 1024R\x06avatar\x12N\n" +
 	"\x06gender\x18\t \x01(\x0e2 .system.common.v1.BaseUserGenderB\x14\xbaG\t\x92\x02\x06性别\xbaH\x05\x82\x01\x02\x10\x01R\x06gender\x12:\n" +
 	"\x03pwd\x18\xac\x02 \x01(\v2\x19.common.v1.PasswordCryptoB\f\xbaG\t\x92\x02\x06密码R\x03pwd\x12E\n" +
 	"\x06status\x18e \x01(\x0e2\x11.common.v1.StatusB\x1a\xbaG\x0f\x92\x02\f用户状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\x12}\n" +
 	"\x06remark\x18f \x01(\tBe\xbaG\f\x92\x02\t备注名\xbaHS\xba\x01P\n" +
-	"\x18base_user.remark.max_len\x12 备注不能超过 500 个字符\x1a\x12this.size() <= 500R\x06remark\"y\n" +
+	"\x18base_user.remark.max_len\x12 备注不能超过 500 个字符\x1a\x12this.size() <= 500R\x06remark\"\x7f\n" +
 	"\x1cResetBaseUserPasswordRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b用户IDR\x02id\x129\n" +
-	"\x03pwd\x18\x02 \x01(\v2\x19.common.v1.PasswordCryptoB\f\xbaG\t\x92\x02\x06密码R\x03pwd2\xac\b\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b用户IDR\x02id\x12?\n" +
+	"\x03pwd\x18\x02 \x01(\v2\x19.common.v1.PasswordCryptoB\x12\xbaG\t\x92\x02\x06密码\xbaH\x03\xc8\x01\x01R\x03pwd2\xac\b\n" +
 	"\x0fBaseUserService\x12\x81\x01\n" +
 	"\x0eOptionBaseUser\x12&.system.admin.v1.OptionBaseUserRequest\x1a\x1f.common.v1.SelectOptionResponse\"&\x82\xd3\xe4\x93\x02 \x12\x1e/api/v1/admin/base/user/option\x12|\n" +
 	"\fPageBaseUser\x12$.system.admin.v1.PageBaseUserRequest\x1a%.system.admin.v1.PageBaseUserResponse\"\x1f\x82\xd3\xe4\x93\x02\x19\x12\x17/api/v1/admin/base/user\x12w\n" +

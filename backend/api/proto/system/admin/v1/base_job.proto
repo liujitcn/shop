@@ -195,12 +195,12 @@ message BaseJobLog {
 
 // 创建定时任务请求参数
 message CreateBaseJobRequest {
-  BaseJobForm base_job = 1 [(gnostic.openapi.v3.property) = {description: "定时任务表单"}]; // 定时任务表单
+  BaseJobForm base_job = 1 [(gnostic.openapi.v3.property) = {description: "定时任务表单"}, (buf.validate.field).required = true]; // 定时任务表单
 }
 
 // 更新定时任务请求参数
 message UpdateBaseJobRequest {
-  BaseJobForm base_job = 1 [(gnostic.openapi.v3.property) = {description: "定时任务表单"}]; // 定时任务表单
+  BaseJobForm base_job = 1 [(gnostic.openapi.v3.property) = {description: "定时任务表单"}, (buf.validate.field).required = true]; // 定时任务表单
 }
 
 // 删除定时任务请求参数
@@ -232,7 +232,7 @@ message ExecuteBaseJobRequest {
 
 // 定时任务参数
 message BaseJobArgs {
-  string key = 1 [(gnostic.openapi.v3.property) = {description: "参数"}]; // 参数
+  string key = 1 [(gnostic.openapi.v3.property) = {description: "参数"}, (buf.validate.field).cel = {id: "base_job_args.key.required" message: "所有参数必须填写key" expression: "this.size() > 0"}]; // 参数
 
   string value = 2 [(gnostic.openapi.v3.property) = {description: "值"}]; // 值
 }

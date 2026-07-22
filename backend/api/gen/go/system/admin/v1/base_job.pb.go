@@ -1097,11 +1097,11 @@ const file_system_admin_v1_base_job_proto_rawDesc = "" +
 	"\x05error\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\f错误信息R\x05error\x12e\n" +
 	"\x06status\x18\x06 \x01(\x0e2\".system.common.v1.BaseJobLogStatusB)\xbaG&\x92\x02#状态：1、成功。2、失败。R\x06status\x12<\n" +
 	"\fprocess_time\x18\a \x01(\tB\x19\xbaG\x16\x92\x02\x13消耗时间/毫秒R\vprocessTime\x125\n" +
-	"\fexecute_time\x18\b \x01(\tB\x12\xbaG\x0f\x92\x02\f执行时间R\vexecuteTime\"i\n" +
-	"\x14CreateBaseJobRequest\x12Q\n" +
-	"\bbase_job\x18\x01 \x01(\v2\x1c.system.admin.v1.BaseJobFormB\x18\xbaG\x15\x92\x02\x12定时任务表单R\abaseJob\"i\n" +
-	"\x14UpdateBaseJobRequest\x12Q\n" +
-	"\bbase_job\x18\x01 \x01(\v2\x1c.system.admin.v1.BaseJobFormB\x18\xbaG\x15\x92\x02\x12定时任务表单R\abaseJob\"<\n" +
+	"\fexecute_time\x18\b \x01(\tB\x12\xbaG\x0f\x92\x02\f执行时间R\vexecuteTime\"o\n" +
+	"\x14CreateBaseJobRequest\x12W\n" +
+	"\bbase_job\x18\x01 \x01(\v2\x1c.system.admin.v1.BaseJobFormB\x1e\xbaG\x15\x92\x02\x12定时任务表单\xbaH\x03\xc8\x01\x01R\abaseJob\"o\n" +
+	"\x14UpdateBaseJobRequest\x12W\n" +
+	"\bbase_job\x18\x01 \x01(\v2\x1c.system.admin.v1.BaseJobFormB\x1e\xbaG\x15\x92\x02\x12定时任务表单\xbaH\x03\xc8\x01\x01R\abaseJob\"<\n" +
 	"\x14DeleteBaseJobRequest\x12$\n" +
 	"\x02id\x18\x01 \x01(\tB\x14\xbaG\x11\x92\x02\x0e任务ID列表R\x02id\"_\n" +
 	"\x17SetBaseJobStatusRequest\x12\x1e\n" +
@@ -1112,9 +1112,10 @@ const file_system_admin_v1_base_job_proto_rawDesc = "" +
 	"\x12StopBaseJobRequest\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b任务IDR\x02id\"7\n" +
 	"\x15ExecuteBaseJobRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b任务IDR\x02id\"N\n" +
-	"\vBaseJobArgs\x12\x1e\n" +
-	"\x03key\x18\x01 \x01(\tB\f\xbaG\t\x92\x02\x06参数R\x03key\x12\x1f\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b任务IDR\x02id\"\x9e\x01\n" +
+	"\vBaseJobArgs\x12n\n" +
+	"\x03key\x18\x01 \x01(\tB\\\xbaG\t\x92\x02\x06参数\xbaHM\xba\x01J\n" +
+	"\x1abase_job_args.key.required\x12\x1b所有参数必须填写key\x1a\x0fthis.size() > 0R\x03key\x12\x1f\n" +
 	"\x05value\x18\x02 \x01(\tB\t\xbaG\x06\x92\x02\x03值R\x05value\"\xe9\x03\n" +
 	"\aBaseJob\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b任务IDR\x02id\x12&\n" +

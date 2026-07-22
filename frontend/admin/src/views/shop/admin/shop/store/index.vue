@@ -204,14 +204,14 @@ const formFields = computed<ProFormField[]>(() => [
     label: "简介",
     component: "textarea",
     colSpan: 24,
-    props: { rows: 3, maxlength: 200, showWordLimit: true, resize: "none" }
+    props: { rows: 3, maxlength: 500, showWordLimit: true, resize: "none" }
   },
   {
     prop: "notice",
     label: "公告",
     component: "textarea",
     colSpan: 24,
-    props: { rows: 3, maxlength: 200, showWordLimit: true, resize: "none" }
+    props: { rows: 3, maxlength: 500, showWordLimit: true, resize: "none" }
   },
   {
     prop: "business_license",

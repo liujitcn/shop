@@ -36,5 +36,5 @@ message GoodsSpec {
 
   repeated string item = 4 [(gnostic.openapi.v3.property) = {description: "商品规格内容"}, (buf.validate.field).cel = {id: "goods_spec.item.required" message: "商品规格内容不能为空" expression: "this.size() > 0"}]; // 商品规格内容
 
-  int32 sort = 5 [(gnostic.openapi.v3.property) = {description: "排序"}, (buf.validate.field).cel = {id: "goods_spec.sort.required" message: "排序必须大于 0" expression: "this > 0"}]; // 排序
+  int32 sort = 5 [(gnostic.openapi.v3.property) = {description: "排序"}, (buf.validate.field).cel = {id: "goods_spec.sort.required" message: "请输入排序" expression: "this > 0"}]; // 排序
 }

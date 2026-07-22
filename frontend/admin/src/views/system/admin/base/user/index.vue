@@ -178,7 +178,7 @@ const rules = reactive({
   phone: [
     { max: 20, message: "手机号不能超过 20 个字符", trigger: "blur" },
     {
-      pattern: /^1[3|4|5|6|7|8|9][0-9]\d{8}$/,
+      pattern: /^1[3-9]\d{9}$/,
       message: "请输入正确的手机号码",
       trigger: "blur"
     }

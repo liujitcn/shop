@@ -692,13 +692,18 @@ const file_system_admin_v1_base_tenant_proto_rawDesc = "" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
 	"\n" +
 	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x12N\n" +
-	"\fis_protected\x18\xac\x02 \x01(\bB*\xbaG'\x92\x02$是否禁止通过租户管理操作R\visProtected\"\xb4\x03\n" +
+	"\fis_protected\x18\xac\x02 \x01(\bB*\xbaG'\x92\x02$是否禁止通过租户管理操作R\visProtected\"\x98\a\n" +
 	"\x0eBaseTenantForm\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDR\x02id\x12&\n" +
-	"\x04code\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f租户编号R\x04code\x12&\n" +
-	"\x04name\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f租户名称R\x04name\x122\n" +
-	"\fcontact_name\x18\x04 \x01(\tB\x0f\xbaG\f\x92\x02\t联系人R\vcontactName\x127\n" +
-	"\rcontact_phone\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\f联系电话R\fcontactPhone\x12<\n" +
+	"\x04code\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f租户编号R\x04code\x12\xca\x01\n" +
+	"\x04name\x18\x03 \x01(\tB\xb5\x01\xbaG\x0f\x92\x02\f租户名称\xbaH\x9f\x01\xba\x01C\n" +
+	"\x19base_tenant.name.required\x12\x15请输入租户名称\x1a\x0fthis.size() > 0\xba\x01V\n" +
+	"\x18base_tenant.name.max_len\x12&租户名称不能超过 100 个字符\x1a\x12this.size() <= 100R\x04name\x12\x91\x01\n" +
+	"\fcontact_name\x18\x04 \x01(\tBn\xbaG\f\x92\x02\t联系人\xbaH\\\xba\x01Y\n" +
+	" base_tenant.contact_name.max_len\x12\"联系人不能超过 50 个字符\x1a\x11this.size() <= 50R\vcontactName\x12\x95\x02\n" +
+	"\rcontact_phone\x18\x05 \x01(\tB\xef\x01\xbaG\x0f\x92\x02\f联系电话\xbaH\xd9\x01\xba\x01]\n" +
+	"!base_tenant.contact_phone.max_len\x12%联系电话不能超过 20 个字符\x1a\x11this.size() <= 20\xba\x01v\n" +
+	" base_tenant.contact_phone.format\x12\x1e请输入正确的联系电话\x1a2this.size() == 0 || this.matches('^1[3-9]\\\\d{9}$')R\fcontactPhone\x12<\n" +
 	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态H\x00R\x06status\x88\x01\x01\x12|\n" +
 	"\x06remark\x18e \x01(\tBd\xbaG\t\x92\x02\x06备注\xbaHU\xba\x01R\n" +
 	"\x1abase_tenant.remark.max_len\x12 备注不能超过 500 个字符\x1a\x12this.size() <= 500R\x06remarkB\t\n" +

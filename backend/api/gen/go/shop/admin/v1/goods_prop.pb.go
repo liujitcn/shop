@@ -437,15 +437,17 @@ const file_shop_admin_v1_goods_prop_proto_rawDesc = "" +
 	"\n" +
 	"goods_prop\x18\x02 \x01(\v2\x18.shop.admin.v1.GoodsPropB\x18\xbaG\x0f\x92\x02\f商品属性\xbaH\x03\xc8\x01\x01R\tgoodsProp\"^\n" +
 	"\x16DeleteGoodsPropRequest\x12D\n" +
-	"\x03ids\x18\x01 \x01(\tB2\xbaG/\x92\x02,商品属性ID列表，多个用逗号分隔R\x03ids\"\xe0\x04\n" +
+	"\x03ids\x18\x01 \x01(\tB2\xbaG/\x92\x02,商品属性ID列表，多个用逗号分隔R\x03ids\"\xbb\x05\n" +
 	"\tGoodsProp\x12$\n" +
 	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e商品属性IDR\x02id\x12k\n" +
 	"\bgoods_id\x18\x02 \x01(\x03BP\xbaG\v\x92\x02\b商品id\xbaH?\xba\x01<\n" +
-	"\x1cgoods_prop.goods_id.required\x12\x12商品不能为空\x1a\bthis > 0R\agoodsId\x12\xaf\x01\n" +
-	"\x05label\x18\x03 \x01(\tB\x98\x01\xbaG\x15\x92\x02\x12商品属性名称\xbaH}\xba\x01z\n" +
-	"\x17goods_prop.label.length\x128商品属性名称不能为空且不超过 255 个字符\x1a%this.size() > 0 && this.size() <= 255R\x05label\x12\xab\x01\n" +
-	"\x05value\x18\x04 \x01(\tB\x94\x01\xbaG\x14\x92\x02\x11商品属性value\xbaHz\xba\x01w\n" +
-	"\x17goods_prop.value.length\x125商品属性值不能为空且不超过 500 个字符\x1a%this.size() > 0 && this.size() <= 500R\x05value\x12`\n" +
+	"\x1cgoods_prop.goods_id.required\x12\x12商品不能为空\x1a\bthis > 0R\agoodsId\x12\xde\x01\n" +
+	"\x05label\x18\x03 \x01(\tB\xc7\x01\xbaG\x15\x92\x02\x12商品属性名称\xbaH\xab\x01\xba\x01I\n" +
+	"\x19goods_prop.label.required\x12\x1b请输入商品属性标签\x1a\x0fthis.size() > 0\xba\x01\\\n" +
+	"\x18goods_prop.label.max_len\x12,商品属性名称不能超过 255 个字符\x1a\x12this.size() <= 255R\x05label\x12\xd7\x01\n" +
+	"\x05value\x18\x04 \x01(\tB\xc0\x01\xbaG\x14\x92\x02\x11商品属性value\xbaH\xa5\x01\xba\x01F\n" +
+	"\x19goods_prop.value.required\x12\x18请输入商品属性值\x1a\x0fthis.size() > 0\xba\x01Y\n" +
+	"\x18goods_prop.value.max_len\x12)商品属性值不能超过 500 个字符\x1a\x12this.size() <= 500R\x05value\x12`\n" +
 	"\x04sort\x18\x05 \x01(\x05BL\xbaG\t\x92\x02\x06排序\xbaH=\xba\x01:\n" +
 	"\x18goods_prop.sort.required\x12\x14排序必须大于 0\x1a\bthis > 0R\x04sort2\x85\x05\n" +
 	"\x10GoodsPropService\x12|\n" +

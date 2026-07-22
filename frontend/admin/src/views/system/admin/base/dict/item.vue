@@ -92,6 +92,7 @@ const formData = reactive<BaseDictItemForm>({
 const rules = computed(() => ({
   value: [{ required: true, max: 50, message: "请输入字典值（不超过50个字符）", trigger: "blur" }],
   label: [{ required: true, max: 100, message: "请输入字典标签（不超过100个字符）", trigger: "blur" }],
+  tag_type: [{ max: 50, message: "标签类型不能超过 50 个字符", trigger: "blur" }],
   sort: [{ required: true, message: "请输入排序", trigger: "blur" }],
   status: [{ required: true, message: "状态不能为空", trigger: "change" }]
 }));

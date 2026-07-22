@@ -833,7 +833,7 @@ const file_system_admin_v1_base_menu_proto_rawDesc = "" +
 	"\n" +
 	"base_menus\x18\x01 \x03(\v2\x19.system.admin.v1.BaseMenuB\x0f\xbaG\f\x92\x02\t菜单树R\tbaseMenus\"4\n" +
 	"\x12GetBaseMenuRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b菜单IDR\x02id\"\xc5\b\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b菜单IDR\x02id\"\x84\t\n" +
 	"\fBaseMenuForm\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b菜单IDR\x02id\x126\n" +
 	"\tparent_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e父级菜单IDH\x00R\bparentId\x88\x01\x01\x12N\n" +
@@ -847,15 +847,16 @@ const file_system_admin_v1_base_menu_proto_rawDesc = "" +
 	"\bredirect\x18\a \x01(\tBx\xbaG\x12\x92\x02\x0f重定向地址\xbaH`\xba\x01]\n" +
 	"\x1abase_menu.redirect.max_len\x12*重定向地址不能超过 1024 个字符\x1a\x13this.size() <= 1024R\bredirect\x12H\n" +
 	"\x04meta\x18\b \x01(\v2\x1d.system.admin.v1.BaseMenuMetaB\x15\xbaG\x12\x92\x02\x0f路由元信息R\x04meta\x12*\n" +
-	"\x03api\x18\t \x03(\tB\x18\xbaG\x15\x92\x02\x12分配的API列表R\x03api\x12 \n" +
-	"\x04sort\x182 \x01(\x05B\f\xbaG\t\x92\x02\x06排序R\x04sort\x12?\n" +
+	"\x03api\x18\t \x03(\tB\x18\xbaG\x15\x92\x02\x12分配的API列表R\x03api\x12_\n" +
+	"\x04sort\x182 \x01(\x05BK\xbaG\t\x92\x02\x06排序\xbaH<\xba\x019\n" +
+	"\x17base_menu.sort.required\x12\x14排序必须大于 0\x1a\bthis > 0R\x04sort\x12?\n" +
 	"\x06status\x18e \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06statusB\f\n" +
 	"\n" +
-	"_parent_id\"g\n" +
-	"\x15CreateBaseMenuRequest\x12N\n" +
-	"\tbase_menu\x18\x01 \x01(\v2\x1d.system.admin.v1.BaseMenuFormB\x12\xbaG\x0f\x92\x02\f菜单表单R\bbaseMenu\"g\n" +
-	"\x15UpdateBaseMenuRequest\x12N\n" +
-	"\tbase_menu\x18\x01 \x01(\v2\x1d.system.admin.v1.BaseMenuFormB\x12\xbaG\x0f\x92\x02\f菜单表单R\bbaseMenu\"=\n" +
+	"_parent_id\"m\n" +
+	"\x15CreateBaseMenuRequest\x12T\n" +
+	"\tbase_menu\x18\x01 \x01(\v2\x1d.system.admin.v1.BaseMenuFormB\x18\xbaG\x0f\x92\x02\f菜单表单\xbaH\x03\xc8\x01\x01R\bbaseMenu\"m\n" +
+	"\x15UpdateBaseMenuRequest\x12T\n" +
+	"\tbase_menu\x18\x01 \x01(\v2\x1d.system.admin.v1.BaseMenuFormB\x18\xbaG\x0f\x92\x02\f菜单表单\xbaH\x03\xc8\x01\x01R\bbaseMenu\"=\n" +
 	"\x15DeleteBaseMenuRequest\x12$\n" +
 	"\x02id\x18\x01 \x01(\tB\x14\xbaG\x11\x92\x02\x0e菜单ID列表R\x02id\"`\n" +
 	"\x18SetBaseMenuStatusRequest\x12\x1e\n" +

@@ -181,13 +181,13 @@ message BaseUserForm {
 
   string user_name = 3 [(gnostic.openapi.v3.property) = {description: "用户账号"}, (buf.validate.field).cel = {id: "base_user.user_name.length" message: "用户账号不能为空且不超过 50 个字符" expression: "this.size() > 0 && this.size() <= 50"}]; // 用户账号
 
-  string nick_name = 4 [(gnostic.openapi.v3.property) = {description: "用户昵称"}, (buf.validate.field).cel = {id: "base_user.nick_name.max_len" message: "用户昵称不能超过 30 个字符" expression: "this.size() <= 30"}]; // 用户昵称
+  string nick_name = 4 [(gnostic.openapi.v3.property) = {description: "用户昵称"}, (buf.validate.field).cel = {id: "base_user.nick_name.required" message: "用户昵称不能为空" expression: "this.size() > 0"}, (buf.validate.field).cel = {id: "base_user.nick_name.max_len" message: "用户昵称不能超过 30 个字符" expression: "this.size() <= 30"}]; // 用户昵称
 
   int64 role_id = 5 [(gnostic.openapi.v3.property) = {description: "角色ID"}, (buf.validate.field).cel = {id: "base_user.role_id.required" message: "角色不能为空" expression: "this > 0"}]; // 角色ID
 
   int64 dept_id = 6 [(gnostic.openapi.v3.property) = {description: "部门ID"}, (buf.validate.field).cel = {id: "base_user.dept_id.required" message: "部门不能为空" expression: "this > 0"}]; // 部门ID
 
-  string phone = 7 [(gnostic.openapi.v3.property) = {description: "手机号"}, (buf.validate.field).cel = {id: "base_user.phone.max_len" message: "手机号不能超过 20 个字符" expression: "this.size() <= 20"}]; // 手机号
+  string phone = 7 [(gnostic.openapi.v3.property) = {description: "手机号"}, (buf.validate.field).cel = {id: "base_user.phone.max_len" message: "手机号不能超过 20 个字符" expression: "this.size() <= 20"}, (buf.validate.field).cel = {id: "base_user.phone.format" message: "请输入正确的手机号码" expression: "this.size() == 0 || this.matches('^1[3-9]\\\\d{9}$')"}]; // 手机号
 
   string avatar = 8 [(gnostic.openapi.v3.property) = {description: "头像"}, (buf.validate.field).cel = {id: "base_user.avatar.max_len" message: "头像不能超过 1024 个字符" expression: "this.size() <= 1024"}]; // 头像
 
@@ -204,5 +204,5 @@ message BaseUserForm {
 message ResetBaseUserPasswordRequest {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "用户ID"}]; // 用户ID
 
-  .common.v1.PasswordCrypto pwd = 2 [(gnostic.openapi.v3.property) = {description: "密码"}]; // 密码
+  .common.v1.PasswordCrypto pwd = 2 [(gnostic.openapi.v3.property) = {description: "密码"}, (buf.validate.field).required = true]; // 密码
 }

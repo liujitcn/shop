@@ -78,7 +78,7 @@ message GoodsSku {
 
   repeated string spec_item = 4 [(gnostic.openapi.v3.property) = {description: "SKU组成，需要与商品规格数组顺序对应"}]; // SKU组成，需要与商品规格数组顺序对应
 
-  string sku_code = 5 [(gnostic.openapi.v3.property) = {description: "SKU编码"}, (buf.validate.field).cel = {id: "goods_sku.sku_code.length" message: "SKU编码不能为空且不超过 50 个字符" expression: "this.size() > 0 && this.size() <= 50"}]; // SKU编码
+  string sku_code = 5 [(gnostic.openapi.v3.property) = {description: "SKU编码"}, (buf.validate.field).cel = {id: "goods_sku.sku_code.required" message: "请输入规格编号" expression: "this.size() > 0"}, (buf.validate.field).cel = {id: "goods_sku.sku_code.max_len" message: "SKU编码不能超过 50 个字符" expression: "this.size() <= 50"}]; // SKU编码
 
   int64 price = 6 [(gnostic.openapi.v3.property) = {description: "当前价格(分)"}]; // 当前价格(分)
 

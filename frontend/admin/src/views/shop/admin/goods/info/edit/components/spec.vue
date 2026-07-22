@@ -140,7 +140,7 @@ const specDialog = reactive({
         trigger: "blur"
       }
     ],
-    sort: [{ required: true, message: "请输入排序", trigger: "blur" }]
+    sort: [{ required: true, type: "number", min: 1, message: "请输入排序", trigger: "blur" }]
   }
 });
 

@@ -127,7 +127,7 @@ const formFields = computed<ProFormField[]>(() => [
     props: {
       placeholder: "一句话概括商品卖点",
       rows: 3,
-      maxlength: 120,
+      maxlength: 255,
       showWordLimit: true,
       resize: "none"
     }

@@ -95,8 +95,11 @@ const formData = reactive<BaseDeptFormState>({
 const rules = reactive({
   tenant_id: [{ required: true, message: "所属租户不能为空", trigger: "change" }],
   parent_id: [{ required: true, message: "上级部门不能为空", trigger: "change" }],
-  name: [{ required: true, message: "部门名称不能为空", trigger: "blur" }],
-  sort: [{ required: true, message: "排序不能为空", trigger: "blur" }],
+  name: [
+    { required: true, message: "部门名称不能为空", trigger: "blur" },
+    { max: 255, message: "部门名称不能超过 255 个字符", trigger: "blur" }
+  ],
+  sort: [{ required: true, type: "number", min: 1, message: "排序必须大于 0", trigger: "blur" }],
   status: [{ required: true, message: "状态不能为空", trigger: "change" }]
 });
 

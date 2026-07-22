@@ -99,9 +99,9 @@ message GoodsProp {
 
   int64 goods_id = 2 [(gnostic.openapi.v3.property) = {description: "商品id"}, (buf.validate.field).cel = {id: "goods_prop.goods_id.required" message: "商品不能为空" expression: "this > 0"}]; // 商品id
 
-  string label = 3 [(gnostic.openapi.v3.property) = {description: "商品属性名称"}, (buf.validate.field).cel = {id: "goods_prop.label.length" message: "商品属性名称不能为空且不超过 255 个字符" expression: "this.size() > 0 && this.size() <= 255"}]; // 商品属性名称
+  string label = 3 [(gnostic.openapi.v3.property) = {description: "商品属性名称"}, (buf.validate.field).cel = {id: "goods_prop.label.required" message: "请输入商品属性标签" expression: "this.size() > 0"}, (buf.validate.field).cel = {id: "goods_prop.label.max_len" message: "商品属性名称不能超过 255 个字符" expression: "this.size() <= 255"}]; // 商品属性名称
 
-  string value = 4 [(gnostic.openapi.v3.property) = {description: "商品属性value"}, (buf.validate.field).cel = {id: "goods_prop.value.length" message: "商品属性值不能为空且不超过 500 个字符" expression: "this.size() > 0 && this.size() <= 500"}]; // 商品属性value
+  string value = 4 [(gnostic.openapi.v3.property) = {description: "商品属性value"}, (buf.validate.field).cel = {id: "goods_prop.value.required" message: "请输入商品属性值" expression: "this.size() > 0"}, (buf.validate.field).cel = {id: "goods_prop.value.max_len" message: "商品属性值不能超过 500 个字符" expression: "this.size() <= 500"}]; // 商品属性value
 
   int32 sort = 5 [(gnostic.openapi.v3.property) = {description: "排序"}, (buf.validate.field).cel = {id: "goods_prop.sort.required" message: "排序必须大于 0" expression: "this > 0"}]; // 排序
 }
