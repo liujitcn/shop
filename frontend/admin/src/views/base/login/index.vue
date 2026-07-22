@@ -16,7 +16,7 @@
   </div>
 </template>
 
-<script setup lang="ts" name="login">
+<script setup lang="ts" name="Login">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import LoginForm from "./components/LoginForm.vue";
 import SwitchDark from "@/components/SwitchDark/index.vue";

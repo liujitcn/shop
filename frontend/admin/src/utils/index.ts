@@ -1,5 +1,6 @@
 import { isArray } from "@/utils/is";
 import type { RouteItem, RouteMeta } from "@/rpc/system/admin/v1/auth";
+import { BaseMenuType } from "@/rpc/system/common/v1/enum";
 
 const mode = import.meta.env.VITE_ROUTER_MODE;
 
@@ -195,6 +196,42 @@ export function isExternalPath(path?: string) {
   return /^(https?:|mailto:|tel:)/.test(path);
 }
 
+/** 获取菜单项实际跳转目标，外链优先使用 redirect。 */
+export function getRouteTarget(item: RouteItem): string {
+  if (item.type === BaseMenuType.EXT_LINK) return item.redirect || item.path || "";
+  return item.path ?? "";
+}
+
+/** 获取菜单节点的首个可跳转子路径。 */
+function getFirstRoutePath(item: RouteItem): string {
+  if (item.path) return item.path;
+  for (const child of item.children ?? []) {
+    const path = getFirstRoutePath(child);
+    if (path) return path;
+  }
+  return "";
+}
+
+/** 获取菜单节点在 Element Plus 菜单树中的稳定索引。 */
+export function getRouteMenuKey(item: RouteItem): string {
+  if (item.path) return item.path;
+  return `folder:${getFirstRoutePath(item) || getRouteMetaTitle(item.meta)}`;
+}
+
+/** 判断路由路径是否匹配菜单路径，兼容动态参数。 */
+function matchRoutePath(menuPath: string, currentPath: string): boolean {
+  const menuSegments = menuPath.split("/").filter(Boolean);
+  const currentSegments = currentPath.split("/").filter(Boolean);
+  if (menuSegments.length !== currentSegments.length) return false;
+  return menuSegments.every((segment, index) => segment.startsWith(":") || segment === currentSegments[index]);
+}
+
+/** 判断菜单节点或其子节点是否对应当前路由。 */
+export function isRouteMenuActive(item: RouteItem, currentPath: string): boolean {
+  if (item.path && matchRoutePath(item.path, currentPath)) return true;
+  return (item.children ?? []).some(child => isRouteMenuActive(child, currentPath));
+}
+
 /**
  * @description 使用递归扁平化菜单，方便添加动态路由
  * @param {Array} menuList 菜单列表
@@ -225,11 +262,16 @@ export function getShowMenuList(menuList: RouteItem[]) {
  * @param {Object} result 处理后的结果
  * @returns {Object}
  */
-export const getAllBreadcrumbList = (menuList: RouteItem[], parent = [], result: { [key: string]: any } = {}) => {
+export const getAllBreadcrumbList = (
+  menuList: RouteItem[],
+  parent: RouteItem[] = [],
+  result: Record<string, RouteItem[]> = {}
+) => {
   for (const item of menuList) {
     const routePath = item.path ?? "";
-    result[routePath] = [...parent, item];
-    if (item.children) getAllBreadcrumbList(item.children, result[routePath], result);
+    const breadcrumb = [...parent, item];
+    if (routePath) result[routePath] = breadcrumb;
+    if (item.children) getAllBreadcrumbList(item.children, breadcrumb, result);
   }
   return result;
 };

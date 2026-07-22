@@ -1,4 +1,4 @@
-import { defBaseTenantService } from "@/api/system/admin/base_tenant";
+import { defBaseTenantService } from "@/api/system/base_tenant";
 
 /** 默认租户编码。 */
 export const DEFAULT_TENANT_CODE = "0000";

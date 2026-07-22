@@ -8,7 +8,8 @@ package adminv1
 
 import (
 	reflect "reflect"
-	v1 "shop/api/gen/go/common/v1"
+	v11 "shop/api/gen/go/common/v1"
+	v1 "shop/api/gen/go/system/common/v1"
 	sync "sync"
 	unsafe "unsafe"
 
@@ -613,12 +614,13 @@ func (x *SendPhoneCodeRequest) GetPhone() string {
 // Route项
 type RouteItem struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Path          *string                `protobuf:"bytes,1,opt,name=path,proto3,oneof" json:"path,omitempty"`           // 路由路径
-	Redirect      *string                `protobuf:"bytes,2,opt,name=redirect,proto3,oneof" json:"redirect,omitempty"`   // 重定向地址
-	Name          *string                `protobuf:"bytes,3,opt,name=name,proto3,oneof" json:"name,omitempty"`           // 路由命名，然后我们可以使用 name 而不是 path 来传递 to 属性给 <router-link>。
-	Component     *string                `protobuf:"bytes,4,opt,name=component,proto3,oneof" json:"component,omitempty"` // 指向的组件
-	Meta          *RouteMeta             `protobuf:"bytes,5,opt,name=meta,proto3,oneof" json:"meta,omitempty"`           // 路由元信息
-	Children      []*RouteItem           `protobuf:"bytes,101,rep,name=children,proto3" json:"children,omitempty"`       // 子节点树
+	Path          *string                `protobuf:"bytes,1,opt,name=path,proto3,oneof" json:"path,omitempty"`                               // 路由路径
+	Redirect      *string                `protobuf:"bytes,2,opt,name=redirect,proto3,oneof" json:"redirect,omitempty"`                       // 重定向地址
+	Name          *string                `protobuf:"bytes,3,opt,name=name,proto3,oneof" json:"name,omitempty"`                               // 路由命名，然后我们可以使用 name 而不是 path 来传递 to 属性给 <router-link>。
+	Component     *string                `protobuf:"bytes,4,opt,name=component,proto3,oneof" json:"component,omitempty"`                     // 指向的组件
+	Meta          *RouteMeta             `protobuf:"bytes,5,opt,name=meta,proto3,oneof" json:"meta,omitempty"`                               // 路由元信息
+	Type          v1.BaseMenuType        `protobuf:"varint,6,opt,name=type,proto3,enum=system.common.v1.BaseMenuType" json:"type,omitempty"` // 菜单类型
+	Children      []*RouteItem           `protobuf:"bytes,101,rep,name=children,proto3" json:"children,omitempty"`                           // 子节点树
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -686,6 +688,13 @@ func (x *RouteItem) GetMeta() *RouteMeta {
 		return x.Meta
 	}
 	return nil
+}
+
+func (x *RouteItem) GetType() v1.BaseMenuType {
+	if x != nil {
+		return x.Type
+	}
+	return v1.BaseMenuType(0)
 }
 
 func (x *RouteItem) GetChildren() []*RouteItem {
@@ -852,8 +861,8 @@ func (x *RouteParams) GetValue() string {
 // 用户密码表单
 type UserPasswordForm struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	OldPwd        *v1.PasswordCrypto     `protobuf:"bytes,1,opt,name=old_pwd,json=oldPwd,proto3" json:"old_pwd,omitempty"` // 原密码
-	NewPwd        *v1.PasswordCrypto     `protobuf:"bytes,2,opt,name=new_pwd,json=newPwd,proto3" json:"new_pwd,omitempty"` // 新密码
+	OldPwd        *v11.PasswordCrypto    `protobuf:"bytes,1,opt,name=old_pwd,json=oldPwd,proto3" json:"old_pwd,omitempty"` // 原密码
+	NewPwd        *v11.PasswordCrypto    `protobuf:"bytes,2,opt,name=new_pwd,json=newPwd,proto3" json:"new_pwd,omitempty"` // 新密码
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -888,14 +897,14 @@ func (*UserPasswordForm) Descriptor() ([]byte, []int) {
 	return file_system_admin_v1_auth_proto_rawDescGZIP(), []int{14}
 }
 
-func (x *UserPasswordForm) GetOldPwd() *v1.PasswordCrypto {
+func (x *UserPasswordForm) GetOldPwd() *v11.PasswordCrypto {
 	if x != nil {
 		return x.OldPwd
 	}
 	return nil
 }
 
-func (x *UserPasswordForm) GetNewPwd() *v1.PasswordCrypto {
+func (x *UserPasswordForm) GetNewPwd() *v11.PasswordCrypto {
 	if x != nil {
 		return x.NewPwd
 	}
@@ -959,7 +968,7 @@ var File_system_admin_v1_auth_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_auth_proto_rawDesc = "" +
 	"\n" +
-	"\x1asystem/admin/v1/auth.proto\x12\x0fsystem.admin.v1\x1a\x15common/v1/types.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x15\n" +
+	"\x1asystem/admin/v1/auth.proto\x12\x0fsystem.admin.v1\x1a\x15common/v1/types.proto\x1a\x1bsystem/common/v1/enum.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x15\n" +
 	"\x13TreeUserMenuRequest\"[\n" +
 	"\x11TreeRouteResponse\x12F\n" +
 	"\x06routes\x18\x01 \x03(\v2\x1a.system.admin.v1.RouteItemB\x12\xbaG\x0f\x92\x02\f路由列表R\x06routes\"\x17\n" +
@@ -999,13 +1008,14 @@ const file_system_admin_v1_auth_proto_rawDesc = "" +
 	"\x14SendPhoneCodeRequest\x12\xd3\x01\n" +
 	"\x05phone\x18\x01 \x01(\tB\xbc\x01\xbaG\f\x92\x02\t手机号\xbaH\xa9\x01\xba\x01E\n" +
 	"\x1esend_phone_code.phone.required\x12\x12请输入手机号\x1a\x0fthis.size() > 0\xba\x01^\n" +
-	"\x1csend_phone_code.phone.format\x12\x1e请输入正确的手机号码\x1a\x1ethis.matches('^1[3-9]\\\\d{9}$')R\x05phone\"\xfd\x03\n" +
+	"\x1csend_phone_code.phone.format\x12\x1e请输入正确的手机号码\x1a\x1ethis.matches('^1[3-9]\\\\d{9}$')R\x05phone\"\xc5\x04\n" +
 	"\tRouteItem\x12+\n" +
 	"\x04path\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f路由路径H\x00R\x04path\x88\x01\x01\x126\n" +
 	"\bredirect\x18\x02 \x01(\tB\x15\xbaG\x12\x92\x02\x0f重定向地址H\x01R\bredirect\x88\x01\x01\x12\x82\x01\n" +
 	"\x04name\x18\x03 \x01(\tBi\xbaGf\x92\x02c路由命名，然后我们可以使用 name 而不是 path 来传递 to 属性给 <router-link>。H\x02R\x04name\x88\x01\x01\x128\n" +
 	"\tcomponent\x18\x04 \x01(\tB\x15\xbaG\x12\x92\x02\x0f指向的组件H\x03R\tcomponent\x88\x01\x01\x12J\n" +
-	"\x04meta\x18\x05 \x01(\v2\x1a.system.admin.v1.RouteMetaB\x15\xbaG\x12\x92\x02\x0f路由元信息H\x04R\x04meta\x88\x01\x01\x12J\n" +
+	"\x04meta\x18\x05 \x01(\v2\x1a.system.admin.v1.RouteMetaB\x15\xbaG\x12\x92\x02\x0f路由元信息H\x04R\x04meta\x88\x01\x01\x12F\n" +
+	"\x04type\x18\x06 \x01(\x0e2\x1e.system.common.v1.BaseMenuTypeB\x12\xbaG\x0f\x92\x02\f菜单类型R\x04type\x12J\n" +
 	"\bchildren\x18e \x03(\v2\x1a.system.admin.v1.RouteItemB\x12\xbaG\x0f\x92\x02\f子节点树R\bchildrenB\a\n" +
 	"\x05_pathB\v\n" +
 	"\t_redirectB\a\n" +
@@ -1087,9 +1097,10 @@ var file_system_admin_v1_auth_proto_goTypes = []any{
 	(*RouteParams)(nil),               // 13: system.admin.v1.RouteParams
 	(*UserPasswordForm)(nil),          // 14: system.admin.v1.UserPasswordForm
 	(*UserPhoneForm)(nil),             // 15: system.admin.v1.UserPhoneForm
-	(*v1.PasswordCrypto)(nil),         // 16: common.v1.PasswordCrypto
-	(*v1.StringValues)(nil),           // 17: common.v1.StringValues
-	(*emptypb.Empty)(nil),             // 18: google.protobuf.Empty
+	(v1.BaseMenuType)(0),              // 16: system.common.v1.BaseMenuType
+	(*v11.PasswordCrypto)(nil),        // 17: common.v1.PasswordCrypto
+	(*v11.StringValues)(nil),          // 18: common.v1.StringValues
+	(*emptypb.Empty)(nil),             // 19: google.protobuf.Empty
 }
 var file_system_admin_v1_auth_proto_depIdxs = []int32{
 	11, // 0: system.admin.v1.TreeRouteResponse.routes:type_name -> system.admin.v1.RouteItem
@@ -1097,31 +1108,32 @@ var file_system_admin_v1_auth_proto_depIdxs = []int32{
 	15, // 2: system.admin.v1.UpdateUserPhoneRequest.user_phone:type_name -> system.admin.v1.UserPhoneForm
 	6,  // 3: system.admin.v1.UpdateUserProfileRequest.user_profile:type_name -> system.admin.v1.UserProfileForm
 	12, // 4: system.admin.v1.RouteItem.meta:type_name -> system.admin.v1.RouteMeta
-	11, // 5: system.admin.v1.RouteItem.children:type_name -> system.admin.v1.RouteItem
-	13, // 6: system.admin.v1.RouteMeta.params:type_name -> system.admin.v1.RouteParams
-	16, // 7: system.admin.v1.UserPasswordForm.old_pwd:type_name -> common.v1.PasswordCrypto
-	16, // 8: system.admin.v1.UserPasswordForm.new_pwd:type_name -> common.v1.PasswordCrypto
-	0,  // 9: system.admin.v1.AuthService.TreeUserMenu:input_type -> system.admin.v1.TreeUserMenuRequest
-	2,  // 10: system.admin.v1.AuthService.ListUserButton:input_type -> system.admin.v1.ListUserButtonRequest
-	3,  // 11: system.admin.v1.AuthService.GetUserInfo:input_type -> system.admin.v1.GetUserInfoRequest
-	5,  // 12: system.admin.v1.AuthService.GetUserProfile:input_type -> system.admin.v1.GetUserProfileRequest
-	7,  // 13: system.admin.v1.AuthService.UpdateUserPassword:input_type -> system.admin.v1.UpdateUserPasswordRequest
-	8,  // 14: system.admin.v1.AuthService.UpdateUserPhone:input_type -> system.admin.v1.UpdateUserPhoneRequest
-	9,  // 15: system.admin.v1.AuthService.UpdateUserProfile:input_type -> system.admin.v1.UpdateUserProfileRequest
-	10, // 16: system.admin.v1.AuthService.SendPhoneCode:input_type -> system.admin.v1.SendPhoneCodeRequest
-	1,  // 17: system.admin.v1.AuthService.TreeUserMenu:output_type -> system.admin.v1.TreeRouteResponse
-	17, // 18: system.admin.v1.AuthService.ListUserButton:output_type -> common.v1.StringValues
-	4,  // 19: system.admin.v1.AuthService.GetUserInfo:output_type -> system.admin.v1.UserInfoForm
-	6,  // 20: system.admin.v1.AuthService.GetUserProfile:output_type -> system.admin.v1.UserProfileForm
-	18, // 21: system.admin.v1.AuthService.UpdateUserPassword:output_type -> google.protobuf.Empty
-	18, // 22: system.admin.v1.AuthService.UpdateUserPhone:output_type -> google.protobuf.Empty
-	18, // 23: system.admin.v1.AuthService.UpdateUserProfile:output_type -> google.protobuf.Empty
-	18, // 24: system.admin.v1.AuthService.SendPhoneCode:output_type -> google.protobuf.Empty
-	17, // [17:25] is the sub-list for method output_type
-	9,  // [9:17] is the sub-list for method input_type
-	9,  // [9:9] is the sub-list for extension type_name
-	9,  // [9:9] is the sub-list for extension extendee
-	0,  // [0:9] is the sub-list for field type_name
+	16, // 5: system.admin.v1.RouteItem.type:type_name -> system.common.v1.BaseMenuType
+	11, // 6: system.admin.v1.RouteItem.children:type_name -> system.admin.v1.RouteItem
+	13, // 7: system.admin.v1.RouteMeta.params:type_name -> system.admin.v1.RouteParams
+	17, // 8: system.admin.v1.UserPasswordForm.old_pwd:type_name -> common.v1.PasswordCrypto
+	17, // 9: system.admin.v1.UserPasswordForm.new_pwd:type_name -> common.v1.PasswordCrypto
+	0,  // 10: system.admin.v1.AuthService.TreeUserMenu:input_type -> system.admin.v1.TreeUserMenuRequest
+	2,  // 11: system.admin.v1.AuthService.ListUserButton:input_type -> system.admin.v1.ListUserButtonRequest
+	3,  // 12: system.admin.v1.AuthService.GetUserInfo:input_type -> system.admin.v1.GetUserInfoRequest
+	5,  // 13: system.admin.v1.AuthService.GetUserProfile:input_type -> system.admin.v1.GetUserProfileRequest
+	7,  // 14: system.admin.v1.AuthService.UpdateUserPassword:input_type -> system.admin.v1.UpdateUserPasswordRequest
+	8,  // 15: system.admin.v1.AuthService.UpdateUserPhone:input_type -> system.admin.v1.UpdateUserPhoneRequest
+	9,  // 16: system.admin.v1.AuthService.UpdateUserProfile:input_type -> system.admin.v1.UpdateUserProfileRequest
+	10, // 17: system.admin.v1.AuthService.SendPhoneCode:input_type -> system.admin.v1.SendPhoneCodeRequest
+	1,  // 18: system.admin.v1.AuthService.TreeUserMenu:output_type -> system.admin.v1.TreeRouteResponse
+	18, // 19: system.admin.v1.AuthService.ListUserButton:output_type -> common.v1.StringValues
+	4,  // 20: system.admin.v1.AuthService.GetUserInfo:output_type -> system.admin.v1.UserInfoForm
+	6,  // 21: system.admin.v1.AuthService.GetUserProfile:output_type -> system.admin.v1.UserProfileForm
+	19, // 22: system.admin.v1.AuthService.UpdateUserPassword:output_type -> google.protobuf.Empty
+	19, // 23: system.admin.v1.AuthService.UpdateUserPhone:output_type -> google.protobuf.Empty
+	19, // 24: system.admin.v1.AuthService.UpdateUserProfile:output_type -> google.protobuf.Empty
+	19, // 25: system.admin.v1.AuthService.SendPhoneCode:output_type -> google.protobuf.Empty
+	18, // [18:26] is the sub-list for method output_type
+	10, // [10:18] is the sub-list for method input_type
+	10, // [10:10] is the sub-list for extension type_name
+	10, // [10:10] is the sub-list for extension extendee
+	0,  // [0:10] is the sub-list for field type_name
 }
 
 func init() { file_system_admin_v1_auth_proto_init() }

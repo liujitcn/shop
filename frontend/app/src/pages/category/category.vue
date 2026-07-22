@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { defGoodsCategoryService } from '@/api/shop/app/goods_category'
-import { defShopBannerService } from '@/api/shop/app/shop_banner'
+import { defGoodsCategoryService } from '@/api/shop/goods_category'
+import { defShopBannerService } from '@/api/shop/shop_banner'
 import { onLoad } from '@dcloudio/uni-app'
 import { ref } from 'vue'
 import PageSkeleton from './components/PageSkeleton.vue'

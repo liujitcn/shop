@@ -160,7 +160,7 @@ pnpm lint
 ## 接口、状态与生成代码
 
 - 业务接口统一通过 `src/api` 下的 service 发起，不要在页面里直接手写 `uni.request`。
-- API 目录与 proto 包对应：`src/api/base` 对应 `base.v1`，`src/api/system/app` 对应 `system.app.v1`，`src/api/shop/app` 对应 `shop.app.v1`；创建订单等下单能力由 `src/api/shop/app/order_info.ts` 提供。
+- API 目录按业务域组织：`src/api/base` 对应公共能力，`src/api/system` 与 `src/api/shop` 分别承载商城端系统和商城调用；终端标识保留在 `src/rpc/system/app/v1` 与 `src/rpc/shop/app/v1` 的生成协议中。创建订单等下单能力由 `src/api/shop/order_info.ts` 提供。
 - 通用请求、鉴权、刷新 token、错误提示逻辑集中在 `src/utils/http.ts`。
 - Token 读写统一走 `src/utils/auth.ts`。
 - 全局共享状态放在 `src/stores/modules`，并通过 `src/stores/index.ts` 汇总。

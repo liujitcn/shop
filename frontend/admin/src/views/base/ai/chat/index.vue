@@ -73,7 +73,7 @@ import type {
 } from "./types";
 
 defineOptions({
-  name: "Ai"
+  name: "AiChat"
 });
 
 const sessionKeyword = ref("");

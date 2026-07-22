@@ -1,7 +1,7 @@
 import type { UserProfileForm } from '@/rpc/system/app/v1/auth'
 import type { CreateOauthSessionRequest, CreateOauthSessionResponse } from '@/rpc/base/v1/oauth'
 import type { LoginRequest, LoginResponse } from '@/rpc/base/v1/login'
-import { defAuthService } from '@/api/system/app/auth'
+import { defAuthService } from '@/api/system/auth'
 import { defLoginService } from '@/api/base/login'
 import { defOauthService } from '@/api/base/oauth'
 import { defineStore } from 'pinia'

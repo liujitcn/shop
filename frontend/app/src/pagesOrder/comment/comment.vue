@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { defCommentInfoService } from '@/api/shop/app/comment'
+import { defCommentInfoService } from '@/api/shop/comment'
 import { uploadFileList } from '@/utils/file'
 import { onLoad } from '@dcloudio/uni-app'
 import { useUserStore } from '@/stores'

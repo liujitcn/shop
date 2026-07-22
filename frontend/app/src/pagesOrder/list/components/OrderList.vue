@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { OrderInfoStatus, OrderRefundStatus, OrderTradeStatus } from '@/rpc/shop/common/v1/enum'
-import { defOrderService } from '@/api/shop/app/order_info.ts'
+import { defOrderService } from '@/api/shop/order_info.ts'
 import type { PageOrderInfoRequest, OrderInfo } from '@/rpc/shop/app/v1/order_info'
 import { computed, onMounted, ref } from 'vue'
 import type { BaseDictForm_DictItem } from '@/rpc/system/app/v1/base_dict'
-import { defBaseDictService } from '@/api/system/app/base_dict'
+import { defBaseDictService } from '@/api/system/base_dict'
 import { onLoad } from '@dcloudio/uni-app'
 import { formatSrc, formatPrice } from '@/utils'
 import { orderCreateUrl, orderDetailUrl, tenantStoreUrl } from '@/utils/navigation'

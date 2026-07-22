@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { defCommentInfoService } from '@/api/shop/app/comment'
+import { defCommentInfoService } from '@/api/shop/comment'
 import type { CommentItem, CommentTagItem } from '@/rpc/shop/app/v1/comment'
 import { formatSrc } from '@/utils'
 import { goodsCommentListUrl } from '@/utils/navigation'

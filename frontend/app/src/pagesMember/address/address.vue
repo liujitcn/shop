@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defUserAddressService } from '@/api/shop/app/user_address'
+import { defUserAddressService } from '@/api/shop/user_address'
 import { useAddressStore, useUserStore } from '@/stores'
 import type { UserAddress } from '@/rpc/shop/app/v1/user_address'
 import { onShow } from '@dcloudio/uni-app'

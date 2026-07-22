@@ -1,6 +1,6 @@
 <template>
-  <template v-for="subItem in menuList" :key="subItem.path">
-    <el-sub-menu v-if="isSubMenu(subItem)" :index="getMenuItem(subItem).path">
+  <template v-for="subItem in menuList" :key="getRouteMenuKey(subItem)">
+    <el-sub-menu v-if="isSubMenu(subItem)" :index="getRouteMenuKey(subItem)">
       <template #title>
         <el-icon v-if="getRouteMetaIcon(subItem.meta)">
           <component :is="getRouteMetaIcon(subItem.meta)"></component>
@@ -9,7 +9,7 @@
       </template>
       <SubMenu :menu-list="getSubMenuChildren(subItem)" />
     </el-sub-menu>
-    <el-menu-item v-else :index="getMenuItem(subItem).path" @click="handleClickMenu(getMenuItem(subItem))">
+    <el-menu-item v-else :index="getRouteMenuKey(getMenuItem(subItem))" @click="handleClickMenu(getMenuItem(subItem))">
       <el-icon v-if="getRouteMetaIcon(getMenuItem(subItem).meta)">
         <component :is="getRouteMetaIcon(getMenuItem(subItem).meta)"></component>
       </el-icon>
@@ -23,7 +23,15 @@
 <script setup lang="ts">
 import { useRouter } from "vue-router";
 import type { RouteItem } from "@/rpc/system/admin/v1/auth";
-import { getRouteMetaAlwaysShow, getRouteMetaHidden, getRouteMetaIcon, getRouteMetaTitle, isExternalPath } from "@/utils";
+import {
+  getRouteTarget,
+  getRouteMenuKey,
+  getRouteMetaAlwaysShow,
+  getRouteMetaHidden,
+  getRouteMetaIcon,
+  getRouteMetaTitle,
+  isExternalPath
+} from "@/utils";
 
 defineProps<{ menuList: RouteItem[] }>();
 
@@ -61,12 +69,13 @@ const isSubMenu = (subItem: RouteItem) => {
 /** 处理侧边菜单点击并跳转内部路由或外链。 */
 const handleClickMenu = (subItem: RouteItem) => {
   const menuItem = getMenuItem(subItem);
-  if (!menuItem.path) return;
-  if (isExternalPath(menuItem.path)) {
-    window.open(menuItem.path, "_blank", "noopener,noreferrer");
+  const target = getRouteTarget(menuItem);
+  if (!target) return;
+  if (isExternalPath(target)) {
+    window.open(target, "_blank", "noopener,noreferrer");
     return;
   }
-  router.push(menuItem.path);
+  router.push(target);
 };
 </script>
 

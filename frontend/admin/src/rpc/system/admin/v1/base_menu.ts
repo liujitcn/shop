@@ -46,13 +46,13 @@ export interface BaseMenuForm {
     | undefined;
   /** 菜单类型 */
   type: BaseMenuType;
-  /** 路由地址 */
+  /** 菜单路径、按钮权限标识或外链内部路径，目录可为空 */
   path: string;
   /** 路由命名，然后我们可以使用 name 而不是 path 来传递 to 属性给 <router-link>。 */
   name: string;
   /** 组件路径 */
   component: string;
-  /** 重定向地址 */
+  /** 目录跳转路由或外链地址 */
   redirect: string;
   /** 路由元信息 */
   meta:

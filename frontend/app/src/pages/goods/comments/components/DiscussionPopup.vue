@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from 'vue'
-import { defCommentInfoService } from '@/api/shop/app/comment'
+import { defCommentInfoService } from '@/api/shop/comment'
 import type { CommentDiscussionItem } from '@/rpc/shop/app/v1/comment'
 import { CommentReactionTargetType, CommentReactionType } from '@/rpc/shop/common/v1/enum'
 import { formatSrc } from '@/utils'

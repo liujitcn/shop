@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defGoodsInfoService } from '@/api/shop/app/goods_info.ts'
+import { defGoodsInfoService } from '@/api/shop/goods_info.ts'
 import { computed, ref } from 'vue'
 import type { GoodsInfo, PageGoodsInfoRequest } from '@/rpc/shop/app/v1/goods_info'
 import { onLoad } from '@dcloudio/uni-app'

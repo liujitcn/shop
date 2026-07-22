@@ -2,6 +2,7 @@ package biz
 
 import (
 	"context"
+	"strings"
 
 	systemcommonv1 "shop/api/gen/go/system/common/v1"
 
@@ -160,6 +161,9 @@ func (c *BaseMenuCase) UpdateBaseMenu(ctx context.Context, req *systemadminv1.Ba
 		}
 		baseMenu.ID = currentMenu.ID
 		baseMenu.ParentID = currentMenu.ParentID
+		if err = c.validateBaseMenuIdentity(ctx, baseMenu, currentMenu.ID); err != nil {
+			return err
+		}
 		if err = c.UpdateByID(ctx, baseMenu); err != nil {
 			return err
 		}
@@ -253,7 +257,70 @@ func (c *BaseMenuCase) createBaseMenu(ctx context.Context, baseMenu *models.Base
 		return err
 	}
 	baseMenu.ID = menuID
+	if err = c.validateBaseMenuIdentity(ctx, baseMenu, 0); err != nil {
+		return err
+	}
 	return c.Create(ctx, baseMenu)
+}
+
+// validateBaseMenuIdentity 校验菜单路径和路由名称的类型约束及唯一性。
+func (c *BaseMenuCase) validateBaseMenuIdentity(ctx context.Context, menu *models.BaseMenu, currentID int64) error {
+	if menu.Type == _const.BASE_MENU_TYPE_FOLDER {
+		if menu.Path != "" || menu.Name != "" {
+			return errorsx.InvalidArgument("目录不能填写路径和路由名称")
+		}
+	} else if menu.Type != _const.BASE_MENU_TYPE_MENU && menu.Name != "" {
+		return errorsx.InvalidArgument("只有菜单类型可以填写路由名称")
+	}
+	if menu.Type == _const.BASE_MENU_TYPE_MENU && menu.Name == "" {
+		return errorsx.InvalidArgument("菜单类型必须填写路由名称")
+	}
+	if menu.Type != _const.BASE_MENU_TYPE_FOLDER && menu.Path == "" {
+		return errorsx.InvalidArgument("非目录菜单必须填写路径")
+	}
+	if menu.Type == _const.BASE_MENU_TYPE_EXT_LINK {
+		if strings.HasPrefix(menu.Path, "http://") || strings.HasPrefix(menu.Path, "https://") {
+			return errorsx.InvalidArgument("外链路径必须使用内部唯一路径")
+		}
+		if !strings.HasPrefix(menu.Redirect, "http://") && !strings.HasPrefix(menu.Redirect, "https://") {
+			return errorsx.InvalidArgument("外链必须填写完整的 HTTP 地址")
+		}
+	}
+
+	query := c.Query(ctx).BaseMenu
+	pathOpts := make([]repository.QueryOption, 0, 3)
+	pathOpts = append(pathOpts, repository.Where(query.Type.Neq(_const.BASE_MENU_TYPE_FOLDER)))
+	pathOpts = append(pathOpts, repository.Where(query.Path.Eq(menu.Path)))
+	if currentID > 0 {
+		pathOpts = append(pathOpts, repository.Where(query.ID.Neq(currentID)))
+	}
+	var count int64
+	var err error
+	count, err = c.Count(ctx, pathOpts...)
+	if err != nil {
+		return errorsx.Internal("校验菜单路径失败").WithCause(err)
+	}
+	if count > 0 {
+		return errorsx.UniqueConflict("菜单路径已存在", "base_menu", "path", "")
+	}
+
+	if menu.Type != _const.BASE_MENU_TYPE_MENU {
+		return nil
+	}
+	nameOpts := make([]repository.QueryOption, 0, 3)
+	nameOpts = append(nameOpts, repository.Where(query.Type.Eq(_const.BASE_MENU_TYPE_MENU)))
+	nameOpts = append(nameOpts, repository.Where(query.Name.Eq(menu.Name)))
+	if currentID > 0 {
+		nameOpts = append(nameOpts, repository.Where(query.ID.Neq(currentID)))
+	}
+	count, err = c.Count(ctx, nameOpts...)
+	if err != nil {
+		return errorsx.Internal("校验菜单路由名称失败").WithCause(err)
+	}
+	if count > 0 {
+		return errorsx.UniqueConflict("菜单路由名称已存在", "base_menu", "name", "")
+	}
+	return nil
 }
 
 // listAssignableMenuIDs 根据真实角色归属查询当前操作可分配的菜单 ID 列表。

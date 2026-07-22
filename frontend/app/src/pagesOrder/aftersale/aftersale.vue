@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
-import { defOrderService } from '@/api/shop/app/order_info'
+import { defOrderService } from '@/api/shop/order_info'
 import type { OrderGoods, OrderInfo } from '@/rpc/shop/app/v1/order_info'
 import { OrderRefundStatus } from '@/rpc/shop/common/v1/enum'
 import { formatPrice, formatSrc } from '@/utils'

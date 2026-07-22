@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { defUserStoreService } from '@/api/shop/app/user_store'
+import { defUserStoreService } from '@/api/shop/user_store'
 import { onLoad } from '@dcloudio/uni-app'
 import { computed, ref } from 'vue'
-import { defBaseAreaService } from '@/api/system/app/base_area'
+import { defBaseAreaService } from '@/api/system/base_area'
 import type { FileInfo } from '@/rpc/base/v1/file'
 import type { AppTreeOptionResponse_Option } from '@/rpc/common/v1/common'
 import { Status } from '@/rpc/common/v1/enum'

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { InputNumberBoxEvent } from '@/components/input-number-box/input-number-box'
 import { useGuessList } from '@/composables'
-import { defUserCartService } from '@/api/shop/app/user_cart'
+import { defUserCartService } from '@/api/shop/user_cart'
 import type { UserCart, UserCartStore } from '@/rpc/shop/app/v1/user_cart'
 import { useUserStore } from '@/stores'
 import { onShow } from '@dcloudio/uni-app'

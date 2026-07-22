@@ -6,7 +6,7 @@
   </el-watermark>
 </template>
 
-<script setup lang="ts" name="layout">
+<script setup lang="ts" name="Layout">
 import { computed, reactive, watch, type Component } from "vue";
 import { LayoutType } from "@/stores/interface";
 import { useGlobalStore } from "@/stores/modules/global";

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defShopHotService } from '@/api/shop/app/shop_hot'
+import { defShopHotService } from '@/api/shop/shop_hot'
 import type { ShopHotItem } from '@/rpc/shop/app/v1/shop_hot'
 import type { GoodsInfo } from '@/rpc/shop/app/v1/goods_info'
 import { onLoad } from '@dcloudio/uni-app'

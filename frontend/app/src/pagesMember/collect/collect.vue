@@ -2,7 +2,7 @@
 import { onLoad } from '@dcloudio/uni-app'
 import { ref } from 'vue'
 import type { PageUserCollectRequest, UserCollect } from '@/rpc/shop/app/v1/user_collect'
-import { defUserCollectService } from '@/api/shop/app/user_collect'
+import { defUserCollectService } from '@/api/shop/user_collect'
 import { formatSrc, formatPrice } from '@/utils'
 import {
   goodsDetailUrl,

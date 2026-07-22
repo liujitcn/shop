@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useGuessList } from '@/composables'
-import { defOrderService } from '@/api/shop/app/order_info.ts'
+import { defOrderService } from '@/api/shop/order_info.ts'
 import type { OrderInfoResponse } from '@/rpc/shop/app/v1/order_info'
 import { onLoad, onReady } from '@dcloudio/uni-app'
 import { computed, ref } from 'vue'
@@ -12,7 +12,7 @@ import {
   RecommendScene,
 } from '@/rpc/shop/common/v1/enum'
 import type { BaseDictForm_DictItem } from '@/rpc/system/app/v1/base_dict'
-import { defBaseDictService } from '@/api/system/app/base_dict'
+import { defBaseDictService } from '@/api/system/base_dict'
 import { formatPrice, formatSrc } from '@/utils'
 import {
   goodsDetailUrl,

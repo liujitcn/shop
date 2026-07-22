@@ -8,8 +8,8 @@
       </div>
       <el-menu mode="horizontal" :router="false" :default-active="activeMenu">
         <!-- 不能直接使用 SubMenu 组件，无法触发 el-menu 隐藏省略功能 -->
-        <template v-for="subItem in menuList" :key="subItem.path">
-          <el-sub-menu v-if="subItem.children?.length" :key="subItem.path" :index="subItem.path + 'el-sub-menu'">
+        <template v-for="subItem in menuList" :key="getRouteMenuKey(subItem)">
+          <el-sub-menu v-if="subItem.children?.length" :index="getRouteMenuKey(subItem)">
             <template #title>
               <el-icon>
                 <component :is="getRouteMetaIcon(subItem.meta)"></component>
@@ -18,7 +18,7 @@
             </template>
             <SubMenu :menu-list="subItem.children" />
           </el-sub-menu>
-          <el-menu-item v-else :key="subItem.path + 'el-menu-item'" :index="subItem.path || ''" @click="handleClickMenu(subItem)">
+          <el-menu-item v-else :index="getRouteMenuKey(subItem)" @click="handleClickMenu(subItem)">
             <el-icon>
               <component :is="getRouteMetaIcon(subItem.meta)"></component>
             </el-icon>
@@ -40,7 +40,7 @@ import { useAuthStore } from "@/stores/modules/auth";
 import { useConfigStore } from "@/stores/modules/config";
 import { useRoute, useRouter } from "vue-router";
 import type { RouteItem } from "@/rpc/system/admin/v1/auth";
-import { getRouteMetaIcon, getRouteMetaTitle, isExternalPath } from "@/utils";
+import { getRouteMenuKey, getRouteMetaIcon, getRouteMetaTitle, getRouteTarget, isExternalPath } from "@/utils";
 import Main from "@/layouts/components/Main/index.vue";
 import ToolBarRight from "@/layouts/components/Header/ToolBarRight.vue";
 import SubMenu from "@/layouts/components/Menu/SubMenu.vue";
@@ -55,12 +55,13 @@ const title = computed(() => configStore.display.sysName || import.meta.env.VITE
 const logoUrl = computed(() => configStore.display.adminLogo);
 
 const handleClickMenu = (subItem: RouteItem) => {
-  if (!subItem.path) return;
-  if (isExternalPath(subItem.path)) {
-    window.open(subItem.path, "_blank", "noopener,noreferrer");
+  const target = getRouteTarget(subItem);
+  if (!target) return;
+  if (isExternalPath(target)) {
+    window.open(target, "_blank", "noopener,noreferrer");
     return;
   }
-  router.push(subItem.path);
+  router.push(target);
 };
 </script>
 

@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { defGoodsCategoryService } from '@/api/shop/app/goods_category'
-import { defShopBannerService } from '@/api/shop/app/shop_banner'
-import { defShopHotService } from '@/api/shop/app/shop_hot'
+import { defGoodsCategoryService } from '@/api/shop/goods_category'
+import { defShopBannerService } from '@/api/shop/shop_banner'
+import { defShopHotService } from '@/api/shop/shop_hot'
 import type { ShopBanner } from '@/rpc/shop/app/v1/shop_banner'
 import type { GoodsCategory } from '@/rpc/shop/app/v1/goods_category'
 import type { ShopHot } from '@/rpc/shop/app/v1/shop_hot'

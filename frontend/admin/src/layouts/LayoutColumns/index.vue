@@ -9,9 +9,9 @@
         <div class="split-list">
           <div
             v-for="item in menuList"
-            :key="item.path"
+            :key="getRouteMenuKey(item)"
             class="split-item"
-            :class="{ 'split-active': splitActive === item.path || `/${splitActive.split('/')[1]}` === item.path }"
+            :class="{ 'split-active': splitActive === getRouteMenuKey(item) }"
             @click="changeSubMenu(item)"
           >
             <el-icon>
@@ -55,16 +55,11 @@ import { useAuthStore } from "@/stores/modules/auth";
 import { useConfigStore } from "@/stores/modules/config";
 import { useGlobalStore } from "@/stores/modules/global";
 import type { RouteItem } from "@/rpc/system/admin/v1/auth";
-import { getRouteMetaIcon, getRouteMetaTitle, isExternalPath } from "@/utils";
+import { getRouteMenuKey, getRouteMetaIcon, getRouteMetaTitle, getRouteTarget, isExternalPath, isRouteMenuActive } from "@/utils";
 import Main from "@/layouts/components/Main/index.vue";
 import ToolBarLeft from "@/layouts/components/Header/ToolBarLeft.vue";
 import ToolBarRight from "@/layouts/components/Header/ToolBarRight.vue";
 import SubMenu from "@/layouts/components/Menu/SubMenu.vue";
-
-/** 具备必填路径字段的菜单项。 */
-interface MenuRouteItem extends RouteItem {
-  path: string;
-}
 
 const route = useRoute();
 const router = useRouter();
@@ -73,9 +68,7 @@ const configStore = useConfigStore();
 const globalStore = useGlobalStore();
 const accordion = computed(() => globalStore.accordion);
 const isCollapse = computed(() => globalStore.isCollapse);
-const menuList = computed<MenuRouteItem[]>(() => {
-  return authStore.showMenuListGet.filter((item): item is MenuRouteItem => Boolean(item.path));
-});
+const menuList = computed(() => authStore.showMenuListGet.filter(item => Boolean(item.path) || Boolean(item.children?.length)));
 const activeMenu = computed(() => route.path as string);
 const title = computed(() => configStore.display.sysName || import.meta.env.VITE_GLOB_APP_TITLE);
 const collapseTitle = computed(() => title.value.slice(0, 1).toUpperCase() || "S");
@@ -88,11 +81,10 @@ watch(
   () => {
     // 当前菜单没有数据直接 return
     if (!menuList.value.length) return;
-    splitActive.value = route.path;
-    const menuItem = menuList.value.filter((item: RouteItem) => {
-      return route.path === item.path || `/${route.path.split("/")[1]}` === item.path;
-    });
-    if (menuItem[0].children?.length) return (subMenuList.value = menuItem[0].children);
+    const menuItem = menuList.value.find((item: RouteItem) => isRouteMenuActive(item, route.path));
+    if (!menuItem) return (subMenuList.value = []);
+    splitActive.value = getRouteMenuKey(menuItem);
+    if (menuItem.children?.length) return (subMenuList.value = menuItem.children);
     subMenuList.value = [];
   },
   {
@@ -103,15 +95,16 @@ watch(
 
 /** 切换分栏布局的二级菜单。 */
 const changeSubMenu = (item: RouteItem) => {
-  splitActive.value = item.path ?? "";
+  splitActive.value = getRouteMenuKey(item);
   if (item.children?.length) return (subMenuList.value = item.children);
   subMenuList.value = [];
-  if (!item.path) return;
-  if (isExternalPath(item.path)) {
-    window.open(item.path, "_blank", "noopener,noreferrer");
+  const target = getRouteTarget(item);
+  if (!target) return;
+  if (isExternalPath(target)) {
+    window.open(target, "_blank", "noopener,noreferrer");
     return;
   }
-  router.push(item.path);
+  router.push(target);
 };
 </script>
 

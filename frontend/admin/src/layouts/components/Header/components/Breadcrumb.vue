@@ -27,7 +27,7 @@ import { ArrowRight } from "@element-plus/icons-vue";
 import { useAuthStore } from "@/stores/modules/auth";
 import { useGlobalStore } from "@/stores/modules/global";
 import type { RouteItem } from "@/rpc/system/admin/v1/auth";
-import { getRouteMetaIcon, getRouteMetaTitle, isExternalPath } from "@/utils";
+import { getRouteMetaIcon, getRouteMetaTitle, getRouteTarget, isExternalPath } from "@/utils";
 
 const route = useRoute();
 const router = useRouter();
@@ -37,7 +37,7 @@ const globalStore = useGlobalStore();
 const breadcrumbList = computed(() => {
   let breadcrumbData = authStore.breadcrumbListGet[route.matched[route.matched.length - 1].path] ?? [];
   // 🙅‍♀️不需要首页面包屑可删除以下判断
-  if (breadcrumbData[0].path !== HOME_URL) {
+  if (breadcrumbData[0]?.path !== HOME_URL && getRouteMetaTitle(breadcrumbData[0]?.meta) !== "首页") {
     breadcrumbData = [
       { path: HOME_URL, name: "home", meta: { icon: "HomeFilled", title: "首页", params: [] }, children: [] },
       ...breadcrumbData
@@ -49,12 +49,13 @@ const breadcrumbList = computed(() => {
 // 处理面包屑点击，兼容模板索引可能被推断为字符串或数字的情况。
 const onBreadcrumbClick = (item: RouteItem, index: string | number) => {
   const routeIndex = Number(index);
-  if (routeIndex === breadcrumbList.value.length - 1 || !item.path) return;
-  if (isExternalPath(item.path)) {
-    window.open(item.path, "_blank", "noopener,noreferrer");
+  const target = getRouteTarget(item);
+  if (routeIndex === breadcrumbList.value.length - 1 || !target) return;
+  if (isExternalPath(target)) {
+    window.open(target, "_blank", "noopener,noreferrer");
     return;
   }
-  router.push(item.path);
+  router.push(target);
 };
 </script>
 

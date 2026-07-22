@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { defAuthService } from "@/api/system/admin/auth";
+import { defAuthService } from "@/api/system/auth";
 import { defLoginService } from "@/api/base/login";
 import type { LoginRequest } from "@/rpc/base/v1/login";
 import type { UserInfoForm } from "@/rpc/system/admin/v1/auth";

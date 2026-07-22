@@ -1,4 +1,4 @@
-import { defRecommendService } from '@/api/shop/app/recommend'
+import { defRecommendService } from '@/api/shop/recommend'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { hasValidToken } from '@/utils/auth'

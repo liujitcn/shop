@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defOrderService } from '@/api/shop/app/order_info.ts'
+import { defOrderService } from '@/api/shop/order_info.ts'
 import { useAddressStore, useUserStore } from '@/stores'
 import type {
   ConfirmOrderInfoResponse,
@@ -16,8 +16,8 @@ import type { RecommendContext } from '@/rpc/shop/app/v1/recommend'
 import { onLoad } from '@dcloudio/uni-app'
 import { computed, reactive, ref } from 'vue'
 import type { UserAddress } from '@/rpc/shop/app/v1/user_address'
-import { defUserAddressService } from '@/api/shop/app/user_address'
-import { defBaseDictService } from '@/api/system/app/base_dict'
+import { defUserAddressService } from '@/api/shop/user_address'
+import { defBaseDictService } from '@/api/system/base_dict'
 import { formatSrc, formatPrice } from '@/utils'
 import {
   OrderPayChannel,

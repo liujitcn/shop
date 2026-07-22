@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onLoad } from '@dcloudio/uni-app'
 import { computed, nextTick, onBeforeUnmount, ref } from 'vue'
-import { defBaseAreaService } from '@/api/system/app/base_area'
+import { defBaseAreaService } from '@/api/system/base_area'
 import { defAiMessageService, StreamAiMessageByChunkedRequest } from '@/api/base/ai_message'
 import { defAiSessionService } from '@/api/base/ai_session'
 import { defAiToolService } from '@/api/base/ai_tool'

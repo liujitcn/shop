@@ -16,12 +16,12 @@ import { navigateTo } from "@/utils/router";
 const router = useRouter();
 const authStore = useAuthStore();
 const showAi = computed(() => {
-  return authStore.flatMenuListGet.some(item => item.path === "/ai" || item.name === "Ai");
+  return authStore.flatMenuListGet.some(item => item.path === "/ai/chat" || item.name === "AiChat");
 });
 
 /** 打开隐藏的 AI 助手页面。 */
 function openAi() {
-  navigateTo(router, "/ai");
+  navigateTo(router, "/ai/chat");
 }
 </script>
 

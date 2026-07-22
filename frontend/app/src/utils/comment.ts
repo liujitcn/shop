@@ -1,4 +1,4 @@
-import { defCommentInfoService } from '@/api/shop/app/comment'
+import { defCommentInfoService } from '@/api/shop/comment'
 import { formatSrc } from './index'
 import { orderCommentWriteUrl } from './navigation'
 

@@ -7,6 +7,7 @@
 /* eslint-disable */
 import type { PasswordCrypto, StringValues } from "../../../common/v1/types";
 import type { Empty } from "../../../google/protobuf/empty";
+import type { BaseMenuType } from "../../common/v1/enum";
 
 /** 登录用户菜单树查询参数 */
 export interface TreeUserMenuRequest {
@@ -118,6 +119,8 @@ export interface RouteItem {
   meta?:
     | RouteMeta
     | undefined;
+  /** 菜单类型 */
+  type: BaseMenuType;
   /** 子节点树 */
   children: RouteItem[];
 }

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defRecommendService } from '@/api/shop/app/recommend'
+import { defRecommendService } from '@/api/shop/recommend'
 import { useRecommendStore } from '@/stores'
 import { formatPrice, formatSrc } from '@/utils'
 import { computed, getCurrentInstance, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'

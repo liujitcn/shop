@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
-import { defCommentInfoService } from '@/api/shop/app/comment'
+import { defCommentInfoService } from '@/api/shop/comment'
 import type {
   CommentSummary,
   CommentFilterItem,

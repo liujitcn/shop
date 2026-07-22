@@ -42,7 +42,7 @@ import { useAuthStore } from "@/stores/modules/auth";
 import { useRouter } from "vue-router";
 import { useDebounceFn } from "@vueuse/core";
 import type { RouteItem } from "@/rpc/system/admin/v1/auth";
-import { getRouteMetaHidden, getRouteMetaIcon, getRouteMetaTitle, isExternalPath } from "@/utils";
+import { getRouteMetaHidden, getRouteMetaIcon, getRouteMetaTitle, getRouteTarget, isExternalPath } from "@/utils";
 
 /** 可被菜单搜索展示的路由项。 */
 interface SearchRouteItem extends RouteItem {
@@ -136,10 +136,12 @@ const keyboardOperation = (event: KeyboardEvent) => {
 const handleClickMenu = () => {
   const menu = searchList.value.find(item => item.path === activePath.value);
   if (!menu) return;
-  if (isExternalPath(menu.path)) {
-    window.open(menu.path, "_blank", "noopener,noreferrer");
+  const target = getRouteTarget(menu);
+  if (!target) return;
+  if (isExternalPath(target)) {
+    window.open(target, "_blank", "noopener,noreferrer");
   } else {
-    router.push(menu.path);
+    router.push(target);
   }
   searchMenu.value = "";
   isShowSearch.value = false;

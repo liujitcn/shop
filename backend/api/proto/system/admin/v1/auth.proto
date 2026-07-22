@@ -3,6 +3,7 @@ syntax = "proto3";
 package system.admin.v1;
 
 import "common/v1/types.proto";
+import "system/common/v1/enum.proto";
 import "buf/validate/validate.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
@@ -159,6 +160,8 @@ message RouteItem {
   optional string component = 4 [(gnostic.openapi.v3.property) = {description: "指向的组件"}]; // 指向的组件
 
   optional RouteMeta meta = 5 [(gnostic.openapi.v3.property) = {description: "路由元信息"}]; // 路由元信息
+
+  .system.common.v1.BaseMenuType type = 6 [(gnostic.openapi.v3.property) = {description: "菜单类型"}]; // 菜单类型
 
   repeated RouteItem children = 101 [(gnostic.openapi.v3.property) = {description: "子节点树"}]; // 子节点树
 }

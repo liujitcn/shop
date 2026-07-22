@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defGoodsInfoService } from '@/api/shop/app/goods_info'
+import { defGoodsInfoService } from '@/api/shop/goods_info'
 import { SkuMode, useGoodsPurchase } from '@/composables'
 import { goodsDetailUrl, homeTabPage } from '@/utils/navigation'
 import type {

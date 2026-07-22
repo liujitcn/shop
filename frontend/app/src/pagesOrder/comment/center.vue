@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
-import { defCommentInfoService } from '@/api/shop/app/comment'
-import { defBaseDictService } from '@/api/system/app/base_dict'
+import { defCommentInfoService } from '@/api/shop/comment'
+import { defBaseDictService } from '@/api/system/base_dict'
 import type { CommentItem, PendingCommentGoodsItem } from '@/rpc/shop/app/v1/comment'
 import type { BaseDictForm_DictItem } from '@/rpc/system/app/v1/base_dict'
 import { formatSrc } from '@/utils'

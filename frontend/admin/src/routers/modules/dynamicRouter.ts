@@ -5,6 +5,7 @@ import { ElNotification } from "element-plus";
 import { useUserStore } from "@/stores/modules/user";
 import { useAuthStore } from "@/stores/modules/auth";
 import type { RouteItem } from "@/rpc/system/admin/v1/auth";
+import { BaseMenuType } from "@/rpc/system/common/v1/enum";
 import { getRouteMetaFull } from "@/utils";
 
 // 引入 views 文件夹下所有 vue 文件
@@ -156,6 +157,7 @@ export const initDynamicRouter = async () => {
     // 3.添加动态路由
     const resolvedRouteItems = buildResolvedRouteItems(authStore.authMenuListGet);
     resolvedRouteItems.forEach(({ item, path, redirect }) => {
+      if (item.type === BaseMenuType.EXT_LINK) return;
       const routeRecord = createRouteRecord(item, path, redirect);
 
       if (typeof routeRecord.component === "string") {
@@ -169,7 +171,7 @@ export const initDynamicRouter = async () => {
       if (getRouteMetaFull(item.meta)) {
         router.addRoute(routeRecord);
       } else {
-        router.addRoute("layout", routeRecord);
+        router.addRoute("Layout", routeRecord);
       }
     });
   } catch (error) {
