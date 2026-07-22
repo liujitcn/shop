@@ -57,7 +57,7 @@ type orderLogistics struct {
 	Contact       field.String // 联系方式
 	Detail        field.String // 物流详情
 	CreatedAt     field.Time   // 创建时间
-	DeletedAt     field.Field  // 删除时间
+	DeletedAt     field.Field
 
 	fieldMap map[string]field.Expr
 }

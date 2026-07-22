@@ -92,8 +92,8 @@ func (t *GoodsStatDay) Exec(args map[string]string) ([]string, error) {
 	result := goodsStatDayResult{}
 	err = t.tx.Transaction(t.ctx, func(ctx context.Context) error {
 		statQuery := t.goodsStatDayRepo.Query(ctx).GoodsStatDay
-		// 统计任务按天全量重算，物理清掉当天所有租户的旧数据再回写。
-		_, err = statQuery.WithContext(ctx).Unscoped().Where(statQuery.StatDate.Eq(statDate)).Delete()
+		// 统计任务按天全量重算，软删除当天所有租户的旧数据再回写。
+		_, err = statQuery.WithContext(ctx).Where(statQuery.StatDate.Eq(statDate)).Delete()
 		if err != nil {
 			return err
 		}

@@ -7,23 +7,23 @@ package models
 import (
 	"time"
 
-	"gorm.io/gorm"
+	"gorm.io/plugin/soft_delete"
 )
 
 const TableNameUserCollect = "user_collect"
 
 // UserCollect 用户收藏信息
 type UserCollect struct {
-	ID            int64          `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:用户收藏ID" json:"id"`                                                      // 用户收藏ID
-	UserID        int64          `gorm:"column:user_id;type:bigint;not null;index:idx_user_collect_user_id,priority:1;comment:用户ID" json:"user_id"`                         // 用户ID
-	TenantStoreID int64          `gorm:"column:tenant_store_id;type:bigint;not null;index:idx_user_collect_tenant_store_id,priority:1;comment:店铺ID" json:"tenant_store_id"` // 店铺ID
-	GoodsID       int64          `gorm:"column:goods_id;type:bigint;not null;comment:商品ID" json:"goods_id"`                                                                 // 商品ID
-	Price         int64          `gorm:"column:price;type:bigint;not null;comment:收藏时单价" json:"price"`                                                                      // 收藏时单价
-	Scene         int32          `gorm:"column:scene;type:tinyint;not null;comment:推荐场景：枚举【RecommendScene】" json:"scene"`                                                   // 推荐场景：枚举【RecommendScene】
-	RequestID     int64          `gorm:"column:request_id;type:bigint;not null;comment:推荐请求ID" json:"request_id"`                                                           // 推荐请求ID
-	Position      int32          `gorm:"column:position;type:int;not null;comment:推荐位序号" json:"position"`                                                                   // 推荐位序号
-	CreatedAt     time.Time      `gorm:"column:created_at;type:datetime;not null;comment:创建时间" json:"created_at"`                                                           // 创建时间
-	DeletedAt     gorm.DeletedAt `gorm:"column:deleted_at;type:datetime;comment:删除时间" json:"deleted_at"`                                                                    // 删除时间
+	ID            int64                 `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:用户收藏ID" json:"id"`                                                                         // 用户收藏ID
+	UserID        int64                 `gorm:"column:user_id;type:bigint;not null;uniqueIndex:unique_user_collect,priority:1;index:idx_user_collect_user_id,priority:1;comment:用户ID" json:"user_id"` // 用户ID
+	TenantStoreID int64                 `gorm:"column:tenant_store_id;type:bigint;not null;index:idx_user_collect_tenant_store_id,priority:1;comment:店铺ID" json:"tenant_store_id"`                    // 店铺ID
+	GoodsID       int64                 `gorm:"column:goods_id;type:bigint;not null;uniqueIndex:unique_user_collect,priority:2;comment:商品ID" json:"goods_id"`                                         // 商品ID
+	Price         int64                 `gorm:"column:price;type:bigint;not null;comment:收藏时单价" json:"price"`                                                                                         // 收藏时单价
+	Scene         int32                 `gorm:"column:scene;type:tinyint;not null;comment:推荐场景：枚举【RecommendScene】" json:"scene"`                                                                      // 推荐场景：枚举【RecommendScene】
+	RequestID     int64                 `gorm:"column:request_id;type:bigint;not null;comment:推荐请求ID" json:"request_id"`                                                                              // 推荐请求ID
+	Position      int32                 `gorm:"column:position;type:int;not null;comment:推荐位序号" json:"position"`                                                                                      // 推荐位序号
+	CreatedAt     time.Time             `gorm:"column:created_at;type:datetime;not null;comment:创建时间" json:"created_at"`                                                                              // 创建时间
+	DeletedAt     soft_delete.DeletedAt `gorm:"column:deleted_at;type:bigint unsigned;not null;uniqueIndex:unique_user_collect,priority:3;softDelete:milli" json:"deleted_at"`
 }
 
 // TableName UserCollect's table name

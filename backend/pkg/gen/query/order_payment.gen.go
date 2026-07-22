@@ -65,7 +65,7 @@ type orderPayment struct {
 	Amount         field.String // 订单金额
 	SceneInfo      field.String // 场景信息
 	Status         field.Int32  // 对账状态：枚举【OrderBillStatus】
-	DeletedAt      field.Field  // 删除时间
+	DeletedAt      field.Field
 
 	fieldMap map[string]field.Expr
 }

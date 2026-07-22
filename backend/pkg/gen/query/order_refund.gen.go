@@ -75,7 +75,7 @@ type orderRefund struct {
 	FundsAccount        field.String // 资金账户
 	Amount              field.String // 退款金额信息
 	Status              field.Int32  // 对账状态：枚举【OrderBillStatus】
-	DeletedAt           field.Field  // 删除时间
+	DeletedAt           field.Field
 
 	fieldMap map[string]field.Expr
 }

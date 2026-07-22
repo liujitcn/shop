@@ -61,7 +61,7 @@ type payBill struct {
 	ThirdTotalCount  field.Int64  // 对账文件总笔数
 	ThirdTotalAmount field.Int64  // 对账文件总金额，单位：分
 	Status           field.Int32  // 对账状态：枚举【PayBillStatus】
-	DeletedAt        field.Field  // 删除时间
+	DeletedAt        field.Field
 
 	fieldMap map[string]field.Expr
 }

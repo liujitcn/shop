@@ -371,7 +371,6 @@ func (c *GoodsInfoCase) findGoodsIDsByCategoryIDs(ctx context.Context, categoryI
 	rows := make([]*goodsCategoryRow, 0)
 	err := query.WithContext(ctx).
 		Select(query.ID, query.CategoryID).
-		Where(query.DeletedAt.IsNull()).
 		Scan(&rows)
 	if err != nil {
 		return nil, err

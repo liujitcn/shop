@@ -75,7 +75,7 @@ type commentDiscussion struct {
 	Status              field.Int32  // 审核状态：枚举【CommentStatus】
 	CreatedAt           field.Time   // 发布时间
 	UpdatedAt           field.Time   // 最后更新时间
-	DeletedAt           field.Field  // 删除时间
+	DeletedAt           field.Field
 
 	fieldMap map[string]field.Expr
 }

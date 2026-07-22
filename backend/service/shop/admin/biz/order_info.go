@@ -2,6 +2,7 @@ package biz
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"strconv"
@@ -97,7 +98,7 @@ func (c *OrderInfoCase) PageOrderInfo(ctx context.Context, req *shopadminv1.Page
 	if req.PayType != nil || req.PayChannel != nil || req.TradeStatus != nil {
 		tradeQuery := c.orderTradeRepo.Query(ctx).OrderTrade
 		opts = append(opts, repository.Join(tradeQuery, query.TradeID.EqCol(tradeQuery.ID)))
-		opts = append(opts, repository.Where(tradeQuery.DeletedAt.IsNull()))
+		opts = append(opts, repository.Where(tradeQuery.DeletedAt.Eq(sql.NullInt64{Valid: true})))
 		if req.PayType != nil {
 			opts = append(opts, repository.Where(tradeQuery.PayType.Eq(int32(req.GetPayType()))))
 		}

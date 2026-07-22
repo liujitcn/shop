@@ -260,7 +260,6 @@ func (c *GoodsReportCase) queryGoodsMonthReportRows(ctx context.Context, tenantI
 			query.PayAmount.Sum().FloorDiv(1).IfNull(0).As("pay_amount"),
 		).
 		Where(
-			query.DeletedAt.IsNull(),
 			query.StatDate.Gte(startAt),
 			query.StatDate.Lt(endAt),
 		)
@@ -302,7 +301,6 @@ func (c *GoodsReportCase) queryGoodsDayReportRows(ctx context.Context, startAt, 
 			query.PayAmount.Sum().FloorDiv(1).IfNull(0).As("pay_amount"),
 		).
 		Where(
-			query.DeletedAt.IsNull(),
 			query.StatDate.Gte(startAt),
 			query.StatDate.Lt(endAt),
 		).

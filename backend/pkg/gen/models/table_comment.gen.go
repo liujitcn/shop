@@ -65,6 +65,11 @@ func (*BaseMenu) TableComment() string {
 }
 
 // TableComment 返回表注释。
+func (*BasePost) TableComment() string {
+	return "岗位信息"
+}
+
+// TableComment 返回表注释。
 func (*BaseRole) TableComment() string {
 	return "角色信息"
 }

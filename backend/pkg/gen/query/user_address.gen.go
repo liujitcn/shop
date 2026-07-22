@@ -57,7 +57,7 @@ type userAddress struct {
 	IsDefault field.Bool   // 是否默认
 	CreatedAt field.Time   // 创建时间
 	UpdatedAt field.Time   // 更新时间
-	DeletedAt field.Field  // 删除时间
+	DeletedAt field.Field
 
 	fieldMap map[string]field.Expr
 }

@@ -40,7 +40,7 @@ require (
 	github.com/liujitcn/kratos-kit/pprof v0.0.10
 	github.com/liujitcn/kratos-kit/queue v0.0.20
 	github.com/liujitcn/kratos-kit/rpc v0.0.16
-	github.com/liujitcn/kratos-kit/swagger-ui v0.0.7
+	github.com/liujitcn/kratos-kit/swagger-ui v0.0.8
 	github.com/liujitcn/kratos-kit/transport/cron v0.0.9
 	github.com/liujitcn/kratos-kit/transport/mcp v0.0.10
 	github.com/liujitcn/kratos-kit/transport/sse v0.0.7
@@ -58,6 +58,7 @@ require (
 	gorm.io/gen v0.3.27
 	gorm.io/gorm v1.31.1
 	gorm.io/plugin/dbresolver v1.6.2
+	gorm.io/plugin/soft_delete v1.2.1
 )
 
 require (

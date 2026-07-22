@@ -614,7 +614,6 @@ func (c *WorkspaceCase) countLowInventorySKU(ctx context.Context, tenantID, tena
 	query := c.goodsSKUCase.Query(ctx).GoodsSKU
 	dao := query.WithContext(ctx).
 		Where(
-			query.DeletedAt.IsNull(),
 			query.GoodsID.In(goodsIDs...),
 			query.Inventory.Gt(0),
 			query.Inventory.Lte(LOW_INVENTORY_THRESHOLD),
@@ -679,7 +678,6 @@ func (c *WorkspaceCase) countZeroInventoryPutOnSKU(ctx context.Context, tenantID
 	query := c.goodsSKUCase.Query(ctx).GoodsSKU
 	dao := query.WithContext(ctx).
 		Where(
-			query.DeletedAt.IsNull(),
 			query.GoodsID.In(goodsIDs...),
 			query.Inventory.Eq(0),
 		)
@@ -700,7 +698,6 @@ func (c *WorkspaceCase) listPutOnGoodsIDs(ctx context.Context, tenantID, tenantS
 	goodsIDs := make([]int64, 0)
 	dao := query.WithContext(ctx).
 		Where(
-			query.DeletedAt.IsNull(),
 			query.Status.Eq(_const.GOODS_STATUS_PUT_ON),
 		)
 	if tenantID > 0 {

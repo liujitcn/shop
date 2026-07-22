@@ -32,7 +32,7 @@ frontend/admin
 
 - `views/base`：登录、AI 助手等 `base.v1` 公共能力页面。
 - `views/system`：用户、角色、部门、菜单、字典、配置、日志、定时任务、API 管理、个人中心和代码生成等 `system.admin.v1` 管理能力页面。
-- `views/shop`：按业务域组织 `dashboard/workspace`、`analytics`、`report`、`gorse`、`hot`、`recommend/request`、`comment`、`goods`、`order`、`pay`、`shop`、`user` 等 `shop.admin.v1` 商城运营页面；评论业务统一位于 `comment/info`，菜单路由页面不得置于 `components`。
+- `views/shop`：工作台、数据分析、商品、店铺、订单、评价、支付、报表、推荐和门店审核等 `shop.admin.v1` 商城运营页面。
 - `views/migration/pending`：动态菜单组件无法匹配时的统一降级提示页。
 
 动态菜单叶子页的 `defineOptions.name` 必须与 SQL 菜单 `name` 一致且全局唯一：表结构页面使用表名及用途后缀，非表结构页面使用业务组件路径的 PascalCase 名称；`Layout` 目录和私有 `components` 不强制声明路由页名称。
@@ -142,7 +142,7 @@ src/rpc
 
 业务页面可以按现有模式在 `src/api` 中封装接口调用，也可以直接复用生成的 RPC 客户端，具体以当前页面风格为准。
 
-管理端 `src/api` 按业务域组织：`src/api/base` 对应公共能力，`src/api/system` 与 `src/api/shop` 分别承载系统和商城管理端调用；终端标识保留在 `src/rpc/system/admin/v1` 与 `src/rpc/shop/admin/v1` 的生成协议中。
+管理端 API 目录与 proto 包保持一致：`src/api/base` 对应 `base.v1`，`src/api/system` 对应 `system.admin.v1`，`src/api/shop/admin` 对应 `shop.admin.v1`。
 
 代码生成表配置页面使用独立接口封装：
 

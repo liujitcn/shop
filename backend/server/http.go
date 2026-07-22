@@ -56,6 +56,8 @@ func NewHTTPServer(
 	appInfo *bootstrapConfigv1.AppInfo,
 	middlewares HTTPMiddlewares,
 	modules Modules,
+	authenticator authnEngine.Authenticator,
+	userToken *authData.UserToken,
 	_ MCPToolsReady,
 	_ AgentToolsReady,
 ) (*kratosHTTP.Server, error) {
@@ -87,12 +89,13 @@ func NewHTTPServer(
 	// 自动发现本地 OSS 根目录下的前端入口，按子目录名称挂载为 SPA 路由。
 	registerLocalSPARoutes(srv, ossRootDirectory)
 
-	// 显式启用 Swagger 时，注册内存中的 OpenAPI 文档页面。
+	// 显式启用 Swagger 时，仅注册供管理后台加载的受保护 OpenAPI 文档接口。
 	if cfg.GetServer().GetHttp().GetEnableSwagger() {
-		swaggerUI.RegisterSwaggerUIServerWithOption(
+		swaggerUI.RegisterOpenAPIServerWithOption(
 			srv,
-			swaggerUI.WithTitle(ctx.GetAppInfo().GetName()),
+			swaggerUI.WithOpenAPIPath("/api/docs/openapi"),
 			swaggerUI.WithMemoryData(assets.OpenAPIData, "yaml"),
+			swaggerUI.WithOpenAPIAuthorizer(newOpenAPIAuthorizer(authenticator, userToken)),
 		)
 	}
 
@@ -142,4 +145,26 @@ func newSPAHandler(webFS fs.FS, urlPrefix string) stdhttp.Handler {
 		// 前端路由命中不到真实文件时，统一回退到入口页面。
 		stdhttp.ServeFileFS(w, r, webFS, "index.html")
 	})
+}
+
+// newOpenAPIAuthorizer 创建校验 Bearer Token 与服务端登录状态的 OpenAPI 访问校验函数。
+func newOpenAPIAuthorizer(authenticator authnEngine.Authenticator, userToken *authData.UserToken) func(*stdhttp.Request) bool {
+	return func(r *stdhttp.Request) bool {
+		authorization := strings.Fields(r.Header.Get("Authorization"))
+		if len(authorization) != 2 || !strings.EqualFold(authorization[0], authnEngine.BearerWord) {
+			return false
+		}
+
+		claims, err := authenticator.AuthenticateToken(authorization[1])
+		if err != nil {
+			return false
+		}
+
+		var userID int64
+		userID, err = claims.GetInt64(authData.ClaimFieldUserID)
+		if err != nil {
+			return false
+		}
+		return userID == 0 || userToken.IsExistAccessToken(userID)
+	}
 }

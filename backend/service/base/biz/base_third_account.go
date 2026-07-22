@@ -50,11 +50,9 @@ func (c *BaseThirdAccountCase) CreateBinding(ctx context.Context, userID int64, 
 // DeleteByUserProvider 删除指定用户的三方账号绑定关系。
 func (c *BaseThirdAccountCase) DeleteByUserProvider(ctx context.Context, userID int64, provider string) error {
 	query := c.Query(ctx).BaseThirdAccount
-	opts := make([]repository.QueryOption, 0, 3)
+	opts := make([]repository.QueryOption, 0, 2)
 	opts = append(opts, repository.Where(query.UserID.Eq(userID)))
 	opts = append(opts, repository.Where(query.Provider.Eq(provider)))
-	// 绑定关系解绑后允许同一个三方账号再次绑定，必须硬删除释放唯一键。
-	opts = append(opts, repository.Unscoped())
 	return c.Delete(ctx, opts...)
 }
 

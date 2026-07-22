@@ -30,6 +30,7 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		BaseJobLog:           newBaseJobLog(db, opts...),
 		BaseLog:              newBaseLog(db, opts...),
 		BaseMenu:             newBaseMenu(db, opts...),
+		BasePost:             newBasePost(db, opts...),
 		BaseRole:             newBaseRole(db, opts...),
 		BaseTenant:           newBaseTenant(db, opts...),
 		BaseThirdAccount:     newBaseThirdAccount(db, opts...),
@@ -91,6 +92,7 @@ type Query struct {
 	BaseJobLog           baseJobLog
 	BaseLog              baseLog
 	BaseMenu             baseMenu
+	BasePost             basePost
 	BaseRole             baseRole
 	BaseTenant           baseTenant
 	BaseThirdAccount     baseThirdAccount
@@ -153,6 +155,7 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		BaseJobLog:           q.BaseJobLog.clone(db),
 		BaseLog:              q.BaseLog.clone(db),
 		BaseMenu:             q.BaseMenu.clone(db),
+		BasePost:             q.BasePost.clone(db),
 		BaseRole:             q.BaseRole.clone(db),
 		BaseTenant:           q.BaseTenant.clone(db),
 		BaseThirdAccount:     q.BaseThirdAccount.clone(db),
@@ -222,6 +225,7 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		BaseJobLog:           q.BaseJobLog.replaceDB(db),
 		BaseLog:              q.BaseLog.replaceDB(db),
 		BaseMenu:             q.BaseMenu.replaceDB(db),
+		BasePost:             q.BasePost.replaceDB(db),
 		BaseRole:             q.BaseRole.replaceDB(db),
 		BaseTenant:           q.BaseTenant.replaceDB(db),
 		BaseThirdAccount:     q.BaseThirdAccount.replaceDB(db),
@@ -281,6 +285,7 @@ type queryCtx struct {
 	BaseJobLog           *baseJobLogDo
 	BaseLog              *baseLogDo
 	BaseMenu             *baseMenuDo
+	BasePost             *basePostDo
 	BaseRole             *baseRoleDo
 	BaseTenant           *baseTenantDo
 	BaseThirdAccount     *baseThirdAccountDo
@@ -340,6 +345,7 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		BaseJobLog:           q.BaseJobLog.WithContext(ctx),
 		BaseLog:              q.BaseLog.WithContext(ctx),
 		BaseMenu:             q.BaseMenu.WithContext(ctx),
+		BasePost:             q.BasePost.WithContext(ctx),
 		BaseRole:             q.BaseRole.WithContext(ctx),
 		BaseTenant:           q.BaseTenant.WithContext(ctx),
 		BaseThirdAccount:     q.BaseThirdAccount.WithContext(ctx),

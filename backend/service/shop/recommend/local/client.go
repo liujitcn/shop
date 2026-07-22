@@ -71,7 +71,6 @@ func (r *Recommend) ListCategoryIDsByGoodsIDs(ctx context.Context, goodsIDs []in
 
 	query := r.goodsInfoRepo.Query(ctx).GoodsInfo
 	opts := make([]repository.QueryOption, 0, 2)
-	opts = append(opts, repository.Where(query.DeletedAt.IsNull()))
 	opts = append(opts, repository.Where(query.ID.In(goodsIDs...)))
 	queryDo := query.WithContext(ctx)
 	err := repository.ApplyQueryOptions(&queryDo.DO, opts...).Pluck(query.CategoryID, &categoryJSONList)
@@ -111,7 +110,6 @@ func (r *Recommend) ListRankedGoodsPage(
 	goodsQuery := r.goodsInfoRepo.Query(ctx).GoodsInfo
 	dao := goodsQuery.WithContext(ctx).
 		Where(
-			goodsQuery.DeletedAt.IsNull(),
 			goodsQuery.Status.Eq(_const.GOODS_STATUS_PUT_ON),
 		)
 	// 存在上下文商品时，从候选池里排除当前上下文商品。
@@ -192,7 +190,6 @@ func (r *Recommend) ListExploreGoodsPage(
 
 	query := r.goodsInfoRepo.Query(ctx).GoodsInfo
 	opts := make([]repository.QueryOption, 0, 5)
-	opts = append(opts, repository.Where(query.DeletedAt.IsNull()))
 	opts = append(opts, repository.Where(query.Status.Eq(_const.GOODS_STATUS_PUT_ON)))
 	// 存在上下文商品时，从探索池里排除当前上下文商品。
 	if len(excludedGoodsIDs) > 0 {

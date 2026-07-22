@@ -7,32 +7,32 @@ package models
 import (
 	"time"
 
-	"gorm.io/gorm"
+	"gorm.io/plugin/soft_delete"
 )
 
 const TableNameOrderRefund = "order_refund"
 
 // OrderRefund 订单退款信息
 type OrderRefund struct {
-	ID                  int64          `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:订单退款ID" json:"id"`                                                        // 订单退款ID
-	TenantID            int64          `gorm:"column:tenant_id;type:bigint;not null;index:idx_order_refund_tenant_id,priority:1;comment:租户ID" json:"tenant_id"`                     // 租户ID
-	TenantStoreID       int64          `gorm:"column:tenant_store_id;type:bigint;not null;index:idx_order_refund_tenant_store_id,priority:1;comment:租户门店ID" json:"tenant_store_id"` // 租户门店ID
-	TradeID             int64          `gorm:"column:trade_id;type:bigint;not null;index:idx_order_refund_trade_id,priority:1;comment:交易单ID" json:"trade_id"`                       // 交易单ID
-	OrderID             int64          `gorm:"column:order_id;type:bigint;not null;index:idx_order_refund_order_id,priority:1;comment:订单ID" json:"order_id"`                        // 订单ID
-	TradeNo             string         `gorm:"column:trade_no;type:varchar(32);not null;comment:支付交易单编号" json:"trade_no"`                                                           // 支付交易单编号
-	ThirdOrderNo        string         `gorm:"column:third_order_no;type:varchar(32);comment:三方支付订单编号" json:"third_order_no"`                                                       // 三方支付订单编号
-	RefundNo            string         `gorm:"column:refund_no;type:varchar(32);not null;uniqueIndex:unique_order_refund,priority:1;comment:退款编号" json:"refund_no"`                 // 退款编号
-	Reason              int32          `gorm:"column:reason;type:tinyint;not null;comment:退款原因：枚举【OrderRefundReason】" json:"reason"`                                                // 退款原因：枚举【OrderRefundReason】
-	ThirdRefundNo       string         `gorm:"column:third_refund_no;type:varchar(32);comment:三方退款编号" json:"third_refund_no"`                                                       // 三方退款编号
-	Channel             string         `gorm:"column:channel;type:varchar(32);comment:退款渠道" json:"channel"`                                                                         // 退款渠道
-	UserReceivedAccount string         `gorm:"column:user_received_account;type:varchar(64);comment:退款入账账户" json:"user_received_account"`                                           // 退款入账账户
-	CreateTime          time.Time      `gorm:"column:create_time;type:datetime;not null;comment:退款创建时间" json:"create_time"`                                                         // 退款创建时间
-	SuccessTime         time.Time      `gorm:"column:success_time;type:datetime;comment:退款成功时间" json:"success_time"`                                                                // 退款成功时间
-	RefundState         string         `gorm:"column:refund_state;type:varchar(32);not null;comment:退款状态" json:"refund_state"`                                                      // 退款状态
-	FundsAccount        string         `gorm:"column:funds_account;type:varchar(32);comment:资金账户" json:"funds_account"`                                                             // 资金账户
-	Amount              string         `gorm:"column:amount;type:json;not null;comment:退款金额信息" json:"amount"`                                                                       // 退款金额信息
-	Status              int32          `gorm:"column:status;type:tinyint;not null;comment:对账状态：枚举【OrderBillStatus】" json:"status"`                                                  // 对账状态：枚举【OrderBillStatus】
-	DeletedAt           gorm.DeletedAt `gorm:"column:deleted_at;type:datetime;comment:删除时间" json:"deleted_at"`                                                                      // 删除时间
+	ID                  int64                 `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:订单退款ID" json:"id"`                                                        // 订单退款ID
+	TenantID            int64                 `gorm:"column:tenant_id;type:bigint;not null;index:idx_order_refund_tenant_id,priority:1;comment:租户ID" json:"tenant_id"`                     // 租户ID
+	TenantStoreID       int64                 `gorm:"column:tenant_store_id;type:bigint;not null;index:idx_order_refund_tenant_store_id,priority:1;comment:租户门店ID" json:"tenant_store_id"` // 租户门店ID
+	TradeID             int64                 `gorm:"column:trade_id;type:bigint;not null;index:idx_order_refund_trade_id,priority:1;comment:交易单ID" json:"trade_id"`                       // 交易单ID
+	OrderID             int64                 `gorm:"column:order_id;type:bigint;not null;index:idx_order_refund_order_id,priority:1;comment:订单ID" json:"order_id"`                        // 订单ID
+	TradeNo             string                `gorm:"column:trade_no;type:varchar(32);not null;comment:支付交易单编号" json:"trade_no"`                                                           // 支付交易单编号
+	ThirdOrderNo        string                `gorm:"column:third_order_no;type:varchar(32);comment:三方支付订单编号" json:"third_order_no"`                                                       // 三方支付订单编号
+	RefundNo            string                `gorm:"column:refund_no;type:varchar(32);not null;uniqueIndex:unique_order_refund,priority:1;comment:退款编号" json:"refund_no"`                 // 退款编号
+	Reason              int32                 `gorm:"column:reason;type:tinyint;not null;comment:退款原因：枚举【OrderRefundReason】" json:"reason"`                                                // 退款原因：枚举【OrderRefundReason】
+	ThirdRefundNo       string                `gorm:"column:third_refund_no;type:varchar(32);comment:三方退款编号" json:"third_refund_no"`                                                       // 三方退款编号
+	Channel             string                `gorm:"column:channel;type:varchar(32);comment:退款渠道" json:"channel"`                                                                         // 退款渠道
+	UserReceivedAccount string                `gorm:"column:user_received_account;type:varchar(64);comment:退款入账账户" json:"user_received_account"`                                           // 退款入账账户
+	CreateTime          time.Time             `gorm:"column:create_time;type:datetime;not null;comment:退款创建时间" json:"create_time"`                                                         // 退款创建时间
+	SuccessTime         time.Time             `gorm:"column:success_time;type:datetime;comment:退款成功时间" json:"success_time"`                                                                // 退款成功时间
+	RefundState         string                `gorm:"column:refund_state;type:varchar(32);not null;comment:退款状态" json:"refund_state"`                                                      // 退款状态
+	FundsAccount        string                `gorm:"column:funds_account;type:varchar(32);comment:资金账户" json:"funds_account"`                                                             // 资金账户
+	Amount              string                `gorm:"column:amount;type:json;not null;comment:退款金额信息" json:"amount"`                                                                       // 退款金额信息
+	Status              int32                 `gorm:"column:status;type:tinyint;not null;comment:对账状态：枚举【OrderBillStatus】" json:"status"`                                                  // 对账状态：枚举【OrderBillStatus】
+	DeletedAt           soft_delete.DeletedAt `gorm:"column:deleted_at;type:bigint unsigned;not null;uniqueIndex:unique_order_refund,priority:2;softDelete:milli" json:"deleted_at"`
 }
 
 // TableName OrderRefund's table name

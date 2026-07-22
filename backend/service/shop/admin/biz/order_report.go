@@ -335,7 +335,6 @@ func (c *OrderReportCase) queryOrderMonthReportRows(ctx context.Context, payType
 			query.GoodsCount.Sum().FloorDiv(1).IfNull(0).As("goods_count"),
 		).
 		Where(
-			query.DeletedAt.IsNull(),
 			query.StatDate.Gte(startAt),
 			query.StatDate.Lt(endAt),
 		)
@@ -382,7 +381,6 @@ func (c *OrderReportCase) queryOrderDayReportRows(ctx context.Context, payType, 
 			query.GoodsCount.Sum().FloorDiv(1).IfNull(0).As("goods_count"),
 		).
 		Where(
-			query.DeletedAt.IsNull(),
 			query.StatDate.Gte(startAt),
 			query.StatDate.Lt(endAt),
 		)

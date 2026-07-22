@@ -83,8 +83,8 @@ func (t *OrderStatDay) Exec(args map[string]string) ([]string, error) {
 	result := orderStatDayResult{}
 	err = t.tx.Transaction(t.ctx, func(ctx context.Context) error {
 		query := t.orderStatDayRepo.Query(ctx).OrderStatDay
-		// 订单日统计表带软删字段，这里必须物理删除旧数据再回灌。
-		_, err = query.WithContext(ctx).Unscoped().Where(query.StatDate.Eq(statDate)).Delete()
+		// 订单日统计按天全量重算，软删除旧数据再回灌。
+		_, err = query.WithContext(ctx).Where(query.StatDate.Eq(statDate)).Delete()
 		if err != nil {
 			return err
 		}

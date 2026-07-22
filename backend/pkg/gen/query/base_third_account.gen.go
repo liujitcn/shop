@@ -33,6 +33,7 @@ func newBaseThirdAccount(db *gorm.DB, opts ...gen.DOOption) baseThirdAccount {
 	_baseThirdAccount.Identifier = field.NewString(tableName, "identifier")
 	_baseThirdAccount.CreatedAt = field.NewTime(tableName, "created_at")
 	_baseThirdAccount.UpdatedAt = field.NewTime(tableName, "updated_at")
+	_baseThirdAccount.DeletedAt = field.NewField(tableName, "deleted_at")
 
 	_baseThirdAccount.fillFieldMap()
 
@@ -50,6 +51,7 @@ type baseThirdAccount struct {
 	Identifier field.String // 三方唯一标识
 	CreatedAt  field.Time   // 创建时间
 	UpdatedAt  field.Time   // 更新时间
+	DeletedAt  field.Field  // 删除时间
 
 	fieldMap map[string]field.Expr
 }
@@ -72,6 +74,7 @@ func (b *baseThirdAccount) updateTableName(table string) *baseThirdAccount {
 	b.Identifier = field.NewString(table, "identifier")
 	b.CreatedAt = field.NewTime(table, "created_at")
 	b.UpdatedAt = field.NewTime(table, "updated_at")
+	b.DeletedAt = field.NewField(table, "deleted_at")
 
 	b.fillFieldMap()
 
@@ -100,13 +103,14 @@ func (b *baseThirdAccount) GetFieldByName(fieldName string) (field.OrderExpr, bo
 }
 
 func (b *baseThirdAccount) fillFieldMap() {
-	b.fieldMap = make(map[string]field.Expr, 6)
+	b.fieldMap = make(map[string]field.Expr, 7)
 	b.fieldMap["id"] = b.ID
 	b.fieldMap["user_id"] = b.UserID
 	b.fieldMap["provider"] = b.Provider
 	b.fieldMap["identifier"] = b.Identifier
 	b.fieldMap["created_at"] = b.CreatedAt
 	b.fieldMap["updated_at"] = b.UpdatedAt
+	b.fieldMap["deleted_at"] = b.DeletedAt
 }
 
 func (b baseThirdAccount) clone(db *gorm.DB) baseThirdAccount {

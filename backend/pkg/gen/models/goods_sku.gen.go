@@ -7,30 +7,30 @@ package models
 import (
 	"time"
 
-	"gorm.io/gorm"
+	"gorm.io/plugin/soft_delete"
 )
 
 const TableNameGoodsSKU = "goods_sku"
 
 // GoodsSKU 商品SKU信息
 type GoodsSKU struct {
-	ID            int64          `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:商品SKUID" json:"id"`                                                    // 商品SKUID
-	TenantID      int64          `gorm:"column:tenant_id;type:bigint;not null;index:idx_goods_sku_tenant_id,priority:1;comment:租户ID" json:"tenant_id"`                     // 租户ID
-	TenantStoreID int64          `gorm:"column:tenant_store_id;type:bigint;not null;index:idx_goods_sku_tenant_store_id,priority:1;comment:租户门店ID" json:"tenant_store_id"` // 租户门店ID
-	GoodsID       int64          `gorm:"column:goods_id;type:bigint;not null;comment:商品ID" json:"goods_id"`                                                                // 商品ID
-	Picture       string         `gorm:"column:picture;type:varchar(1024);comment:SKU图片" json:"picture"`                                                                   // SKU图片
-	SKUCode       string         `gorm:"column:sku_code;type:varchar(50);not null;uniqueIndex:unique_goods_sku,priority:1;comment:SKU编码" json:"sku_code"`                  // SKU编码
-	SpecItem      string         `gorm:"column:spec_item;type:json;not null;comment:SKU 规格组成, 注意：需要与 goods_spec 数组顺序对应" json:"spec_item"`                                  // SKU 规格组成, 注意：需要与 goods_spec 数组顺序对应
-	Price         int64          `gorm:"column:price;type:bigint;not null;comment:当前价格(分)" json:"price"`                                                                   // 当前价格(分)
-	DiscountPrice int64          `gorm:"column:discount_price;type:bigint;not null;comment:折扣价格（分）" json:"discount_price"`                                                 // 折扣价格（分）
-	InitSaleNum   int64          `gorm:"column:init_sale_num;type:bigint;not null;comment:初始销量" json:"init_sale_num"`                                                      // 初始销量
-	RealSaleNum   int64          `gorm:"column:real_sale_num;type:bigint;not null;comment:真实销售数量" json:"real_sale_num"`                                                    // 真实销售数量
-	Inventory     int64          `gorm:"column:inventory;type:bigint;not null;comment:库存数量" json:"inventory"`                                                              // 库存数量
-	CreatedBy     int64          `gorm:"column:created_by;type:bigint;not null;comment:创建人ID" json:"created_by"`                                                           // 创建人ID
-	UpdatedBy     int64          `gorm:"column:updated_by;type:bigint;not null;comment:更新人ID" json:"updated_by"`                                                           // 更新人ID
-	CreatedAt     time.Time      `gorm:"column:created_at;type:datetime;not null;comment:创建时间" json:"created_at"`                                                          // 创建时间
-	UpdatedAt     time.Time      `gorm:"column:updated_at;type:datetime;not null;comment:更新时间" json:"updated_at"`                                                          // 更新时间
-	DeletedAt     gorm.DeletedAt `gorm:"column:deleted_at;type:datetime;comment:删除时间" json:"deleted_at"`                                                                   // 删除时间
+	ID            int64                 `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:商品SKUID" json:"id"`                                                    // 商品SKUID
+	TenantID      int64                 `gorm:"column:tenant_id;type:bigint;not null;index:idx_goods_sku_tenant_id,priority:1;comment:租户ID" json:"tenant_id"`                     // 租户ID
+	TenantStoreID int64                 `gorm:"column:tenant_store_id;type:bigint;not null;index:idx_goods_sku_tenant_store_id,priority:1;comment:租户门店ID" json:"tenant_store_id"` // 租户门店ID
+	GoodsID       int64                 `gorm:"column:goods_id;type:bigint;not null;comment:商品ID" json:"goods_id"`                                                                // 商品ID
+	Picture       string                `gorm:"column:picture;type:varchar(1024);comment:SKU图片" json:"picture"`                                                                   // SKU图片
+	SKUCode       string                `gorm:"column:sku_code;type:varchar(50);not null;uniqueIndex:unique_goods_sku,priority:1;comment:SKU编码" json:"sku_code"`                  // SKU编码
+	SpecItem      string                `gorm:"column:spec_item;type:json;not null;comment:SKU 规格组成, 注意：需要与 goods_spec 数组顺序对应" json:"spec_item"`                                  // SKU 规格组成, 注意：需要与 goods_spec 数组顺序对应
+	Price         int64                 `gorm:"column:price;type:bigint;not null;comment:当前价格(分)" json:"price"`                                                                   // 当前价格(分)
+	DiscountPrice int64                 `gorm:"column:discount_price;type:bigint;not null;comment:折扣价格（分）" json:"discount_price"`                                                 // 折扣价格（分）
+	InitSaleNum   int64                 `gorm:"column:init_sale_num;type:bigint;not null;comment:初始销量" json:"init_sale_num"`                                                      // 初始销量
+	RealSaleNum   int64                 `gorm:"column:real_sale_num;type:bigint;not null;comment:真实销售数量" json:"real_sale_num"`                                                    // 真实销售数量
+	Inventory     int64                 `gorm:"column:inventory;type:bigint;not null;comment:库存数量" json:"inventory"`                                                              // 库存数量
+	CreatedBy     int64                 `gorm:"column:created_by;type:bigint;not null;comment:创建人ID" json:"created_by"`                                                           // 创建人ID
+	UpdatedBy     int64                 `gorm:"column:updated_by;type:bigint;not null;comment:更新人ID" json:"updated_by"`                                                           // 更新人ID
+	CreatedAt     time.Time             `gorm:"column:created_at;type:datetime;not null;comment:创建时间" json:"created_at"`                                                          // 创建时间
+	UpdatedAt     time.Time             `gorm:"column:updated_at;type:datetime;not null;comment:更新时间" json:"updated_at"`                                                          // 更新时间
+	DeletedAt     soft_delete.DeletedAt `gorm:"column:deleted_at;type:bigint unsigned;not null;uniqueIndex:unique_goods_sku,priority:2;softDelete:milli" json:"deleted_at"`
 }
 
 // TableName GoodsSKU's table name

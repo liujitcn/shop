@@ -63,7 +63,7 @@ type goodsStatDay struct {
 	PayCount      field.Int64 // 支付次数
 	PayGoodsNum   field.Int64 // 支付商品件数
 	PayAmount     field.Int64 // 支付金额
-	DeletedAt     field.Field // 删除时间
+	DeletedAt     field.Field
 
 	fieldMap map[string]field.Expr
 }

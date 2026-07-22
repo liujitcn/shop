@@ -67,7 +67,7 @@ type orderStatDay struct {
 	RefundOrderAmount   field.Int64 // 退款成功金额，单位分
 	CanceledOrderCount  field.Int32 // 取消订单数
 	CanceledOrderAmount field.Int64 // 取消订单金额，单位分
-	DeletedAt           field.Field // 删除时间
+	DeletedAt           field.Field
 
 	fieldMap map[string]field.Expr
 }

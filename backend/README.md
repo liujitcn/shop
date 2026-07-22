@@ -72,8 +72,7 @@ go run ./internal/cmd/server --conf ./configs
 - HTTP：`http://localhost:7001`
 - gRPC：`localhost:6001`
 - SSE：`http://localhost:7001/events/1`
-- Swagger UI：`http://localhost:7001/docs/`
-- OpenAPI：`http://localhost:7001/docs/openapi.yaml`
+- OpenAPI：`http://localhost:7001/api/docs/openapi`（需携带已登录管理后台的 Bearer Token）
 
 也可以使用 `make run` 生成接口产物并启动服务。
 

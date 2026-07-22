@@ -46,14 +46,14 @@ type casbinRule struct {
 	casbinRuleDo casbinRuleDo
 
 	ALL   field.Asterisk
-	ID    field.Int64
-	Ptype field.String
-	V0    field.String
-	V1    field.String
-	V2    field.String
-	V3    field.String
-	V4    field.String
-	V5    field.String
+	ID    field.Int64  // 策略规则ID
+	Ptype field.String // 策略类型
+	V0    field.String // 租户编码
+	V1    field.String // 角色编码
+	V2    field.String // 资源路径
+	V3    field.String // 请求方法
+	V4    field.String // 项目范围
+	V5    field.String // 扩展策略参数
 
 	fieldMap map[string]field.Expr
 }

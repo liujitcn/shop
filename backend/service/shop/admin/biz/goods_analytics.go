@@ -383,7 +383,6 @@ func (c *GoodsAnalyticsCase) queryGoodsCategorySummary(ctx context.Context, tena
 	goodsDAO := goodsQuery.WithContext(ctx).
 		Select(goodsQuery.ID, goodsQuery.CategoryID).
 		Where(
-			goodsQuery.DeletedAt.IsNull(),
 			goodsQuery.ID.In(goodsIDs...),
 		)
 	if tenantID > 0 {
@@ -465,7 +464,6 @@ func (c *GoodsAnalyticsCase) loadGoodsNameMap(ctx context.Context, tenantID, ten
 	dao := query.WithContext(ctx).
 		Select(query.ID, query.Name).
 		Where(
-			query.DeletedAt.IsNull(),
 			query.ID.In(goodsIDs...),
 		)
 	if tenantID > 0 {

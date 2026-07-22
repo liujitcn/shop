@@ -86,6 +86,9 @@ importers:
       sortablejs:
         specifier: ^1.15.2
         version: 1.15.7
+      swagger-ui-dist:
+        specifier: ^5.32.9
+        version: 5.32.9
       vue:
         specifier: ^3.5.35
         version: 3.5.35(typescript@6.0.3)
@@ -1763,6 +1766,9 @@ packages:
     resolution: {integrity: sha512-QVTUovf40zgTqlFVrKA1uXMVvU2QWEFWfAH8Wdc48IxLvrJMQVMBRjuQyUpzZCDkakImib9eVazbWlC6ksWtJw==}
     cpu: [x64]
     os: [win32]
+
+  '@scarf/scarf@1.4.0':
+    resolution: {integrity: sha512-xxeapPiUXdZAE3che6f3xogoJPeZgig6omHEy1rIY5WVsB3H2BHNnZH+gHG6x91SCWyQCzWGsuL2Hh3ClO5/qQ==}
 
   '@shikijs/core@3.23.0':
     resolution: {integrity: sha512-NSWQz0riNb67xthdm5br6lAkvpDJRTgB36fxlo37ZzM2yq0PQFFzbd8psqC2XMPgCzo1fW6cVi18+ArJ44wqgA==}
@@ -5249,6 +5255,9 @@ packages:
     engines: {node: '>=10.13.0'}
     hasBin: true
 
+  swagger-ui-dist@5.32.9:
+    resolution: {integrity: sha512-8i2tzJQi+7bgxESMD2hg/UBumbTsf6vLbtu4cW5ETPz/B070UuS0rTP1hu6WSH81HcsHqYalJE+rP21Vg96rUQ==}
+
   table@6.9.0:
     resolution: {integrity: sha512-9kY+CygyYM6j02t5YFHbNz2FN5QmYGv9zAjVp4lCDjlCw7amdckXlEt/bjMhUIfj4ThGRE4gCUH5+yGnNuPo5A==}
     engines: {node: '>=10.0.0'}
@@ -7440,6 +7449,8 @@ snapshots:
 
   '@rollup/rollup-win32-x64-msvc@4.60.4':
     optional: true
+
+  '@scarf/scarf@1.4.0': {}
 
   '@shikijs/core@3.23.0':
     dependencies:
@@ -11544,6 +11555,10 @@ snapshots:
       picocolors: 1.1.1
       sax: 1.6.0
       stable: 0.1.8
+
+  swagger-ui-dist@5.32.9:
+    dependencies:
+      '@scarf/scarf': 1.4.0
 
   table@6.9.0:
     dependencies:

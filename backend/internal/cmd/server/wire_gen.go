@@ -603,7 +603,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 		return nil, nil, err
 	}
 	httpMiddlewares := server.NewHTTPMiddleware(context, authenticator, baseUserRepository, engine, userToken, authentication_Jwt)
-	httpServer, err := server.NewHTTPServer(context, appInfo, httpMiddlewares, modules, mcpToolsReady, agentToolsReady)
+	httpServer, err := server.NewHTTPServer(context, appInfo, httpMiddlewares, modules, authenticator, userToken, mcpToolsReady, agentToolsReady)
 	if err != nil {
 		cleanup4()
 		cleanup3()

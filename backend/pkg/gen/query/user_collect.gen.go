@@ -57,7 +57,7 @@ type userCollect struct {
 	RequestID     field.Int64 // 推荐请求ID
 	Position      field.Int32 // 推荐位序号
 	CreatedAt     field.Time  // 创建时间
-	DeletedAt     field.Field // 删除时间
+	DeletedAt     field.Field
 
 	fieldMap map[string]field.Expr
 }

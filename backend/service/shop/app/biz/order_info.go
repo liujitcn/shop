@@ -2,6 +2,7 @@ package biz
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -1262,7 +1263,7 @@ func (c *OrderInfoCase) pageOrderInfoQueryOptions(
 			orderOpts = append(orderOpts, repository.Join(tradeQuery, query.TradeID.EqCol(tradeQuery.ID)))
 			orderOpts = append(orderOpts, repository.Where(tradeQuery.UserID.Eq(userID)))
 			orderOpts = append(orderOpts, repository.Where(tradeQuery.Status.Eq(int32(tradeStatus))))
-			orderOpts = append(orderOpts, repository.Where(tradeQuery.DeletedAt.IsNull()))
+			orderOpts = append(orderOpts, repository.Where(tradeQuery.DeletedAt.Eq(sql.NullInt64{Valid: true})))
 		}
 		if orderStatus != shopcommonv1.OrderInfoStatus_UNKNOWN_OIS {
 			orderOpts = append(orderOpts, repository.Where(query.Status.Eq(int32(orderStatus))))

@@ -7,25 +7,25 @@ package models
 import (
 	"time"
 
-	"gorm.io/gorm"
+	"gorm.io/plugin/soft_delete"
 )
 
 const TableNameShopHot = "shop_hot"
 
 // ShopHot 商城热门信息
 type ShopHot struct {
-	ID        int64          `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:商城热门信息ID" json:"id"` // 商城热门信息ID
-	Title     string         `gorm:"column:title;type:varchar(100);not null;comment:标题" json:"title"`                // 标题
-	Desc      string         `gorm:"column:desc;type:varchar(100);not null;comment:描述" json:"desc"`                  // 描述
-	Banner    string         `gorm:"column:banner;type:varchar(1024);not null;comment:轮播图" json:"banner"`            // 轮播图
-	Picture   string         `gorm:"column:picture;type:json;not null;comment:图片" json:"picture"`                    // 图片
-	Sort      int32          `gorm:"column:sort;type:int;not null;comment:排序" json:"sort"`                           // 排序
-	Status    int32          `gorm:"column:status;type:tinyint;not null;comment:状态：枚举【Status】" json:"status"`        // 状态：枚举【Status】
-	CreatedBy int64          `gorm:"column:created_by;type:bigint;not null;comment:创建人ID" json:"created_by"`         // 创建人ID
-	UpdatedBy int64          `gorm:"column:updated_by;type:bigint;not null;comment:更新人ID" json:"updated_by"`         // 更新人ID
-	CreatedAt time.Time      `gorm:"column:created_at;type:datetime;not null;comment:创建时间" json:"created_at"`        // 创建时间
-	UpdatedAt time.Time      `gorm:"column:updated_at;type:datetime;not null;comment:更新时间" json:"updated_at"`        // 更新时间
-	DeletedAt gorm.DeletedAt `gorm:"column:deleted_at;type:datetime;comment:删除时间" json:"deleted_at"`                 // 删除时间
+	ID        int64                 `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:商城热门信息ID" json:"id"` // 商城热门信息ID
+	Title     string                `gorm:"column:title;type:varchar(100);not null;comment:标题" json:"title"`                // 标题
+	Desc      string                `gorm:"column:desc;type:varchar(100);not null;comment:描述" json:"desc"`                  // 描述
+	Banner    string                `gorm:"column:banner;type:varchar(1024);not null;comment:轮播图" json:"banner"`            // 轮播图
+	Picture   string                `gorm:"column:picture;type:json;not null;comment:图片" json:"picture"`                    // 图片
+	Sort      int32                 `gorm:"column:sort;type:int;not null;comment:排序" json:"sort"`                           // 排序
+	Status    int32                 `gorm:"column:status;type:tinyint;not null;comment:状态：枚举【Status】" json:"status"`        // 状态：枚举【Status】
+	CreatedBy int64                 `gorm:"column:created_by;type:bigint;not null;comment:创建人ID" json:"created_by"`         // 创建人ID
+	UpdatedBy int64                 `gorm:"column:updated_by;type:bigint;not null;comment:更新人ID" json:"updated_by"`         // 更新人ID
+	CreatedAt time.Time             `gorm:"column:created_at;type:datetime;not null;comment:创建时间" json:"created_at"`        // 创建时间
+	UpdatedAt time.Time             `gorm:"column:updated_at;type:datetime;not null;comment:更新时间" json:"updated_at"`        // 更新时间
+	DeletedAt soft_delete.DeletedAt `gorm:"column:deleted_at;type:bigint unsigned;not null;softDelete:milli" json:"deleted_at"`
 }
 
 // TableName ShopHot's table name

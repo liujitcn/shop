@@ -2,6 +2,7 @@ package biz
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"net"
 	"net/url"
@@ -263,8 +264,8 @@ func (c *CommentCase) PagePendingCommentGoods(ctx context.Context, req *shopappv
 		Where(
 			orderInfoQuery.UserID.Eq(authInfo.UserId),
 			orderInfoQuery.Status.Eq(_const.ORDER_INFO_STATUS_WAIT_REVIEW),
-			orderInfoQuery.DeletedAt.IsNull(),
-			orderGoodsQuery.DeletedAt.IsNull(),
+			orderInfoQuery.DeletedAt.Eq(sql.NullInt64{Valid: true}),
+			orderGoodsQuery.DeletedAt.Eq(sql.NullInt64{Valid: true}),
 			commentInfoQuery.ID.IsNull(),
 		).
 		Order(orderInfoQuery.CreatedAt.Desc(), orderGoodsQuery.ID.Desc())

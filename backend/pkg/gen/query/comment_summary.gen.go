@@ -59,7 +59,7 @@ type commentSummary struct {
 	DislikeCount  field.Int32  // 点踩数展示缓存
 	CreatedAt     field.Time   // 创建时间
 	UpdatedAt     field.Time   // 最后更新时间
-	DeletedAt     field.Field  // 删除时间
+	DeletedAt     field.Field
 
 	fieldMap map[string]field.Expr
 }

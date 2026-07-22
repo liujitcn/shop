@@ -7,25 +7,25 @@ package models
 import (
 	"time"
 
-	"gorm.io/gorm"
+	"gorm.io/plugin/soft_delete"
 )
 
 const TableNameGoodsProp = "goods_prop"
 
 // GoodsProp 商品属性信息
 type GoodsProp struct {
-	ID            int64          `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:商品属性ID" json:"id"`                                                      // 商品属性ID
-	TenantID      int64          `gorm:"column:tenant_id;type:bigint;not null;index:idx_goods_prop_tenant_id,priority:1;comment:租户ID" json:"tenant_id"`                     // 租户ID
-	TenantStoreID int64          `gorm:"column:tenant_store_id;type:bigint;not null;index:idx_goods_prop_tenant_store_id,priority:1;comment:租户门店ID" json:"tenant_store_id"` // 租户门店ID
-	GoodsID       int64          `gorm:"column:goods_id;type:bigint;not null;uniqueIndex:unique_goods_prop,priority:1;comment:商品ID" json:"goods_id"`                        // 商品ID
-	Label         string         `gorm:"column:label;type:varchar(255);not null;uniqueIndex:unique_goods_prop,priority:2;comment:属性标题" json:"label"`                        // 属性标题
-	Value         string         `gorm:"column:value;type:varchar(500);not null;comment:属性内容" json:"value"`                                                                 // 属性内容
-	Sort          int32          `gorm:"column:sort;type:tinyint;not null;comment:排序" json:"sort"`                                                                          // 排序
-	CreatedBy     int64          `gorm:"column:created_by;type:bigint;not null;comment:创建人ID" json:"created_by"`                                                            // 创建人ID
-	UpdatedBy     int64          `gorm:"column:updated_by;type:bigint;not null;comment:更新人ID" json:"updated_by"`                                                            // 更新人ID
-	CreatedAt     time.Time      `gorm:"column:created_at;type:datetime;not null;comment:创建时间" json:"created_at"`                                                           // 创建时间
-	UpdatedAt     time.Time      `gorm:"column:updated_at;type:datetime;not null;comment:更新时间" json:"updated_at"`                                                           // 更新时间
-	DeletedAt     gorm.DeletedAt `gorm:"column:deleted_at;type:datetime;comment:删除时间" json:"deleted_at"`                                                                    // 删除时间
+	ID            int64                 `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:商品属性ID" json:"id"`                                                      // 商品属性ID
+	TenantID      int64                 `gorm:"column:tenant_id;type:bigint;not null;index:idx_goods_prop_tenant_id,priority:1;comment:租户ID" json:"tenant_id"`                     // 租户ID
+	TenantStoreID int64                 `gorm:"column:tenant_store_id;type:bigint;not null;index:idx_goods_prop_tenant_store_id,priority:1;comment:租户门店ID" json:"tenant_store_id"` // 租户门店ID
+	GoodsID       int64                 `gorm:"column:goods_id;type:bigint;not null;uniqueIndex:unique_goods_prop,priority:1;comment:商品ID" json:"goods_id"`                        // 商品ID
+	Label         string                `gorm:"column:label;type:varchar(255);not null;uniqueIndex:unique_goods_prop,priority:2;comment:属性标题" json:"label"`                        // 属性标题
+	Value         string                `gorm:"column:value;type:varchar(500);not null;comment:属性内容" json:"value"`                                                                 // 属性内容
+	Sort          int32                 `gorm:"column:sort;type:tinyint;not null;comment:排序" json:"sort"`                                                                          // 排序
+	CreatedBy     int64                 `gorm:"column:created_by;type:bigint;not null;comment:创建人ID" json:"created_by"`                                                            // 创建人ID
+	UpdatedBy     int64                 `gorm:"column:updated_by;type:bigint;not null;comment:更新人ID" json:"updated_by"`                                                            // 更新人ID
+	CreatedAt     time.Time             `gorm:"column:created_at;type:datetime;not null;comment:创建时间" json:"created_at"`                                                           // 创建时间
+	UpdatedAt     time.Time             `gorm:"column:updated_at;type:datetime;not null;comment:更新时间" json:"updated_at"`                                                           // 更新时间
+	DeletedAt     soft_delete.DeletedAt `gorm:"column:deleted_at;type:bigint unsigned;not null;uniqueIndex:unique_goods_prop,priority:3;softDelete:milli" json:"deleted_at"`
 }
 
 // TableName GoodsProp's table name

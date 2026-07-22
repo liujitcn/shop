@@ -7,28 +7,28 @@ package models
 import (
 	"time"
 
-	"gorm.io/gorm"
+	"gorm.io/plugin/soft_delete"
 )
 
 const TableNameOrderStatDay = "order_stat_day"
 
 // OrderStatDay 订单日统计表
 type OrderStatDay struct {
-	ID                  int64          `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:订单统计ID" json:"id"`                                                                                                       // 订单统计ID
-	TenantID            int64          `gorm:"column:tenant_id;type:bigint;not null;uniqueIndex:unique_order_stat_day,priority:1;comment:租户ID" json:"tenant_id"`                                                                   // 租户ID
-	TenantStoreID       int64          `gorm:"column:tenant_store_id;type:bigint;not null;uniqueIndex:unique_order_stat_day,priority:2;index:idx_order_stat_day_tenant_store_id,priority:1;comment:租户门店ID" json:"tenant_store_id"` // 租户门店ID
-	StatDate            time.Time      `gorm:"column:stat_date;type:date;not null;uniqueIndex:unique_order_stat_day,priority:3;comment:统计日期" json:"stat_date"`                                                                     // 统计日期
-	PayType             int32          `gorm:"column:pay_type;type:tinyint;not null;uniqueIndex:unique_order_stat_day,priority:4;comment:支付方式：枚举【OrderPayType】" json:"pay_type"`                                                   // 支付方式：枚举【OrderPayType】
-	PayChannel          int32          `gorm:"column:pay_channel;type:tinyint;not null;uniqueIndex:unique_order_stat_day,priority:5;comment:支付渠道：枚举【OrderPayChannel】" json:"pay_channel"`                                          // 支付渠道：枚举【OrderPayChannel】
-	PaidOrderCount      int32          `gorm:"column:paid_order_count;type:int;not null;comment:支付成功订单数" json:"paid_order_count"`                                                                                                  // 支付成功订单数
-	PaidOrderAmount     int64          `gorm:"column:paid_order_amount;type:bigint;not null;comment:支付成功金额，单位分" json:"paid_order_amount"`                                                                                          // 支付成功金额，单位分
-	PaidUserCount       int32          `gorm:"column:paid_user_count;type:int;not null;comment:支付成功用户数，按天去重" json:"paid_user_count"`                                                                                               // 支付成功用户数，按天去重
-	GoodsCount          int32          `gorm:"column:goods_count;type:int;not null;comment:支付成功商品件数" json:"goods_count"`                                                                                                           // 支付成功商品件数
-	RefundOrderCount    int32          `gorm:"column:refund_order_count;type:int;not null;comment:退款成功订单数，按天去重" json:"refund_order_count"`                                                                                         // 退款成功订单数，按天去重
-	RefundOrderAmount   int64          `gorm:"column:refund_order_amount;type:bigint;not null;comment:退款成功金额，单位分" json:"refund_order_amount"`                                                                                      // 退款成功金额，单位分
-	CanceledOrderCount  int32          `gorm:"column:canceled_order_count;type:int;not null;comment:取消订单数" json:"canceled_order_count"`                                                                                            // 取消订单数
-	CanceledOrderAmount int64          `gorm:"column:canceled_order_amount;type:bigint;not null;comment:取消订单金额，单位分" json:"canceled_order_amount"`                                                                                  // 取消订单金额，单位分
-	DeletedAt           gorm.DeletedAt `gorm:"column:deleted_at;type:datetime;index:idx_order_stat_day_deleted_at,priority:1;comment:删除时间" json:"deleted_at"`                                                                      // 删除时间
+	ID                  int64                 `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:订单统计ID" json:"id"`                                                                                                       // 订单统计ID
+	TenantID            int64                 `gorm:"column:tenant_id;type:bigint;not null;uniqueIndex:unique_order_stat_day,priority:1;comment:租户ID" json:"tenant_id"`                                                                   // 租户ID
+	TenantStoreID       int64                 `gorm:"column:tenant_store_id;type:bigint;not null;uniqueIndex:unique_order_stat_day,priority:2;index:idx_order_stat_day_tenant_store_id,priority:1;comment:租户门店ID" json:"tenant_store_id"` // 租户门店ID
+	StatDate            time.Time             `gorm:"column:stat_date;type:date;not null;uniqueIndex:unique_order_stat_day,priority:3;comment:统计日期" json:"stat_date"`                                                                     // 统计日期
+	PayType             int32                 `gorm:"column:pay_type;type:tinyint;not null;uniqueIndex:unique_order_stat_day,priority:4;comment:支付方式：枚举【OrderPayType】" json:"pay_type"`                                                   // 支付方式：枚举【OrderPayType】
+	PayChannel          int32                 `gorm:"column:pay_channel;type:tinyint;not null;uniqueIndex:unique_order_stat_day,priority:5;comment:支付渠道：枚举【OrderPayChannel】" json:"pay_channel"`                                          // 支付渠道：枚举【OrderPayChannel】
+	PaidOrderCount      int32                 `gorm:"column:paid_order_count;type:int;not null;comment:支付成功订单数" json:"paid_order_count"`                                                                                                  // 支付成功订单数
+	PaidOrderAmount     int64                 `gorm:"column:paid_order_amount;type:bigint;not null;comment:支付成功金额，单位分" json:"paid_order_amount"`                                                                                          // 支付成功金额，单位分
+	PaidUserCount       int32                 `gorm:"column:paid_user_count;type:int;not null;comment:支付成功用户数，按天去重" json:"paid_user_count"`                                                                                               // 支付成功用户数，按天去重
+	GoodsCount          int32                 `gorm:"column:goods_count;type:int;not null;comment:支付成功商品件数" json:"goods_count"`                                                                                                           // 支付成功商品件数
+	RefundOrderCount    int32                 `gorm:"column:refund_order_count;type:int;not null;comment:退款成功订单数，按天去重" json:"refund_order_count"`                                                                                         // 退款成功订单数，按天去重
+	RefundOrderAmount   int64                 `gorm:"column:refund_order_amount;type:bigint;not null;comment:退款成功金额，单位分" json:"refund_order_amount"`                                                                                      // 退款成功金额，单位分
+	CanceledOrderCount  int32                 `gorm:"column:canceled_order_count;type:int;not null;comment:取消订单数" json:"canceled_order_count"`                                                                                            // 取消订单数
+	CanceledOrderAmount int64                 `gorm:"column:canceled_order_amount;type:bigint;not null;comment:取消订单金额，单位分" json:"canceled_order_amount"`                                                                                  // 取消订单金额，单位分
+	DeletedAt           soft_delete.DeletedAt `gorm:"column:deleted_at;type:bigint unsigned;not null;uniqueIndex:unique_order_stat_day,priority:6;softDelete:milli" json:"deleted_at"`
 }
 
 // TableName OrderStatDay's table name

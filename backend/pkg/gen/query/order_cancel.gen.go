@@ -47,7 +47,7 @@ type orderCancel struct {
 	TradeID   field.Int64 // 交易单ID
 	Reason    field.Int32 // 取消原因：枚举【OrderCancelReason】
 	CreatedAt field.Time  // 创建时间
-	DeletedAt field.Field // 删除时间
+	DeletedAt field.Field
 
 	fieldMap map[string]field.Expr
 }

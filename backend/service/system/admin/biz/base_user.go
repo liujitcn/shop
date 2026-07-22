@@ -2,6 +2,7 @@ package biz
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/liujitcn/go-utils/crypto"
 	"github.com/liujitcn/go-utils/mapper"
@@ -89,7 +90,7 @@ func (c *BaseUserCase) OptionBaseUser(ctx context.Context, req *systemadminv1.Op
 		orderQuery := c.orderInfoRepo.Query(ctx).OrderInfo
 		opts = append(opts, repository.Join(orderQuery, query.ID.EqCol(orderQuery.UserID)))
 		opts = append(opts, repository.Where(orderQuery.TenantID.Eq(authInfo.TenantId)))
-		opts = append(opts, repository.Where(orderQuery.DeletedAt.IsNull()))
+		opts = append(opts, repository.Where(orderQuery.DeletedAt.Eq(sql.NullInt64{Valid: true})))
 		opts = append(opts, repository.Distinct(query.ALL))
 	}
 	if req.GetTenantId() > 0 {

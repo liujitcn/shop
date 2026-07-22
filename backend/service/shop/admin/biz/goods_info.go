@@ -491,7 +491,6 @@ func (c *GoodsInfoCase) findGoodsIDsByCategoryIDs(ctx context.Context, categoryI
 	rows := make([]*goodsCategoryRow, 0)
 	err := query.WithContext(ctx).
 		Select(query.ID, query.CategoryID).
-		Where(query.DeletedAt.IsNull()).
 		Scan(&rows)
 	if err != nil {
 		return nil, err
@@ -554,7 +553,6 @@ func (c *GoodsInfoCase) findGoodsIDsByInventoryAlert(ctx context.Context, invent
 	query := c.goodsSKUCase.Query(ctx).GoodsSKU
 	dao := query.WithContext(ctx).
 		Where(
-			query.DeletedAt.IsNull(),
 			query.GoodsID.In(availableGoodsIDs...),
 		)
 	// 根据不同预警类型追加库存过滤条件。
@@ -587,7 +585,6 @@ func (c *GoodsInfoCase) findGoodsIDsByAbnormalPrice(ctx context.Context) ([]int6
 	query := c.goodsSKUCase.Query(ctx).GoodsSKU
 	err = query.WithContext(ctx).
 		Where(
-			query.DeletedAt.IsNull(),
 			query.GoodsID.In(availableGoodsIDs...),
 			field.Or(
 				query.Price.Lte(0),
@@ -608,7 +605,6 @@ func (c *GoodsInfoCase) listNonDeletedGoodsIDs(ctx context.Context) ([]int64, er
 	query := c.Query(ctx).GoodsInfo
 	goodsIDs := make([]int64, 0)
 	err := query.WithContext(ctx).
-		Where(query.DeletedAt.IsNull()).
 		Pluck(query.ID, &goodsIDs)
 	return goodsIDs, err
 }
@@ -694,21 +690,20 @@ func (c *GoodsInfoCase) wrapGoodsInfoDuplicateConflict(err error) error {
 func (c *GoodsInfoCase) deleteGoodsChildren(ctx context.Context, ids []int64) error {
 	query := c.Query(ctx)
 	for _, goodsID := range ids {
-		// 商品编辑会按“删旧建新”重建子表数据，这里必须物理删除，否则唯一索引会与软删除数据冲突。
 		propQuery := query.GoodsProp
-		_, err := propQuery.WithContext(ctx).Unscoped().Where(propQuery.GoodsID.Eq(goodsID)).Delete()
+		_, err := propQuery.WithContext(ctx).Where(propQuery.GoodsID.Eq(goodsID)).Delete()
 		if err != nil {
 			return err
 		}
 
 		specQuery := query.GoodsSpec
-		_, err = specQuery.WithContext(ctx).Unscoped().Where(specQuery.GoodsID.Eq(goodsID)).Delete()
+		_, err = specQuery.WithContext(ctx).Where(specQuery.GoodsID.Eq(goodsID)).Delete()
 		if err != nil {
 			return err
 		}
 
 		skuQuery := query.GoodsSKU
-		_, err = skuQuery.WithContext(ctx).Unscoped().Where(skuQuery.GoodsID.Eq(goodsID)).Delete()
+		_, err = skuQuery.WithContext(ctx).Where(skuQuery.GoodsID.Eq(goodsID)).Delete()
 		if err != nil {
 			return err
 		}

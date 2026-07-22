@@ -7,23 +7,23 @@ package models
 import (
 	"time"
 
-	"gorm.io/gorm"
+	"gorm.io/plugin/soft_delete"
 )
 
 const TableNameOrderLogistics = "order_logistics"
 
 // OrderLogistics 订单物流信息
 type OrderLogistics struct {
-	ID            int64          `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:订单物流ID" json:"id"`                                                           // 订单物流ID
-	TenantID      int64          `gorm:"column:tenant_id;type:bigint;not null;index:idx_order_logistics_tenant_id,priority:1;comment:租户ID" json:"tenant_id"`                     // 租户ID
-	TenantStoreID int64          `gorm:"column:tenant_store_id;type:bigint;not null;index:idx_order_logistics_tenant_store_id,priority:1;comment:租户门店ID" json:"tenant_store_id"` // 租户门店ID
-	OrderID       int64          `gorm:"column:order_id;type:bigint;not null;uniqueIndex:idx_order_logistics_order_id,priority:1;comment:订单ID" json:"order_id"`                  // 订单ID
-	Name          string         `gorm:"column:name;type:varchar(100);not null;comment:物流公司名" json:"name"`                                                                       // 物流公司名
-	No            string         `gorm:"column:no;type:varchar(100);not null;comment:单号" json:"no"`                                                                              // 单号
-	Contact       string         `gorm:"column:contact;type:varchar(100);not null;comment:联系方式" json:"contact"`                                                                  // 联系方式
-	Detail        string         `gorm:"column:detail;type:json;not null;comment:物流详情" json:"detail"`                                                                            // 物流详情
-	CreatedAt     time.Time      `gorm:"column:created_at;type:datetime;not null;comment:创建时间" json:"created_at"`                                                                // 创建时间
-	DeletedAt     gorm.DeletedAt `gorm:"column:deleted_at;type:datetime;comment:删除时间" json:"deleted_at"`                                                                         // 删除时间
+	ID            int64                 `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:订单物流ID" json:"id"`                                                           // 订单物流ID
+	TenantID      int64                 `gorm:"column:tenant_id;type:bigint;not null;index:idx_order_logistics_tenant_id,priority:1;comment:租户ID" json:"tenant_id"`                     // 租户ID
+	TenantStoreID int64                 `gorm:"column:tenant_store_id;type:bigint;not null;index:idx_order_logistics_tenant_store_id,priority:1;comment:租户门店ID" json:"tenant_store_id"` // 租户门店ID
+	OrderID       int64                 `gorm:"column:order_id;type:bigint;not null;uniqueIndex:unique_order_logistics,priority:1;comment:订单ID" json:"order_id"`                        // 订单ID
+	Name          string                `gorm:"column:name;type:varchar(100);not null;comment:物流公司名" json:"name"`                                                                       // 物流公司名
+	No            string                `gorm:"column:no;type:varchar(100);not null;comment:单号" json:"no"`                                                                              // 单号
+	Contact       string                `gorm:"column:contact;type:varchar(100);not null;comment:联系方式" json:"contact"`                                                                  // 联系方式
+	Detail        string                `gorm:"column:detail;type:json;not null;comment:物流详情" json:"detail"`                                                                            // 物流详情
+	CreatedAt     time.Time             `gorm:"column:created_at;type:datetime;not null;comment:创建时间" json:"created_at"`                                                                // 创建时间
+	DeletedAt     soft_delete.DeletedAt `gorm:"column:deleted_at;type:bigint unsigned;not null;uniqueIndex:unique_order_logistics,priority:2;softDelete:milli" json:"deleted_at"`
 }
 
 // TableName OrderLogistics's table name

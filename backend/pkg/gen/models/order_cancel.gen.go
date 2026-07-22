@@ -7,18 +7,18 @@ package models
 import (
 	"time"
 
-	"gorm.io/gorm"
+	"gorm.io/plugin/soft_delete"
 )
 
 const TableNameOrderCancel = "order_cancel"
 
 // OrderCancel 订单取消信息
 type OrderCancel struct {
-	ID        int64          `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:订单取消ID" json:"id"`                                  // 订单取消ID
-	TradeID   int64          `gorm:"column:trade_id;type:bigint;not null;uniqueIndex:unique_order_cancel,priority:1;comment:交易单ID" json:"trade_id"` // 交易单ID
-	Reason    int32          `gorm:"column:reason;type:tinyint;not null;comment:取消原因：枚举【OrderCancelReason】" json:"reason"`                          // 取消原因：枚举【OrderCancelReason】
-	CreatedAt time.Time      `gorm:"column:created_at;type:datetime;not null;comment:创建时间" json:"created_at"`                                       // 创建时间
-	DeletedAt gorm.DeletedAt `gorm:"column:deleted_at;type:datetime;comment:删除时间" json:"deleted_at"`                                                // 删除时间
+	ID        int64                 `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:订单取消ID" json:"id"`                                  // 订单取消ID
+	TradeID   int64                 `gorm:"column:trade_id;type:bigint;not null;uniqueIndex:unique_order_cancel,priority:1;comment:交易单ID" json:"trade_id"` // 交易单ID
+	Reason    int32                 `gorm:"column:reason;type:tinyint;not null;comment:取消原因：枚举【OrderCancelReason】" json:"reason"`                          // 取消原因：枚举【OrderCancelReason】
+	CreatedAt time.Time             `gorm:"column:created_at;type:datetime;not null;comment:创建时间" json:"created_at"`                                       // 创建时间
+	DeletedAt soft_delete.DeletedAt `gorm:"column:deleted_at;type:bigint unsigned;not null;uniqueIndex:unique_order_cancel,priority:2;softDelete:milli" json:"deleted_at"`
 }
 
 // TableName OrderCancel's table name

@@ -64,7 +64,6 @@ func (c *GoodsCategoryCase) ListGoodsCategory(ctx context.Context, req *shopappv
 			if !categoryGoodsLoaded {
 				goodsQuery := c.goodsInfoRepo.Query(ctx).GoodsInfo
 				goodsOpts := make([]repository.QueryOption, 0, 3)
-				goodsOpts = append(goodsOpts, repository.Where(goodsQuery.DeletedAt.IsNull()))
 				goodsOpts = append(goodsOpts, repository.Where(goodsQuery.Status.Eq(_const.GOODS_STATUS_PUT_ON)))
 				goodsOpts = append(goodsOpts, repository.Order(goodsQuery.CreatedAt.Desc()))
 				categoryGoodsList, err = c.goodsInfoRepo.List(ctx, goodsOpts...)

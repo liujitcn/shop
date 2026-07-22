@@ -65,7 +65,7 @@ type orderTrade struct {
 	Status     field.Int32  // 交易支付状态：枚举【OrderTradeStatus】
 	CreatedAt  field.Time   // 创建时间
 	UpdatedAt  field.Time   // 更新时间
-	DeletedAt  field.Field  // 删除时间
+	DeletedAt  field.Field
 
 	fieldMap map[string]field.Expr
 }

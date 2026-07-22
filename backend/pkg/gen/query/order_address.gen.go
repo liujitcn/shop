@@ -51,7 +51,7 @@ type orderAddress struct {
 	Contact   field.String // 联系方式
 	Address   field.String // 省市区
 	Detail    field.String // 详细地址
-	DeletedAt field.Field  // 删除时间
+	DeletedAt field.Field
 
 	fieldMap map[string]field.Expr
 }

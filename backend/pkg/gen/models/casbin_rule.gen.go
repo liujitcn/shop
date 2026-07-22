@@ -8,14 +8,14 @@ const TableNameCasbinRule = "casbin_rule"
 
 // CasbinRule Casbin权限信息
 type CasbinRule struct {
-	ID    int64  `gorm:"column:id;type:bigint unsigned;primaryKey;autoIncrement:true" json:"id"`
-	Ptype string `gorm:"column:ptype;type:varchar(100);not null;uniqueIndex:idx_casbin_rule,priority:1" json:"ptype"`
-	V0    string `gorm:"column:v0;type:varchar(100);not null;uniqueIndex:idx_casbin_rule,priority:2" json:"v0"`
-	V1    string `gorm:"column:v1;type:varchar(100);not null;uniqueIndex:idx_casbin_rule,priority:3" json:"v1"`
-	V2    string `gorm:"column:v2;type:varchar(100);uniqueIndex:idx_casbin_rule,priority:4" json:"v2"`
-	V3    string `gorm:"column:v3;type:varchar(100);uniqueIndex:idx_casbin_rule,priority:5" json:"v3"`
-	V4    string `gorm:"column:v4;type:varchar(100);uniqueIndex:idx_casbin_rule,priority:6" json:"v4"`
-	V5    string `gorm:"column:v5;type:varchar(100);uniqueIndex:idx_casbin_rule,priority:7" json:"v5"`
+	ID    int64  `gorm:"column:id;type:bigint unsigned;primaryKey;autoIncrement:true;comment:策略规则ID" json:"id"`                    // 策略规则ID
+	Ptype string `gorm:"column:ptype;type:varchar(100);not null;uniqueIndex:idx_casbin_rule,priority:1;comment:策略类型" json:"ptype"` // 策略类型
+	V0    string `gorm:"column:v0;type:varchar(100);not null;uniqueIndex:idx_casbin_rule,priority:2;comment:租户编码" json:"v0"`       // 租户编码
+	V1    string `gorm:"column:v1;type:varchar(100);not null;uniqueIndex:idx_casbin_rule,priority:3;comment:角色编码" json:"v1"`       // 角色编码
+	V2    string `gorm:"column:v2;type:varchar(100);not null;uniqueIndex:idx_casbin_rule,priority:4;comment:资源路径" json:"v2"`       // 资源路径
+	V3    string `gorm:"column:v3;type:varchar(100);not null;uniqueIndex:idx_casbin_rule,priority:5;comment:请求方法" json:"v3"`       // 请求方法
+	V4    string `gorm:"column:v4;type:varchar(100);not null;uniqueIndex:idx_casbin_rule,priority:6;comment:项目范围" json:"v4"`       // 项目范围
+	V5    string `gorm:"column:v5;type:varchar(100);uniqueIndex:idx_casbin_rule,priority:7;comment:扩展策略参数" json:"v5"`              // 扩展策略参数
 }
 
 // TableName CasbinRule's table name

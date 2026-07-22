@@ -73,7 +73,6 @@ func (c *ShopHotItemCase) PageShopHotGoods(ctx context.Context, req *shopappv1.P
 
 	goodsQuery := c.goodsInfoRepo.Query(ctx).GoodsInfo
 	goodsOpts := make([]repository.QueryOption, 0, 3)
-	goodsOpts = append(goodsOpts, repository.Where(goodsQuery.DeletedAt.IsNull()))
 	goodsOpts = append(goodsOpts, repository.Where(goodsQuery.ID.In(goodsIDs...)))
 	goodsOpts = append(goodsOpts, repository.Where(goodsQuery.Status.Eq(_const.GOODS_STATUS_PUT_ON)))
 	var goodsList []*models.GoodsInfo

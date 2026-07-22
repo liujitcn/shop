@@ -7,23 +7,23 @@ package models
 import (
 	"time"
 
-	"gorm.io/gorm"
+	"gorm.io/plugin/soft_delete"
 )
 
 const TableNameUserAddress = "user_address"
 
 // UserAddress 用户地址信息
 type UserAddress struct {
-	ID        int64          `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:用户地址ID" json:"id"`                              // 用户地址ID
-	UserID    int64          `gorm:"column:user_id;type:bigint;not null;index:idx_user_address_user_id,priority:1;comment:用户ID" json:"user_id"` // 用户ID
-	Receiver  string         `gorm:"column:receiver;type:varchar(100);not null;comment:联系人" json:"receiver"`                                    // 联系人
-	Contact   string         `gorm:"column:contact;type:varchar(100);not null;comment:联系方式" json:"contact"`                                     // 联系方式
-	Address   string         `gorm:"column:address;type:json;not null;comment:地址编号" json:"address"`                                             // 地址编号
-	Detail    string         `gorm:"column:detail;type:varchar(255);not null;comment:详细地址" json:"detail"`                                       // 详细地址
-	IsDefault bool           `gorm:"column:is_default;type:tinyint(1);not null;comment:是否默认" json:"is_default"`                                 // 是否默认
-	CreatedAt time.Time      `gorm:"column:created_at;type:datetime;not null;comment:创建时间" json:"created_at"`                                   // 创建时间
-	UpdatedAt time.Time      `gorm:"column:updated_at;type:datetime;not null;comment:更新时间" json:"updated_at"`                                   // 更新时间
-	DeletedAt gorm.DeletedAt `gorm:"column:deleted_at;type:datetime;comment:删除时间" json:"deleted_at"`                                            // 删除时间
+	ID        int64                 `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:用户地址ID" json:"id"`                              // 用户地址ID
+	UserID    int64                 `gorm:"column:user_id;type:bigint;not null;index:idx_user_address_user_id,priority:1;comment:用户ID" json:"user_id"` // 用户ID
+	Receiver  string                `gorm:"column:receiver;type:varchar(100);not null;comment:联系人" json:"receiver"`                                    // 联系人
+	Contact   string                `gorm:"column:contact;type:varchar(100);not null;comment:联系方式" json:"contact"`                                     // 联系方式
+	Address   string                `gorm:"column:address;type:json;not null;comment:地址编号" json:"address"`                                             // 地址编号
+	Detail    string                `gorm:"column:detail;type:varchar(255);not null;comment:详细地址" json:"detail"`                                       // 详细地址
+	IsDefault bool                  `gorm:"column:is_default;type:tinyint(1);not null;comment:是否默认" json:"is_default"`                                 // 是否默认
+	CreatedAt time.Time             `gorm:"column:created_at;type:datetime;not null;comment:创建时间" json:"created_at"`                                   // 创建时间
+	UpdatedAt time.Time             `gorm:"column:updated_at;type:datetime;not null;comment:更新时间" json:"updated_at"`                                   // 更新时间
+	DeletedAt soft_delete.DeletedAt `gorm:"column:deleted_at;type:bigint unsigned;not null;softDelete:milli" json:"deleted_at"`
 }
 
 // TableName UserAddress's table name
