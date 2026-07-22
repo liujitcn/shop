@@ -243,16 +243,15 @@
       <template #header="{ titleId, titleClass }">
         <div class="code-gen-config-dialog__header">
           <span :id="titleId" :class="titleClass">{{ `${optionDialog.scopeLabel}选项 - ${optionDialog.columnName}` }}</span>
-          <el-tooltip content="保存并关闭" placement="top">
-            <el-button
-              type="primary"
-              text
-              :icon="DocumentChecked"
-              :disabled="!canEdit"
-              aria-label="保存并关闭"
-              @click="handleSaveOptionDialog"
-            />
-          </el-tooltip>
+          <el-button
+            type="primary"
+            :icon="Document"
+            :disabled="!canEdit"
+            aria-label="保存并关闭"
+            @click="handleSaveOptionDialog"
+          >
+            保存
+          </el-button>
         </div>
       </template>
 
@@ -459,7 +458,7 @@
 <script setup lang="ts">
 import Sortable from "sortablejs";
 import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from "vue";
-import { Delete, Document, DocumentChecked, List, Plus, Setting } from "@element-plus/icons-vue";
+import { Delete, Document, List, Plus, Setting } from "@element-plus/icons-vue";
 import { useRoute, useRouter } from "vue-router";
 import ProDialog from "@/components/Dialog/ProDialog.vue";
 import { useAuthButtons } from "@/hooks/useAuthButtons";

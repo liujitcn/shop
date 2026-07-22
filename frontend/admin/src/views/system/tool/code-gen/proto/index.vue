@@ -64,16 +64,15 @@
           <span :id="titleId" :class="titleClass">
             {{ `${configDialog.methodName} - ${resolveAPIKindLabel(configDialog.apiKind)}配置` }}
           </span>
-          <el-tooltip content="保存并关闭" placement="top">
-            <el-button
-              type="primary"
-              text
-              :icon="DocumentChecked"
-              :disabled="!canEdit"
-              aria-label="保存并关闭"
-              @click="handleSaveProtoConfigDialog"
-            />
-          </el-tooltip>
+          <el-button
+            type="primary"
+            :icon="Document"
+            :disabled="!canEdit"
+            aria-label="保存并关闭"
+            @click="handleSaveProtoConfigDialog"
+          >
+            保存
+          </el-button>
         </div>
       </template>
 
@@ -89,7 +88,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref, watch } from "vue";
-import { Document, DocumentChecked, Setting } from "@element-plus/icons-vue";
+import { Document, Setting } from "@element-plus/icons-vue";
 import { useRoute, useRouter } from "vue-router";
 import ProDialog from "@/components/Dialog/ProDialog.vue";
 import ProForm from "@/components/ProForm/index.vue";
