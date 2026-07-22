@@ -777,7 +777,6 @@ type CodeGenOutputPaths struct {
 	BackendServiceFilePath string                 `protobuf:"bytes,3,opt,name=backend_service_file_path,json=backendServiceFilePath,proto3" json:"backend_service_file_path,omitempty"` // 后端Service文件路径
 	FrontendApiFilePath    string                 `protobuf:"bytes,4,opt,name=frontend_api_file_path,json=frontendApiFilePath,proto3" json:"frontend_api_file_path,omitempty"`          // 前端API文件路径
 	FrontendPageFilePath   string                 `protobuf:"bytes,5,opt,name=frontend_page_file_path,json=frontendPageFilePath,proto3" json:"frontend_page_file_path,omitempty"`       // 前端页面文件路径
-	SqlFilePath            string                 `protobuf:"bytes,6,opt,name=sql_file_path,json=sqlFilePath,proto3" json:"sql_file_path,omitempty"`                                    // SQL文件路径
 	unknownFields          protoimpl.UnknownFields
 	sizeCache              protoimpl.SizeCache
 }
@@ -847,13 +846,6 @@ func (x *CodeGenOutputPaths) GetFrontendPageFilePath() string {
 	return ""
 }
 
-func (x *CodeGenOutputPaths) GetSqlFilePath() string {
-	if x != nil {
-		return x.SqlFilePath
-	}
-	return ""
-}
-
 var File_system_admin_v1_code_gen_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_code_gen_proto_rawDesc = "" +
@@ -913,14 +905,13 @@ const file_system_admin_v1_code_gen_proto_rawDesc = "" +
 	"\x06action\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f处理动作R\x06action\x12,\n" +
 	"\acontent\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f文件内容R\acontent\x123\n" +
 	"\x06exists\x18\x04 \x01(\bB\x1b\xbaG\x18\x92\x02\x15文件是否已存在R\x06exists\x12,\n" +
-	"\amessage\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\f处理说明R\amessage\"\xe5\x03\n" +
+	"\amessage\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\f处理说明R\amessage\"\xaa\x03\n" +
 	"\x12CodeGenOutputPaths\x12?\n" +
 	"\x0fproto_file_path\x18\x01 \x01(\tB\x17\xbaG\x14\x92\x02\x11Proto文件路径R\rprotoFilePath\x12N\n" +
 	"\x15backend_biz_file_path\x18\x02 \x01(\tB\x1b\xbaG\x18\x92\x02\x15后端Biz文件路径R\x12backendBizFilePath\x12Z\n" +
 	"\x19backend_service_file_path\x18\x03 \x01(\tB\x1f\xbaG\x1c\x92\x02\x19后端Service文件路径R\x16backendServiceFilePath\x12P\n" +
 	"\x16frontend_api_file_path\x18\x04 \x01(\tB\x1b\xbaG\x18\x92\x02\x15前端API文件路径R\x13frontendApiFilePath\x12U\n" +
-	"\x17frontend_page_file_path\x18\x05 \x01(\tB\x1e\xbaG\x1b\x92\x02\x18前端页面文件路径R\x14frontendPageFilePath\x129\n" +
-	"\rsql_file_path\x18\x06 \x01(\tB\x15\xbaG\x12\x92\x02\x0fSQL文件路径R\vsqlFilePath*\xc2\x01\n" +
+	"\x17frontend_page_file_path\x18\x05 \x01(\tB\x1e\xbaG\x1b\x92\x02\x18前端页面文件路径R\x14frontendPageFilePath*\xc2\x01\n" +
 	"\x11CodeGenTaskStatus\x12$\n" +
 	" CODE_GEN_TASK_STATUS_UNSPECIFIED\x10\x00\x12 \n" +
 	"\x1cCODE_GEN_TASK_STATUS_PENDING\x10\x01\x12 \n" +

@@ -125,7 +125,7 @@ export function createDefaultCodeGenTableForm(): CodeGenTableForm {
     id: 0,
     name: "",
     comment: "",
-    business_module: "system",
+    business_module: "",
     page_type: "normal",
     parent_column: "",
     tree_label_column: "",

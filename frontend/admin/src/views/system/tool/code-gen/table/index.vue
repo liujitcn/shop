@@ -93,8 +93,6 @@ const codeGenTaskStorageKey = "code-gen-progress-task-id";
 const codeGenProgressDialogVisibleStorageKey = "code-gen-progress-dialog-visible";
 const codeGenProgressSelectedTableIdsStorageKey = "code-gen-progress-selected-table-ids";
 const codeGenStatusDisabled = 2;
-// 当前代码生成配置页仅用于校验和生成，新增、编辑入口暂不开放。
-const codeGenTableEditingEnabled = false;
 
 const { BUTTONS } = useAuthButtons();
 const router = useRouter();
@@ -339,7 +337,14 @@ const columns: ColumnProps[] = [
   { type: "selection", width: 55 },
   { prop: "name", label: "业务表名", minWidth: 160, search: { el: "input" } },
   { prop: "comment", label: "业务表描述", minWidth: 160, showOverflowTooltip: true },
-  { prop: "business_module", label: "业务模块", minWidth: 140, search: { el: "input" } },
+  {
+    prop: "business_module",
+    label: "业务模块",
+    minWidth: 140,
+    dictCode: "business_module",
+    dictValueType: "string",
+    search: { el: "select" }
+  },
   { prop: "page_type", label: "页面类型", minWidth: 120, enum: codeGenPageTypeOptions, search: { el: "select" } },
   { prop: "status", label: "状态", width: 100, enum: codeGenStatusOptions, search: { el: "select" }, tag: true },
   { prop: "remark", label: "备注", minWidth: 180, showOverflowTooltip: true },
@@ -397,7 +402,7 @@ const columns: ColumnProps[] = [
         type: "primary",
         link: true,
         icon: EditPen,
-        hidden: () => !codeGenTableEditingEnabled || !BUTTONS.value["tool:code-gen-table:update"],
+        hidden: () => !BUTTONS.value["tool:code-gen-table:update"],
         onClick: scope => handleOpenDialog((scope.row as CodeGenTable).id)
       },
       {
@@ -433,7 +438,7 @@ const headerActions: HeaderActionProps[] = [
     label: "新增",
     type: "success",
     icon: CirclePlus,
-    hidden: () => !codeGenTableEditingEnabled || !BUTTONS.value["tool:code-gen-table:create"],
+    hidden: () => !BUTTONS.value["tool:code-gen-table:create"],
     onClick: () => handleOpenDialog()
   },
   {

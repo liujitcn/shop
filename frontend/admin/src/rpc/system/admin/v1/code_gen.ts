@@ -158,8 +158,6 @@ export interface CodeGenOutputPaths {
   frontend_api_file_path: string;
   /** 前端页面文件路径 */
   frontend_page_file_path: string;
-  /** SQL文件路径 */
-  sql_file_path: string;
 }
 
 /** Admin代码生成服务 */

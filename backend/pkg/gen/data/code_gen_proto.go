@@ -7,10 +7,11 @@ package data
 import (
 	"context"
 
+	"shop/pkg/gen/models"
+
 	"github.com/liujitcn/gorm-kit/repository"
 	"gorm.io/gen"
 	"gorm.io/gen/field"
-	"shop/pkg/gen/models"
 )
 
 // CodeGenProtoRepository 定义 代码生成Proto接口配置表 的基础仓储能力。

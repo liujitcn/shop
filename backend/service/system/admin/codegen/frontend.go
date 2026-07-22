@@ -1121,9 +1121,6 @@ func validateCodeGenOutputPathLayout(target ProtoTarget, paths *systemadminv1.Co
 	if !strings.HasPrefix(paths.GetFrontendPageFilePath(), target.FrontendPageDirectory+"/") || !strings.HasSuffix(paths.GetFrontendPageFilePath(), "/index.vue") {
 		return errorsx.InvalidArgument("前端页面文件必须位于所选业务模块目录且文件名为index.vue")
 	}
-	if filepath.Ext(paths.GetSqlFilePath()) != ".sql" {
-		return errorsx.InvalidArgument("SQL文件必须使用.sql扩展名")
-	}
 	return nil
 }
 

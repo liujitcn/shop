@@ -170,7 +170,6 @@ func (c *renderer) resolveCodeGenOutputPaths(table *Table, requested *systemadmi
 		BackendServiceFilePath: target.BackendServiceFilePath(snakeEntity),
 		FrontendApiFilePath:    target.FrontendAPIFilePath(snakeEntity),
 		FrontendPageFilePath:   filepath.ToSlash(filepath.Join(target.FrontendPageDirectory, c.frontendResourcePath(table), "index.vue")),
-		SqlFilePath:            "sql/generated/" + table.TableName_ + ".sql",
 	}
 	// 请求只覆盖显式填写的字段，空值继续使用默认路径。
 	if requested != nil {
@@ -189,9 +188,6 @@ func (c *renderer) resolveCodeGenOutputPaths(table *Table, requested *systemadmi
 		if requested.GetFrontendPageFilePath() != "" {
 			paths.FrontendPageFilePath = requested.GetFrontendPageFilePath()
 		}
-		if requested.GetSqlFilePath() != "" {
-			paths.SqlFilePath = requested.GetSqlFilePath()
-		}
 	}
 
 	targets := []struct {
@@ -204,7 +200,6 @@ func (c *renderer) resolveCodeGenOutputPaths(table *Table, requested *systemadmi
 		{label: "后端Service文件路径", path: &paths.BackendServiceFilePath, enabled: table.GenBackend == 1},
 		{label: "前端API文件路径", path: &paths.FrontendApiFilePath, enabled: table.GenFrontend == 1},
 		{label: "前端页面文件路径", path: &paths.FrontendPageFilePath, enabled: table.GenFrontend == 1},
-		{label: "SQL文件路径", path: &paths.SqlFilePath, enabled: table.GenSql == 1},
 	}
 	seen := make(map[string]string, len(targets))
 	// 只校验本轮启用的目标；未启用模块的路径允许暂时为空或保留旧配置。
@@ -223,7 +218,7 @@ func (c *renderer) resolveCodeGenOutputPaths(table *Table, requested *systemadmi
 		}
 		seen[*target.path] = target.label
 	}
-	// 模块边界校验用于阻止 Proto、Go、Vue 和 SQL 文件落入错误目录。
+	// 模块边界校验用于阻止 Proto、Go 和 Vue 文件落入错误目录。
 	layoutErr := validateCodeGenOutputPathLayout(target, paths)
 	if layoutErr != nil {
 		return nil, layoutErr

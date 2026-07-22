@@ -14960,9 +14960,6 @@ components:
                 frontend_page_file_path:
                     type: string
                     description: 前端页面文件路径
-                sql_file_path:
-                    type: string
-                    description: SQL文件路径
             description: 代码生成临时输出路径
         system.admin.v1.CodeGenPreviewFile:
             type: object
