@@ -300,12 +300,22 @@ func (c *renderer) renderTreeProtoMessage(table *Table, method *Proto, columns [
 		var builder strings.Builder
 		builder.WriteString(fmt.Sprintf("// %s树形列表查询条件\nmessage %s {\n", table.BusinessName, name))
 		fieldNo := int32(1)
+		seenFields := make(map[string]struct{})
 		for _, column := range columns {
 			if !generatedRequestIncludesColumn(table, column) {
 				continue
 			}
 			builder.WriteString(c.renderQueryProtoField(column, fieldNo))
+			seenFields[column.Name] = struct{}{}
 			fieldNo++
+		}
+		if table.PageType == PageTypeTreeLazy {
+			parentColumn := DefaultString(table.ParentColumn, "parent_id")
+			if _, exists := seenFields[parentColumn]; !exists {
+				builder.WriteString(fmt.Sprintf("  optional int64 %s = %d [(gnostic.openapi.v3.property) = {description: \"父节点ID\"}]; // 父节点ID\n\n", parentColumn, fieldNo))
+				fieldNo++
+			}
+			builder.WriteString(fmt.Sprintf("  optional bool lazy = %d [(gnostic.openapi.v3.property) = {description: \"是否懒加载\"}]; // 是否懒加载\n\n", fieldNo))
 		}
 		builder.WriteString("}\n")
 		return builder.String()
@@ -852,7 +862,7 @@ func missingCoreMethodNames(table *Table, methods []*Proto) map[string]struct{} 
 func frontendPageMethodsComplete(table *Table, methods []*Proto) bool {
 	methodNames := protoMethodNameSet(methods)
 	listMethod := "Page" + table.EntityName
-	if table.PageType == PageTypeTree {
+	if isTreePageType(table.PageType) {
 		listMethod = "Tree" + table.EntityName
 	}
 	for _, methodName := range []string{

@@ -67,7 +67,7 @@ export interface CodeGenTableForm {
   business_module: string;
   /** 父级菜单ID */
   parent_menu_id: number;
-  /** 页面类型：normal普通表格 tree树形表格 left_tree左树右表 */
+  /** 页面类型：normal普通表格 tree树形表格 tree_lazy树形懒加载表格 left_tree左树右表 */
   page_type: string;
   /** 树形表格父节点字段 */
   parent_column: string;
@@ -157,6 +157,8 @@ export interface CodeGenLeftTreeConfig {
   value_column: string;
   /** 左树描述 */
   comment: string;
+  /** 左树是否懒加载 */
+  lazy: boolean;
 }
 
 /** Admin代码生成表配置服务 */

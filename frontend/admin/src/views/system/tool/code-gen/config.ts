@@ -12,8 +12,14 @@ import type { CodeGenLeftTreeConfig, CodeGenTableForm } from "@/rpc/system/admin
 export const codeGenPageTypeOptions: ProFormOption[] = [
   { label: "普通表格", value: "normal" },
   { label: "树形表格", value: "tree" },
+  { label: "树形懒加载", value: "tree_lazy" },
   { label: "左树右表", value: "left_tree" }
 ];
+
+/** 判断页面类型是否使用树形表格配置。 */
+export function isCodeGenTreePageType(pageType?: string) {
+  return pageType === "tree" || pageType === "tree_lazy";
+}
 
 /** 代码生成表配置状态选项。 */
 export const codeGenStatusOptions: ProFormOption[] = [
@@ -115,7 +121,8 @@ export function createDefaultCodeGenLeftTreeConfig(): CodeGenLeftTreeConfig {
     parent_column: "",
     label_column: "",
     value_column: "",
-    comment: ""
+    comment: "",
+    lazy: false
   };
 }
 

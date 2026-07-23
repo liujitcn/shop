@@ -33,7 +33,10 @@ func (c *renderer) renderBackendBizFile(table *Table, columns []*CodeGenColumn, 
 	}
 	var methodsBuilder strings.Builder
 	if treeMethod != nil {
-		methodsBuilder.WriteString(fmt.Sprintf(`// %s 查询%s树形列表。
+		if table.PageType == PageTypeTreeLazy {
+			methodsBuilder.WriteString(c.renderTreeLazyPageBizMethod(table, columns, treeMethod))
+		} else {
+			methodsBuilder.WriteString(fmt.Sprintf(`// %s 查询%s树形列表。
 func (c *%sCase) %s(ctx context.Context, req *systemadminv1.%sRequest) (*systemadminv1.%sResponse, error) {
 	query := c.Query(ctx).%s
 	opts := make([]repository.QueryOption, 0, %d)
@@ -46,6 +49,7 @@ func (c *%sCase) %s(ctx context.Context, req *systemadminv1.%sRequest) (*systema
 }
 
 `, goMethodName(treeMethod.MethodName), table.BusinessName, entity, goMethodName(treeMethod.MethodName), treeMethod.MethodName, treeMethod.MethodName, queryName, countQueryColumns(columns)+orderOptionCount, defaultOrderOption, c.renderQueryOptions(columns), goMethodName(treeMethod.MethodName), listField, entity))
+		}
 	}
 	for _, method := range optionMethods {
 		if method.APIKind == APIKindOption {
@@ -139,7 +143,7 @@ func (c *%sCase) %s(ctx context.Context, req *systemadminv1.%sRequest) error {
 }
 `, goMethodName(statusMethod.MethodName), DefaultString(statusColumn.Comment, statusColumn.Name), entity, goMethodName(statusMethod.MethodName), statusMethod.MethodName, entity, modelFieldName(statusColumn.Name)))
 	}
-	if treeMethod != nil {
+	if treeMethod != nil && table.PageType != PageTypeTreeLazy {
 		parentField := DefaultString(table.ParentColumn, "parent_id")
 		methodsBuilder.WriteString(fmt.Sprintf(`
 // build%sTree 构建%s树。
@@ -177,6 +181,66 @@ func (c *%sCase) build%sTree(list []*models.%s, parentID int64) []*systemadminv1
 		content = strings.Replace(content, "\t_time \"github.com/liujitcn/go-utils/time\"\n", "", 1)
 	}
 	return reorderGoReceiverMethods(content, entity+"Case")
+}
+
+// renderTreeLazyPageBizMethod 渲染懒加载树形列表业务方法及子节点标记查询。
+func (c *renderer) renderTreeLazyPageBizMethod(table *Table, columns []*CodeGenColumn, method *Proto) string {
+	entity := table.EntityName
+	parentColumn := DefaultString(table.ParentColumn, "parent_id")
+	parentField := modelFieldName(parentColumn)
+	parentGetter := "Get" + stringcase.ToPascalCase(parentColumn) + "()"
+	listField := stringcase.ToPascalCase(pluralize(entity))
+	defaultOrderOption := renderDefaultOrderOption(columns)
+	orderOptionCount := 0
+	if defaultOrderOption != "" {
+		orderOptionCount = 1
+	}
+	return fmt.Sprintf(`// %s 查询%s懒加载树形列表。
+func (c *%sCase) %s(ctx context.Context, req *systemadminv1.%sRequest) (*systemadminv1.%sResponse, error) {
+	query := c.Query(ctx).%s
+	opts := make([]repository.QueryOption, 0, %d)
+	opts = append(opts, repository.Where(query.%s.Eq(req.%s)))
+%s
+	list, err := c.List(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+	var hasChildren map[int64]struct{}
+	hasChildren, err = c.list%sParentIDsWithChildren(ctx, list)
+	if err != nil {
+		return nil, err
+	}
+	resList := make([]*systemadminv1.%s, 0, len(list))
+	for _, item := range list {
+		res := c.mapper.ToDTO(item)
+		_, res.HasChildren = hasChildren[item.ID]
+		resList = append(resList, res)
+	}
+	return &systemadminv1.%sResponse{%s: resList}, nil
+}
+
+// list%sParentIDsWithChildren 查询当前层节点中存在子节点的编号。
+func (c *%sCase) list%sParentIDsWithChildren(ctx context.Context, list []*models.%s) (map[int64]struct{}, error) {
+	parentIDs := make([]int64, 0, len(list))
+	for _, item := range list {
+		parentIDs = append(parentIDs, int64(item.ID))
+	}
+	hasChildren := make(map[int64]struct{}, len(parentIDs))
+	if len(parentIDs) == 0 {
+		return hasChildren, nil
+	}
+	query := c.Query(ctx).%s
+	childList, err := c.List(ctx, repository.Where(query.%s.In(parentIDs...)))
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range childList {
+		hasChildren[int64(item.%s)] = struct{}{}
+	}
+	return hasChildren, nil
+}
+
+`, goMethodName(method.MethodName), table.BusinessName, entity, goMethodName(method.MethodName), method.MethodName, method.MethodName, entity, orderOptionCount+1, parentField, parentGetter, defaultOrderOption, goMethodName(entity), entity, method.MethodName, listField, goMethodName(entity), entity, goMethodName(entity), entity, entity, parentField, parentField)
 }
 
 // renderDeleteBizMethod 渲染删除业务方法，树形页面额外阻止删除含有子节点的记录。

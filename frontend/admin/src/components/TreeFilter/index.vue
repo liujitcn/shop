@@ -19,7 +19,7 @@
     <el-scrollbar :style="{ height: title ? `calc(100% - 95px)` : `calc(100% - 56px)` }">
       <el-tree
         ref="treeRef"
-        default-expand-all
+        :default-expand-all="!lazy"
         :node-key="id"
         :data="multiple || !showAll ? treeData : treeAllData"
         :show-checkbox="multiple"
@@ -29,6 +29,8 @@
         :expand-on-click-node="false"
         :check-on-click-node="multiple"
         :props="defaultProps"
+        :lazy="lazy"
+        :load="lazy ? loadTreeNode : undefined"
         :filter-node-method="filterNode"
         :default-checked-keys="multiple ? selected : []"
         @node-click="handleNodeClick"
@@ -60,12 +62,16 @@ interface TreeFilterProps {
   multiple?: boolean; // 是否为多选 ==> 非必传，默认为 false
   defaultValue?: any; // 默认选中的值 ==> 非必传
   showAll?: boolean; // 单选模式下是否展示“全部”节点 ==> 非必传，默认为 true
+  lazy?: boolean; // 是否按节点懒加载子节点
+  parentKey?: string; // 懒加载请求使用的父节点字段
 }
 const props = withDefaults(defineProps<TreeFilterProps>(), {
   id: "id",
   label: "label",
   multiple: false,
-  showAll: true
+  showAll: true,
+  lazy: false,
+  parentKey: "parent_id"
 });
 
 const defaultProps = {
@@ -83,14 +89,40 @@ const setSelected = () => {
   else selected.value = typeof props.defaultValue === "string" && props.defaultValue ? props.defaultValue : undefined;
 };
 
+const normalizeLazyNodes = (nodes: { [key: string]: any }[] = []) =>
+  nodes.map(node => ({
+    ...node,
+    isLeaf: !node.has_children
+  }));
+
+const updateTreeData = (data: { [key: string]: any }[]) => {
+  treeData.value = props.lazy ? normalizeLazyNodes(data) : data;
+  const allNode = { id: "", [props.label]: "全部", isLeaf: true };
+  treeAllData.value = props.showAll ? [allNode, ...treeData.value] : treeData.value;
+};
+
 onBeforeMount(async () => {
   setSelected();
   if (props.requestApi) {
-    const { data } = await props.requestApi!();
-    treeData.value = data;
-    treeAllData.value = props.showAll ? [{ id: "", [props.label]: "全部" }, ...data] : data;
+    const requestParams = props.lazy ? { [props.parentKey]: 0, lazy: true } : undefined;
+    const { data } = await props.requestApi(requestParams);
+    updateTreeData(data ?? []);
   }
 });
+
+const loadTreeNode = async (node: { level: number; data?: { [key: string]: any } }, resolve: (data: { [key: string]: any }[]) => void) => {
+  if (!props.requestApi) {
+    resolve([]);
+    return;
+  }
+  const parentId = node.level === 0 ? 0 : node.data?.[props.id];
+  try {
+    const { data } = await props.requestApi({ [props.parentKey]: parentId, lazy: true });
+    resolve(normalizeLazyNodes(data ?? []));
+  } catch {
+    resolve([]);
+  }
+};
 
 // 使用 nextTick 防止打包后赋值不生效，开发环境是正常的
 watch(
@@ -103,8 +135,7 @@ watch(
   () => props.data,
   () => {
     if (props.data?.length) {
-      treeData.value = props.data;
-      treeAllData.value = props.showAll ? [{ id: "", [props.label]: "全部" }, ...props.data] : props.data;
+      updateTreeData(props.data);
     }
   },
   { deep: true, immediate: true }

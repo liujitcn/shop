@@ -434,7 +434,7 @@ func buildExpectedCodeGenProtos(table *models.CodeGenTable, form *systemadminv1.
 	entity := stringcase.ToPascalCase(table.Name)
 	checks := make([]*systemadminv1.CodeGenProtoCheck, 0, 10)
 	// 树形页面使用树接口，普通页面使用分页与平铺选项接口。
-	if table.PageType == "tree" {
+	if table.PageType == "tree" || table.PageType == codegen.PageTypeTreeLazy {
 		checks = append(checks,
 			newCodeGenProtoCheck(table.ID, codeGenTriggerPageTree, codeGenAPIKindTree, entity, "Tree"+entity, protoPath),
 			newCodeGenProtoCheck(table.ID, codeGenTriggerEntityOption, codeGenAPIKindTree, entity, "Option"+entity, protoPath),
@@ -455,14 +455,21 @@ func buildExpectedCodeGenProtos(table *models.CodeGenTable, form *systemadminv1.
 	// 左树页面的数据表来源需要在目标实体上提供树形选项接口。
 	if table.PageType == "left_tree" && leftTree.GetTableName() != "" {
 		target := stringcase.ToPascalCase(leftTree.GetTableName())
-		checks = append(checks, newCodeGenProtoCheck(
+		check := newCodeGenProtoCheck(
 			table.ID,
 			codeGenTriggerLeftTree,
 			codeGenAPIKindTree,
 			target,
 			"Option"+target,
 			defaultTargetCodeGenProtoPath(table, target),
-		))
+		)
+		check.Config = &systemadminv1.CodeGenProtoConfig{
+			ParentColumn: leftTree.GetParentColumn(),
+			LabelColumn:  leftTree.GetLabelColumn(),
+			ValueColumn:  leftTree.GetValueColumn(),
+			Lazy:         leftTree.GetLazy(),
+		}
+		checks = append(checks, check)
 	}
 	for _, column := range columns {
 		listConfig := column.GetListConfig()

@@ -11,7 +11,7 @@ import (
 // MenuSpecs 构建页面菜单及页面实际使用的按钮权限定义。
 func MenuSpecs(table *Table, columns []*CodeGenColumn, methods []*Proto, resourcePath string, tableComment string) (CodeGenMenuSpec, []CodeGenMenuSpec) {
 	listMethodName := "Page" + table.EntityName
-	if table.PageType == PageTypeTree {
+	if isTreePageType(table.PageType) {
 		listMethodName = "Tree" + table.EntityName
 	}
 	methodByName := make(map[string]*Proto, len(methods))

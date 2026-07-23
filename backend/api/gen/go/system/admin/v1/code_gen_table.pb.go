@@ -299,7 +299,7 @@ type CodeGenTableForm struct {
 	Comment         string                 `protobuf:"bytes,3,opt,name=comment,proto3" json:"comment,omitempty"`                                          // 业务表描述
 	BusinessModule  string                 `protobuf:"bytes,4,opt,name=business_module,json=businessModule,proto3" json:"business_module,omitempty"`      // 业务模块
 	ParentMenuId    int64                  `protobuf:"varint,5,opt,name=parent_menu_id,json=parentMenuId,proto3" json:"parent_menu_id,omitempty"`         // 父级菜单ID
-	PageType        string                 `protobuf:"bytes,6,opt,name=page_type,json=pageType,proto3" json:"page_type,omitempty"`                        // 页面类型：normal普通表格 tree树形表格 left_tree左树右表
+	PageType        string                 `protobuf:"bytes,6,opt,name=page_type,json=pageType,proto3" json:"page_type,omitempty"`                        // 页面类型：normal普通表格 tree树形表格 tree_lazy树形懒加载表格 left_tree左树右表
 	ParentColumn    string                 `protobuf:"bytes,7,opt,name=parent_column,json=parentColumn,proto3" json:"parent_column,omitempty"`            // 树形表格父节点字段
 	TreeLabelColumn string                 `protobuf:"bytes,8,opt,name=tree_label_column,json=treeLabelColumn,proto3" json:"tree_label_column,omitempty"` // 树节点显示字段
 	LeftTreeConfig  *CodeGenLeftTreeConfig `protobuf:"bytes,9,opt,name=left_tree_config,json=leftTreeConfig,proto3" json:"left_tree_config,omitempty"`    // 左树配置
@@ -770,6 +770,7 @@ type CodeGenLeftTreeConfig struct {
 	LabelColumn   string                 `protobuf:"bytes,4,opt,name=label_column,json=labelColumn,proto3" json:"label_column,omitempty"`    // 左树显示字段
 	ValueColumn   string                 `protobuf:"bytes,5,opt,name=value_column,json=valueColumn,proto3" json:"value_column,omitempty"`    // 左树值字段
 	Comment       string                 `protobuf:"bytes,6,opt,name=comment,proto3" json:"comment,omitempty"`                               // 左树描述
+	Lazy          bool                   `protobuf:"varint,7,opt,name=lazy,proto3" json:"lazy,omitempty"`                                    // 左树是否懒加载
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -846,6 +847,13 @@ func (x *CodeGenLeftTreeConfig) GetComment() string {
 	return ""
 }
 
+func (x *CodeGenLeftTreeConfig) GetLazy() bool {
+	if x != nil {
+		return x.Lazy
+	}
+	return false
+}
+
 var File_system_admin_v1_code_gen_table_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_code_gen_table_proto_rawDesc = "" +
@@ -871,7 +879,7 @@ const file_system_admin_v1_code_gen_table_proto_rawDesc = "" +
 	"\x06tables\x18\x01 \x03(\v2%.system.admin.v1.CodeGenDatabaseTableB\x18\xbaG\x15\x92\x02\x12数据库表列表R\x06tables\"~\n" +
 	"\x16GetCodeGenTableRequest\x12d\n" +
 	"\x02id\x18\x01 \x01(\x03BT\xbaG\v\x92\x02\b主键ID\xbaHC\xba\x01@\n" +
-	"\x1eget_code_gen_table.id.required\x12\x14主键ID不能为空\x1a\bthis > 0R\x02id\"\xe0\x0f\n" +
+	"\x1eget_code_gen_table.id.required\x12\x14主键ID不能为空\x1a\bthis > 0R\x02id\"\xff\x0f\n" +
 	"\x10CodeGenTableForm\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键IDR\x02id\x12\x97\x02\n" +
 	"\x04name\x18\x02 \x01(\tB\x82\x02\xbaG\x0f\x92\x02\f业务表名\xbaH\xec\x01\xba\x01@\n" +
@@ -885,8 +893,8 @@ const file_system_admin_v1_code_gen_table_proto_rawDesc = "" +
 	"\x1cfield.business_module.length\x12%业务模块不能超过 64 个字符\x1a\x11this.size() <= 64\xba\x01_\n" +
 	"\x1dfield.business_module.pattern\x12\x1b业务模块格式不正确\x1a!this.matches('^[a-z][a-z0-9_]*$')R\x0ebusinessModule\x12\x80\x01\n" +
 	"\x0eparent_menu_id\x18\x05 \x01(\x03BZ\xbaG\x11\x92\x02\x0e父级菜单ID\xbaHC\xba\x01@\n" +
-	"\x1dfield.parent_menu_id.required\x12\x15请选择父级菜单\x1a\bthis > 0R\fparentMenuId\x12\x8d\x02\n" +
-	"\tpage_type\x18\x06 \x01(\tB\xef\x01\xbaGK\x92\x02H页面类型：normal普通表格 tree树形表格 left_tree左树右表\xbaH\x9d\x01\xba\x01E\n" +
+	"\x1dfield.parent_menu_id.required\x12\x15请选择父级菜单\x1a\bthis > 0R\fparentMenuId\x12\xac\x02\n" +
+	"\tpage_type\x18\x06 \x01(\tB\x8e\x02\xbaGj\x92\x02g页面类型：normal普通表格 tree树形表格 tree_lazy树形懒加载表格 left_tree左树右表\xbaH\x9d\x01\xba\x01E\n" +
 	"\x18field.page_type.required\x12\x18页面类型不能为空\x1a\x0fthis.size() > 0\xba\x01R\n" +
 	"\x16field.page_type.length\x12%页面类型不能超过 32 个字符\x1a\x11this.size() <= 32R\bpageType\x12\xb2\x01\n" +
 	"\rparent_column\x18\a \x01(\tB\x8c\x01\xbaG\x1e\x92\x02\x1b树形表格父节点字段\xbaHh\xba\x01e\n" +
@@ -927,7 +935,7 @@ const file_system_admin_v1_code_gen_table_proto_rawDesc = "" +
 	"\n" +
 	"updated_at\x18\t \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x12Q\n" +
 	"\x11restore_available\x18\n" +
-	" \x01(\bB$\xbaG!\x92\x02\x1e是否可以还原生成结果R\x10restoreAvailable\"\xff\x02\n" +
+	" \x01(\bB$\xbaG!\x92\x02\x1e是否可以还原生成结果R\x10restoreAvailable\"\xb0\x03\n" +
 	"\x15CodeGenLeftTreeConfig\x127\n" +
 	"\n" +
 	"table_name\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12左树数据表名R\ttableName\x12F\n" +
@@ -935,7 +943,8 @@ const file_system_admin_v1_code_gen_table_proto_rawDesc = "" +
 	"\rparent_column\x18\x03 \x01(\tB\x1b\xbaG\x18\x92\x02\x15左树父节点字段R\fparentColumn\x12;\n" +
 	"\flabel_column\x18\x04 \x01(\tB\x18\xbaG\x15\x92\x02\x12左树显示字段R\vlabelColumn\x128\n" +
 	"\fvalue_column\x18\x05 \x01(\tB\x15\xbaG\x12\x92\x02\x0f左树值字段R\vvalueColumn\x12,\n" +
-	"\acomment\x18\x06 \x01(\tB\x12\xbaG\x0f\x92\x02\f左树描述R\acomment2\x8f\a\n" +
+	"\acomment\x18\x06 \x01(\tB\x12\xbaG\x0f\x92\x02\f左树描述R\acomment\x12/\n" +
+	"\x04lazy\x18\a \x01(\bB\x1b\xbaG\x18\x92\x02\x15左树是否懒加载R\x04lazy2\x8f\a\n" +
 	"\x13CodeGenTableService\x12\x8d\x01\n" +
 	"\x10PageCodeGenTable\x12(.system.admin.v1.PageCodeGenTableRequest\x1a).system.admin.v1.PageCodeGenTableResponse\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/api/v1/admin/code-gen/table\x12\xae\x01\n" +
 	"\x18ListCodeGenDatabaseTable\x120.system.admin.v1.ListCodeGenDatabaseTableRequest\x1a1.system.admin.v1.ListCodeGenDatabaseTableResponse\"-\x82\xd3\xe4\x93\x02'\x12%/api/v1/admin/code-gen/database/table\x12\x88\x01\n" +

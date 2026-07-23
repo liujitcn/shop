@@ -69,7 +69,8 @@ import {
   codeGenStatusOptions,
   codeGenTableRules,
   createDefaultCodeGenLeftTreeConfig,
-  createDefaultCodeGenTableForm
+  createDefaultCodeGenTableForm,
+  isCodeGenTreePageType
 } from "../config";
 
 defineOptions({
@@ -211,7 +212,7 @@ const formFields = computed<ProFormField[]>(() => [
     label: "页面类型",
     component: "segmented",
     options: codeGenPageTypeOptions,
-    labelTooltip: "普通表格生成分页 CRUD；树形表格生成树查询和层级列表；左树右表生成左侧树筛选与右侧列表。切换时会清理不适用的树配置。",
+    labelTooltip: "普通表格生成分页 CRUD；树形表格生成完整层级列表；树形懒加载按节点请求子列表；左树右表生成左侧树筛选与右侧列表。",
     props: { onChange: handlePageTypeChange }
   },
   {
@@ -221,7 +222,7 @@ const formFields = computed<ProFormField[]>(() => [
     options: databaseColumnOptions.value,
     labelTooltip: "树形表格中指向父记录的字段，例如 parent_id。它决定生成的树查询和选项接口如何组织父子层级。",
     props: { placeholder: "请选择父节点字段", clearable: true, filterable: true, style: { width: "100%" } },
-    visible: model => model.page_type === "tree"
+    visible: model => isCodeGenTreePageType(model.page_type)
   },
   {
     prop: "tree_label_column",
@@ -230,7 +231,7 @@ const formFields = computed<ProFormField[]>(() => [
     options: databaseColumnOptions.value,
     labelTooltip: "树节点显示的文字字段，例如 name。它会写入生成的树查询和选项接口响应，并显示在前端树节点上。",
     props: { placeholder: "请选择树显示字段", clearable: true, filterable: true, style: { width: "100%" } },
-    visible: model => model.page_type === "tree"
+    visible: model => isCodeGenTreePageType(model.page_type)
   },
   {
     prop: "left_tree_config.table_name",
@@ -289,6 +290,14 @@ const formFields = computed<ProFormField[]>(() => [
     options: leftTreeColumnOptions.value,
     labelTooltip: "左树节点的唯一值字段，通常为主键 id。它作为点击节点后传给右侧列表筛选字段的值。",
     props: { placeholder: "请选择左树值字段", clearable: true, filterable: true, style: { width: "100%" } },
+    visible: model => model.page_type === "left_tree"
+  },
+  {
+    prop: "left_tree_config.lazy",
+    label: "左树懒加载",
+    component: "switch",
+    labelTooltip: "开启后左树只请求当前展开节点的子节点，适合层级较深或数据量较大的树。",
+    props: { activeText: "懒加载", inactiveText: "全部加载" },
     visible: model => model.page_type === "left_tree"
   },
   {
@@ -682,7 +691,7 @@ async function handleTableNameChange(tableName: string) {
 
 /** 页面类型变化时清理不再生效的页面字段。 */
 function handlePageTypeChange(pageType: string) {
-  if (pageType !== "tree") {
+  if (!isCodeGenTreePageType(pageType)) {
     formData.parent_column = "";
     formData.tree_label_column = "";
   }

@@ -519,7 +519,7 @@ func (c *renderer) renderProtoMessage(table *Table, columns []*CodeGenColumn, fo
 	fieldNo := int32(1)
 	treeParentColumn := ""
 	treeLabelColumn := ""
-	if !form && table.PageType == PageTypeTree {
+	if !form && isTreePageType(table.PageType) {
 		treeParentColumn = DefaultString(table.ParentColumn, "parent_id")
 		treeLabelColumn = table.TreeLabelColumn
 		if treeLabelColumn == "" {
@@ -541,11 +541,20 @@ func (c *renderer) renderProtoMessage(table *Table, columns []*CodeGenColumn, fo
 		}
 		fieldNo++
 	}
-	if !form && table.PageType == PageTypeTree {
-		builder.WriteString(fmt.Sprintf("\n  repeated %s children = 300 [(gnostic.openapi.v3.property) = {description: \"子节点树\"}]; // 子节点树\n", entity))
+	if !form && isTreePageType(table.PageType) {
+		if table.PageType == PageTypeTreeLazy {
+			builder.WriteString("\n  bool has_children = 299 [(gnostic.openapi.v3.property) = {description: \"是否存在子节点\"}]; // 是否存在子节点\n")
+		} else {
+			builder.WriteString(fmt.Sprintf("\n  repeated %s children = 300 [(gnostic.openapi.v3.property) = {description: \"子节点树\"}]; // 子节点树\n", entity))
+		}
 	}
 	builder.WriteString("}\n")
 	return builder.String()
+}
+
+// isTreePageType 判断页面类型是否使用树形实体结构。
+func isTreePageType(pageType string) bool {
+	return pageType == PageTypeTree || pageType == PageTypeTreeLazy
 }
 
 // appendMissingProtoMessages 补齐缺失 message 和字段，并按 RPC 顺序整理消息位置。

@@ -935,6 +935,7 @@ func codeGenTableToSnapshot(item *models.CodeGenTable) (*codegen.Table, error) {
 			ParentColumn: config.GetParentColumn(),
 			LabelColumn:  config.GetLabelColumn(),
 			ValueColumn:  config.GetValueColumn(),
+			Lazy:         config.GetLazy(),
 		})
 		if err != nil {
 			return nil, errorsx.Internal("转换左树配置失败").WithCause(err)

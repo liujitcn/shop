@@ -7,7 +7,10 @@
           id="value"
           label="label"
           :title="leftTreeTitle"
-          :data="leftTreeOptions"
+          :data="leftTreeLazy ? undefined : leftTreeOptions"
+          :request-api="leftTreeLazy ? requestPreviewLeftTree : undefined"
+          :lazy="leftTreeLazy"
+          :parent-key="leftTreeParentColumn"
           :show-all="false"
           @change="handleLeftTreeChange"
         />
@@ -33,9 +36,15 @@
           :columns="tableColumns"
           :header-actions="headerActions"
           :request-api="requestPreviewTable"
-          :pagination="pageType !== 'tree'"
+          :pagination="pageType !== 'tree' && pageType !== 'tree_lazy'"
           :indent="20"
-          :tree-props="pageType === 'tree' ? { children: 'children', hasChildren: 'hasChildren' } : undefined"
+          :lazy="pageType === 'tree_lazy'"
+          :load="pageType === 'tree_lazy' ? loadPreviewTreeChildren : undefined"
+          :tree-props="
+            pageType === 'tree' || pageType === 'tree_lazy'
+              ? { children: 'children', hasChildren: pageType === 'tree_lazy' ? 'has_children' : 'hasChildren' }
+              : undefined
+          "
           scrollbar-always-on
           class="code-gen-page-preview-table"
         />
@@ -148,6 +157,12 @@ const optionMap = computed(() => createCodeGenPreviewOptionMap(snapshot.value?.c
 /** 左树右表页面的模拟节点。 */
 const leftTreeOptions = computed(() => createCodeGenLeftTreeOptions(snapshot.value?.table.left_tree_config));
 
+/** 左树是否启用懒加载。 */
+const leftTreeLazy = computed(() => pageType.value === "left_tree" && Boolean(snapshot.value?.table.left_tree_config?.lazy));
+
+/** 左树懒加载请求使用的父节点字段。 */
+const leftTreeParentColumn = computed(() => snapshot.value?.table.left_tree_config?.parent_column || "parent_id");
+
 /** 旧配置缺少左树描述时，从数据库表元数据中读取描述。 */
 const leftTreeTableComment = computed(() => {
   const tableName = snapshot.value?.table.left_tree_config?.table_name;
@@ -171,8 +186,8 @@ const protoCapabilities = computed(() =>
 /** 根据字段配置生成最终页面的查询项和列表列。 */
 const tableColumns = computed<ColumnProps[]>(() => {
   const columns = snapshot.value?.columns ?? [];
-  const treeParentColumn = pageType.value === "tree" ? snapshot.value?.table.parent_column : "";
-  const treeLabelColumn = pageType.value === "tree" ? snapshot.value?.table.tree_label_column : "";
+  const treeParentColumn = pageType.value === "tree" || pageType.value === "tree_lazy" ? snapshot.value?.table.parent_column : "";
+  const treeLabelColumn = pageType.value === "tree" || pageType.value === "tree_lazy" ? snapshot.value?.table.tree_label_column : "";
   const configuredColumns = columns
     .filter(
       column =>
@@ -270,7 +285,8 @@ const formFields = computed<ProFormField[]>(() => {
     .sort((left, right) => left.sort - right.sort)
     .map(column => {
       const label = column.comment || column.name;
-      const isTreeParent = pageType.value === "tree" && column.name === snapshot.value?.table.parent_column;
+      const isTreeParent =
+        (pageType.value === "tree" || pageType.value === "tree_lazy") && column.name === snapshot.value?.table.parent_column;
       const component = isTreeParent ? "tree-select" : resolvePreviewFormComponent(column.form_config?.component);
       const isMultipleTreeSelect = component === "tree-select" && Boolean(column.form_config?.multiple);
       const options = isTreeParent
@@ -292,7 +308,7 @@ const formFields = computed<ProFormField[]>(() => {
 
 /** 树形表格新增弹窗中的父节点选项。 */
 const treeParentOptions = computed<ProFormOption[]>(() => {
-  if (!snapshot.value?.table.parent_column) return [];
+  if (!snapshot.value?.table.parent_column || (pageType.value !== "tree" && pageType.value !== "tree_lazy")) return [];
   const treeRows = buildCodeGenPreviewTree(mockRows.value, primaryColumn.value, snapshot.value.table.parent_column);
   return [{ label: "顶级节点", value: 0 }, ...mapPreviewRowsToOptions(treeRows)];
 });
@@ -301,6 +317,27 @@ const treeParentOptions = computed<ProFormOption[]>(() => {
 watch(tableId, () => {
   void loadPreview();
 });
+
+/** 请求左树预览节点，懒加载时只返回当前父节点的直接子节点。 */
+async function requestPreviewLeftTree(params?: Record<string, any>) {
+  const parentValue = params?.[leftTreeParentColumn.value] ?? 0;
+  return { data: findPreviewTreeChildren(leftTreeOptions.value, parentValue) };
+}
+
+/** 查找模拟树中指定父节点的直接子节点。 */
+function findPreviewTreeChildren(options: ProFormOption[], parentValue: unknown): ProFormOption[] {
+  if (String(parentValue) === "0") {
+    return options.map(({ children: _children, ...option }) => option);
+  }
+  for (const option of options) {
+    if (String(option.value) === String(parentValue)) {
+      return (option.children ?? []).map(({ children: _children, ...child }) => child);
+    }
+    const nested = findPreviewTreeChildren(option.children ?? [], parentValue);
+    if (nested.length) return nested;
+  }
+  return [];
+}
 
 /** 请求前端模拟列表，并复用最终页面的查询与分页交互。 */
 async function requestPreviewTable(params: Record<string, any>) {
@@ -314,6 +351,18 @@ async function requestPreviewTable(params: Record<string, any>) {
     const filterColumn = snapshot.value.table.left_tree_config.filter_column;
     rows = rows.filter(row => selectedLeftTreeValues.value.some(value => String(value) === String(row[filterColumn])));
   }
+  if (pageType.value === "tree_lazy" && snapshot.value?.table.parent_column) {
+    const parentColumn = snapshot.value.table.parent_column;
+    const parentValue = params[parentColumn] ?? 0;
+    const allRows = mockRows.value;
+    rows = rows
+      .filter(row => String(row[parentColumn] ?? 0) === String(parentValue))
+      .map(row => ({
+        ...row,
+        has_children: allRows.some(child => String(child[parentColumn] ?? 0) === String(row[primaryColumn.value]))
+      }));
+    return { data: rows };
+  }
   if (pageType.value === "tree" && snapshot.value?.table.parent_column) {
     return { data: buildCodeGenPreviewTree(rows, primaryColumn.value, snapshot.value.table.parent_column) };
   }
@@ -321,6 +370,21 @@ async function requestPreviewTable(params: Record<string, any>) {
   const pageSize = Number(params.pageSize ?? 10);
   const start = (pageNum - 1) * pageSize;
   return { data: { list: rows.slice(start, start + pageSize), total: rows.length } };
+}
+
+/** 请求懒加载树表格的子节点。 */
+async function loadPreviewTreeChildren(
+  row: CodeGenPreviewRow,
+  _treeNode: unknown,
+  resolve: (data: CodeGenPreviewRow[]) => void
+) {
+  const parentColumn = snapshot.value?.table.parent_column;
+  if (!parentColumn) {
+    resolve([]);
+    return;
+  }
+  const response = await requestPreviewTable({ [parentColumn]: row[primaryColumn.value], lazy: true });
+  resolve(Array.isArray(response.data) ? response.data : []);
 }
 
 /** 刷新预览表格。 */

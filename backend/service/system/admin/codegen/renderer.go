@@ -9,6 +9,8 @@ import (
 const (
 	// PageTypeTree 表示树形列表页面。
 	PageTypeTree = "tree"
+	// PageTypeTreeLazy 表示懒加载树形列表页面。
+	PageTypeTreeLazy = "tree_lazy"
 	// PageTypeLeftTree 表示左树右表页面。
 	PageTypeLeftTree = "left_tree"
 

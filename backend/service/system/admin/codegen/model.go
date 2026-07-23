@@ -443,4 +443,6 @@ type CodeGenLeftTreeConfig struct {
 	LabelColumn string `json:"label_column"`
 	// ValueColumn 树节点取值字段。
 	ValueColumn string `json:"value_column"`
+	// Lazy 是否按节点懒加载子节点。
+	Lazy bool `json:"lazy"`
 }

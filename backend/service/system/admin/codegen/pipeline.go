@@ -76,7 +76,7 @@ func (c *renderer) buildExpectedProtoChecks(table *Table, columns []*CodeGenColu
 	leftTreeConfig := LeftTreeConfigFromTable(table)
 	parentColumn, labelColumn, valueColumn := EntityOptionColumns(table, columns)
 	checks := make([]*ProtoCheck, 0, 8)
-	if table.PageType == PageTypeTree {
+	if table.PageType == PageTypeTree || table.PageType == PageTypeTreeLazy {
 		checks = append(checks,
 			c.newProtoCheck(table.ID, "", TriggerPageTree, APIKindTree, entity, "Tree"+entity, protoPath, parentColumn, labelColumn, valueColumn, true),
 			c.newProtoCheck(table.ID, "", TriggerEntityOption, APIKindTree, entity, "Option"+entity, protoPath, parentColumn, labelColumn, valueColumn, true),
@@ -96,9 +96,9 @@ func (c *renderer) buildExpectedProtoChecks(table *Table, columns []*CodeGenColu
 	if (table.PageType == PageTypeLeftTree || leftTreeConfig.Enabled) && leftTreeConfig.SourceType == OptionSourceTable {
 		target := DefaultString(stringcase.ToPascalCase(leftTreeConfig.SourceValue), entity)
 		targetProtoPath := c.defaultTargetProtoPath(table, target)
-		checks = append(checks,
-			c.newProtoCheck(table.ID, "", TriggerLeftTree, APIKindTree, target, "Option"+target, targetProtoPath, leftTreeConfig.ParentColumn, leftTreeConfig.LabelColumn, leftTreeConfig.ValueColumn, false),
-		)
+		check := c.newProtoCheck(table.ID, "", TriggerLeftTree, APIKindTree, target, "Option"+target, targetProtoPath, leftTreeConfig.ParentColumn, leftTreeConfig.LabelColumn, leftTreeConfig.ValueColumn, false)
+		check.Lazy = leftTreeConfig.Lazy
+		checks = append(checks, check)
 	}
 
 	for _, column := range columns {

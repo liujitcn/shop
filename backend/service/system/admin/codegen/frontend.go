@@ -682,7 +682,7 @@ func (c *renderer) reorderFrontendPageMethods(content string) string {
 // applyFrontendPageType 根据页面类型补充树表格或左树右表结构。
 func (c *renderer) applyFrontendPageType(content string, table *Table, methods []*Proto, frontendAPIImport string) string {
 	switch table.PageType {
-	case PageTypeTree:
+	case PageTypeTree, PageTypeTreeLazy:
 		return c.applyFrontendTreePage(content, table, methods)
 	case PageTypeLeftTree:
 		return c.applyFrontendLeftTreePage(content, table, methods, frontendAPIImport)
@@ -705,6 +705,14 @@ func (c *renderer) applyFrontendTreePage(content string, table *Table, methods [
       :pagination="false"
       :indent="20"
       :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"`
+	if table.PageType == PageTypeTreeLazy {
+		treeProps = requestMarker + `
+      :pagination="false"
+      :indent="20"
+      :lazy="true"
+      :load="load` + table.EntityName + `Children"
+      :tree-props="{ children: 'children', hasChildren: 'has_children' }"`
+	}
 	content = strings.Replace(content, requestMarker, treeProps, 1)
 
 	functionName := "request" + table.EntityName + "Table"
@@ -714,10 +722,32 @@ func (c *renderer) applyFrontendTreePage(content string, table *Table, methods [
 		return content
 	}
 	requestFunction := fmt.Sprintf(`async function %s(params: Tree%sRequest) {
-  const data = await def%sService.%s(params);
+  const data = await def%sService.%s(%s);
   return { data: data.%s ?? [] };
-}`, functionName, table.EntityName, table.EntityName, treeMethod.MethodName, stringcase.ToSnakeCase(pluralEntity))
+}`, functionName, table.EntityName, table.EntityName, treeMethod.MethodName, treePageRequestExpression(table, treeMethod), stringcase.ToSnakeCase(pluralEntity))
+	if table.PageType == PageTypeTreeLazy {
+		requestFunction += fmt.Sprintf(`
+
+/** 懒加载%s树形表格的子节点。 */
+async function load%sChildren(row: %s, _treeNode: unknown, resolve: (data: %s[]) => void) {
+  try {
+    const data = await def%sService.%s({ %q: row.id, lazy: true } as Parameters<typeof def%sService.%s>[0]);
+    resolve(data.%s ?? []);
+  } catch {
+    resolve([]);
+  }
+}`, table.BusinessName, table.EntityName, table.EntityName, table.EntityName, table.EntityName, treeMethod.MethodName, DefaultString(treeMethod.ParentColumn, DefaultString(table.ParentColumn, "parent_id")), table.EntityName, treeMethod.MethodName, stringcase.ToSnakeCase(pluralEntity))
+	}
 	return content[:start] + requestFunction + content[end+1:]
+}
+
+// treePageRequestExpression 返回树形列表接口的请求参数表达式。
+func treePageRequestExpression(table *Table, method *Proto) string {
+	if table.PageType != PageTypeTreeLazy {
+		return "params"
+	}
+	parentColumn := DefaultString(method.ParentColumn, DefaultString(table.ParentColumn, "parent_id"))
+	return fmt.Sprintf("{ ...params, %q: params.%s ?? 0, lazy: true }", parentColumn, parentColumn)
 }
 
 // applyFrontendLeftTreePage 将普通分页模板调整为左树右表模板。
@@ -726,16 +756,23 @@ func (c *renderer) applyFrontendLeftTreePage(content string, table *Table, metho
 	filterColumn := DefaultString(config.FilterColumn, "parent_id")
 	requestMarker := fmt.Sprintf(`:request-api="request%sTable"`, table.EntityName)
 	content = strings.Replace(content, requestMarker, requestMarker+` :init-param="initParam"`, 1)
+	treeFilterProps := ""
+	if config.Lazy {
+		treeFilterProps = fmt.Sprintf(`:lazy="true"
+      parent-key="%s"
+      :show-all="false"`, DefaultString(config.ParentColumn, "parent_id"))
+	}
 	content = strings.Replace(content, `  <div class="table-box">`, fmt.Sprintf(`  <div class="main-box">
     <TreeFilter
       label="name"
       title="筛选"
       :request-api="request%sTreeFilter"
       :default-value="treeFilterValue"
+      %s
       @change="changeTreeFilter"
     />
 
-    <div class="table-box">`, table.EntityName), 1)
+    <div class="table-box">`, table.EntityName, treeFilterProps), 1)
 	closingIndex := strings.LastIndex(content, "  </div>\n</template>")
 	if closingIndex >= 0 {
 		content = content[:closingIndex] + "    </div>\n  </div>\n</template>" + content[closingIndex+len("  </div>\n</template>"):]
@@ -746,9 +783,16 @@ import TreeFilter from "@/components/TreeFilter/index.vue";`, 1)
 	treeMethod := firstMethodByKind(methods, APIKindTree, TriggerLeftTree)
 	serviceName := ""
 	requestCall := "return { data: [] };"
+	requestSignature := "()"
 	if treeMethod != nil {
 		serviceName = "def" + treeMethod.TargetEntityName + "Service"
-		requestCall = fmt.Sprintf("const data = await %s.%s({} as Parameters<typeof %s.%s>[0]);\n  return { data: transform%sTreeNodes(data.list ?? []) };", serviceName, treeMethod.MethodName, serviceName, treeMethod.MethodName, table.EntityName)
+		parentColumn := DefaultString(treeMethod.ParentColumn, DefaultString(config.ParentColumn, "parent_id"))
+		if config.Lazy {
+			requestSignature = "(params?: Record<string, unknown>)"
+			requestCall = fmt.Sprintf("const data = await %s.%s({ %q: params?.[%q] ?? 0, lazy: true } as Parameters<typeof %s.%s>[0]);\n  return { data: transform%sTreeNodes(data.list ?? []) };", serviceName, treeMethod.MethodName, parentColumn, parentColumn, serviceName, treeMethod.MethodName, table.EntityName)
+		} else {
+			requestCall = fmt.Sprintf("const data = await %s.%s({} as Parameters<typeof %s.%s>[0]);\n  return { data: transform%sTreeNodes(data.list ?? []) };", serviceName, treeMethod.MethodName, serviceName, treeMethod.MethodName, table.EntityName)
+		}
 		if treeMethod.TargetEntityName != table.EntityName {
 			importLine := fmt.Sprintf(`import { %s } from %q;`, serviceName, frontendAPIImportPathForMethod(treeMethod))
 			// 左树与表单字段可能依赖同一个外部服务，避免重复导入同名服务实例。
@@ -766,11 +810,13 @@ type %sTreeOption = {
   value: number;
   label: string;
   children?: %sTreeOption[];
+  has_children?: boolean;
 };
 
 type %sFilterNode = {
   id: string;
   name: string;
+  has_children?: boolean;
   children?: %sFilterNode[];
 };
 
@@ -786,12 +832,13 @@ function transform%sTreeNodes(options: %sTreeOption[] = []): %sFilterNode[] {
   return options.map(option => ({
     id: String(option.value),
     name: option.label,
+    has_children: option.has_children,
     children: transform%sTreeNodes(option.children ?? [])
   }));
 }
 
 /** 请求左侧树筛选数据。 */
-async function request%sTreeFilter() {
+async function request%sTreeFilter%s {
   %s
 }
 
@@ -801,7 +848,7 @@ function changeTreeFilter(value: string) {
   initParam.%s = value ? Number(value) : undefined;
 }
 
-`, table.EntityName, table.EntityName, table.EntityName, table.EntityName, table.EntityName, requestCall, filterColumn)
+`, table.EntityName, table.EntityName, table.EntityName, table.EntityName, table.EntityName, requestSignature, requestCall, filterColumn)
 	content = strings.Replace(content, requestComment, helper+requestComment, 1)
 	openDialogMarker := `  resetForm();
   dialog.title = id ?`
@@ -859,7 +906,7 @@ func (c *renderer) renderFrontendColumns(table *Table, columns []*CodeGenColumn,
 	}
 	treeParentColumn := ""
 	treeLabelColumn := ""
-	if table.PageType == PageTypeTree {
+	if isTreePageType(table.PageType) {
 		treeParentColumn = DefaultString(table.ParentColumn, "parent_id")
 		treeLabelColumn = table.TreeLabelColumn
 		if treeLabelColumn == "" {
@@ -890,7 +937,7 @@ func (c *renderer) renderFrontendColumns(table *Table, columns []*CodeGenColumn,
 		if column.Name == treeLabelColumn || column.Name == "deleted_at" {
 			continue
 		}
-		if table.PageType == PageTypeTree && column.Name == treeParentColumn && treeParentColumn != treeLabelColumn {
+		if isTreePageType(table.PageType) && column.Name == treeParentColumn && treeParentColumn != treeLabelColumn {
 			if generatedQueryIncludesColumn(column) {
 				// 父节点字段仍需保留查询配置，但必须从可见列中移除，避免树缩进显示在该列。
 				hiddenColumn := *column

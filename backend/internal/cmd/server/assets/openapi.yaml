@@ -15159,6 +15159,9 @@ components:
                 comment:
                     type: string
                     description: 左树描述
+                lazy:
+                    type: boolean
+                    description: 左树是否懒加载
             description: 左树右表页面配置
         system.admin.v1.CodeGenOutputPaths:
             type: object
@@ -15343,7 +15346,7 @@ components:
                     description: 父级菜单ID
                 page_type:
                     type: string
-                    description: 页面类型：normal普通表格 tree树形表格 left_tree左树右表
+                    description: 页面类型：normal普通表格 tree树形表格 tree_lazy树形懒加载表格 left_tree左树右表
                 parent_column:
                     type: string
                     description: 树形表格父节点字段

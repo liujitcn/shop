@@ -11,6 +11,8 @@ export type CodeGenPreviewScope = "query" | "list" | "form";
 export type CodeGenPreviewRow = Record<string, any> & {
   /** 树形表格子记录。 */
   children?: CodeGenPreviewRow[];
+  /** 树形懒加载表格是否存在子记录。 */
+  has_children?: boolean;
 };
 
 /** 代码生成页面预览快照。 */
@@ -75,7 +77,7 @@ export function createCodeGenLeftTreeOptions(config?: CodeGenLeftTreeConfig): Pr
     parent_field: config.parent_column,
     active_value: "",
     inactive_value: "",
-    lazy: false
+    lazy: config.lazy
   };
   return createCodeGenPreviewOptions(config.label_column || "分类", option, new Map());
 }
@@ -89,21 +91,28 @@ export function createCodeGenPreviewRows(
   const { table, columns } = snapshot;
   const primaryColumn = resolveCodeGenPrimaryColumn(columns);
   const leftTreeValues = flattenCodeGenPreviewOptions(leftTreeOptions).map(option => option.value);
-  const rows = Array.from({ length: table.page_type === "tree" ? 12 : 18 }, (_, rowIndex) => {
-    const row: CodeGenPreviewRow = {};
-    columns.forEach(column => {
-      const options = resolveColumnPreviewOptions(optionMap, column);
-      row[column.name] = createCodeGenPreviewValue(column, rowIndex, options);
-    });
-    if (!(primaryColumn in row)) row[primaryColumn] = rowIndex + 1;
-    if (table.page_type === "left_tree" && table.left_tree_config?.filter_column && leftTreeValues.length) {
-      row[table.left_tree_config.filter_column] = leftTreeValues[rowIndex % leftTreeValues.length];
+  const rows = Array.from(
+    { length: table.page_type === "tree" || table.page_type === "tree_lazy" ? 12 : 18 },
+    (_, rowIndex) => {
+      const row: CodeGenPreviewRow = {};
+      columns.forEach(column => {
+        const options = resolveColumnPreviewOptions(optionMap, column);
+        row[column.name] = createCodeGenPreviewValue(column, rowIndex, options);
+      });
+      if (!(primaryColumn in row)) row[primaryColumn] = rowIndex + 1;
+      if (table.page_type === "left_tree" && table.left_tree_config?.filter_column && leftTreeValues.length) {
+        row[table.left_tree_config.filter_column] = leftTreeValues[rowIndex % leftTreeValues.length];
+      }
+      return row;
     }
-    return row;
-  });
+  );
 
   // 树形页面按照真实父节点字段构造层级，列表字段和值仍来自当前数据库配置。
-  if (table.page_type === "tree" && table.parent_column && table.parent_column !== primaryColumn) {
+  if (
+    (table.page_type === "tree" || table.page_type === "tree_lazy") &&
+    table.parent_column &&
+    table.parent_column !== primaryColumn
+  ) {
     rows.forEach((row, rowIndex) => {
       if (rowIndex === 0 || rowIndex % 4 === 0) {
         row[table.parent_column] = 0;
@@ -111,6 +120,11 @@ export function createCodeGenPreviewRows(
       }
       const rootIndex = Math.floor(rowIndex / 4) * 4;
       row[table.parent_column] = rows[rootIndex][primaryColumn];
+    });
+  }
+  if (table.page_type === "tree_lazy" && table.parent_column) {
+    rows.forEach(row => {
+      row.has_children = rows.some(child => String(child[table.parent_column!]) === String(row[primaryColumn]));
     });
   }
   return rows;
@@ -185,14 +199,19 @@ function createCodeGenPreviewOptions(
   const sourceLabel = option?.source_value || label;
   // 树形组件用两级节点表现最终布局，其字段名和来源标识均取当前真实配置。
   if (option?.kind === "tree") {
-    return Array.from({ length: 3 }, (_, rootIndex) => ({
-      label: `${sourceLabel} ${rootIndex + 1}`,
-      value: `${sourceLabel}-${rootIndex + 1}`,
-      children: Array.from({ length: 2 }, (_, childIndex) => ({
+    return Array.from({ length: 3 }, (_, rootIndex) => {
+      const children = Array.from({ length: 2 }, (_, childIndex) => ({
         label: `${option.label_field || label} ${rootIndex + 1}-${childIndex + 1}`,
-        value: `${sourceLabel}-${rootIndex + 1}-${childIndex + 1}`
-      }))
-    }));
+        value: `${sourceLabel}-${rootIndex + 1}-${childIndex + 1}`,
+        has_children: false
+      }));
+      return {
+        label: `${sourceLabel} ${rootIndex + 1}`,
+        value: `${sourceLabel}-${rootIndex + 1}`,
+        has_children: children.length > 0,
+        children
+      };
+    });
   }
   return Array.from({ length: 4 }, (_, optionIndex) => ({
     label: `${sourceLabel}选项 ${optionIndex + 1}`,

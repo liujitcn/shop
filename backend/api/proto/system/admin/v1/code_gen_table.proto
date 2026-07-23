@@ -107,7 +107,7 @@ message CodeGenTableForm {
 
   int64 parent_menu_id = 5 [(gnostic.openapi.v3.property) = {description: "父级菜单ID"}, (buf.validate.field).cel = {id: "field.parent_menu_id.required", message: "请选择父级菜单", expression: "this > 0"}]; // 父级菜单ID
 
-  string page_type = 6 [(gnostic.openapi.v3.property) = {description: "页面类型：normal普通表格 tree树形表格 left_tree左树右表"}, (buf.validate.field).cel = {id: "field.page_type.required", message: "页面类型不能为空", expression: "this.size() > 0"}, (buf.validate.field).cel = {id: "field.page_type.length", message: "页面类型不能超过 32 个字符", expression: "this.size() <= 32"}]; // 页面类型：normal普通表格 tree树形表格 left_tree左树右表
+  string page_type = 6 [(gnostic.openapi.v3.property) = {description: "页面类型：normal普通表格 tree树形表格 tree_lazy树形懒加载表格 left_tree左树右表"}, (buf.validate.field).cel = {id: "field.page_type.required", message: "页面类型不能为空", expression: "this.size() > 0"}, (buf.validate.field).cel = {id: "field.page_type.length", message: "页面类型不能超过 32 个字符", expression: "this.size() <= 32"}]; // 页面类型：normal普通表格 tree树形表格 tree_lazy树形懒加载表格 left_tree左树右表
 
   string parent_column = 7 [(gnostic.openapi.v3.property) = {description: "树形表格父节点字段"}, (buf.validate.field).cel = {id: "field.parent_column.length", message: "树形表格父节点字段不能超过 64 个字符", expression: "this.size() <= 64"}]; // 树形表格父节点字段
 
@@ -189,4 +189,6 @@ message CodeGenLeftTreeConfig {
   string value_column = 5 [(gnostic.openapi.v3.property) = {description: "左树值字段"}]; // 左树值字段
 
   string comment = 6 [(gnostic.openapi.v3.property) = {description: "左树描述"}]; // 左树描述
+
+  bool lazy = 7 [(gnostic.openapi.v3.property) = {description: "左树是否懒加载"}]; // 左树是否懒加载
 }
