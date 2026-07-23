@@ -163,7 +163,9 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	baseDeptRepository := data.NewBaseDeptRepository(dataData)
 	baseDeptCase := biz2.NewBaseDeptCase(baseDeptRepository)
 	baseRoleCase := biz2.NewBaseRoleCase(baseRoleRepository)
-	loginCase := biz2.NewLoginCase(baseCase, userToken, baseDeptCase, baseRoleCase, baseUserCase, baseTenantRepository)
+	baseDictRepository := data.NewBaseDictRepository(dataData)
+	baseDictItemRepository := data.NewBaseDictItemRepository(dataData)
+	loginCase := biz2.NewLoginCase(baseCase, userToken, baseDeptCase, baseRoleCase, baseUserCase, baseTenantRepository, baseDictRepository, baseDictItemRepository)
 	loginService := base.NewLoginService(loginCase)
 	oAuth := config.ParseOAuth(context)
 	manager, err := oauth.NewManager(oAuth)
@@ -259,8 +261,6 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 		return nil, nil, err
 	}
 	baseDeptService := admin.NewBaseDeptService(bizBaseDeptCase)
-	baseDictRepository := data.NewBaseDictRepository(dataData)
-	baseDictItemRepository := data.NewBaseDictItemRepository(dataData)
 	baseDictItemCase := biz3.NewBaseDictItemCase(baseCase, baseDictRepository, baseDictItemRepository)
 	baseDictCase := biz3.NewBaseDictCase(baseCase, baseDictRepository, baseDictItemCase)
 	baseDictService := admin.NewBaseDictService(baseDictCase, baseDictItemCase)

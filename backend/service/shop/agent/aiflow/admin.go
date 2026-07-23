@@ -31,51 +31,51 @@ const (
 )
 
 const (
-	adminToolSummaryWorkspaceMetrics     = "admin_v1_workspace_service_summary_workspace_metrics"
-	adminToolSummaryWorkspaceTodo        = "admin_v1_workspace_service_summary_workspace_todo"
-	adminToolSummaryWorkspaceRisk        = "admin_v1_workspace_service_summary_workspace_risk"
-	adminToolSummaryWorkspaceReputation  = "admin_v1_workspace_service_summary_workspace_reputation"
-	adminToolListWorkspacePendingComment = "admin_v1_workspace_service_list_workspace_pending_comments"
-	adminToolPageOrderInfo               = "admin_v1_order_info_service_page_order_infos"
-	adminToolGetOrderInfo                = "admin_v1_order_info_service_get_order_info"
-	adminToolGetOrderInfoRefund          = "admin_v1_order_info_service_get_order_info_refund"
-	adminToolGetOrderInfoShipment        = "admin_v1_order_info_service_get_order_info_shipment"
-	adminToolShipOrderInfo               = "admin_v1_order_info_service_ship_order_info"
-	adminToolPageCommentInfo             = "admin_v1_comment_info_service_page_comment_infos"
-	adminToolGetCommentInfo              = "admin_v1_comment_info_service_get_comment_info"
-	adminToolSetCommentInfoStatus        = "admin_v1_comment_info_service_set_comment_info_status"
-	adminToolPageGoodsInfo               = "admin_v1_goods_info_service_page_goods_infos"
-	adminToolGetGoodsInfo                = "admin_v1_goods_info_service_get_goods_info"
-	adminToolSetGoodsInfoStatus          = "admin_v1_goods_info_service_set_goods_info_status"
+	adminToolSummaryWorkspaceMetrics     = "shop_admin_v1_workspace_service_summary_workspace_metrics"
+	adminToolSummaryWorkspaceTodo        = "shop_admin_v1_workspace_service_summary_workspace_todo"
+	adminToolSummaryWorkspaceRisk        = "shop_admin_v1_workspace_service_summary_workspace_risk"
+	adminToolSummaryWorkspaceReputation  = "shop_admin_v1_workspace_service_summary_workspace_reputation"
+	adminToolListWorkspacePendingComment = "shop_admin_v1_workspace_service_list_workspace_pending_comment"
+	adminToolPageOrderInfo               = "shop_admin_v1_order_info_service_page_order_info"
+	adminToolGetOrderInfo                = "shop_admin_v1_order_info_service_get_order_info"
+	adminToolGetOrderInfoRefund          = "shop_admin_v1_order_info_service_get_order_info_refund"
+	adminToolGetOrderInfoShipment        = "shop_admin_v1_order_info_service_get_order_info_shipment"
+	adminToolShipOrderInfo               = "shop_admin_v1_order_info_service_ship_order_info"
+	adminToolPageCommentInfo             = "shop_admin_v1_comment_info_service_page_comment_info"
+	adminToolGetCommentInfo              = "shop_admin_v1_comment_info_service_get_comment_info"
+	adminToolSetCommentInfoStatus        = "shop_admin_v1_comment_info_service_set_comment_info_status"
+	adminToolPageGoodsInfo               = "shop_admin_v1_goods_info_service_page_goods_info"
+	adminToolGetGoodsInfo                = "shop_admin_v1_goods_info_service_get_goods_info"
+	adminToolSetGoodsInfoStatus          = "shop_admin_v1_goods_info_service_set_goods_info_status"
 
 	// P1: 商品分析工具
-	adminToolSummaryGoodsAnalytics = "admin_v1_goods_analytics_service_summary_goods_analytics"
-	adminToolRankGoodsAnalytics    = "admin_v1_goods_analytics_service_rank_goods_analytics"
-	adminToolTrendGoodsAnalytics   = "admin_v1_goods_analytics_service_trend_goods_analytics"
-	adminToolPieGoodsAnalytics     = "admin_v1_goods_analytics_service_pie_goods_analytics"
+	adminToolSummaryGoodsAnalytics = "shop_admin_v1_goods_analytics_service_summary_goods_analytics"
+	adminToolRankGoodsAnalytics    = "shop_admin_v1_goods_analytics_service_rank_goods_analytics"
+	adminToolTrendGoodsAnalytics   = "shop_admin_v1_goods_analytics_service_trend_goods_analytics"
+	adminToolPieGoodsAnalytics     = "shop_admin_v1_goods_analytics_service_pie_goods_analytics"
 
 	// P1: 订单分析工具
-	adminToolSummaryOrderAnalytics = "admin_v1_order_analytics_service_summary_order_analytics"
-	adminToolTrendOrderAnalytics   = "admin_v1_order_analytics_service_trend_order_analytics"
-	adminToolPieOrderAnalytics     = "admin_v1_order_analytics_service_pie_order_analytics"
+	adminToolSummaryOrderAnalytics = "shop_admin_v1_order_analytics_service_summary_order_analytics"
+	adminToolTrendOrderAnalytics   = "shop_admin_v1_order_analytics_service_trend_order_analytics"
+	adminToolPieOrderAnalytics     = "shop_admin_v1_order_analytics_service_pie_order_analytics"
 
 	// P1: 门店审核工具
-	adminToolPageUserStore  = "admin_v1_user_store_service_page_user_stores"
-	adminToolGetUserStore   = "admin_v1_user_store_service_get_user_store"
-	adminToolAuditUserStore = "admin_v1_user_store_service_audit_user_store"
+	adminToolPageUserStore  = "shop_admin_v1_user_store_service_page_user_store"
+	adminToolGetUserStore   = "shop_admin_v1_user_store_service_get_user_store"
+	adminToolAuditUserStore = "shop_admin_v1_user_store_service_audit_user_store"
 
 	// P1: 推荐看板工具
-	adminToolListDashboardItem = "admin_v1_recommend_gorse_service_list_dashboard_items"
-	adminToolListTask          = "admin_v1_recommend_gorse_service_list_tasks"
-	adminToolGetConfig         = "admin_v1_recommend_gorse_service_get_config"
+	adminToolListDashboardItem = "shop_admin_v1_recommend_gorse_service_list_dashboard_item"
+	adminToolListTask          = "shop_admin_v1_recommend_gorse_service_list_task"
+	adminToolGetConfig         = "shop_admin_v1_recommend_gorse_service_get_config"
 
 	// P2: 对账检查工具
-	adminToolPagePayBill = "admin_v1_pay_bill_service_page_pay_bills"
+	adminToolPagePayBill = "shop_admin_v1_pay_bill_service_page_pay_bill"
 
 	// P2: 经营报表工具
-	adminToolSummaryOrderMonthReport = "admin_v1_order_report_service_summary_order_month_report"
-	adminToolSummaryGoodsMonthReport = "admin_v1_goods_report_service_summary_goods_month_report"
-	adminToolSummaryUserAnalytics    = "admin_v1_user_analytics_service_summary_user_analytics"
+	adminToolSummaryOrderMonthReport = "shop_admin_v1_order_report_service_summary_order_month_report"
+	adminToolSummaryGoodsMonthReport = "shop_admin_v1_goods_report_service_summary_goods_month_report"
+	adminToolSummaryUserAnalytics    = "shop_admin_v1_user_analytics_service_summary_user_analytics"
 )
 
 var adminFlowRegistry = einoWorkflow.MustNewRegistry[*ai.Response](adminFlowDefinitions, "商城", "shop_admin_fixed_flow")

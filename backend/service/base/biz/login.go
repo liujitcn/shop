@@ -32,6 +32,7 @@ const loginCaptchaTypeKeyPrefix = "login_captcha_type"
 const refreshTokenAuthKeyPrefix = "refresh_token_auth"
 const loginCaptchaTokenExpire = 2 * time.Minute
 const loginCaptchaRandomType = "random"
+const loginCaptchaTypeDictCode = "captcha_type"
 
 var supportedCaptchaDriverTypes = [...]captcha.DriverType{
 	captcha.DriverDigit,
@@ -46,11 +47,13 @@ var supportedCaptchaDriverTypes = [...]captcha.DriverType{
 // LoginCase 处理基础登录认证业务。
 type LoginCase struct {
 	*biz.BaseCase
-	userToken      *authData.UserToken
-	baseDeptCase   *BaseDeptCase
-	baseRoleCase   *BaseRoleCase
-	baseUserCase   *BaseUserCase
-	baseTenantRepo *data.BaseTenantRepository
+	userToken        *authData.UserToken
+	baseDeptCase     *BaseDeptCase
+	baseRoleCase     *BaseRoleCase
+	baseUserCase     *BaseUserCase
+	baseTenantRepo   *data.BaseTenantRepository
+	baseDictRepo     *data.BaseDictRepository
+	baseDictItemRepo *data.BaseDictItemRepository
 }
 
 // NewLoginCase 创建登录业务实例。
@@ -61,26 +64,34 @@ func NewLoginCase(
 	baseRoleRepo *BaseRoleCase,
 	baseUserRepo *BaseUserCase,
 	baseTenantRepo *data.BaseTenantRepository,
+	baseDictRepo *data.BaseDictRepository,
+	baseDictItemRepo *data.BaseDictItemRepository,
 ) *LoginCase {
 	return &LoginCase{
-		BaseCase:       baseCase,
-		userToken:      userToken,
-		baseDeptCase:   baseDeptRepo,
-		baseRoleCase:   baseRoleRepo,
-		baseUserCase:   baseUserRepo,
-		baseTenantRepo: baseTenantRepo,
+		BaseCase:         baseCase,
+		userToken:        userToken,
+		baseDeptCase:     baseDeptRepo,
+		baseRoleCase:     baseRoleRepo,
+		baseUserCase:     baseUserRepo,
+		baseTenantRepo:   baseTenantRepo,
+		baseDictRepo:     baseDictRepo,
+		baseDictItemRepo: baseDictItemRepo,
 	}
 }
 
 // Captcha 生成验证码。
 func (c *LoginCase) Captcha(ctx context.Context, req *basev1.CaptchaRequest) (*basev1.CaptchaResponse, error) {
-	driverType, ok := captchaDriverType(req.GetType())
+	driverType, ok, err := c.resolveCaptchaDriverType(ctx, req.GetType())
+	if err != nil {
+		return nil, errorsx.Internal("查询启用验证码类型失败").WithCause(err)
+	}
 	// 请求的验证码类型不在系统字典支持范围内时，直接拒绝生成。
 	if !ok {
 		return nil, errorsx.InvalidArgument("验证码类型不支持")
 	}
 
-	challenge, err := captcha.NewCaptcha(c.Cache,
+	var challenge *captcha.Challenge
+	challenge, err = captcha.NewCaptcha(c.Cache,
 		captcha.WithDriverType(driverType),
 		captcha.WithKeyPrefix(loginCaptchaKeyPrefix),
 	).Generate(ctx)
@@ -404,11 +415,60 @@ func captchaDriverType(captchaType string) (captcha.DriverType, bool) {
 		return captcha.DriverClick, true
 	case string(captcha.DriverRotate):
 		return captcha.DriverRotate, true
-	case loginCaptchaRandomType:
-		return supportedCaptchaDriverTypes[rand.IntN(len(supportedCaptchaDriverTypes))], true
 	default:
 		return captcha.DriverDigit, false
 	}
+}
+
+// resolveCaptchaDriverType 解析验证码请求类型，随机类型从启用字典项中选择。
+func (c *LoginCase) resolveCaptchaDriverType(ctx context.Context, captchaType string) (captcha.DriverType, bool, error) {
+	if captchaType != loginCaptchaRandomType {
+		driverType, ok := captchaDriverType(captchaType)
+		return driverType, ok, nil
+	}
+
+	driverType, err := c.randomCaptchaDriverType(ctx)
+	if err != nil {
+		return captcha.DriverDigit, false, err
+	}
+	return driverType, true, nil
+}
+
+// randomCaptchaDriverType 从验证码字典的启用项中随机选择驱动类型。
+func (c *LoginCase) randomCaptchaDriverType(ctx context.Context) (captcha.DriverType, error) {
+	dictQuery := c.baseDictRepo.Query(ctx).BaseDict
+	dictOpts := make([]repository.QueryOption, 0, 2)
+	dictOpts = append(dictOpts, repository.Where(dictQuery.Code.Eq(loginCaptchaTypeDictCode)))
+	dictOpts = append(dictOpts, repository.Where(dictQuery.Status.Eq(_const.STATUS_ENABLE)))
+	dict, err := c.baseDictRepo.Find(ctx, dictOpts...)
+	if err != nil {
+		return captcha.DriverDigit, err
+	}
+
+	itemQuery := c.baseDictItemRepo.Query(ctx).BaseDictItem
+	itemOpts := make([]repository.QueryOption, 0, 2)
+	itemOpts = append(itemOpts, repository.Where(itemQuery.DictID.Eq(dict.ID)))
+	itemOpts = append(itemOpts, repository.Where(itemQuery.Status.Eq(_const.STATUS_ENABLE)))
+	var items []*models.BaseDictItem
+	items, err = c.baseDictItemRepo.List(ctx, itemOpts...)
+	if err != nil {
+		return captcha.DriverDigit, err
+	}
+
+	enabledTypes := make([]captcha.DriverType, 0, len(supportedCaptchaDriverTypes))
+	for _, item := range items {
+		for _, driverType := range supportedCaptchaDriverTypes {
+			if item.Value != string(driverType) {
+				continue
+			}
+			enabledTypes = append(enabledTypes, driverType)
+			break
+		}
+	}
+	if len(enabledTypes) == 0 {
+		return captcha.DriverDigit, errorsx.Internal("没有启用的验证码类型")
+	}
+	return enabledTypes[rand.IntN(len(enabledTypes))], nil
 }
 
 // loginCaptchaTokenKey 生成验证码预校验令牌缓存键。
