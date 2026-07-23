@@ -300,6 +300,32 @@ watch(tableId, () => {
   void loadPreview();
 });
 
+/** 请求前端模拟列表，并复用最终页面的查询与分页交互。 */
+async function requestPreviewTable(params: Record<string, any>) {
+  const columns = snapshot.value?.columns ?? [];
+  let rows = filterCodeGenPreviewRows(mockRows.value, columns, params);
+  if (
+    pageType.value === "left_tree" &&
+    snapshot.value?.table.left_tree_config?.filter_column &&
+    selectedLeftTreeValues.value.length
+  ) {
+    const filterColumn = snapshot.value.table.left_tree_config.filter_column;
+    rows = rows.filter(row => selectedLeftTreeValues.value.some(value => String(value) === String(row[filterColumn])));
+  }
+  if (pageType.value === "tree" && snapshot.value?.table.parent_column) {
+    return { data: buildCodeGenPreviewTree(rows, primaryColumn.value, snapshot.value.table.parent_column) };
+  }
+  const pageNum = Number(params.pageNum ?? 1);
+  const pageSize = Number(params.pageSize ?? 10);
+  const start = (pageNum - 1) * pageSize;
+  return { data: { list: rows.slice(start, start + pageSize), total: rows.length } };
+}
+
+/** 刷新预览表格。 */
+function refreshTable() {
+  proTable.value?.getTableList();
+}
+
 /** 加载当前表、字段和 Proto 配置并创建页面预览。 */
 async function loadPreview() {
   loading.value = true;
@@ -325,6 +351,90 @@ async function loadPreview() {
   } finally {
     loading.value = false;
   }
+}
+
+/** 根据 TreeFilter 当前节点筛选该节点及其全部子节点。 */
+function handleLeftTreeChange(value: string | number | boolean | undefined) {
+  const selectedNode = flattenCodeGenPreviewOptions(leftTreeOptions.value).find(option => String(option.value) === String(value));
+  selectedLeftTreeValues.value = selectedNode
+    ? flattenCodeGenPreviewOptions([selectedNode]).map(option => option.value)
+    : [];
+  proTable.value?.search();
+}
+
+/** 打开新增或编辑模拟记录弹窗。 */
+function handleOpenDialog(row?: CodeGenPreviewRow) {
+  resetPreviewForm(row);
+  editingRowKey.value = row?.[primaryColumn.value];
+  dialog.title = row ? `编辑${snapshot.value?.table.comment || "数据"}` : `新增${snapshot.value?.table.comment || "数据"}`;
+  dialog.visible = true;
+}
+
+/** 关闭模拟表单并清理编辑上下文。 */
+function handleCloseDialog() {
+  dialog.visible = false;
+  editingRowKey.value = undefined;
+  resetPreviewForm();
+}
+
+/** 重置预览表单并按组件类型写入结构正确的初始值。 */
+function resetPreviewForm(row?: CodeGenPreviewRow) {
+  formDialogRef.value?.resetFields();
+  formDialogRef.value?.clearValidate();
+  Object.keys(previewFormModel).forEach(key => delete previewFormModel[key]);
+  formFields.value.forEach(field => {
+    previewFormModel[field.prop] = row ? resolvePreviewFormValue(field, row[field.prop]) : createPreviewFormValue(field);
+  });
+}
+
+/** 提交模拟新增或编辑，并刷新当前列表布局。 */
+function handleSubmit() {
+  formDialogRef.value?.validate()?.then(async valid => {
+    if (!valid || !snapshot.value) return;
+    if (editingRowKey.value !== undefined) {
+      const rowIndex = mockRows.value.findIndex(row => String(row[primaryColumn.value]) === String(editingRowKey.value));
+      if (rowIndex >= 0) mockRows.value[rowIndex] = { ...mockRows.value[rowIndex], ...clonePreviewValue(previewFormModel) };
+    } else {
+      const template = createCodeGenPreviewRows(snapshot.value, optionMap.value, leftTreeOptions.value)[0] ?? {};
+      const nextPrimaryValue = createNextPrimaryValue();
+      const newRow = { ...template, ...clonePreviewValue(previewFormModel), [primaryColumn.value]: nextPrimaryValue };
+      if (
+        pageType.value === "left_tree" &&
+        snapshot.value.table.left_tree_config?.filter_column &&
+        selectedLeftTreeValues.value.length
+      ) {
+        newRow[snapshot.value.table.left_tree_config.filter_column] = selectedLeftTreeValues.value[0];
+      }
+      mockRows.value.unshift(newRow);
+    }
+    const successMessage = editingRowKey.value !== undefined ? "修改成功" : "新增成功";
+    handleCloseDialog();
+    await nextTick();
+    refreshTable();
+    ElMessage.success(successMessage);
+  });
+}
+
+/** 删除一条或多条模拟记录。 */
+async function handleDelete(rows: CodeGenPreviewRow[]) {
+  if (!rows.length) {
+    ElMessage.warning("请勾选删除项");
+    return;
+  }
+  try {
+    await ElMessageBox.confirm(`确认删除选中的 ${rows.length} 条数据吗？`, "删除确认", {
+      confirmButtonText: "确定",
+      cancelButtonText: "取消",
+      type: "warning"
+    });
+  } catch {
+    return;
+  }
+  const keys = new Set(rows.map(row => String(row[primaryColumn.value])));
+  mockRows.value = mockRows.value.filter(row => !keys.has(String(row[primaryColumn.value])));
+  await nextTick();
+  refreshTable();
+  ElMessage.success("删除成功");
 }
 
 /** 创建当前页面类型使用的完整模拟数据。 */
@@ -411,45 +521,6 @@ function renderPreviewOptionValue(scope: RenderScope, columnName: string, option
   return matched?.label || String(value ?? "--");
 }
 
-/** 请求前端模拟列表，并复用最终页面的查询与分页交互。 */
-async function requestPreviewTable(params: Record<string, any>) {
-  const columns = snapshot.value?.columns ?? [];
-  let rows = filterCodeGenPreviewRows(mockRows.value, columns, params);
-  if (
-    pageType.value === "left_tree" &&
-    snapshot.value?.table.left_tree_config?.filter_column &&
-    selectedLeftTreeValues.value.length
-  ) {
-    const filterColumn = snapshot.value.table.left_tree_config.filter_column;
-    rows = rows.filter(row => selectedLeftTreeValues.value.some(value => String(value) === String(row[filterColumn])));
-  }
-  if (pageType.value === "tree" && snapshot.value?.table.parent_column) {
-    return { data: buildCodeGenPreviewTree(rows, primaryColumn.value, snapshot.value.table.parent_column) };
-  }
-  const pageNum = Number(params.pageNum ?? 1);
-  const pageSize = Number(params.pageSize ?? 10);
-  const start = (pageNum - 1) * pageSize;
-  return { data: { list: rows.slice(start, start + pageSize), total: rows.length } };
-}
-
-/** 打开新增或编辑模拟记录弹窗。 */
-function handleOpenDialog(row?: CodeGenPreviewRow) {
-  resetPreviewForm(row);
-  editingRowKey.value = row?.[primaryColumn.value];
-  dialog.title = row ? `编辑${snapshot.value?.table.comment || "数据"}` : `新增${snapshot.value?.table.comment || "数据"}`;
-  dialog.visible = true;
-}
-
-/** 重置预览表单并按组件类型写入结构正确的初始值。 */
-function resetPreviewForm(row?: CodeGenPreviewRow) {
-  formDialogRef.value?.resetFields();
-  formDialogRef.value?.clearValidate();
-  Object.keys(previewFormModel).forEach(key => delete previewFormModel[key]);
-  formFields.value.forEach(field => {
-    previewFormModel[field.prop] = row ? resolvePreviewFormValue(field, row[field.prop]) : createPreviewFormValue(field);
-  });
-}
-
 /** 还原编辑态字段值，保证多选树形选择始终接收数组。 */
 function resolvePreviewFormValue(field: ProFormField, value: unknown) {
   const props = field.props && typeof field.props !== "function" ? field.props : {};
@@ -463,77 +534,11 @@ function resolvePreviewFormValue(field: ProFormField, value: unknown) {
   }
 }
 
-/** 提交模拟新增或编辑，并刷新当前列表布局。 */
-function handleSubmit() {
-  formDialogRef.value?.validate()?.then(async valid => {
-    if (!valid || !snapshot.value) return;
-    if (editingRowKey.value !== undefined) {
-      const rowIndex = mockRows.value.findIndex(row => String(row[primaryColumn.value]) === String(editingRowKey.value));
-      if (rowIndex >= 0) mockRows.value[rowIndex] = { ...mockRows.value[rowIndex], ...clonePreviewValue(previewFormModel) };
-    } else {
-      const template = createCodeGenPreviewRows(snapshot.value, optionMap.value, leftTreeOptions.value)[0] ?? {};
-      const nextPrimaryValue = createNextPrimaryValue();
-      const newRow = { ...template, ...clonePreviewValue(previewFormModel), [primaryColumn.value]: nextPrimaryValue };
-      if (
-        pageType.value === "left_tree" &&
-        snapshot.value.table.left_tree_config?.filter_column &&
-        selectedLeftTreeValues.value.length
-      ) {
-        newRow[snapshot.value.table.left_tree_config.filter_column] = selectedLeftTreeValues.value[0];
-      }
-      mockRows.value.unshift(newRow);
-    }
-    const successMessage = editingRowKey.value !== undefined ? "修改成功" : "新增成功";
-    handleCloseDialog();
-    await nextTick();
-    proTable.value?.getTableList();
-    ElMessage.success(successMessage);
-  });
-}
-
-/** 关闭模拟表单并清理编辑上下文。 */
-function handleCloseDialog() {
-  dialog.visible = false;
-  editingRowKey.value = undefined;
-  resetPreviewForm();
-}
-
-/** 删除一条或多条模拟记录。 */
-async function handleDelete(rows: CodeGenPreviewRow[]) {
-  if (!rows.length) {
-    ElMessage.warning("请勾选删除项");
-    return;
-  }
-  try {
-    await ElMessageBox.confirm(`确认删除选中的 ${rows.length} 条数据吗？`, "删除确认", {
-      confirmButtonText: "确定",
-      cancelButtonText: "取消",
-      type: "warning"
-    });
-  } catch {
-    return;
-  }
-  const keys = new Set(rows.map(row => String(row[primaryColumn.value])));
-  mockRows.value = mockRows.value.filter(row => !keys.has(String(row[primaryColumn.value])));
-  await nextTick();
-  proTable.value?.getTableList();
-  ElMessage.success("删除成功");
-}
-
 /** 创建新增记录不与现有主键冲突的模拟编号。 */
 function createNextPrimaryValue() {
   const values = mockRows.value.map(row => Number(row[primaryColumn.value])).filter(Number.isFinite);
   if (values.length === mockRows.value.length) return Math.max(0, ...values) + 1;
   return `record-${Date.now()}`;
-}
-
-/** 根据 TreeFilter 当前节点筛选该节点及其全部子节点。 */
-function handleLeftTreeChange(value: string | number | boolean | undefined) {
-  const selectedNode = flattenCodeGenPreviewOptions(leftTreeOptions.value).find(option => String(option.value) === String(value));
-  selectedLeftTreeValues.value = selectedNode
-    ? flattenCodeGenPreviewOptions([selectedNode]).map(option => option.value)
-    : [];
-  proTable.value?.search();
 }
 
 /** 将树形模拟记录转换成父节点选择项。 */

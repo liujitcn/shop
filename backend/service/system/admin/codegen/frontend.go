@@ -620,9 +620,63 @@ function handleCloseDialog() {
 }
 </script>
 	`, renderFrontendDateImport(columns), proFormTypeImport, entity, frontendAPIImport, c.renderFrontendOptionImports(table, columns, methods), tenantImports, entity, entity, entity, statusTypeImport, frontendRPCImport, c.renderFrontendEnumImports(columns), entity, formStateType, tenantState, formDataType, c.renderFrontendFormDefaults(columns), c.renderFrontendRules(columns), c.renderFrontendStatusOptions(columns)+c.renderFrontendOptionState(columns, methods), table.BusinessName, c.renderFrontendFormFields(columns), table.BusinessName, c.renderFrontendColumns(table, columns, methods), PermissionPrefix(table), entity, PermissionPrefix(table), entity, table.BusinessName, PermissionPrefix(table), PermissionPrefix(table), entity, "", table.BusinessName, entity, entity, entity, entity, listField, listField, table.BusinessName, table.BusinessName, c.renderFrontendResetForm(columns), table.BusinessName, c.renderFrontendLoadOptionsCall(columns, methods), table.BusinessName, table.BusinessName, entity, entity, table.BusinessName, entity, entity, entity, snakeEntity, entity, entity, snakeEntity, table.BusinessName, table.BusinessName, c.renderFrontendStatusHandlers(table, columns, methods), table.BusinessName, entity, entity, entity, entity, table.BusinessName, table.BusinessName, entity, entity, table.BusinessName, table.BusinessName, table.BusinessName)
+	script = c.reorderFrontendPageMethods(script)
 	script = strings.TrimRight(script, " \t\r\n") + "\n"
 	content := renderTemplate("frontend_page.tmpl", frontendPageTemplateData{Entity: entity, BusinessName: table.BusinessName, HasTenantOption: hasTenantOption, Script: script})
 	return c.applyFrontendPageType(content, table, methods, frontendAPIImport)
+}
+
+// reorderFrontendPageMethods 统一生成页面的主流程方法顺序，保持列表、选项与弹窗逻辑按阅读顺序排列。
+func (c *renderer) reorderFrontendPageMethods(content string) string {
+	originalContent := content
+	methodNames := []string{"loadFormOptions", "handleOpenDialog", "handleCloseDialog", "resetForm", "handleSubmit", "handleDelete"}
+	blocks := make(map[string]string, len(methodNames))
+	for _, methodName := range methodNames {
+		var block string
+		var ok bool
+		content, block, ok = removeFrontendFunctionBlock(content, methodName)
+		if ok {
+			blocks[methodName] = block
+		} else if methodName != "loadFormOptions" {
+			return originalContent
+		}
+	}
+
+	if len(blocks) == 0 {
+		return content
+	}
+
+	refreshEnd := frontendFunctionEndWithLineBreak(content, "refreshTable")
+	if refreshEnd < 0 {
+		return originalContent
+	}
+	if block, ok := blocks["loadFormOptions"]; ok {
+		content = content[:refreshEnd] + block + content[refreshEnd:]
+	}
+
+	methodSequence := []string{"handleOpenDialog", "handleCloseDialog", "resetForm", "handleSubmit"}
+	sequence := strings.Builder{}
+	for _, methodName := range methodSequence {
+		if block, ok := blocks[methodName]; ok {
+			sequence.WriteString(block)
+		}
+	}
+	statusIndex := strings.Index(content, "\n/**\n * 切换")
+	if statusIndex < 0 {
+		statusIndex = strings.Index(content, "</script>")
+	}
+	if statusIndex < 0 {
+		return originalContent
+	}
+	content = content[:statusIndex] + sequence.String() + content[statusIndex:]
+
+	if block, ok := blocks["handleDelete"]; ok {
+		scriptEnd := strings.Index(content, "</script>")
+		if scriptEnd >= 0 {
+			content = content[:scriptEnd] + block + content[scriptEnd:]
+		}
+	}
+	return content
 }
 
 // applyFrontendPageType 根据页面类型补充树表格或左树右表结构。
@@ -1206,7 +1260,56 @@ async function %s(row: %s) {
     return false;
   }
 }
-`, DefaultString(column.Comment, column.Name), handlerName, table.EntityName, column.Name, enabled, disabled, enabled, enabled, table.BusinessName, table.EntityName, statusMethod.MethodName, statusMethod.MethodName)
+	`, DefaultString(column.Comment, column.Name), handlerName, table.EntityName, column.Name, enabled, disabled, enabled, enabled, table.BusinessName, table.EntityName, statusMethod.MethodName, statusMethod.MethodName)
+}
+
+// removeFrontendFunctionBlock 移除并返回指定 TypeScript 函数及其中文注释。
+func removeFrontendFunctionBlock(content string, functionName string) (string, string, bool) {
+	functionStart := strings.Index(content, "async function "+functionName+"(")
+	plainStart := strings.Index(content, "function "+functionName+"(")
+	if functionStart < 0 || plainStart >= 0 && plainStart < functionStart {
+		functionStart = plainStart
+	}
+	if functionStart < 0 {
+		return content, "", false
+	}
+
+	lineStart := strings.LastIndex(content[:functionStart], "\n") + 1
+	blockStart := strings.LastIndex(content[:lineStart], "/**")
+	if blockStart < 0 {
+		blockStart = lineStart
+	} else {
+		blockStart = strings.LastIndex(content[:blockStart], "\n") + 1
+	}
+	functionEnd := findTSFunctionEndIndex(content, functionStart)
+	if functionEnd < 0 {
+		return content, "", false
+	}
+	blockEnd := functionEnd + 1
+	if blockEnd < len(content) && content[blockEnd] == '\n' {
+		blockEnd++
+	}
+	return content[:blockStart] + content[blockEnd:], content[blockStart:blockEnd], true
+}
+
+// frontendFunctionEndWithLineBreak 返回指定 TypeScript 函数末尾的下一个行首位置。
+func frontendFunctionEndWithLineBreak(content string, functionName string) int {
+	functionStart := strings.Index(content, "async function "+functionName+"(")
+	plainStart := strings.Index(content, "function "+functionName+"(")
+	if functionStart < 0 || plainStart >= 0 && plainStart < functionStart {
+		functionStart = plainStart
+	}
+	if functionStart < 0 {
+		return -1
+	}
+	functionEnd := findTSFunctionEndIndex(content, functionStart)
+	if functionEnd < 0 {
+		return -1
+	}
+	if functionEnd+1 < len(content) && content[functionEnd+1] == '\n' {
+		return functionEnd + 2
+	}
+	return functionEnd + 1
 }
 
 // findTSFunctionEndIndex 查找 TypeScript 函数体结束位置。

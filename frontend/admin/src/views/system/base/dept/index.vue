@@ -330,22 +330,6 @@ async function handleFormTenantChange() {
 }
 
 /**
- * 重置部门表单。
- */
-function resetForm() {
-  formDialogRef.value?.resetFields();
-  formDialogRef.value?.clearValidate();
-  formData.id = 0;
-  formData.tenant_id = undefined;
-  formData.parent_id = 0;
-  formData.name = "";
-  formData.sort = 1;
-  formData.status = Status.ENABLE;
-  formData.remark = "";
-  deptOptions.value = [];
-}
-
-/**
  * 打开部门弹窗。
  */
 async function handleOpenDialog(parent_id?: number, deptId?: number, tenantId?: number) {
@@ -367,6 +351,30 @@ async function handleOpenDialog(parent_id?: number, deptId?: number, tenantId?: 
   dialog.title = "新增部门";
   dialog.visible = true;
   formData.parent_id = parent_id ?? 0;
+}
+
+/**
+ * 关闭部门弹窗。
+ */
+function handleCloseDialog() {
+  dialog.visible = false;
+  resetForm();
+}
+
+/**
+ * 重置部门表单。
+ */
+function resetForm() {
+  formDialogRef.value?.resetFields();
+  formDialogRef.value?.clearValidate();
+  formData.id = 0;
+  formData.tenant_id = undefined;
+  formData.parent_id = 0;
+  formData.name = "";
+  formData.sort = 1;
+  formData.status = Status.ENABLE;
+  formData.remark = "";
+  deptOptions.value = [];
 }
 
 /**
@@ -450,11 +458,4 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
   );
 }
 
-/**
- * 关闭部门弹窗。
- */
-function handleCloseDialog() {
-  dialog.visible = false;
-  resetForm();
-}
 </script>

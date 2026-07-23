@@ -349,25 +349,12 @@ function refreshTable() {
 }
 
 /**
- * 根据后端保护标记判断当前账号是否允许操作目标角色。
+ * 加载租户下拉选项。
  */
-function canManageRole(row?: BaseRole) {
-  return Boolean(row?.code && !row.is_protected);
-}
-
-/** 判断角色是否禁止切换状态和删除。 */
-function isRoleProtected(code?: string) {
-  return Boolean(code && protectedRoleCodes.has(code));
-}
-
-/** 判断当前账号是否允许切换目标角色状态。 */
-function canChangeRoleStatus(row?: BaseRole) {
-  return canManageRole(row) && !isRoleProtected(row?.code);
-}
-
-/** 判断当前账号是否允许删除目标角色。 */
-function canDeleteRole(row?: BaseRole) {
-  return canManageRole(row) && !isRoleProtected(row?.code);
+async function loadTenantOptions() {
+  if (!isDefaultTenant.value || tenantOptions.value.length) return;
+  const response = await defBaseTenantService.OptionBaseTenant({ keyword: "" });
+  tenantOptions.value = response.list ?? [];
 }
 
 /**
@@ -378,6 +365,14 @@ async function loadMenuPermOptions(roleId?: number) {
     role_id: roleId
   });
   menuPermOptions.value = optionBaseMenuRes.list ?? [];
+}
+
+/**
+ * 切换角色所属租户时，清空已选菜单并重新加载当前可分配权限。
+ */
+async function handleFormTenantChange() {
+  formData.menus = [];
+  await loadMenuPermOptions();
 }
 
 /**
@@ -396,49 +391,6 @@ async function handleOpenDialog(roleId?: number) {
   const data = await defBaseRoleService.GetBaseRole({ id: roleId });
   Object.assign(formData, data);
   await loadMenuPermOptions(roleId);
-}
-
-/**
- * 同步树选择组件已勾选菜单到表单值。
- */
-function handleCheck(currentNode: unknown, { checkedNodes }: { checkedNodes: Array<{ value: number }> }) {
-  formData.menus = checkedNodes.map(node => node.value);
-}
-
-/**
- * 加载租户下拉选项。
- */
-async function loadTenantOptions() {
-  if (!isDefaultTenant.value || tenantOptions.value.length) return;
-  const response = await defBaseTenantService.OptionBaseTenant({ keyword: "" });
-  tenantOptions.value = response.list ?? [];
-}
-
-/**
- * 切换角色所属租户时，清空已选菜单并重新加载当前可分配权限。
- */
-async function handleFormTenantChange() {
-  formData.menus = [];
-  await loadMenuPermOptions();
-}
-
-/**
- * 提交角色表单。
- */
-function handleSubmit() {
-  formDialogRef.value?.validate()?.then(valid => {
-    if (!valid) return;
-
-    const submitData = JSON.parse(JSON.stringify(formData)) as BaseRoleForm;
-    const request = submitData.id
-      ? defBaseRoleService.UpdateBaseRole({ base_role: submitData })
-      : defBaseRoleService.CreateBaseRole({ base_role: submitData });
-    request.then(() => {
-      ElMessage.success(submitData.id ? "修改角色成功" : "新增角色成功");
-      handleCloseDialog();
-      refreshTable();
-    });
-  });
 }
 
 /**
@@ -464,6 +416,54 @@ function resetForm() {
   formData.status = Status.ENABLE;
   formData.remark = "";
   menuPermOptions.value = [];
+}
+
+/**
+ * 同步树选择组件已勾选菜单到表单值。
+ */
+function handleCheck(currentNode: unknown, { checkedNodes }: { checkedNodes: Array<{ value: number }> }) {
+  formData.menus = checkedNodes.map(node => node.value);
+}
+
+/**
+ * 提交角色表单。
+ */
+function handleSubmit() {
+  formDialogRef.value?.validate()?.then(valid => {
+    if (!valid) return;
+
+    const submitData = JSON.parse(JSON.stringify(formData)) as BaseRoleForm;
+    const request = submitData.id
+      ? defBaseRoleService.UpdateBaseRole({ base_role: submitData })
+      : defBaseRoleService.CreateBaseRole({ base_role: submitData });
+    request.then(() => {
+      ElMessage.success(submitData.id ? "修改角色成功" : "新增角色成功");
+      handleCloseDialog();
+      refreshTable();
+    });
+  });
+}
+
+/**
+ * 根据后端保护标记判断当前账号是否允许操作目标角色。
+ */
+function canManageRole(row?: BaseRole) {
+  return Boolean(row?.code && !row.is_protected);
+}
+
+/** 判断角色是否禁止切换状态和删除。 */
+function isRoleProtected(code?: string) {
+  return Boolean(code && protectedRoleCodes.has(code));
+}
+
+/** 判断当前账号是否允许切换目标角色状态。 */
+function canChangeRoleStatus(row?: BaseRole) {
+  return canManageRole(row) && !isRoleProtected(row?.code);
+}
+
+/** 判断当前账号是否允许删除目标角色。 */
+function canDeleteRole(row?: BaseRole) {
+  return canManageRole(row) && !isRoleProtected(row?.code);
 }
 
 /**

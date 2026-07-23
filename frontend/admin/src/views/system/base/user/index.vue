@@ -508,109 +508,6 @@ function refreshTable() {
 }
 
 /**
- * 在用户状态切换前先完成确认与接口调用，避免首屏渲染触发误操作。
- */
-async function handleBeforeSetStatus(row: BaseUser) {
-  if (isProtectedManagementUser(row)) {
-    ElMessage.warning("内置管理员账号只能通过个人中心修改");
-    return false;
-  }
-
-  const nextStatus = row.status === Status.ENABLE ? Status.DISABLE : Status.ENABLE;
-  const text = nextStatus === Status.ENABLE ? "启用" : "禁用";
-  const user_name = row.nick_name || row.user_name || `ID:${row.id}`;
-  try {
-    await ElMessageBox.confirm(`是否确定${text}用户？\n用户名称：${user_name}`, "提示", {
-      confirmButtonText: "确认",
-      cancelButtonText: "取消",
-      type: "warning"
-    });
-    await defBaseUserService.SetBaseUserStatus({ id: row.id, status: nextStatus });
-    ElMessage.success(`${text}成功`);
-    refreshTable();
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-/**
- * 打开重置密码弹窗，并回填当前操作用户。
- */
-function handleResetPassword(row: BaseUser) {
-  resetPwdFormDialogRef.value?.resetFields();
-  resetPwdFormDialogRef.value?.clearValidate();
-  resetPwdForm.id = row.id;
-  resetPwdForm.pwd = "";
-  resetPwdTargetName.value = row.nick_name || row.user_name || `ID:${row.id}`;
-  resetPwdDialog.title = `重置密码：${resetPwdTargetName.value}`;
-  resetPwdDialog.visible = true;
-}
-
-/**
- * 打开用户弹窗，并加载角色和部门下拉选项。
- */
-async function handleOpenDialog(id?: number) {
-  resetForm();
-  await loadTenantOptions();
-  dialog.title = id ? "修改用户" : "新增用户";
-  dialog.visible = true;
-  if (!id) {
-    await loadFormOptions();
-    return;
-  }
-
-  defBaseUserService.GetBaseUser({ id }).then(async data => {
-    Object.assign(formData, data);
-    await loadFormOptions();
-  });
-}
-
-/**
- * 关闭用户弹窗并恢复默认表单值。
- */
-function handleCloseDialog() {
-  dialog.visible = false;
-  resetForm();
-}
-
-/**
- * 关闭重置密码弹窗并恢复默认表单值。
- */
-function handleCloseResetPasswordDialog() {
-  resetPwdDialog.visible = false;
-  resetPwdFormDialogRef.value?.resetFields();
-  resetPwdFormDialogRef.value?.clearValidate();
-  resetPwdForm.id = 0;
-  resetPwdForm.pwd = "";
-  resetPwdTargetName.value = "";
-}
-
-/**
- * 重置用户表单，避免新增与编辑之间互相污染。
- */
-function resetForm() {
-  formDialogRef.value?.resetFields();
-  formDialogRef.value?.clearValidate();
-  formData.id = 0;
-  formData.tenant_id = undefined;
-  formData.user_name = "";
-  formData.nick_name = "";
-  formData.role_id = 0;
-  formData.dept_id = undefined;
-  formData.post_id = undefined;
-  formData.phone = "";
-  formData.pwd = "";
-  formData.gender = 3;
-  formData.avatar = "";
-  formData.status = Status.ENABLE;
-  formData.remark = "";
-  baseRoleOptions.value = [];
-  basePostOptions.value = [];
-  basedDeptOptions.value = [];
-}
-
-/**
  * 加载用户表单依赖的角色和部门选项。
  */
 async function loadFormOptions() {
@@ -652,6 +549,82 @@ async function handleFormTenantChange() {
 }
 
 /**
+ * 打开用户弹窗，并加载角色和部门下拉选项。
+ */
+async function handleOpenDialog(id?: number) {
+  resetForm();
+  await loadTenantOptions();
+  dialog.title = id ? "修改用户" : "新增用户";
+  dialog.visible = true;
+  if (!id) {
+    await loadFormOptions();
+    return;
+  }
+
+  defBaseUserService.GetBaseUser({ id }).then(async data => {
+    Object.assign(formData, data);
+    await loadFormOptions();
+  });
+}
+
+/**
+ * 关闭用户弹窗并恢复默认表单值。
+ */
+function handleCloseDialog() {
+  dialog.visible = false;
+  resetForm();
+}
+
+/**
+ * 重置用户表单，避免新增与编辑之间互相污染。
+ */
+function resetForm() {
+  formDialogRef.value?.resetFields();
+  formDialogRef.value?.clearValidate();
+  formData.id = 0;
+  formData.tenant_id = undefined;
+  formData.user_name = "";
+  formData.nick_name = "";
+  formData.role_id = 0;
+  formData.dept_id = undefined;
+  formData.post_id = undefined;
+  formData.phone = "";
+  formData.pwd = "";
+  formData.gender = 3;
+  formData.avatar = "";
+  formData.status = Status.ENABLE;
+  formData.remark = "";
+  baseRoleOptions.value = [];
+  basePostOptions.value = [];
+  basedDeptOptions.value = [];
+}
+
+/**
+ * 打开重置密码弹窗，并回填当前操作用户。
+ */
+function handleResetPassword(row: BaseUser) {
+  resetPwdFormDialogRef.value?.resetFields();
+  resetPwdFormDialogRef.value?.clearValidate();
+  resetPwdForm.id = row.id;
+  resetPwdForm.pwd = "";
+  resetPwdTargetName.value = row.nick_name || row.user_name || `ID:${row.id}`;
+  resetPwdDialog.title = `重置密码：${resetPwdTargetName.value}`;
+  resetPwdDialog.visible = true;
+}
+
+/**
+ * 关闭重置密码弹窗并恢复默认表单值。
+ */
+function handleCloseResetPasswordDialog() {
+  resetPwdDialog.visible = false;
+  resetPwdFormDialogRef.value?.resetFields();
+  resetPwdFormDialogRef.value?.clearValidate();
+  resetPwdForm.id = 0;
+  resetPwdForm.pwd = "";
+  resetPwdTargetName.value = "";
+}
+
+/**
  * 确认重置用户密码，并复用统一密码强度校验。
  */
 async function handleConfirmResetPassword() {
@@ -690,30 +663,30 @@ const handleSubmit = useDebounceFn(() => {
 }, 1000);
 
 /**
- * 校验密码强度，新增用户和重置密码统一要求达到最高强度。
- *
- * @param _rule 表单规则对象
- * @param value 当前密码值
- * @param callback 校验回调
+ * 在用户状态切换前先完成确认与接口调用，避免首屏渲染触发误操作。
  */
-function validatePasswordField(_rule: unknown, value: string, callback: (error?: Error) => void) {
-  if (!value) {
-    callback();
-    return;
+async function handleBeforeSetStatus(row: BaseUser) {
+  if (isProtectedManagementUser(row)) {
+    ElMessage.warning("内置管理员账号只能通过个人中心修改");
+    return false;
   }
-  const result = validatePasswordStrengthValue(value);
-  if (!result.valid) {
-    callback(new Error(result.message || PASSWORD_STRENGTH_ERROR_MESSAGE));
-    return;
-  }
-  callback();
-}
 
-/**
- * 根据后端管理保护标记判断用户是否禁止通过用户管理操作。
- */
-function isProtectedManagementUser(row?: BaseUser) {
-  return Boolean(row?.is_protected);
+  const nextStatus = row.status === Status.ENABLE ? Status.DISABLE : Status.ENABLE;
+  const text = nextStatus === Status.ENABLE ? "启用" : "禁用";
+  const user_name = row.nick_name || row.user_name || `ID:${row.id}`;
+  try {
+    await ElMessageBox.confirm(`是否确定${text}用户？\n用户名称：${user_name}`, "提示", {
+      confirmButtonText: "确认",
+      cancelButtonText: "取消",
+      type: "warning"
+    });
+    await defBaseUserService.SetBaseUserStatus({ id: row.id, status: nextStatus });
+    ElMessage.success(`${text}成功`);
+    refreshTable();
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 /**
@@ -758,5 +731,32 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
       ElMessage.info("已取消删除用户");
     }
   );
+}
+
+/**
+ * 校验密码强度，新增用户和重置密码统一要求达到最高强度。
+ *
+ * @param _rule 表单规则对象
+ * @param value 当前密码值
+ * @param callback 校验回调
+ */
+function validatePasswordField(_rule: unknown, value: string, callback: (error?: Error) => void) {
+  if (!value) {
+    callback();
+    return;
+  }
+  const result = validatePasswordStrengthValue(value);
+  if (!result.valid) {
+    callback(new Error(result.message || PASSWORD_STRENGTH_ERROR_MESSAGE));
+    return;
+  }
+  callback();
+}
+
+/**
+ * 根据后端管理保护标记判断用户是否禁止通过用户管理操作。
+ */
+function isProtectedManagementUser(row?: BaseUser) {
+  return Boolean(row?.is_protected);
 }
 </script>
