@@ -2,9 +2,6 @@ package biz
 
 import (
 	"context"
-	"os"
-	"path/filepath"
-	"regexp"
 	"strings"
 
 	systemadminv1 "shop/api/gen/go/system/admin/v1"
@@ -33,8 +30,6 @@ const (
 	codeGenAPIKindStatus       = "status"
 )
 
-var codeGenProtoRPCPattern = regexp.MustCompile(`(?m)^\s*rpc\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(`)
-
 // codeGenProtoConfigField 表示生成模板依赖的配置字段。
 type codeGenProtoConfigField struct {
 	label string
@@ -45,6 +40,7 @@ type codeGenProtoConfigField struct {
 type CodeGenProtoCase struct {
 	*data.CodeGenProtoRepository
 	tx                data.Transaction
+	baseAPIRepo       *data.BaseAPIRepository
 	codeGenTableRepo  *data.CodeGenTableRepository
 	codeGenColumnCase *CodeGenColumnCase
 	mapper            *mapper.CopierMapper[systemadminv1.CodeGenProto, models.CodeGenProto]
@@ -55,6 +51,7 @@ type CodeGenProtoCase struct {
 func NewCodeGenProtoCase(
 	codeGenProtoRepo *data.CodeGenProtoRepository,
 	tx data.Transaction,
+	baseAPIRepo *data.BaseAPIRepository,
 	codeGenTableRepo *data.CodeGenTableRepository,
 	codeGenColumnCase *CodeGenColumnCase,
 ) *CodeGenProtoCase {
@@ -79,6 +76,7 @@ func NewCodeGenProtoCase(
 	return &CodeGenProtoCase{
 		CodeGenProtoRepository: codeGenProtoRepo,
 		tx:                     tx,
+		baseAPIRepo:            baseAPIRepo,
 		codeGenTableRepo:       codeGenTableRepo,
 		codeGenColumnCase:      codeGenColumnCase,
 		mapper:                 protoMapper,
@@ -146,11 +144,13 @@ func (c *CodeGenProtoCase) SaveCodeGenProto(ctx context.Context, req *systemadmi
 			return errorsx.InvalidArgument("Proto接口配置不在当前检查结果中")
 		}
 		check := checks.GetCodeGenProtos()[index]
-		if input.GetTriggerType() != check.GetTriggerType() || input.GetApiKind() != check.GetApiKind() {
+		if input.GetTriggerType() != check.GetTriggerType() ||
+			input.GetApiKind() != check.GetApiKind() ||
+			input.GetSort() != 0 && input.GetSort() != check.GetSort() {
 			return errorsx.InvalidArgument("Proto接口配置顺序或类型不正确")
 		}
-		// 已存在的接口不保存补齐选择，避免后续生成流程重复处理。
-		if check.GetExists() {
+		// 数据库只保存缺失且勾选生成的接口；已存在或取消勾选的接口清理历史配置。
+		if check.GetExists() || !input.GetGenerateWhenMissing() {
 			continue
 		}
 		proto := &systemadminv1.CodeGenProto{
@@ -268,6 +268,10 @@ func (c *CodeGenProtoCase) inspectCodeGenProtos(ctx context.Context, table *mode
 		serviceBusinessNames[key] = businessNames[check.GetTargetEntityName()+":"+check.GetTriggerType()]
 	}
 	columnNamesByTable := make(map[string]map[string]struct{})
+	codeGenTable := &codegen.Table{
+		BusinessModule: table.BusinessModule,
+		EntityName:     stringcase.ToPascalCase(table.Name),
+	}
 	for _, check := range checks {
 		businessName := businessNames[check.GetTargetEntityName()+":"+check.GetTriggerType()]
 		serviceBusinessName := serviceBusinessNames[check.GetProtoFilePath()+":"+check.GetTargetEntityName()]
@@ -279,7 +283,6 @@ func (c *CodeGenProtoCase) inspectCodeGenProtos(ctx context.Context, table *mode
 			check.GetMethodName(),
 		)
 		check.ServiceName, check.ServiceComment = codeGenProtoServiceMetadata(
-			check.GetProtoFilePath(),
 			check.GetTargetEntityName(),
 			check.GetTargetEntityName()+"Service",
 			"Admin"+serviceBusinessName+"服务",
@@ -293,7 +296,10 @@ func (c *CodeGenProtoCase) inspectCodeGenProtos(ctx context.Context, table *mode
 			check.Config = mergeCodeGenProtoConfig(check.GetApiKind(), savedProto.GetConfig(), check.GetConfig())
 			break
 		}
-		check.Exists, check.Message = codeGenProtoExists(check.GetProtoFilePath(), check.GetTargetEntityName(), check.GetMethodName())
+		check.Exists, check.Message, err = c.codeGenProtoExists(ctx, codeGenTable, check)
+		if err != nil {
+			return nil, err
+		}
 		// 仓库中已存在接口时不再进入后续生成流程。
 		if check.Exists {
 			check.GenerateWhenMissing = false
@@ -677,129 +683,35 @@ func codeGenProtoKey(protoPath string, targetEntity string, methodName string) s
 	return protoPath + ":" + targetEntity + ":" + methodName
 }
 
-// codeGenProtoExists 检查目标 Proto 服务中是否已有指定 RPC。
-func codeGenProtoExists(protoPath string, targetEntity string, methodName string) (bool, string) {
-	fullPath, err := safeCodeGenProtoPath(protoPath)
+// codeGenProtoExists 根据 base_api 中的 path 与 operation 检查接口是否已存在。
+func (c *CodeGenProtoCase) codeGenProtoExists(ctx context.Context, table *codegen.Table, check *systemadminv1.CodeGenProtoCheck) (bool, string, error) {
+	method := &codegen.Proto{
+		TriggerType:      check.GetTriggerType(),
+		APIKind:          check.GetApiKind(),
+		TargetEntityName: check.GetTargetEntityName(),
+		MethodName:       check.GetMethodName(),
+	}
+	_, path, ok := codegen.GeneratedHTTPRoute(table, method)
+	if !ok {
+		return false, "无法推导接口路由", nil
+	}
+	operation := codegen.GeneratedRPCPath(table, method)
+	query := c.baseAPIRepo.Query(ctx).BaseAPI
+	opts := make([]repository.QueryOption, 0, 2)
+	opts = append(opts, repository.Where(query.Path.Eq(path)))
+	opts = append(opts, repository.Where(query.Operation.Eq(operation)))
+	apis, err := c.baseAPIRepo.List(ctx, opts...)
 	if err != nil {
-		return false, err.Error()
+		return false, "", err
 	}
-	var content []byte
-	content, err = os.ReadFile(fullPath)
-	if err != nil {
-		return false, "Proto文件不存在"
+	if len(apis) > 0 {
+		return true, "已存在", nil
 	}
-	start, end := findCodeGenProtoServiceBounds(string(content), targetEntity+"Service")
-	// 目标 service 不存在时无法继续检查 RPC。
-	if start < 0 || end < 0 {
-		return false, "Proto服务不存在"
-	}
-	for _, match := range codeGenProtoRPCPattern.FindAllStringSubmatch(string(content)[start:end], -1) {
-		// 正则捕获组中的方法名与目标一致即视为已存在。
-		if len(match) > 1 && match[1] == methodName {
-			return true, "已存在"
-		}
-	}
-	return false, "缺少，可选择生成"
+	return false, "缺少，可选择生成", nil
 }
 
-// codeGenProtoServiceMetadata 返回 Proto 检查项对应的真实服务名与服务描述。
-func codeGenProtoServiceMetadata(protoPath string, targetEntity string, fallbackServiceName string, fallbackServiceComment string) (string, string) {
+// codeGenProtoServiceMetadata 返回 Proto 检查项对应的服务名与服务描述。
+func codeGenProtoServiceMetadata(targetEntity string, fallbackServiceName string, fallbackServiceComment string) (string, string) {
 	serviceName := codegen.DefaultString(fallbackServiceName, targetEntity+"Service")
-	serviceComment := codegen.DefaultString(fallbackServiceComment, "Admin"+targetEntity+"服务")
-	fullPath, err := safeCodeGenProtoPath(protoPath)
-	if err != nil {
-		return serviceName, serviceComment
-	}
-	var content []byte
-	content, err = os.ReadFile(fullPath)
-	if err != nil {
-		return serviceName, serviceComment
-	}
-	pattern := regexp.MustCompile(`(?m)^[\t ]*service[\t ]+([A-Za-z_][A-Za-z0-9_]*)[\t ]*\{`)
-	for _, match := range pattern.FindAllStringSubmatchIndex(string(content), -1) {
-		if len(match) < 4 || string(content[match[2]:match[3]]) != serviceName {
-			continue
-		}
-		comment := codeGenProtoServiceComment(string(content), match[0])
-		if comment != "" {
-			serviceComment = comment
-		}
-		return serviceName, serviceComment
-	}
-	return serviceName, serviceComment
-}
-
-// codeGenProtoServiceComment 返回 service 声明前连续的 Proto 行注释。
-func codeGenProtoServiceComment(content string, serviceStart int) string {
-	lines := strings.Split(content[:serviceStart], "\n")
-	comments := make([]string, 0, 1)
-	for index := len(lines) - 1; index >= 0; index-- {
-		line := strings.TrimSpace(lines[index])
-		if line == "" && len(comments) == 0 {
-			continue
-		}
-		if !strings.HasPrefix(line, "//") {
-			break
-		}
-		comments = append(comments, strings.TrimSpace(strings.TrimPrefix(line, "//")))
-	}
-	for left, right := 0, len(comments)-1; left < right; left, right = left+1, right-1 {
-		comments[left], comments[right] = comments[right], comments[left]
-	}
-	return strings.Join(comments, "\n")
-}
-
-// safeCodeGenProtoPath 返回仓库内安全的 Proto 文件路径。
-func safeCodeGenProtoPath(protoPath string) (string, error) {
-	// 只允许仓库相对路径，拒绝空路径和绝对路径。
-	if protoPath == "" || filepath.IsAbs(protoPath) {
-		return "", os.ErrInvalid
-	}
-	cleanPath := filepath.Clean(protoPath)
-	// 清理后仍越过仓库根目录的路径视为非法输入。
-	if cleanPath == "." || cleanPath == ".." || strings.HasPrefix(cleanPath, ".."+string(filepath.Separator)) {
-		return "", os.ErrInvalid
-	}
-	root, err := os.Getwd()
-	if err != nil {
-		return "", err
-	}
-	// 服务从 backend 目录启动时向上定位仓库根目录。
-	if filepath.Base(root) == "backend" {
-		root = filepath.Dir(root)
-	}
-	fullPath := filepath.Join(root, cleanPath)
-	var relativePath string
-	relativePath, err = filepath.Rel(root, fullPath)
-	// 再次校验相对路径，避免不同平台路径规则绕过边界检查。
-	if err != nil || relativePath == ".." || strings.HasPrefix(relativePath, ".."+string(filepath.Separator)) {
-		return "", os.ErrInvalid
-	}
-	return fullPath, nil
-}
-
-// findCodeGenProtoServiceBounds 返回目标 Proto service 的大括号范围。
-func findCodeGenProtoServiceBounds(content string, serviceName string) (int, int) {
-	pattern := regexp.MustCompile(`(?m)^[\t ]*service[\t ]+` + regexp.QuoteMeta(serviceName) + `[\t ]*\{`)
-	location := pattern.FindStringIndex(content)
-	// 未找到 service 声明时返回无效边界。
-	if location == nil {
-		return -1, -1
-	}
-	openIndex := strings.LastIndex(content[location[0]:location[1]], "{") + location[0]
-	depth := 0
-	for index := openIndex; index < len(content); index++ {
-		// 通过大括号深度定位 service 的闭合位置。
-		switch content[index] {
-		case '{':
-			depth++
-		case '}':
-			depth--
-			// 深度归零表示当前 service 已结束。
-			if depth == 0 {
-				return openIndex, index
-			}
-		}
-	}
-	return -1, -1
+	return serviceName, codegen.DefaultString(fallbackServiceComment, "Admin"+targetEntity+"服务")
 }

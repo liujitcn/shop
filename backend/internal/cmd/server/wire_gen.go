@@ -281,7 +281,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	codeGenColumnRepository := data.NewCodeGenColumnRepository(dataData)
 	codeGenColumnCase := biz3.NewCodeGenColumnCase(codeGenColumnRepository, client, transaction, codeGenTableRepository)
 	codeGenProtoRepository := data.NewCodeGenProtoRepository(dataData)
-	codeGenProtoCase := biz3.NewCodeGenProtoCase(codeGenProtoRepository, transaction, codeGenTableRepository, codeGenColumnCase)
+	codeGenProtoCase := biz3.NewCodeGenProtoCase(codeGenProtoRepository, transaction, baseAPIRepository, codeGenTableRepository, codeGenColumnCase)
 	codeGenTableCase := biz3.NewCodeGenTableCase(codeGenTableRepository, client, transaction, baseDictRepository, baseDictItemRepository, baseMenuCase, codeGenColumnCase, codeGenProtoCase)
 	codeGenCase := biz3.NewCodeGenCase(baseCase, transaction, bizBaseAPICase, codeGenTableCase, codeGenColumnCase, codeGenProtoCase, baseMenuCase, codegenManager)
 	codeGenService := admin.NewCodeGenService(codeGenCase)
