@@ -568,6 +568,12 @@ interface CodeGenColumnOptionIssue {
   message: string;
 }
 
+/** 保存前需要确认选项来源不一致的字段配置问题。 */
+interface CodeGenColumnOptionConsistencyIssue {
+  columnName: string;
+  scopes: string;
+}
+
 const optionDialog = reactive<CodeGenOptionDialog>({
   visible: false,
   scope: "query",
@@ -666,6 +672,22 @@ async function handleSaveColumns(showMessage = true) {
     ElMessage.warning(optionIssue.message);
     await openOptionDialog(optionIssue.row, optionIssue.scope);
     return false;
+  }
+  const consistencyIssue = findCodeGenColumnOptionConsistencyIssue(columns.value);
+  if (consistencyIssue) {
+    try {
+      await ElMessageBox.confirm(
+        `字段 ${consistencyIssue.columnName} 的${consistencyIssue.scopes}选项来源不一致，是否继续保存？`,
+        "选项配置警告",
+        {
+          confirmButtonText: "继续保存",
+          cancelButtonText: "返回修改",
+          type: "warning"
+        }
+      );
+    } catch {
+      return false;
+    }
   }
   await defCodeGenColumnService.SaveCodeGenColumn({
     table_id: formData.id,
@@ -994,6 +1016,38 @@ function findCodeGenColumnOptionIssue(items: CodeGenColumnView[]): CodeGenColumn
       if (message) return { row: column, scope, message };
     }
   }
+}
+
+/** 检查同一字段查询、列表和表单选项来源是否一致。 */
+function findCodeGenColumnOptionConsistencyIssue(items: CodeGenColumnView[]): CodeGenColumnOptionConsistencyIssue | undefined {
+  for (const column of items) {
+    const entries = (
+      [
+        ["查询", column.query_config, "query"],
+        ["列表", column.list_config, "list"],
+        ["表单", column.form_config, "form"]
+      ] as const
+    ).filter(([, config, scope]) => config.enabled && hasOptionComponent(config.component, scope) && isCompleteCodeGenOptionConfig(config.option));
+    if (entries.length < 2) continue;
+    const firstSignature = codeGenOptionSourceSignature(entries[0][1].option);
+    if (entries.every(([, config]) => codeGenOptionSourceSignature(config.option) === firstSignature)) continue;
+    return {
+      columnName: column.name,
+      scopes: entries.map(([label]) => label).join("、")
+    };
+  }
+}
+
+/** 返回用于比较字段选项数据源的稳定签名。 */
+function codeGenOptionSourceSignature(option: CodeGenColumnOptionConfig) {
+  return JSON.stringify({
+    source_type: option.source_type,
+    source_value: option.source_value,
+    label_field: option.label_field,
+    value_field: option.value_field,
+    parent_field: option.parent_field,
+    lazy: option.lazy
+  });
 }
 
 /** 返回单个范围内不完整选项配置的提示文案。 */

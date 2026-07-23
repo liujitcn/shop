@@ -391,6 +391,7 @@ func (c *renderer) renderFrontendPageFile(table *Table, columns []*CodeGenColumn
 	frontendAPIImport := "@/" + strings.TrimSuffix(frontendAPIPath, filepath.Ext(frontendAPIPath))
 	frontendRPCImport := frontendRPCImportPath(paths.GetProtoFilePath())
 	listField := stringcase.ToSnakeCase(pluralEntity)
+	hasTenantOption := hasTenantQueryOption(columns)
 	statusTypeImport := renderFrontendStatusTypeImports(columns, methods)
 	formStateType := renderFrontendFormStateType(table, columns)
 	formDataType := entity + "Form"
@@ -411,6 +412,14 @@ func (c *renderer) renderFrontendPageFile(table *Table, columns []*CodeGenColumn
 			break
 		}
 	}
+	tenantImports := ""
+	tenantState := ""
+	if hasTenantOption {
+		tenantImports = "import { useUserStore } from \"@/stores/modules/user\";\nimport { DEFAULT_TENANT_CODE, requestTenantOptions } from \"@/utils/tenant\";"
+		tenantState = `const userStore = useUserStore();
+/** 当前登录账号是否默认租户。 */
+const isDefaultTenant = computed(() => userStore.userInfo.tenant_code === DEFAULT_TENANT_CODE);`
+	}
 	script := fmt.Sprintf(`<script setup lang="ts">
 import { computed, reactive, ref } from "vue";
 %s
@@ -422,6 +431,7 @@ import FormDialog from "@/components/Dialog/FormDialog.vue";
 import type { %s } from "@/components/ProForm/interface";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { def%sService } from "%s";
+%s
 %s
 import type { Page%sRequest, %s, %sForm%s } from "%s";
 %s
@@ -435,6 +445,7 @@ defineOptions({
 const { BUTTONS } = useAuthButtons();
 const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
+%s
 %s
 
 const dialog = reactive({
@@ -456,7 +467,7 @@ const formFields = computed<ProFormField[]>(() => [
 ]);
 
 /** %s表格列配置。 */
-const columns: ColumnProps[] = [
+const columns = computed<ColumnProps[]>(() => [
   { type: "selection", width: 55 },
 %s
   {
@@ -484,7 +495,7 @@ const columns: ColumnProps[] = [
       }
     ]
   }
-];
+]);
 
 /** %s顶部按钮配置。 */
 const headerActions: HeaderActionProps[] = [
@@ -608,9 +619,9 @@ function handleCloseDialog() {
   resetForm();
 }
 </script>
-	`, renderFrontendDateImport(columns), proFormTypeImport, entity, frontendAPIImport, c.renderFrontendOptionImports(table, columns, methods), entity, entity, entity, statusTypeImport, frontendRPCImport, c.renderFrontendEnumImports(columns), entity, formStateType, formDataType, c.renderFrontendFormDefaults(columns), c.renderFrontendRules(columns), c.renderFrontendStatusOptions(columns)+c.renderFrontendOptionState(columns, methods), table.BusinessName, c.renderFrontendFormFields(columns), table.BusinessName, c.renderFrontendColumns(table, columns, methods), PermissionPrefix(table), entity, PermissionPrefix(table), entity, table.BusinessName, PermissionPrefix(table), PermissionPrefix(table), entity, "", table.BusinessName, entity, entity, entity, entity, listField, listField, table.BusinessName, table.BusinessName, c.renderFrontendResetForm(columns), table.BusinessName, c.renderFrontendLoadOptionsCall(columns, methods), table.BusinessName, table.BusinessName, entity, entity, table.BusinessName, entity, entity, entity, snakeEntity, entity, entity, snakeEntity, table.BusinessName, table.BusinessName, c.renderFrontendStatusHandlers(table, columns, methods), table.BusinessName, entity, entity, entity, entity, table.BusinessName, table.BusinessName, entity, entity, table.BusinessName, table.BusinessName, table.BusinessName)
+	`, renderFrontendDateImport(columns), proFormTypeImport, entity, frontendAPIImport, c.renderFrontendOptionImports(table, columns, methods), tenantImports, entity, entity, entity, statusTypeImport, frontendRPCImport, c.renderFrontendEnumImports(columns), entity, formStateType, tenantState, formDataType, c.renderFrontendFormDefaults(columns), c.renderFrontendRules(columns), c.renderFrontendStatusOptions(columns)+c.renderFrontendOptionState(columns, methods), table.BusinessName, c.renderFrontendFormFields(columns), table.BusinessName, c.renderFrontendColumns(table, columns, methods), PermissionPrefix(table), entity, PermissionPrefix(table), entity, table.BusinessName, PermissionPrefix(table), PermissionPrefix(table), entity, "", table.BusinessName, entity, entity, entity, entity, listField, listField, table.BusinessName, table.BusinessName, c.renderFrontendResetForm(columns), table.BusinessName, c.renderFrontendLoadOptionsCall(columns, methods), table.BusinessName, table.BusinessName, entity, entity, table.BusinessName, entity, entity, entity, snakeEntity, entity, entity, snakeEntity, table.BusinessName, table.BusinessName, c.renderFrontendStatusHandlers(table, columns, methods), table.BusinessName, entity, entity, entity, entity, table.BusinessName, table.BusinessName, entity, entity, table.BusinessName, table.BusinessName, table.BusinessName)
 	script = strings.TrimRight(script, " \t\r\n") + "\n"
-	content := renderTemplate("frontend_page.tmpl", frontendPageTemplateData{Entity: entity, BusinessName: table.BusinessName, Script: script})
+	content := renderTemplate("frontend_page.tmpl", frontendPageTemplateData{Entity: entity, BusinessName: table.BusinessName, HasTenantOption: hasTenantOption, Script: script})
 	return c.applyFrontendPageType(content, table, methods, frontendAPIImport)
 }
 
@@ -779,6 +790,18 @@ func (c *renderer) frontendResourcePath(table *Table) string {
 func (c *renderer) renderFrontendColumns(table *Table, columns []*CodeGenColumn, methods []*Proto) string {
 	list := make([]string, 0, len(columns))
 	statusColumnCount := len(statusColumns(columns))
+	if hasTenantQueryOption(columns) {
+		list = append(list, `  ...(isDefaultTenant.value
+    ? [{
+        prop: "tenant_id",
+        label: "租户",
+        minWidth: 140,
+        showOverflowTooltip: true,
+        search: { el: "select", key: "tenant_id", props: { filterable: true }, order: 1 },
+        enum: requestTenantOptions
+      }]
+    : []),`)
+	}
 	treeParentColumn := ""
 	treeLabelColumn := ""
 	if table.PageType == PageTypeTree {
@@ -789,11 +812,14 @@ func (c *renderer) renderFrontendColumns(table *Table, columns []*CodeGenColumn,
 		}
 	}
 	appendColumn := func(column *CodeGenColumn) {
-		list = append(list, renderFrontendColumn(table.EntityName, column, findStatusMethodForColumn(column, methods), statusColumnCount))
+		list = append(list, renderFrontendColumn(PermissionPrefix(table), table.EntityName, column, findStatusMethodForColumn(column, methods), statusColumnCount))
 	}
 	// 树表格将树显示字段固定为首个数据列，确保 Element Plus 的缩进落在业务名称上。
 	if treeLabelColumn != "" {
 		for _, column := range columns {
+			if hasTenantQueryOption(columns) && column.Name == "tenant_id" {
+				continue
+			}
 			if column.Name != treeLabelColumn || column.Name == "deleted_at" {
 				continue
 			}
@@ -802,6 +828,9 @@ func (c *renderer) renderFrontendColumns(table *Table, columns []*CodeGenColumn,
 		}
 	}
 	for _, column := range columns {
+		if hasTenantQueryOption(columns) && column.Name == "tenant_id" {
+			continue
+		}
 		if column.Name == treeLabelColumn || column.Name == "deleted_at" {
 			continue
 		}
@@ -1320,7 +1349,7 @@ func renderFrontendDateImport(columns []*CodeGenColumn) string {
 }
 
 // renderFrontendColumn 渲染前端表格列配置。
-func renderFrontendColumn(entityName string, column *CodeGenColumn, statusMethod *Proto, statusColumnCount int) string {
+func renderFrontendColumn(permissionPrefix string, entityName string, column *CodeGenColumn, statusMethod *Proto, statusColumnCount int) string {
 	if column.IsStatusField == 1 && (column.StatusTableColumn == 1 || column.StatusSearch == 1) {
 		search := ""
 		if column.StatusSearch == 1 {
@@ -1345,10 +1374,11 @@ func renderFrontendColumn(entityName string, column *CodeGenColumn, statusMethod
       activeValue: %s,
       inactiveValue: %s,
       activeText: "启用",
-      inactiveText: "禁用"%s,
+      inactiveText: "禁用",
+      disabled: () => !BUTTONS.value[%q],
       beforeChange: scope => %s(scope.row as %s)
     }
-  }`, column.Name, column.Comment, dictConfig, search, visibility, statusValueExpression(column, column.StatusEnabledValue, "1"), statusValueExpression(column, column.StatusDisabledValue, "2"), "", statusHandlerName(column, statusColumnCount), entityName)
+  }`, column.Name, column.Comment, dictConfig, search, visibility, statusValueExpression(column, column.StatusEnabledValue, "1"), statusValueExpression(column, column.StatusDisabledValue, "2"), statusPermissionPath(permissionPrefix, column.Name, statusColumnCount), statusHandlerName(column, statusColumnCount), entityName)
 		}
 		if statusUsesDictionary(column) {
 			return fmt.Sprintf(`  { prop: "%s", label: "%s"%s%s%s }`, column.Name, column.Comment, dictConfig, search, visibility)
@@ -1410,6 +1440,9 @@ func frontendSearchConfig(column *CodeGenColumn) string {
 	}
 	if component == "select" || component == "tree-select" {
 		option := column.QueryOption
+		if isTenantQueryOption(column) {
+			return `, search: { el: "select", key: "tenant_id", props: { filterable: true }, enum: requestTenantOptions }`
+		}
 		switch option.SourceType {
 		case OptionSourceDict:
 			return fmt.Sprintf(`, search: { el: "%s", dictCode: %q, dictValueType: %q }`, component, option.SourceValue, frontendDictValueType(column))
@@ -1525,7 +1558,7 @@ type frontendOptionScope struct {
 // frontendOptionScopes 返回前端实际消费的查询、列表和表单选项配置。
 func frontendOptionScopes(column *CodeGenColumn) []frontendOptionScope {
 	scopes := make([]frontendOptionScope, 0, 3)
-	if frontendQueryUsesOptions(column) && column.QueryOption.Kind != "" {
+	if frontendQueryUsesOptions(column) && column.QueryOption.Kind != "" && !isTenantQueryOption(column) {
 		scopes = append(scopes, frontendOptionScope{name: "query", option: column.QueryOption})
 	}
 	if generatedListIncludesColumn(column) && column.IsStatusField != 1 && isSelectComponent(column.ListComponent) && column.ListOption.Kind != "" {
@@ -1543,6 +1576,30 @@ func frontendQueryUsesOptions(column *CodeGenColumn) bool {
 		return false
 	}
 	return column.QueryComponent == "select" || column.QueryComponent == "tree-select"
+}
+
+// hasTenantQueryOption 判断当前生成对象是否配置了租户查询选项。
+func hasTenantQueryOption(columns []*CodeGenColumn) bool {
+	for _, column := range columns {
+		if isTenantQueryOption(column) {
+			return true
+		}
+	}
+	return false
+}
+
+// isTenantQueryOption 判断字段是否使用 base_tenant 数据表作为租户查询选项。
+func isTenantQueryOption(column *CodeGenColumn) bool {
+	if column == nil || column.Name != "tenant_id" || !generatedQueryIncludesColumn(column) {
+		return false
+	}
+	if column.QueryComponent != "select" && column.QueryComponent != "tree-select" {
+		return false
+	}
+	option := column.QueryOption
+	return option.Kind == APIKindOption &&
+		option.SourceType == OptionSourceTable &&
+		strings.EqualFold(stringcase.ToSnakeCase(option.SourceValue), "base_tenant")
 }
 
 // generatedRequestIncludesColumn 判断请求是否需要包含显式查询字段或左树关联字段。
@@ -1607,8 +1664,9 @@ func frontendDefaultValue(column *CodeGenColumn) string {
 	if column.IsPrimary == 1 {
 		return "0"
 	}
-	if column.IsStatusField == 1 && column.StatusDefaultValue != "" {
-		return statusValueExpression(column, column.StatusDefaultValue, "1")
+	if column.IsStatusField == 1 {
+		defaultValue := DefaultString(column.StatusDefaultValue, column.StatusEnabledValue)
+		return statusValueExpression(column, defaultValue, "1")
 	}
 	if isFormTreeMultiple(column) {
 		return "[]"

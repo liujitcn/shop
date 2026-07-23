@@ -68,9 +68,10 @@ type frontendAPITemplateData struct {
 
 // frontendPageTemplateData 描述 Vue 页面模板输入。
 type frontendPageTemplateData struct {
-	Entity       string
-	BusinessName string
-	Script       string
+	Entity          string
+	BusinessName    string
+	HasTenantOption bool
+	Script          string
 }
 
 // renderTemplate 使用内嵌模板渲染完整文件骨架。

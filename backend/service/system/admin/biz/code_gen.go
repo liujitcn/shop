@@ -71,6 +71,7 @@ type codeGenFileTransaction struct {
 type CodeGenCase struct {
 	*coreBiz.BaseCase
 	tx                data.Transaction
+	baseAPICase       *BaseAPICase
 	codeGenTableCase  *CodeGenTableCase
 	codeGenColumnCase *CodeGenColumnCase
 	codeGenProtoCase  *CodeGenProtoCase
@@ -82,6 +83,7 @@ type CodeGenCase struct {
 func NewCodeGenCase(
 	baseCase *coreBiz.BaseCase,
 	tx data.Transaction,
+	baseAPICase *BaseAPICase,
 	codeGenTableCase *CodeGenTableCase,
 	codeGenColumnCase *CodeGenColumnCase,
 	codeGenProtoCase *CodeGenProtoCase,
@@ -91,6 +93,7 @@ func NewCodeGenCase(
 	return &CodeGenCase{
 		BaseCase:          baseCase,
 		tx:                tx,
+		baseAPICase:       baseAPICase,
 		codeGenTableCase:  codeGenTableCase,
 		codeGenColumnCase: codeGenColumnCase,
 		codeGenProtoCase:  codeGenProtoCase,
@@ -121,6 +124,9 @@ func (c *CodeGenCase) PreviewCodeGen(ctx context.Context, tableID int64, request
 	var generation *codegen.Generation
 	generation, err = codegen.PrepareGeneration(table, columns, protos, requestedPaths, table.TableComment)
 	if err != nil {
+		return nil, err
+	}
+	if err = c.validateGeneratedBaseAPIs(ctx, generation); err != nil {
 		return nil, err
 	}
 	if err = c.validateGeneratedOptionMethods(ctx, generation.Table, columns, generation.GeneratedMethods); err != nil {
@@ -323,6 +329,9 @@ func (c *CodeGenCase) prepareCodeGenBatch(ctx context.Context, tableIDs []int64)
 		return nil, errorsx.InvalidArgument(codegen.FailureRemark(err)).WithCause(err)
 	}
 	for _, generation := range plan.Generations {
+		if err = c.validateGeneratedBaseAPIs(ctx, generation); err != nil {
+			return nil, err
+		}
 		if err = c.validateGeneratedOptionMethods(ctx, generation.Table, columnsByTable[generation.Table.ID], generation.GeneratedMethods); err != nil {
 			return nil, err
 		}
@@ -341,6 +350,48 @@ func (c *CodeGenCase) prepareCodeGenBatch(ctx context.Context, tableIDs []int64)
 		}
 	}
 	return &codeGenBatchContext{plan: plan, columnsByTable: columnsByTable}, nil
+}
+
+// validateGeneratedBaseAPIs 按 base_api 中的 HTTP 路由校验生成接口冲突。
+func (c *CodeGenCase) validateGeneratedBaseAPIs(ctx context.Context, generation *codegen.Generation) error {
+	if c.baseAPICase == nil || generation == nil || generation.Table == nil {
+		return nil
+	}
+	baseAPIs, err := c.baseAPICase.List(ctx)
+	if err != nil {
+		return err
+	}
+	apisByRoute := make(map[string][]*models.BaseAPI, len(baseAPIs))
+	for _, baseAPI := range baseAPIs {
+		if baseAPI == nil {
+			continue
+		}
+		key := strings.ToUpper(baseAPI.Method) + "\x00" + baseAPI.Path
+		apisByRoute[key] = append(apisByRoute[key], baseAPI)
+	}
+	for _, method := range generation.GeneratedMethods {
+		httpMethod, path, ok := codegen.GeneratedHTTPRoute(generation.Table, method)
+		if !ok {
+			continue
+		}
+		existing := apisByRoute[httpMethod+"\x00"+path]
+		if len(existing) == 0 {
+			continue
+		}
+		if method.TargetEntityName != generation.Table.EntityName ||
+			method.TriggerType == codegen.TriggerFieldOption ||
+			method.TriggerType == codegen.TriggerLeftTree {
+			continue
+		}
+		expectedOperation := codegen.GeneratedRPCPath(generation.Table, method)
+		for _, baseAPI := range existing {
+			if baseAPI.Operation == expectedOperation || method.GenerateWhenMissing != 1 {
+				continue
+			}
+			return errorsx.Conflict(fmt.Sprintf("生成接口%s %s %s与base_api中的%s重复", method.MethodName, httpMethod, path, baseAPI.Operation))
+		}
+	}
+	return nil
 }
 
 // writeCodeGenBatchFiles 将批次合并后的每个文件原子写入一次，成功步骤在事务提交后统一完成。
@@ -550,6 +601,9 @@ func (c *CodeGenCase) loadCodeGenContext(ctx context.Context, tableID int64) (*c
 		return nil, nil, nil, err
 	}
 	columns := codeGenColumnsToSnapshots(columnConfigs, databaseColumns)
+	if err = validateCodeGenStatusDefaults(columns); err != nil {
+		return nil, nil, nil, err
+	}
 	var protoChecks *systemadminv1.ListCodeGenProtoResponse
 	protoChecks, err = c.codeGenProtoCase.ListCodeGenProto(ctx, tableID)
 	if err != nil {
@@ -935,6 +989,8 @@ func codeGenColumnsToSnapshots(configs []*systemadminv1.CodeGenColumn, databaseC
 		if hasDefault {
 			defaultValue = databaseColumn.ColumnDefault.String
 		}
+		statusEnabledValue := codegen.DefaultString(listOption.ActiveValue, "1")
+		statusDisabledValue := codegen.DefaultString(listOption.InactiveValue, "2")
 		column := &codegen.CodeGenColumn{
 			ID:                  config.GetId(),
 			TableID:             config.GetTableId(),
@@ -968,8 +1024,8 @@ func codeGenColumnsToSnapshots(configs []*systemadminv1.CodeGenColumn, databaseC
 			IsStatusField:       codegen.BoolToInt32(isStatus),
 			StatusDataType:      listOption.SourceType,
 			StatusDictCode:      listOption.SourceValue,
-			StatusEnabledValue:  listOption.ActiveValue,
-			StatusDisabledValue: listOption.InactiveValue,
+			StatusEnabledValue:  statusEnabledValue,
+			StatusDisabledValue: statusDisabledValue,
 			StatusDefaultValue:  defaultValue,
 			StatusGenerateAPI:   codegen.BoolToInt32(isStatus),
 			StatusTableColumn:   codegen.BoolToInt32(isStatus),
@@ -981,6 +1037,20 @@ func codeGenColumnsToSnapshots(configs []*systemadminv1.CodeGenColumn, databaseC
 		columns = append(columns, column)
 	}
 	return columns
+}
+
+// validateCodeGenStatusDefaults 校验状态字段数据库默认值属于启用或禁用值。
+func validateCodeGenStatusDefaults(columns []*codegen.CodeGenColumn) error {
+	for _, column := range columns {
+		if column == nil || column.IsStatusField != 1 || column.StatusDefaultValue == "" {
+			continue
+		}
+		if column.StatusDefaultValue == column.StatusEnabledValue || column.StatusDefaultValue == column.StatusDisabledValue {
+			continue
+		}
+		return errorsx.InvalidArgument(fmt.Sprintf("字段%s的状态默认值%s不属于启用值%s或禁用值%s", column.Name, column.StatusDefaultValue, column.StatusEnabledValue, column.StatusDisabledValue))
+	}
+	return nil
 }
 
 // codeGenOptionToSnapshot 转换单个作用域的字段选项配置。

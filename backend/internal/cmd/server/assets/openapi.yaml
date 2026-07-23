@@ -8214,6 +8214,9 @@ components:
                 disabled:
                     type: boolean
                     description: 是否禁用
+                has_children:
+                    type: boolean
+                    description: 是否存在子节点
                 children:
                     type: array
                     items:
@@ -14888,6 +14891,9 @@ components:
                 inactive_value:
                     type: string
                     description: 开关关闭值
+                lazy:
+                    type: boolean
+                    description: 树形选项是否懒加载
             description: 代码生成字段选项配置
         system.admin.v1.CodeGenColumnQueryConfig:
             type: object
@@ -15076,6 +15082,9 @@ components:
                 status_column:
                     type: string
                     description: 状态字段
+                lazy:
+                    type: boolean
+                    description: 树形Option接口是否懒加载
             description: 代码生成Proto接口类型配置
         system.admin.v1.CodeGenTable:
             type: object

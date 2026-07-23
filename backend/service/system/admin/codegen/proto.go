@@ -428,6 +428,38 @@ func (c *renderer) renderProtoRPC(table *Table, method *Proto, resourcePath stri
 	return c.renderCRUDProtoRPC(table, method, resourcePath)
 }
 
+// GeneratedHTTPRoute 返回生成接口对应的 HTTP 方法和路径。
+func GeneratedHTTPRoute(table *Table, method *Proto) (string, string, bool) {
+	if table == nil || method == nil {
+		return "", "", false
+	}
+	targetEntity := DefaultString(method.TargetEntityName, table.EntityName)
+	resourcePath := resourcePathByEntity(targetEntity)
+	switch method.APIKind {
+	case APIKindList:
+		return "GET", "/api/v1/admin/" + resourcePath, true
+	case APIKindOption, APIKindTree:
+		if method.APIKind == APIKindTree && method.TriggerType == TriggerPageTree {
+			return "GET", "/api/v1/admin/" + resourcePath + "/tree", true
+		}
+		return "GET", "/api/v1/admin/" + resourcePath + "/option", true
+	case APIKindStatus:
+		return "PUT", "/api/v1/admin/" + resourcePath + "/{id}/" + statusResourcePath(table, method), true
+	case APIKindCRUD:
+		switch method.MethodName {
+		case "Get" + targetEntity:
+			return "GET", "/api/v1/admin/" + resourcePath + "/{id}", true
+		case "Create" + targetEntity:
+			return "POST", "/api/v1/admin/" + resourcePath, true
+		case "Update" + targetEntity:
+			return "PUT", "/api/v1/admin/" + resourcePath + "/{id}", true
+		case "Delete" + targetEntity:
+			return "DELETE", "/api/v1/admin/" + resourcePath + "/{ids}", true
+		}
+	}
+	return "", "", false
+}
+
 // renderCRUDProtoRPC 渲染标准 CRUD RPC。
 func (c *renderer) renderCRUDProtoRPC(table *Table, method *Proto, resourcePath string) string {
 	entity := table.EntityName

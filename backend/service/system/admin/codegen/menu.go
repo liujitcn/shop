@@ -66,18 +66,23 @@ func MenuSpecs(table *Table, columns []*CodeGenColumn, methods []*Proto, resourc
 		if method == nil {
 			continue
 		}
-		permissionSuffix := "status"
-		if len(statusColumnList) > 1 {
-			permissionSuffix += ":" + strings.ReplaceAll(column.Name, "_", ":")
-		}
 		buttonSpecs = append(buttonSpecs, newButtonMenuSpec(
-			permission+":"+permissionSuffix,
+			statusPermissionPath(permission, column.Name, len(statusColumnList)),
 			"设置"+DefaultString(column.Comment, column.Name),
 			int32(len(buttonSpecs)+1),
 			GeneratedRPCPath(table, method),
 		))
 	}
 	return CodeGenMenuSpec{Menu: pageMenu}, buttonSpecs
+}
+
+// statusPermissionPath 返回状态字段对应的按钮权限标识。
+func statusPermissionPath(permissionPrefix string, columnName string, statusColumnCount int) string {
+	suffix := "status"
+	if statusColumnCount > 1 {
+		suffix += ":" + strings.ReplaceAll(columnName, "_", ":")
+	}
+	return permissionPrefix + ":" + suffix
 }
 
 // ShouldSyncMenus 判断当前生成结果是否具备页面菜单同步条件。
