@@ -67,7 +67,9 @@ export const useTable = (
       state.tableData = isPageable ? data.list : data;
       // 解构后台返回的分页数据 (如果有分页更新分页信息)
       if (isPageable) {
-        state.pageable.total = data.total;
+        // Element Plus 要求分页总数为非负数字，兼容接口未返回总数的情况。
+        const total = Number(data.total ?? 0);
+        state.pageable.total = Number.isFinite(total) && total >= 0 ? total : 0;
       }
     } catch (error) {
       requestError && requestError(error);
