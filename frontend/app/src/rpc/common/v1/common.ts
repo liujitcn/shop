@@ -28,6 +28,8 @@ export interface TreeOptionResponse_Option {
   value: number;
   /** 是否禁用 */
   disabled: boolean;
+  /** 是否存在子节点 */
+  has_children: boolean;
   /** 子节点树 */
   children: TreeOptionResponse_Option[];
 }

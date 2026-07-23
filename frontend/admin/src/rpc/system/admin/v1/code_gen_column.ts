@@ -155,6 +155,8 @@ export interface CodeGenColumnOptionConfig {
   active_value: string;
   /** 开关关闭值 */
   inactive_value: string;
+  /** 树形选项是否懒加载 */
+  lazy: boolean;
 }
 
 /** Admin代码生成字段服务 */

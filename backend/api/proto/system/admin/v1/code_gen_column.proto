@@ -161,4 +161,6 @@ message CodeGenColumnOptionConfig {
   string active_value = 7 [(gnostic.openapi.v3.property) = {description: "开关开启值"}]; // 开关开启值
 
   string inactive_value = 8 [(gnostic.openapi.v3.property) = {description: "开关关闭值"}]; // 开关关闭值
+
+  bool lazy = 9 [(gnostic.openapi.v3.property) = {description: "树形选项是否懒加载"}]; // 树形选项是否懒加载
 }

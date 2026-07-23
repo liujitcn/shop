@@ -485,8 +485,18 @@ func (c *renderer) renderProtoMessage(table *Table, columns []*CodeGenColumn, fo
 	builder.WriteString("// " + title + "\n")
 	builder.WriteString("message " + name + " {\n")
 	fieldNo := int32(1)
+	treeParentColumn := ""
+	treeLabelColumn := ""
+	if !form && table.PageType == PageTypeTree {
+		treeParentColumn = DefaultString(table.ParentColumn, "parent_id")
+		treeLabelColumn = table.TreeLabelColumn
+		if treeLabelColumn == "" {
+			_, treeLabelColumn, _ = EntityOptionColumns(table, columns)
+		}
+	}
 	for _, column := range columns {
-		if !form && (column.Name == "deleted_at" || !generatedListIncludesColumn(column) && column.IsPrimary != 1 && column.Name != "created_at" && column.Name != "updated_at") {
+		isTreeField := column.Name == treeParentColumn || column.Name == treeLabelColumn
+		if !form && (column.Name == "deleted_at" || !isTreeField && !generatedListIncludesColumn(column) && column.IsPrimary != 1 && column.Name != "created_at" && column.Name != "updated_at") {
 			continue
 		}
 		if form && !generatedFormIncludesColumn(column) && column.IsPrimary != 1 {

@@ -74,7 +74,8 @@ export function createCodeGenLeftTreeOptions(config?: CodeGenLeftTreeConfig): Pr
     value_field: config.value_column,
     parent_field: config.parent_column,
     active_value: "",
-    inactive_value: ""
+    inactive_value: "",
+    lazy: false
   };
   return createCodeGenPreviewOptions(config.label_column || "分类", option, new Map());
 }

@@ -638,6 +638,7 @@ func (c *renderer) applyFrontendTreePage(content string, table *Table, methods [
 	requestMarker := fmt.Sprintf(`:request-api="request%sTable"`, table.EntityName)
 	treeProps := requestMarker + `
       :pagination="false"
+      :indent="20"
       :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"`
 	content = strings.Replace(content, requestMarker, treeProps, 1)
 
@@ -778,11 +779,46 @@ func (c *renderer) frontendResourcePath(table *Table) string {
 func (c *renderer) renderFrontendColumns(table *Table, columns []*CodeGenColumn, methods []*Proto) string {
 	list := make([]string, 0, len(columns))
 	statusColumnCount := len(statusColumns(columns))
+	treeParentColumn := ""
+	treeLabelColumn := ""
+	if table.PageType == PageTypeTree {
+		treeParentColumn = DefaultString(table.ParentColumn, "parent_id")
+		treeLabelColumn = table.TreeLabelColumn
+		if treeLabelColumn == "" {
+			_, treeLabelColumn, _ = EntityOptionColumns(table, columns)
+		}
+	}
+	appendColumn := func(column *CodeGenColumn) {
+		list = append(list, renderFrontendColumn(table.EntityName, column, findStatusMethodForColumn(column, methods), statusColumnCount))
+	}
+	// 树表格将树显示字段固定为首个数据列，确保 Element Plus 的缩进落在业务名称上。
+	if treeLabelColumn != "" {
+		for _, column := range columns {
+			if column.Name != treeLabelColumn || column.Name == "deleted_at" {
+				continue
+			}
+			appendColumn(column)
+			break
+		}
+	}
 	for _, column := range columns {
-		if (!generatedListIncludesColumn(column) && !generatedQueryIncludesColumn(column)) || column.IsPrimary == 1 || column.Name == "deleted_at" {
+		if column.Name == treeLabelColumn || column.Name == "deleted_at" {
 			continue
 		}
-		list = append(list, renderFrontendColumn(table.EntityName, column, findStatusMethodForColumn(column, methods), statusColumnCount))
+		if table.PageType == PageTypeTree && column.Name == treeParentColumn && treeParentColumn != treeLabelColumn {
+			if generatedQueryIncludesColumn(column) {
+				// 父节点字段仍需保留查询配置，但必须从可见列中移除，避免树缩进显示在该列。
+				hiddenColumn := *column
+				hiddenColumn.IsList = 0
+				hiddenColumn.StatusTableColumn = 0
+				appendColumn(&hiddenColumn)
+			}
+			continue
+		}
+		if (!generatedListIncludesColumn(column) && !generatedQueryIncludesColumn(column)) || column.IsPrimary == 1 {
+			continue
+		}
+		appendColumn(column)
 	}
 	return strings.Join(list, ",\n") + ","
 }
@@ -901,9 +937,16 @@ func (c *renderer) renderFrontendFormField(column *CodeGenColumn) string {
 	option := column.FormOption
 	if option.Kind != "" && isSelectComponent(component) {
 		props := `props: { placeholder: "请选择", filterable: true, style: { width: "100%" } }`
+		if option.Kind == APIKindTree && option.Lazy {
+			props = fmt.Sprintf(`props: { lazy: true, load: %s, placeholder: "请选择", filterable: true, style: { width: "100%%" } }`, frontendOptionLoaderVar(column, "form"))
+		}
 		// 多选树形选择使用复选框，并允许选择任意层级节点。
 		if isFormTreeMultiple(column) {
-			props = `props: { multiple: true, showCheckbox: true, checkStrictly: true, nodeKey: "value", placeholder: "请选择", filterable: true, style: { width: "100%" } }`
+			lazyProps := ""
+			if option.Kind == APIKindTree && option.Lazy {
+				lazyProps = fmt.Sprintf("lazy: true, load: %s, ", frontendOptionLoaderVar(column, "form"))
+			}
+			props = fmt.Sprintf(`props: { %smultiple: true, showCheckbox: true, checkStrictly: true, nodeKey: "value", placeholder: "请选择", filterable: true, style: { width: "100%%" } }`, lazyProps)
 		}
 		switch option.SourceType {
 		case OptionSourceDict:
@@ -939,6 +982,7 @@ func (c *renderer) renderFrontendFormField(column *CodeGenColumn) string {
 func (c *renderer) renderFrontendOptionState(columns []*CodeGenColumn, methods []*Proto) string {
 	var builder strings.Builder
 	hasTableSource := false
+	hasLazyTree := false
 	for _, column := range columns {
 		for _, scope := range frontendOptionScopes(column) {
 			if scope.option.SourceType != OptionSourceStatic && scope.option.SourceType != OptionSourceTable {
@@ -949,6 +993,7 @@ func (c *renderer) renderFrontendOptionState(columns []*CodeGenColumn, methods [
 				builder.WriteString(fmt.Sprintf("const %sOptions: ProFormOption[] = %s;\n", frontendOptionVar(column, scope.name), renderFrontendStaticOptions(scope.option)))
 			case OptionSourceTable:
 				hasTableSource = true
+				hasLazyTree = hasLazyTree || scope.name == "form" && scope.option.Kind == APIKindTree && scope.option.Lazy
 				builder.WriteString(fmt.Sprintf("const %sOptions = ref<ProFormOption[]>([]);\n", frontendOptionVar(column, scope.name)))
 			}
 		}
@@ -958,6 +1003,44 @@ func (c *renderer) renderFrontendOptionState(columns []*CodeGenColumn, methods [
 	}
 	if !hasTableSource {
 		return builder.String()
+	}
+	if hasLazyTree {
+		builder.WriteString(`
+type GeneratedTreeOption = ProFormOption & {
+  has_children?: boolean;
+  isLeaf?: boolean;
+};
+
+/** 将树形接口返回的子节点转换为 Element Plus 懒加载节点。 */
+function normalizeLazyTreeOptions(options: GeneratedTreeOption[] = []): ProFormOption[] {
+  return options.map(option => ({
+    ...option,
+    isLeaf: !option.has_children
+  }));
+}
+`)
+		for _, column := range columns {
+			for _, scope := range frontendOptionScopes(column) {
+				if scope.name != "form" || scope.option.SourceType != OptionSourceTable || scope.option.Kind != APIKindTree || !scope.option.Lazy {
+					continue
+				}
+				method := findOptionMethodForConfig(scope.option, methods)
+				if method == nil {
+					continue
+				}
+				variable := frontendOptionVar(column, scope.name)
+				serviceName := "def" + method.TargetEntityName + "Service"
+				parentColumn := DefaultString(method.ParentColumn, "parent_id")
+				builder.WriteString(fmt.Sprintf(`
+/** 懒加载%s树形选项的子节点。 */
+async function %s(node: { level: number; value?: string | number; data?: { value?: string | number } }, resolve: (data: ProFormOption[]) => void) {
+  const parentId = node.level === 0 ? 0 : Number(node.data?.value ?? node.value ?? 0);
+  const response = await %s.%s({ %q: parentId, lazy: true } as Parameters<typeof %s.%s>[0]);
+  resolve(normalizeLazyTreeOptions((response.list ?? []) as GeneratedTreeOption[]));
+}
+`, variable, frontendOptionLoaderVar(column, scope.name), serviceName, method.MethodName, parentColumn, serviceName, method.MethodName))
+			}
+		}
 	}
 	builder.WriteString("\n/** 加载表单选择项。 */\nasync function loadFormOptions() {\n")
 	for _, column := range columns {
@@ -971,12 +1054,25 @@ func (c *renderer) renderFrontendOptionState(columns []*CodeGenColumn, methods [
 			}
 			variable := frontendOptionVar(column, scope.name)
 			serviceName := "def" + method.TargetEntityName + "Service"
-			builder.WriteString(fmt.Sprintf("  const %sResponse = await %s.%s({} as Parameters<typeof %s.%s>[0]);\n", variable, serviceName, method.MethodName, serviceName, method.MethodName))
+			request := "{}"
+			if scope.option.Kind == APIKindTree {
+				lazy := scope.name == "form" && scope.option.Lazy
+				request = fmt.Sprintf("{ %q: 0, lazy: %t }", DefaultString(method.ParentColumn, "parent_id"), lazy)
+			}
+			builder.WriteString(fmt.Sprintf("  const %sResponse = await %s.%s(%s as Parameters<typeof %s.%s>[0]);\n", variable, serviceName, method.MethodName, request, serviceName, method.MethodName))
 			if column.Name == DefaultString(method.ParentColumn, "parent_id") && (column.FormComponent == "tree-select" || column.ListComponent == "tree-select" || column.QueryComponent == "tree-select") {
-				builder.WriteString(fmt.Sprintf("  %sOptions.value = [{ label: \"顶级节点\", value: 0 }, ...((%sResponse.list ?? []) as ProFormOption[]).filter(option => Number(option.value) !== 0)];\n", variable, variable))
+				if scope.name == "form" && scope.option.Kind == APIKindTree && scope.option.Lazy {
+					builder.WriteString(fmt.Sprintf("  %sOptions.value = [{ label: \"顶级节点\", value: 0 }, ...normalizeLazyTreeOptions((%sResponse.list ?? []) as GeneratedTreeOption[]).filter(option => Number(option.value) !== 0)];\n", variable, variable))
+				} else {
+					builder.WriteString(fmt.Sprintf("  %sOptions.value = [{ label: \"顶级节点\", value: 0 }, ...((%sResponse.list ?? []) as ProFormOption[]).filter(option => Number(option.value) !== 0)];\n", variable, variable))
+				}
 				continue
 			}
-			builder.WriteString(fmt.Sprintf("  %sOptions.value = (%sResponse.list ?? []) as ProFormOption[];\n", variable, variable))
+			if scope.name == "form" && scope.option.Kind == APIKindTree && scope.option.Lazy {
+				builder.WriteString(fmt.Sprintf("  %sOptions.value = normalizeLazyTreeOptions((%sResponse.list ?? []) as GeneratedTreeOption[]);\n", variable, variable))
+			} else {
+				builder.WriteString(fmt.Sprintf("  %sOptions.value = (%sResponse.list ?? []) as ProFormOption[];\n", variable, variable))
+			}
 		}
 	}
 	builder.WriteString("}\n\nvoid loadFormOptions();\n")
@@ -1571,6 +1667,11 @@ func statusUsesEnumImport(column *CodeGenColumn) bool {
 // frontendOptionVar 返回字段指定作用域的选择项状态变量前缀。
 func frontendOptionVar(column *CodeGenColumn, scope string) string {
 	return stringcase.ToCamelCase(column.Name) + stringcase.ToPascalCase(scope)
+}
+
+// frontendOptionLoaderVar 返回字段指定作用域的树形懒加载函数名。
+func frontendOptionLoaderVar(column *CodeGenColumn, scope string) string {
+	return "load" + stringcase.ToPascalCase(frontendOptionVar(column, scope)) + "TreeOptions"
 }
 
 // isSelectComponent 判断组件是否属于选择型控件。

@@ -168,6 +168,7 @@ export function createDefaultCodeGenOptionConfig(): CodeGenColumnOptionConfig {
     value_field: "",
     parent_field: "",
     active_value: "",
-    inactive_value: ""
+    inactive_value: "",
+    lazy: false
   };
 }

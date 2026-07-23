@@ -231,6 +231,14 @@ const protoConfigFields = computed<ProFormField[]>(() => [
     visible: () => ["option", "tree"].includes(configDialog.apiKind)
   },
   {
+    prop: "lazy",
+    label: "加载方式",
+    component: "checkbox",
+    checkboxLabel: "懒加载子节点",
+    props: () => ({ disabled: configDialog.apiKind !== "tree" }),
+    visible: () => configDialog.apiKind === "tree"
+  },
+  {
     prop: "status_column",
     label: "状态字段",
     component: "select",
@@ -387,7 +395,8 @@ function createDefaultCodeGenProtoConfig(): CodeGenProtoConfig {
     parent_column: "",
     label_column: "",
     value_column: "",
-    status_column: ""
+    status_column: "",
+    lazy: false
   };
 }
 

@@ -99,4 +99,6 @@ message CodeGenProtoConfig {
   string value_column = 3 [(gnostic.openapi.v3.property) = {description: "选项值字段"}]; // 选项值字段
 
   string status_column = 4 [(gnostic.openapi.v3.property) = {description: "状态字段"}]; // 状态字段
+
+  bool lazy = 5 [(gnostic.openapi.v3.property) = {description: "树形Option接口是否懒加载"}]; // 树形Option接口是否懒加载
 }

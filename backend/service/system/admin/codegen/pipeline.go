@@ -126,9 +126,9 @@ func (c *renderer) buildExpectedProtoChecks(table *Table, columns []*CodeGenColu
 			target := DefaultString(stringcase.ToPascalCase(option.SourceValue), entity)
 			targetProtoPath := c.defaultTargetProtoPath(table, target)
 			if option.Kind == APIKindTree {
-				checks = append(checks,
-					c.newProtoCheck(table.ID, column.Name, TriggerFieldOption, APIKindTree, target, "Option"+target, targetProtoPath, option.ParentField, option.LabelField, option.ValueField, false),
-				)
+				check := c.newProtoCheck(table.ID, column.Name, TriggerFieldOption, APIKindTree, target, "Option"+target, targetProtoPath, option.ParentField, option.LabelField, option.ValueField, false)
+				check.Lazy = option.Lazy
+				checks = append(checks, check)
 				continue
 			}
 			checks = append(checks,

@@ -495,7 +495,7 @@ func validateCodeGenSwitchOptionConfig(columnName string, scope string, option *
 func validateCodeGenOptionConfig(columnName string, scope string, option *systemadminv1.CodeGenColumnOptionConfig) error {
 	// 未启用选项能力时不允许只残留部分来源字段。
 	if option.GetKind() == "" {
-		if option.GetSourceType() != "" || option.GetSourceValue() != "" || option.GetLabelField() != "" || option.GetValueField() != "" || option.GetParentField() != "" || option.GetActiveValue() != "" || option.GetInactiveValue() != "" {
+		if option.GetSourceType() != "" || option.GetSourceValue() != "" || option.GetLabelField() != "" || option.GetValueField() != "" || option.GetParentField() != "" || option.GetActiveValue() != "" || option.GetInactiveValue() != "" || option.GetLazy() {
 			return errorsx.InvalidArgument("字段" + columnName + "的" + scope + "选项形态不能为空")
 		}
 		return nil
@@ -503,6 +503,9 @@ func validateCodeGenOptionConfig(columnName string, scope string, option *system
 	// 开关值只能由开关选项配置维护。
 	if option.GetKind() != "switch" && (option.GetActiveValue() != "" || option.GetInactiveValue() != "") {
 		return errorsx.InvalidArgument("字段" + columnName + "的" + scope + "选项不能配置开关值")
+	}
+	if option.GetLazy() && option.GetKind() != "tree" {
+		return errorsx.InvalidArgument("字段" + columnName + "的" + scope + "仅树形选项支持懒加载")
 	}
 	// 树形选项只能使用数据库表构建真实父子关系。
 	if option.GetKind() == "tree" && option.GetSourceType() != "table" {

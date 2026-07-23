@@ -735,6 +735,7 @@ type CodeGenColumnOptionConfig struct {
 	ParentField   string                 `protobuf:"bytes,6,opt,name=parent_field,json=parentField,proto3" json:"parent_field,omitempty"`       // 树形选项父级字段
 	ActiveValue   string                 `protobuf:"bytes,7,opt,name=active_value,json=activeValue,proto3" json:"active_value,omitempty"`       // 开关开启值
 	InactiveValue string                 `protobuf:"bytes,8,opt,name=inactive_value,json=inactiveValue,proto3" json:"inactive_value,omitempty"` // 开关关闭值
+	Lazy          bool                   `protobuf:"varint,9,opt,name=lazy,proto3" json:"lazy,omitempty"`                                       // 树形选项是否懒加载
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -825,6 +826,13 @@ func (x *CodeGenColumnOptionConfig) GetInactiveValue() string {
 	return ""
 }
 
+func (x *CodeGenColumnOptionConfig) GetLazy() bool {
+	if x != nil {
+		return x.Lazy
+	}
+	return false
+}
+
 var File_system_admin_v1_code_gen_column_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_code_gen_column_proto_rawDesc = "" +
@@ -894,7 +902,7 @@ const file_system_admin_v1_code_gen_column_proto_rawDesc = "" +
 	"\tcomponent\x18\x02 \x01(\tB\x18\xbaG\x15\x92\x02\x12表单录入组件R\tcomponent\x12.\n" +
 	"\brequired\x18\x03 \x01(\bB\x12\xbaG\x0f\x92\x02\f是否必填R\brequired\x12\\\n" +
 	"\x06option\x18\x04 \x01(\v2*.system.admin.v1.CodeGenColumnOptionConfigB\x18\xbaG\x15\x92\x02\x12表单选项配置R\x06option\x12:\n" +
-	"\bmultiple\x18\x05 \x01(\bB\x1e\xbaG\x1b\x92\x02\x18树形选择是否多选R\bmultiple\"\xf5\x03\n" +
+	"\bmultiple\x18\x05 \x01(\bB\x1e\xbaG\x1b\x92\x02\x18树形选择是否多选R\bmultiple\"\xac\x04\n" +
 	"\x19CodeGenColumnOptionConfig\x12,\n" +
 	"\x04kind\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12选项展示类型R\x04kind\x12<\n" +
 	"\vsource_type\x18\x02 \x01(\tB\x1b\xbaG\x18\x92\x02\x15选项数据源类型R\n" +
@@ -906,7 +914,8 @@ const file_system_admin_v1_code_gen_column_proto_rawDesc = "" +
 	"valueField\x12A\n" +
 	"\fparent_field\x18\x06 \x01(\tB\x1e\xbaG\x1b\x92\x02\x18树形选项父级字段R\vparentField\x128\n" +
 	"\factive_value\x18\a \x01(\tB\x15\xbaG\x12\x92\x02\x0f开关开启值R\vactiveValue\x12<\n" +
-	"\x0einactive_value\x18\b \x01(\tB\x15\xbaG\x12\x92\x02\x0f开关关闭值R\rinactiveValue2\x97\x04\n" +
+	"\x0einactive_value\x18\b \x01(\tB\x15\xbaG\x12\x92\x02\x0f开关关闭值R\rinactiveValue\x125\n" +
+	"\x04lazy\x18\t \x01(\bB!\xbaG\x1e\x92\x02\x1b树形选项是否懒加载R\x04lazy2\x97\x04\n" +
 	"\x14CodeGenColumnService\x12\xa2\x01\n" +
 	"\x11ListCodeGenColumn\x12).system.admin.v1.ListCodeGenColumnRequest\x1a*.system.admin.v1.ListCodeGenColumnResponse\"6\x82\xd3\xe4\x93\x020\x12./api/v1/admin/code-gen/table/{table_id}/column\x12\xc5\x01\n" +
 	"\x19ListCodeGenDatabaseColumn\x121.system.admin.v1.ListCodeGenDatabaseColumnRequest\x1a2.system.admin.v1.ListCodeGenDatabaseColumnResponse\"A\x82\xd3\xe4\x93\x02;\x129/api/v1/admin/code-gen/database/table/{table_name}/column\x12\x91\x01\n" +

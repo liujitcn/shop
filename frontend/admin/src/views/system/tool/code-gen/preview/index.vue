@@ -170,10 +170,37 @@ const protoCapabilities = computed(() =>
 /** 根据字段配置生成最终页面的查询项和列表列。 */
 const tableColumns = computed<ColumnProps[]>(() => {
   const columns = snapshot.value?.columns ?? [];
+  const treeParentColumn = pageType.value === "tree" ? snapshot.value?.table.parent_column : "";
+  const treeLabelColumn = pageType.value === "tree" ? snapshot.value?.table.tree_label_column : "";
   const configuredColumns = columns
-    .filter(column => column.name !== "deleted_at" && (column.list_config?.enabled || column.query_config?.enabled))
+    .filter(
+      column =>
+        column.name !== "deleted_at" &&
+        (column.list_config?.enabled ||
+          column.query_config?.enabled ||
+          column.name === treeLabelColumn ||
+          column.name === treeParentColumn)
+    )
     .sort((left, right) => left.sort - right.sort)
-    .map(column => createPreviewTableColumn(column));
+    .sort((left, right) => {
+      if (left.name === treeLabelColumn) return -1;
+      if (right.name === treeLabelColumn) return 1;
+      return 0;
+    })
+    .map(column => {
+      const isTreeLabel = column.name === treeLabelColumn;
+      const isTreeParent = column.name === treeParentColumn && treeParentColumn !== treeLabelColumn;
+      const listConfig = column.list_config ?? { enabled: false, component: "input", option: undefined };
+      const previewColumn = isTreeLabel && !listConfig.enabled
+        ? { ...column, list_config: { ...listConfig, enabled: true } }
+        : column;
+      const result = createPreviewTableColumn(previewColumn);
+      if (isTreeParent) {
+        result.isShow = false;
+        result.isSetting = false;
+      }
+      return result;
+    });
   const result: ColumnProps[] = [...configuredColumns];
   if (protoCapabilities.value.delete) result.unshift({ type: "selection", width: 55, fixed: "left" });
   const actions: NonNullable<ColumnProps["actions"]> = [];

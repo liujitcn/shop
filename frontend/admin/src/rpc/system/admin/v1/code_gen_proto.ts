@@ -91,6 +91,8 @@ export interface CodeGenProtoConfig {
   value_column: string;
   /** 状态字段 */
   status_column: string;
+  /** 树形Option接口是否懒加载 */
+  lazy: boolean;
 }
 
 /** Admin代码生成Proto接口配置服务 */

@@ -135,6 +135,7 @@ type Proto struct {
 	ValueColumn              string // 选项取值字段
 	OptionStatusColumn       string // Option 禁用状态字段
 	OptionStatusEnabledValue string // Option 状态启用值
+	Lazy                     bool   // 树形 Option 接口是否懒加载
 	GenerateWhenMissing      int32  // 缺失时是否生成
 	Sort                     int32  // 排序
 }
@@ -156,6 +157,7 @@ type ProtoCheck struct {
 	ValueColumn              string // 选项取值字段
 	OptionStatusColumn       string // Option 禁用状态字段
 	OptionStatusEnabledValue string // Option 状态启用值
+	Lazy                     bool   // 树形 Option 接口是否懒加载
 	Message                  string // 检查说明
 }
 
@@ -375,6 +377,8 @@ type CodeGenColumnOptionConfig struct {
 	ActiveValue string `json:"active_value"`
 	// InactiveValue 开关关闭值。
 	InactiveValue string `json:"inactive_value"`
+	// Lazy 树形选项是否懒加载。
+	Lazy bool `json:"lazy"`
 }
 
 // CodeGenStaticOption 描述静态选择项。

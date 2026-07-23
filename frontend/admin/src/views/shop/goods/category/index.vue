@@ -282,6 +282,7 @@ async function loadCategoryOptions() {
       value: 0,
       label: "顶级分类",
       disabled: false,
+      has_children: true,
       children: optionGoodsCategoryResponse.list
     }
   ];

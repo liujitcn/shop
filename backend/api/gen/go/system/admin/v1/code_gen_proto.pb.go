@@ -418,6 +418,7 @@ type CodeGenProtoConfig struct {
 	LabelColumn   string                 `protobuf:"bytes,2,opt,name=label_column,json=labelColumn,proto3" json:"label_column,omitempty"`    // 选项显示字段
 	ValueColumn   string                 `protobuf:"bytes,3,opt,name=value_column,json=valueColumn,proto3" json:"value_column,omitempty"`    // 选项值字段
 	StatusColumn  string                 `protobuf:"bytes,4,opt,name=status_column,json=statusColumn,proto3" json:"status_column,omitempty"` // 状态字段
+	Lazy          bool                   `protobuf:"varint,5,opt,name=lazy,proto3" json:"lazy,omitempty"`                                    // 树形Option接口是否懒加载
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -480,6 +481,13 @@ func (x *CodeGenProtoConfig) GetStatusColumn() string {
 	return ""
 }
 
+func (x *CodeGenProtoConfig) GetLazy() bool {
+	if x != nil {
+		return x.Lazy
+	}
+	return false
+}
+
 var File_system_admin_v1_code_gen_proto_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_code_gen_proto_proto_rawDesc = "" +
@@ -518,12 +526,13 @@ const file_system_admin_v1_code_gen_proto_proto_rawDesc = "" +
 	"\x04sort\x18\v \x01(\x05B\f\xbaG\t\x92\x02\x06排序R\x04sort\x12?\n" +
 	"\x0emethod_comment\x18\f \x01(\tB\x18\xbaG\x15\x92\x02\x12方法中文描述R\rmethodComment\x122\n" +
 	"\fservice_name\x18\r \x01(\tB\x0f\xbaG\f\x92\x02\t服务名R\vserviceName\x12;\n" +
-	"\x0fservice_comment\x18\x0e \x01(\tB\x12\xbaG\x0f\x92\x02\f服务描述R\x0eserviceComment\"\x89\x02\n" +
+	"\x0fservice_comment\x18\x0e \x01(\tB\x12\xbaG\x0f\x92\x02\f服务描述R\x0eserviceComment\"\xc6\x02\n" +
 	"\x12CodeGenProtoConfig\x12C\n" +
 	"\rparent_column\x18\x01 \x01(\tB\x1e\xbaG\x1b\x92\x02\x18树接口父节点字段R\fparentColumn\x12;\n" +
 	"\flabel_column\x18\x02 \x01(\tB\x18\xbaG\x15\x92\x02\x12选项显示字段R\vlabelColumn\x128\n" +
 	"\fvalue_column\x18\x03 \x01(\tB\x15\xbaG\x12\x92\x02\x0f选项值字段R\vvalueColumn\x127\n" +
-	"\rstatus_column\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f状态字段R\fstatusColumn2\xc7\x02\n" +
+	"\rstatus_column\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f状态字段R\fstatusColumn\x12;\n" +
+	"\x04lazy\x18\x05 \x01(\bB'\xbaG$\x92\x02!树形Option接口是否懒加载R\x04lazy2\xc7\x02\n" +
 	"\x13CodeGenProtoService\x12\x9e\x01\n" +
 	"\x10ListCodeGenProto\x12(.system.admin.v1.ListCodeGenProtoRequest\x1a).system.admin.v1.ListCodeGenProtoResponse\"5\x82\xd3\xe4\x93\x02/\x12-/api/v1/admin/code-gen/table/{table_id}/proto\x12\x8e\x01\n" +
 	"\x10SaveCodeGenProto\x12(.system.admin.v1.SaveCodeGenProtoRequest\x1a\x16.google.protobuf.Empty\"8\x82\xd3\xe4\x93\x022:\x01*\x1a-/api/v1/admin/code-gen/table/{table_id}/protoB\xaf\x01\n" +

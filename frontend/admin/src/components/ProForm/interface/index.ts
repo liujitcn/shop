@@ -32,6 +32,8 @@ export interface ProFormOption {
   value: string | number | boolean;
   disabled?: boolean;
   children?: ProFormOption[];
+  /** Element Plus 懒加载树节点是否为叶子节点。 */
+  isLeaf?: boolean;
 }
 
 /** ProForm 字段配置。 */

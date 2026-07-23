@@ -994,6 +994,7 @@ func codeGenOptionToSnapshot(option *systemadminv1.CodeGenColumnOptionConfig) co
 		ParentField:   option.GetParentField(),
 		ActiveValue:   option.GetActiveValue(),
 		InactiveValue: option.GetInactiveValue(),
+		Lazy:          option.GetLazy(),
 	}
 }
 
@@ -1018,6 +1019,7 @@ func codeGenProtosToSnapshots(items []*systemadminv1.CodeGenProtoCheck, tableCom
 			ParentColumn:       config.GetParentColumn(),
 			LabelColumn:        config.GetLabelColumn(),
 			ValueColumn:        config.GetValueColumn(),
+			Lazy:               config.GetLazy(),
 			// 已存在的接口也要参与候选渲染，才能同步表单字段等消息结构变化。
 			GenerateWhenMissing: codegen.BoolToInt32(item.GetGenerateWhenMissing() || item.GetExists()),
 			Sort:                item.GetSort(),

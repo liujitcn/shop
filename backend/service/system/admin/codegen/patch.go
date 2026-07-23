@@ -276,6 +276,7 @@ func (c *renderer) protoCheckToModel(check *ProtoCheck) *Proto {
 		ValueColumn:              check.ValueColumn,
 		OptionStatusColumn:       check.OptionStatusColumn,
 		OptionStatusEnabledValue: check.OptionStatusEnabledValue,
+		Lazy:                     check.Lazy,
 		GenerateWhenMissing:      BoolToInt32(check.GenerateWhenMissing),
 	}
 }

@@ -214,10 +214,11 @@ func (x *AppTreeOptionResponse) GetList() []*AppTreeOptionResponse_Option {
 // 树形选项
 type TreeOptionResponse_Option struct {
 	state         protoimpl.MessageState       `protogen:"open.v1"`
-	Label         string                       `protobuf:"bytes,1,opt,name=label,proto3" json:"label,omitempty"`         // 选项名
-	Value         int64                        `protobuf:"varint,2,opt,name=value,proto3" json:"value,omitempty"`        // 选项值
-	Disabled      bool                         `protobuf:"varint,3,opt,name=disabled,proto3" json:"disabled,omitempty"`  // 是否禁用
-	Children      []*TreeOptionResponse_Option `protobuf:"bytes,101,rep,name=children,proto3" json:"children,omitempty"` // 子节点树
+	Label         string                       `protobuf:"bytes,1,opt,name=label,proto3" json:"label,omitempty"`                                 // 选项名
+	Value         int64                        `protobuf:"varint,2,opt,name=value,proto3" json:"value,omitempty"`                                // 选项值
+	Disabled      bool                         `protobuf:"varint,3,opt,name=disabled,proto3" json:"disabled,omitempty"`                          // 是否禁用
+	HasChildren   bool                         `protobuf:"varint,4,opt,name=has_children,json=hasChildren,proto3" json:"has_children,omitempty"` // 是否存在子节点
+	Children      []*TreeOptionResponse_Option `protobuf:"bytes,101,rep,name=children,proto3" json:"children,omitempty"`                         // 子节点树
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -269,6 +270,13 @@ func (x *TreeOptionResponse_Option) GetValue() int64 {
 func (x *TreeOptionResponse_Option) GetDisabled() bool {
 	if x != nil {
 		return x.Disabled
+	}
+	return false
+}
+
+func (x *TreeOptionResponse_Option) GetHasChildren() bool {
+	if x != nil {
+		return x.HasChildren
 	}
 	return false
 }
@@ -425,13 +433,14 @@ const file_common_v1_common_proto_rawDesc = "" +
 	"\x16common/v1/common.proto\x12\tcommon.v1\x1a$gnostic/openapi/v3/annotations.proto\"X\n" +
 	"\x10SetStatusRequest\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键idR\x02id\x12$\n" +
-	"\x06status\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\"\xc1\x02\n" +
+	"\x06status\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\"\x81\x03\n" +
 	"\x12TreeOptionResponse\x12L\n" +
-	"\x04list\x18\x01 \x03(\v2$.common.v1.TreeOptionResponse.OptionB\x12\xbaG\x0f\x92\x02\f选项列表R\x04list\x1a\xdc\x01\n" +
+	"\x04list\x18\x01 \x03(\v2$.common.v1.TreeOptionResponse.OptionB\x12\xbaG\x0f\x92\x02\f选项列表R\x04list\x1a\x9c\x02\n" +
 	"\x06Option\x12%\n" +
 	"\x05label\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t选项名R\x05label\x12%\n" +
 	"\x05value\x18\x02 \x01(\x03B\x0f\xbaG\f\x92\x02\t选项值R\x05value\x12.\n" +
-	"\bdisabled\x18\x03 \x01(\bB\x12\xbaG\x0f\x92\x02\f是否禁用R\bdisabled\x12T\n" +
+	"\bdisabled\x18\x03 \x01(\bB\x12\xbaG\x0f\x92\x02\f是否禁用R\bdisabled\x12>\n" +
+	"\fhas_children\x18\x04 \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否存在子节点R\vhasChildren\x12T\n" +
 	"\bchildren\x18e \x03(\v2$.common.v1.TreeOptionResponse.OptionB\x12\xbaG\x0f\x92\x02\f子节点树R\bchildren\"\xef\x01\n" +
 	"\x14SelectOptionResponse\x12N\n" +
 	"\x04list\x18\x01 \x03(\v2&.common.v1.SelectOptionResponse.OptionB\x12\xbaG\x0f\x92\x02\f选项列表R\x04list\x1a\x86\x01\n" +

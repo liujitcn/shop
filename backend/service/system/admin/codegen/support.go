@@ -282,7 +282,7 @@ func (c *renderer) renderGeneratedProtoMessage(table *Table, columns []*CodeGenC
 	case APIKindTree:
 		if method.TriggerType == TriggerEntityOption || method.TriggerType == TriggerFieldOption || method.TriggerType == TriggerLeftTree {
 			parentColumn := DefaultString(method.ParentColumn, "parent_id")
-			return fmt.Sprintf("// %s树形选择查询条件\nmessage %sRequest {\n  optional int64 %s = 1 [(gnostic.openapi.v3.property) = {description: \"父节点ID\"}]; // 父节点ID\n}\n\n", businessName, method.MethodName, parentColumn)
+			return fmt.Sprintf("// %s树形选择查询条件\nmessage %sRequest {\n  optional int64 %s = 1 [(gnostic.openapi.v3.property) = {description: \"父节点ID\"}]; // 父节点ID\n\n  optional bool lazy = 2 [(gnostic.openapi.v3.property) = {description: \"是否懒加载\"}]; // 是否懒加载\n}\n\n", businessName, method.MethodName, parentColumn)
 		}
 		return c.renderTreeProtoMessage(table, method, columns, method.MethodName+"Request") + "\n" + c.renderTreeProtoMessage(table, method, columns, method.MethodName+"Response")
 	case APIKindStatus:
@@ -445,24 +445,42 @@ func (c *%sCase) %s(ctx context.Context, req *systemadminv1.%sRequest) (*commonv
 	if err != nil {
 		return nil, err
 	}
-	return &commonv1.TreeOptionResponse{List: c.build%sOption(list, req.%s)}, nil
+	lazy := req.GetLazy()
+	if %t && req.Lazy == nil {
+		lazy = true
+	}
+	return &commonv1.TreeOptionResponse{List: c.build%sOption(list, req.%s, lazy)}, nil
 }
 
 // build%sOption 构建%s树形选择。
-func (c *%sCase) build%sOption(list []*models.%s, parentID int64) []*commonv1.TreeOptionResponse_Option {
+func (c *%sCase) build%sOption(list []*models.%s, parentID int64, lazy bool) []*commonv1.TreeOptionResponse_Option {
 	res := make([]*commonv1.TreeOptionResponse_Option, 0)
 	for _, item := range list {
 		if int64(item.%s) != parentID {
 			continue
 		}
 		option := &commonv1.TreeOptionResponse_Option{Label: fmt.Sprint(item.%s), Value: %s%s}
-		option.Children = c.build%sOption(list, %s)
+		if lazy {
+			option.HasChildren = c.has%sOptionChildren(list, %s)
+		} else {
+			option.Children = c.build%sOption(list, %s, false)
+		}
 		res = append(res, option)
 	}
 	return res
 }
 
-`, goMethodName(method.MethodName), table.BusinessName, table.EntityName, goMethodName(method.MethodName), method.MethodName, queryDeclaration, orderOptionCount, defaultOrderOption, goMethodName(method.MethodName), parentGetter, goMethodName(method.MethodName), table.BusinessName, table.EntityName, goMethodName(method.MethodName), table.EntityName, parentField, labelField, valueExpr, disabledExpr, goMethodName(method.MethodName), valueExpr)
+// has%sOptionChildren 判断树形选择节点是否存在子节点。
+func (c *%sCase) has%sOptionChildren(list []*models.%s, parentID int64) bool {
+	for _, item := range list {
+		if int64(item.%s) == parentID {
+			return true
+		}
+	}
+	return false
+}
+
+`, goMethodName(method.MethodName), table.BusinessName, table.EntityName, goMethodName(method.MethodName), method.MethodName, queryDeclaration, orderOptionCount, defaultOrderOption, method.Lazy, goMethodName(method.MethodName), parentGetter, goMethodName(method.MethodName), table.BusinessName, table.EntityName, goMethodName(method.MethodName), table.EntityName, parentField, labelField, valueExpr, disabledExpr, goMethodName(method.MethodName), valueExpr, goMethodName(method.MethodName), valueExpr, goMethodName(method.MethodName), table.EntityName, goMethodName(method.MethodName), table.EntityName, parentField)
 }
 
 // renderServiceMethod 渲染服务层方法。

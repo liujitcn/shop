@@ -381,6 +381,12 @@
               />
             </el-select>
           </div>
+          <div v-if="optionDialog.option.kind === 'tree'" class="code-gen-popover-form__row">
+            <span class="code-gen-popover-form__label">加载方式</span>
+            <el-checkbox v-model="optionDialog.option.lazy" :disabled="!canEdit">
+              懒加载子节点
+            </el-checkbox>
+          </div>
           <div class="code-gen-popover-form__row">
             <span class="code-gen-popover-form__label">
               {{ optionDialog.option.kind === "tree" ? "树显示字段" : "Label 字段" }}
@@ -817,6 +823,7 @@ async function handleOptionSourceTypeChange() {
   option.parent_field = "";
   option.active_value = "";
   option.inactive_value = "";
+  option.lazy = false;
   staticOptions.delete(optionDialog.cacheKey);
   if (option.source_type === "static") {
     staticOptions.set(optionDialog.cacheKey, []);
@@ -843,6 +850,7 @@ async function handleOptionSourceValueChange() {
   option.parent_field = "";
   option.active_value = "";
   option.inactive_value = "";
+  option.lazy = false;
   if (option.source_type === "table") {
     await loadDatabaseColumns(option.source_value);
     applyTableOptionDefaultFields(option, optionDialog.component);
@@ -997,7 +1005,8 @@ function getCodeGenOptionValidationMessage(columnName: string, scope: string, op
     option.value_field ||
     option.parent_field ||
     option.active_value ||
-    option.inactive_value
+    option.inactive_value ||
+    option.lazy
   );
   if (!option.kind) return hasSourceFields ? `字段 ${columnName} 的${scope}选项配置无对应组件` : "";
   if (option.kind === "switch") {
@@ -1008,6 +1017,7 @@ function getCodeGenOptionValidationMessage(columnName: string, scope: string, op
     return "";
   }
   if (option.active_value || option.inactive_value) return `字段 ${columnName} 的${scope}选项不能配置开关值`;
+  if (option.lazy && option.kind !== "tree") return `字段 ${columnName} 的${scope}仅树形选项支持懒加载`;
   if (option.kind === "tree" && option.source_type !== "table") {
     return `字段 ${columnName} 的${scope}树形选项只能使用数据表来源`;
   }
@@ -1096,7 +1106,10 @@ function syncOptionKind(config: CodeGenOptionContainer, scope: CodeGenOptionScop
     config.option.value_field = "value";
   }
   config.option.kind = kind;
-  if (config.option.kind !== "tree") config.option.parent_field = "";
+  if (config.option.kind !== "tree") {
+    config.option.parent_field = "";
+    config.option.lazy = false;
+  }
   if (config.option.kind !== "switch") {
     config.option.active_value = "";
     config.option.inactive_value = "";

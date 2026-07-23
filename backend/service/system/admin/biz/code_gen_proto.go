@@ -431,7 +431,7 @@ func buildExpectedCodeGenProtos(table *models.CodeGenTable, form *systemadminv1.
 	if table.PageType == "tree" {
 		checks = append(checks,
 			newCodeGenProtoCheck(table.ID, codeGenTriggerPageTree, codeGenAPIKindTree, entity, "Tree"+entity, protoPath),
-			newCodeGenProtoCheck(table.ID, codeGenTriggerEntityOption, codeGenAPIKindOption, entity, "Option"+entity, protoPath),
+			newCodeGenProtoCheck(table.ID, codeGenTriggerEntityOption, codeGenAPIKindTree, entity, "Option"+entity, protoPath),
 		)
 	} else {
 		checks = append(checks,
@@ -497,14 +497,21 @@ func buildExpectedCodeGenProtos(table *models.CodeGenTable, form *systemadminv1.
 			if option.GetKind() == "tree" {
 				apiKind = codeGenAPIKindTree
 			}
-			checks = append(checks, newCodeGenProtoCheck(
+			check := newCodeGenProtoCheck(
 				table.ID,
 				codeGenTriggerFieldOption,
 				apiKind,
 				target,
 				"Option"+target,
 				defaultTargetCodeGenProtoPath(table, target),
-			))
+			)
+			check.Config = &systemadminv1.CodeGenProtoConfig{
+				ParentColumn: option.GetParentField(),
+				LabelColumn:  option.GetLabelField(),
+				ValueColumn:  option.GetValueField(),
+				Lazy:         option.GetLazy(),
+			}
+			checks = append(checks, check)
 		}
 	}
 	list := make([]*systemadminv1.CodeGenProtoCheck, 0, len(checks))
@@ -613,6 +620,7 @@ func mergeCodeGenProtoConfig(apiKind string, preferred *systemadminv1.CodeGenPro
 		config.ParentColumn = preferred.GetParentColumn()
 		config.LabelColumn = preferred.GetLabelColumn()
 		config.ValueColumn = preferred.GetValueColumn()
+		config.Lazy = preferred.GetLazy()
 		if config.ParentColumn == "" {
 			config.ParentColumn = fallback.GetParentColumn()
 		}

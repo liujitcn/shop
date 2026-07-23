@@ -295,7 +295,7 @@ function refreshTable() {
 async function loadDeptOptions() {
   // 默认租户未选择目标租户时仅保留顶级部门，避免混入其他租户的部门树。
   if (isDefaultTenant.value && !formData.tenant_id) {
-    deptOptions.value = [{ value: 0, label: "顶级部门", disabled: false, children: [] }];
+    deptOptions.value = [{ value: 0, label: "顶级部门", disabled: false, has_children: true, children: [] }];
     return;
   }
   const optionBaseDeptResponse = await defBaseDeptService.OptionBaseDept({
@@ -306,6 +306,7 @@ async function loadDeptOptions() {
       value: 0,
       label: "顶级部门",
       disabled: false,
+      has_children: true,
       children: optionBaseDeptResponse.list
     }
   ];
