@@ -84,19 +84,13 @@ func (c *GoodsInfoCase) OptionGoodsInfo(ctx context.Context, req *shopadminv1.Op
 		return nil, err
 	}
 
-	var categoryNames map[int64]string
-	categoryNames, err = c.getCategoryNameMap(ctx)
-	if err != nil {
-		return nil, err
-	}
-
 	resList := make([]*shopadminv1.OptionGoodsInfoResponse_GoodsInfo, 0, len(list))
 	for _, item := range list {
 		resList = append(resList, &shopadminv1.OptionGoodsInfoResponse_GoodsInfo{
-			Id:           item.ID,
-			Name:         item.Name,
-			Price:        item.Price,
-			CategoryName: c.buildCategoryNameText(c.parseCategoryIDs(item.CategoryID), categoryNames),
+			Id:         item.ID,
+			Name:       item.Name,
+			Price:      item.Price,
+			CategoryId: c.parseCategoryIDs(item.CategoryID),
 		})
 	}
 	return &shopadminv1.OptionGoodsInfoResponse{GoodsInfos: resList}, nil
@@ -173,16 +167,9 @@ func (c *GoodsInfoCase) PageGoodsInfo(ctx context.Context, req *shopadminv1.Page
 		return nil, err
 	}
 
-	var categoryNames map[int64]string
-	categoryNames, err = c.getCategoryNameMap(ctx)
-	if err != nil {
-		return nil, err
-	}
-
 	resList := make([]*shopadminv1.GoodsInfo, 0, len(list))
 	for _, item := range list {
 		goodsInfo := c.mapper.ToDTO(item)
-		goodsInfo.CategoryName = c.buildCategoryNameText(c.parseCategoryIDs(item.CategoryID), categoryNames)
 		resList = append(resList, goodsInfo)
 	}
 	return &shopadminv1.PageGoodsInfoResponse{GoodsInfos: resList, Total: int32(total)}, nil

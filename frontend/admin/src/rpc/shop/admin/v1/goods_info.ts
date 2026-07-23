@@ -31,8 +31,8 @@ export interface OptionGoodsInfoResponse_GoodsInfo {
   name: string;
   /** 当前价格(分) */
   price: number;
-  /** 分类名称 */
-  category_name: string;
+  /** 分类ID列表 */
+  category_id: number[];
 }
 
 /** 商品列表查询条件 */
@@ -143,8 +143,6 @@ export interface GoodsInfo {
   created_at: string;
   /** 更新时间 */
   updated_at: string;
-  /** 分类名称 */
-  category_name: string;
 }
 
 /** 商品表单 */

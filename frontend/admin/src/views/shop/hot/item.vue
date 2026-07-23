@@ -46,9 +46,11 @@ import type { ProFormField, ProFormOption } from "@/components/ProForm/interface
 import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { defShopHotService } from "@/api/shop/shop_hot";
 import { defGoodsInfoService } from "@/api/shop/goods_info";
+import { defGoodsCategoryService } from "@/api/shop/goods_category";
 import type { OptionGoodsInfoResponse_GoodsInfo } from "@/rpc/shop/admin/v1/goods_info";
 import type { PageShopHotItemRequest, ShopHotItem, ShopHotItemForm } from "@/rpc/shop/admin/v1/shop_hot";
 import { Status } from "@/rpc/common/v1/enum";
+import type { TreeOptionResponse_Option } from "@/rpc/common/v1/common";
 import { buildPageRequest, normalizeSelectedIds } from "@/utils/proTable";
 import { formatPrice } from "@/utils/utils";
 
@@ -88,6 +90,7 @@ const formData = reactive<ShopHotItemForm>({
 });
 
 const goodsInfoList = ref<OptionGoodsInfoResponse_GoodsInfo[]>([]);
+const categoryDisplayMap = ref(new Map<number, string>());
 
 const rules = computed(() => ({
   title: [
@@ -105,11 +108,14 @@ const statusOptions: ProFormOption[] = [
 
 /** 推荐商品穿梭框数据。 */
 const transferData = computed(() =>
-  goodsInfoList.value.map(item => ({
-    ...item,
-    value: item.id,
-    label: `${item.category_name}/${item.name}`
-  }))
+  goodsInfoList.value.map(item => {
+    const categoryText = getCategoryText(item);
+    return {
+      ...item,
+      value: item.id,
+      label: categoryText === "--" ? item.name : `${categoryText}/${item.name}`
+    };
+  })
 );
 
 /** 热门推荐选项表单字段配置。 */
@@ -239,11 +245,42 @@ function refreshTable() {
 }
 
 /**
+ * 构建分类编号到完整分类路径的映射，供推荐商品选项还原展示文本。
+ */
+function buildCategoryDisplayMap(options: TreeOptionResponse_Option[] = [], parentPath = "") {
+  const result = new Map<number, string>();
+  for (const option of options) {
+    const label = option.label || "";
+    const fullPath = [parentPath, label].filter(Boolean).join("/");
+    result.set(option.value, fullPath);
+    for (const [id, path] of buildCategoryDisplayMap(option.children ?? [], fullPath)) {
+      result.set(id, path);
+    }
+  }
+  return result;
+}
+
+/**
+ * 根据商品分类编号还原完整分类名称。
+ */
+function getCategoryText(item: OptionGoodsInfoResponse_GoodsInfo) {
+  const categoryIDs = Array.isArray(item.category_id) ? item.category_id : [];
+  const categoryNames = categoryIDs
+    .map(categoryID => categoryDisplayMap.value.get(categoryID))
+    .filter((name): name is string => Boolean(name));
+  return categoryNames.join("、") || "--";
+}
+
+/**
  * 加载推荐商品下拉数据，供穿梭框使用。
  */
 async function loadGoodsOptions() {
-  const listGoodsInfoResponse = await defGoodsInfoService.OptionGoodsInfo({ name: "" });
+  const [listGoodsInfoResponse, optionGoodsCategoryResponse] = await Promise.all([
+    defGoodsInfoService.OptionGoodsInfo({ name: "" }),
+    defGoodsCategoryService.OptionGoodsCategory({})
+  ]);
   goodsInfoList.value = listGoodsInfoResponse.goods_infos ?? [];
+  categoryDisplayMap.value = buildCategoryDisplayMap(optionGoodsCategoryResponse.list ?? []);
 }
 
 /**

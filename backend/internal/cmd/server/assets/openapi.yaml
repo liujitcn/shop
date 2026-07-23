@@ -9129,9 +9129,6 @@ components:
                 updated_at:
                     type: string
                     description: 更新时间
-                category_name:
-                    type: string
-                    description: 分类名称
             description: 商品信息
         shop.admin.v1.GoodsInfoForm:
             type: object
@@ -9525,9 +9522,11 @@ components:
                 price:
                     type: string
                     description: 当前价格(分)
-                category_name:
-                    type: string
-                    description: 分类名称
+                category_id:
+                    type: array
+                    items:
+                        type: string
+                    description: 分类ID列表
             description: 商品选项
         shop.admin.v1.OptionTenantStoreResponse:
             type: object

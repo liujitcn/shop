@@ -84,6 +84,7 @@ const router = useRouter();
 const route = useRoute();
 const userStore = useUserStore();
 const tenantStoreDisplayMap = ref(new Map<number, TenantStoreDisplayInfo>());
+const categoryDisplayMap = ref(new Map<number, string>());
 
 const initParam = reactive({
   tenant_id: undefined as number | undefined,
@@ -163,7 +164,13 @@ const columns = computed<ColumnProps[]>(() => [
     }
   },
   { prop: "name", label: "商品名称", minWidth: 200, search: { el: "input" } },
-  { prop: "category_name", label: "分类", minWidth: goodsCategoryColumnMinWidth, showOverflowTooltip: true },
+  {
+    prop: "category_id",
+    label: "分类",
+    minWidth: goodsCategoryColumnMinWidth,
+    showOverflowTooltip: true,
+    render: scope => getCategoryText(scope.row as GoodsInfo)
+  },
   { prop: "desc", label: "商品描述", minWidth: 200 },
   { prop: "inventory", label: "总库存", minWidth: 100, align: "right" },
   {
@@ -284,13 +291,41 @@ function transformCategoryFilterNodes(options: TreeOptionResponse_Option[] = [])
 }
 
 /**
+ * 构建分类编号到完整分类路径的映射，供商品列表按分类编号还原展示文本。
+ */
+function buildCategoryDisplayMap(options: TreeOptionResponse_Option[] = [], parentPath = "") {
+  const result = new Map<number, string>();
+  for (const option of options) {
+    const label = option.label || "";
+    const fullPath = [parentPath, label].filter(Boolean).join("/");
+    result.set(option.value, fullPath);
+    for (const [id, path] of buildCategoryDisplayMap(option.children ?? [], fullPath)) {
+      result.set(id, path);
+    }
+  }
+  return result;
+}
+
+/**
  * 请求分类树筛选数据。
  */
 async function requestCategoryTreeFilter() {
   const response = await defGoodsCategoryService.OptionGoodsCategory({});
+  categoryDisplayMap.value = buildCategoryDisplayMap(response.list ?? []);
   return {
     data: transformCategoryFilterNodes(response.list ?? [])
   };
+}
+
+/**
+ * 根据商品分类编号还原完整分类名称，多个分类按商品配置顺序展示。
+ */
+function getCategoryText(row: GoodsInfo) {
+  const categoryIDs = Array.isArray(row.category_id) ? row.category_id : [];
+  const categoryNames = categoryIDs
+    .map(categoryID => categoryDisplayMap.value.get(categoryID))
+    .filter((name): name is string => Boolean(name));
+  return categoryNames.join("、") || "--";
 }
 
 /**
