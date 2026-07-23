@@ -40,33 +40,57 @@ func NewBaseDeptCase(
 // OptionBaseDept 查询部门选项
 func (c *BaseDeptCase) OptionBaseDept(ctx context.Context, req *systemadminv1.OptionBaseDeptRequest) (*commonv1.TreeOptionResponse, error) {
 	query := c.Query(ctx).BaseDept
-	opts := make([]repository.QueryOption, 0, 3)
+	opts := make([]repository.QueryOption, 0, 4)
 	opts = append(opts, repository.Order(query.Sort.Asc()))
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
 	if req.TenantId != nil && req.GetTenantId() > 0 {
 		opts = append(opts, repository.Where(query.TenantID.Eq(req.GetTenantId())))
 	}
+	if req.GetLazy() {
+		opts = append(opts, repository.Where(query.ParentID.Eq(req.GetParentId())))
+	}
 	list, err := c.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}
-	return &commonv1.TreeOptionResponse{List: c.buildBaseDeptOption(list, req.GetParentId())}, nil
+	var hasChildren map[int64]struct{}
+	hasChildren, err = c.listBaseDeptParentIDsWithChildren(ctx, list, req.GetTenantId())
+	if err != nil {
+		return nil, err
+	}
+	parentID := int64(0)
+	if req.GetLazy() {
+		parentID = req.GetParentId()
+	}
+	return &commonv1.TreeOptionResponse{List: c.buildBaseDeptOption(list, parentID, req.GetLazy(), hasChildren)}, nil
 }
 
 // TreeBaseDept 查询部门树
 func (c *BaseDeptCase) TreeBaseDept(ctx context.Context, req *systemadminv1.TreeBaseDeptRequest) (*systemadminv1.TreeBaseDeptResponse, error) {
 	query := c.Query(ctx).BaseDept
-	opts := make([]repository.QueryOption, 0, 3)
+	opts := make([]repository.QueryOption, 0, 4)
 	opts = append(opts, repository.Order(query.Sort.Asc()))
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
 	if req.TenantId != nil && req.GetTenantId() > 0 {
 		opts = append(opts, repository.Where(query.TenantID.Eq(req.GetTenantId())))
 	}
+	if req.GetLazy() {
+		opts = append(opts, repository.Where(query.ParentID.Eq(req.GetParentId())))
+	}
 	list, err := c.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}
-	return &systemadminv1.TreeBaseDeptResponse{BaseDepts: c.buildBaseDeptTree(list, 0)}, nil
+	var hasChildren map[int64]struct{}
+	hasChildren, err = c.listBaseDeptParentIDsWithChildren(ctx, list, req.GetTenantId())
+	if err != nil {
+		return nil, err
+	}
+	parentID := int64(0)
+	if req.GetLazy() {
+		parentID = req.GetParentId()
+	}
+	return &systemadminv1.TreeBaseDeptResponse{BaseDepts: c.buildBaseDeptTree(list, parentID, req.GetLazy(), hasChildren)}, nil
 }
 
 // GetBaseDept 获取部门
@@ -176,7 +200,12 @@ func (c *BaseDeptCase) SetBaseDeptStatus(ctx context.Context, req *systemadminv1
 }
 
 // buildBaseDeptTree 构建部门树
-func (c *BaseDeptCase) buildBaseDeptTree(list []*models.BaseDept, parentID int64) []*systemadminv1.BaseDept {
+func (c *BaseDeptCase) buildBaseDeptTree(
+	list []*models.BaseDept,
+	parentID int64,
+	lazy bool,
+	hasChildren map[int64]struct{},
+) []*systemadminv1.BaseDept {
 	res := make([]*systemadminv1.BaseDept, 0)
 	for _, item := range list {
 		// 非当前父节点的部门不参与当前层级构建。
@@ -184,14 +213,22 @@ func (c *BaseDeptCase) buildBaseDeptTree(list []*models.BaseDept, parentID int64
 			continue
 		}
 		baseDept := c.mapper.ToDTO(item)
-		baseDept.Children = c.buildBaseDeptTree(list, item.ID)
+		_, baseDept.HasChildren = hasChildren[item.ID]
+		if !lazy {
+			baseDept.Children = c.buildBaseDeptTree(list, item.ID, false, hasChildren)
+		}
 		res = append(res, baseDept)
 	}
 	return res
 }
 
 // buildBaseDeptOption 构建部门选项树
-func (c *BaseDeptCase) buildBaseDeptOption(list []*models.BaseDept, parentID int64) []*commonv1.TreeOptionResponse_Option {
+func (c *BaseDeptCase) buildBaseDeptOption(
+	list []*models.BaseDept,
+	parentID int64,
+	lazy bool,
+	hasChildren map[int64]struct{},
+) []*commonv1.TreeOptionResponse_Option {
 	res := make([]*commonv1.TreeOptionResponse_Option, 0)
 	for _, item := range list {
 		// 非当前父节点的部门不参与当前层级选项构建。
@@ -202,8 +239,42 @@ func (c *BaseDeptCase) buildBaseDeptOption(list []*models.BaseDept, parentID int
 			Label: item.Name,
 			Value: item.ID,
 		}
-		option.Children = c.buildBaseDeptOption(list, item.ID)
+		_, option.HasChildren = hasChildren[item.ID]
+		if !lazy {
+			option.Children = c.buildBaseDeptOption(list, item.ID, false, hasChildren)
+		}
 		res = append(res, option)
 	}
 	return res
+}
+
+// listBaseDeptParentIDsWithChildren 查询存在子节点的部门父级编号。
+func (c *BaseDeptCase) listBaseDeptParentIDsWithChildren(
+	ctx context.Context,
+	list []*models.BaseDept,
+	tenantID int64,
+) (map[int64]struct{}, error) {
+	parentIDs := make([]int64, 0, len(list))
+	for _, item := range list {
+		parentIDs = append(parentIDs, item.ID)
+	}
+	hasChildren := make(map[int64]struct{}, len(parentIDs))
+	if len(parentIDs) == 0 {
+		return hasChildren, nil
+	}
+
+	query := c.Query(ctx).BaseDept
+	opts := make([]repository.QueryOption, 0, 2)
+	opts = append(opts, repository.Where(query.ParentID.In(parentIDs...)))
+	if tenantID > 0 {
+		opts = append(opts, repository.Where(query.TenantID.Eq(tenantID)))
+	}
+	children, err := c.List(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range children {
+		hasChildren[item.ParentID] = struct{}{}
+	}
+	return hasChildren, nil
 }

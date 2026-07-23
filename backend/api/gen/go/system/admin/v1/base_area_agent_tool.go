@@ -77,14 +77,18 @@ func NewBaseAreaServiceOptionBaseAreaAgentTool(baseAreaServiceServer BaseAreaSer
 
 // NewBaseAreaServiceTreeBaseAreaAgentTool 创建查询行政区域树形列表的 Agent Tool。
 func NewBaseAreaServiceTreeBaseAreaAgentTool(baseAreaServiceServer BaseAreaServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*TreeBaseAreaRequest, *TreeBaseAreaResponse](
+	return utils.InferTool[*TreeBaseAreaRequest, any](
 		"system_admin_v1_base_area_service_tree_base_area",
 		"查询行政区域树形列表",
-		func(ctx context.Context, req *TreeBaseAreaRequest) (*TreeBaseAreaResponse, error) {
+		func(ctx context.Context, req *TreeBaseAreaRequest) (any, error) {
 			if req == nil {
 				req = &TreeBaseAreaRequest{}
 			}
-			return baseAreaServiceServer.TreeBaseArea(ctx, req)
+			reply, err := baseAreaServiceServer.TreeBaseArea(ctx, req)
+			if err != nil {
+				return nil, err
+			}
+			return reply, nil
 		},
 	)
 }

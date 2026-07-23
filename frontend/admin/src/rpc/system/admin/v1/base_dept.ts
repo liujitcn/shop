@@ -16,13 +16,25 @@ export interface OptionBaseDeptRequest {
     | number
     | undefined;
   /** 父级部门ID */
-  parent_id?: number | undefined;
+  parent_id?:
+    | number
+    | undefined;
+  /** 是否懒加载 */
+  lazy?: boolean | undefined;
 }
 
 /** 部门树查询条件 */
 export interface TreeBaseDeptRequest {
   /** 租户ID */
-  tenant_id?: number | undefined;
+  tenant_id?:
+    | number
+    | undefined;
+  /** 父级部门ID */
+  parent_id?:
+    | number
+    | undefined;
+  /** 是否懒加载 */
+  lazy?: boolean | undefined;
 }
 
 /** 部门树响应 */
@@ -105,6 +117,8 @@ export interface BaseDept {
   updated_at: string;
   /** 子部门 */
   children: BaseDept[];
+  /** 是否存在子节点 */
+  has_children: boolean;
 }
 
 /** Admin部门服务 */

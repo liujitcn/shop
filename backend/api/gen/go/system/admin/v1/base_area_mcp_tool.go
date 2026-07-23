@@ -46,13 +46,13 @@ func RegisterBaseAreaServiceOptionBaseAreaMCPTool(mcpServer *mcp.Server, baseAre
 
 // RegisterBaseAreaServiceTreeBaseAreaMCPTool 注册查询行政区域树形列表的 MCP Tool。
 func RegisterBaseAreaServiceTreeBaseAreaMCPTool(mcpServer *mcp.Server, baseAreaServiceServer BaseAreaServiceServer) {
-	mcp.AddTool[*TreeBaseAreaRequest, *TreeBaseAreaResponse](
+	mcp.AddTool[*TreeBaseAreaRequest, any](
 		mcpServer,
 		&mcp.Tool{
 			Name:        "system_admin_v1_base_area_service_tree_base_area",
 			Description: "查询行政区域树形列表",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *TreeBaseAreaRequest) (*mcp.CallToolResult, *TreeBaseAreaResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *TreeBaseAreaRequest) (*mcp.CallToolResult, any, error) {
 			if input == nil {
 				input = &TreeBaseAreaRequest{}
 			}

@@ -70,6 +70,8 @@ message TreeBaseAreaRequest {
 
   optional int64 parent_id = 2 [(gnostic.openapi.v3.property) = {description: "父级区域ID"}]; // 父级区域ID
 
+  optional bool lazy = 3 [(gnostic.openapi.v3.property) = {description: "是否懒加载"}]; // 是否懒加载
+
 }
 
 // 行政区域树形列表响应
@@ -86,6 +88,9 @@ message BaseArea {
   string name = 3 [(gnostic.openapi.v3.property) = {description: "区域名称"}]; // 区域名称
 
   bool has_children = 4 [(gnostic.openapi.v3.property) = {description: "是否存在子节点"}]; // 是否存在子节点
+
+  repeated BaseArea children = 101 [(gnostic.openapi.v3.property) = {description: "子区域"}]; // 子区域
+
 }
 
 // 行政区域详情查询条件

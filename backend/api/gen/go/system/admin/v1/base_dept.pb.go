@@ -32,6 +32,7 @@ type OptionBaseDeptRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	TenantId      *int64                 `protobuf:"varint,1,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"` // 租户ID
 	ParentId      *int64                 `protobuf:"varint,2,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"` // 父级部门ID
+	Lazy          *bool                  `protobuf:"varint,3,opt,name=lazy,proto3,oneof" json:"lazy,omitempty"`                         // 是否懒加载
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -80,10 +81,19 @@ func (x *OptionBaseDeptRequest) GetParentId() int64 {
 	return 0
 }
 
+func (x *OptionBaseDeptRequest) GetLazy() bool {
+	if x != nil && x.Lazy != nil {
+		return *x.Lazy
+	}
+	return false
+}
+
 // 部门树查询条件
 type TreeBaseDeptRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	TenantId      *int64                 `protobuf:"varint,1,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"` // 租户ID
+	ParentId      *int64                 `protobuf:"varint,2,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"` // 父级部门ID
+	Lazy          *bool                  `protobuf:"varint,3,opt,name=lazy,proto3,oneof" json:"lazy,omitempty"`                         // 是否懒加载
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -123,6 +133,20 @@ func (x *TreeBaseDeptRequest) GetTenantId() int64 {
 		return *x.TenantId
 	}
 	return 0
+}
+
+func (x *TreeBaseDeptRequest) GetParentId() int64 {
+	if x != nil && x.ParentId != nil {
+		return *x.ParentId
+	}
+	return 0
+}
+
+func (x *TreeBaseDeptRequest) GetLazy() bool {
+	if x != nil && x.Lazy != nil {
+		return *x.Lazy
+	}
+	return false
 }
 
 // 部门树响应
@@ -499,16 +523,17 @@ func (x *SetBaseDeptStatusRequest) GetStatus() int32 {
 // 部门
 type BaseDept struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                 // 部门ID
-	TenantId      int64                  `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`     // 租户ID
-	ParentId      int64                  `protobuf:"varint,3,opt,name=parent_id,json=parentId,proto3" json:"parent_id,omitempty"`     // 父级部门ID
-	Name          string                 `protobuf:"bytes,4,opt,name=name,proto3" json:"name,omitempty"`                              // 部门名称
-	Sort          int32                  `protobuf:"varint,5,opt,name=sort,proto3" json:"sort,omitempty"`                             // 排序
-	Status        v1.Status              `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"` // 状态
-	Remark        string                 `protobuf:"bytes,101,opt,name=remark,proto3" json:"remark,omitempty"`                        // 备注
-	CreatedAt     string                 `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"` // 创建时间
-	UpdatedAt     string                 `protobuf:"bytes,201,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"` // 更新时间
-	Children      []*BaseDept            `protobuf:"bytes,300,rep,name=children,proto3" json:"children,omitempty"`                    // 子部门
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                        // 部门ID
+	TenantId      int64                  `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`            // 租户ID
+	ParentId      int64                  `protobuf:"varint,3,opt,name=parent_id,json=parentId,proto3" json:"parent_id,omitempty"`            // 父级部门ID
+	Name          string                 `protobuf:"bytes,4,opt,name=name,proto3" json:"name,omitempty"`                                     // 部门名称
+	Sort          int32                  `protobuf:"varint,5,opt,name=sort,proto3" json:"sort,omitempty"`                                    // 排序
+	Status        v1.Status              `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`        // 状态
+	Remark        string                 `protobuf:"bytes,101,opt,name=remark,proto3" json:"remark,omitempty"`                               // 备注
+	CreatedAt     string                 `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`        // 创建时间
+	UpdatedAt     string                 `protobuf:"bytes,201,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`        // 更新时间
+	Children      []*BaseDept            `protobuf:"bytes,300,rep,name=children,proto3" json:"children,omitempty"`                           // 子部门
+	HasChildren   bool                   `protobuf:"varint,301,opt,name=has_children,json=hasChildren,proto3" json:"has_children,omitempty"` // 是否存在子节点
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -613,22 +638,36 @@ func (x *BaseDept) GetChildren() []*BaseDept {
 	return nil
 }
 
+func (x *BaseDept) GetHasChildren() bool {
+	if x != nil {
+		return x.HasChildren
+	}
+	return false
+}
+
 var File_system_admin_v1_base_dept_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_base_dept_proto_rawDesc = "" +
 	"\n" +
-	"\x1fsystem/admin/v1/base_dept.proto\x12\x0fsystem.admin.v1\x1a\x16common/v1/common.proto\x1a\x14common/v1/enum.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x9d\x01\n" +
+	"\x1fsystem/admin/v1/base_dept.proto\x12\x0fsystem.admin.v1\x1a\x16common/v1/common.proto\x1a\x14common/v1/enum.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xd6\x01\n" +
 	"\x15OptionBaseDeptRequest\x120\n" +
 	"\ttenant_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x126\n" +
-	"\tparent_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e父级部门IDH\x01R\bparentId\x88\x01\x01B\f\n" +
+	"\tparent_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e父级部门IDH\x01R\bparentId\x88\x01\x01\x12.\n" +
+	"\x04lazy\x18\x03 \x01(\bB\x15\xbaG\x12\x92\x02\x0f是否懒加载H\x02R\x04lazy\x88\x01\x01B\f\n" +
 	"\n" +
 	"_tenant_idB\f\n" +
 	"\n" +
-	"_parent_id\"U\n" +
+	"_parent_idB\a\n" +
+	"\x05_lazy\"\xd4\x01\n" +
 	"\x13TreeBaseDeptRequest\x120\n" +
-	"\ttenant_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01B\f\n" +
+	"\ttenant_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x126\n" +
+	"\tparent_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e父级部门IDH\x01R\bparentId\x88\x01\x01\x12.\n" +
+	"\x04lazy\x18\x03 \x01(\bB\x15\xbaG\x12\x92\x02\x0f是否懒加载H\x02R\x04lazy\x88\x01\x01B\f\n" +
 	"\n" +
-	"_tenant_id\"a\n" +
+	"_tenant_idB\f\n" +
+	"\n" +
+	"_parent_idB\a\n" +
+	"\x05_lazy\"a\n" +
 	"\x14TreeBaseDeptResponse\x12I\n" +
 	"\n" +
 	"base_depts\x18\x01 \x03(\v2\x19.system.admin.v1.BaseDeptB\x0f\xbaG\f\x92\x02\t部门树R\tbaseDepts\"u\n" +
@@ -662,7 +701,7 @@ const file_system_admin_v1_base_dept_proto_rawDesc = "" +
 	"\x18SetBaseDeptStatusRequest\x12f\n" +
 	"\x02id\x18\x01 \x01(\x03BV\xbaG\v\x92\x02\b部门ID\xbaHE\xba\x01B\n" +
 	" set_base_dept_status.id.required\x12\x14部门ID不能为空\x1a\bthis > 0R\x02id\x12$\n" +
-	"\x06status\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\"\xe5\x05\n" +
+	"\x06status\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\"\xa6\x06\n" +
 	"\bBaseDept\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b部门IDR\x02id\x12s\n" +
 	"\ttenant_id\x18\x02 \x01(\x03BV\xbaG\v\x92\x02\b租户ID\xbaHE\xba\x01B\n" +
@@ -678,7 +717,8 @@ const file_system_admin_v1_base_dept_proto_rawDesc = "" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
 	"\n" +
 	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x12G\n" +
-	"\bchildren\x18\xac\x02 \x03(\v2\x19.system.admin.v1.BaseDeptB\x0f\xbaG\f\x92\x02\t子部门R\bchildren2\x9c\a\n" +
+	"\bchildren\x18\xac\x02 \x03(\v2\x19.system.admin.v1.BaseDeptB\x0f\xbaG\f\x92\x02\t子部门R\bchildren\x12?\n" +
+	"\fhas_children\x18\xad\x02 \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否存在子节点R\vhasChildren2\x9c\a\n" +
 	"\x0fBaseDeptService\x12\x7f\n" +
 	"\x0eOptionBaseDept\x12&.system.admin.v1.OptionBaseDeptRequest\x1a\x1d.common.v1.TreeOptionResponse\"&\x82\xd3\xe4\x93\x02 \x12\x1e/api/v1/admin/base/dept/option\x12\x81\x01\n" +
 	"\fTreeBaseDept\x12$.system.admin.v1.TreeBaseDeptRequest\x1a%.system.admin.v1.TreeBaseDeptResponse\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/api/v1/admin/base/dept/tree\x12w\n" +

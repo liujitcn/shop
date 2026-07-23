@@ -25,7 +25,11 @@ export interface TreeBaseAreaRequest {
     | string
     | undefined;
   /** 父级区域ID */
-  parent_id?: number | undefined;
+  parent_id?:
+    | number
+    | undefined;
+  /** 是否懒加载 */
+  lazy?: boolean | undefined;
 }
 
 /** 行政区域树形列表响应 */
@@ -44,6 +48,8 @@ export interface BaseArea {
   name: string;
   /** 是否存在子节点 */
   has_children: boolean;
+  /** 子区域 */
+  children: BaseArea[];
 }
 
 /** 行政区域详情查询条件 */

@@ -49,7 +49,7 @@ func (s *BaseMenuService) OptionBaseMenu(ctx context.Context, req *systemadminv1
 
 // TreeBaseMenu 查询菜单树形列表
 func (s *BaseMenuService) TreeBaseMenu(ctx context.Context, req *systemadminv1.TreeBaseMenuRequest) (*systemadminv1.TreeBaseMenuResponse, error) {
-	tree, err := s.baseMenuCase.TreeBaseMenu(ctx)
+	tree, err := s.baseMenuCase.TreeBaseMenu(ctx, req)
 	if err != nil {
 		log.Error(fmt.Sprintf("TreeBaseMenu %v", err))
 		return nil, errorsx.WrapInternal(err, "查询菜单树形列表失败")

@@ -658,6 +658,10 @@ paths:
                   in: query
                   schema:
                     type: string
+                - name: lazy
+                  in: query
+                  schema:
+                    type: boolean
             responses:
                 "200":
                     description: OK
@@ -921,6 +925,10 @@ paths:
                   in: query
                   schema:
                     type: string
+                - name: lazy
+                  in: query
+                  schema:
+                    type: boolean
             responses:
                 "200":
                     description: OK
@@ -939,6 +947,14 @@ paths:
                   in: query
                   schema:
                     type: string
+                - name: parent_id
+                  in: query
+                  schema:
+                    type: string
+                - name: lazy
+                  in: query
+                  schema:
+                    type: boolean
             responses:
                 "200":
                     description: OK
@@ -1639,6 +1655,10 @@ paths:
                   in: query
                   schema:
                     type: string
+                - name: lazy
+                  in: query
+                  schema:
+                    type: boolean
             responses:
                 "200":
                     description: OK
@@ -1652,6 +1672,15 @@ paths:
                 - BaseMenuService
             description: 查询菜单树形列表
             operationId: BaseMenuService_TreeBaseMenu
+            parameters:
+                - name: parent_id
+                  in: query
+                  schema:
+                    type: string
+                - name: lazy
+                  in: query
+                  schema:
+                    type: boolean
             responses:
                 "200":
                     description: OK
@@ -2968,6 +2997,10 @@ paths:
                   in: query
                   schema:
                     type: string
+                - name: lazy
+                  in: query
+                  schema:
+                    type: boolean
             responses:
                 "200":
                     description: OK
@@ -2981,6 +3014,15 @@ paths:
                 - GoodsCategoryService
             description: 查询商品分类树形列表
             operationId: GoodsCategoryService_TreeGoodsCategory
+            parameters:
+                - name: parent_id
+                  in: query
+                  schema:
+                    type: string
+                - name: lazy
+                  in: query
+                  schema:
+                    type: boolean
             responses:
                 "200":
                     description: OK
@@ -9096,6 +9138,9 @@ components:
                     items:
                         $ref: '#/components/schemas/shop.admin.v1.GoodsCategory'
                     description: 子节点树
+                has_children:
+                    type: boolean
+                    description: 是否存在子节点
             description: 商品分类
         shop.admin.v1.GoodsCategoryForm:
             type: object
@@ -13935,6 +13980,11 @@ components:
                 has_children:
                     type: boolean
                     description: 是否存在子节点
+                children:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseArea'
+                    description: 子区域
             description: 行政区域
         system.admin.v1.BaseAreaForm:
             type: object
@@ -14082,6 +14132,9 @@ components:
                     items:
                         $ref: '#/components/schemas/system.admin.v1.BaseDept'
                     description: 子部门
+                has_children:
+                    type: boolean
+                    description: 是否存在子节点
             description: 部门
         system.admin.v1.BaseDeptForm:
             type: object
@@ -14481,6 +14534,9 @@ components:
                     items:
                         $ref: '#/components/schemas/system.admin.v1.BaseMenu'
                     description: 子菜单
+                has_children:
+                    type: boolean
+                    description: 是否存在子节点
             description: 菜单
         system.admin.v1.BaseMenuForm:
             type: object

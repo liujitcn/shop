@@ -163,7 +163,7 @@ async function requestBaseAreaTable(params: TreeBaseAreaRequest) {
  */
 async function loadAreaChildren(row: BaseArea, _treeNode: unknown, resolve: (data: BaseArea[]) => void) {
   try {
-    const data = await defBaseAreaService.TreeBaseArea({ parent_id: row.id });
+    const data = await defBaseAreaService.TreeBaseArea({ parent_id: row.id, lazy: true });
     resolve(data.base_areas ?? []);
   } catch {
     ElMessage.error("加载行政区域子节点失败");

@@ -12,11 +12,21 @@ import type { Empty } from "../../../google/protobuf/empty";
 /** 商品分类选项查询条件 */
 export interface OptionGoodsCategoryRequest {
   /** 父级商品分类ID */
-  parent_id?: number | undefined;
+  parent_id?:
+    | number
+    | undefined;
+  /** 是否懒加载 */
+  lazy?: boolean | undefined;
 }
 
 /** 商品分类树查询条件 */
 export interface TreeGoodsCategoryRequest {
+  /** 父级商品分类ID */
+  parent_id?:
+    | number
+    | undefined;
+  /** 是否懒加载 */
+  lazy?: boolean | undefined;
 }
 
 /** 商品分类树响应 */
@@ -97,6 +107,8 @@ export interface GoodsCategory {
   updated_at: string;
   /** 子节点树 */
   children: GoodsCategory[];
+  /** 是否存在子节点 */
+  has_children: boolean;
 }
 
 /** Admin商品分类服务 */

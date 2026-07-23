@@ -53,7 +53,11 @@ func (c *BaseAreaCase) OptionBaseArea(ctx context.Context, req *systemadminv1.Op
 	if err != nil {
 		return nil, err
 	}
-	return &commonv1.TreeOptionResponse{List: c.buildOptionBaseAreaOption(list, req.GetParentId(), req.GetLazy(), hasChildren)}, nil
+	parentID := int64(0)
+	if req.GetLazy() {
+		parentID = req.GetParentId()
+	}
+	return &commonv1.TreeOptionResponse{List: c.buildOptionBaseAreaOption(list, parentID, req.GetLazy(), hasChildren)}, nil
 }
 
 // TreeBaseArea 查询行政区域树形列表。
@@ -64,7 +68,7 @@ func (c *BaseAreaCase) TreeBaseArea(ctx context.Context, req *systemadminv1.Tree
 	// 搜索时跨层级匹配，避免懒加载树无法检索未展开节点。
 	if req.GetName() != "" {
 		opts = append(opts, repository.Where(query.Name.Like("%"+req.GetName()+"%")))
-	} else {
+	} else if req.GetLazy() {
 		opts = append(opts, repository.Where(query.ParentID.Eq(req.GetParentId())))
 	}
 
@@ -78,10 +82,18 @@ func (c *BaseAreaCase) TreeBaseArea(ctx context.Context, req *systemadminv1.Tree
 		return nil, err
 	}
 	baseAreas := make([]*systemadminv1.BaseArea, 0, len(list))
-	for _, item := range list {
-		baseArea := c.mapper.ToDTO(item)
-		_, baseArea.HasChildren = hasChildren[item.ID]
-		baseAreas = append(baseAreas, baseArea)
+	if req.GetName() != "" {
+		for _, item := range list {
+			baseArea := c.mapper.ToDTO(item)
+			_, baseArea.HasChildren = hasChildren[item.ID]
+			baseAreas = append(baseAreas, baseArea)
+		}
+	} else {
+		parentID := int64(0)
+		if req.GetLazy() {
+			parentID = req.GetParentId()
+		}
+		baseAreas = c.buildBaseAreaTree(list, parentID, req.GetLazy(), hasChildren)
 	}
 	return &systemadminv1.TreeBaseAreaResponse{BaseAreas: baseAreas}, nil
 }
@@ -146,6 +158,28 @@ func (c *BaseAreaCase) buildOptionBaseAreaOption(
 			option.Children = c.buildOptionBaseAreaOption(list, int64(item.ID), false, hasChildren)
 		}
 		res = append(res, option)
+	}
+	return res
+}
+
+// buildBaseAreaTree 构建行政区域树。
+func (c *BaseAreaCase) buildBaseAreaTree(
+	list []*models.BaseArea,
+	parentID int64,
+	lazy bool,
+	hasChildren map[int64]struct{},
+) []*systemadminv1.BaseArea {
+	res := make([]*systemadminv1.BaseArea, 0)
+	for _, item := range list {
+		if int64(item.ParentID) != parentID {
+			continue
+		}
+		baseArea := c.mapper.ToDTO(item)
+		_, baseArea.HasChildren = hasChildren[item.ID]
+		if !lazy {
+			baseArea.Children = c.buildBaseAreaTree(list, int64(item.ID), false, hasChildren)
+		}
+		res = append(res, baseArea)
 	}
 	return res
 }

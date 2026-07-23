@@ -66,7 +66,7 @@ func NewBaseMenuCase(
 // OptionBaseMenu 查询菜单选项
 func (c *BaseMenuCase) OptionBaseMenu(ctx context.Context, req *systemadminv1.OptionBaseMenuRequest) (*commonv1.TreeOptionResponse, error) {
 	query := c.Query(ctx).BaseMenu
-	opts := make([]repository.QueryOption, 0, 3)
+	opts := make([]repository.QueryOption, 0, 4)
 	opts = append(opts, repository.Order(query.Sort.Asc()))
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
 	allowedMenuIDs, isSuperRole, err := c.listAssignableMenuIDs(ctx, req.GetRoleId())
@@ -81,18 +81,30 @@ func (c *BaseMenuCase) OptionBaseMenu(ctx context.Context, req *systemadminv1.Op
 	if !isSuperRole {
 		opts = append(opts, repository.Where(query.ID.In(allowedMenuIDs...)))
 	}
+	if req.GetLazy() {
+		opts = append(opts, repository.Where(query.ParentID.Eq(req.GetParentId())))
+	}
 	var list []*models.BaseMenu
 	list, err = c.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}
-	return &commonv1.TreeOptionResponse{List: c.buildBaseMenuOption(list, req.GetParentId())}, nil
+	var hasChildren map[int64]struct{}
+	hasChildren, err = c.listBaseMenuParentIDsWithChildren(ctx, list, allowedMenuIDs, isSuperRole)
+	if err != nil {
+		return nil, err
+	}
+	parentID := int64(0)
+	if req.GetLazy() {
+		parentID = req.GetParentId()
+	}
+	return &commonv1.TreeOptionResponse{List: c.buildBaseMenuOption(list, parentID, req.GetLazy(), hasChildren)}, nil
 }
 
 // TreeBaseMenu 查询菜单树
-func (c *BaseMenuCase) TreeBaseMenu(ctx context.Context) (*systemadminv1.TreeBaseMenuResponse, error) {
+func (c *BaseMenuCase) TreeBaseMenu(ctx context.Context, req *systemadminv1.TreeBaseMenuRequest) (*systemadminv1.TreeBaseMenuResponse, error) {
 	query := c.Query(ctx).BaseMenu
-	opts := make([]repository.QueryOption, 0, 3)
+	opts := make([]repository.QueryOption, 0, 4)
 	opts = append(opts, repository.Order(query.Sort.Asc()))
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
 	allowedMenuIDs, isSuperRole, err := c.listAssignableMenuIDs(ctx, 0)
@@ -107,12 +119,24 @@ func (c *BaseMenuCase) TreeBaseMenu(ctx context.Context) (*systemadminv1.TreeBas
 	if !isSuperRole {
 		opts = append(opts, repository.Where(query.ID.In(allowedMenuIDs...)))
 	}
+	if req.GetLazy() {
+		opts = append(opts, repository.Where(query.ParentID.Eq(req.GetParentId())))
+	}
 	var list []*models.BaseMenu
 	list, err = c.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}
-	return &systemadminv1.TreeBaseMenuResponse{BaseMenus: c.buildBaseMenuTree(list, 0)}, nil
+	var hasChildren map[int64]struct{}
+	hasChildren, err = c.listBaseMenuParentIDsWithChildren(ctx, list, allowedMenuIDs, isSuperRole)
+	if err != nil {
+		return nil, err
+	}
+	parentID := int64(0)
+	if req.GetLazy() {
+		parentID = req.GetParentId()
+	}
+	return &systemadminv1.TreeBaseMenuResponse{BaseMenus: c.buildBaseMenuTree(list, parentID, req.GetLazy(), hasChildren)}, nil
 }
 
 // GetBaseMenu 获取菜单
@@ -392,7 +416,12 @@ func (c *BaseMenuCase) buildRouteTree(menuList []*models.BaseMenu, parentID int6
 }
 
 // buildBaseMenuTree 构建菜单树
-func (c *BaseMenuCase) buildBaseMenuTree(menuList []*models.BaseMenu, parentID int64) []*systemadminv1.BaseMenu {
+func (c *BaseMenuCase) buildBaseMenuTree(
+	menuList []*models.BaseMenu,
+	parentID int64,
+	lazy bool,
+	hasChildren map[int64]struct{},
+) []*systemadminv1.BaseMenu {
 	res := make([]*systemadminv1.BaseMenu, 0)
 	for _, item := range menuList {
 		// 非当前父节点的菜单不参与当前层级树构建。
@@ -400,14 +429,22 @@ func (c *BaseMenuCase) buildBaseMenuTree(menuList []*models.BaseMenu, parentID i
 			continue
 		}
 		menu := c.mapper.ToDTO(item)
-		menu.Children = c.buildBaseMenuTree(menuList, item.ID)
+		_, menu.HasChildren = hasChildren[item.ID]
+		if !lazy {
+			menu.Children = c.buildBaseMenuTree(menuList, item.ID, false, hasChildren)
+		}
 		res = append(res, menu)
 	}
 	return res
 }
 
 // buildBaseMenuOption 构建菜单选项树
-func (c *BaseMenuCase) buildBaseMenuOption(menuList []*models.BaseMenu, parentID int64) []*commonv1.TreeOptionResponse_Option {
+func (c *BaseMenuCase) buildBaseMenuOption(
+	menuList []*models.BaseMenu,
+	parentID int64,
+	lazy bool,
+	hasChildren map[int64]struct{},
+) []*commonv1.TreeOptionResponse_Option {
 	res := make([]*commonv1.TreeOptionResponse_Option, 0)
 	for _, item := range menuList {
 		// 非当前父节点的菜单不参与当前层级选项构建。
@@ -430,10 +467,49 @@ func (c *BaseMenuCase) buildBaseMenuOption(menuList []*models.BaseMenu, parentID
 			Label: label,
 			Value: item.ID,
 		}
-		menu.Children = c.buildBaseMenuOption(menuList, item.ID)
+		_, menu.HasChildren = hasChildren[item.ID]
+		if !lazy {
+			menu.Children = c.buildBaseMenuOption(menuList, item.ID, false, hasChildren)
+		}
 		res = append(res, menu)
 	}
 	return res
+}
+
+// listBaseMenuParentIDsWithChildren 查询存在可选子节点的菜单父级编号。
+func (c *BaseMenuCase) listBaseMenuParentIDsWithChildren(
+	ctx context.Context,
+	list []*models.BaseMenu,
+	allowedMenuIDs []int64,
+	isSuperRole bool,
+) (map[int64]struct{}, error) {
+	parentIDs := make([]int64, 0, len(list))
+	for _, item := range list {
+		parentIDs = append(parentIDs, item.ID)
+	}
+	hasChildren := make(map[int64]struct{}, len(parentIDs))
+	if len(parentIDs) == 0 {
+		return hasChildren, nil
+	}
+
+	query := c.Query(ctx).BaseMenu
+	opts := make([]repository.QueryOption, 0, 3)
+	opts = append(opts, repository.Where(query.ParentID.In(parentIDs...)))
+	opts = append(opts, repository.Where(query.Type.In(
+		int32(systemcommonv1.BaseMenuType_FOLDER),
+		int32(systemcommonv1.BaseMenuType_MENU),
+	)))
+	if !isSuperRole {
+		opts = append(opts, repository.Where(query.ID.In(allowedMenuIDs...)))
+	}
+	children, err := c.List(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range children {
+		hasChildren[item.ParentID] = struct{}{}
+	}
+	return hasChildren, nil
 }
 
 // validateBaseMenuChild 校验父节点能否承载指定类型的下级菜单。

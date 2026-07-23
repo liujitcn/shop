@@ -38,30 +38,54 @@ func NewGoodsCategoryCase(baseCase *biz.BaseCase, goodsCategoryRepo *data.GoodsC
 // OptionGoodsCategory 查询分类选项
 func (c *GoodsCategoryCase) OptionGoodsCategory(ctx context.Context, req *shopadminv1.OptionGoodsCategoryRequest) (*commonv1.TreeOptionResponse, error) {
 	query := c.Query(ctx).GoodsCategory
-	opts := make([]repository.QueryOption, 0, 2)
+	opts := make([]repository.QueryOption, 0, 3)
 	opts = append(opts, repository.Order(query.Sort.Asc()))
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
+	if req.GetLazy() {
+		opts = append(opts, repository.Where(query.ParentID.Eq(req.GetParentId())))
+	}
 	list, err := c.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}
+	var hasChildren map[int64]struct{}
+	hasChildren, err = c.listGoodsCategoryParentIDsWithChildren(ctx, list)
+	if err != nil {
+		return nil, err
+	}
+	parentID := int64(0)
+	if req.GetLazy() {
+		parentID = req.GetParentId()
+	}
 	return &commonv1.TreeOptionResponse{
-		List: c.buildOption(list, 0, req.ParentId == nil),
+		List: c.buildOption(list, parentID, req.ParentId == nil, req.GetLazy(), hasChildren),
 	}, nil
 }
 
 // TreeGoodsCategory 查询分类树
-func (c *GoodsCategoryCase) TreeGoodsCategory(ctx context.Context, _ *shopadminv1.TreeGoodsCategoryRequest) (*shopadminv1.TreeGoodsCategoryResponse, error) {
+func (c *GoodsCategoryCase) TreeGoodsCategory(ctx context.Context, req *shopadminv1.TreeGoodsCategoryRequest) (*shopadminv1.TreeGoodsCategoryResponse, error) {
 	query := c.Query(ctx).GoodsCategory
-	opts := make([]repository.QueryOption, 0, 2)
+	opts := make([]repository.QueryOption, 0, 3)
 	opts = append(opts, repository.Order(query.Sort.Asc()))
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
+	if req.GetLazy() {
+		opts = append(opts, repository.Where(query.ParentID.Eq(req.GetParentId())))
+	}
 	list, err := c.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}
+	var hasChildren map[int64]struct{}
+	hasChildren, err = c.listGoodsCategoryParentIDsWithChildren(ctx, list)
+	if err != nil {
+		return nil, err
+	}
+	parentID := int64(0)
+	if req.GetLazy() {
+		parentID = req.GetParentId()
+	}
 	return &shopadminv1.TreeGoodsCategoryResponse{
-		GoodsCategories: c.buildTree(list, 0),
+		GoodsCategories: c.buildTree(list, parentID, req.GetLazy(), hasChildren),
 	}, nil
 }
 
@@ -174,7 +198,12 @@ func (c *GoodsCategoryCase) NameMap(ctx context.Context, parentID *int64) map[in
 }
 
 // buildTree 构建分类树
-func (c *GoodsCategoryCase) buildTree(categoryList []*models.GoodsCategory, parentID int64) []*shopadminv1.GoodsCategory {
+func (c *GoodsCategoryCase) buildTree(
+	categoryList []*models.GoodsCategory,
+	parentID int64,
+	lazy bool,
+	hasChildren map[int64]struct{},
+) []*shopadminv1.GoodsCategory {
 	res := make([]*shopadminv1.GoodsCategory, 0)
 	for _, item := range categoryList {
 		// 仅处理当前父节点下的直接子分类。
@@ -184,14 +213,23 @@ func (c *GoodsCategoryCase) buildTree(categoryList []*models.GoodsCategory, pare
 		category := c.mapper.ToDTO(item)
 		category.CreatedAt = _time.TimeToTimeString(item.CreatedAt)
 		category.UpdatedAt = _time.TimeToTimeString(item.UpdatedAt)
-		category.Children = c.buildTree(categoryList, item.ID)
+		_, category.HasChildren = hasChildren[item.ID]
+		if !lazy {
+			category.Children = c.buildTree(categoryList, item.ID, false, hasChildren)
+		}
 		res = append(res, category)
 	}
 	return res
 }
 
 // buildOption 构建分类选项树
-func (c *GoodsCategoryCase) buildOption(categoryList []*models.GoodsCategory, parentID int64, disabled bool) []*commonv1.TreeOptionResponse_Option {
+func (c *GoodsCategoryCase) buildOption(
+	categoryList []*models.GoodsCategory,
+	parentID int64,
+	disabled bool,
+	lazy bool,
+	hasChildren map[int64]struct{},
+) []*commonv1.TreeOptionResponse_Option {
 	res := make([]*commonv1.TreeOptionResponse_Option, 0)
 	for _, item := range categoryList {
 		// 仅处理当前父节点下的直接子分类。
@@ -203,8 +241,36 @@ func (c *GoodsCategoryCase) buildOption(categoryList []*models.GoodsCategory, pa
 			Value:    item.ID,
 			Disabled: disabled && item.ParentID == 0,
 		}
-		category.Children = c.buildOption(categoryList, item.ID, disabled)
+		_, category.HasChildren = hasChildren[item.ID]
+		if !lazy {
+			category.Children = c.buildOption(categoryList, item.ID, disabled, false, hasChildren)
+		}
 		res = append(res, category)
 	}
 	return res
+}
+
+// listGoodsCategoryParentIDsWithChildren 查询存在子节点的商品分类父级编号。
+func (c *GoodsCategoryCase) listGoodsCategoryParentIDsWithChildren(
+	ctx context.Context,
+	list []*models.GoodsCategory,
+) (map[int64]struct{}, error) {
+	parentIDs := make([]int64, 0, len(list))
+	for _, item := range list {
+		parentIDs = append(parentIDs, item.ID)
+	}
+	hasChildren := make(map[int64]struct{}, len(parentIDs))
+	if len(parentIDs) == 0 {
+		return hasChildren, nil
+	}
+
+	query := c.Query(ctx).GoodsCategory
+	children, err := c.List(ctx, repository.Where(query.ParentID.In(parentIDs...)))
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range children {
+		hasChildren[item.ParentID] = struct{}{}
+	}
+	return hasChildren, nil
 }

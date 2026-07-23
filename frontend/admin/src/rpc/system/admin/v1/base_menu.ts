@@ -17,11 +17,21 @@ export interface OptionBaseMenuRequest {
     | number
     | undefined;
   /** 目标角色ID */
-  role_id?: number | undefined;
+  role_id?:
+    | number
+    | undefined;
+  /** 是否懒加载 */
+  lazy?: boolean | undefined;
 }
 
 /** 菜单树查询条件 */
 export interface TreeBaseMenuRequest {
+  /** 父级菜单ID */
+  parent_id?:
+    | number
+    | undefined;
+  /** 是否懒加载 */
+  lazy?: boolean | undefined;
 }
 
 /** 菜单树响应 */
@@ -122,6 +132,8 @@ export interface BaseMenu {
   updated_at: string;
   /** 子菜单 */
   children: BaseMenu[];
+  /** 是否存在子节点 */
+  has_children: boolean;
 }
 
 /** 菜单元信息 */

@@ -33,6 +33,7 @@ type OptionBaseMenuRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ParentId      *int64                 `protobuf:"varint,1,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"` // 父级菜单ID
 	RoleId        *int64                 `protobuf:"varint,2,opt,name=role_id,json=roleId,proto3,oneof" json:"role_id,omitempty"`       // 目标角色ID
+	Lazy          *bool                  `protobuf:"varint,3,opt,name=lazy,proto3,oneof" json:"lazy,omitempty"`                         // 是否懒加载
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -81,9 +82,18 @@ func (x *OptionBaseMenuRequest) GetRoleId() int64 {
 	return 0
 }
 
+func (x *OptionBaseMenuRequest) GetLazy() bool {
+	if x != nil && x.Lazy != nil {
+		return *x.Lazy
+	}
+	return false
+}
+
 // 菜单树查询条件
 type TreeBaseMenuRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	ParentId      *int64                 `protobuf:"varint,1,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"` // 父级菜单ID
+	Lazy          *bool                  `protobuf:"varint,2,opt,name=lazy,proto3,oneof" json:"lazy,omitempty"`                         // 是否懒加载
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -116,6 +126,20 @@ func (x *TreeBaseMenuRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use TreeBaseMenuRequest.ProtoReflect.Descriptor instead.
 func (*TreeBaseMenuRequest) Descriptor() ([]byte, []int) {
 	return file_system_admin_v1_base_menu_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *TreeBaseMenuRequest) GetParentId() int64 {
+	if x != nil && x.ParentId != nil {
+		return *x.ParentId
+	}
+	return 0
+}
+
+func (x *TreeBaseMenuRequest) GetLazy() bool {
+	if x != nil && x.Lazy != nil {
+		return *x.Lazy
+	}
+	return false
 }
 
 // 菜单树响应
@@ -537,6 +561,7 @@ type BaseMenu struct {
 	CreatedAt     string                 `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`        // 创建时间
 	UpdatedAt     string                 `protobuf:"bytes,201,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`        // 更新时间
 	Children      []*BaseMenu            `protobuf:"bytes,300,rep,name=children,proto3" json:"children,omitempty"`                           // 子菜单
+	HasChildren   bool                   `protobuf:"varint,301,opt,name=has_children,json=hasChildren,proto3" json:"has_children,omitempty"` // 是否存在子节点
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -660,6 +685,13 @@ func (x *BaseMenu) GetChildren() []*BaseMenu {
 		return x.Children
 	}
 	return nil
+}
+
+func (x *BaseMenu) GetHasChildren() bool {
+	if x != nil {
+		return x.HasChildren
+	}
+	return false
 }
 
 // 菜单元信息
@@ -820,15 +852,22 @@ var File_system_admin_v1_base_menu_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_base_menu_proto_rawDesc = "" +
 	"\n" +
-	"\x1fsystem/admin/v1/base_menu.proto\x12\x0fsystem.admin.v1\x1a\x16common/v1/common.proto\x1a\x14common/v1/enum.proto\x1a\x1bsystem/common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1bbuf/validate/validate.proto\"\x9d\x01\n" +
+	"\x1fsystem/admin/v1/base_menu.proto\x12\x0fsystem.admin.v1\x1a\x16common/v1/common.proto\x1a\x14common/v1/enum.proto\x1a\x1bsystem/common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1bbuf/validate/validate.proto\"\xd6\x01\n" +
 	"\x15OptionBaseMenuRequest\x126\n" +
 	"\tparent_id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e父级菜单IDH\x00R\bparentId\x88\x01\x01\x122\n" +
-	"\arole_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e目标角色IDH\x01R\x06roleId\x88\x01\x01B\f\n" +
+	"\arole_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e目标角色IDH\x01R\x06roleId\x88\x01\x01\x12.\n" +
+	"\x04lazy\x18\x03 \x01(\bB\x15\xbaG\x12\x92\x02\x0f是否懒加载H\x02R\x04lazy\x88\x01\x01B\f\n" +
 	"\n" +
 	"_parent_idB\n" +
 	"\n" +
-	"\b_role_id\"\x15\n" +
-	"\x13TreeBaseMenuRequest\"a\n" +
+	"\b_role_idB\a\n" +
+	"\x05_lazy\"\x94\x01\n" +
+	"\x13TreeBaseMenuRequest\x126\n" +
+	"\tparent_id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e父级菜单IDH\x00R\bparentId\x88\x01\x01\x12.\n" +
+	"\x04lazy\x18\x02 \x01(\bB\x15\xbaG\x12\x92\x02\x0f是否懒加载H\x01R\x04lazy\x88\x01\x01B\f\n" +
+	"\n" +
+	"_parent_idB\a\n" +
+	"\x05_lazy\"a\n" +
 	"\x14TreeBaseMenuResponse\x12I\n" +
 	"\n" +
 	"base_menus\x18\x01 \x03(\v2\x19.system.admin.v1.BaseMenuB\x0f\xbaG\f\x92\x02\t菜单树R\tbaseMenus\"4\n" +
@@ -872,7 +911,7 @@ const file_system_admin_v1_base_menu_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\x03BV\xbaG\v\x92\x02\b菜单ID\xbaHE\xba\x01B\n" +
 	" set_base_menu_status.id.required\x12\x14菜单ID不能为空\x1a\bthis > 0R\x02id\x12o\n" +
 	"\x06status\x18\x02 \x01(\x05BW\xbaG\t\x92\x02\x06状态\xbaHH\xba\x01E\n" +
-	"$set_base_menu_status.status.required\x12\x12状态不能为空\x1a\tthis != 0R\x06status\"\x87\x06\n" +
+	"$set_base_menu_status.status.required\x12\x12状态不能为空\x1a\tthis != 0R\x06status\"\xc8\x06\n" +
 	"\bBaseMenu\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b菜单IDR\x02id\x121\n" +
 	"\tparent_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e父级菜单IDR\bparentId\x12F\n" +
@@ -888,7 +927,8 @@ const file_system_admin_v1_base_menu_proto_rawDesc = "" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
 	"\n" +
 	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x12G\n" +
-	"\bchildren\x18\xac\x02 \x03(\v2\x19.system.admin.v1.BaseMenuB\x0f\xbaG\f\x92\x02\t子菜单R\bchildren\"\xa2\x05\n" +
+	"\bchildren\x18\xac\x02 \x03(\v2\x19.system.admin.v1.BaseMenuB\x0f\xbaG\f\x92\x02\t子菜单R\bchildren\x12?\n" +
+	"\fhas_children\x18\xad\x02 \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否存在子节点R\vhasChildren\"\xa2\x05\n" +
 	"\fBaseMenuMeta\x12(\n" +
 	"\x05title\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f菜单标题R\x05title\x12+\n" +
 	"\x04icon\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f菜单图标H\x00R\x04icon\x88\x01\x01\x12_\n" +
@@ -989,6 +1029,7 @@ func file_system_admin_v1_base_menu_proto_init() {
 		return
 	}
 	file_system_admin_v1_base_menu_proto_msgTypes[0].OneofWrappers = []any{}
+	file_system_admin_v1_base_menu_proto_msgTypes[1].OneofWrappers = []any{}
 	file_system_admin_v1_base_menu_proto_msgTypes[4].OneofWrappers = []any{}
 	file_system_admin_v1_base_menu_proto_msgTypes[10].OneofWrappers = []any{}
 	type x struct{}

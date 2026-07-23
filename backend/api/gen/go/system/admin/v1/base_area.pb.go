@@ -85,6 +85,7 @@ type TreeBaseAreaRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Name          *string                `protobuf:"bytes,1,opt,name=name,proto3,oneof" json:"name,omitempty"`                          // 区域名称
 	ParentId      *int64                 `protobuf:"varint,2,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"` // 父级区域ID
+	Lazy          *bool                  `protobuf:"varint,3,opt,name=lazy,proto3,oneof" json:"lazy,omitempty"`                         // 是否懒加载
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -131,6 +132,13 @@ func (x *TreeBaseAreaRequest) GetParentId() int64 {
 		return *x.ParentId
 	}
 	return 0
+}
+
+func (x *TreeBaseAreaRequest) GetLazy() bool {
+	if x != nil && x.Lazy != nil {
+		return *x.Lazy
+	}
+	return false
 }
 
 // 行政区域树形列表响应
@@ -185,6 +193,7 @@ type BaseArea struct {
 	ParentId      int64                  `protobuf:"varint,2,opt,name=parent_id,json=parentId,proto3" json:"parent_id,omitempty"`          // 父级区域
 	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                   // 区域名称
 	HasChildren   bool                   `protobuf:"varint,4,opt,name=has_children,json=hasChildren,proto3" json:"has_children,omitempty"` // 是否存在子节点
+	Children      []*BaseArea            `protobuf:"bytes,101,rep,name=children,proto3" json:"children,omitempty"`                         // 子区域
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -245,6 +254,13 @@ func (x *BaseArea) GetHasChildren() bool {
 		return x.HasChildren
 	}
 	return false
+}
+
+func (x *BaseArea) GetChildren() []*BaseArea {
+	if x != nil {
+		return x.Children
+	}
+	return nil
 }
 
 // 行政区域详情查询条件
@@ -506,21 +522,24 @@ const file_system_admin_v1_base_area_proto_rawDesc = "" +
 	"\x04lazy\x18\x02 \x01(\bB\x15\xbaG\x12\x92\x02\x0f是否懒加载H\x01R\x04lazy\x88\x01\x01B\f\n" +
 	"\n" +
 	"_parent_idB\a\n" +
-	"\x05_lazy\"\x91\x01\n" +
+	"\x05_lazy\"\xca\x01\n" +
 	"\x13TreeBaseAreaRequest\x12+\n" +
 	"\x04name\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f区域名称H\x00R\x04name\x88\x01\x01\x126\n" +
-	"\tparent_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e父级区域IDH\x01R\bparentId\x88\x01\x01B\a\n" +
+	"\tparent_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e父级区域IDH\x01R\bparentId\x88\x01\x01\x12.\n" +
+	"\x04lazy\x18\x03 \x01(\bB\x15\xbaG\x12\x92\x02\x0f是否懒加载H\x02R\x04lazy\x88\x01\x01B\a\n" +
 	"\x05_nameB\f\n" +
 	"\n" +
-	"_parent_id\"p\n" +
+	"_parent_idB\a\n" +
+	"\x05_lazy\"p\n" +
 	"\x14TreeBaseAreaResponse\x12X\n" +
 	"\n" +
-	"base_areas\x18\x01 \x03(\v2\x19.system.admin.v1.BaseAreaB\x1e\xbaG\x1b\x92\x02\x18行政区域树形列表R\tbaseAreas\"\xc3\x01\n" +
+	"base_areas\x18\x01 \x03(\v2\x19.system.admin.v1.BaseAreaB\x1e\xbaG\x1b\x92\x02\x18行政区域树形列表R\tbaseAreas\"\x8b\x02\n" +
 	"\bBaseArea\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b区域IDR\x02id\x12/\n" +
 	"\tparent_id\x18\x02 \x01(\x03B\x12\xbaG\x0f\x92\x02\f父级区域R\bparentId\x12&\n" +
 	"\x04name\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f区域名称R\x04name\x12>\n" +
-	"\fhas_children\x18\x04 \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否存在子节点R\vhasChildren\":\n" +
+	"\fhas_children\x18\x04 \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否存在子节点R\vhasChildren\x12F\n" +
+	"\bchildren\x18e \x03(\v2\x19.system.admin.v1.BaseAreaB\x0f\xbaG\f\x92\x02\t子区域R\bchildren\":\n" +
 	"\x12GetBaseAreaRequest\x12$\n" +
 	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e行政区域IDR\x02id\"\xfb\x01\n" +
 	"\fBaseAreaForm\x12\x1e\n" +
@@ -572,25 +591,26 @@ var file_system_admin_v1_base_area_proto_goTypes = []any{
 }
 var file_system_admin_v1_base_area_proto_depIdxs = []int32{
 	3,  // 0: system.admin.v1.TreeBaseAreaResponse.base_areas:type_name -> system.admin.v1.BaseArea
-	5,  // 1: system.admin.v1.CreateBaseAreaRequest.base_area:type_name -> system.admin.v1.BaseAreaForm
-	5,  // 2: system.admin.v1.UpdateBaseAreaRequest.base_area:type_name -> system.admin.v1.BaseAreaForm
-	0,  // 3: system.admin.v1.BaseAreaService.OptionBaseArea:input_type -> system.admin.v1.OptionBaseAreaRequest
-	1,  // 4: system.admin.v1.BaseAreaService.TreeBaseArea:input_type -> system.admin.v1.TreeBaseAreaRequest
-	4,  // 5: system.admin.v1.BaseAreaService.GetBaseArea:input_type -> system.admin.v1.GetBaseAreaRequest
-	6,  // 6: system.admin.v1.BaseAreaService.CreateBaseArea:input_type -> system.admin.v1.CreateBaseAreaRequest
-	7,  // 7: system.admin.v1.BaseAreaService.UpdateBaseArea:input_type -> system.admin.v1.UpdateBaseAreaRequest
-	8,  // 8: system.admin.v1.BaseAreaService.DeleteBaseArea:input_type -> system.admin.v1.DeleteBaseAreaRequest
-	9,  // 9: system.admin.v1.BaseAreaService.OptionBaseArea:output_type -> common.v1.TreeOptionResponse
-	2,  // 10: system.admin.v1.BaseAreaService.TreeBaseArea:output_type -> system.admin.v1.TreeBaseAreaResponse
-	5,  // 11: system.admin.v1.BaseAreaService.GetBaseArea:output_type -> system.admin.v1.BaseAreaForm
-	10, // 12: system.admin.v1.BaseAreaService.CreateBaseArea:output_type -> google.protobuf.Empty
-	10, // 13: system.admin.v1.BaseAreaService.UpdateBaseArea:output_type -> google.protobuf.Empty
-	10, // 14: system.admin.v1.BaseAreaService.DeleteBaseArea:output_type -> google.protobuf.Empty
-	9,  // [9:15] is the sub-list for method output_type
-	3,  // [3:9] is the sub-list for method input_type
-	3,  // [3:3] is the sub-list for extension type_name
-	3,  // [3:3] is the sub-list for extension extendee
-	0,  // [0:3] is the sub-list for field type_name
+	3,  // 1: system.admin.v1.BaseArea.children:type_name -> system.admin.v1.BaseArea
+	5,  // 2: system.admin.v1.CreateBaseAreaRequest.base_area:type_name -> system.admin.v1.BaseAreaForm
+	5,  // 3: system.admin.v1.UpdateBaseAreaRequest.base_area:type_name -> system.admin.v1.BaseAreaForm
+	0,  // 4: system.admin.v1.BaseAreaService.OptionBaseArea:input_type -> system.admin.v1.OptionBaseAreaRequest
+	1,  // 5: system.admin.v1.BaseAreaService.TreeBaseArea:input_type -> system.admin.v1.TreeBaseAreaRequest
+	4,  // 6: system.admin.v1.BaseAreaService.GetBaseArea:input_type -> system.admin.v1.GetBaseAreaRequest
+	6,  // 7: system.admin.v1.BaseAreaService.CreateBaseArea:input_type -> system.admin.v1.CreateBaseAreaRequest
+	7,  // 8: system.admin.v1.BaseAreaService.UpdateBaseArea:input_type -> system.admin.v1.UpdateBaseAreaRequest
+	8,  // 9: system.admin.v1.BaseAreaService.DeleteBaseArea:input_type -> system.admin.v1.DeleteBaseAreaRequest
+	9,  // 10: system.admin.v1.BaseAreaService.OptionBaseArea:output_type -> common.v1.TreeOptionResponse
+	2,  // 11: system.admin.v1.BaseAreaService.TreeBaseArea:output_type -> system.admin.v1.TreeBaseAreaResponse
+	5,  // 12: system.admin.v1.BaseAreaService.GetBaseArea:output_type -> system.admin.v1.BaseAreaForm
+	10, // 13: system.admin.v1.BaseAreaService.CreateBaseArea:output_type -> google.protobuf.Empty
+	10, // 14: system.admin.v1.BaseAreaService.UpdateBaseArea:output_type -> google.protobuf.Empty
+	10, // 15: system.admin.v1.BaseAreaService.DeleteBaseArea:output_type -> google.protobuf.Empty
+	10, // [10:16] is the sub-list for method output_type
+	4,  // [4:10] is the sub-list for method input_type
+	4,  // [4:4] is the sub-list for extension type_name
+	4,  // [4:4] is the sub-list for extension extendee
+	0,  // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_system_admin_v1_base_area_proto_init() }
