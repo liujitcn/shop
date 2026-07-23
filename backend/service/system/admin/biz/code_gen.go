@@ -975,7 +975,7 @@ func codeGenColumnsToSnapshots(configs []*systemadminv1.CodeGenColumn, databaseC
 	for index, databaseColumn := range databaseColumns {
 		config := configByName[databaseColumn.Name]
 		if config == nil {
-			config = newDefaultCodeGenColumn(0, databaseColumn, int32(index+1))
+			config = newDefaultCodeGenColumn(0, databaseColumn, int32(index+1), codeGenColumnDefaultSource{})
 		}
 		queryConfig := config.GetQueryConfig()
 		listConfig := config.GetListConfig()
