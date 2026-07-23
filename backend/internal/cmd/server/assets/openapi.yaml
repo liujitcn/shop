@@ -654,6 +654,10 @@ paths:
                   in: query
                   schema:
                     type: string
+                - name: parent_id
+                  in: query
+                  schema:
+                    type: string
             responses:
                 "200":
                     description: OK
@@ -712,28 +716,6 @@ paths:
                     application/json:
                         schema:
                             $ref: '#/components/schemas/system.admin.v1.BaseAreaForm'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content: {}
-    /api/v1/admin/base/area/{id}/status:
-        put:
-            tags:
-                - BaseAreaService
-            description: 设置状态
-            operationId: BaseAreaService_SetBaseAreaStatus
-            parameters:
-                - name: id
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/system.admin.v1.SetBaseAreaStatusRequest'
                 required: true
             responses:
                 "200":
@@ -13950,19 +13932,9 @@ components:
                 name:
                     type: string
                     description: 区域名称
-                sort:
-                    type: integer
-                    description: 排序
-                    format: int32
-                status:
-                    type: integer
-                    description: 状态
-                    format: int32
-                children:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/system.admin.v1.BaseArea'
-                    description: 子节点树
+                has_children:
+                    type: boolean
+                    description: 是否存在子节点
             description: 行政区域
         system.admin.v1.BaseAreaForm:
             type: object
@@ -13976,14 +13948,6 @@ components:
                 name:
                     type: string
                     description: 区域名称
-                sort:
-                    type: integer
-                    description: 排序
-                    format: int32
-                status:
-                    type: integer
-                    description: 状态
-                    format: int32
             description: 行政区域表单
         system.admin.v1.BaseConfig:
             type: object
@@ -15881,17 +15845,6 @@ components:
                     description: MCP工具状态：枚举【Status】
                     format: enum
             description: API MCP工具状态设置条件
-        system.admin.v1.SetBaseAreaStatusRequest:
-            type: object
-            properties:
-                id:
-                    type: string
-                    description: 行政区域ID
-                status:
-                    type: integer
-                    description: 状态
-                    format: int32
-            description: 行政区域状态设置条件
         system.admin.v1.SetBaseConfigStatusRequest:
             type: object
             properties:

@@ -85,13 +85,3 @@ func (s *BaseAreaService) DeleteBaseArea(ctx context.Context, req *systemadminv1
 	}
 	return new(emptypb.Empty), nil
 }
-
-// SetBaseAreaStatus 设置状态失败。
-func (s *BaseAreaService) SetBaseAreaStatus(ctx context.Context, req *systemadminv1.SetBaseAreaStatusRequest) (*emptypb.Empty, error) {
-	err := s.baseAreaCase.SetBaseAreaStatus(ctx, req)
-	if err != nil {
-		log.Error("SetBaseAreaStatus", "error", err)
-		return nil, errorsx.WrapInternal(err, "设置状态失败")
-	}
-	return new(emptypb.Empty), nil
-}

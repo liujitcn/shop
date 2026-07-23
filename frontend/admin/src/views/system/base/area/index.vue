@@ -9,7 +9,9 @@
       :request-api="requestBaseAreaTable"
       :pagination="false"
       :indent="20"
-      :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
+      :lazy="true"
+      :load="loadAreaChildren"
+      :tree-props="{ children: 'children', hasChildren: 'has_children' }"
     />
 
     <FormDialog
@@ -39,8 +41,7 @@ import type { ProFormField, ProFormOption } from "@/components/ProForm/interface
 import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { defBaseAreaService } from "@/api/system/base_area";
 
-
-import type { TreeBaseAreaRequest, BaseArea, BaseAreaForm, SetBaseAreaStatusRequest } from "@/rpc/system/admin/v1/base_area";
+import type { TreeBaseAreaRequest, BaseArea, BaseAreaForm } from "@/rpc/system/admin/v1/base_area";
 
 import { normalizeSelectedIds } from "@/utils/proTable";
 
@@ -53,8 +54,6 @@ const { BUTTONS } = useAuthButtons();
 const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 
-
-
 const dialog = reactive({
   title: "",
   visible: false
@@ -63,16 +62,12 @@ const dialog = reactive({
 const formData = reactive<BaseAreaForm>({
   id: 0,
   parent_id: 0,
-  name: "",
-  sort: 0,
-  status: 1
+  name: ""
 });
 
 const rules = reactive<FormRules>({
   parent_id: [{ required: true, message: "父级区域不能为空", trigger: "change" }],
-  name: [{ required: true, message: "区域名称不能为空", trigger: "blur" }, { max: 50, message: "区域名称不能超过 50 个字符", trigger: "blur" }],
-  sort: [{ required: true, message: "排序不能为空", trigger: "blur" }],
-  status: [{ required: true, message: "状态不能为空", trigger: "change" }]
+  name: [{ required: true, message: "区域名称不能为空", trigger: "blur" }, { max: 50, message: "区域名称不能超过 50 个字符", trigger: "blur" }]
 });
 const parentIdFormOptions = ref<ProFormOption[]>([]);
 
@@ -102,30 +97,13 @@ void loadFormOptions();
 /** 行政区域表单字段配置。 */
 const formFields = computed<ProFormField[]>(() => [
   { prop: "parent_id", label: "父级区域", component: "tree-select", options: parentIdFormOptions.value, props: { lazy: true, load: loadParentIdFormTreeOptions, placeholder: "请选择", filterable: true, style: { width: "100%" } } },
-  { prop: "name", label: "区域名称", component: "input", props: { placeholder: "请输入区域名称" } },
-  { prop: "sort", label: "排序", component: "input-number", props: { min: 0, precision: 0, controlsPosition: "right", style: { width: "100%" } } },
-  { prop: "status", label: "状态", component: "switch", props: { activeValue: 1, inactiveValue: 2 } }
+  { prop: "name", label: "区域名称", component: "input", props: { placeholder: "请输入区域名称" } }
 ]);
 
 /** 行政区域表格列配置。 */
 const columns = computed<ColumnProps[]>(() => [
   { type: "selection", width: 55 },
   { prop: "name", label: "区域名称", align: "left", search: { el: "input" } },
-  { prop: "sort", label: "排序" },
-  {
-    prop: "status",
-    label: "状态",
-    width: 100, dictCode: "status", dictValueType: "number",
-    cellType: "status",
-    statusProps: {
-      activeValue: 1,
-      inactiveValue: 2,
-      activeText: "启用",
-      inactiveText: "禁用",
-      disabled: () => !BUTTONS.value["base:area:status"],
-      beforeChange: scope => handleBeforeSetStatus(scope.row as BaseArea)
-    }
-  },
   {
     prop: "operation",
     label: "操作",
@@ -172,13 +150,25 @@ const headerActions: HeaderActionProps[] = [
   }
 ];
 
-
 /**
  * 请求行政区域列表，并适配 ProTable 固定列表字段。
  */
 async function requestBaseAreaTable(params: TreeBaseAreaRequest) {
-  const data = await defBaseAreaService.TreeBaseArea(params);
+  const data = await defBaseAreaService.TreeBaseArea({ ...params, parent_id: params.parent_id ?? 0 });
   return { data: data.base_areas ?? [] };
+}
+
+/**
+ * 懒加载行政区域表格的子节点。
+ */
+async function loadAreaChildren(row: BaseArea, _treeNode: unknown, resolve: (data: BaseArea[]) => void) {
+  try {
+    const data = await defBaseAreaService.TreeBaseArea({ parent_id: row.id });
+    resolve(data.base_areas ?? []);
+  } catch {
+    ElMessage.error("加载行政区域子节点失败");
+    resolve([]);
+  }
 }
 
 /**
@@ -192,8 +182,6 @@ async function loadFormOptions() {
   const parentIdFormResponse = await defBaseAreaService.OptionBaseArea({ "parent_id": 0, lazy: true } as Parameters<typeof defBaseAreaService.OptionBaseArea>[0]);
   parentIdFormOptions.value = [{ label: "顶级节点", value: 0 }, ...normalizeLazyTreeOptions((parentIdFormResponse.list ?? []) as GeneratedTreeOption[]).filter(option => Number(option.value) !== 0)];
 }
-
-
 
 /**
  * 打开行政区域弹窗。
@@ -224,8 +212,6 @@ function resetForm() {
   formData.id = 0;
   formData.parent_id = 0;
   formData.name = "";
-  formData.sort = 0;
-  formData.status = 1;
 }
 /**
  * 提交行政区域表单。
@@ -245,29 +231,6 @@ function handleSubmit() {
     });
   });
 }
-
-/**
- * 切换状态状态前先确认并调用后端状态接口。
- */
-async function handleBeforeSetStatus(row: BaseArea) {
-  const currentStatus = (row as unknown as Record<string, unknown>)["status"];
-  const nextStatus = currentStatus === 1 ? 2 : 1;
-  const text = nextStatus === 1 ? "启用" : "禁用";
-  try {
-    await ElMessageBox.confirm("是否确定" + text + "行政区域？", "提示", {
-      confirmButtonText: "确认",
-      cancelButtonText: "取消",
-      type: "warning"
-    });
-    await defBaseAreaService.SetBaseAreaStatus({ id: row.id, status: nextStatus as SetBaseAreaStatusRequest["status"] });
-    ElMessage.success(text + "成功");
-    refreshTable();
-    return true;
-  } catch {
-    return false;
-  }
-}
-
 
 /**
  * 删除行政区域，兼容单项删除与批量删除。

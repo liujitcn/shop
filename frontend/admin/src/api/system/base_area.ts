@@ -6,7 +6,6 @@ import {
   type TreeBaseAreaRequest,
   type TreeBaseAreaResponse,
   type OptionBaseAreaRequest,
-  type SetBaseAreaStatusRequest,
   type BaseAreaForm,
   type BaseAreaService,
   type UpdateBaseAreaRequest
@@ -18,7 +17,6 @@ const BASE_AREA_URL = "/v1/admin/base/area";
 
 /** 行政区域服务。 */
 export class BaseAreaServiceImpl implements BaseAreaService {
-
   /** 查询树形选择 */
   OptionBaseArea(request?: OptionBaseAreaRequest): Promise<TreeOptionResponse> {
     return service<OptionBaseAreaRequest, TreeOptionResponse>({
@@ -68,15 +66,6 @@ export class BaseAreaServiceImpl implements BaseAreaService {
     return service<DeleteBaseAreaRequest, Empty>({
       url: BASE_AREA_URL + "/" + request.ids,
       method: "delete"
-    });
-  }
-
-  /** 设置状态 */
-  SetBaseAreaStatus(request: SetBaseAreaStatusRequest): Promise<Empty> {
-    return service<SetBaseAreaStatusRequest, Empty>({
-      url: BASE_AREA_URL + "/" + request.id + "/status",
-      method: "put",
-      data: request
     });
   }
 }

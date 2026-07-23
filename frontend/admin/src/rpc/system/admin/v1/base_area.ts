@@ -21,7 +21,11 @@ export interface OptionBaseAreaRequest {
 /** 行政区域树形列表查询条件 */
 export interface TreeBaseAreaRequest {
   /** 区域名称 */
-  name?: string | undefined;
+  name?:
+    | string
+    | undefined;
+  /** 父级区域ID */
+  parent_id?: number | undefined;
 }
 
 /** 行政区域树形列表响应 */
@@ -38,12 +42,8 @@ export interface BaseArea {
   parent_id: number;
   /** 区域名称 */
   name: string;
-  /** 排序 */
-  sort: number;
-  /** 状态 */
-  status: number;
-  /** 子节点树 */
-  children: BaseArea[];
+  /** 是否存在子节点 */
+  has_children: boolean;
 }
 
 /** 行政区域详情查询条件 */
@@ -60,10 +60,6 @@ export interface BaseAreaForm {
   parent_id: number;
   /** 区域名称 */
   name: string;
-  /** 排序 */
-  sort: number;
-  /** 状态 */
-  status: number;
 }
 
 /** 行政区域创建条件 */
@@ -86,14 +82,6 @@ export interface DeleteBaseAreaRequest {
   ids: string;
 }
 
-/** 行政区域状态设置条件 */
-export interface SetBaseAreaStatusRequest {
-  /** 行政区域ID */
-  id: number;
-  /** 状态 */
-  status: number;
-}
-
 /** Admin行政区域服务 */
 export interface BaseAreaService {
   /** 查询行政区域树形选择 */
@@ -108,6 +96,4 @@ export interface BaseAreaService {
   UpdateBaseArea(request: UpdateBaseAreaRequest): Promise<Empty>;
   /** 删除行政区域 */
   DeleteBaseArea(request: DeleteBaseAreaRequest): Promise<Empty>;
-  /** 设置状态 */
-  SetBaseAreaStatus(request: SetBaseAreaStatusRequest): Promise<Empty>;
 }

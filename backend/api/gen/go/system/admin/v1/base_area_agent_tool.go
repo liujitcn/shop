@@ -54,12 +54,6 @@ func NewBaseAreaServiceAgentTools(baseAreaServiceServer BaseAreaServiceServer) (
 		return nil, err
 	}
 	ts = append(ts, deleteBaseAreaTool)
-	var setBaseAreaStatusTool tool.InvokableTool
-	setBaseAreaStatusTool, err = NewBaseAreaServiceSetBaseAreaStatusAgentTool(baseAreaServiceServer)
-	if err != nil {
-		return nil, err
-	}
-	ts = append(ts, setBaseAreaStatusTool)
 	return ts, nil
 }
 
@@ -83,18 +77,14 @@ func NewBaseAreaServiceOptionBaseAreaAgentTool(baseAreaServiceServer BaseAreaSer
 
 // NewBaseAreaServiceTreeBaseAreaAgentTool 创建查询行政区域树形列表的 Agent Tool。
 func NewBaseAreaServiceTreeBaseAreaAgentTool(baseAreaServiceServer BaseAreaServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*TreeBaseAreaRequest, any](
+	return utils.InferTool[*TreeBaseAreaRequest, *TreeBaseAreaResponse](
 		"system_admin_v1_base_area_service_tree_base_area",
 		"查询行政区域树形列表",
-		func(ctx context.Context, req *TreeBaseAreaRequest) (any, error) {
+		func(ctx context.Context, req *TreeBaseAreaRequest) (*TreeBaseAreaResponse, error) {
 			if req == nil {
 				req = &TreeBaseAreaRequest{}
 			}
-			reply, err := baseAreaServiceServer.TreeBaseArea(ctx, req)
-			if err != nil {
-				return nil, err
-			}
-			return reply, nil
+			return baseAreaServiceServer.TreeBaseArea(ctx, req)
 		},
 	)
 }
@@ -151,20 +141,6 @@ func NewBaseAreaServiceDeleteBaseAreaAgentTool(baseAreaServiceServer BaseAreaSer
 				req = &DeleteBaseAreaRequest{}
 			}
 			return baseAreaServiceServer.DeleteBaseArea(ctx, req)
-		},
-	)
-}
-
-// NewBaseAreaServiceSetBaseAreaStatusAgentTool 创建设置状态的 Agent Tool。
-func NewBaseAreaServiceSetBaseAreaStatusAgentTool(baseAreaServiceServer BaseAreaServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*SetBaseAreaStatusRequest, *emptypb.Empty](
-		"system_admin_v1_base_area_service_set_base_area_status",
-		"设置状态",
-		func(ctx context.Context, req *SetBaseAreaStatusRequest) (*emptypb.Empty, error) {
-			if req == nil {
-				req = &SetBaseAreaStatusRequest{}
-			}
-			return baseAreaServiceServer.SetBaseAreaStatus(ctx, req)
 		},
 	)
 }

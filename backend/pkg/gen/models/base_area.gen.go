@@ -11,8 +11,6 @@ type BaseArea struct {
 	ID       int64  `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:区域ID" json:"id"`                                     // 区域ID
 	ParentID int64  `gorm:"column:parent_id;type:bigint;not null;index:idx_base_area_parent_id,priority:1;comment:父级区域ID" json:"parent_id"` // 父级区域ID
 	Name     string `gorm:"column:name;type:varchar(50);not null;comment:区域名称" json:"name"`                                                 // 区域名称
-	Sort     int32  `gorm:"column:sort;type:tinyint;not null;comment:排序" json:"sort"`                                                       // 排序
-	Status   int32  `gorm:"column:status;type:tinyint;not null;comment:状态：枚举【Status】" json:"status"`                                        // 状态：枚举【Status】
 }
 
 // TableName BaseArea's table name

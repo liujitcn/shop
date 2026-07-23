@@ -24,7 +24,6 @@ const OperationBaseAreaServiceCreateBaseArea = "/system.admin.v1.BaseAreaService
 const OperationBaseAreaServiceDeleteBaseArea = "/system.admin.v1.BaseAreaService/DeleteBaseArea"
 const OperationBaseAreaServiceGetBaseArea = "/system.admin.v1.BaseAreaService/GetBaseArea"
 const OperationBaseAreaServiceOptionBaseArea = "/system.admin.v1.BaseAreaService/OptionBaseArea"
-const OperationBaseAreaServiceSetBaseAreaStatus = "/system.admin.v1.BaseAreaService/SetBaseAreaStatus"
 const OperationBaseAreaServiceTreeBaseArea = "/system.admin.v1.BaseAreaService/TreeBaseArea"
 const OperationBaseAreaServiceUpdateBaseArea = "/system.admin.v1.BaseAreaService/UpdateBaseArea"
 
@@ -37,8 +36,6 @@ type BaseAreaServiceHTTPServer interface {
 	GetBaseArea(context.Context, *GetBaseAreaRequest) (*BaseAreaForm, error)
 	// OptionBaseArea 查询行政区域树形选择
 	OptionBaseArea(context.Context, *OptionBaseAreaRequest) (*v1.TreeOptionResponse, error)
-	// SetBaseAreaStatus 设置状态
-	SetBaseAreaStatus(context.Context, *SetBaseAreaStatusRequest) (*emptypb.Empty, error)
 	// TreeBaseArea 查询行政区域树形列表
 	TreeBaseArea(context.Context, *TreeBaseAreaRequest) (*TreeBaseAreaResponse, error)
 	// UpdateBaseArea 更新行政区域
@@ -53,7 +50,6 @@ func RegisterBaseAreaServiceHTTPServer(s *http.Server, srv BaseAreaServiceHTTPSe
 	r.Handle("POST", "/api/v1/admin/base/area", _BaseAreaService_CreateBaseArea0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/base/area/{id}", _BaseAreaService_UpdateBaseArea0_HTTP_Handler(srv))
 	r.Handle("DELETE", "/api/v1/admin/base/area/{ids}", _BaseAreaService_DeleteBaseArea0_HTTP_Handler(srv))
-	r.Handle("PUT", "/api/v1/admin/base/area/{id}/status", _BaseAreaService_SetBaseAreaStatus0_HTTP_Handler(srv))
 }
 
 func _BaseAreaService_OptionBaseArea0_HTTP_Handler(srv BaseAreaServiceHTTPServer) func(ctx http.Context) error {
@@ -185,28 +181,6 @@ func _BaseAreaService_DeleteBaseArea0_HTTP_Handler(srv BaseAreaServiceHTTPServer
 	}
 }
 
-func _BaseAreaService_SetBaseAreaStatus0_HTTP_Handler(srv BaseAreaServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in SetBaseAreaStatusRequest
-		if err := ctx.Bind(&in); err != nil {
-			return err
-		}
-		if err := ctx.BindVars(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationBaseAreaServiceSetBaseAreaStatus)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.SetBaseAreaStatus(ctx, req.(*SetBaseAreaStatusRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*emptypb.Empty)
-		return ctx.Result(200, reply)
-	}
-}
-
 type BaseAreaServiceHTTPClient interface {
 	// CreateBaseArea 创建行政区域
 	CreateBaseArea(ctx context.Context, req *CreateBaseAreaRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
@@ -216,8 +190,6 @@ type BaseAreaServiceHTTPClient interface {
 	GetBaseArea(ctx context.Context, req *GetBaseAreaRequest, opts ...http.CallOption) (rsp *BaseAreaForm, err error)
 	// OptionBaseArea 查询行政区域树形选择
 	OptionBaseArea(ctx context.Context, req *OptionBaseAreaRequest, opts ...http.CallOption) (rsp *v1.TreeOptionResponse, err error)
-	// SetBaseAreaStatus 设置状态
-	SetBaseAreaStatus(ctx context.Context, req *SetBaseAreaStatusRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// TreeBaseArea 查询行政区域树形列表
 	TreeBaseArea(ctx context.Context, req *TreeBaseAreaRequest, opts ...http.CallOption) (rsp *TreeBaseAreaResponse, err error)
 	// UpdateBaseArea 更新行政区域
@@ -295,24 +267,6 @@ func (c *BaseAreaServiceHTTPClientImpl) OptionBaseArea(ctx context.Context, in *
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return &out, nil
-}
-
-// SetBaseAreaStatus 设置状态
-func (c *BaseAreaServiceHTTPClientImpl) SetBaseAreaStatus(ctx context.Context, in *SetBaseAreaStatusRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
-	var out emptypb.Empty
-	pattern := "/api/v1/admin/base/area/{id}/status"
-	path := http.BuildPath(pattern, in)
-	opts = append([]http.CallOption{
-		http.Accept("application/protojson"),
-		http.ContentType("application/protojson"),
-		http.Operation(OperationBaseAreaServiceSetBaseAreaStatus),
-		http.PathTemplate(pattern),
-	}, opts...)
-	err := c.cc.Invoke(ctx, "PUT", path, in, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

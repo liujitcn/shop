@@ -22,13 +22,12 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	BaseAreaService_OptionBaseArea_FullMethodName    = "/system.admin.v1.BaseAreaService/OptionBaseArea"
-	BaseAreaService_TreeBaseArea_FullMethodName      = "/system.admin.v1.BaseAreaService/TreeBaseArea"
-	BaseAreaService_GetBaseArea_FullMethodName       = "/system.admin.v1.BaseAreaService/GetBaseArea"
-	BaseAreaService_CreateBaseArea_FullMethodName    = "/system.admin.v1.BaseAreaService/CreateBaseArea"
-	BaseAreaService_UpdateBaseArea_FullMethodName    = "/system.admin.v1.BaseAreaService/UpdateBaseArea"
-	BaseAreaService_DeleteBaseArea_FullMethodName    = "/system.admin.v1.BaseAreaService/DeleteBaseArea"
-	BaseAreaService_SetBaseAreaStatus_FullMethodName = "/system.admin.v1.BaseAreaService/SetBaseAreaStatus"
+	BaseAreaService_OptionBaseArea_FullMethodName = "/system.admin.v1.BaseAreaService/OptionBaseArea"
+	BaseAreaService_TreeBaseArea_FullMethodName   = "/system.admin.v1.BaseAreaService/TreeBaseArea"
+	BaseAreaService_GetBaseArea_FullMethodName    = "/system.admin.v1.BaseAreaService/GetBaseArea"
+	BaseAreaService_CreateBaseArea_FullMethodName = "/system.admin.v1.BaseAreaService/CreateBaseArea"
+	BaseAreaService_UpdateBaseArea_FullMethodName = "/system.admin.v1.BaseAreaService/UpdateBaseArea"
+	BaseAreaService_DeleteBaseArea_FullMethodName = "/system.admin.v1.BaseAreaService/DeleteBaseArea"
 )
 
 // BaseAreaServiceClient is the client API for BaseAreaService service.
@@ -49,8 +48,6 @@ type BaseAreaServiceClient interface {
 	UpdateBaseArea(ctx context.Context, in *UpdateBaseAreaRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 删除行政区域
 	DeleteBaseArea(ctx context.Context, in *DeleteBaseAreaRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	// 设置状态
-	SetBaseAreaStatus(ctx context.Context, in *SetBaseAreaStatusRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type baseAreaServiceClient struct {
@@ -121,16 +118,6 @@ func (c *baseAreaServiceClient) DeleteBaseArea(ctx context.Context, in *DeleteBa
 	return out, nil
 }
 
-func (c *baseAreaServiceClient) SetBaseAreaStatus(ctx context.Context, in *SetBaseAreaStatusRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, BaseAreaService_SetBaseAreaStatus_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // BaseAreaServiceServer is the server API for BaseAreaService service.
 // All implementations must embed UnimplementedBaseAreaServiceServer
 // for forward compatibility.
@@ -149,8 +136,6 @@ type BaseAreaServiceServer interface {
 	UpdateBaseArea(context.Context, *UpdateBaseAreaRequest) (*emptypb.Empty, error)
 	// 删除行政区域
 	DeleteBaseArea(context.Context, *DeleteBaseAreaRequest) (*emptypb.Empty, error)
-	// 设置状态
-	SetBaseAreaStatus(context.Context, *SetBaseAreaStatusRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedBaseAreaServiceServer()
 }
 
@@ -178,9 +163,6 @@ func (UnimplementedBaseAreaServiceServer) UpdateBaseArea(context.Context, *Updat
 }
 func (UnimplementedBaseAreaServiceServer) DeleteBaseArea(context.Context, *DeleteBaseAreaRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteBaseArea not implemented")
-}
-func (UnimplementedBaseAreaServiceServer) SetBaseAreaStatus(context.Context, *SetBaseAreaStatusRequest) (*emptypb.Empty, error) {
-	return nil, status.Error(codes.Unimplemented, "method SetBaseAreaStatus not implemented")
 }
 func (UnimplementedBaseAreaServiceServer) mustEmbedUnimplementedBaseAreaServiceServer() {}
 func (UnimplementedBaseAreaServiceServer) testEmbeddedByValue()                         {}
@@ -311,24 +293,6 @@ func _BaseAreaService_DeleteBaseArea_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
-func _BaseAreaService_SetBaseAreaStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SetBaseAreaStatusRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(BaseAreaServiceServer).SetBaseAreaStatus(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: BaseAreaService_SetBaseAreaStatus_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BaseAreaServiceServer).SetBaseAreaStatus(ctx, req.(*SetBaseAreaStatusRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // BaseAreaService_ServiceDesc is the grpc.ServiceDesc for BaseAreaService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -359,10 +323,6 @@ var BaseAreaService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteBaseArea",
 			Handler:    _BaseAreaService_DeleteBaseArea_Handler,
-		},
-		{
-			MethodName: "SetBaseAreaStatus",
-			Handler:    _BaseAreaService_SetBaseAreaStatus_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

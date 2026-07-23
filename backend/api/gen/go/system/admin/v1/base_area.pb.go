@@ -83,7 +83,8 @@ func (x *OptionBaseAreaRequest) GetLazy() bool {
 // 行政区域树形列表查询条件
 type TreeBaseAreaRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Name          *string                `protobuf:"bytes,1,opt,name=name,proto3,oneof" json:"name,omitempty"` // 区域名称
+	Name          *string                `protobuf:"bytes,1,opt,name=name,proto3,oneof" json:"name,omitempty"`                          // 区域名称
+	ParentId      *int64                 `protobuf:"varint,2,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"` // 父级区域ID
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -123,6 +124,13 @@ func (x *TreeBaseAreaRequest) GetName() string {
 		return *x.Name
 	}
 	return ""
+}
+
+func (x *TreeBaseAreaRequest) GetParentId() int64 {
+	if x != nil && x.ParentId != nil {
+		return *x.ParentId
+	}
+	return 0
 }
 
 // 行政区域树形列表响应
@@ -173,12 +181,10 @@ func (x *TreeBaseAreaResponse) GetBaseAreas() []*BaseArea {
 // 行政区域
 type BaseArea struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                             // 区域ID
-	ParentId      int64                  `protobuf:"varint,2,opt,name=parent_id,json=parentId,proto3" json:"parent_id,omitempty"` // 父级区域
-	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                          // 区域名称
-	Sort          int32                  `protobuf:"varint,4,opt,name=sort,proto3" json:"sort,omitempty"`                         // 排序
-	Status        int32                  `protobuf:"varint,5,opt,name=status,proto3" json:"status,omitempty"`                     // 状态
-	Children      []*BaseArea            `protobuf:"bytes,300,rep,name=children,proto3" json:"children,omitempty"`                // 子节点树
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                      // 区域ID
+	ParentId      int64                  `protobuf:"varint,2,opt,name=parent_id,json=parentId,proto3" json:"parent_id,omitempty"`          // 父级区域
+	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                   // 区域名称
+	HasChildren   bool                   `protobuf:"varint,4,opt,name=has_children,json=hasChildren,proto3" json:"has_children,omitempty"` // 是否存在子节点
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -234,25 +240,11 @@ func (x *BaseArea) GetName() string {
 	return ""
 }
 
-func (x *BaseArea) GetSort() int32 {
+func (x *BaseArea) GetHasChildren() bool {
 	if x != nil {
-		return x.Sort
+		return x.HasChildren
 	}
-	return 0
-}
-
-func (x *BaseArea) GetStatus() int32 {
-	if x != nil {
-		return x.Status
-	}
-	return 0
-}
-
-func (x *BaseArea) GetChildren() []*BaseArea {
-	if x != nil {
-		return x.Children
-	}
-	return nil
+	return false
 }
 
 // 行政区域详情查询条件
@@ -306,8 +298,6 @@ type BaseAreaForm struct {
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                             // 区域ID
 	ParentId      int64                  `protobuf:"varint,2,opt,name=parent_id,json=parentId,proto3" json:"parent_id,omitempty"` // 父级区域
 	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                          // 区域名称
-	Sort          int32                  `protobuf:"varint,4,opt,name=sort,proto3" json:"sort,omitempty"`                         // 排序
-	Status        int32                  `protobuf:"varint,5,opt,name=status,proto3" json:"status,omitempty"`                     // 状态
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -361,20 +351,6 @@ func (x *BaseAreaForm) GetName() string {
 		return x.Name
 	}
 	return ""
-}
-
-func (x *BaseAreaForm) GetSort() int32 {
-	if x != nil {
-		return x.Sort
-	}
-	return 0
-}
-
-func (x *BaseAreaForm) GetStatus() int32 {
-	if x != nil {
-		return x.Status
-	}
-	return 0
 }
 
 // 行政区域创建条件
@@ -520,59 +496,6 @@ func (x *DeleteBaseAreaRequest) GetIds() string {
 	return ""
 }
 
-// 行政区域状态设置条件
-type SetBaseAreaStatusRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`         // 行政区域ID
-	Status        int32                  `protobuf:"varint,2,opt,name=status,proto3" json:"status,omitempty"` // 状态
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *SetBaseAreaStatusRequest) Reset() {
-	*x = SetBaseAreaStatusRequest{}
-	mi := &file_system_admin_v1_base_area_proto_msgTypes[9]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *SetBaseAreaStatusRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*SetBaseAreaStatusRequest) ProtoMessage() {}
-
-func (x *SetBaseAreaStatusRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_area_proto_msgTypes[9]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use SetBaseAreaStatusRequest.ProtoReflect.Descriptor instead.
-func (*SetBaseAreaStatusRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_area_proto_rawDescGZIP(), []int{9}
-}
-
-func (x *SetBaseAreaStatusRequest) GetId() int64 {
-	if x != nil {
-		return x.Id
-	}
-	return 0
-}
-
-func (x *SetBaseAreaStatusRequest) GetStatus() int32 {
-	if x != nil {
-		return x.Status
-	}
-	return 0
-}
-
 var File_system_admin_v1_base_area_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_base_area_proto_rawDesc = "" +
@@ -583,47 +506,42 @@ const file_system_admin_v1_base_area_proto_rawDesc = "" +
 	"\x04lazy\x18\x02 \x01(\bB\x15\xbaG\x12\x92\x02\x0f是否懒加载H\x01R\x04lazy\x88\x01\x01B\f\n" +
 	"\n" +
 	"_parent_idB\a\n" +
-	"\x05_lazy\"K\n" +
+	"\x05_lazy\"\x91\x01\n" +
 	"\x13TreeBaseAreaRequest\x12+\n" +
-	"\x04name\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f区域名称H\x00R\x04name\x88\x01\x01B\a\n" +
-	"\x05_name\"p\n" +
+	"\x04name\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f区域名称H\x00R\x04name\x88\x01\x01\x126\n" +
+	"\tparent_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e父级区域IDH\x01R\bparentId\x88\x01\x01B\a\n" +
+	"\x05_nameB\f\n" +
+	"\n" +
+	"_parent_id\"p\n" +
 	"\x14TreeBaseAreaResponse\x12X\n" +
 	"\n" +
-	"base_areas\x18\x01 \x03(\v2\x19.system.admin.v1.BaseAreaB\x1e\xbaG\x1b\x92\x02\x18行政区域树形列表R\tbaseAreas\"\x97\x02\n" +
+	"base_areas\x18\x01 \x03(\v2\x19.system.admin.v1.BaseAreaB\x1e\xbaG\x1b\x92\x02\x18行政区域树形列表R\tbaseAreas\"\xc3\x01\n" +
 	"\bBaseArea\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b区域IDR\x02id\x12/\n" +
 	"\tparent_id\x18\x02 \x01(\x03B\x12\xbaG\x0f\x92\x02\f父级区域R\bparentId\x12&\n" +
-	"\x04name\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f区域名称R\x04name\x12 \n" +
-	"\x04sort\x18\x04 \x01(\x05B\f\xbaG\t\x92\x02\x06排序R\x04sort\x12$\n" +
-	"\x06status\x18\x05 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\x12J\n" +
-	"\bchildren\x18\xac\x02 \x03(\v2\x19.system.admin.v1.BaseAreaB\x12\xbaG\x0f\x92\x02\f子节点树R\bchildren\":\n" +
+	"\x04name\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f区域名称R\x04name\x12>\n" +
+	"\fhas_children\x18\x04 \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否存在子节点R\vhasChildren\":\n" +
 	"\x12GetBaseAreaRequest\x12$\n" +
-	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e行政区域IDR\x02id\"\xc3\x02\n" +
+	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e行政区域IDR\x02id\"\xfb\x01\n" +
 	"\fBaseAreaForm\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b区域IDR\x02id\x12/\n" +
 	"\tparent_id\x18\x02 \x01(\x03B\x12\xbaG\x0f\x92\x02\f父级区域R\bparentId\x12\x99\x01\n" +
 	"\x04name\x18\x03 \x01(\tB\x84\x01\xbaG\x0f\x92\x02\f区域名称\xbaHo\xba\x01l\n" +
-	"\x11field.name.length\x121区域名称不能为空且不超过 50 个字符\x1a$this.size() > 0 && this.size() <= 50R\x04name\x12 \n" +
-	"\x04sort\x18\x04 \x01(\x05B\f\xbaG\t\x92\x02\x06排序R\x04sort\x12$\n" +
-	"\x06status\x18\x05 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\"s\n" +
+	"\x11field.name.length\x121区域名称不能为空且不超过 50 个字符\x1a$this.size() > 0 && this.size() <= 50R\x04name\"s\n" +
 	"\x15CreateBaseAreaRequest\x12Z\n" +
 	"\tbase_area\x18\x01 \x01(\v2\x1d.system.admin.v1.BaseAreaFormB\x1e\xbaG\x15\x92\x02\x12行政区域表单\xbaH\x03\xc8\x01\x01R\bbaseArea\"\x99\x01\n" +
 	"\x15UpdateBaseAreaRequest\x12$\n" +
 	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e行政区域IDR\x02id\x12Z\n" +
 	"\tbase_area\x18\x02 \x01(\v2\x1d.system.admin.v1.BaseAreaFormB\x1e\xbaG\x15\x92\x02\x12行政区域表单\xbaH\x03\xc8\x01\x01R\bbaseArea\"]\n" +
 	"\x15DeleteBaseAreaRequest\x12D\n" +
-	"\x03ids\x18\x01 \x01(\tB2\xbaG/\x92\x02,行政区域ID列表，多个用逗号分隔R\x03ids\"f\n" +
-	"\x18SetBaseAreaStatusRequest\x12$\n" +
-	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e行政区域IDR\x02id\x12$\n" +
-	"\x06status\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status2\x93\a\n" +
+	"\x03ids\x18\x01 \x01(\tB2\xbaG/\x92\x02,行政区域ID列表，多个用逗号分隔R\x03ids2\x8a\x06\n" +
 	"\x0fBaseAreaService\x12\x7f\n" +
 	"\x0eOptionBaseArea\x12&.system.admin.v1.OptionBaseAreaRequest\x1a\x1d.common.v1.TreeOptionResponse\"&\x82\xd3\xe4\x93\x02 \x12\x1e/api/v1/admin/base/area/option\x12\x81\x01\n" +
 	"\fTreeBaseArea\x12$.system.admin.v1.TreeBaseAreaRequest\x1a%.system.admin.v1.TreeBaseAreaResponse\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/api/v1/admin/base/area/tree\x12w\n" +
 	"\vGetBaseArea\x12#.system.admin.v1.GetBaseAreaRequest\x1a\x1d.system.admin.v1.BaseAreaForm\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/api/v1/admin/base/area/{id}\x12|\n" +
 	"\x0eCreateBaseArea\x12&.system.admin.v1.CreateBaseAreaRequest\x1a\x16.google.protobuf.Empty\"*\x82\xd3\xe4\x93\x02$:\tbase_area\"\x17/api/v1/admin/base/area\x12\x81\x01\n" +
 	"\x0eUpdateBaseArea\x12&.system.admin.v1.UpdateBaseAreaRequest\x1a\x16.google.protobuf.Empty\"/\x82\xd3\xe4\x93\x02):\tbase_area\x1a\x1c/api/v1/admin/base/area/{id}\x12w\n" +
-	"\x0eDeleteBaseArea\x12&.system.admin.v1.DeleteBaseAreaRequest\x1a\x16.google.protobuf.Empty\"%\x82\xd3\xe4\x93\x02\x1f*\x1d/api/v1/admin/base/area/{ids}\x12\x86\x01\n" +
-	"\x11SetBaseAreaStatus\x12).system.admin.v1.SetBaseAreaStatusRequest\x1a\x16.google.protobuf.Empty\".\x82\xd3\xe4\x93\x02(:\x01*\x1a#/api/v1/admin/base/area/{id}/statusB\xab\x01\n" +
+	"\x0eDeleteBaseArea\x12&.system.admin.v1.DeleteBaseAreaRequest\x1a\x16.google.protobuf.Empty\"%\x82\xd3\xe4\x93\x02\x1f*\x1d/api/v1/admin/base/area/{ids}B\xab\x01\n" +
 	"\x13com.system.admin.v1B\rBaseAreaProtoP\x01Z'shop/api/gen/go/system/admin/v1;adminv1\xa2\x02\x03SAX\xaa\x02\x0fSystem.Admin.V1\xca\x02\x0fSystem\\Admin\\V1\xe2\x02\x1bSystem\\Admin\\V1\\GPBMetadata\xea\x02\x11System::Admin::V1b\x06proto3"
 
 var (
@@ -638,45 +556,41 @@ func file_system_admin_v1_base_area_proto_rawDescGZIP() []byte {
 	return file_system_admin_v1_base_area_proto_rawDescData
 }
 
-var file_system_admin_v1_base_area_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_system_admin_v1_base_area_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_system_admin_v1_base_area_proto_goTypes = []any{
-	(*OptionBaseAreaRequest)(nil),    // 0: system.admin.v1.OptionBaseAreaRequest
-	(*TreeBaseAreaRequest)(nil),      // 1: system.admin.v1.TreeBaseAreaRequest
-	(*TreeBaseAreaResponse)(nil),     // 2: system.admin.v1.TreeBaseAreaResponse
-	(*BaseArea)(nil),                 // 3: system.admin.v1.BaseArea
-	(*GetBaseAreaRequest)(nil),       // 4: system.admin.v1.GetBaseAreaRequest
-	(*BaseAreaForm)(nil),             // 5: system.admin.v1.BaseAreaForm
-	(*CreateBaseAreaRequest)(nil),    // 6: system.admin.v1.CreateBaseAreaRequest
-	(*UpdateBaseAreaRequest)(nil),    // 7: system.admin.v1.UpdateBaseAreaRequest
-	(*DeleteBaseAreaRequest)(nil),    // 8: system.admin.v1.DeleteBaseAreaRequest
-	(*SetBaseAreaStatusRequest)(nil), // 9: system.admin.v1.SetBaseAreaStatusRequest
-	(*v1.TreeOptionResponse)(nil),    // 10: common.v1.TreeOptionResponse
-	(*emptypb.Empty)(nil),            // 11: google.protobuf.Empty
+	(*OptionBaseAreaRequest)(nil), // 0: system.admin.v1.OptionBaseAreaRequest
+	(*TreeBaseAreaRequest)(nil),   // 1: system.admin.v1.TreeBaseAreaRequest
+	(*TreeBaseAreaResponse)(nil),  // 2: system.admin.v1.TreeBaseAreaResponse
+	(*BaseArea)(nil),              // 3: system.admin.v1.BaseArea
+	(*GetBaseAreaRequest)(nil),    // 4: system.admin.v1.GetBaseAreaRequest
+	(*BaseAreaForm)(nil),          // 5: system.admin.v1.BaseAreaForm
+	(*CreateBaseAreaRequest)(nil), // 6: system.admin.v1.CreateBaseAreaRequest
+	(*UpdateBaseAreaRequest)(nil), // 7: system.admin.v1.UpdateBaseAreaRequest
+	(*DeleteBaseAreaRequest)(nil), // 8: system.admin.v1.DeleteBaseAreaRequest
+	(*v1.TreeOptionResponse)(nil), // 9: common.v1.TreeOptionResponse
+	(*emptypb.Empty)(nil),         // 10: google.protobuf.Empty
 }
 var file_system_admin_v1_base_area_proto_depIdxs = []int32{
 	3,  // 0: system.admin.v1.TreeBaseAreaResponse.base_areas:type_name -> system.admin.v1.BaseArea
-	3,  // 1: system.admin.v1.BaseArea.children:type_name -> system.admin.v1.BaseArea
-	5,  // 2: system.admin.v1.CreateBaseAreaRequest.base_area:type_name -> system.admin.v1.BaseAreaForm
-	5,  // 3: system.admin.v1.UpdateBaseAreaRequest.base_area:type_name -> system.admin.v1.BaseAreaForm
-	0,  // 4: system.admin.v1.BaseAreaService.OptionBaseArea:input_type -> system.admin.v1.OptionBaseAreaRequest
-	1,  // 5: system.admin.v1.BaseAreaService.TreeBaseArea:input_type -> system.admin.v1.TreeBaseAreaRequest
-	4,  // 6: system.admin.v1.BaseAreaService.GetBaseArea:input_type -> system.admin.v1.GetBaseAreaRequest
-	6,  // 7: system.admin.v1.BaseAreaService.CreateBaseArea:input_type -> system.admin.v1.CreateBaseAreaRequest
-	7,  // 8: system.admin.v1.BaseAreaService.UpdateBaseArea:input_type -> system.admin.v1.UpdateBaseAreaRequest
-	8,  // 9: system.admin.v1.BaseAreaService.DeleteBaseArea:input_type -> system.admin.v1.DeleteBaseAreaRequest
-	9,  // 10: system.admin.v1.BaseAreaService.SetBaseAreaStatus:input_type -> system.admin.v1.SetBaseAreaStatusRequest
-	10, // 11: system.admin.v1.BaseAreaService.OptionBaseArea:output_type -> common.v1.TreeOptionResponse
-	2,  // 12: system.admin.v1.BaseAreaService.TreeBaseArea:output_type -> system.admin.v1.TreeBaseAreaResponse
-	5,  // 13: system.admin.v1.BaseAreaService.GetBaseArea:output_type -> system.admin.v1.BaseAreaForm
-	11, // 14: system.admin.v1.BaseAreaService.CreateBaseArea:output_type -> google.protobuf.Empty
-	11, // 15: system.admin.v1.BaseAreaService.UpdateBaseArea:output_type -> google.protobuf.Empty
-	11, // 16: system.admin.v1.BaseAreaService.DeleteBaseArea:output_type -> google.protobuf.Empty
-	11, // 17: system.admin.v1.BaseAreaService.SetBaseAreaStatus:output_type -> google.protobuf.Empty
-	11, // [11:18] is the sub-list for method output_type
-	4,  // [4:11] is the sub-list for method input_type
-	4,  // [4:4] is the sub-list for extension type_name
-	4,  // [4:4] is the sub-list for extension extendee
-	0,  // [0:4] is the sub-list for field type_name
+	5,  // 1: system.admin.v1.CreateBaseAreaRequest.base_area:type_name -> system.admin.v1.BaseAreaForm
+	5,  // 2: system.admin.v1.UpdateBaseAreaRequest.base_area:type_name -> system.admin.v1.BaseAreaForm
+	0,  // 3: system.admin.v1.BaseAreaService.OptionBaseArea:input_type -> system.admin.v1.OptionBaseAreaRequest
+	1,  // 4: system.admin.v1.BaseAreaService.TreeBaseArea:input_type -> system.admin.v1.TreeBaseAreaRequest
+	4,  // 5: system.admin.v1.BaseAreaService.GetBaseArea:input_type -> system.admin.v1.GetBaseAreaRequest
+	6,  // 6: system.admin.v1.BaseAreaService.CreateBaseArea:input_type -> system.admin.v1.CreateBaseAreaRequest
+	7,  // 7: system.admin.v1.BaseAreaService.UpdateBaseArea:input_type -> system.admin.v1.UpdateBaseAreaRequest
+	8,  // 8: system.admin.v1.BaseAreaService.DeleteBaseArea:input_type -> system.admin.v1.DeleteBaseAreaRequest
+	9,  // 9: system.admin.v1.BaseAreaService.OptionBaseArea:output_type -> common.v1.TreeOptionResponse
+	2,  // 10: system.admin.v1.BaseAreaService.TreeBaseArea:output_type -> system.admin.v1.TreeBaseAreaResponse
+	5,  // 11: system.admin.v1.BaseAreaService.GetBaseArea:output_type -> system.admin.v1.BaseAreaForm
+	10, // 12: system.admin.v1.BaseAreaService.CreateBaseArea:output_type -> google.protobuf.Empty
+	10, // 13: system.admin.v1.BaseAreaService.UpdateBaseArea:output_type -> google.protobuf.Empty
+	10, // 14: system.admin.v1.BaseAreaService.DeleteBaseArea:output_type -> google.protobuf.Empty
+	9,  // [9:15] is the sub-list for method output_type
+	3,  // [3:9] is the sub-list for method input_type
+	3,  // [3:3] is the sub-list for extension type_name
+	3,  // [3:3] is the sub-list for extension extendee
+	0,  // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_system_admin_v1_base_area_proto_init() }
@@ -692,7 +606,7 @@ func file_system_admin_v1_base_area_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_system_admin_v1_base_area_proto_rawDesc), len(file_system_admin_v1_base_area_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   10,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

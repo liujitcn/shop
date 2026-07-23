@@ -21,7 +21,6 @@ func RegisterBaseAreaServiceMCPTools(mcpServer *mcp.Server, baseAreaServiceServe
 	RegisterBaseAreaServiceCreateBaseAreaMCPTool(mcpServer, baseAreaServiceServer)
 	RegisterBaseAreaServiceUpdateBaseAreaMCPTool(mcpServer, baseAreaServiceServer)
 	RegisterBaseAreaServiceDeleteBaseAreaMCPTool(mcpServer, baseAreaServiceServer)
-	RegisterBaseAreaServiceSetBaseAreaStatusMCPTool(mcpServer, baseAreaServiceServer)
 }
 
 // RegisterBaseAreaServiceOptionBaseAreaMCPTool 注册查询行政区域树形选择的 MCP Tool。
@@ -47,13 +46,13 @@ func RegisterBaseAreaServiceOptionBaseAreaMCPTool(mcpServer *mcp.Server, baseAre
 
 // RegisterBaseAreaServiceTreeBaseAreaMCPTool 注册查询行政区域树形列表的 MCP Tool。
 func RegisterBaseAreaServiceTreeBaseAreaMCPTool(mcpServer *mcp.Server, baseAreaServiceServer BaseAreaServiceServer) {
-	mcp.AddTool[*TreeBaseAreaRequest, any](
+	mcp.AddTool[*TreeBaseAreaRequest, *TreeBaseAreaResponse](
 		mcpServer,
 		&mcp.Tool{
 			Name:        "system_admin_v1_base_area_service_tree_base_area",
 			Description: "查询行政区域树形列表",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *TreeBaseAreaRequest) (*mcp.CallToolResult, any, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *TreeBaseAreaRequest) (*mcp.CallToolResult, *TreeBaseAreaResponse, error) {
 			if input == nil {
 				input = &TreeBaseAreaRequest{}
 			}
@@ -142,27 +141,6 @@ func RegisterBaseAreaServiceDeleteBaseAreaMCPTool(mcpServer *mcp.Server, baseAre
 				input = &DeleteBaseAreaRequest{}
 			}
 			reply, err := baseAreaServiceServer.DeleteBaseArea(ctx, input)
-			if err != nil {
-				return nil, nil, err
-			}
-			return nil, reply, nil
-		},
-	)
-}
-
-// RegisterBaseAreaServiceSetBaseAreaStatusMCPTool 注册设置状态的 MCP Tool。
-func RegisterBaseAreaServiceSetBaseAreaStatusMCPTool(mcpServer *mcp.Server, baseAreaServiceServer BaseAreaServiceServer) {
-	mcp.AddTool[*SetBaseAreaStatusRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_area_service_set_base_area_status",
-			Description: "设置状态",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *SetBaseAreaStatusRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &SetBaseAreaStatusRequest{}
-			}
-			reply, err := baseAreaServiceServer.SetBaseAreaStatus(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

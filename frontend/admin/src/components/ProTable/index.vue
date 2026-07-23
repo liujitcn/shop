@@ -193,7 +193,7 @@ const treeProps = computed(() => {
   return (attrs.treeProps ?? attrs["tree-props"]) as Record<string, any> | undefined;
 });
 
-const showTreeToggleButton = computed(() => !!treeProps.value);
+const showTreeToggleButton = computed(() => !!treeProps.value && !attrs.lazy);
 
 /**
  * 透传给 Element Plus 前移除图标组件上的响应式代理，避免 Vue 对组件对象发出性能告警。

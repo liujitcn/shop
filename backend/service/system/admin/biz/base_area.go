@@ -2,7 +2,6 @@ package biz
 
 import (
 	"context"
-	"fmt"
 
 	commonv1 "shop/api/gen/go/common/v1"
 	systemadminv1 "shop/api/gen/go/system/admin/v1"
@@ -39,34 +38,52 @@ func NewBaseAreaCase(baseCase *biz.BaseCase, baseAreaRepo *data.BaseAreaReposito
 func (c *BaseAreaCase) OptionBaseArea(ctx context.Context, req *systemadminv1.OptionBaseAreaRequest) (*commonv1.TreeOptionResponse, error) {
 	query := c.Query(ctx).BaseArea
 
-	opts := make([]repository.QueryOption, 0, 1)
-	opts = append(opts, repository.Order(query.ID.Desc()))
+	opts := make([]repository.QueryOption, 0, 2)
+	opts = append(opts, repository.Order(query.ID.Asc()))
+	if req.GetLazy() {
+		opts = append(opts, repository.Where(query.ParentID.Eq(req.GetParentId())))
+	}
 
 	list, err := c.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}
-	lazy := req.GetLazy()
-	if false && req.Lazy == nil {
-		lazy = true
+	var hasChildren map[int64]struct{}
+	hasChildren, err = c.listBaseAreaParentIDsWithChildren(ctx, list)
+	if err != nil {
+		return nil, err
 	}
-	return &commonv1.TreeOptionResponse{List: c.buildOptionBaseAreaOption(list, req.GetParentId(), lazy)}, nil
+	return &commonv1.TreeOptionResponse{List: c.buildOptionBaseAreaOption(list, req.GetParentId(), req.GetLazy(), hasChildren)}, nil
 }
 
 // TreeBaseArea 查询行政区域树形列表。
 func (c *BaseAreaCase) TreeBaseArea(ctx context.Context, req *systemadminv1.TreeBaseAreaRequest) (*systemadminv1.TreeBaseAreaResponse, error) {
 	query := c.Query(ctx).BaseArea
-	opts := make([]repository.QueryOption, 0, 2)
-	opts = append(opts, repository.Order(query.ID.Desc()))
+	opts := make([]repository.QueryOption, 0, 3)
+	opts = append(opts, repository.Order(query.ID.Asc()))
+	// 搜索时跨层级匹配，避免懒加载树无法检索未展开节点。
 	if req.GetName() != "" {
 		opts = append(opts, repository.Where(query.Name.Like("%"+req.GetName()+"%")))
+	} else {
+		opts = append(opts, repository.Where(query.ParentID.Eq(req.GetParentId())))
 	}
 
 	list, err := c.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}
-	return &systemadminv1.TreeBaseAreaResponse{BaseAreas: c.buildBaseAreaTree(list, 0)}, nil
+	var hasChildren map[int64]struct{}
+	hasChildren, err = c.listBaseAreaParentIDsWithChildren(ctx, list)
+	if err != nil {
+		return nil, err
+	}
+	baseAreas := make([]*systemadminv1.BaseArea, 0, len(list))
+	for _, item := range list {
+		baseArea := c.mapper.ToDTO(item)
+		_, baseArea.HasChildren = hasChildren[item.ID]
+		baseAreas = append(baseAreas, baseArea)
+	}
+	return &systemadminv1.TreeBaseAreaResponse{BaseAreas: baseAreas}, nil
 }
 
 // GetBaseArea 查询行政区域详情。
@@ -110,52 +127,47 @@ func (c *BaseAreaCase) DeleteBaseArea(ctx context.Context, ids string) error {
 	return c.DeleteByIDs(ctx, idList)
 }
 
-// SetBaseAreaStatus 设置状态状态。
-func (c *BaseAreaCase) SetBaseAreaStatus(ctx context.Context, req *systemadminv1.SetBaseAreaStatusRequest) error {
-	return c.UpdateByID(ctx, &models.BaseArea{
-		ID:     req.GetId(),
-		Status: req.GetStatus(),
-	})
-}
-
 // buildOptionBaseAreaOption 构建行政区域树形选择。
-func (c *BaseAreaCase) buildOptionBaseAreaOption(list []*models.BaseArea, parentID int64, lazy bool) []*commonv1.TreeOptionResponse_Option {
+func (c *BaseAreaCase) buildOptionBaseAreaOption(
+	list []*models.BaseArea,
+	parentID int64,
+	lazy bool,
+	hasChildren map[int64]struct{},
+) []*commonv1.TreeOptionResponse_Option {
 	res := make([]*commonv1.TreeOptionResponse_Option, 0)
 	for _, item := range list {
 		if int64(item.ParentID) != parentID {
 			continue
 		}
-		option := &commonv1.TreeOptionResponse_Option{Label: fmt.Sprint(item.Name), Value: int64(item.ID), Disabled: fmt.Sprint(item.Status) != "1"}
+		option := &commonv1.TreeOptionResponse_Option{Label: item.Name, Value: int64(item.ID)}
 		if lazy {
-			option.HasChildren = c.hasOptionBaseAreaOptionChildren(list, int64(item.ID))
+			_, option.HasChildren = hasChildren[item.ID]
 		} else {
-			option.Children = c.buildOptionBaseAreaOption(list, int64(item.ID), false)
+			option.Children = c.buildOptionBaseAreaOption(list, int64(item.ID), false, hasChildren)
 		}
 		res = append(res, option)
 	}
 	return res
 }
 
-// hasOptionBaseAreaOptionChildren 判断树形选择节点是否存在子节点。
-func (c *BaseAreaCase) hasOptionBaseAreaOptionChildren(list []*models.BaseArea, parentID int64) bool {
+// listBaseAreaParentIDsWithChildren 查询存在子节点的区域父级编号。
+func (c *BaseAreaCase) listBaseAreaParentIDsWithChildren(ctx context.Context, list []*models.BaseArea) (map[int64]struct{}, error) {
+	parentIDs := make([]int64, 0, len(list))
 	for _, item := range list {
-		if int64(item.ParentID) == parentID {
-			return true
-		}
+		parentIDs = append(parentIDs, item.ID)
 	}
-	return false
-}
+	hasChildren := make(map[int64]struct{}, len(parentIDs))
+	if len(parentIDs) == 0 {
+		return hasChildren, nil
+	}
 
-// buildBaseAreaTree 构建行政区域树。
-func (c *BaseAreaCase) buildBaseAreaTree(list []*models.BaseArea, parentID int64) []*systemadminv1.BaseArea {
-	res := make([]*systemadminv1.BaseArea, 0)
-	for _, item := range list {
-		if item.ParentID != parentID {
-			continue
-		}
-		baseArea := c.mapper.ToDTO(item)
-		baseArea.Children = c.buildBaseAreaTree(list, item.ID)
-		res = append(res, baseArea)
+	query := c.Query(ctx).BaseArea
+	childList, err := c.List(ctx, repository.Where(query.ParentID.In(parentIDs...)))
+	if err != nil {
+		return nil, err
 	}
-	return res
+	for _, item := range childList {
+		hasChildren[item.ParentID] = struct{}{}
+	}
+	return hasChildren, nil
 }

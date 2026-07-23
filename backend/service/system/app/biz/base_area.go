@@ -13,6 +13,7 @@ import (
 
 	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
+	"github.com/liujitcn/gorm-kit/repository"
 )
 
 var tree *commonv1.AppTreeOptionResponse
@@ -45,7 +46,8 @@ func (c *BaseAreaCase) TreeBaseArea(ctx context.Context) (*commonv1.AppTreeOptio
 	// 树缓存尚未初始化时，从数据库加载并构建整棵区域树。
 	if tree == nil {
 		// 首次访问时从数据库加载并缓存，避免重复构树
-		list, err := c.List(ctx)
+		query := c.Query(ctx).BaseArea
+		list, err := c.List(ctx, repository.Order(query.ID.Asc()))
 		if err != nil {
 			return nil, err
 		}

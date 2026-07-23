@@ -30,8 +30,6 @@ func newBaseArea(db *gorm.DB, opts ...gen.DOOption) baseArea {
 	_baseArea.ID = field.NewInt64(tableName, "id")
 	_baseArea.ParentID = field.NewInt64(tableName, "parent_id")
 	_baseArea.Name = field.NewString(tableName, "name")
-	_baseArea.Sort = field.NewInt32(tableName, "sort")
-	_baseArea.Status = field.NewInt32(tableName, "status")
 
 	_baseArea.fillFieldMap()
 
@@ -46,8 +44,6 @@ type baseArea struct {
 	ID       field.Int64  // 区域ID
 	ParentID field.Int64  // 父级区域ID
 	Name     field.String // 区域名称
-	Sort     field.Int32  // 排序
-	Status   field.Int32  // 状态：枚举【Status】
 
 	fieldMap map[string]field.Expr
 }
@@ -67,8 +63,6 @@ func (b *baseArea) updateTableName(table string) *baseArea {
 	b.ID = field.NewInt64(table, "id")
 	b.ParentID = field.NewInt64(table, "parent_id")
 	b.Name = field.NewString(table, "name")
-	b.Sort = field.NewInt32(table, "sort")
-	b.Status = field.NewInt32(table, "status")
 
 	b.fillFieldMap()
 
@@ -93,12 +87,10 @@ func (b *baseArea) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (b *baseArea) fillFieldMap() {
-	b.fieldMap = make(map[string]field.Expr, 5)
+	b.fieldMap = make(map[string]field.Expr, 3)
 	b.fieldMap["id"] = b.ID
 	b.fieldMap["parent_id"] = b.ParentID
 	b.fieldMap["name"] = b.Name
-	b.fieldMap["sort"] = b.Sort
-	b.fieldMap["status"] = b.Status
 }
 
 func (b baseArea) clone(db *gorm.DB) baseArea {
