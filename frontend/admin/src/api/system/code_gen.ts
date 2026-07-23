@@ -5,12 +5,15 @@ import {
   type GetCodeGenTaskRequest,
   type PreviewCodeGenRequest,
   type PreviewCodeGenResponse,
+  type RestoreCodeGenRequest,
   type StartCodeGenTaskRequest,
   type StartCodeGenTaskResponse
 } from "@/rpc/system/admin/v1/code_gen";
+import type { Empty } from "@/rpc/google/protobuf/empty";
 
 const CODE_GEN_TABLE_URL = "/v1/admin/code-gen/table";
 const CODE_GEN_TASK_URL = "/v1/admin/code-gen/task";
+const CODE_GEN_RESTORE_URL = "/v1/admin/code-gen/restore";
 
 /** Admin代码生成执行服务。 */
 export class CodeGenServiceImpl implements CodeGenService {
@@ -27,6 +30,15 @@ export class CodeGenServiceImpl implements CodeGenService {
   StartCodeGenTask(request: StartCodeGenTaskRequest): Promise<StartCodeGenTaskResponse> {
     return service<StartCodeGenTaskRequest, StartCodeGenTaskResponse>({
       url: CODE_GEN_TASK_URL,
+      method: "post",
+      data: request
+    });
+  }
+
+  /** 还原代码生成结果。 */
+  RestoreCodeGen(request: RestoreCodeGenRequest): Promise<Empty> {
+    return service<RestoreCodeGenRequest, Empty>({
+      url: CODE_GEN_RESTORE_URL,
       method: "post",
       data: request
     });

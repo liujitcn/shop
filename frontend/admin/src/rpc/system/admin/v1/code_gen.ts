@@ -5,6 +5,7 @@
 // source: system/admin/v1/code_gen.proto
 
 /* eslint-disable */
+import type { Empty } from "../../../google/protobuf/empty";
 
 /** 代码生成任务状态 */
 export enum CodeGenTaskStatus {
@@ -92,6 +93,12 @@ export interface StartCodeGenTaskResponse {
   task_id: string;
 }
 
+/** 还原代码生成结果条件 */
+export interface RestoreCodeGenRequest {
+  /** 代码生成表配置ID列表 */
+  table_ids: number[];
+}
+
 /** 代码生成任务步骤 */
 export interface CodeGenTaskStep {
   /** 步骤ID */
@@ -164,4 +171,6 @@ export interface CodeGenService {
   PreviewCodeGen(request: PreviewCodeGenRequest): Promise<PreviewCodeGenResponse>;
   /** 启动代码生成任务 */
   StartCodeGenTask(request: StartCodeGenTaskRequest): Promise<StartCodeGenTaskResponse>;
+  /** 还原代码生成结果 */
+  RestoreCodeGen(request: RestoreCodeGenRequest): Promise<Empty>;
 }

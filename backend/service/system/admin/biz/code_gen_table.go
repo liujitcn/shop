@@ -101,7 +101,9 @@ func (c *CodeGenTableCase) PageCodeGenTable(ctx context.Context, req *systemadmi
 	}
 	codeGenTables := make([]*systemadminv1.CodeGenTable, 0, len(list))
 	for _, item := range list {
-		codeGenTables = append(codeGenTables, c.mapper.ToDTO(item))
+		table := c.mapper.ToDTO(item)
+		table.RestoreAvailable = RestoreAvailable(item.ID)
+		codeGenTables = append(codeGenTables, table)
 	}
 	return &systemadminv1.PageCodeGenTableResponse{CodeGenTables: codeGenTables, Total: int32(total)}, nil
 }

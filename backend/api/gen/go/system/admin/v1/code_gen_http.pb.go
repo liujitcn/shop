@@ -10,6 +10,7 @@ import (
 	context "context"
 
 	http "github.com/go-kratos/kratos/v3/transport/http"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -20,6 +21,7 @@ const _ = http.SupportPackageIsVersion3
 
 const OperationCodeGenServiceGetCodeGenTask = "/system.admin.v1.CodeGenService/GetCodeGenTask"
 const OperationCodeGenServicePreviewCodeGen = "/system.admin.v1.CodeGenService/PreviewCodeGen"
+const OperationCodeGenServiceRestoreCodeGen = "/system.admin.v1.CodeGenService/RestoreCodeGen"
 const OperationCodeGenServiceStartCodeGenTask = "/system.admin.v1.CodeGenService/StartCodeGenTask"
 
 type CodeGenServiceHTTPServer interface {
@@ -27,6 +29,8 @@ type CodeGenServiceHTTPServer interface {
 	GetCodeGenTask(context.Context, *GetCodeGenTaskRequest) (*CodeGenTask, error)
 	// PreviewCodeGen 预览代码生成文件
 	PreviewCodeGen(context.Context, *PreviewCodeGenRequest) (*PreviewCodeGenResponse, error)
+	// RestoreCodeGen 还原代码生成结果
+	RestoreCodeGen(context.Context, *RestoreCodeGenRequest) (*emptypb.Empty, error)
 	// StartCodeGenTask 启动代码生成任务
 	StartCodeGenTask(context.Context, *StartCodeGenTaskRequest) (*StartCodeGenTaskResponse, error)
 }
@@ -36,6 +40,7 @@ func RegisterCodeGenServiceHTTPServer(s *http.Server, srv CodeGenServiceHTTPServ
 	r.Handle("GET", "/api/v1/admin/code-gen/task/{task_id}", _CodeGenService_GetCodeGenTask0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/admin/code-gen/table/{table_id}/preview", _CodeGenService_PreviewCodeGen0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/admin/code-gen/task", _CodeGenService_StartCodeGenTask0_HTTP_Handler(srv))
+	r.Handle("POST", "/api/v1/admin/code-gen/restore", _CodeGenService_RestoreCodeGen0_HTTP_Handler(srv))
 }
 
 func _CodeGenService_GetCodeGenTask0_HTTP_Handler(srv CodeGenServiceHTTPServer) func(ctx http.Context) error {
@@ -101,11 +106,32 @@ func _CodeGenService_StartCodeGenTask0_HTTP_Handler(srv CodeGenServiceHTTPServer
 	}
 }
 
+func _CodeGenService_RestoreCodeGen0_HTTP_Handler(srv CodeGenServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in RestoreCodeGenRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationCodeGenServiceRestoreCodeGen)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.RestoreCodeGen(ctx, req.(*RestoreCodeGenRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
 type CodeGenServiceHTTPClient interface {
 	// GetCodeGenTask 查询代码生成任务进度
 	GetCodeGenTask(ctx context.Context, req *GetCodeGenTaskRequest, opts ...http.CallOption) (rsp *CodeGenTask, err error)
 	// PreviewCodeGen 预览代码生成文件
 	PreviewCodeGen(ctx context.Context, req *PreviewCodeGenRequest, opts ...http.CallOption) (rsp *PreviewCodeGenResponse, err error)
+	// RestoreCodeGen 还原代码生成结果
+	RestoreCodeGen(ctx context.Context, req *RestoreCodeGenRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// StartCodeGenTask 启动代码生成任务
 	StartCodeGenTask(ctx context.Context, req *StartCodeGenTaskRequest, opts ...http.CallOption) (rsp *StartCodeGenTaskResponse, err error)
 }
@@ -144,6 +170,24 @@ func (c *CodeGenServiceHTTPClientImpl) PreviewCodeGen(ctx context.Context, in *P
 		http.Accept("application/protojson"),
 		http.ContentType("application/protojson"),
 		http.Operation(OperationCodeGenServicePreviewCodeGen),
+		http.PathTemplate(pattern),
+	}, opts...)
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// RestoreCodeGen 还原代码生成结果
+func (c *CodeGenServiceHTTPClientImpl) RestoreCodeGen(ctx context.Context, in *RestoreCodeGenRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/api/v1/admin/code-gen/restore"
+	path := http.BuildPath(pattern, in)
+	opts = append([]http.CallOption{
+		http.Accept("application/protojson"),
+		http.ContentType("application/protojson"),
+		http.Operation(OperationCodeGenServiceRestoreCodeGen),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)

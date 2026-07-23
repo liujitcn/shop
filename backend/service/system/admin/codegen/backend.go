@@ -111,8 +111,10 @@ func (c *%sCase) Delete%s(ctx context.Context, ids string) error {
 		)
 	}
 	formEntityAssignments := renderBackendFormMultipleEntityAssignments(columns, entityVar)
-	if formEntityAssignments != "" {
-		mainMethods = strings.ReplaceAll(mainMethods, "\t"+entityVar+" := c.formMapper.ToEntity(req)\n", "\t"+entityVar+" := c.formMapper.ToEntity(req)\n"+formEntityAssignments)
+	jsonEntityAssignments := renderBackendJSONEntityAssignments(columns, entityVar)
+	entityAssignments := formEntityAssignments + jsonEntityAssignments
+	if entityAssignments != "" {
+		mainMethods = strings.ReplaceAll(mainMethods, "\t"+entityVar+" := c.formMapper.ToEntity(req)\n", "\t"+entityVar+" := c.formMapper.ToEntity(req)\n"+entityAssignments)
 	}
 	if treeMethod != nil {
 		getMethodIndex := strings.Index(mainMethods, "// "+goMethodName("Get"+entity))
@@ -159,6 +161,7 @@ func (c *%sCase) build%sTree(list []*models.%s, parentID int64) []*systemadminv1
 		EntityVar:    entityVar,
 		BusinessName: table.BusinessName,
 		APIImport:    target.GoAlias + " \"" + target.GoImportPath + "\"",
+		JSONImport:   renderBackendJSONImport(columns),
 		Repository:   repoField,
 		FormType:     formType,
 		ModelType:    modelType,
@@ -172,6 +175,38 @@ func (c *%sCase) build%sTree(list []*models.%s, parentID int64) []*systemadminv1
 		content = strings.Replace(content, "\t_time \"github.com/liujitcn/go-utils/time\"\n", "", 1)
 	}
 	return reorderGoReceiverMethods(content, entity+"Case")
+}
+
+// renderBackendJSONImport 判断生成业务文件是否需要 JSON 标准库导入。
+func renderBackendJSONImport(columns []*CodeGenColumn) string {
+	for _, column := range columns {
+		if isGeneratedJSONScalar(column) {
+			return "\t\"encoding/json\""
+		}
+	}
+	return ""
+}
+
+// renderBackendJSONEntityAssignments 渲染 JSON 字段写入前的标准化逻辑。
+func renderBackendJSONEntityAssignments(columns []*CodeGenColumn, entityVar string) string {
+	var builder strings.Builder
+	for _, column := range columns {
+		if !isGeneratedJSONScalar(column) {
+			continue
+		}
+		field := modelFieldName(column.Name)
+		getter := "req.Get" + stringcase.ToPascalCase(column.Name) + "()"
+		builder.WriteString(fmt.Sprintf("\tif %s.%s == \"\" {\n\t\t%s.%s = \"[]\"\n\t} else if !json.Valid([]byte(%s.%s)) {\n\t\traw, err := json.Marshal([]string{%s})\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\t%s.%s = string(raw)\n\t}\n", entityVar, field, entityVar, field, entityVar, field, getter, entityVar, field))
+	}
+	return builder.String()
+}
+
+// isGeneratedJSONScalar 判断是否需要将普通字符串适配为 JSON 字段值。
+func isGeneratedJSONScalar(column *CodeGenColumn) bool {
+	if column == nil || isFormTreeMultiple(column) || !strings.EqualFold(column.DbType, "json") {
+		return false
+	}
+	return DefaultString(column.GoType, InferGoType(column.DbType)) == "string" && DefaultString(column.ProtoType, InferProtoType(column.DbType)) == "string"
 }
 
 // renderBackendServiceFile 渲染后端服务文件内容。

@@ -465,7 +465,7 @@ func (c *renderer) renderProtoMessage(table *Table, columns []*CodeGenColumn, fo
 		if form && isFormTreeMultiple(column) {
 			builder.WriteString(c.renderFormTreeMultipleProtoField(column, fieldNo))
 		} else {
-			builder.WriteString(c.renderProtoField(column, fieldNo, form && column.IsPrimary != 1 && column.IsRequired != 1, form))
+			builder.WriteString(c.renderProtoField(column, fieldNo, form && column.IsPrimary != 1 && !generatedFormRequired(column), form))
 		}
 		fieldNo++
 	}

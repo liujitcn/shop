@@ -10,6 +10,7 @@ import (
 	context "context"
 
 	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // RegisterCodeGenServiceMCPTools 注册Admin代码生成服务的 MCP Tool。
@@ -17,6 +18,7 @@ func RegisterCodeGenServiceMCPTools(mcpServer *mcp.Server, codeGenServiceServer 
 	RegisterCodeGenServiceGetCodeGenTaskMCPTool(mcpServer, codeGenServiceServer)
 	RegisterCodeGenServicePreviewCodeGenMCPTool(mcpServer, codeGenServiceServer)
 	RegisterCodeGenServiceStartCodeGenTaskMCPTool(mcpServer, codeGenServiceServer)
+	RegisterCodeGenServiceRestoreCodeGenMCPTool(mcpServer, codeGenServiceServer)
 }
 
 // RegisterCodeGenServiceGetCodeGenTaskMCPTool 注册查询代码生成任务进度的 MCP Tool。
@@ -74,6 +76,27 @@ func RegisterCodeGenServiceStartCodeGenTaskMCPTool(mcpServer *mcp.Server, codeGe
 				input = &StartCodeGenTaskRequest{}
 			}
 			reply, err := codeGenServiceServer.StartCodeGenTask(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
+}
+
+// RegisterCodeGenServiceRestoreCodeGenMCPTool 注册还原代码生成结果的 MCP Tool。
+func RegisterCodeGenServiceRestoreCodeGenMCPTool(mcpServer *mcp.Server, codeGenServiceServer CodeGenServiceServer) {
+	mcp.AddTool[*RestoreCodeGenRequest, *emptypb.Empty](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "system_admin_v1_code_gen_service_restore_code_gen",
+			Description: "还原代码生成结果",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *RestoreCodeGenRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
+			if input == nil {
+				input = &RestoreCodeGenRequest{}
+			}
+			reply, err := codeGenServiceServer.RestoreCodeGen(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

@@ -12,6 +12,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -23,6 +24,7 @@ const (
 	CodeGenService_GetCodeGenTask_FullMethodName   = "/system.admin.v1.CodeGenService/GetCodeGenTask"
 	CodeGenService_PreviewCodeGen_FullMethodName   = "/system.admin.v1.CodeGenService/PreviewCodeGen"
 	CodeGenService_StartCodeGenTask_FullMethodName = "/system.admin.v1.CodeGenService/StartCodeGenTask"
+	CodeGenService_RestoreCodeGen_FullMethodName   = "/system.admin.v1.CodeGenService/RestoreCodeGen"
 )
 
 // CodeGenServiceClient is the client API for CodeGenService service.
@@ -37,6 +39,8 @@ type CodeGenServiceClient interface {
 	PreviewCodeGen(ctx context.Context, in *PreviewCodeGenRequest, opts ...grpc.CallOption) (*PreviewCodeGenResponse, error)
 	// 启动代码生成任务
 	StartCodeGenTask(ctx context.Context, in *StartCodeGenTaskRequest, opts ...grpc.CallOption) (*StartCodeGenTaskResponse, error)
+	// 还原代码生成结果
+	RestoreCodeGen(ctx context.Context, in *RestoreCodeGenRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type codeGenServiceClient struct {
@@ -77,6 +81,16 @@ func (c *codeGenServiceClient) StartCodeGenTask(ctx context.Context, in *StartCo
 	return out, nil
 }
 
+func (c *codeGenServiceClient) RestoreCodeGen(ctx context.Context, in *RestoreCodeGenRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, CodeGenService_RestoreCodeGen_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CodeGenServiceServer is the server API for CodeGenService service.
 // All implementations must embed UnimplementedCodeGenServiceServer
 // for forward compatibility.
@@ -89,6 +103,8 @@ type CodeGenServiceServer interface {
 	PreviewCodeGen(context.Context, *PreviewCodeGenRequest) (*PreviewCodeGenResponse, error)
 	// 启动代码生成任务
 	StartCodeGenTask(context.Context, *StartCodeGenTaskRequest) (*StartCodeGenTaskResponse, error)
+	// 还原代码生成结果
+	RestoreCodeGen(context.Context, *RestoreCodeGenRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedCodeGenServiceServer()
 }
 
@@ -107,6 +123,9 @@ func (UnimplementedCodeGenServiceServer) PreviewCodeGen(context.Context, *Previe
 }
 func (UnimplementedCodeGenServiceServer) StartCodeGenTask(context.Context, *StartCodeGenTaskRequest) (*StartCodeGenTaskResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method StartCodeGenTask not implemented")
+}
+func (UnimplementedCodeGenServiceServer) RestoreCodeGen(context.Context, *RestoreCodeGenRequest) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method RestoreCodeGen not implemented")
 }
 func (UnimplementedCodeGenServiceServer) mustEmbedUnimplementedCodeGenServiceServer() {}
 func (UnimplementedCodeGenServiceServer) testEmbeddedByValue()                        {}
@@ -183,6 +202,24 @@ func _CodeGenService_StartCodeGenTask_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CodeGenService_RestoreCodeGen_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RestoreCodeGenRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CodeGenServiceServer).RestoreCodeGen(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CodeGenService_RestoreCodeGen_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CodeGenServiceServer).RestoreCodeGen(ctx, req.(*RestoreCodeGenRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // CodeGenService_ServiceDesc is the grpc.ServiceDesc for CodeGenService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -201,6 +238,10 @@ var CodeGenService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "StartCodeGenTask",
 			Handler:    _CodeGenService_StartCodeGenTask_Handler,
+		},
+		{
+			MethodName: "RestoreCodeGen",
+			Handler:    _CodeGenService_RestoreCodeGen_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

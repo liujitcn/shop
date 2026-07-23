@@ -63,6 +63,11 @@ func mergeGeneratedFrontendPage(existing string, candidate string) (string, bool
 	if !ok {
 		return existing, false
 	}
+	// 表单字段类型发生变化时，旧页面扩展可能继续按旧类型处理字段。
+	// 此时保留扩展会把旧接口契约重新拼回生成页面，直接采用最新完整页面更安全。
+	if frontendScriptSchemaChanged(existingScript, candidateScript) {
+		return strings.TrimRight(candidate, " \t\r\n") + "\n", true
+	}
 	var mergedTemplate string
 	mergedTemplate, ok = mergeFrontendTemplate(existingTemplate, candidateTemplate)
 	if !ok {
@@ -78,7 +83,68 @@ func mergeGeneratedFrontendPage(existing string, candidate string) (string, bool
 	if existingStyles != "" && !strings.Contains(merged, existingStyles) {
 		merged = strings.TrimRight(merged, "\r\n") + "\n\n" + strings.TrimSpace(existingStyles) + "\n"
 	}
-	return merged, true
+	return strings.TrimRight(merged, " \t\r\n") + "\n", true
+}
+
+// frontendScriptSchemaChanged 判断已有页面扩展是否仍按旧字段类型处理生成表单字段。
+func frontendScriptSchemaChanged(existing string, candidate string) bool {
+	fieldKinds := frontendFormFieldKinds(candidate)
+	for name, kind := range fieldKinds {
+		if kind == "scalar" && frontendFieldUsesArray(existing, name) {
+			return true
+		}
+	}
+	return false
+}
+
+// frontendFormFieldKinds 提取生成表单默认值对应的字段类型。
+func frontendFormFieldKinds(script string) map[string]string {
+	fieldKinds := make(map[string]string)
+	formIndex := strings.Index(script, "const formData")
+	if formIndex < 0 {
+		return fieldKinds
+	}
+	objectStart := strings.IndexByte(script[formIndex:], '{')
+	if objectStart < 0 {
+		return fieldKinds
+	}
+	objectStart += formIndex
+	objectEnd := findFrontendMatchingDelimiter(script, objectStart, '{', '}')
+	if objectEnd < 0 {
+		return fieldKinds
+	}
+	properties, ok := frontendObjectProperties(script[objectStart : objectEnd+1])
+	if !ok {
+		return fieldKinds
+	}
+	for _, property := range properties {
+		value := strings.TrimSpace(script[objectStart+property.valueStart : objectStart+property.valueEnd])
+		kind := "scalar"
+		if strings.HasPrefix(value, "[") {
+			kind = "array"
+		} else if strings.HasPrefix(value, "{") {
+			kind = "object"
+		}
+		fieldKinds[property.name] = kind
+	}
+	return fieldKinds
+}
+
+// frontendFieldUsesArray 判断已有页面是否使用数组专属写法处理字段。
+func frontendFieldUsesArray(content string, name string) bool {
+	quotedName := regexp.QuoteMeta(name)
+	patterns := []string{
+		`(?m)\b` + quotedName + `\s*:\s*\[`,
+		`(?m)\[\s*\.\.\.[^;\n]*\b` + quotedName + `\b`,
+		`(?m)\b` + quotedName + `\b[^;\n]*(?:\.(?:filter|map|join|length)\s*\(|\?\?\s*\[)`,
+		`(?m)\b` + quotedName + `\b[^;\n]*\bas\s+[A-Za-z_$][A-Za-z0-9_$]*\[\]`,
+	}
+	for _, pattern := range patterns {
+		if regexp.MustCompile(pattern).MatchString(content) {
+			return true
+		}
+	}
+	return false
 }
 
 // splitFrontendSFC 拆分 Vue 单文件组件中的模板、脚本和样式区域。
@@ -166,10 +232,26 @@ func mergeFrontendScript(existing string, candidate string) (string, bool) {
 	}
 
 	imports := mergeFrontendImports(existingBlocks, candidateBlocks)
-	extraDeclarations := make([]string, 0)
+	candidateDeclarationIndexes := make(map[string]int)
+	candidateDeclarations := make([]frontendSourceBlock, 0, len(candidateBlocks))
+	candidateDeclarationCount := 0
+	for _, block := range candidateBlocks {
+		if block.kind == "import" || block.function {
+			continue
+		}
+		candidateDeclarationIndexes[block.key] = candidateDeclarationCount
+		candidateDeclarations = append(candidateDeclarations, block)
+		candidateDeclarationCount++
+	}
+	extraDeclarationsByIndex := make(map[int][]string)
+	extraDeclarations := make([]struct {
+		key            string
+		content        string
+		insertionIndex int
+	}, 0)
 	extraFunctions := make([]string, 0)
 	seenExtra := make(map[string]struct{})
-	for _, block := range existingBlocks {
+	for existingIndex, block := range existingBlocks {
 		if block.kind == "import" {
 			continue
 		}
@@ -185,11 +267,57 @@ func mergeFrontendScript(existing string, candidate string) (string, bool) {
 			extraFunctions = append(extraFunctions, strings.TrimSpace(block.content))
 			continue
 		}
-		extraDeclarations = append(extraDeclarations, strings.TrimSpace(block.content))
+		insertionIndex := candidateDeclarationCount
+		for nextIndex := existingIndex + 1; nextIndex < len(existingBlocks); nextIndex++ {
+			nextBlock := existingBlocks[nextIndex]
+			if nextBlock.kind == "import" || nextBlock.function {
+				continue
+			}
+			if candidateIndex, exists := candidateDeclarationIndexes[nextBlock.key]; exists {
+				insertionIndex = candidateIndex
+				break
+			}
+		}
+		if insertionIndex == candidateDeclarationCount {
+			for previousIndex := existingIndex - 1; previousIndex >= 0; previousIndex-- {
+				previousBlock := existingBlocks[previousIndex]
+				if previousBlock.kind == "import" || previousBlock.function {
+					continue
+				}
+				if candidateIndex, exists := candidateDeclarationIndexes[previousBlock.key]; exists {
+					insertionIndex = candidateIndex + 1
+					break
+				}
+			}
+		}
+		extraDeclarations = append(extraDeclarations, struct {
+			key            string
+			content        string
+			insertionIndex int
+		}{key: block.key, content: strings.TrimSpace(block.content), insertionIndex: insertionIndex})
+	}
+	for _, extra := range extraDeclarations {
+		insertionIndex := extra.insertionIndex
+		if name := frontendDeclarationName(extra.key); name != "" {
+			for candidateIndex, candidate := range candidateDeclarations {
+				if frontendIdentifierUsed(candidate.content, name) {
+					insertionIndex = min(insertionIndex, candidateIndex)
+					break
+				}
+			}
+		}
+		for candidateIndex, candidate := range candidateDeclarations {
+			name := frontendDeclarationName(candidate.key)
+			if name != "" && frontendIdentifierUsed(extra.content, name) {
+				insertionIndex = max(insertionIndex, candidateIndex+1)
+			}
+		}
+		extraDeclarationsByIndex[insertionIndex] = append(extraDeclarationsByIndex[insertionIndex], extra.content)
 	}
 
-	declarations := make([]string, 0, len(candidateBlocks)+len(extraDeclarations))
+	declarations := make([]string, 0, len(candidateBlocks)+len(seenExtra))
 	functions := make([]string, 0, len(candidateBlocks)+len(extraFunctions))
+	declarationIndex := 0
 	for _, block := range candidateBlocks {
 		if block.kind == "import" {
 			continue
@@ -198,9 +326,11 @@ func mergeFrontendScript(existing string, candidate string) (string, bool) {
 			functions = append(functions, strings.TrimSpace(block.content))
 			continue
 		}
+		declarations = append(declarations, extraDeclarationsByIndex[declarationIndex]...)
 		declarations = append(declarations, strings.TrimSpace(block.content))
+		declarationIndex++
 	}
-	declarations = append(declarations, extraDeclarations...)
+	declarations = append(declarations, extraDeclarationsByIndex[declarationIndex]...)
 	functions = append(functions, extraFunctions...)
 	sections := make([]string, 0, 3)
 	if len(imports) > 0 {
@@ -213,6 +343,14 @@ func mergeFrontendScript(existing string, candidate string) (string, bool) {
 		sections = append(sections, strings.Join(functions, "\n\n"))
 	}
 	return "\n" + strings.Join(sections, "\n\n") + "\n", true
+}
+
+// frontendDeclarationName 返回声明键中的变量名，用于检测初始化顺序依赖。
+func frontendDeclarationName(key string) string {
+	if !strings.HasPrefix(key, "symbol:") {
+		return ""
+	}
+	return strings.TrimPrefix(key, "symbol:")
 }
 
 // frontendTopLevelBlocks 提取 TypeScript 顶层语句并保留相邻注释。
@@ -273,6 +411,9 @@ func frontendStatementSegments(content string) ([]frontendTextSegment, bool) {
 // classifyFrontendSourceBlock 识别 TypeScript 顶层语句的稳定功能键。
 func classifyFrontendSourceBlock(content string, index int) (string, string, bool) {
 	code := trimFrontendLeadingComments(content)
+	if strings.HasPrefix(code, "void ") && strings.HasSuffix(code, "();") {
+		return "declaration", "call:" + strings.TrimSuffix(strings.TrimPrefix(code, "void "), "();"), false
+	}
 	if strings.HasPrefix(code, "import ") {
 		return "import", "import:" + frontendImportPath(code), false
 	}
@@ -439,6 +580,11 @@ func mergeFrontendObject(candidate string, existing string) (string, bool) {
 	for _, property := range existingProperties {
 		candidateProperty, exists := candidateByName[property.name]
 		if !exists {
+			// 生成字段已由候选页面接管时，跳过旧页面遗留的函数型渲染器。
+			// 字段类型或接口契约发生变化后，旧闭包可能继续按旧类型处理值，导致页面运行时异常。
+			if frontendFunctionValue(existing[property.valueStart:property.valueEnd]) && frontendObjectHasProperty(candidateProperties, "prop") {
+				continue
+			}
 			extraProperties = append(extraProperties, strings.TrimSpace(existing[property.start:property.end]))
 			continue
 		}
@@ -474,6 +620,22 @@ func mergeFrontendObject(candidate string, existing string) (string, bool) {
 	indent := frontendChildIndent(candidate, 0)
 	closingIndent := frontendLineIndent(candidate, closeIndex)
 	return prefix + "\n" + indent + strings.Join(extraProperties, ",\n"+indent) + "\n" + closingIndent + candidate[closeIndex:], true
+}
+
+// frontendObjectHasProperty 判断对象是否包含指定属性。
+func frontendObjectHasProperty(properties []frontendObjectProperty, name string) bool {
+	for _, property := range properties {
+		if property.name == name {
+			return true
+		}
+	}
+	return false
+}
+
+// frontendFunctionValue 判断前端对象属性是否为函数表达式。
+func frontendFunctionValue(value string) bool {
+	value = strings.TrimSpace(trimFrontendLeadingComments(value))
+	return strings.HasPrefix(value, "function") || strings.HasPrefix(value, "async ") || strings.Contains(value, "=>")
 }
 
 type frontendReplacement struct {
@@ -648,6 +810,79 @@ func mergeFrontendImports(existingBlocks []frontendSourceBlock, candidateBlocks 
 		}
 	}
 	return imports
+}
+
+// pruneUnusedFrontendTypeImports 移除合并后不再被源码引用的类型导入。
+func pruneUnusedFrontendTypeImports(content string) string {
+	blocks, ok := frontendTopLevelBlocks(content)
+	if !ok {
+		return content
+	}
+
+	usage := content
+	for _, block := range blocks {
+		if block.kind == "import" {
+			usage = strings.Replace(usage, block.content, "", 1)
+		}
+	}
+
+	var builder strings.Builder
+	lastIndex := 0
+	for _, block := range blocks {
+		if block.kind != "import" {
+			continue
+		}
+		blockStart := strings.Index(content[lastIndex:], block.content)
+		if blockStart < 0 {
+			continue
+		}
+		blockStart += lastIndex
+		builder.WriteString(content[lastIndex:blockStart])
+		lastIndex = blockStart
+		blockEnd := lastIndex + len(block.content)
+		builder.WriteString(pruneFrontendImportBlock(block.content, usage))
+		lastIndex = blockEnd
+	}
+	builder.WriteString(content[lastIndex:])
+	return builder.String()
+}
+
+// pruneFrontendImportBlock 清理单条导入语句中未使用的类型标识符。
+func pruneFrontendImportBlock(block string, usage string) string {
+	spec := parseFrontendImport(block)
+	if spec.sideEffect || len(spec.named) == 0 {
+		return block
+	}
+	kept := make([]string, 0, len(spec.named))
+	for _, named := range spec.named {
+		name := frontendImportLocalName(named)
+		if strings.HasPrefix(strings.TrimSpace(named), "type ") && !frontendIdentifierUsed(usage, name) {
+			continue
+		}
+		kept = append(kept, named)
+	}
+	if len(kept) == 0 && spec.defaultRef == "" {
+		return ""
+	}
+	spec.named = kept
+	rendered := renderFrontendImport(spec)
+	trimmed := strings.TrimSpace(trimFrontendLeadingComments(block))
+	if trimmed == "" || rendered == "" {
+		return rendered
+	}
+	prefixIndex := strings.Index(block, trimmed)
+	if prefixIndex < 0 {
+		return rendered
+	}
+	return block[:prefixIndex] + rendered
+}
+
+// frontendIdentifierUsed 判断标识符是否仍在导入语句之外被引用。
+func frontendIdentifierUsed(content string, name string) bool {
+	if name == "" {
+		return false
+	}
+	return regexp.MustCompile(`\b` + regexp.QuoteMeta(name) + `\b`).MatchString(content)
 }
 
 // parseFrontendImport 解析常用 default、named 和 type import 形式。

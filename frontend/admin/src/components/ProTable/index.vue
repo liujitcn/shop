@@ -264,6 +264,8 @@ function restoreSelectedRows() {
   processTableData.value.forEach(row => {
     if (selectedKeySet.has(String(row[props.rowKey]))) tableRef.value?.toggleRowSelection(row, true);
   });
+  // 保留勾选状态时同步最新行对象，避免刷新后顶部操作继续读取旧数据。
+  selectionChange(tableRef.value.getSelectionRows());
 }
 
 watch(

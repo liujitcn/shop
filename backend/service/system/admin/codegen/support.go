@@ -51,9 +51,9 @@ func NormalizeQueryOperator(operator string) string {
 	}
 }
 
-// goMethodName 将 Proto 方法名转换为 Go 方法名并保留常见缩写。
+// goMethodName 将 Proto 方法名转换为与 protoc 生成接口一致的 Go 方法名。
 func goMethodName(methodName string) string {
-	return stringcase.ToGoPascalCase(methodName)
+	return stringcase.ToPascalCase(methodName)
 }
 
 // ExistingProtoFilePath 查找仓库中已定义目标 RPC 的 Proto 文件。
@@ -338,7 +338,7 @@ func (c *renderer) renderProtoField(column *CodeGenColumn, fieldNo int32, option
 	if form && DefaultString(column.TsType, InferTSType(column.DbType)) == "string" && column.DbLength > 0 {
 		expression := fmt.Sprintf("this.size() <= %d", column.DbLength)
 		message := fmt.Sprintf("%s不能超过 %d 个字符", comment, column.DbLength)
-		if column.IsRequired == 1 {
+		if generatedFormRequired(column) {
 			expression = fmt.Sprintf("this.size() > 0 && this.size() <= %d", column.DbLength)
 			message = fmt.Sprintf("%s不能为空且不超过 %d 个字符", comment, column.DbLength)
 		}

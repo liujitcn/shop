@@ -553,7 +553,7 @@ function handleSubmit() {
   formDialogRef.value?.validate()?.then(valid => {
     if (!valid) return;
 
-    const payload = formData as %sForm;
+    const payload = JSON.parse(JSON.stringify(formData)) as %sForm;
     const request = payload.id
       ? def%sService.Update%s({ id: payload.id, %s: payload })
       : def%sService.Create%s({ %s: payload });
@@ -609,6 +609,7 @@ function handleCloseDialog() {
 }
 </script>
 	`, renderFrontendDateImport(columns), proFormTypeImport, entity, frontendAPIImport, c.renderFrontendOptionImports(table, columns, methods), entity, entity, entity, statusTypeImport, frontendRPCImport, c.renderFrontendEnumImports(columns), entity, formStateType, formDataType, c.renderFrontendFormDefaults(columns), c.renderFrontendRules(columns), c.renderFrontendStatusOptions(columns)+c.renderFrontendOptionState(columns, methods), table.BusinessName, c.renderFrontendFormFields(columns), table.BusinessName, c.renderFrontendColumns(table, columns, methods), PermissionPrefix(table), entity, PermissionPrefix(table), entity, table.BusinessName, PermissionPrefix(table), PermissionPrefix(table), entity, "", table.BusinessName, entity, entity, entity, entity, listField, listField, table.BusinessName, table.BusinessName, c.renderFrontendResetForm(columns), table.BusinessName, c.renderFrontendLoadOptionsCall(columns, methods), table.BusinessName, table.BusinessName, entity, entity, table.BusinessName, entity, entity, entity, snakeEntity, entity, entity, snakeEntity, table.BusinessName, table.BusinessName, c.renderFrontendStatusHandlers(table, columns, methods), table.BusinessName, entity, entity, entity, entity, table.BusinessName, table.BusinessName, entity, entity, table.BusinessName, table.BusinessName, table.BusinessName)
+	script = strings.TrimRight(script, " \t\r\n") + "\n"
 	content := renderTemplate("frontend_page.tmpl", frontendPageTemplateData{Entity: entity, BusinessName: table.BusinessName, Script: script})
 	return c.applyFrontendPageType(content, table, methods, frontendAPIImport)
 }
@@ -838,7 +839,8 @@ func (c *renderer) renderFrontendRules(columns []*CodeGenColumn) string {
 			continue
 		}
 		isString := DefaultString(column.TsType, InferTSType(column.DbType)) == "string"
-		if column.IsRequired != 1 && (!isString || column.DbLength <= 0) {
+		required := generatedFormRequired(column)
+		if !required && (!isString || column.DbLength <= 0) {
 			continue
 		}
 		trigger := "blur"
@@ -848,7 +850,7 @@ func (c *renderer) renderFrontendRules(columns []*CodeGenColumn) string {
 		rules := fmt.Sprintf("{ required: true, message: \"%s不能为空\", trigger: %q }", DefaultString(column.Comment, column.Name), trigger)
 		if isString && column.DbLength > 0 {
 			maxRule := fmt.Sprintf("{ max: %d, message: \"%s不能超过 %d 个字符\", trigger: %q }", column.DbLength, DefaultString(column.Comment, column.Name), column.DbLength, trigger)
-			if column.IsRequired == 1 {
+			if required {
 				rules += ", " + maxRule
 			} else {
 				rules = maxRule
@@ -970,6 +972,10 @@ func (c *renderer) renderFrontendOptionState(columns []*CodeGenColumn, methods [
 			variable := frontendOptionVar(column, scope.name)
 			serviceName := "def" + method.TargetEntityName + "Service"
 			builder.WriteString(fmt.Sprintf("  const %sResponse = await %s.%s({} as Parameters<typeof %s.%s>[0]);\n", variable, serviceName, method.MethodName, serviceName, method.MethodName))
+			if column.Name == DefaultString(method.ParentColumn, "parent_id") && (column.FormComponent == "tree-select" || column.ListComponent == "tree-select" || column.QueryComponent == "tree-select") {
+				builder.WriteString(fmt.Sprintf("  %sOptions.value = [{ label: \"顶级节点\", value: 0 }, ...((%sResponse.list ?? []) as ProFormOption[]).filter(option => Number(option.value) !== 0)];\n", variable, variable))
+				continue
+			}
 			builder.WriteString(fmt.Sprintf("  %sOptions.value = (%sResponse.list ?? []) as ProFormOption[];\n", variable, variable))
 		}
 	}
@@ -1484,7 +1490,12 @@ func generatedListIncludesColumn(column *CodeGenColumn) bool {
 
 // generatedFormIncludesColumn 判断新增编辑表单是否包含字段。
 func generatedFormIncludesColumn(column *CodeGenColumn) bool {
-	return column.IsForm == 1 || column.IsStatusField == 1 && column.StatusForm == 1
+	return column.IsForm == 1 || column.IsStatusField == 1 && column.StatusForm == 1 || column.Name == "code" && column.IsPrimary != 1
+}
+
+// generatedFormRequired 判断生成表单字段是否必须填写。
+func generatedFormRequired(column *CodeGenColumn) bool {
+	return column.IsRequired == 1 || column.Name == "code"
 }
 
 // frontendDictValueType 返回前端字典组件使用的值类型。
@@ -1505,6 +1516,10 @@ func frontendDefaultValue(column *CodeGenColumn) string {
 	}
 	if isFormTreeMultiple(column) {
 		return "[]"
+	}
+	// 树形页面的父节点使用 0 表示顶级节点，避免 Proto JSON 省略零值后编辑态变成未选择。
+	if column.FormComponent == "tree-select" && (column.Name == "parent_id" || strings.HasPrefix(column.Name, "parent_")) {
+		return "0"
 	}
 	// 关联、字典等选择型字段未选择时不能传递数值零值。
 	if isSelectComponent(DefaultString(column.FormComponent, "input")) {

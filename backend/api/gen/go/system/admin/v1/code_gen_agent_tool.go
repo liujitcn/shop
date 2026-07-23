@@ -11,6 +11,7 @@ import (
 
 	tool "github.com/cloudwego/eino/components/tool"
 	utils "github.com/cloudwego/eino/components/tool/utils"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // NewCodeGenServiceAgentTools 创建Admin代码生成服务的 Agent Tool。
@@ -35,6 +36,12 @@ func NewCodeGenServiceAgentTools(codeGenServiceServer CodeGenServiceServer) ([]t
 		return nil, err
 	}
 	ts = append(ts, startCodeGenTaskTool)
+	var restoreCodeGenTool tool.InvokableTool
+	restoreCodeGenTool, err = NewCodeGenServiceRestoreCodeGenAgentTool(codeGenServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, restoreCodeGenTool)
 	return ts, nil
 }
 
@@ -76,6 +83,20 @@ func NewCodeGenServiceStartCodeGenTaskAgentTool(codeGenServiceServer CodeGenServ
 				req = &StartCodeGenTaskRequest{}
 			}
 			return codeGenServiceServer.StartCodeGenTask(ctx, req)
+		},
+	)
+}
+
+// NewCodeGenServiceRestoreCodeGenAgentTool 创建还原代码生成结果的 Agent Tool。
+func NewCodeGenServiceRestoreCodeGenAgentTool(codeGenServiceServer CodeGenServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*RestoreCodeGenRequest, *emptypb.Empty](
+		"system_admin_v1_code_gen_service_restore_code_gen",
+		"还原代码生成结果",
+		func(ctx context.Context, req *RestoreCodeGenRequest) (*emptypb.Empty, error) {
+			if req == nil {
+				req = &RestoreCodeGenRequest{}
+			}
+			return codeGenServiceServer.RestoreCodeGen(ctx, req)
 		},
 	)
 }

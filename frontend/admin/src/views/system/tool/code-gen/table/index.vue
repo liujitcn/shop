@@ -41,7 +41,7 @@
 <script setup lang="ts">
 import { computed, nextTick, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
-import { CirclePlus, Clock, Connection, Delete, Document, EditPen, Promotion, SetUp, View } from "@element-plus/icons-vue";
+import { CirclePlus, Clock, Connection, Delete, Document, EditPen, Promotion, RefreshRight, SetUp, View } from "@element-plus/icons-vue";
 import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@/components/ProTable/interface";
 import ProTable from "@/components/ProTable/index.vue";
 import FormDialog from "@/components/Dialog/FormDialog.vue";
@@ -82,6 +82,9 @@ type CodeGenDeleteTarget = number | string | Array<number | string> | CodeGenTab
 
 /** 代码生成单项或批量目标。 */
 type CodeGenGenerateTarget = CodeGenTable | CodeGenTable[];
+
+/** 代码生成单项或批量还原目标。 */
+type CodeGenRestoreTarget = CodeGenTable | CodeGenTable[];
 
 /** 代码生成表配置弹窗状态，未选择父级菜单时保持空白。 */
 type CodeGenTableFormState = Omit<CodeGenTableForm, "parent_menu_id"> & {
@@ -398,6 +401,15 @@ const columns: ColumnProps[] = [
         onClick: scope => handleGenerate(scope.row as CodeGenTable)
       },
       {
+        label: "还原",
+        type: "warning",
+        link: true,
+        icon: RefreshRight,
+        disabled: scope => !(scope.row as CodeGenTable).restore_available,
+        hidden: () => !BUTTONS.value["tool:code-gen-table:restore"],
+        onClick: scope => handleRestore(scope.row as CodeGenTable)
+      },
+      {
         label: "编辑",
         type: "primary",
         link: true,
@@ -448,6 +460,14 @@ const headerActions: HeaderActionProps[] = [
     hidden: () => !BUTTONS.value["tool:code-gen-table:generate"],
     disabled: scope => generating.value || !scope.selectedList.length,
     onClick: scope => handleGenerate(scope.selectedList as CodeGenTable[])
+  },
+  {
+    label: "批量还原",
+    type: "warning",
+    icon: RefreshRight,
+    hidden: () => !BUTTONS.value["tool:code-gen-table:restore"],
+    disabled: scope => scope.selectedList.every(item => !(item as CodeGenTable).restore_available),
+    onClick: scope => handleRestore(scope.selectedList as CodeGenTable[])
   },
   {
     label: "最近任务",
@@ -510,6 +530,34 @@ async function handleGenerate(selected: CodeGenGenerateTarget) {
   }
 }
 
+/** 还原单项或批量代码生成结果。 */
+async function handleRestore(selected: CodeGenRestoreTarget) {
+  const tables = Array.isArray(selected) ? selected : [selected];
+  const restorableTables = tables.filter(table => table.restore_available);
+  if (!restorableTables.length) {
+    ElMessage.warning("请选择有可用还原快照的代码生成项");
+    return;
+  }
+  const message =
+    restorableTables.length === 1
+      ? `确认还原业务表：${restorableTables[0].name}？生成文件、页面菜单和按钮权限将恢复到生成前状态。`
+      : `确认批量还原 ${restorableTables.length} 个业务表？批量生成的共享文件必须整批还原。`;
+  try {
+    await ElMessageBox.confirm(message, "警告", {
+      confirmButtonText: "确认还原",
+      cancelButtonText: "取消",
+      type: "warning"
+    });
+  } catch {
+    return;
+  }
+  await defCodeGenService.RestoreCodeGen({ table_ids: restorableTables.map(table => table.id) });
+  ElMessage.success("还原代码生成结果成功");
+  progressSelectedTableIds.value = [];
+  proTable.value?.clearSelection();
+  refreshTable();
+}
+
 /** 打开最近一次代码生成任务。 */
 function handleOpenProgress() {
   if (progressTaskId.value) handleProgressDialogVisibleChange(true);
@@ -529,6 +577,8 @@ function handleProgressDialogVisibleChange(visible: boolean) {
 function handleProgressCompleted() {
   generating.value = false;
   window.sessionStorage.removeItem(codeGenProgressDialogVisibleStorageKey);
+  progressSelectedTableIds.value = [];
+  proTable.value?.clearSelection();
   removeProgressSelectedTableIds();
   refreshTable();
 }
@@ -538,6 +588,8 @@ function handleProgressUnavailable() {
   generating.value = false;
   progressTaskId.value = "";
   progressTaskAvailable.value = false;
+  progressSelectedTableIds.value = [];
+  proTable.value?.clearSelection();
   handleProgressDialogVisibleChange(false);
   removeProgressSelectedTableIds();
   window.sessionStorage.removeItem(codeGenTaskStorageKey);

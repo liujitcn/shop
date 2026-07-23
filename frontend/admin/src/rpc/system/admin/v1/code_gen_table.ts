@@ -81,7 +81,7 @@ export interface CodeGenTableForm {
   gen_backend: boolean;
   /** 是否生成前端 */
   gen_frontend: boolean;
-  /** 是否生成建表SQL */
+  /** 是否同步菜单和接口权限 */
   gen_sql: boolean;
   /** 状态 */
   status: number;
@@ -139,6 +139,8 @@ export interface CodeGenTable {
   created_at: string;
   /** 更新时间 */
   updated_at: string;
+  /** 是否可以还原生成结果 */
+  restore_available: boolean;
 }
 
 /** 左树右表页面配置 */

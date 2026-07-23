@@ -305,7 +305,7 @@ type CodeGenTableForm struct {
 	LeftTreeConfig  *CodeGenLeftTreeConfig `protobuf:"bytes,9,opt,name=left_tree_config,json=leftTreeConfig,proto3" json:"left_tree_config,omitempty"`    // 左树配置
 	GenBackend      bool                   `protobuf:"varint,10,opt,name=gen_backend,json=genBackend,proto3" json:"gen_backend,omitempty"`                // 是否生成后端
 	GenFrontend     bool                   `protobuf:"varint,11,opt,name=gen_frontend,json=genFrontend,proto3" json:"gen_frontend,omitempty"`             // 是否生成前端
-	GenSql          bool                   `protobuf:"varint,12,opt,name=gen_sql,json=genSql,proto3" json:"gen_sql,omitempty"`                            // 是否生成建表SQL
+	GenSql          bool                   `protobuf:"varint,12,opt,name=gen_sql,json=genSql,proto3" json:"gen_sql,omitempty"`                            // 是否同步菜单和接口权限
 	Status          int32                  `protobuf:"varint,13,opt,name=status,proto3" json:"status,omitempty"`                                          // 状态
 	Remark          string                 `protobuf:"bytes,14,opt,name=remark,proto3" json:"remark,omitempty"`                                           // 备注
 	unknownFields   protoimpl.UnknownFields
@@ -646,18 +646,19 @@ func (x *CodeGenDatabaseTable) GetDisabled() bool {
 
 // 代码生成表配置
 type CodeGenTable struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	Id             int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                              // 主键ID
-	Name           string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`                                           // 业务表名
-	Comment        string                 `protobuf:"bytes,3,opt,name=comment,proto3" json:"comment,omitempty"`                                     // 业务表描述
-	BusinessModule string                 `protobuf:"bytes,4,opt,name=business_module,json=businessModule,proto3" json:"business_module,omitempty"` // 业务模块
-	PageType       string                 `protobuf:"bytes,5,opt,name=page_type,json=pageType,proto3" json:"page_type,omitempty"`                   // 页面类型
-	Status         int32                  `protobuf:"varint,6,opt,name=status,proto3" json:"status,omitempty"`                                      // 状态
-	Remark         string                 `protobuf:"bytes,7,opt,name=remark,proto3" json:"remark,omitempty"`                                       // 备注
-	CreatedAt      string                 `protobuf:"bytes,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`                // 创建时间
-	UpdatedAt      string                 `protobuf:"bytes,9,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`                // 更新时间
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	Id               int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                      // 主键ID
+	Name             string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`                                                   // 业务表名
+	Comment          string                 `protobuf:"bytes,3,opt,name=comment,proto3" json:"comment,omitempty"`                                             // 业务表描述
+	BusinessModule   string                 `protobuf:"bytes,4,opt,name=business_module,json=businessModule,proto3" json:"business_module,omitempty"`         // 业务模块
+	PageType         string                 `protobuf:"bytes,5,opt,name=page_type,json=pageType,proto3" json:"page_type,omitempty"`                           // 页面类型
+	Status           int32                  `protobuf:"varint,6,opt,name=status,proto3" json:"status,omitempty"`                                              // 状态
+	Remark           string                 `protobuf:"bytes,7,opt,name=remark,proto3" json:"remark,omitempty"`                                               // 备注
+	CreatedAt        string                 `protobuf:"bytes,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`                        // 创建时间
+	UpdatedAt        string                 `protobuf:"bytes,9,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`                        // 更新时间
+	RestoreAvailable bool                   `protobuf:"varint,10,opt,name=restore_available,json=restoreAvailable,proto3" json:"restore_available,omitempty"` // 是否可以还原生成结果
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *CodeGenTable) Reset() {
@@ -751,6 +752,13 @@ func (x *CodeGenTable) GetUpdatedAt() string {
 		return x.UpdatedAt
 	}
 	return ""
+}
+
+func (x *CodeGenTable) GetRestoreAvailable() bool {
+	if x != nil {
+		return x.RestoreAvailable
+	}
+	return false
 }
 
 // 左树右表页面配置
@@ -863,7 +871,7 @@ const file_system_admin_v1_code_gen_table_proto_rawDesc = "" +
 	"\x06tables\x18\x01 \x03(\v2%.system.admin.v1.CodeGenDatabaseTableB\x18\xbaG\x15\x92\x02\x12数据库表列表R\x06tables\"~\n" +
 	"\x16GetCodeGenTableRequest\x12d\n" +
 	"\x02id\x18\x01 \x01(\x03BT\xbaG\v\x92\x02\b主键ID\xbaHC\xba\x01@\n" +
-	"\x1eget_code_gen_table.id.required\x12\x14主键ID不能为空\x1a\bthis > 0R\x02id\"\xd4\x0f\n" +
+	"\x1eget_code_gen_table.id.required\x12\x14主键ID不能为空\x1a\bthis > 0R\x02id\"\xe0\x0f\n" +
 	"\x10CodeGenTableForm\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键IDR\x02id\x12\x97\x02\n" +
 	"\x04name\x18\x02 \x01(\tB\x82\x02\xbaG\x0f\x92\x02\f业务表名\xbaH\xec\x01\xba\x01@\n" +
@@ -889,8 +897,8 @@ const file_system_admin_v1_code_gen_table_proto_rawDesc = "" +
 	"\vgen_backend\x18\n" +
 	" \x01(\bB\x18\xbaG\x15\x92\x02\x12是否生成后端R\n" +
 	"genBackend\x12;\n" +
-	"\fgen_frontend\x18\v \x01(\bB\x18\xbaG\x15\x92\x02\x12是否生成前端R\vgenFrontend\x124\n" +
-	"\agen_sql\x18\f \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否生成建表SQLR\x06genSql\x12$\n" +
+	"\fgen_frontend\x18\v \x01(\bB\x18\xbaG\x15\x92\x02\x12是否生成前端R\vgenFrontend\x12@\n" +
+	"\agen_sql\x18\f \x01(\bB'\xbaG$\x92\x02!是否同步菜单和接口权限R\x06genSql\x12$\n" +
 	"\x06status\x18\r \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\x12u\n" +
 	"\x06remark\x18\x0e \x01(\tB]\xbaG\t\x92\x02\x06备注\xbaHN\xba\x01K\n" +
 	"\x13field.remark.length\x12 备注不能超过 500 个字符\x1a\x12this.size() <= 500R\x06remark\"\x8d\x01\n" +
@@ -905,7 +913,7 @@ const file_system_admin_v1_code_gen_table_proto_rawDesc = "" +
 	"\x14CodeGenDatabaseTable\x12)\n" +
 	"\x04name\x18\x01 \x01(\tB\x15\xbaG\x12\x92\x02\x0f数据库表名R\x04name\x12/\n" +
 	"\acomment\x18\x02 \x01(\tB\x15\xbaG\x12\x92\x02\x0f业务表描述R\acomment\x124\n" +
-	"\bdisabled\x18\x03 \x01(\bB\x18\xbaG\x15\x92\x02\x12是否已被选择R\bdisabled\"\xa7\x03\n" +
+	"\bdisabled\x18\x03 \x01(\bB\x18\xbaG\x15\x92\x02\x12是否已被选择R\bdisabled\"\xfa\x03\n" +
 	"\fCodeGenTable\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键IDR\x02id\x12&\n" +
 	"\x04name\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f业务表名R\x04name\x12/\n" +
@@ -917,7 +925,9 @@ const file_system_admin_v1_code_gen_table_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\b \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x121\n" +
 	"\n" +
-	"updated_at\x18\t \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\"\xff\x02\n" +
+	"updated_at\x18\t \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x12Q\n" +
+	"\x11restore_available\x18\n" +
+	" \x01(\bB$\xbaG!\x92\x02\x1e是否可以还原生成结果R\x10restoreAvailable\"\xff\x02\n" +
 	"\x15CodeGenLeftTreeConfig\x127\n" +
 	"\n" +
 	"table_name\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12左树数据表名R\ttableName\x12F\n" +

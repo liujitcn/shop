@@ -2335,6 +2335,22 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/system.admin.v1.ListCodeGenDatabaseColumnResponse'
+    /api/v1/admin/code-gen/restore:
+        post:
+            tags:
+                - CodeGenService
+            description: 还原代码生成结果
+            operationId: CodeGenService_RestoreCodeGen
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.RestoreCodeGenRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
     /api/v1/admin/code-gen/table:
         get:
             tags:
@@ -15092,6 +15108,9 @@ components:
                 updated_at:
                     type: string
                     description: 更新时间
+                restore_available:
+                    type: boolean
+                    description: 是否可以还原生成结果
             description: 代码生成表配置
         system.admin.v1.CodeGenTableForm:
             type: object
@@ -15130,7 +15149,7 @@ components:
                     description: 是否生成前端
                 gen_sql:
                     type: boolean
-                    description: 是否生成建表SQL
+                    description: 是否同步菜单和接口权限
                 status:
                     type: integer
                     description: 状态
@@ -15528,6 +15547,15 @@ components:
                 pwd:
                     $ref: '#/components/schemas/common.v1.PasswordCrypto'
             description: 重置用户密码请求参数
+        system.admin.v1.RestoreCodeGenRequest:
+            type: object
+            properties:
+                table_ids:
+                    type: array
+                    items:
+                        type: string
+                    description: 代码生成表配置ID列表
+            description: 还原代码生成结果条件
         system.admin.v1.RouteItem:
             type: object
             properties:

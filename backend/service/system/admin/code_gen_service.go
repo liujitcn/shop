@@ -9,6 +9,7 @@ import (
 
 	"github.com/go-kratos/kratos/v3/log"
 	"google.golang.org/grpc"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 const _ = grpc.SupportPackageIsVersion7
@@ -52,4 +53,14 @@ func (s *CodeGenService) StartCodeGenTask(ctx context.Context, req *systemadminv
 		return nil, errorsx.WrapInternal(err, "启动代码生成任务失败")
 	}
 	return res, nil
+}
+
+// RestoreCodeGen 还原代码生成结果。
+func (s *CodeGenService) RestoreCodeGen(ctx context.Context, req *systemadminv1.RestoreCodeGenRequest) (*emptypb.Empty, error) {
+	err := s.codeGenCase.RestoreCodeGen(ctx, req.GetTableIds())
+	if err != nil {
+		log.Error("RestoreCodeGen", "error", err)
+		return nil, errorsx.WrapInternal(err, "还原代码生成结果失败")
+	}
+	return &emptypb.Empty{}, nil
 }

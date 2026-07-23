@@ -181,6 +181,12 @@ func (c *CodeGenCase) runCodeGenTask(
 		c.failCodeGenTask(ctx, taskID, tableIDs, err)
 		return
 	}
+	var beforeSnapshot map[string]codeGenRestoreWorkspaceFile
+	beforeSnapshot, err = captureCodeGenWorkspaceSnapshot(batch.plan.Files)
+	if err != nil {
+		c.failCodeGenTask(ctx, taskID, tableIDs, err)
+		return
+	}
 	reporters := make(map[int64]*codeGenProgressReporter, len(tableIDs))
 	for _, tableID := range tableIDs {
 		generation := batch.plan.GenerationForTable(tableID)
@@ -261,6 +267,16 @@ func (c *CodeGenCase) runCodeGenTask(
 			}
 			c.progressManager.MarkTableCompleted(ctx, taskID, target.tableID, systemadminv1.CodeGenTaskStatus_CODE_GEN_TASK_STATUS_SUCCEEDED, "生成完成")
 		}
+	}
+	var manifests map[int64]*codeGenRestoreManifest
+	manifests, err = buildCodeGenRestoreManifests(taskID, tableIDs, batch.plan, beforeSnapshot)
+	if err != nil {
+		c.failCodeGenTask(ctx, taskID, tableIDs, err)
+		return
+	}
+	if err = SaveCodeGenRestoreManifests(manifests); err != nil {
+		c.failCodeGenTask(ctx, taskID, tableIDs, err)
+		return
 	}
 	if failedCount > 0 {
 		message := fmt.Sprintf("生成完成，成功 %d 个，失败 %d 个", len(tableIDs)-failedCount, failedCount)
@@ -641,7 +657,12 @@ func (c *CodeGenCase) disableStaleGeneratedStatusMenus(ctx context.Context, page
 		if menu.Status == _const.STATUS_DISABLE && menu.API == "[]" {
 			continue
 		}
-		if err = c.baseMenuCase.UpdateByID(ctx, &models.BaseMenu{ID: menu.ID, Status: _const.STATUS_DISABLE, API: "[]"}); err != nil {
+		if err = c.baseMenuCase.Update(
+			ctx,
+			&models.BaseMenu{ID: menu.ID, Status: _const.STATUS_DISABLE, API: "[]"},
+			repository.Where(query.ID.Eq(menu.ID)),
+			repository.Select(query.Status, query.API),
+		); err != nil {
 			return err
 		}
 		if err = c.baseMenuCase.casbinRuleCase.RebuildCasbinRuleByMenuID(ctx, menu.ID); err != nil {
@@ -872,18 +893,19 @@ func codeGenProtosToSnapshots(items []*systemadminv1.CodeGenProtoCheck) ([]*code
 			columnName = config.GetStatusColumn()
 		}
 		protos = append(protos, &codegen.Proto{
-			TableID:             item.GetTableId(),
-			Name:                columnName,
-			TriggerType:         item.GetTriggerType(),
-			APIKind:             item.GetApiKind(),
-			TargetEntityName:    item.GetTargetEntityName(),
-			TargetBusinessName:  item.GetTargetEntityName(),
-			MethodName:          item.GetMethodName(),
-			ProtoFilePath:       item.GetProtoFilePath(),
-			ParentColumn:        config.GetParentColumn(),
-			LabelColumn:         config.GetLabelColumn(),
-			ValueColumn:         config.GetValueColumn(),
-			GenerateWhenMissing: codegen.BoolToInt32(item.GetGenerateWhenMissing()),
+			TableID:            item.GetTableId(),
+			Name:               columnName,
+			TriggerType:        item.GetTriggerType(),
+			APIKind:            item.GetApiKind(),
+			TargetEntityName:   item.GetTargetEntityName(),
+			TargetBusinessName: item.GetTargetEntityName(),
+			MethodName:         item.GetMethodName(),
+			ProtoFilePath:      item.GetProtoFilePath(),
+			ParentColumn:       config.GetParentColumn(),
+			LabelColumn:        config.GetLabelColumn(),
+			ValueColumn:        config.GetValueColumn(),
+			// 已存在的接口也要参与候选渲染，才能同步表单字段等消息结构变化。
+			GenerateWhenMissing: codegen.BoolToInt32(item.GetGenerateWhenMissing() || item.GetExists()),
 			Sort:                item.GetSort(),
 		})
 	}

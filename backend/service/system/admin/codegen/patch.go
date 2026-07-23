@@ -1195,6 +1195,7 @@ func ensureGeneratedGoImports(content string, methodContent string) string {
 		importPath string
 	}{
 		{marker: "context.", importLine: `"context"`, importPath: "context"},
+		{marker: "json.", importLine: `"encoding/json"`, importPath: "encoding/json"},
 		{marker: "fmt.", importLine: `"fmt"`, importPath: "fmt"},
 		{marker: "commonv1.", importLine: `commonv1 "shop/api/gen/go/common/v1"`, importPath: "shop/api/gen/go/common/v1"},
 		{marker: "errorsx.", importLine: `"shop/pkg/errorsx"`, importPath: "shop/pkg/errorsx"},
@@ -1292,9 +1293,9 @@ func mergeGeneratedTSClassMethods(content string, candidate string, className st
 		if classEnd < 0 {
 			return content
 		}
-		return content[:classEnd] + "\n" + joinedMethods + "\n" + content[classEnd:]
+		return pruneUnusedFrontendTypeImports(content[:classEnd] + "\n" + joinedMethods + "\n" + content[classEnd:])
 	}
-	return content[:firstStart] + joinedMethods + content[lastEnd:]
+	return pruneUnusedFrontendTypeImports(content[:firstStart] + joinedMethods + content[lastEnd:])
 }
 
 // tsClassMethodBlocks 返回类中连续的方法块及其源码位置。
