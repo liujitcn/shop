@@ -73,6 +73,12 @@ export interface CodeGenProtoCheck {
   message: string;
   /** 排序 */
   sort: number;
+  /** 方法中文描述 */
+  method_comment: string;
+  /** 服务名 */
+  service_name: string;
+  /** 服务描述 */
+  service_comment: string;
 }
 
 /** 代码生成Proto接口类型配置 */

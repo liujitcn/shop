@@ -82,6 +82,12 @@ message CodeGenProtoCheck {
   string message = 10 [(gnostic.openapi.v3.property) = {description: "检查说明"}]; // 检查说明
 
   int32 sort = 11 [(gnostic.openapi.v3.property) = {description: "排序"}]; // 排序
+
+  string method_comment = 12 [(gnostic.openapi.v3.property) = {description: "方法中文描述"}]; // 方法中文描述
+
+  string service_name = 13 [(gnostic.openapi.v3.property) = {description: "服务名"}]; // 服务名
+
+  string service_comment = 14 [(gnostic.openapi.v3.property) = {description: "服务描述"}]; // 服务描述
 }
 
 // 代码生成Proto接口类型配置

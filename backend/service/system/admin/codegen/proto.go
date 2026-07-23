@@ -349,52 +349,81 @@ func topLevelProtoMessageBlocks(content string) ([]protoMessageBlock, int, int, 
 	return blocks, firstStart, lastEnd, true
 }
 
+// GeneratedProtoMethodComment 返回生成器实际使用的 RPC 中文方法描述。
+func GeneratedProtoMethodComment(businessName string, entityName string, triggerType string, apiKind string, methodName string) string {
+	switch apiKind {
+	case APIKindList:
+		return "查询" + businessName + "分页列表"
+	case APIKindTree:
+		if triggerType == TriggerEntityOption || triggerType == TriggerFieldOption || triggerType == TriggerLeftTree {
+			return "查询" + businessName + "树形选择"
+		}
+		return "查询" + businessName + "树形列表"
+	case APIKindOption:
+		return "查询" + businessName + "下拉选择"
+	case APIKindStatus:
+		return "设置状态"
+	case APIKindCRUD:
+		switch methodName {
+		case "Get" + entityName:
+			return "查询" + businessName + "详情"
+		case "Create" + entityName:
+			return "创建" + businessName
+		case "Update" + entityName:
+			return "更新" + businessName
+		case "Delete" + entityName:
+			return "删除" + businessName
+		}
+	}
+	return "接口能力"
+}
+
 // renderProtoRPC 渲染单个 RPC 契约。
 func (c *renderer) renderProtoRPC(table *Table, method *Proto, resourcePath string) string {
 	businessName := codeGenProtoMethodBusinessName(table, method)
 	switch method.APIKind {
 	case APIKindList:
-		return fmt.Sprintf(`  // 查询%s分页列表
+		return fmt.Sprintf(`  // %s
   rpc %s(%sRequest) returns (%sResponse) {
     option (google.api.http) = {
       get: "/api/v1/admin/%s"
     };
   }
-`, table.BusinessName, method.MethodName, method.MethodName, method.MethodName, resourcePath)
+`, GeneratedProtoMethodComment(businessName, table.EntityName, method.TriggerType, method.APIKind, method.MethodName), method.MethodName, method.MethodName, method.MethodName, resourcePath)
 	case APIKindTree:
 		if method.TriggerType == TriggerEntityOption || method.TriggerType == TriggerFieldOption || method.TriggerType == TriggerLeftTree {
-			return fmt.Sprintf(`  // 查询%s树形选择
+			return fmt.Sprintf(`  // %s
   rpc %s(%sRequest) returns (.common.v1.TreeOptionResponse) {
     option (google.api.http) = {
       get: "/api/v1/admin/%s/option"
     };
   }
-`, businessName, method.MethodName, method.MethodName, resourcePath)
+`, GeneratedProtoMethodComment(businessName, table.EntityName, method.TriggerType, method.APIKind, method.MethodName), method.MethodName, method.MethodName, resourcePath)
 		}
-		return fmt.Sprintf(`  // 查询%s树形列表
+		return fmt.Sprintf(`  // %s
   rpc %s(%sRequest) returns (%sResponse) {
     option (google.api.http) = {
       get: "/api/v1/admin/%s/tree"
     };
   }
-`, table.BusinessName, method.MethodName, method.MethodName, method.MethodName, resourcePath)
+`, GeneratedProtoMethodComment(businessName, table.EntityName, method.TriggerType, method.APIKind, method.MethodName), method.MethodName, method.MethodName, method.MethodName, resourcePath)
 	case APIKindOption:
-		return fmt.Sprintf(`  // 查询%s下拉选择
+		return fmt.Sprintf(`  // %s
   rpc %s(%sRequest) returns (.common.v1.SelectOptionResponse) {
     option (google.api.http) = {
       get: "/api/v1/admin/%s/option"
     };
   }
-`, businessName, method.MethodName, method.MethodName, resourcePath)
+`, GeneratedProtoMethodComment(businessName, table.EntityName, method.TriggerType, method.APIKind, method.MethodName), method.MethodName, method.MethodName, resourcePath)
 	case APIKindStatus:
-		return fmt.Sprintf(`  // 设置状态
+		return fmt.Sprintf(`  // %s
   rpc %s(%sRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       put: "/api/v1/admin/%s/{id}/%s"
       body: "*"
     };
   }
-`, method.MethodName, method.MethodName, resourcePath, statusResourcePath(table, method))
+`, GeneratedProtoMethodComment(businessName, table.EntityName, method.TriggerType, method.APIKind, method.MethodName), method.MethodName, method.MethodName, resourcePath, statusResourcePath(table, method))
 	}
 	return c.renderCRUDProtoRPC(table, method, resourcePath)
 }
@@ -402,41 +431,42 @@ func (c *renderer) renderProtoRPC(table *Table, method *Proto, resourcePath stri
 // renderCRUDProtoRPC 渲染标准 CRUD RPC。
 func (c *renderer) renderCRUDProtoRPC(table *Table, method *Proto, resourcePath string) string {
 	entity := table.EntityName
+	businessName := codeGenProtoMethodBusinessName(table, method)
 	switch method.MethodName {
 	case "Get" + entity:
-		return fmt.Sprintf(`  // 查询%s详情
+		return fmt.Sprintf(`  // %s
   rpc Get%s(Get%sRequest) returns (%sForm) {
     option (google.api.http) = {
       get: "/api/v1/admin/%s/{id}"
     };
   }
-`, table.BusinessName, entity, entity, entity, resourcePath)
+`, GeneratedProtoMethodComment(businessName, entity, method.TriggerType, method.APIKind, method.MethodName), entity, entity, entity, resourcePath)
 	case "Create" + entity:
-		return fmt.Sprintf(`  // 创建%s
+		return fmt.Sprintf(`  // %s
   rpc Create%s(Create%sRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       post: "/api/v1/admin/%s"
       body: "%s"
     };
   }
-`, table.BusinessName, entity, entity, resourcePath, stringcase.ToSnakeCase(entity))
+`, GeneratedProtoMethodComment(businessName, entity, method.TriggerType, method.APIKind, method.MethodName), entity, entity, resourcePath, stringcase.ToSnakeCase(entity))
 	case "Update" + entity:
-		return fmt.Sprintf(`  // 更新%s
+		return fmt.Sprintf(`  // %s
   rpc Update%s(Update%sRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       put: "/api/v1/admin/%s/{id}"
       body: "%s"
     };
   }
-`, table.BusinessName, entity, entity, resourcePath, stringcase.ToSnakeCase(entity))
+`, GeneratedProtoMethodComment(businessName, entity, method.TriggerType, method.APIKind, method.MethodName), entity, entity, resourcePath, stringcase.ToSnakeCase(entity))
 	case "Delete" + entity:
-		return fmt.Sprintf(`  // 删除%s
+		return fmt.Sprintf(`  // %s
   rpc Delete%s(Delete%sRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       delete: "/api/v1/admin/%s/{ids}"
     };
   }
-`, table.BusinessName, entity, entity, resourcePath)
+`, GeneratedProtoMethodComment(businessName, entity, method.TriggerType, method.APIKind, method.MethodName), entity, entity, resourcePath)
 	default:
 		return ""
 	}

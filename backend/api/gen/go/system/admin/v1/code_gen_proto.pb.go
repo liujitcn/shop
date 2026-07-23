@@ -276,6 +276,9 @@ type CodeGenProtoCheck struct {
 	Config              *CodeGenProtoConfig    `protobuf:"bytes,9,opt,name=config,proto3" json:"config,omitempty"`                                                         // 接口类型配置
 	Message             string                 `protobuf:"bytes,10,opt,name=message,proto3" json:"message,omitempty"`                                                      // 检查说明
 	Sort                int32                  `protobuf:"varint,11,opt,name=sort,proto3" json:"sort,omitempty"`                                                           // 排序
+	MethodComment       string                 `protobuf:"bytes,12,opt,name=method_comment,json=methodComment,proto3" json:"method_comment,omitempty"`                     // 方法中文描述
+	ServiceName         string                 `protobuf:"bytes,13,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`                           // 服务名
+	ServiceComment      string                 `protobuf:"bytes,14,opt,name=service_comment,json=serviceComment,proto3" json:"service_comment,omitempty"`                  // 服务描述
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
 }
@@ -387,6 +390,27 @@ func (x *CodeGenProtoCheck) GetSort() int32 {
 	return 0
 }
 
+func (x *CodeGenProtoCheck) GetMethodComment() string {
+	if x != nil {
+		return x.MethodComment
+	}
+	return ""
+}
+
+func (x *CodeGenProtoCheck) GetServiceName() string {
+	if x != nil {
+		return x.ServiceName
+	}
+	return ""
+}
+
+func (x *CodeGenProtoCheck) GetServiceComment() string {
+	if x != nil {
+		return x.ServiceComment
+	}
+	return ""
+}
+
 // 代码生成Proto接口类型配置
 type CodeGenProtoConfig struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -477,7 +501,7 @@ const file_system_admin_v1_code_gen_proto_proto_rawDesc = "" +
 	"\bapi_kind\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f接口类型R\aapiKind\x12O\n" +
 	"\x15generate_when_missing\x18\x05 \x01(\bB\x1b\xbaG\x18\x92\x02\x15缺失时是否生成R\x13generateWhenMissing\x12U\n" +
 	"\x06config\x18\x06 \x01(\v2#.system.admin.v1.CodeGenProtoConfigB\x18\xbaG\x15\x92\x02\x12接口类型配置R\x06config\x12 \n" +
-	"\x04sort\x18\a \x01(\x05B\f\xbaG\t\x92\x02\x06排序R\x04sort\"\x98\x05\n" +
+	"\x04sort\x18\a \x01(\x05B\f\xbaG\t\x92\x02\x06排序R\x04sort\"\xca\x06\n" +
 	"\x11CodeGenProtoCheck\x128\n" +
 	"\btable_id\x18\x01 \x01(\x03B\x1d\xbaG\x1a\x92\x02\x17代码生成表配置IDR\atableId\x125\n" +
 	"\ftrigger_type\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f触发来源R\vtriggerType\x12-\n" +
@@ -491,7 +515,10 @@ const file_system_admin_v1_code_gen_proto_proto_rawDesc = "" +
 	"\x06config\x18\t \x01(\v2#.system.admin.v1.CodeGenProtoConfigB\x18\xbaG\x15\x92\x02\x12接口类型配置R\x06config\x12,\n" +
 	"\amessage\x18\n" +
 	" \x01(\tB\x12\xbaG\x0f\x92\x02\f检查说明R\amessage\x12 \n" +
-	"\x04sort\x18\v \x01(\x05B\f\xbaG\t\x92\x02\x06排序R\x04sort\"\x89\x02\n" +
+	"\x04sort\x18\v \x01(\x05B\f\xbaG\t\x92\x02\x06排序R\x04sort\x12?\n" +
+	"\x0emethod_comment\x18\f \x01(\tB\x18\xbaG\x15\x92\x02\x12方法中文描述R\rmethodComment\x122\n" +
+	"\fservice_name\x18\r \x01(\tB\x0f\xbaG\f\x92\x02\t服务名R\vserviceName\x12;\n" +
+	"\x0fservice_comment\x18\x0e \x01(\tB\x12\xbaG\x0f\x92\x02\f服务描述R\x0eserviceComment\"\x89\x02\n" +
 	"\x12CodeGenProtoConfig\x12C\n" +
 	"\rparent_column\x18\x01 \x01(\tB\x1e\xbaG\x1b\x92\x02\x18树接口父节点字段R\fparentColumn\x12;\n" +
 	"\flabel_column\x18\x02 \x01(\tB\x18\xbaG\x15\x92\x02\x12选项显示字段R\vlabelColumn\x128\n" +

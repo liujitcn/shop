@@ -12,6 +12,7 @@ import (
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 	"shop/service/system/admin/codegen"
+	"shop/service/system/admin/dto"
 
 	"github.com/liujitcn/go-utils/mapper"
 	"github.com/liujitcn/go-utils/stringcase"
@@ -254,8 +255,35 @@ func (c *CodeGenProtoCase) validateCodeGenProtoColumns(ctx context.Context, tabl
 // inspectCodeGenProtos 推导当前配置需要的 Proto 接口并检查仓库与目标表状态。
 func (c *CodeGenProtoCase) inspectCodeGenProtos(ctx context.Context, table *models.CodeGenTable, form *systemadminv1.CodeGenTableForm, columns []*systemadminv1.CodeGenColumn, savedProtos []*models.CodeGenProto) ([]*systemadminv1.CodeGenProtoCheck, error) {
 	checks := buildExpectedCodeGenProtos(table, form, columns)
+	businessNames, err := c.codeGenProtoBusinessNames(ctx, table, form, checks)
+	if err != nil {
+		return nil, err
+	}
+	serviceBusinessNames := make(map[string]string, len(checks))
+	for _, check := range checks {
+		key := check.GetProtoFilePath() + ":" + check.GetTargetEntityName()
+		if _, exists := serviceBusinessNames[key]; exists {
+			continue
+		}
+		serviceBusinessNames[key] = businessNames[check.GetTargetEntityName()+":"+check.GetTriggerType()]
+	}
 	columnNamesByTable := make(map[string]map[string]struct{})
 	for _, check := range checks {
+		businessName := businessNames[check.GetTargetEntityName()+":"+check.GetTriggerType()]
+		serviceBusinessName := serviceBusinessNames[check.GetProtoFilePath()+":"+check.GetTargetEntityName()]
+		check.MethodComment = codegen.GeneratedProtoMethodComment(
+			businessName,
+			check.GetTargetEntityName(),
+			check.GetTriggerType(),
+			check.GetApiKind(),
+			check.GetMethodName(),
+		)
+		check.ServiceName, check.ServiceComment = codeGenProtoServiceMetadata(
+			check.GetProtoFilePath(),
+			check.GetTargetEntityName(),
+			check.GetTargetEntityName()+"Service",
+			"Admin"+serviceBusinessName+"服务",
+		)
 		for _, saved := range savedProtos {
 			if !savedCodeGenProtoMatches(saved, check) {
 				continue
@@ -292,7 +320,8 @@ func (c *CodeGenProtoCase) inspectCodeGenProtos(ctx context.Context, table *mode
 		if len(fields) == 0 {
 			continue
 		}
-		columnNames, err := c.loadCodeGenProtoNames(ctx, targetTableName, columnNamesByTable)
+		var columnNames map[string]struct{}
+		columnNames, err = c.loadCodeGenProtoNames(ctx, targetTableName, columnNamesByTable)
 		if err != nil {
 			return nil, err
 		}
@@ -302,6 +331,76 @@ func (c *CodeGenProtoCase) inspectCodeGenProtos(ctx context.Context, table *mode
 		}
 	}
 	return checks, nil
+}
+
+// codeGenProtoBusinessNames 加载 Proto 目标实体使用的业务描述，保持检查结果与生成器一致。
+func (c *CodeGenProtoCase) codeGenProtoBusinessNames(ctx context.Context, table *models.CodeGenTable, form *systemadminv1.CodeGenTableForm, checks []*systemadminv1.CodeGenProtoCheck) (map[string]string, error) {
+	tableNames := make(map[string]struct{}, len(checks))
+	tableNameByCheck := make(map[string]string, len(checks))
+	targetEntityByCheck := make(map[string]string, len(checks))
+	leftTree := form.GetLeftTreeConfig()
+	for _, check := range checks {
+		tableName := codeGenProtoTargetTableName(table, check.GetTargetEntityName())
+		if check.GetTriggerType() == codeGenTriggerLeftTree && leftTree.GetTableName() != "" {
+			tableName = leftTree.GetTableName()
+		}
+		key := check.GetTargetEntityName() + ":" + check.GetTriggerType()
+		tableNameByCheck[key] = tableName
+		targetEntityByCheck[key] = check.GetTargetEntityName()
+		if tableName != "" {
+			tableNames[tableName] = struct{}{}
+		}
+	}
+	commentsByTableName := make(map[string]string, len(tableNames))
+	for tableName := range tableNames {
+		commentsByTableName[tableName] = ""
+	}
+	var databaseTables []dto.CodeGenDatabaseTable
+	var err error
+	tableNameList := make([]string, 0, len(tableNames))
+	for tableName := range tableNames {
+		tableNameList = append(tableNameList, tableName)
+	}
+	if len(tableNames) > 0 {
+		err = c.codeGenColumnCase.dbClient.DB.WithContext(ctx).
+			Table("information_schema.tables").
+			Select("table_name, table_comment").
+			Where("table_schema = DATABASE()").
+			Where("table_type = ?", "BASE TABLE").
+			Where("table_name IN ?", tableNameList).
+			Find(&databaseTables).Error
+		if err != nil {
+			return nil, err
+		}
+	}
+	for _, databaseTable := range databaseTables {
+		commentsByTableName[databaseTable.TableName] = databaseTable.TableComment
+	}
+	if table.Comment != "" {
+		commentsByTableName[table.Name] = table.Comment
+	}
+	if len(tableNames) > 0 {
+		query := c.codeGenTableRepo.Query(ctx).CodeGenTable
+		var configuredTables []*models.CodeGenTable
+		configuredTables, err = c.codeGenTableRepo.List(ctx, repository.Where(query.Name.In(tableNameList...)))
+		if err != nil {
+			return nil, err
+		}
+		for _, configuredTable := range configuredTables {
+			if configuredTable.Comment != "" {
+				commentsByTableName[configuredTable.Name] = configuredTable.Comment
+			}
+		}
+	}
+	businessNames := make(map[string]string, len(tableNameByCheck))
+	for key, tableName := range tableNameByCheck {
+		comment := commentsByTableName[tableName]
+		if strings.HasSuffix(key, ":"+codeGenTriggerLeftTree) && leftTree.GetComment() != "" {
+			comment = leftTree.GetComment()
+		}
+		businessNames[key] = codegen.DefaultString(comment, targetEntityByCheck[key])
+	}
+	return businessNames, nil
 }
 
 // loadCodeGenProtoNames 加载并缓存目标表字段名。
@@ -593,6 +692,53 @@ func codeGenProtoExists(protoPath string, targetEntity string, methodName string
 		}
 	}
 	return false, "缺少，可选择生成"
+}
+
+// codeGenProtoServiceMetadata 返回 Proto 检查项对应的真实服务名与服务描述。
+func codeGenProtoServiceMetadata(protoPath string, targetEntity string, fallbackServiceName string, fallbackServiceComment string) (string, string) {
+	serviceName := codegen.DefaultString(fallbackServiceName, targetEntity+"Service")
+	serviceComment := codegen.DefaultString(fallbackServiceComment, "Admin"+targetEntity+"服务")
+	fullPath, err := safeCodeGenProtoPath(protoPath)
+	if err != nil {
+		return serviceName, serviceComment
+	}
+	var content []byte
+	content, err = os.ReadFile(fullPath)
+	if err != nil {
+		return serviceName, serviceComment
+	}
+	pattern := regexp.MustCompile(`(?m)^[\t ]*service[\t ]+([A-Za-z_][A-Za-z0-9_]*)[\t ]*\{`)
+	for _, match := range pattern.FindAllStringSubmatchIndex(string(content), -1) {
+		if len(match) < 4 || string(content[match[2]:match[3]]) != serviceName {
+			continue
+		}
+		comment := codeGenProtoServiceComment(string(content), match[0])
+		if comment != "" {
+			serviceComment = comment
+		}
+		return serviceName, serviceComment
+	}
+	return serviceName, serviceComment
+}
+
+// codeGenProtoServiceComment 返回 service 声明前连续的 Proto 行注释。
+func codeGenProtoServiceComment(content string, serviceStart int) string {
+	lines := strings.Split(content[:serviceStart], "\n")
+	comments := make([]string, 0, 1)
+	for index := len(lines) - 1; index >= 0; index-- {
+		line := strings.TrimSpace(lines[index])
+		if line == "" && len(comments) == 0 {
+			continue
+		}
+		if !strings.HasPrefix(line, "//") {
+			break
+		}
+		comments = append(comments, strings.TrimSpace(strings.TrimPrefix(line, "//")))
+	}
+	for left, right := 0, len(comments)-1; left < right; left, right = left+1, right-1 {
+		comments[left], comments[right] = comments[right], comments[left]
+	}
+	return strings.Join(comments, "\n")
 }
 
 // safeCodeGenProtoPath 返回仓库内安全的 Proto 文件路径。

@@ -27,6 +27,40 @@
               <span class="code-gen-proto-cell__secondary" :title="row.message">{{ row.message }}</span>
             </div>
           </template>
+          <template #proto_info="{ row }">
+            <el-popover trigger="hover" placement="top-start" :width="720" :show-after="150">
+              <template #reference>
+                <div class="code-gen-proto-capability-trigger">
+                  <span class="code-gen-proto-capability-trigger__comment" :title="row.method_comment || '--'">
+                    {{ row.method_comment || "--" }}
+                  </span>
+                </div>
+              </template>
+              <div class="code-gen-proto-capability-popover">
+                <div class="code-gen-proto-capability-popover__item">
+                  <span>方法描述</span>
+                  <span class="code-gen-proto-capability-popover__value">{{ row.method_comment || "--" }}</span>
+                </div>
+                <div class="code-gen-proto-capability-popover__item">
+                  <span>方法名</span>
+                  <code>{{ row.method_name || "--" }}</code>
+                </div>
+                <div class="code-gen-proto-capability-popover__item">
+                  <span>Proto路径</span>
+                  <code class="code-gen-proto-capability-popover__path">{{ row.proto_file_path || "--" }}</code>
+                </div>
+                <div class="code-gen-proto-capability-popover__item">
+                  <span>服务描述</span>
+                  <span class="code-gen-proto-capability-popover__value">{{ row.service_comment || "--" }}</span>
+                </div>
+                <div class="code-gen-proto-capability-popover__item">
+                  <span>服务名</span>
+                  <code>{{ row.service_name || "--" }}</code>
+                </div>
+                <pre class="code-gen-proto-capability-popover__preview"><code>{{ resolveProtoDefinition(row) }}</code></pre>
+              </div>
+            </el-popover>
+          </template>
           <template #generate_when_missing="{ row }">
             <div class="code-gen-proto-generate">
               <el-checkbox v-model="row.generate_when_missing" :disabled="row.exists || !canEdit">生成接口</el-checkbox>
@@ -162,6 +196,7 @@ const configDialog = reactive<CodeGenProtoConfigDialog>({
 const protoColumns: ColumnProps[] = [
   { prop: "trigger_type", label: "触发来源", minWidth: 150, render: scope => resolveTriggerTypeLabel(String(scope.row.trigger_type)) },
   { prop: "api_kind", label: "接口类型", minWidth: 150, render: scope => resolveAPIKindLabel(String(scope.row.api_kind)) },
+  { prop: "proto_info", label: "接口能力", minWidth: 290 },
   { prop: "exists", label: "状态", minWidth: 210 },
   { prop: "generate_when_missing", label: "生成设置", minWidth: 230 }
 ];
@@ -300,6 +335,40 @@ function resolveTriggerTypeLabel(triggerType: string) {
 /** 返回接口类型的展示文案。 */
 function resolveAPIKindLabel(apiKind: string) {
   return apiKindLabels[apiKind] ?? apiKind;
+}
+
+/** 返回生成 RPC 的请求与响应类型签名。 */
+function resolveProtoRPCSignature(row: CodeGenProtoCheck) {
+  const methodName = row.method_name || "--";
+  const entity = row.target_entity_name || toPascalCase(formData.name);
+  let responseType = "google.protobuf.Empty";
+  switch (row.api_kind) {
+    case "list":
+    case "tree":
+      responseType = row.api_kind === "tree" && ["entity_option", "field_option", "left_tree"].includes(row.trigger_type)
+        ? ".common.v1.TreeOptionResponse"
+        : `${methodName}Response`;
+      break;
+    case "option":
+      responseType = ".common.v1.SelectOptionResponse";
+      break;
+    case "crud":
+      responseType = methodName === `Get${entity}` ? `${entity}Form` : "google.protobuf.Empty";
+      break;
+  }
+  return `rpc ${methodName}(${methodName}Request) returns (${responseType})`;
+}
+
+/** 返回准备生成的 Proto 服务和 RPC 片段。 */
+function resolveProtoDefinition(row: CodeGenProtoCheck) {
+  const serviceName = row.service_name || "--";
+  return [
+    `// ${row.service_comment || "--"}`,
+    `service ${serviceName} {`,
+    `  // ${row.method_comment || "--"}`,
+    `  ${resolveProtoRPCSignature(row)}`,
+    "}"
+  ].join("\n");
 }
 
 /** 判断接口类型是否需要额外配置。 */
@@ -532,7 +601,6 @@ onMounted(() => {
 }
 .code-gen-proto-cell__primary {
   flex: 0 1 auto;
-  font-weight: 600;
   color: var(--admin-page-text-primary);
 }
 .code-gen-proto-cell__tags,
@@ -562,6 +630,63 @@ onMounted(() => {
 }
 .code-gen-proto-status .code-gen-proto-cell__secondary {
   flex: 0 1 auto;
+}
+.code-gen-proto-capability-trigger {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  cursor: pointer;
+  text-align: left;
+}
+.code-gen-proto-capability-trigger__comment {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--admin-page-text-primary);
+}
+.code-gen-proto-capability-popover {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.code-gen-proto-capability-popover__preview {
+  max-width: 100%;
+  margin: 0;
+  padding: 10px;
+  overflow-x: auto;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--admin-page-text-primary);
+  white-space: pre;
+  background: var(--admin-page-card-bg-soft);
+  border: 1px solid var(--admin-page-card-border-soft);
+  border-radius: 4px;
+}
+.code-gen-proto-capability-popover__item {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  min-width: 0;
+  color: var(--admin-page-text-secondary);
+}
+.code-gen-proto-capability-popover__item code {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: var(--admin-page-text-primary);
+}
+.code-gen-proto-capability-popover__item .code-gen-proto-capability-popover__path {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-wrap: normal;
+  white-space: nowrap;
+}
+.code-gen-proto-capability-popover__value {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: var(--admin-page-text-primary);
 }
 .code-gen-proto-config-form :deep(.el-select) {
   width: 100%;
