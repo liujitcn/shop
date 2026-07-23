@@ -284,20 +284,6 @@ async function loadGoodsOptions() {
 }
 
 /**
- * 重置热门推荐选项表单，避免新增和编辑之间互相污染。
- */
-function resetForm() {
-  formDialogRef.value?.resetFields();
-  formDialogRef.value?.clearValidate();
-  formData.id = 0;
-  formData.hot_id = hotId.value;
-  formData.title = "";
-  formData.sort = 1;
-  formData.goods_ids = [];
-  formData.status = Status.ENABLE;
-}
-
-/**
  * 打开热门推荐选项弹窗，并预加载推荐商品数据。
  */
 async function handleOpenDialog(hotItemId?: number) {
@@ -318,6 +304,20 @@ async function handleOpenDialog(hotItemId?: number) {
 function handleCloseDialog() {
   dialog.visible = false;
   resetForm();
+}
+
+/**
+ * 重置热门推荐选项表单，避免新增和编辑之间互相污染。
+ */
+function resetForm() {
+  formDialogRef.value?.resetFields();
+  formDialogRef.value?.clearValidate();
+  formData.id = 0;
+  formData.hot_id = hotId.value;
+  formData.title = "";
+  formData.sort = 1;
+  formData.goods_ids = [];
+  formData.status = Status.ENABLE;
 }
 
 /**

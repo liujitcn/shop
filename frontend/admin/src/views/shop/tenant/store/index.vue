@@ -385,13 +385,6 @@ function normalizeEnumFilter(value: unknown) {
   return Number.isFinite(numberValue) && numberValue > 0 ? numberValue : undefined;
 }
 
-/** 加载租户下拉选项。 */
-async function loadTenantOptions() {
-  if (!isDefaultTenant.value || tenantOptions.value.length) return;
-  const response = await requestTenantOptions();
-  tenantOptions.value = response.data ?? [];
-}
-
 /** 请求租户门店列表，并由 ProTable 统一管理分页和筛选。 */
 async function requestTenantStoreTable(params: PageTenantStoreRequest) {
   await loadTenantOptions();
@@ -409,19 +402,11 @@ function refreshTable() {
   proTable.value?.getTableList();
 }
 
-/** 重置租户门店表单。 */
-function resetForm() {
-  formDialogRef.value?.resetFields();
-  formDialogRef.value?.clearValidate();
-  Object.assign(formData, createDefaultFormData());
-}
-
-/** 重置租户门店审核弹窗数据。 */
-function resetAuditDialog() {
-  auditFormRef.value?.resetFields();
-  auditFormRef.value?.clearValidate();
-  auditDetail.value = createDefaultAuditDetail();
-  Object.assign(auditFormData, createDefaultAuditFormData());
+/** 加载租户下拉选项。 */
+async function loadTenantOptions() {
+  if (!isDefaultTenant.value || tenantOptions.value.length) return;
+  const response = await requestTenantOptions();
+  tenantOptions.value = response.data ?? [];
 }
 
 /** 打开租户门店弹窗。 */
@@ -453,6 +438,33 @@ function handleOpenAuditDialog(row: TenantStore) {
   auditFormData.remark = row.remark;
 }
 
+/** 关闭租户门店弹窗并恢复默认表单值。 */
+function handleCloseDialog() {
+  dialog.visible = false;
+  resetForm();
+}
+
+/** 关闭租户门店审核弹窗并恢复默认表单值。 */
+function handleCloseAuditDialog() {
+  auditDialog.visible = false;
+  resetAuditDialog();
+}
+
+/** 重置租户门店表单。 */
+function resetForm() {
+  formDialogRef.value?.resetFields();
+  formDialogRef.value?.clearValidate();
+  Object.assign(formData, createDefaultFormData());
+}
+
+/** 重置租户门店审核弹窗数据。 */
+function resetAuditDialog() {
+  auditFormRef.value?.resetFields();
+  auditFormRef.value?.clearValidate();
+  auditDetail.value = createDefaultAuditDetail();
+  Object.assign(auditFormData, createDefaultAuditFormData());
+}
+
 /** 提交租户门店表单。 */
 function handleSubmit() {
   formDialogRef.value?.validate()?.then(valid => {
@@ -466,18 +478,6 @@ function handleSubmit() {
       refreshTable();
     });
   });
-}
-
-/** 关闭租户门店弹窗并恢复默认表单值。 */
-function handleCloseDialog() {
-  dialog.visible = false;
-  resetForm();
-}
-
-/** 关闭租户门店审核弹窗并恢复默认表单值。 */
-function handleCloseAuditDialog() {
-  auditDialog.visible = false;
-  resetAuditDialog();
 }
 
 /** 提交租户门店审核结果。 */

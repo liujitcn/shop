@@ -220,15 +220,6 @@ function refreshTable() {
   proTable.value?.getTableList();
 }
 
-/** 打开岗位编辑弹窗。 */
-async function handleOpenDialog(id?: number) {
-  resetForm();
-  await loadTenantOptions();
-  dialog.title = id ? "修改岗位" : "新增岗位";
-  dialog.visible = true;
-  if (id) Object.assign(formData, await defBasePostService.GetBasePost({ id }));
-}
-
 /** 加载租户选项。 */
 async function loadTenantOptions() {
   if (!isDefaultTenant.value || tenantOptions.value.length) return;
@@ -236,20 +227,13 @@ async function loadTenantOptions() {
   tenantOptions.value = response.list ?? [];
 }
 
-/** 提交岗位表单。 */
-function handleSubmit() {
-  formDialogRef.value?.validate()?.then(valid => {
-    if (!valid) return;
-    const submitData = JSON.parse(JSON.stringify(formData)) as BasePostForm;
-    const request = submitData.id
-      ? defBasePostService.UpdateBasePost({ base_post: submitData })
-      : defBasePostService.CreateBasePost({ base_post: submitData });
-    request.then(() => {
-      ElMessage.success(submitData.id ? "修改岗位成功" : "新增岗位成功");
-      handleCloseDialog();
-      refreshTable();
-    });
-  });
+/** 打开岗位编辑弹窗。 */
+async function handleOpenDialog(id?: number) {
+  resetForm();
+  await loadTenantOptions();
+  dialog.title = id ? "修改岗位" : "新增岗位";
+  dialog.visible = true;
+  if (id) Object.assign(formData, await defBasePostService.GetBasePost({ id }));
 }
 
 /** 关闭岗位弹窗并清理表单。 */
@@ -269,6 +253,22 @@ function resetForm() {
   formData.sort = 1;
   formData.status = Status.ENABLE;
   formData.remark = "";
+}
+
+/** 提交岗位表单。 */
+function handleSubmit() {
+  formDialogRef.value?.validate()?.then(valid => {
+    if (!valid) return;
+    const submitData = JSON.parse(JSON.stringify(formData)) as BasePostForm;
+    const request = submitData.id
+      ? defBasePostService.UpdateBasePost({ base_post: submitData })
+      : defBasePostService.CreateBasePost({ base_post: submitData });
+    request.then(() => {
+      ElMessage.success(submitData.id ? "修改岗位成功" : "新增岗位成功");
+      handleCloseDialog();
+      refreshTable();
+    });
+  });
 }
 
 /** 在岗位状态切换前确认并提交。 */

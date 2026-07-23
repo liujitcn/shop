@@ -185,6 +185,22 @@ function handleOpenGoodsSpecDialog(index?: number, row?: GoodsSpec) {
   specDialog.specFormData = JSON.parse(JSON.stringify(row));
 }
 
+/** 关闭规格弹窗并恢复默认表单状态。 */
+function handleCloseGoodsSpecDialog() {
+  specDialog.visible = false;
+  resetGoodsSpecForm();
+}
+
+/** 重置规格弹窗表单，避免新增和编辑切换时残留旧值。 */
+function resetGoodsSpecForm() {
+  specFormRef.value?.resetFields();
+  specFormRef.value?.clearValidate();
+  specDialog.specFormData.id = 0;
+  specDialog.specFormData.name = "";
+  specDialog.specFormData.sort = 1;
+  specDialog.specFormData.item = [""];
+}
+
 /** 提交规格弹窗，并在保存后重建 SKU 组合。 */
 async function handleGoodsSpecSubmit() {
   try {
@@ -213,22 +229,6 @@ function handleDeleteGoodsSpec(index: number) {
   ensureSpecFormArrays();
   formData.value.spec_list.splice(index, 1);
   generateSkuList();
-}
-
-/** 关闭规格弹窗并恢复默认表单状态。 */
-function handleCloseGoodsSpecDialog() {
-  specDialog.visible = false;
-  resetGoodsSpecForm();
-}
-
-/** 重置规格弹窗表单，避免新增和编辑切换时残留旧值。 */
-function resetGoodsSpecForm() {
-  specFormRef.value?.resetFields();
-  specFormRef.value?.clearValidate();
-  specDialog.specFormData.id = 0;
-  specDialog.specFormData.name = "";
-  specDialog.specFormData.sort = 1;
-  specDialog.specFormData.item = [""];
 }
 
 /**

@@ -393,6 +393,11 @@ async function requestGoodsTable(params: PageGoodsInfoRequest) {
   return { data: { list: data.goods_infos ?? [], total: data.total } };
 }
 
+/** 刷新商品表格。 */
+function refreshTable() {
+  proTable.value?.getTableList();
+}
+
 /** 同步工作台跳转携带的商品列表筛选参数。 */
 function syncWorkspaceQuery() {
   const categoryId = Number(route.query.categoryId ?? 0);
@@ -481,7 +486,7 @@ async function handleSetStatus(row: GoodsInfo, status: GoodsStatus) {
     });
     await defGoodsInfoService.SetGoodsInfoStatus({ id: row.id, status });
     ElMessage.success(`${text}成功`);
-    proTable.value?.getTableList();
+    refreshTable();
   } catch {
     // 用户取消确认时不需要额外提示。
   }

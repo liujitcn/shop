@@ -165,18 +165,18 @@ function handleOpenDialog(logId?: number) {
 }
 
 /**
- * 重置任务日志详情，避免关闭后残留旧数据。
- */
-function resetDetail() {
-  Object.assign(detail, createDefaultDetail());
-}
-
-/**
  * 关闭定时任务日志详情弹窗。
  */
 function handleCloseDialog() {
   dialog.visible = false;
   resetDetail();
+}
+
+/**
+ * 重置任务日志详情，避免关闭后残留旧数据。
+ */
+function resetDetail() {
+  Object.assign(detail, createDefaultDetail());
 }
 </script>
 

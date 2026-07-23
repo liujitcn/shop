@@ -273,18 +273,18 @@ function handleOpenDialog(logId?: number) {
 }
 
 /**
- * 重置日志详情，避免关闭后保留旧数据。
- */
-function resetDetail() {
-  Object.assign(detail, createDefaultDetail());
-}
-
-/**
  * 关闭系统日志弹窗。
  */
 function handleCloseDialog() {
   dialog.visible = false;
   resetDetail();
+}
+
+/**
+ * 重置日志详情，避免关闭后保留旧数据。
+ */
+function resetDetail() {
+  Object.assign(detail, createDefaultDetail());
 }
 </script>
 

@@ -177,19 +177,6 @@ const columns = computed<ColumnProps[]>(() => {
 });
 
 /**
- * 加载当前商品的规格定义，用于拼装动态表头。
- */
-async function loadSpecList() {
-  if (!goodsId.value) {
-    specList.value = [];
-    return;
-  }
-
-  const res = await defGoodsSpecService.ListGoodsSpec({ goods_id: goodsId.value });
-  specList.value = res.goods_specs ?? [];
-}
-
-/**
  * 请求 SKU 列表，并将规格内容展开为动态列字段。
  */
 async function requestGoodsSkuTable(params: PageGoodsSkuRequest) {
@@ -212,6 +199,19 @@ function refreshTable() {
 }
 
 /**
+ * 加载当前商品的规格定义，用于拼装动态表头。
+ */
+async function loadSpecList() {
+  if (!goodsId.value) {
+    specList.value = [];
+    return;
+  }
+
+  const res = await defGoodsSpecService.ListGoodsSpec({ goods_id: goodsId.value });
+  specList.value = res.goods_specs ?? [];
+}
+
+/**
  * 打开规格编辑弹窗。
  */
 function handleOpenDialog(skuId: number) {
@@ -227,21 +227,11 @@ function handleOpenDialog(skuId: number) {
 }
 
 /**
- * 提交 SKU 表单，仅允许更新现有规格。
+ * 关闭规格弹窗并恢复默认值。
  */
-function handleSubmit() {
-  formDialogRef.value?.validate()?.then(valid => {
-    if (!valid) return;
-
-    const submitData = JSON.parse(JSON.stringify(formData)) as GoodsSku;
-    submitData.price = submitData.price * 100;
-    submitData.discount_price = submitData.discount_price * 100;
-    defGoodsSkuService.UpdateGoodsSku({ id: submitData.id, goods_sku: submitData }).then(() => {
-      ElMessage.success("修改 SKU 成功");
-      handleCloseDialog();
-      refreshTable();
-    });
-  });
+function handleCloseDialog() {
+  dialog.visible = false;
+  resetForm();
 }
 
 /**
@@ -263,11 +253,21 @@ function resetForm() {
 }
 
 /**
- * 关闭规格弹窗并恢复默认值。
+ * 提交 SKU 表单，仅允许更新现有规格。
  */
-function handleCloseDialog() {
-  dialog.visible = false;
-  resetForm();
+function handleSubmit() {
+  formDialogRef.value?.validate()?.then(valid => {
+    if (!valid) return;
+
+    const submitData = JSON.parse(JSON.stringify(formData)) as GoodsSku;
+    submitData.price = submitData.price * 100;
+    submitData.discount_price = submitData.discount_price * 100;
+    defGoodsSkuService.UpdateGoodsSku({ id: submitData.id, goods_sku: submitData }).then(() => {
+      ElMessage.success("修改 SKU 成功");
+      handleCloseDialog();
+      refreshTable();
+    });
+  });
 }
 
 watch(

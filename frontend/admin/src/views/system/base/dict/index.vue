@@ -182,18 +182,6 @@ function refreshTable() {
 }
 
 /**
- * 重置字典表单，避免新增时带入上次编辑结果。
- */
-function resetForm() {
-  formDialogRef.value?.resetFields();
-  formDialogRef.value?.clearValidate();
-  formData.id = 0;
-  formData.code = "";
-  formData.name = "";
-  formData.status = Status.ENABLE;
-}
-
-/**
  * 打开字典编辑弹窗。
  */
 function handleOpenDialog(dictId?: number) {
@@ -213,6 +201,18 @@ function handleOpenDialog(dictId?: number) {
 function handleCloseDialog() {
   dialog.visible = false;
   resetForm();
+}
+
+/**
+ * 重置字典表单，避免新增时带入上次编辑结果。
+ */
+function resetForm() {
+  formDialogRef.value?.resetFields();
+  formDialogRef.value?.clearValidate();
+  formData.id = 0;
+  formData.code = "";
+  formData.name = "";
+  formData.status = Status.ENABLE;
 }
 
 /**

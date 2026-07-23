@@ -242,21 +242,6 @@ function refreshTable() {
 }
 
 /**
- * 重置字典项表单，避免弹窗之间相互污染。
- */
-function resetForm() {
-  formDialogRef.value?.resetFields();
-  formDialogRef.value?.clearValidate();
-  formData.id = 0;
-  formData.dict_id = dictId.value;
-  formData.value = "";
-  formData.label = "";
-  formData.tag_type = "";
-  formData.sort = 1;
-  formData.status = Status.ENABLE;
-}
-
-/**
  * 打开字典项编辑弹窗。
  */
 function handleOpenDialog(dictItemId?: number) {
@@ -276,6 +261,21 @@ function handleOpenDialog(dictItemId?: number) {
 function handleCloseDialog() {
   dialog.visible = false;
   resetForm();
+}
+
+/**
+ * 重置字典项表单，避免弹窗之间相互污染。
+ */
+function resetForm() {
+  formDialogRef.value?.resetFields();
+  formDialogRef.value?.clearValidate();
+  formData.id = 0;
+  formData.dict_id = dictId.value;
+  formData.value = "";
+  formData.label = "";
+  formData.tag_type = "";
+  formData.sort = 1;
+  formData.status = Status.ENABLE;
 }
 
 /**

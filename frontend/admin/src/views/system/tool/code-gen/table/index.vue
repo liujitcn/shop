@@ -617,6 +617,11 @@ async function requestCodeGenTable(params: PageCodeGenTableRequest) {
   return { data: { ...data, list: data.code_gen_tables ?? [] } };
 }
 
+/** 刷新代码生成表配置列表。 */
+function refreshTable() {
+  proTable.value?.getTableList();
+}
+
 /** 打开新增或编辑弹窗，并加载当前表单所需选项。 */
 async function handleOpenDialog(tableId?: number) {
   resetForm();
@@ -646,6 +651,23 @@ async function handleOpenDialog(tableId?: number) {
     dialog.title = "新增代码生成表配置";
   }
   dialog.visible = true;
+}
+
+/** 关闭弹窗并清理表单状态。 */
+function handleCloseDialog() {
+  dialog.visible = false;
+  resetForm();
+}
+
+/** 重置弹窗表单和字段选项。 */
+function resetForm() {
+  Object.assign(formData, { ...createDefaultCodeGenTableForm(), parent_menu_id: undefined });
+  databaseColumns.value = [];
+  leftTreeDatabaseColumns.value = [];
+  void nextTick(() => {
+    formDialogRef.value?.resetFields();
+    formDialogRef.value?.clearValidate();
+  });
 }
 
 /** 选择业务表后同步数据库注释、默认命名、字段选项和树字段默认值。 */
@@ -818,28 +840,6 @@ function resetLeftTreeConfig() {
 function ensureLeftTreeConfig() {
   formData.left_tree_config ??= createDefaultCodeGenLeftTreeConfig();
   return formData.left_tree_config;
-}
-
-/** 重置弹窗表单和字段选项。 */
-function resetForm() {
-  Object.assign(formData, { ...createDefaultCodeGenTableForm(), parent_menu_id: undefined });
-  databaseColumns.value = [];
-  leftTreeDatabaseColumns.value = [];
-  void nextTick(() => {
-    formDialogRef.value?.resetFields();
-    formDialogRef.value?.clearValidate();
-  });
-}
-
-/** 关闭弹窗并清理表单状态。 */
-function handleCloseDialog() {
-  dialog.visible = false;
-  resetForm();
-}
-
-/** 刷新代码生成表配置列表。 */
-function refreshTable() {
-  proTable.value?.getTableList();
 }
 
 </script>

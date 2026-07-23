@@ -327,6 +327,11 @@ async function requestCommentTable(params: Record<string, any>) {
   return { data: { list: data.comment_infos ?? [], total: data.total } };
 }
 
+/** 刷新评论审核列表。 */
+function refreshTable() {
+  proTable.value?.getTableList();
+}
+
 /**
  * 请求租户门店树筛选数据。
  */
@@ -348,11 +353,6 @@ async function requestTenantStoreOptions() {
  */
 function getTenantStoreText(row: CommentInfo) {
   return formatTenantStoreDisplay(row.tenant_store_id, tenantStoreDisplayMap.value);
-}
-
-/** 刷新评论审核列表。 */
-function refreshTable() {
-  proTable.value?.getTableList();
 }
 
 /** 打开评论详情页面。 */

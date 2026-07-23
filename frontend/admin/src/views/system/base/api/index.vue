@@ -280,23 +280,6 @@ function refreshTable() {
 }
 
 /**
- * 格式化工具提示词列表。
- */
-function formatToolPrompts(prompts: string[]) {
-  if (!prompts?.length) return "--";
-  return prompts.filter(Boolean).join("；");
-}
-
-/**
- * 格式化 API 工具状态。
- */
-function formatStatus(status: Status) {
-  if (status === Status.ENABLE) return "启用";
-  if (status === Status.DISABLE) return "禁用";
-  return "未知";
-}
-
-/**
  * 打开 API 详情抽屉。
  */
 async function handleOpenDetail(apiId: number) {
@@ -360,32 +343,6 @@ async function handleSubmitEdit() {
 }
 
 /**
- * 将可选 Schema 转成表格行。
- */
-function schemaRows(schema?: BaseApiDocSchema) {
-  return schema ? [schema] : [];
-}
-
-/**
- * 获取响应体表格行。
- */
-function responseBodyRows(response: BaseApiDocResponse) {
-  return schemaRows(response.body);
-}
-
-/**
- * 格式化 Schema 类型，补充格式、引用类型与枚举值。
- */
-function formatSchemaType(schema: BaseApiDocSchema) {
-  const values = [schema.type];
-  if (schema.format) values.push(`<${schema.format}>`);
-  if (schema.ref) values.push(schema.ref);
-  // ProtoJSON 会省略空 repeated 字段，枚举缺失时按空数组展示。
-  if (schema.enum?.length > 0) values.push(schema.enum.join(" | "));
-  return values.filter(Boolean).join(" ");
-}
-
-/**
  * MCP 工具状态切换前进行二次确认，并调用状态接口完成持久化。
  */
 async function handleBeforeSetMcpStatus(row: BaseApi) {
@@ -427,6 +384,49 @@ async function handleBeforeSetAgentStatus(row: BaseApi) {
   } catch {
     return false;
   }
+}
+
+/**
+ * 格式化工具提示词列表。
+ */
+function formatToolPrompts(prompts: string[]) {
+  if (!prompts?.length) return "--";
+  return prompts.filter(Boolean).join("；");
+}
+
+/**
+ * 格式化 API 工具状态。
+ */
+function formatStatus(status: Status) {
+  if (status === Status.ENABLE) return "启用";
+  if (status === Status.DISABLE) return "禁用";
+  return "未知";
+}
+
+/**
+ * 将可选 Schema 转成表格行。
+ */
+function schemaRows(schema?: BaseApiDocSchema) {
+  return schema ? [schema] : [];
+}
+
+/**
+ * 获取响应体表格行。
+ */
+function responseBodyRows(response: BaseApiDocResponse) {
+  return schemaRows(response.body);
+}
+
+/**
+ * 格式化 Schema 类型，补充格式、引用类型与枚举值。
+ */
+function formatSchemaType(schema: BaseApiDocSchema) {
+  const values = [schema.type];
+  if (schema.format) values.push(`<${schema.format}>`);
+  if (schema.ref) values.push(schema.ref);
+  // ProtoJSON 会省略空 repeated 字段，枚举缺失时按空数组展示。
+  if (schema.enum?.length > 0) values.push(schema.enum.join(" | "));
+  return values.filter(Boolean).join(" ");
 }
 </script>
 

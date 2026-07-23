@@ -175,19 +175,6 @@ function refreshTable() {
 }
 
 /**
- * 重置商品属性表单，确保切换商品后不会带入旧数据。
- */
-function resetForm() {
-  formDialogRef.value?.resetFields();
-  formDialogRef.value?.clearValidate();
-  formData.id = 0;
-  formData.goods_id = goodsId.value;
-  formData.value = "";
-  formData.label = "";
-  formData.sort = 1;
-}
-
-/**
  * 打开商品属性弹窗。
  */
 function handleOpenDialog(propId?: number) {
@@ -199,6 +186,27 @@ function handleOpenDialog(propId?: number) {
   defGoodsPropService.GetGoodsProp({ id: propId }).then(data => {
     Object.assign(formData, data);
   });
+}
+
+/**
+ * 关闭商品属性弹窗并恢复默认表单值。
+ */
+function handleCloseDialog() {
+  dialog.visible = false;
+  resetForm();
+}
+
+/**
+ * 重置商品属性表单，确保切换商品后不会带入旧数据。
+ */
+function resetForm() {
+  formDialogRef.value?.resetFields();
+  formDialogRef.value?.clearValidate();
+  formData.id = 0;
+  formData.goods_id = goodsId.value;
+  formData.value = "";
+  formData.label = "";
+  formData.sort = 1;
 }
 
 /**
@@ -219,14 +227,6 @@ function handleSubmit() {
       refreshTable();
     });
   });
-}
-
-/**
- * 关闭商品属性弹窗并恢复默认表单值。
- */
-function handleCloseDialog() {
-  dialog.visible = false;
-  resetForm();
 }
 
 /**

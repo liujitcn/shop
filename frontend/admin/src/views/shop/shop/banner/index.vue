@@ -311,21 +311,6 @@ async function loadBannerOptions() {
 }
 
 /**
- * 重置轮播图表单，避免切换操作时残留旧值。
- */
-function resetForm() {
-  formDialogRef.value?.resetFields();
-  formDialogRef.value?.clearValidate();
-  formData.id = 0;
-  formData.site = ShopBannerSite.UNKNOWN_SBS;
-  formData.picture = "";
-  formData.href = "";
-  formData.type = ShopBannerType.UNKNOWN_SBT;
-  formData.sort = 1;
-  formData.status = Status.ENABLE;
-}
-
-/**
  * 打开轮播图弹窗，并预加载跳转目标数据。
  */
 async function handleOpenDialog(bannerId?: number) {
@@ -344,6 +329,29 @@ async function handleOpenDialog(bannerId?: number) {
 }
 
 /**
+ * 关闭轮播图弹窗并恢复默认表单值。
+ */
+function handleCloseDialog() {
+  dialog.visible = false;
+  resetForm();
+}
+
+/**
+ * 重置轮播图表单，避免切换操作时残留旧值。
+ */
+function resetForm() {
+  formDialogRef.value?.resetFields();
+  formDialogRef.value?.clearValidate();
+  formData.id = 0;
+  formData.site = ShopBannerSite.UNKNOWN_SBS;
+  formData.picture = "";
+  formData.href = "";
+  formData.type = ShopBannerType.UNKNOWN_SBT;
+  formData.sort = 1;
+  formData.status = Status.ENABLE;
+}
+
+/**
  * 提交轮播图表单。
  */
 function handleSubmit() {
@@ -359,14 +367,6 @@ function handleSubmit() {
       refreshTable();
     });
   });
-}
-
-/**
- * 关闭轮播图弹窗并恢复默认表单值。
- */
-function handleCloseDialog() {
-  dialog.visible = false;
-  resetForm();
 }
 
 /**

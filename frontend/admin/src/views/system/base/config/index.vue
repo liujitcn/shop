@@ -267,21 +267,6 @@ function refreshTable() {
 }
 
 /**
- * 重置系统配置表单，避免新增时保留旧值。
- */
-function resetForm() {
-  formDialogRef.value?.resetFields();
-  formDialogRef.value?.clearValidate();
-  formData.id = 0;
-  formData.site = BaseConfigSite.UNKNOWN_BCS;
-  formData.name = "";
-  formData.type = BaseConfigType.UNKNOWN_BCT;
-  formData.key = "";
-  formData.value = "";
-  formData.status = Status.ENABLE;
-}
-
-/**
  * 打开系统配置弹窗。
  */
 function handleOpenDialog(configId?: number) {
@@ -296,13 +281,27 @@ function handleOpenDialog(configId?: number) {
 }
 
 /**
- * 刷新服务端配置缓存，使用防抖避免重复点击。
+ * 关闭系统配置弹窗并恢复默认表单值。
  */
-const handleRefreshCache = useDebounceFn(() => {
-  defBaseConfigService.RefreshBaseConfigCache({}).then(() => {
-    ElMessage.success("刷新成功");
-  });
-}, 1000);
+function handleCloseDialog() {
+  dialog.visible = false;
+  resetForm();
+}
+
+/**
+ * 重置系统配置表单，避免新增时保留旧值。
+ */
+function resetForm() {
+  formDialogRef.value?.resetFields();
+  formDialogRef.value?.clearValidate();
+  formData.id = 0;
+  formData.site = BaseConfigSite.UNKNOWN_BCS;
+  formData.name = "";
+  formData.type = BaseConfigType.UNKNOWN_BCT;
+  formData.key = "";
+  formData.value = "";
+  formData.status = Status.ENABLE;
+}
 
 /**
  * 提交系统配置表单。
@@ -324,12 +323,13 @@ function handleSubmit() {
 }
 
 /**
- * 关闭系统配置弹窗并恢复默认表单值。
+ * 刷新服务端配置缓存，使用防抖避免重复点击。
  */
-function handleCloseDialog() {
-  dialog.visible = false;
-  resetForm();
-}
+const handleRefreshCache = useDebounceFn(() => {
+  defBaseConfigService.RefreshBaseConfigCache({}).then(() => {
+    ElMessage.success("刷新成功");
+  });
+}, 1000);
 
 /**
  * 在系统配置状态切换前先完成确认与接口调用，避免首屏渲染触发误操作。

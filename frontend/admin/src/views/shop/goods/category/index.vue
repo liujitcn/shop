@@ -289,20 +289,6 @@ async function loadCategoryOptions() {
 }
 
 /**
- * 重置分类表单，避免上次编辑残留到下一次新增。
- */
-function resetForm() {
-  formDialogRef.value?.resetFields();
-  formDialogRef.value?.clearValidate();
-  formData.id = 0;
-  formData.parent_id = 0;
-  formData.name = "";
-  formData.picture = "";
-  formData.sort = 1;
-  formData.status = Status.ENABLE;
-}
-
-/**
  * 打开分类弹窗。
  */
 async function handleOpenDialog(parent_id?: number, categoryId?: number) {
@@ -319,6 +305,28 @@ async function handleOpenDialog(parent_id?: number, categoryId?: number) {
   }
 
   formData.parent_id = parent_id ?? 0;
+}
+
+/**
+ * 关闭分类弹窗并恢复表单默认值。
+ */
+function handleCloseDialog() {
+  dialog.visible = false;
+  resetForm();
+}
+
+/**
+ * 重置分类表单，避免上次编辑残留到下一次新增。
+ */
+function resetForm() {
+  formDialogRef.value?.resetFields();
+  formDialogRef.value?.clearValidate();
+  formData.id = 0;
+  formData.parent_id = 0;
+  formData.name = "";
+  formData.picture = "";
+  formData.sort = 1;
+  formData.status = Status.ENABLE;
 }
 
 /**
@@ -404,11 +412,4 @@ function handleDelete(selected?: number | string | Array<number | string> | Good
   );
 }
 
-/**
- * 关闭分类弹窗并恢复表单默认值。
- */
-function handleCloseDialog() {
-  dialog.visible = false;
-  resetForm();
-}
 </script>

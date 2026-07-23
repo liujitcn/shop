@@ -195,21 +195,6 @@ function refreshTable() {
 }
 
 /**
- * 重置热门推荐表单，清理上次编辑残留。
- */
-function resetForm() {
-  formDialogRef.value?.resetFields();
-  formDialogRef.value?.clearValidate();
-  formData.id = 0;
-  formData.title = "";
-  formData.desc = "";
-  formData.banner = "";
-  formData.picture = [];
-  formData.sort = 1;
-  formData.status = Status.ENABLE;
-}
-
-/**
  * 打开热门推荐弹窗。
  */
 function handleOpenDialog(hotId?: number) {
@@ -229,6 +214,21 @@ function handleOpenDialog(hotId?: number) {
 function handleCloseDialog() {
   dialog.visible = false;
   resetForm();
+}
+
+/**
+ * 重置热门推荐表单，清理上次编辑残留。
+ */
+function resetForm() {
+  formDialogRef.value?.resetFields();
+  formDialogRef.value?.clearValidate();
+  formData.id = 0;
+  formData.title = "";
+  formData.desc = "";
+  formData.banner = "";
+  formData.picture = [];
+  formData.sort = 1;
+  formData.status = Status.ENABLE;
 }
 
 /**

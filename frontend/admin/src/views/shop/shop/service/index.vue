@@ -181,19 +181,6 @@ function refreshTable() {
 }
 
 /**
- * 重置商城服务表单，避免编辑残留污染下次新增。
- */
-function resetForm() {
-  formDialogRef.value?.resetFields();
-  formDialogRef.value?.clearValidate();
-  formData.id = 0;
-  formData.label = "";
-  formData.value = "";
-  formData.sort = 1;
-  formData.status = Status.ENABLE;
-}
-
-/**
  * 打开商城服务弹窗，编辑前先清理旧表单避免闪烁旧数据。
  */
 function handleOpenDialog(serviceId?: number) {
@@ -213,6 +200,19 @@ function handleOpenDialog(serviceId?: number) {
 function handleCloseDialog() {
   dialog.visible = false;
   resetForm();
+}
+
+/**
+ * 重置商城服务表单，避免编辑残留污染下次新增。
+ */
+function resetForm() {
+  formDialogRef.value?.resetFields();
+  formDialogRef.value?.clearValidate();
+  formData.id = 0;
+  formData.label = "";
+  formData.value = "";
+  formData.sort = 1;
+  formData.status = Status.ENABLE;
 }
 
 /**

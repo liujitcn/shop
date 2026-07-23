@@ -844,6 +844,34 @@ const columns = computed<ColumnProps[]>(() => [
 ]);
 
 /**
+ * 请求订单分页列表，并补齐固定筛选参数。
+ */
+async function requestOrderTable(params: PageOrderInfoRequest) {
+  const searchParams = params as OrderInfoSearchParams;
+  // 默认租户按树节点解析租户或门店，普通租户直接传下拉选择的门店编号。
+  const tenantStoreSelection = isDefaultTenant.value
+    ? parseTenantStoreTreeValue(searchParams.tenant_store_tree_value)
+    : { tenant_store_id: searchParams.tenant_store_id };
+  const { tenant_store_tree_value: _tenantStoreTreeValue, tenant_id: _tenantId, tenant_store_id: _tenantStoreId, ...requestParams } = searchParams;
+  const data = await defOrderInfoService.PageOrderInfo(
+    buildPageRequest({
+      ...requestParams,
+      tenant_id: tenantStoreSelection.tenant_id,
+      tenant_store_id: tenantStoreSelection.tenant_store_id,
+      user_id: Number(params.user_id ?? 0),
+      status: props.status || params.status,
+      created_at: params.created_at ?? ["", ""]
+    })
+  );
+  return { data: { list: data.order_infos ?? [], total: data.total } };
+}
+
+/** 刷新订单表格。 */
+function refreshTable() {
+  proTable.value?.getTableList();
+}
+
+/**
  * 按关键字远程加载用户下拉项；空关键字直接清空，避免查询全量用户。
  */
 async function loadUserOptionsByKeyword(keyword: string) {
@@ -886,29 +914,6 @@ function getTenantStoreText(row: OrderInfo) {
  */
 function handleUserSearch(keyword: string) {
   loadUserOptionsByKeyword(keyword);
-}
-
-/**
- * 请求订单分页列表，并补齐固定筛选参数。
- */
-async function requestOrderTable(params: PageOrderInfoRequest) {
-  const searchParams = params as OrderInfoSearchParams;
-  // 默认租户按树节点解析租户或门店，普通租户直接传下拉选择的门店编号。
-  const tenantStoreSelection = isDefaultTenant.value
-    ? parseTenantStoreTreeValue(searchParams.tenant_store_tree_value)
-    : { tenant_store_id: searchParams.tenant_store_id };
-  const { tenant_store_tree_value: _tenantStoreTreeValue, tenant_id: _tenantId, tenant_store_id: _tenantStoreId, ...requestParams } = searchParams;
-  const data = await defOrderInfoService.PageOrderInfo(
-    buildPageRequest({
-      ...requestParams,
-      tenant_id: tenantStoreSelection.tenant_id,
-      tenant_store_id: tenantStoreSelection.tenant_store_id,
-      user_id: Number(params.user_id ?? 0),
-      status: props.status || params.status,
-      created_at: params.created_at ?? ["", ""]
-    })
-  );
-  return { data: { list: data.order_infos ?? [], total: data.total } };
 }
 
 /**
@@ -1024,7 +1029,7 @@ function handleShippedSubmitClick() {
       defOrderInfoService.ShipOrderInfo(formDataShipped).then(() => {
         ElMessage.success("订单发货成功");
         handleCloseShippedDialog();
-        proTable.value?.getTableList();
+        refreshTable();
       });
     })
     .catch(() => undefined);
@@ -1104,7 +1109,7 @@ function handleRefundSubmitClick() {
       defOrderInfoService.RefundOrderInfo(submitData).then(() => {
         ElMessage.success("退款申请已提交");
         handleCloseRefundDialog();
-        proTable.value?.getTableList();
+        refreshTable();
       });
     })
     .catch(() => undefined);

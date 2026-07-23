@@ -697,13 +697,6 @@ function normalizeMenuForm(data?: Partial<BaseMenuForm>): MenuFormState {
   };
 }
 
-/** 重置当前表单数据和校验状态，避免新增与编辑切换时残留旧值。 */
-function resetForm(data?: Partial<BaseMenuForm>) {
-  formDialogRef.value?.resetFields();
-  formDialogRef.value?.clearValidate();
-  Object.assign(formData, normalizeMenuForm(data));
-}
-
 /** 构建可选父级菜单树，并记录父节点类型用于约束下级菜单类型。 */
 function buildMenuOptions(menuList: BaseMenu[] = []) {
   const typeMap = new Map<number, BaseMenuType>();
@@ -840,6 +833,21 @@ async function handleOpenDialog(parentMenu?: BaseMenu, menuId?: number) {
   dialog.title = "新增菜单";
 }
 
+/** 关闭菜单弹窗并显式重置表单与校验状态。 */
+function handleCloseDialog() {
+  dialog.visible = false;
+  dialog.parentType = BaseMenuType.UNKNOWN_MT;
+  dialog.parentLocked = true;
+  resetForm();
+}
+
+/** 重置当前表单数据和校验状态，避免新增与编辑切换时残留旧值。 */
+function resetForm(data?: Partial<BaseMenuForm>) {
+  formDialogRef.value?.resetFields();
+  formDialogRef.value?.clearValidate();
+  Object.assign(formData, normalizeMenuForm(data));
+}
+
 /** 提交菜单表单，并在成功后关闭弹窗、刷新表格。 */
 async function handleSubmit() {
   const valid = await formDialogRef.value?.validate();
@@ -856,14 +864,6 @@ async function handleSubmit() {
 
   handleCloseDialog();
   refreshTable();
-}
-
-/** 关闭菜单弹窗并显式重置表单与校验状态。 */
-function handleCloseDialog() {
-  dialog.visible = false;
-  dialog.parentType = BaseMenuType.UNKNOWN_MT;
-  dialog.parentLocked = true;
-  resetForm();
 }
 
 /**

@@ -206,14 +206,6 @@ function refreshTable() {
 }
 
 /**
- * 格式化门店地址，兼容地址数组为空或未返回的情况。
- */
-function formatAddress(address?: string[], detailAddress?: string) {
-  const addressText = Array.isArray(address) ? address.filter(Boolean).join("-") : "";
-  return [addressText, detailAddress].filter(Boolean).join(" ") || "--";
-}
-
-/**
  * 打开用户门店详情弹窗。
  */
 function handleOpenDialog(storeId?: number) {
@@ -274,5 +266,13 @@ function handleSubmitClick() {
       refreshTable();
     });
   });
+}
+
+/**
+ * 格式化门店地址，兼容地址数组为空或未返回的情况。
+ */
+function formatAddress(address?: string[], detailAddress?: string) {
+  const addressText = Array.isArray(address) ? address.filter(Boolean).join("-") : "";
+  return [addressText, detailAddress].filter(Boolean).join(" ") || "--";
 }
 </script>

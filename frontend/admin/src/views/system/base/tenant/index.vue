@@ -199,6 +199,27 @@ function isProtectedManagementTenant(row?: BaseTenant) {
 }
 
 /**
+ * 打开租户弹窗，并按新增或编辑场景回填表单数据。
+ */
+async function handleOpenDialog(tenantId?: number) {
+  resetForm();
+  dialog.title = tenantId ? "修改租户" : "新增租户";
+  dialog.visible = true;
+  if (!tenantId) return;
+
+  const data = await defBaseTenantService.GetBaseTenant({ id: tenantId });
+  Object.assign(formData, data);
+}
+
+/**
+ * 关闭租户弹窗并恢复默认表单值。
+ */
+function handleCloseDialog() {
+  dialog.visible = false;
+  resetForm();
+}
+
+/**
  * 重置租户表单，避免新增时保留旧值。
  */
 function resetForm() {
@@ -211,19 +232,6 @@ function resetForm() {
   formData.contact_phone = "";
   formData.status = Status.ENABLE;
   formData.remark = "";
-}
-
-/**
- * 打开租户弹窗，并按新增或编辑场景回填表单数据。
- */
-async function handleOpenDialog(tenantId?: number) {
-  resetForm();
-  dialog.title = tenantId ? "修改租户" : "新增租户";
-  dialog.visible = true;
-  if (!tenantId) return;
-
-  const data = await defBaseTenantService.GetBaseTenant({ id: tenantId });
-  Object.assign(formData, data);
 }
 
 /**
@@ -243,14 +251,6 @@ function handleSubmit() {
       refreshTable();
     });
   });
-}
-
-/**
- * 关闭租户弹窗并恢复默认表单值。
- */
-function handleCloseDialog() {
-  dialog.visible = false;
-  resetForm();
 }
 
 /**
