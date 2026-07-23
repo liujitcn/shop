@@ -902,7 +902,7 @@ func (c *renderer) renderFrontendColumns(table *Table, columns []*CodeGenColumn,
         search: { el: "select", key: "tenant_id", props: { filterable: true }, order: 1 },
         enum: requestTenantOptions
       }]
-    : []),`)
+    : [])`)
 	}
 	treeParentColumn := ""
 	treeLabelColumn := ""
