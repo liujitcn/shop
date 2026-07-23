@@ -355,7 +355,7 @@ const columns: ColumnProps[] = [
   {
     prop: "operation",
     label: "操作",
-    width: 600,
+    width: 660,
     fixed: "right",
     cellType: "actions",
     actions: [
