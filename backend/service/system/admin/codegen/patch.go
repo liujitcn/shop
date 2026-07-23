@@ -228,6 +228,10 @@ func (c *renderer) generatedProtoMethods(table *Table, columns []*CodeGenColumn,
 			applySavedProtoMethod(check, saved)
 		}
 		exists, _ := c.protoMethodExists(check.ProtoFilePath, check.TargetEntityName, check.MethodName)
+		// 外部目标接口已存在时仅供当前页面引用，不再触发外部补齐文件生成。
+		if exists && DefaultString(check.TargetEntityName, table.EntityName) != table.EntityName {
+			check.GenerateWhenMissing = false
+		}
 		if exists || table.GenBackend == 1 && check.GenerateWhenMissing {
 			list = append(list, c.protoCheckToModel(check))
 		}
@@ -245,6 +249,10 @@ func (c *renderer) frontendProtoMethods(table *Table, columns []*CodeGenColumn, 
 			applySavedProtoMethod(check, saved)
 		}
 		exists, _ := c.protoMethodExists(check.ProtoFilePath, check.TargetEntityName, check.MethodName)
+		// 外部目标接口已存在时仅供当前页面引用，不再触发外部补齐文件生成。
+		if exists && DefaultString(check.TargetEntityName, table.EntityName) != table.EntityName {
+			check.GenerateWhenMissing = false
+		}
 		if exists || table.GenBackend == 1 && check.GenerateWhenMissing {
 			list = append(list, c.protoCheckToModel(check))
 		}
