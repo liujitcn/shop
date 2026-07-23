@@ -62,6 +62,8 @@ func applySavedProtoMethod(check *ProtoCheck, saved *Proto) {
 	if saved.ValueColumn != "" {
 		check.ValueColumn = saved.ValueColumn
 	}
+	check.OptionStatusColumn = saved.OptionStatusColumn
+	check.OptionStatusEnabledValue = saved.OptionStatusEnabledValue
 	if saved.APIKind == APIKindStatus && saved.Name != "" {
 		check.Name = saved.Name
 	}

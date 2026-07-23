@@ -121,38 +121,42 @@ type Table struct {
 
 // Proto 描述一次代码生成所需的 Proto 接口配置快照。
 type Proto struct {
-	ID                  int64  // Proto 配置 ID
-	TableID             int64  // 代码生成表配置 ID
-	Name                string // 触发字段名
-	TriggerType         string // 触发来源
-	APIKind             string // 接口类型
-	TargetEntityName    string // 目标实体名
-	TargetBusinessName  string // 目标数据库表描述
-	MethodName          string // RPC 方法名
-	ProtoFilePath       string // Proto 文件路径
-	ParentColumn        string // 树接口父节点字段
-	LabelColumn         string // 选项显示字段
-	ValueColumn         string // 选项取值字段
-	GenerateWhenMissing int32  // 缺失时是否生成
-	Sort                int32  // 排序
+	ID                       int64  // Proto 配置 ID
+	TableID                  int64  // 代码生成表配置 ID
+	Name                     string // 触发字段名
+	TriggerType              string // 触发来源
+	APIKind                  string // 接口类型
+	TargetEntityName         string // 目标实体名
+	TargetBusinessName       string // 目标数据库表描述
+	MethodName               string // RPC 方法名
+	ProtoFilePath            string // Proto 文件路径
+	ParentColumn             string // 树接口父节点字段
+	LabelColumn              string // 选项显示字段
+	ValueColumn              string // 选项取值字段
+	OptionStatusColumn       string // Option 禁用状态字段
+	OptionStatusEnabledValue string // Option 状态启用值
+	GenerateWhenMissing      int32  // 缺失时是否生成
+	Sort                     int32  // 排序
 }
 
 // ProtoCheck 描述渲染阶段推导出的 Proto 接口检查项。
 type ProtoCheck struct {
-	TableID             int64  // 代码生成表配置 ID
-	Name                string // 触发字段名
-	TriggerType         string // 触发来源
-	APIKind             string // 接口类型
-	TargetEntityName    string // 目标实体名
-	TargetBusinessName  string // 目标数据库表描述
-	MethodName          string // RPC 方法名
-	ProtoFilePath       string // Proto 文件路径
-	Exists              bool   // RPC 是否已经存在
-	GenerateWhenMissing bool   // 缺失时是否生成
-	ParentColumn        string // 树接口父节点字段
-	LabelColumn         string // 选项显示字段
-	ValueColumn         string // 选项取值字段
-	Message             string // 检查说明
+	TableID                  int64  // 代码生成表配置 ID
+	Name                     string // 触发字段名
+	TriggerType              string // 触发来源
+	APIKind                  string // 接口类型
+	TargetEntityName         string // 目标实体名
+	TargetBusinessName       string // 目标数据库表描述
+	MethodName               string // RPC 方法名
+	ProtoFilePath            string // Proto 文件路径
+	Exists                   bool   // RPC 是否已经存在
+	GenerateWhenMissing      bool   // 缺失时是否生成
+	ParentColumn             string // 树接口父节点字段
+	LabelColumn              string // 选项显示字段
+	ValueColumn              string // 选项取值字段
+	OptionStatusColumn       string // Option 禁用状态字段
+	OptionStatusEnabledValue string // Option 状态启用值
+	Message                  string // 检查说明
 }
 
 // CodeGenProtoPatch 描述向现有 Proto 文件追加的内容。
@@ -425,6 +429,8 @@ type CodeGenLeftTreeConfig struct {
 	SourceType string `json:"source_type"`
 	// SourceValue 左树数据源值。
 	SourceValue string `json:"source_value"`
+	// Comment 左树数据表描述。
+	Comment string `json:"comment"`
 	// FilterColumn 列表关联筛选字段。
 	FilterColumn string `json:"filter_column"`
 	// ParentColumn 树节点父级字段。

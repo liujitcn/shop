@@ -527,6 +527,18 @@ func (c *CodeGenCase) loadCodeGenContext(ctx context.Context, tableID int64) (*c
 	if err != nil {
 		return nil, nil, nil, err
 	}
+	if table.TableComment == "" {
+		var tableInfos []dto.CodeGenDatabaseTable
+		tableInfos, err = c.codeGenTableCase.listDatabaseTables(ctx, []string{tableModel.Name})
+		if err != nil {
+			return nil, nil, nil, err
+		}
+		if len(tableInfos) > 0 {
+			table.TableComment = tableInfos[0].TableComment
+		}
+	}
+	table.TableComment = codegen.DefaultString(table.TableComment, table.BusinessName)
+	table.BusinessName = codegen.DefaultString(table.TableComment, table.BusinessName)
 	var columnConfigs []*systemadminv1.CodeGenColumn
 	columnConfigs, err = c.codeGenColumnCase.listCodeGenColumns(ctx, tableID)
 	if err != nil {
@@ -544,11 +556,112 @@ func (c *CodeGenCase) loadCodeGenContext(ctx context.Context, tableID int64) (*c
 		return nil, nil, nil, err
 	}
 	var protos []*codegen.Proto
-	protos, err = codeGenProtosToSnapshots(protoChecks.GetCodeGenProtos())
+	protos, err = codeGenProtosToSnapshots(protoChecks.GetCodeGenProtos(), table.TableComment)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	err = c.enrichCodeGenProtoTargetComments(ctx, table, columns, protos)
 	if err != nil {
 		return nil, nil, nil, err
 	}
 	return table, columns, protos, nil
+}
+
+// enrichCodeGenProtoTargetComments 补齐左树和外部选项目标表的业务描述及状态元数据。
+func (c *CodeGenCase) enrichCodeGenProtoTargetComments(ctx context.Context, table *codegen.Table, columns []*codegen.CodeGenColumn, protos []*codegen.Proto) error {
+	leftTreeConfig := codegen.LeftTreeConfigFromTable(table)
+	tableNames := make([]string, 0, len(protos))
+	seenTableNames := make(map[string]struct{}, len(protos))
+	for _, proto := range protos {
+		if proto.TargetEntityName == "" || proto.TargetEntityName == table.EntityName {
+			continue
+		}
+		tableName := stringcase.ToSnakeCase(proto.TargetEntityName)
+		if proto.TriggerType == codegen.TriggerLeftTree && leftTreeConfig.SourceValue != "" {
+			tableName = leftTreeConfig.SourceValue
+		}
+		if _, exists := seenTableNames[tableName]; exists {
+			continue
+		}
+		seenTableNames[tableName] = struct{}{}
+		tableNames = append(tableNames, tableName)
+	}
+	var tableInfos []dto.CodeGenDatabaseTable
+	var err error
+	if len(tableNames) > 0 {
+		tableInfos, err = c.codeGenTableCase.listDatabaseTables(ctx, tableNames)
+		if err != nil {
+			return err
+		}
+	}
+	commentsByTableName := make(map[string]string, len(tableInfos))
+	for _, tableInfo := range tableInfos {
+		commentsByTableName[tableInfo.TableName] = tableInfo.TableComment
+	}
+	var configuredTables []*models.CodeGenTable
+	if len(tableNames) > 0 {
+		query := c.codeGenTableCase.Query(ctx).CodeGenTable
+		configuredTables, err = c.codeGenTableCase.List(ctx, repository.Where(query.Name.In(tableNames...)))
+		if err != nil {
+			return err
+		}
+		for _, configuredTable := range configuredTables {
+			if configuredTable.Comment != "" {
+				commentsByTableName[configuredTable.Name] = configuredTable.Comment
+			}
+		}
+	}
+	configuredTablesByName := make(map[string]*models.CodeGenTable, len(configuredTables))
+	for _, configuredTable := range configuredTables {
+		configuredTablesByName[configuredTable.Name] = configuredTable
+	}
+	columnSnapshotsByEntity := map[string][]*codegen.CodeGenColumn{table.EntityName: columns}
+	for _, proto := range protos {
+		if !codegen.IsOptionProtoMethod(proto) {
+			continue
+		}
+		targetEntity := codegen.DefaultString(proto.TargetEntityName, table.EntityName)
+		if _, exists := columnSnapshotsByEntity[targetEntity]; !exists {
+			tableName := stringcase.ToSnakeCase(targetEntity)
+			if proto.TriggerType == codegen.TriggerLeftTree && leftTreeConfig.SourceValue != "" {
+				tableName = leftTreeConfig.SourceValue
+			}
+			var databaseColumns []dto.CodeGenDatabaseColumn
+			databaseColumns, err = c.codeGenColumnCase.listDatabaseColumns(ctx, tableName)
+			if err != nil {
+				return err
+			}
+			var targetConfigs []*systemadminv1.CodeGenColumn
+			if configuredTable := configuredTablesByName[tableName]; configuredTable != nil {
+				targetConfigs, err = c.codeGenColumnCase.listCodeGenColumns(ctx, configuredTable.ID)
+				if err != nil {
+					return err
+				}
+			}
+			columnSnapshotsByEntity[targetEntity] = codeGenColumnsToSnapshots(targetConfigs, databaseColumns)
+		}
+		statusColumn, statusEnabledValue, ok := codegen.OptionStatusMetadata(columnSnapshotsByEntity[targetEntity])
+		if ok {
+			proto.OptionStatusColumn = statusColumn
+			proto.OptionStatusEnabledValue = statusEnabledValue
+		}
+	}
+	for _, proto := range protos {
+		if proto.TargetEntityName == "" || proto.TargetEntityName == table.EntityName {
+			proto.TargetBusinessName = table.TableComment
+			continue
+		}
+		tableName := stringcase.ToSnakeCase(proto.TargetEntityName)
+		if proto.TriggerType == codegen.TriggerLeftTree && leftTreeConfig.SourceValue != "" {
+			tableName = leftTreeConfig.SourceValue
+		}
+		comment := commentsByTableName[tableName]
+		if proto.TriggerType == codegen.TriggerLeftTree && leftTreeConfig.Comment != "" {
+			comment = leftTreeConfig.Comment
+		}
+		proto.TargetBusinessName = codegen.DefaultString(comment, proto.TargetEntityName)
+	}
+	return nil
 }
 
 // validateGeneratedOptionMethods 校验选项接口字段能安全写入公共响应类型。
@@ -763,6 +876,7 @@ func codeGenTableToSnapshot(item *models.CodeGenTable) (*codegen.Table, error) {
 			Enabled:      item.PageType == codegen.PageTypeLeftTree,
 			SourceType:   codegen.OptionSourceTable,
 			SourceValue:  config.GetTableName(),
+			Comment:      config.GetComment(),
 			FilterColumn: config.GetFilterColumn(),
 			ParentColumn: config.GetParentColumn(),
 			LabelColumn:  config.GetLabelColumn(),
@@ -884,7 +998,7 @@ func codeGenOptionToSnapshot(option *systemadminv1.CodeGenColumnOptionConfig) co
 }
 
 // codeGenProtosToSnapshots 将现有Proto配置转换为生成器只读快照。
-func codeGenProtosToSnapshots(items []*systemadminv1.CodeGenProtoCheck) ([]*codegen.Proto, error) {
+func codeGenProtosToSnapshots(items []*systemadminv1.CodeGenProtoCheck, tableComment string) ([]*codegen.Proto, error) {
 	protos := make([]*codegen.Proto, 0, len(items))
 	for _, item := range items {
 		config := item.GetConfig()
@@ -898,7 +1012,7 @@ func codeGenProtosToSnapshots(items []*systemadminv1.CodeGenProtoCheck) ([]*code
 			TriggerType:        item.GetTriggerType(),
 			APIKind:            item.GetApiKind(),
 			TargetEntityName:   item.GetTargetEntityName(),
-			TargetBusinessName: item.GetTargetEntityName(),
+			TargetBusinessName: codegen.DefaultString(tableComment, item.GetTargetEntityName()),
 			MethodName:         item.GetMethodName(),
 			ProtoFilePath:      item.GetProtoFilePath(),
 			ParentColumn:       config.GetParentColumn(),

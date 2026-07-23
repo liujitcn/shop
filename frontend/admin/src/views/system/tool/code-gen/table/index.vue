@@ -633,6 +633,13 @@ async function handleOpenDialog(tableId?: number) {
     Object.assign(formData, detail);
     formData.parent_menu_id = detail.parent_menu_id || undefined;
     formData.left_tree_config ??= createDefaultCodeGenLeftTreeConfig();
+    if (!formData.comment) {
+      formData.comment = databaseTables.value.find(item => item.name === formData.name)?.comment ?? "";
+    }
+    if (!formData.left_tree_config.comment) {
+      formData.left_tree_config.comment =
+        databaseTables.value.find(item => item.name === formData.left_tree_config?.table_name)?.comment ?? "";
+    }
     await Promise.all([loadDatabaseColumns(databaseColumns, formData.name), loadLeftTreeDatabaseColumns()]);
     dialog.title = "编辑代码生成表配置";
   } else {

@@ -23,6 +23,7 @@ type backendBizTemplateData struct {
 	BusinessName string
 	APIImport    string
 	JSONImport   string
+	ErrorImport  string
 	Repository   string
 	FormType     string
 	ModelType    string

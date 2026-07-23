@@ -122,6 +122,7 @@ func (c *%sCase) Delete%s(ctx context.Context, ids string) error {
 			mainMethods = mainMethods[getMethodIndex:]
 		}
 	}
+	mainMethods = replaceGeneratedDeleteMethod(mainMethods, entity, c.renderDeleteBizMethod(table, columns, treeMethod != nil))
 	methodsBuilder.WriteString(mainMethods)
 	for _, statusMethod := range methodsByKinds(methods, APIKindStatus) {
 		statusColumn := findStatusColumn(columns, statusMethod.Name)
@@ -162,6 +163,7 @@ func (c *%sCase) build%sTree(list []*models.%s, parentID int64) []*systemadminv1
 		BusinessName: table.BusinessName,
 		APIImport:    target.GoAlias + " \"" + target.GoImportPath + "\"",
 		JSONImport:   renderBackendJSONImport(columns),
+		ErrorImport:  renderBackendErrorImport(treeMethod != nil),
 		Repository:   repoField,
 		FormType:     formType,
 		ModelType:    modelType,
@@ -175,6 +177,71 @@ func (c *%sCase) build%sTree(list []*models.%s, parentID int64) []*systemadminv1
 		content = strings.Replace(content, "\t_time \"github.com/liujitcn/go-utils/time\"\n", "", 1)
 	}
 	return reorderGoReceiverMethods(content, entity+"Case")
+}
+
+// renderDeleteBizMethod 渲染删除业务方法，树形页面额外阻止删除含有子节点的记录。
+func (c *renderer) renderDeleteBizMethod(table *Table, columns []*CodeGenColumn, tree bool) string {
+	entity := table.EntityName
+	if !tree {
+		return fmt.Sprintf(`// Delete%s 删除%s。
+func (c *%sCase) Delete%s(ctx context.Context, ids string) error {
+	return c.DeleteByIDs(ctx, _string.ConvertStringToInt64Array(ids))
+}
+`, entity, table.BusinessName, entity, entity)
+	}
+	parentColumn := DefaultString(table.ParentColumn, "parent_id")
+	parentType := "int64"
+	if parent := FindColumnByName(columns, parentColumn); parent != nil {
+		parentType = DefaultString(parent.GoType, InferGoType(parent.DbType))
+	}
+	parentID := "parentID"
+	if parentType == "int32" {
+		parentID = "int32(parentID)"
+	}
+	return fmt.Sprintf(`// Delete%s 删除%s。
+func (c *%sCase) Delete%s(ctx context.Context, ids string) error {
+	idList := _string.ConvertStringToInt64Array(ids)
+	if len(idList) == 0 {
+		return nil
+	}
+	query := c.Query(ctx).%s
+	for _, parentID := range idList {
+		count, err := c.Count(ctx, repository.Where(query.%s.Eq(%s)))
+		if err != nil {
+			return err
+		}
+		if count > 0 {
+			return errorsx.HasChildrenConflict("删除%s失败，下面有%s", "%s", "%s")
+		}
+	}
+	return c.DeleteByIDs(ctx, idList)
+}
+`, entity, table.BusinessName, entity, entity, entity, modelFieldName(parentColumn), parentID, table.BusinessName, table.BusinessName, table.TableName_, table.TableName_)
+}
+
+// replaceGeneratedDeleteMethod 替换标准业务方法中的删除方法。
+func replaceGeneratedDeleteMethod(content string, entity string, deleteMethod string) string {
+	start := strings.Index(content, "// Delete"+entity+" ")
+	if start < 0 {
+		return content
+	}
+	closingBrace := strings.Index(content[start:], "\n}")
+	if closingBrace < 0 {
+		return content
+	}
+	end := start + closingBrace + len("\n}")
+	if end < len(content) && content[end] == '\n' {
+		end++
+	}
+	return content[:start] + deleteMethod + content[end:]
+}
+
+// renderBackendErrorImport 返回树删除校验所需的错误包导入。
+func renderBackendErrorImport(tree bool) string {
+	if !tree {
+		return ""
+	}
+	return `"shop/pkg/errorsx"`
 }
 
 // renderBackendJSONImport 判断生成业务文件是否需要 JSON 标准库导入。

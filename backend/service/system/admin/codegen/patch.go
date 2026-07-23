@@ -255,18 +255,20 @@ func (c *renderer) frontendProtoMethods(table *Table, columns []*CodeGenColumn, 
 // protoCheckToModel 将检查项转换为生成方法配置。
 func (c *renderer) protoCheckToModel(check *ProtoCheck) *Proto {
 	return &Proto{
-		TableID:             check.TableID,
-		Name:                check.Name,
-		TriggerType:         check.TriggerType,
-		APIKind:             check.APIKind,
-		TargetEntityName:    check.TargetEntityName,
-		TargetBusinessName:  check.TargetBusinessName,
-		MethodName:          check.MethodName,
-		ProtoFilePath:       check.ProtoFilePath,
-		ParentColumn:        check.ParentColumn,
-		LabelColumn:         check.LabelColumn,
-		ValueColumn:         check.ValueColumn,
-		GenerateWhenMissing: BoolToInt32(check.GenerateWhenMissing),
+		TableID:                  check.TableID,
+		Name:                     check.Name,
+		TriggerType:              check.TriggerType,
+		APIKind:                  check.APIKind,
+		TargetEntityName:         check.TargetEntityName,
+		TargetBusinessName:       check.TargetBusinessName,
+		MethodName:               check.MethodName,
+		ProtoFilePath:            check.ProtoFilePath,
+		ParentColumn:             check.ParentColumn,
+		LabelColumn:              check.LabelColumn,
+		ValueColumn:              check.ValueColumn,
+		OptionStatusColumn:       check.OptionStatusColumn,
+		OptionStatusEnabledValue: check.OptionStatusEnabledValue,
+		GenerateWhenMissing:      BoolToInt32(check.GenerateWhenMissing),
 	}
 }
 

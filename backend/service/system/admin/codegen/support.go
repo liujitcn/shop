@@ -394,6 +394,7 @@ func (c *renderer) renderQueryOptions(columns []*CodeGenColumn) string {
 func (c *renderer) renderOptionBizMethod(table *Table, columns []*CodeGenColumn, method *Proto) string {
 	labelField := modelFieldName(DefaultString(method.LabelColumn, "name"))
 	valueExpr := fmt.Sprintf("int64(item.%s)", modelFieldName(DefaultString(method.ValueColumn, "id")))
+	disabledExpr := renderOptionDisabledExpression(columns, method)
 	defaultOrderOption := renderDefaultOrderOption(columns)
 	orderOptionCount := 0
 	queryDeclaration := ""
@@ -412,12 +413,12 @@ func (c *%sCase) %s(ctx context.Context, _ *systemadminv1.%sRequest) (*commonv1.
 	}
 	options := make([]*commonv1.SelectOptionResponse_Option, 0, len(list))
 	for _, item := range list {
-		options = append(options, &commonv1.SelectOptionResponse_Option{Label: fmt.Sprint(item.%s), Value: %s})
+		options = append(options, &commonv1.SelectOptionResponse_Option{Label: fmt.Sprint(item.%s), Value: %s%s})
 	}
 	return &commonv1.SelectOptionResponse{List: options}, nil
 }
 
-`, goMethodName(method.MethodName), table.BusinessName, table.EntityName, goMethodName(method.MethodName), method.MethodName, queryDeclaration, orderOptionCount, defaultOrderOption, labelField, valueExpr)
+`, goMethodName(method.MethodName), table.BusinessName, table.EntityName, goMethodName(method.MethodName), method.MethodName, queryDeclaration, orderOptionCount, defaultOrderOption, labelField, valueExpr, disabledExpr)
 }
 
 // renderTreeOptionBizMethod 渲染树形选择业务方法。
@@ -427,6 +428,7 @@ func (c *renderer) renderTreeOptionBizMethod(table *Table, columns []*CodeGenCol
 	parentGetter := "Get" + stringcase.ToPascalCase(parentColumn) + "()"
 	labelField := modelFieldName(DefaultString(method.LabelColumn, "name"))
 	valueExpr := fmt.Sprintf("int64(item.%s)", modelFieldName(DefaultString(method.ValueColumn, "id")))
+	disabledExpr := renderOptionDisabledExpression(columns, method)
 	defaultOrderOption := renderDefaultOrderOption(columns)
 	orderOptionCount := 0
 	queryDeclaration := ""
@@ -453,14 +455,14 @@ func (c *%sCase) build%sOption(list []*models.%s, parentID int64) []*commonv1.Tr
 		if int64(item.%s) != parentID {
 			continue
 		}
-		option := &commonv1.TreeOptionResponse_Option{Label: fmt.Sprint(item.%s), Value: %s}
+		option := &commonv1.TreeOptionResponse_Option{Label: fmt.Sprint(item.%s), Value: %s%s}
 		option.Children = c.build%sOption(list, %s)
 		res = append(res, option)
 	}
 	return res
 }
 
-`, goMethodName(method.MethodName), table.BusinessName, table.EntityName, goMethodName(method.MethodName), method.MethodName, queryDeclaration, orderOptionCount, defaultOrderOption, goMethodName(method.MethodName), parentGetter, goMethodName(method.MethodName), table.BusinessName, table.EntityName, goMethodName(method.MethodName), table.EntityName, parentField, labelField, valueExpr, goMethodName(method.MethodName), valueExpr)
+`, goMethodName(method.MethodName), table.BusinessName, table.EntityName, goMethodName(method.MethodName), method.MethodName, queryDeclaration, orderOptionCount, defaultOrderOption, goMethodName(method.MethodName), parentGetter, goMethodName(method.MethodName), table.BusinessName, table.EntityName, goMethodName(method.MethodName), table.EntityName, parentField, labelField, valueExpr, disabledExpr, goMethodName(method.MethodName), valueExpr)
 }
 
 // renderServiceMethod 渲染服务层方法。
@@ -893,6 +895,39 @@ func effectiveQueryOperator(column *CodeGenColumn) string {
 		return "eq"
 	}
 	return operator
+}
+
+// renderOptionDisabledExpression 根据字段开关选项渲染公共 Option 的禁用条件。
+func renderOptionDisabledExpression(columns []*CodeGenColumn, method *Proto) string {
+	column, option := findOptionStatusConfig(columns)
+	if column != nil {
+		return fmt.Sprintf(", Disabled: fmt.Sprint(item.%s) != %q", modelFieldName(column.Name), option.ActiveValue)
+	}
+	if method == nil || method.OptionStatusColumn == "" || method.OptionStatusEnabledValue == "" {
+		return ""
+	}
+	return fmt.Sprintf(", Disabled: fmt.Sprint(item.%s) != %q", modelFieldName(method.OptionStatusColumn), method.OptionStatusEnabledValue)
+}
+
+// OptionStatusMetadata 返回选项接口可使用的状态字段和启用值。
+func OptionStatusMetadata(columns []*CodeGenColumn) (string, string, bool) {
+	column, option := findOptionStatusConfig(columns)
+	if column == nil {
+		return "", "", false
+	}
+	return column.Name, option.ActiveValue, true
+}
+
+// findOptionStatusConfig 查找可用于控制 Option 禁用状态的字段开关配置。
+func findOptionStatusConfig(columns []*CodeGenColumn) (*CodeGenColumn, CodeGenColumnOptionConfig) {
+	for _, column := range columns {
+		for _, option := range []CodeGenColumnOptionConfig{column.ListOption, column.FormOption} {
+			if option.Kind == "switch" && option.SourceType == OptionSourceDict && option.ActiveValue != "" {
+				return column, option
+			}
+		}
+	}
+	return nil, CodeGenColumnOptionConfig{}
 }
 
 // modelFieldName 将数据库字段名转为生成模型字段名。
