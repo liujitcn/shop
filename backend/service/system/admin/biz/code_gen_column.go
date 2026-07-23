@@ -25,8 +25,15 @@ type CodeGenColumnCase struct {
 	*data.CodeGenColumnRepository
 	dbClient         *databaseGorm.Client
 	tx               data.Transaction
+	baseDictRepo     *data.BaseDictRepository
 	codeGenTableRepo *data.CodeGenTableRepository
 	mapper           *mapper.CopierMapper[systemadminv1.CodeGenColumn, models.CodeGenColumn]
+}
+
+// codeGenColumnDefaultSource 描述字段默认选项的数据来源。
+type codeGenColumnDefaultSource struct {
+	dictionaryCode string
+	tableName      string
 }
 
 // NewCodeGenColumnCase 创建代码生成字段业务实例。
@@ -34,6 +41,7 @@ func NewCodeGenColumnCase(
 	codeGenColumnRepo *data.CodeGenColumnRepository,
 	dbClient *databaseGorm.Client,
 	tx data.Transaction,
+	baseDictRepo *data.BaseDictRepository,
 	codeGenTableRepo *data.CodeGenTableRepository,
 ) *CodeGenColumnCase {
 	columnMapper := mapper.NewCopierMapper[systemadminv1.CodeGenColumn, models.CodeGenColumn]()
@@ -44,6 +52,7 @@ func NewCodeGenColumnCase(
 		CodeGenColumnRepository: codeGenColumnRepo,
 		dbClient:                dbClient,
 		tx:                      tx,
+		baseDictRepo:            baseDictRepo,
 		codeGenTableRepo:        codeGenTableRepo,
 		mapper:                  columnMapper,
 	}
@@ -114,6 +123,11 @@ func (c *CodeGenColumnCase) SaveCodeGenColumn(ctx context.Context, req *systemad
 	if len(databaseColumns) == 0 {
 		return errorsx.ResourceNotFound("数据库表字段不存在")
 	}
+	var defaultSources map[string]codeGenColumnDefaultSource
+	defaultSources, err = c.listCodeGenColumnDefaultSources(ctx, table.Name, databaseColumns)
+	if err != nil {
+		return err
+	}
 	requestColumns := make(map[string]*systemadminv1.CodeGenColumn, len(req.GetCodeGenColumns()))
 	for _, column := range req.GetCodeGenColumns() {
 		if column == nil || column.GetName() == "" {
@@ -150,10 +164,10 @@ func (c *CodeGenColumnCase) SaveCodeGenColumn(ctx context.Context, req *systemad
 			column := requestColumns[databaseColumn.Name]
 			// 前端不展示的系统字段沿用已有配置；新增字段才使用元数据默认值。
 			if column == nil {
-				column = newDefaultCodeGenColumn(req.GetTableId(), databaseColumn, int32(index+1))
+				column = newDefaultCodeGenColumn(req.GetTableId(), databaseColumn, int32(index+1), defaultSources[databaseColumn.Name])
 				c.mergeSavedCodeGenColumn(column, saved)
 			}
-			normalizeCodeGenColumnConfig(column, databaseColumn)
+			normalizeCodeGenColumnConfig(column, databaseColumn, defaultSources[databaseColumn.Name])
 			if err = validateCodeGenColumnConfig(column, databaseColumn); err != nil {
 				return err
 			}
@@ -210,6 +224,11 @@ func (c *CodeGenColumnCase) listCodeGenColumns(ctx context.Context, tableID int6
 	if err != nil {
 		return nil, err
 	}
+	var defaultSources map[string]codeGenColumnDefaultSource
+	defaultSources, err = c.listCodeGenColumnDefaultSources(ctx, table.Name, databaseColumns)
+	if err != nil {
+		return nil, err
+	}
 	query := c.Query(ctx).CodeGenColumn
 	opts := make([]repository.QueryOption, 0, 3)
 	opts = append(opts, repository.Where(query.TableID.Eq(tableID)))
@@ -220,7 +239,7 @@ func (c *CodeGenColumnCase) listCodeGenColumns(ctx context.Context, tableID int6
 	if err != nil {
 		return nil, err
 	}
-	return c.mergeCodeGenColumns(tableID, databaseColumns, savedColumns), nil
+	return c.mergeCodeGenColumns(tableID, databaseColumns, savedColumns, defaultSources), nil
 }
 
 // listDatabaseColumns 查询数据库字段生成所需的完整元数据。
@@ -243,18 +262,92 @@ func (c *CodeGenColumnCase) listDatabaseColumns(ctx context.Context, tableName s
 	return columns, err
 }
 
+// listCodeGenColumnDefaultSources 查询字段默认选项对应的字典或数据表来源。
+func (c *CodeGenColumnCase) listCodeGenColumnDefaultSources(ctx context.Context, tableName string, databaseColumns []dto.CodeGenDatabaseColumn) (map[string]codeGenColumnDefaultSource, error) {
+	defaultSources := make(map[string]codeGenColumnDefaultSource, len(databaseColumns))
+	if len(databaseColumns) == 0 {
+		return defaultSources, nil
+	}
+	candidateCodes := make([]string, 0, len(databaseColumns))
+	seenCodes := make(map[string]struct{}, len(databaseColumns))
+	for _, column := range databaseColumns {
+		candidateCode := strings.ToLower(tableName + "_" + column.Name)
+		if _, exists := seenCodes[candidateCode]; exists {
+			continue
+		}
+		seenCodes[candidateCode] = struct{}{}
+		candidateCodes = append(candidateCodes, candidateCode)
+	}
+	dictQuery := c.baseDictRepo.Query(ctx).BaseDict
+	dictOpts := make([]repository.QueryOption, 0, 1)
+	dictOpts = append(dictOpts, repository.Where(dictQuery.Code.In(candidateCodes...)))
+	var dictionaries []*models.BaseDict
+	var err error
+	dictionaries, err = c.baseDictRepo.List(ctx, dictOpts...)
+	if err != nil {
+		return nil, err
+	}
+	dictionaryCodes := make(map[string]struct{}, len(dictionaries))
+	for _, dictionary := range dictionaries {
+		if dictionary != nil {
+			dictionaryCodes[strings.ToLower(dictionary.Code)] = struct{}{}
+		}
+	}
+	needsTableMatch := false
+	for _, column := range databaseColumns {
+		candidateCode := strings.ToLower(tableName + "_" + column.Name)
+		if _, exists := dictionaryCodes[candidateCode]; exists {
+			defaultSources[column.Name] = codeGenColumnDefaultSource{dictionaryCode: candidateCode}
+			continue
+		}
+		if strings.HasSuffix(strings.ToLower(column.Name), "_id") {
+			needsTableMatch = true
+		}
+	}
+	if !needsTableMatch {
+		return defaultSources, nil
+	}
+	tableInfos, err := c.listCodeGenOptionTables(ctx)
+	if err != nil {
+		return nil, err
+	}
+	for _, column := range databaseColumns {
+		if _, exists := defaultSources[column.Name]; exists {
+			continue
+		}
+		matchedTableName := findCodeGenOptionTable(strings.ToLower(column.Name), tableInfos)
+		if matchedTableName != "" {
+			defaultSources[column.Name] = codeGenColumnDefaultSource{tableName: matchedTableName}
+		}
+	}
+	return defaultSources, nil
+}
+
+// listCodeGenOptionTables 查询用于匹配字段关联关系的数据库表名。
+func (c *CodeGenColumnCase) listCodeGenOptionTables(ctx context.Context) ([]dto.CodeGenDatabaseTable, error) {
+	var tableInfos []dto.CodeGenDatabaseTable
+	err := c.dbClient.DB.WithContext(ctx).
+		Table("information_schema.tables").
+		Select("table_name, table_comment").
+		Where("table_schema = DATABASE()").
+		Where("table_type = ?", "BASE TABLE").
+		Order("table_name").
+		Find(&tableInfos).Error
+	return tableInfos, err
+}
+
 // mergeCodeGenColumns 合并数据库字段元数据与已保存配置。
-func (c *CodeGenColumnCase) mergeCodeGenColumns(tableID int64, databaseColumns []dto.CodeGenDatabaseColumn, savedColumns []*models.CodeGenColumn) []*systemadminv1.CodeGenColumn {
+func (c *CodeGenColumnCase) mergeCodeGenColumns(tableID int64, databaseColumns []dto.CodeGenDatabaseColumn, savedColumns []*models.CodeGenColumn, defaultSources map[string]codeGenColumnDefaultSource) []*systemadminv1.CodeGenColumn {
 	savedByName := make(map[string]*models.CodeGenColumn, len(savedColumns))
 	for _, column := range savedColumns {
 		savedByName[column.Name] = column
 	}
 	columns := make([]*systemadminv1.CodeGenColumn, 0, len(databaseColumns))
 	for index, databaseColumn := range databaseColumns {
-		column := newDefaultCodeGenColumn(tableID, databaseColumn, int32(index+1))
+		column := newDefaultCodeGenColumn(tableID, databaseColumn, int32(index+1), defaultSources[databaseColumn.Name])
 		// 已保存配置覆盖可编辑部分和排序，数据库字段属性始终以实时元数据为准。
 		c.mergeSavedCodeGenColumn(column, savedByName[databaseColumn.Name])
-		normalizeCodeGenColumnConfig(column, databaseColumn)
+		normalizeCodeGenColumnConfig(column, databaseColumn, defaultSources[databaseColumn.Name])
 		columns = append(columns, column)
 	}
 	// 稳定排序保证相同排序值或历史零值仍保留数据库字段顺序。
@@ -300,7 +393,7 @@ func filterConfigurableCodeGenColumns(columns []*systemadminv1.CodeGenColumn) []
 }
 
 // newDefaultCodeGenColumn 根据数据库字段元数据创建默认生成配置。
-func newDefaultCodeGenColumn(tableID int64, item dto.CodeGenDatabaseColumn, sort int32) *systemadminv1.CodeGenColumn {
+func newDefaultCodeGenColumn(tableID int64, item dto.CodeGenDatabaseColumn, sort int32, defaultSource codeGenColumnDefaultSource) *systemadminv1.CodeGenColumn {
 	columnComment := item.Comment
 	// 数据库未配置字段注释时使用字段名作为展示名称。
 	if columnComment == "" {
@@ -346,12 +439,12 @@ func newDefaultCodeGenColumn(tableID int64, item dto.CodeGenDatabaseColumn, sort
 		TsType:          tsType,
 		Sort:            sort,
 	}
-	normalizeCodeGenColumnConfig(column, item)
+	normalizeCodeGenColumnConfig(column, item, defaultSource)
 	return column
 }
 
 // normalizeCodeGenColumnConfig 补齐缺失的结构化字段配置。
-func normalizeCodeGenColumnConfig(column *systemadminv1.CodeGenColumn, item dto.CodeGenDatabaseColumn) {
+func normalizeCodeGenColumnConfig(column *systemadminv1.CodeGenColumn, item dto.CodeGenDatabaseColumn, defaultSource codeGenColumnDefaultSource) {
 	// 旧配置没有保存字段描述时，完整沿用数据库原始注释。
 	if column.Comment == "" {
 		column.Comment = item.Comment
@@ -361,7 +454,7 @@ func normalizeCodeGenColumnConfig(column *systemadminv1.CodeGenColumn, item dto.
 	}
 	// 缺失的查询配置按字段名称和数据库类型推导。
 	if column.QueryConfig == nil {
-		column.QueryConfig = defaultCodeGenQueryConfig(item.Name, item.ColumnType)
+		column.QueryConfig = defaultCodeGenQueryConfig(item.Name, item.ColumnType, defaultSource)
 	}
 	// 查询选项独立保存，不能与列表或表单配置共用。
 	if column.QueryConfig.Option == nil {
@@ -369,15 +462,7 @@ func normalizeCodeGenColumnConfig(column *systemadminv1.CodeGenColumn, item dto.
 	}
 	// 缺失的列表配置按字段类型选择基础展示组件。
 	if column.ListConfig == nil {
-		component := "text"
-		option := &systemadminv1.CodeGenColumnOptionConfig{}
-		// 状态字段和 tinyint 字段默认生成可操作开关，日期字段使用日期展示。
-		if isCodeGenStatusColumn(item.Name, item.ColumnType) {
-			component = "switch"
-			option = defaultCodeGenStatusOptionConfig("switch")
-		} else if isCodeGenDateTimeType(item.ColumnType) {
-			component = "date"
-		}
+		component, option := defaultCodeGenListConfig(item, defaultSource)
 		column.ListConfig = &systemadminv1.CodeGenColumnListConfig{
 			Enabled:   !isManagedCodeGenColumn(item.Name),
 			Component: component,
@@ -390,7 +475,7 @@ func normalizeCodeGenColumnConfig(column *systemadminv1.CodeGenColumn, item dto.
 	}
 	// 缺失的表单配置按数据库约束推导。
 	if column.FormConfig == nil {
-		column.FormConfig = defaultCodeGenFormConfig(item)
+		column.FormConfig = defaultCodeGenFormConfig(item, defaultSource)
 	}
 	// 表单选项独立保存，不能与查询或列表配置共用。
 	if column.FormConfig.Option == nil {
@@ -529,9 +614,10 @@ func validateCodeGenOptionConfig(columnName string, scope string, option *system
 }
 
 // defaultCodeGenQueryConfig 创建默认查询配置。
-func defaultCodeGenQueryConfig(columnName string, dbType string) *systemadminv1.CodeGenColumnQueryConfig {
-	isStatus := isCodeGenStatusColumn(columnName, dbType)
-	enabled := columnName == "name" || columnName == "title" || columnName == "code" || isStatus
+func defaultCodeGenQueryConfig(columnName string, dbType string, defaultSource codeGenColumnDefaultSource) *systemadminv1.CodeGenColumnQueryConfig {
+	isStatus := isCodeGenStatusColumn(columnName)
+	hasOptionSource := defaultSource.dictionaryCode != "" || defaultSource.tableName != ""
+	enabled := columnName == "name" || columnName == "title" || columnName == "code" || isStatus || hasOptionSource
 	operator := "like"
 	component := "input"
 	option := &systemadminv1.CodeGenColumnOptionConfig{}
@@ -539,14 +625,17 @@ func defaultCodeGenQueryConfig(columnName string, dbType string) *systemadminv1.
 	if isCodeGenDateTimeType(dbType) {
 		operator = "between"
 		component = "date-picker"
-	} else if isCodeGenBoolType(dbType) || isCodeGenNumericType(dbType) || isStatus {
+	} else if isCodeGenBoolType(dbType) || isCodeGenNumericType(dbType) || isStatus || hasOptionSource {
 		operator = "eq"
 		component = "input-number"
 	}
-	// 布尔值和状态字段使用选项组件表达有限值集合。
-	if isCodeGenBoolType(dbType) || isStatus {
+	// 布尔值、状态字段和命中字典或数据表的字段使用选项组件表达有限值集合。
+	if isCodeGenBoolType(dbType) || isStatus || hasOptionSource {
 		component = "select"
-		option = defaultCodeGenStatusOptionConfig("option")
+		option = defaultCodeGenColumnOption("option", defaultSource)
+		if option.GetSourceValue() == "" {
+			option = defaultCodeGenStatusOptionConfig("option")
+		}
 	}
 	return &systemadminv1.CodeGenColumnQueryConfig{
 		Enabled:   enabled,
@@ -556,17 +645,37 @@ func defaultCodeGenQueryConfig(columnName string, dbType string) *systemadminv1.
 	}
 }
 
+// defaultCodeGenListConfig 创建默认列表展示配置。
+func defaultCodeGenListConfig(item dto.CodeGenDatabaseColumn, defaultSource codeGenColumnDefaultSource) (string, *systemadminv1.CodeGenColumnOptionConfig) {
+	if isCodeGenStatusColumn(item.Name) {
+		return "switch", defaultCodeGenStatusOptionConfig("switch")
+	}
+	if defaultSource.dictionaryCode != "" || defaultSource.tableName != "" {
+		return "select", defaultCodeGenColumnOption("option", defaultSource)
+	}
+	if isCodeGenDateTimeType(item.ColumnType) {
+		return "date", &systemadminv1.CodeGenColumnOptionConfig{}
+	}
+	return "text", &systemadminv1.CodeGenColumnOptionConfig{}
+}
+
 // defaultCodeGenFormConfig 创建默认表单录入配置。
-func defaultCodeGenFormConfig(item dto.CodeGenDatabaseColumn) *systemadminv1.CodeGenColumnFormConfig {
+func defaultCodeGenFormConfig(item dto.CodeGenDatabaseColumn, defaultSource codeGenColumnDefaultSource) *systemadminv1.CodeGenColumnFormConfig {
 	isPrimary := item.ColumnKey == "PRI"
 	isAutoIncrement := strings.Contains(strings.ToLower(item.Extra), "auto_increment")
 	enabled := !isPrimary && !isAutoIncrement && !isManagedCodeGenColumn(item.Name)
 	component := "input"
 	option := &systemadminv1.CodeGenColumnOptionConfig{}
 	// 表单组件根据数据库字段类型选择，优先匹配更具体的布尔和数值类型。
-	if isCodeGenStatusColumn(item.Name, item.ColumnType) || isCodeGenBoolType(item.ColumnType) {
+	if isCodeGenStatusColumn(item.Name) || isCodeGenBoolType(item.ColumnType) {
 		component = "switch"
 		option = defaultCodeGenStatusOptionConfig("switch")
+	} else if defaultSource.dictionaryCode != "" || defaultSource.tableName != "" {
+		component = "select"
+		if defaultSource.dictionaryCode != "" {
+			component = "dict"
+		}
+		option = defaultCodeGenColumnOption("option", defaultSource)
 	} else if isCodeGenNumericType(item.ColumnType) {
 		component = "input-number"
 	} else if isCodeGenDateTimeType(item.ColumnType) {
@@ -582,15 +691,26 @@ func defaultCodeGenFormConfig(item dto.CodeGenDatabaseColumn) *systemadminv1.Cod
 	}
 }
 
+// defaultCodeGenColumnOption 创建普通字段的默认选项来源配置。
+func defaultCodeGenColumnOption(kind string, defaultSource codeGenColumnDefaultSource) *systemadminv1.CodeGenColumnOptionConfig {
+	option := &systemadminv1.CodeGenColumnOptionConfig{
+		Kind: kind,
+	}
+	if defaultSource.dictionaryCode != "" {
+		option.SourceType = "dict"
+		option.SourceValue = defaultSource.dictionaryCode
+		option.LabelField = "label"
+		option.ValueField = "value"
+	} else if defaultSource.tableName != "" {
+		option.SourceType = "table"
+		option.SourceValue = defaultSource.tableName
+	}
+	return option
+}
+
 // defaultCodeGenStatusOptionConfig 创建状态字段使用的字典选项默认值。
 func defaultCodeGenStatusOptionConfig(kind string) *systemadminv1.CodeGenColumnOptionConfig {
-	option := &systemadminv1.CodeGenColumnOptionConfig{
-		Kind:        kind,
-		SourceType:  "dict",
-		SourceValue: "status",
-		LabelField:  "label",
-		ValueField:  "value",
-	}
+	option := defaultCodeGenColumnOption(kind, codeGenColumnDefaultSource{dictionaryCode: "status"})
 	// 列表和表单开关需要显式保存两个状态值，查询下拉不需要。
 	if kind == "switch" {
 		option.ActiveValue = "1"
@@ -649,10 +769,8 @@ func isManagedCodeGenColumn(columnName string) bool {
 }
 
 // isCodeGenStatusColumn 判断字段是否默认按状态处理。
-func isCodeGenStatusColumn(columnName string, dbType string) bool {
-	lowerType := strings.ToLower(dbType)
-	return strings.Contains(lowerType, "tinyint") ||
-		columnName == "status" || columnName == "state" ||
+func isCodeGenStatusColumn(columnName string) bool {
+	return columnName == "status" || columnName == "state" ||
 		strings.HasSuffix(columnName, "_status") || strings.HasSuffix(columnName, "_state")
 }
 
@@ -672,4 +790,26 @@ func isCodeGenNumericType(dbType string) bool {
 func isCodeGenDateTimeType(dbType string) bool {
 	lowerType := strings.ToLower(dbType)
 	return strings.Contains(lowerType, "date") || strings.Contains(lowerType, "time")
+}
+
+// findCodeGenOptionTable 按字段去掉_id后的名称唯一匹配数据库表后缀。
+func findCodeGenOptionTable(columnName string, tableInfos []dto.CodeGenDatabaseTable) string {
+	if !strings.HasSuffix(columnName, "_id") {
+		return ""
+	}
+	targetSuffix := "_" + strings.TrimSuffix(columnName, "_id")
+	matchedTableName := ""
+	matchCount := 0
+	for _, tableInfo := range tableInfos {
+		tableName := strings.ToLower(tableInfo.TableName)
+		if tableName != strings.TrimPrefix(targetSuffix, "_") && !strings.HasSuffix(tableName, targetSuffix) {
+			continue
+		}
+		matchedTableName = tableInfo.TableName
+		matchCount++
+	}
+	if matchCount != 1 {
+		return ""
+	}
+	return matchedTableName
 }
