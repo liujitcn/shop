@@ -251,6 +251,9 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	authCase := biz3.NewAuthCase(baseCase, bizBaseUserCase, bizBaseRoleCase, bizBaseDeptCase, bizBaseTenantCase, baseMenuCase, fileCase)
 	authService := admin.NewAuthService(authCase)
 	baseApiService := admin.NewBaseApiService(bizBaseAPICase)
+	baseAreaRepository := data.NewBaseAreaRepository(dataData)
+	baseAreaCase := biz3.NewBaseAreaCase(baseCase, baseAreaRepository)
+	baseAreaService := admin.NewBaseAreaService(baseAreaCase)
 	baseConfigCase := biz3.NewBaseConfigCase(baseCase, baseConfigRepository)
 	baseConfigService, err := admin.NewBaseConfigService(baseConfigCase)
 	if err != nil {
@@ -291,6 +294,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	adminServices := admin2.Services{
 		Auth:          authService,
 		BaseAPI:       baseApiService,
+		BaseArea:      baseAreaService,
 		BaseConfig:    baseConfigService,
 		BaseDept:      baseDeptService,
 		BaseDict:      baseDictService,
@@ -309,15 +313,14 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	baseUserCase2 := biz4.NewBaseUserCase(baseCase, baseUserRepository)
 	bizAuthCase := biz4.NewAuthCase(baseCase, baseUserCase2, manager, userEvents)
 	appAuthService := app.NewAuthService(bizAuthCase)
-	baseAreaRepository := data.NewBaseAreaRepository(dataData)
-	baseAreaCase := biz4.NewBaseAreaCase(baseCase, baseAreaRepository)
-	baseAreaService := app.NewBaseAreaService(baseAreaCase)
+	bizBaseAreaCase := biz4.NewBaseAreaCase(baseCase, baseAreaRepository)
+	appBaseAreaService := app.NewBaseAreaService(bizBaseAreaCase)
 	bizBaseDictItemCase := biz4.NewBaseDictItemCase(baseCase, baseDictRepository, baseDictItemRepository)
 	bizBaseDictCase := biz4.NewBaseDictCase(baseCase, baseDictRepository, bizBaseDictItemCase)
 	appBaseDictService := app.NewBaseDictService(bizBaseDictCase)
 	appServices := app2.Services{
 		Auth:     appAuthService,
-		BaseArea: baseAreaService,
+		BaseArea: appBaseAreaService,
 		BaseDict: appBaseDictService,
 	}
 	commentTagRepository := data.NewCommentTagRepository(dataData)
@@ -472,11 +475,11 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	bizGoodsInfoCase := biz6.NewGoodsInfoCase(baseCase, goodsInfoRepository, bizGoodsCategoryCase, bizTenantStoreCase, bizGoodsPropCase, bizGoodsSpecCase, bizGoodsSKUCase)
 	bizOrderGoodsCase := biz6.NewOrderGoodsCase(baseCase, orderGoodsRepository, bizGoodsInfoCase, bizGoodsSKUCase)
 	userAddressRepository := data.NewUserAddressRepository(dataData)
-	bizOrderAddressCase := biz6.NewOrderAddressCase(baseCase, orderAddressRepository, userAddressRepository, baseAreaCase)
+	bizOrderAddressCase := biz6.NewOrderAddressCase(baseCase, orderAddressRepository, userAddressRepository, bizBaseAreaCase)
 	bizOrderLogisticsCase := biz6.NewOrderLogisticsCase(baseCase, orderLogisticsRepository)
 	bizOrderPaymentCase := biz6.NewOrderPaymentCase(baseCase, orderPaymentRepository)
 	bizOrderRefundCase := biz6.NewOrderRefundCase(baseCase, orderRefundRepository)
-	userAddressCase := biz6.NewUserAddressCase(baseCase, transaction, userAddressRepository, baseAreaCase)
+	userAddressCase := biz6.NewUserAddressCase(baseCase, transaction, userAddressRepository, bizBaseAreaCase)
 	userCartRepository := data.NewUserCartRepository(dataData)
 	userCartCase := biz6.NewUserCartCase(baseCase, userCartRepository, bizGoodsInfoCase, bizGoodsSKUCase, bizTenantStoreCase)
 	orderSchedulerCase := biz6.NewOrderSchedulerCase(baseCase)
@@ -525,7 +528,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	userAddressService := app3.NewUserAddressService(userAddressCase)
 	userCartService := app3.NewUserCartService(userCartCase)
 	userCollectService := app3.NewUserCollectService(userCollectCase)
-	bizUserStoreCase := biz6.NewUserStoreCase(baseCase, transaction, userStoreRepository, baseAreaCase)
+	bizUserStoreCase := biz6.NewUserStoreCase(baseCase, transaction, userStoreRepository, bizBaseAreaCase)
 	appUserStoreService := app3.NewUserStoreService(bizUserStoreCase)
 	services3 := app4.Services{
 		CommentInfo:   appCommentInfoService,

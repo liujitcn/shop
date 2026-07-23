@@ -284,7 +284,7 @@ function isBooleanColumn(column: CodeGenColumn) {
 }
 
 /** 判断字段是否为数值类型。 */
-function isNumericColumn(column: CodeGenColumn) {
+export function isNumericColumn(column: CodeGenColumn) {
   const dbType = column.db_type.toLowerCase();
   return column.ts_type === "number" || ["int", "decimal", "float", "double"].some(type => dbType.includes(type));
 }

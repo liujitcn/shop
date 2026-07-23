@@ -7,7 +7,7 @@
     </el-table-column>
     <el-table-column prop="path" label="文件路径" min-width="320" show-overflow-tooltip />
     <el-table-column prop="action" label="动作" width="100" />
-    <el-table-column label="状态" width="100">
+    <el-table-column label="状态" width="100" align="center">
       <template #default="{ row }">
         <el-tag :type="row.exists ? 'info' : 'success'" effect="plain">{{ row.exists ? "已存在" : "待创建" }}</el-tag>
       </template>

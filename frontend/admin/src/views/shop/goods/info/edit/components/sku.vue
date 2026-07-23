@@ -131,19 +131,18 @@ const skuColumns = computed<ColumnProps[]>(() => {
   const dynamicSpecColumns = (formData.value.spec_list ?? []).map((item: GoodsSpec, index: number) => ({
     prop: `spec_item${index}`,
     label: item.name,
-    align: "center",
     minWidth: 120
   }));
 
   return [
     { type: "index", width: 50 },
     ...dynamicSpecColumns,
-    { prop: "sku_code", label: "规格编号", align: "center", minWidth: 160 },
-    { prop: "price", label: "售价", align: "center", minWidth: 140 },
-    { prop: "discount_price", label: "折后价", align: "center", minWidth: 140 },
-    { prop: "inventory", label: "库存", align: "center", minWidth: 120 },
-    { prop: "picture", label: "规格图", align: "center", minWidth: 180 },
-    { prop: "init_sale_num", label: "初始销量", align: "center", minWidth: 140 }
+    { prop: "sku_code", label: "规格编号", minWidth: 160 },
+    { prop: "price", label: "售价", minWidth: 140 },
+    { prop: "discount_price", label: "折后价", minWidth: 140 },
+    { prop: "inventory", label: "库存", minWidth: 120 },
+    { prop: "picture", label: "规格图", minWidth: 180 },
+    { prop: "init_sale_num", label: "初始销量", minWidth: 140 }
   ];
 });
 

@@ -14,8 +14,10 @@ import (
 
 // Services 汇总 system.admin.v1 的服务实现。
 type Services struct {
-	Auth          *systemadmin.AuthService
-	BaseAPI       *systemadmin.BaseApiService
+	Auth    *systemadmin.AuthService
+	BaseAPI *systemadmin.BaseApiService
+
+	BaseArea      *systemadmin.BaseAreaService
 	BaseConfig    *systemadmin.BaseConfigService
 	BaseDept      *systemadmin.BaseDeptService
 	BaseDict      *systemadmin.BaseDictService
@@ -41,6 +43,8 @@ var ProviderSet = wire.NewSet(wire.Struct(new(Services), "*"))
 func (s Services) RegisterGRPC(srv *grpc.Server) {
 	systemadminv1.RegisterAuthServiceServer(srv, s.Auth)
 	systemadminv1.RegisterBaseApiServiceServer(srv, s.BaseAPI)
+
+	systemadminv1.RegisterBaseAreaServiceServer(srv, s.BaseArea)
 	systemadminv1.RegisterBaseConfigServiceServer(srv, s.BaseConfig)
 	systemadminv1.RegisterBaseDeptServiceServer(srv, s.BaseDept)
 	systemadminv1.RegisterBaseDictServiceServer(srv, s.BaseDict)
@@ -61,6 +65,8 @@ func (s Services) RegisterGRPC(srv *grpc.Server) {
 func (s Services) RegisterHTTP(srv *kratosHTTP.Server) {
 	systemadminv1.RegisterAuthServiceHTTPServer(srv, s.Auth)
 	systemadminv1.RegisterBaseApiServiceHTTPServer(srv, s.BaseAPI)
+
+	systemadminv1.RegisterBaseAreaServiceHTTPServer(srv, s.BaseArea)
 	systemadminv1.RegisterBaseConfigServiceHTTPServer(srv, s.BaseConfig)
 	systemadminv1.RegisterBaseDeptServiceHTTPServer(srv, s.BaseDept)
 	systemadminv1.RegisterBaseDictServiceHTTPServer(srv, s.BaseDict)
@@ -82,6 +88,8 @@ func (s Services) RegisterMCP(server *mcpserver.Server) {
 	mcpSrv := server.MCPServer()
 	systemadminv1.RegisterAuthServiceMCPTools(mcpSrv, s.Auth)
 	systemadminv1.RegisterBaseApiServiceMCPTools(mcpSrv, s.BaseAPI)
+
+	systemadminv1.RegisterBaseAreaServiceMCPTools(mcpSrv, s.BaseArea)
 	systemadminv1.RegisterBaseConfigServiceMCPTools(mcpSrv, s.BaseConfig)
 	systemadminv1.RegisterBaseDeptServiceMCPTools(mcpSrv, s.BaseDept)
 	systemadminv1.RegisterBaseDictServiceMCPTools(mcpSrv, s.BaseDict)

@@ -605,6 +605,140 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/base/area:
+        post:
+            tags:
+                - BaseAreaService
+            description: 创建行政区域
+            operationId: BaseAreaService_CreateBaseArea
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseAreaForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/area/option:
+        get:
+            tags:
+                - BaseAreaService
+            description: 查询行政区域树形选择
+            operationId: BaseAreaService_OptionBaseArea
+            parameters:
+                - name: parent_id
+                  in: query
+                  schema:
+                    type: string
+                - name: lazy
+                  in: query
+                  schema:
+                    type: boolean
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/common.v1.TreeOptionResponse'
+    /api/v1/admin/base/area/tree:
+        get:
+            tags:
+                - BaseAreaService
+            description: 查询行政区域树形列表
+            operationId: BaseAreaService_TreeBaseArea
+            parameters:
+                - name: name
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.TreeBaseAreaResponse'
+    /api/v1/admin/base/area/{ids}:
+        delete:
+            tags:
+                - BaseAreaService
+            description: 删除行政区域
+            operationId: BaseAreaService_DeleteBaseArea
+            parameters:
+                - name: ids
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/area/{id}:
+        get:
+            tags:
+                - BaseAreaService
+            description: 查询行政区域详情
+            operationId: BaseAreaService_GetBaseArea
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseAreaForm'
+        put:
+            tags:
+                - BaseAreaService
+            description: 更新行政区域
+            operationId: BaseAreaService_UpdateBaseArea
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseAreaForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/area/{id}/status:
+        put:
+            tags:
+                - BaseAreaService
+            description: 设置状态
+            operationId: BaseAreaService_SetBaseAreaStatus
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.SetBaseAreaStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
     /api/v1/admin/base/config:
         get:
             tags:
@@ -13804,6 +13938,53 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.BaseApiDocSchema'
                     description: 子字段
             description: API文档Schema
+        system.admin.v1.BaseArea:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 区域ID
+                parent_id:
+                    type: string
+                    description: 父级区域
+                name:
+                    type: string
+                    description: 区域名称
+                sort:
+                    type: integer
+                    description: 排序
+                    format: int32
+                status:
+                    type: integer
+                    description: 状态
+                    format: int32
+                children:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseArea'
+                    description: 子节点树
+            description: 行政区域
+        system.admin.v1.BaseAreaForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 区域ID
+                parent_id:
+                    type: string
+                    description: 父级区域
+                name:
+                    type: string
+                    description: 区域名称
+                sort:
+                    type: integer
+                    description: 排序
+                    format: int32
+                status:
+                    type: integer
+                    description: 状态
+                    format: int32
+            description: 行政区域表单
         system.admin.v1.BaseConfig:
             type: object
             properties:
@@ -15700,6 +15881,17 @@ components:
                     description: MCP工具状态：枚举【Status】
                     format: enum
             description: API MCP工具状态设置条件
+        system.admin.v1.SetBaseAreaStatusRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 行政区域ID
+                status:
+                    type: integer
+                    description: 状态
+                    format: int32
+            description: 行政区域状态设置条件
         system.admin.v1.SetBaseConfigStatusRequest:
             type: object
             properties:
@@ -15845,6 +16037,15 @@ components:
                     type: string
                     description: 生成任务ID
             description: 启动代码生成任务响应
+        system.admin.v1.TreeBaseAreaResponse:
+            type: object
+            properties:
+                base_areas:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseArea'
+                    description: 行政区域树形列表
+            description: 行政区域树形列表响应
         system.admin.v1.TreeBaseDeptResponse:
             type: object
             properties:
@@ -16061,6 +16262,8 @@ tags:
       description: AdminAPI服务
     - name: BaseAreaService
       description: App行政区域服务
+    - name: BaseAreaService
+      description: Admin行政区域服务
     - name: BaseConfigService
       description: Admin系统配置服务
     - name: BaseDeptService
@@ -16146,9 +16349,9 @@ tags:
     - name: ShopBannerService
       description: Admin商城轮播图服务
     - name: ShopHotService
-      description: App热门推荐服务
-    - name: ShopHotService
       description: Admin商城热门推荐服务
+    - name: ShopHotService
+      description: App热门推荐服务
     - name: ShopServiceService
       description: Admin商城服务
     - name: ShopServiceService

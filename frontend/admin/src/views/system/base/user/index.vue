@@ -334,7 +334,7 @@ const columns = computed<ColumnProps[]>(() => [
   { prop: "role_id", label: "角色", minWidth: 140, enum: requestRoleOptions },
   { prop: "dept_id", label: "部门", minWidth: 180, showOverflowTooltip: true, enum: requestDeptOptions },
   { prop: "post_id", label: "岗位", minWidth: 120, enum: requestPostOptions },
-  { prop: "phone", label: "手机号码", minWidth: 130, align: "center", search: { el: "input" } },
+  { prop: "phone", label: "手机号码", minWidth: 130, search: { el: "input" } },
   { prop: "gender", label: "性别", minWidth: 90, align: "center", dictCode: "base_user_gender", search: { el: "select" } },
   {
     prop: "status",

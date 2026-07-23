@@ -9,9 +9,13 @@ import (
 
 // ProviderSet 汇总系统管理端服务依赖注入提供者。
 var ProviderSet = wire.NewSet(
+
+	NewBaseAreaService,
 	codegen.NewManager,
 	biz.NewAuthCase,
 	biz.NewBaseAPICase,
+
+	biz.NewBaseAreaCase,
 	biz.NewBaseConfigCase,
 	biz.NewBaseDeptCase,
 	biz.NewBaseDictCase,

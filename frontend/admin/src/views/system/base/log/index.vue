@@ -205,14 +205,12 @@ const columns: ColumnProps[] = [
     prop: "status_code",
     label: "状态码",
     minWidth: 100,
-    align: "center",
     search: { el: "input-number", props: { min: 0, controlsPosition: "right" } }
   },
   {
     prop: "request_time",
     label: "操作时间",
     minWidth: 180,
-    align: "center",
     search: {
       el: "date-picker",
       props: {
@@ -226,8 +224,8 @@ const columns: ColumnProps[] = [
       }
     }
   },
-  { prop: "user_name", label: "操作人", minWidth: 100, align: "center" },
-  { prop: "client_ip", label: "IP 地址", minWidth: 130, align: "center" },
+  { prop: "user_name", label: "操作人", minWidth: 100 },
+  { prop: "client_ip", label: "IP 地址", minWidth: 130 },
   { prop: "location", label: "地区", minWidth: 120 },
   { prop: "browser_name", label: "浏览器", minWidth: 120 },
   { prop: "os_name", label: "终端系统", minWidth: 200 },

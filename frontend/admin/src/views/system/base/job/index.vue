@@ -255,7 +255,7 @@ const columns: ColumnProps[] = [
   { prop: "name", label: "任务名称", minWidth: 140, search: { el: "input" } },
   { prop: "invoke_target", label: "调用目标", minWidth: 180, search: { el: "input" } },
   { prop: "args", label: "参数", minWidth: 140, render: scope => renderArgsCell(scope as unknown as RenderScope<BaseJob>) },
-  { prop: "cron_expression", label: "cron表达式", minWidth: 150, align: "center" },
+  { prop: "cron_expression", label: "cron表达式", minWidth: 150 },
   { prop: "entry_id", label: "任务id", minWidth: 100, align: "right" },
   {
     prop: "status",

@@ -144,8 +144,7 @@ const formFields = computed<ProFormField[]>(() => [
 const columns = computed<ColumnProps[]>(() => {
   const specColumns = specList.value.map((item, index) => ({
     prop: `spec_item${index}`,
-    label: item.name,
-    align: "center"
+    label: item.name
   }));
 
   return [

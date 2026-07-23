@@ -850,6 +850,7 @@ func (c *renderer) renderFrontendColumns(table *Table, columns []*CodeGenColumn,
         prop: "tenant_id",
         label: "租户",
         minWidth: 140,
+        align: "left",
         showOverflowTooltip: true,
         search: { el: "select", key: "tenant_id", props: { filterable: true }, order: 1 },
         enum: requestTenantOptions
@@ -865,8 +866,9 @@ func (c *renderer) renderFrontendColumns(table *Table, columns []*CodeGenColumn,
 			_, treeLabelColumn, _ = EntityOptionColumns(table, columns)
 		}
 	}
-	appendColumn := func(column *CodeGenColumn) {
-		list = append(list, renderFrontendColumn(PermissionPrefix(table), table.EntityName, column, findStatusMethodForColumn(column, methods), statusColumnCount))
+	appendColumn := func(column *CodeGenColumn, align string) {
+		align = c.resolveFrontendColumnAlign(column, align)
+		list = append(list, renderFrontendColumn(PermissionPrefix(table), table.EntityName, column, findStatusMethodForColumn(column, methods), statusColumnCount, align))
 	}
 	// 树表格将树显示字段固定为首个数据列，确保 Element Plus 的缩进落在业务名称上。
 	if treeLabelColumn != "" {
@@ -877,7 +879,7 @@ func (c *renderer) renderFrontendColumns(table *Table, columns []*CodeGenColumn,
 			if column.Name != treeLabelColumn || column.Name == "deleted_at" {
 				continue
 			}
-			appendColumn(column)
+			appendColumn(column, "left")
 			break
 		}
 	}
@@ -894,16 +896,44 @@ func (c *renderer) renderFrontendColumns(table *Table, columns []*CodeGenColumn,
 				hiddenColumn := *column
 				hiddenColumn.IsList = 0
 				hiddenColumn.StatusTableColumn = 0
-				appendColumn(&hiddenColumn)
+				appendColumn(&hiddenColumn, "")
 			}
 			continue
 		}
 		if (!generatedListIncludesColumn(column) && !generatedQueryIncludesColumn(column)) || column.IsPrimary == 1 {
 			continue
 		}
-		appendColumn(column)
+		appendColumn(column, "")
 	}
 	return strings.Join(list, ",\n") + ","
+}
+
+// resolveFrontendColumnAlign 返回代码生成页面列的默认对齐方式。
+func (c *renderer) resolveFrontendColumnAlign(column *CodeGenColumn, align string) string {
+	if align != "" {
+		return align
+	}
+	if column == nil {
+		return "left"
+	}
+	if column.ListComponent == "money" {
+		return "right"
+	}
+	if column.IsStatusField == 1 || column.ListComponent == "image" {
+		return "center"
+	}
+	if generatedListIncludesColumn(column) && isSelectComponent(column.ListComponent) {
+		switch column.ListOption.SourceType {
+		case OptionSourceTable:
+			return "left"
+		case OptionSourceDict, OptionSourceStatic:
+			return "center"
+		}
+	}
+	if DefaultString(column.TsType, InferTSType(column.DbType)) == "number" {
+		return "right"
+	}
+	return "left"
 }
 
 // renderFrontendFormStateType 渲染允许选择型字段暂未选择的表单编辑状态类型。
@@ -1452,7 +1482,11 @@ func renderFrontendDateImport(columns []*CodeGenColumn) string {
 }
 
 // renderFrontendColumn 渲染前端表格列配置。
-func renderFrontendColumn(permissionPrefix string, entityName string, column *CodeGenColumn, statusMethod *Proto, statusColumnCount int) string {
+func renderFrontendColumn(permissionPrefix string, entityName string, column *CodeGenColumn, statusMethod *Proto, statusColumnCount int, align string) string {
+	alignConfig := ""
+	if align != "" {
+		alignConfig = fmt.Sprintf(`, align: %q`, align)
+	}
 	if column.IsStatusField == 1 && (column.StatusTableColumn == 1 || column.StatusSearch == 1) {
 		search := ""
 		if column.StatusSearch == 1 {
@@ -1470,7 +1504,7 @@ func renderFrontendColumn(permissionPrefix string, entityName string, column *Co
 		if column.StatusSwitch == 1 && statusMethod != nil {
 			return fmt.Sprintf(`  {
     prop: "%s",
-    label: "%s",
+    label: "%s"%s,
     width: 100%s%s%s,
     cellType: "status",
     statusProps: {
@@ -1481,21 +1515,21 @@ func renderFrontendColumn(permissionPrefix string, entityName string, column *Co
       disabled: () => !BUTTONS.value[%q],
       beforeChange: scope => %s(scope.row as %s)
     }
-  }`, column.Name, column.Comment, dictConfig, search, visibility, statusValueExpression(column, column.StatusEnabledValue, "1"), statusValueExpression(column, column.StatusDisabledValue, "2"), statusPermissionPath(permissionPrefix, column.Name, statusColumnCount), statusHandlerName(column, statusColumnCount), entityName)
+  }`, column.Name, column.Comment, alignConfig, dictConfig, search, visibility, statusValueExpression(column, column.StatusEnabledValue, "1"), statusValueExpression(column, column.StatusDisabledValue, "2"), statusPermissionPath(permissionPrefix, column.Name, statusColumnCount), statusHandlerName(column, statusColumnCount), entityName)
 		}
 		if statusUsesDictionary(column) {
-			return fmt.Sprintf(`  { prop: "%s", label: "%s"%s%s%s }`, column.Name, column.Comment, dictConfig, search, visibility)
+			return fmt.Sprintf(`  { prop: "%s", label: "%s"%s%s%s%s }`, column.Name, column.Comment, alignConfig, dictConfig, search, visibility)
 		}
-		return fmt.Sprintf(`  { prop: "%s", label: "%s", enum: %s%s%s }`, column.Name, column.Comment, statusOptionsVariable(column, statusColumnCount), search, visibility)
+		return fmt.Sprintf(`  { prop: "%s", label: "%s"%s, enum: %s%s%s }`, column.Name, column.Comment, alignConfig, statusOptionsVariable(column, statusColumnCount), search, visibility)
 	}
 	optionConfig := frontendColumnOptionConfig(column)
 	searchConfig := frontendSearchConfig(column)
 	// 仅作为普通查询条件的字段保留搜索配置，但不展示为列表列。
 	if !generatedListIncludesColumn(column) && generatedQueryIncludesColumn(column) {
-		return fmt.Sprintf(`  { prop: "%s", label: "%s"%s%s, isShow: false, isSetting: false }`, column.Name, column.Comment, optionConfig, searchConfig)
+		return fmt.Sprintf(`  { prop: "%s", label: "%s"%s%s%s, isShow: false, isSetting: false }`, column.Name, column.Comment, alignConfig, optionConfig, searchConfig)
 	}
 	if column.ListComponent == "image" {
-		return fmt.Sprintf(`  { prop: "%s", label: "%s", cellType: "image"%s%s }`, column.Name, column.Comment, optionConfig, searchConfig)
+		return fmt.Sprintf(`  { prop: "%s", label: "%s"%s, cellType: "image"%s%s }`, column.Name, column.Comment, alignConfig, optionConfig, searchConfig)
 	}
 	if column.ListComponent == "date" {
 		dbType := strings.ToLower(DefaultString(column.ColumnType, column.DbType))
@@ -1505,9 +1539,9 @@ func renderFrontendColumn(permissionPrefix string, entityName string, column *Co
 		} else if strings.Contains(dbType, "time") {
 			format = "HH:mm:ss"
 		}
-		return fmt.Sprintf(`  { prop: "%s", label: "%s", render: scope => scope.row.%s ? dayjs(scope.row.%s).format(%q) : "--"%s%s }`, column.Name, column.Comment, column.Name, column.Name, format, optionConfig, searchConfig)
+		return fmt.Sprintf(`  { prop: "%s", label: "%s"%s, render: scope => scope.row.%s ? dayjs(scope.row.%s).format(%q) : "--"%s%s }`, column.Name, column.Comment, alignConfig, column.Name, column.Name, format, optionConfig, searchConfig)
 	}
-	return fmt.Sprintf(`  { prop: "%s", label: "%s"%s%s }`, column.Name, column.Comment, optionConfig, searchConfig)
+	return fmt.Sprintf(`  { prop: "%s", label: "%s"%s%s%s }`, column.Name, column.Comment, alignConfig, optionConfig, searchConfig)
 }
 
 // frontendColumnOptionConfig 渲染列表或查询选择组件的数据源配置。

@@ -7,10 +7,14 @@ import { h, inject, isProxy, markRaw, ref, toRaw, useSlots } from "vue";
 import { ElButton, ElImage, ElSwitch, ElTableColumn, ElTag, ElText } from "element-plus";
 import DictLabel from "@/components/Dict/DictLabel.vue";
 import { ColumnProps, HeaderRenderScope, RenderScope, TableActionProps } from "@/components/ProTable/interface";
+import type { TableAlign } from "@/utils/proTable";
 import { filterEnum, formatValue, handleProp, handleRowAccordingToProp } from "@/utils";
 import { formatPrice } from "@/utils/utils";
 
-defineProps<{ column: ColumnProps }>();
+const props = defineProps<{
+  column: ColumnProps;
+  resolveAlign?: (column: ColumnProps) => TableAlign;
+}>();
 
 const slots = useSlots();
 
@@ -206,7 +210,7 @@ const RenderTableColumn = (item: ColumnProps) => {
     ElTableColumn,
     {
       ...item,
-      align: item.align ?? "center",
+      align: item.align ?? props.resolveAlign?.(item) ?? "left",
       showOverflowTooltip: item.showOverflowTooltip ?? item.prop !== "operation"
     },
     {

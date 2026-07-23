@@ -94,6 +94,7 @@ import {
   createCodeGenPreviewRows,
   filterCodeGenPreviewRows,
   flattenCodeGenPreviewOptions,
+  isNumericColumn,
   resolveCodeGenPreviewOptions,
   resolveCodeGenPrimaryColumn,
   type CodeGenPagePreviewSnapshot,
@@ -195,6 +196,7 @@ const tableColumns = computed<ColumnProps[]>(() => {
         ? { ...column, list_config: { ...listConfig, enabled: true } }
         : column;
       const result = createPreviewTableColumn(previewColumn);
+      if (isTreeLabel) result.align = "left";
       if (isTreeParent) {
         result.isShow = false;
         result.isSetting = false;
@@ -469,7 +471,8 @@ function createPreviewTableColumn(column: CodeGenColumn): ColumnProps {
     label,
     minWidth: resolvePreviewColumnWidth(column),
     isShow: Boolean(column.list_config?.enabled),
-    isSetting: Boolean(column.list_config?.enabled)
+    isSetting: Boolean(column.list_config?.enabled),
+    align: resolvePreviewColumnAlign(column)
   };
   if (column.query_config?.enabled) {
     result.search = {
@@ -480,6 +483,19 @@ function createPreviewTableColumn(column: CodeGenColumn): ColumnProps {
   }
   applyPreviewListComponent(result, column, listOptions);
   return result;
+}
+
+/** 根据字段类型和选项数据源解析预览表格列对齐方式。 */
+function resolvePreviewColumnAlign(column: CodeGenColumn): NonNullable<ColumnProps["align"]> {
+  const listComponent = column.list_config?.component;
+  if (listComponent === "money") return "right";
+  if (listComponent === "image") return "center";
+
+  const optionSources = [column.query_config?.option?.source_type, column.list_config?.option?.source_type].filter(Boolean);
+  if (optionSources.includes("table")) return "left";
+  if (optionSources.includes("dict") || optionSources.includes("static")) return "center";
+  if (isNumericColumn(column)) return "right";
+  return "left";
 }
 
 /** 将列表展示组件映射为 ProTable 列能力。 */

@@ -37,7 +37,7 @@
             <el-table-column label="类型" min-width="180">
               <template #default="{ row }">{{ formatSchemaType(row) }}</template>
             </el-table-column>
-            <el-table-column label="必填" width="80">
+            <el-table-column label="必填" width="80" align="center">
               <template #default="{ row }">{{ row.required ? "是" : "否" }}</template>
             </el-table-column>
             <el-table-column prop="description" label="说明" min-width="240" show-overflow-tooltip />
@@ -58,7 +58,7 @@
             <el-table-column label="类型" min-width="180">
               <template #default="{ row }">{{ formatSchemaType(row) }}</template>
             </el-table-column>
-            <el-table-column label="必填" width="80">
+            <el-table-column label="必填" width="80" align="center">
               <template #default="{ row }">{{ row.required ? "是" : "否" }}</template>
             </el-table-column>
             <el-table-column prop="description" label="说明" min-width="240" show-overflow-tooltip />

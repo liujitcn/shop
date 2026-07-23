@@ -574,7 +574,6 @@ const skuColumns = computed<ColumnProps[]>(() => {
   const dynamicSpecColumns = formData.spec_list.map((item, index) => ({
     prop: `spec_item${index}`,
     label: item.name,
-    align: "center",
     minWidth: 120
   }));
 
@@ -586,7 +585,7 @@ const skuColumns = computed<ColumnProps[]>(() => {
       minWidth: 180,
       render: scope => ((scope.row.spec_item as string[] | undefined) ?? []).join(" / ")
     },
-    { prop: "picture", label: "规格图", minWidth: 110, align: "center" },
+    { prop: "picture", label: "规格图", minWidth: 110 },
     { prop: "sku_code", label: "SKU", minWidth: 160 },
     { prop: "init_sale_num", label: "初始销量", align: "right", minWidth: 100 },
     { prop: "real_sale_num", label: "销量", align: "right", minWidth: 100 },

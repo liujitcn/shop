@@ -69,7 +69,7 @@
         <el-table-column
           v-if="item.type && columnTypes.includes(item.type)"
           v-bind="item"
-          :align="item.align ?? 'center'"
+          :align="resolveColumnAlign(item)"
           :reserve-selection="item.type == 'selection'"
         >
           <template #default="scope">
@@ -89,7 +89,7 @@
           </template>
         </el-table-column>
         <!-- other -->
-        <TableColumn v-else :column="item">
+        <TableColumn v-else :column="item" :resolve-align="resolveColumnAlign">
           <template v-for="slot in Object.keys($slots)" #[slot]="scope">
             <slot :name="slot" v-bind="scope" />
           </template>
@@ -132,6 +132,7 @@ import { BreakPoint } from "@/components/Grid/interface";
 import { ColumnProps, EnumProps, HeaderActionProps, HeaderActionScope, TypeProps } from "@/components/ProTable/interface";
 import { Expand, Fold, Refresh, Operation, Search } from "@element-plus/icons-vue";
 import { generateUUID, handleProp } from "@/utils";
+import { resolveTableColumnAlign } from "@/utils/proTable";
 import SearchForm from "@/components/SearchForm/index.vue";
 import Pagination from "./components/Pagination.vue";
 import ColSetting from "./components/ColSetting.vue";
@@ -256,6 +257,9 @@ const processTableData = computed(() => {
     pageable.value.page_size * pageable.value.page_num
   );
 });
+
+/** 解析 ProTable 列对齐方式，随当前页数据类型变化。 */
+const resolveColumnAlign = (column: ColumnProps) => resolveTableColumnAlign(column, processTableData.value);
 
 /** 数据加载完成后按传入行 Key 恢复多选状态，用于页面重建后的选择态续接。 */
 function restoreSelectedRows() {

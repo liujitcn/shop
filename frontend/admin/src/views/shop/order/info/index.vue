@@ -583,9 +583,9 @@ const shippedGoodsColumns: ColumnProps[] = [
 ];
 
 const refundColumns: ColumnProps[] = [
-  { prop: "third_order_no", label: "三方支付订单编号", align: "center", minWidth: 180 },
-  { prop: "refund_no", label: "退款编号", align: "center", minWidth: 160 },
-  { prop: "third_refund_no", label: "三方退款编号", align: "center", minWidth: 180 },
+  { prop: "third_order_no", label: "三方支付订单编号", minWidth: 180 },
+  { prop: "refund_no", label: "退款编号", minWidth: 160 },
+  { prop: "third_refund_no", label: "三方退款编号", minWidth: 180 },
   { prop: "reason", label: "退款原因", minWidth: 160 },
   { prop: "channel", label: "退款渠道", align: "center", minWidth: 120 },
   { prop: "user_received_account", label: "退款入账账户", align: "center", minWidth: 160 },
@@ -607,7 +607,7 @@ const refundColumns: ColumnProps[] = [
     moneyProps: { value: scope => scope.row.amount?.total }
   },
   { prop: "refund_state", label: "退款状态", align: "center", minWidth: 120 },
-  { prop: "success_time", label: "退款时间", align: "center", minWidth: 180 },
+  { prop: "success_time", label: "退款时间", minWidth: 180 },
   { prop: "status", label: "对帐状态", align: "center", minWidth: 120, dictCode: "order_bill_status" }
 ];
 
