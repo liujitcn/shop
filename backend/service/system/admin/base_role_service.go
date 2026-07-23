@@ -97,22 +97,22 @@ func (s *BaseRoleService) DeleteBaseRole(ctx context.Context, req *systemadminv1
 	return new(emptypb.Empty), nil
 }
 
-// SetBaseRoleMenu 设置角色菜单权限
-func (s *BaseRoleService) SetBaseRoleMenu(ctx context.Context, req *systemadminv1.SetBaseRoleMenuRequest) (*emptypb.Empty, error) {
-	err := s.baseRoleCase.SetBaseRoleMenu(ctx, req)
-	if err != nil {
-		log.Error(fmt.Sprintf("SetBaseRoleMenu %v", err))
-		return nil, errorsx.WrapInternal(err, "设置角色菜单权限失败")
-	}
-	return new(emptypb.Empty), nil
-}
-
 // SetBaseRoleStatus 设置状态
 func (s *BaseRoleService) SetBaseRoleStatus(ctx context.Context, req *systemadminv1.SetBaseRoleStatusRequest) (*emptypb.Empty, error) {
 	err := s.baseRoleCase.SetBaseRoleStatus(ctx, req)
 	if err != nil {
 		log.Error(fmt.Sprintf("SetBaseRoleStatus %v", err))
 		return nil, errorsx.WrapInternal(err, "设置状态失败")
+	}
+	return new(emptypb.Empty), nil
+}
+
+// SetBaseRoleMenu 设置角色菜单权限
+func (s *BaseRoleService) SetBaseRoleMenu(ctx context.Context, req *systemadminv1.SetBaseRoleMenuRequest) (*emptypb.Empty, error) {
+	err := s.baseRoleCase.SetBaseRoleMenu(ctx, req)
+	if err != nil {
+		log.Error(fmt.Sprintf("SetBaseRoleMenu %v", err))
+		return nil, errorsx.WrapInternal(err, "设置角色菜单权限失败")
 	}
 	return new(emptypb.Empty), nil
 }

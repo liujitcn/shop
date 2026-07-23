@@ -36,23 +36,23 @@ func NewBaseApiService(
 	}
 }
 
+// OptionBaseApi 查询菜单分配API选项列表
+func (s *BaseApiService) OptionBaseApi(ctx context.Context, req *systemadminv1.OptionBaseApiRequest) (*systemadminv1.OptionBaseApiResponse, error) {
+	list, err := s.baseAPICase.OptionBaseAPI(ctx, req)
+	if err != nil {
+		log.Error(fmt.Sprintf("OptionBaseApi %v", err))
+		return nil, errorsx.WrapInternal(err, "查询API选项列表失败")
+	}
+
+	return list, nil
+}
+
 // PageBaseApi 分页查询API列表
 func (s *BaseApiService) PageBaseApi(ctx context.Context, req *systemadminv1.PageBaseApiRequest) (*systemadminv1.PageBaseApiResponse, error) {
 	list, err := s.baseAPICase.PageBaseAPI(ctx, req)
 	if err != nil {
 		log.Error(fmt.Sprintf("PageBaseApi %v", err))
 		return nil, errorsx.WrapInternal(err, "分页查询API列表失败")
-	}
-
-	return list, nil
-}
-
-// ListBaseApi 查询菜单分配API选项列表
-func (s *BaseApiService) ListBaseApi(ctx context.Context, req *systemadminv1.ListBaseApiRequest) (*systemadminv1.ListBaseApiResponse, error) {
-	list, err := s.baseAPICase.ListBaseAPI(ctx, req)
-	if err != nil {
-		log.Error(fmt.Sprintf("ListBaseApi %v", err))
-		return nil, errorsx.WrapInternal(err, "查询API选项列表失败")
 	}
 
 	return list, nil

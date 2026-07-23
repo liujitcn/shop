@@ -1,7 +1,7 @@
 # Codex 规则（backend）
 
 ## 提交与发布
-- 提交顺序：生成与测试（`go test ./...` 必须通过）→ 检查更新 `README.md` → `git add -A` + 中文提交信息 + push 当前分支同名远程分支。
+- 提交顺序：本次任务全部改动完成后统一执行一次生成与测试（`go test ./...` 必须通过）→ 检查更新 `README.md` → `git add -A` + 中文提交信息 + push 当前分支同名远程分支；改动过程中间不要逐次编辑逐次编译/测试，避免重复全量扫描。
 - 本项目不编写 `_test.go`；临时测试用完即删。`go test ./...` 用于验证编译与依赖完整性。
 
 ## 新增业务流程
@@ -38,4 +38,5 @@
 ## proto 与 HTTP 路径
 - package 带版本号并与目录对齐（`system.admin.v1`、`shop.app.v1` 等）；Go import 用真实包名别名（`shopadminv1` 等）；TS import 带 `/v1/` 层级。
 - HTTP 路径遵循 RESTful，格式 `/api/v1/{terminal}/{module}/{resource}`；迁移旧接口用 `additional_bindings` 暂留旧路径。
-- 命名细则见 [docs/api.md](docs/api.md)；proto 的 `google.api.http`、`sql/default-data.sql` 的 `base_api.path`、前端请求地址三处必须一致，禁止只改其中一处。
+- 字段与命名细则见 [docs/api.md](docs/api.md)，新增或修改 proto 字段前必须先读
+- proto 的 `google.api.http`、`sql/default-data.sql` 的 `base_api.path`、前端请求地址三处必须一致，禁止只改其中一处。

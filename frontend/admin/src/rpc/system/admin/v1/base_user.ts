@@ -39,10 +39,6 @@ export interface PageBaseUserRequest {
   gender?:
     | BaseUserGender
     | undefined;
-  /** 岗位ID */
-  post_id?:
-    | number
-    | undefined;
   /** 状态 */
   status?:
     | Status
@@ -109,8 +105,6 @@ export interface BaseUser {
   dept_id: number;
   /** 岗位ID */
   post_id: number;
-  /** 岗位名称 */
-  post_name: string;
   /** 手机号 */
   phone: string;
   /** 性别 */

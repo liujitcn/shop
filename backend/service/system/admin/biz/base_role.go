@@ -239,6 +239,25 @@ func (c *BaseRoleCase) DeleteBaseRole(ctx context.Context, id string) error {
 	})
 }
 
+// SetBaseRoleStatus 设置角色状态
+func (c *BaseRoleCase) SetBaseRoleStatus(ctx context.Context, req *systemadminv1.SetBaseRoleStatusRequest) error {
+	baseRole, err := c.FindByID(ctx, req.GetId())
+	if err != nil {
+		return err
+	}
+	if _const.IsBaseRoleStatusProtected(baseRole.Code) {
+		return errorsx.ProtectedResourceConflict("操作角色失败，不能修改默认角色状态", "base_role")
+	}
+	err = c.validateBaseRoleManagementTarget(ctx, baseRole)
+	if err != nil {
+		return err
+	}
+	return c.UpdateByID(ctx, &models.BaseRole{
+		ID:     req.GetId(),
+		Status: req.GetStatus(),
+	})
+}
+
 // SetBaseRoleMenu 设置角色菜单
 func (c *BaseRoleCase) SetBaseRoleMenu(ctx context.Context, req *systemadminv1.SetBaseRoleMenuRequest) error {
 	oldBaseRole, err := c.FindByID(ctx, req.GetId())
@@ -270,25 +289,6 @@ func (c *BaseRoleCase) SetBaseRoleMenu(ctx context.Context, req *systemadminv1.S
 			return c.syncTenantRoleMenus(ctx, baseRole)
 		}
 		return c.casbinRuleCase.RebuildCasbinRuleByRole(ctx, baseRole)
-	})
-}
-
-// SetBaseRoleStatus 设置角色状态
-func (c *BaseRoleCase) SetBaseRoleStatus(ctx context.Context, req *systemadminv1.SetBaseRoleStatusRequest) error {
-	baseRole, err := c.FindByID(ctx, req.GetId())
-	if err != nil {
-		return err
-	}
-	if _const.IsBaseRoleStatusProtected(baseRole.Code) {
-		return errorsx.ProtectedResourceConflict("操作角色失败，不能修改默认角色状态", "base_role")
-	}
-	err = c.validateBaseRoleManagementTarget(ctx, baseRole)
-	if err != nil {
-		return err
-	}
-	return c.UpdateByID(ctx, &models.BaseRole{
-		ID:     req.GetId(),
-		Status: req.GetStatus(),
 	})
 }
 

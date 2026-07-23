@@ -1138,10 +1138,10 @@ func (x *UserResponse) GetScore() float64 {
 // Gorse 推荐用户反馈查询条件
 type GetUserFeedbackRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`                       // 用户编号
-	FeedbackType  string                 `protobuf:"bytes,2,opt,name=feedback_type,proto3" json:"feedback_type,omitempty"` // 反馈类型
-	Offset        int32                  `protobuf:"varint,3,opt,name=offset,proto3" json:"offset,omitempty"`              // 偏移量
-	N             int32                  `protobuf:"varint,4,opt,name=n,proto3" json:"n,omitempty"`                        // 查询数量
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`                                         // 用户编号
+	FeedbackType  string                 `protobuf:"bytes,2,opt,name=feedback_type,json=feedbackType,proto3" json:"feedback_type,omitempty"` // 反馈类型
+	Offset        int32                  `protobuf:"varint,3,opt,name=offset,proto3" json:"offset,omitempty"`                                // 偏移量
+	N             int32                  `protobuf:"varint,4,opt,name=n,proto3" json:"n,omitempty"`                                          // 查询数量
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2177,10 +2177,10 @@ func (x *Task) GetFinishTime() string {
 // Gorse 推荐用户标签信息
 type UserLabel struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	DeptId        int64                  `protobuf:"varint,1,opt,name=dept_id,proto3" json:"dept_id,omitempty"` // 部门编号
-	Gender        int32                  `protobuf:"varint,2,opt,name=gender,proto3" json:"gender,omitempty"`   // 性别
-	RoleId        int64                  `protobuf:"varint,3,opt,name=role_id,proto3" json:"role_id,omitempty"` // 角色编号
-	Status        int32                  `protobuf:"varint,4,opt,name=status,proto3" json:"status,omitempty"`   // 状态
+	DeptId        int64                  `protobuf:"varint,1,opt,name=dept_id,json=deptId,proto3" json:"dept_id,omitempty"` // 部门编号
+	Gender        int32                  `protobuf:"varint,2,opt,name=gender,proto3" json:"gender,omitempty"`               // 性别
+	RoleId        int64                  `protobuf:"varint,3,opt,name=role_id,json=roleId,proto3" json:"role_id,omitempty"` // 角色编号
+	Status        int32                  `protobuf:"varint,4,opt,name=status,proto3" json:"status,omitempty"`               // 状态
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2246,11 +2246,11 @@ func (x *UserLabel) GetStatus() int32 {
 // Gorse 推荐商品标签信息
 type ItemLabel struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Desc          string                 `protobuf:"bytes,1,opt,name=desc,proto3" json:"desc,omitempty"`                      // 商品描述
-	DiscountPrice int64                  `protobuf:"varint,2,opt,name=discount_price,proto3" json:"discount_price,omitempty"` // 折扣价
-	Inventory     int64                  `protobuf:"varint,4,opt,name=inventory,proto3" json:"inventory,omitempty"`           // 库存
-	Price         int64                  `protobuf:"varint,5,opt,name=price,proto3" json:"price,omitempty"`                   // 原价
-	Status        int32                  `protobuf:"varint,6,opt,name=status,proto3" json:"status,omitempty"`                 // 状态
+	Desc          string                 `protobuf:"bytes,1,opt,name=desc,proto3" json:"desc,omitempty"`                                         // 商品描述
+	DiscountPrice int64                  `protobuf:"varint,2,opt,name=discount_price,json=discountPrice,proto3" json:"discount_price,omitempty"` // 折扣价
+	Inventory     int64                  `protobuf:"varint,4,opt,name=inventory,proto3" json:"inventory,omitempty"`                              // 库存
+	Price         int64                  `protobuf:"varint,5,opt,name=price,proto3" json:"price,omitempty"`                                      // 原价
+	Status        int32                  `protobuf:"varint,6,opt,name=status,proto3" json:"status,omitempty"`                                    // 状态
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2408,14 +2408,14 @@ func (x *Feedback) GetComment() string {
 // Gorse 推荐数据库配置
 type ConfigResponse_Database struct {
 	state            protoimpl.MessageState            `protogen:"open.v1"`
-	DataStore        string                            `protobuf:"bytes,1,opt,name=data_store,proto3" json:"data_store,omitempty"`                 // 数据存储数据库
-	CacheStore       string                            `protobuf:"bytes,2,opt,name=cache_store,proto3" json:"cache_store,omitempty"`               // 缓存存储数据库
-	TablePrefix      string                            `protobuf:"bytes,3,opt,name=table_prefix,proto3" json:"table_prefix,omitempty"`             // 数据库表名前缀
-	CacheTablePrefix string                            `protobuf:"bytes,4,opt,name=cache_table_prefix,proto3" json:"cache_table_prefix,omitempty"` // 缓存表名前缀
-	DataTablePrefix  string                            `protobuf:"bytes,5,opt,name=data_table_prefix,proto3" json:"data_table_prefix,omitempty"`   // 数据表名前缀
-	Mysql            *ConfigResponse_Database_Mysql    `protobuf:"bytes,6,opt,name=mysql,proto3" json:"mysql,omitempty"`                           // MySQL配置
-	Postgres         *ConfigResponse_Database_Postgres `protobuf:"bytes,7,opt,name=postgres,proto3" json:"postgres,omitempty"`                     // PostgreSQL配置
-	Redis            *ConfigResponse_Database_Redis    `protobuf:"bytes,8,opt,name=redis,proto3" json:"redis,omitempty"`                           // Redis配置
+	DataStore        string                            `protobuf:"bytes,1,opt,name=data_store,json=dataStore,proto3" json:"data_store,omitempty"`                        // 数据存储数据库
+	CacheStore       string                            `protobuf:"bytes,2,opt,name=cache_store,json=cacheStore,proto3" json:"cache_store,omitempty"`                     // 缓存存储数据库
+	TablePrefix      string                            `protobuf:"bytes,3,opt,name=table_prefix,json=tablePrefix,proto3" json:"table_prefix,omitempty"`                  // 数据库表名前缀
+	CacheTablePrefix string                            `protobuf:"bytes,4,opt,name=cache_table_prefix,json=cacheTablePrefix,proto3" json:"cache_table_prefix,omitempty"` // 缓存表名前缀
+	DataTablePrefix  string                            `protobuf:"bytes,5,opt,name=data_table_prefix,json=dataTablePrefix,proto3" json:"data_table_prefix,omitempty"`    // 数据表名前缀
+	Mysql            *ConfigResponse_Database_Mysql    `protobuf:"bytes,6,opt,name=mysql,proto3" json:"mysql,omitempty"`                                                 // MySQL配置
+	Postgres         *ConfigResponse_Database_Postgres `protobuf:"bytes,7,opt,name=postgres,proto3" json:"postgres,omitempty"`                                           // PostgreSQL配置
+	Redis            *ConfigResponse_Database_Redis    `protobuf:"bytes,8,opt,name=redis,proto3" json:"redis,omitempty"`                                                 // Redis配置
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -2509,22 +2509,22 @@ func (x *ConfigResponse_Database) GetRedis() *ConfigResponse_Database_Redis {
 // Gorse 推荐主节点配置
 type ConfigResponse_Master struct {
 	state             protoimpl.MessageState `protogen:"open.v1"`
-	Host              string                 `protobuf:"bytes,1,opt,name=host,proto3" json:"host,omitempty"`                                // gRPC监听地址
-	Port              int32                  `protobuf:"varint,2,opt,name=port,proto3" json:"port,omitempty"`                               // gRPC监听端口
-	SslMode           bool                   `protobuf:"varint,3,opt,name=ssl_mode,proto3" json:"ssl_mode,omitempty"`                       // 是否启用gRPC SSL
-	SslCa             string                 `protobuf:"bytes,4,opt,name=ssl_ca,proto3" json:"ssl_ca,omitempty"`                            // gRPC SSL证书颁发机构
-	SslCert           string                 `protobuf:"bytes,5,opt,name=ssl_cert,proto3" json:"ssl_cert,omitempty"`                        // gRPC SSL证书
-	SslKey            string                 `protobuf:"bytes,6,opt,name=ssl_key,proto3" json:"ssl_key,omitempty"`                          // gRPC SSL证书密钥
-	HttpHost          string                 `protobuf:"bytes,7,opt,name=http_host,proto3" json:"http_host,omitempty"`                      // HTTP监听地址
-	HttpPort          int32                  `protobuf:"varint,8,opt,name=http_port,proto3" json:"http_port,omitempty"`                     // HTTP监听端口
-	HttpCorsDomains   []string               `protobuf:"bytes,9,rep,name=http_cors_domains,proto3" json:"http_cors_domains,omitempty"`      // HTTP CORS允许域名
-	HttpCorsMethods   []string               `protobuf:"bytes,10,rep,name=http_cors_methods,proto3" json:"http_cors_methods,omitempty"`     // HTTP CORS允许方法
-	NJobs             int32                  `protobuf:"varint,11,opt,name=n_jobs,proto3" json:"n_jobs,omitempty"`                          // 工作线程数
-	MetaTimeout       string                 `protobuf:"bytes,12,opt,name=meta_timeout,proto3" json:"meta_timeout,omitempty"`               // 元数据超时时间
-	DashboardUserName string                 `protobuf:"bytes,13,opt,name=dashboard_user_name,proto3" json:"dashboard_user_name,omitempty"` // 仪表盘登录用户名
-	DashboardPassword string                 `protobuf:"bytes,14,opt,name=dashboard_password,proto3" json:"dashboard_password,omitempty"`   // 仪表盘登录密码
-	DashboardRedacted bool                   `protobuf:"varint,15,opt,name=dashboard_redacted,proto3" json:"dashboard_redacted,omitempty"`  // 是否隐藏仪表盘敏感信息
-	AdminApiKey       string                 `protobuf:"bytes,16,opt,name=admin_api_key,proto3" json:"admin_api_key,omitempty"`             // 管理员API密钥
+	Host              string                 `protobuf:"bytes,1,opt,name=host,proto3" json:"host,omitempty"`                                                       // gRPC监听地址
+	Port              int32                  `protobuf:"varint,2,opt,name=port,proto3" json:"port,omitempty"`                                                      // gRPC监听端口
+	SslMode           bool                   `protobuf:"varint,3,opt,name=ssl_mode,json=sslMode,proto3" json:"ssl_mode,omitempty"`                                 // 是否启用gRPC SSL
+	SslCa             string                 `protobuf:"bytes,4,opt,name=ssl_ca,json=sslCa,proto3" json:"ssl_ca,omitempty"`                                        // gRPC SSL证书颁发机构
+	SslCert           string                 `protobuf:"bytes,5,opt,name=ssl_cert,json=sslCert,proto3" json:"ssl_cert,omitempty"`                                  // gRPC SSL证书
+	SslKey            string                 `protobuf:"bytes,6,opt,name=ssl_key,json=sslKey,proto3" json:"ssl_key,omitempty"`                                     // gRPC SSL证书密钥
+	HttpHost          string                 `protobuf:"bytes,7,opt,name=http_host,json=httpHost,proto3" json:"http_host,omitempty"`                               // HTTP监听地址
+	HttpPort          int32                  `protobuf:"varint,8,opt,name=http_port,json=httpPort,proto3" json:"http_port,omitempty"`                              // HTTP监听端口
+	HttpCorsDomains   []string               `protobuf:"bytes,9,rep,name=http_cors_domains,json=httpCorsDomains,proto3" json:"http_cors_domains,omitempty"`        // HTTP CORS允许域名
+	HttpCorsMethods   []string               `protobuf:"bytes,10,rep,name=http_cors_methods,json=httpCorsMethods,proto3" json:"http_cors_methods,omitempty"`       // HTTP CORS允许方法
+	NJobs             int32                  `protobuf:"varint,11,opt,name=n_jobs,json=nJobs,proto3" json:"n_jobs,omitempty"`                                      // 工作线程数
+	MetaTimeout       string                 `protobuf:"bytes,12,opt,name=meta_timeout,json=metaTimeout,proto3" json:"meta_timeout,omitempty"`                     // 元数据超时时间
+	DashboardUserName string                 `protobuf:"bytes,13,opt,name=dashboard_user_name,json=dashboardUserName,proto3" json:"dashboard_user_name,omitempty"` // 仪表盘登录用户名
+	DashboardPassword string                 `protobuf:"bytes,14,opt,name=dashboard_password,json=dashboardPassword,proto3" json:"dashboard_password,omitempty"`   // 仪表盘登录密码
+	DashboardRedacted bool                   `protobuf:"varint,15,opt,name=dashboard_redacted,json=dashboardRedacted,proto3" json:"dashboard_redacted,omitempty"`  // 是否隐藏仪表盘敏感信息
+	AdminApiKey       string                 `protobuf:"bytes,16,opt,name=admin_api_key,json=adminApiKey,proto3" json:"admin_api_key,omitempty"`                   // 管理员API密钥
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
@@ -2674,12 +2674,12 @@ func (x *ConfigResponse_Master) GetAdminApiKey() string {
 // Gorse 推荐服务配置
 type ConfigResponse_Server struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
-	DefaultN       int32                  `protobuf:"varint,1,opt,name=default_n,proto3" json:"default_n,omitempty"`               // 默认返回物品数量
-	ApiKey         string                 `protobuf:"bytes,2,opt,name=api_key,proto3" json:"api_key,omitempty"`                    // RESTful API密钥
-	ClockError     string                 `protobuf:"bytes,3,opt,name=clock_error,proto3" json:"clock_error,omitempty"`            // 集群时钟误差
-	AutoInsertUser bool                   `protobuf:"varint,4,opt,name=auto_insert_user,proto3" json:"auto_insert_user,omitempty"` // 插入反馈时自动插入新用户
-	AutoInsertItem bool                   `protobuf:"varint,5,opt,name=auto_insert_item,proto3" json:"auto_insert_item,omitempty"` // 插入反馈时自动插入新物品
-	CacheExpire    string                 `protobuf:"bytes,6,opt,name=cache_expire,proto3" json:"cache_expire,omitempty"`          // 服务端缓存过期时间
+	DefaultN       int32                  `protobuf:"varint,1,opt,name=default_n,json=defaultN,proto3" json:"default_n,omitempty"`                     // 默认返回物品数量
+	ApiKey         string                 `protobuf:"bytes,2,opt,name=api_key,json=apiKey,proto3" json:"api_key,omitempty"`                            // RESTful API密钥
+	ClockError     string                 `protobuf:"bytes,3,opt,name=clock_error,json=clockError,proto3" json:"clock_error,omitempty"`                // 集群时钟误差
+	AutoInsertUser bool                   `protobuf:"varint,4,opt,name=auto_insert_user,json=autoInsertUser,proto3" json:"auto_insert_user,omitempty"` // 插入反馈时自动插入新用户
+	AutoInsertItem bool                   `protobuf:"varint,5,opt,name=auto_insert_item,json=autoInsertItem,proto3" json:"auto_insert_item,omitempty"` // 插入反馈时自动插入新物品
+	CacheExpire    string                 `protobuf:"bytes,6,opt,name=cache_expire,json=cacheExpire,proto3" json:"cache_expire,omitempty"`             // 服务端缓存过期时间
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -2759,11 +2759,11 @@ func (x *ConfigResponse_Server) GetCacheExpire() string {
 // Gorse 推荐算法配置
 type ConfigResponse_Recommend struct {
 	state           protoimpl.MessageState                      `protogen:"open.v1"`
-	CacheSize       int32                                       `protobuf:"varint,1,opt,name=cache_size,proto3" json:"cache_size,omitempty"`                                  // 缓存元素数量
-	CacheExpire     string                                      `protobuf:"bytes,2,opt,name=cache_expire,proto3" json:"cache_expire,omitempty"`                               // 推荐缓存过期时间
-	ContextSize     int32                                       `protobuf:"varint,3,opt,name=context_size,proto3" json:"context_size,omitempty"`                              // 在线推荐上下文大小
-	ActiveUserTtl   int32                                       `protobuf:"varint,4,opt,name=active_user_ttl,proto3" json:"active_user_ttl,omitempty"`                        // 活跃用户生存时间
-	DataSource      *ConfigResponse_Recommend_DataSource        `protobuf:"bytes,5,opt,name=data_source,proto3" json:"data_source,omitempty"`                                 // 数据源配置
+	CacheSize       int32                                       `protobuf:"varint,1,opt,name=cache_size,json=cacheSize,proto3" json:"cache_size,omitempty"`                   // 缓存元素数量
+	CacheExpire     string                                      `protobuf:"bytes,2,opt,name=cache_expire,json=cacheExpire,proto3" json:"cache_expire,omitempty"`              // 推荐缓存过期时间
+	ContextSize     int32                                       `protobuf:"varint,3,opt,name=context_size,json=contextSize,proto3" json:"context_size,omitempty"`             // 在线推荐上下文大小
+	ActiveUserTtl   int32                                       `protobuf:"varint,4,opt,name=active_user_ttl,json=activeUserTtl,proto3" json:"active_user_ttl,omitempty"`     // 活跃用户生存时间
+	DataSource      *ConfigResponse_Recommend_DataSource        `protobuf:"bytes,5,opt,name=data_source,json=dataSource,proto3" json:"data_source,omitempty"`                 // 数据源配置
 	NonPersonalized []*ConfigResponse_Recommend_NonPersonalized `protobuf:"bytes,6,rep,name=non_personalized,json=non-personalized,proto3" json:"non_personalized,omitempty"` // 非个性化推荐器
 	ItemToItem      []*ConfigResponse_Recommend_ItemToItem      `protobuf:"bytes,7,rep,name=item_to_item,json=item-to-item,proto3" json:"item_to_item,omitempty"`             // 物品相似推荐器
 	UserToUser      []*ConfigResponse_Recommend_UserToUser      `protobuf:"bytes,8,rep,name=user_to_user,json=user-to-user,proto3" json:"user_to_user,omitempty"`             // 用户相似推荐器
@@ -2969,11 +2969,11 @@ func (x *ConfigResponse_Blob) GetAzure() *ConfigResponse_Blob_Azure {
 // 链路追踪配置
 type ConfigResponse_Tracing struct {
 	state             protoimpl.MessageState `protogen:"open.v1"`
-	EnableTracing     bool                   `protobuf:"varint,1,opt,name=enable_tracing,proto3" json:"enable_tracing,omitempty"`        // 是否启用REST API追踪
-	Exporter          string                 `protobuf:"bytes,2,opt,name=exporter,proto3" json:"exporter,omitempty"`                     // 追踪导出器类型
-	CollectorEndpoint string                 `protobuf:"bytes,3,opt,name=collector_endpoint,proto3" json:"collector_endpoint,omitempty"` // 追踪收集器端点
-	Sampler           string                 `protobuf:"bytes,4,opt,name=sampler,proto3" json:"sampler,omitempty"`                       // 追踪采样器类型
-	Ratio             float64                `protobuf:"fixed64,5,opt,name=ratio,proto3" json:"ratio,omitempty"`                         // 采样比率
+	EnableTracing     bool                   `protobuf:"varint,1,opt,name=enable_tracing,json=enableTracing,proto3" json:"enable_tracing,omitempty"`            // 是否启用REST API追踪
+	Exporter          string                 `protobuf:"bytes,2,opt,name=exporter,proto3" json:"exporter,omitempty"`                                            // 追踪导出器类型
+	CollectorEndpoint string                 `protobuf:"bytes,3,opt,name=collector_endpoint,json=collectorEndpoint,proto3" json:"collector_endpoint,omitempty"` // 追踪收集器端点
+	Sampler           string                 `protobuf:"bytes,4,opt,name=sampler,proto3" json:"sampler,omitempty"`                                              // 追踪采样器类型
+	Ratio             float64                `protobuf:"fixed64,5,opt,name=ratio,proto3" json:"ratio,omitempty"`                                                // 采样比率
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
@@ -3046,11 +3046,11 @@ func (x *ConfigResponse_Tracing) GetRatio() float64 {
 // OIDC认证配置
 type ConfigResponse_Oidc struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Enable        bool                   `protobuf:"varint,1,opt,name=enable,proto3" json:"enable,omitempty"`              // 是否启用OIDC认证
-	Issuer        string                 `protobuf:"bytes,2,opt,name=issuer,proto3" json:"issuer,omitempty"`               // OAuth提供商颁发者
-	ClientId      string                 `protobuf:"bytes,3,opt,name=client_id,proto3" json:"client_id,omitempty"`         // OAuth应用公共标识符
-	ClientSecret  string                 `protobuf:"bytes,4,opt,name=client_secret,proto3" json:"client_secret,omitempty"` // OAuth令牌访问权限
-	RedirectUrl   string                 `protobuf:"bytes,5,opt,name=redirect_url,proto3" json:"redirect_url,omitempty"`   // 认证后重定向地址
+	Enable        bool                   `protobuf:"varint,1,opt,name=enable,proto3" json:"enable,omitempty"`                                // 是否启用OIDC认证
+	Issuer        string                 `protobuf:"bytes,2,opt,name=issuer,proto3" json:"issuer,omitempty"`                                 // OAuth提供商颁发者
+	ClientId      string                 `protobuf:"bytes,3,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`             // OAuth应用公共标识符
+	ClientSecret  string                 `protobuf:"bytes,4,opt,name=client_secret,json=clientSecret,proto3" json:"client_secret,omitempty"` // OAuth令牌访问权限
+	RedirectUrl   string                 `protobuf:"bytes,5,opt,name=redirect_url,json=redirectUrl,proto3" json:"redirect_url,omitempty"`    // 认证后重定向地址
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -3123,16 +3123,16 @@ func (x *ConfigResponse_Oidc) GetRedirectUrl() string {
 // OpenAI配置
 type ConfigResponse_Openai struct {
 	state               protoimpl.MessageState `protogen:"open.v1"`
-	BaseUrl             string                 `protobuf:"bytes,1,opt,name=base_url,proto3" json:"base_url,omitempty"`                           // 基础地址
-	AuthToken           string                 `protobuf:"bytes,2,opt,name=auth_token,proto3" json:"auth_token,omitempty"`                       // 认证令牌
-	ChatCompletionModel string                 `protobuf:"bytes,3,opt,name=chat_completion_model,proto3" json:"chat_completion_model,omitempty"` // 对话模型
-	ChatCompletionRpm   int32                  `protobuf:"varint,4,opt,name=chat_completion_rpm,proto3" json:"chat_completion_rpm,omitempty"`    // 对话每分钟请求数
-	ChatCompletionTpm   int32                  `protobuf:"varint,5,opt,name=chat_completion_tpm,proto3" json:"chat_completion_tpm,omitempty"`    // 对话每分钟Token数
-	EmbeddingModel      string                 `protobuf:"bytes,6,opt,name=embedding_model,proto3" json:"embedding_model,omitempty"`             // Embedding模型
-	EmbeddingDimensions int32                  `protobuf:"varint,7,opt,name=embedding_dimensions,proto3" json:"embedding_dimensions,omitempty"`  // Embedding维度
-	EmbeddingRpm        int32                  `protobuf:"varint,8,opt,name=embedding_rpm,proto3" json:"embedding_rpm,omitempty"`                // Embedding每分钟请求数
-	EmbeddingTpm        int32                  `protobuf:"varint,9,opt,name=embedding_tpm,proto3" json:"embedding_tpm,omitempty"`                // Embedding每分钟Token数
-	LogFile             string                 `protobuf:"bytes,10,opt,name=log_file,proto3" json:"log_file,omitempty"`                          // 日志文件
+	BaseUrl             string                 `protobuf:"bytes,1,opt,name=base_url,json=baseUrl,proto3" json:"base_url,omitempty"`                                       // 基础地址
+	AuthToken           string                 `protobuf:"bytes,2,opt,name=auth_token,json=authToken,proto3" json:"auth_token,omitempty"`                                 // 认证令牌
+	ChatCompletionModel string                 `protobuf:"bytes,3,opt,name=chat_completion_model,json=chatCompletionModel,proto3" json:"chat_completion_model,omitempty"` // 对话模型
+	ChatCompletionRpm   int32                  `protobuf:"varint,4,opt,name=chat_completion_rpm,json=chatCompletionRpm,proto3" json:"chat_completion_rpm,omitempty"`      // 对话每分钟请求数
+	ChatCompletionTpm   int32                  `protobuf:"varint,5,opt,name=chat_completion_tpm,json=chatCompletionTpm,proto3" json:"chat_completion_tpm,omitempty"`      // 对话每分钟Token数
+	EmbeddingModel      string                 `protobuf:"bytes,6,opt,name=embedding_model,json=embeddingModel,proto3" json:"embedding_model,omitempty"`                  // Embedding模型
+	EmbeddingDimensions int32                  `protobuf:"varint,7,opt,name=embedding_dimensions,json=embeddingDimensions,proto3" json:"embedding_dimensions,omitempty"`  // Embedding维度
+	EmbeddingRpm        int32                  `protobuf:"varint,8,opt,name=embedding_rpm,json=embeddingRpm,proto3" json:"embedding_rpm,omitempty"`                       // Embedding每分钟请求数
+	EmbeddingTpm        int32                  `protobuf:"varint,9,opt,name=embedding_tpm,json=embeddingTpm,proto3" json:"embedding_tpm,omitempty"`                       // Embedding每分钟Token数
+	LogFile             string                 `protobuf:"bytes,10,opt,name=log_file,json=logFile,proto3" json:"log_file,omitempty"`                                      // 日志文件
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
 }
@@ -3240,10 +3240,10 @@ func (x *ConfigResponse_Openai) GetLogFile() string {
 // MySQL配置
 type ConfigResponse_Database_Mysql struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
-	IsolationLevel  string                 `protobuf:"bytes,1,opt,name=isolation_level,proto3" json:"isolation_level,omitempty"`     // 事务隔离级别
-	MaxOpenConns    int32                  `protobuf:"varint,2,opt,name=max_open_conns,proto3" json:"max_open_conns,omitempty"`      // 最大打开连接数
-	MaxIdleConns    int32                  `protobuf:"varint,3,opt,name=max_idle_conns,proto3" json:"max_idle_conns,omitempty"`      // 最大空闲连接数
-	ConnMaxLifetime string                 `protobuf:"bytes,4,opt,name=conn_max_lifetime,proto3" json:"conn_max_lifetime,omitempty"` // 连接最长复用时间
+	IsolationLevel  string                 `protobuf:"bytes,1,opt,name=isolation_level,json=isolationLevel,proto3" json:"isolation_level,omitempty"`      // 事务隔离级别
+	MaxOpenConns    int32                  `protobuf:"varint,2,opt,name=max_open_conns,json=maxOpenConns,proto3" json:"max_open_conns,omitempty"`         // 最大打开连接数
+	MaxIdleConns    int32                  `protobuf:"varint,3,opt,name=max_idle_conns,json=maxIdleConns,proto3" json:"max_idle_conns,omitempty"`         // 最大空闲连接数
+	ConnMaxLifetime string                 `protobuf:"bytes,4,opt,name=conn_max_lifetime,json=connMaxLifetime,proto3" json:"conn_max_lifetime,omitempty"` // 连接最长复用时间
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -3309,9 +3309,9 @@ func (x *ConfigResponse_Database_Mysql) GetConnMaxLifetime() string {
 // PostgreSQL配置
 type ConfigResponse_Database_Postgres struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
-	MaxOpenConns    int32                  `protobuf:"varint,1,opt,name=max_open_conns,proto3" json:"max_open_conns,omitempty"`      // 最大打开连接数
-	MaxIdleConns    int32                  `protobuf:"varint,2,opt,name=max_idle_conns,proto3" json:"max_idle_conns,omitempty"`      // 最大空闲连接数
-	ConnMaxLifetime string                 `protobuf:"bytes,3,opt,name=conn_max_lifetime,proto3" json:"conn_max_lifetime,omitempty"` // 连接最长复用时间
+	MaxOpenConns    int32                  `protobuf:"varint,1,opt,name=max_open_conns,json=maxOpenConns,proto3" json:"max_open_conns,omitempty"`         // 最大打开连接数
+	MaxIdleConns    int32                  `protobuf:"varint,2,opt,name=max_idle_conns,json=maxIdleConns,proto3" json:"max_idle_conns,omitempty"`         // 最大空闲连接数
+	ConnMaxLifetime string                 `protobuf:"bytes,3,opt,name=conn_max_lifetime,json=connMaxLifetime,proto3" json:"conn_max_lifetime,omitempty"` // 连接最长复用时间
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -3370,7 +3370,7 @@ func (x *ConfigResponse_Database_Postgres) GetConnMaxLifetime() string {
 // Redis配置
 type ConfigResponse_Database_Redis struct {
 	state            protoimpl.MessageState `protogen:"open.v1"`
-	MaxSearchResults int32                  `protobuf:"varint,1,opt,name=max_search_results,proto3" json:"max_search_results,omitempty"` // 最大搜索结果数
+	MaxSearchResults int32                  `protobuf:"varint,1,opt,name=max_search_results,json=maxSearchResults,proto3" json:"max_search_results,omitempty"` // 最大搜索结果数
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -3415,11 +3415,11 @@ func (x *ConfigResponse_Database_Redis) GetMaxSearchResults() int32 {
 // 推荐数据源配置
 type ConfigResponse_Recommend_DataSource struct {
 	state                 protoimpl.MessageState `protogen:"open.v1"`
-	PositiveFeedbackTypes []string               `protobuf:"bytes,1,rep,name=positive_feedback_types,proto3" json:"positive_feedback_types,omitempty"` // 正向反馈类型
-	ReadFeedbackTypes     []string               `protobuf:"bytes,2,rep,name=read_feedback_types,proto3" json:"read_feedback_types,omitempty"`         // 已读反馈类型
-	NegativeFeedbackTypes []string               `protobuf:"bytes,3,rep,name=negative_feedback_types,proto3" json:"negative_feedback_types,omitempty"` // 负反馈类型
-	PositiveFeedbackTtl   int32                  `protobuf:"varint,4,opt,name=positive_feedback_ttl,proto3" json:"positive_feedback_ttl,omitempty"`    // 正向反馈生存时间
-	ItemTtl               int32                  `protobuf:"varint,5,opt,name=item_ttl,proto3" json:"item_ttl,omitempty"`                              // 物品生存时间
+	PositiveFeedbackTypes []string               `protobuf:"bytes,1,rep,name=positive_feedback_types,json=positiveFeedbackTypes,proto3" json:"positive_feedback_types,omitempty"` // 正向反馈类型
+	ReadFeedbackTypes     []string               `protobuf:"bytes,2,rep,name=read_feedback_types,json=readFeedbackTypes,proto3" json:"read_feedback_types,omitempty"`             // 已读反馈类型
+	NegativeFeedbackTypes []string               `protobuf:"bytes,3,rep,name=negative_feedback_types,json=negativeFeedbackTypes,proto3" json:"negative_feedback_types,omitempty"` // 负反馈类型
+	PositiveFeedbackTtl   int32                  `protobuf:"varint,4,opt,name=positive_feedback_ttl,json=positiveFeedbackTtl,proto3" json:"positive_feedback_ttl,omitempty"`      // 正向反馈生存时间
+	ItemTtl               int32                  `protobuf:"varint,5,opt,name=item_ttl,json=itemTtl,proto3" json:"item_ttl,omitempty"`                                            // 物品生存时间
 	unknownFields         protoimpl.UnknownFields
 	sizeCache             protoimpl.SizeCache
 }
@@ -3736,12 +3736,12 @@ func (x *ConfigResponse_Recommend_External) GetScript() string {
 // 协同过滤配置
 type ConfigResponse_Recommend_Collaborative struct {
 	state          protoimpl.MessageState                  `protogen:"open.v1"`
-	Type           string                                  `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`                        // 协同过滤类型
-	FitPeriod      string                                  `protobuf:"bytes,2,opt,name=fit_period,proto3" json:"fit_period,omitempty"`            // 模型训练周期
-	FitEpoch       int32                                   `protobuf:"varint,3,opt,name=fit_epoch,proto3" json:"fit_epoch,omitempty"`             // 模型训练轮数
-	OptimizePeriod string                                  `protobuf:"bytes,4,opt,name=optimize_period,proto3" json:"optimize_period,omitempty"`  // 模型搜索周期
-	OptimizeTrials int32                                   `protobuf:"varint,5,opt,name=optimize_trials,proto3" json:"optimize_trials,omitempty"` // 模型搜索试验次数
-	EarlyStopping  *ConfigResponse_Recommend_EarlyStopping `protobuf:"bytes,6,opt,name=early_stopping,proto3" json:"early_stopping,omitempty"`    // 早停配置
+	Type           string                                  `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`                                            // 协同过滤类型
+	FitPeriod      string                                  `protobuf:"bytes,2,opt,name=fit_period,json=fitPeriod,proto3" json:"fit_period,omitempty"`                 // 模型训练周期
+	FitEpoch       int32                                   `protobuf:"varint,3,opt,name=fit_epoch,json=fitEpoch,proto3" json:"fit_epoch,omitempty"`                   // 模型训练轮数
+	OptimizePeriod string                                  `protobuf:"bytes,4,opt,name=optimize_period,json=optimizePeriod,proto3" json:"optimize_period,omitempty"`  // 模型搜索周期
+	OptimizeTrials int32                                   `protobuf:"varint,5,opt,name=optimize_trials,json=optimizeTrials,proto3" json:"optimize_trials,omitempty"` // 模型搜索试验次数
+	EarlyStopping  *ConfigResponse_Recommend_EarlyStopping `protobuf:"bytes,6,opt,name=early_stopping,json=earlyStopping,proto3" json:"early_stopping,omitempty"`     // 早停配置
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -3866,9 +3866,9 @@ func (x *ConfigResponse_Recommend_EarlyStopping) GetPatience() int32 {
 // 推荐替换配置
 type ConfigResponse_Recommend_Replacement struct {
 	state                    protoimpl.MessageState `protogen:"open.v1"`
-	EnableReplacement        bool                   `protobuf:"varint,1,opt,name=enable_replacement,proto3" json:"enable_replacement,omitempty"`                  // 是否启用已读物品替换
-	PositiveReplacementDecay float64                `protobuf:"fixed64,2,opt,name=positive_replacement_decay,proto3" json:"positive_replacement_decay,omitempty"` // 正向反馈替换衰减
-	ReadReplacementDecay     float64                `protobuf:"fixed64,3,opt,name=read_replacement_decay,proto3" json:"read_replacement_decay,omitempty"`         // 已读反馈替换衰减
+	EnableReplacement        bool                   `protobuf:"varint,1,opt,name=enable_replacement,json=enableReplacement,proto3" json:"enable_replacement,omitempty"`                         // 是否启用已读物品替换
+	PositiveReplacementDecay float64                `protobuf:"fixed64,2,opt,name=positive_replacement_decay,json=positiveReplacementDecay,proto3" json:"positive_replacement_decay,omitempty"` // 正向反馈替换衰减
+	ReadReplacementDecay     float64                `protobuf:"fixed64,3,opt,name=read_replacement_decay,json=readReplacementDecay,proto3" json:"read_replacement_decay,omitempty"`             // 已读反馈替换衰减
 	unknownFields            protoimpl.UnknownFields
 	sizeCache                protoimpl.SizeCache
 }
@@ -3928,16 +3928,16 @@ func (x *ConfigResponse_Recommend_Replacement) GetReadReplacementDecay() float64
 type ConfigResponse_Recommend_Ranker struct {
 	state            protoimpl.MessageState                       `protogen:"open.v1"`
 	Type             string                                       `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`                                                 // 排序器类型
-	CacheExpire      string                                       `protobuf:"bytes,2,opt,name=cache_expire,proto3" json:"cache_expire,omitempty"`                                 // 不活跃用户推荐刷新周期
+	CacheExpire      string                                       `protobuf:"bytes,2,opt,name=cache_expire,json=cacheExpire,proto3" json:"cache_expire,omitempty"`                // 不活跃用户推荐刷新周期
 	Recommenders     []string                                     `protobuf:"bytes,3,rep,name=recommenders,proto3" json:"recommenders,omitempty"`                                 // 排序前候选推荐器
-	FitPeriod        string                                       `protobuf:"bytes,4,opt,name=fit_period,proto3" json:"fit_period,omitempty"`                                     // 模型拟合周期
-	FitEpoch         int32                                        `protobuf:"varint,5,opt,name=fit_epoch,proto3" json:"fit_epoch,omitempty"`                                      // 模型拟合轮数
-	OptimizePeriod   string                                       `protobuf:"bytes,6,opt,name=optimize_period,proto3" json:"optimize_period,omitempty"`                           // 超参数优化周期
-	OptimizeTrials   int32                                        `protobuf:"varint,7,opt,name=optimize_trials,proto3" json:"optimize_trials,omitempty"`                          // 超参数优化次数
+	FitPeriod        string                                       `protobuf:"bytes,4,opt,name=fit_period,json=fitPeriod,proto3" json:"fit_period,omitempty"`                      // 模型拟合周期
+	FitEpoch         int32                                        `protobuf:"varint,5,opt,name=fit_epoch,json=fitEpoch,proto3" json:"fit_epoch,omitempty"`                        // 模型拟合轮数
+	OptimizePeriod   string                                       `protobuf:"bytes,6,opt,name=optimize_period,json=optimizePeriod,proto3" json:"optimize_period,omitempty"`       // 超参数优化周期
+	OptimizeTrials   int32                                        `protobuf:"varint,7,opt,name=optimize_trials,json=optimizeTrials,proto3" json:"optimize_trials,omitempty"`      // 超参数优化次数
 	QueryTemplate    string                                       `protobuf:"bytes,8,opt,name=query_template,json=queryTemplate,proto3" json:"query_template,omitempty"`          // 大语言模型重排查询模板
 	DocumentTemplate string                                       `protobuf:"bytes,9,opt,name=document_template,json=documentTemplate,proto3" json:"document_template,omitempty"` // 大语言模型重排文档模板
-	EarlyStopping    *ConfigResponse_Recommend_EarlyStopping      `protobuf:"bytes,10,opt,name=early_stopping,proto3" json:"early_stopping,omitempty"`                            // 早停配置
-	RerankerApi      *ConfigResponse_Recommend_Ranker_RerankerApi `protobuf:"bytes,11,opt,name=reranker_api,proto3" json:"reranker_api,omitempty"`                                // 重排API配置
+	EarlyStopping    *ConfigResponse_Recommend_EarlyStopping      `protobuf:"bytes,10,opt,name=early_stopping,json=earlyStopping,proto3" json:"early_stopping,omitempty"`         // 早停配置
+	RerankerApi      *ConfigResponse_Recommend_Ranker_RerankerApi `protobuf:"bytes,11,opt,name=reranker_api,json=rerankerApi,proto3" json:"reranker_api,omitempty"`               // 重排API配置
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -4097,9 +4097,9 @@ func (x *ConfigResponse_Recommend_Fallback) GetRecommenders() []string {
 // 重排 API 配置
 type ConfigResponse_Recommend_Ranker_RerankerApi struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	AuthToken     string                 `protobuf:"bytes,1,opt,name=auth_token,proto3" json:"auth_token,omitempty"` // 重排API密钥
-	Model         string                 `protobuf:"bytes,2,opt,name=model,proto3" json:"model,omitempty"`           // 重排模型
-	Url           string                 `protobuf:"bytes,3,opt,name=url,proto3" json:"url,omitempty"`               // 重排API地址
+	AuthToken     string                 `protobuf:"bytes,1,opt,name=auth_token,json=authToken,proto3" json:"auth_token,omitempty"` // 重排API密钥
+	Model         string                 `protobuf:"bytes,2,opt,name=model,proto3" json:"model,omitempty"`                          // 重排模型
+	Url           string                 `protobuf:"bytes,3,opt,name=url,proto3" json:"url,omitempty"`                              // 重排API地址
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -4158,9 +4158,9 @@ func (x *ConfigResponse_Recommend_Ranker_RerankerApi) GetUrl() string {
 // S3配置
 type ConfigResponse_Blob_S3 struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
-	Endpoint        string                 `protobuf:"bytes,1,opt,name=endpoint,proto3" json:"endpoint,omitempty"`                   // AWS S3端点
-	AccessKeyId     string                 `protobuf:"bytes,2,opt,name=access_key_id,proto3" json:"access_key_id,omitempty"`         // 访问密钥ID
-	SecretAccessKey string                 `protobuf:"bytes,3,opt,name=secret_access_key,proto3" json:"secret_access_key,omitempty"` // 秘密访问密钥
+	Endpoint        string                 `protobuf:"bytes,1,opt,name=endpoint,proto3" json:"endpoint,omitempty"`                                        // AWS S3端点
+	AccessKeyId     string                 `protobuf:"bytes,2,opt,name=access_key_id,json=accessKeyId,proto3" json:"access_key_id,omitempty"`             // 访问密钥ID
+	SecretAccessKey string                 `protobuf:"bytes,3,opt,name=secret_access_key,json=secretAccessKey,proto3" json:"secret_access_key,omitempty"` // 秘密访问密钥
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -4219,7 +4219,7 @@ func (x *ConfigResponse_Blob_S3) GetSecretAccessKey() string {
 // GCS配置
 type ConfigResponse_Blob_Gcs struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
-	CredentialsFile string                 `protobuf:"bytes,1,opt,name=credentials_file,proto3" json:"credentials_file,omitempty"` // 凭据文件路径
+	CredentialsFile string                 `protobuf:"bytes,1,opt,name=credentials_file,json=credentialsFile,proto3" json:"credentials_file,omitempty"` // 凭据文件路径
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -4264,10 +4264,10 @@ func (x *ConfigResponse_Blob_Gcs) GetCredentialsFile() string {
 // Azure Blob配置
 type ConfigResponse_Blob_Azure struct {
 	state            protoimpl.MessageState `protogen:"open.v1"`
-	Endpoint         string                 `protobuf:"bytes,1,opt,name=endpoint,proto3" json:"endpoint,omitempty"`                   // 端点
-	AccountName      string                 `protobuf:"bytes,2,opt,name=account_name,proto3" json:"account_name,omitempty"`           // 账户名称
-	AccountKey       string                 `protobuf:"bytes,3,opt,name=account_key,proto3" json:"account_key,omitempty"`             // 账户密钥
-	ConnectionString string                 `protobuf:"bytes,4,opt,name=connection_string,proto3" json:"connection_string,omitempty"` // 连接字符串
+	Endpoint         string                 `protobuf:"bytes,1,opt,name=endpoint,proto3" json:"endpoint,omitempty"`                                         // 端点
+	AccountName      string                 `protobuf:"bytes,2,opt,name=account_name,json=accountName,proto3" json:"account_name,omitempty"`                // 账户名称
+	AccountKey       string                 `protobuf:"bytes,3,opt,name=account_key,json=accountKey,proto3" json:"account_key,omitempty"`                   // 账户密钥
+	ConnectionString string                 `protobuf:"bytes,4,opt,name=connection_string,json=connectionString,proto3" json:"connection_string,omitempty"` // 连接字符串
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -4362,7 +4362,7 @@ const file_shop_admin_v1_recommend_gorse_proto_rawDesc = "" +
 	"\x0fListTaskRequest\"W\n" +
 	"\x10ListTaskResponse\x12C\n" +
 	"\x05tasks\x18\x01 \x03(\v2\x13.shop.admin.v1.TaskB\x18\xbaG\x15\x92\x02\x12任务状态列表R\x05Tasks\"\x12\n" +
-	"\x10GetConfigRequest\"\xf0J\n" +
+	"\x10GetConfigRequest\"\x85J\n" +
 	"\x0eConfigResponse\x12Y\n" +
 	"\bdatabase\x18\x01 \x01(\v2&.shop.admin.v1.ConfigResponse.DatabaseB\x15\xbaG\x12\x92\x02\x0f数据库配置R\bdatabase\x12S\n" +
 	"\x06master\x18\x02 \x01(\v2$.shop.admin.v1.ConfigResponse.MasterB\x15\xbaG\x12\x92\x02\x0f主节点配置R\x06master\x12P\n" +
@@ -4371,62 +4371,63 @@ const file_shop_admin_v1_recommend_gorse_proto_rawDesc = "" +
 	"\x04blob\x18\x05 \x01(\v2\".shop.admin.v1.ConfigResponse.BlobB\x16\xbaG\x13\x92\x02\x10Blob存储配置R\x04blob\x12Y\n" +
 	"\atracing\x18\x06 \x01(\v2%.shop.admin.v1.ConfigResponse.TracingB\x18\xbaG\x15\x92\x02\x12链路追踪配置R\atracing\x12N\n" +
 	"\x04oidc\x18\a \x01(\v2\".shop.admin.v1.ConfigResponse.OidcB\x16\xbaG\x13\x92\x02\x10OIDC认证配置R\x04oidc\x12P\n" +
-	"\x06openai\x18\b \x01(\v2$.shop.admin.v1.ConfigResponse.OpenaiB\x12\xbaG\x0f\x92\x02\fOpenAI配置R\x06openai\x1a\xcd\t\n" +
-	"\bDatabase\x12;\n" +
+	"\x06openai\x18\b \x01(\v2$.shop.admin.v1.ConfigResponse.OpenaiB\x12\xbaG\x0f\x92\x02\fOpenAI配置R\x06openai\x1a\xb7\t\n" +
+	"\bDatabase\x12:\n" +
 	"\n" +
-	"data_store\x18\x01 \x01(\tB\x1b\xbaG\x18\x92\x02\x15数据存储数据库R\n" +
-	"data_store\x12=\n" +
-	"\vcache_store\x18\x02 \x01(\tB\x1b\xbaG\x18\x92\x02\x15缓存存储数据库R\vcache_store\x12?\n" +
-	"\ftable_prefix\x18\x03 \x01(\tB\x1b\xbaG\x18\x92\x02\x15数据库表名前缀R\ftable_prefix\x12H\n" +
-	"\x12cache_table_prefix\x18\x04 \x01(\tB\x18\xbaG\x15\x92\x02\x12缓存表名前缀R\x12cache_table_prefix\x12F\n" +
-	"\x11data_table_prefix\x18\x05 \x01(\tB\x18\xbaG\x15\x92\x02\x12数据表名前缀R\x11data_table_prefix\x12U\n" +
+	"data_store\x18\x01 \x01(\tB\x1b\xbaG\x18\x92\x02\x15数据存储数据库R\tdataStore\x12<\n" +
+	"\vcache_store\x18\x02 \x01(\tB\x1b\xbaG\x18\x92\x02\x15缓存存储数据库R\n" +
+	"cacheStore\x12>\n" +
+	"\ftable_prefix\x18\x03 \x01(\tB\x1b\xbaG\x18\x92\x02\x15数据库表名前缀R\vtablePrefix\x12F\n" +
+	"\x12cache_table_prefix\x18\x04 \x01(\tB\x18\xbaG\x15\x92\x02\x12缓存表名前缀R\x10cacheTablePrefix\x12D\n" +
+	"\x11data_table_prefix\x18\x05 \x01(\tB\x18\xbaG\x15\x92\x02\x12数据表名前缀R\x0fdataTablePrefix\x12U\n" +
 	"\x05mysql\x18\x06 \x01(\v2,.shop.admin.v1.ConfigResponse.Database.MysqlB\x11\xbaG\x0e\x92\x02\vMySQL配置R\x05mysql\x12c\n" +
 	"\bpostgres\x18\a \x01(\v2/.shop.admin.v1.ConfigResponse.Database.PostgresB\x16\xbaG\x13\x92\x02\x10PostgreSQL配置R\bpostgres\x12U\n" +
-	"\x05redis\x18\b \x01(\v2,.shop.admin.v1.ConfigResponse.Database.RedisB\x11\xbaG\x0e\x92\x02\vRedis配置R\x05redis\x1a\xa3\x02\n" +
-	"\x05Mysql\x12B\n" +
-	"\x0fisolation_level\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12事务隔离级别R\x0fisolation_level\x12C\n" +
-	"\x0emax_open_conns\x18\x02 \x01(\x05B\x1b\xbaG\x18\x92\x02\x15最大打开连接数R\x0emax_open_conns\x12C\n" +
-	"\x0emax_idle_conns\x18\x03 \x01(\x05B\x1b\xbaG\x18\x92\x02\x15最大空闲连接数R\x0emax_idle_conns\x12L\n" +
-	"\x11conn_max_lifetime\x18\x04 \x01(\tB\x1e\xbaG\x1b\x92\x02\x18连接最长复用时间R\x11conn_max_lifetime\x1a\xe2\x01\n" +
-	"\bPostgres\x12C\n" +
-	"\x0emax_open_conns\x18\x01 \x01(\x05B\x1b\xbaG\x18\x92\x02\x15最大打开连接数R\x0emax_open_conns\x12C\n" +
-	"\x0emax_idle_conns\x18\x02 \x01(\x05B\x1b\xbaG\x18\x92\x02\x15最大空闲连接数R\x0emax_idle_conns\x12L\n" +
-	"\x11conn_max_lifetime\x18\x03 \x01(\tB\x1e\xbaG\x1b\x92\x02\x18连接最长复用时间R\x11conn_max_lifetime\x1aT\n" +
-	"\x05Redis\x12K\n" +
-	"\x12max_search_results\x18\x01 \x01(\x05B\x1b\xbaG\x18\x92\x02\x15最大搜索结果数R\x12max_search_results\x1a\xe4\a\n" +
+	"\x05redis\x18\b \x01(\v2,.shop.admin.v1.ConfigResponse.Database.RedisB\x11\xbaG\x0e\x92\x02\vRedis配置R\x05redis\x1a\x9c\x02\n" +
+	"\x05Mysql\x12A\n" +
+	"\x0fisolation_level\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12事务隔离级别R\x0eisolationLevel\x12A\n" +
+	"\x0emax_open_conns\x18\x02 \x01(\x05B\x1b\xbaG\x18\x92\x02\x15最大打开连接数R\fmaxOpenConns\x12A\n" +
+	"\x0emax_idle_conns\x18\x03 \x01(\x05B\x1b\xbaG\x18\x92\x02\x15最大空闲连接数R\fmaxIdleConns\x12J\n" +
+	"\x11conn_max_lifetime\x18\x04 \x01(\tB\x1e\xbaG\x1b\x92\x02\x18连接最长复用时间R\x0fconnMaxLifetime\x1a\xdc\x01\n" +
+	"\bPostgres\x12A\n" +
+	"\x0emax_open_conns\x18\x01 \x01(\x05B\x1b\xbaG\x18\x92\x02\x15最大打开连接数R\fmaxOpenConns\x12A\n" +
+	"\x0emax_idle_conns\x18\x02 \x01(\x05B\x1b\xbaG\x18\x92\x02\x15最大空闲连接数R\fmaxIdleConns\x12J\n" +
+	"\x11conn_max_lifetime\x18\x03 \x01(\tB\x1e\xbaG\x1b\x92\x02\x18连接最长复用时间R\x0fconnMaxLifetime\x1aR\n" +
+	"\x05Redis\x12I\n" +
+	"\x12max_search_results\x18\x01 \x01(\x05B\x1b\xbaG\x18\x92\x02\x15最大搜索结果数R\x10maxSearchResults\x1a\xd2\a\n" +
 	"\x06Master\x12*\n" +
 	"\x04host\x18\x01 \x01(\tB\x16\xbaG\x13\x92\x02\x10gRPC监听地址R\x04host\x12*\n" +
-	"\x04port\x18\x02 \x01(\x05B\x16\xbaG\x13\x92\x02\x10gRPC监听端口R\x04port\x126\n" +
-	"\bssl_mode\x18\x03 \x01(\bB\x1a\xbaG\x17\x92\x02\x14是否启用gRPC SSLR\bssl_mode\x128\n" +
-	"\x06ssl_ca\x18\x04 \x01(\tB \xbaG\x1d\x92\x02\x1agRPC SSL证书颁发机构R\x06ssl_ca\x120\n" +
-	"\bssl_cert\x18\x05 \x01(\tB\x14\xbaG\x11\x92\x02\x0egRPC SSL证书R\bssl_cert\x124\n" +
-	"\assl_key\x18\x06 \x01(\tB\x1a\xbaG\x17\x92\x02\x14gRPC SSL证书密钥R\assl_key\x124\n" +
-	"\thttp_host\x18\a \x01(\tB\x16\xbaG\x13\x92\x02\x10HTTP监听地址R\thttp_host\x124\n" +
-	"\thttp_port\x18\b \x01(\x05B\x16\xbaG\x13\x92\x02\x10HTTP监听端口R\thttp_port\x12I\n" +
-	"\x11http_cors_domains\x18\t \x03(\tB\x1b\xbaG\x18\x92\x02\x15HTTP CORS允许域名R\x11http_cors_domains\x12I\n" +
+	"\x04port\x18\x02 \x01(\x05B\x16\xbaG\x13\x92\x02\x10gRPC监听端口R\x04port\x125\n" +
+	"\bssl_mode\x18\x03 \x01(\bB\x1a\xbaG\x17\x92\x02\x14是否启用gRPC SSLR\asslMode\x127\n" +
+	"\x06ssl_ca\x18\x04 \x01(\tB \xbaG\x1d\x92\x02\x1agRPC SSL证书颁发机构R\x05sslCa\x12/\n" +
+	"\bssl_cert\x18\x05 \x01(\tB\x14\xbaG\x11\x92\x02\x0egRPC SSL证书R\asslCert\x123\n" +
+	"\assl_key\x18\x06 \x01(\tB\x1a\xbaG\x17\x92\x02\x14gRPC SSL证书密钥R\x06sslKey\x123\n" +
+	"\thttp_host\x18\a \x01(\tB\x16\xbaG\x13\x92\x02\x10HTTP监听地址R\bhttpHost\x123\n" +
+	"\thttp_port\x18\b \x01(\x05B\x16\xbaG\x13\x92\x02\x10HTTP监听端口R\bhttpPort\x12G\n" +
+	"\x11http_cors_domains\x18\t \x03(\tB\x1b\xbaG\x18\x92\x02\x15HTTP CORS允许域名R\x0fhttpCorsDomains\x12G\n" +
 	"\x11http_cors_methods\x18\n" +
-	" \x03(\tB\x1b\xbaG\x18\x92\x02\x15HTTP CORS允许方法R\x11http_cors_methods\x12-\n" +
-	"\x06n_jobs\x18\v \x01(\x05B\x15\xbaG\x12\x92\x02\x0f工作线程数R\x06n_jobs\x12?\n" +
-	"\fmeta_timeout\x18\f \x01(\tB\x1b\xbaG\x18\x92\x02\x15元数据超时时间R\fmeta_timeout\x12P\n" +
-	"\x13dashboard_user_name\x18\r \x01(\tB\x1e\xbaG\x1b\x92\x02\x18仪表盘登录用户名R\x13dashboard_user_name\x12K\n" +
-	"\x12dashboard_password\x18\x0e \x01(\tB\x1b\xbaG\x18\x92\x02\x15仪表盘登录密码R\x12dashboard_password\x12W\n" +
-	"\x12dashboard_redacted\x18\x0f \x01(\bB'\xbaG$\x92\x02!是否隐藏仪表盘敏感信息R\x12dashboard_redacted\x12>\n" +
-	"\radmin_api_key\x18\x10 \x01(\tB\x18\xbaG\x15\x92\x02\x12管理员API密钥R\radmin_api_key\x1a\xac\x03\n" +
-	"\x06Server\x12<\n" +
-	"\tdefault_n\x18\x01 \x01(\x05B\x1e\xbaG\x1b\x92\x02\x18默认返回物品数量R\tdefault_n\x121\n" +
-	"\aapi_key\x18\x02 \x01(\tB\x17\xbaG\x14\x92\x02\x11RESTful API密钥R\aapi_key\x12:\n" +
-	"\vclock_error\x18\x03 \x01(\tB\x18\xbaG\x15\x92\x02\x12集群时钟误差R\vclock_error\x12V\n" +
-	"\x10auto_insert_user\x18\x04 \x01(\bB*\xbaG'\x92\x02$插入反馈时自动插入新用户R\x10auto_insert_user\x12V\n" +
-	"\x10auto_insert_item\x18\x05 \x01(\bB*\xbaG'\x92\x02$插入反馈时自动插入新物品R\x10auto_insert_item\x12E\n" +
-	"\fcache_expire\x18\x06 \x01(\tB!\xbaG\x1e\x92\x02\x1b服务端缓存过期时间R\fcache_expire\x1a\xa4 \n" +
-	"\tRecommend\x128\n" +
+	" \x03(\tB\x1b\xbaG\x18\x92\x02\x15HTTP CORS允许方法R\x0fhttpCorsMethods\x12,\n" +
+	"\x06n_jobs\x18\v \x01(\x05B\x15\xbaG\x12\x92\x02\x0f工作线程数R\x05nJobs\x12>\n" +
+	"\fmeta_timeout\x18\f \x01(\tB\x1b\xbaG\x18\x92\x02\x15元数据超时时间R\vmetaTimeout\x12N\n" +
+	"\x13dashboard_user_name\x18\r \x01(\tB\x1e\xbaG\x1b\x92\x02\x18仪表盘登录用户名R\x11dashboardUserName\x12J\n" +
+	"\x12dashboard_password\x18\x0e \x01(\tB\x1b\xbaG\x18\x92\x02\x15仪表盘登录密码R\x11dashboardPassword\x12V\n" +
+	"\x12dashboard_redacted\x18\x0f \x01(\bB'\xbaG$\x92\x02!是否隐藏仪表盘敏感信息R\x11dashboardRedacted\x12<\n" +
+	"\radmin_api_key\x18\x10 \x01(\tB\x18\xbaG\x15\x92\x02\x12管理员API密钥R\vadminApiKey\x1a\xa4\x03\n" +
+	"\x06Server\x12;\n" +
+	"\tdefault_n\x18\x01 \x01(\x05B\x1e\xbaG\x1b\x92\x02\x18默认返回物品数量R\bdefaultN\x120\n" +
+	"\aapi_key\x18\x02 \x01(\tB\x17\xbaG\x14\x92\x02\x11RESTful API密钥R\x06apiKey\x129\n" +
+	"\vclock_error\x18\x03 \x01(\tB\x18\xbaG\x15\x92\x02\x12集群时钟误差R\n" +
+	"clockError\x12T\n" +
+	"\x10auto_insert_user\x18\x04 \x01(\bB*\xbaG'\x92\x02$插入反馈时自动插入新用户R\x0eautoInsertUser\x12T\n" +
+	"\x10auto_insert_item\x18\x05 \x01(\bB*\xbaG'\x92\x02$插入反馈时自动插入新物品R\x0eautoInsertItem\x12D\n" +
+	"\fcache_expire\x18\x06 \x01(\tB!\xbaG\x1e\x92\x02\x1b服务端缓存过期时间R\vcacheExpire\x1a\x83 \n" +
+	"\tRecommend\x127\n" +
 	"\n" +
-	"cache_size\x18\x01 \x01(\x05B\x18\xbaG\x15\x92\x02\x12缓存元素数量R\n" +
-	"cache_size\x12B\n" +
-	"\fcache_expire\x18\x02 \x01(\tB\x1e\xbaG\x1b\x92\x02\x18推荐缓存过期时间R\fcache_expire\x12E\n" +
-	"\fcontext_size\x18\x03 \x01(\x05B!\xbaG\x1e\x92\x02\x1b在线推荐上下文大小R\fcontext_size\x12H\n" +
-	"\x0factive_user_ttl\x18\x04 \x01(\x05B\x1e\xbaG\x1b\x92\x02\x18活跃用户生存时间R\x0factive_user_ttl\x12k\n" +
-	"\vdata_source\x18\x05 \x01(\v22.shop.admin.v1.ConfigResponse.Recommend.DataSourceB\x15\xbaG\x12\x92\x02\x0f数据源配置R\vdata_source\x12\x80\x01\n" +
+	"cache_size\x18\x01 \x01(\x05B\x18\xbaG\x15\x92\x02\x12缓存元素数量R\tcacheSize\x12A\n" +
+	"\fcache_expire\x18\x02 \x01(\tB\x1e\xbaG\x1b\x92\x02\x18推荐缓存过期时间R\vcacheExpire\x12D\n" +
+	"\fcontext_size\x18\x03 \x01(\x05B!\xbaG\x1e\x92\x02\x1b在线推荐上下文大小R\vcontextSize\x12F\n" +
+	"\x0factive_user_ttl\x18\x04 \x01(\x05B\x1e\xbaG\x1b\x92\x02\x18活跃用户生存时间R\ractiveUserTtl\x12j\n" +
+	"\vdata_source\x18\x05 \x01(\v22.shop.admin.v1.ConfigResponse.Recommend.DataSourceB\x15\xbaG\x12\x92\x02\x0f数据源配置R\n" +
+	"dataSource\x12\x80\x01\n" +
 	"\x10non_personalized\x18\x06 \x03(\v27.shop.admin.v1.ConfigResponse.Recommend.NonPersonalizedB\x1b\xbaG\x18\x92\x02\x15非个性化推荐器R\x10non-personalized\x12s\n" +
 	"\fitem_to_item\x18\a \x03(\v22.shop.admin.v1.ConfigResponse.Recommend.ItemToItemB\x1b\xbaG\x18\x92\x02\x15物品相似推荐器R\fitem-to-item\x12s\n" +
 	"\fuser_to_user\x18\b \x03(\v22.shop.admin.v1.ConfigResponse.Recommend.UserToUserB\x1b\xbaG\x18\x92\x02\x15用户相似推荐器R\fuser-to-user\x12c\n" +
@@ -4435,14 +4436,14 @@ const file_shop_admin_v1_recommend_gorse_proto_rawDesc = "" +
 	" \x01(\v25.shop.admin.v1.ConfigResponse.Recommend.CollaborativeB\x18\xbaG\x15\x92\x02\x12协同过滤配置R\rcollaborative\x12i\n" +
 	"\vreplacement\x18\v \x01(\v23.shop.admin.v1.ConfigResponse.Recommend.ReplacementB\x12\xbaG\x0f\x92\x02\f替换配置R\vreplacement\x12]\n" +
 	"\x06ranker\x18\f \x01(\v2..shop.admin.v1.ConfigResponse.Recommend.RankerB\x15\xbaG\x12\x92\x02\x0f排序器配置R\x06ranker\x12f\n" +
-	"\bfallback\x18\r \x01(\v20.shop.admin.v1.ConfigResponse.Recommend.FallbackB\x18\xbaG\x15\x92\x02\x12回退推荐配置R\bfallback\x1a\x89\x03\n" +
+	"\bfallback\x18\r \x01(\v20.shop.admin.v1.ConfigResponse.Recommend.FallbackB\x18\xbaG\x15\x92\x02\x12回退推荐配置R\bfallback\x1a\x80\x03\n" +
 	"\n" +
-	"DataSource\x12R\n" +
-	"\x17positive_feedback_types\x18\x01 \x03(\tB\x18\xbaG\x15\x92\x02\x12正向反馈类型R\x17positive_feedback_types\x12J\n" +
-	"\x13read_feedback_types\x18\x02 \x03(\tB\x18\xbaG\x15\x92\x02\x12已读反馈类型R\x13read_feedback_types\x12O\n" +
-	"\x17negative_feedback_types\x18\x03 \x03(\tB\x15\xbaG\x12\x92\x02\x0f负反馈类型R\x17negative_feedback_types\x12T\n" +
-	"\x15positive_feedback_ttl\x18\x04 \x01(\x05B\x1e\xbaG\x1b\x92\x02\x18正向反馈生存时间R\x15positive_feedback_ttl\x124\n" +
-	"\bitem_ttl\x18\x05 \x01(\x05B\x18\xbaG\x15\x92\x02\x12物品生存时间R\bitem_ttl\x1a\x89\x01\n" +
+	"DataSource\x12P\n" +
+	"\x17positive_feedback_types\x18\x01 \x03(\tB\x18\xbaG\x15\x92\x02\x12正向反馈类型R\x15positiveFeedbackTypes\x12H\n" +
+	"\x13read_feedback_types\x18\x02 \x03(\tB\x18\xbaG\x15\x92\x02\x12已读反馈类型R\x11readFeedbackTypes\x12M\n" +
+	"\x17negative_feedback_types\x18\x03 \x03(\tB\x15\xbaG\x12\x92\x02\x0f负反馈类型R\x15negativeFeedbackTypes\x12R\n" +
+	"\x15positive_feedback_ttl\x18\x04 \x01(\x05B\x1e\xbaG\x1b\x92\x02\x18正向反馈生存时间R\x13positiveFeedbackTtl\x123\n" +
+	"\bitem_ttl\x18\x05 \x01(\x05B\x18\xbaG\x15\x92\x02\x12物品生存时间R\aitemTtl\x1a\x89\x01\n" +
 	"\x0fNonPersonalized\x12 \n" +
 	"\x04name\x18\x01 \x01(\tB\f\xbaG\t\x92\x02\x06名称R\x04name\x12(\n" +
 	"\x05score\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f评分函数R\x05score\x12*\n" +
@@ -4460,87 +4461,84 @@ const file_shop_admin_v1_recommend_gorse_proto_rawDesc = "" +
 	"\x06column\x18\x03 \x01(\tB\x15\xbaG\x12\x92\x02\x0f相似度字段R\x06column\x1a^\n" +
 	"\bExternal\x12 \n" +
 	"\x04name\x18\x01 \x01(\tB\f\xbaG\t\x92\x02\x06名称R\x04name\x120\n" +
-	"\x06script\x18\x02 \x01(\tB\x18\xbaG\x15\x92\x02\x12外部推荐脚本R\x06script\x1a\xb0\x03\n" +
+	"\x06script\x18\x02 \x01(\tB\x18\xbaG\x15\x92\x02\x12外部推荐脚本R\x06script\x1a\xab\x03\n" +
 	"\rCollaborative\x12,\n" +
-	"\x04type\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12协同过滤类型R\x04type\x128\n" +
+	"\x04type\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12协同过滤类型R\x04type\x127\n" +
 	"\n" +
-	"fit_period\x18\x02 \x01(\tB\x18\xbaG\x15\x92\x02\x12模型训练周期R\n" +
-	"fit_period\x126\n" +
-	"\tfit_epoch\x18\x03 \x01(\x05B\x18\xbaG\x15\x92\x02\x12模型训练轮数R\tfit_epoch\x12B\n" +
-	"\x0foptimize_period\x18\x04 \x01(\tB\x18\xbaG\x15\x92\x02\x12模型搜索周期R\x0foptimize_period\x12H\n" +
-	"\x0foptimize_trials\x18\x05 \x01(\x05B\x1e\xbaG\x1b\x92\x02\x18模型搜索试验次数R\x0foptimize_trials\x12q\n" +
-	"\x0eearly_stopping\x18\x06 \x01(\v25.shop.admin.v1.ConfigResponse.Recommend.EarlyStoppingB\x12\xbaG\x0f\x92\x02\f早停配置R\x0eearly_stopping\x1aH\n" +
+	"fit_period\x18\x02 \x01(\tB\x18\xbaG\x15\x92\x02\x12模型训练周期R\tfitPeriod\x125\n" +
+	"\tfit_epoch\x18\x03 \x01(\x05B\x18\xbaG\x15\x92\x02\x12模型训练轮数R\bfitEpoch\x12A\n" +
+	"\x0foptimize_period\x18\x04 \x01(\tB\x18\xbaG\x15\x92\x02\x12模型搜索周期R\x0eoptimizePeriod\x12G\n" +
+	"\x0foptimize_trials\x18\x05 \x01(\x05B\x1e\xbaG\x1b\x92\x02\x18模型搜索试验次数R\x0eoptimizeTrials\x12p\n" +
+	"\x0eearly_stopping\x18\x06 \x01(\v25.shop.admin.v1.ConfigResponse.Recommend.EarlyStoppingB\x12\xbaG\x0f\x92\x02\f早停配置R\rearlyStopping\x1aH\n" +
 	"\rEarlyStopping\x127\n" +
-	"\bpatience\x18\x01 \x01(\x05B\x1b\xbaG\x18\x92\x02\x15停止前等待轮数R\bpatience\x1a\x9b\x02\n" +
-	"\vReplacement\x12T\n" +
-	"\x12enable_replacement\x18\x01 \x01(\bB$\xbaG!\x92\x02\x1e是否启用已读物品替换R\x12enable_replacement\x12^\n" +
-	"\x1apositive_replacement_decay\x18\x02 \x01(\x01B\x1e\xbaG\x1b\x92\x02\x18正向反馈替换衰减R\x1apositive_replacement_decay\x12V\n" +
-	"\x16read_replacement_decay\x18\x03 \x01(\x01B\x1e\xbaG\x1b\x92\x02\x18已读反馈替换衰减R\x16read_replacement_decay\x1a\xee\a\n" +
+	"\bpatience\x18\x01 \x01(\x05B\x1b\xbaG\x18\x92\x02\x15停止前等待轮数R\bpatience\x1a\x96\x02\n" +
+	"\vReplacement\x12S\n" +
+	"\x12enable_replacement\x18\x01 \x01(\bB$\xbaG!\x92\x02\x1e是否启用已读物品替换R\x11enableReplacement\x12\\\n" +
+	"\x1apositive_replacement_decay\x18\x02 \x01(\x01B\x1e\xbaG\x1b\x92\x02\x18正向反馈替换衰减R\x18positiveReplacementDecay\x12T\n" +
+	"\x16read_replacement_decay\x18\x03 \x01(\x01B\x1e\xbaG\x1b\x92\x02\x18已读反馈替换衰减R\x14readReplacementDecay\x1a\xe6\a\n" +
 	"\x06Ranker\x12)\n" +
-	"\x04type\x18\x01 \x01(\tB\x15\xbaG\x12\x92\x02\x0f排序器类型R\x04type\x12K\n" +
-	"\fcache_expire\x18\x02 \x01(\tB'\xbaG$\x92\x02!不活跃用户推荐刷新周期R\fcache_expire\x12B\n" +
-	"\frecommenders\x18\x03 \x03(\tB\x1e\xbaG\x1b\x92\x02\x18排序前候选推荐器R\frecommenders\x128\n" +
+	"\x04type\x18\x01 \x01(\tB\x15\xbaG\x12\x92\x02\x0f排序器类型R\x04type\x12J\n" +
+	"\fcache_expire\x18\x02 \x01(\tB'\xbaG$\x92\x02!不活跃用户推荐刷新周期R\vcacheExpire\x12B\n" +
+	"\frecommenders\x18\x03 \x03(\tB\x1e\xbaG\x1b\x92\x02\x18排序前候选推荐器R\frecommenders\x127\n" +
 	"\n" +
-	"fit_period\x18\x04 \x01(\tB\x18\xbaG\x15\x92\x02\x12模型拟合周期R\n" +
-	"fit_period\x126\n" +
-	"\tfit_epoch\x18\x05 \x01(\x05B\x18\xbaG\x15\x92\x02\x12模型拟合轮数R\tfit_epoch\x12E\n" +
-	"\x0foptimize_period\x18\x06 \x01(\tB\x1b\xbaG\x18\x92\x02\x15超参数优化周期R\x0foptimize_period\x12E\n" +
-	"\x0foptimize_trials\x18\a \x01(\x05B\x1b\xbaG\x18\x92\x02\x15超参数优化次数R\x0foptimize_trials\x12N\n" +
+	"fit_period\x18\x04 \x01(\tB\x18\xbaG\x15\x92\x02\x12模型拟合周期R\tfitPeriod\x125\n" +
+	"\tfit_epoch\x18\x05 \x01(\x05B\x18\xbaG\x15\x92\x02\x12模型拟合轮数R\bfitEpoch\x12D\n" +
+	"\x0foptimize_period\x18\x06 \x01(\tB\x1b\xbaG\x18\x92\x02\x15超参数优化周期R\x0eoptimizePeriod\x12D\n" +
+	"\x0foptimize_trials\x18\a \x01(\x05B\x1b\xbaG\x18\x92\x02\x15超参数优化次数R\x0eoptimizeTrials\x12N\n" +
 	"\x0equery_template\x18\b \x01(\tB'\xbaG$\x92\x02!大语言模型重排查询模板R\rqueryTemplate\x12T\n" +
-	"\x11document_template\x18\t \x01(\tB'\xbaG$\x92\x02!大语言模型重排文档模板R\x10documentTemplate\x12q\n" +
+	"\x11document_template\x18\t \x01(\tB'\xbaG$\x92\x02!大语言模型重排文档模板R\x10documentTemplate\x12p\n" +
 	"\x0eearly_stopping\x18\n" +
-	" \x01(\v25.shop.admin.v1.ConfigResponse.Recommend.EarlyStoppingB\x12\xbaG\x0f\x92\x02\f早停配置R\x0eearly_stopping\x12u\n" +
-	"\freranker_api\x18\v \x01(\v2:.shop.admin.v1.ConfigResponse.Recommend.Ranker.RerankerApiB\x15\xbaG\x12\x92\x02\x0f重排API配置R\freranker_api\x1a\x97\x01\n" +
-	"\vRerankerApi\x125\n" +
+	" \x01(\v25.shop.admin.v1.ConfigResponse.Recommend.EarlyStoppingB\x12\xbaG\x0f\x92\x02\f早停配置R\rearlyStopping\x12t\n" +
+	"\freranker_api\x18\v \x01(\v2:.shop.admin.v1.ConfigResponse.Recommend.Ranker.RerankerApiB\x15\xbaG\x12\x92\x02\x0f重排API配置R\vrerankerApi\x1a\x96\x01\n" +
+	"\vRerankerApi\x124\n" +
 	"\n" +
-	"auth_token\x18\x01 \x01(\tB\x15\xbaG\x12\x92\x02\x0f重排API密钥R\n" +
-	"auth_token\x12(\n" +
+	"auth_token\x18\x01 \x01(\tB\x15\xbaG\x12\x92\x02\x0f重排API密钥R\tauthToken\x12(\n" +
 	"\x05model\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f重排模型R\x05model\x12'\n" +
 	"\x03url\x18\x03 \x01(\tB\x15\xbaG\x12\x92\x02\x0f重排API地址R\x03url\x1a]\n" +
 	"\bFallback\x12Q\n" +
-	"\frecommenders\x18\x01 \x03(\tB-\xbaG*\x92\x02'个性化推荐用尽时的推荐来源R\frecommenders\x1a\x81\x06\n" +
+	"\frecommenders\x18\x01 \x03(\tB-\xbaG*\x92\x02'个性化推荐用尽时的推荐来源R\frecommenders\x1a\xf9\x05\n" +
 	"\x04Blob\x12 \n" +
 	"\x03uri\x18\x01 \x01(\tB\x0e\xbaG\v\x92\x02\bBlob URIR\x03uri\x12E\n" +
 	"\x02s3\x18\x02 \x01(\v2%.shop.admin.v1.ConfigResponse.Blob.S3B\x0e\xbaG\v\x92\x02\bS3配置R\x02s3\x12I\n" +
 	"\x03gcs\x18\x03 \x01(\v2&.shop.admin.v1.ConfigResponse.Blob.GcsB\x0f\xbaG\f\x92\x02\tGCS配置R\x03gcs\x12V\n" +
-	"\x05azure\x18\x04 \x01(\v2(.shop.admin.v1.ConfigResponse.Blob.AzureB\x16\xbaG\x13\x92\x02\x10Azure Blob配置R\x05azure\x1a\xb8\x01\n" +
+	"\x05azure\x18\x04 \x01(\v2(.shop.admin.v1.ConfigResponse.Blob.AzureB\x16\xbaG\x13\x92\x02\x10Azure Blob配置R\x05azure\x1a\xb4\x01\n" +
 	"\x02S3\x12.\n" +
-	"\bendpoint\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\fAWS S3端点R\bendpoint\x12:\n" +
-	"\raccess_key_id\x18\x02 \x01(\tB\x14\xbaG\x11\x92\x02\x0e访问密钥IDR\raccess_key_id\x12F\n" +
-	"\x11secret_access_key\x18\x03 \x01(\tB\x18\xbaG\x15\x92\x02\x12秘密访问密钥R\x11secret_access_key\x1aK\n" +
-	"\x03Gcs\x12D\n" +
-	"\x10credentials_file\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12凭据文件路径R\x10credentials_file\x1a\xe4\x01\n" +
+	"\bendpoint\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\fAWS S3端点R\bendpoint\x128\n" +
+	"\raccess_key_id\x18\x02 \x01(\tB\x14\xbaG\x11\x92\x02\x0e访问密钥IDR\vaccessKeyId\x12D\n" +
+	"\x11secret_access_key\x18\x03 \x01(\tB\x18\xbaG\x15\x92\x02\x12秘密访问密钥R\x0fsecretAccessKey\x1aJ\n" +
+	"\x03Gcs\x12C\n" +
+	"\x10credentials_file\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12凭据文件路径R\x0fcredentialsFile\x1a\xe1\x01\n" +
 	"\x05Azure\x12(\n" +
-	"\bendpoint\x18\x01 \x01(\tB\f\xbaG\t\x92\x02\x06端点R\bendpoint\x126\n" +
-	"\faccount_name\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f账户名称R\faccount_name\x124\n" +
-	"\vaccount_key\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f账户密钥R\vaccount_key\x12C\n" +
-	"\x11connection_string\x18\x04 \x01(\tB\x15\xbaG\x12\x92\x02\x0f连接字符串R\x11connection_string\x1a\xba\x02\n" +
-	"\aTracing\x12H\n" +
-	"\x0eenable_tracing\x18\x01 \x01(\bB \xbaG\x1d\x92\x02\x1a是否启用REST API追踪R\x0eenable_tracing\x127\n" +
-	"\bexporter\x18\x02 \x01(\tB\x1b\xbaG\x18\x92\x02\x15追踪导出器类型R\bexporter\x12K\n" +
-	"\x12collector_endpoint\x18\x03 \x01(\tB\x1b\xbaG\x18\x92\x02\x15追踪收集器端点R\x12collector_endpoint\x125\n" +
+	"\bendpoint\x18\x01 \x01(\tB\f\xbaG\t\x92\x02\x06端点R\bendpoint\x125\n" +
+	"\faccount_name\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f账户名称R\vaccountName\x123\n" +
+	"\vaccount_key\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f账户密钥R\n" +
+	"accountKey\x12B\n" +
+	"\x11connection_string\x18\x04 \x01(\tB\x15\xbaG\x12\x92\x02\x0f连接字符串R\x10connectionString\x1a\xb8\x02\n" +
+	"\aTracing\x12G\n" +
+	"\x0eenable_tracing\x18\x01 \x01(\bB \xbaG\x1d\x92\x02\x1a是否启用REST API追踪R\renableTracing\x127\n" +
+	"\bexporter\x18\x02 \x01(\tB\x1b\xbaG\x18\x92\x02\x15追踪导出器类型R\bexporter\x12J\n" +
+	"\x12collector_endpoint\x18\x03 \x01(\tB\x1b\xbaG\x18\x92\x02\x15追踪收集器端点R\x11collectorEndpoint\x125\n" +
 	"\asampler\x18\x04 \x01(\tB\x1b\xbaG\x18\x92\x02\x15追踪采样器类型R\asampler\x12(\n" +
-	"\x05ratio\x18\x05 \x01(\x01B\x12\xbaG\x0f\x92\x02\f采样比率R\x05ratio\x1a\xbc\x02\n" +
+	"\x05ratio\x18\x05 \x01(\x01B\x12\xbaG\x0f\x92\x02\f采样比率R\x05ratio\x1a\xb9\x02\n" +
 	"\x04Oidc\x124\n" +
 	"\x06enable\x18\x01 \x01(\bB\x1c\xbaG\x19\x92\x02\x16是否启用OIDC认证R\x06enable\x125\n" +
-	"\x06issuer\x18\x02 \x01(\tB\x1d\xbaG\x1a\x92\x02\x17OAuth提供商颁发者R\x06issuer\x12>\n" +
-	"\tclient_id\x18\x03 \x01(\tB \xbaG\x1d\x92\x02\x1aOAuth应用公共标识符R\tclient_id\x12C\n" +
-	"\rclient_secret\x18\x04 \x01(\tB\x1d\xbaG\x1a\x92\x02\x17OAuth令牌访问权限R\rclient_secret\x12B\n" +
-	"\fredirect_url\x18\x05 \x01(\tB\x1e\xbaG\x1b\x92\x02\x18认证后重定向地址R\fredirect_url\x1a\xa6\x05\n" +
-	"\x06Openai\x12.\n" +
-	"\bbase_url\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f基础地址R\bbase_url\x122\n" +
+	"\x06issuer\x18\x02 \x01(\tB\x1d\xbaG\x1a\x92\x02\x17OAuth提供商颁发者R\x06issuer\x12=\n" +
+	"\tclient_id\x18\x03 \x01(\tB \xbaG\x1d\x92\x02\x1aOAuth应用公共标识符R\bclientId\x12B\n" +
+	"\rclient_secret\x18\x04 \x01(\tB\x1d\xbaG\x1a\x92\x02\x17OAuth令牌访问权限R\fclientSecret\x12A\n" +
+	"\fredirect_url\x18\x05 \x01(\tB\x1e\xbaG\x1b\x92\x02\x18认证后重定向地址R\vredirectUrl\x1a\x99\x05\n" +
+	"\x06Openai\x12-\n" +
+	"\bbase_url\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f基础地址R\abaseUrl\x121\n" +
 	"\n" +
-	"auth_token\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f认证令牌R\n" +
-	"auth_token\x12H\n" +
-	"\x15chat_completion_model\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f对话模型R\x15chat_completion_model\x12P\n" +
-	"\x13chat_completion_rpm\x18\x04 \x01(\x05B\x1e\xbaG\x1b\x92\x02\x18对话每分钟请求数R\x13chat_completion_rpm\x12O\n" +
-	"\x13chat_completion_tpm\x18\x05 \x01(\x05B\x1d\xbaG\x1a\x92\x02\x17对话每分钟Token数R\x13chat_completion_tpm\x12?\n" +
-	"\x0fembedding_model\x18\x06 \x01(\tB\x15\xbaG\x12\x92\x02\x0fEmbedding模型R\x0fembedding_model\x12I\n" +
-	"\x14embedding_dimensions\x18\a \x01(\x05B\x15\xbaG\x12\x92\x02\x0fEmbedding维度R\x14embedding_dimensions\x12G\n" +
-	"\rembedding_rpm\x18\b \x01(\x05B!\xbaG\x1e\x92\x02\x1bEmbedding每分钟请求数R\rembedding_rpm\x12F\n" +
-	"\rembedding_tpm\x18\t \x01(\x05B \xbaG\x1d\x92\x02\x1aEmbedding每分钟Token数R\rembedding_tpm\x12.\n" +
+	"auth_token\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f认证令牌R\tauthToken\x12F\n" +
+	"\x15chat_completion_model\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f对话模型R\x13chatCompletionModel\x12N\n" +
+	"\x13chat_completion_rpm\x18\x04 \x01(\x05B\x1e\xbaG\x1b\x92\x02\x18对话每分钟请求数R\x11chatCompletionRpm\x12M\n" +
+	"\x13chat_completion_tpm\x18\x05 \x01(\x05B\x1d\xbaG\x1a\x92\x02\x17对话每分钟Token数R\x11chatCompletionTpm\x12>\n" +
+	"\x0fembedding_model\x18\x06 \x01(\tB\x15\xbaG\x12\x92\x02\x0fEmbedding模型R\x0eembeddingModel\x12H\n" +
+	"\x14embedding_dimensions\x18\a \x01(\x05B\x15\xbaG\x12\x92\x02\x0fEmbedding维度R\x13embeddingDimensions\x12F\n" +
+	"\rembedding_rpm\x18\b \x01(\x05B!\xbaG\x1e\x92\x02\x1bEmbedding每分钟请求数R\fembeddingRpm\x12E\n" +
+	"\rembedding_tpm\x18\t \x01(\x05B \xbaG\x1d\x92\x02\x1aEmbedding每分钟Token数R\fembeddingTpm\x12-\n" +
 	"\blog_file\x18\n" +
-	" \x01(\tB\x12\xbaG\x0f\x92\x02\f日志文件R\blog_file\"{\n" +
+	" \x01(\tB\x12\xbaG\x0f\x92\x02\f日志文件R\alogFile\"{\n" +
 	"\x0eGetItemRequest\x12i\n" +
 	"\x02id\x18\x01 \x01(\tBY\xbaG\x0f\x92\x02\f商品编号\xbaHD\xba\x01A\n" +
 	"\x14get_item.id.required\x12\x18商品编号不能为空\x1a\x0fthis.size() > 0R\x02id\"\xd6\x02\n" +
@@ -4577,11 +4575,11 @@ const file_shop_admin_v1_recommend_gorse_proto_rawDesc = "" +
 	"\acomment\x18\x03 \x01(\tB\f\xbaG\t\x92\x02\x06备注R\aComment\x12B\n" +
 	"\x10last_active_time\x18\x04 \x01(\tB\x18\xbaG\x15\x92\x02\x12最后活跃时间R\x0eLastActiveTime\x12B\n" +
 	"\x10last_update_time\x18\x05 \x01(\tB\x18\xbaG\x15\x92\x02\x12最后更新时间R\x0eLastUpdateTime\x12\"\n" +
-	"\x05score\x18\x06 \x01(\x01B\f\xbaG\t\x92\x02\x06分数R\x05Score\"\x91\x02\n" +
+	"\x05score\x18\x06 \x01(\x01B\f\xbaG\t\x92\x02\x06分数R\x05Score\"\x90\x02\n" +
 	"\x16GetUserFeedbackRequest\x12r\n" +
 	"\x02id\x18\x01 \x01(\tBb\xbaG\x0f\x92\x02\f用户编号\xbaHM\xba\x01J\n" +
-	"\x1dget_user_feedback.id.required\x12\x18用户编号不能为空\x1a\x0fthis.size() > 0R\x02id\x128\n" +
-	"\rfeedback_type\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f反馈类型R\rfeedback_type\x12'\n" +
+	"\x1dget_user_feedback.id.required\x12\x18用户编号不能为空\x1a\x0fthis.size() > 0R\x02id\x127\n" +
+	"\rfeedback_type\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f反馈类型R\ffeedbackType\x12'\n" +
 	"\x06offset\x18\x03 \x01(\x05B\x0f\xbaG\f\x92\x02\t偏移量R\x06offset\x12 \n" +
 	"\x01n\x18\x04 \x01(\x05B\x12\xbaG\x0f\x92\x02\f查询数量R\x01n\"[\n" +
 	"\x10FeedbackResponse\x12G\n" +
@@ -4653,15 +4651,15 @@ const file_shop_admin_v1_recommend_gorse_proto_rawDesc = "" +
 	"\n" +
 	"start_time\x18\a \x01(\tB\x12\xbaG\x0f\x92\x02\f开始时间R\tStartTime\x123\n" +
 	"\vfinish_time\x18\b \x01(\tB\x12\xbaG\x0f\x92\x02\f结束时间R\n" +
-	"FinishTime\"\xb3\x01\n" +
-	"\tUserLabel\x12,\n" +
-	"\adept_id\x18\x01 \x01(\x03B\x12\xbaG\x0f\x92\x02\f部门编号R\adept_id\x12$\n" +
-	"\x06gender\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06性别R\x06gender\x12,\n" +
-	"\arole_id\x18\x03 \x01(\x03B\x12\xbaG\x0f\x92\x02\f角色编号R\arole_id\x12$\n" +
-	"\x06status\x18\x04 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\"\xe2\x01\n" +
+	"FinishTime\"\xb1\x01\n" +
+	"\tUserLabel\x12+\n" +
+	"\adept_id\x18\x01 \x01(\x03B\x12\xbaG\x0f\x92\x02\f部门编号R\x06deptId\x12$\n" +
+	"\x06gender\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06性别R\x06gender\x12+\n" +
+	"\arole_id\x18\x03 \x01(\x03B\x12\xbaG\x0f\x92\x02\f角色编号R\x06roleId\x12$\n" +
+	"\x06status\x18\x04 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\"\xe1\x01\n" +
 	"\tItemLabel\x12&\n" +
-	"\x04desc\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f商品描述R\x04desc\x127\n" +
-	"\x0ediscount_price\x18\x02 \x01(\x03B\x0f\xbaG\f\x92\x02\t折扣价R\x0ediscount_price\x12*\n" +
+	"\x04desc\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f商品描述R\x04desc\x126\n" +
+	"\x0ediscount_price\x18\x02 \x01(\x03B\x0f\xbaG\f\x92\x02\t折扣价R\rdiscountPrice\x12*\n" +
 	"\tinventory\x18\x04 \x01(\x03B\f\xbaG\t\x92\x02\x06库存R\tinventory\x12\"\n" +
 	"\x05price\x18\x05 \x01(\x03B\f\xbaG\t\x92\x02\x06原价R\x05price\x12$\n" +
 	"\x06status\x18\x06 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\"\xa8\x02\n" +

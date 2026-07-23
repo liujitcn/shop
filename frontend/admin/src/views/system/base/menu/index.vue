@@ -769,7 +769,7 @@ function buildSubmitPayload(): BaseMenuForm {
 
 /** 加载菜单树选项和 API 列表，确保弹窗打开时相关数据已可用。 */
 async function loadDialogResources() {
-  const [menuData, apiData] = await Promise.all([defBaseMenuService.TreeBaseMenu({}), defBaseApiService.ListBaseApi({})]);
+  const [menuData, apiData] = await Promise.all([defBaseMenuService.TreeBaseMenu({}), defBaseApiService.OptionBaseApi({})]);
   menuOptions.value = buildMenuOptions(menuData.base_menus ?? []);
   apiList.value = apiData.base_apis ?? [];
 }

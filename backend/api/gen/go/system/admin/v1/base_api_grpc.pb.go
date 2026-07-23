@@ -21,8 +21,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
+	BaseApiService_OptionBaseApi_FullMethodName         = "/system.admin.v1.BaseApiService/OptionBaseApi"
 	BaseApiService_PageBaseApi_FullMethodName           = "/system.admin.v1.BaseApiService/PageBaseApi"
-	BaseApiService_ListBaseApi_FullMethodName           = "/system.admin.v1.BaseApiService/ListBaseApi"
 	BaseApiService_GetBaseApi_FullMethodName            = "/system.admin.v1.BaseApiService/GetBaseApi"
 	BaseApiService_GetBaseApiDoc_FullMethodName         = "/system.admin.v1.BaseApiService/GetBaseApiDoc"
 	BaseApiService_UpdateBaseApi_FullMethodName         = "/system.admin.v1.BaseApiService/UpdateBaseApi"
@@ -36,10 +36,10 @@ const (
 //
 // AdminAPI服务
 type BaseApiServiceClient interface {
+	// 查询菜单分配API选项列表
+	OptionBaseApi(ctx context.Context, in *OptionBaseApiRequest, opts ...grpc.CallOption) (*OptionBaseApiResponse, error)
 	// 分页查询API列表
 	PageBaseApi(ctx context.Context, in *PageBaseApiRequest, opts ...grpc.CallOption) (*PageBaseApiResponse, error)
-	// 查询菜单分配API选项列表
-	ListBaseApi(ctx context.Context, in *ListBaseApiRequest, opts ...grpc.CallOption) (*ListBaseApiResponse, error)
 	// 查询API详情
 	GetBaseApi(ctx context.Context, in *GetBaseApiRequest, opts ...grpc.CallOption) (*BaseApi, error)
 	// 查询API文档
@@ -60,20 +60,20 @@ func NewBaseApiServiceClient(cc grpc.ClientConnInterface) BaseApiServiceClient {
 	return &baseApiServiceClient{cc}
 }
 
-func (c *baseApiServiceClient) PageBaseApi(ctx context.Context, in *PageBaseApiRequest, opts ...grpc.CallOption) (*PageBaseApiResponse, error) {
+func (c *baseApiServiceClient) OptionBaseApi(ctx context.Context, in *OptionBaseApiRequest, opts ...grpc.CallOption) (*OptionBaseApiResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(PageBaseApiResponse)
-	err := c.cc.Invoke(ctx, BaseApiService_PageBaseApi_FullMethodName, in, out, cOpts...)
+	out := new(OptionBaseApiResponse)
+	err := c.cc.Invoke(ctx, BaseApiService_OptionBaseApi_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *baseApiServiceClient) ListBaseApi(ctx context.Context, in *ListBaseApiRequest, opts ...grpc.CallOption) (*ListBaseApiResponse, error) {
+func (c *baseApiServiceClient) PageBaseApi(ctx context.Context, in *PageBaseApiRequest, opts ...grpc.CallOption) (*PageBaseApiResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListBaseApiResponse)
-	err := c.cc.Invoke(ctx, BaseApiService_ListBaseApi_FullMethodName, in, out, cOpts...)
+	out := new(PageBaseApiResponse)
+	err := c.cc.Invoke(ctx, BaseApiService_PageBaseApi_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -136,10 +136,10 @@ func (c *baseApiServiceClient) SetBaseApiMcpStatus(ctx context.Context, in *SetB
 //
 // AdminAPI服务
 type BaseApiServiceServer interface {
+	// 查询菜单分配API选项列表
+	OptionBaseApi(context.Context, *OptionBaseApiRequest) (*OptionBaseApiResponse, error)
 	// 分页查询API列表
 	PageBaseApi(context.Context, *PageBaseApiRequest) (*PageBaseApiResponse, error)
-	// 查询菜单分配API选项列表
-	ListBaseApi(context.Context, *ListBaseApiRequest) (*ListBaseApiResponse, error)
 	// 查询API详情
 	GetBaseApi(context.Context, *GetBaseApiRequest) (*BaseApi, error)
 	// 查询API文档
@@ -160,11 +160,11 @@ type BaseApiServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedBaseApiServiceServer struct{}
 
+func (UnimplementedBaseApiServiceServer) OptionBaseApi(context.Context, *OptionBaseApiRequest) (*OptionBaseApiResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method OptionBaseApi not implemented")
+}
 func (UnimplementedBaseApiServiceServer) PageBaseApi(context.Context, *PageBaseApiRequest) (*PageBaseApiResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method PageBaseApi not implemented")
-}
-func (UnimplementedBaseApiServiceServer) ListBaseApi(context.Context, *ListBaseApiRequest) (*ListBaseApiResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method ListBaseApi not implemented")
 }
 func (UnimplementedBaseApiServiceServer) GetBaseApi(context.Context, *GetBaseApiRequest) (*BaseApi, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetBaseApi not implemented")
@@ -202,6 +202,24 @@ func RegisterBaseApiServiceServer(s grpc.ServiceRegistrar, srv BaseApiServiceSer
 	s.RegisterService(&BaseApiService_ServiceDesc, srv)
 }
 
+func _BaseApiService_OptionBaseApi_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OptionBaseApiRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BaseApiServiceServer).OptionBaseApi(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BaseApiService_OptionBaseApi_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BaseApiServiceServer).OptionBaseApi(ctx, req.(*OptionBaseApiRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _BaseApiService_PageBaseApi_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(PageBaseApiRequest)
 	if err := dec(in); err != nil {
@@ -216,24 +234,6 @@ func _BaseApiService_PageBaseApi_Handler(srv interface{}, ctx context.Context, d
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BaseApiServiceServer).PageBaseApi(ctx, req.(*PageBaseApiRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _BaseApiService_ListBaseApi_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListBaseApiRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(BaseApiServiceServer).ListBaseApi(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: BaseApiService_ListBaseApi_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BaseApiServiceServer).ListBaseApi(ctx, req.(*ListBaseApiRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -336,12 +336,12 @@ var BaseApiService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*BaseApiServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "PageBaseApi",
-			Handler:    _BaseApiService_PageBaseApi_Handler,
+			MethodName: "OptionBaseApi",
+			Handler:    _BaseApiService_OptionBaseApi_Handler,
 		},
 		{
-			MethodName: "ListBaseApi",
-			Handler:    _BaseApiService_ListBaseApi_Handler,
+			MethodName: "PageBaseApi",
+			Handler:    _BaseApiService_PageBaseApi_Handler,
 		},
 		{
 			MethodName: "GetBaseApi",

@@ -95,8 +95,6 @@ message PageBaseUserRequest {
 
   optional .system.common.v1.BaseUserGender gender = 7 [(gnostic.openapi.v3.property) = {description: "性别"}]; // 性别
 
-  optional int64 post_id = 8 [(gnostic.openapi.v3.property) = {description: "岗位ID"}]; // 岗位ID
-
   optional .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
 
   int64 page_num = 101 [(gnostic.openapi.v3.property) = {
@@ -166,15 +164,13 @@ message BaseUser {
 
   int64 dept_id = 6 [(gnostic.openapi.v3.property) = {description: "部门ID"}]; // 部门ID
 
-  int64 post_id = 10 [(gnostic.openapi.v3.property) = {description: "岗位ID"}]; // 岗位ID
+  int64 post_id = 7 [(gnostic.openapi.v3.property) = {description: "岗位ID"}]; // 岗位ID
 
-  string post_name = 11 [(gnostic.openapi.v3.property) = {description: "岗位名称"}]; // 岗位名称
+  string phone = 8 [(gnostic.openapi.v3.property) = {description: "手机号"}]; // 手机号
 
-  string phone = 7 [(gnostic.openapi.v3.property) = {description: "手机号"}]; // 手机号
+  .system.common.v1.BaseUserGender gender = 9 [(gnostic.openapi.v3.property) = {description: "性别"}]; // 性别
 
-  .system.common.v1.BaseUserGender gender = 8 [(gnostic.openapi.v3.property) = {description: "性别"}]; // 性别
-
-  string avatar = 9 [(gnostic.openapi.v3.property) = {description: "头像"}]; // 头像
+  string avatar = 10 [(gnostic.openapi.v3.property) = {description: "头像"}]; // 头像
 
   .common.v1.Status status = 101 [(gnostic.openapi.v3.property) = {description: "用户状态"}]; // 用户状态
 

@@ -14,7 +14,7 @@
     <div class="table-box">
       <ProTable
         ref="proTable"
-        :key="isDefaultTenant ? 'default-tenant' : 'normal-tenant'"
+        :key="`user-table-${isDefaultTenant ? selectedTenantId ?? 0 : 'current'}`"
         row-key="id"
         :columns="columns"
         :header-actions="headerActions"
@@ -331,14 +331,10 @@ const columns = computed<ColumnProps[]>(() => [
     : []),
   { prop: "user_name", label: "用户账号", minWidth: 140, search: { el: "input" } },
   { prop: "nick_name", label: "昵称", minWidth: 100, search: { el: "input" } },
+  { prop: "role_id", label: "角色", minWidth: 140, enum: requestRoleOptions },
+  { prop: "dept_id", label: "部门", minWidth: 180, showOverflowTooltip: true, enum: requestDeptOptions },
+  { prop: "post_id", label: "岗位", minWidth: 120, enum: requestPostOptions },
   { prop: "phone", label: "手机号码", minWidth: 130, align: "center", search: { el: "input" } },
-  {
-    prop: "post_name",
-    label: "岗位",
-    minWidth: 120,
-    search: { el: "select", key: "post_id", props: { filterable: true, clearable: true }, order: 4 },
-    enum: requestPostOptions
-  },
   { prop: "gender", label: "性别", minWidth: 90, align: "center", dictCode: "base_user_gender", search: { el: "select" } },
   {
     prop: "status",
@@ -425,6 +421,24 @@ function transformDeptFilterNodes(options: TreeOptionResponse_Option[] = []): De
 }
 
 /**
+ * 将部门树选项转换为完整路径标签，便于扁平列表关联字段按部门 ID 映射展示。
+ */
+function transformDeptOptionPaths(
+  options: TreeOptionResponse_Option[] = [],
+  parentPath = ""
+): TreeOptionResponse_Option[] {
+  return options.map(option => {
+    const label = option.label || "";
+    const fullPath = [parentPath, label].filter(Boolean).join("/");
+    return {
+      ...option,
+      label: fullPath,
+      children: transformDeptOptionPaths(option.children ?? [], fullPath)
+    };
+  });
+}
+
+/**
  * 请求部门树筛选数据。
  */
 async function requestDeptTreeFilter() {
@@ -463,15 +477,27 @@ async function requestBaseUserTable(params: PageBaseUserRequest) {
   return { data: { list: data.base_users ?? [], total: data.total } };
 }
 
-/** 请求岗位筛选选项。 */
-async function requestPostOptions() {
-  const response = await defBasePostService.OptionBasePost({ tenant_id: isDefaultTenant.value ? paramsTenantId() : undefined });
+/** 读取当前列表关联选项使用的租户。 */
+function getOptionTenantId() {
+  return isDefaultTenant.value ? selectedTenantId.value : undefined;
+}
+
+/** 请求角色关联选项。 */
+async function requestRoleOptions() {
+  const response = await defBaseRoleService.OptionBaseRole({ tenant_id: getOptionTenantId() });
   return { data: response.list ?? [] };
 }
 
-/** 读取当前用户列表筛选的租户。 */
-function paramsTenantId() {
-  return selectedTenantId.value;
+/** 请求部门关联选项。 */
+async function requestDeptOptions() {
+  const response = await defBaseDeptService.OptionBaseDept({ tenant_id: getOptionTenantId() });
+  return { data: transformDeptOptionPaths(response.list ?? []) };
+}
+
+/** 请求岗位关联选项。 */
+async function requestPostOptions() {
+  const response = await defBasePostService.OptionBasePost({ tenant_id: getOptionTenantId() });
+  return { data: response.list ?? [] };
 }
 
 /**

@@ -165,9 +165,6 @@ func (c *BaseUserCase) PageBaseUser(ctx context.Context, req *systemadminv1.Page
 	if req.Gender != nil {
 		opts = append(opts, repository.Where(query.Gender.Eq(int32(req.GetGender()))))
 	}
-	if req.PostId != nil && req.GetPostId() > 0 {
-		opts = append(opts, repository.Where(query.PostID.Eq(req.GetPostId())))
-	}
 	// 传入用户名关键字时，按用户名模糊匹配。
 	if req.GetUserName() != "" {
 		opts = append(opts, repository.Where(query.UserName.Like("%"+req.GetUserName()+"%")))
@@ -219,35 +216,10 @@ func (c *BaseUserCase) PageBaseUser(ctx context.Context, req *systemadminv1.Page
 			}
 		}
 	}
-	postIDs := make([]int64, 0, len(list))
-	postIDSet := make(map[int64]struct{}, len(list))
-	for _, item := range list {
-		if item.PostID == 0 {
-			continue
-		}
-		if _, exists := postIDSet[item.PostID]; exists {
-			continue
-		}
-		postIDSet[item.PostID] = struct{}{}
-		postIDs = append(postIDs, item.PostID)
-	}
-	postNameMap := make(map[int64]string, len(postIDs))
-	if len(postIDs) > 0 {
-		var basePosts []*models.BasePost
-		basePosts, err = c.basePostRepo.ListByIDs(ctx, postIDs)
-		if err != nil {
-			return nil, errorsx.Internal("查询用户岗位失败").WithCause(err)
-		}
-		for _, basePost := range basePosts {
-			postNameMap[basePost.ID] = basePost.Name
-		}
-	}
-
 	resList := make([]*systemadminv1.BaseUser, 0, len(list))
 	for _, item := range list {
 		baseUser := c.mapper.ToDTO(item)
 		_, baseUser.IsProtected = protectedRoleIDs[item.RoleID]
-		baseUser.PostName = postNameMap[item.PostID]
 		resList = append(resList, baseUser)
 	}
 	return &systemadminv1.PageBaseUserResponse{BaseUsers: resList, Total: int32(total)}, nil

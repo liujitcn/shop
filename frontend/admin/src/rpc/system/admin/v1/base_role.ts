@@ -144,8 +144,8 @@ export interface BaseRoleService {
   UpdateBaseRole(request: UpdateBaseRoleRequest): Promise<Empty>;
   /** 删除角色 */
   DeleteBaseRole(request: DeleteBaseRoleRequest): Promise<Empty>;
-  /** 设置角色菜单权限 */
-  SetBaseRoleMenu(request: SetBaseRoleMenuRequest): Promise<Empty>;
   /** 设置状态 */
   SetBaseRoleStatus(request: SetBaseRoleStatusRequest): Promise<Empty>;
+  /** 设置角色菜单权限 */
+  SetBaseRoleMenu(request: SetBaseRoleMenuRequest): Promise<Empty>;
 }

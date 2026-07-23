@@ -18,18 +18,18 @@ import (
 func NewBaseApiServiceAgentTools(baseApiServiceServer BaseApiServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error
+	var optionBaseApiTool tool.InvokableTool
+	optionBaseApiTool, err = NewBaseApiServiceOptionBaseApiAgentTool(baseApiServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, optionBaseApiTool)
 	var pageBaseApiTool tool.InvokableTool
 	pageBaseApiTool, err = NewBaseApiServicePageBaseApiAgentTool(baseApiServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, pageBaseApiTool)
-	var listBaseApiTool tool.InvokableTool
-	listBaseApiTool, err = NewBaseApiServiceListBaseApiAgentTool(baseApiServiceServer)
-	if err != nil {
-		return nil, err
-	}
-	ts = append(ts, listBaseApiTool)
 	var getBaseApiTool tool.InvokableTool
 	getBaseApiTool, err = NewBaseApiServiceGetBaseApiAgentTool(baseApiServiceServer)
 	if err != nil {
@@ -63,6 +63,20 @@ func NewBaseApiServiceAgentTools(baseApiServiceServer BaseApiServiceServer) ([]t
 	return ts, nil
 }
 
+// NewBaseApiServiceOptionBaseApiAgentTool 创建查询菜单分配API选项列表的 Agent Tool。
+func NewBaseApiServiceOptionBaseApiAgentTool(baseApiServiceServer BaseApiServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*OptionBaseApiRequest, *OptionBaseApiResponse](
+		"system_admin_v1_base_api_service_option_base_api",
+		"查询菜单分配API选项列表",
+		func(ctx context.Context, req *OptionBaseApiRequest) (*OptionBaseApiResponse, error) {
+			if req == nil {
+				req = &OptionBaseApiRequest{}
+			}
+			return baseApiServiceServer.OptionBaseApi(ctx, req)
+		},
+	)
+}
+
 // NewBaseApiServicePageBaseApiAgentTool 创建分页查询API列表的 Agent Tool。
 func NewBaseApiServicePageBaseApiAgentTool(baseApiServiceServer BaseApiServiceServer) (tool.InvokableTool, error) {
 	return utils.InferTool[*PageBaseApiRequest, *PageBaseApiResponse](
@@ -73,20 +87,6 @@ func NewBaseApiServicePageBaseApiAgentTool(baseApiServiceServer BaseApiServiceSe
 				req = &PageBaseApiRequest{}
 			}
 			return baseApiServiceServer.PageBaseApi(ctx, req)
-		},
-	)
-}
-
-// NewBaseApiServiceListBaseApiAgentTool 创建查询菜单分配API选项列表的 Agent Tool。
-func NewBaseApiServiceListBaseApiAgentTool(baseApiServiceServer BaseApiServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*ListBaseApiRequest, *ListBaseApiResponse](
-		"system_admin_v1_base_api_service_list_base_api",
-		"查询菜单分配API选项列表",
-		func(ctx context.Context, req *ListBaseApiRequest) (*ListBaseApiResponse, error) {
-			if req == nil {
-				req = &ListBaseApiRequest{}
-			}
-			return baseApiServiceServer.ListBaseApi(ctx, req)
 		},
 	)
 }

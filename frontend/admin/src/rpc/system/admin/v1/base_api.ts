@@ -8,6 +8,16 @@
 import type { Status } from "../../../common/v1/enum";
 import type { Empty } from "../../../google/protobuf/empty";
 
+/** API选项查询条件 */
+export interface OptionBaseApiRequest {
+}
+
+/** API选项响应 */
+export interface OptionBaseApiResponse {
+  /** API列表 */
+  base_apis: BaseApi[];
+}
+
 /** API分页查询条件 */
 export interface PageBaseApiRequest {
   /** 工具名 */
@@ -62,16 +72,6 @@ export interface PageBaseApiResponse {
   base_apis: BaseApi[];
   /** 总数 */
   total: number;
-}
-
-/** API列表查询条件 */
-export interface ListBaseApiRequest {
-}
-
-/** API列表响应 */
-export interface ListBaseApiResponse {
-  /** API列表 */
-  base_apis: BaseApi[];
 }
 
 /** API详情查询条件 */
@@ -194,10 +194,10 @@ export interface BaseApiDocResponse {
 
 /** AdminAPI服务 */
 export interface BaseApiService {
+  /** 查询菜单分配API选项列表 */
+  OptionBaseApi(request: OptionBaseApiRequest): Promise<OptionBaseApiResponse>;
   /** 分页查询API列表 */
   PageBaseApi(request: PageBaseApiRequest): Promise<PageBaseApiResponse>;
-  /** 查询菜单分配API选项列表 */
-  ListBaseApi(request: ListBaseApiRequest): Promise<ListBaseApiResponse>;
   /** 查询API详情 */
   GetBaseApi(request: GetBaseApiRequest): Promise<BaseApi>;
   /** 查询API文档 */

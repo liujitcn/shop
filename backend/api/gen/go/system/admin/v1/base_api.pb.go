@@ -27,6 +27,88 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// API选项查询条件
+type OptionBaseApiRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *OptionBaseApiRequest) Reset() {
+	*x = OptionBaseApiRequest{}
+	mi := &file_system_admin_v1_base_api_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OptionBaseApiRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OptionBaseApiRequest) ProtoMessage() {}
+
+func (x *OptionBaseApiRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_base_api_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use OptionBaseApiRequest.ProtoReflect.Descriptor instead.
+func (*OptionBaseApiRequest) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_base_api_proto_rawDescGZIP(), []int{0}
+}
+
+// API选项响应
+type OptionBaseApiResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	BaseApis      []*BaseApi             `protobuf:"bytes,1,rep,name=base_apis,json=baseApis,proto3" json:"base_apis,omitempty"` // API列表
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *OptionBaseApiResponse) Reset() {
+	*x = OptionBaseApiResponse{}
+	mi := &file_system_admin_v1_base_api_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OptionBaseApiResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OptionBaseApiResponse) ProtoMessage() {}
+
+func (x *OptionBaseApiResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_base_api_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use OptionBaseApiResponse.ProtoReflect.Descriptor instead.
+func (*OptionBaseApiResponse) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_base_api_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *OptionBaseApiResponse) GetBaseApis() []*BaseApi {
+	if x != nil {
+		return x.BaseApis
+	}
+	return nil
+}
+
 // API分页查询条件
 type PageBaseApiRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -48,7 +130,7 @@ type PageBaseApiRequest struct {
 
 func (x *PageBaseApiRequest) Reset() {
 	*x = PageBaseApiRequest{}
-	mi := &file_system_admin_v1_base_api_proto_msgTypes[0]
+	mi := &file_system_admin_v1_base_api_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -60,7 +142,7 @@ func (x *PageBaseApiRequest) String() string {
 func (*PageBaseApiRequest) ProtoMessage() {}
 
 func (x *PageBaseApiRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_api_proto_msgTypes[0]
+	mi := &file_system_admin_v1_base_api_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -73,7 +155,7 @@ func (x *PageBaseApiRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PageBaseApiRequest.ProtoReflect.Descriptor instead.
 func (*PageBaseApiRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_api_proto_rawDescGZIP(), []int{0}
+	return file_system_admin_v1_base_api_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *PageBaseApiRequest) GetToolName() string {
@@ -171,7 +253,7 @@ type PageBaseApiResponse struct {
 
 func (x *PageBaseApiResponse) Reset() {
 	*x = PageBaseApiResponse{}
-	mi := &file_system_admin_v1_base_api_proto_msgTypes[1]
+	mi := &file_system_admin_v1_base_api_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -183,7 +265,7 @@ func (x *PageBaseApiResponse) String() string {
 func (*PageBaseApiResponse) ProtoMessage() {}
 
 func (x *PageBaseApiResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_api_proto_msgTypes[1]
+	mi := &file_system_admin_v1_base_api_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -196,7 +278,7 @@ func (x *PageBaseApiResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PageBaseApiResponse.ProtoReflect.Descriptor instead.
 func (*PageBaseApiResponse) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_api_proto_rawDescGZIP(), []int{1}
+	return file_system_admin_v1_base_api_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *PageBaseApiResponse) GetBaseApis() []*BaseApi {
@@ -211,88 +293,6 @@ func (x *PageBaseApiResponse) GetTotal() int32 {
 		return x.Total
 	}
 	return 0
-}
-
-// API列表查询条件
-type ListBaseApiRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ListBaseApiRequest) Reset() {
-	*x = ListBaseApiRequest{}
-	mi := &file_system_admin_v1_base_api_proto_msgTypes[2]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ListBaseApiRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ListBaseApiRequest) ProtoMessage() {}
-
-func (x *ListBaseApiRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_api_proto_msgTypes[2]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ListBaseApiRequest.ProtoReflect.Descriptor instead.
-func (*ListBaseApiRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_api_proto_rawDescGZIP(), []int{2}
-}
-
-// API列表响应
-type ListBaseApiResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	BaseApis      []*BaseApi             `protobuf:"bytes,1,rep,name=base_apis,json=baseApis,proto3" json:"base_apis,omitempty"` // API列表
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ListBaseApiResponse) Reset() {
-	*x = ListBaseApiResponse{}
-	mi := &file_system_admin_v1_base_api_proto_msgTypes[3]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ListBaseApiResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ListBaseApiResponse) ProtoMessage() {}
-
-func (x *ListBaseApiResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_api_proto_msgTypes[3]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ListBaseApiResponse.ProtoReflect.Descriptor instead.
-func (*ListBaseApiResponse) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_api_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *ListBaseApiResponse) GetBaseApis() []*BaseApi {
-	if x != nil {
-		return x.BaseApis
-	}
-	return nil
 }
 
 // API详情查询条件
@@ -952,7 +952,10 @@ var File_system_admin_v1_base_api_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_base_api_proto_rawDesc = "" +
 	"\n" +
-	"\x1esystem/admin/v1/base_api.proto\x12\x0fsystem.admin.v1\x1a\x1bbuf/validate/validate.proto\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xfe\x06\n" +
+	"\x1esystem/admin/v1/base_api.proto\x12\x0fsystem.admin.v1\x1a\x1bbuf/validate/validate.proto\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x16\n" +
+	"\x14OptionBaseApiRequest\"_\n" +
+	"\x15OptionBaseApiResponse\x12F\n" +
+	"\tbase_apis\x18\x01 \x03(\v2\x18.system.admin.v1.BaseApiB\x0f\xbaG\f\x92\x02\tAPI列表R\bbaseApis\"\xfe\x06\n" +
 	"\x12PageBaseApiRequest\x121\n" +
 	"\ttool_name\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t工具名H\x00R\btoolName\x88\x01\x01\x12S\n" +
 	"\vtool_prompt\x18\x02 \x01(\tB-\xbaG*\x92\x02'Agent/MCP工具提示词搜索关键字H\x01R\n" +
@@ -983,10 +986,7 @@ const file_system_admin_v1_base_api_proto_rawDesc = "" +
 	"\r_agent_status\"\x81\x01\n" +
 	"\x13PageBaseApiResponse\x12F\n" +
 	"\tbase_apis\x18\x01 \x03(\v2\x18.system.admin.v1.BaseApiB\x0f\xbaG\f\x92\x02\tAPI列表R\bbaseApis\x12\"\n" +
-	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\x14\n" +
-	"\x12ListBaseApiRequest\"]\n" +
-	"\x13ListBaseApiResponse\x12F\n" +
-	"\tbase_apis\x18\x01 \x03(\v2\x18.system.admin.v1.BaseApiB\x0f\xbaG\f\x92\x02\tAPI列表R\bbaseApis\"1\n" +
+	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"1\n" +
 	"\x11GetBaseApiRequest\x12\x1c\n" +
 	"\x02id\x18\x01 \x01(\x03B\f\xbaG\t\x92\x02\x06API IDR\x02id\"\xad\x05\n" +
 	"\aBaseApi\x12\x1c\n" +
@@ -1043,10 +1043,10 @@ const file_system_admin_v1_base_api_proto_rawDesc = "" +
 	"\x12BaseApiDocResponse\x12'\n" +
 	"\x06status\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t状态码R\x06status\x124\n" +
 	"\vdescription\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f响应描述R\vdescription\x12F\n" +
-	"\x04body\x18\x03 \x01(\v2!.system.admin.v1.BaseApiDocSchemaB\x0f\xbaG\f\x92\x02\t响应体R\x04body2\x98\a\n" +
-	"\x0eBaseApiService\x12x\n" +
-	"\vPageBaseApi\x12#.system.admin.v1.PageBaseApiRequest\x1a$.system.admin.v1.PageBaseApiResponse\"\x1e\x82\xd3\xe4\x93\x02\x18\x12\x16/api/v1/admin/base/api\x12\x7f\n" +
-	"\vListBaseApi\x12#.system.admin.v1.ListBaseApiRequest\x1a$.system.admin.v1.ListBaseApiResponse\"%\x82\xd3\xe4\x93\x02\x1f\x12\x1d/api/v1/admin/base/api/option\x12o\n" +
+	"\x04body\x18\x03 \x01(\v2!.system.admin.v1.BaseApiDocSchemaB\x0f\xbaG\f\x92\x02\t响应体R\x04body2\x9f\a\n" +
+	"\x0eBaseApiService\x12\x85\x01\n" +
+	"\rOptionBaseApi\x12%.system.admin.v1.OptionBaseApiRequest\x1a&.system.admin.v1.OptionBaseApiResponse\"%\x82\xd3\xe4\x93\x02\x1f\x12\x1d/api/v1/admin/base/api/option\x12x\n" +
+	"\vPageBaseApi\x12#.system.admin.v1.PageBaseApiRequest\x1a$.system.admin.v1.PageBaseApiResponse\"\x1e\x82\xd3\xe4\x93\x02\x18\x12\x16/api/v1/admin/base/api\x12o\n" +
 	"\n" +
 	"GetBaseApi\x12\".system.admin.v1.GetBaseApiRequest\x1a\x18.system.admin.v1.BaseApi\"#\x82\xd3\xe4\x93\x02\x1d\x12\x1b/api/v1/admin/base/api/{id}\x12|\n" +
 	"\rGetBaseApiDoc\x12%.system.admin.v1.GetBaseApiDocRequest\x1a\x1b.system.admin.v1.BaseApiDoc\"'\x82\xd3\xe4\x93\x02!\x12\x1f/api/v1/admin/base/api/{id}/doc\x12v\n" +
@@ -1069,10 +1069,10 @@ func file_system_admin_v1_base_api_proto_rawDescGZIP() []byte {
 
 var file_system_admin_v1_base_api_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_system_admin_v1_base_api_proto_goTypes = []any{
-	(*PageBaseApiRequest)(nil),           // 0: system.admin.v1.PageBaseApiRequest
-	(*PageBaseApiResponse)(nil),          // 1: system.admin.v1.PageBaseApiResponse
-	(*ListBaseApiRequest)(nil),           // 2: system.admin.v1.ListBaseApiRequest
-	(*ListBaseApiResponse)(nil),          // 3: system.admin.v1.ListBaseApiResponse
+	(*OptionBaseApiRequest)(nil),         // 0: system.admin.v1.OptionBaseApiRequest
+	(*OptionBaseApiResponse)(nil),        // 1: system.admin.v1.OptionBaseApiResponse
+	(*PageBaseApiRequest)(nil),           // 2: system.admin.v1.PageBaseApiRequest
+	(*PageBaseApiResponse)(nil),          // 3: system.admin.v1.PageBaseApiResponse
 	(*GetBaseApiRequest)(nil),            // 4: system.admin.v1.GetBaseApiRequest
 	(*BaseApi)(nil),                      // 5: system.admin.v1.BaseApi
 	(*GetBaseApiDocRequest)(nil),         // 6: system.admin.v1.GetBaseApiDocRequest
@@ -1086,10 +1086,10 @@ var file_system_admin_v1_base_api_proto_goTypes = []any{
 	(*emptypb.Empty)(nil),                // 14: google.protobuf.Empty
 }
 var file_system_admin_v1_base_api_proto_depIdxs = []int32{
-	13, // 0: system.admin.v1.PageBaseApiRequest.mcp_status:type_name -> common.v1.Status
-	13, // 1: system.admin.v1.PageBaseApiRequest.agent_status:type_name -> common.v1.Status
-	5,  // 2: system.admin.v1.PageBaseApiResponse.base_apis:type_name -> system.admin.v1.BaseApi
-	5,  // 3: system.admin.v1.ListBaseApiResponse.base_apis:type_name -> system.admin.v1.BaseApi
+	5,  // 0: system.admin.v1.OptionBaseApiResponse.base_apis:type_name -> system.admin.v1.BaseApi
+	13, // 1: system.admin.v1.PageBaseApiRequest.mcp_status:type_name -> common.v1.Status
+	13, // 2: system.admin.v1.PageBaseApiRequest.agent_status:type_name -> common.v1.Status
+	5,  // 3: system.admin.v1.PageBaseApiResponse.base_apis:type_name -> system.admin.v1.BaseApi
 	13, // 4: system.admin.v1.BaseApi.mcp_status:type_name -> common.v1.Status
 	13, // 5: system.admin.v1.BaseApi.agent_status:type_name -> common.v1.Status
 	11, // 6: system.admin.v1.BaseApiDoc.parameters:type_name -> system.admin.v1.BaseApiDocSchema
@@ -1101,15 +1101,15 @@ var file_system_admin_v1_base_api_proto_depIdxs = []int32{
 	13, // 12: system.admin.v1.SetBaseApiMcpStatusRequest.mcp_status:type_name -> common.v1.Status
 	11, // 13: system.admin.v1.BaseApiDocSchema.children:type_name -> system.admin.v1.BaseApiDocSchema
 	11, // 14: system.admin.v1.BaseApiDocResponse.body:type_name -> system.admin.v1.BaseApiDocSchema
-	0,  // 15: system.admin.v1.BaseApiService.PageBaseApi:input_type -> system.admin.v1.PageBaseApiRequest
-	2,  // 16: system.admin.v1.BaseApiService.ListBaseApi:input_type -> system.admin.v1.ListBaseApiRequest
+	0,  // 15: system.admin.v1.BaseApiService.OptionBaseApi:input_type -> system.admin.v1.OptionBaseApiRequest
+	2,  // 16: system.admin.v1.BaseApiService.PageBaseApi:input_type -> system.admin.v1.PageBaseApiRequest
 	4,  // 17: system.admin.v1.BaseApiService.GetBaseApi:input_type -> system.admin.v1.GetBaseApiRequest
 	6,  // 18: system.admin.v1.BaseApiService.GetBaseApiDoc:input_type -> system.admin.v1.GetBaseApiDocRequest
 	8,  // 19: system.admin.v1.BaseApiService.UpdateBaseApi:input_type -> system.admin.v1.UpdateBaseApiRequest
 	9,  // 20: system.admin.v1.BaseApiService.SetBaseApiAgentStatus:input_type -> system.admin.v1.SetBaseApiAgentStatusRequest
 	10, // 21: system.admin.v1.BaseApiService.SetBaseApiMcpStatus:input_type -> system.admin.v1.SetBaseApiMcpStatusRequest
-	1,  // 22: system.admin.v1.BaseApiService.PageBaseApi:output_type -> system.admin.v1.PageBaseApiResponse
-	3,  // 23: system.admin.v1.BaseApiService.ListBaseApi:output_type -> system.admin.v1.ListBaseApiResponse
+	1,  // 22: system.admin.v1.BaseApiService.OptionBaseApi:output_type -> system.admin.v1.OptionBaseApiResponse
+	3,  // 23: system.admin.v1.BaseApiService.PageBaseApi:output_type -> system.admin.v1.PageBaseApiResponse
 	5,  // 24: system.admin.v1.BaseApiService.GetBaseApi:output_type -> system.admin.v1.BaseApi
 	7,  // 25: system.admin.v1.BaseApiService.GetBaseApiDoc:output_type -> system.admin.v1.BaseApiDoc
 	14, // 26: system.admin.v1.BaseApiService.UpdateBaseApi:output_type -> google.protobuf.Empty
@@ -1127,7 +1127,7 @@ func file_system_admin_v1_base_api_proto_init() {
 	if File_system_admin_v1_base_api_proto != nil {
 		return
 	}
-	file_system_admin_v1_base_api_proto_msgTypes[0].OneofWrappers = []any{}
+	file_system_admin_v1_base_api_proto_msgTypes[2].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

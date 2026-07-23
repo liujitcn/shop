@@ -55,18 +55,18 @@ func NewBaseRoleServiceAgentTools(baseRoleServiceServer BaseRoleServiceServer) (
 		return nil, err
 	}
 	ts = append(ts, deleteBaseRoleTool)
-	var setBaseRoleMenuTool tool.InvokableTool
-	setBaseRoleMenuTool, err = NewBaseRoleServiceSetBaseRoleMenuAgentTool(baseRoleServiceServer)
-	if err != nil {
-		return nil, err
-	}
-	ts = append(ts, setBaseRoleMenuTool)
 	var setBaseRoleStatusTool tool.InvokableTool
 	setBaseRoleStatusTool, err = NewBaseRoleServiceSetBaseRoleStatusAgentTool(baseRoleServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, setBaseRoleStatusTool)
+	var setBaseRoleMenuTool tool.InvokableTool
+	setBaseRoleMenuTool, err = NewBaseRoleServiceSetBaseRoleMenuAgentTool(baseRoleServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, setBaseRoleMenuTool)
 	return ts, nil
 }
 
@@ -154,20 +154,6 @@ func NewBaseRoleServiceDeleteBaseRoleAgentTool(baseRoleServiceServer BaseRoleSer
 	)
 }
 
-// NewBaseRoleServiceSetBaseRoleMenuAgentTool 创建设置角色菜单权限的 Agent Tool。
-func NewBaseRoleServiceSetBaseRoleMenuAgentTool(baseRoleServiceServer BaseRoleServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*SetBaseRoleMenuRequest, *emptypb.Empty](
-		"system_admin_v1_base_role_service_set_base_role_menu",
-		"设置角色菜单权限",
-		func(ctx context.Context, req *SetBaseRoleMenuRequest) (*emptypb.Empty, error) {
-			if req == nil {
-				req = &SetBaseRoleMenuRequest{}
-			}
-			return baseRoleServiceServer.SetBaseRoleMenu(ctx, req)
-		},
-	)
-}
-
 // NewBaseRoleServiceSetBaseRoleStatusAgentTool 创建设置状态的 Agent Tool。
 func NewBaseRoleServiceSetBaseRoleStatusAgentTool(baseRoleServiceServer BaseRoleServiceServer) (tool.InvokableTool, error) {
 	return utils.InferTool[*SetBaseRoleStatusRequest, *emptypb.Empty](
@@ -178,6 +164,20 @@ func NewBaseRoleServiceSetBaseRoleStatusAgentTool(baseRoleServiceServer BaseRole
 				req = &SetBaseRoleStatusRequest{}
 			}
 			return baseRoleServiceServer.SetBaseRoleStatus(ctx, req)
+		},
+	)
+}
+
+// NewBaseRoleServiceSetBaseRoleMenuAgentTool 创建设置角色菜单权限的 Agent Tool。
+func NewBaseRoleServiceSetBaseRoleMenuAgentTool(baseRoleServiceServer BaseRoleServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*SetBaseRoleMenuRequest, *emptypb.Empty](
+		"system_admin_v1_base_role_service_set_base_role_menu",
+		"设置角色菜单权限",
+		func(ctx context.Context, req *SetBaseRoleMenuRequest) (*emptypb.Empty, error) {
+			if req == nil {
+				req = &SetBaseRoleMenuRequest{}
+			}
+			return baseRoleServiceServer.SetBaseRoleMenu(ctx, req)
 		},
 	)
 }

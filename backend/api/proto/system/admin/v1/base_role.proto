@@ -56,18 +56,18 @@ service BaseRoleService {
     };
   }
 
-  // 设置角色菜单权限
-  rpc SetBaseRoleMenu(SetBaseRoleMenuRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      put: "/api/v1/admin/base/role/{id}/menu"
-      body: "*"
-    };
-  }
-
   // 设置状态
   rpc SetBaseRoleStatus(SetBaseRoleStatusRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       put: "/api/v1/admin/base/role/{id}/status"
+      body: "*"
+    };
+  }
+
+  // 设置角色菜单权限
+  rpc SetBaseRoleMenu(SetBaseRoleMenuRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/v1/admin/base/role/{id}/menu"
       body: "*"
     };
   }

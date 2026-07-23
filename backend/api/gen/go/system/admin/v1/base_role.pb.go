@@ -808,9 +808,9 @@ const file_system_admin_v1_base_role_proto_rawDesc = "" +
 	"\vGetBaseRole\x12#.system.admin.v1.GetBaseRoleRequest\x1a\x1d.system.admin.v1.BaseRoleForm\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/api/v1/admin/base/role/{id}\x12|\n" +
 	"\x0eCreateBaseRole\x12&.system.admin.v1.CreateBaseRoleRequest\x1a\x16.google.protobuf.Empty\"*\x82\xd3\xe4\x93\x02$:\tbase_role\"\x17/api/v1/admin/base/role\x12\x8b\x01\n" +
 	"\x0eUpdateBaseRole\x12&.system.admin.v1.UpdateBaseRoleRequest\x1a\x16.google.protobuf.Empty\"9\x82\xd3\xe4\x93\x023:\tbase_role\x1a&/api/v1/admin/base/role/{base_role.id}\x12v\n" +
-	"\x0eDeleteBaseRole\x12&.system.admin.v1.DeleteBaseRoleRequest\x1a\x16.google.protobuf.Empty\"$\x82\xd3\xe4\x93\x02\x1e*\x1c/api/v1/admin/base/role/{id}\x12\x80\x01\n" +
-	"\x0fSetBaseRoleMenu\x12'.system.admin.v1.SetBaseRoleMenuRequest\x1a\x16.google.protobuf.Empty\",\x82\xd3\xe4\x93\x02&:\x01*\x1a!/api/v1/admin/base/role/{id}/menu\x12\x86\x01\n" +
-	"\x11SetBaseRoleStatus\x12).system.admin.v1.SetBaseRoleStatusRequest\x1a\x16.google.protobuf.Empty\".\x82\xd3\xe4\x93\x02(:\x01*\x1a#/api/v1/admin/base/role/{id}/statusB\xab\x01\n" +
+	"\x0eDeleteBaseRole\x12&.system.admin.v1.DeleteBaseRoleRequest\x1a\x16.google.protobuf.Empty\"$\x82\xd3\xe4\x93\x02\x1e*\x1c/api/v1/admin/base/role/{id}\x12\x86\x01\n" +
+	"\x11SetBaseRoleStatus\x12).system.admin.v1.SetBaseRoleStatusRequest\x1a\x16.google.protobuf.Empty\".\x82\xd3\xe4\x93\x02(:\x01*\x1a#/api/v1/admin/base/role/{id}/status\x12\x80\x01\n" +
+	"\x0fSetBaseRoleMenu\x12'.system.admin.v1.SetBaseRoleMenuRequest\x1a\x16.google.protobuf.Empty\",\x82\xd3\xe4\x93\x02&:\x01*\x1a!/api/v1/admin/base/role/{id}/menuB\xab\x01\n" +
 	"\x13com.system.admin.v1B\rBaseRoleProtoP\x01Z'shop/api/gen/go/system/admin/v1;adminv1\xa2\x02\x03SAX\xaa\x02\x0fSystem.Admin.V1\xca\x02\x0fSystem\\Admin\\V1\xe2\x02\x1bSystem\\Admin\\V1\\GPBMetadata\xea\x02\x11System::Admin::V1b\x06proto3"
 
 var (
@@ -858,16 +858,16 @@ var file_system_admin_v1_base_role_proto_depIdxs = []int32{
 	5,  // 11: system.admin.v1.BaseRoleService.CreateBaseRole:input_type -> system.admin.v1.CreateBaseRoleRequest
 	6,  // 12: system.admin.v1.BaseRoleService.UpdateBaseRole:input_type -> system.admin.v1.UpdateBaseRoleRequest
 	7,  // 13: system.admin.v1.BaseRoleService.DeleteBaseRole:input_type -> system.admin.v1.DeleteBaseRoleRequest
-	8,  // 14: system.admin.v1.BaseRoleService.SetBaseRoleMenu:input_type -> system.admin.v1.SetBaseRoleMenuRequest
-	9,  // 15: system.admin.v1.BaseRoleService.SetBaseRoleStatus:input_type -> system.admin.v1.SetBaseRoleStatusRequest
+	9,  // 14: system.admin.v1.BaseRoleService.SetBaseRoleStatus:input_type -> system.admin.v1.SetBaseRoleStatusRequest
+	8,  // 15: system.admin.v1.BaseRoleService.SetBaseRoleMenu:input_type -> system.admin.v1.SetBaseRoleMenuRequest
 	13, // 16: system.admin.v1.BaseRoleService.OptionBaseRole:output_type -> common.v1.SelectOptionResponse
 	2,  // 17: system.admin.v1.BaseRoleService.PageBaseRole:output_type -> system.admin.v1.PageBaseRoleResponse
 	4,  // 18: system.admin.v1.BaseRoleService.GetBaseRole:output_type -> system.admin.v1.BaseRoleForm
 	14, // 19: system.admin.v1.BaseRoleService.CreateBaseRole:output_type -> google.protobuf.Empty
 	14, // 20: system.admin.v1.BaseRoleService.UpdateBaseRole:output_type -> google.protobuf.Empty
 	14, // 21: system.admin.v1.BaseRoleService.DeleteBaseRole:output_type -> google.protobuf.Empty
-	14, // 22: system.admin.v1.BaseRoleService.SetBaseRoleMenu:output_type -> google.protobuf.Empty
-	14, // 23: system.admin.v1.BaseRoleService.SetBaseRoleStatus:output_type -> google.protobuf.Empty
+	14, // 22: system.admin.v1.BaseRoleService.SetBaseRoleStatus:output_type -> google.protobuf.Empty
+	14, // 23: system.admin.v1.BaseRoleService.SetBaseRoleMenu:output_type -> google.protobuf.Empty
 	16, // [16:24] is the sub-list for method output_type
 	8,  // [8:16] is the sub-list for method input_type
 	8,  // [8:8] is the sub-list for extension type_name

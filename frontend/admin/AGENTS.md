@@ -21,7 +21,7 @@
 - 自动生成文件放 `types/generated`（`auto-imports.d.ts`、`components.d.ts`）；`src/typings` 只放手写声明。调整自动导入配置时同步确认 `build/plugins.ts`、`.oxlintrc.json`、`tsconfig.json`。
 
 ## 校验与文档
-- 修改代码文件后必须执行 `pnpm lint:oxlint` 并处理报错，作为收尾步骤显式执行；因历史遗留无法全量通过时，说明执行范围、报错文件和阻塞原因。
+- 本次任务全部改动完成后统一执行一次 `pnpm lint:oxlint`（涉及类型改动时同时执行 `pnpm type:check`）并处理报错，作为收尾步骤；改动过程中间不要逐次编辑逐次校验，避免重复全量扫描。因历史遗留无法全量通过时，说明执行范围、报错文件和阻塞原因。
 - 新增或修改业务功能后同步检查更新 `README.md`。
 
 ## 注释补充

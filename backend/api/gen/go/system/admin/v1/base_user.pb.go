@@ -90,7 +90,6 @@ type PageBaseUserRequest struct {
 	DeptId        *int64                 `protobuf:"varint,5,opt,name=dept_id,json=deptId,proto3,oneof" json:"dept_id,omitempty"`                        // 部门ID
 	Phone         string                 `protobuf:"bytes,6,opt,name=phone,proto3" json:"phone,omitempty"`                                               // 手机号
 	Gender        *v1.BaseUserGender     `protobuf:"varint,7,opt,name=gender,proto3,enum=system.common.v1.BaseUserGender,oneof" json:"gender,omitempty"` // 性别
-	PostId        *int64                 `protobuf:"varint,8,opt,name=post_id,json=postId,proto3,oneof" json:"post_id,omitempty"`                        // 岗位ID
 	Status        *v11.Status            `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"`              // 状态
 	PageNum       int64                  `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`                         // 当前页码
 	PageSize      int64                  `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`                      // 每一页的行数
@@ -168,13 +167,6 @@ func (x *PageBaseUserRequest) GetGender() v1.BaseUserGender {
 		return *x.Gender
 	}
 	return v1.BaseUserGender(0)
-}
-
-func (x *PageBaseUserRequest) GetPostId() int64 {
-	if x != nil && x.PostId != nil {
-		return *x.PostId
-	}
-	return 0
 }
 
 func (x *PageBaseUserRequest) GetStatus() v11.Status {
@@ -493,11 +485,10 @@ type BaseUser struct {
 	NickName      string                 `protobuf:"bytes,4,opt,name=nick_name,json=nickName,proto3" json:"nick_name,omitempty"`                   // 用户昵称
 	RoleId        int64                  `protobuf:"varint,5,opt,name=role_id,json=roleId,proto3" json:"role_id,omitempty"`                        // 角色ID
 	DeptId        int64                  `protobuf:"varint,6,opt,name=dept_id,json=deptId,proto3" json:"dept_id,omitempty"`                        // 部门ID
-	PostId        int64                  `protobuf:"varint,10,opt,name=post_id,json=postId,proto3" json:"post_id,omitempty"`                       // 岗位ID
-	PostName      string                 `protobuf:"bytes,11,opt,name=post_name,json=postName,proto3" json:"post_name,omitempty"`                  // 岗位名称
-	Phone         string                 `protobuf:"bytes,7,opt,name=phone,proto3" json:"phone,omitempty"`                                         // 手机号
-	Gender        v1.BaseUserGender      `protobuf:"varint,8,opt,name=gender,proto3,enum=system.common.v1.BaseUserGender" json:"gender,omitempty"` // 性别
-	Avatar        string                 `protobuf:"bytes,9,opt,name=avatar,proto3" json:"avatar,omitempty"`                                       // 头像
+	PostId        int64                  `protobuf:"varint,7,opt,name=post_id,json=postId,proto3" json:"post_id,omitempty"`                        // 岗位ID
+	Phone         string                 `protobuf:"bytes,8,opt,name=phone,proto3" json:"phone,omitempty"`                                         // 手机号
+	Gender        v1.BaseUserGender      `protobuf:"varint,9,opt,name=gender,proto3,enum=system.common.v1.BaseUserGender" json:"gender,omitempty"` // 性别
+	Avatar        string                 `protobuf:"bytes,10,opt,name=avatar,proto3" json:"avatar,omitempty"`                                      // 头像
 	Status        v11.Status             `protobuf:"varint,101,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`              // 用户状态
 	Remark        string                 `protobuf:"bytes,102,opt,name=remark,proto3" json:"remark,omitempty"`                                     // 备注名
 	CreatedAt     string                 `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`              // 创建时间
@@ -584,13 +575,6 @@ func (x *BaseUser) GetPostId() int64 {
 		return x.PostId
 	}
 	return 0
-}
-
-func (x *BaseUser) GetPostName() string {
-	if x != nil {
-		return x.PostName
-	}
-	return ""
 }
 
 func (x *BaseUser) GetPhone() string {
@@ -852,25 +836,22 @@ const file_system_admin_v1_base_user_proto_rawDesc = "" +
 	"\akeyword\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t关键字R\akeyword\x120\n" +
 	"\ttenant_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01B\f\n" +
 	"\n" +
-	"_tenant_id\"\xf1\x04\n" +
+	"_tenant_id\"\xb7\x04\n" +
 	"\x13PageBaseUserRequest\x12/\n" +
 	"\tuser_name\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户账号R\buserName\x12/\n" +
 	"\tnick_name\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户昵称R\bnickName\x120\n" +
 	"\ttenant_id\x18\x04 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12,\n" +
 	"\adept_id\x18\x05 \x01(\x03B\x0e\xbaG\v\x92\x02\b部门IDH\x01R\x06deptId\x88\x01\x01\x12%\n" +
 	"\x05phone\x18\x06 \x01(\tB\x0f\xbaG\f\x92\x02\t手机号R\x05phone\x12K\n" +
-	"\x06gender\x18\a \x01(\x0e2 .system.common.v1.BaseUserGenderB\f\xbaG\t\x92\x02\x06性别H\x02R\x06gender\x88\x01\x01\x12,\n" +
-	"\apost_id\x18\b \x01(\x03B\x0e\xbaG\v\x92\x02\b岗位IDH\x03R\x06postId\x88\x01\x01\x12<\n" +
-	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态H\x04R\x06status\x88\x01\x01\x129\n" +
+	"\x06gender\x18\a \x01(\x0e2 .system.common.v1.BaseUserGenderB\f\xbaG\t\x92\x02\x06性别H\x02R\x06gender\x88\x01\x01\x12<\n" +
+	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态H\x03R\x06status\x88\x01\x01\x129\n" +
 	"\bpage_num\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12A\n" +
 	"\tpage_size\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSizeB\f\n" +
 	"\n" +
 	"_tenant_idB\n" +
 	"\n" +
 	"\b_dept_idB\t\n" +
-	"\a_genderB\n" +
-	"\n" +
-	"\b_post_idB\t\n" +
+	"\a_genderB\t\n" +
 	"\a_status\"\x88\x01\n" +
 	"\x14PageBaseUserResponse\x12L\n" +
 	"\n" +
@@ -891,7 +872,7 @@ const file_system_admin_v1_base_user_proto_rawDesc = "" +
 	"\x18SetBaseUserStatusRequest\x12f\n" +
 	"\x02id\x18\x01 \x01(\x03BV\xbaG\v\x92\x02\b用户ID\xbaHE\xba\x01B\n" +
 	" set_base_user_status.id.required\x12\x14用户ID不能为空\x1a\bthis > 0R\x02id\x12$\n" +
-	"\x06status\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\"\xe6\x06\n" +
+	"\x06status\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\"\xb5\x06\n" +
 	"\bBaseUser\x12j\n" +
 	"\x02id\x18\x01 \x01(\x03BZ\xbaG\v\x92\x02\b用户ID\xbaHI\xba\x01F\n" +
 	"$reset_base_user_password.id.required\x12\x14用户ID不能为空\x1a\bthis > 0R\x02id\x12+\n" +
@@ -900,12 +881,11 @@ const file_system_admin_v1_base_user_proto_rawDesc = "" +
 	"\tnick_name\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户昵称R\bnickName\x12'\n" +
 	"\arole_id\x18\x05 \x01(\x03B\x0e\xbaG\v\x92\x02\b角色IDR\x06roleId\x12'\n" +
 	"\adept_id\x18\x06 \x01(\x03B\x0e\xbaG\v\x92\x02\b部门IDR\x06deptId\x12'\n" +
-	"\apost_id\x18\n" +
-	" \x01(\x03B\x0e\xbaG\v\x92\x02\b岗位IDR\x06postId\x12/\n" +
-	"\tpost_name\x18\v \x01(\tB\x12\xbaG\x0f\x92\x02\f岗位名称R\bpostName\x12%\n" +
-	"\x05phone\x18\a \x01(\tB\x0f\xbaG\f\x92\x02\t手机号R\x05phone\x12F\n" +
-	"\x06gender\x18\b \x01(\x0e2 .system.common.v1.BaseUserGenderB\f\xbaG\t\x92\x02\x06性别R\x06gender\x12$\n" +
-	"\x06avatar\x18\t \x01(\tB\f\xbaG\t\x92\x02\x06头像R\x06avatar\x12=\n" +
+	"\apost_id\x18\a \x01(\x03B\x0e\xbaG\v\x92\x02\b岗位IDR\x06postId\x12%\n" +
+	"\x05phone\x18\b \x01(\tB\x0f\xbaG\f\x92\x02\t手机号R\x05phone\x12F\n" +
+	"\x06gender\x18\t \x01(\x0e2 .system.common.v1.BaseUserGenderB\f\xbaG\t\x92\x02\x06性别R\x06gender\x12$\n" +
+	"\x06avatar\x18\n" +
+	" \x01(\tB\f\xbaG\t\x92\x02\x06头像R\x06avatar\x12=\n" +
 	"\x06status\x18e \x01(\x0e2\x11.common.v1.StatusB\x12\xbaG\x0f\x92\x02\f用户状态R\x06status\x12'\n" +
 	"\x06remark\x18f \x01(\tB\x0f\xbaG\f\x92\x02\t备注名R\x06remark\x122\n" +
 	"\n" +

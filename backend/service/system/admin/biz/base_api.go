@@ -47,6 +47,33 @@ func NewBaseAPICase(baseCase *biz.BaseCase, baseAPIRepo *data.BaseAPIRepository,
 	}
 }
 
+// OptionBaseAPI 查询菜单分配接口选项列表
+func (c *BaseAPICase) OptionBaseAPI(ctx context.Context, _ *systemadminv1.OptionBaseApiRequest) (*systemadminv1.OptionBaseApiResponse, error) {
+	query := c.Query(ctx).BaseAPI
+	opts := make([]repository.QueryOption, 0, 1)
+	opts = append(opts, repository.Order(query.ServiceName.Asc(), query.Operation.Asc()))
+	list, err := c.List(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	baseAPIs := make([]*systemadminv1.BaseApi, 0, len(list))
+	for _, item := range list {
+		// 命中免 token 或可选鉴权规则的接口，不再返回给菜单管理页面。
+		if c.jwtCfg != nil {
+			isNoTokenOperation := matchAuthWhiteList(c.jwtCfg.GetWhiteList(), item.Operation) ||
+				matchAuthWhiteList(c.jwtCfg.GetOptionalAuth(), item.Operation)
+			if isNoTokenOperation {
+				continue
+			}
+		}
+		baseAPI := c.mapper.ToDTO(item)
+		baseAPIs = append(baseAPIs, baseAPI)
+	}
+
+	return &systemadminv1.OptionBaseApiResponse{BaseApis: baseAPIs}, nil
+}
+
 // PageBaseAPI 分页查询接口列表
 func (c *BaseAPICase) PageBaseAPI(ctx context.Context, req *systemadminv1.PageBaseApiRequest) (*systemadminv1.PageBaseApiResponse, error) {
 	query := c.Query(ctx).BaseAPI
@@ -114,33 +141,6 @@ func (c *BaseAPICase) PageBaseAPI(ctx context.Context, req *systemadminv1.PageBa
 		BaseApis: baseAPIs,
 		Total:    int32(total),
 	}, nil
-}
-
-// ListBaseAPI 查询菜单分配接口选项列表
-func (c *BaseAPICase) ListBaseAPI(ctx context.Context, _ *systemadminv1.ListBaseApiRequest) (*systemadminv1.ListBaseApiResponse, error) {
-	query := c.Query(ctx).BaseAPI
-	opts := make([]repository.QueryOption, 0, 1)
-	opts = append(opts, repository.Order(query.ServiceName.Asc(), query.Operation.Asc()))
-	list, err := c.List(ctx, opts...)
-	if err != nil {
-		return nil, err
-	}
-
-	baseAPIs := make([]*systemadminv1.BaseApi, 0, len(list))
-	for _, item := range list {
-		// 命中免 token 或可选鉴权规则的接口，不再返回给菜单管理页面。
-		if c.jwtCfg != nil {
-			isNoTokenOperation := matchAuthWhiteList(c.jwtCfg.GetWhiteList(), item.Operation) ||
-				matchAuthWhiteList(c.jwtCfg.GetOptionalAuth(), item.Operation)
-			if isNoTokenOperation {
-				continue
-			}
-		}
-		baseAPI := c.mapper.ToDTO(item)
-		baseAPIs = append(baseAPIs, baseAPI)
-	}
-
-	return &systemadminv1.ListBaseApiResponse{BaseApis: baseAPIs}, nil
 }
 
 // GetBaseAPI 根据主键查询接口详情

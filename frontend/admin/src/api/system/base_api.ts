@@ -5,8 +5,8 @@ import {
   type BaseApiService,
   type GetBaseApiDocRequest,
   type GetBaseApiRequest,
-  type ListBaseApiRequest,
-  type ListBaseApiResponse,
+  type OptionBaseApiRequest,
+  type OptionBaseApiResponse,
   type PageBaseApiRequest,
   type PageBaseApiResponse,
   type SetBaseApiAgentStatusRequest,
@@ -20,8 +20,8 @@ const BASE_API_URL = "/v1/admin/base/api";
 /** AdminAPI服务 */
 export class BaseApiServiceImpl implements BaseApiService {
   /** 查询API选项列表 */
-  ListBaseApi(request: ListBaseApiRequest): Promise<ListBaseApiResponse> {
-    return service<ListBaseApiRequest, ListBaseApiResponse>({
+  OptionBaseApi(request: OptionBaseApiRequest): Promise<OptionBaseApiResponse> {
+    return service<OptionBaseApiRequest, OptionBaseApiResponse>({
       url: `${BASE_API_URL}/option`,
       method: "get",
       params: request
@@ -53,10 +53,10 @@ export class BaseApiServiceImpl implements BaseApiService {
     });
   }
 
-  /** 设置API MCP工具状态 */
-  SetBaseApiMcpStatus(request: SetBaseApiMcpStatusRequest): Promise<Empty> {
-    return service<SetBaseApiMcpStatusRequest, Empty>({
-      url: `${BASE_API_URL}/${request.id}/mcp-status`,
+  /** 更新API配置 */
+  UpdateBaseApi(request: UpdateBaseApiRequest): Promise<Empty> {
+    return service<UpdateBaseApiRequest, Empty>({
+      url: `${BASE_API_URL}/${request.id}`,
       method: "put",
       data: request
     });
@@ -71,10 +71,10 @@ export class BaseApiServiceImpl implements BaseApiService {
     });
   }
 
-  /** 更新API配置 */
-  UpdateBaseApi(request: UpdateBaseApiRequest): Promise<Empty> {
-    return service<UpdateBaseApiRequest, Empty>({
-      url: `${BASE_API_URL}/${request.id}`,
+  /** 设置API MCP工具状态 */
+  SetBaseApiMcpStatus(request: SetBaseApiMcpStatusRequest): Promise<Empty> {
+    return service<SetBaseApiMcpStatusRequest, Empty>({
+      url: `${BASE_API_URL}/${request.id}/mcp-status`,
       method: "put",
       data: request
     });
