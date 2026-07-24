@@ -93,7 +93,7 @@ func (c *CodeGenTableCase) PageCodeGenTable(ctx context.Context, req *systemadmi
 		opts = append(opts, repository.Where(query.PageType.Eq(req.GetPageType())))
 	}
 	if req.Status != nil {
-		opts = append(opts, repository.Where(query.Status.Eq(req.GetStatus())))
+		opts = append(opts, repository.Where(query.Status.Eq(int32(req.GetStatus()))))
 	}
 	list, total, err := c.Page(ctx, req.GetPageNum(), req.GetPageSize(), opts...)
 	if err != nil {

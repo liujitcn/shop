@@ -64,3 +64,15 @@ export enum BaseUserGender {
   /** GIRL - 禁用 */
   GIRL = 3,
 }
+
+/** 代码生成表状态 */
+export enum CodeGenTableStatus {
+  /** UNKNOWN_CGTS - 未指定 */
+  UNKNOWN_CGTS = 0,
+  /** DRAFT_CGTS - 草稿 */
+  DRAFT_CGTS = 1,
+  /** GENERATED_CGTS - 已生成 */
+  GENERATED_CGTS = 2,
+  /** DISABLED_CGTS - 停用 */
+  DISABLED_CGTS = 3,
+}

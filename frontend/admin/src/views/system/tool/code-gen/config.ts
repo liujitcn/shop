@@ -7,6 +7,7 @@ import type {
   CodeGenColumnQueryConfig
 } from "@/rpc/system/admin/v1/code_gen_column";
 import type { CodeGenLeftTreeConfig, CodeGenTableForm } from "@/rpc/system/admin/v1/code_gen_table";
+import { CodeGenTableStatus } from "@/rpc/system/common/v1/enum";
 
 /** 代码生成表配置页面类型选项。 */
 export const codeGenPageTypeOptions: ProFormOption[] = [
@@ -20,13 +21,6 @@ export const codeGenPageTypeOptions: ProFormOption[] = [
 export function isCodeGenTreePageType(pageType?: string) {
   return pageType === "tree" || pageType === "tree_lazy";
 }
-
-/** 代码生成表配置状态选项。 */
-export const codeGenStatusOptions: ProFormOption[] = [
-  { label: "草稿", value: 0 },
-  { label: "已生成", value: 1 },
-  { label: "停用", value: 2 }
-];
 
 /** 左树数据源类型选项。 */
 export const codeGenSourceTypeOptions: ProFormOption[] = [
@@ -141,7 +135,7 @@ export function createDefaultCodeGenTableForm(): CodeGenTableForm {
     gen_frontend: true,
     gen_sql: true,
     parent_menu_id: 0,
-    status: 0,
+    status: CodeGenTableStatus.DRAFT_CGTS,
     remark: ""
   };
 }

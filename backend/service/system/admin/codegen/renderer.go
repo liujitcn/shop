@@ -46,11 +46,11 @@ const (
 	OptionSourceTable = "table"
 
 	// StatusDraft 表示生成对象尚未生成。
-	StatusDraft = 0
+	StatusDraft = 1
 	// StatusGenerated 表示生成对象已经生成。
-	StatusGenerated = 1
+	StatusGenerated = 2
 	// StatusDisabled 表示生成对象已停用。
-	StatusDisabled = 2
+	StatusDisabled = 3
 
 	// CommandOutputMaxRunes 限制命令输出保存的最大字符数。
 	CommandOutputMaxRunes = 4000

@@ -61,12 +61,11 @@ import type {
 } from "@/rpc/system/admin/v1/code_gen_table";
 import type { BaseMenu } from "@/rpc/system/admin/v1/base_menu";
 import type { OptionBaseDictResponse_BaseDictItem } from "@/rpc/system/admin/v1/base_dict";
-import { BaseMenuType } from "@/rpc/system/common/v1/enum";
+import { BaseMenuType, CodeGenTableStatus } from "@/rpc/system/common/v1/enum";
 import { buildPageRequest, normalizeSelectedIds } from "@/utils/proTable";
 import CodeGenProgressDialog from "../components/CodeGenProgressDialog.vue";
 import {
   codeGenPageTypeOptions,
-  codeGenStatusOptions,
   codeGenTableRules,
   createDefaultCodeGenLeftTreeConfig,
   createDefaultCodeGenTableForm,
@@ -96,7 +95,7 @@ type CodeGenTableFormState = Omit<CodeGenTableForm, "parent_menu_id"> & {
 const codeGenTaskStorageKey = "code-gen-progress-task-id";
 const codeGenProgressDialogVisibleStorageKey = "code-gen-progress-dialog-visible";
 const codeGenProgressSelectedTableIdsStorageKey = "code-gen-progress-selected-table-ids";
-const codeGenStatusDisabled = 2;
+const codeGenStatusDisabled = CodeGenTableStatus.DISABLED_CGTS;
 
 const { BUTTONS } = useAuthButtons();
 const router = useRouter();
@@ -329,9 +328,9 @@ const formFields = computed<ProFormField[]>(() => [
   {
     prop: "status",
     label: "状态",
-    component: "segmented",
-    options: codeGenStatusOptions,
+    component: "dict",
     colSpan: 24,
+    props: { code: "code_gen_table_status", codeType: "number", type: "radio" },
     labelTooltip: "草稿和已生成配置均可再次生成；停用后只能查看，生成任务会拒绝写入任何文件。成功生成后状态自动更新为“已生成”。"
   },
   {
@@ -358,7 +357,7 @@ const columns: ColumnProps[] = [
     search: { el: "select" }
   },
   { prop: "page_type", label: "页面类型", minWidth: 120, enum: codeGenPageTypeOptions, search: { el: "select" } },
-  { prop: "status", label: "状态", width: 100, enum: codeGenStatusOptions, search: { el: "select" }, tag: true },
+  { prop: "status", label: "状态", width: 100, dictCode: "code_gen_table_status", search: { el: "select" } },
   { prop: "remark", label: "备注", minWidth: 180, showOverflowTooltip: true },
   { prop: "created_at", label: "创建时间", minWidth: 180 },
   {

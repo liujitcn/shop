@@ -234,6 +234,53 @@ func (AiMessageStatus) EnumDescriptor() ([]byte, []int) {
 	return file_common_v1_enum_proto_rawDescGZIP(), []int{3}
 }
 
+// 支付通知资源类型
+type ResourceType int32
+
+const (
+	ResourceType_TRANSACTION ResourceType = 0 // 支付
+	ResourceType_REFUND      ResourceType = 1 // 退款
+)
+
+// Enum value maps for ResourceType.
+var (
+	ResourceType_name = map[int32]string{
+		0: "TRANSACTION",
+		1: "REFUND",
+	}
+	ResourceType_value = map[string]int32{
+		"TRANSACTION": 0,
+		"REFUND":      1,
+	}
+)
+
+func (x ResourceType) Enum() *ResourceType {
+	p := new(ResourceType)
+	*p = x
+	return p
+}
+
+func (x ResourceType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ResourceType) Descriptor() protoreflect.EnumDescriptor {
+	return file_common_v1_enum_proto_enumTypes[4].Descriptor()
+}
+
+func (ResourceType) Type() protoreflect.EnumType {
+	return &file_common_v1_enum_proto_enumTypes[4]
+}
+
+func (x ResourceType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ResourceType.Descriptor instead.
+func (ResourceType) EnumDescriptor() ([]byte, []int) {
+	return file_common_v1_enum_proto_rawDescGZIP(), []int{4}
+}
+
 // 终端类型
 type Terminal int32
 
@@ -268,11 +315,11 @@ func (x Terminal) String() string {
 }
 
 func (Terminal) Descriptor() protoreflect.EnumDescriptor {
-	return file_common_v1_enum_proto_enumTypes[4].Descriptor()
+	return file_common_v1_enum_proto_enumTypes[5].Descriptor()
 }
 
 func (Terminal) Type() protoreflect.EnumType {
-	return &file_common_v1_enum_proto_enumTypes[4]
+	return &file_common_v1_enum_proto_enumTypes[5]
 }
 
 func (x Terminal) Number() protoreflect.EnumNumber {
@@ -281,7 +328,809 @@ func (x Terminal) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use Terminal.Descriptor instead.
 func (Terminal) EnumDescriptor() ([]byte, []int) {
-	return file_common_v1_enum_proto_rawDescGZIP(), []int{4}
+	return file_common_v1_enum_proto_rawDescGZIP(), []int{5}
+}
+
+// 仓库类型
+type WarehouseType int32
+
+const (
+	WarehouseType_UNKNOWN_WT WarehouseType = 0
+	WarehouseType_NORMAL_WT  WarehouseType = 1 // 普通仓
+	WarehouseType_STORE_WT   WarehouseType = 2 // 门店仓
+	WarehouseType_DEFECT_WT  WarehouseType = 3 // 次品仓
+	WarehouseType_TRANSIT_WT WarehouseType = 4 // 在途/虚拟仓
+)
+
+// Enum value maps for WarehouseType.
+var (
+	WarehouseType_name = map[int32]string{
+		0: "UNKNOWN_WT",
+		1: "NORMAL_WT",
+		2: "STORE_WT",
+		3: "DEFECT_WT",
+		4: "TRANSIT_WT",
+	}
+	WarehouseType_value = map[string]int32{
+		"UNKNOWN_WT": 0,
+		"NORMAL_WT":  1,
+		"STORE_WT":   2,
+		"DEFECT_WT":  3,
+		"TRANSIT_WT": 4,
+	}
+)
+
+func (x WarehouseType) Enum() *WarehouseType {
+	p := new(WarehouseType)
+	*p = x
+	return p
+}
+
+func (x WarehouseType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (WarehouseType) Descriptor() protoreflect.EnumDescriptor {
+	return file_common_v1_enum_proto_enumTypes[6].Descriptor()
+}
+
+func (WarehouseType) Type() protoreflect.EnumType {
+	return &file_common_v1_enum_proto_enumTypes[6]
+}
+
+func (x WarehouseType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use WarehouseType.Descriptor instead.
+func (WarehouseType) EnumDescriptor() ([]byte, []int) {
+	return file_common_v1_enum_proto_rawDescGZIP(), []int{6}
+}
+
+// 库位类型
+type LocationType int32
+
+const (
+	LocationType_UNKNOWN_LT LocationType = 0
+	LocationType_STORAGE_LT LocationType = 1 // 存储位
+	LocationType_PICK_LT    LocationType = 2 // 拣货位
+	LocationType_RECEIVE_LT LocationType = 3 // 收货暂存位
+	LocationType_SHIP_LT    LocationType = 4 // 发货暂存位
+	LocationType_DEFECT_LT  LocationType = 5 // 次品位
+)
+
+// Enum value maps for LocationType.
+var (
+	LocationType_name = map[int32]string{
+		0: "UNKNOWN_LT",
+		1: "STORAGE_LT",
+		2: "PICK_LT",
+		3: "RECEIVE_LT",
+		4: "SHIP_LT",
+		5: "DEFECT_LT",
+	}
+	LocationType_value = map[string]int32{
+		"UNKNOWN_LT": 0,
+		"STORAGE_LT": 1,
+		"PICK_LT":    2,
+		"RECEIVE_LT": 3,
+		"SHIP_LT":    4,
+		"DEFECT_LT":  5,
+	}
+)
+
+func (x LocationType) Enum() *LocationType {
+	p := new(LocationType)
+	*p = x
+	return p
+}
+
+func (x LocationType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (LocationType) Descriptor() protoreflect.EnumDescriptor {
+	return file_common_v1_enum_proto_enumTypes[7].Descriptor()
+}
+
+func (LocationType) Type() protoreflect.EnumType {
+	return &file_common_v1_enum_proto_enumTypes[7]
+}
+
+func (x LocationType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use LocationType.Descriptor instead.
+func (LocationType) EnumDescriptor() ([]byte, []int) {
+	return file_common_v1_enum_proto_rawDescGZIP(), []int{7}
+}
+
+// 采购订单状态
+type PurchaseOrderStatus int32
+
+const (
+	PurchaseOrderStatus_UNKNOWN_POS       PurchaseOrderStatus = 0
+	PurchaseOrderStatus_DRAFT_POS         PurchaseOrderStatus = 1 // 草稿
+	PurchaseOrderStatus_AUDITING_POS      PurchaseOrderStatus = 2 // 待审核
+	PurchaseOrderStatus_AUDITED_POS       PurchaseOrderStatus = 3 // 已审核
+	PurchaseOrderStatus_PART_RECEIVED_POS PurchaseOrderStatus = 4 // 部分收货
+	PurchaseOrderStatus_RECEIVED_POS      PurchaseOrderStatus = 5 // 全部收货
+	PurchaseOrderStatus_FINISHED_POS      PurchaseOrderStatus = 6 // 已完成
+	PurchaseOrderStatus_CANCELED_POS      PurchaseOrderStatus = 7 // 已取消
+)
+
+// Enum value maps for PurchaseOrderStatus.
+var (
+	PurchaseOrderStatus_name = map[int32]string{
+		0: "UNKNOWN_POS",
+		1: "DRAFT_POS",
+		2: "AUDITING_POS",
+		3: "AUDITED_POS",
+		4: "PART_RECEIVED_POS",
+		5: "RECEIVED_POS",
+		6: "FINISHED_POS",
+		7: "CANCELED_POS",
+	}
+	PurchaseOrderStatus_value = map[string]int32{
+		"UNKNOWN_POS":       0,
+		"DRAFT_POS":         1,
+		"AUDITING_POS":      2,
+		"AUDITED_POS":       3,
+		"PART_RECEIVED_POS": 4,
+		"RECEIVED_POS":      5,
+		"FINISHED_POS":      6,
+		"CANCELED_POS":      7,
+	}
+)
+
+func (x PurchaseOrderStatus) Enum() *PurchaseOrderStatus {
+	p := new(PurchaseOrderStatus)
+	*p = x
+	return p
+}
+
+func (x PurchaseOrderStatus) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (PurchaseOrderStatus) Descriptor() protoreflect.EnumDescriptor {
+	return file_common_v1_enum_proto_enumTypes[8].Descriptor()
+}
+
+func (PurchaseOrderStatus) Type() protoreflect.EnumType {
+	return &file_common_v1_enum_proto_enumTypes[8]
+}
+
+func (x PurchaseOrderStatus) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use PurchaseOrderStatus.Descriptor instead.
+func (PurchaseOrderStatus) EnumDescriptor() ([]byte, []int) {
+	return file_common_v1_enum_proto_rawDescGZIP(), []int{8}
+}
+
+// 采购收货单状态
+type PurchaseReceiptStatus int32
+
+const (
+	PurchaseReceiptStatus_UNKNOWN_PRS   PurchaseReceiptStatus = 0
+	PurchaseReceiptStatus_DRAFT_PRS     PurchaseReceiptStatus = 1 // 草稿
+	PurchaseReceiptStatus_CONFIRMED_PRS PurchaseReceiptStatus = 2 // 已确认
+	PurchaseReceiptStatus_STORED_PRS    PurchaseReceiptStatus = 3 // 已入库
+	PurchaseReceiptStatus_CANCELED_PRS  PurchaseReceiptStatus = 4 // 已取消
+)
+
+// Enum value maps for PurchaseReceiptStatus.
+var (
+	PurchaseReceiptStatus_name = map[int32]string{
+		0: "UNKNOWN_PRS",
+		1: "DRAFT_PRS",
+		2: "CONFIRMED_PRS",
+		3: "STORED_PRS",
+		4: "CANCELED_PRS",
+	}
+	PurchaseReceiptStatus_value = map[string]int32{
+		"UNKNOWN_PRS":   0,
+		"DRAFT_PRS":     1,
+		"CONFIRMED_PRS": 2,
+		"STORED_PRS":    3,
+		"CANCELED_PRS":  4,
+	}
+)
+
+func (x PurchaseReceiptStatus) Enum() *PurchaseReceiptStatus {
+	p := new(PurchaseReceiptStatus)
+	*p = x
+	return p
+}
+
+func (x PurchaseReceiptStatus) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (PurchaseReceiptStatus) Descriptor() protoreflect.EnumDescriptor {
+	return file_common_v1_enum_proto_enumTypes[9].Descriptor()
+}
+
+func (PurchaseReceiptStatus) Type() protoreflect.EnumType {
+	return &file_common_v1_enum_proto_enumTypes[9]
+}
+
+func (x PurchaseReceiptStatus) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use PurchaseReceiptStatus.Descriptor instead.
+func (PurchaseReceiptStatus) EnumDescriptor() ([]byte, []int) {
+	return file_common_v1_enum_proto_rawDescGZIP(), []int{9}
+}
+
+// 库存出入库单状态
+type StockBillStatus int32
+
+const (
+	StockBillStatus_UNKNOWN_SBS   StockBillStatus = 0
+	StockBillStatus_DRAFT_SBS     StockBillStatus = 1 // 草稿
+	StockBillStatus_CONFIRMED_SBS StockBillStatus = 2 // 已确认
+	StockBillStatus_CANCELED_SBS  StockBillStatus = 3 // 已取消
+)
+
+// Enum value maps for StockBillStatus.
+var (
+	StockBillStatus_name = map[int32]string{
+		0: "UNKNOWN_SBS",
+		1: "DRAFT_SBS",
+		2: "CONFIRMED_SBS",
+		3: "CANCELED_SBS",
+	}
+	StockBillStatus_value = map[string]int32{
+		"UNKNOWN_SBS":   0,
+		"DRAFT_SBS":     1,
+		"CONFIRMED_SBS": 2,
+		"CANCELED_SBS":  3,
+	}
+)
+
+func (x StockBillStatus) Enum() *StockBillStatus {
+	p := new(StockBillStatus)
+	*p = x
+	return p
+}
+
+func (x StockBillStatus) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (StockBillStatus) Descriptor() protoreflect.EnumDescriptor {
+	return file_common_v1_enum_proto_enumTypes[10].Descriptor()
+}
+
+func (StockBillStatus) Type() protoreflect.EnumType {
+	return &file_common_v1_enum_proto_enumTypes[10]
+}
+
+func (x StockBillStatus) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use StockBillStatus.Descriptor instead.
+func (StockBillStatus) EnumDescriptor() ([]byte, []int) {
+	return file_common_v1_enum_proto_rawDescGZIP(), []int{10}
+}
+
+// 库存出入库方向
+type StockBillDirection int32
+
+const (
+	StockBillDirection_UNKNOWN_SBD StockBillDirection = 0
+	StockBillDirection_IN_SBD      StockBillDirection = 1 // 入库
+	StockBillDirection_OUT_SBD     StockBillDirection = 2 // 出库
+)
+
+// Enum value maps for StockBillDirection.
+var (
+	StockBillDirection_name = map[int32]string{
+		0: "UNKNOWN_SBD",
+		1: "IN_SBD",
+		2: "OUT_SBD",
+	}
+	StockBillDirection_value = map[string]int32{
+		"UNKNOWN_SBD": 0,
+		"IN_SBD":      1,
+		"OUT_SBD":     2,
+	}
+)
+
+func (x StockBillDirection) Enum() *StockBillDirection {
+	p := new(StockBillDirection)
+	*p = x
+	return p
+}
+
+func (x StockBillDirection) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (StockBillDirection) Descriptor() protoreflect.EnumDescriptor {
+	return file_common_v1_enum_proto_enumTypes[11].Descriptor()
+}
+
+func (StockBillDirection) Type() protoreflect.EnumType {
+	return &file_common_v1_enum_proto_enumTypes[11]
+}
+
+func (x StockBillDirection) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use StockBillDirection.Descriptor instead.
+func (StockBillDirection) EnumDescriptor() ([]byte, []int) {
+	return file_common_v1_enum_proto_rawDescGZIP(), []int{11}
+}
+
+// 库存业务类型
+type StockBizType int32
+
+const (
+	StockBizType_UNKNOWN_SBT      StockBizType = 0
+	StockBizType_PURCHASE_IN_SBT  StockBizType = 1 // 采购入库
+	StockBizType_SALE_OUT_SBT     StockBizType = 2 // 销售出库
+	StockBizType_TRANSFER_IN_SBT  StockBizType = 3 // 调拨入库
+	StockBizType_TRANSFER_OUT_SBT StockBizType = 4 // 调拨出库
+	StockBizType_RETURN_IN_SBT    StockBizType = 5 // 退货入库
+	StockBizType_RETURN_OUT_SBT   StockBizType = 6 // 退供出库
+	StockBizType_CHECK_PROFIT_SBT StockBizType = 7 // 盘盈入库
+	StockBizType_CHECK_LOSS_SBT   StockBizType = 8 // 盘亏出库
+	StockBizType_SCRAP_OUT_SBT    StockBizType = 9 // 报损出库
+)
+
+// Enum value maps for StockBizType.
+var (
+	StockBizType_name = map[int32]string{
+		0: "UNKNOWN_SBT",
+		1: "PURCHASE_IN_SBT",
+		2: "SALE_OUT_SBT",
+		3: "TRANSFER_IN_SBT",
+		4: "TRANSFER_OUT_SBT",
+		5: "RETURN_IN_SBT",
+		6: "RETURN_OUT_SBT",
+		7: "CHECK_PROFIT_SBT",
+		8: "CHECK_LOSS_SBT",
+		9: "SCRAP_OUT_SBT",
+	}
+	StockBizType_value = map[string]int32{
+		"UNKNOWN_SBT":      0,
+		"PURCHASE_IN_SBT":  1,
+		"SALE_OUT_SBT":     2,
+		"TRANSFER_IN_SBT":  3,
+		"TRANSFER_OUT_SBT": 4,
+		"RETURN_IN_SBT":    5,
+		"RETURN_OUT_SBT":   6,
+		"CHECK_PROFIT_SBT": 7,
+		"CHECK_LOSS_SBT":   8,
+		"SCRAP_OUT_SBT":    9,
+	}
+)
+
+func (x StockBizType) Enum() *StockBizType {
+	p := new(StockBizType)
+	*p = x
+	return p
+}
+
+func (x StockBizType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (StockBizType) Descriptor() protoreflect.EnumDescriptor {
+	return file_common_v1_enum_proto_enumTypes[12].Descriptor()
+}
+
+func (StockBizType) Type() protoreflect.EnumType {
+	return &file_common_v1_enum_proto_enumTypes[12]
+}
+
+func (x StockBizType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use StockBizType.Descriptor instead.
+func (StockBizType) EnumDescriptor() ([]byte, []int) {
+	return file_common_v1_enum_proto_rawDescGZIP(), []int{12}
+}
+
+// 库存实物状态
+type StockStatus int32
+
+const (
+	StockStatus_UNKNOWN_SS    StockStatus = 0
+	StockStatus_INSPECTING_SS StockStatus = 1 // 待检
+	StockStatus_QUALIFIED_SS  StockStatus = 2 // 合格
+	StockStatus_FROZEN_SS     StockStatus = 3 // 冻结
+	StockStatus_DEFECT_SS     StockStatus = 4 // 次品
+	StockStatus_TRANSIT_SS    StockStatus = 5 // 在途
+)
+
+// Enum value maps for StockStatus.
+var (
+	StockStatus_name = map[int32]string{
+		0: "UNKNOWN_SS",
+		1: "INSPECTING_SS",
+		2: "QUALIFIED_SS",
+		3: "FROZEN_SS",
+		4: "DEFECT_SS",
+		5: "TRANSIT_SS",
+	}
+	StockStatus_value = map[string]int32{
+		"UNKNOWN_SS":    0,
+		"INSPECTING_SS": 1,
+		"QUALIFIED_SS":  2,
+		"FROZEN_SS":     3,
+		"DEFECT_SS":     4,
+		"TRANSIT_SS":    5,
+	}
+)
+
+func (x StockStatus) Enum() *StockStatus {
+	p := new(StockStatus)
+	*p = x
+	return p
+}
+
+func (x StockStatus) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (StockStatus) Descriptor() protoreflect.EnumDescriptor {
+	return file_common_v1_enum_proto_enumTypes[13].Descriptor()
+}
+
+func (StockStatus) Type() protoreflect.EnumType {
+	return &file_common_v1_enum_proto_enumTypes[13]
+}
+
+func (x StockStatus) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use StockStatus.Descriptor instead.
+func (StockStatus) EnumDescriptor() ([]byte, []int) {
+	return file_common_v1_enum_proto_rawDescGZIP(), []int{13}
+}
+
+// 库存批次状态
+type BatchStatus int32
+
+const (
+	BatchStatus_UNKNOWN_BS     BatchStatus = 0
+	BatchStatus_NORMAL_BS      BatchStatus = 1 // 正常
+	BatchStatus_NEAR_EXPIRY_BS BatchStatus = 2 // 临期
+	BatchStatus_EXPIRED_BS     BatchStatus = 3 // 过期
+	BatchStatus_FROZEN_BS      BatchStatus = 4 // 冻结锁定
+	BatchStatus_DISABLED_BS    BatchStatus = 5 // 停用
+)
+
+// Enum value maps for BatchStatus.
+var (
+	BatchStatus_name = map[int32]string{
+		0: "UNKNOWN_BS",
+		1: "NORMAL_BS",
+		2: "NEAR_EXPIRY_BS",
+		3: "EXPIRED_BS",
+		4: "FROZEN_BS",
+		5: "DISABLED_BS",
+	}
+	BatchStatus_value = map[string]int32{
+		"UNKNOWN_BS":     0,
+		"NORMAL_BS":      1,
+		"NEAR_EXPIRY_BS": 2,
+		"EXPIRED_BS":     3,
+		"FROZEN_BS":      4,
+		"DISABLED_BS":    5,
+	}
+)
+
+func (x BatchStatus) Enum() *BatchStatus {
+	p := new(BatchStatus)
+	*p = x
+	return p
+}
+
+func (x BatchStatus) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (BatchStatus) Descriptor() protoreflect.EnumDescriptor {
+	return file_common_v1_enum_proto_enumTypes[14].Descriptor()
+}
+
+func (BatchStatus) Type() protoreflect.EnumType {
+	return &file_common_v1_enum_proto_enumTypes[14]
+}
+
+func (x BatchStatus) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use BatchStatus.Descriptor instead.
+func (BatchStatus) EnumDescriptor() ([]byte, []int) {
+	return file_common_v1_enum_proto_rawDescGZIP(), []int{14}
+}
+
+// 库存成本状态
+type CostStatus int32
+
+const (
+	CostStatus_UNKNOWN_CS   CostStatus = 0
+	CostStatus_NORMAL_CS    CostStatus = 1 // 正常
+	CostStatus_ESTIMATED_CS CostStatus = 2 // 暂估
+	CostStatus_ABNORMAL_CS  CostStatus = 3 // 异常
+)
+
+// Enum value maps for CostStatus.
+var (
+	CostStatus_name = map[int32]string{
+		0: "UNKNOWN_CS",
+		1: "NORMAL_CS",
+		2: "ESTIMATED_CS",
+		3: "ABNORMAL_CS",
+	}
+	CostStatus_value = map[string]int32{
+		"UNKNOWN_CS":   0,
+		"NORMAL_CS":    1,
+		"ESTIMATED_CS": 2,
+		"ABNORMAL_CS":  3,
+	}
+)
+
+func (x CostStatus) Enum() *CostStatus {
+	p := new(CostStatus)
+	*p = x
+	return p
+}
+
+func (x CostStatus) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (CostStatus) Descriptor() protoreflect.EnumDescriptor {
+	return file_common_v1_enum_proto_enumTypes[15].Descriptor()
+}
+
+func (CostStatus) Type() protoreflect.EnumType {
+	return &file_common_v1_enum_proto_enumTypes[15]
+}
+
+func (x CostStatus) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use CostStatus.Descriptor instead.
+func (CostStatus) EnumDescriptor() ([]byte, []int) {
+	return file_common_v1_enum_proto_rawDescGZIP(), []int{15}
+}
+
+// 来源单据类型
+type SourceDocType int32
+
+const (
+	SourceDocType_UNKNOWN_SDT          SourceDocType = 0
+	SourceDocType_PURCHASE_ORDER_SDT   SourceDocType = 1 // 采购订单
+	SourceDocType_PURCHASE_RECEIPT_SDT SourceDocType = 2 // 采购收货单
+	SourceDocType_STOCK_BILL_SDT       SourceDocType = 3 // 库存出入库单
+	SourceDocType_PAYABLE_SDT          SourceDocType = 4 // 应付单
+)
+
+// Enum value maps for SourceDocType.
+var (
+	SourceDocType_name = map[int32]string{
+		0: "UNKNOWN_SDT",
+		1: "PURCHASE_ORDER_SDT",
+		2: "PURCHASE_RECEIPT_SDT",
+		3: "STOCK_BILL_SDT",
+		4: "PAYABLE_SDT",
+	}
+	SourceDocType_value = map[string]int32{
+		"UNKNOWN_SDT":          0,
+		"PURCHASE_ORDER_SDT":   1,
+		"PURCHASE_RECEIPT_SDT": 2,
+		"STOCK_BILL_SDT":       3,
+		"PAYABLE_SDT":          4,
+	}
+)
+
+func (x SourceDocType) Enum() *SourceDocType {
+	p := new(SourceDocType)
+	*p = x
+	return p
+}
+
+func (x SourceDocType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (SourceDocType) Descriptor() protoreflect.EnumDescriptor {
+	return file_common_v1_enum_proto_enumTypes[16].Descriptor()
+}
+
+func (SourceDocType) Type() protoreflect.EnumType {
+	return &file_common_v1_enum_proto_enumTypes[16]
+}
+
+func (x SourceDocType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use SourceDocType.Descriptor instead.
+func (SourceDocType) EnumDescriptor() ([]byte, []int) {
+	return file_common_v1_enum_proto_rawDescGZIP(), []int{16}
+}
+
+// 供应商应付单状态
+type PayableStatus int32
+
+const (
+	PayableStatus_UNKNOWN_PYS PayableStatus = 0
+	PayableStatus_OPEN_PYS    PayableStatus = 1 // 未核销
+	PayableStatus_PART_PYS    PayableStatus = 2 // 部分核销
+	PayableStatus_CLEARED_PYS PayableStatus = 3 // 已核销
+	PayableStatus_VOID_PYS    PayableStatus = 4 // 已作废
+)
+
+// Enum value maps for PayableStatus.
+var (
+	PayableStatus_name = map[int32]string{
+		0: "UNKNOWN_PYS",
+		1: "OPEN_PYS",
+		2: "PART_PYS",
+		3: "CLEARED_PYS",
+		4: "VOID_PYS",
+	}
+	PayableStatus_value = map[string]int32{
+		"UNKNOWN_PYS": 0,
+		"OPEN_PYS":    1,
+		"PART_PYS":    2,
+		"CLEARED_PYS": 3,
+		"VOID_PYS":    4,
+	}
+)
+
+func (x PayableStatus) Enum() *PayableStatus {
+	p := new(PayableStatus)
+	*p = x
+	return p
+}
+
+func (x PayableStatus) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (PayableStatus) Descriptor() protoreflect.EnumDescriptor {
+	return file_common_v1_enum_proto_enumTypes[17].Descriptor()
+}
+
+func (PayableStatus) Type() protoreflect.EnumType {
+	return &file_common_v1_enum_proto_enumTypes[17]
+}
+
+func (x PayableStatus) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use PayableStatus.Descriptor instead.
+func (PayableStatus) EnumDescriptor() ([]byte, []int) {
+	return file_common_v1_enum_proto_rawDescGZIP(), []int{17}
+}
+
+// 事务消息业务类型
+type OutboxBizType int32
+
+const (
+	OutboxBizType_UNKNOWN_OMB     OutboxBizType = 0
+	OutboxBizType_STOCK_SYNC_OMB  OutboxBizType = 1 // 库存同步
+	OutboxBizType_PAYABLE_GEN_OMB OutboxBizType = 2 // 生成应付
+	OutboxBizType_DOC_EVENT_OMB   OutboxBizType = 3 // 单据事件
+)
+
+// Enum value maps for OutboxBizType.
+var (
+	OutboxBizType_name = map[int32]string{
+		0: "UNKNOWN_OMB",
+		1: "STOCK_SYNC_OMB",
+		2: "PAYABLE_GEN_OMB",
+		3: "DOC_EVENT_OMB",
+	}
+	OutboxBizType_value = map[string]int32{
+		"UNKNOWN_OMB":     0,
+		"STOCK_SYNC_OMB":  1,
+		"PAYABLE_GEN_OMB": 2,
+		"DOC_EVENT_OMB":   3,
+	}
+)
+
+func (x OutboxBizType) Enum() *OutboxBizType {
+	p := new(OutboxBizType)
+	*p = x
+	return p
+}
+
+func (x OutboxBizType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (OutboxBizType) Descriptor() protoreflect.EnumDescriptor {
+	return file_common_v1_enum_proto_enumTypes[18].Descriptor()
+}
+
+func (OutboxBizType) Type() protoreflect.EnumType {
+	return &file_common_v1_enum_proto_enumTypes[18]
+}
+
+func (x OutboxBizType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use OutboxBizType.Descriptor instead.
+func (OutboxBizType) EnumDescriptor() ([]byte, []int) {
+	return file_common_v1_enum_proto_rawDescGZIP(), []int{18}
+}
+
+// 事务消息处理状态
+type OutboxStatus int32
+
+const (
+	OutboxStatus_UNKNOWN_OMS    OutboxStatus = 0
+	OutboxStatus_PENDING_OMS    OutboxStatus = 1 // 待处理
+	OutboxStatus_PROCESSING_OMS OutboxStatus = 2 // 处理中
+	OutboxStatus_SUCCEEDED_OMS  OutboxStatus = 3 // 成功
+	OutboxStatus_FAILED_OMS     OutboxStatus = 4 // 失败
+)
+
+// Enum value maps for OutboxStatus.
+var (
+	OutboxStatus_name = map[int32]string{
+		0: "UNKNOWN_OMS",
+		1: "PENDING_OMS",
+		2: "PROCESSING_OMS",
+		3: "SUCCEEDED_OMS",
+		4: "FAILED_OMS",
+	}
+	OutboxStatus_value = map[string]int32{
+		"UNKNOWN_OMS":    0,
+		"PENDING_OMS":    1,
+		"PROCESSING_OMS": 2,
+		"SUCCEEDED_OMS":  3,
+		"FAILED_OMS":     4,
+	}
+)
+
+func (x OutboxStatus) Enum() *OutboxStatus {
+	p := new(OutboxStatus)
+	*p = x
+	return p
+}
+
+func (x OutboxStatus) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (OutboxStatus) Descriptor() protoreflect.EnumDescriptor {
+	return file_common_v1_enum_proto_enumTypes[19].Descriptor()
+}
+
+func (OutboxStatus) Type() protoreflect.EnumType {
+	return &file_common_v1_enum_proto_enumTypes[19]
+}
+
+func (x OutboxStatus) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use OutboxStatus.Descriptor instead.
+func (OutboxStatus) EnumDescriptor() ([]byte, []int) {
+	return file_common_v1_enum_proto_rawDescGZIP(), []int{19}
 }
 
 var File_common_v1_enum_proto protoreflect.FileDescriptor
@@ -310,11 +1159,119 @@ const file_common_v1_enum_proto_rawDesc = "" +
 	"\fUNKNOWN_AAMS\x10\x00\x12\x13\n" +
 	"\x0fGENERATING_AAMS\x10\x01\x12\x10\n" +
 	"\fSUCCESS_AAMS\x10\x02\x12\x0f\n" +
-	"\vFAILED_AAMS\x10\x03*J\n" +
+	"\vFAILED_AAMS\x10\x03*+\n" +
+	"\fResourceType\x12\x0f\n" +
+	"\vTRANSACTION\x10\x00\x12\n" +
+	"\n" +
+	"\x06REFUND\x10\x01*J\n" +
 	"\bTerminal\x12\x18\n" +
 	"\x14TERMINAL_UNSPECIFIED\x10\x00\x12\x10\n" +
 	"\fTERMINAL_APP\x10\x01\x12\x12\n" +
-	"\x0eTERMINAL_ADMIN\x10\x02B\x83\x01\n" +
+	"\x0eTERMINAL_ADMIN\x10\x02*[\n" +
+	"\rWarehouseType\x12\x0e\n" +
+	"\n" +
+	"UNKNOWN_WT\x10\x00\x12\r\n" +
+	"\tNORMAL_WT\x10\x01\x12\f\n" +
+	"\bSTORE_WT\x10\x02\x12\r\n" +
+	"\tDEFECT_WT\x10\x03\x12\x0e\n" +
+	"\n" +
+	"TRANSIT_WT\x10\x04*g\n" +
+	"\fLocationType\x12\x0e\n" +
+	"\n" +
+	"UNKNOWN_LT\x10\x00\x12\x0e\n" +
+	"\n" +
+	"STORAGE_LT\x10\x01\x12\v\n" +
+	"\aPICK_LT\x10\x02\x12\x0e\n" +
+	"\n" +
+	"RECEIVE_LT\x10\x03\x12\v\n" +
+	"\aSHIP_LT\x10\x04\x12\r\n" +
+	"\tDEFECT_LT\x10\x05*\xa5\x01\n" +
+	"\x13PurchaseOrderStatus\x12\x0f\n" +
+	"\vUNKNOWN_POS\x10\x00\x12\r\n" +
+	"\tDRAFT_POS\x10\x01\x12\x10\n" +
+	"\fAUDITING_POS\x10\x02\x12\x0f\n" +
+	"\vAUDITED_POS\x10\x03\x12\x15\n" +
+	"\x11PART_RECEIVED_POS\x10\x04\x12\x10\n" +
+	"\fRECEIVED_POS\x10\x05\x12\x10\n" +
+	"\fFINISHED_POS\x10\x06\x12\x10\n" +
+	"\fCANCELED_POS\x10\a*l\n" +
+	"\x15PurchaseReceiptStatus\x12\x0f\n" +
+	"\vUNKNOWN_PRS\x10\x00\x12\r\n" +
+	"\tDRAFT_PRS\x10\x01\x12\x11\n" +
+	"\rCONFIRMED_PRS\x10\x02\x12\x0e\n" +
+	"\n" +
+	"STORED_PRS\x10\x03\x12\x10\n" +
+	"\fCANCELED_PRS\x10\x04*V\n" +
+	"\x0fStockBillStatus\x12\x0f\n" +
+	"\vUNKNOWN_SBS\x10\x00\x12\r\n" +
+	"\tDRAFT_SBS\x10\x01\x12\x11\n" +
+	"\rCONFIRMED_SBS\x10\x02\x12\x10\n" +
+	"\fCANCELED_SBS\x10\x03*>\n" +
+	"\x12StockBillDirection\x12\x0f\n" +
+	"\vUNKNOWN_SBD\x10\x00\x12\n" +
+	"\n" +
+	"\x06IN_SBD\x10\x01\x12\v\n" +
+	"\aOUT_SBD\x10\x02*\xd5\x01\n" +
+	"\fStockBizType\x12\x0f\n" +
+	"\vUNKNOWN_SBT\x10\x00\x12\x13\n" +
+	"\x0fPURCHASE_IN_SBT\x10\x01\x12\x10\n" +
+	"\fSALE_OUT_SBT\x10\x02\x12\x13\n" +
+	"\x0fTRANSFER_IN_SBT\x10\x03\x12\x14\n" +
+	"\x10TRANSFER_OUT_SBT\x10\x04\x12\x11\n" +
+	"\rRETURN_IN_SBT\x10\x05\x12\x12\n" +
+	"\x0eRETURN_OUT_SBT\x10\x06\x12\x14\n" +
+	"\x10CHECK_PROFIT_SBT\x10\a\x12\x12\n" +
+	"\x0eCHECK_LOSS_SBT\x10\b\x12\x11\n" +
+	"\rSCRAP_OUT_SBT\x10\t*p\n" +
+	"\vStockStatus\x12\x0e\n" +
+	"\n" +
+	"UNKNOWN_SS\x10\x00\x12\x11\n" +
+	"\rINSPECTING_SS\x10\x01\x12\x10\n" +
+	"\fQUALIFIED_SS\x10\x02\x12\r\n" +
+	"\tFROZEN_SS\x10\x03\x12\r\n" +
+	"\tDEFECT_SS\x10\x04\x12\x0e\n" +
+	"\n" +
+	"TRANSIT_SS\x10\x05*p\n" +
+	"\vBatchStatus\x12\x0e\n" +
+	"\n" +
+	"UNKNOWN_BS\x10\x00\x12\r\n" +
+	"\tNORMAL_BS\x10\x01\x12\x12\n" +
+	"\x0eNEAR_EXPIRY_BS\x10\x02\x12\x0e\n" +
+	"\n" +
+	"EXPIRED_BS\x10\x03\x12\r\n" +
+	"\tFROZEN_BS\x10\x04\x12\x0f\n" +
+	"\vDISABLED_BS\x10\x05*N\n" +
+	"\n" +
+	"CostStatus\x12\x0e\n" +
+	"\n" +
+	"UNKNOWN_CS\x10\x00\x12\r\n" +
+	"\tNORMAL_CS\x10\x01\x12\x10\n" +
+	"\fESTIMATED_CS\x10\x02\x12\x0f\n" +
+	"\vABNORMAL_CS\x10\x03*w\n" +
+	"\rSourceDocType\x12\x0f\n" +
+	"\vUNKNOWN_SDT\x10\x00\x12\x16\n" +
+	"\x12PURCHASE_ORDER_SDT\x10\x01\x12\x18\n" +
+	"\x14PURCHASE_RECEIPT_SDT\x10\x02\x12\x12\n" +
+	"\x0eSTOCK_BILL_SDT\x10\x03\x12\x0f\n" +
+	"\vPAYABLE_SDT\x10\x04*[\n" +
+	"\rPayableStatus\x12\x0f\n" +
+	"\vUNKNOWN_PYS\x10\x00\x12\f\n" +
+	"\bOPEN_PYS\x10\x01\x12\f\n" +
+	"\bPART_PYS\x10\x02\x12\x0f\n" +
+	"\vCLEARED_PYS\x10\x03\x12\f\n" +
+	"\bVOID_PYS\x10\x04*\\\n" +
+	"\rOutboxBizType\x12\x0f\n" +
+	"\vUNKNOWN_OMB\x10\x00\x12\x12\n" +
+	"\x0eSTOCK_SYNC_OMB\x10\x01\x12\x13\n" +
+	"\x0fPAYABLE_GEN_OMB\x10\x02\x12\x11\n" +
+	"\rDOC_EVENT_OMB\x10\x03*g\n" +
+	"\fOutboxStatus\x12\x0f\n" +
+	"\vUNKNOWN_OMS\x10\x00\x12\x0f\n" +
+	"\vPENDING_OMS\x10\x01\x12\x12\n" +
+	"\x0ePROCESSING_OMS\x10\x02\x12\x11\n" +
+	"\rSUCCEEDED_OMS\x10\x03\x12\x0e\n" +
+	"\n" +
+	"FAILED_OMS\x10\x04B\x83\x01\n" +
 	"\rcom.common.v1B\tEnumProtoP\x01Z\"shop/api/gen/go/common/v1;commonv1\xa2\x02\x03CXX\xaa\x02\tCommon.V1\xca\x02\tCommon\\V1\xe2\x02\x15Common\\V1\\GPBMetadata\xea\x02\n" +
 	"Common::V1b\x06proto3"
 
@@ -330,13 +1287,28 @@ func file_common_v1_enum_proto_rawDescGZIP() []byte {
 	return file_common_v1_enum_proto_rawDescData
 }
 
-var file_common_v1_enum_proto_enumTypes = make([]protoimpl.EnumInfo, 5)
+var file_common_v1_enum_proto_enumTypes = make([]protoimpl.EnumInfo, 20)
 var file_common_v1_enum_proto_goTypes = []any{
-	(Status)(0),              // 0: common.v1.Status
-	(BaseConfigSite)(0),      // 1: common.v1.BaseConfigSite
-	(PasswordCryptoScene)(0), // 2: common.v1.PasswordCryptoScene
-	(AiMessageStatus)(0),     // 3: common.v1.AiMessageStatus
-	(Terminal)(0),            // 4: common.v1.Terminal
+	(Status)(0),                // 0: common.v1.Status
+	(BaseConfigSite)(0),        // 1: common.v1.BaseConfigSite
+	(PasswordCryptoScene)(0),   // 2: common.v1.PasswordCryptoScene
+	(AiMessageStatus)(0),       // 3: common.v1.AiMessageStatus
+	(ResourceType)(0),          // 4: common.v1.ResourceType
+	(Terminal)(0),              // 5: common.v1.Terminal
+	(WarehouseType)(0),         // 6: common.v1.WarehouseType
+	(LocationType)(0),          // 7: common.v1.LocationType
+	(PurchaseOrderStatus)(0),   // 8: common.v1.PurchaseOrderStatus
+	(PurchaseReceiptStatus)(0), // 9: common.v1.PurchaseReceiptStatus
+	(StockBillStatus)(0),       // 10: common.v1.StockBillStatus
+	(StockBillDirection)(0),    // 11: common.v1.StockBillDirection
+	(StockBizType)(0),          // 12: common.v1.StockBizType
+	(StockStatus)(0),           // 13: common.v1.StockStatus
+	(BatchStatus)(0),           // 14: common.v1.BatchStatus
+	(CostStatus)(0),            // 15: common.v1.CostStatus
+	(SourceDocType)(0),         // 16: common.v1.SourceDocType
+	(PayableStatus)(0),         // 17: common.v1.PayableStatus
+	(OutboxBizType)(0),         // 18: common.v1.OutboxBizType
+	(OutboxStatus)(0),          // 19: common.v1.OutboxStatus
 }
 var file_common_v1_enum_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
@@ -356,7 +1328,7 @@ func file_common_v1_enum_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_common_v1_enum_proto_rawDesc), len(file_common_v1_enum_proto_rawDesc)),
-			NumEnums:      5,
+			NumEnums:      20,
 			NumMessages:   0,
 			NumExtensions: 0,
 			NumServices:   0,

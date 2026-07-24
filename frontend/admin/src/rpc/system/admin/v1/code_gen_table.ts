@@ -6,6 +6,7 @@
 
 /* eslint-disable */
 import type { Empty } from "../../../google/protobuf/empty";
+import type { CodeGenTableStatus } from "../../common/v1/enum";
 
 /** 代码生成表配置分页查询条件 */
 export interface PageCodeGenTableRequest {
@@ -21,9 +22,9 @@ export interface PageCodeGenTableRequest {
   page_type?:
     | string
     | undefined;
-  /** 状态 */
+  /** 状态：枚举【CodeGenTableStatus】，1草稿 2已生成 3停用 */
   status?:
-    | number
+    | CodeGenTableStatus
     | undefined;
   /** 当前页码 */
   page_num: number;
@@ -83,8 +84,8 @@ export interface CodeGenTableForm {
   gen_frontend: boolean;
   /** 是否同步菜单和接口权限 */
   gen_sql: boolean;
-  /** 状态 */
-  status: number;
+  /** 状态：枚举【CodeGenTableStatus】，1草稿 2已生成 3停用 */
+  status: CodeGenTableStatus;
   /** 备注 */
   remark: string;
 }
@@ -131,8 +132,8 @@ export interface CodeGenTable {
   business_module: string;
   /** 页面类型 */
   page_type: string;
-  /** 状态 */
-  status: number;
+  /** 状态：枚举【CodeGenTableStatus】，1草稿 2已生成 3停用 */
+  status: CodeGenTableStatus;
   /** 备注 */
   remark: string;
   /** 创建时间 */

@@ -8,6 +8,7 @@ package adminv1
 
 import (
 	reflect "reflect"
+	v1 "shop/api/gen/go/system/common/v1"
 	sync "sync"
 	unsafe "unsafe"
 
@@ -29,12 +30,12 @@ const (
 // 代码生成表配置分页查询条件
 type PageCodeGenTableRequest struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
-	Name           *string                `protobuf:"bytes,1,opt,name=name,proto3,oneof" json:"name,omitempty"`                                           // 业务表名
-	BusinessModule *string                `protobuf:"bytes,2,opt,name=business_module,json=businessModule,proto3,oneof" json:"business_module,omitempty"` // 业务模块
-	PageType       *string                `protobuf:"bytes,3,opt,name=page_type,json=pageType,proto3,oneof" json:"page_type,omitempty"`                   // 页面类型
-	Status         *int32                 `protobuf:"varint,4,opt,name=status,proto3,oneof" json:"status,omitempty"`                                      // 状态
-	PageNum        int64                  `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`                         // 当前页码
-	PageSize       int64                  `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`                      // 每一页的行数
+	Name           *string                `protobuf:"bytes,1,opt,name=name,proto3,oneof" json:"name,omitempty"`                                               // 业务表名
+	BusinessModule *string                `protobuf:"bytes,2,opt,name=business_module,json=businessModule,proto3,oneof" json:"business_module,omitempty"`     // 业务模块
+	PageType       *string                `protobuf:"bytes,3,opt,name=page_type,json=pageType,proto3,oneof" json:"page_type,omitempty"`                       // 页面类型
+	Status         *v1.CodeGenTableStatus `protobuf:"varint,4,opt,name=status,proto3,enum=system.common.v1.CodeGenTableStatus,oneof" json:"status,omitempty"` // 状态：枚举【CodeGenTableStatus】，1草稿 2已生成 3停用
+	PageNum        int64                  `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`                             // 当前页码
+	PageSize       int64                  `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`                          // 每一页的行数
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -90,11 +91,11 @@ func (x *PageCodeGenTableRequest) GetPageType() string {
 	return ""
 }
 
-func (x *PageCodeGenTableRequest) GetStatus() int32 {
+func (x *PageCodeGenTableRequest) GetStatus() v1.CodeGenTableStatus {
 	if x != nil && x.Status != nil {
 		return *x.Status
 	}
-	return 0
+	return v1.CodeGenTableStatus(0)
 }
 
 func (x *PageCodeGenTableRequest) GetPageNum() int64 {
@@ -306,7 +307,7 @@ type CodeGenTableForm struct {
 	GenBackend      bool                   `protobuf:"varint,10,opt,name=gen_backend,json=genBackend,proto3" json:"gen_backend,omitempty"`                // 是否生成后端
 	GenFrontend     bool                   `protobuf:"varint,11,opt,name=gen_frontend,json=genFrontend,proto3" json:"gen_frontend,omitempty"`             // 是否生成前端
 	GenSql          bool                   `protobuf:"varint,12,opt,name=gen_sql,json=genSql,proto3" json:"gen_sql,omitempty"`                            // 是否同步菜单和接口权限
-	Status          int32                  `protobuf:"varint,13,opt,name=status,proto3" json:"status,omitempty"`                                          // 状态
+	Status          v1.CodeGenTableStatus  `protobuf:"varint,13,opt,name=status,proto3,enum=system.common.v1.CodeGenTableStatus" json:"status,omitempty"` // 状态：枚举【CodeGenTableStatus】，1草稿 2已生成 3停用
 	Remark          string                 `protobuf:"bytes,14,opt,name=remark,proto3" json:"remark,omitempty"`                                           // 备注
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
@@ -426,11 +427,11 @@ func (x *CodeGenTableForm) GetGenSql() bool {
 	return false
 }
 
-func (x *CodeGenTableForm) GetStatus() int32 {
+func (x *CodeGenTableForm) GetStatus() v1.CodeGenTableStatus {
 	if x != nil {
 		return x.Status
 	}
-	return 0
+	return v1.CodeGenTableStatus(0)
 }
 
 func (x *CodeGenTableForm) GetRemark() string {
@@ -652,7 +653,7 @@ type CodeGenTable struct {
 	Comment          string                 `protobuf:"bytes,3,opt,name=comment,proto3" json:"comment,omitempty"`                                             // 业务表描述
 	BusinessModule   string                 `protobuf:"bytes,4,opt,name=business_module,json=businessModule,proto3" json:"business_module,omitempty"`         // 业务模块
 	PageType         string                 `protobuf:"bytes,5,opt,name=page_type,json=pageType,proto3" json:"page_type,omitempty"`                           // 页面类型
-	Status           int32                  `protobuf:"varint,6,opt,name=status,proto3" json:"status,omitempty"`                                              // 状态
+	Status           v1.CodeGenTableStatus  `protobuf:"varint,6,opt,name=status,proto3,enum=system.common.v1.CodeGenTableStatus" json:"status,omitempty"`     // 状态：枚举【CodeGenTableStatus】，1草稿 2已生成 3停用
 	Remark           string                 `protobuf:"bytes,7,opt,name=remark,proto3" json:"remark,omitempty"`                                               // 备注
 	CreatedAt        string                 `protobuf:"bytes,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`                        // 创建时间
 	UpdatedAt        string                 `protobuf:"bytes,9,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`                        // 更新时间
@@ -726,11 +727,11 @@ func (x *CodeGenTable) GetPageType() string {
 	return ""
 }
 
-func (x *CodeGenTable) GetStatus() int32 {
+func (x *CodeGenTable) GetStatus() v1.CodeGenTableStatus {
 	if x != nil {
 		return x.Status
 	}
-	return 0
+	return v1.CodeGenTableStatus(0)
 }
 
 func (x *CodeGenTable) GetRemark() string {
@@ -858,12 +859,12 @@ var File_system_admin_v1_code_gen_table_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_code_gen_table_proto_rawDesc = "" +
 	"\n" +
-	"$system/admin/v1/code_gen_table.proto\x12\x0fsystem.admin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x9d\x03\n" +
+	"$system/admin/v1/code_gen_table.proto\x12\x0fsystem.admin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1bsystem/common/v1/enum.proto\"\x82\x04\n" +
 	"\x17PageCodeGenTableRequest\x12+\n" +
 	"\x04name\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f业务表名H\x00R\x04name\x88\x01\x01\x12@\n" +
 	"\x0fbusiness_module\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f业务模块H\x01R\x0ebusinessModule\x88\x01\x01\x124\n" +
-	"\tpage_type\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f页面类型H\x02R\bpageType\x88\x01\x01\x12)\n" +
-	"\x06status\x18\x04 \x01(\x05B\f\xbaG\t\x92\x02\x06状态H\x03R\x06status\x88\x01\x01\x129\n" +
+	"\tpage_type\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f页面类型H\x02R\bpageType\x88\x01\x01\x12\x8d\x01\n" +
+	"\x06status\x18\x04 \x01(\x0e2$.system.common.v1.CodeGenTableStatusBJ\xbaGG\x92\x02D状态：枚举【CodeGenTableStatus】，1草稿 2已生成 3停用H\x03R\x06status\x88\x01\x01\x129\n" +
 	"\bpage_num\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12A\n" +
 	"\tpage_size\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSizeB\a\n" +
 	"\x05_nameB\x12\n" +
@@ -879,7 +880,7 @@ const file_system_admin_v1_code_gen_table_proto_rawDesc = "" +
 	"\x06tables\x18\x01 \x03(\v2%.system.admin.v1.CodeGenDatabaseTableB\x18\xbaG\x15\x92\x02\x12数据库表列表R\x06tables\"~\n" +
 	"\x16GetCodeGenTableRequest\x12d\n" +
 	"\x02id\x18\x01 \x01(\x03BT\xbaG\v\x92\x02\b主键ID\xbaHC\xba\x01@\n" +
-	"\x1eget_code_gen_table.id.required\x12\x14主键ID不能为空\x1a\bthis > 0R\x02id\"\xff\x0f\n" +
+	"\x1eget_code_gen_table.id.required\x12\x14主键ID不能为空\x1a\bthis > 0R\x02id\"\xba\x11\n" +
 	"\x10CodeGenTableForm\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键IDR\x02id\x12\x97\x02\n" +
 	"\x04name\x18\x02 \x01(\tB\x82\x02\xbaG\x0f\x92\x02\f业务表名\xbaH\xec\x01\xba\x01@\n" +
@@ -906,8 +907,9 @@ const file_system_admin_v1_code_gen_table_proto_rawDesc = "" +
 	" \x01(\bB\x18\xbaG\x15\x92\x02\x12是否生成后端R\n" +
 	"genBackend\x12;\n" +
 	"\fgen_frontend\x18\v \x01(\bB\x18\xbaG\x15\x92\x02\x12是否生成前端R\vgenFrontend\x12@\n" +
-	"\agen_sql\x18\f \x01(\bB'\xbaG$\x92\x02!是否同步菜单和接口权限R\x06genSql\x12$\n" +
-	"\x06status\x18\r \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\x12u\n" +
+	"\agen_sql\x18\f \x01(\bB'\xbaG$\x92\x02!是否同步菜单和接口权限R\x06genSql\x12\xde\x01\n" +
+	"\x06status\x18\r \x01(\x0e2$.system.common.v1.CodeGenTableStatusB\x9f\x01\xbaGG\x92\x02D状态：枚举【CodeGenTableStatus】，1草稿 2已生成 3停用\xbaHR\xba\x01J\n" +
+	"\x1ecode_gen_table.status.required\x12\x1e请选择代码生成表状态\x1a\bthis > 0\x82\x01\x02\x10\x01R\x06status\x12u\n" +
 	"\x06remark\x18\x0e \x01(\tB]\xbaG\t\x92\x02\x06备注\xbaHN\xba\x01K\n" +
 	"\x13field.remark.length\x12 备注不能超过 500 个字符\x1a\x12this.size() <= 500R\x06remark\"\x8d\x01\n" +
 	"\x19CreateCodeGenTableRequest\x12p\n" +
@@ -921,14 +923,14 @@ const file_system_admin_v1_code_gen_table_proto_rawDesc = "" +
 	"\x14CodeGenDatabaseTable\x12)\n" +
 	"\x04name\x18\x01 \x01(\tB\x15\xbaG\x12\x92\x02\x0f数据库表名R\x04name\x12/\n" +
 	"\acomment\x18\x02 \x01(\tB\x15\xbaG\x12\x92\x02\x0f业务表描述R\acomment\x124\n" +
-	"\bdisabled\x18\x03 \x01(\bB\x18\xbaG\x15\x92\x02\x12是否已被选择R\bdisabled\"\xfa\x03\n" +
+	"\bdisabled\x18\x03 \x01(\bB\x18\xbaG\x15\x92\x02\x12是否已被选择R\bdisabled\"\xdf\x04\n" +
 	"\fCodeGenTable\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键IDR\x02id\x12&\n" +
 	"\x04name\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f业务表名R\x04name\x12/\n" +
 	"\acomment\x18\x03 \x01(\tB\x15\xbaG\x12\x92\x02\x0f业务表描述R\acomment\x12;\n" +
 	"\x0fbusiness_module\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f业务模块R\x0ebusinessModule\x12/\n" +
-	"\tpage_type\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\f页面类型R\bpageType\x12$\n" +
-	"\x06status\x18\x06 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\x12$\n" +
+	"\tpage_type\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\f页面类型R\bpageType\x12\x88\x01\n" +
+	"\x06status\x18\x06 \x01(\x0e2$.system.common.v1.CodeGenTableStatusBJ\xbaGG\x92\x02D状态：枚举【CodeGenTableStatus】，1草稿 2已生成 3停用R\x06status\x12$\n" +
 	"\x06remark\x18\a \x01(\tB\f\xbaG\t\x92\x02\x06备注R\x06remark\x121\n" +
 	"\n" +
 	"created_at\x18\b \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x121\n" +
@@ -980,31 +982,35 @@ var file_system_admin_v1_code_gen_table_proto_goTypes = []any{
 	(*CodeGenDatabaseTable)(nil),             // 9: system.admin.v1.CodeGenDatabaseTable
 	(*CodeGenTable)(nil),                     // 10: system.admin.v1.CodeGenTable
 	(*CodeGenLeftTreeConfig)(nil),            // 11: system.admin.v1.CodeGenLeftTreeConfig
-	(*emptypb.Empty)(nil),                    // 12: google.protobuf.Empty
+	(v1.CodeGenTableStatus)(0),               // 12: system.common.v1.CodeGenTableStatus
+	(*emptypb.Empty)(nil),                    // 13: google.protobuf.Empty
 }
 var file_system_admin_v1_code_gen_table_proto_depIdxs = []int32{
-	10, // 0: system.admin.v1.PageCodeGenTableResponse.code_gen_tables:type_name -> system.admin.v1.CodeGenTable
-	9,  // 1: system.admin.v1.ListCodeGenDatabaseTableResponse.tables:type_name -> system.admin.v1.CodeGenDatabaseTable
-	11, // 2: system.admin.v1.CodeGenTableForm.left_tree_config:type_name -> system.admin.v1.CodeGenLeftTreeConfig
-	5,  // 3: system.admin.v1.CreateCodeGenTableRequest.code_gen_table:type_name -> system.admin.v1.CodeGenTableForm
-	5,  // 4: system.admin.v1.UpdateCodeGenTableRequest.code_gen_table:type_name -> system.admin.v1.CodeGenTableForm
-	0,  // 5: system.admin.v1.CodeGenTableService.PageCodeGenTable:input_type -> system.admin.v1.PageCodeGenTableRequest
-	2,  // 6: system.admin.v1.CodeGenTableService.ListCodeGenDatabaseTable:input_type -> system.admin.v1.ListCodeGenDatabaseTableRequest
-	4,  // 7: system.admin.v1.CodeGenTableService.GetCodeGenTable:input_type -> system.admin.v1.GetCodeGenTableRequest
-	6,  // 8: system.admin.v1.CodeGenTableService.CreateCodeGenTable:input_type -> system.admin.v1.CreateCodeGenTableRequest
-	7,  // 9: system.admin.v1.CodeGenTableService.UpdateCodeGenTable:input_type -> system.admin.v1.UpdateCodeGenTableRequest
-	8,  // 10: system.admin.v1.CodeGenTableService.DeleteCodeGenTable:input_type -> system.admin.v1.DeleteCodeGenTableRequest
-	1,  // 11: system.admin.v1.CodeGenTableService.PageCodeGenTable:output_type -> system.admin.v1.PageCodeGenTableResponse
-	3,  // 12: system.admin.v1.CodeGenTableService.ListCodeGenDatabaseTable:output_type -> system.admin.v1.ListCodeGenDatabaseTableResponse
-	5,  // 13: system.admin.v1.CodeGenTableService.GetCodeGenTable:output_type -> system.admin.v1.CodeGenTableForm
-	12, // 14: system.admin.v1.CodeGenTableService.CreateCodeGenTable:output_type -> google.protobuf.Empty
-	12, // 15: system.admin.v1.CodeGenTableService.UpdateCodeGenTable:output_type -> google.protobuf.Empty
-	12, // 16: system.admin.v1.CodeGenTableService.DeleteCodeGenTable:output_type -> google.protobuf.Empty
-	11, // [11:17] is the sub-list for method output_type
-	5,  // [5:11] is the sub-list for method input_type
-	5,  // [5:5] is the sub-list for extension type_name
-	5,  // [5:5] is the sub-list for extension extendee
-	0,  // [0:5] is the sub-list for field type_name
+	12, // 0: system.admin.v1.PageCodeGenTableRequest.status:type_name -> system.common.v1.CodeGenTableStatus
+	10, // 1: system.admin.v1.PageCodeGenTableResponse.code_gen_tables:type_name -> system.admin.v1.CodeGenTable
+	9,  // 2: system.admin.v1.ListCodeGenDatabaseTableResponse.tables:type_name -> system.admin.v1.CodeGenDatabaseTable
+	11, // 3: system.admin.v1.CodeGenTableForm.left_tree_config:type_name -> system.admin.v1.CodeGenLeftTreeConfig
+	12, // 4: system.admin.v1.CodeGenTableForm.status:type_name -> system.common.v1.CodeGenTableStatus
+	5,  // 5: system.admin.v1.CreateCodeGenTableRequest.code_gen_table:type_name -> system.admin.v1.CodeGenTableForm
+	5,  // 6: system.admin.v1.UpdateCodeGenTableRequest.code_gen_table:type_name -> system.admin.v1.CodeGenTableForm
+	12, // 7: system.admin.v1.CodeGenTable.status:type_name -> system.common.v1.CodeGenTableStatus
+	0,  // 8: system.admin.v1.CodeGenTableService.PageCodeGenTable:input_type -> system.admin.v1.PageCodeGenTableRequest
+	2,  // 9: system.admin.v1.CodeGenTableService.ListCodeGenDatabaseTable:input_type -> system.admin.v1.ListCodeGenDatabaseTableRequest
+	4,  // 10: system.admin.v1.CodeGenTableService.GetCodeGenTable:input_type -> system.admin.v1.GetCodeGenTableRequest
+	6,  // 11: system.admin.v1.CodeGenTableService.CreateCodeGenTable:input_type -> system.admin.v1.CreateCodeGenTableRequest
+	7,  // 12: system.admin.v1.CodeGenTableService.UpdateCodeGenTable:input_type -> system.admin.v1.UpdateCodeGenTableRequest
+	8,  // 13: system.admin.v1.CodeGenTableService.DeleteCodeGenTable:input_type -> system.admin.v1.DeleteCodeGenTableRequest
+	1,  // 14: system.admin.v1.CodeGenTableService.PageCodeGenTable:output_type -> system.admin.v1.PageCodeGenTableResponse
+	3,  // 15: system.admin.v1.CodeGenTableService.ListCodeGenDatabaseTable:output_type -> system.admin.v1.ListCodeGenDatabaseTableResponse
+	5,  // 16: system.admin.v1.CodeGenTableService.GetCodeGenTable:output_type -> system.admin.v1.CodeGenTableForm
+	13, // 17: system.admin.v1.CodeGenTableService.CreateCodeGenTable:output_type -> google.protobuf.Empty
+	13, // 18: system.admin.v1.CodeGenTableService.UpdateCodeGenTable:output_type -> google.protobuf.Empty
+	13, // 19: system.admin.v1.CodeGenTableService.DeleteCodeGenTable:output_type -> google.protobuf.Empty
+	14, // [14:20] is the sub-list for method output_type
+	8,  // [8:14] is the sub-list for method input_type
+	8,  // [8:8] is the sub-list for extension type_name
+	8,  // [8:8] is the sub-list for extension extendee
+	0,  // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_system_admin_v1_code_gen_table_proto_init() }

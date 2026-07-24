@@ -34,6 +34,7 @@ import { defCodeGenService } from "@/api/system/code_gen";
 import { defCodeGenTableService } from "@/api/system/code_gen_table";
 import type { CodeGenPreviewFile } from "@/rpc/system/admin/v1/code_gen";
 import type { CodeGenTableForm } from "@/rpc/system/admin/v1/code_gen_table";
+import { CodeGenTableStatus } from "@/rpc/system/common/v1/enum";
 import CodeGenProgressDialog from "../components/CodeGenProgressDialog.vue";
 import CodePreviewPane from "../components/CodePreviewPane.vue";
 
@@ -45,7 +46,7 @@ defineOptions({
 const codeGenTaskStorageKey = "code-gen-progress-task-id";
 const codeGenProgressDialogVisibleStorageKey = "code-gen-progress-dialog-visible";
 const codeGenProgressSelectedTableIdsStorageKey = "code-gen-progress-selected-table-ids";
-const codeGenStatusDisabled = 2;
+const codeGenStatusDisabled = CodeGenTableStatus.DISABLED_CGTS;
 
 const route = useRoute();
 const tabsStore = useTabsStore();
