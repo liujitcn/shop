@@ -25,13 +25,21 @@ backend
     └── system/{admin,app}
 ```
 
-前端只保留管理后台：
+前端保留管理后台和基础应用壳子：
 
 ```text
 frontend/admin/src/{api,rpc,views}/
   base/
   system/admin/
+
+frontend/app/src/
+  api/{base,system}/       # 手写 service；system 下只调用 system.app
+  rpc/system/app/v1/       # 生成的 system.app 类型
+  pages/                   # 基础页面
+  pagesMember/             # 壳子分包
 ```
+
+`frontend/admin` 是唯一业务前端入口；`frontend/app` 只保留框架、基础页面以及 `base`、`system/app` 接口，不承载独立业务模块。
 
 ## 域归属
 

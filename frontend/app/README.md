@@ -1,6 +1,6 @@
 # frontend/app
 
-`frontend/app` 是基于 `uni-app + Vue 3 + TypeScript + Vite + Pinia + Sass` 的轻量应用壳子，保留 H5、微信小程序和 App 等平台脚本。当前只承载基础能力、系统 app 接口、登录态、账户资料、协议页面和基础 AI 会话。
+`frontend/app` 是基于 `uni-app + Vue 3 + TypeScript + Vite + Pinia + Sass` 的轻量应用壳子，保留 H5、微信小程序和 App 等平台脚本。它不是独立业务前端，只承载框架、登录态、账户资料、协议页面、基础 AI 会话，以及 `base` 和 `system.app` 接口。
 
 ## 目录职责
 
@@ -9,7 +9,7 @@ frontend/app
 ├── public                 # H5 静态资源
 ├── src
 │   ├── api/base           # 基础接口 service
-│   ├── api/system         # 系统 app 接口 service
+│   ├── api/system         # system.app 接口 service
 │   ├── pages              # 首页、账户、登录、协议和 WebView
 │   ├── pagesMember        # 设置、个人资料和 AI 会话
 │   ├── rpc                # proto 生成的 TypeScript 类型与客户端
@@ -96,7 +96,7 @@ pnpm build:h5
 
 ## 多端兼容
 
-页面默认优先保证微信小程序端可用，同时兼顾 H5。涉及登录、路由、存储、上传和预览等平台敏感逻辑时，使用 uni-app 条件编译标记区分平台。
+页面默认优先保证微信小程序端可用，同时兼顾 H5。涉及登录、路由、存储、上传和预览等平台敏感逻辑时，使用 uni-app 条件编译标记区分平台。新增页面和接口必须属于基础壳子、`base` 或 `system.app` 范围。
 
 ## 校验
 
