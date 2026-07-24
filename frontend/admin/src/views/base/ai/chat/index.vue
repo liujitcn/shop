@@ -25,7 +25,6 @@
       @submit="handleSubmit"
       @message-action="handleMessageAction"
       @message-edit="handleEditMessage"
-      @flow-action="handleFlowAction"
     />
   </div>
 </template>
@@ -40,7 +39,6 @@ import { defAiSessionService } from "@/api/base/ai_session";
 import { defAiToolService } from "@/api/base/ai_tool";
 import type { AiSession } from "@/rpc/base/v1/ai_session";
 import type { AiShortcut } from "@/rpc/base/v1/ai_tool";
-import type { AiAction } from "@/rpc/base/v1/ai_message";
 import { AiMessageStatus, Terminal } from "@/rpc/common/v1/enum";
 import ChatPanel from "./components/ChatPanel.vue";
 import SessionPanel from "./components/SessionPanel.vue";
@@ -215,18 +213,6 @@ async function runAiStreamTask(sessionID: string, payload: SubmitPayload) {
       setSessionSending(sessionID, false);
     }
   }
-}
-
-/** 点击结构化卡片动作，继续推进固定流程。 */
-async function handleFlowAction(payload: { action: AiAction; label?: string }) {
-  const sessionID = activeSessionID.value;
-  if (!sessionID || isSessionSending(sessionID)) return;
-  const content = payload.label || resolveFlowActionLabel(payload.action);
-  await sendAiPayload({
-    text: content,
-    attachments: [],
-    action: payload.action
-  });
 }
 
 /** 处理聊天气泡上的重试、分支、朗读、复制和删除操作。 */
@@ -723,34 +709,6 @@ function normalizeStarterShortcuts(list?: AiShortcut[] | null) {
       group: String((item as AiShortcut & { group?: string }).group ?? "")
     }))
     .sort((left, right) => left.sort - right.sort);
-}
-
-/** 生成流程动作作为本地用户气泡展示文本。 */
-function resolveFlowActionLabel(action: AiAction) {
-  const labelMap: Record<string, string> = {
-    open_workspace_overview: "查看经营总览",
-    open_pending_shipment: "查看待发货订单",
-    view_shipment_detail: "查看发货详情",
-    confirm_shipment: "确认发货",
-    open_comment_review: "查看待审核评价",
-    view_comment_detail: "查看评价详情",
-    confirm_comment_review: "提交评价审核",
-    open_goods_inventory_alert: "查看库存预警",
-    view_goods_detail: "查看商品详情",
-    confirm_goods_status: "确认商品状态变更",
-    open_order_refund: "查看退款记录",
-    view_refund_detail: "查看退款详情",
-    open_goods_analytics: "查看商品分析",
-    open_order_analytics: "查看订单分析",
-    open_store_audit: "查看门店审核",
-    view_store_detail: "查看门店详情",
-    confirm_store_audit: "提交门店审核",
-    open_recommend_dashboard: "查看推荐看板",
-    open_reputation_insight: "查看口碑洞察",
-    open_pay_bill_check: "查看对账异常",
-    open_report_overview: "查看经营报表"
-  };
-  return labelMap[action.type] || "继续";
 }
 
 /** 更新或插入会话，并按更新时间排序。 */

@@ -28,20 +28,13 @@ export function formatSrc(src: string) {
   }
 
   const configuredBase = String(import.meta.env.VITE_APP_STATIC_URL ?? "").trim();
-  if (value.startsWith("/shop/")) {
+  if (value.startsWith("/admin/")) {
     return new URL(value, `${window.location.origin}/`).toString();
   }
 
   const staticBase = configuredBase
     ? new URL(`${configuredBase.replace(/\/$/, "")}/`, `${window.location.origin}/`).toString()
-    : `${window.location.origin}/shop/`;
-  const normalizedPath = value.replace(/^\/+/, "").replace(/^shop\/+/, "");
+    : `${window.location.origin}/admin/`;
+  const normalizedPath = value.replace(/^\/+/, "").replace(/^admin\/+/, "");
   return new URL(normalizedPath, staticBase).toString();
-}
-
-/** 按商品ID生成商城 H5 商品详情预览相对地址，避免展示 IP 和端口。 */
-export function buildGoodsH5PreviewUrl(goodsId?: string | number) {
-  const id = String(goodsId ?? "").trim();
-  if (!id) return "";
-  return `/app#/pages/goods/goods?id=${encodeURIComponent(id)}`;
 }

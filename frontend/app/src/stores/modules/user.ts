@@ -6,7 +6,6 @@ import { defLoginService } from '@/api/base/login'
 import { defOauthService } from '@/api/base/oauth'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { useRecommendStore } from './recommend'
 import {
   setToken,
   setRefreshToken,
@@ -31,17 +30,12 @@ export const useUserStore = defineStore(
       return Boolean(userInfo.value && hasValidToken())
     }
 
-    /** 保存登录接口返回的认证令牌并绑定匿名推荐主体。 */
+    /** 保存登录接口返回的认证令牌。 */
     function applyLoginToken(data: LoginResponse | CreateOauthSessionResponse) {
       const { token_type, access_token, refresh_token, expires_in } = data
       setToken(token_type + ' ' + access_token)
       setRefreshToken(refresh_token)
       setTokenExpiresIn(expires_in)
-      return useRecommendStore()
-        .bindAnonymousActor()
-        .catch((error) => {
-          console.warn('bindAnonymousActor failed', error)
-        })
     }
 
     /**
@@ -55,9 +49,8 @@ export const useUserStore = defineStore(
         defLoginService
           .Login(request)
           .then((data) => {
-            applyLoginToken(data).finally(() => {
-              resolve()
-            })
+            applyLoginToken(data)
+            resolve()
           })
           .catch((error) => {
             reject(error)
@@ -76,9 +69,8 @@ export const useUserStore = defineStore(
         defOauthService
           .CreateOauthSession(request)
           .then((data) => {
-            applyLoginToken(data).finally(() => {
-              resolve()
-            })
+            applyLoginToken(data)
+            resolve()
           })
           .catch((error) => {
             reject(error)
@@ -158,8 +150,6 @@ export const useUserStore = defineStore(
       return new Promise<void>((resolve) => {
         clearToken()
         userInfo.value = undefined
-        // 退出登录后同步清空已缓存的匿名主体，避免后续游客会话复用旧账号绑定过的推荐标识。
-        useRecommendStore().resetAnonymousId()
         resolve()
       })
     }
@@ -169,7 +159,6 @@ export const useUserStore = defineStore(
       clearToken()
       userInfo.value = undefined
       uni.removeStorageSync('user')
-      useRecommendStore().resetAnonymousId()
     }
 
     /** 确认必须登录的操作是否可继续，不可继续时交给调用方跳登录。 */
@@ -186,7 +175,6 @@ export const useUserStore = defineStore(
     }
     silentLogoutEventHandler = () => {
       userInfo.value = undefined
-      useRecommendStore().resetAnonymousId()
     }
     uni.$on(AUTH_SILENT_LOGOUT_EVENT, silentLogoutEventHandler)
 

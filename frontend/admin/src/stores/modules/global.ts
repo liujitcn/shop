@@ -3,7 +3,7 @@ import { GlobalState } from "@/stores/interface";
 import { DEFAULT_PRIMARY } from "@/config";
 import piniaPersistConfig from "@/stores/helper/persist";
 
-export const useGlobalStore = defineStore("shop-global", {
+export const useGlobalStore = defineStore("admin-global", {
   // 修改默认值之后，需清除 localStorage 数据
   state: (): GlobalState => ({
     // 布局模式 (纵向：vertical | 经典：classic | 横向：transverse | 分栏：columns)
@@ -50,5 +50,5 @@ export const useGlobalStore = defineStore("shop-global", {
       });
     }
   },
-  persist: piniaPersistConfig("shop-global")
+  persist: piniaPersistConfig("admin-global")
 });

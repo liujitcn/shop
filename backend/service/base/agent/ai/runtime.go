@@ -233,8 +233,8 @@ func (r *Runtime) runADK(
 	recorder := &einoCallback.Recorder{}
 	runner := einoADK.NewRunner(einoADK.Config{
 		Model:       r.client.AgenticModel,
-		Name:        "shop_ai",
-		Description: "商城 AI 助手，负责会话问答、内部工具调用和联网搜索。",
+		Name:        "admin_ai",
+		Description: "管理端 AI 助手，负责会话问答、内部工具调用和联网搜索。",
 	})
 	result, err := runner.Run(ctx, einoADK.Request{
 		Messages:  append([]*einoMessage.AgenticMessage(nil), messages...),
@@ -457,7 +457,7 @@ func (r *Runtime) buildUserMessage(input RuntimeInput) *einoMessage.AgenticMessa
 		name := normalizeAttachmentName(item.Name)
 		cleanMIMEType := normalizeRuntimeMIMEType(item)
 
-		// 图片附件走多模态输入，避免把本地 /shop 地址误当成公网图片 URL。
+		// 图片附件走多模态输入，避免把本地地址误当成公网图片 URL。
 		if isRuntimeImageMIME(cleanMIMEType) {
 			// 图片必须具备原始字节，才能作为多模态视觉输入传给模型。
 			if len(item.Bytes) == 0 {
@@ -799,7 +799,7 @@ func splitToolQueryTerms(raw string) []string {
 	return values
 }
 
-// chineseNgrams 把连续中文切成短语，提升“商品列表”对“查询商品信息列表”的命中率。
+// chineseNgrams 把连续中文切成短语，提升中文查询的命中率。
 func chineseNgrams(value string) []string {
 	runes := []rune(value)
 	if len(runes) == 0 {

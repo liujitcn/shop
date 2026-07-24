@@ -28,7 +28,7 @@ import (
 // CACHE_KEY_WX_ACCESS_TOKEN 表示微信访问令牌缓存键。
 const CACHE_KEY_WX_ACCESS_TOKEN = "wx_access_token"
 
-// AuthCase 处理商城端用户认证资料业务。
+// AuthCase 处理应用端用户认证资料业务。
 type AuthCase struct {
 	*biz.BaseCase
 	baseUserCase  *BaseUserCase
@@ -40,7 +40,7 @@ type AuthCase struct {
 	]
 }
 
-// NewAuthCase 创建商城端用户认证资料业务实例。
+// NewAuthCase 创建应用端用户认证资料业务实例。
 func NewAuthCase(
 	baseCase *biz.BaseCase,
 	baseUserCase *BaseUserCase,

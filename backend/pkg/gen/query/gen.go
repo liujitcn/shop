@@ -17,187 +17,82 @@ import (
 
 func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 	return &Query{
-		db:                   db,
-		AiMessage:            newAiMessage(db, opts...),
-		AiSession:            newAiSession(db, opts...),
-		BaseAPI:              newBaseAPI(db, opts...),
-		BaseArea:             newBaseArea(db, opts...),
-		BaseConfig:           newBaseConfig(db, opts...),
-		BaseDept:             newBaseDept(db, opts...),
-		BaseDict:             newBaseDict(db, opts...),
-		BaseDictItem:         newBaseDictItem(db, opts...),
-		BaseJob:              newBaseJob(db, opts...),
-		BaseJobLog:           newBaseJobLog(db, opts...),
-		BaseLog:              newBaseLog(db, opts...),
-		BaseMenu:             newBaseMenu(db, opts...),
-		BasePost:             newBasePost(db, opts...),
-		BaseRole:             newBaseRole(db, opts...),
-		BaseTenant:           newBaseTenant(db, opts...),
-		BaseThirdAccount:     newBaseThirdAccount(db, opts...),
-		BaseUser:             newBaseUser(db, opts...),
-		CasbinRule:           newCasbinRule(db, opts...),
-		CodeGenColumn:        newCodeGenColumn(db, opts...),
-		CodeGenProto:         newCodeGenProto(db, opts...),
-		CodeGenTable:         newCodeGenTable(db, opts...),
-		CommentDiscussion:    newCommentDiscussion(db, opts...),
-		CommentInfo:          newCommentInfo(db, opts...),
-		CommentReaction:      newCommentReaction(db, opts...),
-		CommentReview:        newCommentReview(db, opts...),
-		CommentSummary:       newCommentSummary(db, opts...),
-		CommentTag:           newCommentTag(db, opts...),
-		GoodsCategory:        newGoodsCategory(db, opts...),
-		GoodsInfo:            newGoodsInfo(db, opts...),
-		GoodsProp:            newGoodsProp(db, opts...),
-		GoodsSKU:             newGoodsSKU(db, opts...),
-		GoodsSpec:            newGoodsSpec(db, opts...),
-		GoodsStatDay:         newGoodsStatDay(db, opts...),
-		OrderAddress:         newOrderAddress(db, opts...),
-		OrderCancel:          newOrderCancel(db, opts...),
-		OrderGoods:           newOrderGoods(db, opts...),
-		OrderInfo:            newOrderInfo(db, opts...),
-		OrderLogistics:       newOrderLogistics(db, opts...),
-		OrderPayment:         newOrderPayment(db, opts...),
-		OrderRefund:          newOrderRefund(db, opts...),
-		OrderStatDay:         newOrderStatDay(db, opts...),
-		OrderTrade:           newOrderTrade(db, opts...),
-		PayBill:              newPayBill(db, opts...),
-		RecommendEvent:       newRecommendEvent(db, opts...),
-		RecommendRequest:     newRecommendRequest(db, opts...),
-		RecommendRequestItem: newRecommendRequestItem(db, opts...),
-		ShopBanner:           newShopBanner(db, opts...),
-		ShopHot:              newShopHot(db, opts...),
-		ShopHotGoods:         newShopHotGoods(db, opts...),
-		ShopHotItem:          newShopHotItem(db, opts...),
-		ShopService:          newShopService(db, opts...),
-		TenantStore:          newTenantStore(db, opts...),
-		UserAddress:          newUserAddress(db, opts...),
-		UserCart:             newUserCart(db, opts...),
-		UserCollect:          newUserCollect(db, opts...),
-		UserStore:            newUserStore(db, opts...),
+		db:               db,
+		AiMessage:        newAiMessage(db, opts...),
+		AiSession:        newAiSession(db, opts...),
+		BaseAPI:          newBaseAPI(db, opts...),
+		BaseArea:         newBaseArea(db, opts...),
+		BaseConfig:       newBaseConfig(db, opts...),
+		BaseDept:         newBaseDept(db, opts...),
+		BaseDict:         newBaseDict(db, opts...),
+		BaseDictItem:     newBaseDictItem(db, opts...),
+		BaseJob:          newBaseJob(db, opts...),
+		BaseJobLog:       newBaseJobLog(db, opts...),
+		BaseLog:          newBaseLog(db, opts...),
+		BaseMenu:         newBaseMenu(db, opts...),
+		BasePost:         newBasePost(db, opts...),
+		BaseRole:         newBaseRole(db, opts...),
+		BaseTenant:       newBaseTenant(db, opts...),
+		BaseThirdAccount: newBaseThirdAccount(db, opts...),
+		BaseUser:         newBaseUser(db, opts...),
+		CasbinRule:       newCasbinRule(db, opts...),
+		CodeGenColumn:    newCodeGenColumn(db, opts...),
+		CodeGenProto:     newCodeGenProto(db, opts...),
+		CodeGenTable:     newCodeGenTable(db, opts...),
 	}
 }
 
 type Query struct {
-	db                   *gorm.DB
-	AiMessage            aiMessage
-	AiSession            aiSession
-	BaseAPI              baseAPI
-	BaseArea             baseArea
-	BaseConfig           baseConfig
-	BaseDept             baseDept
-	BaseDict             baseDict
-	BaseDictItem         baseDictItem
-	BaseJob              baseJob
-	BaseJobLog           baseJobLog
-	BaseLog              baseLog
-	BaseMenu             baseMenu
-	BasePost             basePost
-	BaseRole             baseRole
-	BaseTenant           baseTenant
-	BaseThirdAccount     baseThirdAccount
-	BaseUser             baseUser
-	CasbinRule           casbinRule
-	CodeGenColumn        codeGenColumn
-	CodeGenProto         codeGenProto
-	CodeGenTable         codeGenTable
-	CommentDiscussion    commentDiscussion
-	CommentInfo          commentInfo
-	CommentReaction      commentReaction
-	CommentReview        commentReview
-	CommentSummary       commentSummary
-	CommentTag           commentTag
-	GoodsCategory        goodsCategory
-	GoodsInfo            goodsInfo
-	GoodsProp            goodsProp
-	GoodsSKU             goodsSKU
-	GoodsSpec            goodsSpec
-	GoodsStatDay         goodsStatDay
-	OrderAddress         orderAddress
-	OrderCancel          orderCancel
-	OrderGoods           orderGoods
-	OrderInfo            orderInfo
-	OrderLogistics       orderLogistics
-	OrderPayment         orderPayment
-	OrderRefund          orderRefund
-	OrderStatDay         orderStatDay
-	OrderTrade           orderTrade
-	PayBill              payBill
-	RecommendEvent       recommendEvent
-	RecommendRequest     recommendRequest
-	RecommendRequestItem recommendRequestItem
-	ShopBanner           shopBanner
-	ShopHot              shopHot
-	ShopHotGoods         shopHotGoods
-	ShopHotItem          shopHotItem
-	ShopService          shopService
-	TenantStore          tenantStore
-	UserAddress          userAddress
-	UserCart             userCart
-	UserCollect          userCollect
-	UserStore            userStore
+	db               *gorm.DB
+	AiMessage        aiMessage
+	AiSession        aiSession
+	BaseAPI          baseAPI
+	BaseArea         baseArea
+	BaseConfig       baseConfig
+	BaseDept         baseDept
+	BaseDict         baseDict
+	BaseDictItem     baseDictItem
+	BaseJob          baseJob
+	BaseJobLog       baseJobLog
+	BaseLog          baseLog
+	BaseMenu         baseMenu
+	BasePost         basePost
+	BaseRole         baseRole
+	BaseTenant       baseTenant
+	BaseThirdAccount baseThirdAccount
+	BaseUser         baseUser
+	CasbinRule       casbinRule
+	CodeGenColumn    codeGenColumn
+	CodeGenProto     codeGenProto
+	CodeGenTable     codeGenTable
 }
 
 func (q *Query) Available() bool { return q.db != nil }
 
 func (q *Query) clone(db *gorm.DB) *Query {
 	return &Query{
-		db:                   db,
-		AiMessage:            q.AiMessage.clone(db),
-		AiSession:            q.AiSession.clone(db),
-		BaseAPI:              q.BaseAPI.clone(db),
-		BaseArea:             q.BaseArea.clone(db),
-		BaseConfig:           q.BaseConfig.clone(db),
-		BaseDept:             q.BaseDept.clone(db),
-		BaseDict:             q.BaseDict.clone(db),
-		BaseDictItem:         q.BaseDictItem.clone(db),
-		BaseJob:              q.BaseJob.clone(db),
-		BaseJobLog:           q.BaseJobLog.clone(db),
-		BaseLog:              q.BaseLog.clone(db),
-		BaseMenu:             q.BaseMenu.clone(db),
-		BasePost:             q.BasePost.clone(db),
-		BaseRole:             q.BaseRole.clone(db),
-		BaseTenant:           q.BaseTenant.clone(db),
-		BaseThirdAccount:     q.BaseThirdAccount.clone(db),
-		BaseUser:             q.BaseUser.clone(db),
-		CasbinRule:           q.CasbinRule.clone(db),
-		CodeGenColumn:        q.CodeGenColumn.clone(db),
-		CodeGenProto:         q.CodeGenProto.clone(db),
-		CodeGenTable:         q.CodeGenTable.clone(db),
-		CommentDiscussion:    q.CommentDiscussion.clone(db),
-		CommentInfo:          q.CommentInfo.clone(db),
-		CommentReaction:      q.CommentReaction.clone(db),
-		CommentReview:        q.CommentReview.clone(db),
-		CommentSummary:       q.CommentSummary.clone(db),
-		CommentTag:           q.CommentTag.clone(db),
-		GoodsCategory:        q.GoodsCategory.clone(db),
-		GoodsInfo:            q.GoodsInfo.clone(db),
-		GoodsProp:            q.GoodsProp.clone(db),
-		GoodsSKU:             q.GoodsSKU.clone(db),
-		GoodsSpec:            q.GoodsSpec.clone(db),
-		GoodsStatDay:         q.GoodsStatDay.clone(db),
-		OrderAddress:         q.OrderAddress.clone(db),
-		OrderCancel:          q.OrderCancel.clone(db),
-		OrderGoods:           q.OrderGoods.clone(db),
-		OrderInfo:            q.OrderInfo.clone(db),
-		OrderLogistics:       q.OrderLogistics.clone(db),
-		OrderPayment:         q.OrderPayment.clone(db),
-		OrderRefund:          q.OrderRefund.clone(db),
-		OrderStatDay:         q.OrderStatDay.clone(db),
-		OrderTrade:           q.OrderTrade.clone(db),
-		PayBill:              q.PayBill.clone(db),
-		RecommendEvent:       q.RecommendEvent.clone(db),
-		RecommendRequest:     q.RecommendRequest.clone(db),
-		RecommendRequestItem: q.RecommendRequestItem.clone(db),
-		ShopBanner:           q.ShopBanner.clone(db),
-		ShopHot:              q.ShopHot.clone(db),
-		ShopHotGoods:         q.ShopHotGoods.clone(db),
-		ShopHotItem:          q.ShopHotItem.clone(db),
-		ShopService:          q.ShopService.clone(db),
-		TenantStore:          q.TenantStore.clone(db),
-		UserAddress:          q.UserAddress.clone(db),
-		UserCart:             q.UserCart.clone(db),
-		UserCollect:          q.UserCollect.clone(db),
-		UserStore:            q.UserStore.clone(db),
+		db:               db,
+		AiMessage:        q.AiMessage.clone(db),
+		AiSession:        q.AiSession.clone(db),
+		BaseAPI:          q.BaseAPI.clone(db),
+		BaseArea:         q.BaseArea.clone(db),
+		BaseConfig:       q.BaseConfig.clone(db),
+		BaseDept:         q.BaseDept.clone(db),
+		BaseDict:         q.BaseDict.clone(db),
+		BaseDictItem:     q.BaseDictItem.clone(db),
+		BaseJob:          q.BaseJob.clone(db),
+		BaseJobLog:       q.BaseJobLog.clone(db),
+		BaseLog:          q.BaseLog.clone(db),
+		BaseMenu:         q.BaseMenu.clone(db),
+		BasePost:         q.BasePost.clone(db),
+		BaseRole:         q.BaseRole.clone(db),
+		BaseTenant:       q.BaseTenant.clone(db),
+		BaseThirdAccount: q.BaseThirdAccount.clone(db),
+		BaseUser:         q.BaseUser.clone(db),
+		CasbinRule:       q.CasbinRule.clone(db),
+		CodeGenColumn:    q.CodeGenColumn.clone(db),
+		CodeGenProto:     q.CodeGenProto.clone(db),
+		CodeGenTable:     q.CodeGenTable.clone(db),
 	}
 }
 
@@ -211,183 +106,78 @@ func (q *Query) WriteDB() *Query {
 
 func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 	return &Query{
-		db:                   db,
-		AiMessage:            q.AiMessage.replaceDB(db),
-		AiSession:            q.AiSession.replaceDB(db),
-		BaseAPI:              q.BaseAPI.replaceDB(db),
-		BaseArea:             q.BaseArea.replaceDB(db),
-		BaseConfig:           q.BaseConfig.replaceDB(db),
-		BaseDept:             q.BaseDept.replaceDB(db),
-		BaseDict:             q.BaseDict.replaceDB(db),
-		BaseDictItem:         q.BaseDictItem.replaceDB(db),
-		BaseJob:              q.BaseJob.replaceDB(db),
-		BaseJobLog:           q.BaseJobLog.replaceDB(db),
-		BaseLog:              q.BaseLog.replaceDB(db),
-		BaseMenu:             q.BaseMenu.replaceDB(db),
-		BasePost:             q.BasePost.replaceDB(db),
-		BaseRole:             q.BaseRole.replaceDB(db),
-		BaseTenant:           q.BaseTenant.replaceDB(db),
-		BaseThirdAccount:     q.BaseThirdAccount.replaceDB(db),
-		BaseUser:             q.BaseUser.replaceDB(db),
-		CasbinRule:           q.CasbinRule.replaceDB(db),
-		CodeGenColumn:        q.CodeGenColumn.replaceDB(db),
-		CodeGenProto:         q.CodeGenProto.replaceDB(db),
-		CodeGenTable:         q.CodeGenTable.replaceDB(db),
-		CommentDiscussion:    q.CommentDiscussion.replaceDB(db),
-		CommentInfo:          q.CommentInfo.replaceDB(db),
-		CommentReaction:      q.CommentReaction.replaceDB(db),
-		CommentReview:        q.CommentReview.replaceDB(db),
-		CommentSummary:       q.CommentSummary.replaceDB(db),
-		CommentTag:           q.CommentTag.replaceDB(db),
-		GoodsCategory:        q.GoodsCategory.replaceDB(db),
-		GoodsInfo:            q.GoodsInfo.replaceDB(db),
-		GoodsProp:            q.GoodsProp.replaceDB(db),
-		GoodsSKU:             q.GoodsSKU.replaceDB(db),
-		GoodsSpec:            q.GoodsSpec.replaceDB(db),
-		GoodsStatDay:         q.GoodsStatDay.replaceDB(db),
-		OrderAddress:         q.OrderAddress.replaceDB(db),
-		OrderCancel:          q.OrderCancel.replaceDB(db),
-		OrderGoods:           q.OrderGoods.replaceDB(db),
-		OrderInfo:            q.OrderInfo.replaceDB(db),
-		OrderLogistics:       q.OrderLogistics.replaceDB(db),
-		OrderPayment:         q.OrderPayment.replaceDB(db),
-		OrderRefund:          q.OrderRefund.replaceDB(db),
-		OrderStatDay:         q.OrderStatDay.replaceDB(db),
-		OrderTrade:           q.OrderTrade.replaceDB(db),
-		PayBill:              q.PayBill.replaceDB(db),
-		RecommendEvent:       q.RecommendEvent.replaceDB(db),
-		RecommendRequest:     q.RecommendRequest.replaceDB(db),
-		RecommendRequestItem: q.RecommendRequestItem.replaceDB(db),
-		ShopBanner:           q.ShopBanner.replaceDB(db),
-		ShopHot:              q.ShopHot.replaceDB(db),
-		ShopHotGoods:         q.ShopHotGoods.replaceDB(db),
-		ShopHotItem:          q.ShopHotItem.replaceDB(db),
-		ShopService:          q.ShopService.replaceDB(db),
-		TenantStore:          q.TenantStore.replaceDB(db),
-		UserAddress:          q.UserAddress.replaceDB(db),
-		UserCart:             q.UserCart.replaceDB(db),
-		UserCollect:          q.UserCollect.replaceDB(db),
-		UserStore:            q.UserStore.replaceDB(db),
+		db:               db,
+		AiMessage:        q.AiMessage.replaceDB(db),
+		AiSession:        q.AiSession.replaceDB(db),
+		BaseAPI:          q.BaseAPI.replaceDB(db),
+		BaseArea:         q.BaseArea.replaceDB(db),
+		BaseConfig:       q.BaseConfig.replaceDB(db),
+		BaseDept:         q.BaseDept.replaceDB(db),
+		BaseDict:         q.BaseDict.replaceDB(db),
+		BaseDictItem:     q.BaseDictItem.replaceDB(db),
+		BaseJob:          q.BaseJob.replaceDB(db),
+		BaseJobLog:       q.BaseJobLog.replaceDB(db),
+		BaseLog:          q.BaseLog.replaceDB(db),
+		BaseMenu:         q.BaseMenu.replaceDB(db),
+		BasePost:         q.BasePost.replaceDB(db),
+		BaseRole:         q.BaseRole.replaceDB(db),
+		BaseTenant:       q.BaseTenant.replaceDB(db),
+		BaseThirdAccount: q.BaseThirdAccount.replaceDB(db),
+		BaseUser:         q.BaseUser.replaceDB(db),
+		CasbinRule:       q.CasbinRule.replaceDB(db),
+		CodeGenColumn:    q.CodeGenColumn.replaceDB(db),
+		CodeGenProto:     q.CodeGenProto.replaceDB(db),
+		CodeGenTable:     q.CodeGenTable.replaceDB(db),
 	}
 }
 
 type queryCtx struct {
-	AiMessage            *aiMessageDo
-	AiSession            *aiSessionDo
-	BaseAPI              *baseAPIDo
-	BaseArea             *baseAreaDo
-	BaseConfig           *baseConfigDo
-	BaseDept             *baseDeptDo
-	BaseDict             *baseDictDo
-	BaseDictItem         *baseDictItemDo
-	BaseJob              *baseJobDo
-	BaseJobLog           *baseJobLogDo
-	BaseLog              *baseLogDo
-	BaseMenu             *baseMenuDo
-	BasePost             *basePostDo
-	BaseRole             *baseRoleDo
-	BaseTenant           *baseTenantDo
-	BaseThirdAccount     *baseThirdAccountDo
-	BaseUser             *baseUserDo
-	CasbinRule           *casbinRuleDo
-	CodeGenColumn        *codeGenColumnDo
-	CodeGenProto         *codeGenProtoDo
-	CodeGenTable         *codeGenTableDo
-	CommentDiscussion    *commentDiscussionDo
-	CommentInfo          *commentInfoDo
-	CommentReaction      *commentReactionDo
-	CommentReview        *commentReviewDo
-	CommentSummary       *commentSummaryDo
-	CommentTag           *commentTagDo
-	GoodsCategory        *goodsCategoryDo
-	GoodsInfo            *goodsInfoDo
-	GoodsProp            *goodsPropDo
-	GoodsSKU             *goodsSKUDo
-	GoodsSpec            *goodsSpecDo
-	GoodsStatDay         *goodsStatDayDo
-	OrderAddress         *orderAddressDo
-	OrderCancel          *orderCancelDo
-	OrderGoods           *orderGoodsDo
-	OrderInfo            *orderInfoDo
-	OrderLogistics       *orderLogisticsDo
-	OrderPayment         *orderPaymentDo
-	OrderRefund          *orderRefundDo
-	OrderStatDay         *orderStatDayDo
-	OrderTrade           *orderTradeDo
-	PayBill              *payBillDo
-	RecommendEvent       *recommendEventDo
-	RecommendRequest     *recommendRequestDo
-	RecommendRequestItem *recommendRequestItemDo
-	ShopBanner           *shopBannerDo
-	ShopHot              *shopHotDo
-	ShopHotGoods         *shopHotGoodsDo
-	ShopHotItem          *shopHotItemDo
-	ShopService          *shopServiceDo
-	TenantStore          *tenantStoreDo
-	UserAddress          *userAddressDo
-	UserCart             *userCartDo
-	UserCollect          *userCollectDo
-	UserStore            *userStoreDo
+	AiMessage        *aiMessageDo
+	AiSession        *aiSessionDo
+	BaseAPI          *baseAPIDo
+	BaseArea         *baseAreaDo
+	BaseConfig       *baseConfigDo
+	BaseDept         *baseDeptDo
+	BaseDict         *baseDictDo
+	BaseDictItem     *baseDictItemDo
+	BaseJob          *baseJobDo
+	BaseJobLog       *baseJobLogDo
+	BaseLog          *baseLogDo
+	BaseMenu         *baseMenuDo
+	BasePost         *basePostDo
+	BaseRole         *baseRoleDo
+	BaseTenant       *baseTenantDo
+	BaseThirdAccount *baseThirdAccountDo
+	BaseUser         *baseUserDo
+	CasbinRule       *casbinRuleDo
+	CodeGenColumn    *codeGenColumnDo
+	CodeGenProto     *codeGenProtoDo
+	CodeGenTable     *codeGenTableDo
 }
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
 	return &queryCtx{
-		AiMessage:            q.AiMessage.WithContext(ctx),
-		AiSession:            q.AiSession.WithContext(ctx),
-		BaseAPI:              q.BaseAPI.WithContext(ctx),
-		BaseArea:             q.BaseArea.WithContext(ctx),
-		BaseConfig:           q.BaseConfig.WithContext(ctx),
-		BaseDept:             q.BaseDept.WithContext(ctx),
-		BaseDict:             q.BaseDict.WithContext(ctx),
-		BaseDictItem:         q.BaseDictItem.WithContext(ctx),
-		BaseJob:              q.BaseJob.WithContext(ctx),
-		BaseJobLog:           q.BaseJobLog.WithContext(ctx),
-		BaseLog:              q.BaseLog.WithContext(ctx),
-		BaseMenu:             q.BaseMenu.WithContext(ctx),
-		BasePost:             q.BasePost.WithContext(ctx),
-		BaseRole:             q.BaseRole.WithContext(ctx),
-		BaseTenant:           q.BaseTenant.WithContext(ctx),
-		BaseThirdAccount:     q.BaseThirdAccount.WithContext(ctx),
-		BaseUser:             q.BaseUser.WithContext(ctx),
-		CasbinRule:           q.CasbinRule.WithContext(ctx),
-		CodeGenColumn:        q.CodeGenColumn.WithContext(ctx),
-		CodeGenProto:         q.CodeGenProto.WithContext(ctx),
-		CodeGenTable:         q.CodeGenTable.WithContext(ctx),
-		CommentDiscussion:    q.CommentDiscussion.WithContext(ctx),
-		CommentInfo:          q.CommentInfo.WithContext(ctx),
-		CommentReaction:      q.CommentReaction.WithContext(ctx),
-		CommentReview:        q.CommentReview.WithContext(ctx),
-		CommentSummary:       q.CommentSummary.WithContext(ctx),
-		CommentTag:           q.CommentTag.WithContext(ctx),
-		GoodsCategory:        q.GoodsCategory.WithContext(ctx),
-		GoodsInfo:            q.GoodsInfo.WithContext(ctx),
-		GoodsProp:            q.GoodsProp.WithContext(ctx),
-		GoodsSKU:             q.GoodsSKU.WithContext(ctx),
-		GoodsSpec:            q.GoodsSpec.WithContext(ctx),
-		GoodsStatDay:         q.GoodsStatDay.WithContext(ctx),
-		OrderAddress:         q.OrderAddress.WithContext(ctx),
-		OrderCancel:          q.OrderCancel.WithContext(ctx),
-		OrderGoods:           q.OrderGoods.WithContext(ctx),
-		OrderInfo:            q.OrderInfo.WithContext(ctx),
-		OrderLogistics:       q.OrderLogistics.WithContext(ctx),
-		OrderPayment:         q.OrderPayment.WithContext(ctx),
-		OrderRefund:          q.OrderRefund.WithContext(ctx),
-		OrderStatDay:         q.OrderStatDay.WithContext(ctx),
-		OrderTrade:           q.OrderTrade.WithContext(ctx),
-		PayBill:              q.PayBill.WithContext(ctx),
-		RecommendEvent:       q.RecommendEvent.WithContext(ctx),
-		RecommendRequest:     q.RecommendRequest.WithContext(ctx),
-		RecommendRequestItem: q.RecommendRequestItem.WithContext(ctx),
-		ShopBanner:           q.ShopBanner.WithContext(ctx),
-		ShopHot:              q.ShopHot.WithContext(ctx),
-		ShopHotGoods:         q.ShopHotGoods.WithContext(ctx),
-		ShopHotItem:          q.ShopHotItem.WithContext(ctx),
-		ShopService:          q.ShopService.WithContext(ctx),
-		TenantStore:          q.TenantStore.WithContext(ctx),
-		UserAddress:          q.UserAddress.WithContext(ctx),
-		UserCart:             q.UserCart.WithContext(ctx),
-		UserCollect:          q.UserCollect.WithContext(ctx),
-		UserStore:            q.UserStore.WithContext(ctx),
+		AiMessage:        q.AiMessage.WithContext(ctx),
+		AiSession:        q.AiSession.WithContext(ctx),
+		BaseAPI:          q.BaseAPI.WithContext(ctx),
+		BaseArea:         q.BaseArea.WithContext(ctx),
+		BaseConfig:       q.BaseConfig.WithContext(ctx),
+		BaseDept:         q.BaseDept.WithContext(ctx),
+		BaseDict:         q.BaseDict.WithContext(ctx),
+		BaseDictItem:     q.BaseDictItem.WithContext(ctx),
+		BaseJob:          q.BaseJob.WithContext(ctx),
+		BaseJobLog:       q.BaseJobLog.WithContext(ctx),
+		BaseLog:          q.BaseLog.WithContext(ctx),
+		BaseMenu:         q.BaseMenu.WithContext(ctx),
+		BasePost:         q.BasePost.WithContext(ctx),
+		BaseRole:         q.BaseRole.WithContext(ctx),
+		BaseTenant:       q.BaseTenant.WithContext(ctx),
+		BaseThirdAccount: q.BaseThirdAccount.WithContext(ctx),
+		BaseUser:         q.BaseUser.WithContext(ctx),
+		CasbinRule:       q.CasbinRule.WithContext(ctx),
+		CodeGenColumn:    q.CodeGenColumn.WithContext(ctx),
+		CodeGenProto:     q.CodeGenProto.WithContext(ctx),
+		CodeGenTable:     q.CodeGenTable.WithContext(ctx),
 	}
 }
 

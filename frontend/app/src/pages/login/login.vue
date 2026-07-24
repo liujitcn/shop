@@ -388,12 +388,7 @@ const loginSuccess = async () => {
     uni.removeStorageSync('lastRoute')
 
     const pagePath = String(lastRoute).split('?')[0] || homeTabPage
-    const tabBarPages = new Set([
-      homeTabPage,
-      '/pages/category/category',
-      '/pages/cart/cart',
-      '/pages/my/my',
-    ])
+    const tabBarPages = new Set([homeTabPage, '/pages/my/my'])
     if (tabBarPages.has(pagePath)) {
       uni.switchTab({ url: pagePath })
       return

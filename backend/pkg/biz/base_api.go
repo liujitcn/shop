@@ -123,7 +123,7 @@ func ParseOpenAPI(openAPIData []byte) (*OpenAPI, error) {
 // openAPIDataToBaseAPI 将 OpenAPI 文档转换为待持久化的接口模型。
 //
 // 此方法只负责内存转换，不访问数据库。转换分为两阶段：先按“终端 + 服务名”
-// 推断完整 protobuf 包名，再生成每个 HTTP operation，避免 shop 与 system 的同名服务互相覆盖。
+// 推断完整 protobuf 包名，再生成每个 HTTP operation，避免不同终端的同名服务互相覆盖。
 func (c *BaseAPICase) openAPIDataToBaseAPI(openAPIData []byte) ([]*models.BaseAPI, error) {
 	api, err := ParseOpenAPI(openAPIData)
 	if err != nil {
@@ -266,7 +266,7 @@ func parseOperationID(operationID string) (string, string) {
 
 // servicePackageKey 生成“终端 + 服务名”唯一索引键。
 //
-// 同一个 Service 可以同时出现在 shop.admin 和 system.admin，因此不能仅用服务名定位 protobuf 包。
+// 同一个 Service 可以同时出现在不同终端，因此不能仅用服务名定位 protobuf 包。
 func servicePackageKey(path, serviceTag string) string {
 	terminal := openAPITerminal(path)
 	// 非主版本路径或缺少服务名时，没有可用于包名推断的稳定索引。
@@ -337,7 +337,7 @@ func collectSchemaProtoPackages(path string, schema Schema, packages map[string]
 
 // protoPackageFromSchemaRef 从 OpenAPI schema 引用提取完整 protobuf 包名。
 //
-// 在 fq_schema_naming=true 时，引用形如 #/components/schemas/shop.admin.v1.GoodsInfo。
+// 在 fq_schema_naming=true 时，引用包含完整 protobuf 包名和消息名。
 // 项目约定 protobuf 包以版本段结束，因此第一个 vN 分段及其前缀就是包名，后续部分是 message 名。
 func protoPackageFromSchemaRef(ref string) string {
 	const schemaRefPrefix = "#/components/schemas/"
@@ -366,7 +366,7 @@ func isProtoPackageVersion(value string) bool {
 
 // protoPackageTerminal 返回 protobuf 包版本段前的终端名称。
 //
-// 例如 shop.admin.v1 返回 admin，base.v1 返回 base；该规则不依赖 shop、system 等模块列表。
+// 例如 system.admin.v1 返回 admin，base.v1 返回 base；该规则不依赖具体模块列表。
 func protoPackageTerminal(packageName string) string {
 	parts := strings.Split(packageName, ".")
 	// 包名必须以版本段结尾，版本段前一段即为 HTTP 终端。
@@ -400,7 +400,7 @@ func terminalByTagDescription(description string) string {
 	if strings.HasPrefix(description, "Admin") {
 		return "admin"
 	}
-	// App 标签描述对应商城端服务。
+	// App 标签描述对应应用端服务。
 	if strings.HasPrefix(description, "App") {
 		return "app"
 	}
@@ -501,7 +501,7 @@ func defaultToolPrompts(toolName, serviceName, serviceDesc, desc, operation, met
 
 // terminalToolPrompt 根据完整服务名生成面向用户的终端提示词。
 //
-// 服务名中的版本段前一段就是终端，例如 shop.admin.v1.GoodsService 的 admin，
+// 服务名中的版本段前一段就是终端，例如 system.admin.v1.AuthService 的 admin，
 // 这个解析与包名推断相同，不依赖具体模块名称。
 func terminalToolPrompt(serviceName string) string {
 	parts := strings.Split(serviceName, ".")
@@ -515,7 +515,7 @@ func terminalToolPrompt(serviceName string) string {
 		case "admin":
 			return "管理后台"
 		case "app":
-			return "商城移动端"
+			return "应用移动端"
 		case "base":
 			return "公共基础"
 		}

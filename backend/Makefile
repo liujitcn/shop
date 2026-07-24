@@ -1,5 +1,5 @@
 # Makefile 常用目标：初始化工具、生成代码、格式化代码、启动服务
-.PHONY: help init plugin cli fmt lint gorm-gen wire api openapi ts gen run build docker-build
+.PHONY: help init plugin cli fmt lint gorm-gen wire api openapi ts ts-app gen run build docker-build
 
 IMAGE ?= backend
 TAG ?= latest
@@ -17,7 +17,7 @@ GEN_BIN ?= $(or \
 	$(shell command -v gen 2>/dev/null), \
 	$(shell GOBIN=$$(go env GOBIN); GOPATH=$$(go env GOPATH); if [ -n "$$GOBIN" ]; then printf '%s' "$$GOBIN/gen"; else printf '%s' "$$GOPATH/bin/gen"; fi) \
 )
-GORM_GEN_SOURCE ?= root:112233@tcp(192.168.60.52:3306)/shop_test?charset=utf8&parseTime=True&loc=Local&timeout=1000ms
+GORM_GEN_SOURCE ?= root:112233@tcp(192.168.60.52:3306)/admin_test?charset=utf8&parseTime=True&loc=Local&timeout=1000ms
 
 # 初始化开发环境
 init: plugin cli
@@ -84,7 +84,7 @@ wire:
 	@echo "==> 生成 wire 依赖注入代码"
 	@cd internal/cmd/server && \
 		PATH="$(GO_BIN_DIR):$$PATH" wire
-	@PATH="$(GO_BIN_DIR):$$PATH" goimports -local shop/ -w internal/cmd/server/wire.go internal/cmd/server/wire_gen.go
+	@PATH="$(GO_BIN_DIR):$$PATH" goimports -w internal/cmd/server/wire.go internal/cmd/server/wire_gen.go
 	@echo "==> wire 依赖注入代码生成完成"
 
 # 生成 protobuf 的 Go 代码
@@ -105,14 +105,21 @@ openapi:
 # 生成 TypeScript 代码
 ts:
 	@echo "==> 生成 TypeScript RPC 代码"
-	@test -n "$(TS_PROTO_BIN)" || (echo "protoc-gen-ts_proto not found. Run pnpm install in frontend/admin or frontend/app, or install ts-proto globally." && exit 1)
+	@test -n "$(TS_PROTO_BIN)" || (echo "protoc-gen-ts_proto not found. Run pnpm install in frontend/admin, or install ts-proto globally." && exit 1)
 	@cd api && \
-		PATH="$(TS_PROTO_BIN_DIR):$(GO_BIN_DIR):$$PATH" buf generate --template buf.admin.typescript.gen.yaml --exclude-path proto/shop/app --exclude-path proto/system/app && \
-		PATH="$(TS_PROTO_BIN_DIR):$(GO_BIN_DIR):$$PATH" buf generate --template buf.app.typescript.gen.yaml --exclude-path proto/shop/admin --exclude-path proto/system/admin
+		PATH="$(TS_PROTO_BIN_DIR):$(GO_BIN_DIR):$$PATH" buf generate --template buf.admin.typescript.gen.yaml --exclude-path proto/system/app
 	@echo "==> TypeScript RPC 代码生成完成"
 
+# 生成 app 端 TypeScript RPC 代码
+ts-app:
+	@echo "==> 生成 app TypeScript RPC 代码"
+	@test -n "$(TS_PROTO_BIN)" || (echo "protoc-gen-ts_proto not found. Run pnpm install in frontend/app, or install ts-proto globally." && exit 1)
+	@cd api && \
+		PATH="$(TS_PROTO_BIN_DIR):$(GO_BIN_DIR):$$PATH" buf generate --template buf.app.typescript.gen.yaml --exclude-path proto/system/admin
+	@echo "==> app TypeScript RPC 代码生成完成"
+
 # 一键生成全部接口产物（Go 代码 + OpenAPI 文档 + TypeScript 代码）
-gen: api openapi ts gorm-gen wire fmt
+gen: api openapi ts ts-app gorm-gen wire fmt
 	@echo "==> 全部接口产物生成完成"
 
 # 启动应用

@@ -4,11 +4,11 @@
 
 ## proto package 与目录
 
-- package 必须带版本号，按终端或模块分层命名：`system.admin.v1`、`shop.admin.v1`、`system.app.v1`、`shop.app.v1`、`base.v1`、`common.v1`。
-- 文件目录必须与 package 对齐，版本号落到目录层级，例如 `api/proto/shop/admin/v1/goods_info.proto` 对应 `package shop.admin.v1;`。
-- 系统与商城 proto package 必须分别使用 `system`、`shop` 前缀；禁止新增未分组的 `admin.v1`、`app.v1`，以及不符合当前分层的 `shop.base.v1`、`shop.conf.v1` 等写法。
-- Go 生成包 import 必须使用真实包名别名：`systemadminv1`、`shopadminv1`、`systemappv1`、`shopappv1`、`basev1`、`commonv1`；生成 import path 必须带 `/v1`，禁止退回不带版本层级的历史路径。
-- 前端 TS 生成类型与业务 import 必须带 `/v1/` 目录层级，例如 `@/rpc/system/admin/v1/auth`、`@/rpc/shop/admin/v1/goods_info`；禁止新增缺少模块分组或版本层级的历史路径。
+- package 必须带版本号，按终端或模块分层命名：`system.admin.v1`、`system.app.v1`、`base.v1`、`common.v1`。
+- 文件目录必须与 package 对齐，版本号落到目录层级，例如 `api/proto/system/admin/v1/auth.proto` 对应 `package system.admin.v1;`。
+- 禁止新增未分组的 `admin.v1`、`app.v1`，以及不符合当前分层的公共包命名。
+- Go 生成包 import 必须使用真实包名别名：`systemadminv1`、`systemappv1`、`basev1`、`commonv1`；生成 import path 必须带 `/v1`，禁止退回不带版本层级的历史路径。
+- 前端 TS 生成类型与业务 import 必须带 `/v1/` 目录层级，例如 `@/rpc/system/admin/v1/auth`；禁止新增缺少模块分组或版本层级的历史路径。
 
 ## proto 字段与注释
 

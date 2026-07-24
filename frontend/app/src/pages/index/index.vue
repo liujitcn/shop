@@ -1,154 +1,148 @@
 <script setup lang="ts">
-import { defGoodsCategoryService } from '@/api/shop/goods_category'
-import { defShopBannerService } from '@/api/shop/shop_banner'
-import { defShopHotService } from '@/api/shop/shop_hot'
-import type { ShopBanner } from '@/rpc/shop/app/v1/shop_banner'
-import type { GoodsCategory } from '@/rpc/shop/app/v1/goods_category'
-import type { ShopHot } from '@/rpc/shop/app/v1/shop_hot'
-import { onLoad, onShow } from '@dcloudio/uni-app'
-import { computed, ref } from 'vue'
-import CustomNavbar from './components/CustomNavbar.vue'
-import CategoryPanel from './components/CategoryPanel.vue'
-import HotPanel from './components/HotPanel.vue'
-import PageSkeleton from './components/PageSkeleton.vue'
-import { useGuessList } from '@/composables'
-import { useSettingStore } from '@/stores'
-import { RecommendScene, ShopBannerSite } from '@/rpc/shop/common/v1/enum'
+import { onShow } from '@dcloudio/uni-app'
+import { computed } from 'vue'
+import { useUserStore } from '@/stores'
+import { navigateToLogin } from '@/utils/navigation'
 
-const settingStore = useSettingStore()
-// 获取轮播图数据
-const bannerList = ref<ShopBanner[]>([])
-const getHomeBannerData = async () => {
-  const res = await defShopBannerService.ListShopBanner({
-    site: ShopBannerSite.INDEX,
-  })
-  bannerList.value = res.shop_banners || []
-}
+const userStore = useUserStore()
+const displayName = computed(() => userStore.userInfo?.nick_name || userStore.userInfo?.user_name)
 
-// 获取前台分类数据
-const categoryList = ref<GoodsCategory[]>([])
-const getHomeCategoryData = async () => {
-  const res = await defGoodsCategoryService.ListGoodsCategory({
-    parent_id: 0,
-  })
-  categoryList.value = res.goods_categories || []
-}
-
-// 获取热门推荐数据
-const hotList = ref<ShopHot[]>([])
-const getHomeHotData = async () => {
-  const res = await defShopHotService.ListShopHot({})
-  hotList.value = res.shop_hots || []
-}
-
-// 是否加载中标记
-const isLoading = ref(false)
-
-// 页面加载
-onLoad(async () => {
-  const switchTabIndex = uni.getStorageSync('SwitchTabIndex')
-  if (!switchTabIndex) {
-    isLoading.value = true
-    await Promise.all([getHomeBannerData(), getHomeCategoryData(), getHomeHotData()])
-    isLoading.value = false
+onShow(() => {
+  if (userStore.isAuthenticated() && !userStore.userInfo) {
+    void userStore.getUserProfile().catch(() => undefined)
   }
 })
 
-onShow(async () => {
-  await settingStore.loadData()
-  const switchTabIndex = uni.getStorageSync('SwitchTabIndex')
-  if (switchTabIndex) {
-    isLoading.value = true
-    await Promise.all([getHomeBannerData(), getHomeCategoryData(), getHomeHotData()])
-    isLoading.value = false
-    uni.removeStorageSync('SwitchTabIndex')
+const openAssistant = () => {
+  if (!userStore.ensureAuthenticated()) {
+    navigateToLogin('/pagesMember/ai/index')
+    return
   }
-})
-
-// 猜你喜欢组合式函数调用
-const { guessRef, onScrollToLower } = useGuessList()
-// 当前下拉刷新状态
-const isTriggered = ref(false)
-// 自定义下拉刷新被触发
-const onRefresh = async () => {
-  // 开始动画
-  isTriggered.value = true
-  // 重置猜你喜欢组件数据
-  guessRef.value?.resetData()
-  await Promise.all([
-    getHomeBannerData(),
-    getHomeCategoryData(),
-    getHomeHotData(),
-    guessRef.value?.getMore(),
-  ])
-  // 关闭动画
-  isTriggered.value = false
+  uni.navigateTo({ url: '/pagesMember/ai/index' })
 }
 
-// 定义分享配置
-const shareConfig = computed(() => {
-  return {
-    title: '',
-    path: `/pages/index/index`,
-    imageUrl: '',
+const openAccount = () => {
+  if (!userStore.isAuthenticated()) {
+    navigateToLogin()
+    return
   }
-})
-
-// 分享给朋友
-const onShareAppMessage = () => {
-  return shareConfig.value
-}
-
-// 分享到朋友圈
-const onShareTimeline = () => {
-  return shareConfig.value
+  uni.navigateTo({ url: '/pages/my/my' })
 }
 </script>
 
 <template>
-  <view class="viewport">
-    <!-- 自定义导航栏 -->
-    <CustomNavbar />
-    <!-- 滚动容器 -->
-    <scroll-view
-      enable-back-to-top
-      refresher-enabled
-      :refresher-triggered="isTriggered"
-      class="scroll-view"
-      scroll-y
-      @refresherrefresh="onRefresh"
-      @scrolltolower="onScrollToLower"
-    >
-      <PageSkeleton v-if="isLoading" />
-      <template v-else>
-        <!-- 自定义轮播图 -->
-        <ShopSwiper v-if="bannerList.length" :list="bannerList" />
-        <!-- 分类面板 -->
-        <CategoryPanel v-if="categoryList.length" :list="categoryList" />
-        <!-- 热门推荐 -->
-        <HotPanel v-if="hotList.length" :list="hotList" />
-        <!-- 猜你喜欢 -->
-        <GoodsGuess ref="guessRef" title="为你推荐" :scene="RecommendScene.HOME" />
-      </template>
-    </scroll-view>
+  <view class="page">
+    <view class="hero">
+      <text class="eyebrow">APPLICATION SHELL</text>
+      <text class="title">基础应用</text>
+      <text class="subtitle">登录、账户与通用能力已就绪。</text>
+    </view>
+
+    <view class="section">
+      <view class="section-title">快捷入口</view>
+      <view class="entry-list">
+        <view class="entry" @tap="openAssistant">
+          <view>
+            <text class="entry-title">AI 助手</text>
+            <text class="entry-desc">使用基础 AI 会话能力</text>
+          </view>
+          <text class="entry-arrow">›</text>
+        </view>
+        <view class="entry" @tap="openAccount">
+          <view>
+            <text class="entry-title">{{ displayName || '账户中心' }}</text>
+            <text class="entry-desc">{{
+              displayName ? '查看个人资料和应用设置' : '登录后管理账户'
+            }}</text>
+          </view>
+          <text class="entry-arrow">›</text>
+        </view>
+      </view>
+    </view>
   </view>
 </template>
 
 <style lang="scss">
 page {
-  background-color: #f7f7f7;
-  height: 100%;
-  overflow: hidden;
+  background: #f5f7f8;
 }
 
-.viewport {
-  height: 100%;
+.page {
+  min-height: 100vh;
+  padding: 48rpx 32rpx;
+  box-sizing: border-box;
+}
+
+.hero {
+  padding: 64rpx 12rpx 72rpx;
+}
+
+.eyebrow {
+  display: block;
+  color: #2f9f87;
+  font-size: 22rpx;
+  letter-spacing: 2rpx;
+}
+
+.title {
+  display: block;
+  margin-top: 20rpx;
+  color: #17221f;
+  font-size: 52rpx;
+  font-weight: 700;
+}
+
+.subtitle {
+  display: block;
+  margin-top: 18rpx;
+  color: #71807b;
+  font-size: 28rpx;
+}
+
+.section-title {
+  margin: 0 12rpx 20rpx;
+  color: #26332f;
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.entry-list {
+  overflow: hidden;
+  border-radius: 16rpx;
+  background: #fff;
+}
+
+.entry {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 30rpx 28rpx;
+  border-bottom: 1rpx solid #edf1ef;
 }
 
-.scroll-view {
-  flex: 1;
-  overflow: hidden;
+.entry:last-child {
+  border-bottom: 0;
+}
+
+.entry-title,
+.entry-desc {
+  display: block;
+}
+
+.entry-title {
+  color: #1f2c28;
+  font-size: 30rpx;
+}
+
+.entry-desc {
+  margin-top: 8rpx;
+  color: #8a9691;
+  font-size: 24rpx;
+}
+
+.entry-arrow {
+  color: #9eaba6;
+  font-size: 44rpx;
+  line-height: 1;
 }
 </style>

@@ -30,7 +30,7 @@ const resolveProtocolContent = (key: string, isPrivacy: boolean) => {
   const serviceContent = settingStore.getData('serviceProtocol') || ''
   if (!targetContent || targetContent !== serviceContent) return targetContent
 
-  return '<h2>隐私政策</h2><p>我们会按照法律法规要求收集、使用、保存和保护您的个人信息。我们仅在提供账号登录、订单履约、配送售后、交易安全和客户服务所必需的范围内处理相关信息。</p><p>您可以依法查询、更正、删除个人信息，或撤回授权、注销账号。若您对个人信息处理有疑问，请通过商城公布的客服渠道联系我们。</p>'
+  return '<h2>隐私政策</h2><p>我们会按照法律法规要求收集、使用、保存和保护您的个人信息。我们仅在提供账号登录、应用服务、交易安全和客户服务所必需的范围内处理相关信息。</p><p>您可以依法查询、更正、删除个人信息，或撤回授权、注销账号。若您对个人信息处理有疑问，请通过应用内公布的客服渠道联系我们。</p>'
 }
 
 onLoad((query) => {

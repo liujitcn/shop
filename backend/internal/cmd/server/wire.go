@@ -47,7 +47,6 @@ func initApp(*bootstrap.Context) (*kratos.App, func(), error) {
 		systemappserver.ProviderSet,
 		baseserver.NewSSEHandler,
 		newModules,
-		shopProviderSet,
 		wire.Bind(new(server.TerminalToolSetter), new(*ai.Runtime)),
 		server.ProviderSet,
 		newApp,

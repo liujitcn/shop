@@ -1,7 +1,7 @@
 # Makefile 常用目标：安装依赖、启动前端、构建前端、显示帮助
 .PHONY: help init pnpm-admin pnpm-app run run-admin run-app build build-admin build-app
 
-# 安装管理后台与商城端依赖
+# 安装管理后台依赖
 init: pnpm-admin pnpm-app
 
 # 安装管理后台依赖
@@ -9,36 +9,36 @@ pnpm-admin:
 	@cd admin && \
 		CI=1 pnpm install
 
-# 安装商城端依赖
+# 安装 app 端依赖
 pnpm-app:
 	@cd app && \
 		CI=1 pnpm install
 
-# 一键启动管理后台与商城端开发环境，日志按多行输出
-run: run-admin run-app
+# 启动管理后台开发环境
+run: run-admin
 
 # 启动管理后台开发服务
 run-admin:
 	@cd admin && \
 		CI=1 pnpm run dev
 
-# 启动商城端微信小程序开发服务
+# 启动 app 端微信小程序开发环境
 run-app:
 	@cd app && \
 		CI=1 pnpm run dev:mp-weixin
 
-# 一键构建管理后台与商城端产物，日志按多行输出
-build: build-admin build-app
+# 构建管理后台产物
+build: build-admin
 
 # 构建管理后台静态资源
 build-admin:
 	@cd admin && \
 		CI=1 pnpm run build
 
-# 构建商城端微信小程序产物
+# 构建 app 端 H5 静态资源
 build-app:
 	@cd app && \
-		CI=1 pnpm run build:mp-weixin
+		CI=1 pnpm run build:h5
 
 # 显示帮助
 help:

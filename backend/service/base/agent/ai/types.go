@@ -3,7 +3,7 @@ package ai
 import "context"
 
 const (
-	// TerminalApp 表示商城端终端值。
+	// TerminalApp 表示应用端终端值。
 	TerminalApp int32 = 1
 	// TerminalAdmin 表示管理端终端值。
 	TerminalAdmin int32 = 2

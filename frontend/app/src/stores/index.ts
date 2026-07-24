@@ -12,5 +12,3 @@ export default pinia
 // 模块统一导出
 export * from './modules/user'
 export * from './modules/setting'
-export * from './modules/address'
-export * from './modules/recommend'

@@ -7,11 +7,10 @@ package data
 import (
 	"context"
 
-	"shop/pkg/gen/models"
-
 	"github.com/liujitcn/gorm-kit/repository"
 	"gorm.io/gen"
 	"gorm.io/gen/field"
+	"shop/pkg/gen/models"
 )
 
 // BaseJobLogRepository 定义 定时任务日志信息 的基础仓储能力。

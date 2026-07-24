@@ -16,13 +16,13 @@ type AgenticModel = componentsModel.AgenticModel
 // Option 表示 Eino 模型调用选项。
 type Option = componentsModel.Option
 
-// ChatClient 表示评论审核与摘要专用聊天模型客户端。
+// ChatClient 表示一次性结构化任务聊天模型客户端。
 type ChatClient struct {
 	componentsModel.AgenticModel
 	name string
 }
 
-// NewChatClient 创建评论审核与摘要专用聊天模型客户端。
+// NewChatClient 创建一次性结构化任务聊天模型客户端。
 func NewChatClient(modelCfg *bootstrapConfigv1.AI_Model) *ChatClient {
 	client := &ChatClient{}
 	// AI 未配置完整时保持空客户端，业务层会通过 Enabled 判断并走降级路径。
@@ -33,12 +33,12 @@ func NewChatClient(modelCfg *bootstrapConfigv1.AI_Model) *ChatClient {
 		context.Background(),
 		modelCfg,
 		aiEino.WithChatConfigMutator(func(modelConfig *agenticopenai.ChatConfig) {
-			// 评论结构化输出不依赖采样温度，交给服务端使用模型默认值。
+			// 结构化输出不依赖采样温度，交给服务端使用模型默认值。
 			modelConfig.Temperature = nil
 		}),
 	)
 	if err != nil {
-		panic(fmt.Errorf("创建评论智能体模型失败: %w", err))
+		panic(fmt.Errorf("创建结构化任务模型失败: %w", err))
 	}
 	client.name = modelCfg.GetModelName()
 	client.AgenticModel = agenticModel

@@ -7,11 +7,10 @@ package data
 import (
 	"context"
 
-	"shop/pkg/gen/models"
-
 	"github.com/liujitcn/gorm-kit/repository"
 	"gorm.io/gen"
 	"gorm.io/gen/field"
+	"shop/pkg/gen/models"
 )
 
 // BaseThirdAccountRepository 定义 用户三方登录账号 的基础仓储能力。

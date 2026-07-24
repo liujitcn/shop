@@ -5,7 +5,7 @@ import type { DictState } from "@/stores/interface";
 import piniaPersistConfig from "@/stores/helper/persist";
 import type { OptionBaseDictResponse_BaseDict, OptionBaseDictResponse_BaseDictItem } from "@/rpc/system/admin/v1/base_dict";
 
-export const useDictStore = defineStore("shop-dict", {
+export const useDictStore = defineStore("admin-dict", {
   state: (): DictState => ({
     dictionary: {}
   }),
@@ -54,7 +54,7 @@ export const useDictStore = defineStore("shop-dict", {
       await this.loadDictionaries(true);
     }
   },
-  persist: piniaPersistConfig("shop-dict")
+  persist: piniaPersistConfig("admin-dict")
 });
 
 /**

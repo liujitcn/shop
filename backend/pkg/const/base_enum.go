@@ -71,19 +71,3 @@ const (
 	// BASE_USER_GENDER_GIRL 表示用户性别为女。
 	BASE_USER_GENDER_GIRL = int32(systemcommonv1.BaseUserGender_GIRL)
 )
-
-const (
-	// ANALYTICS_TIME_TYPE_WEEK 表示按周统计分析数据。
-	ANALYTICS_TIME_TYPE_WEEK = int32(commonv1.AnalyticsTimeType_ANALYTICS_TIME_TYPE_WEEK)
-	// ANALYTICS_TIME_TYPE_MONTH 表示按月统计分析数据。
-	ANALYTICS_TIME_TYPE_MONTH = int32(commonv1.AnalyticsTimeType_ANALYTICS_TIME_TYPE_MONTH)
-	// ANALYTICS_TIME_TYPE_YEAR 表示按年统计分析数据。
-	ANALYTICS_TIME_TYPE_YEAR = int32(commonv1.AnalyticsTimeType_ANALYTICS_TIME_TYPE_YEAR)
-)
-
-const (
-	// ANALYTICS_SERIES_TYPE_BAR 表示柱状图系列。
-	ANALYTICS_SERIES_TYPE_BAR = int32(commonv1.AnalyticsSeriesType_ANALYTICS_SERIES_TYPE_BAR)
-	// ANALYTICS_SERIES_TYPE_LINE 表示折线图系列。
-	ANALYTICS_SERIES_TYPE_LINE = int32(commonv1.AnalyticsSeriesType_ANALYTICS_SERIES_TYPE_LINE)
-)

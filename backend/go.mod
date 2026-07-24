@@ -13,7 +13,6 @@ require (
 	github.com/google/jsonschema-go v0.4.3
 	github.com/google/uuid v1.6.0
 	github.com/google/wire v0.7.0
-	github.com/gorse-io/gorse-go v0.5.0-alpha.3
 	github.com/liujitcn/go-utils v0.0.32
 	github.com/liujitcn/go-utils/crypto v0.0.10
 	github.com/liujitcn/go-utils/geoip v0.0.3
@@ -49,8 +48,6 @@ require (
 	github.com/modelcontextprotocol/go-sdk v1.6.0
 	github.com/openai/openai-go/v3 v3.35.0
 	github.com/robfig/cron/v3 v3.0.1
-	github.com/wechatpay-apiv3/wechatpay-go v0.2.21
-	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.68.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20260511170946-3700d4141b60
 	google.golang.org/grpc v1.81.0
 	google.golang.org/protobuf v1.36.12-0.20260120151049-f2248ac996af

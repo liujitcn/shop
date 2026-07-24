@@ -4,13 +4,13 @@
 
 这个目录的目标有三个：
 
-1. 收拢 Eino 原生 import，避免 `ai`、`comment`、`server` 等业务包直接感知第三方框架细节。
+1. 收拢 Eino 原生 import，避免 `ai`、`server` 等业务包直接感知第三方框架细节。
 2. 按组件能力分包，让“模型调用、消息转换、工具执行、运行循环、统计记录、固定流程”各有清晰边界。
 3. 给后续接入其他 Agent 框架预留形态：可以按同样能力边界新增平行适配层，而不是继续把框架代码散落到业务运行时里。
 
 ## 推荐阅读顺序
 
-第一次看这个目录时，建议按下面顺序读。这个顺序从基础类型到完整运行链路，读完基本可以回答“AI 助手怎么跑、评论结构化怎么跑、商城固定流程在哪定义”。
+第一次看这个目录时，建议按下面顺序读。这个顺序从基础类型到完整运行链路，读完基本可以回答“AI 助手和结构化任务怎么运行、固定流程在哪定义”。
 
 | 顺序 | 位置 | 先看什么 | 读完应理解什么 |
 | --- | --- | --- | --- |
@@ -20,9 +20,9 @@
 | 4 | `middleware` | `model.go`、`tool.go`、`error.go` | ADK 调用链上如何做模型重试、工具筛选、Responses 服务端工具注入、工具错误 JSON 和工具指标记录。 |
 | 5 | `tool` | `tool.go` | 生成工具与手写运行时之间的接口、工具目录、直接工具调用协议。 |
 | 6 | `adk` | `runner.go` | AI 助手主循环：如何创建 ChatModelAgent、挂中间件、消费事件流、回传 SSE 文本。 |
-| 7 | `structured` | `runner.go`、`prompt.go`、`part.go` | 评论审核/摘要这类结构化任务如何组 Schema Prompt、发起模型调用并解析 JSON。 |
-| 8 | `workflow` | `flow.go` | 商城端购物、待支付、待评价、物流这些固定流程如何通过 Eino Workflow/Graph 路由并执行。 |
-| 9 | 上层调用方 | `service/base/agent/ai`、`service/base/agent/ai/flow`、`service/shop/app/agent/comment` | 业务包如何只保留业务协议、提示词、会话和响应结构，把 Eino 能力交给本目录。 |
+| 7 | `structured` | `runner.go`、`prompt.go`、`part.go` | 结构化任务如何组 Schema Prompt、发起模型调用并解析 JSON。 |
+| 8 | `workflow` | `flow.go` | 已注册模块的固定流程如何通过 Eino Workflow/Graph 路由并执行。 |
+| 9 | 上层调用方 | `service/base/agent/ai` | 基础 AI 运行时如何只保留协议、提示词、会话和响应结构，把 Eino 能力交给本目录。 |
 
 ## 主链路
 
@@ -47,20 +47,20 @@
 4. 成功结果原样作为工具输出；失败结果统一走 `middleware.MarshalToolError`，输出稳定 JSON。
 5. 调用方继续沿用当前会话、消息、SSE 和工具记录协议。
 
-### 评论结构化链路
+### 结构化任务链路
 
-1. `service/shop/app/agent/comment.Runtime` 只组织评价审核、摘要等业务输入和提示词。
+1. 上层运行时只组织结构化任务输入和提示词。
 2. `structured.Runner` 使用 `structured.Part` 拼多模态输入，使用 `structured.SchemaPrompt` 生成结构化输出约束。
 3. `model.ChatClient` 发起模型请求。
 4. `structured.DecodeContent` 从模型返回中提取 JSON 并反序列化到业务结构体。
 
-### 终端固定流程链路
+### 固定流程链路
 
-1. `service/base/agent/ai/flow` 分别读取 `workflow.MustNewAppRegistry[*ai.Response]()` 与 `MustNewAdminRegistry[*ai.Response]()`。
+1. `service/base/agent/ai` 通过 `workflow.Registry` 管理当前启用模块提供的固定流程。
 2. `workflow.Registry` 内部编译 `compose.Workflow`，`Lookup` 用于查询动作所属流程、步骤和入口定义。
-3. `workflow.Registry` 同时编译 `compose.Graph`，`Run` 会先按 `flow + action_type` 走 Graph 分支，输出命中的动作元信息。
-4. App 与 Admin Runner 分别作为 typed handler 执行商城或后台流程：推荐商品、选规格、确认订单、支付、评价、物流，以及待发货、门店审核、退款、分析等。
-5. 前端列表里的每个按钮都会带自己的 `flow + action_type + payload`，例如商品 ID、SKU、订单 ID 或待评价商品信息。Graph 先按 `flow + action_type` 路由，handler 再只使用本次按钮 payload，因此用户从列表中选择不同项时，后续流程是独立上下文，不会共享同一份状态。
+3. `workflow.Registry` 同时编译 `compose.Graph`，`Run` 会按 `flow + action_type` 选择动作节点，输出命中的动作元信息。
+4. Runner 作为 typed handler 执行已注册模块的流程，业务输入通过当前动作的 payload 传递。
+5. 前端动作携带自己的 `flow + action_type + payload`，Graph 按请求上下文路由，流程之间不会共享运行状态。
 
 ## 子包说明
 
@@ -73,7 +73,7 @@
 - 负责消费 ADK 事件流，区分流式消息、非流式消息、工具中间消息和最终助手消息。
 - 负责把可见文本增量回调给 SSE，不直接关心前端响应结构。
 
-它不负责会话落库、前端协议、业务工具筛选策略和评论结构化任务，这些仍留在对应业务包中。
+它不负责会话落库、前端协议、业务工具筛选策略和结构化任务输入，这些仍留在对应业务包中。
 
 ### `middleware`
 
@@ -100,15 +100,9 @@
 
 ### `workflow`
 
-`workflow` 是管理后台和商城端固定流程的 Eino Workflow/Graph 适配层，核心文件是 `flow.go`。
+`workflow` 是固定流程的 Eino Workflow/Graph 适配层，核心文件是 `flow.go`。流程名称和动作由启用模块提供，基础层只负责校验、索引和执行编排。
 
-- `FlowShopping`：推荐、选规格、确认订单、支付。
-- `FlowPendingPayment`：待支付订单和继续支付。
-- `FlowPendingReview`：待评价列表、评价表单、提交评价。
-- `FlowOrderLogistics`：订单物流、订单详情、确认收货。
-- `AdminFlow*`：工作台、待发货、评价审核、库存预警、退款、门店审核、推荐与统计等后台流程。
-
-`NewAppRegistry` 会编译两条 Eino 编排：
+注册表会编译两条 Eino 编排：
 
 - `compose.Workflow`：服务 `Lookup`，用于动作定义查询、入口解析和跨流程校验。
 - `compose.Graph`：服务 `Run`，用于按 `flow + action_type` 选择具体动作节点，再由调用方传入 typed handler 执行业务动作。
@@ -118,7 +112,7 @@
 - `Action(flow, actionType)`：查询指定流程内动作，适合前端按钮回传了流程上下文的场景。
 - `UniqueAction(actionType)`：只查询全局唯一动作；如果同一个动作类型出现在多个流程中会返回未命中，避免列表型流程漏传 `flow` 后误入第一个流程。
 
-当前购物、支付、评价、物流的每一步已经由 Graph 路由到独立节点；Graph 输入只保留流程动作和 payload，不携带运行时对象，后续如果要加入人工确认、Interrupt/Resume、支付状态轮询或跨 Agent 协作，可以继续在这里扩展 Graph。
+当前启用流程的每一步已经由 Graph 路由到独立节点；Graph 输入只保留流程动作和 payload，不携带运行时对象，后续如果要加入人工确认、Interrupt/Resume 或跨 Agent 协作，可以继续在这里扩展 Graph。
 
 ### `model`
 
@@ -153,7 +147,7 @@
 
 ### `structured`
 
-`structured` 负责“非多轮工具循环”的结构化模型任务，当前主要服务 `comment`。
+`structured` 负责“非多轮工具循环”的结构化模型任务。
 
 - `runner.go` 发起结构化模型调用并解析 JSON。
 - `prompt.go` 生成 JSON Schema 提示词。
@@ -168,8 +162,8 @@
 | ADK ChatModelAgent / Runner | `adk/runner.go` | 替换助手手写工具循环的主入口，负责创建 ChatModelAgent、挂工具和中间件、消费事件流。 |
 | Middleware | `middleware/model.go`、`middleware/tool.go`、`middleware/error.go` | 工具筛选、模型重试、Responses 服务端工具注入、工具统计、工具错误 JSON 都在这里。 |
 | Callback | `callback/recorder.go` | 通过 Eino `callbacks.Handler` 统一记录模型调用、Token、错误和服务端工具，供上层协议回填。 |
-| Workflow/Graph | `workflow/flow.go` | `Lookup` 使用 Eino `compose.Workflow` 查询动作定义；`Run` 使用 Eino `compose.Graph` 路由购物、支付、评价、物流固定流程动作，并由 typed handler 执行业务步骤。 |
-| 结构化输出 | `structured/runner.go`、`structured/prompt.go`、`structured/part.go` | 评论审核、摘要等任务使用这里，不走 ADK 工具循环。 |
+| Workflow/Graph | `workflow/flow.go` | `Lookup` 使用 Eino `compose.Workflow` 查询动作定义；`Run` 使用 Eino `compose.Graph` 路由已注册固定流程动作，并由 typed handler 执行业务步骤。 |
+| 结构化输出 | `structured/runner.go`、`structured/prompt.go`、`structured/part.go` | 一次性结构化任务使用这里，不走 ADK 工具循环。 |
 | 工具目录和直接调用 | `tool/tool.go` | 工具接口、工具定义、工具目录、直接执行和稳定输出协议。 |
 | 模型客户端和选项 | `model/client.go`、`model/options.go` | 模型配置、Generate/Stream 入口、Responses 服务端工具参数。 |
 | 消息转换 | `message/message.go` | 会话消息、多模态片段、工具调用、流式合并、Token 提取。 |
@@ -187,7 +181,7 @@
 ## 使用边界
 
 - `service/base/agent/ai` 负责 AI 助手业务运行时、会话消息、工具候选策略、SSE 和前端需要的响应结构。
-- `service/shop/app/agent/comment` 负责评价审核和摘要业务逻辑，不直接承担模型结构化输出细节。
+- 业务模块只负责输入、提示词和响应结构，不直接承担模型结构化输出细节。
 - `server` 负责注册生成工具并交给运行时，不承担 Agent 编排。
 - `pkg/agent/eino` 负责 Eino 适配能力，不写具体业务提示词和业务决策。
 - Eino 原生 import 应尽量只出现在 `pkg/agent/eino` 和 `api/gen/*_agent_tool.go` 生成产物中。业务包如需模型、工具、结构化输出或固定流程能力，应通过本目录的项目内门面调用。
@@ -203,11 +197,11 @@
 | Tool | `tool` 承接生成工具和目录工具，`adk.Runner` 把工具池交给 ChatModelAgent。 |
 | Middleware | `middleware` 接入工具错误处理、工具筛选、Responses 服务端工具注入和模型重试。 |
 | Callback / Trace | `callback.NewHandler` 通过 `adk.WithCallbacks` 接入 Eino Callback 链路，记录模型、工具、耗时、Token 和错误。 |
-| Graph Tool / Workflow | `workflow.Lookup` 使用 `compose.Workflow`，`workflow.Run` 使用 `compose.Graph` 分支和动作节点承载商城固定流程。 |
+| Graph Tool / Workflow | `workflow.Lookup` 使用 `compose.Workflow`，`workflow.Run` 使用 `compose.Graph` 分支和动作节点承载已注册固定流程。 |
 
 尚未接入的 Quick Start 后续能力：
 
 - Memory：当前仍复用现有会话历史和摘要协议，未引入 Eino Memory 组件。
-- Interrupt/Resume：当前支付、地址、评价等确认由前端 action payload 驱动，未接入 Eino CheckPoint/Interrupt。
+- Interrupt/Resume：当前确认动作由前端 action payload 驱动，未接入 Eino CheckPoint/Interrupt。
 - Skill：当前没有把可复用知识包建成 `SKILL.md + reference` 形式。
 - A2UI：当前继续复用项目已有 SSE、BlocksJSON 和工具记录协议，未替换成 Quick Start 的 A2UI 协议。

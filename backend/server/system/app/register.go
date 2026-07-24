@@ -46,7 +46,7 @@ func (s Services) RegisterMCP(server *mcpserver.Server) {
 	systemappv1.RegisterBaseDictServiceMCPTools(server.MCPServer(), s.BaseDict)
 }
 
-// AppAgentTools 创建 system.app.v1 的商城端 AI 助手工具。
+// AppAgentTools 创建 system.app.v1 的应用端 AI 助手工具。
 func (s Services) AppAgentTools() ([]einoTool.Invokable, error) {
 	var tools []einoTool.Invokable
 	tool, err := systemappv1.NewAuthServiceGetUserProfileAgentTool(s.Auth)

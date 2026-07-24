@@ -5,7 +5,7 @@ const baseURL = import.meta.env.VITE_APP_STATIC_URL
  * @returns 静态资源访问前缀
  */
 const resolveStaticOrigin = () => {
-  // H5 开发环境优先走当前站点，由 Vite 代理转发 /shop 静态资源。
+  // H5 开发环境优先使用当前站点，便于通过代理访问静态资源。
   if (typeof window !== 'undefined' && window.location?.protocol?.startsWith('http')) {
     return window.location.origin
   }
@@ -39,17 +39,6 @@ export const formatDate = (date: Date, format = 'YYYY-MM-DD HH:mm:ss') => {
     .replace('HH', hours)
     .replace('mm', minutes)
     .replace('ss', seconds)
-}
-
-/**
- * 金额格式化函数
- * @param price 金额
- */
-export const formatPrice = (price: number) => {
-  if (!price) {
-    return '0.00'
-  }
-  return (price / 100).toFixed(2)
 }
 
 /**

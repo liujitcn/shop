@@ -74,7 +74,7 @@ func ParseAuthnJWT(ctx *bootstrap.Context) *bootstrapConfigv1.Authentication_Jwt
 	if cfg == nil || cfg.GetAuthn() == nil || cfg.GetAuthn().GetJwt() == nil {
 		return &bootstrapConfigv1.Authentication_Jwt{
 			Method: "HS256",
-			Secret: "shop-base",
+			Secret: "admin-base",
 		}
 	}
 	return cfg.GetAuthn().GetJwt()

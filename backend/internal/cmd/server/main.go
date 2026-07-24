@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 
-	configv1 "shop/api/gen/go/shop/config/v1"
 	systemConfig "shop/pkg/config"
 	_const "shop/pkg/const"
 	"shop/pkg/job"
@@ -48,9 +47,9 @@ import (
 
 var (
 	// Project 表示当前服务所属项目名称。
-	Project = "shop"
+	Project = "admin"
 	// AppID 表示当前服务应用标识。
-	AppID   = "app"
+	AppID   = "admin"
 	version = "1.0.0"
 )
 
@@ -86,7 +85,6 @@ func main() {
 	)
 	appInfo := systemConfig.GetAppInfo(ctx)
 	_const.BASE_PATH = appInfo.GetProject()
-	ctx.RegisterCustomConfig(appInfo.GetProject(), &configv1.ShopConfigWrapper{})
 
 	// 应用启动失败时直接中止进程，避免服务以异常状态继续运行。
 	if err := bootstrap.RunApp(ctx, initApp); err != nil {

@@ -1,6 +1,6 @@
 authn:
   jwt:
-    secret: Shop@Server
+    secret: Admin@Server
     access_token_expires: 3600s
     refresh_token_expires: 2592000s
     white_list:
@@ -21,25 +21,8 @@ authn:
         - "/base.v1.OauthService/CreateOauthSession"
         - "/base.v1.OauthService/HandleOauthBindingCallback"
         - "/base.v1.SseService/SubscribeSse"
-        - "/shop.app.v1.GoodsCategoryService/ListGoodsCategory"
-        - "/shop.app.v1.ShopBannerService/ListShopBanner"
-        - "/shop.app.v1.ShopHotService/ListShopHot"
-        - "/shop.app.v1.ShopHotService/ListShopHotItem"
-        - "/shop.app.v1.ShopServiceService/ListShopService"
-        - "/shop.app.v1.ShopHotService/PageShopHotGoods"
-        - "/shop.app.v1.PayService/PayNotify"
     optional_auth:
       prefix:
       regex:
       path:
       match:
-        - "/shop.app.v1.CommentInfoService/GoodsCommentOverview"
-        - "/shop.app.v1.CommentInfoService/GoodsCommentTag"
-        - "/shop.app.v1.CommentInfoService/PageGoodsComment"
-        - "/shop.app.v1.CommentInfoService/PageCommentDiscussion"
-        - "/shop.app.v1.GoodsInfoService/PageGoodsInfo"
-        - "/shop.app.v1.GoodsInfoService/GetGoodsInfo"
-        - "/shop.app.v1.RecommendService/RecommendAnonymousActor"
-        - "/shop.app.v1.RecommendService/RecommendGoods"
-        - "/shop.app.v1.RecommendService/RecommendEventReport"
-        - "/shop.app.v1.UserCollectService/GetIsCollect"

@@ -1,7 +1,7 @@
 # Codex 规则（frontend/admin）
 
 ## 页面开发
-- 列表页参考 `src/views/shop/banner/index.vue`，统一“`ProTable + FormDialog + ProForm`”结构；能通过 `columns`、`headerActions`、`cellType`、`actions` 配置表达的内容统一走配置，不堆砌具名插槽。
+- 列表页统一使用“`ProTable + FormDialog + ProForm`”结构；能通过 `columns`、`headerActions`、`cellType`、`actions` 配置表达的内容统一走配置，不堆砌具名插槽。
 - 图片列用 `cellType: "image"`，状态列用 `cellType: "status"`；弹窗优先 `FormDialog`，仅当表单结构明显不适合 `ProForm` 时才用 `ProDialog` 或 `el-dialog`。
 - 页面样式优先复用 `src/styles/common.scss` 与 `src/styles/element-dark.scss` 的主题变量，不写死浅色常量；必须同时兼容亮色、暗黑、灰色、色弱四种模式（灰色/色弱走全局滤镜）。
 - 需要新增页面级颜色变量时，先补充到全局主题变量再消费，不在单页 `html.dark` 零散覆盖。

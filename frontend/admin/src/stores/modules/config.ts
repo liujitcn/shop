@@ -9,10 +9,10 @@ import defaultBackgroundUrl from "@/assets/images/login_left.png";
 const CAPTCHA_TYPE_KEY = "captchaType";
 
 const DEFAULT_SITE_DISPLAY_CONFIG: SiteDisplayConfig = {
-  sysName: "Shop Admin",
+  sysName: "Admin",
   icp: "",
-  copyright: "2026 © Shop Admin",
-  watermark: "Shop Working",
+  copyright: "2026 © Admin",
+  watermark: "Admin",
   adminLogo: defaultLogoUrl,
   background: defaultBackgroundUrl
 };
@@ -74,7 +74,7 @@ function buildConfigMap(configs: Array<{ key?: string; value?: string }>) {
   return configMap;
 }
 
-export const useConfigStore = defineStore("shop-config", {
+export const useConfigStore = defineStore("admin-config", {
   state: (): SiteConfigState => ({
     display: { ...DEFAULT_SITE_DISPLAY_CONFIG },
     captcha: { ...DEFAULT_LOGIN_CAPTCHA_CONFIG }
@@ -117,5 +117,5 @@ export const useConfigStore = defineStore("shop-config", {
       return this.display;
     }
   },
-  persist: piniaPersistConfig("shop-config")
+  persist: piniaPersistConfig("admin-config")
 });

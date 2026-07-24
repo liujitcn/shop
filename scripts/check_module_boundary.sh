@@ -5,7 +5,7 @@ set -euo pipefail
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 backend_root="$repo_root/backend"
 
-# 业务模块自动发现：backend/service 下除基础目录外的模块（如 shop、cms、uba）。
+# 业务模块自动发现：backend/service 下除基础目录外的模块（如 cms、uba）。
 # 边界规则：业务模块只能被组合根（internal/cmd）装配，基础模块与其他业务模块均不得依赖它。
 base_dirs=(base system)
 modules=()
@@ -63,7 +63,7 @@ for mod in "${modules[@]}"; do
     frontend/admin/src
 done
 
-# ---- shop 历史迁移专项检查：防止已下沉的商城类型回流到通用协议 ----
+# ---- 历史迁移专项检查：防止已下沉的业务类型回流到通用协议 ----
 cd "$backend_root"
 check_absent \
   '通用协议不得保留商城 SSE 或推荐调试枚举' \
@@ -76,12 +76,6 @@ frontend_targets=(
   frontend/admin/src/rpc/base/v1
   frontend/admin/src/rpc/common/v1
 )
-if [[ -d frontend/app/src/rpc/base/v1 ]]; then
-  frontend_targets+=(frontend/app/src/rpc/base/v1)
-fi
-if [[ -d frontend/app/src/rpc/common/v1 ]]; then
-  frontend_targets+=(frontend/app/src/rpc/common/v1)
-fi
 check_absent \
   '基础前端 SSE 与通用 RPC 类型不得保留商城工作台或推荐调试类型' \
   'SseRefresh|AdvanceDataType' \

@@ -9,7 +9,7 @@ type AdminAgentToolsProvider interface {
 	AdminAgentTools() ([]einoTool.Invokable, error)
 }
 
-// AppAgentToolsProvider 表示可提供商城端 AI 助手工具的业务模块。
+// AppAgentToolsProvider 表示可提供应用端 AI 助手工具的业务模块。
 type AppAgentToolsProvider interface {
 	AppAgentTools() ([]einoTool.Invokable, error)
 }
@@ -56,7 +56,7 @@ func (modules Modules) adminAgentTools() ([]einoTool.Invokable, error) {
 	return tools, nil
 }
 
-// appAgentTools 汇总商城端 AI 助手工具。
+// appAgentTools 汇总应用端 AI 助手工具。
 func (modules Modules) appAgentTools() ([]einoTool.Invokable, error) {
 	var tools []einoTool.Invokable
 	for _, module := range modules {

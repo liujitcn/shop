@@ -38,18 +38,14 @@ type BaseTenantCase struct {
 	*biz.BaseCase
 	tx data.Transaction
 	*data.BaseTenantRepository
-	baseDeptRepo    *data.BaseDeptRepository
-	baseRoleRepo    *data.BaseRoleRepository
-	baseUserRepo    *data.BaseUserRepository
-	tenantStoreRepo *data.TenantStoreRepository
-	goodsInfoRepo   *data.GoodsInfoRepository
-	orderInfoRepo   *data.OrderInfoRepository
-	commentInfoRepo *data.CommentInfoRepository
-	casbinRuleRepo  *data.CasbinRuleRepository
-	casbinRuleCase  *CasbinRuleCase
-	userEvents      *event.UserEvents
-	formMapper      *mapper.CopierMapper[systemadminv1.BaseTenantForm, models.BaseTenant]
-	mapper          *mapper.CopierMapper[systemadminv1.BaseTenant, models.BaseTenant]
+	baseDeptRepo   *data.BaseDeptRepository
+	baseRoleRepo   *data.BaseRoleRepository
+	baseUserRepo   *data.BaseUserRepository
+	casbinRuleRepo *data.CasbinRuleRepository
+	casbinRuleCase *CasbinRuleCase
+	userEvents     *event.UserEvents
+	formMapper     *mapper.CopierMapper[systemadminv1.BaseTenantForm, models.BaseTenant]
+	mapper         *mapper.CopierMapper[systemadminv1.BaseTenant, models.BaseTenant]
 }
 
 // NewBaseTenantCase 创建租户业务实例。
@@ -60,10 +56,6 @@ func NewBaseTenantCase(
 	baseDeptRepo *data.BaseDeptRepository,
 	baseRoleRepo *data.BaseRoleRepository,
 	baseUserRepo *data.BaseUserRepository,
-	tenantStoreRepo *data.TenantStoreRepository,
-	goodsInfoRepo *data.GoodsInfoRepository,
-	orderInfoRepo *data.OrderInfoRepository,
-	commentInfoRepo *data.CommentInfoRepository,
 	casbinRuleRepo *data.CasbinRuleRepository,
 	casbinRuleCase *CasbinRuleCase,
 	userEvents *event.UserEvents,
@@ -75,10 +67,6 @@ func NewBaseTenantCase(
 		baseDeptRepo:         baseDeptRepo,
 		baseRoleRepo:         baseRoleRepo,
 		baseUserRepo:         baseUserRepo,
-		tenantStoreRepo:      tenantStoreRepo,
-		goodsInfoRepo:        goodsInfoRepo,
-		orderInfoRepo:        orderInfoRepo,
-		commentInfoRepo:      commentInfoRepo,
 		casbinRuleRepo:       casbinRuleRepo,
 		casbinRuleCase:       casbinRuleCase,
 		userEvents:           userEvents,
@@ -231,10 +219,6 @@ func (c *BaseTenantCase) DeleteBaseTenant(ctx context.Context, id string) error 
 
 	var deletedUserIDs []int64
 	err = c.tx.Transaction(ctx, func(ctx context.Context) error {
-		err = c.getBusinessData(ctx, tenantIDs)
-		if err != nil {
-			return err
-		}
 		deletedUserIDs, err = c.deleteTenantData(ctx, tenantIDs, tenantCodes)
 		if err != nil {
 			return err
@@ -381,58 +365,6 @@ func (c *BaseTenantCase) initTenantDefaults(ctx context.Context, baseTenant *mod
 	err = c.casbinRuleCase.RebuildCasbinRuleByRole(ctx, baseRole)
 	if err != nil {
 		return errorsx.Internal("初始化租户管理员角色权限失败").WithCause(err)
-	}
-	return nil
-}
-
-// getBusinessData 确认租户没有业务数据，包含门店，商品，订单。评论等。
-func (c *BaseTenantCase) getBusinessData(ctx context.Context, tenantIDs []int64) error {
-	tenantStoreQuery := c.tenantStoreRepo.Query(ctx).TenantStore
-	tenantStoreOpts := make([]repository.QueryOption, 0, 1)
-	tenantStoreOpts = append(tenantStoreOpts, repository.Where(tenantStoreQuery.TenantID.In(tenantIDs...)))
-	count, err := c.tenantStoreRepo.Count(ctx, tenantStoreOpts...)
-	if err != nil {
-		return err
-	}
-	// 租户存在门店时，保留经营数据并拒绝删除租户。
-	if count > 0 {
-		return errorsx.HasChildrenConflict("删除租户失败，租户下存在关联数据", "base_tenant", "tenant_store")
-	}
-
-	goodsInfoQuery := c.goodsInfoRepo.Query(ctx).GoodsInfo
-	goodsInfoOpts := make([]repository.QueryOption, 0, 1)
-	goodsInfoOpts = append(goodsInfoOpts, repository.Where(goodsInfoQuery.TenantID.In(tenantIDs...)))
-	count, err = c.goodsInfoRepo.Count(ctx, goodsInfoOpts...)
-	if err != nil {
-		return err
-	}
-	// 租户存在商品时，保留经营数据并拒绝删除租户。
-	if count > 0 {
-		return errorsx.HasChildrenConflict("删除租户失败，租户下存在关联数据", "base_tenant", "goods_info")
-	}
-
-	orderInfoQuery := c.orderInfoRepo.Query(ctx).OrderInfo
-	orderInfoOpts := make([]repository.QueryOption, 0, 1)
-	orderInfoOpts = append(orderInfoOpts, repository.Where(orderInfoQuery.TenantID.In(tenantIDs...)))
-	count, err = c.orderInfoRepo.Count(ctx, orderInfoOpts...)
-	if err != nil {
-		return err
-	}
-	// 租户存在订单时，保留经营数据并拒绝删除租户。
-	if count > 0 {
-		return errorsx.HasChildrenConflict("删除租户失败，租户下存在关联数据", "base_tenant", "order_info")
-	}
-
-	commentInfoQuery := c.commentInfoRepo.Query(ctx).CommentInfo
-	commentInfoOpts := make([]repository.QueryOption, 0, 1)
-	commentInfoOpts = append(commentInfoOpts, repository.Where(commentInfoQuery.TenantID.In(tenantIDs...)))
-	count, err = c.commentInfoRepo.Count(ctx, commentInfoOpts...)
-	if err != nil {
-		return err
-	}
-	// 租户存在评论时，保留经营数据并拒绝删除租户。
-	if count > 0 {
-		return errorsx.HasChildrenConflict("删除租户失败，租户下存在关联数据", "base_tenant", "comment_info")
 	}
 	return nil
 }

@@ -31,7 +31,7 @@ function normalizeRouteTree(menuList: RouteItem[], parentPath = ""): RouteItem[]
   });
 }
 
-export const useAuthStore = defineStore("shop-auth", {
+export const useAuthStore = defineStore("admin-auth", {
   state: (): AuthState => ({
     // 按钮权限列表
     authButtonList: {},

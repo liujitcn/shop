@@ -27,7 +27,7 @@ const (
 	mcpDefaultEndpointPath = "/mcp"
 	mcpMethodCallTool      = "tools/call"
 	mcpMethodListTools     = "tools/list"
-	mcpTerminalHeader      = "X-Shop-Mcp-Terminal"
+	mcpTerminalHeader      = "X-Admin-Mcp-Terminal"
 )
 
 type mcpTerminalContextKey struct{}

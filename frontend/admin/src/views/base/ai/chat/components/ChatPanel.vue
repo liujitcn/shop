@@ -136,12 +136,6 @@
                 </div>
                 <template v-else-if="item.role !== 'user'">
                   <AiMarkdown :content="item.content" :streaming="item.progressState === 'streaming'" />
-                  <FlowBlocks
-                    v-if="item.blocks?.length"
-                    :message="item"
-                    :active-flow-message-id="activeFlowMessageID"
-                    @flow-action="handleFlowAction"
-                  />
                   <el-collapse v-if="item.fallback_reason" class="agent-message-error__detail" accordion>
                     <el-collapse-item title="错误详情" :name="String(item.id)">
                       <pre>{{ item.fallback_reason }}</pre>
@@ -322,7 +316,7 @@ import { computed, defineAsyncComponent, h, nextTick, ref } from "vue";
 import type { Component, ObjectDirective } from "vue";
 import { Attachments, BubbleList } from "vue-element-plus-x";
 import type { FilesCardProps } from "vue-element-plus-x/types/FilesCard";
-import { ChatDotRound, Check, CopyDocument, DataAnalysis, Delete, EditPen, Goods, Link, Memo, PieChart, Refresh, Sell, ShoppingCart, User } from "@element-plus/icons-vue";
+import { Check, CopyDocument, DataAnalysis, Delete, EditPen, Link, Memo, PieChart, Refresh, User } from "@element-plus/icons-vue";
 import { ElMessage } from "element-plus";
 import {
   type AiAttachment,
@@ -335,7 +329,6 @@ import XSender from "./XSender.vue";
 
 // AI Markdown 渲染器依赖较重，仅在真正出现助手消息时再加载。
 const AiMarkdown = defineAsyncComponent(() => import("./AiMarkdown.vue"));
-const FlowBlocks = defineAsyncComponent(() => import("./FlowBlocks.vue"));
 import { buildAIAttachmentFileCard } from "../attachment";
 import type { ChatMessageAction, ChatMessageEditPayload, ChatMessageItem, ReplySourceTag, SubmitPayload } from "../types";
 
@@ -476,8 +469,6 @@ const emit = defineEmits<{
   messageAction: [payload: { action: ChatMessageAction; item: ChatMessageItem }];
   /** 提交当前用户消息的文本编辑。 */
   messageEdit: [payload: ChatMessageEditPayload];
-  /** 点击结构化流程动作。 */
-  flowAction: [payload: { action: AiAction; label?: string }];
 }>();
 
 const isEmptyState = computed(() => props.messages.length === 0);
@@ -499,14 +490,6 @@ const lastEditableUserMessageKey = computed(() => {
     if (item.role === "user" && !item.localOnly) {
       return resolveMessageEditKey(item);
     }
-  }
-  return "";
-});
-
-const activeFlowMessageID = computed(() => {
-  for (let index = props.messages.length - 1; index >= 0; index--) {
-    const item = props.messages[index];
-    if (item.role !== "user" && item.blocks?.length) return String(item.id ?? "");
   }
   return "";
 });
@@ -620,13 +603,9 @@ function refreshShortcutBatch() {
   shortcutBatchIndex.value = (shortcutBatchIndex.value + 1) % shortcutBatchCount.value;
 }
 
-/** 根据快捷入口所属业务给出稳定的轻量图标，不额外依赖后端配置。 */
+/** 根据快捷入口的通用类型给出稳定的轻量图标。 */
 function resolveShortcutIcon(shortcut: AiShortcut) {
   const text = `${shortcut.group || ""} ${shortcut.title || ""} ${shortcut.key || ""}`.toLowerCase();
-  if (text.includes("order") || text.includes("订单")) return ShoppingCart;
-  if (text.includes("goods") || text.includes("商品")) return Goods;
-  if (text.includes("comment") || text.includes("评价")) return ChatDotRound;
-  if (text.includes("recommend") || text.includes("推荐")) return Sell;
   if (text.includes("user") || text.includes("用户")) return User;
   if (text.includes("report") || text.includes("统计") || text.includes("分析")) return PieChart;
   return Memo;
@@ -643,11 +622,6 @@ function resolveShortcutMeta(shortcut: AiShortcut) {
 function buildShortcutAction(shortcut: AiShortcut) {
   if (!shortcut.action?.type) return undefined;
   return buildFlowAction(shortcut.action, parseActionPayload(shortcut.action.payload_json));
-}
-
-/** 点击结构化卡片按钮时上抛给页面执行。 */
-function handleFlowAction(action: AiAction, label?: string) {
-  emit("flowAction", { action, label });
 }
 
 /** 构造发送给后端的流程动作，统一补齐 payload JSON 默认值。 */

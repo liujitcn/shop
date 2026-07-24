@@ -2,7 +2,6 @@ package biz
 
 import (
 	"context"
-	"database/sql"
 
 	"github.com/liujitcn/go-utils/crypto"
 	"github.com/liujitcn/go-utils/mapper"
@@ -27,15 +26,14 @@ type BaseUserCase struct {
 	*biz.BaseCase
 	tx data.Transaction
 	*data.BaseUserRepository
-	baseDeptRepo  *data.BaseDeptRepository
-	basePostRepo  *data.BasePostRepository
-	orderInfoRepo *data.OrderInfoRepository
-	baseRoleCase  *BaseRoleCase
-	baseDeptCase  *BaseDeptCase
-	baseMenuCase  *BaseMenuCase
-	userEvents    *event.UserEvents
-	formMapper    *mapper.CopierMapper[systemadminv1.BaseUserForm, models.BaseUser]
-	mapper        *mapper.CopierMapper[systemadminv1.BaseUser, models.BaseUser]
+	baseDeptRepo *data.BaseDeptRepository
+	basePostRepo *data.BasePostRepository
+	baseRoleCase *BaseRoleCase
+	baseDeptCase *BaseDeptCase
+	baseMenuCase *BaseMenuCase
+	userEvents   *event.UserEvents
+	formMapper   *mapper.CopierMapper[systemadminv1.BaseUserForm, models.BaseUser]
+	mapper       *mapper.CopierMapper[systemadminv1.BaseUser, models.BaseUser]
 }
 
 // NewBaseUserCase 创建用户业务实例
@@ -45,7 +43,6 @@ func NewBaseUserCase(
 	baseUserRepo *data.BaseUserRepository,
 	baseDeptRepo *data.BaseDeptRepository,
 	basePostRepo *data.BasePostRepository,
-	orderInfoRepo *data.OrderInfoRepository,
 	baseRoleCase *BaseRoleCase,
 	baseDeptCase *BaseDeptCase,
 	baseMenuCase *BaseMenuCase,
@@ -57,7 +54,6 @@ func NewBaseUserCase(
 		BaseUserRepository: baseUserRepo,
 		baseDeptRepo:       baseDeptRepo,
 		basePostRepo:       basePostRepo,
-		orderInfoRepo:      orderInfoRepo,
 		baseRoleCase:       baseRoleCase,
 		baseDeptCase:       baseDeptCase,
 		baseMenuCase:       baseMenuCase,
@@ -75,37 +71,17 @@ func (c *BaseUserCase) OptionBaseUser(ctx context.Context, req *systemadminv1.Op
 		return &commonv1.SelectOptionResponse{List: []*commonv1.SelectOptionResponse_Option{}}, nil
 	}
 
-	authInfo, err := c.GetAuthInfo(ctx)
-	if err != nil {
-		return nil, err
-	}
-	queryCtx := ctx
-	isOrderUserSearch := req.GetTenantId() == 0 && authInfo.TenantCode != databaseGorm.DefaultTenantCode
-	// 普通租户需要跨租户读取订单中的商城用户，订单范围在联表条件中单独收敛。
-	if isOrderUserSearch {
-		unscopedAuthInfo := *authInfo
-		unscopedAuthInfo.TenantCode = databaseGorm.DefaultTenantCode
-		queryCtx = authnEngine.ContextWithAuthClaims(ctx, unscopedAuthInfo.MakeAuthClaims())
-	}
-
-	query := c.Query(queryCtx).BaseUser
+	query := c.Query(ctx).BaseUser
 	opts := make([]repository.QueryOption, 0, 7)
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
 	opts = append(opts, repository.Where(query.NickName.Like("%"+keyword+"%")))
-	if isOrderUserSearch {
-		orderQuery := c.orderInfoRepo.Query(ctx).OrderInfo
-		opts = append(opts, repository.Join(orderQuery, query.ID.EqCol(orderQuery.UserID)))
-		opts = append(opts, repository.Where(orderQuery.TenantID.Eq(authInfo.TenantId)))
-		opts = append(opts, repository.Where(orderQuery.DeletedAt.Eq(sql.NullInt64{Valid: true})))
-		opts = append(opts, repository.Distinct(query.ALL))
-	}
 	if req.GetTenantId() > 0 {
 		opts = append(opts, repository.Where(query.TenantID.Eq(req.GetTenantId())))
 	}
 	opts = append(opts, repository.Limit(100))
 
 	var list []*models.BaseUser
-	list, err = c.List(queryCtx, opts...)
+	list, err := c.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}

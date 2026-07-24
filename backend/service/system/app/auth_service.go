@@ -21,13 +21,13 @@ import (
 
 const _ = grpc.SupportPackageIsVersion7
 
-// AuthService 处理商城端用户认证资料服务。
+// AuthService 处理应用端用户认证资料服务。
 type AuthService struct {
 	systemappv1.UnimplementedAuthServiceServer
 	authCase *biz.AuthCase
 }
 
-// NewAuthService 创建商城端用户认证资料服务。
+// NewAuthService 创建应用端用户认证资料服务。
 func NewAuthService(
 	authCase *biz.AuthCase,
 ) *AuthService {

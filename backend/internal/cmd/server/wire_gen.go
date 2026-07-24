@@ -7,17 +7,7 @@
 package main
 
 import (
-	"github.com/go-kratos/kratos/v3"
-	"github.com/liujitcn/kratos-kit/bootstrap"
-	"github.com/liujitcn/kratos-kit/cache"
-	"github.com/liujitcn/kratos-kit/database/gorm"
-	"github.com/liujitcn/kratos-kit/oauth"
-	"github.com/liujitcn/kratos-kit/oss"
-	"github.com/liujitcn/kratos-kit/pprof"
-	"github.com/liujitcn/kratos-kit/queue"
-
 	"shop/pkg/agent/eino/model"
-	"shop/pkg/agent/eino/structured"
 	"shop/pkg/biz"
 	"shop/pkg/config"
 	"shop/pkg/event"
@@ -27,31 +17,25 @@ import (
 	"shop/pkg/sse"
 	"shop/server"
 	base2 "shop/server/base"
-	admin4 "shop/server/shop/admin"
-	app4 "shop/server/shop/app"
 	admin2 "shop/server/system/admin"
 	app2 "shop/server/system/app"
 	"shop/service/base"
 	"shop/service/base/agent/ai"
 	biz2 "shop/service/base/biz"
-	admin3 "shop/service/shop/admin"
-	biz5 "shop/service/shop/admin/biz"
-	"shop/service/shop/agent/aiflow"
-	app3 "shop/service/shop/app"
-	"shop/service/shop/app/agent/comment"
-	biz6 "shop/service/shop/app/biz"
-	config2 "shop/service/shop/config"
-	queue2 "shop/service/shop/queue"
-	"shop/service/shop/recommend"
-	"shop/service/shop/recommend/gorse"
-	"shop/service/shop/recommend/local"
-	"shop/service/shop/workspaceevent"
-	"shop/service/shop/wx"
 	"shop/service/system/admin"
 	biz3 "shop/service/system/admin/biz"
 	"shop/service/system/admin/codegen"
 	"shop/service/system/app"
 	biz4 "shop/service/system/app/biz"
+
+	"github.com/go-kratos/kratos/v3"
+	"github.com/liujitcn/kratos-kit/bootstrap"
+	"github.com/liujitcn/kratos-kit/cache"
+	"github.com/liujitcn/kratos-kit/database/gorm"
+	"github.com/liujitcn/kratos-kit/oauth"
+	"github.com/liujitcn/kratos-kit/oss"
+	"github.com/liujitcn/kratos-kit/pprof"
+	"github.com/liujitcn/kratos-kit/queue"
 
 	_ "github.com/liujitcn/kratos-kit/database/gorm/driver/mysql"
 
@@ -230,7 +214,6 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 		Sse:       sseService,
 	}
 	basePostRepository := data.NewBasePostRepository(dataData)
-	orderInfoRepository := data.NewOrderInfoRepository(dataData)
 	bizBaseAPICase := biz3.NewBaseAPICase(baseCase, baseAPIRepository, authentication_Jwt)
 	bizCasbinRuleCase, err := biz3.NewCasbinRuleCase(baseCase, transaction, casbinRuleRepository, baseMenuRepository, baseRoleRepository, baseTenantRepository, bizBaseAPICase)
 	if err != nil {
@@ -243,11 +226,8 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	bizBaseRoleCase := biz3.NewBaseRoleCase(baseCase, transaction, baseRoleRepository, baseTenantRepository, bizCasbinRuleCase)
 	bizBaseDeptCase := biz3.NewBaseDeptCase(baseCase, baseDeptRepository)
 	baseMenuCase := biz3.NewBaseMenuCase(baseCase, transaction, baseMenuRepository, baseRoleRepository, bizCasbinRuleCase)
-	bizBaseUserCase := biz3.NewBaseUserCase(baseCase, transaction, baseUserRepository, baseDeptRepository, basePostRepository, orderInfoRepository, bizBaseRoleCase, bizBaseDeptCase, baseMenuCase, userEvents)
-	tenantStoreRepository := data.NewTenantStoreRepository(dataData)
-	goodsInfoRepository := data.NewGoodsInfoRepository(dataData)
-	commentInfoRepository := data.NewCommentInfoRepository(dataData)
-	bizBaseTenantCase := biz3.NewBaseTenantCase(baseCase, transaction, baseTenantRepository, baseDeptRepository, baseRoleRepository, baseUserRepository, tenantStoreRepository, goodsInfoRepository, orderInfoRepository, commentInfoRepository, casbinRuleRepository, bizCasbinRuleCase, userEvents)
+	bizBaseUserCase := biz3.NewBaseUserCase(baseCase, transaction, baseUserRepository, baseDeptRepository, basePostRepository, bizBaseRoleCase, bizBaseDeptCase, baseMenuCase, userEvents)
+	bizBaseTenantCase := biz3.NewBaseTenantCase(baseCase, transaction, baseTenantRepository, baseDeptRepository, baseRoleRepository, baseUserRepository, casbinRuleRepository, bizCasbinRuleCase, userEvents)
 	authCase := biz3.NewAuthCase(baseCase, bizBaseUserCase, bizBaseRoleCase, bizBaseDeptCase, bizBaseTenantCase, baseMenuCase, fileCase)
 	authService := admin.NewAuthService(authCase)
 	baseApiService := admin.NewBaseApiService(bizBaseAPICase)
@@ -323,259 +303,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 		BaseArea: appBaseAreaService,
 		BaseDict: appBaseDictService,
 	}
-	commentTagRepository := data.NewCommentTagRepository(dataData)
-	commentTagCase := biz5.NewCommentTagCase(baseCase, commentTagRepository)
-	commentDiscussionRepository := data.NewCommentDiscussionRepository(dataData)
-	commentReviewRepository := data.NewCommentReviewRepository(dataData)
-	commentReviewCase := biz5.NewCommentReviewCase(baseCase, commentReviewRepository)
-	commentDiscussionCase := biz5.NewCommentDiscussionCase(baseCase, commentDiscussionRepository, transaction, commentInfoRepository, commentReviewCase, bizBaseUserCase)
-	commentSummaryRepository := data.NewCommentSummaryRepository(dataData)
-	commentSummaryCase := biz5.NewCommentSummaryCase(baseCase, commentSummaryRepository)
-	commentInfoCase := biz5.NewCommentInfoCase(baseCase, commentInfoRepository, transaction, commentTagCase, commentDiscussionCase, commentSummaryCase, commentReviewCase, bizBaseUserCase)
-	commentInfoService := admin3.NewCommentInfoService(commentInfoCase, commentDiscussionCase, commentReviewCase)
-	tenantStoreCase := biz5.NewTenantStoreCase(baseCase, transaction, tenantStoreRepository, goodsInfoRepository, bizBaseTenantCase)
-	tenantStoreService := admin3.NewTenantStoreService(tenantStoreCase)
-	goodsCategoryRepository := data.NewGoodsCategoryRepository(dataData)
-	goodsCategoryCase := biz5.NewGoodsCategoryCase(baseCase, goodsCategoryRepository)
-	goodsPropRepository := data.NewGoodsPropRepository(dataData)
-	goodsPropCase := biz5.NewGoodsPropCase(baseCase, goodsPropRepository, goodsInfoRepository)
-	goodsSpecRepository := data.NewGoodsSpecRepository(dataData)
-	goodsSpecCase := biz5.NewGoodsSpecCase(baseCase, goodsSpecRepository)
-	goodsSKURepository := data.NewGoodsSKURepository(dataData)
-	goodsSKUCase := biz5.NewGoodsSKUCase(baseCase, goodsSKURepository)
-	goodsInfoCase := biz5.NewGoodsInfoCase(baseCase, transaction, goodsInfoRepository, goodsCategoryCase, goodsPropCase, goodsSpecCase, goodsSKUCase, tenantStoreCase)
-	goodsStatDayRepository := data.NewGoodsStatDayRepository(dataData)
-	goodsAnalyticsCase := biz5.NewGoodsAnalyticsCase(goodsInfoCase, goodsCategoryCase, goodsStatDayRepository)
-	goodsAnalyticsService := admin3.NewGoodsAnalyticsService(goodsAnalyticsCase)
-	goodsReportCase := biz5.NewGoodsReportCase(baseCase, goodsStatDayRepository)
-	goodsReportService := admin3.NewGoodsReportService(goodsReportCase)
-	goodsCategoryService := admin3.NewGoodsCategoryService(goodsCategoryCase)
-	goodsPropService := admin3.NewGoodsPropService(goodsPropCase)
-	goodsInfoService := admin3.NewGoodsInfoService(goodsInfoCase)
-	goodsSkuService := admin3.NewGoodsSkuService(goodsSKUCase)
-	goodsSpecService := admin3.NewGoodsSpecService(goodsSpecCase)
-	orderAddressRepository := data.NewOrderAddressRepository(dataData)
-	orderAddressCase := biz5.NewOrderAddressCase(baseCase, orderAddressRepository)
-	orderTradeRepository := data.NewOrderTradeRepository(dataData)
-	orderCancelRepository := data.NewOrderCancelRepository(dataData)
-	orderCancelCase := biz5.NewOrderCancelCase(baseCase, orderCancelRepository)
-	orderGoodsRepository := data.NewOrderGoodsRepository(dataData)
-	orderGoodsCase := biz5.NewOrderGoodsCase(baseCase, orderGoodsRepository)
-	orderLogisticsRepository := data.NewOrderLogisticsRepository(dataData)
-	orderLogisticsCase := biz5.NewOrderLogisticsCase(baseCase, orderLogisticsRepository)
-	orderPaymentRepository := data.NewOrderPaymentRepository(dataData)
-	orderPaymentCase := biz5.NewOrderPaymentCase(baseCase, orderPaymentRepository)
-	orderRefundRepository := data.NewOrderRefundRepository(dataData)
-	orderRefundCase := biz5.NewOrderRefundCase(baseCase, orderRefundRepository)
-	orderInventoryCase := biz6.NewOrderInventoryCase(orderGoodsRepository, goodsInfoRepository, goodsSKURepository)
-	orderRefundResultCase := biz6.NewOrderRefundResultCase(transaction, orderTradeRepository, orderInfoRepository, orderRefundRepository, orderInventoryCase)
-	appInfo := config.GetAppInfo(context)
-	shopConfig := config2.NewShopConfig(context, appInfo)
-	wxPay, err := config2.ParseWxPay(shopConfig)
-	if err != nil {
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	wxPayCase, err := wx.NewWxPayCase(baseCase, wxPay)
-	if err != nil {
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	orderInfoCase := biz5.NewOrderInfoCase(baseCase, transaction, orderAddressCase, orderInfoRepository, orderTradeRepository, orderCancelCase, orderGoodsCase, orderLogisticsCase, orderPaymentCase, orderRefundCase, orderRefundResultCase, bizBaseUserCase, baseDictItemCase, wxPayCase)
-	orderAnalyticsCase := biz5.NewOrderAnalyticsCase(orderInfoCase)
-	orderAnalyticsService := admin3.NewOrderAnalyticsService(orderAnalyticsCase)
-	orderStatDayRepository := data.NewOrderStatDayRepository(dataData)
-	orderReportCase := biz5.NewOrderReportCase(baseCase, orderStatDayRepository, orderInfoCase)
-	orderReportService := admin3.NewOrderReportService(orderReportCase)
-	orderInfoService := admin3.NewOrderInfoService(orderInfoCase)
-	payBillRepository := data.NewPayBillRepository(dataData)
-	payBillCase := biz5.NewPayBillCase(baseCase, payBillRepository)
-	payBillService := admin3.NewPayBillService(payBillCase)
-	recommendRequestRepository := data.NewRecommendRequestRepository(dataData)
-	recommendRequestItemRepository := data.NewRecommendRequestItemRepository(dataData)
-	recommendEventRepository := data.NewRecommendEventRepository(dataData)
-	recommendEventCase := biz5.NewRecommendEventCase(baseCase, recommendEventRepository)
-	recommendRequestItemCase := biz5.NewRecommendRequestItemCase(baseCase, recommendRequestItemRepository, goodsInfoRepository, recommendEventCase)
-	recommendRequestCase := biz5.NewRecommendRequestCase(baseCase, recommendRequestRepository, baseUserRepository, recommendRequestItemCase, recommendEventCase)
-	recommendRequestService := admin3.NewRecommendRequestService(recommendRequestCase)
-	configv1Recommend, err := config2.ParseRecommend(shopConfig)
-	if err != nil {
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	gorseRecommend := gorse.NewRecommend(configv1Recommend)
-	dashboard := gorse.NewDashboard(gorseRecommend)
-	recommendGorseCase := biz5.NewRecommendGorseCase(dashboard)
-	recommendGorseService := admin3.NewRecommendGorseService(recommendGorseCase)
-	shopBannerRepository := data.NewShopBannerRepository(dataData)
-	shopBannerCase := biz5.NewShopBannerCase(baseCase, shopBannerRepository)
-	shopBannerService := admin3.NewShopBannerService(shopBannerCase)
-	shopHotRepository := data.NewShopHotRepository(dataData)
-	shopHotItemRepository := data.NewShopHotItemRepository(dataData)
-	shopHotGoodsRepository := data.NewShopHotGoodsRepository(dataData)
-	shopHotItemCase := biz5.NewShopHotItemCase(baseCase, transaction, shopHotRepository, shopHotItemRepository, shopHotGoodsRepository)
-	shopHotCase := biz5.NewShopHotCase(baseCase, transaction, shopHotRepository, shopHotItemCase)
-	shopHotService := admin3.NewShopHotService(shopHotCase, shopHotItemCase)
-	shopServiceRepository := data.NewShopServiceRepository(dataData)
-	shopServiceCase := biz5.NewShopServiceCase(baseCase, shopServiceRepository)
-	shopServiceService := admin3.NewShopServiceService(shopServiceCase)
-	userAnalyticsCase := biz5.NewUserAnalyticsCase(bizBaseUserCase, orderInfoCase)
-	userAnalyticsService := admin3.NewUserAnalyticsService(userAnalyticsCase)
-	userStoreRepository := data.NewUserStoreRepository(dataData)
-	userStoreCase := biz5.NewUserStoreCase(baseCase, transaction, userStoreRepository, baseAreaRepository, bizBaseUserCase, bizBaseRoleCase)
-	userStoreService := admin3.NewUserStoreService(userStoreCase)
-	workspaceCase := biz5.NewWorkspaceCase(orderInfoCase, bizBaseUserCase, orderGoodsCase, goodsInfoCase, goodsSKUCase, payBillCase, commentInfoCase, commentDiscussionCase, commentTagCase, commentSummaryCase)
-	workspaceService := admin3.NewWorkspaceService(workspaceCase)
-	services2 := admin4.Services{
-		CommentInfo:      commentInfoService,
-		TenantStore:      tenantStoreService,
-		GoodsAnalytics:   goodsAnalyticsService,
-		GoodsReport:      goodsReportService,
-		GoodsCategory:    goodsCategoryService,
-		GoodsProp:        goodsPropService,
-		Goods:            goodsInfoService,
-		GoodsSKU:         goodsSkuService,
-		GoodsSpec:        goodsSpecService,
-		OrderAnalytics:   orderAnalyticsService,
-		OrderReport:      orderReportService,
-		Order:            orderInfoService,
-		PayBill:          payBillService,
-		RecommendRequest: recommendRequestService,
-		RecommendGorse:   recommendGorseService,
-		ShopBanner:       shopBannerService,
-		ShopHot:          shopHotService,
-		ShopService:      shopServiceService,
-		UserAnalytics:    userAnalyticsService,
-		UserStore:        userStoreService,
-		Workspace:        workspaceService,
-	}
-	bizCommentInfoCase := biz6.NewCommentInfoCase(baseCase, commentInfoRepository)
-	commentReactionRepository := data.NewCommentReactionRepository(dataData)
-	bizCommentSummaryCase := biz6.NewCommentSummaryCase(baseCase, commentSummaryRepository, commentReactionRepository)
-	bizCommentTagCase := biz6.NewCommentTagCase(baseCase, commentTagRepository)
-	bizCommentReviewCase := biz6.NewCommentReviewCase(baseCase, commentReviewRepository)
-	bizCommentDiscussionCase := biz6.NewCommentDiscussionCase(baseCase, commentDiscussionRepository, commentReactionRepository)
-	commentReactionCase := biz6.NewCommentReactionCase(baseCase, commentReactionRepository, commentInfoRepository, commentSummaryRepository, commentDiscussionRepository)
-	orderTradeCase := biz6.NewOrderTradeCase(baseCase, orderTradeRepository)
-	bizOrderCancelCase := biz6.NewOrderCancelCase(baseCase, orderCancelRepository)
-	bizGoodsCategoryCase := biz6.NewGoodsCategoryCase(baseCase, goodsCategoryRepository, goodsInfoRepository)
-	bizTenantStoreCase := biz6.NewTenantStoreCase(baseCase, tenantStoreRepository)
-	bizGoodsPropCase := biz6.NewGoodsPropCase(baseCase, goodsPropRepository)
-	bizGoodsSpecCase := biz6.NewGoodsSpecCase(baseCase, goodsSpecRepository)
-	bizGoodsSKUCase := biz6.NewGoodsSKUCase(baseCase, goodsSKURepository)
-	bizGoodsInfoCase := biz6.NewGoodsInfoCase(baseCase, goodsInfoRepository, bizGoodsCategoryCase, bizTenantStoreCase, bizGoodsPropCase, bizGoodsSpecCase, bizGoodsSKUCase)
-	bizOrderGoodsCase := biz6.NewOrderGoodsCase(baseCase, orderGoodsRepository, bizGoodsInfoCase, bizGoodsSKUCase)
-	userAddressRepository := data.NewUserAddressRepository(dataData)
-	bizOrderAddressCase := biz6.NewOrderAddressCase(baseCase, orderAddressRepository, userAddressRepository, bizBaseAreaCase)
-	bizOrderLogisticsCase := biz6.NewOrderLogisticsCase(baseCase, orderLogisticsRepository)
-	bizOrderPaymentCase := biz6.NewOrderPaymentCase(baseCase, orderPaymentRepository)
-	bizOrderRefundCase := biz6.NewOrderRefundCase(baseCase, orderRefundRepository)
-	userAddressCase := biz6.NewUserAddressCase(baseCase, transaction, userAddressRepository, bizBaseAreaCase)
-	userCartRepository := data.NewUserCartRepository(dataData)
-	userCartCase := biz6.NewUserCartCase(baseCase, userCartRepository, bizGoodsInfoCase, bizGoodsSKUCase, bizTenantStoreCase)
-	orderSchedulerCase := biz6.NewOrderSchedulerCase(baseCase)
-	payCase := biz6.NewPayCase(baseCase, transaction, baseThirdAccountRepository, orderTradeRepository, orderInfoRepository, orderGoodsRepository, orderPaymentRepository, orderRefundResultCase, orderSchedulerCase, wxPayCase)
-	bizOrderInfoCase, err := biz6.NewOrderInfoCase(baseCase, transaction, orderInfoRepository, orderTradeCase, bizOrderCancelCase, bizOrderGoodsCase, bizOrderAddressCase, bizOrderLogisticsCase, bizOrderPaymentCase, bizOrderRefundCase, bizGoodsInfoCase, bizGoodsSKUCase, bizTenantStoreCase, userAddressCase, userCartCase, bizBaseDictItemCase, orderSchedulerCase, payCase, wxPayCase)
-	if err != nil {
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	chatClient := model.NewChatClient(ai_Model)
-	runner := structured.NewRunner(chatClient)
-	commentRuntime := comment.NewRuntime(runner)
-	commentCase := biz6.NewCommentCase(baseCase, transaction, bizCommentInfoCase, bizCommentSummaryCase, bizCommentTagCase, bizCommentReviewCase, bizCommentDiscussionCase, commentReactionCase, bizOrderInfoCase, bizOrderGoodsCase, baseUserCase2, commentRuntime, appInfo)
-	appCommentInfoService := app3.NewCommentInfoService(commentCase)
-	appGoodsCategoryService := app3.NewGoodsCategoryService(bizGoodsCategoryCase)
-	appGoodsInfoService := app3.NewGoodsInfoService(bizGoodsInfoCase)
-	appTenantStoreService := app3.NewTenantStoreService(bizTenantStoreCase)
-	appOrderInfoService := app3.NewOrderInfoService(bizOrderInfoCase)
-	payService := app3.NewPayService(payCase)
-	bizRecommendRequestCase := biz6.NewRecommendRequestCase(baseCase, transaction, recommendRequestRepository, recommendRequestItemRepository)
-	bizRecommendEventCase := biz6.NewRecommendEventCase(baseCase, recommendEventRepository, bizRecommendRequestCase)
-	userCollectRepository := data.NewUserCollectRepository(dataData)
-	userCollectCase := biz6.NewUserCollectCase(baseCase, userCollectRepository, bizGoodsInfoCase, bizGoodsSKUCase, bizTenantStoreCase)
-	userReceiver := gorse.NewUserReceiver(gorseRecommend)
-	sessionReceiver := gorse.NewSessionReceiver(gorseRecommend)
-	namedReceiver := gorse.NewNamedReceiver(gorseRecommend)
-	chainReceiver := gorse.NewChainReceiver(gorseRecommend, userReceiver, sessionReceiver, namedReceiver)
-	localRecommend := local.NewRecommend(goodsInfoRepository, goodsStatDayRepository)
-	contextReceiver := local.NewContextReceiver(localRecommend)
-	hotReceiver := local.NewHotReceiver(localRecommend)
-	exploreReceiver := local.NewExploreReceiver(localRecommend)
-	localChainReceiver := local.NewChainReceiver(localRecommend, contextReceiver, hotReceiver, exploreReceiver)
-	goodsReceiver := recommend.NewGoodsReceiver(chainReceiver, localChainReceiver)
-	recommendCase := biz6.NewRecommendCase(baseCase, transaction, bizRecommendRequestCase, bizRecommendEventCase, bizOrderGoodsCase, bizOrderInfoCase, userCartCase, userCollectCase, bizGoodsInfoCase, goodsReceiver)
-	recommendService := app3.NewRecommendService(recommendCase)
-	bizShopBannerCase := biz6.NewShopBannerCase(baseCase, shopBannerRepository, bizGoodsCategoryCase)
-	appShopBannerService := app3.NewShopBannerService(bizShopBannerCase)
-	bizShopHotCase := biz6.NewShopHotCase(baseCase, shopHotRepository)
-	bizShopHotItemCase := biz6.NewShopHotItemCase(baseCase, shopHotRepository, shopHotItemRepository, shopHotGoodsRepository, goodsInfoRepository)
-	appShopHotService := app3.NewShopHotService(bizShopHotCase, bizShopHotItemCase)
-	bizShopServiceCase := biz6.NewShopServiceCase(baseCase, shopServiceRepository)
-	appShopServiceService := app3.NewShopServiceService(bizShopServiceCase)
-	userAddressService := app3.NewUserAddressService(userAddressCase)
-	userCartService := app3.NewUserCartService(userCartCase)
-	userCollectService := app3.NewUserCollectService(userCollectCase)
-	bizUserStoreCase := biz6.NewUserStoreCase(baseCase, transaction, userStoreRepository, bizBaseAreaCase)
-	appUserStoreService := app3.NewUserStoreService(bizUserStoreCase)
-	services3 := app4.Services{
-		CommentInfo:   appCommentInfoService,
-		GoodsCategory: appGoodsCategoryService,
-		Goods:         appGoodsInfoService,
-		TenantStore:   appTenantStoreService,
-		Order:         appOrderInfoService,
-		Pay:           payService,
-		Recommend:     recommendService,
-		ShopBanner:    appShopBannerService,
-		ShopHot:       appShopHotService,
-		ShopService:   appShopServiceService,
-		UserAddress:   userAddressService,
-		UserCart:      userCartService,
-		UserCollect:   userCollectService,
-		UserStore:     appUserStoreService,
-	}
-	recommendUserEventSubscriber := queue2.NewRecommendUserEventSubscriber()
-	tradeBill := biz5.NewTradeBill(dataData, ossOSS, transaction, wxPayCase, payBillRepository, orderPaymentRepository, orderRefundRepository)
-	orderStatDay := biz5.NewOrderStatDay(transaction, orderStatDayRepository, orderInfoRepository, orderCancelRepository, orderTradeRepository, orderPaymentRepository, orderRefundRepository)
-	goodsStatDay := biz5.NewGoodsStatDay(transaction, goodsStatDayRepository, goodsInfoRepository, recommendEventRepository, userCollectRepository, userCartRepository, orderInfoRepository, orderTradeRepository, orderPaymentRepository, orderGoodsRepository)
-	userSyncReceiver := gorse.NewUserSyncReceiver(gorseRecommend)
-	goodsSyncReceiver := gorse.NewGoodsSyncReceiver(gorseRecommend)
-	queueReceiver := gorse.NewQueueReceiver(gorseRecommend, baseUserRepository, goodsInfoRepository, userSyncReceiver, goodsSyncReceiver)
-	recommendSync := recommend.NewRecommendSync(baseUserRepository, goodsInfoRepository, userSyncReceiver, goodsSyncReceiver, queueReceiver)
-	taskSet := admin4.NewTaskSet(tradeBill, orderStatDay, goodsStatDay, recommendSync)
-	commentAuditRetry := biz6.NewCommentAuditRetry(commentCase, bizCommentInfoCase, bizCommentDiscussionCase, bizCommentReviewCase)
-	orderRefundRetry := biz6.NewOrderRefundRetry(payCase, orderTradeRepository, orderRefundRepository, wxPayCase)
-	appTaskSet := app4.NewTaskSet(commentAuditRetry, orderRefundRetry)
-	provider := aiflow.NewProvider()
-	registration, err := aiflow.NewRegistration(runtime, provider)
-	if err != nil {
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	sseReady, err := workspaceevent.NewSSEReady(sseRegistry, publisher)
-	if err != nil {
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	modules, err := newModules(services, adminServices, appServices, services2, services3, userEvents, recommendUserEventSubscriber, registry, taskSet, appTaskSet, registration, sseReady)
+	modules, err := newModules(services, adminServices, appServices)
 	if err != nil {
 		cleanup4()
 		cleanup3()
@@ -600,6 +328,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
+	appInfo := config.GetAppInfo(context)
 	httpMiddlewares := server.NewHTTPMiddleware(context, authenticator, baseUserRepository, engine, userToken, authentication_Jwt)
 	httpServer, err := server.NewHTTPServer(context, appInfo, httpMiddlewares, modules, authenticator, userToken, mcpToolsReady, agentToolsReady)
 	if err != nil {

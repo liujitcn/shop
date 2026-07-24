@@ -1,22 +1,22 @@
 {
-  "name": "shop-admin",
+  "name": "admin",
   "private": true,
   "version": "0.0.1",
   "type": "module",
-  "description": "shop-admin open source management system",
+  "description": "admin open source management system",
   "author": {
-    "name": "Shop",
+    "name": "Admin",
     "email": "liujitcn@gmail.com",
     "url": "https://github.com/liujitcn"
   },
   "license": "MIT",
-  "homepage": "https://github.com/liujitcn/shop",
+  "homepage": "https://github.com/liujitcn/admin",
   "repository": {
     "type": "git",
-    "url": "git@github.com:liujitcn/shop.git"
+    "url": "git@github.com:liujitcn/admin.git"
   },
   "bugs": {
-    "url": "https://github.com/liujitcn/shop/issues"
+    "url": "https://github.com/liujitcn/admin/issues"
   },
   "scripts": {
     "dev": "vite",

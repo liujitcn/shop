@@ -82,7 +82,7 @@ func NewHTTPServer(
 	projectName := appInfo.GetProject()
 	staticPrefix := "/" + projectName + "/"
 	staticDirectory := filepath.Join(ossRootDirectory, projectName)
-	// 将本地 OSS 目录暴露为静态资源目录，默认访问 /shop/* 时映射到 ./data/shop/*。
+	// 将本地 OSS 目录暴露为静态资源目录，默认访问 /admin/* 时映射到 ./data/admin/*。
 	staticHandler := stdhttp.StripPrefix(staticPrefix, stdhttp.FileServer(stdhttp.Dir(staticDirectory)))
 	srv.HandlePrefix(staticPrefix, staticHandler)
 

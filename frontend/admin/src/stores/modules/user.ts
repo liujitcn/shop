@@ -19,7 +19,7 @@ const defaultUserInfo: UserInfoForm = {
   tenant_name: ""
 };
 
-export const useUserStore = defineStore("shop-user", {
+export const useUserStore = defineStore("admin-user", {
   state: (): UserState => ({
     token: "",
     refreshToken: "",
@@ -105,5 +105,5 @@ export const useUserStore = defineStore("shop-user", {
       }
     }
   },
-  persist: piniaPersistConfig("shop-user")
+  persist: piniaPersistConfig("admin-user")
 });
