@@ -1,124 +1,129 @@
 <script setup lang="ts">
+import { useUserStore } from '@/stores'
 import { onLoad } from '@dcloudio/uni-app'
 import { ref } from 'vue'
-import { useUserStore } from '@/stores'
 import { navigateToLogin } from '@/utils/navigation'
 
 const userStore = useUserStore()
 const logoutLoading = ref(false)
 
+// #ifndef MP-WEIXIN
+// 非微信小程序端未登录时没有可用设置项，直接引导登录以避免显示空白页面。
 onLoad(() => {
   if (!userStore.ensureAuthenticated()) {
     navigateToLogin()
   }
 })
+// #endif
 
-const onLogout = async () => {
+// 退出登录
+const onLogout = () => {
   if (logoutLoading.value) {
     return
   }
-  const result = await uni.showModal({
+  // 模态弹窗
+  uni.showModal({
     content: '是否退出登录？',
-    confirmColor: '#2f9f87',
-  })
-  if (!result.confirm) {
-    return
-  }
+    confirmColor: '#27BA9B',
+    success: async (res) => {
+      if (!res.confirm) {
+        return
+      }
 
-  logoutLoading.value = true
-  try {
-    await userStore.logout()
-    uni.navigateBack()
-  } catch {
-    await uni.showToast({ icon: 'none', title: '退出登录失败' })
-  } finally {
-    logoutLoading.value = false
-  }
+      logoutLoading.value = true
+      try {
+        // 先完成退出和本地登录态清理，再返回个人中心，避免 onShow 读取到旧登录态。
+        await userStore.logout()
+        uni.navigateBack()
+      } catch (error) {
+        await uni.showToast({
+          icon: 'none',
+          title: '退出登录失败',
+        })
+      } finally {
+        logoutLoading.value = false
+      }
+    },
+  })
 }
 </script>
 
 <template>
-  <view class="page">
+  <view class="viewport">
+    <!-- #ifdef MP-WEIXIN -->
+    <!-- 列表2 -->
     <view class="list">
-      <navigator url="/pagesMember/profile/profile" hover-class="none" class="item">
-        <text>个人资料</text>
-        <text class="arrow">›</text>
-      </navigator>
-      <navigator url="/pages/login/protocal?type=service" hover-class="none" class="item">
-        <text>服务条款</text>
-        <text class="arrow">›</text>
-      </navigator>
-      <navigator url="/pages/login/protocal?type=privacy" hover-class="none" class="item">
-        <text>隐私政策</text>
-        <text class="arrow">›</text>
-      </navigator>
-      <!-- #ifdef MP-WEIXIN -->
-      <button hover-class="none" class="item button-item" open-type="openSetting">
-        <text>授权管理</text>
-        <text class="arrow">›</text>
-      </button>
-      <button hover-class="none" class="item button-item" open-type="feedback">
-        <text>问题反馈</text>
-        <text class="arrow">›</text>
-      </button>
-      <!-- #endif -->
+      <button hover-class="none" class="item arrow" open-type="openSetting">授权管理</button>
+      <button hover-class="none" class="item arrow" open-type="feedback">问题反馈</button>
+      <button hover-class="none" class="item arrow" open-type="contact">联系我们</button>
     </view>
-
-    <button class="logout" :disabled="logoutLoading" @tap="onLogout">退出登录</button>
+    <!-- #endif -->
+    <!-- 操作按钮 -->
+    <view class="action" v-if="userStore.isAuthenticated()">
+      <view @tap="onLogout" class="button">退出登录</view>
+    </view>
   </view>
 </template>
 
 <style lang="scss">
 page {
-  background: #f5f7f8;
+  background-color: #f4f4f4;
 }
 
-.page {
-  min-height: 100vh;
-  padding: 32rpx;
-  box-sizing: border-box;
+.viewport {
+  padding: 20rpx;
 }
 
+/* 列表 */
 .list {
-  overflow: hidden;
-  border-radius: 16rpx;
-  background: #fff;
+  padding: 0 20rpx;
+  background-color: #fff;
+  margin-bottom: 20rpx;
+  border-radius: 10rpx;
+  .item {
+    line-height: 90rpx;
+    padding-left: 10rpx;
+    font-size: 30rpx;
+    color: #333;
+    border-top: 1rpx solid #ddd;
+    position: relative;
+    text-align: left;
+    border-radius: 0;
+    background-color: #fff;
+    &::after {
+      width: auto;
+      height: auto;
+      left: auto;
+      border: none;
+    }
+    &:first-child {
+      border: none;
+    }
+    &::after {
+      right: 5rpx;
+    }
+  }
+  .arrow::after {
+    content: '›';
+    position: absolute;
+    top: 50%;
+    color: #ccc;
+    font-size: 36rpx;
+    transform: translateY(-50%);
+  }
 }
 
-.item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  padding: 30rpx 28rpx;
-  border: 0;
-  border-bottom: 1rpx solid #edf1ef;
-  box-sizing: border-box;
-  background: #fff;
-  color: #26332f;
-  font-size: 30rpx;
-  text-align: left;
-}
-
-.item:last-child {
-  border-bottom: 0;
-}
-
-.button-item::after {
-  border: 0;
-}
-
-.arrow {
-  color: #9eaba6;
-  font-size: 44rpx;
-  line-height: 1;
-}
-
-.logout {
-  margin-top: 32rpx;
-  border-radius: 16rpx;
-  background: #fff;
-  color: #d14f4f;
-  font-size: 30rpx;
+/* 操作按钮 */
+.action {
+  text-align: center;
+  line-height: 90rpx;
+  margin-top: 40rpx;
+  font-size: 32rpx;
+  color: #333;
+  .button {
+    background-color: #fff;
+    margin-bottom: 20rpx;
+    border-radius: 10rpx;
+  }
 }
 </style>

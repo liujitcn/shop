@@ -1,12 +1,12 @@
 # frontend/app
 
-`frontend/app` 是基于 `uni-app + Vue 3 + TypeScript + Vite + Pinia + Sass` 的轻量应用壳子，保留 H5、微信小程序和 App 等平台脚本。它不是独立业务前端，只承载框架、登录态、账户资料、协议页面、基础 AI 会话，以及 `base` 和 `system.app` 接口。
+`frontend/app` 是基于 `uni-app + Vue 3 + TypeScript + Vite + Pinia + Sass` 的通用应用壳子，保留 H5、微信小程序和 App 等平台脚本。它不绑定具体行业业务，只承载框架、登录态、账户资料、协议页面和基础 AI 会话。
 
 ## 目录职责
 
 ```text
 frontend/app
-├── public                 # H5 静态资源
+├── public                 # H5 静态资源与应用图标
 ├── src
 │   ├── api/base           # 基础接口 service
 │   ├── api/system         # system.app 接口 service
@@ -36,7 +36,7 @@ frontend/app
 
 - 设置：`pagesMember/settings/settings`
 - 个人资料：`pagesMember/profile/profile`
-- AI 助手：`pagesMember/ai/index`
+- 智能助手：`pagesMember/ai/index`
 
 ## 环境要求
 
@@ -88,7 +88,7 @@ pnpm build:h5
 ## 接口、状态与生成代码
 
 - 请求统一通过 `src/api` 下的 service 发起。
-- `src/api/base` 对应基础协议，`src/api/system` 对应系统 app 协议。
+- `src/api/base` 对应基础协议，`src/api/system` 对应系统应用协议。
 - `src/rpc` 是生成产物，由后端 `make ts-app` 生成，不手工维护等价类型。
 - 全局状态放在 `src/stores/modules`，并通过 `src/stores/index.ts` 汇总。
 - 请求封装、鉴权、刷新令牌和错误提示集中在 `src/utils/http.ts`。

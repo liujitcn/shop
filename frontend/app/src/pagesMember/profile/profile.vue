@@ -291,6 +291,10 @@ page {
     display: flex;
     justify-content: center;
     align-items: center;
+
+    &::before {
+      content: '‹';
+    }
   }
 }
 

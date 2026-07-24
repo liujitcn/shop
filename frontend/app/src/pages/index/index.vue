@@ -1,61 +1,59 @@
-<script setup lang="ts">
-import { onShow } from '@dcloudio/uni-app'
-import { computed } from 'vue'
-import { useUserStore } from '@/stores'
-import { navigateToLogin } from '@/utils/navigation'
-
-const userStore = useUserStore()
-const displayName = computed(() => userStore.userInfo?.nick_name || userStore.userInfo?.user_name)
-
-onShow(() => {
-  if (userStore.isAuthenticated() && !userStore.userInfo) {
-    void userStore.getUserProfile().catch(() => undefined)
-  }
-})
-
-const openAssistant = () => {
-  if (!userStore.ensureAuthenticated()) {
-    navigateToLogin('/pagesMember/ai/index')
-    return
-  }
-  uni.navigateTo({ url: '/pagesMember/ai/index' })
-}
-
-const openAccount = () => {
-  if (!userStore.isAuthenticated()) {
-    navigateToLogin()
-    return
-  }
-  uni.navigateTo({ url: '/pages/my/my' })
-}
-</script>
-
 <template>
   <view class="page">
     <view class="hero">
-      <text class="eyebrow">APPLICATION SHELL</text>
-      <text class="title">基础应用</text>
-      <text class="subtitle">登录、账户与通用能力已就绪。</text>
+      <image class="logo" src="@/static/images/logo_icon.png" mode="aspectFit" />
+      <view class="hero-copy">
+        <text class="eyebrow">DEMO APP</text>
+        <text class="title">应用框架示例</text>
+        <text class="subtitle">保留通用导航与个人中心体验</text>
+      </view>
     </view>
 
     <view class="section">
-      <view class="section-title">快捷入口</view>
-      <view class="entry-list">
-        <view class="entry" @tap="openAssistant">
-          <view>
-            <text class="entry-title">AI 助手</text>
-            <text class="entry-desc">使用基础 AI 会话能力</text>
-          </view>
-          <text class="entry-arrow">›</text>
+      <text class="section-title">当前技术栈</text>
+      <view class="info-list">
+        <view class="info-row">
+          <text class="info-label">应用框架</text>
+          <text class="info-value">uni-app + Vue 3</text>
         </view>
-        <view class="entry" @tap="openAccount">
-          <view>
-            <text class="entry-title">{{ displayName || '账户中心' }}</text>
-            <text class="entry-desc">{{
-              displayName ? '查看个人资料和应用设置' : '登录后管理账户'
-            }}</text>
+        <view class="info-row">
+          <text class="info-label">开发语言</text>
+          <text class="info-value">TypeScript</text>
+        </view>
+        <view class="info-row">
+          <text class="info-label">状态管理</text>
+          <text class="info-value">Pinia</text>
+        </view>
+        <view class="info-row">
+          <text class="info-label">样式方案</text>
+          <text class="info-value">Sass + rpx</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="section">
+      <text class="section-title">演示范围</text>
+      <view class="demo-list">
+        <view class="demo-item">
+          <view class="demo-dot">1</view>
+          <view class="demo-copy">
+            <text class="demo-title">跨端页面</text>
+            <text class="demo-desc">同一套页面代码适配 H5、微信小程序和 App</text>
           </view>
-          <text class="entry-arrow">›</text>
+        </view>
+        <view class="demo-item">
+          <view class="demo-dot">2</view>
+          <view class="demo-copy">
+            <text class="demo-title">账户能力</text>
+            <text class="demo-desc">个人资料、应用设置与智能助手入口已保留</text>
+          </view>
+        </view>
+        <view class="demo-item">
+          <view class="demo-dot">3</view>
+          <view class="demo-copy">
+            <text class="demo-title">静态首页</text>
+            <text class="demo-desc">当前首页用于展示框架信息，不依赖业务接口</text>
+          </view>
         </view>
       </view>
     </view>
@@ -64,85 +62,147 @@ const openAccount = () => {
 
 <style lang="scss">
 page {
-  background: #f5f7f8;
+  background-color: #f7f7f8;
 }
 
 .page {
   min-height: 100vh;
-  padding: 48rpx 32rpx;
+  padding: 44rpx 28rpx 56rpx;
   box-sizing: border-box;
 }
 
 .hero {
-  padding: 64rpx 12rpx 72rpx;
+  display: flex;
+  align-items: center;
+  padding: 34rpx 28rpx;
+  border-radius: 12rpx;
+  background-color: #27ba9b;
+  box-shadow: 0 8rpx 18rpx rgba(39, 186, 155, 0.18);
+}
+
+.logo {
+  flex: 0 0 auto;
+  width: 92rpx;
+  height: 92rpx;
+  border-radius: 20rpx;
+  background-color: #fff;
+}
+
+.hero-copy {
+  min-width: 0;
+  margin-left: 22rpx;
+}
+
+.eyebrow,
+.title,
+.subtitle {
+  display: block;
 }
 
 .eyebrow {
-  display: block;
-  color: #2f9f87;
-  font-size: 22rpx;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 20rpx;
   letter-spacing: 2rpx;
 }
 
 .title {
-  display: block;
-  margin-top: 20rpx;
-  color: #17221f;
-  font-size: 52rpx;
-  font-weight: 700;
+  margin-top: 8rpx;
+  color: #fff;
+  font-size: 40rpx;
+  font-weight: 600;
 }
 
 .subtitle {
-  display: block;
-  margin-top: 18rpx;
-  color: #71807b;
-  font-size: 28rpx;
+  margin-top: 10rpx;
+  color: rgba(255, 255, 255, 0.86);
+  font-size: 24rpx;
+}
+
+.section {
+  margin-top: 24rpx;
 }
 
 .section-title {
-  margin: 0 12rpx 20rpx;
+  display: block;
+  margin: 0 8rpx 14rpx;
   color: #26332f;
   font-size: 28rpx;
   font-weight: 600;
 }
 
-.entry-list {
+.info-list,
+.demo-list {
   overflow: hidden;
-  border-radius: 16rpx;
-  background: #fff;
+  border-radius: 10rpx;
+  background-color: #fff;
 }
 
-.entry {
+.info-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 30rpx 28rpx;
+  padding: 26rpx 24rpx;
   border-bottom: 1rpx solid #edf1ef;
 }
 
-.entry:last-child {
+.info-row:last-child {
   border-bottom: 0;
 }
 
-.entry-title,
-.entry-desc {
+.info-label {
+  color: #66736f;
+  font-size: 26rpx;
+}
+
+.info-value {
+  color: #26332f;
+  font-size: 26rpx;
+  font-weight: 500;
+}
+
+.demo-item {
+  display: flex;
+  align-items: flex-start;
+  padding: 26rpx 24rpx;
+  border-bottom: 1rpx solid #edf1ef;
+}
+
+.demo-item:last-child {
+  border-bottom: 0;
+}
+
+.demo-dot {
+  flex: 0 0 auto;
+  width: 42rpx;
+  height: 42rpx;
+  border-radius: 50%;
+  background-color: #e8f8f4;
+  color: #16806d;
+  font-size: 24rpx;
+  line-height: 42rpx;
+  text-align: center;
+}
+
+.demo-copy {
+  min-width: 0;
+  margin-left: 18rpx;
+}
+
+.demo-title,
+.demo-desc {
   display: block;
 }
 
-.entry-title {
-  color: #1f2c28;
-  font-size: 30rpx;
+.demo-title {
+  color: #26332f;
+  font-size: 28rpx;
+  font-weight: 500;
 }
 
-.entry-desc {
+.demo-desc {
   margin-top: 8rpx;
   color: #8a9691;
   font-size: 24rpx;
-}
-
-.entry-arrow {
-  color: #9eaba6;
-  font-size: 44rpx;
-  line-height: 1;
+  line-height: 1.5;
 }
 </style>

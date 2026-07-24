@@ -614,6 +614,10 @@ onLoad(async () => {
       font-size: 40rpx;
       margin-right: 10rpx;
     }
+
+    .icon-phone::before {
+      content: '☎';
+    }
   }
 
   .login-button-primary {

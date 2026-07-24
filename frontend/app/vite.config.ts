@@ -55,12 +55,19 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
           rewrite: (proxyPath) =>
             proxyPath.replace(new RegExp('^' + env.VITE_APP_BASE_API), env.VITE_APP_BASE_API),
         },
-        [env.VITE_APP_STATIC_API]: {
-          changeOrigin: true,
-          target: devH5ProxyEnv.VITE_APP_STATIC_URL,
-          rewrite: (proxyPath) =>
-            proxyPath.replace(new RegExp('^' + env.VITE_APP_STATIC_API), env.VITE_APP_STATIC_API),
-        },
+        ...(env.VITE_APP_STATIC_API
+          ? {
+              [env.VITE_APP_STATIC_API]: {
+                changeOrigin: true,
+                target: devH5ProxyEnv.VITE_APP_STATIC_URL,
+                rewrite: (proxyPath) =>
+                  proxyPath.replace(
+                    new RegExp('^' + env.VITE_APP_STATIC_API),
+                    env.VITE_APP_STATIC_API,
+                  ),
+              },
+            }
+          : {}),
       },
     },
     build: {
