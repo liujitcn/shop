@@ -246,8 +246,7 @@ func (c *renderer) applyCodeGenOutputPaths(table *Table, methods []*Proto, paths
 func (c *renderer) buildPreviewFiles(table *Table, columns []*CodeGenColumn, methods []*Proto, paths *systemadminv1.CodeGenOutputPaths) []*systemadminv1.CodeGenPreviewFile {
 	generatedMethods := c.generatedProtoMethods(table, columns, methods)
 	frontendMethods := c.frontendProtoMethods(table, columns, methods)
-	files := make([]*systemadminv1.CodeGenPreviewFile, 0, 5)
-	// 生成对象来源于已存在的数据表，菜单权限由生成流程直接同步到数据库，不生成 SQL 文件。
+	files := make([]*systemadminv1.CodeGenPreviewFile, 0, 6)
 	if table.GenBackend == 1 {
 		// 主 Proto 先生成，随后按路径去重补齐外部选项目标的 Proto 文件。
 		files = append(files, c.newTargetProtoPreviewFile(table, columns, generatedMethods, c.defaultProtoPath(table)))
@@ -289,6 +288,16 @@ func (c *renderer) buildPreviewFiles(table *Table, columns []*CodeGenColumn, met
 			files = append(files, pageFile)
 		}
 		files = append(files, c.newExternalTargetFrontendPreviewFiles(table, frontendMethods)...)
+	}
+	if ShouldSyncMenus(table, generatedMethods) {
+		sqlFile := c.newGeneratedMenuSQLPreviewFile(table, RenderGeneratedMenuSQL(
+			table,
+			columns,
+			generatedMethods,
+			FrontendPageComponentPath(paths.GetFrontendPageFilePath()),
+			table.TableComment,
+		))
+		files = append(files, sqlFile)
 	}
 	return files
 }
