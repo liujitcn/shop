@@ -464,7 +464,7 @@ func normalizeCodeGenColumnConfig(column *systemadminv1.CodeGenColumn, item dto.
 	if column.ListConfig == nil {
 		component, option := defaultCodeGenListConfig(item, defaultSource)
 		column.ListConfig = &systemadminv1.CodeGenColumnListConfig{
-			Enabled:   !isManagedCodeGenColumn(item.Name),
+			Enabled:   !isManagedCodeGenColumn(item.Name) && !isCodeGenPasswordColumn(item.Name),
 			Component: component,
 			Option:    option,
 		}
@@ -480,6 +480,10 @@ func normalizeCodeGenColumnConfig(column *systemadminv1.CodeGenColumn, item dto.
 	// 表单选项独立保存，不能与查询或列表配置共用。
 	if column.FormConfig.Option == nil {
 		column.FormConfig.Option = &systemadminv1.CodeGenColumnOptionConfig{}
+	}
+	// 密码字段即使沿用历史配置也必须使用密码组件，避免回显密文或按普通文本录入。
+	if isCodeGenPasswordColumn(item.Name) && column.FormConfig.GetEnabled() {
+		column.FormConfig.Component = "password"
 	}
 }
 
@@ -667,7 +671,9 @@ func defaultCodeGenFormConfig(item dto.CodeGenDatabaseColumn, defaultSource code
 	component := "input"
 	option := &systemadminv1.CodeGenColumnOptionConfig{}
 	// 表单组件根据数据库字段类型选择，优先匹配更具体的布尔和数值类型。
-	if isCodeGenStatusColumn(item.Name) || isCodeGenBoolType(item.ColumnType) {
+	if isCodeGenPasswordColumn(item.Name) {
+		component = "password"
+	} else if isCodeGenStatusColumn(item.Name) || isCodeGenBoolType(item.ColumnType) {
 		component = "switch"
 		option = defaultCodeGenStatusOptionConfig("switch")
 	} else if defaultSource.dictionaryCode != "" || defaultSource.tableName != "" {
@@ -766,6 +772,13 @@ func inferCodeGenProtoType(dbType string) string {
 // isManagedCodeGenColumn 判断字段是否由基础设施维护。
 func isManagedCodeGenColumn(columnName string) bool {
 	return columnName == "created_by" || columnName == "updated_by" || columnName == "created_at" || columnName == "updated_at" || columnName == "deleted_at"
+}
+
+// isCodeGenPasswordColumn 判断字段是否属于密码字段。
+func isCodeGenPasswordColumn(columnName string) bool {
+	lowerName := strings.ToLower(columnName)
+	return lowerName == "password" || lowerName == "pwd" || lowerName == "passwd" ||
+		strings.HasSuffix(lowerName, "_password") || strings.HasSuffix(lowerName, "_pwd") || strings.HasSuffix(lowerName, "_passwd")
 }
 
 // isCodeGenStatusColumn 判断字段是否默认按状态处理。

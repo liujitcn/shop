@@ -3,7 +3,7 @@
   <div class="table-box">
     <ProTable
       ref="proTable"
-      [[if .HasTenantOption]]:key="isDefaultTenant ? 'default-tenant' : 'normal-tenant'"[[end]]
+[[if .HasTenantOption]]      :key="isDefaultTenant ? 'default-tenant' : 'normal-tenant'"[[end]]
       row-key="id"
       :columns="columns"
       :header-actions="headerActions"
@@ -21,7 +21,9 @@
       label-width="100px"
       @confirm="handleSubmit"
       @close="handleCloseDialog"
-    />
+    >
+__CODEGEN_PASSWORD_STRENGTH_SLOT__
+    </FormDialog>
   </div>
 </template>
 

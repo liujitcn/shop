@@ -200,13 +200,14 @@ function createCodeGenPreviewOptions(
   // 树形组件用两级节点表现最终布局，其字段名和来源标识均取当前真实配置。
   if (option?.kind === "tree") {
     return Array.from({ length: 3 }, (_, rootIndex) => {
+      const rootLabel = `${sourceLabel} ${rootIndex + 1}`;
       const children = Array.from({ length: 2 }, (_, childIndex) => ({
-        label: `${option.label_field || label} ${rootIndex + 1}-${childIndex + 1}`,
+        label: `${rootLabel}/${option.label_field || label} ${rootIndex + 1}-${childIndex + 1}`,
         value: `${sourceLabel}-${rootIndex + 1}-${childIndex + 1}`,
         has_children: false
       }));
       return {
-        label: `${sourceLabel} ${rootIndex + 1}`,
+        label: rootLabel,
         value: `${sourceLabel}-${rootIndex + 1}`,
         has_children: children.length > 0,
         children
