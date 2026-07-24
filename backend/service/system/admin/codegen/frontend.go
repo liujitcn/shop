@@ -420,6 +420,14 @@ func (c *renderer) renderFrontendPageFile(table *Table, columns []*CodeGenColumn
 /** 当前登录账号是否默认租户。 */
 const isDefaultTenant = computed(() => userStore.userInfo.tenant_code === DEFAULT_TENANT_CODE);`
 	}
+	if tenantState != "" {
+		tenantState += "\n"
+	}
+	tenantState += `/** 树形页面行内新增时锁定继承的上下文。 */
+const treeCreateState = reactive({
+  lockTenant: false,
+  lockParent: false
+});`
 	script := fmt.Sprintf(`<script setup lang="ts">
 import { computed, reactive, ref } from "vue";
 %s
@@ -634,10 +642,10 @@ import PasswordStrength from "@/components/PasswordStrength/index.vue";`,
 	script = c.removeFrontendTemplateMarkerSegment(script, "__CODEGEN_LEGACY_OPEN_DIALOG_ARGS_START__", "__CODEGEN_LEGACY_OPEN_DIALOG_ARGS_END__")
 	script = c.removeFrontendTemplateMarkerSegment(script, "__CODEGEN_LEGACY_EDIT_ARG_START__", "__CODEGEN_LEGACY_EDIT_ARG_END__")
 	script = strings.ReplaceAll(script, "__CODEGEN_OPERATION_WIDTH__", c.renderFrontendOperationWidth(table))
-	script = strings.ReplaceAll(script, "__CODEGEN_TREE_CREATE_ACTION__", c.renderFrontendTreeCreateAction(table))
+	script = strings.ReplaceAll(script, "__CODEGEN_TREE_CREATE_ACTION__", c.renderFrontendTreeCreateAction(table, columns))
 	script = strings.ReplaceAll(script, "__CODEGEN_TREE_EDIT_PARAMS__", c.renderFrontendTreeEditParams(table))
 	script = strings.ReplaceAll(script, "__CODEGEN_EDIT_HANDLER__", c.renderFrontendEditHandler(table))
-	script = strings.ReplaceAll(script, "__CODEGEN_OPEN_DIALOG_PARAMETERS__", c.renderFrontendOpenDialogParameters(table))
+	script = strings.ReplaceAll(script, "__CODEGEN_OPEN_DIALOG_PARAMETERS__", c.renderFrontendOpenDialogParameters(table, columns))
 	script = strings.ReplaceAll(script, "__CODEGEN_OPEN_DIALOG_DATA__", c.renderFrontendOpenDialogData(table, columns))
 	script = strings.ReplaceAll(script, "__CODEGEN_PASSWORD_UPDATE__", c.renderFrontendPasswordUpdate(columns))
 	script = c.renderFrontendTreeParentField(script, table)
@@ -669,9 +677,26 @@ func (c *renderer) renderFrontendOperationWidth(table *Table) string {
 }
 
 // renderFrontendTreeCreateAction 渲染树形表格的行内新增子节点操作。
-func (c *renderer) renderFrontendTreeCreateAction(table *Table) string {
+func (c *renderer) renderFrontendTreeCreateAction(table *Table, columns []*CodeGenColumn) string {
 	if !isTreePageType(table.PageType) {
 		return ""
+	}
+	tenantColumn := FindColumnByName(columns, "tenant_id")
+	if tenantColumn != nil && generatedFormIncludesColumn(tenantColumn) {
+		return fmt.Sprintf(`      {
+        label: "新增",
+        type: "primary",
+        link: true,
+        icon: CirclePlus,
+        hidden: () => !BUTTONS.value["%s:create"],
+        params: scope => ({
+          parentId: (scope.row as %s).id,
+          tenantId: (scope.row as unknown as Record<string, unknown>)["tenant_id"] as number | undefined
+        }),
+        onClick: (_, params) =>
+          handleOpenDialog(params?.parentId as number | undefined, undefined, params?.tenantId as number | undefined)
+      },
+`, PermissionPrefix(table), table.EntityName)
 	}
 	return fmt.Sprintf(`      {
         label: "新增",
@@ -707,8 +732,11 @@ func (c *renderer) renderFrontendEditHandler(table *Table) string {
 }
 
 // renderFrontendOpenDialogParameters 返回页面弹窗方法的参数定义。
-func (c *renderer) renderFrontendOpenDialogParameters(table *Table) string {
+func (c *renderer) renderFrontendOpenDialogParameters(table *Table, columns []*CodeGenColumn) string {
 	if isTreePageType(table.PageType) {
+		if tenantColumn := FindColumnByName(columns, "tenant_id"); tenantColumn != nil && generatedFormIncludesColumn(tenantColumn) {
+			return "parentId?: number, id?: number, tenantId?: number"
+		}
 		return "parentId?: number, id?: number"
 	}
 	return "id?: number"
@@ -726,14 +754,23 @@ func (c *renderer) renderFrontendOpenDialogData(table *Table, columns []*CodeGen
 %s`, entity, entity, passwordReset)
 	}
 	parentColumn := DefaultString(table.ParentColumn, "parent_id")
-	return fmt.Sprintf(`  if (id) {
+	content := fmt.Sprintf(`  if (id) {
     const data = await def%sService.Get%s({ id });
     Object.assign(formData, data);
 %s
     return;
   }
 
-  formData[%q] = parentId ?? 0;`, entity, entity, passwordReset, parentColumn)
+  formData[%q] = parentId ?? 0;
+  treeCreateState.lockParent = parentId !== undefined;`, entity, entity, passwordReset, parentColumn)
+	if tenantColumn := FindColumnByName(columns, "tenant_id"); tenantColumn != nil && generatedFormIncludesColumn(tenantColumn) {
+		content += `
+  if (tenantId !== undefined) {
+    formData["tenant_id"] = tenantId;
+  }
+  treeCreateState.lockTenant = parentId !== undefined;`
+	}
+	return content
 }
 
 // renderFrontendPasswordReset 返回编辑态清空密码字段的语句，避免回填后端密文。
@@ -755,7 +792,7 @@ func (c *renderer) renderFrontendPasswordUpdate(columns []*CodeGenColumn) string
 		if column == nil || column.FormComponent != "password" {
 			continue
 		}
-		lines = append(lines, fmt.Sprintf("    if (payload.id) delete (payload as Record<string, unknown>)[%q];", column.Name))
+		lines = append(lines, fmt.Sprintf("    if (payload.id) delete (payload as unknown as Record<string, unknown>)[%q];", column.Name))
 	}
 	return strings.Join(lines, "\n")
 }
@@ -786,15 +823,15 @@ func (c *renderer) renderFrontendTreeParentField(content string, table *Table) s
 		fieldEnd = fieldStart + fieldEndOffset
 	}
 	field := content[fieldStart:fieldEnd]
-	if strings.Contains(field, "disabled: Boolean(formData.id)") {
+	if strings.Contains(field, "treeCreateState.lockParent") {
 		return content
 	}
 	if strings.Contains(field, "props: {") {
-		field = strings.Replace(field, "props: {", "props: { disabled: Boolean(formData.id), ", 1)
+		field = strings.Replace(field, "props: {", "props: { disabled: Boolean(formData.id) || treeCreateState.lockParent, ", 1)
 	} else {
 		field = strings.TrimSpace(field)
 		field = strings.TrimSuffix(field, "}")
-		field += `, props: { disabled: Boolean(formData.id) } }`
+		field += `, props: { disabled: Boolean(formData.id) || treeCreateState.lockParent } }`
 	}
 	return content[:fieldStart] + field + content[fieldEnd:]
 }
@@ -948,7 +985,7 @@ func (c *renderer) applyFrontendLeftTreePage(content string, table *Table, metho
 	content = strings.Replace(content, requestMarker, requestMarker+` :init-param="initParam"`, 1)
 	treeFilterProps := ""
 	if config.Lazy {
-		treeFilterProps = fmt.Sprintf(`:lazy="true"
+		treeFilterProps = fmt.Sprintf(`      :lazy="true"
       parent-key="%s"
       :show-all="false"`, DefaultString(config.ParentColumn, "parent_id"))
 	}
@@ -958,7 +995,7 @@ func (c *renderer) applyFrontendLeftTreePage(content string, table *Table, metho
       title="筛选"
       :request-api="request%sTreeFilter"
       :default-value="treeFilterValue"
-      %s
+%s
       @change="changeTreeFilter"
     />
 
@@ -1046,7 +1083,7 @@ function changeTreeFilter(value: string) {
   if (!id && initParam.%s !== undefined) {
     formData.%s = initParam.%s;
   }
-  dialog.title = id ?`, filterColumn, filterColumn, filterColumn)
+`, filterColumn, filterColumn, filterColumn)
 	return strings.Replace(content, openDialogMarker, openDialogReplacement, 1)
 }
 
@@ -1080,9 +1117,11 @@ func (c *renderer) frontendResourcePath(table *Table) string {
 func (c *renderer) renderFrontendColumns(table *Table, columns []*CodeGenColumn, methods []*Proto) string {
 	list := make([]string, 0, len(columns))
 	statusColumnCount := len(statusColumns(columns))
-	if hasTenantQueryOption(columns) {
+	tenantColumn := FindColumnByName(columns, "tenant_id")
+	hasVisibleTenantColumn := tenantColumn != nil && generatedListIncludesColumn(tenantColumn)
+	if hasTenantQueryOption(columns) && hasVisibleTenantColumn {
 		list = append(list, `  ...(isDefaultTenant.value
-    ? ([{
+	    ? ([{
         prop: "tenant_id",
         label: "租户",
         minWidth: 140,
@@ -1109,10 +1148,10 @@ func (c *renderer) renderFrontendColumns(table *Table, columns []*CodeGenColumn,
 	// 树表格将树显示字段固定为首个数据列，确保 Element Plus 的缩进落在业务名称上。
 	if treeLabelColumn != "" {
 		for _, column := range columns {
-			if hasTenantQueryOption(columns) && column.Name == "tenant_id" {
+			if hasVisibleTenantColumn && column.Name == "tenant_id" {
 				continue
 			}
-			if column.Name != treeLabelColumn || column.Name == "deleted_at" {
+			if column.Name != treeLabelColumn || column.Name == "deleted_at" || !generatedListIncludesColumn(column) {
 				continue
 			}
 			appendColumn(column, "left")
@@ -1120,23 +1159,16 @@ func (c *renderer) renderFrontendColumns(table *Table, columns []*CodeGenColumn,
 		}
 	}
 	for _, column := range columns {
-		if hasTenantQueryOption(columns) && column.Name == "tenant_id" {
+		if hasVisibleTenantColumn && column.Name == "tenant_id" {
 			continue
 		}
 		if column.Name == treeLabelColumn || column.Name == "deleted_at" {
 			continue
 		}
 		if isTreePageType(table.PageType) && column.Name == treeParentColumn && treeParentColumn != treeLabelColumn {
-			if generatedQueryIncludesColumn(column) {
-				// 父节点字段仍需保留查询配置，但必须从可见列中移除，避免树缩进显示在该列。
-				hiddenColumn := *column
-				hiddenColumn.IsList = 0
-				hiddenColumn.StatusTableColumn = 0
-				appendColumn(&hiddenColumn, "")
-			}
 			continue
 		}
-		if (!generatedListIncludesColumn(column) && !generatedQueryIncludesColumn(column)) || column.IsPrimary == 1 {
+		if !generatedListIncludesColumn(column) || column.IsPrimary == 1 {
 			continue
 		}
 		appendColumn(column, "")
@@ -1213,6 +1245,7 @@ func (c *renderer) renderFrontendResetForm(columns []*CodeGenColumn) string {
 		}
 		lines = append(lines, fmt.Sprintf("  formData.%s = %s;", column.Name, frontendDefaultValue(column)))
 	}
+	lines = append(lines, "  treeCreateState.lockTenant = false;", "  treeCreateState.lockParent = false;")
 	return strings.Join(lines, "\n")
 }
 
@@ -1292,18 +1325,19 @@ func (c *renderer) findFrontendPasswordColumn(columns []*CodeGenColumn) *CodeGen
 func (c *renderer) renderFrontendFormField(column *CodeGenColumn) string {
 	component := DefaultString(column.FormComponent, "input")
 	label := DefaultString(column.Comment, column.Name)
+	disabled := frontendFormFieldDisabledPrefix(column)
 	if component == "password" {
 		return fmt.Sprintf(`  { prop: "%s", label: "%s", component: "password", props: { placeholder: "请输入%s", showPassword: true }, visible: model => !model.id }`, column.Name, label, label)
 	}
 	if component == "switch" {
 		// 开关提交值由表单范围的独立配置决定。
-		return fmt.Sprintf(`  { prop: "%s", label: "%s", component: "switch", props: { activeValue: %s, inactiveValue: %s } }`, column.Name, label, statusValueExpression(column, column.FormOption.ActiveValue, "1"), statusValueExpression(column, column.FormOption.InactiveValue, "2"))
+		return fmt.Sprintf(`  { prop: "%s", label: "%s", component: "switch", props: { %sactiveValue: %s, inactiveValue: %s } }`, column.Name, label, disabled, statusValueExpression(column, column.FormOption.ActiveValue, "1"), statusValueExpression(column, column.FormOption.InactiveValue, "2"))
 	}
 	option := column.FormOption
 	if option.Kind != "" && isSelectComponent(component) {
-		props := `props: { placeholder: "请选择", filterable: true, style: { width: "100%" } }`
+		props := fmt.Sprintf(`props: { %splaceholder: "请选择", filterable: true, style: { width: "100%%" } }`, disabled)
 		if option.Kind == APIKindTree && option.Lazy {
-			props = fmt.Sprintf(`props: { lazy: true, load: %s, placeholder: "请选择", filterable: true, style: { width: "100%%" } }`, frontendOptionLoaderVar(column, "form"))
+			props = fmt.Sprintf(`props: { %slazy: true, load: %s, placeholder: "请选择", filterable: true, style: { width: "100%%" } }`, disabled, frontendOptionLoaderVar(column, "form"))
 		}
 		// 多选树形选择使用复选框，并允许选择任意层级节点。
 		if isFormTreeMultiple(column) {
@@ -1311,18 +1345,18 @@ func (c *renderer) renderFrontendFormField(column *CodeGenColumn) string {
 			if option.Kind == APIKindTree && option.Lazy {
 				lazyProps = fmt.Sprintf("lazy: true, load: %s, ", frontendOptionLoaderVar(column, "form"))
 			}
-			props = fmt.Sprintf(`props: { %smultiple: true, showCheckbox: true, checkStrictly: true, nodeKey: "value", placeholder: "请选择", filterable: true, style: { width: "100%%" } }`, lazyProps)
+			props = fmt.Sprintf(`props: { %s%smultiple: true, showCheckbox: true, checkStrictly: true, nodeKey: "value", placeholder: "请选择", filterable: true, style: { width: "100%%" } }`, disabled, lazyProps)
 		}
 		switch option.SourceType {
 		case OptionSourceDict:
 			if option.SourceValue != "" {
 				if component == "radio-group" {
-					return fmt.Sprintf(`  { prop: "%s", label: "%s", component: "dict", props: { code: %q, codeType: %q, type: "radio" } }`, column.Name, label, option.SourceValue, frontendDictValueType(column))
+					return fmt.Sprintf(`  { prop: "%s", label: "%s", component: "dict", props: { %scode: %q, codeType: %q, type: "radio" } }`, column.Name, label, disabled, option.SourceValue, frontendDictValueType(column))
 				}
 				if component == "checkbox-group" {
-					return fmt.Sprintf(`  { prop: "%s", label: "%s", component: "dict", props: { code: %q, codeType: %q, type: "checkbox" } }`, column.Name, label, option.SourceValue, frontendDictValueType(column))
+					return fmt.Sprintf(`  { prop: "%s", label: "%s", component: "dict", props: { %scode: %q, codeType: %q, type: "checkbox" } }`, column.Name, label, disabled, option.SourceValue, frontendDictValueType(column))
 				}
-				return fmt.Sprintf(`  { prop: "%s", label: "%s", component: "dict", props: { code: %q, codeType: %q } }`, column.Name, label, option.SourceValue, frontendDictValueType(column))
+				return fmt.Sprintf(`  { prop: "%s", label: "%s", component: "dict", props: { %scode: %q, codeType: %q } }`, column.Name, label, disabled, option.SourceValue, frontendDictValueType(column))
 			}
 		case OptionSourceStatic:
 			return fmt.Sprintf(`  { prop: "%s", label: "%s", component: "%s", options: %sOptions, %s }`, column.Name, label, component, frontendOptionVar(column, "form"), props)
@@ -1331,16 +1365,24 @@ func (c *renderer) renderFrontendFormField(column *CodeGenColumn) string {
 		}
 	}
 	if component == "input-number" {
-		return fmt.Sprintf(`  { prop: "%s", label: "%s", component: "input-number", props: { min: 0, precision: %d, controlsPosition: "right", style: { width: "100%%" } } }`, column.Name, label, column.DbScale)
+		return fmt.Sprintf(`  { prop: "%s", label: "%s", component: "input-number", props: { %smin: 0, precision: %d, controlsPosition: "right", style: { width: "100%%" } } }`, column.Name, label, disabled, column.DbScale)
 	}
 	if component == "date-picker" {
 		dbType := strings.ToLower(DefaultString(column.ColumnType, column.DbType))
 		if strings.Contains(dbType, "datetime") || strings.Contains(dbType, "timestamp") {
-			return fmt.Sprintf(`  { prop: "%s", label: "%s", component: "date-picker", props: { type: "datetime", valueFormat: "YYYY-MM-DD HH:mm:ss", placeholder: "请选择%s", style: { width: "100%%" } } }`, column.Name, label, label)
+			return fmt.Sprintf(`  { prop: "%s", label: "%s", component: "date-picker", props: { %stype: "datetime", valueFormat: "YYYY-MM-DD HH:mm:ss", placeholder: "请选择%s", style: { width: "100%%" } } }`, column.Name, label, disabled, label)
 		}
-		return fmt.Sprintf(`  { prop: "%s", label: "%s", component: "date-picker", props: { type: "date", valueFormat: "YYYY-MM-DD", placeholder: "请选择%s", style: { width: "100%%" } } }`, column.Name, label, label)
+		return fmt.Sprintf(`  { prop: "%s", label: "%s", component: "date-picker", props: { %stype: "date", valueFormat: "YYYY-MM-DD", placeholder: "请选择%s", style: { width: "100%%" } } }`, column.Name, label, disabled, label)
 	}
-	return fmt.Sprintf(`  { prop: "%s", label: "%s", component: "%s", props: { placeholder: "请输入%s" } }`, column.Name, label, component, label)
+	return fmt.Sprintf(`  { prop: "%s", label: "%s", component: "%s", props: { %splaceholder: "请输入%s" } }`, column.Name, label, component, disabled, label)
+}
+
+// frontendFormFieldDisabledPrefix 返回租户字段的编辑态禁用配置。
+func frontendFormFieldDisabledPrefix(column *CodeGenColumn) string {
+	if column == nil || column.Name != "tenant_id" {
+		return ""
+	}
+	return "disabled: Boolean(formData.id) || treeCreateState.lockTenant, "
 }
 
 // renderFrontendOptionState 渲染静态选项、数据表选项状态与加载方法。
@@ -1771,11 +1813,6 @@ func renderFrontendColumn(permissionPrefix string, entityName string, column *Co
 		if column.StatusSearch == 1 {
 			search = ", search: { el: \"select\" }"
 		}
-		visibility := ""
-		// 仅用于查询的状态字段不展示为表格列，也不进入列设置。
-		if column.StatusTableColumn != 1 {
-			visibility = ", isShow: false, isSetting: false"
-		}
 		dictConfig := ""
 		if statusUsesDictionary(column) {
 			dictConfig = fmt.Sprintf(", dictCode: %q, dictValueType: %q", column.StatusDictCode, frontendDictValueType(column))
@@ -1784,7 +1821,7 @@ func renderFrontendColumn(permissionPrefix string, entityName string, column *Co
 			return fmt.Sprintf(`  {
     prop: "%s",
     label: "%s"%s,
-    width: 100%s%s%s,
+    width: 100%s%s,
     cellType: "status",
     statusProps: {
       activeValue: %s,
@@ -1794,19 +1831,15 @@ func renderFrontendColumn(permissionPrefix string, entityName string, column *Co
       disabled: () => !BUTTONS.value[%q],
       beforeChange: scope => %s(scope.row as %s)
     }
-  }`, column.Name, column.Comment, alignConfig, dictConfig, search, visibility, statusValueExpression(column, column.StatusEnabledValue, "1"), statusValueExpression(column, column.StatusDisabledValue, "2"), statusPermissionPath(permissionPrefix, column.Name, statusColumnCount), statusHandlerName(column, statusColumnCount), entityName)
+  }`, column.Name, column.Comment, alignConfig, dictConfig, search, statusValueExpression(column, column.StatusEnabledValue, "1"), statusValueExpression(column, column.StatusDisabledValue, "2"), statusPermissionPath(permissionPrefix, column.Name, statusColumnCount), statusHandlerName(column, statusColumnCount), entityName)
 		}
 		if statusUsesDictionary(column) {
-			return fmt.Sprintf(`  { prop: "%s", label: "%s"%s%s%s%s }`, column.Name, column.Comment, alignConfig, dictConfig, search, visibility)
+			return fmt.Sprintf(`  { prop: "%s", label: "%s"%s%s%s }`, column.Name, column.Comment, alignConfig, dictConfig, search)
 		}
-		return fmt.Sprintf(`  { prop: "%s", label: "%s"%s, enum: %s%s%s }`, column.Name, column.Comment, alignConfig, statusOptionsVariable(column, statusColumnCount), search, visibility)
+		return fmt.Sprintf(`  { prop: "%s", label: "%s"%s, enum: %s%s }`, column.Name, column.Comment, alignConfig, statusOptionsVariable(column, statusColumnCount), search)
 	}
 	optionConfig := frontendColumnOptionConfig(column)
 	searchConfig := frontendSearchConfig(column)
-	// 仅作为普通查询条件的字段保留搜索配置，但不展示为列表列。
-	if !generatedListIncludesColumn(column) && generatedQueryIncludesColumn(column) {
-		return fmt.Sprintf(`  { prop: "%s", label: "%s"%s%s%s, isShow: false, isSetting: false }`, column.Name, column.Comment, alignConfig, optionConfig, searchConfig)
-	}
 	if column.ListComponent == "image" {
 		return fmt.Sprintf(`  { prop: "%s", label: "%s"%s, cellType: "image"%s%s }`, column.Name, column.Comment, alignConfig, optionConfig, searchConfig)
 	}
@@ -1974,7 +2007,7 @@ type frontendOptionScope struct {
 // frontendOptionScopes 返回前端实际消费的查询、列表和表单选项配置。
 func frontendOptionScopes(column *CodeGenColumn) []frontendOptionScope {
 	scopes := make([]frontendOptionScope, 0, 3)
-	if frontendQueryUsesOptions(column) && column.QueryOption.Kind != "" && !isTenantQueryOption(column) {
+	if generatedListIncludesColumn(column) && frontendQueryUsesOptions(column) && column.QueryOption.Kind != "" && !isTenantQueryOption(column) {
 		scopes = append(scopes, frontendOptionScope{name: "query", option: column.QueryOption})
 	}
 	if generatedListIncludesColumn(column) && column.IsStatusField != 1 && isSelectComponent(column.ListComponent) && column.ListOption.Kind != "" {
