@@ -1,3 +1,6 @@
+-- 行政区划基础数据。
+-- 与 default-data.sql 分离，按需导入。
+
 TRUNCATE TABLE `base_area`;
 INSERT INTO `base_area` (`id`, `parent_id`, `name`) VALUES (110000, 0, '北京市');
 INSERT INTO `base_area` (`id`, `parent_id`, `name`) VALUES (110100, 110000, '北京城区');

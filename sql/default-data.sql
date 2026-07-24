@@ -1,6 +1,9 @@
+-- 管理后台默认初始化数据。
+-- 仅用于全新开发库；脚本会清空并重建下列系统数据。
+
 TRUNCATE TABLE `base_config`;
-INSERT INTO `base_config` (`id`, `site`, `name`, `type`, `key`, `value`, `status`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (2000, 2, 'Copyright', 1, 'copyright', 'Copyright © 2025 - 2030 haiwofeng.example All Rights Reserved. 海沃丰农业科技有限公司 版权所有', 1, 1, 1, '2025-04-24 09:57:35', '2025-04-24 09:57:35', 0);
-INSERT INTO `base_config` (`id`, `site`, `name`, `type`, `key`, `value`, `status`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (2001, 2, 'ICP备案号', 1, 'icp', '琼ICP备2025053245号-2', 1, 1, 1, '2025-04-24 09:58:16', '2025-04-24 09:58:16', 0);
+INSERT INTO `base_config` (`id`, `site`, `name`, `type`, `key`, `value`, `status`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (2000, 2, 'Copyright', 1, 'copyright', 'Copyright © 2025 - 2030 Admin All Rights Reserved.', 1, 1, 1, '2025-04-24 09:57:35', '2025-04-24 09:57:35', 0);
+INSERT INTO `base_config` (`id`, `site`, `name`, `type`, `key`, `value`, `status`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (2001, 2, 'ICP备案号', 1, 'icp', '', 1, 1, 1, '2025-04-24 09:58:16', '2025-04-24 09:58:16', 0);
 INSERT INTO `base_config` (`id`, `site`, `name`, `type`, `key`, `value`, `status`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (2002, 2, '系统名称', 1, 'sysName', 'Admin 管理系统', 1, 1, 1, '2025-04-24 10:21:53', '2025-04-24 10:21:53', 0);
 INSERT INTO `base_config` (`id`, `site`, `name`, `type`, `key`, `value`, `status`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (2003, 2, 'LOGO', 2, 'adminLogo', '', 1, 0, 0, '2026-03-30 18:38:55', '2026-03-30 18:38:55', 0);
 INSERT INTO `base_config` (`id`, `site`, `name`, `type`, `key`, `value`, `status`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (2004, 2, '水印', 1, 'watermark', 'Admin', 1, 0, 0, '2026-03-30 18:39:29', '2026-03-30 18:39:29', 0);
@@ -163,3 +166,8 @@ INSERT INTO `base_role` (`id`, `tenant_id`, `name`, `code`, `data_scope`, `menus
 TRUNCATE TABLE `base_user`;
 INSERT INTO `base_user` (`id`, `tenant_id`, `user_name`, `nick_name`, `role_id`, `post_id`, `dept_id`, `phone`, `password`, `gender`, `avatar`, `status`, `remark`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (1, 1, 'super', '超级管理员', 1, NULL,2, '19999999999', '$2a$10$NoZtpzNfskZdbZSUzWWTV.slfr4/cKQsg5SNrzlxOHehPTn60.l4m', 1, '', 1, NULL, 1, 1, '2025-03-13 09:52:44', '2025-03-13 09:52:44', 0);
 INSERT INTO `base_user` (`id`, `tenant_id`, `user_name`, `nick_name`, `role_id`, `post_id`, `dept_id`, `phone`, `password`, `gender`, `avatar`, `status`, `remark`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (2, 1, 'admin', '管理员', 3, NULL,3, '19999911111', '$2a$10$NoZtpzNfskZdbZSUzWWTV.slfr4/cKQsg5SNrzlxOHehPTn60.l4m', 2, '', 1, '111111', 1, 1, '2025-03-13 09:52:44', '2025-03-13 09:52:44', 0);
+
+-- 角色权限只保留当前管理后台菜单；应用壳子不使用管理菜单。
+UPDATE `base_role` SET `menus` = '[100, 10005, 300, 30002, 3000201, 3000202, 3000203, 3000204, 3000205, 30003, 3000301, 3000302, 3000303, 3000304, 3000305, 30004, 3000401, 3000402, 3000403, 3000404, 30005, 3000501, 3000502, 3000503, 3000504]' WHERE `id` = 2;
+UPDATE `base_role` SET `menus` = '[100, 10004, 10005, 200, 20002, 2000205, 20003, 2000301, 2000302, 2000303, 2000304, 20004, 2000403, 2000405, 20008, 2000801, 2000802, 2000803, 20005, 2000501, 2000502, 2000503, 2000504, 300, 30001, 3000101, 3000102, 3000103, 3000104, 30002, 3000201, 3000202, 3000203, 3000204, 3000205, 30003, 3000301, 3000302, 3000303, 3000304, 3000305, 30004, 3000401, 3000402, 3000403, 3000404, 30005, 3000501, 3000502, 3000503, 3000504]' WHERE `id` = 3;
+UPDATE `base_role` SET `menus` = '[]' WHERE `id` IN (4, 5);
