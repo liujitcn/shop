@@ -64,6 +64,9 @@
         @confirm="handleSubmit"
         @close="handleCloseDialog"
       >
+        <template #passwordStrength>
+          <PasswordStrength :password="String(previewFormModel[passwordFieldName])" />
+        </template>
         <template #codeGenPreviewSlot="{ field }">
           <el-input v-model="previewFormModel[field.prop]" placeholder="自定义插槽内容">
             <template #append>自定义</template>
@@ -83,6 +86,7 @@ import { useRoute } from "vue-router";
 import ProTable from "@/components/ProTable/index.vue";
 import type { ColumnProps, HeaderActionProps, ProTableInstance, RenderScope } from "@/components/ProTable/interface";
 import FormDialog from "@/components/Dialog/FormDialog.vue";
+import PasswordStrength from "@/components/PasswordStrength/index.vue";
 import type { ProFormComponentType, ProFormField, ProFormOption } from "@/components/ProForm/interface";
 import TreeFilter from "@/components/TreeFilter/index.vue";
 import { useTabsStore } from "@/stores/modules/tabs";
@@ -128,6 +132,7 @@ const mockRows = ref<CodeGenPreviewRow[]>([]);
 const previewFormModel = reactive<Record<string, any>>({});
 const editingRowKey = ref<string | number>();
 const selectedLeftTreeValues = ref<Array<string | number | boolean>>([]);
+const passwordFieldName = computed(() => snapshot.value?.columns.find(column => column.form_config?.component === "password")?.name ?? "pwd");
 const supportedFormComponents = new Set(codeGenFormComponentOptions.map(item => String(item.value)));
 
 const dialog = reactive({
@@ -283,7 +288,7 @@ const formFields = computed<ProFormField[]>(() => {
         !column.is_primary && !column.is_auto_increment && column.name !== "deleted_at" && column.form_config?.enabled
     )
     .sort((left, right) => left.sort - right.sort)
-    .map(column => {
+    .flatMap(column => {
       const label = column.comment || column.name;
       const isTreeParent =
         (pageType.value === "tree" || pageType.value === "tree_lazy") && column.name === snapshot.value?.table.parent_column;
@@ -292,17 +297,32 @@ const formFields = computed<ProFormField[]>(() => {
       const options = isTreeParent
         ? treeParentOptions.value
         : resolveCodeGenPreviewOptions(optionMap.value, column.name, "form");
-      return {
+      const field: ProFormField = {
         prop: column.name,
         label,
         component,
-        props: createPreviewFormProps(component, label, column.form_config?.option, isMultipleTreeSelect),
+        props: {
+          ...createPreviewFormProps(component, label, column.form_config?.option, isMultipleTreeSelect),
+          ...(isTreeParent ? { disabled: Boolean(previewFormModel[primaryColumn.value]) } : {})
+        },
         options,
         checkboxLabel: component === "checkbox" ? `启用${label}` : undefined,
         slotName: component === "slot" ? "codeGenPreviewSlot" : undefined,
+        visible: component === "password" ? model => !model[primaryColumn.value] : undefined,
         rules: column.form_config?.required ? [{ required: true, message: `${label}不能为空` }] : undefined,
         colSpan: resolvePreviewColSpan(component)
       };
+      if (component !== "password") return [field];
+      return [
+        field,
+        {
+          prop: "passwordStrength",
+          label: "强度提示",
+          component: "slot",
+          slotName: "passwordStrength",
+          visible: model => !model[primaryColumn.value]
+        }
+      ];
     });
 });
 
@@ -622,13 +642,17 @@ function createNextPrimaryValue() {
 }
 
 /** 将树形模拟记录转换成父节点选择项。 */
-function mapPreviewRowsToOptions(rows: CodeGenPreviewRow[]): ProFormOption[] {
+function mapPreviewRowsToOptions(rows: CodeGenPreviewRow[], parentPath = ""): ProFormOption[] {
   const labelColumn = snapshot.value?.table.tree_label_column || primaryColumn.value;
-  return rows.map(row => ({
-    label: String(row[labelColumn] ?? row[primaryColumn.value]),
-    value: row[primaryColumn.value],
-    children: row.children?.length ? mapPreviewRowsToOptions(row.children) : undefined
-  }));
+  return rows.map(row => {
+    const label = String(row[labelColumn] ?? row[primaryColumn.value]);
+    const fullPath = [parentPath, label].filter(Boolean).join("/");
+    return {
+      label: fullPath,
+      value: row[primaryColumn.value],
+      children: row.children?.length ? mapPreviewRowsToOptions(row.children, fullPath) : undefined
+    };
+  });
 }
 
 /** 将配置中的组件字符串收敛为 ProForm 支持类型，字典预览使用模拟下拉避免接口请求。 */
@@ -647,8 +671,9 @@ function createPreviewFormProps(
   const fullWidthStyle = { width: "100%" };
   switch (component) {
     case "input":
-    case "password":
       return { placeholder: `请输入${label}`, clearable: true, style: fullWidthStyle };
+    case "password":
+      return { placeholder: `请输入${label}`, clearable: true, showPassword: true, style: fullWidthStyle };
     case "textarea":
       return { placeholder: `请输入${label}`, rows: 4 };
     case "input-number":

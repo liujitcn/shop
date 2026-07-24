@@ -473,17 +473,20 @@ const columns = computed<ColumnProps[]>(() => [
   {
     prop: "operation",
     label: "操作",
-    width: 150,
+    width: __CODEGEN_OPERATION_WIDTH__,
     fixed: "right",
     cellType: "actions",
     actions: [
+__CODEGEN_TREE_CREATE_ACTION__
       {
         label: "编辑",
         type: "primary",
         link: true,
         icon: EditPen,
         hidden: () => !BUTTONS.value["%s:update"],
-        onClick: scope => handleOpenDialog((scope.row as %s).id)
+__CODEGEN_TREE_EDIT_PARAMS__
+        onClick: __CODEGEN_EDIT_HANDLER__
+__CODEGEN_LEGACY_EDIT_ARG_START__%s__CODEGEN_LEGACY_EDIT_ARG_END__
       },
       {
         label: "删除",
@@ -547,14 +550,12 @@ function resetForm() {
 /**
  * 打开%s弹窗。
  */
-async function handleOpenDialog(id?: number) {
+async function handleOpenDialog(__CODEGEN_OPEN_DIALOG_PARAMETERS__) {
   resetForm();
 %s  dialog.title = id ? "修改%s" : "新增%s";
   dialog.visible = true;
-  if (!id) return;
-
-  const data = await def%sService.Get%s({ id });
-  Object.assign(formData, data);
+__CODEGEN_OPEN_DIALOG_DATA__
+__CODEGEN_LEGACY_OPEN_DIALOG_ARGS_START__%s%s__CODEGEN_LEGACY_OPEN_DIALOG_ARGS_END__
 }
 
 /**
@@ -565,6 +566,7 @@ function handleSubmit() {
     if (!valid) return;
 
     const payload = JSON.parse(JSON.stringify(formData)) as %sForm;
+__CODEGEN_PASSWORD_UPDATE__
     const request = payload.id
       ? def%sService.Update%s({ id: payload.id, %s: payload })
       : def%sService.Create%s({ %s: payload });
@@ -620,10 +622,198 @@ function handleCloseDialog() {
 }
 </script>
 	`, renderFrontendDateImport(columns), proFormTypeImport, entity, frontendAPIImport, c.renderFrontendOptionImports(table, columns, methods), tenantImports, entity, entity, entity, statusTypeImport, frontendRPCImport, c.renderFrontendEnumImports(columns), entity, formStateType, tenantState, formDataType, c.renderFrontendFormDefaults(columns), c.renderFrontendRules(columns), c.renderFrontendStatusOptions(columns)+c.renderFrontendOptionState(columns, methods), table.BusinessName, c.renderFrontendFormFields(columns), table.BusinessName, c.renderFrontendColumns(table, columns, methods), PermissionPrefix(table), entity, PermissionPrefix(table), entity, table.BusinessName, PermissionPrefix(table), PermissionPrefix(table), entity, "", table.BusinessName, entity, entity, entity, entity, listField, listField, table.BusinessName, table.BusinessName, c.renderFrontendResetForm(columns), table.BusinessName, c.renderFrontendLoadOptionsCall(columns, methods), table.BusinessName, table.BusinessName, entity, entity, table.BusinessName, entity, entity, entity, snakeEntity, entity, entity, snakeEntity, table.BusinessName, table.BusinessName, c.renderFrontendStatusHandlers(table, columns, methods), table.BusinessName, entity, entity, entity, entity, table.BusinessName, table.BusinessName, entity, entity, table.BusinessName, table.BusinessName, table.BusinessName)
+	if passwordColumn := c.findFrontendPasswordColumn(columns); passwordColumn != nil {
+		script = strings.Replace(
+			script,
+			`import FormDialog from "@/components/Dialog/FormDialog.vue";`,
+			`import FormDialog from "@/components/Dialog/FormDialog.vue";
+import PasswordStrength from "@/components/PasswordStrength/index.vue";`,
+			1,
+		)
+	}
+	script = c.removeFrontendTemplateMarkerSegment(script, "__CODEGEN_LEGACY_OPEN_DIALOG_ARGS_START__", "__CODEGEN_LEGACY_OPEN_DIALOG_ARGS_END__")
+	script = c.removeFrontendTemplateMarkerSegment(script, "__CODEGEN_LEGACY_EDIT_ARG_START__", "__CODEGEN_LEGACY_EDIT_ARG_END__")
+	script = strings.ReplaceAll(script, "__CODEGEN_OPERATION_WIDTH__", c.renderFrontendOperationWidth(table))
+	script = strings.ReplaceAll(script, "__CODEGEN_TREE_CREATE_ACTION__", c.renderFrontendTreeCreateAction(table))
+	script = strings.ReplaceAll(script, "__CODEGEN_TREE_EDIT_PARAMS__", c.renderFrontendTreeEditParams(table))
+	script = strings.ReplaceAll(script, "__CODEGEN_EDIT_HANDLER__", c.renderFrontendEditHandler(table))
+	script = strings.ReplaceAll(script, "__CODEGEN_OPEN_DIALOG_PARAMETERS__", c.renderFrontendOpenDialogParameters(table))
+	script = strings.ReplaceAll(script, "__CODEGEN_OPEN_DIALOG_DATA__", c.renderFrontendOpenDialogData(table, columns))
+	script = strings.ReplaceAll(script, "__CODEGEN_PASSWORD_UPDATE__", c.renderFrontendPasswordUpdate(columns))
+	script = c.renderFrontendTreeParentField(script, table)
 	script = c.reorderFrontendPageMethods(script)
+	scriptLines := strings.Split(script, "\n")
+	for i := range scriptLines {
+		scriptLines[i] = strings.TrimRight(scriptLines[i], " \t")
+	}
+	script = strings.Join(scriptLines, "\n")
 	script = strings.TrimRight(script, " \t\r\n") + "\n"
 	content := renderTemplate("frontend_page.tmpl", frontendPageTemplateData{Entity: entity, BusinessName: table.BusinessName, HasTenantOption: hasTenantOption, Script: script})
+	passwordSlot := ""
+	if passwordColumn := c.findFrontendPasswordColumn(columns); passwordColumn != nil {
+		passwordSlot = fmt.Sprintf(`      <template #passwordStrength>
+        <PasswordStrength :password="formData.%s" />
+      </template>
+`, passwordColumn.Name)
+	}
+	content = strings.Replace(content, "__CODEGEN_PASSWORD_STRENGTH_SLOT__", passwordSlot, 1)
 	return c.applyFrontendPageType(content, table, methods, frontendAPIImport)
+}
+
+// renderFrontendOperationWidth 返回操作列宽度。
+func (c *renderer) renderFrontendOperationWidth(table *Table) string {
+	if isTreePageType(table.PageType) {
+		return "220"
+	}
+	return "150"
+}
+
+// renderFrontendTreeCreateAction 渲染树形表格的行内新增子节点操作。
+func (c *renderer) renderFrontendTreeCreateAction(table *Table) string {
+	if !isTreePageType(table.PageType) {
+		return ""
+	}
+	return fmt.Sprintf(`      {
+        label: "新增",
+        type: "primary",
+        link: true,
+        icon: CirclePlus,
+        hidden: () => !BUTTONS.value["%s:create"],
+        params: scope => ({ parentId: (scope.row as %s).id }),
+        onClick: (_, params) => handleOpenDialog(params?.parentId as number | undefined)
+      },
+`, PermissionPrefix(table), table.EntityName)
+}
+
+// renderFrontendTreeEditParams 渲染树形表格编辑操作所需的父节点参数。
+func (c *renderer) renderFrontendTreeEditParams(table *Table) string {
+	if !isTreePageType(table.PageType) {
+		return ""
+	}
+	parentColumn := DefaultString(table.ParentColumn, "parent_id")
+	return fmt.Sprintf(`        params: scope => ({
+          parentId: (scope.row as %s)[%q] as number | undefined,
+          entityId: (scope.row as %s).id
+        }),
+`, table.EntityName, parentColumn, table.EntityName)
+}
+
+// renderFrontendEditHandler 返回普通页面或树形页面的编辑操作处理器。
+func (c *renderer) renderFrontendEditHandler(table *Table) string {
+	if !isTreePageType(table.PageType) {
+		return fmt.Sprintf("scope => handleOpenDialog((scope.row as %s).id)", table.EntityName)
+	}
+	return "(_, params) => handleOpenDialog(params?.parentId as number | undefined, params?.entityId as number | undefined)"
+}
+
+// renderFrontendOpenDialogParameters 返回页面弹窗方法的参数定义。
+func (c *renderer) renderFrontendOpenDialogParameters(table *Table) string {
+	if isTreePageType(table.PageType) {
+		return "parentId?: number, id?: number"
+	}
+	return "id?: number"
+}
+
+// renderFrontendOpenDialogData 渲染普通页面或树形页面的弹窗数据处理逻辑。
+func (c *renderer) renderFrontendOpenDialogData(table *Table, columns []*CodeGenColumn) string {
+	entity := table.EntityName
+	passwordReset := renderFrontendPasswordReset(columns)
+	if !isTreePageType(table.PageType) {
+		return fmt.Sprintf(`  if (!id) return;
+
+  const data = await def%sService.Get%s({ id });
+  Object.assign(formData, data);
+%s`, entity, entity, passwordReset)
+	}
+	parentColumn := DefaultString(table.ParentColumn, "parent_id")
+	return fmt.Sprintf(`  if (id) {
+    const data = await def%sService.Get%s({ id });
+    Object.assign(formData, data);
+%s
+    return;
+  }
+
+  formData[%q] = parentId ?? 0;`, entity, entity, passwordReset, parentColumn)
+}
+
+// renderFrontendPasswordReset 返回编辑态清空密码字段的语句，避免回填后端密文。
+func renderFrontendPasswordReset(columns []*CodeGenColumn) string {
+	lines := make([]string, 0)
+	for _, column := range columns {
+		if column == nil || column.FormComponent != "password" {
+			continue
+		}
+		lines = append(lines, fmt.Sprintf("  formData[%q] = \"\";", column.Name))
+	}
+	return strings.Join(lines, "\n")
+}
+
+// renderFrontendPasswordUpdate 渲染编辑态删除密码字段的语句，避免空值覆盖原密码。
+func (c *renderer) renderFrontendPasswordUpdate(columns []*CodeGenColumn) string {
+	lines := make([]string, 0)
+	for _, column := range columns {
+		if column == nil || column.FormComponent != "password" {
+			continue
+		}
+		lines = append(lines, fmt.Sprintf("    if (payload.id) delete (payload as Record<string, unknown>)[%q];", column.Name))
+	}
+	return strings.Join(lines, "\n")
+}
+
+// renderFrontendTreeParentField 为树形页面的父节点字段增加编辑态禁用配置。
+func (c *renderer) renderFrontendTreeParentField(content string, table *Table) string {
+	if !isTreePageType(table.PageType) {
+		return content
+	}
+	parentColumn := DefaultString(table.ParentColumn, "parent_id")
+	formFieldsStart := strings.Index(content, "const formFields = computed<ProFormField[]>(() => [")
+	if formFieldsStart < 0 {
+		return content
+	}
+	formFieldsEndOffset := strings.Index(content[formFieldsStart:], "\n]);")
+	if formFieldsEndOffset < 0 {
+		return content
+	}
+	formFieldsEnd := formFieldsStart + formFieldsEndOffset
+	fieldStartOffset := strings.Index(content[formFieldsStart:formFieldsEnd], fmt.Sprintf(`  { prop: %q,`, parentColumn))
+	if fieldStartOffset < 0 {
+		return content
+	}
+	fieldStart := formFieldsStart + fieldStartOffset
+	fieldEndOffset := strings.IndexByte(content[fieldStart:], '\n')
+	fieldEnd := len(content)
+	if fieldEndOffset >= 0 {
+		fieldEnd = fieldStart + fieldEndOffset
+	}
+	field := content[fieldStart:fieldEnd]
+	if strings.Contains(field, "disabled: Boolean(formData.id)") {
+		return content
+	}
+	if strings.Contains(field, "props: {") {
+		field = strings.Replace(field, "props: {", "props: { disabled: Boolean(formData.id), ", 1)
+	} else {
+		field = strings.TrimSpace(field)
+		field = strings.TrimSuffix(field, "}")
+		field += `, props: { disabled: Boolean(formData.id) } }`
+	}
+	return content[:fieldStart] + field + content[fieldEnd:]
+}
+
+// removeFrontendTemplateMarkerSegment 删除模板中用于消费兼容参数的临时标记片段。
+func (c *renderer) removeFrontendTemplateMarkerSegment(content string, startMarker string, endMarker string) string {
+	start := strings.Index(content, startMarker)
+	if start < 0 {
+		return content
+	}
+	endOffset := strings.Index(content[start+len(startMarker):], endMarker)
+	if endOffset < 0 {
+		return content
+	}
+	end := start + len(startMarker) + endOffset + len(endMarker)
+	if end < len(content) && content[end] == '\n' {
+		end++
+	}
+	return content[:start] + content[end:]
 }
 
 // reorderFrontendPageMethods 统一生成页面的主流程方法顺序，保持列表、选项与弹窗逻辑按阅读顺序排列。
@@ -850,8 +1040,7 @@ function changeTreeFilter(value: string) {
 
 `, table.EntityName, table.EntityName, table.EntityName, table.EntityName, table.EntityName, requestSignature, requestCall, filterColumn)
 	content = strings.Replace(content, requestComment, helper+requestComment, 1)
-	openDialogMarker := `  resetForm();
-  dialog.title = id ?`
+	openDialogMarker := `  resetForm();`
 	openDialogReplacement := fmt.Sprintf(`  resetForm();
   // 新增时继承当前左树节点，保证记录归入正在查看的分组。
   if (!id && initParam.%s !== undefined) {
@@ -893,7 +1082,7 @@ func (c *renderer) renderFrontendColumns(table *Table, columns []*CodeGenColumn,
 	statusColumnCount := len(statusColumns(columns))
 	if hasTenantQueryOption(columns) {
 		list = append(list, `  ...(isDefaultTenant.value
-    ? [{
+    ? ([{
         prop: "tenant_id",
         label: "租户",
         minWidth: 140,
@@ -901,7 +1090,7 @@ func (c *renderer) renderFrontendColumns(table *Table, columns []*CodeGenColumn,
         showOverflowTooltip: true,
         search: { el: "select", key: "tenant_id", props: { filterable: true }, order: 1 },
         enum: requestTenantOptions
-      }]
+      }] satisfies ColumnProps[])
     : [])`)
 	}
 	treeParentColumn := ""
@@ -1082,14 +1271,30 @@ func (c *renderer) renderFrontendFormFields(columns []*CodeGenColumn) string {
 			continue
 		}
 		fields = append(fields, c.renderFrontendFormField(column))
+		if column.FormComponent == "password" {
+			fields = append(fields, `  { prop: "passwordStrength", label: "强度提示", component: "slot", slotName: "passwordStrength", visible: model => !model.id }`)
+		}
 	}
 	return strings.Join(fields, ",\n")
+}
+
+// findFrontendPasswordColumn 返回生成表单中第一个密码字段。
+func (c *renderer) findFrontendPasswordColumn(columns []*CodeGenColumn) *CodeGenColumn {
+	for _, column := range columns {
+		if generatedFormIncludesColumn(column) && column.FormComponent == "password" {
+			return column
+		}
+	}
+	return nil
 }
 
 // renderFrontendFormField 渲染单个 ProForm 字段。
 func (c *renderer) renderFrontendFormField(column *CodeGenColumn) string {
 	component := DefaultString(column.FormComponent, "input")
 	label := DefaultString(column.Comment, column.Name)
+	if component == "password" {
+		return fmt.Sprintf(`  { prop: "%s", label: "%s", component: "password", props: { placeholder: "请输入%s", showPassword: true }, visible: model => !model.id }`, column.Name, label, label)
+	}
 	if component == "switch" {
 		// 开关提交值由表单范围的独立配置决定。
 		return fmt.Sprintf(`  { prop: "%s", label: "%s", component: "switch", props: { activeValue: %s, inactiveValue: %s } }`, column.Name, label, statusValueExpression(column, column.FormOption.ActiveValue, "1"), statusValueExpression(column, column.FormOption.InactiveValue, "2"))
@@ -1143,6 +1348,7 @@ func (c *renderer) renderFrontendOptionState(columns []*CodeGenColumn, methods [
 	var builder strings.Builder
 	hasTableSource := false
 	hasLazyTree := false
+	hasTreeOptionPaths := false
 	for _, column := range columns {
 		for _, scope := range frontendOptionScopes(column) {
 			if scope.option.SourceType != OptionSourceStatic && scope.option.SourceType != OptionSourceTable {
@@ -1154,6 +1360,7 @@ func (c *renderer) renderFrontendOptionState(columns []*CodeGenColumn, methods [
 			case OptionSourceTable:
 				hasTableSource = true
 				hasLazyTree = hasLazyTree || scope.name == "form" && scope.option.Kind == APIKindTree && scope.option.Lazy
+				hasTreeOptionPaths = hasTreeOptionPaths || scope.option.Kind == APIKindTree
 				builder.WriteString(fmt.Sprintf("const %sOptions = ref<ProFormOption[]>([]);\n", frontendOptionVar(column, scope.name)))
 			}
 		}
@@ -1164,6 +1371,23 @@ func (c *renderer) renderFrontendOptionState(columns []*CodeGenColumn, methods [
 	if !hasTableSource {
 		return builder.String()
 	}
+	if hasTreeOptionPaths {
+		builder.WriteString(`
+/**
+ * 将树形选项转换为完整路径标签。
+ */
+function transformTreeOptionPaths(options: ProFormOption[] = [], parentPath = ""): ProFormOption[] {
+  return options.map(option => {
+    const fullPath = [parentPath, option.label].filter(Boolean).join("/");
+    return {
+      ...option,
+      label: fullPath,
+      children: transformTreeOptionPaths(option.children ?? [], fullPath)
+    };
+  });
+}
+`)
+	}
 	if hasLazyTree {
 		builder.WriteString(`
 type GeneratedTreeOption = ProFormOption & {
@@ -1172,11 +1396,15 @@ type GeneratedTreeOption = ProFormOption & {
 };
 
 /** 将树形接口返回的子节点转换为 Element Plus 懒加载节点。 */
-function normalizeLazyTreeOptions(options: GeneratedTreeOption[] = []): ProFormOption[] {
-  return options.map(option => ({
-    ...option,
-    isLeaf: !option.has_children
-  }));
+function normalizeLazyTreeOptions(options: GeneratedTreeOption[] = [], parentPath = ""): ProFormOption[] {
+  return options.map(option => {
+    const fullPath = [parentPath, option.label].filter(Boolean).join("/");
+    return {
+      ...option,
+      label: fullPath,
+      isLeaf: !option.has_children
+    };
+  });
 }
 `)
 		for _, column := range columns {
@@ -1193,10 +1421,10 @@ function normalizeLazyTreeOptions(options: GeneratedTreeOption[] = []): ProFormO
 				parentColumn := DefaultString(method.ParentColumn, "parent_id")
 				builder.WriteString(fmt.Sprintf(`
 /** 懒加载%s树形选项的子节点。 */
-async function %s(node: { level: number; value?: string | number; data?: { value?: string | number } }, resolve: (data: ProFormOption[]) => void) {
+async function %s(node: { level: number; value?: string | number; data?: { value?: string | number; label?: string } }, resolve: (data: ProFormOption[]) => void) {
   const parentId = node.level === 0 ? 0 : Number(node.data?.value ?? node.value ?? 0);
   const response = await %s.%s({ %q: parentId, lazy: true } as Parameters<typeof %s.%s>[0]);
-  resolve(normalizeLazyTreeOptions((response.list ?? []) as GeneratedTreeOption[]));
+  resolve(normalizeLazyTreeOptions((response.list ?? []) as GeneratedTreeOption[], String(node.data?.label ?? "")));
 }
 `, variable, frontendOptionLoaderVar(column, scope.name), serviceName, method.MethodName, parentColumn, serviceName, method.MethodName))
 			}
@@ -1223,6 +1451,8 @@ async function %s(node: { level: number; value?: string | number; data?: { value
 			if column.Name == DefaultString(method.ParentColumn, "parent_id") && (column.FormComponent == "tree-select" || column.ListComponent == "tree-select" || column.QueryComponent == "tree-select") {
 				if scope.name == "form" && scope.option.Kind == APIKindTree && scope.option.Lazy {
 					builder.WriteString(fmt.Sprintf("  %sOptions.value = [{ label: \"顶级节点\", value: 0 }, ...normalizeLazyTreeOptions((%sResponse.list ?? []) as GeneratedTreeOption[]).filter(option => Number(option.value) !== 0)];\n", variable, variable))
+				} else if scope.option.Kind == APIKindTree {
+					builder.WriteString(fmt.Sprintf("  %sOptions.value = [{ label: \"顶级节点\", value: 0 }, ...transformTreeOptionPaths((%sResponse.list ?? []) as ProFormOption[]).filter(option => Number(option.value) !== 0)];\n", variable, variable))
 				} else {
 					builder.WriteString(fmt.Sprintf("  %sOptions.value = [{ label: \"顶级节点\", value: 0 }, ...((%sResponse.list ?? []) as ProFormOption[]).filter(option => Number(option.value) !== 0)];\n", variable, variable))
 				}
@@ -1230,6 +1460,8 @@ async function %s(node: { level: number; value?: string | number; data?: { value
 			}
 			if scope.name == "form" && scope.option.Kind == APIKindTree && scope.option.Lazy {
 				builder.WriteString(fmt.Sprintf("  %sOptions.value = normalizeLazyTreeOptions((%sResponse.list ?? []) as GeneratedTreeOption[]);\n", variable, variable))
+			} else if scope.option.Kind == APIKindTree {
+				builder.WriteString(fmt.Sprintf("  %sOptions.value = transformTreeOptionPaths((%sResponse.list ?? []) as ProFormOption[]);\n", variable, variable))
 			} else {
 				builder.WriteString(fmt.Sprintf("  %sOptions.value = (%sResponse.list ?? []) as ProFormOption[];\n", variable, variable))
 			}
@@ -1918,7 +2150,7 @@ func frontendOptionLoaderVar(column *CodeGenColumn, scope string) string {
 
 // isSelectComponent 判断组件是否属于选择型控件。
 func isSelectComponent(component string) bool {
-	return component == "select" || component == "tree-select" || component == "radio-group" || component == "checkbox-group" || component == "dict"
+	return component == "select" || component == "tree-select" || component == "radio-group" || component == "checkbox-group" || component == "dict" || component == "segmented" || component == "transfer"
 }
 
 // findOptionMethodForConfig 查找选项配置对应的接口。
@@ -1960,13 +2192,18 @@ func isDateTimeDBType(dbType string) bool {
 // dedupeProtoChecks 去重 Proto 检查项。
 func dedupeProtoChecks(checks []*ProtoCheck) []*ProtoCheck {
 	list := make([]*ProtoCheck, 0, len(checks))
-	seen := make(map[string]struct{}, len(checks))
+	seen := make(map[string]int, len(checks))
 	for _, check := range checks {
 		key := check.ProtoFilePath + ":" + check.TargetEntityName + ":" + check.MethodName
-		if _, ok := seen[key]; ok {
+		index, ok := seen[key]
+		if ok {
+			// 同一实体的树形选项接口比普通选项接口提供更多父子节点信息，优先保留树形定义。
+			if list[index].APIKind != APIKindTree && check.APIKind == APIKindTree {
+				list[index] = check
+			}
 			continue
 		}
-		seen[key] = struct{}{}
+		seen[key] = len(list)
 		list = append(list, check)
 	}
 	slices.SortFunc(list, func(a *ProtoCheck, b *ProtoCheck) int {
