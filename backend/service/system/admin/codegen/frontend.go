@@ -391,7 +391,7 @@ func (c *renderer) renderFrontendPageFile(table *Table, columns []*CodeGenColumn
 	frontendAPIImport := "@/" + strings.TrimSuffix(frontendAPIPath, filepath.Ext(frontendAPIPath))
 	frontendRPCImport := frontendRPCImportPath(paths.GetProtoFilePath())
 	listField := stringcase.ToSnakeCase(pluralEntity)
-	hasTenantOption := hasTenantQueryOption(columns)
+	hasTenantOption := hasTenantQueryOption(columns) || hasTenantListColumn(columns)
 	statusTypeImport := renderFrontendStatusTypeImports(columns, methods)
 	formStateType := renderFrontendFormStateType(table, columns)
 	formDataType := entity + "Form"
@@ -1117,20 +1117,28 @@ func (c *renderer) frontendResourcePath(table *Table) string {
 func (c *renderer) renderFrontendColumns(table *Table, columns []*CodeGenColumn, methods []*Proto) string {
 	list := make([]string, 0, len(columns))
 	statusColumnCount := len(statusColumns(columns))
-	tenantColumn := FindColumnByName(columns, "tenant_id")
-	hasVisibleTenantColumn := tenantColumn != nil && generatedListIncludesColumn(tenantColumn)
-	if hasTenantQueryOption(columns) && hasVisibleTenantColumn {
-		list = append(list, `  ...(isDefaultTenant.value
+	hasVisibleTenantColumn := hasTenantListColumn(columns)
+	if hasTenantQueryOption(columns) || hasVisibleTenantColumn {
+		tenantVisibility := ""
+		tenantSearch := ""
+		if !hasVisibleTenantColumn {
+			// 查询字段不在列表展示时保留搜索项，但禁止列设置将其切换到表格中。
+			tenantVisibility = "        isShow: false,\n        isSetting: false,\n"
+		}
+		if hasTenantQueryOption(columns) {
+			tenantSearch = `        search: { el: "select", key: "tenant_id", props: { filterable: true }, order: 1 },
+`
+		}
+		list = append(list, fmt.Sprintf(`  ...(isDefaultTenant.value
 	    ? ([{
-        prop: "tenant_id",
+%s        prop: "tenant_id",
         label: "租户",
         minWidth: 140,
         align: "left",
         showOverflowTooltip: true,
-        search: { el: "select", key: "tenant_id", props: { filterable: true }, order: 1 },
-        enum: requestTenantOptions
+%s        enum: requestTenantOptions
       }] satisfies ColumnProps[])
-    : [])`)
+    : [])`, tenantVisibility, tenantSearch))
 	}
 	treeParentColumn := ""
 	treeLabelColumn := ""
@@ -1141,9 +1149,15 @@ func (c *renderer) renderFrontendColumns(table *Table, columns []*CodeGenColumn,
 			_, treeLabelColumn, _ = EntityOptionColumns(table, columns)
 		}
 	}
-	appendColumn := func(column *CodeGenColumn, align string) {
+	appendColumn := func(column *CodeGenColumn, align string, hidden bool) {
+		if hidden {
+			// 查询专用字段不参与列表单元格渲染，避免误用列表组件或其选项依赖。
+			list = append(list, fmt.Sprintf(`  { isShow: false, isSetting: false, prop: "%s", label: "%s"%s }`, column.Name, column.Comment, frontendSearchConfig(column)))
+			return
+		}
 		align = c.resolveFrontendColumnAlign(column, align)
-		list = append(list, renderFrontendColumn(PermissionPrefix(table), table.EntityName, column, findStatusMethodForColumn(column, methods), statusColumnCount, align))
+		content := renderFrontendColumn(PermissionPrefix(table), table.EntityName, column, findStatusMethodForColumn(column, methods), statusColumnCount, align)
+		list = append(list, content)
 	}
 	// 树表格将树显示字段固定为首个数据列，确保 Element Plus 的缩进落在业务名称上。
 	if treeLabelColumn != "" {
@@ -1154,7 +1168,7 @@ func (c *renderer) renderFrontendColumns(table *Table, columns []*CodeGenColumn,
 			if column.Name != treeLabelColumn || column.Name == "deleted_at" || !generatedListIncludesColumn(column) {
 				continue
 			}
-			appendColumn(column, "left")
+			appendColumn(column, "left", false)
 			break
 		}
 	}
@@ -1171,7 +1185,17 @@ func (c *renderer) renderFrontendColumns(table *Table, columns []*CodeGenColumn,
 		if !generatedListIncludesColumn(column) || column.IsPrimary == 1 {
 			continue
 		}
-		appendColumn(column, "")
+		appendColumn(column, "", false)
+	}
+	// 查询配置独立于列表配置，查询专用字段以隐藏列形式保留搜索项。
+	for _, column := range columns {
+		if column.Name == "tenant_id" || column.Name == "deleted_at" {
+			continue
+		}
+		if !generatedQueryIncludesColumn(column) || generatedListIncludesColumn(column) && column.IsPrimary != 1 {
+			continue
+		}
+		appendColumn(column, "", true)
 	}
 	return strings.Join(list, ",\n") + ","
 }
@@ -2007,10 +2031,10 @@ type frontendOptionScope struct {
 // frontendOptionScopes 返回前端实际消费的查询、列表和表单选项配置。
 func frontendOptionScopes(column *CodeGenColumn) []frontendOptionScope {
 	scopes := make([]frontendOptionScope, 0, 3)
-	if generatedListIncludesColumn(column) && frontendQueryUsesOptions(column) && column.QueryOption.Kind != "" && !isTenantQueryOption(column) {
+	if frontendQueryUsesOptions(column) && column.QueryOption.Kind != "" && !isTenantQueryOption(column) {
 		scopes = append(scopes, frontendOptionScope{name: "query", option: column.QueryOption})
 	}
-	if generatedListIncludesColumn(column) && column.IsStatusField != 1 && isSelectComponent(column.ListComponent) && column.ListOption.Kind != "" {
+	if generatedListIncludesColumn(column) && column.Name != "tenant_id" && column.IsStatusField != 1 && isSelectComponent(column.ListComponent) && column.ListOption.Kind != "" {
 		scopes = append(scopes, frontendOptionScope{name: "list", option: column.ListOption})
 	}
 	if generatedFormIncludesColumn(column) && isSelectComponent(column.FormComponent) && column.FormOption.Kind != "" {
@@ -2035,6 +2059,12 @@ func hasTenantQueryOption(columns []*CodeGenColumn) bool {
 		}
 	}
 	return false
+}
+
+// hasTenantListColumn 判断当前生成对象是否配置了租户列表列。
+func hasTenantListColumn(columns []*CodeGenColumn) bool {
+	column := FindColumnByName(columns, "tenant_id")
+	return column != nil && generatedListIncludesColumn(column)
 }
 
 // isTenantQueryOption 判断字段是否使用 base_tenant 数据表作为租户查询选项。
