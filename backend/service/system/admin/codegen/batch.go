@@ -371,6 +371,9 @@ func normalizeBatchProtoDefinition(content string) string {
 
 // isBatchMergeableFile 判断同一文件是否支持按已有增量补丁规则合并。
 func isBatchMergeableFile(path string) bool {
+	if path == generatedMenuSQLPath {
+		return true
+	}
 	if strings.HasSuffix(path, ".proto") {
 		return true
 	}
