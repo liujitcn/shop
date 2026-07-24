@@ -26,7 +26,7 @@ type CodeGenTable struct {
 	GenBackend      int32                 `gorm:"column:gen_backend;type:tinyint;not null;comment:是否生成后端" json:"gen_backend"`                                   // 是否生成后端
 	GenFrontend     int32                 `gorm:"column:gen_frontend;type:tinyint;not null;comment:是否生成前端" json:"gen_frontend"`                                 // 是否生成前端
 	GenSql          int32                 `gorm:"column:gen_sql;type:tinyint;not null;comment:是否生成建表SQL" json:"gen_sql"`                                        // 是否生成建表SQL
-	Status          int32                 `gorm:"column:status;type:tinyint;not null;comment:状态：0草稿 1已生成 2停用" json:"status"`                                    // 状态：0草稿 1已生成 2停用
+	Status          int32                 `gorm:"column:status;type:tinyint;not null;comment:状态：1草稿 2已生成 3停用" json:"status"`                                    // 状态：1草稿 2已生成 3停用
 	Remark          string                `gorm:"column:remark;type:varchar(500);comment:备注" json:"remark"`                                                     // 备注
 	CreatedBy       int64                 `gorm:"column:created_by;type:bigint;not null;comment:创建人ID" json:"created_by"`                                       // 创建人ID
 	UpdatedBy       int64                 `gorm:"column:updated_by;type:bigint;not null;comment:更新人ID" json:"updated_by"`                                       // 更新人ID

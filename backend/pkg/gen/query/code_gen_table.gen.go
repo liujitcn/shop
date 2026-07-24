@@ -69,7 +69,7 @@ type codeGenTable struct {
 	GenBackend      field.Int32  // 是否生成后端
 	GenFrontend     field.Int32  // 是否生成前端
 	GenSql          field.Int32  // 是否生成建表SQL
-	Status          field.Int32  // 状态：0草稿 1已生成 2停用
+	Status          field.Int32  // 状态：1草稿 2已生成 3停用
 	Remark          field.String // 备注
 	CreatedBy       field.Int64  // 创建人ID
 	UpdatedBy       field.Int64  // 更新人ID

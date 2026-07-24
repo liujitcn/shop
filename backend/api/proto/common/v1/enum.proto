@@ -46,3 +46,135 @@ enum Terminal {
   TERMINAL_APP = 1; // 移动端
   TERMINAL_ADMIN = 2; // 管理端
 }
+
+// 仓库类型
+enum WarehouseType {
+  UNKNOWN_WT = 0;
+  NORMAL_WT = 1; // 普通仓
+  STORE_WT = 2; // 门店仓
+  DEFECT_WT = 3; // 次品仓
+  TRANSIT_WT = 4; // 在途/虚拟仓
+}
+
+// 库位类型
+enum LocationType {
+  UNKNOWN_LT = 0;
+  STORAGE_LT = 1; // 存储位
+  PICK_LT = 2; // 拣货位
+  RECEIVE_LT = 3; // 收货暂存位
+  SHIP_LT = 4; // 发货暂存位
+  DEFECT_LT = 5; // 次品位
+}
+
+// 采购订单状态
+enum PurchaseOrderStatus {
+  UNKNOWN_POS = 0;
+  DRAFT_POS = 1; // 草稿
+  AUDITING_POS = 2; // 待审核
+  AUDITED_POS = 3; // 已审核
+  PART_RECEIVED_POS = 4; // 部分收货
+  RECEIVED_POS = 5; // 全部收货
+  FINISHED_POS = 6; // 已完成
+  CANCELED_POS = 7; // 已取消
+}
+
+// 采购收货单状态
+enum PurchaseReceiptStatus {
+  UNKNOWN_PRS = 0;
+  DRAFT_PRS = 1; // 草稿
+  CONFIRMED_PRS = 2; // 已确认
+  STORED_PRS = 3; // 已入库
+  CANCELED_PRS = 4; // 已取消
+}
+
+// 库存出入库单状态
+enum StockBillStatus {
+  UNKNOWN_SBS = 0;
+  DRAFT_SBS = 1; // 草稿
+  CONFIRMED_SBS = 2; // 已确认
+  CANCELED_SBS = 3; // 已取消
+}
+
+// 库存出入库方向
+enum StockBillDirection {
+  UNKNOWN_SBD = 0;
+  IN_SBD = 1; // 入库
+  OUT_SBD = 2; // 出库
+}
+
+// 库存业务类型
+enum StockBizType {
+  UNKNOWN_SBT = 0;
+  PURCHASE_IN_SBT = 1; // 采购入库
+  SALE_OUT_SBT = 2; // 销售出库
+  TRANSFER_IN_SBT = 3; // 调拨入库
+  TRANSFER_OUT_SBT = 4; // 调拨出库
+  RETURN_IN_SBT = 5; // 退货入库
+  RETURN_OUT_SBT = 6; // 退供出库
+  CHECK_PROFIT_SBT = 7; // 盘盈入库
+  CHECK_LOSS_SBT = 8; // 盘亏出库
+  SCRAP_OUT_SBT = 9; // 报损出库
+}
+
+// 库存实物状态
+enum StockStatus {
+  UNKNOWN_SS = 0;
+  INSPECTING_SS = 1; // 待检
+  QUALIFIED_SS = 2; // 合格
+  FROZEN_SS = 3; // 冻结
+  DEFECT_SS = 4; // 次品
+  TRANSIT_SS = 5; // 在途
+}
+
+// 库存批次状态
+enum BatchStatus {
+  UNKNOWN_BS = 0;
+  NORMAL_BS = 1; // 正常
+  NEAR_EXPIRY_BS = 2; // 临期
+  EXPIRED_BS = 3; // 过期
+  FROZEN_BS = 4; // 冻结锁定
+  DISABLED_BS = 5; // 停用
+}
+
+// 库存成本状态
+enum CostStatus {
+  UNKNOWN_CS = 0;
+  NORMAL_CS = 1; // 正常
+  ESTIMATED_CS = 2; // 暂估
+  ABNORMAL_CS = 3; // 异常
+}
+
+// 来源单据类型
+enum SourceDocType {
+  UNKNOWN_SDT = 0;
+  PURCHASE_ORDER_SDT = 1; // 采购订单
+  PURCHASE_RECEIPT_SDT = 2; // 采购收货单
+  STOCK_BILL_SDT = 3; // 库存出入库单
+  PAYABLE_SDT = 4; // 应付单
+}
+
+// 供应商应付单状态
+enum PayableStatus {
+  UNKNOWN_PYS = 0;
+  OPEN_PYS = 1; // 未核销
+  PART_PYS = 2; // 部分核销
+  CLEARED_PYS = 3; // 已核销
+  VOID_PYS = 4; // 已作废
+}
+
+// 事务消息业务类型
+enum OutboxBizType {
+  UNKNOWN_OMB = 0;
+  STOCK_SYNC_OMB = 1; // 库存同步
+  PAYABLE_GEN_OMB = 2; // 生成应付
+  DOC_EVENT_OMB = 3; // 单据事件
+}
+
+// 事务消息处理状态
+enum OutboxStatus {
+  UNKNOWN_OMS = 0;
+  PENDING_OMS = 1; // 待处理
+  PROCESSING_OMS = 2; // 处理中
+  SUCCEEDED_OMS = 3; // 成功
+  FAILED_OMS = 4; // 失败
+}

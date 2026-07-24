@@ -43,3 +43,11 @@ enum BaseUserGender {
   BOY = 2; // 男
   GIRL = 3; // 禁用
 }
+
+// 代码生成表状态
+enum CodeGenTableStatus {
+  UNKNOWN_CGTS = 0; // 未指定
+  DRAFT_CGTS = 1; // 草稿
+  GENERATED_CGTS = 2; // 已生成
+  DISABLED_CGTS = 3; // 停用
+}

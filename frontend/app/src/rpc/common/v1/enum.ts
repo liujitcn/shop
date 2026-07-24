@@ -69,3 +69,197 @@ export enum Terminal {
   /** TERMINAL_ADMIN - 管理端 */
   TERMINAL_ADMIN = 2,
 }
+
+/** 仓库类型 */
+export enum WarehouseType {
+  UNKNOWN_WT = 0,
+  /** NORMAL_WT - 普通仓 */
+  NORMAL_WT = 1,
+  /** STORE_WT - 门店仓 */
+  STORE_WT = 2,
+  /** DEFECT_WT - 次品仓 */
+  DEFECT_WT = 3,
+  /** TRANSIT_WT - 在途/虚拟仓 */
+  TRANSIT_WT = 4,
+}
+
+/** 库位类型 */
+export enum LocationType {
+  UNKNOWN_LT = 0,
+  /** STORAGE_LT - 存储位 */
+  STORAGE_LT = 1,
+  /** PICK_LT - 拣货位 */
+  PICK_LT = 2,
+  /** RECEIVE_LT - 收货暂存位 */
+  RECEIVE_LT = 3,
+  /** SHIP_LT - 发货暂存位 */
+  SHIP_LT = 4,
+  /** DEFECT_LT - 次品位 */
+  DEFECT_LT = 5,
+}
+
+/** 采购订单状态 */
+export enum PurchaseOrderStatus {
+  UNKNOWN_POS = 0,
+  /** DRAFT_POS - 草稿 */
+  DRAFT_POS = 1,
+  /** AUDITING_POS - 待审核 */
+  AUDITING_POS = 2,
+  /** AUDITED_POS - 已审核 */
+  AUDITED_POS = 3,
+  /** PART_RECEIVED_POS - 部分收货 */
+  PART_RECEIVED_POS = 4,
+  /** RECEIVED_POS - 全部收货 */
+  RECEIVED_POS = 5,
+  /** FINISHED_POS - 已完成 */
+  FINISHED_POS = 6,
+  /** CANCELED_POS - 已取消 */
+  CANCELED_POS = 7,
+}
+
+/** 采购收货单状态 */
+export enum PurchaseReceiptStatus {
+  UNKNOWN_PRS = 0,
+  /** DRAFT_PRS - 草稿 */
+  DRAFT_PRS = 1,
+  /** CONFIRMED_PRS - 已确认 */
+  CONFIRMED_PRS = 2,
+  /** STORED_PRS - 已入库 */
+  STORED_PRS = 3,
+  /** CANCELED_PRS - 已取消 */
+  CANCELED_PRS = 4,
+}
+
+/** 库存出入库单状态 */
+export enum StockBillStatus {
+  UNKNOWN_SBS = 0,
+  /** DRAFT_SBS - 草稿 */
+  DRAFT_SBS = 1,
+  /** CONFIRMED_SBS - 已确认 */
+  CONFIRMED_SBS = 2,
+  /** CANCELED_SBS - 已取消 */
+  CANCELED_SBS = 3,
+}
+
+/** 库存出入库方向 */
+export enum StockBillDirection {
+  UNKNOWN_SBD = 0,
+  /** IN_SBD - 入库 */
+  IN_SBD = 1,
+  /** OUT_SBD - 出库 */
+  OUT_SBD = 2,
+}
+
+/** 库存业务类型 */
+export enum StockBizType {
+  UNKNOWN_SBT = 0,
+  /** PURCHASE_IN_SBT - 采购入库 */
+  PURCHASE_IN_SBT = 1,
+  /** SALE_OUT_SBT - 销售出库 */
+  SALE_OUT_SBT = 2,
+  /** TRANSFER_IN_SBT - 调拨入库 */
+  TRANSFER_IN_SBT = 3,
+  /** TRANSFER_OUT_SBT - 调拨出库 */
+  TRANSFER_OUT_SBT = 4,
+  /** RETURN_IN_SBT - 退货入库 */
+  RETURN_IN_SBT = 5,
+  /** RETURN_OUT_SBT - 退供出库 */
+  RETURN_OUT_SBT = 6,
+  /** CHECK_PROFIT_SBT - 盘盈入库 */
+  CHECK_PROFIT_SBT = 7,
+  /** CHECK_LOSS_SBT - 盘亏出库 */
+  CHECK_LOSS_SBT = 8,
+  /** SCRAP_OUT_SBT - 报损出库 */
+  SCRAP_OUT_SBT = 9,
+}
+
+/** 库存实物状态 */
+export enum StockStatus {
+  UNKNOWN_SS = 0,
+  /** INSPECTING_SS - 待检 */
+  INSPECTING_SS = 1,
+  /** QUALIFIED_SS - 合格 */
+  QUALIFIED_SS = 2,
+  /** FROZEN_SS - 冻结 */
+  FROZEN_SS = 3,
+  /** DEFECT_SS - 次品 */
+  DEFECT_SS = 4,
+  /** TRANSIT_SS - 在途 */
+  TRANSIT_SS = 5,
+}
+
+/** 库存批次状态 */
+export enum BatchStatus {
+  UNKNOWN_BS = 0,
+  /** NORMAL_BS - 正常 */
+  NORMAL_BS = 1,
+  /** NEAR_EXPIRY_BS - 临期 */
+  NEAR_EXPIRY_BS = 2,
+  /** EXPIRED_BS - 过期 */
+  EXPIRED_BS = 3,
+  /** FROZEN_BS - 冻结锁定 */
+  FROZEN_BS = 4,
+  /** DISABLED_BS - 停用 */
+  DISABLED_BS = 5,
+}
+
+/** 库存成本状态 */
+export enum CostStatus {
+  UNKNOWN_CS = 0,
+  /** NORMAL_CS - 正常 */
+  NORMAL_CS = 1,
+  /** ESTIMATED_CS - 暂估 */
+  ESTIMATED_CS = 2,
+  /** ABNORMAL_CS - 异常 */
+  ABNORMAL_CS = 3,
+}
+
+/** 来源单据类型 */
+export enum SourceDocType {
+  UNKNOWN_SDT = 0,
+  /** PURCHASE_ORDER_SDT - 采购订单 */
+  PURCHASE_ORDER_SDT = 1,
+  /** PURCHASE_RECEIPT_SDT - 采购收货单 */
+  PURCHASE_RECEIPT_SDT = 2,
+  /** STOCK_BILL_SDT - 库存出入库单 */
+  STOCK_BILL_SDT = 3,
+  /** PAYABLE_SDT - 应付单 */
+  PAYABLE_SDT = 4,
+}
+
+/** 供应商应付单状态 */
+export enum PayableStatus {
+  UNKNOWN_PYS = 0,
+  /** OPEN_PYS - 未核销 */
+  OPEN_PYS = 1,
+  /** PART_PYS - 部分核销 */
+  PART_PYS = 2,
+  /** CLEARED_PYS - 已核销 */
+  CLEARED_PYS = 3,
+  /** VOID_PYS - 已作废 */
+  VOID_PYS = 4,
+}
+
+/** 事务消息业务类型 */
+export enum OutboxBizType {
+  UNKNOWN_OMB = 0,
+  /** STOCK_SYNC_OMB - 库存同步 */
+  STOCK_SYNC_OMB = 1,
+  /** PAYABLE_GEN_OMB - 生成应付 */
+  PAYABLE_GEN_OMB = 2,
+  /** DOC_EVENT_OMB - 单据事件 */
+  DOC_EVENT_OMB = 3,
+}
+
+/** 事务消息处理状态 */
+export enum OutboxStatus {
+  UNKNOWN_OMS = 0,
+  /** PENDING_OMS - 待处理 */
+  PENDING_OMS = 1,
+  /** PROCESSING_OMS - 处理中 */
+  PROCESSING_OMS = 2,
+  /** SUCCEEDED_OMS - 成功 */
+  SUCCEEDED_OMS = 3,
+  /** FAILED_OMS - 失败 */
+  FAILED_OMS = 4,
+}

@@ -2514,8 +2514,13 @@ paths:
                 - name: status
                   in: query
                   schema:
-                    type: integer
-                    format: int32
+                    enum:
+                        - UNKNOWN_CGTS
+                        - DRAFT_CGTS
+                        - GENERATED_CGTS
+                        - DISABLED_CGTS
+                    type: string
+                    format: enum
                 - name: page_num
                   in: query
                   schema:
@@ -15310,9 +15315,14 @@ components:
                     type: string
                     description: 页面类型
                 status:
-                    type: integer
-                    description: 状态
-                    format: int32
+                    enum:
+                        - UNKNOWN_CGTS
+                        - DRAFT_CGTS
+                        - GENERATED_CGTS
+                        - DISABLED_CGTS
+                    type: string
+                    description: 状态：枚举【CodeGenTableStatus】，1草稿 2已生成 3停用
+                    format: enum
                 remark:
                     type: string
                     description: 备注
@@ -15365,9 +15375,14 @@ components:
                     type: boolean
                     description: 是否同步菜单和接口权限
                 status:
-                    type: integer
-                    description: 状态
-                    format: int32
+                    enum:
+                        - UNKNOWN_CGTS
+                        - DRAFT_CGTS
+                        - GENERATED_CGTS
+                        - DISABLED_CGTS
+                    type: string
+                    description: 状态：枚举【CodeGenTableStatus】，1草稿 2已生成 3停用
+                    format: enum
                 remark:
                     type: string
                     description: 备注

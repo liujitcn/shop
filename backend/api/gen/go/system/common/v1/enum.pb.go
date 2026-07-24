@@ -293,6 +293,59 @@ func (BaseUserGender) EnumDescriptor() ([]byte, []int) {
 	return file_system_common_v1_enum_proto_rawDescGZIP(), []int{4}
 }
 
+// 代码生成表状态
+type CodeGenTableStatus int32
+
+const (
+	CodeGenTableStatus_UNKNOWN_CGTS   CodeGenTableStatus = 0 // 未指定
+	CodeGenTableStatus_DRAFT_CGTS     CodeGenTableStatus = 1 // 草稿
+	CodeGenTableStatus_GENERATED_CGTS CodeGenTableStatus = 2 // 已生成
+	CodeGenTableStatus_DISABLED_CGTS  CodeGenTableStatus = 3 // 停用
+)
+
+// Enum value maps for CodeGenTableStatus.
+var (
+	CodeGenTableStatus_name = map[int32]string{
+		0: "UNKNOWN_CGTS",
+		1: "DRAFT_CGTS",
+		2: "GENERATED_CGTS",
+		3: "DISABLED_CGTS",
+	}
+	CodeGenTableStatus_value = map[string]int32{
+		"UNKNOWN_CGTS":   0,
+		"DRAFT_CGTS":     1,
+		"GENERATED_CGTS": 2,
+		"DISABLED_CGTS":  3,
+	}
+)
+
+func (x CodeGenTableStatus) Enum() *CodeGenTableStatus {
+	p := new(CodeGenTableStatus)
+	*p = x
+	return p
+}
+
+func (x CodeGenTableStatus) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (CodeGenTableStatus) Descriptor() protoreflect.EnumDescriptor {
+	return file_system_common_v1_enum_proto_enumTypes[5].Descriptor()
+}
+
+func (CodeGenTableStatus) Type() protoreflect.EnumType {
+	return &file_system_common_v1_enum_proto_enumTypes[5]
+}
+
+func (x CodeGenTableStatus) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use CodeGenTableStatus.Descriptor instead.
+func (CodeGenTableStatus) EnumDescriptor() ([]byte, []int) {
+	return file_system_common_v1_enum_proto_rawDescGZIP(), []int{5}
+}
+
 var File_system_common_v1_enum_proto protoreflect.FileDescriptor
 
 const file_system_common_v1_enum_proto_rawDesc = "" +
@@ -328,7 +381,13 @@ const file_system_common_v1_enum_proto_rawDesc = "" +
 	"\n" +
 	"\x06SECRET\x10\x01\x12\a\n" +
 	"\x03BOY\x10\x02\x12\b\n" +
-	"\x04GIRL\x10\x03B\xae\x01\n" +
+	"\x04GIRL\x10\x03*]\n" +
+	"\x12CodeGenTableStatus\x12\x10\n" +
+	"\fUNKNOWN_CGTS\x10\x00\x12\x0e\n" +
+	"\n" +
+	"DRAFT_CGTS\x10\x01\x12\x12\n" +
+	"\x0eGENERATED_CGTS\x10\x02\x12\x11\n" +
+	"\rDISABLED_CGTS\x10\x03B\xae\x01\n" +
 	"\x14com.system.common.v1B\tEnumProtoP\x01Z)shop/api/gen/go/system/common/v1;commonv1\xa2\x02\x03SCX\xaa\x02\x10System.Common.V1\xca\x02\x10System\\Common\\V1\xe2\x02\x1cSystem\\Common\\V1\\GPBMetadata\xea\x02\x12System::Common::V1b\x06proto3"
 
 var (
@@ -343,13 +402,14 @@ func file_system_common_v1_enum_proto_rawDescGZIP() []byte {
 	return file_system_common_v1_enum_proto_rawDescData
 }
 
-var file_system_common_v1_enum_proto_enumTypes = make([]protoimpl.EnumInfo, 5)
+var file_system_common_v1_enum_proto_enumTypes = make([]protoimpl.EnumInfo, 6)
 var file_system_common_v1_enum_proto_goTypes = []any{
-	(BaseConfigType)(0),    // 0: system.common.v1.BaseConfigType
-	(BaseJobLogStatus)(0),  // 1: system.common.v1.BaseJobLogStatus
-	(BaseMenuType)(0),      // 2: system.common.v1.BaseMenuType
-	(BaseRoleDataScope)(0), // 3: system.common.v1.BaseRoleDataScope
-	(BaseUserGender)(0),    // 4: system.common.v1.BaseUserGender
+	(BaseConfigType)(0),     // 0: system.common.v1.BaseConfigType
+	(BaseJobLogStatus)(0),   // 1: system.common.v1.BaseJobLogStatus
+	(BaseMenuType)(0),       // 2: system.common.v1.BaseMenuType
+	(BaseRoleDataScope)(0),  // 3: system.common.v1.BaseRoleDataScope
+	(BaseUserGender)(0),     // 4: system.common.v1.BaseUserGender
+	(CodeGenTableStatus)(0), // 5: system.common.v1.CodeGenTableStatus
 }
 var file_system_common_v1_enum_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
@@ -369,7 +429,7 @@ func file_system_common_v1_enum_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_system_common_v1_enum_proto_rawDesc), len(file_system_common_v1_enum_proto_rawDesc)),
-			NumEnums:      5,
+			NumEnums:      6,
 			NumMessages:   0,
 			NumExtensions: 0,
 			NumServices:   0,
